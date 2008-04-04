@@ -49,6 +49,8 @@ void initLibVLC() {
 	//Init VLC modules, should be done only once
 	_vlcInstance = p_libvlc_new(sizeof(vlcArgc) / sizeof(*vlcArgc), vlcArgc, _vlcException);
 	checkException();
+
+	changeBackToCurrentDirectory();
 }
 
 void releaseLibVLC() {

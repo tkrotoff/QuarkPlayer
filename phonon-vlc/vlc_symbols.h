@@ -23,6 +23,8 @@
 
 #include <QtCore/QString>
 
+void changeBackToCurrentDirectory();
+
 QString getVLCPath();
 
 QString getVLCPluginsPath();
