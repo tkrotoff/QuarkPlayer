@@ -18,28 +18,49 @@
 
 #include "vlc_symbols.h"
 
-#include "libloader.h"
-
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtDebug>
+#include <QtCore/QLibrary>
+#include <QtCore/QStringList>
+#include <QtCore/QDir>
 
-static LibLoader * libVLC = NULL;
+static QLibrary * _libvlc_control = NULL;
 
 QString getVLCPath() {
-#ifdef Q_OS_WIN
-	QString vlcPath(QCoreApplication::applicationDirPath());
-#endif	//Q_OS_WIN
+	static const char * libvlc_control_name = "libvlc-control";
+	static const char * libvlc_control_functionToTest = "libvlc_exception_init";
 
-#ifdef Q_OS_LINUX
-	QString vlcPath("/usr/local/lib");
-#endif	//Q_OS_LINUX
+	static QString libvlc_path;
 
-	return vlcPath;
+	if (!libvlc_path.isEmpty()) {
+		return libvlc_path;
+	}
+
+	//Tries to autodetect the VLC path with a default list of path
+
+	QStringList pathList;
+	pathList << QCoreApplication::libraryPaths();
+	pathList << "/usr/local/lib";
+
+	_libvlc_control = new QLibrary();
+
+	foreach (libvlc_path, pathList) {
+		_libvlc_control->setFileName(libvlc_path + QDir::separator() + libvlc_control_name);
+
+		if (_libvlc_control->load() && _libvlc_control->resolve(libvlc_control_functionToTest)) {
+			qDebug() << "VLC path found:" << libvlc_path;
+			return libvlc_path;
+		}
+		qDebug() << "Warning:" << _libvlc_control->errorString();
+	}
+
+	unloadLibVLC();
+	qFatal("Cannot find '%s' on your system", libvlc_control_name);
+	return libvlc_path;
 }
 
 QString getVLCPluginsPath() {
 	QString vlcPath = getVLCPath();
-	qDebug() << "VLC Path:" << vlcPath;
 
 #ifdef Q_OS_WIN
 	QString vlcPluginsPath(vlcPath + "/plugins");
@@ -49,7 +70,7 @@ QString getVLCPluginsPath() {
 	QString vlcPluginsPath(vlcPath + "/vlc");
 #endif	//Q_OS_LINUX
 
-	qDebug() << "VLC Plugins Path:" << vlcPluginsPath;
+	qDebug() << "VLC plugins path:" << vlcPluginsPath;
 
 	return vlcPluginsPath;
 }
@@ -60,18 +81,25 @@ QString getLibVLCFilename() {
 }
 
 void * resolve(const char * name) {
-	static volatile bool triedToLoadLibrary = false;
-
-	LibLoader *&lib = libVLC;
-	if (!triedToLoadLibrary) {
-		lib = new LibLoader(getLibVLCFilename().toAscii(), "libvlc_exception_init");
-		triedToLoadLibrary = true;
+	if (!_libvlc_control) {
+		qFatal("_libvlc_control cannot be NULL");
 	}
 
-	return lib->resolve(name);
+	if (!_libvlc_control->isLoaded()) {
+		qFatal("Library '%s' not loaded", _libvlc_control->fileName());
+		return NULL;
+	}
+
+	void * func = _libvlc_control->resolve(name);
+	if (!func) {
+		qFatal("Cannot resolve '%s' in library '%s'", name, _libvlc_control->fileName());
+	}
+
+	return func;
 }
 
 void unloadLibVLC() {
-	delete libVLC;
-	libVLC = NULL;
+	_libvlc_control->unload();
+	delete _libvlc_control;
+	_libvlc_control = NULL;
 }

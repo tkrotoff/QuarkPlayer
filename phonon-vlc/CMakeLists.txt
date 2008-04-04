@@ -28,7 +28,6 @@ set(phonon_vlc_SRCS
 	vlcloader.cpp
 	vlcmediaobject.cpp
 	vlc_symbols.cpp
-	libloader.cpp
 )
 
 if (NOT KDE4_FOUND)
@@ -40,7 +39,6 @@ if (NOT KDE4_FOUND)
 		vlcloader.h
 		vlcmediaobject.h
 		vlc_symbols.h
-		libloader.h
 	)
 endif (NOT KDE4_FOUND)
 
