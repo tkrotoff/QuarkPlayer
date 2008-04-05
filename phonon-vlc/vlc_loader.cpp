@@ -53,7 +53,8 @@ void initLibVLC() {
 	_vlcInstance = p_libvlc_new(sizeof(vlcArgc) / sizeof(*vlcArgc), vlcArgc, _vlcException);
 	checkException();
 
-	changeBackToCurrentDirectory();
+	//FIXME Cannot do that: does not load VLC plugins
+	//changeBackToCurrentDirectory();
 }
 
 void releaseLibVLC() {
