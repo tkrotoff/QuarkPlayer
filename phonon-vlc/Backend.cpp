@@ -29,8 +29,11 @@
 #include <QtCore/QSet>
 #include <QtCore/QVariant>
 #include <QtCore/QtPlugin>
-#include <QtCore/QtConcurrentRun>
-#include <QtCore/QFutureWatcher>
+
+#ifndef KDE4_FOUND
+	#include <QtCore/QtConcurrentRun>
+	#include <QtCore/QFutureWatcher>
+#endif	//!KDE4_FOUND
 
 #ifdef KDE4_FOUND
 	#include <kpluginfactory.h>
@@ -60,6 +63,7 @@ Backend::Backend(QObject * parent, const QVariantList &)
 
 	qDebug() << "Loading VLC...";
 
+#ifndef KDE4_FOUND
 	//Before everything else
 	//QtConcurrent runs initLibVLC() in another thread
 	//Otherwise it takes to long loading all VLC plugins
@@ -68,6 +72,9 @@ Backend::Backend(QObject * parent, const QVariantList &)
 		SLOT(initLibVLCFinished()));
 	QFuture<void> _initLibVLCFuture = QtConcurrent::run(initLibVLC);
 	watcher.setFuture(_initLibVLCFuture);
+#else
+	initLibVLC();
+#endif	//!KDE4_FOUND
 }
 
 Backend::~Backend() {
