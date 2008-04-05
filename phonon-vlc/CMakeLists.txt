@@ -1,6 +1,6 @@
 project(phonon-vlc)
 
-#find_package(KDE4 REQUIRED)
+find_package(KDE4 REQUIRED)
 if (KDE4_FOUND)
 	include(KDE4Defaults)
 	include(MacroLibrary)
@@ -21,24 +21,22 @@ if (KDE4_FOUND)
 endif (KDE4_FOUND)
 
 set(phonon_vlc_SRCS
-	backend.cpp
-	mediaobject.cpp
-	videowidget.cpp
-	audiooutput.cpp
-	vlcloader.cpp
-	vlcmediaobject.cpp
+	Backend.cpp
+	MediaObject.cpp
+	VideoWidget.cpp
+	AudioOutput.cpp
+	vlc_loader.cpp
+	VLCMediaObject.cpp
 	vlc_symbols.cpp
 )
 
 if (NOT KDE4_FOUND)
 	qt4_wrap_cpp(phonon_vlc_SRCS
-		backend.h
-		mediaobject.h
-		videowidget.h
-		audiooutput.h
-		vlcloader.h
-		vlcmediaobject.h
-		vlc_symbols.h
+		Backend.h
+		MediaObject.h
+		VideoWidget.h
+		AudioOutput.h
+		VLCMediaObject.h
 	)
 endif (NOT KDE4_FOUND)
 
@@ -66,11 +64,6 @@ if (WIN32)
 	)
 endif (WIN32)
 
-target_link_libraries(phonon_vlc
-	${QT_QTCORE_LIBRARY_DEBUG}
-	${QT_QTGUI_LIBRARY_DEBUG}
-)
-
 if (KDE4_FOUND)
 	target_link_libraries(phonon_vlc
 		${KDE4_KDECORE_LIBS}
@@ -79,6 +72,8 @@ if (KDE4_FOUND)
 	)
 else (KDE4_FOUND)
 	target_link_libraries(phonon_vlc
+		${QT_QTCORE_LIBRARY_DEBUG}
+		${QT_QTGUI_LIBRARY_DEBUG}
 		${QT_PHONON_LIBRARY_DEBUG}
 	)
 endif (KDE4_FOUND)

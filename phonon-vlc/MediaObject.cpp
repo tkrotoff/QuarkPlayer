@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mediaobject.h"
+#include "MediaObject.h"
 
-#include "vlcmediaobject.h"
+#include "VLCMediaObject.h"
 
 #include <QtCore/QUrl>
 #include <QtCore/QMetaType>

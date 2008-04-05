@@ -23,10 +23,40 @@
 
 #include <QtCore/QString>
 
+/**
+ * Only under Windows.
+ *
+ * After running getVLCPath(), you must call this function that will use
+ * Win32 API function SetCurrentDirectory().
+ *
+ * @see getVLCPath()
+ */
 void changeBackToCurrentDirectory();
 
+/**
+ * Loads libvlc-control.(dll|so|dylib), determines and returns the VLC path.
+ *
+ * Examples:
+ * C:/Progam Files/VideoLAN/VLC
+ * /usr/local/lib
+ *
+ * Under Windows, in order to determine libvlc-control.dll,
+ * we use Win32 API function SetCurrentDirectory()
+ *
+ * @return the VLE path
+ * @see changeBackToCurrentDirectory()
+ */
 QString getVLCPath();
 
+/**
+ * Gets the VLC plugins path.
+ *
+ * Examples:
+ * C:/Program Files/VideoLAN/VLC/plugins
+ * /usr/local/lib/vlc
+ *
+ * @return the VLC plugins path
+ */
 QString getVLCPluginsPath();
 
 /**

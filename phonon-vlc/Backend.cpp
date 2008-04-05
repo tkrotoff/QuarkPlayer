@@ -16,13 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "backend.h"
+#include "Backend.h"
 
-#include "mediaobject.h"
-#include "videowidget.h"
-#include "audiooutput.h"
+#include "MediaObject.h"
+#include "VideoWidget.h"
+#include "AudioOutput.h"
 
-#include "vlcloader.h"
+#include "vlc_loader.h"
 #include "vlc_symbols.h"
 
 #include <QtCore/QByteArray>

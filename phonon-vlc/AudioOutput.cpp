@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "audiooutput.h"
+#include "AudioOutput.h"
 
-#include "vlcloader.h"
+#include "vlc_loader.h"
 #include "vlc_symbols.h"
 
 namespace Phonon

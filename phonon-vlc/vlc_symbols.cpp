@@ -34,6 +34,14 @@
 
 static QLibrary * _libvlc_control = NULL;
 
+/**
+ * Only under Windows.
+ *
+ * Use Win32 API function: GetCurrentDirectory()
+ *
+ * @see setCurrentDirectory()
+ * @see changeBackToCurrentDirectory()
+ */
 void saveCurrentDirectory() {
 #ifdef Q_OS_WIN
 	DWORD dwRet = GetCurrentDirectoryA(MAX_PATH, currentDirectory);
@@ -43,6 +51,14 @@ void saveCurrentDirectory() {
 #endif	//Q_OS_WIN
 }
 
+/**
+ * Only under Windows.
+ *
+ * Use Win32 API function: SetCurrentDirectory()
+ *
+ * @see saveCurrentDirectory()
+ * @see changeBackToCurrentDirectory()
+ */
 void setCurrentDirectory(const char * dir) {
 #ifdef Q_OS_WIN
 	//Change current directory in order to load all the *.dll (libvlc.dll + all the plugins)
@@ -55,7 +71,6 @@ void setCurrentDirectory(const char * dir) {
 QString getVLCPath() {
 	static const char * libvlc_control_name = "libvlc-control";
 	static const char * libvlc_control_functionToTest = "libvlc_exception_init";
-	static const char * libvlc_version = "0.9";
 
 	static QString libvlc_path;
 
@@ -73,11 +88,14 @@ QString getVLCPath() {
 #endif	//Q_OS_LINUX
 
 #ifdef Q_OS_WIN
+	static const char * libvlc_version = "0.9";
+
 	saveCurrentDirectory();
 
 	//QSettings allows us to read the Windows registry
+	//Check if there is a standard VLC installation under Windows
+	//If there is a VLC Windows installation, check we get the good version i.e 0.9
 	QSettings settings(QSettings::SystemScope, "VideoLAN", "VLC");
-	//Check we get the good version i.e 0.9
 	if (settings.value("Version").toString().contains(libvlc_version)) {
 		QString vlcInstallDir = settings.value("InstallDir").toString();
 		pathList << vlcInstallDir;
@@ -127,24 +145,19 @@ QString getVLCPluginsPath() {
 	return vlcPluginsPath;
 }
 
-QString getLibVLCFilename() {
-	QString vlcDll(getVLCPath() + "/libvlc-control");
-	return vlcDll;
-}
-
 void * resolve(const char * name) {
 	if (!_libvlc_control) {
 		qFatal("_libvlc_control cannot be NULL");
 	}
 
 	if (!_libvlc_control->isLoaded()) {
-		qFatal("Library '%s' not loaded", _libvlc_control->fileName());
+		qFatal("Library '%s' not loaded", _libvlc_control->fileName().toAscii().constData());
 		return NULL;
 	}
 
 	void * func = _libvlc_control->resolve(name);
 	if (!func) {
-		qFatal("Cannot resolve '%s' in library '%s'", name, _libvlc_control->fileName());
+		qFatal("Cannot resolve '%s' in library '%s'", name, _libvlc_control->fileName().toAscii().constData());
 	}
 
 	return func;

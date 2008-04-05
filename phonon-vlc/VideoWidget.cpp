@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "videowidget.h"
+#include "VideoWidget.h"
 
-#include "vlcloader.h"
+#include "vlc_loader.h"
 #include "vlc_symbols.h"
 
 #include <QtGui/QWidget>
