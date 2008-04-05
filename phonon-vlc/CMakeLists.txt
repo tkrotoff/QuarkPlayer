@@ -1,6 +1,6 @@
 project(phonon-vlc)
 
-find_package(KDE4)
+find_package(KDE4 REQUIRED)
 if (KDE4_FOUND)
 	include(KDE4Defaults)
 	include(MacroLibrary)
@@ -81,6 +81,10 @@ endif (KDE4_FOUND)
 if (KDE4_FOUND)
 	install(TARGETS phonon_vlc DESTINATION ${PLUGIN_INSTALL_DIR}/plugins/phonon_backend)
 	install(FILES vlc.desktop DESTINATION ${SERVICES_INSTALL_DIR}/phononbackends)
+	install(FILES icons/16x16/phonon-vlc.png DESTINATION ${ICON_INSTALL_DIR}/oxygen/16x16/apps)
+	install(FILES icons/32x32/phonon-vlc.png DESTINATION ${ICON_INSTALL_DIR}/oxygen/32x32/apps)
+	install(FILES icons/48x48/phonon-vlc.png DESTINATION ${ICON_INSTALL_DIR}/oxygen/48x48/apps)
+	install(FILES icons/128x128/phonon-vlc.png DESTINATION ${ICON_INSTALL_DIR}/oxygen/128x128/apps)
 
 	#Ubuntu 8.04 Hardy
 	install(TARGETS phonon_vlc DESTINATION /usr/lib/kde4/lib/kde4)
