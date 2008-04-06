@@ -576,5 +576,3 @@ void MplayerProcess::processFinished(int exitCode, QProcess::ExitStatus exitStat
 void MplayerProcess::gotError(QProcess::ProcessError error) {
 	qDebug("MplayerProcess::gotError: %d", (int) error);
 }
-
-#include "moc_mplayerprocess.cpp"

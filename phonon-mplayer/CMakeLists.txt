@@ -4,11 +4,13 @@ find_package(Qt4 REQUIRED)
 
 include_directories(${QT_INCLUDE_DIR})
 
-#because of libsmplayer include <QObject> rather than include <QtCore/QObject>
+
+
+#Because of libsmplayer includes <QObject> rather than include <QtCore/QObject>
+#Increases compilation time :/
 include(${QT_USE_FILE})
 
-
-
+add_definitions(-DMINILIB)
 
 #libsmplayer
 set(libsmplayer_SRCS
@@ -16,7 +18,6 @@ set(libsmplayer_SRCS
 	smplayer/desktopinfo.cpp
 	smplayer/global.cpp
 	smplayer/helper.cpp
-	smplayer/images.cpp
 	smplayer/mediadata.cpp
 	smplayer/mediasettings.cpp
 	smplayer/mplayerprocess.cpp
@@ -28,7 +29,7 @@ set(libsmplayer_SRCS
 	smplayer/subtracks.cpp
 	smplayer/trackdata.cpp
 	smplayer/tracks.cpp
-	smplayer/translator.cpp
+	smplayer/smplayercorelib.cpp
 )
 
 qt4_wrap_cpp(libsmplayer_SRCS
@@ -38,7 +39,6 @@ qt4_wrap_cpp(libsmplayer_SRCS
 	smplayer/desktopinfo.h
 	smplayer/global.h
 	smplayer/helper.h
-	smplayer/images.h
 	smplayer/mediadata.h
 	smplayer/mediasettings.h
 	smplayer/mplayerprocess.h
@@ -50,7 +50,7 @@ qt4_wrap_cpp(libsmplayer_SRCS
 	smplayer/subtracks.h
 	smplayer/trackdata.h
 	smplayer/tracks.h
-	smplayer/translator.h
+	smplayer/smplayercorelib.h
 )
 
 add_library(libsmplayer STATIC ${libsmplayer_SRCS})
@@ -90,8 +90,4 @@ target_link_libraries(phonon_mplayer
 	${QT_QTGUI_LIBRARY}
 )
 
-install(TARGETS phonon_mplayer
-	RUNTIME DESTINATION "C:/Qt/4.4.0/plugins/phonon_backend"
-	LIBRARY DESTINATION "C:/Qt/4.4.0/plugins/phonon_backend"
-	ARCHIVE DESTINATION "C:/Qt/4.4.0/plugins/phonon_backend"
-)
+install(TARGETS phonon_mplayer DESTINATION ${QT_PLUGINS_DIR}/phonon_backend)

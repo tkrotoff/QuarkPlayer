@@ -22,9 +22,7 @@
 #include "videowidget.h"
 #include "audiooutput.h"
 
-#include "smplayer/global.h"
-#include "smplayer/core.h"
-#include "smplayer/mplayerwindow.h"
+#include "smplayer/smplayercorelib.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QByteArray>
@@ -70,6 +68,11 @@ Backend::~Backend() {
 Core * Backend::getSMPlayerCore() {
 	//Lazy initialization
 	if (!m_smplayerCore) {
+		SmplayerCoreLib * smplayerlib = new SmplayerCoreLib(NULL);
+		m_smplayerCore = smplayerlib->core();
+		m_smplayerWindow = smplayerlib->mplayerWindow();
+
+		/*
 		QCoreApplication * app = QCoreApplication::instance();
 		QString iniPath;
 		if (QFile::exists(app->applicationDirPath() + "/smplayer.ini")) {
@@ -79,6 +82,7 @@ Core * Backend::getSMPlayerCore() {
 		Global::global_init(iniPath);
 
 		m_smplayerCore = new Core(getSMPlayerWindow(), NULL);
+		*/
 	}
 
 	return m_smplayerCore;
@@ -87,6 +91,8 @@ Core * Backend::getSMPlayerCore() {
 MplayerWindow * Backend::getSMPlayerWindow() {
 	//Lazy initialization
 	if (!m_smplayerWindow) {
+		getSMPlayerCore();
+		/*
 		//Constructs SMPlayer window
 		m_smplayerWindow = new MplayerWindow(NULL);
 
@@ -97,6 +103,7 @@ MplayerWindow * Backend::getSMPlayerWindow() {
 		//Hide for the moment SMPlayer window until the call of VideoWidget constructor
 		//m_smplayerWindow->hide();
 		//m_smplayerWindow->resize(0, 0);
+		*/
 	}
 
 	return m_smplayerWindow;
