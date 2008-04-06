@@ -50,8 +50,10 @@ public:
 
 	QString displayName() const;
 
+#ifdef USE_INI_FILES
 	void save(QSettings & set);
 	void load(QSettings & set);
+#endif
 	void list();
 
 protected:

@@ -42,8 +42,10 @@ public:
 
 	virtual void reset();
 
+#ifdef USE_INI_FILES
 	void save();
 	void load();
+#endif
 
 	QString mplayer_bin;
 	QString vo; // video output

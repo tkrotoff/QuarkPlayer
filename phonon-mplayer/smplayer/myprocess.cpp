@@ -35,7 +35,7 @@ MyProcess::MyProcess(QObject * parent) : QProcess(parent)
 {
 	clearArguments();
 	setProcessChannelMode( QProcess::MergedChannels );
-
+	
 #if USE_TEMP_FILE
 	temp_file.open(); // Create temporary file
 	QString filename = temp_file.fileName();
@@ -49,8 +49,8 @@ MyProcess::MyProcess(QObject * parent) : QProcess(parent)
 	connect(this, SIGNAL(readyReadStandardOutput()), this, SLOT(readStdOut()) );
 #endif
 
-	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SLOT(procFinished()) );
+	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), 
+            this, SLOT(procFinished()) ); 
 }
 
 void MyProcess::clearArguments() {
@@ -167,3 +167,5 @@ void MyProcess::procFinished() {
 	temp_file.close();
 #endif
 }
+
+#include "moc_myprocess.cpp"

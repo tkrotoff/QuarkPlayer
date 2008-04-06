@@ -158,8 +158,11 @@ public:
 
 
 	void list();
+
+#ifdef USE_INI_FILES
 	void save(QSettings * set);
 	void load(QSettings * set);
+#endif
 };
 
 #endif

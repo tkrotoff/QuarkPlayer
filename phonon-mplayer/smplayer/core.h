@@ -265,9 +265,11 @@ protected:
     void startMplayer(QString file, double seek = -1 );
 	void stopMplayer();
 
+#ifdef USE_INI_FILES
 	bool checkHaveSettingsSaved(QString filename);
 	void saveMediaInfo();
 	void loadMediaInfo(QString filename);
+#endif
 
     void initializeMenus();
 	void updateWidgets();
@@ -290,6 +292,7 @@ signals:
 	void widgetsNeedUpdate();
 	void equalizerNeedsUpdate();
 	void showTime(double sec);
+	void posChanged(int); // To connect a slider
 	void showFrame(int frame);
 	void needResize(int w, int h);
 	void noVideo();
@@ -307,7 +310,11 @@ signals:
 protected:
     MplayerProcess * proc;
     MplayerWindow * mplayerwindow;
+
+#ifdef USE_INI_FILES
 	QSettings * file_settings;
+#endif
+
 #ifdef Q_OS_WIN
 	WinScreenSaver * win_screensaver;
 #endif

@@ -16,26 +16,28 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef _TRANSLATOR_H_
-#define _TRANSLATOR_H_
+#include "smplayercorelib.h"
+#include "global.h"
+#include "preferences.h"
+#include "helper.h"
+#include <QApplication>
 
-#include <QString>
-#include <QTranslator>
-
-class Translator
+SmplayerCoreLib::SmplayerCoreLib( QWidget * parent )
+	: QObject(parent) 
 {
+	Helper::setAppPath( qApp->applicationDirPath() );
+	Global::global_init();
 
-public:
-	Translator();
-	~Translator();
+	_mpw = new MplayerWindow(parent);
+	_core = new Core(_mpw, parent);
+	
+	_mpw->setColorKey( Global::pref->color_key );
 
-	void load(QString locale);
+	Global::pref->fast_audio_change = Preferences::Enabled;
+}
 
-protected:
-	static bool loadCatalog(QTranslator & t, QString name, QString locale, QString dir);
-
-	QTranslator app_trans;
-	QTranslator qt_trans;
+SmplayerCoreLib::~SmplayerCoreLib() {
+	Global::global_end();
 };
 
-#endif
+#include "moc_smplayercorelib.cpp"

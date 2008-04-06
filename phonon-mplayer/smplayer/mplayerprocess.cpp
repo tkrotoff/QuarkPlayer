@@ -28,12 +28,12 @@
 
 using namespace Global;
 
-MplayerProcess::MplayerProcess(QObject * parent) : MyProcess(parent)
+MplayerProcess::MplayerProcess(QObject * parent) : MyProcess(parent) 
 {
 	connect( this, SIGNAL(lineAvailable(QByteArray)),
 			 this, SLOT(parseLine(QByteArray)) );
 
-	connect( this, SIGNAL(finished(int,QProcess::ExitStatus)),
+	connect( this, SIGNAL(finished(int,QProcess::ExitStatus)), 
              this, SLOT(processFinished(int,QProcess::ExitStatus)) );
 
 	connect( this, SIGNAL(error(QProcess::ProcessError)),
@@ -89,7 +89,7 @@ static QRegExp rx_screenshot("^\\*\\*\\* screenshot '(.*)'");
 static QRegExp rx_endoffile("^Exiting... \\(End of file\\)");
 static QRegExp rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from");
 static QRegExp rx_aspect2("^Movie-Aspect is ([0-9,.]+):1");
-
+ 
 // VCD
 static QRegExp rx_vcd("^ID_VCD_TRACK_(\\d+)_MSF=(.*)");
 
@@ -119,10 +119,10 @@ static QRegExp rx_stream_title("^.* StreamTitle='(.*)';StreamUrl='(.*)';");
 void MplayerProcess::init_rx() {
 	qDebug("MplayerProcess::init_rx");
 
-	if (!pref->rx_endoffile.isEmpty())
+	if (!pref->rx_endoffile.isEmpty()) 
 		rx_endoffile.setPattern(pref->rx_endoffile);
 
-	if (!pref->rx_novideo.isEmpty())
+	if (!pref->rx_novideo.isEmpty()) 
 		rx_novideo.setPattern(pref->rx_novideo);
 }
 
@@ -145,14 +145,14 @@ void MplayerProcess::parseLine(QByteArray ba) {
 		double sec = rx_av.cap(1).toDouble();
 		//qDebug("cap(1): '%s'", rx_av.cap(1).toUtf8().data() );
 		//qDebug("sec: %f", sec);
-
+		
 		if (!notified_mplayer_is_running) {
 			qDebug("MplayerProcess::parseLine: starting sec: %f", sec);
 			emit receivedStartingTime(sec);
 			emit mplayerFullyLoaded();
 			notified_mplayer_is_running = true;
 		}
-
+		
 	    emit receivedCurrentSec( sec );
 
 		// Check for frame
@@ -279,10 +279,10 @@ void MplayerProcess::parseLine(QByteArray ba) {
 			int ID = rx_audio_mat.cap(1).toInt();
 			QString lang = rx_audio_mat.cap(3);
 			QString t = rx_audio_mat.cap(2);
-			qDebug("MplayerProcess::parseLine: Audio: ID: %d, Lang: '%s' Type: '%s'",
+			qDebug("MplayerProcess::parseLine: Audio: ID: %d, Lang: '%s' Type: '%s'", 
                     ID, lang.toUtf8().data(), t.toUtf8().data());
 
-			if ( t == "NAME" )
+			if ( t == "NAME" ) 
 				md.audios.addName(ID, lang);
 			else
 				md.audios.addLang(ID, lang);
@@ -337,7 +337,7 @@ void MplayerProcess::parseLine(QByteArray ba) {
 				double length = rx_title.cap(3).toDouble();
 				qDebug("MplayerProcess::parseLine: Title: ID: %d, Length: '%f'", ID, length);
 				md.titles.addDuration(ID, length);
-			}
+			} 
 			else
 			if (t=="CHAPTERS") {
 				int chapters = rx_title.cap(3).toInt();
@@ -576,3 +576,5 @@ void MplayerProcess::processFinished(int exitCode, QProcess::ExitStatus exitStat
 void MplayerProcess::gotError(QProcess::ProcessError error) {
 	qDebug("MplayerProcess::gotError: %d", (int) error);
 }
+
+#include "moc_mplayerprocess.cpp"

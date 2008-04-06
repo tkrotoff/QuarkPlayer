@@ -16,30 +16,27 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef _IMAGES_H_
-#define _IMAGES_H_
+#ifndef _SMPLAYERCORELIB_H_
+#define _SMPLAYERCORELIB_H_
 
-#include <QPixmap>
-#include <QString>
+#include <QWidget>
+#include "core.h"
+#include "mplayerwindow.h"
 
-/* Warning: don't use this until global->preferences is created! */
-class Images
+class SmplayerCoreLib : public QObject
 {
-
+    Q_OBJECT
+    
 public:
-	static QPixmap icon(QString name, int size=-1, bool png = true);
-	static QPixmap flippedIcon(QString name, int size=-1, bool png = true);
+    SmplayerCoreLib( QWidget * parent = 0 );
+    ~SmplayerCoreLib();
 
-	static QPixmap resize(QPixmap *p, int size=20);
-	static QPixmap flip(QPixmap *p);
+	Core * core() { return _core; };
+	MplayerWindow * mplayerWindow() { return _mpw; };
 
 private:
-	//! Return the filename for the icon
-	static QString filename(const QString & name, bool png);
-
-	//! Try to load an icon. \a icon_name is the filename of the
-	//! icon without path. Return a null pixmap if loads fails.
-	static QPixmap loadIcon(const QString & icon_name);
+	Core * _core;
+	MplayerWindow * _mpw;
 };
 
 #endif

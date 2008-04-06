@@ -17,10 +17,13 @@
 */
 
 #include "mplayerwindow.h"
-#include "images.h"
 #include "global.h"
 #include "desktopinfo.h"
 #include "helper.h"
+
+#ifndef MINILIB
+#include "images.h"
+#endif
 
 #include <QLabel>
 #include <QTimer>
@@ -30,11 +33,11 @@
 #include <QPixmap>
 #include <QPainter>
 
-Screen::Screen(QWidget* parent, Qt::WindowFlags f)
+Screen::Screen(QWidget* parent, Qt::WindowFlags f) 
 #if USE_GL_WIDGET
-	: QGLWidget(parent, 0, f )
+	: QGLWidget(parent, 0, f ) 
 #else
-	: QWidget(parent, f )
+	: QWidget(parent, f ) 
 #endif
 {
 	setMouseTracking(TRUE);
@@ -70,7 +73,7 @@ void Screen::paintEvent( QPaintEvent * e ) {
 
 void Screen::checkMousePos() {
 	//qDebug("Screen::checkMousePos");
-
+	
 	if ( cursor_pos == last_cursor_pos ) {
 		//qDebug(" same pos");
 		if (cursor().shape() != Qt::BlankCursor) {
@@ -97,8 +100,8 @@ void Screen::mouseMoveEvent( QMouseEvent * e ) {
 
 /* ---------------------------------------------------------------------- */
 
-MplayerLayer::MplayerLayer(QWidget* parent, Qt::WindowFlags f)
-	: Screen(parent, f)
+MplayerLayer::MplayerLayer(QWidget* parent, Qt::WindowFlags f) 
+	: Screen(parent, f) 
 {
 	allow_clearing = true;
 	playing = false;
@@ -134,7 +137,7 @@ void MplayerLayer::playingStopped() {
 
 /* ---------------------------------------------------------------------- */
 
-MplayerWindow::MplayerWindow(QWidget* parent, Qt::WindowFlags f)
+MplayerWindow::MplayerWindow(QWidget* parent, Qt::WindowFlags f) 
 	: Screen(parent, f) , allow_video_movement(false)
 {
 	offset_x = 0;
@@ -177,7 +180,9 @@ void MplayerWindow::setColorKey( QColor c ) {
 
 void MplayerWindow::retranslateStrings() {
 	//qDebug("MplayerWindow::retranslateStrings");
+#ifndef MINILIB
 	logo->setPixmap( Images::icon("background") );
+#endif
 }
 
 void MplayerWindow::showLogo( bool b)
@@ -195,7 +200,7 @@ void MplayerWindow::setResolution( int w, int h)
 {
     video_width = w;
     video_height = h;
-
+    
     //mplayerlayer->move(1,1);
     updateVideoWindow();
 }
@@ -237,34 +242,34 @@ void MplayerWindow::updateVideoWindow()
 	//qDebug("MplayerWindow::updateVideoWindow");
 
     //qDebug("aspect= %f", aspect);
-
+    
     int w_width = size().width();
     int w_height = size().height();
-
+    
     int pos1_w = w_width;
     int pos1_h = w_width / aspect + 0.5;
-
+    
     int pos2_h = w_height;
     int pos2_w = w_height * aspect + 0.5;
-
+    
     //qDebug("pos1_w: %d, pos1_h: %d", pos1_w, pos1_h);
     //qDebug("pos2_w: %d, pos2_h: %d", pos2_w, pos2_h);
-
+    
     int w,h;
     int x=0;
     int y=0;
-
+    
     if (pos1_h <= w_height) {
 	//qDebug("Pos1!");
 		w = pos1_w;
 		h = pos1_h;
-
+	
 		y = (w_height - h) /2;
     } else {
 	//qDebug("Pos2!");
 		w = pos2_w;
 		h = pos2_h;
-
+	
 		x = (w_width - w) /2;
     }
 
@@ -275,7 +280,7 @@ void MplayerWindow::updateVideoWindow()
 	orig_y = y;
 	orig_width = w;
 	orig_height = h;
-
+    
     //qDebug( "w_width: %d, w_height: %d", w_width, w_height);
     //qDebug("w: %d, h: %d", w,h);
 }
@@ -297,7 +302,7 @@ void MplayerWindow::mouseReleaseEvent( QMouseEvent * e) {
     if (e->button() == Qt::RightButton) {
 		e->accept();
 		emit rightButtonReleased( e->globalPos() );
-    }
+    } 
 	else {
 		e->ignore();
 	}
@@ -420,3 +425,5 @@ void MplayerWindow::changeEvent(QEvent *e) {
 		QWidget::changeEvent(e);
 	}
 }
+
+#include "moc_mplayerwindow.cpp"

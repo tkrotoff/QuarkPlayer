@@ -27,12 +27,12 @@
 #include "mplayerprocess.h"
 #include "mplayerwindow.h"
 #include "desktopinfo.h"
-#include "constants.h"
 #include "helper.h"
 #include "preferences.h"
 #include "global.h"
 #include "config.h"
 #include "mplayerversion.h"
+#include "constants.h"
 
 #ifdef Q_OS_WIN
 #include <windows.h> // To change app priority
@@ -42,8 +42,8 @@
 
 using namespace Global;
 
-Core::Core( MplayerWindow *mpw, QWidget* parent )
-	: QObject( parent )
+Core::Core( MplayerWindow *mpw, QWidget* parent ) 
+	: QObject( parent ) 
 {
 	mplayerwindow = mpw;
 
@@ -54,6 +54,7 @@ Core::Core( MplayerWindow *mpw, QWidget* parent )
 	just_unloaded_external_subs = false;
 	change_volume_after_unpause = false;
 
+#ifdef USE_INI_FILES
 	// Create file_settings
 	if (Helper::iniPath().isEmpty()) {
 		file_settings = new QSettings(QSettings::IniFormat, QSettings::UserScope,
@@ -63,6 +64,7 @@ Core::Core( MplayerWindow *mpw, QWidget* parent )
 		file_settings = new QSettings( filename, QSettings::IniFormat );
 		qDebug("Core::Core: file_settings: '%s'", filename.toUtf8().data());
 	}
+#endif
 
     proc = new MplayerProcess(this);
 
@@ -105,7 +107,7 @@ Core::Core( MplayerWindow *mpw, QWidget* parent )
 
 	connect( proc, SIGNAL(receivedScreenshot(QString)),
              this, SLOT(displayScreenshotName(QString)) );
-
+	
 	connect( proc, SIGNAL(receivedWindowResolution(int,int)),
              this, SLOT(gotWindowResolution(int,int)) );
 
@@ -132,11 +134,11 @@ Core::Core( MplayerWindow *mpw, QWidget* parent )
 
 	connect( this, SIGNAL(mediaLoaded()), this, SLOT(autosaveMplayerLog()) );
 	connect( this, SIGNAL(mediaLoaded()), this, SLOT(checkIfVideoIsHD()) );
-
-	connect( this, SIGNAL(stateChanged(Core::State)),
+	
+	connect( this, SIGNAL(stateChanged(Core::State)), 
 	         this, SLOT(watchState(Core::State)) );
 
-	connect( proc, SIGNAL(error(QProcess::ProcessError)),
+	connect( proc, SIGNAL(error(QProcess::ProcessError)), 
              this, SIGNAL(mplayerFailed(QProcess::ProcessError)) );
 
 	//pref->load();
@@ -157,12 +159,17 @@ Core::Core( MplayerWindow *mpw, QWidget* parent )
 
 
 Core::~Core() {
+#ifdef USE_INI_FILES
 	saveMediaInfo();
+#endif
 
     if (proc->isRunning()) stopMplayer();
     proc->terminate();
     delete proc;
+
+#ifdef USE_INI_FILES
 	delete file_settings;
+#endif
 
 #ifdef Q_OS_WIN
 	delete win_screensaver;
@@ -196,6 +203,7 @@ void Core::restart() {
 	}
 }
 
+#ifdef USE_INI_FILES
 bool Core::checkHaveSettingsSaved(QString group_name) {
 	qDebug("Core::checkHaveSettingsSaved: group_name: '%s'", group_name.toUtf8().data());
 
@@ -248,6 +256,7 @@ void Core::loadMediaInfo(QString group_name) {
 	file_settings->endGroup();
 }
 
+#endif // USE_INI_FILES
 
 void Core::updateLog(QString line) {
 	if (pref->log_mplayer) {
@@ -298,7 +307,7 @@ void Core::open(QString file, int seek) {
 		// Local file
 		file = QFileInfo(file).absoluteFilePath();
 		openFile(file, seek);
-	}
+	} 
 	else
 	if ( (fi.exists()) && (fi.isDir()) ) {
 		// Directory
@@ -313,7 +322,7 @@ void Core::open(QString file, int seek) {
 			qDebug("   opening nothing");
 		}
 	}
-	else
+	else 
 	if (file.toLower().startsWith("dvd:")) {
 		qDebug(" * identified as dvd");
 		openDVD(file);
@@ -470,7 +479,9 @@ void Core::openVCD(int title) {
 	}
 
 	// Save data of previous file:
+#ifdef USE_INI_FILES
 	saveMediaInfo();
+#endif
 
 	mdat.reset();
 	mdat.filename = "vcd://" + QString::number(title);
@@ -497,7 +508,9 @@ void Core::openAudioCD(int title) {
 	}
 
 	// Save data of previous file:
+#ifdef USE_INI_FILES
 	saveMediaInfo();
+#endif
 
 	mdat.reset();
 	mdat.filename = "cdda://" + QString::number(title);
@@ -542,7 +555,9 @@ void Core::openDVD(QString dvd_url) {
 	}
 
 	// Save data of previous file:
+#ifdef USE_INI_FILES
 	saveMediaInfo();
+#endif
 
 	mdat.reset();
 	mdat.filename = dvd_url;
@@ -551,7 +566,7 @@ void Core::openDVD(QString dvd_url) {
 	mset.reset();
 
 	mset.current_title_id = title;
-	mset.current_chapter_id = 1;
+	mset.current_chapter_id = dvd_first_chapter();
 	mset.current_angle_id = 1;
 
 	/* initializeMenus(); */
@@ -568,7 +583,9 @@ void Core::openStream(QString name) {
 	}
 
 	// Save data of previous file:
+#ifdef USE_INI_FILES
 	saveMediaInfo();
+#endif
 
 	mdat.reset();
 	mdat.filename = name;
@@ -591,7 +608,9 @@ void Core::playNewFile(QString file, int seek) {
 	}
 
 	// Save data of previous file:
+#ifdef USE_INI_FILES
 	saveMediaInfo();
+#endif
 
 	mdat.reset();
 	mdat.filename = file;
@@ -600,6 +619,7 @@ void Core::playNewFile(QString file, int seek) {
 	int old_volume = mset.volume;
 	mset.reset();
 
+#ifdef USE_INI_FILES
 	// Check if we already have info about this file
 	if (checkHaveSettingsSaved( Helper::filenameForPref(file) )) {
 		qDebug("We have settings for this file!!!");
@@ -619,6 +639,10 @@ void Core::playNewFile(QString file, int seek) {
 		// Recover volume
 		mset.volume = old_volume;
 	}
+#else
+	// Recover volume
+	mset.volume = old_volume;
+#endif // USE_INI_FILES
 
 	/* initializeMenus(); */
 
@@ -668,10 +692,10 @@ void Core::newMediaPlaying() {
 	initializeMenus(); // Old
 
 	// First audio if none selected
-	if ( (mset.current_audio_id == MediaSettings::NoneSelected) &&
-         (mdat.audios.numItems() > 0) )
+	if ( (mset.current_audio_id == MediaSettings::NoneSelected) && 
+         (mdat.audios.numItems() > 0) ) 
 	{
-		// Don't set mset.current_audio_id here! changeAudio will do.
+		// Don't set mset.current_audio_id here! changeAudio will do. 
 		// Otherwise changeAudio will do nothing.
 
 		int audio = mdat.audios.itemAt(0).ID(); // First one
@@ -731,7 +755,7 @@ void Core::finishRestart() {
 
 	if (!we_are_restarting) {
 		newMediaPlaying();
-	}
+	} 
 
 	if (we_are_restarting) {
 		// Update info about codecs and demuxer
@@ -822,12 +846,13 @@ void Core::stop()
 {
 	qDebug("Core::stop");
 	qDebug("   state: %s", stateToString().toUtf8().data());
-
+	
 	if (state()==Stopped) {
 		// if pressed stop twice, reset video to the beginning
 		qDebug("   mset.current_sec: %f", mset.current_sec);
 		mset.current_sec = 0;
 		emit showTime( mset.current_sec );
+		emit posChanged( 0 );
 		//updateWidgets();
 	}
 
@@ -839,10 +864,10 @@ void Core::stop()
 void Core::play()
 {
 	qDebug("Core::play");
-
+    
 	if ((proc->isRunning()) && (state()==Paused)) {
 		tellmp("pause"); // Unpauses
-    }
+    } 
 	else
 	if ((proc->isRunning()) && (state()==Playing)) {
 		// nothing to do, continue playing
@@ -863,7 +888,7 @@ void Core::play()
 
 void Core::pause_and_frame_step() {
 	qDebug("Core::pause_and_frame_step");
-
+	
 	if (proc->isRunning()) {
 		if (state() == Paused) {
 			tellmp("frame_step");
@@ -903,8 +928,8 @@ void Core::frameStep() {
 void Core::screenshot() {
 	qDebug("Core::screenshot");
 
-	if ( (!pref->screenshot_directory.isEmpty()) &&
-         (QFileInfo(pref->screenshot_directory).isDir()) )
+	if ( (!pref->screenshot_directory.isEmpty()) && 
+         (QFileInfo(pref->screenshot_directory).isDir()) ) 
 	{
 		tellmp("pausing_keep screenshot 0");
 		qDebug(" taken screenshot");
@@ -978,7 +1003,7 @@ void Core::startMplayer( QString file, double seek ) {
 	if (proc->isRunning()) {
 		qWarning("Core::startMplayer: MPlayer still running!");
 		return;
-    }
+    } 
 
 #ifdef Q_OS_WIN
 	// Disable the Windows screensaver
@@ -1017,8 +1042,8 @@ void Core::startMplayer( QString file, double seek ) {
 	proc->clearArguments();
 
 	// Set working directory to screenshot directory
-	if ( (!pref->screenshot_directory.isEmpty()) &&
-         (QFileInfo(pref->screenshot_directory).isDir()) )
+	if ( (!pref->screenshot_directory.isEmpty()) && 
+         (QFileInfo(pref->screenshot_directory).isDir()) ) 
 	{
 		qDebug("Core::startMplayer: setting working directory to '%s'", pref->screenshot_directory.toUtf8().data());
 		proc->setWorkingDirectory( pref->screenshot_directory );
@@ -1066,8 +1091,8 @@ void Core::startMplayer( QString file, double seek ) {
 
 	QString lavdopts;
 
-	if ( (pref->h264_skip_loop_filter == Preferences::LoopDisabled) ||
-         ((pref->h264_skip_loop_filter == Preferences::LoopDisabledOnHD) &&
+	if ( (pref->h264_skip_loop_filter == Preferences::LoopDisabled) || 
+         ((pref->h264_skip_loop_filter == Preferences::LoopDisabledOnHD) && 
           (mset.is264andHD)) )
 	{
 		if (!lavdopts.isEmpty()) lavdopts += ":";
@@ -1093,7 +1118,7 @@ void Core::startMplayer( QString file, double seek ) {
 		proc->addArgument( pref->mplayer_verbose );
 	}
 	*/
-
+	
 	proc->addArgument("-identify");
 
 	// We need this to get info about mkv chapters
@@ -1101,13 +1126,13 @@ void Core::startMplayer( QString file, double seek ) {
 		proc->addArgument("-msglevel");
 		proc->addArgument("demux=6");
 
-		// **** Reset chapter ***
+		// **** Reset chapter *** 
 		// Select first chapter, otherwise we cannot
 		// resume playback at the same point
 		// (time would be relative to chapter)
 		mset.current_chapter_id = 0;
 	}
-
+	
 	proc->addArgument("-slave");
 
 	if (!pref->vo.isEmpty()) {
@@ -1135,17 +1160,17 @@ void Core::startMplayer( QString file, double seek ) {
 	QString p;
 	int app_p = NORMAL_PRIORITY_CLASS;
 	switch (pref->priority) {
-		case Preferences::Realtime: 	p = "realtime";
+		case Preferences::Realtime: 	p = "realtime"; 
 										app_p = REALTIME_PRIORITY_CLASS;
 										break;
-		case Preferences::High:			p = "high";
+		case Preferences::High:			p = "high"; 
 										app_p = REALTIME_PRIORITY_CLASS;
 										break;
-		case Preferences::AboveNormal:	p = "abovenormal";
+		case Preferences::AboveNormal:	p = "abovenormal"; 
 										app_p = HIGH_PRIORITY_CLASS;
 										break;
-		case Preferences::Normal: 		p = "normal";
-										app_p = ABOVE_NORMAL_PRIORITY_CLASS;
+		case Preferences::Normal: 		p = "normal"; 
+										app_p = ABOVE_NORMAL_PRIORITY_CLASS; 
 										break;
 		case Preferences::BelowNormal: 	p = "belownormal"; break;
 		case Preferences::Idle: 		p = "idle"; break;
@@ -1206,7 +1231,7 @@ void Core::startMplayer( QString file, double seek ) {
 		} else {
 		#endif
 			qDebug("Core::startMplayer: * not using -colorkey for %s", pref->vo.toUtf8().data());
-			qDebug("Core::startMplayer: * report if you can't see the video");
+			qDebug("Core::startMplayer: * report if you can't see the video"); 
 		#ifdef Q_OS_WIN
 		}
 		#endif
@@ -1338,7 +1363,7 @@ void Core::startMplayer( QString file, double seek ) {
 		proc->addArgument("-contrast");
 		proc->addArgument( QString::number( mset.contrast ) );
 	}
-
+	
 	#ifdef Q_OS_WIN
 	if (mset.brightness != 0) {
 	#endif
@@ -1532,14 +1557,14 @@ void Core::startMplayer( QString file, double seek ) {
 	if (mset.add_letterbox) {
 		proc->addArgument("-vf-add");
 		proc->addArgument( QString("expand=:::::%1,harddup").arg( DesktopInfo::desktop_aspectRatio(mplayerwindow)) );
-		// Note: on some videos (h264 for instance) the subtitles doesn't disappear,
-		// appearing the new ones on top of the old ones. It seems adding another
-		// filter after expand fixes the problem. I chose harddup 'cos I think
-		// it will be harmless in mplayer.
+		// Note: on some videos (h264 for instance) the subtitles doesn't disappear, 
+		// appearing the new ones on top of the old ones. It seems adding another 
+		// filter after expand fixes the problem. I chose harddup 'cos I think 
+		// it will be harmless in mplayer. 
 		// Anyway, if you know a proper way to fix the problem, please tell me.
 	}
 #else
-	if (mset.letterbox == MediaSettings::Letterbox_43) {
+	if (mset.letterbox == MediaSettings::Letterbox_43) {		
 		proc->addArgument("-vf-add");
 		proc->addArgument("expand=:::::4/3");
 	}
@@ -1563,7 +1588,7 @@ void Core::startMplayer( QString file, double seek ) {
 	}
 
 	// Screenshot
-	if ( (!pref->screenshot_directory.isEmpty()) &&
+	if ( (!pref->screenshot_directory.isEmpty()) && 
         (QFileInfo(pref->screenshot_directory).isDir()) )
 	{
 		// Subtitles on screenshots
@@ -1697,7 +1722,7 @@ void Core::startMplayer( QString file, double seek ) {
 	qDebug("Core::startMplayer: command: '%s'", commandline.toUtf8().data());
 
 	emit aboutToStartPlaying();
-
+	
 	if ( !proc->start() ) {
 	    // error handling
 		qWarning("Core::startMplayer: mplayer process didn't start");
@@ -1714,7 +1739,7 @@ void Core::stopMplayer() {
 	}
 
     tellmp("quit");
-
+    
 	qDebug("Core::stopMplayer: Waiting mplayer to finish...");
 	//Helper::finishProcess( proc );
 	if (!proc->waitForFinished(5000)) {
@@ -2216,7 +2241,7 @@ bool Core::subscale_need_restart() {
 
 	need_restart = (pref->change_sub_scale_should_restart == Preferences::Enabled);
 	if (pref->change_sub_scale_should_restart == Preferences::Detect) {
-		if (pref->use_ass_subtitles)
+		if (pref->use_ass_subtitles) 
 			need_restart = (!MplayerVersion::isMplayerAtLeast(25843));
 		else
 			need_restart = (!MplayerVersion::isMplayerAtLeast(23745));
@@ -2249,7 +2274,7 @@ void Core::changeSubScale(double value) {
 				restartPlay();
 			} else {
 				tellmp("sub_scale " + QString::number( mset.sub_scale ) + " 1");
-
+				
 			}
 			displayMessage( tr("Font scale: %1").arg(mset.sub_scale) );
 		}
@@ -2285,7 +2310,7 @@ void Core::changeSubScale(double value) {
 
 	bool need_restart = false;
 
-	if (pref->use_ass_subtitles ||
+	if (pref->use_ass_subtitles || 
         pref->change_sub_scale_should_restart == Preferences::Enabled)
 	{
 		need_restart = true;
@@ -2337,7 +2362,7 @@ void Core::changeCurrentSec(double sec) {
 	if (mset.starting_time != -1) {
 		mset.current_sec -= mset.starting_time;
 	}
-
+	
 	if (state() != Playing) {
 		setState(Playing);
 		qDebug("mplayer reports that now it's playing");
@@ -2346,6 +2371,20 @@ void Core::changeCurrentSec(double sec) {
 	}
 
 	emit showTime(mset.current_sec);
+
+	// Emit posChanged:
+	static int last_second = 0;
+
+	if (floor(sec)==last_second) return; // Update only once per second
+	last_second = (int) floor(sec);
+
+	int perc = 0;
+	if ( (mdat.duration > 1) && (mset.current_sec > 1) &&
+         (mdat.duration > mset.current_sec) )
+	{
+		perc = ( (int) mset.current_sec * 100) / (int) mdat.duration;
+	}
+	emit posChanged( perc );
 }
 
 void Core::gotStartingTime(double time) {
@@ -2383,7 +2422,7 @@ void Core::changeSubtitle(int ID) {
 	if (ID==MediaSettings::SubNone) {
 		ID=-1;
 	}
-
+	
 	qDebug("Core::changeSubtitle: ID: %d", ID);
 
 	bool use_new_commands = (pref->use_new_sub_commands == Preferences::Enabled);
@@ -2428,11 +2467,11 @@ void Core::changeSubtitle(int ID) {
 void Core::nextSubtitle() {
 	qDebug("Core::nextSubtitle");
 
-	if ( (mset.current_sub_id == MediaSettings::SubNone) &&
-         (mdat.subs.numItems() > 0) )
+	if ( (mset.current_sub_id == MediaSettings::SubNone) && 
+         (mdat.subs.numItems() > 0) ) 
 	{
 		changeSubtitle(0);
-	}
+	} 
 	else {
 		int item = mset.current_sub_id + 1;
 		if (item >= mdat.subs.numItems()) {
@@ -2455,7 +2494,7 @@ void Core::changeAudio(int ID) {
 		}
 
 		if (need_restart) {
-			restartPlay();
+			restartPlay(); 
 		} else {
 			tellmp("switch_audio " + QString::number(ID) );
 			#ifdef Q_OS_WIN
@@ -2490,7 +2529,7 @@ void Core::changeTitle(int ID) {
 		// VCD
 		openVCD( ID );
 	}
-	else
+	else 
 	if (mdat.type == TYPE_AUDIO_CD) {
 		// AUDIO CD
 		openAudioCD( ID );
@@ -2537,7 +2576,7 @@ void Core::changeChapter(int ID) {
 }
 
 int Core::mkv_first_chapter() {
-	if (MplayerVersion::isMplayerAtLeast(25391))
+	if (MplayerVersion::isMplayerAtLeast(25391)) 
 		return 1;
 	else
 		return 0;
@@ -2651,7 +2690,7 @@ void Core::changeAspectRatio( int ID ) {
 
     double asp = mdat.video_aspect; // Set a default
 
-    if (ID==MediaSettings::Aspect43Letterbox) {
+    if (ID==MediaSettings::Aspect43Letterbox) {  
 		need_restart = (old_id != MediaSettings::Aspect43Letterbox);
 		asp = (double) 4 / 3;
         mset.letterbox = MediaSettings::Letterbox_43;
@@ -2659,7 +2698,7 @@ void Core::changeAspectRatio( int ID ) {
 		mset.crop_43to169_filter = "";
 	}
 	else
-    if (ID==MediaSettings::Aspect169Letterbox) {
+    if (ID==MediaSettings::Aspect169Letterbox) {  
 		need_restart = (old_id != MediaSettings::Aspect169Letterbox);
 		asp = (double) 16 / 9;
         mset.letterbox = MediaSettings::Letterbox_169;
@@ -2706,9 +2745,9 @@ void Core::changeAspectRatio( int ID ) {
 	else
     {
 		//need_restart = (mset.force_letterbox == TRUE);
-		need_restart = ( (old_id == MediaSettings::Aspect43Letterbox) ||
-                         (old_id == MediaSettings::Aspect169Letterbox) ||
-                         (old_id == MediaSettings::Aspect43Panscan) ||
+		need_restart = ( (old_id == MediaSettings::Aspect43Letterbox) || 
+                         (old_id == MediaSettings::Aspect169Letterbox) || 
+                         (old_id == MediaSettings::Aspect43Panscan) || 
                          (old_id == MediaSettings::Aspect43To169) );
 		mset.letterbox = MediaSettings::NoLetterbox;
 		mset.panscan_filter = "";
@@ -2755,7 +2794,7 @@ void Core::changeOSD(int v) {
 void Core::nextOSD() {
 	int osd = pref->osd + 1;
 	if (osd > Preferences::SeekTimerTotal) {
-		osd = Preferences::None;
+		osd = Preferences::None;	
 	}
 	changeOSD( osd );
 }
@@ -2777,7 +2816,7 @@ void Core::changeSize(int n) {
 }
 
 void Core::toggleDoubleSize() {
-	if (pref->size_factor != 100)
+	if (pref->size_factor != 100) 
 		changeSize(100);
 	else
 		changeSize(200);
@@ -2927,7 +2966,7 @@ void Core::streamTitleAndUrlChanged(QString title, QString url) {
 	emit mediaInfoChanged();
 }
 
-/*!
+/*! 
 	Save the mplayer log to a file, so it can be used by external
 	applications.
 */
@@ -2950,7 +2989,7 @@ void Core::autosaveMplayerLog() {
 
 //!  Called when the state changes
 void Core::watchState(Core::State state) {
-	if ((state == Playing) && (change_volume_after_unpause))
+	if ((state == Playing) && (change_volume_after_unpause)) 
 	{
 		// Delayed volume change
 		qDebug("Core::watchState: delayed volume change");
@@ -2978,3 +3017,5 @@ void Core::checkIfVideoIsHD() {
 		// then the video should restart too.
 	}
 }
+
+#include "moc_core.cpp"
