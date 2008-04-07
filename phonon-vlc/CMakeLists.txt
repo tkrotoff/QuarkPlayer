@@ -47,11 +47,7 @@ else (KDE4_FOUND)
 endif (KDE4_FOUND)
 
 if (UNIX)
-	if (KDE4_FOUND)
-		set(QT_PHONON_LIBRARY_DEBUG ${KDE4_PHONON_LIBS})
-	else (KDE4_FOUND)
-		set(QT_PHONON_LIBRARY_DEBUG ${QT_LIBRARY_DIR}/libphonon.so.4.1.0.debug)
-	endif (KDE4_FOUND)
+	set(QT_PHONON_LIBRARY_DEBUG ${QT_LIBRARY_DIR}/libphonon.so.4.1.0.debug)
 endif (UNIX)
 
 if (WIN32)

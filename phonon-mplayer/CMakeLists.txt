@@ -49,6 +49,7 @@ set(libsmplayer_SRCS
 
 if (WIN32)
 	set(libsmplayer_SRCS
+		${libsmplayer_SRCS}
 		smplayer/screensaver.cpp
 	)
 endif (WIN32)
@@ -88,11 +89,7 @@ qt4_wrap_cpp(phonon_mplayer_SRCS
 add_library(phonon_mplayer MODULE ${phonon_mplayer_SRCS})
 
 if (UNIX)
-	if (KDE4_FOUND)
-		set(QT_PHONON_LIBRARY_DEBUG ${KDE4_PHONON_LIBS})
-	else (KDE4_FOUND)
-		set(QT_PHONON_LIBRARY_DEBUG ${QT_LIBRARY_DIR}/libphonon.so.4.1.0.debug)
-	endif (KDE4_FOUND)
+	set(QT_PHONON_LIBRARY_DEBUG ${QT_LIBRARY_DIR}/libphonon.so.4.1.0.debug)
 endif (UNIX)
 
 if (WIN32)
@@ -104,12 +101,14 @@ if (KDE4_FOUND)
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
 		${KDE4_PHONON_LIBS}
+		libsmplayer
 	)
 else (KDE4_FOUND)
 	target_link_libraries(phonon_mplayer
 		${QT_QTCORE_LIBRARY_DEBUG}
 		${QT_QTGUI_LIBRARY_DEBUG}
 		${QT_PHONON_LIBRARY_DEBUG}
+		libsmplayer
 	)
 endif (KDE4_FOUND)
 
