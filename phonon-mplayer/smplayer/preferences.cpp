@@ -43,7 +43,7 @@ Preferences::~Preferences() {
 
 void Preferences::reset() {
 #ifdef Q_OS_WIN
-	mplayer_bin= "mplayer/mplayer.exe";
+	mplayer_bin= "C:/Program Files/SMPlayer/mplayer/mplayer.exe";
 #else
 	mplayer_bin = "mplayer";
 #endif

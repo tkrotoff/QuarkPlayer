@@ -54,6 +54,10 @@ signals:
 private slots:
 
 	void volumeChangedSlotInternal(int volume);
+
+private:
+
+	qreal _volume;
 };
 
 }}	//Namespace Phonon::MPlayer

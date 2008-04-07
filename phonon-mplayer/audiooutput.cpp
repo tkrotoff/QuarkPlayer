@@ -30,6 +30,8 @@ namespace MPlayer
 AudioOutput::AudioOutput(QObject * parent)
 	: QObject(parent) {
 
+	_volume = 0;
+
 	connect(Backend::getSMPlayerCore(), SIGNAL(volumeChanged(int)),
 		SLOT(volumeChangedSlotInternal(int)));
 }
@@ -38,7 +40,7 @@ AudioOutput::~AudioOutput() {
 }
 
 qreal AudioOutput::volume() const {
-	return 0.0;
+	return _volume;
 }
 
 void AudioOutput::setVolume(qreal volume) {
@@ -57,7 +59,8 @@ bool AudioOutput::setOutputDevice(int device) {
 
 void AudioOutput::volumeChangedSlotInternal(int volume) {
 	//volume varies from 0 to 100
-	emit volumeChanged(volume / 100);
+	_volume = volume / 100.0;
+	emit volumeChanged(_volume);
 }
 
 }}	//Namespace Phonon::MPlayer

@@ -55,10 +55,6 @@ qt4_wrap_cpp(libsmplayer_SRCS
 
 add_library(libsmplayer STATIC ${libsmplayer_SRCS})
 
-target_link_libraries(libsmplayer
-	${QT_QTCORE_LIBRARY}
-)
-
 
 
 
@@ -86,8 +82,8 @@ add_library(phonon_mplayer MODULE ${phonon_mplayer_SRCS})
 target_link_libraries(phonon_mplayer
 	${QT_QTCORE_LIBRARY}
 	${QT_LIBRARY_DIR}/phonond4.lib
-	libsmplayer.lib
 	${QT_QTGUI_LIBRARY}
+	libsmplayer
 )
 
 install(TARGETS phonon_mplayer DESTINATION ${QT_PLUGINS_DIR}/phonon_backend)

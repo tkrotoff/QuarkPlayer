@@ -35,16 +35,25 @@ VideoWidget::VideoWidget(QWidget * parent)
 
 	MplayerWindow * smplayerWindow = Backend::getSMPlayerWindow();
 	smplayerWindow->show();
+
+	_aspectRatio = Phonon::VideoWidget::AspectRatioAuto;
+	_brightness = 0;
+	_scaleMode = Phonon::VideoWidget::FitInView;
+	_contrast = 0;
+	_hue = 0;
+	_saturation = 0;
 }
 
 VideoWidget::~VideoWidget() {
 }
 
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const {
-	return Phonon::VideoWidget::AspectRatioAuto;
+	return _aspectRatio;
 }
 
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
+	_aspectRatio = aspectRatio;
+
 	/*
 	MediaSettings::Aspect43
 	MediaSettings::Aspect169
@@ -55,7 +64,7 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 	MediaSettings::AspectAuto
 	*/
 
-	switch(aspectRatio) {
+	switch(_aspectRatio) {
 	case Phonon::VideoWidget::AspectRatioWidget:
 		Backend::getSMPlayerCore()->changeAspectRatio(MediaSettings::AspectAuto);
 		break;
@@ -68,46 +77,62 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 	case Phonon::VideoWidget::AspectRatio16_9:
 		Backend::getSMPlayerCore()->changeAspectRatio(MediaSettings::Aspect169);
 		break;
+	default:
+		qWarning() << __FUNCTION__ << "unknow Phonon::VideoWidget::AspectRatio:" << _aspectRatio;
 	}
 }
 
 qreal VideoWidget::brightness() const {
-	return 0.0;
+	return _brightness;
 }
 
 void VideoWidget::setBrightness(qreal brightness) {
-	Backend::getSMPlayerCore()->setBrightness(brightness);
+	_brightness = brightness;
+	Backend::getSMPlayerCore()->setBrightness(brightness * 100);
 }
 
 Phonon::VideoWidget::ScaleMode VideoWidget::scaleMode() const {
-	return Phonon::VideoWidget::ScaleAndCrop;
+	return _scaleMode;
 }
 
 void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scaleMode) {
+	_scaleMode = scaleMode;
+
+	switch (_scaleMode) {
+	case Phonon::VideoWidget::FitInView:
+		break;
+	case Phonon::VideoWidget::ScaleAndCrop:
+		break;
+	default:
+		qWarning() << __FUNCTION__ << "unknow Phonon::VideoWidget::ScaleMode:" << _scaleMode;
+	}
 }
 
 qreal VideoWidget::contrast() const {
-	return 0.0;
+	return _contrast;
 }
 
 void VideoWidget::setContrast(qreal contrast) {
-	Backend::getSMPlayerCore()->setContrast(contrast);
+	_contrast = contrast;
+	Backend::getSMPlayerCore()->setContrast(_contrast * 100);
 }
 
 qreal VideoWidget::hue() const {
-	return 0.0;
+	return _hue;
 }
 
 void VideoWidget::setHue(qreal hue) {
-	Backend::getSMPlayerCore()->setHue(hue);
+	_hue = hue;
+	Backend::getSMPlayerCore()->setHue(hue * 100);
 }
 
 qreal VideoWidget::saturation() const {
-	return 0.0;
+	return _saturation;
 }
 
-void VideoWidget::setSaturation(qreal staturation) {
-	Backend::getSMPlayerCore()->setSaturation(staturation);
+void VideoWidget::setSaturation(qreal saturation) {
+	_saturation = saturation;
+	Backend::getSMPlayerCore()->setSaturation(saturation * 100);
 }
 
 QWidget * VideoWidget::widget() {

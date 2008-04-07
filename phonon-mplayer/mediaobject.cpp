@@ -30,6 +30,9 @@ namespace MPlayer
 MediaObject::MediaObject(QObject * parent)
 	: QObject(parent) {
 
+	_currentTime = 0;
+	_currentState = Phonon::LoadingState;
+
 	connect(Backend::getSMPlayerCore(), SIGNAL(showTime(double)),
 		SLOT(tickSlotInternal(double)));
 	connect(Backend::getSMPlayerCore(), SIGNAL(stateChanged(Core::State)),
@@ -83,8 +86,10 @@ void MediaObject::stop() {
 }
 
 void MediaObject::seek(qint64 milliseconds) {
+	qDebug() << __FUNCTION__ << milliseconds / 1000.0;
+
 	//Core::seek() works using seconds
-	Backend::getSMPlayerCore()->seek(milliseconds * 1000);
+	Backend::getSMPlayerCore()->seek(milliseconds / 1000.0);
 }
 
 qint32 MediaObject::tickInterval() const {
@@ -105,11 +110,11 @@ bool MediaObject::isSeekable() const {
 }
 
 qint64 MediaObject::currentTime() const {
-	return 0;
+	return _currentTime;
 }
 
 Phonon::State MediaObject::state() const {
-	return Phonon::StoppedState;
+	return _currentState;
 }
 
 QString MediaObject::errorString() const {
@@ -121,7 +126,8 @@ Phonon::ErrorType MediaObject::errorType() const {
 }
 
 qint64 MediaObject::totalTime() const {
-	return 0;
+	qDebug() << __FUNCTION__ << "duration:" << Backend::getSMPlayerCore()->mdat.duration;
+	return Backend::getSMPlayerCore()->mdat.duration * 1000;
 }
 
 MediaSource MediaObject::source() const {
@@ -178,12 +184,16 @@ void MediaObject::setTransitionTime(qint32) {
 }
 
 void MediaObject::tickSlotInternal(double seconds) {
+	qDebug() << __FUNCTION__ << seconds;
+
 	//time is in milliseconds
-	qint64 time = seconds * 1000;
-	emit tick(time);
+	_currentTime = seconds * 1000;
+	emit tick(_currentTime);
 }
 
-void MediaObject::stateChangedSlotInternal(Core::State state) {
+void MediaObject::stateChangedSlotInternal(Core::State newState) {
+	Phonon::State previousState = _currentState;
+
 	/*
 	Phonon::LoadingState
 	Phonon::StoppedState
@@ -193,17 +203,24 @@ void MediaObject::stateChangedSlotInternal(Core::State state) {
 	Phonon::ErrorState
 	*/
 
-	switch(state) {
+	switch(newState) {
 	case Core::Stopped:
-		emit stateChanged(Phonon::StoppedState, Phonon::ErrorState);
+		_currentState = Phonon::StoppedState;
+		_currentTime = 0;
 		break;
 	case Core::Playing:
-		emit stateChanged(Phonon::PlayingState, Phonon::ErrorState);
+		_currentState = Phonon::PlayingState;
+		emit totalTimeChanged(totalTime());
+		emit seekableChanged(true);
 		break;
 	case Core::Paused:
-		emit stateChanged(Phonon::PausedState, Phonon::ErrorState);
+		_currentState = Phonon::PausedState;
 		break;
 	}
+
+	qDebug() << __FUNCTION__ << "currentState:" << _currentState << "previousState:" << previousState;
+
+	emit stateChanged(_currentState, previousState);
 }
 
 bool MediaObject::hasInterface(Interface iface) const {

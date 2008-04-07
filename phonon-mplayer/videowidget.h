@@ -44,6 +44,17 @@ public:
 	Phonon::VideoWidget::AspectRatio aspectRatio() const;
 	void setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio);
 
+	/**
+	  * From MPlayer/DOCS/tech/slave.txt:
+	  * [brightness|contrast|gamma|hue|saturation] <value> [abs]
+	  * Set/adjust video parameters.
+	  * If [abs] is not given or is zero, modifies parameter by <value>.
+	  * If [abs] is non-zero, parameter is set to <value>.
+	  * <value> is in the range [-100, 100].
+	  *
+	  * From Phonon::VideoWidget documentation:
+	  * Acceptable values are in range of -1, 1.
+	  */
 	qreal brightness() const;
 	void setBrightness(qreal brightness);
 
@@ -63,6 +74,17 @@ public:
 
 private:
 
+	Phonon::VideoWidget::AspectRatio _aspectRatio;
+
+	qreal _brightness;
+
+	Phonon::VideoWidget::ScaleMode _scaleMode;
+
+	qreal _contrast;
+
+	qreal _hue;
+
+	qreal _saturation;
 };
 
 }}	//Namespace Phonon::MPlayer
