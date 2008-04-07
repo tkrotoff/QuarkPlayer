@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "audiooutput.h"
+#include "AudioOutput.h"
 
-#include "backend.h"
+#include "Backend.h"
 
 #include "smplayer/core.h"
 

@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "backend.h"
+#include "Backend.h"
 
-#include "mediaobject.h"
-#include "videowidget.h"
-#include "audiooutput.h"
+#include "MediaObject.h"
+#include "VideoWidget.h"
+#include "AudioOutput.h"
 
 #include "smplayer/smplayercorelib.h"
 

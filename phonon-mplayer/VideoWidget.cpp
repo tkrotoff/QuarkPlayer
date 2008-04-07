@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "videowidget.h"
+#include "VideoWidget.h"
 
-#include "backend.h"
+#include "Backend.h"
 
 #include "smplayer/core.h"
 #include "smplayer/mplayerwindow.h"

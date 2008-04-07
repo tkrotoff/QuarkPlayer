@@ -1,8 +1,24 @@
 project(phonon-mplayer)
 
-find_package(Qt4 REQUIRED)
+#find_package(KDE4 REQUIRED)
+if (KDE4_FOUND)
+	include(KDE4Defaults)
+	include(MacroLibrary)
+else (KDE4_FOUND)
+	find_package(Qt4 REQUIRED)
+endif (KDE4_FOUND)
+
+message(STATUS "KDE4 Support: ${KDE4_FOUND}")
+message(STATUS "KDE4 Dir: ${KDE4_DATA_DIR}")
 
 include_directories(${QT_INCLUDE_DIR})
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+if (KDE4_FOUND)
+	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE4_FOUND)
+	include_directories(${QDBUS_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
+endif (KDE4_FOUND)
 
 
 
@@ -25,31 +41,23 @@ set(libsmplayer_SRCS
 	smplayer/mplayerwindow.cpp
 	smplayer/myprocess.cpp
 	smplayer/preferences.cpp
-	smplayer/screensaver.cpp
 	smplayer/subtracks.cpp
 	smplayer/trackdata.cpp
 	smplayer/tracks.cpp
 	smplayer/smplayercorelib.cpp
 )
 
+if (WIN32)
+	set(libsmplayer_SRCS
+		smplayer/screensaver.cpp
+	)
+endif (WIN32)
+
 qt4_wrap_cpp(libsmplayer_SRCS
-	smplayer/config.h
-	smplayer/constants.h
 	smplayer/core.h
-	smplayer/desktopinfo.h
-	smplayer/global.h
-	smplayer/helper.h
-	smplayer/mediadata.h
-	smplayer/mediasettings.h
 	smplayer/mplayerprocess.h
-	smplayer/mplayerversion.h
 	smplayer/mplayerwindow.h
 	smplayer/myprocess.h
-	smplayer/preferences.h
-	smplayer/screensaver.h
-	smplayer/subtracks.h
-	smplayer/trackdata.h
-	smplayer/tracks.h
 	smplayer/smplayercorelib.h
 )
 
@@ -64,26 +72,62 @@ include_directories(
 )
 
 set(phonon_mplayer_SRCS
-	backend.cpp
-	mediaobject.cpp
-	videowidget.cpp
-	audiooutput.cpp
+	Backend.cpp
+	MediaObject.cpp
+	VideoWidget.cpp
+	AudioOutput.cpp
 )
 
 qt4_wrap_cpp(phonon_mplayer_SRCS
-	backend.h
-	mediaobject.h
-	videowidget.h
-	audiooutput.h
+	Backend.h
+	MediaObject.h
+	VideoWidget.h
+	AudioOutput.h
 )
 
 add_library(phonon_mplayer MODULE ${phonon_mplayer_SRCS})
 
-target_link_libraries(phonon_mplayer
-	${QT_QTCORE_LIBRARY}
-	${QT_LIBRARY_DIR}/phonond4.lib
-	${QT_QTGUI_LIBRARY}
-	libsmplayer
-)
+if (UNIX)
+	if (KDE4_FOUND)
+		set(QT_PHONON_LIBRARY_DEBUG ${KDE4_PHONON_LIBS})
+	else (KDE4_FOUND)
+		set(QT_PHONON_LIBRARY_DEBUG ${QT_LIBRARY_DIR}/libphonon.so.4.1.0.debug)
+	endif (KDE4_FOUND)
+endif (UNIX)
 
-install(TARGETS phonon_mplayer DESTINATION ${QT_PLUGINS_DIR}/phonon_backend)
+if (WIN32)
+	set(QT_PHONON_LIBRARY_DEBUG ${QT_LIBRARY_DIR}/phonond4.lib)
+endif (WIN32)
+
+if (KDE4_FOUND)
+	target_link_libraries(phonon_mplayer
+		${KDE4_KDECORE_LIBS}
+		${KDE4_KDEUI_LIBS}
+		${KDE4_PHONON_LIBS}
+	)
+else (KDE4_FOUND)
+	target_link_libraries(phonon_mplayer
+		${QT_QTCORE_LIBRARY_DEBUG}
+		${QT_QTGUI_LIBRARY_DEBUG}
+		${QT_PHONON_LIBRARY_DEBUG}
+	)
+endif (KDE4_FOUND)
+
+if (KDE4_FOUND)
+	install(TARGETS phonon_mplayer DESTINATION ${PLUGIN_INSTALL_DIR}/plugins/phonon_backend)
+	install(FILES mplayer.desktop DESTINATION ${SERVICES_INSTALL_DIR}/phononbackends)
+	install(FILES icons/16x16/phonon-mplayer.png DESTINATION ${ICON_INSTALL_DIR}/oxygen/16x16/apps)
+	install(FILES icons/32x32/phonon-mplayer.png DESTINATION ${ICON_INSTALL_DIR}/oxygen/32x32/apps)
+	install(FILES icons/48x48/phonon-mplayer.png DESTINATION ${ICON_INSTALL_DIR}/oxygen/48x48/apps)
+	install(FILES icons/128x128/phonon-mplayer.png DESTINATION ${ICON_INSTALL_DIR}/oxygen/128x128/apps)
+
+	#Ubuntu 8.04 Hardy
+	install(TARGETS phonon_mplayer DESTINATION /usr/lib/kde4/lib/kde4)
+	install(FILES mplayer.desktop DESTINATION /usr/lib/kde4/share/kde4/services/phononbackends)
+	install(FILES icons/16x16/phonon-mplayer.png DESTINATION /usr/lib/kde4/share/icons/oxygen/16x16/apps)
+	install(FILES icons/32x32/phonon-mplayer.png DESTINATION /usr/lib/kde4/share/icons/oxygen/32x32/apps)
+	install(FILES icons/48x48/phonon-mplayer.png DESTINATION /usr/lib/kde4/share/icons/oxygen/48x48/apps)
+	install(FILES icons/128x128/phonon-phonon-mplayervlc.png DESTINATION /usr/lib/kde4/share/icons/oxygen/128x128/apps)
+else (KDE4_FOUND)
+	install(TARGETS phonon_mplayer DESTINATION ${QT_PLUGINS_DIR}/phonon_backend)
+endif (KDE4_FOUND)
