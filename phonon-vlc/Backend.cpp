@@ -289,10 +289,10 @@ void Backend::freeSoundcardDevices() {
 }
 
 QString Backend::toString() const {
-	return "VLC Phonon Backend by Tanguy Krotoff <tkrotoff@gmail.com>\n"
-		"libvlc version=" + QString(p_libvlc_get_version()) + "\n"
+	return "VLC Phonon Backend by Tanguy Krotoff <tkrotoff@gmail.com>\n";
+		/*"libvlc version=" + QString(p_libvlc_get_version()) + "\n"
 		"libvlc changeset=" + QString(p_libvlc_get_changeset()) + "\n"
-		"libvlc compiler=" + QString(p_libvlc_get_compiler());
+		"libvlc compiler=" + QString(p_libvlc_get_compiler());*/
 }
 
 }}	//Namespace Phonon::VLC

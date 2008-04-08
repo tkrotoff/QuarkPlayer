@@ -40,7 +40,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow {
 	Q_OBJECT
 public:
 
-	MainWindow();
+	MainWindow(QWidget * parent);
 
 	~MainWindow();
 
@@ -51,25 +51,19 @@ private slots:
 	void about();
 	void aboutToFinish();
 
-	void stateChanged(Phonon::State newState, Phonon::State oldState);
-	void tick(qint64 time);
-	void totalTimeChanged(qint64 newTotalTime);
-	void sourceChanged(const Phonon::MediaSource & source);
 	void metaStateChanged(Phonon::State newState, Phonon::State oldState);
 
-	void tableClicked(int row, int column);
+	void addPlay();
+
+	void tableDoubleClicked(int row, int column);
 
 private:
 
-	Phonon::MediaObject * _mediaObject;
+	Phonon::MediaSource getCurrentMediaSource() const;
+
 	Phonon::MediaObject * _metaObjectInfoResolver;
-	Phonon::VideoWidget * _videoWidget;
-	Phonon::AudioOutput * _audioOutput;
 
 	QList<Phonon::MediaSource> _mediaSources;
-
-	Phonon::SeekSlider * _seekSlider;
-	Phonon::VolumeSlider * _volumeSlider;
 };
 
 #endif	//MAINWINDOW_H

@@ -99,13 +99,13 @@ signals:
 
 private:
 
-	mutable QStringList m_supportedMimeTypes;
+	mutable QStringList _supportedMimeTypes;
 
 	/** Hack, global variable. */
-	static Core * m_smplayerCore;
+	static Core * _smplayerCore;
 
 	/** Hack, global variable. */
-	static MplayerWindow * m_smplayerWindow;
+	static MplayerWindow * _smplayerWindow;
 };
 
 }}	//Namespace Phonon::MPlayer

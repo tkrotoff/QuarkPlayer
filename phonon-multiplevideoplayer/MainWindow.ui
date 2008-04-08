@@ -5,15 +5,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>424</width>
-    <height>554</height>
+    <width>426</width>
+    <height>425</height>
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>VideoPlayer</string>
+   <string>MultipleVideoPlayer - PlayList</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="videoplayer.qrc" >
+   <iconset resource="multiplevideoplayer.qrc" >
     <normaloff>:/images/volume.png</normaloff>:/images/volume.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
@@ -21,8 +21,8 @@
     <rect>
      <x>0</x>
      <y>53</y>
-     <width>424</width>
-     <height>482</height>
+     <width>426</width>
+     <height>353</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout" >
@@ -56,34 +56,9 @@
         </property>
        </column>
       </widget>
-      <widget class="QWidget" name="verticalLayoutWidget" >
-       <layout class="QVBoxLayout" name="videoLayout" />
-      </widget>
      </widget>
     </item>
-    <item row="1" column="0" >
-     <layout class="QHBoxLayout" name="seekerLayout" >
-      <item>
-       <widget class="QLCDNumber" name="currentTimeLcdNumber" />
-      </item>
-      <item>
-       <widget class="QLCDNumber" name="totalTimeLcdNumber" />
-      </item>
-     </layout>
-    </item>
-    <item row="1" column="1" >
-     <layout class="QHBoxLayout" name="volumeLayout" >
-      <item>
-       <widget class="QToolButton" name="volumeButton" >
-        <property name="icon" >
-         <iconset resource="videoplayer.qrc" >
-          <normaloff>:/images/volume.png</normaloff>:/images/volume.png</iconset>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="2" column="0" colspan="2" >
+    <item row="1" column="0" colspan="2" >
      <widget class="QLabel" name="backendInfosLabel" >
       <property name="text" >
        <string>Backend Infos</string>
@@ -97,7 +72,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>424</width>
+     <width>426</width>
      <height>19</height>
     </rect>
    </property>
@@ -117,22 +92,15 @@
     <addaction name="actionAbout" />
     <addaction name="actionAboutQt" />
    </widget>
-   <widget class="QMenu" name="menuVideo" >
-    <property name="title" >
-     <string>Video</string>
-    </property>
-    <addaction name="actionFullscreen" />
-   </widget>
    <addaction name="menuFile" />
-   <addaction name="menuVideo" />
    <addaction name="menuHelp" />
   </widget>
   <widget class="QStatusBar" name="statusbar" >
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>535</y>
-     <width>424</width>
+     <y>406</y>
+     <width>426</width>
      <height>19</height>
     </rect>
    </property>
@@ -142,7 +110,7 @@
     <rect>
      <x>0</x>
      <y>19</y>
-     <width>424</width>
+     <width>426</width>
      <height>34</height>
     </rect>
    </property>
@@ -158,15 +126,11 @@
    <attribute name="toolBarBreak" >
     <bool>false</bool>
    </attribute>
-   <addaction name="actionPlay" />
-   <addaction name="actionPause" />
-   <addaction name="actionStop" />
-   <addaction name="separator" />
-   <addaction name="actionFullscreen" />
+   <addaction name="actionAddPlayFile" />
   </widget>
   <action name="actionAddFiles" >
    <property name="icon" >
-    <iconset resource="videoplayer.qrc" >
+    <iconset resource="multiplevideoplayer.qrc" >
      <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
    </property>
    <property name="text" >
@@ -175,7 +139,7 @@
   </action>
   <action name="actionExit" >
    <property name="icon" >
-    <iconset resource="videoplayer.qrc" >
+    <iconset resource="multiplevideoplayer.qrc" >
      <normaloff>:/images/exit.png</normaloff>:/images/exit.png</iconset>
    </property>
    <property name="text" >
@@ -184,7 +148,7 @@
   </action>
   <action name="actionAbout" >
    <property name="icon" >
-    <iconset resource="videoplayer.qrc" >
+    <iconset resource="multiplevideoplayer.qrc" >
      <normaloff>:/images/volume.png</normaloff>:/images/volume.png</iconset>
    </property>
    <property name="text" >
@@ -193,7 +157,7 @@
   </action>
   <action name="actionAboutQt" >
    <property name="icon" >
-    <iconset resource="videoplayer.qrc" >
+    <iconset resource="multiplevideoplayer.qrc" >
      <normaloff>:/images/qt.png</normaloff>:/images/qt.png</iconset>
    </property>
    <property name="text" >
@@ -202,7 +166,7 @@
   </action>
   <action name="actionPlay" >
    <property name="icon" >
-    <iconset resource="videoplayer.qrc" >
+    <iconset resource="multiplevideoplayer.qrc" >
      <normaloff>:/images/play.png</normaloff>:/images/play.png</iconset>
    </property>
    <property name="text" >
@@ -211,7 +175,7 @@
   </action>
   <action name="actionPause" >
    <property name="icon" >
-    <iconset resource="videoplayer.qrc" >
+    <iconset resource="multiplevideoplayer.qrc" >
      <normaloff>:/images/pause.png</normaloff>:/images/pause.png</iconset>
    </property>
    <property name="text" >
@@ -220,7 +184,7 @@
   </action>
   <action name="actionStop" >
    <property name="icon" >
-    <iconset resource="videoplayer.qrc" >
+    <iconset resource="multiplevideoplayer.qrc" >
      <normaloff>:/images/stop.png</normaloff>:/images/stop.png</iconset>
    </property>
    <property name="text" >
@@ -229,7 +193,7 @@
   </action>
   <action name="actionFullscreen" >
    <property name="icon" >
-    <iconset resource="videoplayer.qrc" >
+    <iconset resource="multiplevideoplayer.qrc" >
      <normaloff>:/images/fullscreen.png</normaloff>:/images/fullscreen.png</iconset>
    </property>
    <property name="text" >
@@ -238,16 +202,25 @@
   </action>
   <action name="actionOpenDVD" >
    <property name="icon" >
-    <iconset resource="videoplayer.qrc" >
+    <iconset resource="multiplevideoplayer.qrc" >
      <normaloff>:/images/dvd.png</normaloff>:/images/dvd.png</iconset>
    </property>
    <property name="text" >
     <string>Open DVD</string>
    </property>
   </action>
+  <action name="actionAddPlayFile" >
+   <property name="icon" >
+    <iconset resource="multiplevideoplayer.qrc" >
+     <normaloff>:/images/addplay.png</normaloff>:/images/addplay.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Add and Play File</string>
+   </property>
+  </action>
  </widget>
  <resources>
-  <include location="videoplayer.qrc" />
+  <include location="multiplevideoplayer.qrc" />
  </resources>
  <connections/>
 </ui>

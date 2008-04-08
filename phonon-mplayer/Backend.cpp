@@ -45,8 +45,8 @@
 #endif	//KDE4_FOUND
 
 //Hack, global variable
-Core * Phonon::MPlayer::Backend::m_smplayerCore = NULL;
-MplayerWindow * Phonon::MPlayer::Backend::m_smplayerWindow = NULL;
+Core * Phonon::MPlayer::Backend::_smplayerCore = NULL;
+MplayerWindow * Phonon::MPlayer::Backend::_smplayerWindow = NULL;
 
 namespace Phonon
 {
@@ -56,8 +56,8 @@ namespace MPlayer
 Backend::Backend(QObject * parent, const QVariantList &)
 	: QObject(parent) {
 
-	m_smplayerCore = NULL;
-	m_smplayerWindow = NULL;
+	_smplayerCore = NULL;
+	_smplayerWindow = NULL;
 
 	setProperty("identifier", QLatin1String("phonon_mplayer"));
 	setProperty("backendName", QLatin1String("MPlayer"));
@@ -73,50 +73,28 @@ Backend::Backend(QObject * parent, const QVariantList &)
 }
 
 Backend::~Backend() {
+	//delete _smplayerWindow;
+	delete _smplayerCore;
 }
 
 Core * Backend::getSMPlayerCore() {
 	//Lazy initialization
-	if (!m_smplayerCore) {
+	if (!_smplayerCore) {
 		SmplayerCoreLib * smplayerlib = new SmplayerCoreLib(NULL);
-		m_smplayerCore = smplayerlib->core();
-		m_smplayerWindow = smplayerlib->mplayerWindow();
-
-		/*
-		QCoreApplication * app = QCoreApplication::instance();
-		QString iniPath;
-		if (QFile::exists(app->applicationDirPath() + "/smplayer.ini")) {
-			iniPath = app->applicationDirPath();
-			qDebug("main: using existing %s", QString(iniPath + "/smplayer.ini").toUtf8().data());
-		}
-		Global::global_init(iniPath);
-
-		m_smplayerCore = new Core(getSMPlayerWindow(), NULL);
-		*/
+		_smplayerCore = smplayerlib->core();
+		_smplayerWindow = smplayerlib->mplayerWindow();
 	}
 
-	return m_smplayerCore;
+	return _smplayerCore;
 }
 
 MplayerWindow * Backend::getSMPlayerWindow() {
 	//Lazy initialization
-	if (!m_smplayerWindow) {
+	if (!_smplayerWindow) {
 		getSMPlayerCore();
-		/*
-		//Constructs SMPlayer window
-		m_smplayerWindow = new MplayerWindow(NULL);
-
-		//Essential!!! otherwise MPlayer video is not visible!
-		//(at least under DirectX)
-		m_smplayerWindow->setColorKey(0x020202);
-
-		//Hide for the moment SMPlayer window until the call of VideoWidget constructor
-		//m_smplayerWindow->hide();
-		//m_smplayerWindow->resize(0, 0);
-		*/
 	}
 
-	return m_smplayerWindow;
+	return _smplayerWindow;
 }
 
 QObject * Backend::createObject(BackendInterface::Class c, QObject * parent, const QList<QVariant> & args) {
@@ -161,12 +139,7 @@ bool Backend::supportsOSD() const {
 }
 
 bool Backend::supportsFourcc(quint32 fourcc) const {
-	switch(fourcc) {
-	case 0x00000000:
-		return true;
-	default:
-		return false;
-	}
+	return true;
 }
 
 bool Backend::supportsSubtitles() const {
@@ -174,30 +147,80 @@ bool Backend::supportsSubtitles() const {
 }
 
 QStringList Backend::availableMimeTypes() const {
-	if (m_supportedMimeTypes.isEmpty()) {
+	if (_supportedMimeTypes.isEmpty()) {
 		//Audio mime types
-		m_supportedMimeTypes
-			<< "audio/mp3"
-			<< "audio/x-mp3"
-			<< "audio/wav"
-
-			<< "audio/mpeg"
-			<< "audio/x-ms-wma"
+		_supportedMimeTypes
+			<< "audio/x-m4a"
+			<< "audio/x-aiff"
+			<< "audio/aiff"
+			<< "audio/x-pn-aiff"
+			<< "audio/x-realaudio"
+			<< "audio/basic"
+			<< "audio/x-basic"
+			<< "audio/x-pn-au"
+			<< "audio/x-8svx"
+			<< "audio/8svx"
+			<< "audio/x-16sv"
+			<< "audio/168sv"
+			<< "audio/x-ogg"
+			<< "audio/x-speex+ogg"
 			<< "audio/vnd.rn-realaudio"
-			<< "audio/x-wav";
+			<< "audio/x-pn-realaudio-plugin"
+			<< "audio/x-real-audio"
+			<< "audio/x-wav"
+			<< "audio/wav"
+			<< "audio/x-pn-wav"
+			<< "audio/x-pn-windows-acm"
+			<< "audio/mpeg2"
+			<< "audio/x-mpeg2"
+			<< "audio/mpeg3"
+			<< "audio/x-mpeg3"
+			<< "audio/mpeg"
+			<< "audio/x-mpeg"
+			<< "audio/x-mpegurl"
+			<< "audio/x-mp3"
+			<< "audio/mp3"
+			<< "audio/mpeg"
+			<< "audio/x-ms-wma";
 
 		//Video mime types
-		m_supportedMimeTypes
-			<< "video/mpg"
-			<< "video/avi"
-
-			<< "video/mpeg"
-			<< "video/mp4"
+		_supportedMimeTypes
 			<< "video/quicktime"
-			<< "video/x-ms-wmv";
+			<< "video/x-quicktime"
+			<< "video/mkv"
+			<< "video/msvideo"
+			<< "video/x-msvideo"
+			<< "video/x-flic"
+			<< "video/x-anim"
+			<< "video/anim"
+			<< "video/mng"
+			<< "video/x-mng"
+			<< "video/mpeg"
+			<< "video/x-mpeg"
+			<< "video/x-ms-asf"
+			<< "video/x-ms-wmv"
+			<< "video/mp4"
+			<< "video/mpg"
+			<< "video/avi";
+
+		//Application mime types
+		_supportedMimeTypes
+			<< "application/x-annodex"
+			<< "application/x-quicktimeplayer"
+			<< "application/ogg"
+			<< "application/ogg"
+			<< "application/vnd.rn-realmedia"
+			<< "application/x-flash-video";
+
+		//Image mime types
+		_supportedMimeTypes
+			<< "image/x-ilbm"
+			<< "image/ilbm"
+			<< "image/png"
+			<< "image/x-png";
 	}
 
-	return m_supportedMimeTypes;
+	return _supportedMimeTypes;
 }
 
 QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {

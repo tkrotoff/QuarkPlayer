@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef VIDEOWINDOW_H
+#define VIDEOWINDOW_H
 
-#include "ui_MainWindow.h"
+#include "ui_VideoWindow.h"
 
 #include <phonon/phononnamespace.h>
 #include <phonon/audiooutput.h>
@@ -29,47 +29,40 @@
 #include <phonon/volumeslider.h>
 #include <phonon/backendcapabilities.h>
 
-#include <QtCore/QList>
-
 /**
- * Main window.
+ *
  *
  * @author Tanguy Krotoff
  */
-class MainWindow : public QMainWindow, public Ui::MainWindow {
+class VideoWindow : public QMainWindow, public Ui::VideoWindow {
 	Q_OBJECT
 public:
 
-	MainWindow();
+	VideoWindow(QWidget * parent);
 
-	~MainWindow();
+	~VideoWindow();
+
+	Phonon::MediaObject * getMediaObject() const;
 
 private slots:
 
-	void addFiles();
-	void openDVD();
-	void about();
 	void aboutToFinish();
 
 	void stateChanged(Phonon::State newState, Phonon::State oldState);
 	void tick(qint64 time);
 	void totalTimeChanged(qint64 newTotalTime);
 	void sourceChanged(const Phonon::MediaSource & source);
-	void metaStateChanged(Phonon::State newState, Phonon::State oldState);
-
-	void tableClicked(int row, int column);
+	void metaDataChanged();
 
 private:
 
 	Phonon::MediaObject * _mediaObject;
-	Phonon::MediaObject * _metaObjectInfoResolver;
 	Phonon::VideoWidget * _videoWidget;
 	Phonon::AudioOutput * _audioOutput;
-
-	QList<Phonon::MediaSource> _mediaSources;
+	Phonon::MediaSource * _mediaSource;
 
 	Phonon::SeekSlider * _seekSlider;
 	Phonon::VolumeSlider * _volumeSlider;
 };
 
-#endif	//MAINWINDOW_H
+#endif	//VIDEOWINDOW_H
