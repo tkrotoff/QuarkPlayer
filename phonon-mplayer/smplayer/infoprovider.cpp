@@ -16,28 +16,32 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "smplayercorelib.h"
+#include "infoprovider.h"
 #include "global.h"
 #include "preferences.h"
-#include "helper.h"
-#include <QApplication>
+#include "mplayerprocess.h"
+#include <QFileInfo>
 
-SmplayerCoreLib::SmplayerCoreLib( QWidget * parent )
-	: QObject(parent) 
-{
-	Helper::setAppPath( qApp->applicationDirPath() );
-	Global::global_init();
+MediaData InfoProvider::getInfo(QString mplayer_bin, QString filename) {
+	MplayerProcess proc;
 
-	_mpw = new MplayerWindow(parent);
-	_core = new Core(_mpw, parent);
-	
-	_mpw->setColorKey( Global::pref->color_key );
+	QFileInfo fi(mplayer_bin);
+    if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
+        mplayer_bin = fi.absoluteFilePath();
+	}
 
-	Global::pref->fast_audio_change = Preferences::Enabled;
+	proc.addArgument(mplayer_bin);
+	proc.addArgument("-identify");
+	proc.addArgument("-frames");
+	proc.addArgument("0");
+	proc.addArgument(filename);
+
+	proc.start();
+	proc.waitForFinished();
+
+	return proc.mediaData();
 }
 
-SmplayerCoreLib::~SmplayerCoreLib() {
-	Global::global_end();
-};
-
-#include "moc_smplayercorelib.cpp"
+MediaData InfoProvider::getInfo(QString filename) {
+	return getInfo( Global::pref->mplayer_bin, filename );
+}

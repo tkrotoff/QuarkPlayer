@@ -80,8 +80,8 @@ signals:
 	//void bufferStatus(int percentFilled);
 	//void currentSourceChanged(const MediaSource & newSource);
 	//void finished();
-	//void hasVideoChanged(bool hasVideo);
-	//void metaDataChanged(const QMultiMap<QString, QString> & metaData);
+	void hasVideoChanged(bool hasVideo);
+	void metaDataChanged(const QMultiMap<QString, QString> & metaData);
 	//void prefinishMarkReached(qint32 msecToEnd);
 	void seekableChanged(bool isSeekable);
 	void stateChanged(Phonon::State newState, Phonon::State oldState);
@@ -95,6 +95,13 @@ private slots:
 	void stateChangedSlotInternal(Core::State newState);
 
 private:
+
+	void stateChangedInternal(Phonon::State newState);
+
+	void loadMediaInternal(const QString & filename);
+	void playInternal(const QString & filename);
+
+	bool _isPlaying;
 
 	MediaSource _mediaSource;
 

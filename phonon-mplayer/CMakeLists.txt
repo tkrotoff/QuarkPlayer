@@ -1,3 +1,8 @@
+# Where to look first for CMake modules, before ${CMAKE_ROOT}/Modules/ is checked
+set(CMAKE_MODULE_PATH
+	${CMAKE_SOURCE_DIR}/cmake/modules
+)
+
 project(phonon-mplayer)
 
 find_package(KDE4)
@@ -13,7 +18,10 @@ message(STATUS "KDE4 Dir: ${KDE4_DATA_DIR}")
 
 include_directories(${QT_INCLUDE_DIR})
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+# Always include srcdir and builddir in include path
+# This saves typing ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY} in about every subdir
+# since cmake 2.4.0
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if (KDE4_FOUND)
 	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE4_FOUND)
@@ -45,6 +53,7 @@ set(libsmplayer_SRCS
 	smplayer/trackdata.cpp
 	smplayer/tracks.cpp
 	smplayer/smplayercorelib.cpp
+	smplayer/infoprovider.cpp
 )
 
 if (WIN32)
@@ -54,7 +63,7 @@ if (WIN32)
 	)
 endif (WIN32)
 
-qt4_wrap_cpp(libsmplayer_SRCS
+qt4_wrap_cpp(libsmplayer_MOCS
 	smplayer/core.h
 	smplayer/mplayerprocess.h
 	smplayer/mplayerwindow.h

@@ -425,3 +425,5 @@ void MplayerWindow::changeEvent(QEvent *e) {
 		QWidget::changeEvent(e);
 	}
 }
+
+#include "moc_mplayerwindow.cpp"

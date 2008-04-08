@@ -16,28 +16,25 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "smplayercorelib.h"
-#include "global.h"
-#include "preferences.h"
-#include "helper.h"
-#include <QApplication>
+//! Reads info about a file (resolution, length...)
 
-SmplayerCoreLib::SmplayerCoreLib( QWidget * parent )
-	: QObject(parent) 
+#ifndef _INFOPROVIDER_H_
+#define _INFOPROVIDER_H_
+
+#include <QString>
+#include "mediadata.h"
+
+class InfoProvider 
 {
-	Helper::setAppPath( qApp->applicationDirPath() );
-	Global::global_init();
 
-	_mpw = new MplayerWindow(parent);
-	_core = new Core(_mpw, parent);
-	
-	_mpw->setColorKey( Global::pref->color_key );
+public:
+	//! Gets info about the specified filename.
+	static MediaData getInfo(QString mplayer_bin, QString filename);
 
-	Global::pref->fast_audio_change = Preferences::Enabled;
-}
-
-SmplayerCoreLib::~SmplayerCoreLib() {
-	Global::global_end();
+	//! Gets info about the specified filename. The mplayer executable will be
+    // obtained from the global preferences.
+	static MediaData getInfo(QString filename);
 };
 
-#include "moc_smplayercorelib.cpp"
+#endif
+

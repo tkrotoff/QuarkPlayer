@@ -21,6 +21,7 @@
 #include "Backend.h"
 
 #include "smplayer/core.h"
+#include "smplayer/infoprovider.h"
 
 #include <QtCore/QUrl>
 
@@ -32,6 +33,7 @@ namespace MPlayer
 MediaObject::MediaObject(QObject * parent)
 	: QObject(parent) {
 
+	_isPlaying = false;
 	_currentTime = 0;
 	_currentState = Phonon::LoadingState;
 
@@ -52,15 +54,12 @@ void MediaObject::play() {
 	case MediaSource::Invalid:
 		break;
 
-	case MediaSource::LocalFile: {
-		//FIXME Crash if not done using new QString()
-		QString * filename = new QString(_mediaSource.fileName());
-		Backend::getSMPlayerCore()->open(*filename);
+	case MediaSource::LocalFile:
+		playInternal(_mediaSource.fileName());
 		break;
-	}
 
 	case MediaSource::Url:
-		Backend::getSMPlayerCore()->open(_mediaSource.url().toString());
+		playInternal(_mediaSource.url().toString());
 		break;
 
 	case MediaSource::Disc: {
@@ -69,13 +68,13 @@ void MediaObject::play() {
 			//kFatal(610) << "I should never get to see a MediaSource that is a disc but doesn't specify which one";
 			return;
 		case Phonon::Cd:
-			Backend::getSMPlayerCore()->open(_mediaSource.deviceName());
+			playInternal(_mediaSource.deviceName());
 			break;
 		case Phonon::Dvd:
-			Backend::getSMPlayerCore()->open(_mediaSource.deviceName());
+			playInternal(_mediaSource.deviceName());
 			break;
 		case Phonon::Vcd:
-			Backend::getSMPlayerCore()->open(_mediaSource.deviceName());
+			playInternal(_mediaSource.deviceName());
 			break;
 		default:
 			qCritical() << __FUNCTION__ << "error: unsupported MediaSource::Disc:" << _mediaSource.discType();
@@ -91,6 +90,34 @@ void MediaObject::play() {
 		break;
 
 	}
+}
+
+void MediaObject::loadMediaInternal(const QString & filename) {
+	MediaData mediaData = InfoProvider::getInfo(filename);
+
+	QMultiMap<QString, QString> metaDataMap;
+	metaDataMap.insert(QLatin1String("ARTIST"), mediaData.clip_artist);
+	metaDataMap.insert(QLatin1String("ALBUM"), mediaData.clip_album);
+	metaDataMap.insert(QLatin1String("TITLE"), mediaData.clip_name);
+	metaDataMap.insert(QLatin1String("DATE"), mediaData.clip_date);
+	metaDataMap.insert(QLatin1String("GENRE"), mediaData.clip_genre);
+	metaDataMap.insert(QLatin1String("TRACKNUMBER"), mediaData.clip_track);
+	metaDataMap.insert(QLatin1String("DESCRIPTION"), mediaData.clip_comment);
+	metaDataMap.insert(QLatin1String("COPYRIGHT"), mediaData.clip_copyright);
+	metaDataMap.insert(QLatin1String("URL"), mediaData.stream_url);
+	metaDataMap.insert(QLatin1String("ENCODEDBY"), mediaData.clip_software);
+	emit metaDataChanged(metaDataMap);
+
+	emit totalTimeChanged(mediaData.duration);
+
+	emit hasVideoChanged(!mediaData.novideo);
+
+	stateChangedInternal(Phonon::StoppedState);
+}
+
+void MediaObject::playInternal(const QString & filename) {
+	_isPlaying = true;
+	Backend::getSMPlayerCore()->open(filename);
 }
 
 void MediaObject::pause() {
@@ -157,8 +184,10 @@ void MediaObject::setSource(const MediaSource & source) {
 	case MediaSource::Invalid:
 		break;
 	case MediaSource::LocalFile:
+		loadMediaInternal(_mediaSource.fileName());
 		break;
 	case MediaSource::Url:
+		loadMediaInternal(_mediaSource.url().toString());
 		break;
 	case MediaSource::Disc: {
 		switch (source.discType()) {
@@ -166,10 +195,13 @@ void MediaObject::setSource(const MediaSource & source) {
 			qCritical() << __FUNCTION__ << "error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
 			return;
 		case Phonon::Cd:
+			loadMediaInternal(_mediaSource.deviceName());
 			break;
 		case Phonon::Dvd:
+			loadMediaInternal(_mediaSource.deviceName());
 			break;
 		case Phonon::Vcd:
+			loadMediaInternal(_mediaSource.deviceName());
 			break;
 		default:
 			qCritical() << __FUNCTION__ << "error: unsupported MediaSource::Disc:" << source.discType();
@@ -212,7 +244,9 @@ void MediaObject::tickSlotInternal(double seconds) {
 }
 
 void MediaObject::stateChangedSlotInternal(Core::State newState) {
-	Phonon::State previousState = _currentState;
+	if (!_isPlaying) {
+		return;
+	}
 
 	/*
 	Phonon::LoadingState
@@ -225,21 +259,29 @@ void MediaObject::stateChangedSlotInternal(Core::State newState) {
 
 	switch(newState) {
 	case Core::Stopped:
-		_currentState = Phonon::StoppedState;
+		stateChangedInternal(Phonon::StoppedState);
 		_currentTime = 0;
 		break;
 	case Core::Playing:
-		_currentState = Phonon::PlayingState;
+		stateChangedInternal(Phonon::PlayingState);
 		emit totalTimeChanged(totalTime());
 		emit seekableChanged(true);
 		break;
 	case Core::Paused:
-		_currentState = Phonon::PausedState;
+		stateChangedInternal(Phonon::PausedState);
 		break;
 	}
+}
 
-	qDebug() << __FUNCTION__ << "currentState:" << _currentState << "previousState:" << previousState;
+void MediaObject::stateChangedInternal(Phonon::State newState) {
+	if (newState == _currentState) {
+		//No state changed
+		return;
+	}
 
+	//State changed
+	Phonon::State previousState = _currentState;
+	_currentState = newState;
 	emit stateChanged(_currentState, previousState);
 }
 
