@@ -22,6 +22,8 @@
 
 #include "smplayer/core.h"
 
+#include <QtCore/QUrl>
+
 namespace Phonon
 {
 namespace MPlayer
@@ -46,34 +48,48 @@ void MediaObject::play() {
 	qDebug() << "MediaObject::play()";
 
 	switch (_mediaSource.type()) {
+
 	case MediaSource::Invalid:
 		break;
+
 	case MediaSource::LocalFile: {
 		//FIXME Crash if not done using new QString()
 		QString * filename = new QString(_mediaSource.fileName());
-		Backend::getSMPlayerCore()->openFile(*filename);
+		Backend::getSMPlayerCore()->open(*filename);
 		break;
 	}
+
 	case MediaSource::Url:
+		Backend::getSMPlayerCore()->open(_mediaSource.url().toString());
 		break;
+
 	case MediaSource::Disc: {
 		switch (_mediaSource.discType()) {
 		case Phonon::NoDisc:
 			//kFatal(610) << "I should never get to see a MediaSource that is a disc but doesn't specify which one";
 			return;
 		case Phonon::Cd:
+			Backend::getSMPlayerCore()->open(_mediaSource.deviceName());
 			break;
 		case Phonon::Dvd:
+			Backend::getSMPlayerCore()->open(_mediaSource.deviceName());
 			break;
 		case Phonon::Vcd:
+			Backend::getSMPlayerCore()->open(_mediaSource.deviceName());
 			break;
 		default:
-			return;
+			qCritical() << __FUNCTION__ << "error: unsupported MediaSource::Disc:" << _mediaSource.discType();
 		}
 		break;
 	}
+
 	case MediaSource::Stream:
 		break;
+
+	default:
+		qCritical() << __FUNCTION__ << "error: unsupported MediaSource:" << _mediaSource.type();
+		break;
+
 	}
 }
 
@@ -147,7 +163,7 @@ void MediaObject::setSource(const MediaSource & source) {
 	case MediaSource::Disc: {
 		switch (source.discType()) {
 		case Phonon::NoDisc:
-			//kFatal(610) << "I should never get to see a MediaSource that is a disc but doesn't specify which one";
+			qCritical() << __FUNCTION__ << "error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
 			return;
 		case Phonon::Cd:
 			break;
@@ -156,11 +172,15 @@ void MediaObject::setSource(const MediaSource & source) {
 		case Phonon::Vcd:
 			break;
 		default:
-			return;
+			qCritical() << __FUNCTION__ << "error: unsupported MediaSource::Disc:" << source.discType();
+			break;
 		}
 		}
 		break;
 	case MediaSource::Stream:
+		break;
+	default:
+		qCritical() << __FUNCTION__ << "error: unsupported MediaSource:" << source.type();
 		break;
 	}
 }

@@ -79,14 +79,20 @@ set(phonon_mplayer_SRCS
 	AudioOutput.cpp
 )
 
-qt4_wrap_cpp(phonon_mplayer_SRCS
-	Backend.h
-	MediaObject.h
-	VideoWidget.h
-	AudioOutput.h
-)
+if (NOT KDE4_FOUND)
+	qt4_wrap_cpp(phonon_mplayer_SRCS
+		Backend.h
+		MediaObject.h
+		VideoWidget.h
+		AudioOutput.h
+	)
+endif (NOT KDE4_FOUND)
 
-add_library(phonon_mplayer MODULE ${phonon_mplayer_SRCS})
+if (KDE4_FOUND)
+	kde4_add_plugin(phonon_mplayer ${phonon_mplayer_SRCS})
+else (KDE4_FOUND)
+	add_library(phonon_mplayer MODULE ${phonon_mplayer_SRCS})
+endif (KDE4_FOUND)
 
 if (UNIX)
 	set(QT_PHONON_LIBRARY_DEBUG ${QT_LIBRARY_DIR}/libphonon.so.4.1.0.debug)
