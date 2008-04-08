@@ -32,7 +32,17 @@
 
 #include <QtGui/QMainWindow>
 
-Q_EXPORT_PLUGIN2(phonon_mplayer, Phonon::MPlayer::Backend);
+#ifdef KDE4_FOUND
+	#include <kpluginfactory.h>
+	#include <kpluginloader.h>
+#endif	//KDE4_FOUND
+
+#ifdef KDE4_FOUND
+	K_PLUGIN_FACTORY(MPlayerBackendFactory, registerPlugin<Phonon::MPlayer::Backend>();)
+	K_EXPORT_PLUGIN(MPlayerBackendFactory("mplayerbackend"))
+#else
+	Q_EXPORT_PLUGIN2(phonon_mplayer, Phonon::MPlayer::Backend);
+#endif	//KDE4_FOUND
 
 //Hack, global variable
 Core * Phonon::MPlayer::Backend::m_smplayerCore = NULL;

@@ -1,6 +1,6 @@
 project(phonon-vlc)
 
-find_package(KDE4 REQUIRED)
+find_package(KDE4)
 if (KDE4_FOUND)
 	include(KDE4Defaults)
 	include(MacroLibrary)
