@@ -79,7 +79,7 @@ signals:
 	//void aboutToFinish()
 	//void bufferStatus(int percentFilled);
 	//void currentSourceChanged(const MediaSource & newSource);
-	//void finished();
+	void finished();
 	void hasVideoChanged(bool hasVideo);
 	void metaDataChanged(const QMultiMap<QString, QString> & metaData);
 	//void prefinishMarkReached(qint32 msecToEnd);
@@ -94,6 +94,8 @@ private slots:
 
 	void stateChangedSlotInternal(Core::State newState);
 
+	void finishedSlotInternal();
+
 private:
 
 	void stateChangedInternal(Phonon::State newState);
@@ -101,7 +103,12 @@ private:
 	void loadMediaInternal(const QString & filename);
 	void playInternal(const QString & filename);
 
-	bool _isPlaying;
+	/**
+	 * Only one file can be played with MPlayer/libsmplayer.
+	 * This variable permits to identify which MediaObject is being played
+	 * and to sort which MediaObject receives the libsmplayer signals.
+	 */
+	bool _thisIsTheFileCurrentlyPlaying;
 
 	MediaSource _mediaSource;
 

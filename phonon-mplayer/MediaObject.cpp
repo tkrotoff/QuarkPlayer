@@ -33,7 +33,7 @@ namespace MPlayer
 MediaObject::MediaObject(QObject * parent)
 	: QObject(parent) {
 
-	_isPlaying = false;
+	_thisIsTheFileCurrentlyPlaying = false;
 	_currentTime = 0;
 	_currentState = Phonon::LoadingState;
 
@@ -41,6 +41,9 @@ MediaObject::MediaObject(QObject * parent)
 		SLOT(tickSlotInternal(double)));
 	connect(Backend::getSMPlayerCore(), SIGNAL(stateChanged(Core::State)),
 		SLOT(stateChangedSlotInternal(Core::State)));
+
+	connect(Backend::getSMPlayerCore(), SIGNAL(mediaFinished()),
+		SLOT(finishedSlotInternal()));
 }
 
 MediaObject::~MediaObject() {
@@ -93,6 +96,9 @@ void MediaObject::play() {
 }
 
 void MediaObject::loadMediaInternal(const QString & filename) {
+	//Default MediaObject state is Phonon::LoadingState
+	_currentState = Phonon::LoadingState;
+
 	MediaData mediaData = InfoProvider::getInfo(filename);
 
 	QMultiMap<QString, QString> metaDataMap;
@@ -116,7 +122,7 @@ void MediaObject::loadMediaInternal(const QString & filename) {
 }
 
 void MediaObject::playInternal(const QString & filename) {
-	_isPlaying = true;
+	_thisIsTheFileCurrentlyPlaying = true;
 	Backend::getSMPlayerCore()->open(filename);
 }
 
@@ -244,7 +250,7 @@ void MediaObject::tickSlotInternal(double seconds) {
 }
 
 void MediaObject::stateChangedSlotInternal(Core::State newState) {
-	if (!_isPlaying) {
+	if (!_thisIsTheFileCurrentlyPlaying) {
 		return;
 	}
 
@@ -283,6 +289,11 @@ void MediaObject::stateChangedInternal(Phonon::State newState) {
 	Phonon::State previousState = _currentState;
 	_currentState = newState;
 	emit stateChanged(_currentState, previousState);
+}
+
+void MediaObject::finishedSlotInternal() {
+	stateChangedInternal(Phonon::StoppedState);
+	emit finished();
 }
 
 bool MediaObject::hasInterface(Interface iface) const {
