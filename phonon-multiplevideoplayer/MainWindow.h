@@ -1,5 +1,5 @@
 /*
- * VideoPlayer, a simple Phonon player
+ * MultipleVideoPlayer, a simple Phonon player
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
