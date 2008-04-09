@@ -167,5 +167,3 @@ void MyProcess::procFinished() {
 	temp_file.close();
 #endif
 }
-
-#include "moc_myprocess.cpp"

@@ -3038,5 +3038,3 @@ void Core::checkIfVideoIsHD() {
 		// then the video should restart too.
 	}
 }
-
-#include "moc_core.cpp"

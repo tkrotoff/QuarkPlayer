@@ -1,0 +1,21 @@
+This directory contains:
+ * phonon-mplayer: MPlayer Phonon backend
+ * phonon-vlc: VLC Phonon backend
+
+How to build phonon-vlc and phonon-mplayer
+==========================================
+Go to the build directory and then:
+
+ * Linux:
+     ./build_make-debug.sh
+     make
+     make install
+
+ * Windows:
+     build_nmake-debug.bat
+     nmake
+     nmake install
+
+phonon-vlc and phonon-mplayer can be build separately if needed.
+
+Please read CMake documentation for more details on how to use CMake.

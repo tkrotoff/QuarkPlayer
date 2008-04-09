@@ -1,8 +1,3 @@
-# Where to look first for CMake modules, before ${CMAKE_ROOT}/Modules/ is checked
-set(CMAKE_MODULE_PATH
-	${CMAKE_SOURCE_DIR}/cmake/modules
-)
-
 project(phonon-mplayer)
 
 find_package(KDE4)
@@ -63,7 +58,7 @@ if (WIN32)
 	)
 endif (WIN32)
 
-qt4_wrap_cpp(libsmplayer_MOCS
+qt4_wrap_cpp(libsmplayer_SRCS
 	smplayer/core.h
 	smplayer/mplayerprocess.h
 	smplayer/mplayerwindow.h

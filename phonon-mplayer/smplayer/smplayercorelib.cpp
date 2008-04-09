@@ -39,5 +39,3 @@ SmplayerCoreLib::SmplayerCoreLib( QWidget * parent )
 SmplayerCoreLib::~SmplayerCoreLib() {
 	Global::global_end();
 };
-
-#include "moc_smplayercorelib.cpp"
