@@ -1,5 +1,5 @@
 /*
- * VLC backend for the Phonon library
+ * MPlayer backend for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,37 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_VLCMEDIAOBJECT_H
-#define PHONON_VLC_VLCMEDIAOBJECT_H
-
-#include <vlc/libvlc.h>
+#ifndef PHONON_VLC_MPLAYER_MPLAYERMEDIAOBJECT_H
+#define PHONON_VLC_MPLAYER_MPLAYERMEDIAOBJECT_H
 
 #include <phonon/mediaobjectinterface.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QMultiMap>
+#include <QtCore/QProcess>
+
+class MPlayerProcess;
 
 namespace Phonon
 {
-namespace VLC
+namespace VLC_MPlayer
 {
 
 /**
- * Libvlc MediaObject.
  *
- * Encapsulates vlc MediaObject specific code.
- * Take care of libvlc events via libvlc_callback()
  *
- * @see MediaObject
  * @author Tanguy Krotoff
  */
-class VLCMediaObject : public QObject {
+class MPlayerMediaObject : public QObject {
 	Q_OBJECT
 public:
 
-	VLCMediaObject(QObject * parent);
-	~VLCMediaObject();
+	MPlayerMediaObject(QObject * parent);
+	~MPlayerMediaObject();
 
 	void loadMedia(const QString & filename);
 	void play();
@@ -68,7 +63,7 @@ signals:
 
 	//void aboutToFinish()
 	//void bufferStatus(int percentFilled);
-	//void currentSourceChanged(const Phonon::MediaSource & newSource);
+	//void currentSourceChanged(const MediaSource & newSource);
 	void finished();
 	void hasVideoChanged(bool hasVideo);
 	void metaDataChanged(const QMultiMap<QString, QString> & metaData);
@@ -78,55 +73,29 @@ signals:
 	void tick(qint64 time);
 	void totalTimeChanged(qint64 newTotalTime);
 
+private slots:
+
+	void stateChangedPlay();
+	void stateChangedPause();
+	void stateChangedStop(int exitCode, QProcess::ExitStatus exitStatus);
+
+	void tickInternal(double seconds);
+
 private:
 
-	/**
-	 * Connects libvlc_callback() to all vlc events.
-	 *
-	 * @see libvlc_callback()
-	 */
-	void connectToAllVLCEvents();
+	void setState(Phonon::State newState);
 
-	/**
-	 * Retrieves (i.e ARTIST, TITLE, ALBUM...) meta data of a file.
-	 */
-	void updateMetaData();
+	/** MPlayer process. */
+	MPlayerProcess * _process;
 
-	/**
-	 * Libvlc callback.
-	 *
-	 * Receives all vlc events.
-	 *
-	 * Warning: owns by libvlc thread.
-	 *
-	 * @see connectToAllVLCEvents()
-	 * @see libvlc_event_attach()
-	 */
-	static void libvlc_callback(const libvlc_event_t * event, void * user_data);
-
-	void unloadMedia();
-
-	void setVLCWidgetId();
-
-	//MediaPlayer
-	libvlc_media_player_t * _vlcMediaPlayer;
-	libvlc_event_manager_t * _vlcMediaPlayerEventManager;
-
-	//Media
-	libvlc_media_t * _vlcMedia;
-	libvlc_event_manager_t * _vlcMediaEventManager;
-
-	//MediaDiscoverer
-	libvlc_media_discoverer_t * _vlcMediaDiscoverer;
-	libvlc_event_manager_t * _vlcMediaDiscovererEventManager;
-
+	qint64 _currentTime;
 	qint64 _totalTime;
 
-	bool _hasVideo;
+	Phonon::State _currentState;
 
-	bool _seekable;
+	QString _filename;
 };
 
-}}	//Namespace Phonon::VLC
+}}	//Namespace Phonon::MPlayer
 
-#endif	//PHONON_VLC_VLCMEDIAOBJECT_H
+#endif	//PHONON_VLC_MPLAYER_MPLAYERMEDIAOBJECT_H

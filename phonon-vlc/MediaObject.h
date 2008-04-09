@@ -1,5 +1,5 @@
 /*
- * VLC backend for the Phonon library
+ * VLC and MPlayer backends for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_MEDIAOBJECT_H
-#define PHONON_VLC_MEDIAOBJECT_H
+#ifndef PHONON_VLC_MPLAYER_MEDIAOBJECT_H
+#define PHONON_VLC_MPLAYER_MEDIAOBJECT_H
 
 #include <phonon/mediaobjectinterface.h>
 #include <phonon/addoninterface.h>
@@ -26,10 +26,11 @@
 
 namespace Phonon
 {
-namespace VLC
+namespace VLC_MPlayer
 {
 
 class VLCMediaObject;
+class MPlayerMediaObject;
 
 /**
  *
@@ -104,11 +105,17 @@ private:
 
 	MediaSource _mediaSource;
 
-	VLCMediaObject * _vlcMediaObject;
+#ifdef	PHONON_VLC
+	VLCMediaObject * _pMediaObject;
+#endif	//PHONON_VLC
+
+#ifdef	PHONON_MPLAYER
+	MPlayerMediaObject * _pMediaObject;
+#endif	//PHONON_MPLAYER
 
 	Phonon::State _currentState;
 };
 
-}}	//Namespace Phonon::VLC
+}}	//Namespace Phonon::VLC_MPlayer
 
-#endif	//PHONON_VLC_MEDIAOBJECT_H
+#endif	//PHONON_VLC_MPLAYER_MEDIAOBJECT_H

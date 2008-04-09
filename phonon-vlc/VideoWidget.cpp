@@ -1,5 +1,5 @@
 /*
- * VLC backend for the Phonon library
+ * VLC and MPlayer backends for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,38 +18,58 @@
 
 #include "VideoWidget.h"
 
-#include "vlc_loader.h"
-#include "vlc_symbols.h"
+#ifdef PHONON_VLC
+	#include "vlc_loader.h"
+	#include "vlc_symbols.h"
+#endif	//PHONON_VLC
+
+#ifdef PHONON_MPLAYER
+	#include <mplayer/MPlayerProcess.h>
+	#include <mplayer/MPlayerLoader.h>
+#endif	//PHONON_MPLAYER
 
 #include <QtGui/QWidget>
 #include <QtCore/QtDebug>
 
 namespace Phonon
 {
-namespace VLC
+namespace VLC_MPlayer
 {
+
+WId VideoWidget::_videoWidgetId = 0;
 
 VideoWidget::VideoWidget(QWidget * parent)
 	: QObject(parent) {
 
 	_widget = new QWidget(parent);
 
-	_vlcMediaPlayerWidgetId = (int) _widget->winId();
+	_videoWidgetId = _widget->winId();
+
+	_aspectRatio = Phonon::VideoWidget::AspectRatioAuto;
+	_brightness = 0;
+	_scaleMode = Phonon::VideoWidget::FitInView;
+	_contrast = 0;
+	_hue = 0;
+	_saturation = 0;
 }
 
 VideoWidget::~VideoWidget() {
 }
 
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const {
+#ifdef PHONON_VLC
 	if (_vlcCurrentMediaPlayer) {
 		const char * aspectRatio = p_libvlc_video_get_aspect_ratio(_vlcCurrentMediaPlayer, _vlcException);
 		qDebug() << "VideoWidget::aspectRatio():" << aspectRatio;
 	}
+#endif	//PHONON_VLC
 
-	return Phonon::VideoWidget::AspectRatioAuto;
+	return _aspectRatio;
 }
 
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
+	_aspectRatio = aspectRatio;
+
 	switch(aspectRatio) {
 	case Phonon::VideoWidget::AspectRatioAuto:
 		break;
@@ -65,42 +85,84 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 }
 
 qreal VideoWidget::brightness() const {
-	return 0.0;
+	return _brightness;
 }
 
 void VideoWidget::setBrightness(qreal brightness) {
+	_brightness = brightness;
+
+#ifdef PHONON_MPLAYER
+	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
+	if (process) {
+		process->writeToStdin("brightness " + QString::number(_brightness * 100) + " 1");
+	}
+#endif	//PHONON_MPLAYER
 }
 
 Phonon::VideoWidget::ScaleMode VideoWidget::scaleMode() const {
-	return Phonon::VideoWidget::ScaleAndCrop;
+	return _scaleMode;
 }
 
 void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scaleMode) {
+	_scaleMode = scaleMode;
+
+	switch (_scaleMode) {
+	case Phonon::VideoWidget::FitInView:
+		break;
+	case Phonon::VideoWidget::ScaleAndCrop:
+		break;
+	default:
+		qWarning() << __FUNCTION__ << "unknow Phonon::VideoWidget::ScaleMode:" << _scaleMode;
+	}
 }
 
 qreal VideoWidget::contrast() const {
-	return 0.0;
+	return _contrast;
 }
 
 void VideoWidget::setContrast(qreal contrast) {
+	_contrast = contrast;
+
+#ifdef PHONON_MPLAYER
+	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
+	if (process) {
+		process->writeToStdin("contrast " + QString::number(_contrast * 100) + " 1");
+	}
+#endif	//PHONON_MPLAYER
 }
 
 qreal VideoWidget::hue() const {
-	return 0.0;
+	return _hue;
 }
 
 void VideoWidget::setHue(qreal hue) {
+	_hue = hue;
+
+#ifdef PHONON_MPLAYER
+	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
+	if (process) {
+		process->writeToStdin("hue " + QString::number(_hue * 100) + " 1");
+	}
+#endif	//PHONON_MPLAYER
 }
 
 qreal VideoWidget::saturation() const {
-	return 0.0;
+	return _saturation;
 }
 
-void VideoWidget::setSaturation(qreal staturation) {
+void VideoWidget::setSaturation(qreal saturation) {
+	_saturation = saturation;
+
+#ifdef PHONON_MPLAYER
+	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
+	if (process) {
+		process->writeToStdin("saturation " + QString::number(_saturation * 100) + " 1");
+	}
+#endif	//PHONON_MPLAYER
 }
 
 QWidget * VideoWidget::widget() {
 	return _widget;
 }
 
-}}	//Namespace Phonon::VLC
+}}	//Namespace Phonon::VLC_MPlayer

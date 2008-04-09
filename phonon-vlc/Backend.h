@@ -1,5 +1,5 @@
 /*
- * VLC backend for the Phonon library
+ * VLC and MPlayer backends for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_BACKEND_H
-#define PHONON_VLC_BACKEND_H
+#ifndef PHONON_VLC_MPLAYER_BACKEND_H
+#define PHONON_VLC_MPLAYER_BACKEND_H
 
 #include <phonon/objectdescription.h>
 #include <phonon/backendinterface.h>
@@ -29,7 +29,7 @@
 
 namespace Phonon
 {
-namespace VLC
+namespace VLC_MPlayer
 {
 
 /**
@@ -87,6 +87,6 @@ private:
 	mutable QStringList _supportedMimeTypes;
 };
 
-}}	//Namespace Phonon::VLC
+}}	//Namespace Phonon::VLC_MPlayer
 
-#endif	//PHONON_VLC_BACKEND_H
+#endif	//PHONON_VLC_MPLAYER_BACKEND_H

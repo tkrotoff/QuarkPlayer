@@ -18,14 +18,14 @@
 
 #include "MPlayerMediaObject.h"
 
-#include "VideoWidget.h"
+#include "../VideoWidget.h"
 
 #include <mplayer/MPlayerProcess.h>
 #include <mplayer/MPlayerLoader.h>
 
 namespace Phonon
 {
-namespace MPlayer
+namespace VLC_MPlayer
 {
 
 MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
@@ -80,7 +80,7 @@ void MPlayerMediaObject::loadMedia(const QString & filename) {
 	emit metaDataChanged(metaDataMap);
 
 	//duration should be in milliseconds
-	_totalTime = mediaData.duration * 1000; 
+	_totalTime = mediaData.duration * 1000;
 	emit totalTimeChanged(_totalTime);
 
 	emit hasVideoChanged(!mediaData.novideo);
@@ -180,4 +180,4 @@ qint64 MPlayerMediaObject::totalTime() const {
 	return _totalTime;
 }
 
-}}	//Namespace Phonon::MPlayer
+}}	//Namespace Phonon::VLC_MPlayer

@@ -1,5 +1,5 @@
 /*
- * VLC backend for the Phonon library
+ * VLC and MPlayer backends for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_AUDIOOUTPUT_H
-#define PHONON_VLC_AUDIOOUTPUT_H
+#ifndef PHONON_VLC_MPLAYER_AUDIOOUTPUT_H
+#define PHONON_VLC_MPLAYER_AUDIOOUTPUT_H
 
 #include <phonon/audiooutputinterface.h>
 
@@ -25,7 +25,7 @@
 
 namespace Phonon
 {
-namespace VLC
+namespace VLC_MPlayer
 {
 
 /**
@@ -55,6 +55,6 @@ private:
 
 };
 
-}}	//Namespace Phonon::VLC
+}}	//Namespace Phonon::VLC_MPlayer
 
-#endif	//PHONON_VLC_AUDIOOUTPUT_H
+#endif	//PHONON_VLC_MPLAYER_AUDIOOUTPUT_H

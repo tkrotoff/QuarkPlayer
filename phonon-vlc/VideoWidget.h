@@ -1,5 +1,5 @@
 /*
- * VLC backend for the Phonon library
+ * VLC and MPlayer backends for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_VIDEOWIDGET_H
-#define PHONON_VLC_VIDEOWIDGET_H
+#ifndef PHONON_VLC_MPLAYER_VIDEOWIDGET_H
+#define PHONON_VLC_MPLAYER_VIDEOWIDGET_H
 
 #include <phonon/videowidgetinterface.h>
 
@@ -27,7 +27,7 @@ class QWidget;
 
 namespace Phonon
 {
-namespace VLC
+namespace VLC_MPlayer
 {
 
 /**
@@ -63,11 +63,30 @@ public:
 
 	QWidget * widget();
 
+	/**
+	 * Widget Id where VLC or MPlayer will show the videos.
+	 *
+	 * Global variable.
+	 */
+	static WId _videoWidgetId;
+
 private:
 
 	QWidget * _widget;
+
+	Phonon::VideoWidget::AspectRatio _aspectRatio;
+
+	qreal _brightness;
+
+	Phonon::VideoWidget::ScaleMode _scaleMode;
+
+	qreal _contrast;
+
+	qreal _hue;
+
+	qreal _saturation;
 };
 
-}}	//Namespace Phonon::VLC
+}}	//Namespace Phonon::VLC_MPlayer
 
-#endif	//PHONON_VLC_VIDEOWIDGET_H
+#endif	//PHONON_VLC_MPLAYER_VIDEOWIDGET_H

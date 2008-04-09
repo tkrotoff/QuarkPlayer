@@ -1,5 +1,5 @@
 /*
- * VLC backend for the Phonon library
+ * VLC and MPlayer backends for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,6 +18,8 @@
 
 #include "VLCMediaObject.h"
 
+#include "../VideoWidget.h"
+
 #include "vlc_loader.h"
 #include "vlc_symbols.h"
 
@@ -26,7 +28,7 @@
 
 namespace Phonon
 {
-namespace VLC
+namespace VLC_MPlayer
 {
 
 //VLC returns a strange position... have to multiply by VLC_POSITION_RESOLUTION
@@ -96,10 +98,10 @@ void VLCMediaObject::loadMedia(const QString & filename) {
 void VLCMediaObject::setVLCWidgetId() {
 	//Get our media player to use our window
 	//FIXME This code does not work inside libvlc!
-	//p_libvlc_media_player_set_drawable(_vlcMediaPlayer, _vlcMediaPlayerWidgetId, _vlcException);
+	//p_libvlc_media_player_set_drawable(_vlcMediaPlayer, (libvlc_drawable_t) VideoWidget::_videoWidgetId, _vlcException);
 	//checkException();
 
-	p_libvlc_video_set_parent(_vlcInstance, _vlcMediaPlayerWidgetId, _vlcException);
+	p_libvlc_video_set_parent(_vlcInstance, (libvlc_drawable_t) VideoWidget::_videoWidgetId, _vlcException);
 	checkException();
 }
 
@@ -380,4 +382,4 @@ qint64 VLCMediaObject::currentTime() const {
 	return time;
 }
 
-}}	//Namespace Phonon::VLC
+}}	//Namespace Phonon::VLC_MPlayer

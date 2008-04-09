@@ -1,5 +1,5 @@
 /*
- * VLC backend for the Phonon library
+ * VLC and MPlayer backends for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_VLCLOADER_H
-#define PHONON_VLC_VLCLOADER_H
+#ifndef PHONON_VLC_MPLAYER_VLC_LOADER_H
+#define PHONON_VLC_MPLAYER_VLC_LOADER_H
 
 #include <vlc/libvlc.h>
 
@@ -34,9 +34,6 @@ extern libvlc_exception_t * _vlcException;
 /** Libvlc media player global variable. */
 extern libvlc_media_player_t * _vlcCurrentMediaPlayer;
 
-/** Libvlc widget id global variable, where vlc will show images/movies. */
-extern libvlc_drawable_t _vlcMediaPlayerWidgetId;
-
 #ifndef KDE4_FOUND
 /** QFuture permits to run initLibVLC() in another thread. Global variable. */
 extern QFuture<void> _initLibVLCFuture;
@@ -44,7 +41,7 @@ extern QFuture<void> _initLibVLCFuture;
 
 namespace Phonon
 {
-namespace VLC
+namespace VLC_MPlayer
 {
 
 /**
@@ -66,6 +63,6 @@ void initLibVLC();
  */
 void releaseLibVLC();
 
-}}	//Namespace Phonon::VLC
+}}	//Namespace Phonon::VLC_MPlayer
 
-#endif	//PHONON_VLC_VLCLOADER_H
+#endif	//PHONON_VLC_MPLAYER_VLC_LOADER_H

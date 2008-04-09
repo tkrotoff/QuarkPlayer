@@ -1,27 +1,8 @@
 project(phonon-mplayer)
 
-find_package(KDE4)
-if (KDE4_FOUND)
-	include(KDE4Defaults)
-	include(MacroLibrary)
-else (KDE4_FOUND)
-	find_package(Qt4 REQUIRED)
-endif (KDE4_FOUND)
-
-message(STATUS "KDE4 Support: ${KDE4_FOUND}")
-message(STATUS "KDE4 Dir: ${KDE4_DATA_DIR}")
-
-include_directories(${QT_INCLUDE_DIR})
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-if (KDE4_FOUND)
-	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE4_FOUND)
-	include_directories(${QDBUS_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
-endif (KDE4_FOUND)
-
-
-
+add_definitions(-DPHONON_MPLAYER)
 
 #libmplayer
 set(libmplayer_SRCS
@@ -39,29 +20,17 @@ qt4_wrap_cpp(libmplayer_SRCS
 )
 
 add_library(libmplayer STATIC ${libmplayer_SRCS})
+##
 
-
-
-
-#phonon_mplayer
-include_directories(
-	mplayer
-)
 
 set(phonon_mplayer_SRCS
-	Backend.cpp
-	MediaObject.cpp
-	VideoWidget.cpp
-	AudioOutput.cpp
+	${phonon_commom_SRCS} 
 	MPlayerMediaObject.cpp
 )
 
 if (NOT KDE4_FOUND)
 	qt4_wrap_cpp(phonon_mplayer_SRCS
-		Backend.h
-		MediaObject.h
-		VideoWidget.h
-		AudioOutput.h
+		${phonon_commom_MOCS}
 		MPlayerMediaObject.h
 	)
 endif (NOT KDE4_FOUND)
@@ -71,14 +40,6 @@ if (KDE4_FOUND)
 else (KDE4_FOUND)
 	add_library(phonon_mplayer MODULE ${phonon_mplayer_SRCS})
 endif (KDE4_FOUND)
-
-if (UNIX)
-	set(QT_PHONON_LIBRARY_DEBUG ${QT_LIBRARY_DIR}/libphonon.so.4.1.0.debug)
-endif (UNIX)
-
-if (WIN32)
-	set(QT_PHONON_LIBRARY_DEBUG ${QT_LIBRARY_DIR}/phonond4.lib)
-endif (WIN32)
 
 if (KDE4_FOUND)
 	target_link_libraries(phonon_mplayer

@@ -1,5 +1,5 @@
 /*
- * VLC backend for the Phonon library
+ * VLC and MPlayer backends for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,12 +18,19 @@
 
 #include "AudioOutput.h"
 
-#include "vlc_loader.h"
-#include "vlc_symbols.h"
+#ifdef PHONON_VLC
+	#include "vlc_loader.h"
+	#include "vlc_symbols.h"
+#endif	//PHONON_VLC
+
+#ifdef PHONON_MPLAYER
+	#include <mplayer/MPlayerProcess.h>
+	#include <mplayer/MPlayerLoader.h>
+#endif	//PHONON_MPLAYER
 
 namespace Phonon
 {
-namespace VLC
+namespace VLC_MPlayer
 {
 
 AudioOutput::AudioOutput(QObject * parent)
@@ -36,20 +43,37 @@ AudioOutput::~AudioOutput() {
 qreal AudioOutput::volume() const {
 	qreal volume = 0;
 
-	//FIXME we have to check first for _vlcCurrentMediaPlayer
-	//libvlc_audio_get_volume() does not work otherwise
+#ifdef PHONON_VLC
 	if (_vlcCurrentMediaPlayer) {
 		volume = p_libvlc_audio_get_volume(_vlcInstance, _vlcException) / 100;
 		checkException();
 	}
+#endif	//PHONON_VLC
+
+#ifdef PHONON_MPLAYER
+	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
+	if (process) {
+		process->writeToStdin("get_property volume");
+	}
+#endif	//PHONON_MPLAYER
+
 	return volume;
 }
 
 void AudioOutput::setVolume(qreal volume) {
+#ifdef PHONON_VLC
 	if (_vlcInstance) {
 		p_libvlc_audio_set_volume(_vlcInstance, volume * 100, _vlcException);
 		checkException();
 	}
+#endif	//PHONON_VLC
+
+#ifdef PHONON_MPLAYER
+	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
+	if (process) {
+		process->writeToStdin("volume " + QString::number(volume * 100) + " 1");
+	}
+#endif	//PHONON_MPLAYER
 }
 
 int AudioOutput::outputDevice() const {
@@ -60,4 +84,4 @@ bool AudioOutput::setOutputDevice(int device) {
 	return true;
 }
 
-}}	//Namespace Phonon::VLC
+}}	//Namespace Phonon::VLC_MPlayer

@@ -1,5 +1,5 @@
 /*
- * VLC backend for the Phonon library
+ * VLC and MPlayer backends for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,6 @@
 libvlc_instance_t * _vlcInstance = NULL;
 libvlc_exception_t * _vlcException = new libvlc_exception_t();
 libvlc_media_player_t * _vlcCurrentMediaPlayer = NULL;
-libvlc_drawable_t _vlcMediaPlayerWidgetId = 0;
 
 #ifndef KDE4_FOUND
 QFuture<void> _initLibVLCFuture;
@@ -37,7 +36,7 @@ QFuture<void> _initLibVLCFuture;
 
 namespace Phonon
 {
-namespace VLC
+namespace VLC_MPlayer
 {
 
 void initLibVLC() {
@@ -68,4 +67,4 @@ void checkException() {
 	}
 }
 
-}}	//Namespace Phonon::VLC
+}}	//Namespace Phonon::VLC_MPlayer

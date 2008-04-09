@@ -1,5 +1,5 @@
 /*
- * VLC backend for the Phonon library
+ * VLC and MPlayer backends for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,14 +18,20 @@
 
 #include "MediaObject.h"
 
-#include "VLCMediaObject.h"
+#ifdef PHONON_VLC
+	#include "VLCMediaObject.h"
+#endif	//PHONON_VLC
+
+#ifdef PHONON_MPLAYER
+	#include "MPlayerMediaObject.h"
+#endif	//PHONON_MPLAYER
 
 #include <QtCore/QUrl>
 #include <QtCore/QMetaType>
 
 namespace Phonon
 {
-namespace VLC
+namespace VLC_MPlayer
 {
 
 MediaObject::MediaObject(QObject * parent)
@@ -33,28 +39,34 @@ MediaObject::MediaObject(QObject * parent)
 
 	_currentState = Phonon::LoadingState;
 
-	_vlcMediaObject = new VLCMediaObject(this);
+#ifdef PHONON_VLC
+	_pMediaObject = new VLCMediaObject(this);
+#endif	//PHONON_VLC
+
+#ifdef PHONON_MPLAYER
+	_pMediaObject = new MPlayerMediaObject(this);
+#endif	//PHONON_MPLAYER
 
 	qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 
-	connect(_vlcMediaObject, SIGNAL(tick(qint64)),
+	connect(_pMediaObject, SIGNAL(tick(qint64)),
 		SIGNAL(tick(qint64)), Qt::QueuedConnection);
-	connect(_vlcMediaObject, SIGNAL(stateChanged(Phonon::State)),
+	connect(_pMediaObject, SIGNAL(stateChanged(Phonon::State)),
 		SLOT(stateChangedInternal(Phonon::State)), Qt::QueuedConnection);
-	connect(_vlcMediaObject, SIGNAL(totalTimeChanged(qint64)),
+	connect(_pMediaObject, SIGNAL(totalTimeChanged(qint64)),
 		SIGNAL(totalTimeChanged(qint64)), Qt::QueuedConnection);
-	connect(_vlcMediaObject, SIGNAL(metaDataChanged(const QMultiMap<QString, QString> &)),
+	connect(_pMediaObject, SIGNAL(metaDataChanged(const QMultiMap<QString, QString> &)),
 		SLOT(metaDataChangedInternal(const QMultiMap<QString, QString> &)), Qt::QueuedConnection);
-	connect(_vlcMediaObject, SIGNAL(finished()),
+	connect(_pMediaObject, SIGNAL(finished()),
 		SIGNAL(finished()), Qt::QueuedConnection);
-	connect(_vlcMediaObject, SIGNAL(hasVideoChanged(bool)),
+	connect(_pMediaObject, SIGNAL(hasVideoChanged(bool)),
 		SIGNAL(hasVideoChanged(bool)), Qt::QueuedConnection);
-	connect(_vlcMediaObject, SIGNAL(seekableChanged(bool)),
+	connect(_pMediaObject, SIGNAL(seekableChanged(bool)),
 		SIGNAL(seekableChanged(bool)), Qt::QueuedConnection);
 }
 
 MediaObject::~MediaObject() {
-	delete _vlcMediaObject;
+	delete _pMediaObject;
 }
 
 void MediaObject::play() {
@@ -106,7 +118,7 @@ void MediaObject::loadMediaInternal(const QString & filename) {
 	_currentState = Phonon::LoadingState;
 
 	//Loads the libvlc_media
-	_vlcMediaObject->loadMedia(filename);
+	_pMediaObject->loadMedia(filename);
 }
 
 void MediaObject::playInternal(const QString & filename) {
@@ -116,7 +128,7 @@ void MediaObject::playInternal(const QString & filename) {
 
 	else {
 		//Play the file
-		_vlcMediaObject->play();
+		_pMediaObject->play();
 	}
 }
 
@@ -125,15 +137,15 @@ void MediaObject::resume() {
 }
 
 void MediaObject::pause() {
-	_vlcMediaObject->pause();
+	_pMediaObject->pause();
 }
 
 void MediaObject::stop() {
-	_vlcMediaObject->stop();
+	_pMediaObject->stop();
 }
 
 void MediaObject::seek(qint64 milliseconds) {
-	_vlcMediaObject->seek(milliseconds);
+	_pMediaObject->seek(milliseconds);
 }
 
 qint32 MediaObject::tickInterval() const {
@@ -144,11 +156,11 @@ void MediaObject::setTickInterval(qint32 interval) {
 }
 
 bool MediaObject::hasVideo() const {
-	return _vlcMediaObject->hasVideo();
+	return _pMediaObject->hasVideo();
 }
 
 bool MediaObject::isSeekable() const {
-	return _vlcMediaObject->isSeekable();
+	return _pMediaObject->isSeekable();
 }
 
 qint64 MediaObject::currentTime() const {
@@ -157,13 +169,13 @@ qint64 MediaObject::currentTime() const {
 
 	switch(st) {
 	case Phonon::PausedState:
-		time = _vlcMediaObject->currentTime();
+		time = _pMediaObject->currentTime();
 		break;
 	case Phonon::BufferingState:
-		time = _vlcMediaObject->currentTime();
+		time = _pMediaObject->currentTime();
 		break;
 	case Phonon::PlayingState:
-		time = _vlcMediaObject->currentTime();
+		time = _pMediaObject->currentTime();
 		break;
 	case Phonon::StoppedState:
 		time = 0;
@@ -182,11 +194,11 @@ qint64 MediaObject::currentTime() const {
 }
 
 Phonon::State MediaObject::state() const {
-	return _vlcMediaObject->state();
+	return _pMediaObject->state();
 }
 
 QString MediaObject::errorString() const {
-	return _vlcMediaObject->errorString();
+	return _pMediaObject->errorString();
 }
 
 Phonon::ErrorType MediaObject::errorType() const {
@@ -194,7 +206,7 @@ Phonon::ErrorType MediaObject::errorType() const {
 }
 
 qint64 MediaObject::totalTime() const {
-	return _vlcMediaObject->totalTime();
+	return _pMediaObject->totalTime();
 }
 
 MediaSource MediaObject::source() const {
@@ -285,4 +297,4 @@ void MediaObject::metaDataChangedInternal(const QMultiMap<QString, QString> & me
 	stateChangedInternal(Phonon::StoppedState);
 }
 
-}}	//Namespace Phonon::VLC
+}}	//Namespace Phonon::VLC_MPlayer
