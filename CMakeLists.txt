@@ -1,2 +1,2 @@
-add_subdirectory(phonon-mplayer)
-add_subdirectory(phonon-vlc)
+add_subdirectory(phonon-vlc-mplayer)
+add_subdirectory(tests)
