@@ -5,18 +5,3 @@ This directory contains test applications for Phonon.
  * capabilities: capabilities example taken from Qt-4.4 source code from Trolltech
 
 This allows to test phonon-vlc and phonon-mplayer.
-
-How to build the test applications
-==================================
-Go to the build directory and then:
- * Linux:
-     ./build_make-debug.sh
-     make
-
- * Windows:
-     build_nmake-debug.bat or build_projectmsvc8-debug.bat
-     nmake
-
-Each test applications can be build separately if needed.
-
-Please read CMake documentation for more details on how to use CMake.
