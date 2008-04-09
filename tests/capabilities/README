@@ -1,5 +1,5 @@
-Mediaplayer demo taken from Qt 4.4.1 (snapshot) source code.
-See QTDIR/demos/mediaplayer
+Capabilities example taken from Qt 4.4.1 (snapshot) source code.
+See QTDIR/examples/phonon/capabilities
 
 This is a plain copy to do some hacking if needed
 

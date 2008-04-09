@@ -1,0 +1,4 @@
+add_subdirectory(capabilities)
+add_subdirectory(mediaplayer)
+add_subdirectory(multiplevideoplayer)
+add_subdirectory(videoplayer)
