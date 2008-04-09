@@ -115,7 +115,7 @@ void MediaObject::playInternal(const QString & filename) {
 	}
 
 	else {
-		//Play the libvlc_media
+		//Play the file
 		_vlcMediaObject->play();
 	}
 }

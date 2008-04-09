@@ -18,10 +18,7 @@
 
 #include "MediaObject.h"
 
-#include "Backend.h"
-
-#include "smplayer/core.h"
-#include "smplayer/infoprovider.h"
+#include "MPlayerMediaObject.h"
 
 #include <QtCore/QUrl>
 
@@ -33,20 +30,30 @@ namespace MPlayer
 MediaObject::MediaObject(QObject * parent)
 	: QObject(parent) {
 
-	_thisIsTheFileCurrentlyPlaying = false;
-	_currentTime = 0;
 	_currentState = Phonon::LoadingState;
 
-	connect(Backend::getSMPlayerCore(), SIGNAL(showTime(double)),
-		SLOT(tickSlotInternal(double)));
-	connect(Backend::getSMPlayerCore(), SIGNAL(stateChanged(Core::State)),
-		SLOT(stateChangedSlotInternal(Core::State)));
+	_mplayerMediaObject = new MPlayerMediaObject(this);
 
-	connect(Backend::getSMPlayerCore(), SIGNAL(mediaFinished()),
-		SLOT(finishedSlotInternal()));
+	qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
+
+	connect(_mplayerMediaObject, SIGNAL(tick(qint64)),
+		SIGNAL(tick(qint64)), Qt::QueuedConnection);
+	connect(_mplayerMediaObject, SIGNAL(stateChanged(Phonon::State)),
+		SLOT(stateChangedInternal(Phonon::State)), Qt::QueuedConnection);
+	connect(_mplayerMediaObject, SIGNAL(totalTimeChanged(qint64)),
+		SIGNAL(totalTimeChanged(qint64)), Qt::QueuedConnection);
+	connect(_mplayerMediaObject, SIGNAL(metaDataChanged(const QMultiMap<QString, QString> &)),
+		SLOT(metaDataChangedInternal(const QMultiMap<QString, QString> &)), Qt::QueuedConnection);
+	connect(_mplayerMediaObject, SIGNAL(finished()),
+		SIGNAL(finished()), Qt::QueuedConnection);
+	connect(_mplayerMediaObject, SIGNAL(hasVideoChanged(bool)),
+		SIGNAL(hasVideoChanged(bool)), Qt::QueuedConnection);
+	connect(_mplayerMediaObject, SIGNAL(seekableChanged(bool)),
+		SIGNAL(seekableChanged(bool)), Qt::QueuedConnection);
 }
 
 MediaObject::~MediaObject() {
+	delete _mplayerMediaObject;
 }
 
 void MediaObject::play() {
@@ -99,46 +106,35 @@ void MediaObject::loadMediaInternal(const QString & filename) {
 	//Default MediaObject state is Phonon::LoadingState
 	_currentState = Phonon::LoadingState;
 
-	MediaData mediaData = InfoProvider::getInfo(filename);
-
-	QMultiMap<QString, QString> metaDataMap;
-	metaDataMap.insert(QLatin1String("ARTIST"), mediaData.clip_artist);
-	metaDataMap.insert(QLatin1String("ALBUM"), mediaData.clip_album);
-	metaDataMap.insert(QLatin1String("TITLE"), mediaData.clip_name);
-	metaDataMap.insert(QLatin1String("DATE"), mediaData.clip_date);
-	metaDataMap.insert(QLatin1String("GENRE"), mediaData.clip_genre);
-	metaDataMap.insert(QLatin1String("TRACKNUMBER"), mediaData.clip_track);
-	metaDataMap.insert(QLatin1String("DESCRIPTION"), mediaData.clip_comment);
-	metaDataMap.insert(QLatin1String("COPYRIGHT"), mediaData.clip_copyright);
-	metaDataMap.insert(QLatin1String("URL"), mediaData.stream_url);
-	metaDataMap.insert(QLatin1String("ENCODEDBY"), mediaData.clip_software);
-	emit metaDataChanged(metaDataMap);
-
-	emit totalTimeChanged(mediaData.duration);
-
-	emit hasVideoChanged(!mediaData.novideo);
-
-	stateChangedInternal(Phonon::StoppedState);
+	//Loads the libvlc_media
+	_mplayerMediaObject->loadMedia(filename);
 }
 
 void MediaObject::playInternal(const QString & filename) {
-	_thisIsTheFileCurrentlyPlaying = true;
-	Backend::getSMPlayerCore()->open(filename);
+	if (_currentState == Phonon::PausedState) {
+		resume();
+	}
+
+	else {
+		//Play the file
+		_mplayerMediaObject->play();
+	}
+}
+
+void MediaObject::resume() {
+	pause();
 }
 
 void MediaObject::pause() {
-	Backend::getSMPlayerCore()->pause();
+	_mplayerMediaObject->pause();
 }
 
 void MediaObject::stop() {
-	Backend::getSMPlayerCore()->stop();
+	_mplayerMediaObject->stop();
 }
 
 void MediaObject::seek(qint64 milliseconds) {
-	qDebug() << __FUNCTION__ << milliseconds / 1000.0;
-
-	//Core::seek() works using seconds
-	Backend::getSMPlayerCore()->seek(milliseconds / 1000.0);
+	_mplayerMediaObject->seek(milliseconds);
 }
 
 qint32 MediaObject::tickInterval() const {
@@ -151,19 +147,45 @@ void MediaObject::setTickInterval(qint32 interval) {
 }
 
 bool MediaObject::hasVideo() const {
-	return true;
+	return _mplayerMediaObject->hasVideo();
 }
 
 bool MediaObject::isSeekable() const {
-	return true;
+	return _mplayerMediaObject->isSeekable();
 }
 
 qint64 MediaObject::currentTime() const {
-	return _currentTime;
+	qint64 time = -1;
+	Phonon::State st = state();
+
+	switch(st) {
+	case Phonon::PausedState:
+		time = _mplayerMediaObject->currentTime();
+		break;
+	case Phonon::BufferingState:
+		time = _mplayerMediaObject->currentTime();
+		break;
+	case Phonon::PlayingState:
+		time = _mplayerMediaObject->currentTime();
+		break;
+	case Phonon::StoppedState:
+		time = 0;
+		break;
+	case Phonon::LoadingState:
+		time = 0;
+		break;
+	case Phonon::ErrorState:
+		time = -1;
+		break;
+	default:
+		qCritical() << __FUNCTION__ << "error: unsupported Phonon::State:" << st;
+	}
+
+	return time;
 }
 
 Phonon::State MediaObject::state() const {
-	return _currentState;
+	return _mplayerMediaObject->state();
 }
 
 QString MediaObject::errorString() const {
@@ -175,8 +197,7 @@ Phonon::ErrorType MediaObject::errorType() const {
 }
 
 qint64 MediaObject::totalTime() const {
-	qDebug() << __FUNCTION__ << "duration:" << Backend::getSMPlayerCore()->mdat.duration;
-	return Backend::getSMPlayerCore()->mdat.duration * 1000;
+	return _mplayerMediaObject->totalTime();
 }
 
 MediaSource MediaObject::source() const {
@@ -241,42 +262,12 @@ qint32 MediaObject::transitionTime() const {
 void MediaObject::setTransitionTime(qint32) {
 }
 
-void MediaObject::tickSlotInternal(double seconds) {
-	qDebug() << __FUNCTION__ << seconds;
-
-	//time is in milliseconds
-	_currentTime = seconds * 1000;
-	emit tick(_currentTime);
+bool MediaObject::hasInterface(Interface iface) const {
+	return true;
 }
 
-void MediaObject::stateChangedSlotInternal(Core::State newState) {
-	if (!_thisIsTheFileCurrentlyPlaying) {
-		return;
-	}
-
-	/*
-	Phonon::LoadingState
-	Phonon::StoppedState
-	Phonon::PlayingState
-	Phonon::BufferingState
-	Phonon::PausedState
-	Phonon::ErrorState
-	*/
-
-	switch(newState) {
-	case Core::Stopped:
-		stateChangedInternal(Phonon::StoppedState);
-		_currentTime = 0;
-		break;
-	case Core::Playing:
-		stateChangedInternal(Phonon::PlayingState);
-		emit totalTimeChanged(totalTime());
-		emit seekableChanged(true);
-		break;
-	case Core::Paused:
-		stateChangedInternal(Phonon::PausedState);
-		break;
-	}
+QVariant MediaObject::interfaceCall(Interface iface, int command, const QList<QVariant> & arguments) {
+	return new QVariant();
 }
 
 void MediaObject::stateChangedInternal(Phonon::State newState) {
@@ -291,17 +282,10 @@ void MediaObject::stateChangedInternal(Phonon::State newState) {
 	emit stateChanged(_currentState, previousState);
 }
 
-void MediaObject::finishedSlotInternal() {
+void MediaObject::metaDataChangedInternal(const QMultiMap<QString, QString> & metaData) {
+	emit metaDataChanged(metaData);
+
 	stateChangedInternal(Phonon::StoppedState);
-	emit finished();
-}
-
-bool MediaObject::hasInterface(Interface iface) const {
-	return true;
-}
-
-QVariant MediaObject::interfaceCall(Interface iface, int command, const QList<QVariant> & arguments) {
-	return new QVariant();
 }
 
 }}	//Namespace Phonon::MPlayer

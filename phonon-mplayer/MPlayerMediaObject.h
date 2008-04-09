@@ -16,63 +16,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_MPLAYER_MEDIAOBJECT_H
-#define PHONON_MPLAYER_MEDIAOBJECT_H
+#ifndef PHONON_MPLAYER_MPLAYERMEDIAOBJECT_H
+#define PHONON_MPLAYER_MPLAYERMEDIAOBJECT_H
 
 #include <phonon/mediaobjectinterface.h>
-#include <phonon/addoninterface.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QProcess>
+
+class MPlayerProcess;
 
 namespace Phonon
 {
 namespace MPlayer
 {
 
-class MPlayerMediaObject;
-
 /**
  *
  *
  * @author Tanguy Krotoff
  */
-class MediaObject : public QObject, public MediaObjectInterface, public AddonInterface {
+class MPlayerMediaObject : public QObject {
 	Q_OBJECT
-	Q_INTERFACES(Phonon::MediaObjectInterface Phonon::AddonInterface)
 public:
 
-	MediaObject(QObject * parent);
-	~MediaObject();
+	MPlayerMediaObject(QObject * parent);
+	~MPlayerMediaObject();
 
+	void loadMedia(const QString & filename);
 	void play();
 	void pause();
 	void stop();
 	void seek(qint64 milliseconds);
-	qint32 tickInterval() const;
-	void setTickInterval(qint32 interval);
 
 	bool hasVideo() const;
 	bool isSeekable() const;
-	qint64 currentTime() const;
+
 	Phonon::State state() const;
-	QString errorString() const;
-	Phonon::ErrorType errorType() const;
+
+	qint64 currentTime() const;
 	qint64 totalTime() const;
-	MediaSource source() const;
-	void setSource(const MediaSource &);
-	void setNextSource(const MediaSource & source);
 
-	qint32 prefinishMark() const;
-	void setPrefinishMark(qint32);
-
-	qint32 transitionTime() const;
-	void setTransitionTime(qint32);
-
-	//From AddonInterface
-	bool hasInterface(Interface iface) const;
-
-	//From AddonInterface
-	QVariant interfaceCall(Interface iface, int command, const QList<QVariant> & arguments = QList<QVariant>());
+	QString errorString() const;
 
 signals:
 
@@ -84,30 +69,33 @@ signals:
 	void metaDataChanged(const QMultiMap<QString, QString> & metaData);
 	//void prefinishMarkReached(qint32 msecToEnd);
 	void seekableChanged(bool isSeekable);
-	void stateChanged(Phonon::State newState, Phonon::State oldState);
+	void stateChanged(Phonon::State newState);
 	void tick(qint64 time);
 	void totalTimeChanged(qint64 newTotalTime);
 
 private slots:
 
-	void stateChangedInternal(Phonon::State newState);
+	void stateChangedPlay();
+	void stateChangedPause();
+	void stateChangedStop(int exitCode, QProcess::ExitStatus exitStatus);
 
-	void metaDataChangedInternal(const QMultiMap<QString, QString> & metaData);
+	void tickInternal(double seconds);
 
 private:
 
-	void loadMediaInternal(const QString & filename);
-	void playInternal(const QString & filename);
+	void setState(Phonon::State newState);
 
-	void resume();
+	/** MPlayer process. */
+	MPlayerProcess * _process;
 
-	MediaSource _mediaSource;
-
-	MPlayerMediaObject * _mplayerMediaObject;
+	qint64 _currentTime;
+	qint64 _totalTime;
 
 	Phonon::State _currentState;
+
+	QString _filename;
 };
 
 }}	//Namespace Phonon::MPlayer
 
-#endif	//PHONON_MPLAYER_MEDIAOBJECT_H
+#endif	//PHONON_MPLAYER_MPLAYERMEDIAOBJECT_H

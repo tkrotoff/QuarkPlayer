@@ -22,8 +22,6 @@
 #include "VideoWidget.h"
 #include "AudioOutput.h"
 
-#include "smplayer/smplayercorelib.h"
-
 #include <QtCore/QCoreApplication>
 #include <QtCore/QByteArray>
 #include <QtCore/QSet>
@@ -44,10 +42,6 @@
 	Q_EXPORT_PLUGIN2(phonon_mplayer, Phonon::MPlayer::Backend);
 #endif	//KDE4_FOUND
 
-//Hack, global variable
-Core * Phonon::MPlayer::Backend::_smplayerCore = NULL;
-MplayerWindow * Phonon::MPlayer::Backend::_smplayerWindow = NULL;
-
 namespace Phonon
 {
 namespace MPlayer
@@ -56,9 +50,6 @@ namespace MPlayer
 Backend::Backend(QObject * parent, const QVariantList &)
 	: QObject(parent) {
 
-	_smplayerCore = NULL;
-	_smplayerWindow = NULL;
-
 	setProperty("identifier", QLatin1String("phonon_mplayer"));
 	setProperty("backendName", QLatin1String("MPlayer"));
 	setProperty("backendComment", QLatin1String("MPlayer plugin for Phonon"));
@@ -66,35 +57,9 @@ Backend::Backend(QObject * parent, const QVariantList &)
 	setProperty("backendWebsite", QLatin1String("http://multimedia.kde.org/"));
 
 	qDebug() << "Using MPlayer version:" << "not yet implemented";
-
-	//Before everything else
-	//Create Core + global_init(): avoid some crashes inside pref
-	getSMPlayerCore();
 }
 
 Backend::~Backend() {
-	//delete _smplayerWindow;
-	delete _smplayerCore;
-}
-
-Core * Backend::getSMPlayerCore() {
-	//Lazy initialization
-	if (!_smplayerCore) {
-		SmplayerCoreLib * smplayerlib = new SmplayerCoreLib(NULL);
-		_smplayerCore = smplayerlib->core();
-		_smplayerWindow = smplayerlib->mplayerWindow();
-	}
-
-	return _smplayerCore;
-}
-
-MplayerWindow * Backend::getSMPlayerWindow() {
-	//Lazy initialization
-	if (!_smplayerWindow) {
-		getSMPlayerCore();
-	}
-
-	return _smplayerWindow;
 }
 
 QObject * Backend::createObject(BackendInterface::Class c, QObject * parent, const QList<QVariant> & args) {

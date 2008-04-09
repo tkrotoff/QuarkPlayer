@@ -18,9 +18,8 @@
 
 #include "AudioOutput.h"
 
-#include "Backend.h"
-
-#include "smplayer/core.h"
+#include <mplayer/MPlayerProcess.h>
+#include <mplayer/MPlayerLoader.h>
 
 namespace Phonon
 {
@@ -31,21 +30,26 @@ AudioOutput::AudioOutput(QObject * parent)
 	: QObject(parent) {
 
 	_volume = 0;
-
-	connect(Backend::getSMPlayerCore(), SIGNAL(volumeChanged(int)),
-		SLOT(volumeChangedSlotInternal(int)));
 }
 
 AudioOutput::~AudioOutput() {
 }
 
 qreal AudioOutput::volume() const {
+	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
+	if (process) {
+		process->writeToStdin("	get_property volume");
+	}
+
 	return _volume;
 }
 
 void AudioOutput::setVolume(qreal volume) {
-	//Core::setVolume() varies from 0 to 100
-	Backend::getSMPlayerCore()->setVolume(volume * 100);
+	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
+	if (process) {
+		process->writeToStdin("volume " + QString::number(volume * 100) + " 1");
+	}
+	AudioOutput::volume();
 }
 
 int AudioOutput::outputDevice() const {
@@ -53,14 +57,7 @@ int AudioOutput::outputDevice() const {
 }
 
 bool AudioOutput::setOutputDevice(int device) {
-	Backend::getSMPlayerCore()->changeAudio(device);
 	return true;
-}
-
-void AudioOutput::volumeChangedSlotInternal(int volume) {
-	//volume varies from 0 to 100
-	_volume = volume / 100.0;
-	emit volumeChanged(_volume);
 }
 
 }}	//Namespace Phonon::MPlayer

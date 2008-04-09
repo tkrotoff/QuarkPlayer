@@ -13,10 +13,7 @@ message(STATUS "KDE4 Dir: ${KDE4_DATA_DIR}")
 
 include_directories(${QT_INCLUDE_DIR})
 
-# Always include srcdir and builddir in include path
-# This saves typing ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY} in about every subdir
-# since cmake 2.4.0
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 if (KDE4_FOUND)
 	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE4_FOUND)
@@ -25,55 +22,30 @@ endif (KDE4_FOUND)
 
 
 
-#Because of libsmplayer includes <QObject> rather than include <QtCore/QObject>
-#Increases compilation time :/
-include(${QT_USE_FILE})
 
-add_definitions(-DMINILIB)
-
-#libsmplayer
-set(libsmplayer_SRCS
-	smplayer/core.cpp
-	smplayer/desktopinfo.cpp
-	smplayer/global.cpp
-	smplayer/helper.cpp
-	smplayer/mediadata.cpp
-	smplayer/mediasettings.cpp
-	smplayer/mplayerprocess.cpp
-	smplayer/mplayerversion.cpp
-	smplayer/mplayerwindow.cpp
-	smplayer/myprocess.cpp
-	smplayer/preferences.cpp
-	smplayer/subtracks.cpp
-	smplayer/trackdata.cpp
-	smplayer/tracks.cpp
-	smplayer/smplayercorelib.cpp
-	smplayer/infoprovider.cpp
+#libmplayer
+set(libmplayer_SRCS
+	mplayer/MyProcess.cpp
+	mplayer/MediaData.cpp
+	mplayer/MPlayerVersion.cpp
+	mplayer/MPlayerProcess.cpp
+	mplayer/MPlayerLoader.cpp
 )
 
-if (WIN32)
-	set(libsmplayer_SRCS
-		${libsmplayer_SRCS}
-		smplayer/screensaver.cpp
-	)
-endif (WIN32)
-
-qt4_wrap_cpp(libsmplayer_SRCS
-	smplayer/core.h
-	smplayer/mplayerprocess.h
-	smplayer/mplayerwindow.h
-	smplayer/myprocess.h
-	smplayer/smplayercorelib.h
+qt4_wrap_cpp(libmplayer_SRCS
+	mplayer/MyProcess.h
+	mplayer/MPlayerProcess.h
+	mplayer/MPlayerLoader.h
 )
 
-add_library(libsmplayer STATIC ${libsmplayer_SRCS})
+add_library(libmplayer STATIC ${libmplayer_SRCS})
 
 
 
 
 #phonon_mplayer
 include_directories(
-	smplayer
+	mplayer
 )
 
 set(phonon_mplayer_SRCS
@@ -81,6 +53,7 @@ set(phonon_mplayer_SRCS
 	MediaObject.cpp
 	VideoWidget.cpp
 	AudioOutput.cpp
+	MPlayerMediaObject.cpp
 )
 
 if (NOT KDE4_FOUND)
@@ -89,6 +62,7 @@ if (NOT KDE4_FOUND)
 		MediaObject.h
 		VideoWidget.h
 		AudioOutput.h
+		MPlayerMediaObject.h
 	)
 endif (NOT KDE4_FOUND)
 
@@ -111,14 +85,14 @@ if (KDE4_FOUND)
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
 		${KDE4_PHONON_LIBS}
-		libsmplayer
+		libmplayer
 	)
 else (KDE4_FOUND)
 	target_link_libraries(phonon_mplayer
 		${QT_QTCORE_LIBRARY_DEBUG}
 		${QT_QTGUI_LIBRARY_DEBUG}
 		${QT_PHONON_LIBRARY_DEBUG}
-		libsmplayer
+		libmplayer
 	)
 endif (KDE4_FOUND)
 

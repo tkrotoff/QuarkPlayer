@@ -27,9 +27,6 @@
 #include <QtCore/QStringList>
 #include <QtCore/QObject>
 
-class Core;
-class MplayerWindow;
-
 namespace Phonon
 {
 namespace MPlayer
@@ -65,22 +62,6 @@ public:
 	bool disconnectNodes(QObject *, QObject *);
 	bool endConnectionChange(QSet<QObject *>);
 
-	/**
-	 * Internal.
-	 * Ugly hack to get SMPlayer core accessible from everywhere.
-	 *
-	 * Global variable.
-	 */
-	static Core * getSMPlayerCore();
-
-	/**
-	 * Internal.
-	 * Ugly hack to get SMPlayer window accessible from everywhere.
-	 *
-	 * Global variable.
-	 */
-	static MplayerWindow * getSMPlayerWindow();
-
 public slots:
 
 	/**
@@ -100,12 +81,6 @@ signals:
 private:
 
 	mutable QStringList _supportedMimeTypes;
-
-	/** Hack, global variable. */
-	static Core * _smplayerCore;
-
-	/** Hack, global variable. */
-	static MplayerWindow * _smplayerWindow;
 };
 
 }}	//Namespace Phonon::MPlayer

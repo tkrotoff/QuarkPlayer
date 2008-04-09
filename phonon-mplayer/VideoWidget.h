@@ -72,7 +72,11 @@ public:
 
 	QWidget * widget();
 
+	static WId _videoWidgetId;
+
 private:
+
+	QWidget * _widget;
 
 	Phonon::VideoWidget::AspectRatio _aspectRatio;
 

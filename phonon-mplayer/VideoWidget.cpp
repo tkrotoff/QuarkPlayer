@@ -18,10 +18,8 @@
 
 #include "VideoWidget.h"
 
-#include "Backend.h"
-
-#include "smplayer/core.h"
-#include "smplayer/mplayerwindow.h"
+#include <mplayer/MPlayerProcess.h>
+#include <mplayer/MPlayerLoader.h>
 
 #include <QtGui/QWidget>
 
@@ -30,11 +28,14 @@ namespace Phonon
 namespace MPlayer
 {
 
+WId VideoWidget::_videoWidgetId = 0;
+
 VideoWidget::VideoWidget(QWidget * parent)
 	: QObject(parent) {
 
-	MplayerWindow * smplayerWindow = Backend::getSMPlayerWindow();
-	smplayerWindow->show();
+	_widget = new QWidget(parent);
+
+	_videoWidgetId = _widget->winId();
 
 	_aspectRatio = Phonon::VideoWidget::AspectRatioAuto;
 	_brightness = 0;
@@ -45,6 +46,7 @@ VideoWidget::VideoWidget(QWidget * parent)
 }
 
 VideoWidget::~VideoWidget() {
+	_videoWidgetId = 0;
 }
 
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const {
@@ -66,16 +68,12 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 
 	switch(_aspectRatio) {
 	case Phonon::VideoWidget::AspectRatioWidget:
-		Backend::getSMPlayerCore()->changeAspectRatio(MediaSettings::AspectAuto);
 		break;
 	case Phonon::VideoWidget::AspectRatioAuto:
-		Backend::getSMPlayerCore()->changeAspectRatio(MediaSettings::AspectAuto);
 		break;
 	case Phonon::VideoWidget::AspectRatio4_3:
-		Backend::getSMPlayerCore()->changeAspectRatio(MediaSettings::Aspect43);
 		break;
 	case Phonon::VideoWidget::AspectRatio16_9:
-		Backend::getSMPlayerCore()->changeAspectRatio(MediaSettings::Aspect169);
 		break;
 	default:
 		qWarning() << __FUNCTION__ << "unknow Phonon::VideoWidget::AspectRatio:" << _aspectRatio;
@@ -88,7 +86,11 @@ qreal VideoWidget::brightness() const {
 
 void VideoWidget::setBrightness(qreal brightness) {
 	_brightness = brightness;
-	Backend::getSMPlayerCore()->setBrightness(brightness * 100);
+
+	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
+	if (process) {
+		process->writeToStdin("brightness " + QString::number(_brightness * 100) + " 1");
+	}
 }
 
 Phonon::VideoWidget::ScaleMode VideoWidget::scaleMode() const {
@@ -114,7 +116,11 @@ qreal VideoWidget::contrast() const {
 
 void VideoWidget::setContrast(qreal contrast) {
 	_contrast = contrast;
-	Backend::getSMPlayerCore()->setContrast(_contrast * 100);
+
+	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
+	if (process) {
+		process->writeToStdin("contrast " + QString::number(_contrast * 100) + " 1");
+	}
 }
 
 qreal VideoWidget::hue() const {
@@ -123,7 +129,11 @@ qreal VideoWidget::hue() const {
 
 void VideoWidget::setHue(qreal hue) {
 	_hue = hue;
-	Backend::getSMPlayerCore()->setHue(hue * 100);
+
+	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
+	if (process) {
+		process->writeToStdin("hue " + QString::number(_hue * 100) + " 1");
+	}
 }
 
 qreal VideoWidget::saturation() const {
@@ -132,11 +142,15 @@ qreal VideoWidget::saturation() const {
 
 void VideoWidget::setSaturation(qreal saturation) {
 	_saturation = saturation;
-	Backend::getSMPlayerCore()->setSaturation(saturation * 100);
+
+	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
+	if (process) {
+		process->writeToStdin("saturation " + QString::number(_saturation * 100) + " 1");
+	}
 }
 
 QWidget * VideoWidget::widget() {
-	return Backend::getSMPlayerWindow();
+	return _widget;
 }
 
 }}	//Namespace Phonon::MPlayer

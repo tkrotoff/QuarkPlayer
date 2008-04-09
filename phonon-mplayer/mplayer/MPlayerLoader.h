@@ -16,49 +16,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_MPLAYER_AUDIOOUTPUT_H
-#define PHONON_MPLAYER_AUDIOOUTPUT_H
-
-#include <phonon/audiooutputinterface.h>
+#ifndef MPLAYERLOADER_H
+#define MPLAYERLOADER_H
 
 #include <QtCore/QObject>
+#include <QtCore/QString>
 
-namespace Phonon
-{
-namespace MPlayer
-{
+class MPlayerProcess;
 
-/**
- *
- *
- * @author Tanguy Krotoff
- */
-class AudioOutput : public QObject, public AudioOutputInterface {
+#ifdef Q_OS_WIN
+	static const char * MPLAYER_EXE = "C:/Program Files/SMPlayer/mplayer/mplayer.exe";
+#else
+	static const char * MPLAYER_EXE = "mplayer";
+#endif
+
+class MPlayerLoader : public QObject {
 	Q_OBJECT
-	Q_INTERFACES(Phonon::AudioOutputInterface)
 public:
 
-	AudioOutput(QObject * parent);
-	~AudioOutput();
+	MPlayerLoader(MPlayerProcess * process, QObject * parent);
+	~MPlayerLoader();
 
-	qreal volume() const;
-	void setVolume(qreal volume);
+	void startMPlayerProcess(const QString & filename, int videoWidgetId);
 
-	int outputDevice() const;
-	bool setOutputDevice(int);
-
-signals:
-
-	void volumeChanged(qreal volume);
-
-private slots:
-
+	static MPlayerProcess * getCurrentMPlayerProcess();
 
 private:
 
-	qreal _volume;
+	/** MPlayer process. */
+	MPlayerProcess * _process;
+
+	static MPlayerProcess * _currentProcess;
 };
 
-}}	//Namespace Phonon::MPlayer
-
-#endif	//PHONON_MPLAYER_AUDIOOUTPUT_H
+#endif	//MPLAYERLOADER_H
