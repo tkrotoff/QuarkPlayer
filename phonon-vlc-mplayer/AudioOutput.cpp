@@ -18,14 +18,19 @@
 
 #include "AudioOutput.h"
 
+#include "MediaObject.h"
+
 #ifdef PHONON_VLC
+	#include "VLCMediaObject.h"
+
 	#include "vlc_loader.h"
 	#include "vlc_symbols.h"
 #endif	//PHONON_VLC
 
 #ifdef PHONON_MPLAYER
+	#include "MPlayerMediaObject.h"
+
 	#include <mplayer/MPlayerProcess.h>
-	#include <mplayer/MPlayerLoader.h>
 #endif	//PHONON_MPLAYER
 
 namespace Phonon
@@ -35,9 +40,30 @@ namespace VLC_MPlayer
 
 AudioOutput::AudioOutput(QObject * parent)
 	: QObject(parent) {
+
+	_mediaObject = NULL;
 }
 
 AudioOutput::~AudioOutput() {
+}
+
+void AudioOutput::connectToMediaObject(MediaObject * mediaObject) {
+	if (_mediaObject && mediaObject) {
+		qCritical() << __FUNCTION__ << "_mediaObject already connected";
+	}
+
+	_mediaObject = mediaObject;
+}
+
+void AudioOutput::sendMPlayerCommand(const QString & command) const {
+#ifdef PHONON_MPLAYER
+	if (_mediaObject) {
+		MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
+		if (process) {
+			process->writeToStdin(command);
+		}
+	}
+#endif	//PHONON_MPLAYER
 }
 
 qreal AudioOutput::volume() const {
@@ -50,12 +76,7 @@ qreal AudioOutput::volume() const {
 	}
 #endif	//PHONON_VLC
 
-#ifdef PHONON_MPLAYER
-	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
-	if (process) {
-		process->writeToStdin("get_property volume");
-	}
-#endif	//PHONON_MPLAYER
+	sendMPlayerCommand("get_property volume");
 
 	return volume;
 }
@@ -68,12 +89,7 @@ void AudioOutput::setVolume(qreal volume) {
 	}
 #endif	//PHONON_VLC
 
-#ifdef PHONON_MPLAYER
-	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
-	if (process) {
-		process->writeToStdin("volume " + QString::number(volume * 100) + " 1");
-	}
-#endif	//PHONON_MPLAYER
+	sendMPlayerCommand("volume " + QString::number(volume * 100) + " 1");
 }
 
 int AudioOutput::outputDevice() const {

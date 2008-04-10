@@ -39,13 +39,7 @@ MediaObject::MediaObject(QObject * parent)
 
 	_currentState = Phonon::LoadingState;
 
-#ifdef PHONON_VLC
-	_pMediaObject = new VLCMediaObject(this);
-#endif	//PHONON_VLC
-
-#ifdef PHONON_MPLAYER
-	_pMediaObject = new MPlayerMediaObject(this);
-#endif	//PHONON_MPLAYER
+	_pMediaObject = new PrivateMediaObject(this);
 
 	qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 
@@ -67,6 +61,14 @@ MediaObject::MediaObject(QObject * parent)
 
 MediaObject::~MediaObject() {
 	delete _pMediaObject;
+}
+
+PrivateMediaObject & MediaObject::getPrivateMediaObject() const {
+	return *_pMediaObject;
+}
+
+void MediaObject::setVideoWidgetId(int videoWidgetId) {
+	_pMediaObject->setVideoWidgetId(videoWidgetId);
 }
 
 void MediaObject::play() {

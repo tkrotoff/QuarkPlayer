@@ -28,6 +28,8 @@ namespace Phonon
 namespace VLC_MPlayer
 {
 
+class MediaObject;
+
 /**
  *
  *
@@ -41,6 +43,8 @@ public:
 	AudioOutput(QObject * parent);
 	~AudioOutput();
 
+	void connectToMediaObject(MediaObject * mediaObject);
+
 	qreal volume() const;
 	void setVolume(qreal volume);
 
@@ -53,6 +57,9 @@ signals:
 
 private:
 
+	void sendMPlayerCommand(const QString & command) const;
+
+	MediaObject * _mediaObject;
 };
 
 }}	//Namespace Phonon::VLC_MPlayer

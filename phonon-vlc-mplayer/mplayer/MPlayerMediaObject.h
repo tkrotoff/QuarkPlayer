@@ -43,6 +43,8 @@ public:
 	MPlayerMediaObject(QObject * parent);
 	~MPlayerMediaObject();
 
+	void setVideoWidgetId(int videoWidgetId);
+
 	void loadMedia(const QString & filename);
 	void play();
 	void pause();
@@ -56,6 +58,16 @@ public:
 	qint64 totalTime() const;
 
 	QString errorString() const;
+
+	/**
+	 * Gets the MPlayerProcess used by this class.
+	 *
+	 * If NULL is returned, this means that method play()
+	 * has not been called yet.
+	 *
+	 * @return the MPlayerProcess or NULL
+	 */
+	MPlayerProcess * getMPlayerProcess() const;
 
 signals:
 
@@ -97,6 +109,8 @@ private:
 	qint64 _totalTime;
 	Phonon::State _currentState; 
 	QString _filename;
+
+	int _videoWidgetId;
 };
 
 }}	//Namespace Phonon::MPlayer

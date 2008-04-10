@@ -30,6 +30,8 @@ namespace Phonon
 namespace VLC_MPlayer
 {
 
+class MediaObject;
+
 /**
  *
  *
@@ -42,6 +44,8 @@ public:
 
 	VideoWidget(QWidget * parent);
 	~VideoWidget();
+
+	void connectToMediaObject(MediaObject * mediaObject);
 
 	Phonon::VideoWidget::AspectRatio aspectRatio() const;
 	void setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio);
@@ -63,14 +67,9 @@ public:
 
 	QWidget * widget();
 
-	/**
-	 * Widget Id where VLC or MPlayer will show the videos.
-	 *
-	 * Global variable.
-	 */
-	static WId _videoWidgetId;
-
 private:
+
+	void sendMPlayerCommand(const QString & command) const;
 
 	QWidget * _widget;
 
@@ -85,6 +84,8 @@ private:
 	qreal _hue;
 
 	qreal _saturation;
+
+	MediaObject * _mediaObject;
 };
 
 }}	//Namespace Phonon::VLC_MPlayer

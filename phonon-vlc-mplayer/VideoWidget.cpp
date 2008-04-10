@@ -18,14 +18,17 @@
 
 #include "VideoWidget.h"
 
+#include "MediaObject.h"
+
 #ifdef PHONON_VLC
 	#include "vlc_loader.h"
 	#include "vlc_symbols.h"
 #endif	//PHONON_VLC
 
 #ifdef PHONON_MPLAYER
+	#include "MPlayerMediaObject.h"
+
 	#include <mplayer/MPlayerProcess.h>
-	#include <mplayer/MPlayerLoader.h>
 #endif	//PHONON_MPLAYER
 
 #include <QtGui/QWidget>
@@ -36,14 +39,12 @@ namespace Phonon
 namespace VLC_MPlayer
 {
 
-WId VideoWidget::_videoWidgetId = 0;
-
 VideoWidget::VideoWidget(QWidget * parent)
 	: QObject(parent) {
 
-	_widget = new QWidget(parent);
+	_mediaObject = NULL;
 
-	_videoWidgetId = _widget->winId();
+	_widget = new QWidget(parent);
 
 	_aspectRatio = Phonon::VideoWidget::AspectRatioAuto;
 	_brightness = 0;
@@ -54,6 +55,27 @@ VideoWidget::VideoWidget(QWidget * parent)
 }
 
 VideoWidget::~VideoWidget() {
+}
+
+void VideoWidget::connectToMediaObject(MediaObject * mediaObject) {
+	if (_mediaObject && mediaObject) {
+		qCritical() << __FUNCTION__ << "_mediaObject already connected";
+	}
+
+	_mediaObject = mediaObject;
+
+	_mediaObject->setVideoWidgetId((int) _widget->winId());
+}
+
+void VideoWidget::sendMPlayerCommand(const QString & command) const {
+#ifdef PHONON_MPLAYER
+	if (_mediaObject) {
+		MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
+		if (process) {
+			process->writeToStdin(command);
+		}
+	}
+#endif	//PHONON_MPLAYER
 }
 
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const {
@@ -91,12 +113,7 @@ qreal VideoWidget::brightness() const {
 void VideoWidget::setBrightness(qreal brightness) {
 	_brightness = brightness;
 
-#ifdef PHONON_MPLAYER
-	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
-	if (process) {
-		process->writeToStdin("brightness " + QString::number(_brightness * 100) + " 1");
-	}
-#endif	//PHONON_MPLAYER
+	sendMPlayerCommand("brightness " + QString::number(_brightness * 100) + " 1");
 }
 
 Phonon::VideoWidget::ScaleMode VideoWidget::scaleMode() const {
@@ -123,12 +140,7 @@ qreal VideoWidget::contrast() const {
 void VideoWidget::setContrast(qreal contrast) {
 	_contrast = contrast;
 
-#ifdef PHONON_MPLAYER
-	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
-	if (process) {
-		process->writeToStdin("contrast " + QString::number(_contrast * 100) + " 1");
-	}
-#endif	//PHONON_MPLAYER
+	sendMPlayerCommand("contrast " + QString::number(_contrast * 100) + " 1");
 }
 
 qreal VideoWidget::hue() const {
@@ -138,12 +150,7 @@ qreal VideoWidget::hue() const {
 void VideoWidget::setHue(qreal hue) {
 	_hue = hue;
 
-#ifdef PHONON_MPLAYER
-	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
-	if (process) {
-		process->writeToStdin("hue " + QString::number(_hue * 100) + " 1");
-	}
-#endif	//PHONON_MPLAYER
+	sendMPlayerCommand("hue " + QString::number(_hue * 100) + " 1");
 }
 
 qreal VideoWidget::saturation() const {
@@ -153,12 +160,7 @@ qreal VideoWidget::saturation() const {
 void VideoWidget::setSaturation(qreal saturation) {
 	_saturation = saturation;
 
-#ifdef PHONON_MPLAYER
-	MPlayerProcess * process = MPlayerLoader::getCurrentMPlayerProcess();
-	if (process) {
-		process->writeToStdin("saturation " + QString::number(_saturation * 100) + " 1");
-	}
-#endif	//PHONON_MPLAYER
+	sendMPlayerCommand("saturation " + QString::number(_saturation * 100) + " 1");
 }
 
 QWidget * VideoWidget::widget() {

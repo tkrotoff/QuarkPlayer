@@ -43,9 +43,15 @@ MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
 
 	_currentTime = 0;
 	_totalTime = 0;
+
+	_videoWidgetId = 0;
 }
 
 MPlayerMediaObject::~MPlayerMediaObject() {
+}
+
+void MPlayerMediaObject::setVideoWidgetId(int videoWidgetId) {
+	_videoWidgetId = videoWidgetId;
 }
 
 void MPlayerMediaObject::loadMedia(const QString & filename) {
@@ -106,7 +112,7 @@ void MPlayerMediaObject::mediaLoaded() {
 
 void MPlayerMediaObject::play() {
 	_playRequestReached = true;
-	_process = mplayerLoader.startMPlayerProcess(_filename, (int) VideoWidget::_videoWidgetId);
+	_process = mplayerLoader.startMPlayerProcess(_filename, (int) _videoWidgetId);
 
 	connect(_process, SIGNAL(pause()),
 		SLOT(pausedState()));
@@ -116,6 +122,10 @@ void MPlayerMediaObject::play() {
 		SLOT(endOfFile()));
 	connect(_process, SIGNAL(finished(int, QProcess::ExitStatus)),
 		SLOT(finished(int, QProcess::ExitStatus)));
+}
+
+MPlayerProcess * MPlayerMediaObject::getMPlayerProcess() const {
+	return _process;
 }
 
 void MPlayerMediaObject::setState(Phonon::State newState) {

@@ -54,13 +54,13 @@ public:
 
 	void freeSoundcardDevices();
 
-	QList<int> objectDescriptionIndexes(ObjectDescriptionType) const;
-	QHash<QByteArray, QVariant> objectDescriptionProperties(ObjectDescriptionType, int) const;
+	QList<int> objectDescriptionIndexes(ObjectDescriptionType type) const;
+	QHash<QByteArray, QVariant> objectDescriptionProperties(ObjectDescriptionType type, int index) const;
 
-	bool startConnectionChange(QSet<QObject *>);
-	bool connectNodes(QObject *, QObject *);
-	bool disconnectNodes(QObject *, QObject *);
-	bool endConnectionChange(QSet<QObject *>);
+	bool startConnectionChange(QSet<QObject *> nodes);
+	bool connectNodes(QObject * source, QObject * sink);
+	bool disconnectNodes(QObject * source, QObject * sink);
+	bool endConnectionChange(QSet<QObject *> nodes);
 
 public slots:
 

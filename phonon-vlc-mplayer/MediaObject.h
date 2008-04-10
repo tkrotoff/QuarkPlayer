@@ -29,8 +29,15 @@ namespace Phonon
 namespace VLC_MPlayer
 {
 
-class VLCMediaObject;
-class MPlayerMediaObject;
+#ifdef	PHONON_VLC
+	class VLCMediaObject;
+	typedef VLCMediaObject PrivateMediaObject;
+#endif	//PHONON_VLC
+
+#ifdef	PHONON_MPLAYER
+	class MPlayerMediaObject;
+	typedef MPlayerMediaObject PrivateMediaObject;
+#endif	//PHONON_MPLAYER
 
 /**
  *
@@ -44,6 +51,11 @@ public:
 
 	MediaObject(QObject * parent);
 	~MediaObject();
+
+	/**
+	 * Widget Id where VLC or MPlayer will show the videos.
+	 */
+	void setVideoWidgetId(int videoWidgetId);
 
 	void play();
 	void pause();
@@ -76,6 +88,16 @@ public:
 	//From AddonInterface
 	QVariant interfaceCall(Interface iface, int command, const QList<QVariant> & arguments = QList<QVariant>());
 
+	/**
+	 * Gets the private MediaObject used.
+	 *
+	 * i.e VLCMediaObject or MPlayerMediaObject
+	 * This allow to do specific stuffs for VLC or MPlayer
+	 *
+	 * @return VLCMediaObject or MPlayerMediaObject
+	 */
+	PrivateMediaObject & getPrivateMediaObject() const;
+
 signals:
 
 	//void aboutToFinish()
@@ -105,13 +127,11 @@ private:
 
 	MediaSource _mediaSource;
 
-#ifdef	PHONON_VLC
-	VLCMediaObject * _pMediaObject;
-#endif	//PHONON_VLC
-
-#ifdef	PHONON_MPLAYER
-	MPlayerMediaObject * _pMediaObject;
-#endif	//PHONON_MPLAYER
+	/**
+	 * Cannot make it a reference,
+	 * otherwise it crashes inside QObject...
+	 */
+	PrivateMediaObject * _pMediaObject;
 
 	Phonon::State _currentState;
 };

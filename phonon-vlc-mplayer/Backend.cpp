@@ -128,8 +128,8 @@ QObject * Backend::createObject(BackendInterface::Class c, QObject * parent, con
 	case VisualizationClass:
 		return new Visualization(parent);
 	case VideoDataOutputClass:
-		return new VideoDataOutput(parent);
-	case EffectClass: {
+		return new VideoDataOutput(parent);*/
+	/*case EffectClass: {
 		Q_ASSERT(args.size() == 1);
 		qDebug() << "creating Effect(" << args[0];
 		Effect * effect = new Effect(args[0].toInt(), parent);
@@ -241,6 +241,8 @@ QStringList Backend::availableMimeTypes() const {
 }
 
 QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
+	qDebug() << __FUNCTION__ << "";
+
 	QList<int> list;
 
 	/*switch(type) {
@@ -268,6 +270,8 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
 }
 
 QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescriptionType type, int index) const {
+	qDebug() << __FUNCTION__ << "";
+
 	QHash<QByteArray, QVariant> ret;
 
 	/*switch (type) {
@@ -295,21 +299,64 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 }
 
 bool Backend::startConnectionChange(QSet<QObject *> nodes) {
+	qDebug() << __FUNCTION__ << "";
+	foreach (QObject * node, nodes) {
+		qDebug() << "node:" << node->metaObject()->className();
+	}
+
 	Q_UNUSED(nodes);
-	// there's nothing we can do but hope the connection changes won't take too long so that buffers
-	// would underrun. But we should be pretty safe the way xine works by not doing anything here.
+	//There's nothing we can do but hope the connection changes won't take too long so that buffers
+	//would underrun. But we should be pretty safe the way xine works by not doing anything here.
 	return true;
 }
 
-bool Backend::connectNodes(QObject * _source, QObject * _sink) {
-	return true;
+bool Backend::connectNodes(QObject * source, QObject * sink) {
+	qDebug() << __FUNCTION__ << source->metaObject()->className() << sink->metaObject()->className();
+
+	//Example:
+	//source = Phonon::VLC_MPlayer::MediaObject (inherits Phonon::MediaNode)
+	//sink = Phonon::VLC_MPlayer::VideoWidget (inherits Phonon::MediaNode)
+	VideoWidget * videoWidget = qobject_cast<VideoWidget *>(sink);
+	if (videoWidget) {
+		//We have a VideoWidget
+		MediaObject * mediaObject = qobject_cast<MediaObject *>(source);
+		if (mediaObject) {
+			//Connects the VideoWidget to a MediaObject
+			videoWidget->connectToMediaObject(mediaObject);
+			return true;
+		}
+	}
+
+	//Example:
+	//source = Phonon::VLC_MPlayer::MediaObject (inherits Phonon::MediaNode)
+	//sink = Phonon::VLC_MPlayer::AudioOutput (inherits Phonon::MediaNode)
+	AudioOutput * audioOutput = qobject_cast<AudioOutput *>(sink);
+	if (audioOutput) {
+		//We have a AudioOutput
+		MediaObject * mediaObject = qobject_cast<MediaObject *>(source);
+		if (mediaObject) {
+			//Connects the AudioOutput to a MediaObject
+			audioOutput->connectToMediaObject(mediaObject);
+			return true;
+		}
+	}
+
+	qWarning() << __FUNCTION__ << "Connection not supported";
+	return false;
 }
 
 bool Backend::disconnectNodes(QObject * _source, QObject * _sink) {
+	qDebug() << __FUNCTION__ << _source->metaObject()->className() << "" << _sink->metaObject()->className();
+
 	return true;
 }
 
 bool Backend::endConnectionChange(QSet<QObject *> nodes) {
+	qDebug() << __FUNCTION__ << "";
+	foreach (QObject * node, nodes) {
+		qDebug() << "node:" << node->metaObject()->className();
+	}
+
 	return true;
 }
 
