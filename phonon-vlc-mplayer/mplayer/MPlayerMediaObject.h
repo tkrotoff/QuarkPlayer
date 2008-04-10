@@ -1,5 +1,5 @@
 /*
- * MPlayer backend for the Phonon library
+ * VLC and MPlayer backends for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -52,8 +52,6 @@ public:
 	bool hasVideo() const;
 	bool isSeekable() const;
 
-	Phonon::State state() const;
-
 	qint64 currentTime() const;
 	qint64 totalTime() const;
 
@@ -75,11 +73,13 @@ signals:
 
 private slots:
 
-	void stateChangedPlay();
-	void stateChangedPause();
-	void stateChangedStop(int exitCode, QProcess::ExitStatus exitStatus);
-
+	void pausedState();
+	void finished(int exitCode, QProcess::ExitStatus exitStatus);
+	void endOfFile();
 	void tickInternal(double seconds);
+
+	void loadMediaInternal();
+	void mediaLoaded();
 
 private:
 
@@ -88,11 +88,14 @@ private:
 	/** MPlayer process. */
 	MPlayerProcess * _process;
 
+	/** MPlayer process for loading media data. */
+	MPlayerProcess * _mediaDataLoader;
+
+	bool _playRequestReached;
+
 	qint64 _currentTime;
 	qint64 _totalTime;
-
-	Phonon::State _currentState;
-
+	Phonon::State _currentState; 
 	QString _filename;
 };
 

@@ -21,31 +21,44 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
+#include <QtCore/QList>
 
 class MPlayerProcess;
 
-#ifdef Q_OS_WIN
-	static const char * MPLAYER_EXE = "C:/Program Files/SMPlayer/mplayer/mplayer.exe";
-#else
-	static const char * MPLAYER_EXE = "mplayer";
-#endif
-
+/**
+ * Helps to launch a MPlayer process.
+ *
+ * Keeps a list of all the MPlayer process.
+ *
+ * @author Tanguy Krotoff
+ */
 class MPlayerLoader : public QObject {
 	Q_OBJECT
 public:
 
-	MPlayerLoader(MPlayerProcess * process, QObject * parent);
+	MPlayerLoader(QObject * parent);
 	~MPlayerLoader();
 
-	void startMPlayerProcess(const QString & filename, int videoWidgetId);
+	MPlayerProcess * loadMedia(const QString & filename);
+
+	MPlayerProcess * startMPlayerProcess(const QString & filename, int videoWidgetId);
 
 	static MPlayerProcess * getCurrentMPlayerProcess();
 
+signals:
+
+private slots:
+
 private:
 
-	/** MPlayer process. */
+	MPlayerProcess * createNewMPlayerProcess();
+
+	/** List of MPlayer process. */
+	QList<MPlayerProcess *> _processList;
+
 	MPlayerProcess * _process;
 
+	/** Current MPlayer process. */
 	static MPlayerProcess * _currentProcess;
 };
 

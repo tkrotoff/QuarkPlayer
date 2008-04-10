@@ -1,20 +1,21 @@
-/*  smplayer, GUI front-end for mplayer.
-    Copyright (C) 2006-2008 Ricardo Villalba <rvm@escomposlinux.org>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/*
+ * VLC and MPlayer backends for the Phonon library
+ * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
+ * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "MyProcess.h"
 
@@ -22,8 +23,6 @@
 
 MyProcess::MyProcess(QObject * parent)
 	: QProcess(parent) {
-
-	clearArguments();
 
 	//QProcess::MergedChannels
 	//QProcess merges the output of the running process into the standard
@@ -36,72 +35,59 @@ MyProcess::MyProcess(QObject * parent)
 	//This signal is emitted when the process has made new data available through
 	//its standard output channel (stdout). It is emitted regardless of the
 	//current read channel.
-	connect(this, SIGNAL(readyReadStandardOutput()), SLOT(readStdOut()));
+	connect(this, SIGNAL(readyReadStandardOutput()), SLOT(readStdout()));
 
-	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(finished()));
+	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(finished(int, QProcess::ExitStatus)));
+
+	connect(this, SIGNAL(error(QProcess::ProcessError)), SLOT(error(QProcess::ProcessError)));
 }
 
-void MyProcess::clearArguments() {
-	_program.clear();
-	_args.clear();
+MyProcess::~MyProcess() {
 }
 
 bool MyProcess::isRunning() const {
 	return (state() == QProcess::Running);
 }
 
-void MyProcess::addArgument(const QString & argument) {
-	if (_program.isEmpty()) {
-		_program = argument;
-	} else {
-		_args.append(argument);
-	}
-}
-
-QStringList MyProcess::arguments() {
-	QStringList args = _args;
-	args.prepend(_program);
-	return args;
-}
-
-void MyProcess::start() {
+void MyProcess::start(const QString & program, const QStringList & arguments) {
 	_remainingOutput.clear();
 
-	QProcess::start(_program, _args);
+	qDebug() << __FUNCTION__ << "Process started:" << program << arguments.join(" ");
+	QProcess::start(program, arguments);
 }
 
-void MyProcess::readStdOut() {
+void MyProcess::readStdout() {
 	genericRead(readAllStandardOutput());
 }
 
 void MyProcess::genericRead(const QByteArray & output) {
 	QByteArray totalOutput = _remainingOutput + output;
 	int start = 0;
-	int from_pos = 0;
-	int pos = canReadLine(totalOutput, from_pos);
+	int from = 0;
+	int pos = canReadLine(totalOutput, from);
 
 	//qDebug("MyProcess::read: pos: %d", pos);
 	while (pos > -1) {
 		//Readline
 		//QByteArray line = totalOutput.left(pos);
 		QByteArray line = totalOutput.mid(start, pos - start);
-		//totalOutput = totalOutput.mid(pos+1);
-		from_pos = pos + 1;
+		//totalOutput = totalOutput.mid(pos + 1);
+		from = pos + 1;
 
 #ifdef Q_OS_WIN
-		if ((from_pos < totalOutput.size()) && (totalOutput.at(from_pos) == '\n')) {
-			from_pos++;
+		if ((from < totalOutput.size()) && (totalOutput.at(from) == '\n')) {
+			from++;
 		}
 #endif	//Q_OS_WIN
 
-		start = from_pos;
+		start = from;
 
 		emit lineAvailable(line);
 
-		pos = canReadLine(totalOutput, from_pos);
+		pos = canReadLine(totalOutput, from);
 	}
 
-	_remainingOutput = totalOutput.mid(from_pos);
+	_remainingOutput = totalOutput.mid(from);
 }
 
 int MyProcess::canReadLine(const QByteArray & output, int from) {
@@ -136,10 +122,37 @@ int MyProcess::canReadLine(const QByteArray & output, int from) {
 	return pos;
 }
 
-void MyProcess::finished() {
-	qDebug() << __FUNCTION__ << "Bytes available:" << bytesAvailable();
+void MyProcess::finished(int exitCode, QProcess::ExitStatus exitStatus) {
+	qDebug() << __FUNCTION__ << "Bytes still available:" << bytesAvailable();
 
 	if (bytesAvailable() > 0) {
-		readStdOut();
+		readStdout();
+	}
+
+	qDebug() << __FUNCTION__ << "Process ended: exitCode:" << exitCode << "exitStatus:" << exitStatus;
+}
+
+void MyProcess::error(QProcess::ProcessError error) {
+	switch (error) {
+	case QProcess::FailedToStart:
+		qCritical() << __FUNCTION__ << "Error: QProcess::FailedToStart";
+		break;
+	case QProcess::Crashed:
+		qCritical() << __FUNCTION__ << "Error: QProcess::Crashed";
+		break;
+	case QProcess::Timedout:
+		qCritical() << __FUNCTION__ << "Error: QProcess::Timedout";
+		break;
+	case QProcess::WriteError:
+		qCritical() << __FUNCTION__ << "Error: QProcess::WriteError";
+		break;
+	case QProcess::ReadError:
+		qCritical() << __FUNCTION__ << "Error: QProcess::ReadError";
+		break;
+	case QProcess::UnknownError:
+		qCritical() << __FUNCTION__ << "Error: QProcess::UnknownError";
+		break;
+	default:
+		qCritical() << __FUNCTION__ << "Error: unknown QProcess::ProcessError:" << error;
 	}
 }

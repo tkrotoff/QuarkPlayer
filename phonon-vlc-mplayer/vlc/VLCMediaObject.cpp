@@ -121,70 +121,17 @@ void VLCMediaObject::pause() {
 }
 
 void VLCMediaObject::stop() {
-	Phonon::State st = state();
-	if (st == Phonon::PlayingState || st == Phonon::PausedState) {
-		p_libvlc_media_player_stop(_vlcMediaPlayer, _vlcException);
-		checkException();
-		//unloadMedia();
-	}
+	//FIXME
+	//inside libvlc, does not check if in playing or paused state
+	p_libvlc_media_player_stop(_vlcMediaPlayer, _vlcException);
+	checkException();
+	//unloadMedia();
 }
 
 void VLCMediaObject::seek(qint64 milliseconds) {
 	qDebug() << (int) this << "seek() milliseconds:" << milliseconds;
 	p_libvlc_media_player_set_time(_vlcMediaPlayer, milliseconds, _vlcException);
 	checkException();
-}
-
-Phonon::State VLCMediaObject::state() const {
-	//Default state value is libvlc_NothingSpecial -> Phonon::LoadingState
-	libvlc_state_t st = libvlc_NothingSpecial;
-
-	if (_vlcMediaPlayer) {
-		st = p_libvlc_media_player_get_state(_vlcMediaPlayer, _vlcException);
-		checkException();
-	}
-
-	Phonon::State state = Phonon::LoadingState;
-
-	switch (st) {
-	case libvlc_NothingSpecial:
-		qDebug() << "state=libvlc_NothingSpecial";
-		state = Phonon::LoadingState;
-		break;
-	case libvlc_Stopped:
-		qDebug() << "state=libvlc_Stopped";
-		state = Phonon::StoppedState;
-		break;
-	case libvlc_Opening:
-		qDebug() << "state=libvlc_Opening";
-		state = Phonon::LoadingState;
-		break;
-	case libvlc_Buffering:
-		qDebug() << "state=libvlc_Buffering";
-		state = Phonon::BufferingState;
-		break;
-	case libvlc_Ended:
-		qDebug() << "state=libvlc_Ended";
-		state = Phonon::StoppedState;
-		break;
-	case libvlc_Error:
-		qDebug() << "state=libvlc_Error";
-		state = Phonon::ErrorState;
-		break;
-	case libvlc_Playing:
-		qDebug() << "state=libvlc_Playing";
-		state = Phonon::PlayingState;
-		break;
-	case libvlc_Paused:
-		qDebug() << "state=libvlc_Paused";
-		state = Phonon::PausedState;
-		break;
-	default:
-		qCritical() << __FUNCTION__ << "error: unknown VLC state:" << st;
-		break;
-	}
-
-	return state;
 }
 
 QString VLCMediaObject::errorString() const {
@@ -361,6 +308,8 @@ void VLCMediaObject::updateMetaData() {
 	checkException();
 
 	emit metaDataChanged(metaDataMap);
+
+	emit stateChanged(Phonon::StoppedState);
 }
 
 qint64 VLCMediaObject::totalTime() const {

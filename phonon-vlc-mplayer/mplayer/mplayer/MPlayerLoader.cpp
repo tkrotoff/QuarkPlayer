@@ -24,58 +24,84 @@
 
 MPlayerProcess * MPlayerLoader::_currentProcess = NULL;
 
-MPlayerLoader::MPlayerLoader(MPlayerProcess * process, QObject * parent)
+#ifdef Q_OS_WIN
+	static const char * MPLAYER_EXE = "C:/Program Files/SMPlayer/mplayer/mplayer.exe";
+#else
+	static const char * MPLAYER_EXE = "mplayer";
+#endif
+
+MPlayerLoader::MPlayerLoader(QObject * parent)
 	: QObject(parent) {
 
-	_process = process;
 }
 
 MPlayerLoader::~MPlayerLoader() {
 }
 
-void MPlayerLoader::startMPlayerProcess(const QString & filename, int videoWidgetId) {
-	_currentProcess = _process;
+MPlayerProcess * MPlayerLoader::createNewMPlayerProcess() {
+	MPlayerProcess * process = new MPlayerProcess(this);
+	_currentProcess = process;
 
-	_process->clearArguments();
+	_processList << _currentProcess;
 
-	_process->addArgument(MPLAYER_EXE);
+	return _currentProcess;
+}
 
-	_process->addArgument("-noquiet");
+MPlayerProcess * MPlayerLoader::startMPlayerProcess(const QString & filename, int videoWidgetId) {
+	MPlayerProcess * process = createNewMPlayerProcess();
+
+	QStringList args;
+	args << "-noquiet";
 
 	//No fullscreen mode
-	_process->addArgument("-nofs");
+	args << "-nofs";
 
 	//TODO ?
-	_process->addArgument("-identify");
+	args << "-identify";
 
 	//Slave mode
-	_process->addArgument("-slave");
+	args << "-slave";
 
 	//Video output
-	_process->addArgument("-vo");
+	args << "-vo";
 #ifdef Q_OS_WIN
-	_process->addArgument("directx,");
+	args << "directx,";
 #else
-	_process->addArgument("xv,");
+	args << "xv,";
 #endif	//Q_OS_WIN
 
 	//TODO ?
-	_process->addArgument("-zoom");
+	args << "-zoom";
 
 	//Attach MPlayer video output to our widget
-	_process->addArgument("-wid");
-	_process->addArgument(QString::number(videoWidgetId));
+	args << "-wid";
+	args << QString::number(videoWidgetId);
 
-	_process->addArgument(filename);
+	args << filename;
 
-	//Log command
-	QString commandLine = _process->arguments().join(" ");
-	qDebug() << "MPlayer command:" << commandLine;
-
-	if (!_process->start()) {
+	if (!process->start(MPLAYER_EXE, args)) {
 		//Error handling
 		qCritical() << __FUNCTION__ << "error: MPlayer process couldn't start";
 	}
+
+	return process;
+}
+
+MPlayerProcess * MPlayerLoader::loadMedia(const QString & filename) {
+	MPlayerProcess * process = createNewMPlayerProcess();
+
+	QStringList args;
+	args << "-identify";
+	args << "-frames";
+	args << "0";
+	args << filename;
+
+	if (!process->start(MPLAYER_EXE, args)) {
+		//Error handling
+		qCritical() << __FUNCTION__ << "error: MPlayer process couldn't start";
+	}
+
+	return process;
 }
 
 MPlayerProcess * MPlayerLoader::getCurrentMPlayerProcess() {

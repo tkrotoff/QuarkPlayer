@@ -141,7 +141,10 @@ void MediaObject::pause() {
 }
 
 void MediaObject::stop() {
-	_pMediaObject->stop();
+	Phonon::State st = state();
+	if (st == Phonon::PlayingState || st == Phonon::PausedState) {
+		_pMediaObject->stop();
+	}
 }
 
 void MediaObject::seek(qint64 milliseconds) {
@@ -194,7 +197,7 @@ qint64 MediaObject::currentTime() const {
 }
 
 Phonon::State MediaObject::state() const {
-	return _pMediaObject->state();
+	return _currentState;
 }
 
 QString MediaObject::errorString() const {
@@ -293,8 +296,6 @@ void MediaObject::stateChangedInternal(Phonon::State newState) {
 
 void MediaObject::metaDataChangedInternal(const QMultiMap<QString, QString> & metaData) {
 	emit metaDataChanged(metaData);
-
-	stateChangedInternal(Phonon::StoppedState);
 }
 
 }}	//Namespace Phonon::VLC_MPlayer

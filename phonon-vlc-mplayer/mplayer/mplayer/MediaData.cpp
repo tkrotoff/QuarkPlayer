@@ -1,136 +1,115 @@
-/*  smplayer, GUI front-end for mplayer.
-    Copyright (C) 2006-2008 Ricardo Villalba <rvm@escomposlinux.org>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/*
+ * VLC and MPlayer backends for the Phonon library
+ * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
+ * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "MediaData.h"
 
-#include <QtCore/QFileInfo>
+#include <QtCore/QtDebug>
 
 #include <cmath>
 
 MediaData::MediaData() {
-	reset();
+	clear();
 }
 
 MediaData::~MediaData() {
 }
 
-void MediaData::reset() {
-	filename="";
-	dvd_id="";
-	type = TYPE_UNKNOWN;
-	duration=0;
+void MediaData::clear() {
+	filename.clear();
+	dvd_id.clear();
+	duration = 0;
 
-	novideo = FALSE;
+	novideo = false;
 
-	video_width=0;
-	video_height=0;
-	video_aspect= (double) 4/3;
+	video_width = 0;
+	video_height = 0;
+	video_aspect= (double) 4 / 3;
 
 	//audios.clear();
 	//titles.clear();
 
 	//subs.clear();
 
-	//chapters=0;
-	//angles=0;
+	mkv_chapters = 0;
 
-	mkv_chapters=0;
+	initialized = false;
 
-	initialized=false;
+	clip_name.clear();
+	clip_artist.clear();
+	clip_author.clear();
+	clip_album.clear();
+	clip_genre.clear();
+	clip_date.clear();
+	clip_track.clear();
+	clip_copyright.clear();
+	clip_comment.clear();
+	clip_software.clear();
 
-	// Clip info;
-	clip_name = "";
-	clip_artist = "";
-	clip_author = "";
-	clip_album = "";
-	clip_genre = "";
-	clip_date = "";
-	clip_track = "";
-	clip_copyright = "";
-	clip_comment = "";
-	clip_software = "";
+	stream_title.clear();
+	stream_url.clear();
 
-	stream_title = "";
-	stream_url = "";
-
-	// Other data
-	demuxer="";
-	video_format="";
-	audio_format="";
-	video_bitrate=0;
-	video_fps="";
-	audio_bitrate=0;
-	audio_rate=0;
-	audio_nch=0;
-	video_codec="";
-	audio_codec="";
+	demuxer.clear();
+	video_format.clear();
+	audio_format.clear();
+	video_bitrate = 0;
+	video_fps.clear();
+	audio_bitrate = 0;
+	audio_rate = 0;
+	audio_nch = 0;
+	video_codec.clear();
+	audio_codec.clear();
 }
 
-QString MediaData::displayName() {
-	if (!clip_name.isEmpty()) return clip_name;
-	else
-	if (!stream_title.isEmpty()) return stream_title;
+void MediaData::print() {
+	qDebug() << __FUNCTION__;
 
-	QFileInfo fi(filename);
-	if (fi.exists())
-		return fi.fileName(); // filename without path
-	else
-		return filename;
-}
+	qDebug() << "  filename:" << filename;
+	qDebug() << "  duration:" << duration;
 
-void MediaData::list() {
-	qDebug("MediaData::list");
+	qDebug() << "  video_width:" << video_width;
+	qDebug() << "  video_height:" << video_height;
+	qDebug() << "  video_aspect:" << video_aspect;
 
-	qDebug("  filename: '%s'", filename.toUtf8().data());
-	qDebug("  duration: %f", duration);
+	qDebug() << "  novideo:" << novideo;
+	qDebug() << "  dvd_id:" << dvd_id;
 
-	qDebug("  video_width: %d", video_width);
-	qDebug("  video_height: %d", video_height);
-	qDebug("  video_aspect: %f", video_aspect);
+	qDebug() << "  initialized:" << initialized;
 
-	qDebug("  type: %d", type);
-	qDebug("  novideo: %d", novideo);
-	qDebug("  dvd_id: '%s'", dvd_id.toUtf8().data());
+	qDebug() << "  mkv_chapters:" << mkv_chapters;
 
-	qDebug("  initialized: %d", initialized);
+	//qDebug() << "  Subs:";
+	//subs.print();
 
-	qDebug("  mkv_chapters: %d", mkv_chapters);
+	//qDebug() << "  Audios:";
+	//audios.print();
 
-	//qDebug("  Subs:");
-	//subs.list();
+	//qDebug() << "  Titles:";
+	//titles.print();
 
-	//qDebug("  Audios:");
-	//audios.list();
-
-	//qDebug("  Titles:");
-	//titles.list();
-
-	//qDebug("  chapters: %d", chapters);
-	//qDebug("  angles: %d", angles);
-
-	qDebug("  demuxer: '%s'", demuxer.toUtf8().data() );
-	qDebug("  video_format: '%s'", video_format.toUtf8().data() );
-	qDebug("  audio_format: '%s'", audio_format.toUtf8().data() );
-	qDebug("  video_bitrate: %d", video_bitrate );
-	qDebug("  video_fps: '%s'", video_fps.toUtf8().data() );
-	qDebug("  audio_bitrate: %d", audio_bitrate );
-	qDebug("  audio_rate: %d", audio_rate );
-	qDebug("  audio_nch: %d", audio_nch );
-	qDebug("  video_codec: '%s'", video_codec.toUtf8().data() );
-	qDebug("  audio_codec: '%s'", audio_codec.toUtf8().data() );
+	qDebug() << "  demuxer:" <<  demuxer;
+	qDebug() << "  video_format:" << video_format;
+	qDebug() << "  audio_format:" << audio_format;
+	qDebug() << "  video_bitrate:" << video_bitrate;
+	qDebug() << "  video_fps:" << video_fps;
+	qDebug() << "  audio_bitrate:" << audio_bitrate;
+	qDebug() << "  audio_rate:" << audio_rate;
+	qDebug() << "  audio_nch:" << audio_nch;
+	qDebug() << "  video_codec:" << video_codec;
+	qDebug() << "  audio_codec:" << audio_codec;
 }

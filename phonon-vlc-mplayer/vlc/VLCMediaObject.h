@@ -57,8 +57,6 @@ public:
 	bool hasVideo() const;
 	bool isSeekable() const;
 
-	Phonon::State state() const;
-
 	qint64 currentTime() const;
 	qint64 totalTime() const;
 

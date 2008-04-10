@@ -107,6 +107,11 @@ void MainWindow::tableDoubleClicked(int row, int column) {
 }
 
 void MainWindow::addPlay() {
+	if (tableWidget->rowCount() == 0) {
+		addFiles();
+		return;
+	}
+
 	//FIXME this simple code doesn't work!!!
 	//MSVC8 error: MediaObject is not a member of Phonon
 	//Phonon::MediaObjet * mediaObject = _currentVideoWindow->getMediaObject();

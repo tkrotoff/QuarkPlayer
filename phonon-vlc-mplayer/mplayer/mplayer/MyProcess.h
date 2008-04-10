@@ -1,20 +1,21 @@
-/*  smplayer, GUI front-end for mplayer.
-    Copyright (C) 2006-2008 Ricardo Villalba <rvm@escomposlinux.org>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/*
+ * VLC and MPlayer backends for the Phonon library
+ * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
+ * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef MYPROCESS_H
 #define MYPROCESS_H
@@ -25,37 +26,19 @@
  * MyProcess is a specialized QProcess designed to properly work with MPlayer.
  *
  * It can split the MPlayer status line into lines.
- * It also provides some Qt-3.3 like functions like addArgument().
  */
 class MyProcess : public QProcess {
 	Q_OBJECT
 public:
 
 	MyProcess(QObject * parent);
-
-	/**
-	 * Adds an argument to the end of the list of arguments.
-	 *
-	 * Taken from Qt-3.3, does not exist in Qt-4.4
-	 *
-	 * The first element in the list of arguments is the command
-	 * to be executed; the following elements are the command's arguments.
-	 *
-	 * @param argument argument to add to the list of arguments
-	 */
-	void addArgument(const QString & argument);
-
-	/** Clear the list of arguments. */
-	void clearArguments();
-
-	/** Return the list of arguments. */
-	QStringList arguments();
-
-	/** Start the process. */
-	void start();
+	virtual ~MyProcess();
 
 	/** Return true if the process is running. */
 	bool isRunning() const;
+
+	/** Start the process. */
+	void start(const QString & program, const QStringList & arguments);
 
 signals:
 
@@ -65,14 +48,16 @@ signals:
 private slots:
 
 	/** Called for reading from standard output. */
-	void readStdOut();
+	void readStdout();
 
 	/**
 	 * Called when the process has finished.
 	 *
 	 * Do some clean up, and be sure that all output has been read.
 	 */
-	void finished();
+	void finished(int exitCode, QProcess::ExitStatus exitStatus);
+
+	void error(QProcess::ProcessError error);
 
 private:
 
@@ -85,9 +70,6 @@ private:
 
 	/** Called from readStdOut() to do all the work. */
 	void genericRead(const QByteArray & output);
-
-	QString _program;
-	QStringList _args;
 
 	QByteArray _remainingOutput;
 };

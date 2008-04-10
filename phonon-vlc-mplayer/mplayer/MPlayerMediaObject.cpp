@@ -1,5 +1,5 @@
 /*
- * MPlayer backend for the Phonon library
+ * VLC and MPlayer backends for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,16 +23,23 @@
 #include <mplayer/MPlayerProcess.h>
 #include <mplayer/MPlayerLoader.h>
 
+#include <QtCore/QTimer>
+
 namespace Phonon
 {
 namespace VLC_MPlayer
 {
 
+static MPlayerLoader mplayerLoader(NULL);
+
 MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
 	: QObject(parent) {
 
+	//Default MediaObject state is Phonon::LoadingState
 	_currentState = Phonon::LoadingState;
+
 	_process = NULL;
+	_mediaDataLoader = NULL;
 
 	_currentTime = 0;
 	_totalTime = 0;
@@ -42,28 +49,35 @@ MPlayerMediaObject::~MPlayerMediaObject() {
 }
 
 void MPlayerMediaObject::loadMedia(const QString & filename) {
-	if (_filename == filename) {
-		//Already loaded
-		return;
-	}
+	_playRequestReached = false;
 
 	_filename = filename;
 
-	_process = new MPlayerProcess(this);
-	_process->clearArguments();
-	_process->addArgument(MPLAYER_EXE);
-	_process->addArgument("-identify");
-	_process->addArgument("-frames");
-	_process->addArgument("0");
-	_process->addArgument(_filename);
+	//Optimization:
+	//wait to see if play() is run just after loadMedia()
+	//100 milliseconds should be OK
+	QTimer::singleShot(50, this, SLOT(loadMediaInternal()));
+}
 
-	_process->start();
-	_process->waitForFinished();
+void MPlayerMediaObject::loadMediaInternal() {
+	if (_playRequestReached) {
+		//We are already playing the media,
+		//so there no need to load it
+		return;
+	}
 
-	//Default MediaObject state is Phonon::LoadingState
-	_currentState = Phonon::LoadingState;
+	_mediaDataLoader = mplayerLoader.loadMedia(_filename);
+	connect(_mediaDataLoader, SIGNAL(finished()),
+		SLOT(mediaLoaded()));
+}
 
-	MediaData mediaData = _process->mediaData();
+void MPlayerMediaObject::mediaLoaded() {
+	MediaData mediaData;
+	if (_mediaDataLoader) {
+		mediaData = _mediaDataLoader->mediaData();
+	} else {
+		mediaData = _process->mediaData();
+	}
 
 	QMultiMap<QString, QString> metaDataMap;
 	metaDataMap.insert(QLatin1String("ARTIST"), mediaData.clip_artist);
@@ -77,24 +91,31 @@ void MPlayerMediaObject::loadMedia(const QString & filename) {
 	metaDataMap.insert(QLatin1String("URL"), mediaData.stream_url);
 	metaDataMap.insert(QLatin1String("ENCODEDBY"), mediaData.clip_software);
 
-	emit metaDataChanged(metaDataMap);
-
 	//duration should be in milliseconds
 	_totalTime = mediaData.duration * 1000;
 	emit totalTimeChanged(_totalTime);
 
 	emit hasVideoChanged(!mediaData.novideo);
+
+	emit metaDataChanged(metaDataMap);
+
+	if (_mediaDataLoader) {
+		emit stateChanged(Phonon::StoppedState);
+	}
 }
 
-void MPlayerMediaObject::tickInternal(double seconds) {
-	//We are now playing the file
-	if (_currentState != Phonon::PlayingState) {
-		setState(Phonon::PlayingState);
-	}
+void MPlayerMediaObject::play() {
+	_playRequestReached = true;
+	_process = mplayerLoader.startMPlayerProcess(_filename, (int) VideoWidget::_videoWidgetId);
 
-	//time should be in milliseconds
-	_currentTime = seconds * 1000;
-	emit tick(_currentTime);
+	connect(_process, SIGNAL(pause()),
+		SLOT(pausedState()));
+	connect(_process, SIGNAL(tick(double)),
+		SLOT(tickInternal(double)));
+	connect(_process, SIGNAL(endOfFile()),
+		SLOT(endOfFile()));
+	connect(_process, SIGNAL(finished(int, QProcess::ExitStatus)),
+		SLOT(finished(int, QProcess::ExitStatus)));
 }
 
 void MPlayerMediaObject::setState(Phonon::State newState) {
@@ -102,28 +123,23 @@ void MPlayerMediaObject::setState(Phonon::State newState) {
 	emit stateChanged(_currentState);
 }
 
-void MPlayerMediaObject::play() {
-	MPlayerLoader * loader = new MPlayerLoader(_process, this);
+void MPlayerMediaObject::tickInternal(double seconds) {
+	//We are now playing the file
+	if (_currentState != Phonon::PlayingState) {
+		setState(Phonon::PlayingState);
+		mediaLoaded();
+	}
 
-	connect(_process, SIGNAL(receivedPause()),
-		SLOT(stateChangedPause()));
-	connect(_process, SIGNAL(receivedCurrentSec(double)),
-		SLOT(tickInternal(double)));
-	connect(_process, SIGNAL(finished(int, QProcess::ExitStatus)),
-		SLOT(stateChangedStop(int, QProcess::ExitStatus)));
-
-	loader->startMPlayerProcess(_filename, (int) VideoWidget::_videoWidgetId);
-}
-
-void MPlayerMediaObject::stateChangedPlay() {
-	setState(Phonon::PlayingState);
+	//time should be in milliseconds
+	_currentTime = seconds * 1000;
+	emit tick(_currentTime);
 }
 
 void MPlayerMediaObject::pause() {
 	_process->writeToStdin("pause");
 }
 
-void MPlayerMediaObject::stateChangedPause() {
+void MPlayerMediaObject::pausedState() {
 	setState(Phonon::PausedState);
 }
 
@@ -131,7 +147,7 @@ void MPlayerMediaObject::stop() {
 	_process->writeToStdin("quit");
 }
 
-void MPlayerMediaObject::stateChangedStop(int exitCode, QProcess::ExitStatus exitStatus) {
+void MPlayerMediaObject::finished(int exitCode, QProcess::ExitStatus exitStatus) {
 	switch (exitStatus) {
 	case QProcess::NormalExit:
 		qDebug() << "MPlayer process exited normally";
@@ -141,6 +157,10 @@ void MPlayerMediaObject::stateChangedStop(int exitCode, QProcess::ExitStatus exi
 		break;
 	}
 
+	setState(Phonon::StoppedState);
+}
+
+void MPlayerMediaObject::endOfFile() {
 	setState(Phonon::StoppedState);
 	emit finished();
 }
@@ -166,10 +186,6 @@ bool MPlayerMediaObject::isSeekable() const {
 
 qint64 MPlayerMediaObject::currentTime() const {
 	return _currentTime;
-}
-
-Phonon::State MPlayerMediaObject::state() const {
-	return _currentState;
 }
 
 QString MPlayerMediaObject::errorString() const {

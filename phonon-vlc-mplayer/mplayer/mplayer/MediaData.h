@@ -1,47 +1,43 @@
-/*  smplayer, GUI front-end for mplayer.
-    Copyright (C) 2006-2008 Ricardo Villalba <rvm@escomposlinux.org>
+/*
+ * VLC and MPlayer backends for the Phonon library
+ * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
+ * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
-
-#ifndef _MEDIADATA_H_
-#define _MEDIADATA_H_
-
-/* Here we store some volatile info about the file we need to remember */
-
-//#include "TrackList.h"
-//#include "subtracks.h"
+#ifndef MEDIADATA_H
+#define MEDIADATA_H
 
 #include <QtCore/QString>
-#include <QtCore/QSettings>
 
-// Types of media
-
-#define TYPE_UNKNOWN -1
-#define TYPE_FILE 0
-#define TYPE_DVD 1
-#define TYPE_STREAM 2
-#define TYPE_VCD 3
-#define TYPE_AUDIO_CD 4
-
+/**
+ * Stores some volatile informations about the stream.
+ *
+ * Contains the file meta data + others informations.
+ *
+ * @see http://xiph.org/vorbis/doc/Vorbis_I_spec.html#vorbis-spec-comment
+ */
 class MediaData {
 public:
-	MediaData();
-	virtual ~MediaData();
 
-	virtual void reset();
+	MediaData();
+	~MediaData();
+
+	void clear();
+
+	void print();
 
 	QString filename;
 	double duration;
@@ -51,26 +47,23 @@ public:
 	int video_height;
 	double video_aspect;
 
-	int type; // file, dvd...
 	QString dvd_id;
 
-	bool novideo; // Only audio
+	//Only audio
+	bool novideo;
 
 	bool initialized;
 
-	void list();
-
 	//TrackList audios;
-	//TrackList titles; // for DVDs
+	//For DVDs
+	//TrackList titles;
 
 	//SubTracks subs;
 
-	//int chapters, angles; // for DVDs
-
-	// Matroshka chapters
+	//Matroska chapters
 	int mkv_chapters;
 
-	// Clip info
+	//Clip info
 	QString clip_name;
 	QString clip_artist;
 	QString clip_author;
@@ -85,9 +78,8 @@ public:
 	QString stream_title;
 	QString stream_url;
 
-
-	// Other data not really useful for us,
-	// just to show info to the user.
+	//Other data not really useful for us,
+	//just to show info to the user
 	QString demuxer;
 	QString video_format;
 	QString audio_format;
@@ -95,12 +87,10 @@ public:
 	QString video_fps;
 	int audio_bitrate;
 	int audio_rate;
-	int audio_nch; // channels?
+	//Channels?
+	int audio_nch;
 	QString video_codec;
 	QString audio_codec;
-
-	/*QString info();*/
-	QString displayName();
 };
 
-#endif
+#endif	//MEDIADATA_H
