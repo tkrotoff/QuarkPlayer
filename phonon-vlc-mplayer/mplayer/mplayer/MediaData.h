@@ -38,8 +38,6 @@ public:
 	/** Reset all datas to zero. */
 	void clear();
 
-	void print();
-
 	/** Filename of the media. */
 	QString filename;
 

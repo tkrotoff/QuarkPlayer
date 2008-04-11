@@ -19,9 +19,9 @@
 #ifndef PHONON_VLC_MPLAYER_VIDEOWIDGET_H
 #define PHONON_VLC_MPLAYER_VIDEOWIDGET_H
 
-#include <phonon/videowidgetinterface.h>
+#include "SinkNode.h"
 
-#include <QtCore/QObject>
+#include <phonon/videowidgetinterface.h>
 
 class QWidget;
 
@@ -30,14 +30,12 @@ namespace Phonon
 namespace VLC_MPlayer
 {
 
-class MediaObject;
-
 /**
  *
  *
  * @author Tanguy Krotoff
  */
-class VideoWidget : public QObject, Phonon::VideoWidgetInterface {
+class VideoWidget : public SinkNode, public VideoWidgetInterface {
 	Q_OBJECT
 	Q_INTERFACES(Phonon::VideoWidgetInterface)
 public:
@@ -69,8 +67,6 @@ public:
 
 private:
 
-	void sendMPlayerCommand(const QString & command) const;
-
 	QWidget * _widget;
 
 	Phonon::VideoWidget::AspectRatio _aspectRatio;
@@ -84,8 +80,6 @@ private:
 	qreal _hue;
 
 	qreal _saturation;
-
-	MediaObject * _mediaObject;
 };
 
 }}	//Namespace Phonon::VLC_MPlayer

@@ -27,14 +27,6 @@ MediaSettings::~MediaSettings() {
 }
 
 void MediaSettings::clear() {
-	current_sec = 0;
-	//current_sub_id = SubNone;
-	current_sub_id = NoneSelected;
-	current_audio_id = NoneSelected;
-	current_title_id = NoneSelected;
-	current_chapter_id = NoneSelected;
-	current_angle_id = NoneSelected;
-
 	aspect_ratio_id = AspectAuto;
 
 	//fullscreen = FALSE;
@@ -57,21 +49,10 @@ void MediaSettings::clear() {
 
 	speed = 1.0;
 
-	phase_filter = false;
-	current_denoiser = NoDenoise;
-	deblock_filter = false;
-	dering_filter = false;
-	noise_filter = false;
-	postprocessing_filter = false;
-	upscaling_filter = false;
-
-	current_deinterlacer = NoDeinterlace;
-
 	add_letterbox = false;
 
-	karaoke_filter = false;
-	extrastereo_filter = false;
-	volnorm_filter = false;
+	audioFilters.clear();
+	videoFilters.clear();
 
 	audio_use_channels = ChDefault; // (0)
 	stereo_mode = Stereo; // (0)
@@ -80,9 +61,6 @@ void MediaSettings::clear() {
 
 	// Not set yet.
 	starting_time = -1;
-
-	rotate = NoRotate;
-	flip = false;
 
 	is264andHD = false;
 
@@ -104,79 +82,4 @@ void MediaSettings::clear() {
 
 double MediaSettings::win_aspect() {
 	return (double) win_width / win_height;
-}
-
-void MediaSettings::print() {
-	qDebug("MediaSettings::print");
-
-	qDebug("  current_sec: %f", current_sec);
-	qDebug("  current_sub_id: %d", current_sub_id);
-	qDebug("  current_audio_id: %d", current_audio_id);
-	qDebug("  current_title_id: %d", current_title_id);
-	qDebug("  current_chapter_id: %d", current_chapter_id);
-	qDebug("  current_angle_id: %d", current_angle_id);
-
-	qDebug("  aspect_ratio_id: %d", aspect_ratio_id);
-	//qDebug("  fullscreen: %d", fullscreen);
-	qDebug("  volume: %d", volume);
-	qDebug("  mute: %d", mute);
-	qDebug("  external_subtitles: '%s'", external_subtitles.toUtf8().data());
-	qDebug("  external_audio: '%s'", external_audio.toUtf8().data());
-	qDebug("  sub_delay: %d", sub_delay);
-	qDebug("  audio_delay: %d", sub_delay);
-	qDebug("  sub_pos: %d", sub_pos);
-	qDebug("  sub_scale: %f", sub_scale);
-
-	qDebug("  sub_scale_ass: %f", sub_scale_ass);
-
-	qDebug("  brightness: %d", brightness);
-	qDebug("  contrast: %d", contrast);
-	qDebug("  gamma: %d", gamma);
-	qDebug("  hue: %d", hue);
-	qDebug("  saturation: %d", saturation);
-
-	qDebug("  speed: %f", speed);
-
-	qDebug("  phase_filter: %d", phase_filter);
-	qDebug("  current_denoiser: %d", current_denoiser);
-	qDebug("  deblock_filter: %d", deblock_filter);
-	qDebug("  dering_filter: %d", dering_filter);
-	qDebug("  noise_filter: %d", noise_filter);
-	qDebug("  postprocessing_filter: %d", postprocessing_filter);
-	qDebug("  upscaling_filter: %d", upscaling_filter);
-
-	qDebug("  current_deinterlacer: %d", current_deinterlacer);
-
-	qDebug("  add_letterbox: %d", add_letterbox);
-
-	qDebug("  karaoke_filter: %d", karaoke_filter);
-	qDebug("  extrastereo_filter: %d", extrastereo_filter);
-	qDebug("  volnorm_filter: %d", volnorm_filter);
-
-	qDebug("  audio_use_channels: %d", audio_use_channels);
-	qDebug("  stereo_mode: %d", stereo_mode);
-
-	qDebug("  panscan_factor: %f", panscan_factor);
-
-	qDebug("  rotate: %d", rotate);
-	qDebug("  flip: %d", flip);
-
-	qDebug("  forced_demuxer: '%s'", forced_demuxer.toUtf8().data());
-	qDebug("  forced_video_codec: '%s'", forced_video_codec.toUtf8().data());
-	qDebug("  forced_audio_codec: '%s'", forced_video_codec.toUtf8().data());
-
-	qDebug("  original_demuxer: '%s'", original_demuxer.toUtf8().data());
-	qDebug("  original_video_codec: '%s'", original_video_codec.toUtf8().data());
-	qDebug("  original_audio_codec: '%s'", original_video_codec.toUtf8().data());
-
-	qDebug("  mplayer_additional_options: '%s'", mplayer_additional_options.toUtf8().data());
-	qDebug("  mplayer_additional_video_filters: '%s'", mplayer_additional_video_filters.toUtf8().data());
-	qDebug("  mplayer_additional_audio_filters: '%s'", mplayer_additional_audio_filters.toUtf8().data());
-
-	qDebug("  win_width: %d", win_width);
-	qDebug("  win_height: %d", win_height);
-	qDebug("  win_aspect(): %f", win_aspect());
-
-	qDebug("  starting_time: %f", starting_time);
-	qDebug("  is264andHD: %d", is264andHD);
 }

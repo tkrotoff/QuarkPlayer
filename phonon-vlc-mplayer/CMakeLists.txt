@@ -33,6 +33,9 @@ set(phonon_commom_SRCS
 	../MediaObject.cpp
 	../VideoWidget.cpp
 	../AudioOutput.cpp
+	../EffectManager.cpp
+	../Effect.cpp
+	../SinkNode.cpp
 )
 
 set(phonon_commom_MOCS
@@ -40,6 +43,9 @@ set(phonon_commom_MOCS
 	../MediaObject.h
 	../VideoWidget.h
 	../AudioOutput.h
+	../EffectManager.h
+	../Effect.h
+	../SinkNode.h
 )
 ##
 

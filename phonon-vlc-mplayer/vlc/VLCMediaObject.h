@@ -48,6 +48,8 @@ public:
 	VLCMediaObject(QObject * parent);
 	~VLCMediaObject();
 
+	void setVideoWidgetId(int videoWidgetId);
+
 	void loadMedia(const QString & filename);
 	void play();
 	void pause();
@@ -123,6 +125,8 @@ private:
 	bool _hasVideo;
 
 	bool _seekable;
+
+	int _videoWidgetId;
 };
 
 }}	//Namespace Phonon::VLC_MPlayer

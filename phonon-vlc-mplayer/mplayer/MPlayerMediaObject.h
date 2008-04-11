@@ -19,6 +19,9 @@
 #ifndef PHONON_VLC_MPLAYER_MPLAYERMEDIAOBJECT_H
 #define PHONON_VLC_MPLAYER_MPLAYERMEDIAOBJECT_H
 
+//FIXME global variable
+#include <mplayer/MPlayerLoader.h>
+
 #include <phonon/mediaobjectinterface.h>
 
 #include <QtCore/QObject>

@@ -16,45 +16,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_MPLAYER_AUDIOOUTPUT_H
-#define PHONON_VLC_MPLAYER_AUDIOOUTPUT_H
+#ifndef PHONON_VLC_MPLAYER_EFFECT_H
+#define PHONON_VLC_MPLAYER_EFFECT_H
 
 #include "SinkNode.h"
+#include "EffectManager.h"
 
-#include <phonon/audiooutputinterface.h>
+#include <phonon/effectinterface.h>
+#include <phonon/effectparameter.h>
 
 namespace Phonon
 {
 namespace VLC_MPlayer
 {
 
+class MediaObject;
+class EffectManager;
+
 /**
  *
  *
  * @author Tanguy Krotoff
  */
-class AudioOutput : public SinkNode, public AudioOutputInterface {
+class Effect : public SinkNode, public EffectInterface {
 	Q_OBJECT
-	Q_INTERFACES(Phonon::AudioOutputInterface)
+	Q_INTERFACES(Phonon::EffectInterface)
 public:
 
-	AudioOutput(QObject * parent);
-	~AudioOutput();
+	Effect(EffectManager * effectManager, int effectId, QObject * parent);
+	~Effect();
 
-	qreal volume() const;
-	void setVolume(qreal volume);
+	QList<EffectParameter> parameters() const;
 
-	int outputDevice() const;
-	bool setOutputDevice(int);
+	QVariant parameterValue(const EffectParameter & param) const;
 
-signals:
+	void setParameterValue(const EffectParameter & param, const QVariant & newValue);
 
-	void volumeChanged(qreal volume);
+	void connectToMediaObject(MediaObject * mediaObject);
 
 private:
 
+	QString _effectCommand;
+
+	EffectInfo::Type _effectType;
 };
 
 }}	//Namespace Phonon::VLC_MPlayer
 
-#endif	//PHONON_VLC_MPLAYER_AUDIOOUTPUT_H
+#endif	//PHONON_VLC_MPLAYER_EFFECT_H

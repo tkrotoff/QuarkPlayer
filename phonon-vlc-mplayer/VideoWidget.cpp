@@ -40,9 +40,7 @@ namespace VLC_MPlayer
 {
 
 VideoWidget::VideoWidget(QWidget * parent)
-	: QObject(parent) {
-
-	_mediaObject = NULL;
+	: SinkNode(parent) {
 
 	_widget = new QWidget(parent);
 
@@ -58,24 +56,9 @@ VideoWidget::~VideoWidget() {
 }
 
 void VideoWidget::connectToMediaObject(MediaObject * mediaObject) {
-	if (_mediaObject && mediaObject) {
-		qCritical() << __FUNCTION__ << "_mediaObject already connected";
-	}
-
-	_mediaObject = mediaObject;
+	SinkNode::connectToMediaObject(mediaObject);
 
 	_mediaObject->setVideoWidgetId((int) _widget->winId());
-}
-
-void VideoWidget::sendMPlayerCommand(const QString & command) const {
-#ifdef PHONON_MPLAYER
-	if (_mediaObject) {
-		MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
-		if (process) {
-			process->writeToStdin(command);
-		}
-	}
-#endif	//PHONON_MPLAYER
 }
 
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const {

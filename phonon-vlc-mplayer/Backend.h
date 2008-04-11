@@ -32,6 +32,8 @@ namespace Phonon
 namespace VLC_MPlayer
 {
 
+class EffectManager;
+
 /**
  * VLC backend class.
  *
@@ -85,6 +87,8 @@ private slots:
 private:
 
 	mutable QStringList _supportedMimeTypes;
+
+	EffectManager * _effectManager;
 };
 
 }}	//Namespace Phonon::VLC_MPlayer

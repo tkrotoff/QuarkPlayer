@@ -16,63 +16,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AudioOutput.h"
+#include "SinkNode.h"
 
 #include "MediaObject.h"
 
-#ifdef PHONON_VLC
-	#include "VLCMediaObject.h"
+#ifdef PHONON_MPLAYER
+	#include "MPlayerMediaObject.h"
 
-	#include "vlc_loader.h"
-	#include "vlc_symbols.h"
-#endif	//PHONON_VLC
+	#include <mplayer/MPlayerProcess.h>
+#endif	//PHONON_MPLAYER
 
 namespace Phonon
 {
 namespace VLC_MPlayer
 {
 
-AudioOutput::AudioOutput(QObject * parent)
-	: SinkNode(parent) {
+SinkNode::SinkNode(QObject * parent)
+	: QObject(parent) {
 
 	_mediaObject = NULL;
 }
 
-AudioOutput::~AudioOutput() {
+SinkNode::~SinkNode() {
 }
 
-qreal AudioOutput::volume() const {
-	qreal volume = 0;
-
-#ifdef PHONON_VLC
-	if (_vlcCurrentMediaPlayer) {
-		volume = p_libvlc_audio_get_volume(_vlcInstance, _vlcException) / 100;
-		checkException();
+void SinkNode::connectToMediaObject(MediaObject * mediaObject) {
+	if (_mediaObject && mediaObject) {
+		qCritical() << __FUNCTION__ << "_mediaObject already connected";
 	}
-#endif	//PHONON_VLC
 
-	sendMPlayerCommand("get_property volume");
-
-	return volume;
+	_mediaObject = mediaObject;
 }
 
-void AudioOutput::setVolume(qreal volume) {
-#ifdef PHONON_VLC
-	if (_vlcInstance) {
-		p_libvlc_audio_set_volume(_vlcInstance, volume * 100, _vlcException);
-		checkException();
+void SinkNode::sendMPlayerCommand(const QString & command) const {
+#ifdef PHONON_MPLAYER
+	if (_mediaObject) {
+		MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
+		if (process) {
+			process->writeToStdin(command);
+		}
 	}
-#endif	//PHONON_VLC
-
-	sendMPlayerCommand("volume " + QString::number(volume * 100) + " 1");
-}
-
-int AudioOutput::outputDevice() const {
-	return 0;
-}
-
-bool AudioOutput::setOutputDevice(int device) {
-	return true;
+#endif	//PHONON_MPLAYER
 }
 
 }}	//Namespace Phonon::VLC_MPlayer

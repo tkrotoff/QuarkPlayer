@@ -38,10 +38,12 @@ class MPlayerLoader : public QObject {
 	Q_OBJECT
 public:
 
-	MediaSettings _settings;
+	/**
+	 * Singleton.
+	 */
+	static MPlayerLoader & get();
 
-	MPlayerLoader(QObject * parent);
-	~MPlayerLoader();
+	MediaSettings _settings;
 
 	MPlayerProcess * loadMedia(const QString & filename);
 
@@ -55,9 +57,15 @@ private slots:
 
 private:
 
+	MPlayerLoader(QObject * parent);
+	~MPlayerLoader();
+
 	MPlayerProcess * createNewMPlayerProcess();
 
 	QStringList readMediaSettings() const;
+
+	/** Singleton. */
+	static MPlayerLoader * _loader;
 
 	/** List of MPlayer process. */
 	QList<MPlayerProcess *> _processList;

@@ -52,10 +52,16 @@ VLCMediaObject::VLCMediaObject(QObject * parent)
 	_totalTime = 0;
 	_hasVideo = false;
 	_seekable = false;
+
+	_videoWidgetId = 0;
 }
 
 VLCMediaObject::~VLCMediaObject() {
 	//unloadMedia();
+}
+
+void VLCMediaObject::setVideoWidgetId(int videoWidgetId) {
+	_videoWidgetId = videoWidgetId;
 }
 
 void VLCMediaObject::unloadMedia() {
@@ -98,10 +104,10 @@ void VLCMediaObject::loadMedia(const QString & filename) {
 void VLCMediaObject::setVLCWidgetId() {
 	//Get our media player to use our window
 	//FIXME This code does not work inside libvlc!
-	//p_libvlc_media_player_set_drawable(_vlcMediaPlayer, (libvlc_drawable_t) VideoWidget::_videoWidgetId, _vlcException);
+	//p_libvlc_media_player_set_drawable(_vlcMediaPlayer, (libvlc_drawable_t) _videoWidgetId, _vlcException);
 	//checkException();
 
-	p_libvlc_video_set_parent(_vlcInstance, (libvlc_drawable_t) VideoWidget::_videoWidgetId, _vlcException);
+	p_libvlc_video_set_parent(_vlcInstance, (libvlc_drawable_t) _videoWidgetId, _vlcException);
 	checkException();
 }
 

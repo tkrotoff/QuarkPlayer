@@ -21,6 +21,7 @@
 #define MEDIASETTINGS_H
 
 #include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QSize>
 
 /**
@@ -30,21 +31,13 @@
 class MediaSettings {
 public:
 
-	enum Denoise { NoDenoise = 0, DenoiseNormal = 1, DenoiseSoft = 2 };
-
 	enum Aspect { AspectAuto = 1, Aspect43 = 2, Aspect169 = 3, Aspect235 = 4,
 		Aspect149 = 8, Aspect1610 = 9, Aspect54 = 10 };
-
-	enum Deinterlace { NoDeinterlace = 0, L5 = 1, Yadif = 2, LB = 3,
-		Yadif_1 = 4, Kerndeint = 5 };
 
 	enum AudioChannels { ChDefault = 0, ChStereo = 2, ChSurround = 4,
 		ChFull51 = 6 };
 
 	enum StereoMode { Stereo = 0, Left = 1, Right = 2 };
-
-	enum Rotate { NoRotate = -1, Clockwise_flip = 0, Clockwise = 1,
-		Counterclockwise = 2, Counterclockwise_flip = 3 };
 
 	enum IDs { NoneSelected = -1000, SubNone = 90000 };
 
@@ -90,26 +83,24 @@ public:
 
 	bool add_letterbox;
 
-	// Filters in menu
-	bool phase_filter;
-	int current_denoiser;
-	bool deblock_filter;
-	bool dering_filter;
-	bool noise_filter;
-	bool postprocessing_filter;
-	bool upscaling_filter; //!< Software scaling
+	/**
+	 * Audio filters.
+	 *
+	 * - "karaoke"
+	 * - "extrastereo"
+	 * - "volnorm=2"
+	 */
+	QStringList audioFilters;
 
-	bool karaoke_filter;
-	bool extrastereo_filter;
-	bool volnorm_filter;
+	/**
+	 * Video filters.
+	 */
+	QStringList videoFilters;
 
 	int audio_use_channels;
 	int stereo_mode;
 
 	double panscan_factor; // mplayerwindow zoom
-
-	int rotate;
-	bool flip; //!< Flip image
 
 	// This a property of the video and it should be
 	// in mediadata, but we have to save it to preserve
@@ -143,9 +134,6 @@ public:
 	int win_width;
 	int win_height;
 	double win_aspect();
-
-
-	void print();
 };
 
 #endif	//MEDIASETTINGS_H

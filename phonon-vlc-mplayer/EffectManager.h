@@ -16,45 +16,73 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_MPLAYER_AUDIOOUTPUT_H
-#define PHONON_VLC_MPLAYER_AUDIOOUTPUT_H
+#ifndef PHONON_VLC_MPLAYER_EFFECTMANAGER_H
+#define PHONON_VLC_MPLAYER_EFFECTMANAGER_H
 
-#include "SinkNode.h"
+#include <phonon/effectinterface.h>
+#include <phonon/effectparameter.h>
 
-#include <phonon/audiooutputinterface.h>
+#include <QtCore/QObject>
 
 namespace Phonon
 {
 namespace VLC_MPlayer
 {
 
+class EffectInfo {
+public:
+
+	enum Type {
+		AudioEffect,
+		VideoEffect
+	};
+
+	EffectInfo(const QString & name, const QString & command, Type type) {
+		_name = name;
+		_command = command;
+		_type = type;
+	}
+
+	QString getName() const {
+		return _name;
+	}
+
+	QString getCommand() const {
+		return _command;
+	}
+
+	Type getType() const {
+		return _type;
+	}
+
+private:
+
+	QString _name;
+
+	QString _command;
+
+	Type _type;
+};
+
 /**
  *
  *
  * @author Tanguy Krotoff
  */
-class AudioOutput : public SinkNode, public AudioOutputInterface {
+class EffectManager : public QObject {
 	Q_OBJECT
-	Q_INTERFACES(Phonon::AudioOutputInterface)
 public:
 
-	AudioOutput(QObject * parent);
-	~AudioOutput();
+	EffectManager(QObject * parent);
+	~EffectManager();
 
-	qreal volume() const;
-	void setVolume(qreal volume);
-
-	int outputDevice() const;
-	bool setOutputDevice(int);
-
-signals:
-
-	void volumeChanged(qreal volume);
+	QList<EffectInfo *> getEffectList() const;
 
 private:
 
+	QList<EffectInfo *> _effectList;
 };
 
 }}	//Namespace Phonon::VLC_MPlayer
 
-#endif	//PHONON_VLC_MPLAYER_AUDIOOUTPUT_H
+#endif	//PHONON_VLC_MPLAYER_EFFECTMANAGER_H

@@ -30,8 +30,6 @@ namespace Phonon
 namespace VLC_MPlayer
 {
 
-static MPlayerLoader mplayerLoader(NULL);
-
 MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
 	: QObject(parent) {
 
@@ -72,7 +70,7 @@ void MPlayerMediaObject::loadMediaInternal() {
 		return;
 	}
 
-	_mediaDataLoader = mplayerLoader.loadMedia(_filename);
+	_mediaDataLoader = MPlayerLoader::get().loadMedia(_filename);
 	connect(_mediaDataLoader, SIGNAL(finished()),
 		SLOT(mediaLoaded()));
 }
@@ -112,7 +110,7 @@ void MPlayerMediaObject::mediaLoaded() {
 
 void MPlayerMediaObject::play() {
 	_playRequestReached = true;
-	_process = mplayerLoader.startMPlayerProcess(_filename, (int) _videoWidgetId);
+	_process = MPlayerLoader::get().startMPlayerProcess(_filename, (int) _videoWidgetId);
 
 	connect(_process, SIGNAL(pause()),
 		SLOT(pausedState()));

@@ -16,40 +16,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_MPLAYER_AUDIOOUTPUT_H
-#define PHONON_VLC_MPLAYER_AUDIOOUTPUT_H
+#ifndef PHONON_VLC_MPLAYER_SINKNODE_H
+#define PHONON_VLC_MPLAYER_SINKNODE_H
 
-#include "SinkNode.h"
-
-#include <phonon/audiooutputinterface.h>
+#include <QtCore/QObject>
+#include <QtCore/QString>
 
 namespace Phonon
 {
 namespace VLC_MPlayer
 {
 
+class MediaObject;
+
 /**
  *
  *
  * @author Tanguy Krotoff
  */
-class AudioOutput : public SinkNode, public AudioOutputInterface {
+class SinkNode : public QObject {
 	Q_OBJECT
-	Q_INTERFACES(Phonon::AudioOutputInterface)
 public:
 
-	AudioOutput(QObject * parent);
-	~AudioOutput();
+	SinkNode(QObject * parent);
+	virtual ~SinkNode();
 
-	qreal volume() const;
-	void setVolume(qreal volume);
+	virtual void connectToMediaObject(MediaObject * mediaObject);
 
-	int outputDevice() const;
-	bool setOutputDevice(int);
+protected:
 
-signals:
+	void sendMPlayerCommand(const QString & command) const;
 
-	void volumeChanged(qreal volume);
+	MediaObject * _mediaObject;
 
 private:
 
@@ -57,4 +55,4 @@ private:
 
 }}	//Namespace Phonon::VLC_MPlayer
 
-#endif	//PHONON_VLC_MPLAYER_AUDIOOUTPUT_H
+#endif	//PHONON_VLC_MPLAYER_SINKNODE_H

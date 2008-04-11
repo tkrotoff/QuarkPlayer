@@ -22,12 +22,21 @@
 
 #include <QtCore/QtDebug>
 
+MPlayerLoader * MPlayerLoader::_loader = NULL;
+
 MPlayerLoader::MPlayerLoader(QObject * parent)
 	: QObject(parent) {
-
 }
 
 MPlayerLoader::~MPlayerLoader() {
+}
+
+MPlayerLoader & MPlayerLoader::get() {
+	if (!_loader) {
+		_loader = new MPlayerLoader(NULL);
+	}
+
+	return *_loader;
 }
 
 MPlayerProcess * MPlayerLoader::createNewMPlayerProcess() {
@@ -44,8 +53,14 @@ void MPlayerLoader::restartMPlayerProcess(MPlayerProcess * process) {
 		return;
 	}
 
+	QStringList args;
+	args << readMediaSettings();
+
 	MediaData mediaData = process->getMediaData();
-	startMPlayerProcess(mediaData.filename, mediaData.videoWidgetId, mediaData.currentTime);
+	if (!process->start(args, mediaData.filename, mediaData.videoWidgetId, mediaData.currentTime)) {
+		//Error handling
+		qCritical() << __FUNCTION__ << "error: MPlayer process couldn't start";
+	}
 }
 
 MPlayerProcess * MPlayerLoader::startMPlayerProcess(const QString & filename, int videoWidgetId, double seek) {
@@ -140,10 +155,10 @@ QStringList MPlayerLoader::readMediaSettings() const {
 	args << "-subcp";
 	args << "ISO-8859-1";
 
-	if (_settings.current_audio_id != MediaSettings::NoneSelected) {
+	/*if (_settings.current_audio_id != MediaSettings::NoneSelected) {
 		args << "-aid";
 		args << QString::number(_settings.current_audio_id);
-	}
+	}*/
 
 	args << "-subpos";
 	args << QString::number(_settings.sub_pos);
@@ -192,109 +207,13 @@ QStringList MPlayerLoader::readMediaSettings() const {
 		args << QString::number(_settings.speed);
 	}
 
-	if (_settings.flip) {
-		args << "-flip";
-	}
-
-	//Video filters:
-	//Phase
-	if (_settings.phase_filter) {
-		args << "-vf-add";
-		args << "phase=A";
-	}
-
-	//Deinterlace
-	if (_settings.current_deinterlacer != MediaSettings::NoDeinterlace) {
-		args << "-vf-add";
-		switch (_settings.current_deinterlacer) {
-		case MediaSettings::L5:
-			args << "pp=l5";
-			break;
-		case MediaSettings::Yadif:
-			args << "yadif";
-			break;
-		case MediaSettings::LB:
-			args << "pp=lb";
-			break;
-		case MediaSettings::Yadif_1:
-			args << "yadif=1";
-			break;
-		case MediaSettings::Kerndeint:
-			args << "kerndeint=5";
-			break;
+	//Loads all the video filters
+	QStringList videoFilters = _settings.videoFilters;
+	if (!videoFilters.isEmpty()) {
+		foreach (QString filter, videoFilters) {
+			args << "-vf-add";
+			args << filter;
 		}
-	}
-
-	//Rotate
-	if (_settings.rotate != MediaSettings::NoRotate) {
-		args << "-vf-add";
-		args << QString("rotate=%1").arg(_settings.rotate);
-	}
-
-	//Denoise
-	if (_settings.current_denoiser != MediaSettings::NoDenoise) {
-		args << "-vf-add";
-		if (_settings.current_denoiser == MediaSettings::DenoiseSoft) {
-			args << "hqdn3d=2:1:2";
-		} else {
-			args << "hqdn3d";
-		}
-	}
-
-	//Deblock
-	if (_settings.deblock_filter) {
-		args << "-vf-add";
-		args << "pp=vb/hb";
-	}
-
-	//Dering
-	if (_settings.dering_filter) {
-		args << "-vf-add";
-		args << "pp=dr";
-	}
-
-	//Upscale
-	/*if (_settings.upscaling_filter) {
-		int width = DesktopInfo::desktop_size(mplayerwindow).width();
-		args << "-sws";
-		args << "9";
-		args << "-vf-add";
-		args << "scale=" + QString::number(width)+":-2";
-	}*/
-
-	//Addnoise
-	if (_settings.noise_filter) {
-		args << "-vf-add";
-		args << "noise=9ah:5ah";
-	}
-
-	//Postprocessing
-	if (_settings.postprocessing_filter) {
-		args << "-vf-add";
-		args << "pp";
-		args << "-autoq";
-		args << QString::number(6);
-	}
-
-
-	//Letterbox (expand)
-	/*
-	if (_settings.add_letterbox) {
-		args << "-vf-add";
-		args << QString("expand=:::::%1,harddup").arg(DesktopInfo::desktop_aspectRatio(mplayerwindow));
-		//Note: on some videos (h264 for instance) the subtitles doesn't disappear,
-		//appearing the new ones on top of the old ones. It seems adding another
-		//filter after expand fixes the problem. I chose harddup 'cos I think
-		//it will be harmless in mplayer.
-		//Anyway, if you know a proper way to fix the problem, please tell me.
-	}
-	*/
-
-	//Additional video filters, supplied by user
-	//File
-	if (!_settings.mplayer_additional_video_filters.isEmpty()) {
-		args << "-vf-add";
-		args << _settings.mplayer_additional_video_filters;
 	}
 
 	//Audio channels
@@ -309,65 +228,20 @@ QStringList MPlayerLoader::readMediaSettings() const {
 		args << QString::number(_settings.stereo_mode);
 	}
 
-	//Audio filters
-	QString af = "";
-	if (_settings.karaoke_filter) {
-		af = "karaoke";
+	//Loads all the audio filters
+	QStringList audioFilters = _settings.audioFilters;
+	if (!audioFilters.isEmpty()) {
+		foreach (QString filter, audioFilters) {
+			args << "-af";
+			args << filter;
+		}
 	}
 
-	if (_settings.extrastereo_filter) {
-		if (!af.isEmpty()) af += ",";
-		af += "extrastereo";
-	}
-
-	if (_settings.volnorm_filter) {
-		if (!af.isEmpty()) af += ",";
-		af += "volnorm=2";
-	}
-
-	//Additional audio filters, supplied by user
-	//Global
-	if (!_settings.mplayer_additional_audio_filters.isEmpty()) {
-		if (!af.isEmpty()) af += ",";
-		af += _settings.mplayer_additional_audio_filters;
-	}
-
-	if (!af.isEmpty()) {
+	/*QString audioFilters = _settings.audioFilters.join(",");
+	if (!audioFilters.isEmpty()) {
 		args << "-af";
-		args << af;
-	}
-
-	//Load edl file
-	/*if (true) {
-		QString edl_f;
-		QFileInfo f(filename);
-		QString basename = f.path() + "/" + f.completeBaseName();
-
-		qDebug("Core::startMplayer: file basename: '%s'", basename.toUtf8().data());
-
-		if (QFile::exists(basename + ".edl")) {
-			edl_f = basename + ".edl";
-		} else if (QFile::exists(basename + ".EDL")) {
-			edl_f = basename + ".EDL";
-		}
-
-		qDebug("Core::startMplayer: edl file: '%s'", edl_f.toUtf8().data());
-		if (!edl_f.isEmpty()) {
-			args << "-edl";
-			args << edl_f;
-		}
+		args << audioFilters;
 	}*/
-
-	//Additional options supplied by the user
-	//File
-	if (!_settings.mplayer_additional_options.isEmpty()) {
-		QStringList args = _settings.mplayer_additional_options.split(" ");
-		QStringList::Iterator it = args.begin();
-		while (it != args.end()) {
- 			args << (*it);
-			++it;
-		}
-	}
 
 	return args;
 }

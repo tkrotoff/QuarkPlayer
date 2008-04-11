@@ -21,6 +21,8 @@
 #include "MediaObject.h"
 #include "VideoWidget.h"
 #include "AudioOutput.h"
+#include "EffectManager.h"
+#include "Effect.h"
 
 #ifdef PHONON_VLC
 	#include "vlc_loader.h"
@@ -101,10 +103,13 @@ Backend::Backend(QObject * parent, const QVariantList &)
 
 	qDebug() << "Using MPlayer version:" << "not yet implemented";
 #endif	//PHONON_MPLAYER
+
+	_effectManager = new EffectManager(this);
 }
 
 Backend::~Backend() {
 	//releaseLibVLC();
+	delete _effectManager;
 }
 
 void Backend::initLibVLCFinished() {
@@ -129,21 +134,13 @@ QObject * Backend::createObject(BackendInterface::Class c, QObject * parent, con
 		return new Visualization(parent);
 	case VideoDataOutputClass:
 		return new VideoDataOutput(parent);*/
-	/*case EffectClass: {
-		Q_ASSERT(args.size() == 1);
-		qDebug() << "creating Effect(" << args[0];
-		Effect * effect = new Effect(args[0].toInt(), parent);
-		if (effect->isValid()) {
-			return effect;
-		}
-		delete effect;
-		return NULL;
-	}*/
-	case VideoWidgetClass: {
-		VideoWidget * videoWidget = new VideoWidget(qobject_cast<QWidget *>(parent));
-		return videoWidget;
+	case EffectClass: {
+		return new Effect(_effectManager, args[0].toInt(), parent);
 	}
+	case VideoWidgetClass:
+		return new VideoWidget(qobject_cast<QWidget *>(parent));
 	}
+
 	return NULL;
 }
 
@@ -245,10 +242,11 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
 
 	QList<int> list;
 
-	/*switch(type) {
+	switch(type) {
 	case Phonon::AudioOutputDeviceType:
+		list.append(1);
 		break;
-	case Phonon::AudioCaptureDeviceType:
+	/*case Phonon::AudioCaptureDeviceType:
 		break;
 	case Phonon::VideoOutputDeviceType:
 		break;
@@ -261,10 +259,16 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
 	case Phonon::VideoCodecType:
 		break;
 	case Phonon::ContainerFormatType:
-		break;
+		break;*/
+
 	case Phonon::EffectType:
+		QList<EffectInfo *> effectList = _effectManager->getEffectList();
+		for (int effect = 0; effect < effectList.size(); ++effect) {
+			list.append(effect);
+		}
 		break;
-	}*/
+
+	}
 
 	return list;
 }
@@ -275,9 +279,10 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 	QHash<QByteArray, QVariant> ret;
 
 	switch (type) {
-	/*case Phonon::AudioOutputDeviceType:
+	case Phonon::AudioOutputDeviceType:
+		ret.insert("device", "0");
 		break;
-	case Phonon::AudioCaptureDeviceType:
+	/*case Phonon::AudioCaptureDeviceType:
 		break;
 	case Phonon::VideoOutputDeviceType:
 		break;
@@ -292,8 +297,19 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 	case Phonon::ContainerFormatType:
 		break;
 	*/
-	case Phonon::EffectType:
+
+	case Phonon::EffectType: {
+		QList<EffectInfo *> effectList = _effectManager->getEffectList();
+		if (index >= 0 && index <= effectList.size()) {
+			const EffectInfo * effect = effectList[index];
+			ret.insert("name", effect->getName());
+			ret.insert("command", effect->getCommand());
+		} else
+			Q_ASSERT(1); // Since we use list position as ID, this should not happen
+
 		break;
+	}
+
 	default:
 		qCritical() << __FUNCTION__ << "Unknow ObjectDescriptionType:" << type;
 	}
@@ -317,29 +333,23 @@ bool Backend::connectNodes(QObject * source, QObject * sink) {
 	qDebug() << __FUNCTION__ << source->metaObject()->className() << sink->metaObject()->className();
 
 	//Example:
-	//source = Phonon::VLC_MPlayer::MediaObject (inherits Phonon::MediaNode)
-	//sink = Phonon::VLC_MPlayer::VideoWidget (inherits Phonon::MediaNode)
-	VideoWidget * videoWidget = qobject_cast<VideoWidget *>(sink);
-	if (videoWidget) {
-		//We have a VideoWidget
-		MediaObject * mediaObject = qobject_cast<MediaObject *>(source);
-		if (mediaObject) {
-			//Connects the VideoWidget to a MediaObject
-			videoWidget->connectToMediaObject(mediaObject);
-			return true;
-		}
-	}
+	//source = Phonon::VLC_MPlayer::MediaObject
+	//sink = Phonon::VLC_MPlayer::VideoWidget
 
 	//Example:
-	//source = Phonon::VLC_MPlayer::MediaObject (inherits Phonon::MediaNode)
-	//sink = Phonon::VLC_MPlayer::AudioOutput (inherits Phonon::MediaNode)
-	AudioOutput * audioOutput = qobject_cast<AudioOutput *>(sink);
-	if (audioOutput) {
-		//We have a AudioOutput
+	//source = Phonon::VLC_MPlayer::MediaObject
+	//sink = Phonon::VLC_MPlayer::AudioOutput
+
+	//Example:
+	//source = Phonon::VLC_MPlayer::MediaObject
+	//sink = Phonon::VLC_MPlayer::Effect
+
+	SinkNode * sinkNode = qobject_cast<SinkNode *>(sink);
+	if (sinkNode) {
 		MediaObject * mediaObject = qobject_cast<MediaObject *>(source);
 		if (mediaObject) {
-			//Connects the AudioOutput to a MediaObject
-			audioOutput->connectToMediaObject(mediaObject);
+			//Connects the SinkNode to a MediaObject
+			sinkNode->connectToMediaObject(mediaObject);
 			return true;
 		}
 	}
