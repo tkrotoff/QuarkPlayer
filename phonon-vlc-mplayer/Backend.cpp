@@ -274,8 +274,8 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 
 	QHash<QByteArray, QVariant> ret;
 
-	/*switch (type) {
-	case Phonon::AudioOutputDeviceType:
+	switch (type) {
+	/*case Phonon::AudioOutputDeviceType:
 		break;
 	case Phonon::AudioCaptureDeviceType:
 		break;
@@ -291,9 +291,12 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 		break;
 	case Phonon::ContainerFormatType:
 		break;
+	*/
 	case Phonon::EffectType:
 		break;
-	}*/
+	default:
+		qCritical() << __FUNCTION__ << "Unknow ObjectDescriptionType:" << type;
+	}
 
 	return ret;
 }

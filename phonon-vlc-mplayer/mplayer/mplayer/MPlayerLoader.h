@@ -19,6 +19,8 @@
 #ifndef MPLAYERLOADER_H
 #define MPLAYERLOADER_H
 
+#include "MediaSettings.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QList>
@@ -36,14 +38,16 @@ class MPlayerLoader : public QObject {
 	Q_OBJECT
 public:
 
+	MediaSettings _settings;
+
 	MPlayerLoader(QObject * parent);
 	~MPlayerLoader();
 
 	MPlayerProcess * loadMedia(const QString & filename);
 
-	MPlayerProcess * startMPlayerProcess(const QString & filename, int videoWidgetId);
+	MPlayerProcess * startMPlayerProcess(const QString & filename, int videoWidgetId, double seek = 0);
 
-	static MPlayerProcess * getCurrentMPlayerProcess();
+	void restartMPlayerProcess(MPlayerProcess * process);
 
 signals:
 
@@ -53,13 +57,13 @@ private:
 
 	MPlayerProcess * createNewMPlayerProcess();
 
+	QStringList readMediaSettings() const;
+
 	/** List of MPlayer process. */
 	QList<MPlayerProcess *> _processList;
 
-	MPlayerProcess * _process;
-
 	/** Current MPlayer process. */
-	static MPlayerProcess * _currentProcess;
+	//MPlayerProcess * _currentProcess;
 };
 
 #endif	//MPLAYERLOADER_H

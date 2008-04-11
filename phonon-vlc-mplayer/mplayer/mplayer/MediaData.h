@@ -35,12 +35,28 @@ public:
 	MediaData();
 	~MediaData();
 
+	/** Reset all datas to zero. */
 	void clear();
 
 	void print();
 
+	/** Filename of the media. */
 	QString filename;
-	double duration;
+
+	/** Media total time (duration) in seconds. */
+	double totalTime;
+
+	/**
+	 * Current playing time of the media.
+	 *
+	 * Updated each time MPlayer plays the media.
+	 *
+	 * If MPlayer is not playing, then the value is not valid
+	 */
+	double currentTime;
+
+	/** Id of the widget where MPlayer will show the video. */
+	int videoWidgetId;
 
 	//Resolution of the video
 	int video_width;

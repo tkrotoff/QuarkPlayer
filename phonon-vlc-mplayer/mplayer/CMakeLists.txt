@@ -8,6 +8,7 @@ add_definitions(-DPHONON_MPLAYER)
 set(libmplayer_SRCS
 	mplayer/MyProcess.cpp
 	mplayer/MediaData.cpp
+	mplayer/MediaSettings.cpp
 	mplayer/MPlayerVersion.cpp
 	mplayer/MPlayerProcess.cpp
 	mplayer/MPlayerLoader.cpp

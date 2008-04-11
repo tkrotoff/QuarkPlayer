@@ -41,10 +41,12 @@ class MPlayerProcess : public MyProcess {
 public:
 
 	MPlayerProcess(QObject * parent);
-	virtual ~MPlayerProcess();
+	~MPlayerProcess();
 
 	/** Start the MPlayer process. */
-	bool start(const QString & program, const QStringList & arguments);
+	bool start(const QStringList & arguments, const QString & filename, int videoWidgetId, double seek);
+
+	void stop();
 
 	/**
 	 * Sends a command to the MPlayer process.
@@ -55,7 +57,7 @@ public:
 	 */
 	void writeToStdin(const QString & command);
 
-	MediaData mediaData() { return md; };
+	MediaData getMediaData() const;
 
 signals:
 
@@ -128,7 +130,7 @@ private:
 	bool _notifiedMPlayerIsRunning;
 	bool _endOfFileReached;
 
-	MediaData md;
+	MediaData _data;
 
 	int _mplayerSvnRevision;
 };

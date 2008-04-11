@@ -33,7 +33,11 @@ MediaData::~MediaData() {
 void MediaData::clear() {
 	filename.clear();
 	dvd_id.clear();
-	duration = 0;
+
+	totalTime = 0;
+	currentTime = 0;
+
+	videoWidgetId = 0;
 
 	novideo = false;
 
@@ -80,7 +84,7 @@ void MediaData::print() {
 	qDebug() << __FUNCTION__;
 
 	qDebug() << "  filename:" << filename;
-	qDebug() << "  duration:" << duration;
+	qDebug() << "  totalTime:" << totalTime;
 
 	qDebug() << "  video_width:" << video_width;
 	qDebug() << "  video_height:" << video_height;

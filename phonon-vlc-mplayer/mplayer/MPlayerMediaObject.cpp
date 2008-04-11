@@ -80,9 +80,9 @@ void MPlayerMediaObject::loadMediaInternal() {
 void MPlayerMediaObject::mediaLoaded() {
 	MediaData mediaData;
 	if (_mediaDataLoader) {
-		mediaData = _mediaDataLoader->mediaData();
+		mediaData = _mediaDataLoader->getMediaData();
 	} else {
-		mediaData = _process->mediaData();
+		mediaData = _process->getMediaData();
 	}
 
 	QMultiMap<QString, QString> metaDataMap;
@@ -98,7 +98,7 @@ void MPlayerMediaObject::mediaLoaded() {
 	metaDataMap.insert(QLatin1String("ENCODEDBY"), mediaData.clip_software);
 
 	//duration should be in milliseconds
-	_totalTime = mediaData.duration * 1000;
+	_totalTime = mediaData.totalTime * 1000;
 	emit totalTimeChanged(_totalTime);
 
 	emit hasVideoChanged(!mediaData.novideo);
@@ -154,7 +154,7 @@ void MPlayerMediaObject::pausedState() {
 }
 
 void MPlayerMediaObject::stop() {
-	_process->writeToStdin("quit");
+	_process->stop();
 }
 
 void MPlayerMediaObject::finished(int exitCode, QProcess::ExitStatus exitStatus) {
