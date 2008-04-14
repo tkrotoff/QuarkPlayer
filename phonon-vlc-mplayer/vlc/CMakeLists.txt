@@ -32,9 +32,9 @@ if (KDE4_FOUND)
 	)
 else (KDE4_FOUND)
 	target_link_libraries(phonon_vlc
-		${QT_QTCORE_LIBRARY_DEBUG}
-		${QT_QTGUI_LIBRARY_DEBUG}
-		${QT_PHONON_LIBRARY_DEBUG}
+		${QT_QTCORE_LIBRARY}
+		${QT_QTGUI_LIBRARY}
+		${QT_PHONON_LIBRARY}
 	)
 endif (KDE4_FOUND)
 

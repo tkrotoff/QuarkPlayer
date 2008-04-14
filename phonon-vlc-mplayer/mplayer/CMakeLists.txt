@@ -25,7 +25,7 @@ add_library(libmplayer STATIC ${libmplayer_SRCS})
 
 
 set(phonon_mplayer_SRCS
-	${phonon_commom_SRCS} 
+	${phonon_commom_SRCS}
 	MPlayerMediaObject.cpp
 )
 
@@ -51,9 +51,9 @@ if (KDE4_FOUND)
 	)
 else (KDE4_FOUND)
 	target_link_libraries(phonon_mplayer
-		${QT_QTCORE_LIBRARY_DEBUG}
-		${QT_QTGUI_LIBRARY_DEBUG}
-		${QT_PHONON_LIBRARY_DEBUG}
+		${QT_QTCORE_LIBRARY}
+		${QT_QTGUI_LIBRARY}
+		${QT_PHONON_LIBRARY}
 		libmplayer
 	)
 endif (KDE4_FOUND)

@@ -69,6 +69,27 @@ void Effect::connectToMediaObject(MediaObject * mediaObject) {
 #endif	//PHONON_MPLAYER
 }
 
+void Effect::disconnectFromMediaObject(MediaObject * mediaObject) {
+	SinkNode::disconnectFromMediaObject(mediaObject);
+
+#ifdef PHONON_MPLAYER
+	switch (_effectType) {
+	case EffectInfo::AudioEffect:
+		MPlayerLoader::get()._settings.audioFilters.removeAll(_effectCommand);
+		break;
+	case EffectInfo::VideoEffect:
+		MPlayerLoader::get()._settings.videoFilters.removeAll(_effectCommand);
+		break;
+	}
+
+	MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
+	if (process) {
+		MPlayerLoader::get().restartMPlayerProcess(process);
+	}
+#endif	//PHONON_MPLAYER
+
+}
+
 QList<EffectParameter> Effect::parameters() const {
 	QList<EffectParameter> params;
 	return params;

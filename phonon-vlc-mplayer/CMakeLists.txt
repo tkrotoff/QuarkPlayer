@@ -5,27 +5,25 @@ if (KDE4_FOUND)
 	include(KDE4Defaults)
 	include(MacroLibrary)
 
-	message(STATUS "KDE4 Support: ${KDE4_FOUND}")
-	message(STATUS "KDE4 Dir: ${KDE4_DATA_DIR}")
-else (KDE4_FOUND)
-	find_package(Qt4 REQUIRED)
-endif (KDE4_FOUND)
-
-#Qt include dir
-include_directories(${QT_INCLUDE_DIR})
-
-if (KDE4_FOUND)
 	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE4_FOUND)
 	include_directories(${QDBUS_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
+
+	message(STATUS "KDE4 support enabled")
+	message(STATUS "KDE4 dir: ${KDE4_DATA_DIR}")
+else (KDE4_FOUND)
+	find_package(Qt4 REQUIRED)
+
+	#Phonon detection, this should be integrated into FindQt4.cmake
+	FIND_LIBRARY(QT_PHONON_LIBRARY_RELEASE NAMES phonon phonon4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
+	FIND_LIBRARY(QT_PHONON_LIBRARY_DEBUG NAMES phonon_debug phonond4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
+	_QT4_ADJUST_LIB_VARS(PHONON)
+	##
+
+	#Qt include dir
+	include_directories(${QT_INCLUDE_DIR})
+
+	message(STATUS "KDE4 support disabled")
 endif (KDE4_FOUND)
-
-if (UNIX)
-	set(QT_PHONON_LIBRARY_DEBUG ${QT_LIBRARY_DIR}/libphonon.so.4.1.0.debug)
-endif (UNIX)
-
-if (WIN32)
-	set(QT_PHONON_LIBRARY_DEBUG ${QT_LIBRARY_DIR}/phonond4.lib)
-endif (WIN32)
 
 #phonon-common
 set(phonon_commom_SRCS

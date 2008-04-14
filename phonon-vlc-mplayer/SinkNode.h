@@ -43,6 +43,8 @@ public:
 
 	virtual void connectToMediaObject(MediaObject * mediaObject);
 
+	virtual void disconnectFromMediaObject(MediaObject * mediaObject);
+
 protected:
 
 	void sendMPlayerCommand(const QString & command) const;

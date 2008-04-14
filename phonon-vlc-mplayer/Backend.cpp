@@ -358,10 +358,21 @@ bool Backend::connectNodes(QObject * source, QObject * sink) {
 	return false;
 }
 
-bool Backend::disconnectNodes(QObject * _source, QObject * _sink) {
-	qDebug() << __FUNCTION__ << _source->metaObject()->className() << "" << _sink->metaObject()->className();
+bool Backend::disconnectNodes(QObject * source, QObject * sink) {
+	qDebug() << __FUNCTION__ << source->metaObject()->className() << "" << sink->metaObject()->className();
 
-	return true;
+	SinkNode * sinkNode = qobject_cast<SinkNode *>(sink);
+	if (sinkNode) {
+		MediaObject * mediaObject = qobject_cast<MediaObject *>(source);
+		if (mediaObject) {
+			//Disconnects the SinkNode from a MediaObject
+			sinkNode->disconnectFromMediaObject(mediaObject);
+			return true;
+		}
+	}
+
+	qWarning() << __FUNCTION__ << "Disconnection not supported";
+	return false;
 }
 
 bool Backend::endConnectionChange(QSet<QObject *> nodes) {

@@ -48,6 +48,12 @@ void SinkNode::connectToMediaObject(MediaObject * mediaObject) {
 	_mediaObject = mediaObject;
 }
 
+void SinkNode::disconnectFromMediaObject(MediaObject * mediaObject) {
+	if (_mediaObject == mediaObject) {
+		qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
+	}
+}
+
 void SinkNode::sendMPlayerCommand(const QString & command) const {
 #ifdef PHONON_MPLAYER
 	if (_mediaObject) {

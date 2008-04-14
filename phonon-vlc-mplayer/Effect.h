@@ -54,6 +54,8 @@ public:
 
 	void connectToMediaObject(MediaObject * mediaObject);
 
+	void disconnectFromMediaObject(MediaObject * mediaObject);
+
 private:
 
 	QString _effectCommand;

@@ -126,6 +126,7 @@
    <attribute name="toolBarBreak" >
     <bool>false</bool>
    </attribute>
+   <addaction name="actionAddFiles" />
    <addaction name="actionAddPlayFile" />
   </widget>
   <action name="actionAddFiles" >
