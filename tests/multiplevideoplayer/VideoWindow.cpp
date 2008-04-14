@@ -20,7 +20,11 @@
 
 #include <QtGui/QtGui>
 
-#include <phonon/phonon>
+#include <phonon/mediaobject.h>
+#include <phonon/audiooutput.h>
+#include <phonon/mediasource.h>
+#include <phonon/videowidget.h>
+#include <phonon/seekslider.h>
 
 VideoWindow::VideoWindow(QWidget * parent)
 	: QMainWindow(parent) {
@@ -32,7 +36,11 @@ VideoWindow::VideoWindow(QWidget * parent)
 	_mediaObject->setTickInterval(1000);
 
 	_videoWidget = new Phonon::VideoWidget(this);
+#if QT_VERSION >= 0x040400
 	videoLayout->addWidget(_videoWidget);
+#else
+	vboxLayout->addWidget(_videoWidget);
+#endif	//QT_VERSION
 	_videoWidget->setMinimumHeight(200);
 	Phonon::createPath(_mediaObject, _videoWidget);
 
@@ -62,12 +70,20 @@ VideoWindow::VideoWindow(QWidget * parent)
 
 	//seekSlider
 	_seekSlider = new Phonon::SeekSlider();
+#if QT_VERSION >= 0x040400
 	seekerLayout->insertWidget(0, _seekSlider);
+#else
+	hboxLayout4->insertWidget(0, _seekSlider);
+#endif	//QT_VERSION
 	_seekSlider->setMediaObject(_mediaObject);
 
 	//volumdeSlider
 	_volumeSlider = new Phonon::VolumeSlider();
+#if QT_VERSION >= 0x040400
 	volumeLayout->insertWidget(0, _volumeSlider);
+#else
+	hboxLayout5->insertWidget(0, _volumeSlider);
+#endif	//QT_VERSION
 	_volumeSlider->setAudioOutput(_audioOutput);
 	_volumeSlider->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 

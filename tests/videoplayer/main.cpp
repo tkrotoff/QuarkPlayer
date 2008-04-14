@@ -18,12 +18,31 @@
 
 #include "MainWindow.h"
 
-#include <QtGui/QtGui>
+#ifdef KDE4_FOUND
+	#include <KApplication>
+	#include <KAboutData>
+	#include <KCmdLineArgs>
+#else
+	#include <QtGui/QApplication>
+#endif	//KDE4_FOUND
 
-int main(int argv, char **args) {
+int main(int argc, char * argv[]) {
 	Q_INIT_RESOURCE(videoplayer);
 
-	QApplication app(argv, args);
+#ifdef KDE4_FOUND
+	KAboutData aboutData("videoplayer", 0,
+		ki18n(""), "",
+		ki18n(""),
+		KAboutData::License_GPL,
+		ki18n(""));
+
+	KCmdLineArgs::init(argc, argv, &aboutData);
+
+	KApplication app;
+#else
+	QApplication app(argc, argv);
+#endif	//KDE4_FOUND
+
 	app.setApplicationName("VideoPlayer");
 	app.setQuitOnLastWindowClosed(true);
 

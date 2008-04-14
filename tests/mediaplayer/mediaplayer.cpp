@@ -157,7 +157,9 @@ MediaPlayer::MediaPlayer(const QString &filePath) :
 
     QPushButton *openButton = new QPushButton(this);
 
+#if QT_VERSION >= 0x040400
     openButton->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+#endif	//QT_VERSION
     QPalette bpal;
     QColor arrowcolor = bpal.buttonText().color();
     if (arrowcolor == Qt::black)
@@ -166,15 +168,20 @@ MediaPlayer::MediaPlayer(const QString &filePath) :
     openButton->setPalette(bpal);
 
     rewindButton = new QPushButton(this);
+#if QT_VERSION >= 0x040400
     rewindButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
-
+#endif	//QT_VERSION
     forwardButton = new QPushButton(this);
+#if QT_VERSION >= 0x040400
     forwardButton->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
+#endif	//QT_VERSION
     forwardButton->setEnabled(false);
 
     playButton = new QPushButton(this);
+#if QT_VERSION >= 0x040400
     playIcon = style()->standardIcon(QStyle::SP_MediaPlay);
     pauseIcon = style()->standardIcon(QStyle::SP_MediaPause);
+#endif	//QT_VERSION
     playButton->setIcon(playIcon);
 
     slider = new Phonon::SeekSlider(this);
@@ -216,8 +223,10 @@ MediaPlayer::MediaPlayer(const QString &filePath) :
     layout->addWidget(forwardButton);
 
     volumeLabel = new QLabel(this);
+#if QT_VERSION >= 0x040400
     volumeIcon = style()->standardPixmap(QStyle::SP_MediaVolume);
     mutedIcon = style()->standardPixmap(QStyle::SP_MediaVolumeMuted);
+#endif	//QT_VERSION
     volumeLabel->setPixmap(volumeIcon);
     volume->setFixedWidth(100);
     layout->addStretch();

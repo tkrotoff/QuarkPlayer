@@ -41,13 +41,34 @@
 **
 ***************************************************************************/
 
-#include <QtGui>
+#ifdef KDE4_FOUND
+	#include <KApplication>
+	#include <KAboutData>
+	#include <KCmdLineArgs>
+#else
+	#include <QtGui>
+#endif	//KDE4_FOUND
+
 #include "mediaplayer.h"
 
 int main (int argc, char *argv[])
 {
     Q_INIT_RESOURCE(mediaplayer);
-    QApplication app(argc, argv);
+
+#ifdef KDE4_FOUND
+	KAboutData aboutData("mediaplayer", 0,
+		ki18n(""), "",
+		ki18n(""),
+		KAboutData::License_GPL,
+		ki18n(""));
+
+	KCmdLineArgs::init(argc, argv, &aboutData);
+
+	KApplication app;
+#else
+	QApplication app(argc, argv);
+#endif	//KDE4_FOUND
+
     app.setApplicationName("Media Player");
     app.setQuitOnLastWindowClosed(true);
     

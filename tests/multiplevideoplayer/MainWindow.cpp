@@ -22,8 +22,6 @@
 
 #include <QtGui/QtGui>
 
-#include <phonon/phonon>
-
 MainWindow::MainWindow(QWidget * parent)
 	: QMainWindow(parent) {
 
@@ -48,7 +46,7 @@ MainWindow::MainWindow(QWidget * parent)
 	connect(tableWidget, SIGNAL(cellDoubleClicked(int, int)), SLOT(tableDoubleClicked(int, int)));
 
 	//Hacking into the backend...
-	QObject * backend = Phonon::Factory::backend();
+	/*QObject * backend = Phonon::Factory::backend();
 	const QMetaObject * backendHacking = backend->metaObject();
 	QString backendInfos;
 	backendHacking->invokeMethod(backend, "toString",
@@ -58,12 +56,12 @@ MainWindow::MainWindow(QWidget * parent)
 	backendInfosLabel->setText(
 		QString("\nBackend Name: ") + Phonon::Factory::backendName() +
 
-		/*QString("\nBackend Comment: ") + Phonon::Factory::backendComment() +
+		QString("\nBackend Comment: ") + Phonon::Factory::backendComment() +
 		QString("\nBackend Version: ") + Phonon::Factory::backendVersion() +
-		QString("\nBackend Website: ") + Phonon::Factory::backendWebsite()*/
+		QString("\nBackend Website: ") + Phonon::Factory::backendWebsite()
 
 		QString("\nBackend: ") + backendInfos
-	);
+	);*/
 }
 
 MainWindow::~MainWindow() {
