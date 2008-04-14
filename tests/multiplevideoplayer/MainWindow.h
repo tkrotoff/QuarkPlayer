@@ -21,7 +21,7 @@
 
 #include "ui_MainWindow.h"
 
-#include <Phonon/MediaObject>
+#include <phonon/mediaobject.h>
 
 #include <QtCore/QList>
 
