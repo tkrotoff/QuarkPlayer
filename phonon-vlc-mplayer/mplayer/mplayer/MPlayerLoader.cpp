@@ -98,114 +98,40 @@ QStringList MPlayerLoader::readMediaSettings() const {
 
 	QStringList args;
 
+	//Force "no quiet output", otherwise we can't get stream position for example
+	//MPlayer default option is -quiet
 	args << "-noquiet";
 
-	//Demuxer, audio and video codecs
-	if (!_settings.forced_demuxer.isEmpty()) {
-		args << "-demuxer";
-		args << _settings.forced_demuxer;
-	}
-	if (!_settings.forced_audio_codec.isEmpty()) {
-		args << "-ac";
-		args << _settings.forced_audio_codec;
-	}
-	if (!_settings.forced_video_codec.isEmpty()) {
-		args << "-vc";
-		args << _settings.forced_video_codec;
-	}
-
-	args << "-sub-fuzziness";
-	args << QString::number(1);
-
-	args << "-identify";
-
+	//MPlayer slave mode
 	args << "-slave";
 
-	args << "-vo";
-#ifdef Q_OS_WIN
-	args << "directx,";
-#else
-	args << "xv,";
-#endif
+	//Shorthand for -msglevel identify=4. Show file parameters in an easily parseable format.
+	//Also prints more detailed information about subtitle and audio track languages and IDs.
+	//In some cases you can get more information by using -msglevel identify=6.
+	//For example, for a DVD it will list the chapters and time length of each title,
+	//as well as a disk ID. Combine this with -frames 0 to suppress all output.
+	//The wrapper script TOOLS/midentify suppresses the other MPlayer output and (hopefully)
+	//shellescapes the filenames.
+	args << "-identify";
 
-	args << "-zoom";
-	args << "-nokeepaspect";
-
+	//Drops frames on a slow computer
 	args << "-framedrop";
 
-#ifndef Q_OS_WIN
-	//args << "-input";
-	//args << "conf=" + Helper::dataPath() +"/input.conf";
-#endif
-
-#ifndef Q_OS_WIN
-	args << "-stop-xscreensaver";
-#endif
-
-	//Square pixels
-	args << "-monitorpixelaspect";
-	args << "1";
-
-	args << "-subfont-autoscale";
-	args << QString::number(1);
-
-	args << "-subfont-text-scale";
-	args << QString::number(_settings.sub_scale);
-
-	args << "-subcp";
-	args << "ISO-8859-1";
-
-	/*if (_settings.current_audio_id != MediaSettings::NoneSelected) {
-		args << "-aid";
-		args << QString::number(_settings.current_audio_id);
-	}*/
-
-	args << "-subpos";
-	args << QString::number(_settings.sub_pos);
-
-	if (_settings.audio_delay != 0) {
-		args << "-delay";
-		args << QString::number((double) _settings.audio_delay / 1000);
-	}
-
-	if (_settings.sub_delay != 0) {
-		args << "-subdelay";
-		args << QString::number((double) _settings.sub_delay / 1000);
-	}
-
-	//Contrast, brightness...
+	//Video contrast
 	args << "-contrast";
 	args << QString::number(_settings.contrast);
 
+	//Video brightness
 	args << "-brightness";
 	args << QString::number(_settings.brightness);
 
+	//Video hue
 	args << "-hue";
 	args << QString::number(_settings.hue);
 
+	//Video saturation
 	args << "-saturation";
 	args << QString::number(_settings.saturation);
-
-	/*if (mdat.type == TYPE_DVD) {
-		if (!dvd_folder.isEmpty()) {
-			args << "-dvd-device";
-			args << dvd_folder;
-		} else {
-			qWarning("Core::startMplayer: dvd device is empty!");
-		}
-	}*/
-
-	/*if ((mdat.type==TYPE_VCD) || (mdat.type==TYPE_AUDIO_CD)) {
-		if (!pref->cdrom_device.isEmpty()) {
-			args << "-cdrom-device";
-			args << pref->cdrom_device;
-		}
-	}*/
-
-	if (_settings.speed != 1.0) {
-		args << "-speed";
-		args << QString::number(_settings.speed);
-	}
 
 	//Loads all the video filters
 	QStringList videoFilters = _settings.videoFilters;
@@ -216,18 +142,6 @@ QStringList MPlayerLoader::readMediaSettings() const {
 		}
 	}
 
-	//Audio channels
-	if (_settings.audio_use_channels != 0) {
-		args << "-channels";
-		args << QString::number(_settings.audio_use_channels);
-	}
-
-	//Stereo mode
-	if (_settings.stereo_mode != 0) {
-		args << "-stereo";
-		args << QString::number(_settings.stereo_mode);
-	}
-
 	//Loads all the audio filters
 	QStringList audioFilters = _settings.audioFilters;
 	if (!audioFilters.isEmpty()) {
@@ -236,12 +150,6 @@ QStringList MPlayerLoader::readMediaSettings() const {
 			args << filter;
 		}
 	}
-
-	/*QString audioFilters = _settings.audioFilters.join(",");
-	if (!audioFilters.isEmpty()) {
-		args << "-af";
-		args << audioFilters;
-	}*/
 
 	return args;
 }

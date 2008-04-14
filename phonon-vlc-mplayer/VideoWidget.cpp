@@ -50,6 +50,9 @@ VideoWidget::VideoWidget(QWidget * parent)
 	_contrast = 0;
 	_hue = 0;
 	_saturation = 0;
+
+	//Black background color
+	//setBackgroundColor(0x020202);
 }
 
 VideoWidget::~VideoWidget() {
@@ -148,6 +151,12 @@ void VideoWidget::setSaturation(qreal saturation) {
 
 QWidget * VideoWidget::widget() {
 	return _widget;
+}
+
+void VideoWidget::setBackgroundColor(const QColor & color) {
+	QPalette palette = _widget->palette();
+	palette.setColor(_widget->backgroundRole(), color);
+	_widget->setPalette(palette);
 }
 
 }}	//Namespace Phonon::VLC_MPlayer

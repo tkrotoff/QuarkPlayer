@@ -67,6 +67,15 @@ public:
 
 private:
 
+	/**
+	 * Sets the background color for the VideoWidget.
+	 *
+	 * This is compulsary otherwise VideoWidget won't display MPlayer video.
+	 *
+	 * Default color is: 0x020202
+	 */
+	void setBackgroundColor(const QColor & color);
+
 	QWidget * _widget;
 
 	Phonon::VideoWidget::AspectRatio _aspectRatio;

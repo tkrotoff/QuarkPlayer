@@ -31,8 +31,10 @@
  * Permits to send commands to the MPlayer process via its slave mode
  * Permits to receive events from the MPlayer process
  *
- * Check the MPlayer slave mode protocol documentation: http://www.mplayerhq.hu/DOCS/tech/slave.txt
+ * Check the MPlayer slave mode documentation: http://www.mplayerhq.hu/DOCS/tech/slave.txt
  *
+ * @see mplayer-input-cmdlist.txt
+ * @see http://www.mplayerhq.hu/DOCS/tech/slave.txt
  * @author Ricardo Villalba
  * @author Tanguy Krotoff
  */
@@ -54,6 +56,7 @@ public:
 	 * Example:
 	 *
 	 * @see http://www.mplayerhq.hu/DOCS/tech/slave.txt
+	 * @see mplayer-input-cmdlist.txt
 	 */
 	void writeToStdin(const QString & command);
 
