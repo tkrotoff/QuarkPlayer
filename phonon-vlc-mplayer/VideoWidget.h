@@ -72,7 +72,7 @@ private:
 	 *
 	 * This is compulsary otherwise VideoWidget won't display MPlayer video.
 	 *
-	 * Default color is: 0x020202
+	 * I don't know which one is best: 0x020202 or QColor(0, 0, 0)...
 	 */
 	void setBackgroundColor(const QColor & color);
 

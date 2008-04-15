@@ -53,6 +53,11 @@ void MPlayerMediaObject::setVideoWidgetId(int videoWidgetId) {
 }
 
 void MPlayerMediaObject::loadMedia(const QString & filename) {
+	if (filename == _filename) {
+		//File already loaded
+		return;
+	}
+
 	_playRequestReached = false;
 
 	_filename = filename;
@@ -174,14 +179,7 @@ void MPlayerMediaObject::endOfFile() {
 }
 
 void MPlayerMediaObject::seek(qint64 milliseconds) {
-	static qint64 previousSeek = 0;
-
-	//Only keep seek that are separated by 1000 milliseconds = 1 second
-	//Otherwise MPlayer gets ugly since it is not fast enough
-	if (previousSeek > (milliseconds + 1000) || previousSeek < (milliseconds - 1000)) {
-		_process->writeToStdin("seek " + QString::number(milliseconds / 1000.0) + " 2");
-		previousSeek = milliseconds;
-	}
+	_process->writeToStdin("seek " + QString::number(milliseconds / 1000.0) + " 2");
 }
 
 bool MPlayerMediaObject::hasVideo() const {

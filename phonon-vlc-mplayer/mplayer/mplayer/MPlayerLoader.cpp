@@ -117,6 +117,11 @@ QStringList MPlayerLoader::readMediaSettings() const {
 	//Drops frames on a slow computer
 	args << "-framedrop";
 
+	//Compulsary, otherwise we can't see anything from the widget
+	//that gets MPlayer video stream
+	args << "-colorkey";
+	args << "0x000000";
+
 	//Video contrast
 	args << "-contrast";
 	args << QString::number(_settings.contrast);

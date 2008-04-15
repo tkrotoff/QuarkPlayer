@@ -72,6 +72,8 @@ void MediaObject::setVideoWidgetId(int videoWidgetId) {
 }
 
 void MediaObject::play() {
+	qDebug() << __FUNCTION__;
+
 	switch (_mediaSource.type()) {
 
 	case MediaSource::Invalid:
@@ -88,19 +90,21 @@ void MediaObject::play() {
 	case MediaSource::Disc: {
 		switch (_mediaSource.discType()) {
 		case Phonon::NoDisc:
-			//kFatal(610) << "I should never get to see a MediaSource that is a disc but doesn't specify which one";
+			qCritical() << __FUNCTION__ << "Error: MediaSource doesn't specify the disc";
 			return;
 		case Phonon::Cd:
 			playInternal(_mediaSource.deviceName());
 			break;
 		case Phonon::Dvd:
-			playInternal(_mediaSource.deviceName());
+			//playInternal(_mediaSource.deviceName());
+			playInternal("dvd://");
+			qDebug() << "DVD";
 			break;
 		case Phonon::Vcd:
 			playInternal(_mediaSource.deviceName());
 			break;
 		default:
-			qCritical() << __FUNCTION__ << "error: unsupported MediaSource::Disc:" << _mediaSource.discType();
+			qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::Disc:" << _mediaSource.discType();
 		}
 		break;
 	}
@@ -109,7 +113,7 @@ void MediaObject::play() {
 		break;
 
 	default:
-		qCritical() << __FUNCTION__ << "error: unsupported MediaSource:" << _mediaSource.type();
+		qCritical() << __FUNCTION__ << "Error: unsupported MediaSource:" << _mediaSource.type();
 		break;
 
 	}
@@ -192,7 +196,7 @@ qint64 MediaObject::currentTime() const {
 		time = -1;
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "error: unsupported Phonon::State:" << st;
+		qCritical() << __FUNCTION__ << "Error: unsupported Phonon::State:" << st;
 	}
 
 	return time;
@@ -219,6 +223,8 @@ MediaSource MediaObject::source() const {
 }
 
 void MediaObject::setSource(const MediaSource & source) {
+	qDebug() << __FUNCTION__;
+
 	_mediaSource = source;
 
 	switch (source.type()) {
@@ -233,19 +239,20 @@ void MediaObject::setSource(const MediaSource & source) {
 	case MediaSource::Disc: {
 		switch (source.discType()) {
 		case Phonon::NoDisc:
-			qCritical() << __FUNCTION__ << "error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
+			qCritical() << __FUNCTION__ << "Error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
 			return;
 		case Phonon::Cd:
 			loadMediaInternal(_mediaSource.deviceName());
 			break;
 		case Phonon::Dvd:
-			loadMediaInternal(_mediaSource.deviceName());
+			//loadMediaInternal(_mediaSource.deviceName());
+			loadMediaInternal("dvd://");
 			break;
 		case Phonon::Vcd:
 			loadMediaInternal(_mediaSource.deviceName());
 			break;
 		default:
-			qCritical() << __FUNCTION__ << "error: unsupported MediaSource::Disc:" << source.discType();
+			qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::Disc:" << source.discType();
 			break;
 		}
 		}
@@ -253,7 +260,7 @@ void MediaObject::setSource(const MediaSource & source) {
 	case MediaSource::Stream:
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "error: unsupported MediaSource:" << source.type();
+		qCritical() << __FUNCTION__ << "Error: unsupported MediaSource:" << source.type();
 		break;
 	}
 }
@@ -277,10 +284,82 @@ void MediaObject::setTransitionTime(qint32) {
 }
 
 bool MediaObject::hasInterface(Interface iface) const {
-	return true;
+	switch (iface) {
+	case AddonInterface::NavigationInterface:
+		return true;
+		break;
+	case AddonInterface::ChapterInterface:
+		return true;
+		break;
+	case AddonInterface::AngleInterface:
+		return true;
+		break;
+	case AddonInterface::TitleInterface:
+		return true;
+		break;
+	/*case AddonInterface::SubtitleInterface:
+		return true;
+		break;
+	case AddonInterface::AudioChannelInterface:
+		return true;
+		break;*/
+	default:
+		qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::Interface" << iface;
+	}
+
+	return false;
 }
 
 QVariant MediaObject::interfaceCall(Interface iface, int command, const QList<QVariant> & arguments) {
+	switch (iface) {
+
+	case AddonInterface::ChapterInterface:
+		switch (static_cast<AddonInterface::ChapterCommand>(command)) {
+			case AddonInterface::availableChapters:
+			case AddonInterface::chapter:
+			case AddonInterface::setChapter:
+			default:
+				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::ChapterInterface command:" << command;
+
+		}
+		break;
+
+	case AddonInterface::TitleInterface:
+		switch (static_cast<AddonInterface::TitleCommand>(command)) {
+			case AddonInterface::availableTitles:
+			case AddonInterface::title:
+			case AddonInterface::setTitle:
+			case AddonInterface::autoplayTitles:
+			case AddonInterface::setAutoplayTitles:
+			default:
+				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::TitleInterface command:" << command;
+		}
+		break;
+
+	/*case AddonInterface::SubtitleInterface:
+		switch (static_cast<AddonInterface::SubtitleCommand>(command)) {
+			case AddonInterface::availableSubtitleStreams:
+			case AddonInterface::currentSubtitleStream:
+			case AddonInterface::setCurrentSubtitleStream:
+			default:
+				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::SubtitleInterface command:" << command;
+		}
+		break;
+
+	case AddonInterface::AudioChannelInterface:
+		switch (static_cast<AddonInterface::AudioChannelCommand>(command)) {
+			case AddonInterface::availableAudioStreams:
+			case AddonInterface::currentAudioStream:
+			case AddonInterface::setCurrentAudioStream:
+			default:
+				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::AudioChannelInterface command:" << command;
+		}
+		break;*/
+
+	default:
+		qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::Interface:" << iface;
+	}
+
 	return new QVariant();
 }
 
