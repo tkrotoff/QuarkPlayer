@@ -51,12 +51,14 @@ VideoWidget::VideoWidget(QWidget * parent)
 	_hue = 0;
 	_saturation = 0;
 
+#ifdef PHONON_MPLAYER
 	//Black background color
 	//TODO: MPlayer set color key !!!
 	//MPlayer needs to have the same color key otherwise impossible to see the video
 	//with some backends like directx
 	setBackgroundColor(QColor(0, 0, 0));
 	_widget->setAutoFillBackground(true);
+#endif	//PHONON_MPLAYER
 }
 
 VideoWidget::~VideoWidget() {
