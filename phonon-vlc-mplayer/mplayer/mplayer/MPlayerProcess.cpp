@@ -133,7 +133,6 @@ static QRegExp rx_resolving("^Resolving .*");
 static QRegExp rx_screenshot("^\\*\\*\\* screenshot '(.*)'");
 static QRegExp rx_endoffile("^Exiting... \\(End of file\\)");
 static QRegExp rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from");
-static QRegExp rx_aspect2("^Movie-Aspect is ([0-9,.]+):1");
 
 //VCD
 static QRegExp rx_vcd("^ID_VCD_TRACK_(\\d+)_MSF=(.*)");
@@ -161,7 +160,7 @@ static QRegExp rx_clip_software("^ software: (.*)", Qt::CaseInsensitive);
 static QRegExp rx_stream_title("^.* StreamTitle='(.*)';StreamUrl='(.*)';");
 
 void MPlayerProcess::parseLine(const QByteArray & tmp) {
-	//qDebug() << __FUNCTION__ << "Line:" << tmp;
+	//qDebug() << __FUNCTION__ << tmp;
 
 	QString line = QString::fromLocal8Bit(tmp);
 
@@ -171,14 +170,11 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 	}
 
 	//Parse A: V: line
-	//qDebug("%s", line.toUtf8().data());
 	if (rx_av.indexIn(line) > -1) {
 		double seconds = rx_av.cap(1).toDouble();
-		//qDebug("cap(1): '%s'", rx_av.cap(1).toUtf8().data());
-		//qDebug("sec: %f", sec);
 
 		if (!_notifiedMPlayerIsRunning) {
-			qDebug("MPlayerProcess::parseLine: starting sec: %f", seconds);
+			qDebug() << __FUNCTION__ << "Starting time:" << seconds;
 			emit receivedStartingTime(seconds);
 			emit mplayerFullyLoaded();
 			_notifiedMPlayerIsRunning = true;
@@ -196,17 +192,12 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 	}
 
 	else {
-		//Emulates mplayer version in Ubuntu:
-		//if (line.startsWith("MPlayer 1.0rc1")) line = "MPlayer 2:1.0~rc1-0ubuntu13.1 (C) 2000-2006 MPlayer Team";
-
-		emit lineAvailable(line);
-
 		//Parse other things
-		qDebug() << __FUNCTION__ << "Line:" << line;
+		qDebug() << __FUNCTION__ << line;
 
 		//Screenshot
 		if (rx_screenshot.indexIn(line) > -1) {
-			QString filename = rx_screenshot.cap(1);
+			const QString filename = rx_screenshot.cap(1);
 			qDebug() << __FUNCTION__ << "Screenshot:" << filename;
 			emit screenshotSaved(filename);
 		}
@@ -224,42 +215,37 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 				emit mplayerFullyLoaded();
 			}
 
-			//Sends the endOfFile signal once the process is finished, not now!
+			//Sends the stateChanged(EndOfFileState) signal once the process is finished, not now!
 			_endOfFileReached = true;
 		}
 
 		//Window resolution
-		else if (rx_winresolution.indexIn(line) > -1) {
-			/*
-			_data.win_width = rx_winresolution.cap(4).toInt();
-			_data.win_height = rx_winresolution.cap(5).toInt();
-			_data.video_aspect = (double) _data.win_width / _data.win_height;
-			*/
-
-			int width = rx_winresolution.cap(4).toInt();
-			int height = rx_winresolution.cap(5).toInt();
+		/*else if (rx_winresolution.indexIn(line) > -1) {
+			_data.windowWidth = rx_winresolution.cap(4).toInt();
+			_data.windowHeight = rx_winresolution.cap(5).toInt();
+			_data.videoAspect = (double) _data.windowWidth / _data.windowHeight;
 
 			emit receivedVO(rx_winresolution.cap(1));
 			emit receivedWindowResolution(width, height);
 			//emit mplayerFullyLoaded();
-		}
+		}*/
 
 		//No video
 		else if (rx_novideo.indexIn(line) > -1) {
-			_data.novideo = TRUE;
-			emit hasNoVideo();
+			_data.hasVideo = false;
+			emit hasVideoChanged(_data.hasVideo);
 			//emit mplayerFullyLoaded();
 		}
 
 		//Pause
 		else if (rx_paused.indexIn(line) > -1) {
-			emit pause();
+			emit stateChanged(PausedState);
 		}
 
 		//Stream title
 		if (rx_stream_title.indexIn(line) > -1) {
-			QString title = rx_stream_title.cap(1);
-			QString url = rx_stream_title.cap(2);
+			const QString title = rx_stream_title.cap(1);
+			const QString url = rx_stream_title.cap(2);
 			qDebug() << __FUNCTION__ << "Stream title:" << title;
 			qDebug() << __FUNCTION__ << "Stream url:" << url;
 			_data.stream_title = title;
@@ -357,19 +343,17 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			int ID = rx_title.cap(1).toInt();
 			QString t = rx_title.cap(2);
 
-			if (t=="LENGTH") {
+			if (t == "LENGTH") {
 				double length = rx_title.cap(3).toDouble();
 				qDebug("MPlayerProcess::parseLine: Title: ID: %d, Length: '%f'", ID, length);
 				_data.titles.addDuration(ID, length);
 			}
-			else
-			if (t=="CHAPTERS") {
+			else if (t == "CHAPTERS") {
 				int chapters = rx_title.cap(3).toInt();
 				qDebug("MPlayerProcess::parseLine: Title: ID: %d, Chapters: '%d'", ID, chapters);
 				_data.titles.addChapters(ID, chapters);
 			}
-			else
-			if (t=="ANGLES") {
+			else if (t == "ANGLES") {
 				int angles = rx_title.cap(3).toInt();
 				qDebug("MPlayerProcess::parseLine: Title: ID: %d, Angles: '%d'", ID, angles);
 				_data.titles.addAngles(ID, angles);
@@ -401,13 +385,6 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 		}
 		else
 
-		//Aspect ratio for old versions of mplayer
-		if (rx_aspect2.indexIn(line) > -1) {
-			_data.video_aspect = rx_aspect2.cap(1).toDouble();
-			qDebug("MPlayerProcess::parseLine: _data.video_aspect set to %f", _data.video_aspect);
-		}
-		else
-
 		//Clip info
 
 		//QString::trimmed() is used for removing leading and trailing whitespaces
@@ -417,161 +394,171 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 
 		//Name
 		if (rx_clip_name.indexIn(line) > -1) {
-			QString s = rx_clip_name.cap(2).trimmed();
-			qDebug("MPlayerProcess::parseLine: clip_name: '%s'", s.toUtf8().data());
+			const QString s = rx_clip_name.cap(2).trimmed();
+			qDebug() << __FUNCTION__ << "Clip name:" << s;
 			_data.clip_name = s;
 		}
 
 		//Artist
 		else if (rx_clip_artist.indexIn(line) > -1) {
-			QString s = rx_clip_artist.cap(1).trimmed();
+			const QString s = rx_clip_artist.cap(1).trimmed();
 			qDebug("MPlayerProcess::parseLine: clip_artist: '%s'", s.toUtf8().data());
 			_data.clip_artist = s;
 		}
 
 		//Author
 		else if (rx_clip_author.indexIn(line) > -1) {
-			QString s = rx_clip_author.cap(1).trimmed();
+			const QString s = rx_clip_author.cap(1).trimmed();
 			qDebug("MPlayerProcess::parseLine: clip_author: '%s'", s.toUtf8().data());
 			_data.clip_author = s;
 		}
 
 		//Album
 		else if (rx_clip_album.indexIn(line) > -1) {
-			QString s = rx_clip_album.cap(1).trimmed();
+			const QString s = rx_clip_album.cap(1).trimmed();
 			qDebug("MPlayerProcess::parseLine: clip_album: '%s'", s.toUtf8().data());
 			_data.clip_album = s;
 		}
 
 		//Genre
 		else if (rx_clip_genre.indexIn(line) > -1) {
-			QString s = rx_clip_genre.cap(1).trimmed();
+			const QString s = rx_clip_genre.cap(1).trimmed();
 			qDebug("MPlayerProcess::parseLine: clip_genre: '%s'", s.toUtf8().data());
 			_data.clip_genre = s;
 		}
 
 		//Date
 		else if (rx_clip_date.indexIn(line) > -1) {
-			QString s = rx_clip_date.cap(2).trimmed();
+			const QString s = rx_clip_date.cap(2).trimmed();
 			qDebug("MPlayerProcess::parseLine: clip_date: '%s'", s.toUtf8().data());
 			_data.clip_date = s;
 		}
 
 		//Track
 		else if (rx_clip_track.indexIn(line) > -1) {
-			QString s = rx_clip_track.cap(1).trimmed();
+			const QString s = rx_clip_track.cap(1).trimmed();
 			qDebug("MPlayerProcess::parseLine: clip_track: '%s'", s.toUtf8().data());
 			_data.clip_track = s;
 		}
 
 		//Copyright
 		else if (rx_clip_copyright.indexIn(line) > -1) {
-			QString s = rx_clip_copyright.cap(1).trimmed();
+			const QString s = rx_clip_copyright.cap(1).trimmed();
 			qDebug("MPlayerProcess::parseLine: clip_copyright: '%s'", s.toUtf8().data());
 			_data.clip_copyright = s;
 		}
 
 		//Comment
 		else if (rx_clip_comment.indexIn(line) > -1) {
-			QString s = rx_clip_comment.cap(1).trimmed();
+			const QString s = rx_clip_comment.cap(1).trimmed();
 			qDebug("MPlayerProcess::parseLine: clip_comment: '%s'", s.toUtf8().data());
 			_data.clip_comment = s;
 		}
 
 		//Software
 		else if (rx_clip_software.indexIn(line) > -1) {
-			QString s = rx_clip_software.cap(1).trimmed();
+			const QString s = rx_clip_software.cap(1).trimmed();
 			qDebug("MPlayerProcess::parseLine: clip_software: '%s'", s.toUtf8().data());
 			_data.clip_software = s;
 		}
-		else
 
-		// Catch starting message
-		/*
-		pos = rx_play.indexIn(line);
-		if (pos > -1) {
-			emit mplayerFullyLoaded();
+		//Catch "Starting playback..." message
+		else if (rx_play.indexIn(line) > -1) {
+			emit stateChanged(PlayingState);
 		}
-		*/
 
 		//Generic things
 		if (rx.indexIn(line) > -1) {
-			QString tag = rx.cap(1);
-			QString value = rx.cap(2);
-			//qDebug("MPlayerProcess::parseLine: tag: %s, value: %s", tag.toUtf8().data(), value.toUtf8().data());
+			const QString tag = rx.cap(1);
+			const QString value = rx.cap(2);
 
-			// Generic audio
-			/*
-			if (tag == "ID_AUDIO_ID") {
-				int ID = value.toInt();
-				qDebug("MPlayerProcess::parseLine: ID_AUDIO_ID: %d", ID);
-				_data.audios.addID(ID);
+			if (tag == "ID_VIDEO_ID") {
+				//First string to tell us that the media contains a video track
+				_data.hasVideo = true;
+				emit hasVideoChanged(_data.hasVideo);
 			}
-			else*/
-			if (tag == "ID_LENGTH") {
+
+			else if (tag == "ID_AUDIO_ID") {
+				//First string to tell us that the media contains an audio track
+			}
+
+			else if (tag == "ID_LENGTH") {
 				_data.totalTime = value.toDouble();
 				qDebug() << __FUNCTION__ << "Media total time:" << _data.totalTime;
 			}
+
 			else if (tag == "ID_VIDEO_WIDTH") {
-				_data.video_width = value.toInt();
-				qDebug("MPlayerProcess::parseLine: _data.video_width set to %d", _data.video_width);
+				_data.videoWidth = value.toInt();
+				qDebug() << __FUNCTION__ << "Video width:" << _data.videoWidth;
 			}
+
 			else if (tag == "ID_VIDEO_HEIGHT") {
-				_data.video_height = value.toInt();
-				qDebug("MPlayerProcess::parseLine: _data.video_height set to %d", _data.video_height);
+				_data.videoHeight = value.toInt();
+				qDebug() << __FUNCTION__ << "Video height:" << _data.videoHeight;
 			}
+
 			else if (tag == "ID_VIDEO_ASPECT") {
-				_data.video_aspect = value.toDouble();
-				if (_data.video_aspect == 0.0) {
+				_data.videoAspect = value.toDouble();
+				if (_data.videoAspect == 0.0) {
 					//I hope width & height are already set
-					_data.video_aspect = (double) _data.video_width / _data.video_height;
+					_data.videoAspect = (double) _data.videoWidth / _data.videoHeight;
 				}
-				qDebug("MPlayerProcess::parseLine: _data.video_aspect set to %f", _data.video_aspect);
+				qDebug() << __FUNCTION__ << "Video aspect:" << _data.videoAspect;
 			}
+
 			else if (tag == "ID_DVD_DISC_ID") {
 				_data.dvd_id = value;
-				qDebug("MPlayerProcess::parseLine: _data.dvd_id set to '%s'", _data.dvd_id.toUtf8().data());
+				qDebug() << __FUNCTION__ << "DVD disc Id:" << _data.dvd_id;
 			}
+
 			else if (tag == "ID_DEMUXER") {
 				_data.demuxer = value;
 			}
+
 			else if (tag == "ID_VIDEO_FORMAT") {
-				_data.video_format = value;
+				_data.videoFormat = value;
 			}
+
 			else if (tag == "ID_AUDIO_FORMAT") {
-				_data.audio_format = value;
+				_data.audioFormat = value;
 			}
+
 			else if (tag == "ID_VIDEO_BITRATE") {
-				_data.video_bitrate = value.toInt();
+				_data.videoBitrate = value.toInt();
 			}
+
 			else if (tag == "ID_VIDEO_FPS") {
-				_data.video_fps = value;
+				_data.videoFps = value;
 			}
+
 			else if (tag == "ID_AUDIO_BITRATE") {
-				_data.audio_bitrate = value.toInt();
+				_data.audioBitrate = value.toInt();
 			}
+
 			else if (tag == "ID_AUDIO_RATE") {
-				_data.audio_rate = value.toInt();
+				_data.audioRate = value.toInt();
 			}
+
 			else if (tag == "ID_AUDIO_NCH") {
-				_data.audio_nch = value.toInt();
+				_data.audioNch = value.toInt();
 			}
+
 			else if (tag == "ID_VIDEO_CODEC") {
-				_data.video_codec = value;
+				_data.videoCodec = value;
 			}
+
 			else if (tag == "ID_AUDIO_CODEC") {
-				_data.audio_codec = value;
+				_data.audioCodec = value;
 			}
 		}
 	}
 }
 
-void MPlayerProcess::finished(int exitCode, QProcess::ExitStatus exitStatus) {
-	//Send this signal before the endOfFile one, otherwise
+void MPlayerProcess::finished(int, QProcess::ExitStatus) {
+	//Send the finished() signal before the EndOfFileState one, otherwise
 	//the playlist will start to play next file before all
 	//objects are notified that the process has exited
-	emit finished();
 	if (_endOfFileReached) {
-		emit endOfFile();
+		emit stateChanged(EndOfFileState);
 	}
 }

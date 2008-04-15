@@ -70,7 +70,7 @@ namespace VLC_MPlayer
 Backend::Backend(QObject * parent, const QVariantList &)
 	: QObject(parent) {
 
-	qDebug() << "Phonon version:" << Phonon::phononVersion();
+	//qDebug() << "Phonon version:" << Phonon::phononVersion();
 
 #ifdef PHONON_VLC
 	setProperty("identifier", QLatin1String("phonon_vlc"));

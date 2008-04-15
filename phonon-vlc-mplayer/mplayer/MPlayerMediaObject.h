@@ -21,6 +21,7 @@
 
 //FIXME global variable
 #include <mplayer/MPlayerLoader.h>
+#include <mplayer/MPlayerProcess.h>
 
 #include <phonon/mediaobjectinterface.h>
 
@@ -88,9 +89,10 @@ signals:
 
 private slots:
 
-	void pausedState();
 	void finished(int exitCode, QProcess::ExitStatus exitStatus);
-	void endOfFile();
+
+	void stateChanged(MPlayerProcess::State state);
+
 	void tickInternal(double seconds);
 
 	void loadMediaInternal();

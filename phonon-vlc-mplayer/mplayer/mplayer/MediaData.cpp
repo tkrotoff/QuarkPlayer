@@ -31,6 +31,7 @@ MediaData::~MediaData() {
 }
 
 void MediaData::clear() {
+	/*
 	filename.clear();
 	dvd_id.clear();
 
@@ -78,4 +79,5 @@ void MediaData::clear() {
 	audio_nch = 0;
 	video_codec.clear();
 	audio_codec.clear();
+	*/
 }

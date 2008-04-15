@@ -42,6 +42,56 @@ class MPlayerProcess : public MyProcess {
 	Q_OBJECT
 public:
 
+	/**
+	 * The state of the media.
+	 *
+	 * Taken and adapted from Phonon
+	 *
+	 * @see phononnamespace.h
+	 */
+	enum State {
+
+		/**
+		 * After construction it might take a while before the Player is
+		 * ready to play(). Normally this doesn't happen for local
+		 * files, but can happen for remote files where the asynchronous
+		 * mimetype detection and prebuffering can take a while.
+		 */
+		LoadingState,
+
+		/**
+		 * The Player has a valid media file loaded and is ready for
+		 * playing.
+		 */
+		//StoppedState,
+
+		/**
+		 * The Player reached the end of the stream/media/file.
+		 */
+		EndOfFileState,
+
+		/**
+		 * The Player is playing a media file.
+		 */
+		PlayingState,
+
+		/**
+		 * The Player is waiting for data to be able to continue
+		 * playing.
+		 */
+		BufferingState,
+
+		/**
+		 * The Player is currently paused.
+		 */
+		PausedState,
+
+		/**
+		 * An unrecoverable error occurred. The Object is unusable in this state.
+		 */
+		ErrorState
+	};
+
 	MPlayerProcess(QObject * parent);
 	~MPlayerProcess();
 
@@ -64,9 +114,12 @@ public:
 
 signals:
 
-	void finished();
-
-	void lineAvailable(QString line);
+	/**
+	 * Emitted when the state of the media has changed.
+	 *
+	 * @param state The state the Player is in now.
+	 */
+	void stateChanged(MPlayerProcess::State state);
 
 	/**
 	 * Gives the current position in the stream.
@@ -80,24 +133,17 @@ signals:
 
 	void receivedCurrentFrame(int frame);
 
-	void pause();
-
 	void receivedWindowResolution(int,int);
 
 	/**
-	 * The stream does not contain a video.
+	 * If the stream contains a video or not.
 	 *
 	 * @see Phonon::MediaObject::hasVideoChanged()
 	 */
-	void hasNoVideo();
+	void hasVideoChanged(bool hasVideo);
 
 	void receivedVO(QString);
 	void receivedAO(QString);
-
-	/**
-	 * The end of the stream/file (video/audio) has been reached.
-	 */
-	void endOfFile();
 
 	void mplayerFullyLoaded();
 

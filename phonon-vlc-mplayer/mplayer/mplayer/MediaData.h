@@ -23,9 +23,12 @@
 #include <QtCore/QString>
 
 /**
- * Stores some volatile informations about the stream.
+ * Stores some volatile informations about the stream/media/file.
  *
  * Contains the file meta data + others informations.
+ *
+ * Stores informations given by MPlayer using this command:
+ * <pre>mplayer -identify -noquiet -frames 0 FILENAME</pre>
  *
  * @see http://xiph.org/vorbis/doc/Vorbis_I_spec.html#vorbis-spec-comment
  */
@@ -38,18 +41,18 @@ public:
 	/** Reset all datas to zero. */
 	void clear();
 
-	/** Filename of the media. */
+	/** Filename of the media. Full path. */
 	QString filename;
 
-	/** Media total time (duration) in seconds. */
+	/** Media total time (duration) in seconds. ID_LENGTH. Example: 62.73 */
 	double totalTime;
 
 	/**
-	 * Current playing time of the media.
+	 * Current playing time of the media in seconds.
 	 *
 	 * Updated each time MPlayer plays the media.
 	 *
-	 * If MPlayer is not playing, then the value is not valid
+	 * If MPlayer is not playing, then the value is the last one known
 	 */
 	double currentTime;
 
@@ -57,14 +60,34 @@ public:
 	int videoWidgetId;
 
 	//Resolution of the video
-	int video_width;
-	int video_height;
-	double video_aspect;
+
+	/** ID_VIDEO_WIDTH. Example: 576 */
+	int videoWidth;
+
+	/** ID_VIDEO_HEIGHT. Example: 320 */
+	int videoHeight;
+
+	///
+
+	/**
+	 * ID_VIDEO_ASPECT.
+	 *
+	 * MPlayer can return 0, then it is computed from videoWidth and videoHeight
+	 *
+	 * Example:
+	 *
+	 */
+	double videoAspect;
 
 	QString dvd_id;
 
-	//Only audio
-	bool novideo;
+	/**
+	 * If the stream contains a video or not.
+	 *
+	 * @see Phonon::MediaObject::hasVideoChanged()
+	 * @see MPlayerProcess::hasVideoChanged()
+	 */
+	bool hasVideo;
 
 	bool initialized;
 
@@ -92,19 +115,47 @@ public:
 	QString stream_title;
 	QString stream_url;
 
-	//Other data not really useful for us,
+	//Other dataz not really useful for us,
 	//just to show info to the user
+	//Please try to respect the declarations order: should match MPlayer stdout
+
+	/** ID_DEMUXER. Example: avi */
 	QString demuxer;
-	QString video_format;
-	QString audio_format;
-	int video_bitrate;
-	QString video_fps;
-	int audio_bitrate;
-	int audio_rate;
-	//Channels?
-	int audio_nch;
-	QString video_codec;
-	QString audio_codec;
+
+	/** ID_VIDEO_FORMAT. Example: XVID */
+	QString videoFormat;
+
+	/** ID_VIDEO_BITRATE. Example: 1013968 */
+	int videoBitrate;
+
+	//ID_VIDEO_WIDTH
+
+	//ID_VIDEO_HEIGHT
+
+	/** ID_VIDEO_FPS. Example: 29.970 */
+	QString videoFps;
+
+	//ID_VIDEO_ASPECT
+
+	/** ID_AUDIO_FORMAT. Example: 85 */
+	QString audioFormat;
+
+	/** ID_AUDIO_BITRATE. Example: 5600 */
+	int audioBitrate;
+
+	/** ID_AUDIO_RATE. Example: 44100 */
+	int audioRate;
+
+	/** ID_AUDIO_NCH. Example: 0 I don't know what it is, channels? */
+	int audioNch;
+
+	//ID_LENGTH
+
+	/** ID_VIDEO_CODEC. Example: ffodivx */
+	QString videoCodec;
+
+	/** ID_AUDIO_CODEC. Example: mad */
+	QString audioCodec;
 };
 
 #endif	//MEDIADATA_H

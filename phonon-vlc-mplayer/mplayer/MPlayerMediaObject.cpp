@@ -104,7 +104,7 @@ void MPlayerMediaObject::mediaLoaded() {
 	_totalTime = mediaData.totalTime * 1000;
 	emit totalTimeChanged(_totalTime);
 
-	emit hasVideoChanged(!mediaData.novideo);
+	emit hasVideoChanged(mediaData.hasVideo);
 
 	emit metaDataChanged(metaDataMap);
 
@@ -117,12 +117,12 @@ void MPlayerMediaObject::play() {
 	_playRequestReached = true;
 	_process = MPlayerLoader::get().startMPlayerProcess(_filename, (int) _videoWidgetId);
 
-	connect(_process, SIGNAL(pause()),
-		SLOT(pausedState()));
+	connect(_process, SIGNAL(stateChanged(MPlayerProcess::State)),
+		SLOT(stateChanged(MPlayerProcess::State)));
+
 	connect(_process, SIGNAL(tick(double)),
 		SLOT(tickInternal(double)));
-	connect(_process, SIGNAL(endOfFile()),
-		SLOT(endOfFile()));
+
 	connect(_process, SIGNAL(finished(int, QProcess::ExitStatus)),
 		SLOT(finished(int, QProcess::ExitStatus)));
 }
@@ -137,12 +137,6 @@ void MPlayerMediaObject::setState(Phonon::State newState) {
 }
 
 void MPlayerMediaObject::tickInternal(double seconds) {
-	//We are now playing the file
-	if (_currentState != Phonon::PlayingState) {
-		setState(Phonon::PlayingState);
-		mediaLoaded();
-	}
-
 	//time should be in milliseconds
 	_currentTime = seconds * 1000;
 	emit tick(_currentTime);
@@ -152,8 +146,19 @@ void MPlayerMediaObject::pause() {
 	_process->writeToStdin("pause");
 }
 
-void MPlayerMediaObject::pausedState() {
-	setState(Phonon::PausedState);
+void MPlayerMediaObject::stateChanged(MPlayerProcess::State state) {
+	switch (state) {
+	case MPlayerProcess::PlayingState:
+		setState(Phonon::PlayingState);
+		break;
+	case MPlayerProcess::PausedState:
+		setState(Phonon::PausedState);
+		break;
+	case MPlayerProcess::EndOfFileState:
+		setState(Phonon::StoppedState);
+		emit finished();
+		break;
+	}
 }
 
 void MPlayerMediaObject::stop() {
@@ -171,11 +176,6 @@ void MPlayerMediaObject::finished(int exitCode, QProcess::ExitStatus exitStatus)
 	}
 
 	setState(Phonon::StoppedState);
-}
-
-void MPlayerMediaObject::endOfFile() {
-	setState(Phonon::StoppedState);
-	emit finished();
 }
 
 void MPlayerMediaObject::seek(qint64 milliseconds) {

@@ -64,9 +64,11 @@ private:
 	/**
 	 * Return true if it's possible to read an entire line.
 	 *
+	 * Named canReadLine2() since there can be a clash name with canReadLine()
+	 *
 	 * @param from specifies the position to begin.
 	 */
-	int canReadLine(const QByteArray & output, int from = 0);
+	int canReadLine2(const QByteArray & output, int from = 0);
 
 	/** Called from readStdOut() to do all the work. */
 	void genericRead(const QByteArray & output);
