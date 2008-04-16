@@ -44,17 +44,17 @@ public:
 	/** Filename of the media. Full path. */
 	QString filename;
 
-	/** Media total time (duration) in seconds. ID_LENGTH. Example: 62.73 */
-	double totalTime;
+	/** Media total time (duration) in milliseconds. ID_LENGTH. Example: 62.73 */
+	qint64 totalTime;
 
 	/**
-	 * Current playing time of the media in seconds.
+	 * Current playing time of the media in milliseconds.
 	 *
 	 * Updated each time MPlayer plays the media.
 	 *
 	 * If MPlayer is not playing, then the value is the last one known
 	 */
-	double currentTime;
+	qint64 currentTime;
 
 	/** Id of the widget where MPlayer will show the video. */
 	int videoWidgetId;
@@ -67,17 +67,19 @@ public:
 	/** ID_VIDEO_HEIGHT. Example: 320 */
 	int videoHeight;
 
-	///
-
 	/**
 	 * ID_VIDEO_ASPECT.
 	 *
 	 * MPlayer can return 0, then it is computed from videoWidth and videoHeight
 	 *
-	 * Example:
-	 *
+	 * Example: 1.8000
 	 */
 	double videoAspect;
+
+	///
+
+	/** ID_SEEKABLE. Example: 1 */
+	bool isSeekable;
 
 	QString dvd_id;
 
@@ -125,7 +127,7 @@ public:
 	/** ID_VIDEO_FORMAT. Example: XVID */
 	QString videoFormat;
 
-	/** ID_VIDEO_BITRATE. Example: 1013968 */
+	/** ID_VIDEO_BITRATE (bps). Example: 1013968 */
 	int videoBitrate;
 
 	//ID_VIDEO_WIDTH
@@ -133,21 +135,21 @@ public:
 	//ID_VIDEO_HEIGHT
 
 	/** ID_VIDEO_FPS. Example: 29.970 */
-	QString videoFps;
+	double videoFPS;
 
 	//ID_VIDEO_ASPECT
 
 	/** ID_AUDIO_FORMAT. Example: 85 */
 	QString audioFormat;
 
-	/** ID_AUDIO_BITRATE. Example: 5600 */
+	/** ID_AUDIO_BITRATE (bps). Example: 48000 */
 	int audioBitrate;
 
-	/** ID_AUDIO_RATE. Example: 44100 */
+	/** ID_AUDIO_RATE (Hz). Example: 44100 */
 	int audioRate;
 
-	/** ID_AUDIO_NCH. Example: 0 I don't know what it is, channels? */
-	int audioNch;
+	/** ID_AUDIO_NCH. Example: 2 I don't know what it is, number of channels? */
+	int audioNbChannels;
 
 	//ID_LENGTH
 

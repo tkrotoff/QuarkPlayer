@@ -31,6 +31,9 @@
 	static const char * MPLAYER_EXE = "mplayer";
 #endif
 
+/** MPlayer works using seconds, we prefer to work using milliseconds. */
+static const double SECONDS_CONVERTION = 1000.0;
+
 MPlayerProcess::MPlayerProcess(QObject * parent)
 	: MyProcess(parent) {
 
@@ -44,15 +47,13 @@ MPlayerProcess::MPlayerProcess(QObject * parent)
 MPlayerProcess::~MPlayerProcess() {
 }
 
-bool MPlayerProcess::start(const QStringList & arguments, const QString & filename, int videoWidgetId, double seek) {
+bool MPlayerProcess::start(const QStringList & arguments, const QString & filename, int videoWidgetId, qint64 seek) {
 	//Stop MPlayerProcess if it is already running
 	if (isRunning()) {
 		stop();
 	}
 
 	_data.clear();
-
-	_notifiedMPlayerIsRunning = false;
 
 	//Not found yet
 	_mplayerSvnRevision = -1;
@@ -74,7 +75,7 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 	if (seek > 5) {
 		_data.currentTime = seek;
 		args << "-ss";
-		args << QString::number(_data.currentTime);
+		args << QString::number(_data.currentTime / SECONDS_CONVERTION);
 	}
 
 	//File to play
@@ -116,6 +117,23 @@ MediaData MPlayerProcess::getMediaData() const {
 	return _data;
 }
 
+bool MPlayerProcess::hasVideo() const {
+	return _data.hasVideo;
+}
+
+bool MPlayerProcess::isSeekable() const {
+	return _data.isSeekable;
+}
+
+qint64 MPlayerProcess::currentTime() const {
+	return _data.currentTime;
+}
+
+qint64 MPlayerProcess::totalTime() const {
+	return _data.totalTime;
+}
+
+
 static QRegExp rx_av("^[AV]: *([0-9,:.-]+)");
 static QRegExp rx_frame("^[AV]:.* (\\d+)\\/.\\d+");// [0-9,.]+");
 static QRegExp rx("^(.*)=(.*)");
@@ -128,6 +146,7 @@ static QRegExp rx_novideo("^Video: no video");
 static QRegExp rx_cache("^Cache fill:.*");
 static QRegExp rx_create_index("^Generating Index:.*");
 static QRegExp rx_play("^Starting playback...");
+static QRegExp rx_playing("^Playing");	//"Playing" does not mean the file is actually playing but only loading
 static QRegExp rx_connecting("^Connecting to .*");
 static QRegExp rx_resolving("^Resolving .*");
 static QRegExp rx_screenshot("^\\*\\*\\* screenshot '(.*)'");
@@ -171,32 +190,36 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 
 	//Parse A: V: line
 	if (rx_av.indexIn(line) > -1) {
-		double seconds = rx_av.cap(1).toDouble();
+		_data.currentTime = rx_av.cap(1).toDouble() * SECONDS_CONVERTION;
 
-		if (!_notifiedMPlayerIsRunning) {
-			qDebug() << __FUNCTION__ << "Starting time:" << seconds;
-			emit receivedStartingTime(seconds);
-			emit mplayerFullyLoaded();
-			_notifiedMPlayerIsRunning = true;
+		if (_state != PlayingState) {
+			qDebug() << __FUNCTION__ << "Starting time:" << _data.currentTime;
+			setState(PlayingState);
 		}
 
-		_data.currentTime = seconds;
-		emit tick(seconds);
+		qDebug() << __FUNCTION__ << "Tick:" << _data.currentTime;
+		emit tick(_data.currentTime);
 
-		//Check for frame
+		//Check for frame number
 		if (rx_frame.indexIn(line) > -1) {
 			int frame = rx_frame.cap(1).toInt();
-			//qDebug(" frame: %d", frame);
-			emit receivedCurrentFrame(frame);
+			//qDebug() << __FUNCTION__ << "Frame number:" << frame;
+			emit currentFrameNumberReceived(frame);
 		}
 	}
 
+	//Parse other things
 	else {
-		//Parse other things
-		qDebug() << __FUNCTION__ << line;
+		qDebug() << "MPlayer:" << line;
+
+		//Loading the file/stream/media
+		//Becarefull! "Playing" does not mean the file is playing but only loading
+		if (rx_playing.indexIn(line) > -1) {
+			setState(LoadingState);
+		}
 
 		//Screenshot
-		if (rx_screenshot.indexIn(line) > -1) {
+		else if (rx_screenshot.indexIn(line) > -1) {
 			const QString filename = rx_screenshot.cap(1);
 			qDebug() << __FUNCTION__ << "Screenshot:" << filename;
 			emit screenshotSaved(filename);
@@ -211,8 +234,8 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			//available titles. So if we received the end of file
 			//first let's pretend the file has started so the GUI can have
 			//the data.
-			if (!_notifiedMPlayerIsRunning) {
-				emit mplayerFullyLoaded();
+			if (_state != PlayingState) {
+				setState(PlayingState);
 			}
 
 			//Sends the stateChanged(EndOfFileState) signal once the process is finished, not now!
@@ -233,13 +256,14 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 		//No video
 		else if (rx_novideo.indexIn(line) > -1) {
 			_data.hasVideo = false;
+			qDebug() << __FUNCTION__ << "Video:" << _data.hasVideo;
 			emit hasVideoChanged(_data.hasVideo);
 			//emit mplayerFullyLoaded();
 		}
 
 		//Pause
 		else if (rx_paused.indexIn(line) > -1) {
-			emit stateChanged(PausedState);
+			setState(PausedState);
 		}
 
 		//Stream title
@@ -250,13 +274,13 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			qDebug() << __FUNCTION__ << "Stream url:" << url;
 			_data.stream_title = title;
 			_data.stream_url = url;
-			emit streamTitleAndUrl(title, url);
+			//emit streamTitleAndUrl(title, url);
 		}
 
 		//The following things are not sent when the file has started to play
 		//(or if sent, GUI will ignore anyway...)
 		//So not process anymore, if video is playing to save some time
-		if (_notifiedMPlayerIsRunning) {
+		if (_state == PlayingState) {
 			return;
 		}
 
@@ -282,7 +306,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 
 		//AO
 		if (rx_ao.indexIn(line) > -1) {
-			emit receivedAO(rx_ao.cap(1));
+			//emit receivedAO(rx_ao.cap(1));
 		}
 		else
 
@@ -383,7 +407,6 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 		if (rx_resolving.indexIn(line) > -1) {
 			emit receivedResolvingMessage(line);
 		}
-		else
 
 		//Clip info
 
@@ -393,7 +416,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 		//Winamp for example doesn't show them
 
 		//Name
-		if (rx_clip_name.indexIn(line) > -1) {
+		else if (rx_clip_name.indexIn(line) > -1) {
 			const QString s = rx_clip_name.cap(2).trimmed();
 			qDebug() << __FUNCTION__ << "Clip name:" << s;
 			_data.clip_name = s;
@@ -464,7 +487,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 
 		//Catch "Starting playback..." message
 		else if (rx_play.indexIn(line) > -1) {
-			emit stateChanged(PlayingState);
+			setState(PlayingState);
 		}
 
 		//Generic things
@@ -475,6 +498,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			if (tag == "ID_VIDEO_ID") {
 				//First string to tell us that the media contains a video track
 				_data.hasVideo = true;
+				qDebug() << __FUNCTION__ << "Video:" << _data.hasVideo;
 				emit hasVideoChanged(_data.hasVideo);
 			}
 
@@ -483,8 +507,15 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			}
 
 			else if (tag == "ID_LENGTH") {
-				_data.totalTime = value.toDouble();
+				_data.totalTime = value.toDouble() * SECONDS_CONVERTION;
 				qDebug() << __FUNCTION__ << "Media total time:" << _data.totalTime;
+				emit totalTimeChanged(_data.totalTime);
+			}
+
+			else if (tag == "ID_SEEKABLE") {
+				_data.isSeekable = value.toInt();
+				qDebug() << __FUNCTION__ << "Media seekable:" << _data.isSeekable;
+				emit seekableChanged(_data.isSeekable);
 			}
 
 			else if (tag == "ID_VIDEO_WIDTH") {
@@ -528,7 +559,8 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			}
 
 			else if (tag == "ID_VIDEO_FPS") {
-				_data.videoFps = value;
+				_data.videoFPS = value.toDouble();
+				qDebug() << __FUNCTION__ << "Video FPS:" << _data.videoFPS;
 			}
 
 			else if (tag == "ID_AUDIO_BITRATE") {
@@ -540,7 +572,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			}
 
 			else if (tag == "ID_AUDIO_NCH") {
-				_data.audioNch = value.toInt();
+				_data.audioNbChannels = value.toInt();
 			}
 
 			else if (tag == "ID_VIDEO_CODEC") {
@@ -559,6 +591,11 @@ void MPlayerProcess::finished(int, QProcess::ExitStatus) {
 	//the playlist will start to play next file before all
 	//objects are notified that the process has exited
 	if (_endOfFileReached) {
-		emit stateChanged(EndOfFileState);
+		setState(EndOfFileState);
 	}
+}
+
+void MPlayerProcess::setState(State state) {
+	_state = state;
+	emit stateChanged(state);
 }

@@ -33,19 +33,14 @@ namespace VLC_MPlayer
 MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
 	: QObject(parent) {
 
-	//Default MediaObject state is Phonon::LoadingState
-	_currentState = Phonon::LoadingState;
-
 	_process = NULL;
 	_mediaDataLoader = NULL;
-
-	_currentTime = 0;
-	_totalTime = 0;
 
 	_videoWidgetId = 0;
 }
 
 MPlayerMediaObject::~MPlayerMediaObject() {
+	stop();
 }
 
 void MPlayerMediaObject::setVideoWidgetId(int videoWidgetId) {
@@ -53,10 +48,10 @@ void MPlayerMediaObject::setVideoWidgetId(int videoWidgetId) {
 }
 
 void MPlayerMediaObject::loadMedia(const QString & filename) {
-	if (filename == _filename) {
+	/*if (filename == _filename) {
 		//File already loaded
 		return;
-	}
+	}*/
 
 	_playRequestReached = false;
 
@@ -76,17 +71,12 @@ void MPlayerMediaObject::loadMediaInternal() {
 	}
 
 	_mediaDataLoader = MPlayerLoader::get().loadMedia(_filename);
-	connect(_mediaDataLoader, SIGNAL(finished()),
+	connect(_mediaDataLoader, SIGNAL(finished(int, QProcess::ExitStatus)),
 		SLOT(mediaLoaded()));
 }
 
 void MPlayerMediaObject::mediaLoaded() {
-	MediaData mediaData;
-	if (_mediaDataLoader) {
-		mediaData = _mediaDataLoader->getMediaData();
-	} else {
-		mediaData = _process->getMediaData();
-	}
+	MediaData mediaData = _mediaDataLoader->getMediaData();
 
 	QMultiMap<QString, QString> metaDataMap;
 	metaDataMap.insert(QLatin1String("ARTIST"), mediaData.clip_artist);
@@ -100,28 +90,33 @@ void MPlayerMediaObject::mediaLoaded() {
 	metaDataMap.insert(QLatin1String("URL"), mediaData.stream_url);
 	metaDataMap.insert(QLatin1String("ENCODEDBY"), mediaData.clip_software);
 
-	//duration should be in milliseconds
-	_totalTime = mediaData.totalTime * 1000;
-	emit totalTimeChanged(_totalTime);
-
+	emit totalTimeChanged(mediaData.totalTime);
 	emit hasVideoChanged(mediaData.hasVideo);
-
+	emit seekableChanged(mediaData.isSeekable);
 	emit metaDataChanged(metaDataMap);
 
-	if (_mediaDataLoader) {
-		emit stateChanged(Phonon::StoppedState);
-	}
+	emit stateChanged(Phonon::StoppedState);
 }
 
 void MPlayerMediaObject::play() {
 	_playRequestReached = true;
+
 	_process = MPlayerLoader::get().startMPlayerProcess(_filename, (int) _videoWidgetId);
 
 	connect(_process, SIGNAL(stateChanged(MPlayerProcess::State)),
 		SLOT(stateChanged(MPlayerProcess::State)));
 
-	connect(_process, SIGNAL(tick(double)),
-		SLOT(tickInternal(double)));
+	connect(_process, SIGNAL(tick(qint64)),
+		SIGNAL(tick(qint64)));
+
+	connect(_process, SIGNAL(totalTimeChanged(qint64)),
+		SIGNAL(totalTimeChanged(qint64)));
+
+	connect(_process, SIGNAL(hasVideoChanged(bool)),
+		SIGNAL(hasVideoChanged(bool)));
+
+	connect(_process, SIGNAL(seekableChanged(bool)),
+		SIGNAL(seekableChanged(bool)));
 
 	connect(_process, SIGNAL(finished(int, QProcess::ExitStatus)),
 		SLOT(finished(int, QProcess::ExitStatus)));
@@ -132,37 +127,54 @@ MPlayerProcess * MPlayerMediaObject::getMPlayerProcess() const {
 }
 
 void MPlayerMediaObject::setState(Phonon::State newState) {
-	_currentState = newState;
-	emit stateChanged(_currentState);
-}
-
-void MPlayerMediaObject::tickInternal(double seconds) {
-	//time should be in milliseconds
-	_currentTime = seconds * 1000;
-	emit tick(_currentTime);
+	emit stateChanged(newState);
 }
 
 void MPlayerMediaObject::pause() {
-	_process->writeToStdin("pause");
+	if (_process) {
+		_process->writeToStdin("pause");
+	} else {
+		qWarning() << __FUNCTION__ << "Error: _process is NULL";
+	}
 }
 
 void MPlayerMediaObject::stateChanged(MPlayerProcess::State state) {
 	switch (state) {
+	case MPlayerProcess::LoadingState:
+		qDebug() << __FUNCTION__ << "LoadingState";
+		setState(Phonon::LoadingState);
+		break;
 	case MPlayerProcess::PlayingState:
+		qDebug() << __FUNCTION__ << "PlayingState";
 		setState(Phonon::PlayingState);
 		break;
+	case MPlayerProcess::BufferingState:
+		qDebug() << __FUNCTION__ << "BufferingState";
+		setState(Phonon::BufferingState);
+		break;
 	case MPlayerProcess::PausedState:
+		qDebug() << __FUNCTION__ << "PausedState";
 		setState(Phonon::PausedState);
 		break;
 	case MPlayerProcess::EndOfFileState:
+		qDebug() << __FUNCTION__ << "EndOfFileState";
 		setState(Phonon::StoppedState);
 		emit finished();
 		break;
+	case MPlayerProcess::ErrorState:
+		qDebug() << __FUNCTION__ << "ErrorState";
+		break;
+	default:
+		qDebug() << __FUNCTION__ << "Error: unknown state:" << state;
 	}
 }
 
 void MPlayerMediaObject::stop() {
-	_process->stop();
+	if (_process) {
+		_process->stop();
+	} else {
+		qWarning() << __FUNCTION__ << "Error: _process is NULL";
+	}
 }
 
 void MPlayerMediaObject::finished(int exitCode, QProcess::ExitStatus exitStatus) {
@@ -175,23 +187,40 @@ void MPlayerMediaObject::finished(int exitCode, QProcess::ExitStatus exitStatus)
 		break;
 	}
 
+	qDebug() << __FUNCTION__ << "StoppedState";
 	setState(Phonon::StoppedState);
 }
 
 void MPlayerMediaObject::seek(qint64 milliseconds) {
-	_process->writeToStdin("seek " + QString::number(milliseconds / 1000.0) + " 2");
+	if (_process) {
+		_process->writeToStdin("seek " + QString::number(milliseconds / 1000.0) + " 2");
+	} else {
+		qWarning() << __FUNCTION__ << "Error: _process is NULL";
+	}
 }
 
 bool MPlayerMediaObject::hasVideo() const {
-	return true;
+	if (_process) {
+		return _process->hasVideo();
+	} else {
+		return false;
+	}
 }
 
 bool MPlayerMediaObject::isSeekable() const {
-	return true;
+	if (_process) {
+		return _process->isSeekable();
+	} else {
+		return false;
+	}
 }
 
 qint64 MPlayerMediaObject::currentTime() const {
-	return _currentTime;
+	if (_process) {
+		return _process->currentTime();
+	} else {
+		return 0;
+	}
 }
 
 QString MPlayerMediaObject::errorString() const {
@@ -199,7 +228,11 @@ QString MPlayerMediaObject::errorString() const {
 }
 
 qint64 MPlayerMediaObject::totalTime() const {
-	return _totalTime;
+	if (_process) {
+		return _process->totalTime();
+	} else {
+		return 0;
+	}
 }
 
 }}	//Namespace Phonon::VLC_MPlayer

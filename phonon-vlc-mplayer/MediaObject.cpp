@@ -28,6 +28,7 @@
 
 #include <QtCore/QUrl>
 #include <QtCore/QMetaType>
+#include <QtCore/QTimer>
 
 namespace Phonon
 {
@@ -38,6 +39,7 @@ MediaObject::MediaObject(QObject * parent)
 	: QObject(parent) {
 
 	_currentState = Phonon::LoadingState;
+	_seekTimer = NULL;
 
 	_pMediaObject = new PrivateMediaObject(this);
 
@@ -153,7 +155,44 @@ void MediaObject::stop() {
 }
 
 void MediaObject::seek(qint64 milliseconds) {
+	//TODO
+	//OK, all this mess does not really work: difficult to get a nice seek with the slider...
+	//trying, trying... :/
+	//The best is to do like dailymotion or youtube...
+	/*if (!_seekTimer) {
+		_seekTimer = new QTimer(this);
+		connect(_seekTimer, SIGNAL(timeout()), SLOT(seekInternal()));
+		_seekTimer->setSingleShot(true);
+		_seekTimer->setInterval(100);
+	}
+	_seekTimer->stop();
+	_seekTimer->start();
+
+	QObject::disconnect(_pMediaObject, SIGNAL(tick(qint64)), this, SIGNAL(tick(qint64)));
+
+	if (_currentState != Phonon::PausedState) {
+		pause();
+	}
+
+	_seek = milliseconds;*/
+
 	_pMediaObject->seek(milliseconds);
+
+}
+
+void MediaObject::seekInternal() {
+	_pMediaObject->seek(_seek);
+
+	QTimer::singleShot(100, this, SLOT(connectTick()));
+
+	//if (_currentState == Phonon::PausedState) {
+		resume();
+	//}
+}
+
+void MediaObject::connectTick() {
+	connect(_pMediaObject, SIGNAL(tick(qint64)),
+		SIGNAL(tick(qint64)), Qt::QueuedConnection);
 }
 
 qint32 MediaObject::tickInterval() const {
@@ -363,6 +402,8 @@ QVariant MediaObject::interfaceCall(Interface iface, int command, const QList<QV
 }
 
 void MediaObject::stateChangedInternal(Phonon::State newState) {
+	qDebug() << __FUNCTION__ << "previousState:" << _currentState << "newState:" << newState;
+
 	if (newState == _currentState) {
 		//No state changed
 		return;

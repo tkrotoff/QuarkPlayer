@@ -24,6 +24,8 @@
 
 #include <QtCore/QObject>
 
+class QTimer;
+
 namespace Phonon
 {
 namespace VLC_MPlayer
@@ -118,6 +120,9 @@ private slots:
 
 	void metaDataChangedInternal(const QMultiMap<QString, QString> & metaData);
 
+	void seekInternal();
+	void connectTick();
+
 private:
 
 	void loadMediaInternal(const QString & filename);
@@ -134,6 +139,9 @@ private:
 	PrivateMediaObject * _pMediaObject;
 
 	Phonon::State _currentState;
+
+	QTimer * _seekTimer;
+	qint64 _seek;
 };
 
 }}	//Namespace Phonon::VLC_MPlayer

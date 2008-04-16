@@ -93,8 +93,6 @@ private slots:
 
 	void stateChanged(MPlayerProcess::State state);
 
-	void tickInternal(double seconds);
-
 	void loadMediaInternal();
 	void mediaLoaded();
 
@@ -110,9 +108,6 @@ private:
 
 	bool _playRequestReached;
 
-	qint64 _currentTime;
-	qint64 _totalTime;
-	Phonon::State _currentState; 
 	QString _filename;
 
 	int _videoWidgetId;

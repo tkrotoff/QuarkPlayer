@@ -47,7 +47,7 @@ public:
 
 	MPlayerProcess * loadMedia(const QString & filename);
 
-	MPlayerProcess * startMPlayerProcess(const QString & filename, int videoWidgetId, double seek = 0);
+	MPlayerProcess * startMPlayerProcess(const QString & filename, int videoWidgetId, qint64 seek = 0);
 
 	void restartMPlayerProcess(MPlayerProcess * process);
 
@@ -62,6 +62,12 @@ private:
 
 	MPlayerProcess * createNewMPlayerProcess();
 
+	/**
+	 * Reads the media settings to use them as arguments for the MPlayer process.
+	 *
+	 * @see http://www.mplayerhq.hu/DOCS/man/en/mplayer.1.html for a complete list of MPlayer parameters
+	 * @return list of arguments for the MPlayer process
+	 */
 	QStringList readMediaSettings() const;
 
 	/** Singleton. */

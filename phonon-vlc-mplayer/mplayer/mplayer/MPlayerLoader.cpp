@@ -63,7 +63,7 @@ void MPlayerLoader::restartMPlayerProcess(MPlayerProcess * process) {
 	}
 }
 
-MPlayerProcess * MPlayerLoader::startMPlayerProcess(const QString & filename, int videoWidgetId, double seek) {
+MPlayerProcess * MPlayerLoader::startMPlayerProcess(const QString & filename, int videoWidgetId, qint64 seek) {
 	MPlayerProcess * process = createNewMPlayerProcess();
 
 	QStringList args;
@@ -116,6 +116,16 @@ QStringList MPlayerLoader::readMediaSettings() const {
 
 	//Drops frames on a slow computer
 	args << "-framedrop";
+
+	//Do not keep window aspect ratio when resizing windows.
+	//Only works with the x11, xv, xmga, xvidix, directx video output drivers.
+	//Furthermore under X11 your window manager has to honor window aspect hints.
+	args << "-nokeepaspect";
+
+	//Allow software scaling, where available.
+	//This will allow scaling with output drivers (like x11, fbdev) that do not support
+	//hardware scaling where MPlayer disables scaling by default for performance reasons.
+	args << "-zoom";
 
 	//Compulsary, otherwise we can't see anything from the widget
 	//that gets MPlayer video stream

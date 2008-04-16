@@ -28,6 +28,10 @@
 /**
  * Creates a new MPlayer process.
  *
+ * Currently 1 MPlayerProcess => 1 real MPlayer process.
+ * It might be good in the future to use MPlayer -idle option
+ * in order to keep only 1 MPlayer process running.
+ *
  * Permits to send commands to the MPlayer process via its slave mode
  * Permits to receive events from the MPlayer process
  *
@@ -64,6 +68,8 @@ public:
 		 * playing.
 		 */
 		//StoppedState,
+		//Replaced by signal QProcess::finished(int, QProcess::ExitStatus)
+		//So one can check if there is an error message
 
 		/**
 		 * The Player reached the end of the stream/media/file.
@@ -96,7 +102,7 @@ public:
 	~MPlayerProcess();
 
 	/** Start the MPlayer process. */
-	bool start(const QStringList & arguments, const QString & filename, int videoWidgetId, double seek);
+	bool start(const QStringList & arguments, const QString & filename, int videoWidgetId, qint64 seek);
 
 	void stop();
 
@@ -112,6 +118,12 @@ public:
 
 	MediaData getMediaData() const;
 
+	bool hasVideo() const;
+	bool isSeekable() const;
+
+	qint64 currentTime() const;
+	qint64 totalTime() const;
+
 signals:
 
 	/**
@@ -122,18 +134,24 @@ signals:
 	void stateChanged(MPlayerProcess::State state);
 
 	/**
-	 * Gives the current position in the stream.
+	 * Gives the current position in the stream in milliseconds.
 	 *
 	 * Example: "MPlayer is playing at 28,5 seconds from a video file of a 45,0 seconds length"
 	 *
-	 * @param time position in the stream in seconds (i.e 28,5 seconds)
+	 * @param time position in the stream in milliseconds (i.e 28,5 seconds)
 	 * @see Phonon::MediaObject::tick()
 	 */
-	void tick(double time);
+	void tick(qint64 time);
 
-	void receivedCurrentFrame(int frame);
+	/**
+	 * Gives the media/stream/file duration in milliseconds.
+	 *
+	 * @param totalTime media duration in milliseconds
+	 */
+	void totalTimeChanged(qint64 totalTime);
 
-	void receivedWindowResolution(int,int);
+	/** A new frame has been received, gives the frame number (starts from 0). */
+	void currentFrameNumberReceived(int number);
 
 	/**
 	 * If the stream contains a video or not.
@@ -142,26 +160,26 @@ signals:
 	 */
 	void hasVideoChanged(bool hasVideo);
 
-	void receivedVO(QString);
-	void receivedAO(QString);
-
-	void mplayerFullyLoaded();
-
-	void receivedStartingTime(double sec);
-
-	void receivedCacheMessage(QString);
-	void receivedCreatingIndex(QString);
-	void receivedConnectingToMessage(QString);
-	void receivedResolvingMessage(QString);
-
 	/**
 	 * @param filename screenshot filename
 	 */
 	void screenshotSaved(const QString & filename);
 
-	void streamTitleAndUrl(const QString & title, const QString & url);
+	/**
+	 * If the stream/media/file is seekable or not.
+	 *
+	 * @see Phonon::MediaObject::seekableChanged()
+	 */
+	void seekableChanged(bool isSeekable);
+
+
+
 
 	void failedToParseMplayerVersion(QString line_with_mplayer_version);
+	void receivedCacheMessage(QString);
+	void receivedCreatingIndex(QString);
+	void receivedConnectingToMessage(QString);
+	void receivedResolvingMessage(QString);
 
 private slots:
 
@@ -176,12 +194,16 @@ private slots:
 
 private:
 
-	bool _notifiedMPlayerIsRunning;
+	void setState(State state);
+
 	bool _endOfFileReached;
 
 	MediaData _data;
 
 	int _mplayerSvnRevision;
+
+	/** Current state. */
+	State _state;
 };
 
 #endif	//MPLAYERPROCESS_H
