@@ -29,6 +29,7 @@
 	#include "MPlayerMediaObject.h"
 
 	#include <mplayer/MPlayerProcess.h>
+	#include <mplayer/MPlayerWindow.h>
 #endif	//PHONON_MPLAYER
 
 #include <QtGui/QWidget>
@@ -42,23 +43,21 @@ namespace VLC_MPlayer
 VideoWidget::VideoWidget(QWidget * parent)
 	: SinkNode(parent) {
 
+#ifdef PHONON_MPLAYER
+	_widget = new MPlayerWindow(parent);
+#endif	//PHONON_MPLAYER
+
+#ifdef PHONON_VLC
 	_widget = new QWidget(parent);
+#endif	//PHONON_VLC
 
 	_aspectRatio = Phonon::VideoWidget::AspectRatioAuto;
-	_brightness = 0;
 	_scaleMode = Phonon::VideoWidget::FitInView;
+
+	_brightness = 0;
 	_contrast = 0;
 	_hue = 0;
 	_saturation = 0;
-
-#ifdef PHONON_MPLAYER
-	//Black background color
-	//TODO: MPlayer set color key !!!
-	//MPlayer needs to have the same color key otherwise impossible to see the video
-	//with some backends like directx
-	setBackgroundColor(QColor(0, 0, 0));
-	_widget->setAutoFillBackground(true);
-#endif	//PHONON_MPLAYER
 }
 
 VideoWidget::~VideoWidget() {
@@ -66,6 +65,12 @@ VideoWidget::~VideoWidget() {
 
 void VideoWidget::connectToMediaObject(MediaObject * mediaObject) {
 	SinkNode::connectToMediaObject(mediaObject);
+
+#ifdef PHONON_MPLAYER
+	MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
+	connect(process, SIGNAL(videoWidgetSizeChanged(int, int)),
+		SLOT(videoWidgetSizeChanged(int, int)));
+#endif	//PHONON_MPLAYER
 
 	_mediaObject->setVideoWidgetId((int) _widget->winId());
 }
@@ -82,20 +87,44 @@ Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const {
 }
 
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
-	_aspectRatio = aspectRatio;
+	qDebug() << __FUNCTION__ << "aspectRatio:" << aspectRatio;
 
-	switch(aspectRatio) {
+	_aspectRatio = aspectRatio;
+	double ratio = (double) 4 / 3;
+
+	switch (_aspectRatio) {
+
+	//Let the decoder find the aspect ratio automatically from the media file (this is the default).
 	case Phonon::VideoWidget::AspectRatioAuto:
-		break;
+
+	//Fits the video into the widget making the aspect ratio depend solely on the size of the widget.
+	//This way the aspect ratio is freely resizeable by the user.
 	case Phonon::VideoWidget::AspectRatioWidget:
+#ifdef PHONON_MPLAYER
+		if (_mediaObject) {
+			MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
+			if (process) {
+				ratio = process->getMediaData().videoAspectRatio;
+			}
+		}
+#endif	//PHONON_MPLAYER
 		break;
+
 	case Phonon::VideoWidget::AspectRatio4_3:
+		ratio = (double) 4 / 3;
 		break;
+
 	case Phonon::VideoWidget::AspectRatio16_9:
+		ratio = (double) 16 / 9;
 		break;
+
 	default:
 		qCritical() << __FUNCTION__ << "error: unsupported AspectRatio:" << aspectRatio;
 	}
+
+#ifdef PHONON_MPLAYER
+	_widget->setAspectRatio(ratio);
+#endif	//PHONON_MPLAYER
 }
 
 qreal VideoWidget::brightness() const {
@@ -113,13 +142,26 @@ Phonon::VideoWidget::ScaleMode VideoWidget::scaleMode() const {
 }
 
 void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scaleMode) {
+	//The ScaleMode enum describes how to treat aspect ratio during resizing of video
+
 	_scaleMode = scaleMode;
 
 	switch (_scaleMode) {
+
+	//The video will be fitted to fill the view keeping aspect ratio
 	case Phonon::VideoWidget::FitInView:
+#ifdef PHONON_MPLAYER
+		_widget->setScaleAndCropMode(false);
+#endif	//PHONON_MPLAYER
 		break;
+
+	//The video is scaled
 	case Phonon::VideoWidget::ScaleAndCrop:
+#ifdef PHONON_MPLAYER
+		_widget->setScaleAndCropMode(true);
+#endif	//PHONON_MPLAYER
 		break;
+
 	default:
 		qWarning() << __FUNCTION__ << "unknow Phonon::VideoWidget::ScaleMode:" << _scaleMode;
 	}
@@ -155,14 +197,19 @@ void VideoWidget::setSaturation(qreal saturation) {
 	sendMPlayerCommand("saturation " + QString::number(_saturation * 100) + " 1");
 }
 
-QWidget * VideoWidget::widget() {
+Widget * VideoWidget::widget() {
 	return _widget;
 }
 
-void VideoWidget::setBackgroundColor(const QColor & color) {
-	QPalette palette = _widget->palette();
-	palette.setColor(_widget->backgroundRole(), color);
-	_widget->setPalette(palette);
+void VideoWidget::videoWidgetSizeChanged(int width, int height) {
+#ifdef PHONON_MPLAYER
+	double aspectRatio = (double) width / height;
+
+	qDebug() << __FUNCTION__ << "aspect ratio:" << aspectRatio << "width:" << width << "height:" << height;
+
+	_widget->setAspectRatio(aspectRatio);
+	_widget->setVideoSize(width, height);
+#endif	//PHONON_MPLAYER
 }
 
 }}	//Namespace Phonon::VLC_MPlayer

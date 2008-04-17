@@ -12,12 +12,14 @@ set(libmplayer_SRCS
 	mplayer/MPlayerVersion.cpp
 	mplayer/MPlayerProcess.cpp
 	mplayer/MPlayerLoader.cpp
+	mplayer/MPlayerWindow.cpp
 )
 
 qt4_wrap_cpp(libmplayer_SRCS
 	mplayer/MyProcess.h
 	mplayer/MPlayerProcess.h
 	mplayer/MPlayerLoader.h
+	mplayer/MPlayerWindow.h
 )
 
 add_library(libmplayer STATIC ${libmplayer_SRCS})
@@ -42,6 +44,8 @@ else (KDE4_FOUND)
 	add_library(phonon_mplayer MODULE ${phonon_mplayer_SRCS})
 endif (KDE4_FOUND)
 
+add_definitions(-DUSE_GL_WIDGET)
+
 if (KDE4_FOUND)
 	target_link_libraries(phonon_mplayer
 		${KDE4_KDECORE_LIBS}
@@ -54,6 +58,7 @@ else (KDE4_FOUND)
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
 		${QT_PHONON_LIBRARY}
+		${QT_QTOPENGL_LIBRARY}
 		libmplayer
 	)
 endif (KDE4_FOUND)

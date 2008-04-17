@@ -31,29 +31,20 @@ MediaData::~MediaData() {
 }
 
 void MediaData::clear() {
-	/*
 	filename.clear();
-	dvd_id.clear();
 
 	totalTime = 0;
 	currentTime = 0;
 
 	videoWidgetId = 0;
 
-	novideo = false;
+	isSeekable = false;
 
-	video_width = 0;
-	video_height = 0;
-	video_aspect= (double) 4 / 3;
+	hasVideo = false;
 
-	//audios.clear();
-	//titles.clear();
-
-	//subs.clear();
-
-	mkv_chapters = 0;
-
-	initialized = false;
+	videoWidth = 0;
+	videoHeight = 0;
+	videoAspectRatio = (double) 4 / 3;
 
 	clip_name.clear();
 	clip_artist.clear();
@@ -70,14 +61,13 @@ void MediaData::clear() {
 	stream_url.clear();
 
 	demuxer.clear();
-	video_format.clear();
-	audio_format.clear();
-	video_bitrate = 0;
-	video_fps.clear();
-	audio_bitrate = 0;
-	audio_rate = 0;
-	audio_nch = 0;
-	video_codec.clear();
-	audio_codec.clear();
-	*/
+	videoFormat.clear();
+	audioFormat.clear();
+	videoBitrate = 0;
+	videoFPS = 0;
+	audioBitrate = 0;
+	audioRate = 0;
+	audioNbChannels = 0;
+	videoCodec.clear();
+	audioCodec.clear();
 }

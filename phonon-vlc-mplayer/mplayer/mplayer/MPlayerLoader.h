@@ -19,48 +19,38 @@
 #ifndef MPLAYERLOADER_H
 #define MPLAYERLOADER_H
 
-#include "MediaSettings.h"
-
-#include <QtCore/QObject>
 #include <QtCore/QString>
-#include <QtCore/QList>
 
+class MediaSettings;
 class MPlayerProcess;
+
+class QObject;
 
 /**
  * Helps to launch a MPlayer process.
  *
- * Keeps a list of all the MPlayer process.
+ * Acts like a simple proxy.
+ * This class might become more "intelligent" in the future.
  *
  * @author Tanguy Krotoff
  */
-class MPlayerLoader : public QObject {
-	Q_OBJECT
+class MPlayerLoader {
 public:
 
-	/**
-	 * Singleton.
-	 */
-	static MPlayerLoader & get();
+	static MediaSettings settings;
 
-	MediaSettings _settings;
+	static MPlayerProcess * createNewMPlayerProcess(QObject * parent);
 
-	MPlayerProcess * loadMedia(const QString & filename);
+	static void loadMedia(MPlayerProcess * process, const QString & filename);
 
-	MPlayerProcess * startMPlayerProcess(const QString & filename, int videoWidgetId, qint64 seek = 0);
+	static void start(MPlayerProcess * process, const QString & filename, int videoWidgetId, qint64 seek = 0);
 
-	void restartMPlayerProcess(MPlayerProcess * process);
-
-signals:
-
-private slots:
+	static void restart(MPlayerProcess * process);
 
 private:
 
-	MPlayerLoader(QObject * parent);
+	MPlayerLoader();
 	~MPlayerLoader();
-
-	MPlayerProcess * createNewMPlayerProcess();
 
 	/**
 	 * Reads the media settings to use them as arguments for the MPlayer process.
@@ -68,16 +58,7 @@ private:
 	 * @see http://www.mplayerhq.hu/DOCS/man/en/mplayer.1.html for a complete list of MPlayer parameters
 	 * @return list of arguments for the MPlayer process
 	 */
-	QStringList readMediaSettings() const;
-
-	/** Singleton. */
-	static MPlayerLoader * _loader;
-
-	/** List of MPlayer process. */
-	QList<MPlayerProcess *> _processList;
-
-	/** Current MPlayer process. */
-	//MPlayerProcess * _currentProcess;
+	static QStringList readMediaSettings();
 };
 
 #endif	//MPLAYERLOADER_H

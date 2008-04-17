@@ -19,35 +19,19 @@
 #include "MPlayerLoader.h"
 
 #include "MPlayerProcess.h"
+#include "MediaSettings.h"
 
 #include <QtCore/QtDebug>
 
-MPlayerLoader * MPlayerLoader::_loader = NULL;
+MediaSettings MPlayerLoader::settings;
 
-MPlayerLoader::MPlayerLoader(QObject * parent)
-	: QObject(parent) {
-}
-
-MPlayerLoader::~MPlayerLoader() {
-}
-
-MPlayerLoader & MPlayerLoader::get() {
-	if (!_loader) {
-		_loader = new MPlayerLoader(NULL);
-	}
-
-	return *_loader;
-}
-
-MPlayerProcess * MPlayerLoader::createNewMPlayerProcess() {
-	MPlayerProcess * process = new MPlayerProcess(this);
-
-	_processList << process;
+MPlayerProcess * MPlayerLoader::createNewMPlayerProcess(QObject * parent) {
+	MPlayerProcess * process = new MPlayerProcess(parent);
 
 	return process;
 }
 
-void MPlayerLoader::restartMPlayerProcess(MPlayerProcess * process) {
+void MPlayerLoader::restart(MPlayerProcess * process) {
 	if (!process) {
 		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
 		return;
@@ -63,22 +47,38 @@ void MPlayerLoader::restartMPlayerProcess(MPlayerProcess * process) {
 	}
 }
 
-MPlayerProcess * MPlayerLoader::startMPlayerProcess(const QString & filename, int videoWidgetId, qint64 seek) {
-	MPlayerProcess * process = createNewMPlayerProcess();
+void MPlayerLoader::start(MPlayerProcess * process, const QString & filename, int videoWidgetId, qint64 seek) {
+	if (!process) {
+		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
+		return;
+	}
 
 	QStringList args;
 	args << readMediaSettings();
+
+	//Optimisation: no -identify if we are reading a dvd
+	if (filename.contains("dvd://")) {
+		qDebug() << __FUNCTION__ << "DVD detected";
+		//args.removeAll("-identify");
+	}
 
 	if (!process->start(args, filename, videoWidgetId, seek)) {
 		//Error handling
 		qCritical() << __FUNCTION__ << "error: MPlayer process couldn't start";
 	}
-
-	return process;
 }
 
-MPlayerProcess * MPlayerLoader::loadMedia(const QString & filename) {
-	MPlayerProcess * process = createNewMPlayerProcess();
+void MPlayerLoader::loadMedia(MPlayerProcess * process, const QString & filename) {
+	if (!process) {
+		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
+		return;
+	}
+
+	//Optimisation: no -identify if we are reading a dvd
+	if (filename.contains("dvd://")) {
+		qDebug() << __FUNCTION__ << "DVD detected";
+		return;
+	}
 
 	QStringList args;
 	args << "-identify";
@@ -89,11 +89,9 @@ MPlayerProcess * MPlayerLoader::loadMedia(const QString & filename) {
 		//Error handling
 		qCritical() << __FUNCTION__ << "error: MPlayer process couldn't start";
 	}
-
-	return process;
 }
 
-QStringList MPlayerLoader::readMediaSettings() const {
+QStringList MPlayerLoader::readMediaSettings() {
 	qDebug() << __FUNCTION__;
 
 	QStringList args;
@@ -134,33 +132,33 @@ QStringList MPlayerLoader::readMediaSettings() const {
 
 	//Video contrast
 	args << "-contrast";
-	args << QString::number(_settings.contrast);
+	args << QString::number(settings.contrast);
 
 	//Video brightness
 	args << "-brightness";
-	args << QString::number(_settings.brightness);
+	args << QString::number(settings.brightness);
 
 	//Video hue
 	args << "-hue";
-	args << QString::number(_settings.hue);
+	args << QString::number(settings.hue);
 
 	//Video saturation
 	args << "-saturation";
-	args << QString::number(_settings.saturation);
+	args << QString::number(settings.saturation);
 
 	//Loads all the video filters
-	QStringList videoFilters = _settings.videoFilters;
+	QStringList videoFilters = settings.videoFilters;
 	if (!videoFilters.isEmpty()) {
-		foreach (QString filter, videoFilters) {
+		foreach (const QString filter, videoFilters) {
 			args << "-vf-add";
 			args << filter;
 		}
 	}
 
 	//Loads all the audio filters
-	QStringList audioFilters = _settings.audioFilters;
+	QStringList audioFilters = settings.audioFilters;
 	if (!audioFilters.isEmpty()) {
-		foreach (QString filter, audioFilters) {
+		foreach (const QString filter, audioFilters) {
 			args << "-af";
 			args << filter;
 		}

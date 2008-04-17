@@ -98,8 +98,15 @@ void MediaObject::play() {
 			playInternal(_mediaSource.deviceName());
 			break;
 		case Phonon::Dvd:
+
+#ifdef PHONON_VLC
 			playInternal(_mediaSource.deviceName());
-			//playInternal("dvd://");
+#endif	//PHONON_VLC
+
+#ifdef PHONON_MPLAYER
+			playInternal("dvd://");
+#endif	//PHONON_MPLAYER
+
 			break;
 		case Phonon::Vcd:
 			playInternal(_mediaSource.deviceName());
@@ -283,8 +290,15 @@ void MediaObject::setSource(const MediaSource & source) {
 			loadMediaInternal(_mediaSource.deviceName());
 			break;
 		case Phonon::Dvd:
+
+#ifdef PHONON_VLC
 			loadMediaInternal(_mediaSource.deviceName());
-			//loadMediaInternal("dvd://");
+#endif	//PHONON_VLC
+
+#ifdef PHONON_MPLAYER
+			loadMediaInternal("dvd://");
+#endif	//PHONON_MPLAYER
+
 			break;
 		case Phonon::Vcd:
 			loadMediaInternal(_mediaSource.deviceName());

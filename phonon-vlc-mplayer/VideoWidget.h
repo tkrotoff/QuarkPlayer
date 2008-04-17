@@ -23,7 +23,15 @@
 
 #include <phonon/videowidgetinterface.h>
 
-class QWidget;
+#ifdef PHONON_VLC
+	class QWidget;
+	typedef QWidget Widget;
+#endif	//PHONON_VLC
+
+#ifdef PHONON_MPLAYER
+	#include <mplayer/MPlayerWindow.h>
+	typedef MPlayerWindow Widget;
+#endif	//PHONON_MPLAYER
 
 namespace Phonon
 {
@@ -63,20 +71,18 @@ public:
 	qreal saturation() const;
 	void setSaturation(qreal saturation);
 
-	QWidget * widget();
+	Widget * widget();
+
+private slots:
+
+	/**
+	 * @see MPlayerProcess::videoWidgetSizeChanged()
+	 */
+	void videoWidgetSizeChanged(int width, int height);
 
 private:
 
-	/**
-	 * Sets the background color for the VideoWidget.
-	 *
-	 * This is compulsary otherwise VideoWidget won't display MPlayer video.
-	 *
-	 * I don't know which one is best: 0x020202 or QColor(0, 0, 0)...
-	 */
-	void setBackgroundColor(const QColor & color);
-
-	QWidget * _widget;
+	Widget * _widget;
 
 	Phonon::VideoWidget::AspectRatio _aspectRatio;
 

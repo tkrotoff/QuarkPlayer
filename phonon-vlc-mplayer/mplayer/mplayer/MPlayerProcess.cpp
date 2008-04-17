@@ -148,6 +148,10 @@ static QRegExp rx_create_index("^Generating Index:.*");
 static QRegExp rx_play("^Starting playback...");
 static QRegExp rx_playing("^Playing");	//"Playing" does not mean the file is actually playing but only loading
 static QRegExp rx_connecting("^Connecting to .*");
+//Future messages to add:
+//Connection timeout
+//Failed, exiting
+//No stream found to handle url
 static QRegExp rx_resolving("^Resolving .*");
 static QRegExp rx_screenshot("^\\*\\*\\* screenshot '(.*)'");
 static QRegExp rx_endoffile("^Exiting... \\(End of file\\)");
@@ -165,16 +169,16 @@ static QRegExp rx_sid("^ID_(SID|VSID)_(\\d+)_(LANG|NAME)=(.*)");
 static QRegExp rx_subtitle_file("^ID_FILE_SUB_FILENAME=(.*)");
 
 //Clip info
-static QRegExp rx_clip_name("^ (name|title): (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_artist("^ artist: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_author("^ author: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_album("^ album: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_genre("^ genre: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_date("^ (creation date|year): (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_track("^ track: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_copyright("^ copyright: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_comment("^ comment: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_software("^ software: (.*)", Qt::CaseInsensitive);
+static QRegExp rx_clip_name("^(name|title): (.*)", Qt::CaseInsensitive);
+static QRegExp rx_clip_artist("^artist: (.*)", Qt::CaseInsensitive);
+static QRegExp rx_clip_author("^author: (.*)", Qt::CaseInsensitive);
+static QRegExp rx_clip_album("^album: (.*)", Qt::CaseInsensitive);
+static QRegExp rx_clip_genre("^genre: (.*)", Qt::CaseInsensitive);
+static QRegExp rx_clip_date("^(creation date|year): (.*)", Qt::CaseInsensitive);
+static QRegExp rx_clip_track("^track: (.*)", Qt::CaseInsensitive);
+static QRegExp rx_clip_copyright("^copyright: (.*)", Qt::CaseInsensitive);
+static QRegExp rx_clip_comment("^comment: (.*)", Qt::CaseInsensitive);
+static QRegExp rx_clip_software("^software: (.*)", Qt::CaseInsensitive);
 
 static QRegExp rx_stream_title("^.* StreamTitle='(.*)';StreamUrl='(.*)';");
 
@@ -195,9 +199,12 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 		if (_state != PlayingState) {
 			qDebug() << __FUNCTION__ << "Starting time:" << _data.currentTime;
 			setState(PlayingState);
+
+			//OK, now all the media datas should be in clean state
+			emit mediaDataChanged();
 		}
 
-		qDebug() << __FUNCTION__ << "Tick:" << _data.currentTime;
+		//qDebug() << __FUNCTION__ << "Tick:" << _data.currentTime;
 		emit tick(_data.currentTime);
 
 		//Check for frame number
@@ -243,15 +250,15 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 		}
 
 		//Window resolution
-		/*else if (rx_winresolution.indexIn(line) > -1) {
-			_data.windowWidth = rx_winresolution.cap(4).toInt();
-			_data.windowHeight = rx_winresolution.cap(5).toInt();
-			_data.videoAspect = (double) _data.windowWidth / _data.windowHeight;
+		else if (rx_winresolution.indexIn(line) > -1) {
+			int width = rx_winresolution.cap(4).toInt();
+			int height = rx_winresolution.cap(5).toInt();
 
-			emit receivedVO(rx_winresolution.cap(1));
-			emit receivedWindowResolution(width, height);
+			qDebug() << __FUNCTION__ << "Video driver:" << rx_winresolution.cap(1);
+
+			emit videoWidgetSizeChanged(width, height);
 			//emit mplayerFullyLoaded();
-		}*/
+		}
 
 		//No video
 		else if (rx_novideo.indexIn(line) > -1) {
@@ -308,25 +315,23 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 		if (rx_ao.indexIn(line) > -1) {
 			//emit receivedAO(rx_ao.cap(1));
 		}
-		else
 
-		//Matroska audio
-		/*if (rx_audio_mat.indexIn(line) > -1) {
-			int ID = rx_audio_mat.cap(1).toInt();
+		//DVD and Matroska audio
+		else if (rx_audio_mat.indexIn(line) > -1) {
+			int id = rx_audio_mat.cap(1).toInt();
 			QString lang = rx_audio_mat.cap(3);
-			QString t = rx_audio_mat.cap(2);
-			qDebug("MPlayerProcess::parseLine: Audio: ID: %d, Lang: '%s' Type: '%s'",
-				ID, lang.toUtf8().data(), t.toUtf8().data());
+			QString type = rx_audio_mat.cap(2);
+			qDebug() << __FUNCTION__ << "Audio:" << id << "lang:" << lang << "type:" << type;
 
-			if (t == "NAME")
-				_data.audios.addName(ID, lang);
-			else
-				_data.audios.addLang(ID, lang);
+			if (type == "NAME") {
+				//_data.audios.addName(id, lang);
+			} else {
+				//_data.audios.addLang(id, lang);
+			}
 		}
-		else
 
 		//Matroshka chapters
-		if (rx_mkvchapters.indexIn(line)!=-1) {
+		/*if (rx_mkvchapters.indexIn(line)!=-1) {
 			int c = rx_mkvchapters.cap(1).toInt();
 			qDebug("MPlayerProcess::parseLine: mkv chapters: %d", c);
 			if ((c+1) > _data.mkv_chapters) {
@@ -360,133 +365,132 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			//_data.titles.addName(ID, name);
 			_data.titles.addDuration(ID, duration);
 		}
-		else
-
-		//DVD titles
-		if (rx_title.indexIn(line) > -1) {
-			int ID = rx_title.cap(1).toInt();
-			QString t = rx_title.cap(2);
-
-			if (t == "LENGTH") {
-				double length = rx_title.cap(3).toDouble();
-				qDebug("MPlayerProcess::parseLine: Title: ID: %d, Length: '%f'", ID, length);
-				_data.titles.addDuration(ID, length);
-			}
-			else if (t == "CHAPTERS") {
-				int chapters = rx_title.cap(3).toInt();
-				qDebug("MPlayerProcess::parseLine: Title: ID: %d, Chapters: '%d'", ID, chapters);
-				_data.titles.addChapters(ID, chapters);
-			}
-			else if (t == "ANGLES") {
-				int angles = rx_title.cap(3).toInt();
-				qDebug("MPlayerProcess::parseLine: Title: ID: %d, Angles: '%d'", ID, angles);
-				_data.titles.addAngles(ID, angles);
-			}
-		}
 		else*/
 
+		//DVD titles
+		else if (rx_title.indexIn(line) > -1) {
+			int id = rx_title.cap(1).toInt();
+			const QString title = rx_title.cap(2);
+
+			if (title == "LENGTH") {
+				double length = rx_title.cap(3).toDouble();
+				qDebug() << __FUNCTION__ << "DVD:" << "title:" << id << "length:" << length;
+				//_data.titles.addDuration(id, length);
+			}
+
+			else if (title == "CHAPTERS") {
+				int chapters = rx_title.cap(3).toInt();
+				qDebug() << __FUNCTION__ << "DVD:" << "title:" << id << "chapters:" << chapters;
+				//_data.titles.addChapters(ID, chapters);
+			}
+
+			else if (title == "ANGLES") {
+				int angles = rx_title.cap(3).toInt();
+				qDebug() << __FUNCTION__ << "DVD:" << "title:" << id << "angles:" << angles;
+				//_data.titles.addAngles(ID, angles);
+			}
+		}
+
 		//Catch cache messages
-		if (rx_cache.indexIn(line) > -1) {
+		else if (rx_cache.indexIn(line) > -1) {
 			emit receivedCacheMessage(line);
 		}
-		else
 
 		//Creating index
-		if (rx_create_index.indexIn(line) > -1) {
+		else if (rx_create_index.indexIn(line) > -1) {
 			emit receivedCreatingIndex(line);
 		}
-		else
 
 		//Catch connecting message
-		if (rx_connecting.indexIn(line) > -1) {
-			emit receivedConnectingToMessage(line);
+		else if (rx_connecting.indexIn(line) > -1) {
+			qDebug() << __FUNCTION__ << "Connecting message:" << line;
+			emit connectingMessageReceived(line);
+			setState(BufferingState);
 		}
-		else
 
 		//Catch resolving message
-		if (rx_resolving.indexIn(line) > -1) {
-			emit receivedResolvingMessage(line);
+		else if (rx_resolving.indexIn(line) > -1) {
+			qDebug() << __FUNCTION__ << "Resolving message:" << line;
+			emit resolvingMessageReceived(line);
 		}
 
 		//Clip info
 
-		//QString::trimmed() is used for removing leading and trailing whitespaces
-		//Some .mp3 files contain tags with starting and ending whitespaces
-		//Unfortunately MPlayer gives us leading and trailing whitespaces,
-		//Winamp for example doesn't show them
-
 		//Name
 		else if (rx_clip_name.indexIn(line) > -1) {
-			const QString s = rx_clip_name.cap(2).trimmed();
+			const QString s = rx_clip_name.cap(2);
 			qDebug() << __FUNCTION__ << "Clip name:" << s;
 			_data.clip_name = s;
 		}
 
 		//Artist
 		else if (rx_clip_artist.indexIn(line) > -1) {
-			const QString s = rx_clip_artist.cap(1).trimmed();
+			const QString s = rx_clip_artist.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_artist: '%s'", s.toUtf8().data());
 			_data.clip_artist = s;
 		}
 
 		//Author
 		else if (rx_clip_author.indexIn(line) > -1) {
-			const QString s = rx_clip_author.cap(1).trimmed();
+			const QString s = rx_clip_author.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_author: '%s'", s.toUtf8().data());
 			_data.clip_author = s;
 		}
 
 		//Album
 		else if (rx_clip_album.indexIn(line) > -1) {
-			const QString s = rx_clip_album.cap(1).trimmed();
+			const QString s = rx_clip_album.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_album: '%s'", s.toUtf8().data());
 			_data.clip_album = s;
 		}
 
 		//Genre
 		else if (rx_clip_genre.indexIn(line) > -1) {
-			const QString s = rx_clip_genre.cap(1).trimmed();
+			const QString s = rx_clip_genre.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_genre: '%s'", s.toUtf8().data());
 			_data.clip_genre = s;
 		}
 
 		//Date
 		else if (rx_clip_date.indexIn(line) > -1) {
-			const QString s = rx_clip_date.cap(2).trimmed();
+			const QString s = rx_clip_date.cap(2);
 			qDebug("MPlayerProcess::parseLine: clip_date: '%s'", s.toUtf8().data());
 			_data.clip_date = s;
 		}
 
 		//Track
 		else if (rx_clip_track.indexIn(line) > -1) {
-			const QString s = rx_clip_track.cap(1).trimmed();
+			const QString s = rx_clip_track.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_track: '%s'", s.toUtf8().data());
 			_data.clip_track = s;
 		}
 
 		//Copyright
 		else if (rx_clip_copyright.indexIn(line) > -1) {
-			const QString s = rx_clip_copyright.cap(1).trimmed();
+			const QString s = rx_clip_copyright.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_copyright: '%s'", s.toUtf8().data());
 			_data.clip_copyright = s;
 		}
 
 		//Comment
 		else if (rx_clip_comment.indexIn(line) > -1) {
-			const QString s = rx_clip_comment.cap(1).trimmed();
+			const QString s = rx_clip_comment.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_comment: '%s'", s.toUtf8().data());
 			_data.clip_comment = s;
 		}
 
 		//Software
 		else if (rx_clip_software.indexIn(line) > -1) {
-			const QString s = rx_clip_software.cap(1).trimmed();
+			const QString s = rx_clip_software.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_software: '%s'", s.toUtf8().data());
 			_data.clip_software = s;
 		}
 
 		//Catch "Starting playback..." message
 		else if (rx_play.indexIn(line) > -1) {
+			//OK, now all the media datas should be in clean state
+			emit mediaDataChanged();
+
 			setState(PlayingState);
 		}
 
@@ -504,6 +508,9 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 
 			else if (tag == "ID_AUDIO_ID") {
 				//First string to tell us that the media contains an audio track
+				/*int ID = value.toInt();
+				qDebug("MplayerProcess::parseLine: ID_AUDIO_ID: %d", ID);
+				md.audios.addID( ID );*/
 			}
 
 			else if (tag == "ID_LENGTH") {
@@ -529,17 +536,17 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			}
 
 			else if (tag == "ID_VIDEO_ASPECT") {
-				_data.videoAspect = value.toDouble();
-				if (_data.videoAspect == 0.0) {
+				_data.videoAspectRatio = value.toDouble();
+				if (_data.videoAspectRatio == 0.0) {
 					//I hope width & height are already set
-					_data.videoAspect = (double) _data.videoWidth / _data.videoHeight;
+					_data.videoAspectRatio = (double) _data.videoWidth / _data.videoHeight;
 				}
-				qDebug() << __FUNCTION__ << "Video aspect:" << _data.videoAspect;
+				qDebug() << __FUNCTION__ << "Video aspect:" << _data.videoAspectRatio;
 			}
 
 			else if (tag == "ID_DVD_DISC_ID") {
-				_data.dvd_id = value;
-				qDebug() << __FUNCTION__ << "DVD disc Id:" << _data.dvd_id;
+				//_data.dvd_id = value;
+				qDebug() << __FUNCTION__ << "DVD disc Id:" << value;
 			}
 
 			else if (tag == "ID_DEMUXER") {

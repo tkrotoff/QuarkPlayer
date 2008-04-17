@@ -19,8 +19,6 @@
 #ifndef PHONON_VLC_MPLAYER_MPLAYERMEDIAOBJECT_H
 #define PHONON_VLC_MPLAYER_MPLAYERMEDIAOBJECT_H
 
-//FIXME global variable
-#include <mplayer/MPlayerLoader.h>
 #include <mplayer/MPlayerProcess.h>
 
 #include <phonon/mediaobjectinterface.h>
@@ -94,7 +92,8 @@ private slots:
 	void stateChanged(MPlayerProcess::State state);
 
 	void loadMediaInternal();
-	void mediaLoaded();
+
+	void mediaDataChanged();
 
 private:
 
@@ -102,9 +101,6 @@ private:
 
 	/** MPlayer process. */
 	MPlayerProcess * _process;
-
-	/** MPlayer process for loading media data. */
-	MPlayerProcess * _mediaDataLoader;
 
 	bool _playRequestReached;
 

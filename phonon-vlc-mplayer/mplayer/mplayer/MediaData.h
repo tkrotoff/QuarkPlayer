@@ -44,7 +44,20 @@ public:
 	/** Filename of the media. Full path. */
 	QString filename;
 
-	/** Media total time (duration) in milliseconds. ID_LENGTH. Example: 62.73 */
+	/**
+	 * Media total time (duration) in milliseconds.
+	 *
+	 * ID_LENGTH. Example: 62.73
+	 *
+	 * FIXME
+	 * MPlayer does not read VBR mp3 headers properly so
+	 * ID_AUDIO_BITRATE + ID_LENGTH might be wrong
+	 * cf http://article.gmane.org/gmane.comp.video.mplayer.devel/42003
+	 * It's OK with CBR mp3.
+	 *
+	 * See http://bugzilla.mplayerhq.hu/show_bug.cgi?id=30
+	 * See http://bugzilla.mplayerhq.hu/show_bug.cgi?id=465
+	 */
 	qint64 totalTime;
 
 	/**
@@ -74,14 +87,14 @@ public:
 	 *
 	 * Example: 1.8000
 	 */
-	double videoAspect;
+	double videoAspectRatio;
 
 	///
 
 	/** ID_SEEKABLE. Example: 1 */
 	bool isSeekable;
 
-	QString dvd_id;
+	//QString dvd_id;
 
 	/**
 	 * If the stream contains a video or not.
@@ -91,16 +104,15 @@ public:
 	 */
 	bool hasVideo;
 
-	bool initialized;
-
 	//TrackList audios;
+
 	//For DVDs
 	//TrackList titles;
 
 	//SubTracks subs;
 
 	//Matroska chapters
-	int mkv_chapters;
+	//int mkv_chapters;
 
 	//Clip info
 	QString clip_name;
@@ -142,7 +154,11 @@ public:
 	/** ID_AUDIO_FORMAT. Example: 85 */
 	QString audioFormat;
 
-	/** ID_AUDIO_BITRATE (bps). Example: 48000 */
+	/**
+	 * ID_AUDIO_BITRATE (bps).
+	 *
+	 * Example: 128000
+	 */
 	int audioBitrate;
 
 	/** ID_AUDIO_RATE (Hz). Example: 44100 */

@@ -33,8 +33,33 @@ namespace VLC_MPlayer
 MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
 	: QObject(parent) {
 
-	_process = NULL;
-	_mediaDataLoader = NULL;
+	//We could have done some 'lazy initizalition' here: only create a MPlayerProcess
+	//when starting to read the file.
+	//But we create a MPlayerProcess now so other classes like VideoWidget
+	//can connect to the MPlayerProcess signals
+	//1 MediaObject = 1 MPlayerMediaObject = 1 MPlayerProcess
+	_process = MPlayerLoader::createNewMPlayerProcess(this);
+
+	connect(_process, SIGNAL(stateChanged(MPlayerProcess::State)),
+		SLOT(stateChanged(MPlayerProcess::State)));
+
+	connect(_process, SIGNAL(tick(qint64)),
+		SIGNAL(tick(qint64)));
+
+	connect(_process, SIGNAL(totalTimeChanged(qint64)),
+		SIGNAL(totalTimeChanged(qint64)));
+
+	connect(_process, SIGNAL(hasVideoChanged(bool)),
+		SIGNAL(hasVideoChanged(bool)));
+
+	connect(_process, SIGNAL(seekableChanged(bool)),
+		SIGNAL(seekableChanged(bool)));
+
+	connect(_process, SIGNAL(mediaDataChanged()),
+		SLOT(mediaDataChanged()));
+
+	connect(_process, SIGNAL(finished(int, QProcess::ExitStatus)),
+		SLOT(finished(int, QProcess::ExitStatus)));
 
 	_videoWidgetId = 0;
 }
@@ -70,13 +95,11 @@ void MPlayerMediaObject::loadMediaInternal() {
 		return;
 	}
 
-	_mediaDataLoader = MPlayerLoader::get().loadMedia(_filename);
-	connect(_mediaDataLoader, SIGNAL(finished(int, QProcess::ExitStatus)),
-		SLOT(mediaLoaded()));
+	MPlayerLoader::loadMedia(_process, _filename);
 }
 
-void MPlayerMediaObject::mediaLoaded() {
-	MediaData mediaData = _mediaDataLoader->getMediaData();
+void MPlayerMediaObject::mediaDataChanged() {
+	MediaData mediaData = _process->getMediaData();
 
 	QMultiMap<QString, QString> metaDataMap;
 	metaDataMap.insert(QLatin1String("ARTIST"), mediaData.clip_artist);
@@ -90,36 +113,34 @@ void MPlayerMediaObject::mediaLoaded() {
 	metaDataMap.insert(QLatin1String("URL"), mediaData.stream_url);
 	metaDataMap.insert(QLatin1String("ENCODEDBY"), mediaData.clip_software);
 
-	emit totalTimeChanged(mediaData.totalTime);
-	emit hasVideoChanged(mediaData.hasVideo);
-	emit seekableChanged(mediaData.isSeekable);
-	emit metaDataChanged(metaDataMap);
+	//Other infos
+	metaDataMap.insert(QLatin1String("DEMUXER"), mediaData.demuxer);
+	if (mediaData.hasVideo) {
+		metaDataMap.insert(QLatin1String("VIDEO_FORMAT"), mediaData.videoFormat);
+		metaDataMap.insert(QLatin1String("VIDEO_BITRATE"), QString::number(mediaData.videoBitrate));
+		metaDataMap.insert(QLatin1String("VIDEO_WIDTH"), QString::number(mediaData.videoWidth));
+		metaDataMap.insert(QLatin1String("VIDEO_HEIGHT"), QString::number(mediaData.videoHeight));
+		metaDataMap.insert(QLatin1String("VIDEO_FPS"), QString::number(mediaData.videoFPS));
+		metaDataMap.insert(QLatin1String("VIDEO_ASPECT_RATIO"), QString::number(mediaData.videoAspectRatio));
+		metaDataMap.insert(QLatin1String("AUDIO_FORMAT"), mediaData.audioFormat);
+		metaDataMap.insert(QLatin1String("AUDIO_BITRATE"), QString::number(mediaData.audioBitrate));
+		metaDataMap.insert(QLatin1String("AUDIO_RATE"), QString::number(mediaData.audioRate));
+		metaDataMap.insert(QLatin1String("AUDIO_NCH"), QString::number(mediaData.audioNbChannels));
+		metaDataMap.insert(QLatin1String("LENGTH"), QString::number(mediaData.totalTime));
+		metaDataMap.insert(QLatin1String("VIDEO_CODEC"), mediaData.videoCodec);
+		metaDataMap.insert(QLatin1String("AUDIO_CODEC"), mediaData.audioCodec);
+	} else {
+		//Because of the mediaplayer example, see MediaPlayer::updateInfo()
+		metaDataMap.insert(QLatin1String("BITRATE"), QString::number(mediaData.audioBitrate));
+	}
 
-	emit stateChanged(Phonon::StoppedState);
+	emit metaDataChanged(metaDataMap);
 }
 
 void MPlayerMediaObject::play() {
 	_playRequestReached = true;
 
-	_process = MPlayerLoader::get().startMPlayerProcess(_filename, (int) _videoWidgetId);
-
-	connect(_process, SIGNAL(stateChanged(MPlayerProcess::State)),
-		SLOT(stateChanged(MPlayerProcess::State)));
-
-	connect(_process, SIGNAL(tick(qint64)),
-		SIGNAL(tick(qint64)));
-
-	connect(_process, SIGNAL(totalTimeChanged(qint64)),
-		SIGNAL(totalTimeChanged(qint64)));
-
-	connect(_process, SIGNAL(hasVideoChanged(bool)),
-		SIGNAL(hasVideoChanged(bool)));
-
-	connect(_process, SIGNAL(seekableChanged(bool)),
-		SIGNAL(seekableChanged(bool)));
-
-	connect(_process, SIGNAL(finished(int, QProcess::ExitStatus)),
-		SLOT(finished(int, QProcess::ExitStatus)));
+	MPlayerLoader::start(_process, _filename, (int) _videoWidgetId);
 }
 
 MPlayerProcess * MPlayerMediaObject::getMPlayerProcess() const {

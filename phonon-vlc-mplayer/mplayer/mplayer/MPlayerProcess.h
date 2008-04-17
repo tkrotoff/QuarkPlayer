@@ -101,15 +101,32 @@ public:
 	MPlayerProcess(QObject * parent);
 	~MPlayerProcess();
 
-	/** Start the MPlayer process. */
+	/**
+	 * Starts the MPlayer process.
+	 *
+	 * URL to test:
+	 * - Quicktime H.264: http://www.podtrac.com/pts/redirect.mov/zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.mov
+	 * - Video IPod: http://www.podtrac.com/pts/redirect.mp4/zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.i.mp4
+	 * - Windows Media Player: http://www.podtrac.com/pts/redirect.wmv/zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.wmv
+	 * - MPEG4: http://zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.mp4
+	 * - MP3 (audio only): http://www.podtrac.com/pts/redirect.mp3/zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.mp3
+	 *
+	 * @param arguments options to give to the MPlayer process
+	 * @param filename file/media/stream to play, can be an URL or dvd://
+	 * @param videoWidgetId used with the -wid option
+	 * @param seek position where to start inside the file/media/stream
+	 */
 	bool start(const QStringList & arguments, const QString & filename, int videoWidgetId, qint64 seek);
 
+	/**
+	 * Stops the MPlayer process.
+	 */
 	void stop();
 
 	/**
 	 * Sends a command to the MPlayer process.
 	 *
-	 * Example:
+	 * Example: writeToStding("pause");
 	 *
 	 * @see http://www.mplayerhq.hu/DOCS/tech/slave.txt
 	 * @see mplayer-input-cmdlist.txt
@@ -172,14 +189,47 @@ signals:
 	 */
 	void seekableChanged(bool isSeekable);
 
+	/**
+	 * Notifies that the MediaData informations are ready to be read.
+	 *
+	 * @see getMediaData()
+	 */
+	void mediaDataChanged();
+
+	/**
+	 * New widget size computed by MPlayer.
+	 *
+	 * Should be applied to the widget that contains the MPlayer video.
+	 */
+	void videoWidgetSizeChanged(int width, int height);
+
+	/**
+	 * MPlayer tries to connect to a server.
+	 *
+	 * Only when the user tries to play an URL.
+	 *
+	 * Example: "Connecting to server www.podtrac.com[69.16.233.67]: 80..."
+	 *
+	 * @param message connecting message from MPlayer
+	 */
+	void connectingMessageReceived(const QString & message);
+
+	/**
+	 * MPlayer tries to resolve a domain name.
+	 *
+	 * Only when the user tries to play an URL.
+	 *
+	 * Example: "Resolving www.podtrac.com for AF_INET..."
+	 *
+	 * @param message resolving message from MPlayer
+	 */
+	void resolvingMessageReceived(const QString & message);
 
 
 
 	void failedToParseMplayerVersion(QString line_with_mplayer_version);
 	void receivedCacheMessage(QString);
 	void receivedCreatingIndex(QString);
-	void receivedConnectingToMessage(QString);
-	void receivedResolvingMessage(QString);
 
 private slots:
 

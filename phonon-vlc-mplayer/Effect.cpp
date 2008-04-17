@@ -25,6 +25,8 @@
 #ifdef PHONON_MPLAYER
 	#include "MPlayerMediaObject.h"
 
+	#include <mplayer/MPlayerLoader.h>
+	#include <mplayer/MediaSettings.h>
 	#include <mplayer/MPlayerProcess.h>
 #endif	//PHONON_MPLAYER
 
@@ -55,17 +57,15 @@ void Effect::connectToMediaObject(MediaObject * mediaObject) {
 #ifdef PHONON_MPLAYER
 	switch (_effectType) {
 	case EffectInfo::AudioEffect:
-		MPlayerLoader::get()._settings.audioFilters.append(_effectCommand);
+		MPlayerLoader::settings.audioFilters.append(_effectCommand);
 		break;
 	case EffectInfo::VideoEffect:
-		MPlayerLoader::get()._settings.videoFilters.append(_effectCommand);
+		MPlayerLoader::settings.videoFilters.append(_effectCommand);
 		break;
 	}
 
 	MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
-	if (process) {
-		MPlayerLoader::get().restartMPlayerProcess(process);
-	}
+	MPlayerLoader::restart(process);
 #endif	//PHONON_MPLAYER
 }
 
@@ -75,19 +75,16 @@ void Effect::disconnectFromMediaObject(MediaObject * mediaObject) {
 #ifdef PHONON_MPLAYER
 	switch (_effectType) {
 	case EffectInfo::AudioEffect:
-		MPlayerLoader::get()._settings.audioFilters.removeAll(_effectCommand);
+		MPlayerLoader::settings.audioFilters.removeAll(_effectCommand);
 		break;
 	case EffectInfo::VideoEffect:
-		MPlayerLoader::get()._settings.videoFilters.removeAll(_effectCommand);
+		MPlayerLoader::settings.videoFilters.removeAll(_effectCommand);
 		break;
 	}
 
 	MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
-	if (process) {
-		MPlayerLoader::get().restartMPlayerProcess(process);
-	}
+	MPlayerLoader::restart(process);
 #endif	//PHONON_MPLAYER
-
 }
 
 QList<EffectParameter> Effect::parameters() const {
