@@ -133,7 +133,7 @@ public:
 	 */
 	void writeToStdin(const QString & command);
 
-	MediaData getMediaData() const;
+	const MediaData & getMediaData() const;
 
 	bool hasVideo() const;
 	bool isSeekable() const;
@@ -190,11 +190,13 @@ signals:
 	void seekableChanged(bool isSeekable);
 
 	/**
+	 * Media has been loaded: everything is ready to do a 'play'.
+	 *
 	 * Notifies that the MediaData informations are ready to be read.
 	 *
 	 * @see getMediaData()
 	 */
-	void mediaDataChanged();
+	void mediaLoaded();
 
 	/**
 	 * New widget size computed by MPlayer.
@@ -225,6 +227,30 @@ signals:
 	 */
 	void resolvingMessageReceived(const QString & message);
 
+	/**
+	 * A new audio stream has been detected from the media/file/stream.
+	 *
+	 * Some files can contain several audio stream.
+	 * Example: DVD, Matroska
+	 *
+	 * @see http://en.wikipedia.org/wiki/Matroska
+	 * @param id audio id to select if we choose this lang
+	 * @param lang fr, en... / french, english...
+	 */
+	void audioStreamAdded(int id, const QString & lang);
+
+	/**
+	 * A new subtitle stream has been detected from the media/file/stream.
+	 *
+	 * Some files can contain several subtitle stream.
+	 * Example: DVD, Matroska
+	 *
+	 * @see http://en.wikipedia.org/wiki/Matroska
+	 * @param id subtitle id to select if we choose this lang
+	 * @param lang fr, en... / french, english...
+	 * @param type still to be done
+	 */
+	void subtitleStreamAdded(int id, const QString & lang, const QString & type);
 
 
 	void failedToParseMplayerVersion(QString line_with_mplayer_version);

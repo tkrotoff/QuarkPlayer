@@ -29,6 +29,12 @@ VideoWindow::VideoWindow(QWidget * parent)
 	_mediaObject = new Phonon::MediaObject(this);
 	_mediaObject->setTickInterval(1000);
 
+	_mediaController = new Phonon::MediaController(_mediaObject);
+	connect(_mediaController, SIGNAL(availableAudioChannelsChanged()),
+		SLOT(availableAudioChannelsChanged()));
+	connect(_mediaController, SIGNAL(availableSubtitlesChanged()),
+		SLOT(availableSubtitlesChanged()));
+
 	_videoWidget = new Phonon::VideoWidget(this);
 #if QT_VERSION >= 0x040400
 	videoLayout->addWidget(_videoWidget);
@@ -59,6 +65,7 @@ VideoWindow::VideoWindow(QWidget * parent)
 	connect(actionPlay, SIGNAL(triggered()), _mediaObject, SLOT(play()));
 	connect(actionPause, SIGNAL(triggered()), _mediaObject, SLOT(pause()));
 	connect(actionStop, SIGNAL(triggered()), _mediaObject, SLOT(stop()));
+	connect(actionPlayDVD, SIGNAL(triggered()), SLOT(playDVD()));
 	connect(actionExit, SIGNAL(triggered()), _mediaObject, SLOT(stop()));
 	connect(actionExit, SIGNAL(triggered()), SLOT(close()));
 
@@ -101,6 +108,106 @@ VideoWindow::~VideoWindow() {
 Phonon::MediaObject * VideoWindow::getMediaObject() const {
 	return _mediaObject;
 }
+
+void VideoWindow::playDVD() {
+	Phonon::MediaSource * mediaSource = new Phonon::MediaSource(Phonon::Dvd, "D:");
+	_mediaObject->setCurrentSource(*mediaSource);
+	_mediaObject->play();
+}
+
+void VideoWindow::availableAudioChannelsChanged() {
+
+	QList<Phonon::AudioStreamDescription> streams = _mediaController->availableAudioStreams();
+	actionAudioStream1->setText(streams[0].name());
+	actionAudioStream2->setText(streams[1].name());
+	//actionAudioStream3->setText(streams[2].name());
+	//actionAudioStream4->setText(streams[3].name());
+	//actionAudioStream5->setText(streams[4].name());
+
+	connect(actionAudioStream1, SIGNAL(triggered()),
+		SLOT(actionAudioStream1Triggered()));
+	connect(actionAudioStream2, SIGNAL(triggered()),
+		SLOT(actionAudioStream2Triggered()));
+	connect(actionAudioStream3, SIGNAL(triggered()),
+		SLOT(actionAudioStream3Triggered()));
+	connect(actionAudioStream4, SIGNAL(triggered()),
+		SLOT(actionAudioStream4Triggered()));
+	connect(actionAudioStream5, SIGNAL(triggered()),
+		SLOT(actionAudioStream5Triggered()));
+}
+
+void VideoWindow::actionAudioStream1Triggered() {
+	QList<Phonon::AudioStreamDescription> streams = _mediaController->availableAudioStreams();
+	_mediaController->setCurrentAudioStream(streams[0]);
+}
+
+void VideoWindow::actionAudioStream2Triggered() {
+	QList<Phonon::AudioStreamDescription> streams = _mediaController->availableAudioStreams();
+	_mediaController->setCurrentAudioStream(streams[1]);
+}
+
+void VideoWindow::actionAudioStream3Triggered() {
+	QList<Phonon::AudioStreamDescription> streams = _mediaController->availableAudioStreams();
+	_mediaController->setCurrentAudioStream(streams[2]);
+}
+
+void VideoWindow::actionAudioStream4Triggered() {
+	QList<Phonon::AudioStreamDescription> streams = _mediaController->availableAudioStreams();
+	_mediaController->setCurrentAudioStream(streams[3]);
+}
+
+void VideoWindow::actionAudioStream5Triggered() {
+	QList<Phonon::AudioStreamDescription> streams = _mediaController->availableAudioStreams();
+	_mediaController->setCurrentAudioStream(streams[4]);
+}
+
+
+void VideoWindow::availableSubtitlesChanged() {
+
+	QList<Phonon::SubtitleStreamDescription> streams = _mediaController->availableSubtitleStreams();
+	actionSubtitleStream1->setText(streams[0].name());
+	actionSubtitleStream2->setText(streams[1].name());
+	//actionSubtitleStream3->setText(streams[2].name());
+	//actionSubtitleStream4->setText(streams[3].name());
+	//actionSubtitleStream5->setText(streams[4].name());
+
+	connect(actionSubtitleStream1, SIGNAL(triggered()),
+		SLOT(actionSubtitleStream1Triggered()));
+	connect(actionSubtitleStream2, SIGNAL(triggered()),
+		SLOT(actionSubtitleStream2Triggered()));
+	connect(actionSubtitleStream3, SIGNAL(triggered()),
+		SLOT(actionSubtitleStream3Triggered()));
+	connect(actionSubtitleStream4, SIGNAL(triggered()),
+		SLOT(actionSubtitleStream4Triggered()));
+	connect(actionSubtitleStream5, SIGNAL(triggered()),
+		SLOT(actionSubtitleStream5Triggered()));
+}
+
+void VideoWindow::actionSubtitleStream1Triggered() {
+	QList<Phonon::SubtitleStreamDescription> streams = _mediaController->availableSubtitleStreams();
+	_mediaController->setCurrentSubtitleStream(streams[0]);
+}
+
+void VideoWindow::actionSubtitleStream2Triggered() {
+	QList<Phonon::SubtitleStreamDescription> streams = _mediaController->availableSubtitleStreams();
+	_mediaController->setCurrentSubtitleStream(streams[1]);
+}
+
+void VideoWindow::actionSubtitleStream3Triggered() {
+	QList<Phonon::SubtitleStreamDescription> streams = _mediaController->availableSubtitleStreams();
+	_mediaController->setCurrentSubtitleStream(streams[2]);
+}
+
+void VideoWindow::actionSubtitleStream4Triggered() {
+	QList<Phonon::SubtitleStreamDescription> streams = _mediaController->availableSubtitleStreams();
+	_mediaController->setCurrentSubtitleStream(streams[3]);
+}
+
+void VideoWindow::actionSubtitleStream5Triggered() {
+	QList<Phonon::SubtitleStreamDescription> streams = _mediaController->availableSubtitleStreams();
+	_mediaController->setCurrentSubtitleStream(streams[4]);
+}
+
 
 void VideoWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
 	qDebug() << "VideoWindow::stateChanged()";

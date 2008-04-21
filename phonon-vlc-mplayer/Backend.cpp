@@ -27,7 +27,13 @@
 #ifdef PHONON_VLC
 	#include "vlc_loader.h"
 	#include "vlc_symbols.h"
+
+	#include "VLCMediaObject.h"
 #endif	//PHONON_VLC
+
+#ifdef PHONON_MPLAYER
+	#include "MPlayerMediaObject.h"
+#endif	//PHONON_MPLAYER
 
 #include <QtCore/QByteArray>
 #include <QtCore/QSet>
@@ -67,10 +73,10 @@ namespace Phonon
 namespace VLC_MPlayer
 {
 
-Backend::Backend(QObject * parent, const QVariantList &)
+Backend::Backend(QObject * parent, const QVariantList & args)
 	: QObject(parent) {
 
-	//qDebug() << "Phonon version:" << Phonon::phononVersion();
+	qDebug() << "Phonon version:" << Phonon::phononVersion();
 
 #ifdef PHONON_VLC
 	setProperty("identifier", QLatin1String("phonon_vlc"));
@@ -124,7 +130,15 @@ void Backend::initLibVLCFinished() {
 QObject * Backend::createObject(BackendInterface::Class c, QObject * parent, const QList<QVariant> & args) {
 	switch (c) {
 	case MediaObjectClass:
-		return new MediaObject(parent);
+
+#ifdef PHONON_MPLAYER
+		return new MPlayerMediaObject(parent);
+#endif	//PHONON_MPLAYER
+
+#ifdef PHONON_VLC
+		return new VLCMediaObject(parent);
+#endif	//PHONON_VLC
+
 	/*case VolumeFaderEffectClass:
 		return new VolumeFaderEffect(parent);
 	*/
@@ -348,7 +362,7 @@ bool Backend::connectNodes(QObject * source, QObject * sink) {
 
 	SinkNode * sinkNode = qobject_cast<SinkNode *>(sink);
 	if (sinkNode) {
-		MediaObject * mediaObject = qobject_cast<MediaObject *>(source);
+		PrivateMediaObject * mediaObject = qobject_cast<PrivateMediaObject *>(source);
 		if (mediaObject) {
 			//Connects the SinkNode to a MediaObject
 			sinkNode->connectToMediaObject(mediaObject);
@@ -365,7 +379,7 @@ bool Backend::disconnectNodes(QObject * source, QObject * sink) {
 
 	SinkNode * sinkNode = qobject_cast<SinkNode *>(sink);
 	if (sinkNode) {
-		MediaObject * mediaObject = qobject_cast<MediaObject *>(source);
+		PrivateMediaObject * mediaObject = qobject_cast<PrivateMediaObject *>(source);
 		if (mediaObject) {
 			//Disconnects the SinkNode from a MediaObject
 			sinkNode->disconnectFromMediaObject(mediaObject);
@@ -378,7 +392,7 @@ bool Backend::disconnectNodes(QObject * source, QObject * sink) {
 }
 
 bool Backend::endConnectionChange(QSet<QObject *> nodes) {
-	qDebug() << __FUNCTION__ << "";
+	qDebug() << __FUNCTION__;
 	foreach (QObject * node, nodes) {
 		qDebug() << "node:" << node->metaObject()->className();
 	}

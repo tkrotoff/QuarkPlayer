@@ -2,7 +2,7 @@
  * libvlc_media_list.h:  libvlc_media_list API
  *****************************************************************************
  * Copyright (C) 1998-2005 the VideoLAN team
- * $Id: 9af8bf729df3adde611655dfdd37989305210936 $
+ * $Id: e02e12220c71b5a9ea06744bb169c0a38e3645a6 $
  *
  * Authors: Pierre d'Herbemont
  *
@@ -187,7 +187,7 @@ VLC_PUBLIC_API libvlc_media_list_t *
  * Media List Player
  *****************************************************************************/
 /** \defgroup libvlc_media_list_player libvlc_media_list_player
- * \ingroup libvlc
+ * \ingroup libvlc_media_list_player
  * LibVLC Media List Player, play a media_list. You can see that as a media
  * instance subclass
  * @{

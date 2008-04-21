@@ -21,6 +21,8 @@
 #include "MediaObject.h"
 
 #ifdef PHONON_VLC
+	#include "VLCMediaObject.h"
+
 	#include "vlc_loader.h"
 	#include "vlc_symbols.h"
 #endif	//PHONON_VLC
@@ -63,11 +65,11 @@ VideoWidget::VideoWidget(QWidget * parent)
 VideoWidget::~VideoWidget() {
 }
 
-void VideoWidget::connectToMediaObject(MediaObject * mediaObject) {
+void VideoWidget::connectToMediaObject(PrivateMediaObject * mediaObject) {
 	SinkNode::connectToMediaObject(mediaObject);
 
 #ifdef PHONON_MPLAYER
-	MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
+	MPlayerProcess * process = _mediaObject->getMPlayerProcess();
 	connect(process, SIGNAL(videoWidgetSizeChanged(int, int)),
 		SLOT(videoWidgetSizeChanged(int, int)));
 #endif	//PHONON_MPLAYER
@@ -102,10 +104,8 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 	case Phonon::VideoWidget::AspectRatioWidget:
 #ifdef PHONON_MPLAYER
 		if (_mediaObject) {
-			MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
-			if (process) {
-				ratio = process->getMediaData().videoAspectRatio;
-			}
+			MPlayerProcess * process = _mediaObject->getMPlayerProcess();
+			ratio = process->getMediaData().videoAspectRatio;
 		}
 #endif	//PHONON_MPLAYER
 		break;

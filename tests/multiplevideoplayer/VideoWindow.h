@@ -22,6 +22,7 @@
 #include "ui_VideoWindow.h"
 
 #include <phonon/mediaobject.h>
+#include <phonon/mediacontroller.h>
 #include <phonon/audiooutput.h>
 #include <phonon/mediasource.h>
 #include <phonon/videowidget.h>
@@ -45,6 +46,8 @@ public:
 
 private slots:
 
+	void playDVD();
+
 	void aboutToFinish();
 
 	void stateChanged(Phonon::State newState, Phonon::State oldState);
@@ -53,11 +56,27 @@ private slots:
 	void sourceChanged(const Phonon::MediaSource & source);
 	void metaDataChanged();
 
+	void availableAudioChannelsChanged();
+	void actionAudioStream1Triggered();
+	void actionAudioStream2Triggered();
+	void actionAudioStream3Triggered();
+	void actionAudioStream4Triggered();
+	void actionAudioStream5Triggered();
+
+	void availableSubtitlesChanged();
+	void actionSubtitleStream1Triggered();
+	void actionSubtitleStream2Triggered();
+	void actionSubtitleStream3Triggered();
+	void actionSubtitleStream4Triggered();
+	void actionSubtitleStream5Triggered();
+
 private:
 
 	void closeEvent(QCloseEvent * event);
 
 	Phonon::MediaObject * _mediaObject;
+	Phonon::MediaController * _mediaController;
+
 	Phonon::VideoWidget * _videoWidget;
 	Phonon::AudioOutput * _audioOutput;
 	Phonon::MediaSource * _mediaSource;

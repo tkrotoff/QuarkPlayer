@@ -13,6 +13,8 @@ set(libmplayer_SRCS
 	mplayer/MPlayerProcess.cpp
 	mplayer/MPlayerLoader.cpp
 	mplayer/MPlayerWindow.cpp
+	mplayer/TrackList.cpp
+	mplayer/TrackData.cpp
 )
 
 qt4_wrap_cpp(libmplayer_SRCS
@@ -29,12 +31,14 @@ add_library(libmplayer STATIC ${libmplayer_SRCS})
 set(phonon_mplayer_SRCS
 	${phonon_commom_SRCS}
 	MPlayerMediaObject.cpp
+	MPlayerMediaController.cpp
 )
 
 if (NOT KDE4_FOUND)
 	qt4_wrap_cpp(phonon_mplayer_SRCS
 		${phonon_commom_MOCS}
 		MPlayerMediaObject.h
+		MPlayerMediaController.h
 	)
 endif (NOT KDE4_FOUND)
 
@@ -76,5 +80,14 @@ if (KDE4_FOUND)
 	install(FILES icons/32x32/phonon-mplayer.png DESTINATION /usr/lib/kde4/share/icons/oxygen/32x32/apps)
 	install(FILES icons/48x48/phonon-mplayer.png DESTINATION /usr/lib/kde4/share/icons/oxygen/48x48/apps)
 else (KDE4_FOUND)
-	install(TARGETS phonon_mplayer DESTINATION ${QT_PLUGINS_DIR}/phonon_backend)
+	install(TARGETS phonon_mplayer DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+	if (WIN32)
+		install(FILES
+			${CMAKE_CURRENT_BINARY_DIR}/phonon_mplayer.pdb
+			${CMAKE_CURRENT_BINARY_DIR}/phonon_mplayer.dll.manifest
+			${CMAKE_CURRENT_BINARY_DIR}/phonon_mplayer.exp
+			${CMAKE_CURRENT_BINARY_DIR}/phonon_mplayer.ilk
+			DESTINATION ${QT_PLUGINS_DIR}/phonon_backend
+		)
+	endif (WIN32)
 endif (KDE4_FOUND)

@@ -18,14 +18,6 @@
 
 #include "MediaObject.h"
 
-#ifdef PHONON_VLC
-	#include "VLCMediaObject.h"
-#endif	//PHONON_VLC
-
-#ifdef PHONON_MPLAYER
-	#include "MPlayerMediaObject.h"
-#endif	//PHONON_MPLAYER
-
 #include <QtCore/QUrl>
 #include <QtCore/QMetaType>
 #include <QtCore/QTimer>
@@ -39,167 +31,50 @@ MediaObject::MediaObject(QObject * parent)
 	: QObject(parent) {
 
 	_currentState = Phonon::LoadingState;
-	_seekTimer = NULL;
-
-	_pMediaObject = new PrivateMediaObject(this);
+	_videoWidgetId = 0;
 
 	qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 
-	connect(_pMediaObject, SIGNAL(tick(qint64)),
-		SIGNAL(tick(qint64)), Qt::QueuedConnection);
-	connect(_pMediaObject, SIGNAL(stateChanged(Phonon::State)),
-		SLOT(stateChangedInternal(Phonon::State)), Qt::QueuedConnection);
-	connect(_pMediaObject, SIGNAL(totalTimeChanged(qint64)),
-		SIGNAL(totalTimeChanged(qint64)), Qt::QueuedConnection);
-	connect(_pMediaObject, SIGNAL(metaDataChanged(const QMultiMap<QString, QString> &)),
-		SLOT(metaDataChangedInternal(const QMultiMap<QString, QString> &)), Qt::QueuedConnection);
-	connect(_pMediaObject, SIGNAL(finished()),
-		SIGNAL(finished()), Qt::QueuedConnection);
-	connect(_pMediaObject, SIGNAL(hasVideoChanged(bool)),
-		SIGNAL(hasVideoChanged(bool)), Qt::QueuedConnection);
-	connect(_pMediaObject, SIGNAL(seekableChanged(bool)),
-		SIGNAL(seekableChanged(bool)), Qt::QueuedConnection);
+	connect(this, SIGNAL(stateChanged(Phonon::State)),
+		SLOT(stateChangedInternal(Phonon::State)));
 }
 
 MediaObject::~MediaObject() {
-	delete _pMediaObject;
-}
-
-PrivateMediaObject & MediaObject::getPrivateMediaObject() const {
-	return *_pMediaObject;
+	stop();
 }
 
 void MediaObject::setVideoWidgetId(int videoWidgetId) {
-	_pMediaObject->setVideoWidgetId(videoWidgetId);
+	_videoWidgetId = videoWidgetId;
 }
 
 void MediaObject::play() {
 	qDebug() << __FUNCTION__;
 
-	switch (_mediaSource.type()) {
-
-	case MediaSource::Invalid:
-		break;
-
-	case MediaSource::LocalFile:
-		playInternal(_mediaSource.fileName());
-		break;
-
-	case MediaSource::Url:
-		playInternal(_mediaSource.url().toString());
-		break;
-
-	case MediaSource::Disc: {
-		switch (_mediaSource.discType()) {
-		case Phonon::NoDisc:
-			qCritical() << __FUNCTION__ << "Error: MediaSource doesn't specify the disc";
-			return;
-		case Phonon::Cd:
-			playInternal(_mediaSource.deviceName());
-			break;
-		case Phonon::Dvd:
-
-#ifdef PHONON_VLC
-			playInternal(_mediaSource.deviceName());
-#endif	//PHONON_VLC
-
-#ifdef PHONON_MPLAYER
-			playInternal("dvd://");
-#endif	//PHONON_MPLAYER
-
-			break;
-		case Phonon::Vcd:
-			playInternal(_mediaSource.deviceName());
-			break;
-		default:
-			qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::Disc:" << _mediaSource.discType();
-		}
-		break;
-	}
-
-	case MediaSource::Stream:
-		break;
-
-	default:
-		qCritical() << __FUNCTION__ << "Error: unsupported MediaSource:" << _mediaSource.type();
-		break;
-
+	if (_currentState == Phonon::PausedState) {
+		resume();
+	} else {
+		//Play the file
+		playInternal();
 	}
 }
 
-void MediaObject::loadMediaInternal(const QString & filename) {
+void MediaObject::loadMedia(const QString & filename) {
 	//Default MediaObject state is Phonon::LoadingState
 	_currentState = Phonon::LoadingState;
 
-	//Loads the libvlc_media
-	_pMediaObject->loadMedia(filename);
-}
-
-void MediaObject::playInternal(const QString & filename) {
-	if (_currentState == Phonon::PausedState) {
-		resume();
-	}
-
-	else {
-		//Play the file
-		_pMediaObject->play();
-	}
+	//Loads the media
+	loadMediaInternal(filename);
 }
 
 void MediaObject::resume() {
 	pause();
 }
 
-void MediaObject::pause() {
-	_pMediaObject->pause();
-}
-
 void MediaObject::stop() {
 	Phonon::State st = state();
 	if (st == Phonon::PlayingState || st == Phonon::PausedState) {
-		_pMediaObject->stop();
+		stopInternal();
 	}
-}
-
-void MediaObject::seek(qint64 milliseconds) {
-	//TODO
-	//OK, all this mess does not really work: difficult to get a nice seek with the slider...
-	//trying, trying... :/
-	//The best is to do like dailymotion or youtube...
-	/*if (!_seekTimer) {
-		_seekTimer = new QTimer(this);
-		connect(_seekTimer, SIGNAL(timeout()), SLOT(seekInternal()));
-		_seekTimer->setSingleShot(true);
-		_seekTimer->setInterval(100);
-	}
-	_seekTimer->stop();
-	_seekTimer->start();
-
-	QObject::disconnect(_pMediaObject, SIGNAL(tick(qint64)), this, SIGNAL(tick(qint64)));
-
-	if (_currentState != Phonon::PausedState) {
-		pause();
-	}
-
-	_seek = milliseconds;*/
-
-	_pMediaObject->seek(milliseconds);
-
-}
-
-void MediaObject::seekInternal() {
-	_pMediaObject->seek(_seek);
-
-	QTimer::singleShot(100, this, SLOT(connectTick()));
-
-	//if (_currentState == Phonon::PausedState) {
-		resume();
-	//}
-}
-
-void MediaObject::connectTick() {
-	connect(_pMediaObject, SIGNAL(tick(qint64)),
-		SIGNAL(tick(qint64)), Qt::QueuedConnection);
 }
 
 qint32 MediaObject::tickInterval() const {
@@ -209,27 +84,19 @@ qint32 MediaObject::tickInterval() const {
 void MediaObject::setTickInterval(qint32 interval) {
 }
 
-bool MediaObject::hasVideo() const {
-	return _pMediaObject->hasVideo();
-}
-
-bool MediaObject::isSeekable() const {
-	return _pMediaObject->isSeekable();
-}
-
 qint64 MediaObject::currentTime() const {
 	qint64 time = -1;
 	Phonon::State st = state();
 
 	switch(st) {
 	case Phonon::PausedState:
-		time = _pMediaObject->currentTime();
+		time = currentTimeInternal();
 		break;
 	case Phonon::BufferingState:
-		time = _pMediaObject->currentTime();
+		time = currentTimeInternal();
 		break;
 	case Phonon::PlayingState:
-		time = _pMediaObject->currentTime();
+		time = currentTimeInternal();
 		break;
 	case Phonon::StoppedState:
 		time = 0;
@@ -251,16 +118,8 @@ Phonon::State MediaObject::state() const {
 	return _currentState;
 }
 
-QString MediaObject::errorString() const {
-	return _pMediaObject->errorString();
-}
-
 Phonon::ErrorType MediaObject::errorType() const {
 	return Phonon::NormalError;
-}
-
-qint64 MediaObject::totalTime() const {
-	return _pMediaObject->totalTime();
 }
 
 MediaSource MediaObject::source() const {
@@ -276,10 +135,10 @@ void MediaObject::setSource(const MediaSource & source) {
 	case MediaSource::Invalid:
 		break;
 	case MediaSource::LocalFile:
-		loadMediaInternal(_mediaSource.fileName());
+		loadMedia(_mediaSource.fileName());
 		break;
 	case MediaSource::Url:
-		loadMediaInternal(_mediaSource.url().toString());
+		loadMedia(_mediaSource.url().toString());
 		break;
 	case MediaSource::Disc: {
 		switch (source.discType()) {
@@ -287,21 +146,21 @@ void MediaObject::setSource(const MediaSource & source) {
 			qCritical() << __FUNCTION__ << "Error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
 			return;
 		case Phonon::Cd:
-			loadMediaInternal(_mediaSource.deviceName());
+			loadMedia(_mediaSource.deviceName());
 			break;
 		case Phonon::Dvd:
 
 #ifdef PHONON_VLC
-			loadMediaInternal(_mediaSource.deviceName());
+			loadMedia(_mediaSource.deviceName());
 #endif	//PHONON_VLC
 
 #ifdef PHONON_MPLAYER
-			loadMediaInternal("dvd://");
+			loadMedia("dvd://");
 #endif	//PHONON_MPLAYER
 
 			break;
 		case Phonon::Vcd:
-			loadMediaInternal(_mediaSource.deviceName());
+			loadMedia(_mediaSource.deviceName());
 			break;
 		default:
 			qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::Disc:" << source.discType();
@@ -335,86 +194,6 @@ qint32 MediaObject::transitionTime() const {
 void MediaObject::setTransitionTime(qint32) {
 }
 
-bool MediaObject::hasInterface(Interface iface) const {
-	switch (iface) {
-	case AddonInterface::NavigationInterface:
-		return true;
-		break;
-	case AddonInterface::ChapterInterface:
-		return true;
-		break;
-	case AddonInterface::AngleInterface:
-		return true;
-		break;
-	case AddonInterface::TitleInterface:
-		return true;
-		break;
-	/*case AddonInterface::SubtitleInterface:
-		return true;
-		break;
-	case AddonInterface::AudioChannelInterface:
-		return true;
-		break;*/
-	default:
-		qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::Interface" << iface;
-	}
-
-	return false;
-}
-
-QVariant MediaObject::interfaceCall(Interface iface, int command, const QList<QVariant> & arguments) {
-	switch (iface) {
-
-	case AddonInterface::ChapterInterface:
-		switch (static_cast<AddonInterface::ChapterCommand>(command)) {
-			case AddonInterface::availableChapters:
-			case AddonInterface::chapter:
-			case AddonInterface::setChapter:
-			default:
-				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::ChapterInterface command:" << command;
-
-		}
-		break;
-
-	case AddonInterface::TitleInterface:
-		switch (static_cast<AddonInterface::TitleCommand>(command)) {
-			case AddonInterface::availableTitles:
-			case AddonInterface::title:
-			case AddonInterface::setTitle:
-			case AddonInterface::autoplayTitles:
-			case AddonInterface::setAutoplayTitles:
-			default:
-				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::TitleInterface command:" << command;
-		}
-		break;
-
-	/*case AddonInterface::SubtitleInterface:
-		switch (static_cast<AddonInterface::SubtitleCommand>(command)) {
-			case AddonInterface::availableSubtitleStreams:
-			case AddonInterface::currentSubtitleStream:
-			case AddonInterface::setCurrentSubtitleStream:
-			default:
-				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::SubtitleInterface command:" << command;
-		}
-		break;
-
-	case AddonInterface::AudioChannelInterface:
-		switch (static_cast<AddonInterface::AudioChannelCommand>(command)) {
-			case AddonInterface::availableAudioStreams:
-			case AddonInterface::currentAudioStream:
-			case AddonInterface::setCurrentAudioStream:
-			default:
-				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::AudioChannelInterface command:" << command;
-		}
-		break;*/
-
-	default:
-		qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::Interface:" << iface;
-	}
-
-	return new QVariant();
-}
-
 void MediaObject::stateChangedInternal(Phonon::State newState) {
 	qDebug() << __FUNCTION__ << "previousState:" << _currentState << "newState:" << newState;
 
@@ -427,10 +206,6 @@ void MediaObject::stateChangedInternal(Phonon::State newState) {
 	Phonon::State previousState = _currentState;
 	_currentState = newState;
 	emit stateChanged(_currentState, previousState);
-}
-
-void MediaObject::metaDataChangedInternal(const QMultiMap<QString, QString> & metaData) {
-	emit metaDataChanged(metaData);
 }
 
 }}	//Namespace Phonon::VLC_MPlayer

@@ -80,8 +80,8 @@
     <property name="title" >
      <string>File</string>
     </property>
+    <addaction name="actionNewVideoWindow" />
     <addaction name="actionAddFiles" />
-    <addaction name="actionOpenDVD" />
     <addaction name="separator" />
     <addaction name="actionExit" />
    </widget>
@@ -126,6 +126,7 @@
    <attribute name="toolBarBreak" >
     <bool>false</bool>
    </attribute>
+   <addaction name="actionNewVideoWindow" />
    <addaction name="actionAddFiles" />
    <addaction name="actionAddPlayFile" />
   </widget>
@@ -201,15 +202,6 @@
     <string>Fullscreen</string>
    </property>
   </action>
-  <action name="actionOpenDVD" >
-   <property name="icon" >
-    <iconset resource="multiplevideoplayer.qrc" >
-     <normaloff>:/images/dvd.png</normaloff>:/images/dvd.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Open DVD</string>
-   </property>
-  </action>
   <action name="actionAddPlayFile" >
    <property name="icon" >
     <iconset resource="multiplevideoplayer.qrc" >
@@ -217,6 +209,11 @@
    </property>
    <property name="text" >
     <string>Add and Play File</string>
+   </property>
+  </action>
+  <action name="actionNewVideoWindow" >
+   <property name="text" >
+    <string>New Video Window</string>
    </property>
   </action>
  </widget>

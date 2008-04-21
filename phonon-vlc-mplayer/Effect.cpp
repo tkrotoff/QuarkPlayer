@@ -51,7 +51,7 @@ Effect::Effect(EffectManager * effectManager, int effectId, QObject * parent)
 Effect::~Effect() {
 }
 
-void Effect::connectToMediaObject(MediaObject * mediaObject) {
+void Effect::connectToMediaObject(PrivateMediaObject * mediaObject) {
 	SinkNode::connectToMediaObject(mediaObject);
 
 #ifdef PHONON_MPLAYER
@@ -64,12 +64,12 @@ void Effect::connectToMediaObject(MediaObject * mediaObject) {
 		break;
 	}
 
-	MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
+	MPlayerProcess * process = _mediaObject->getMPlayerProcess();
 	MPlayerLoader::restart(process);
 #endif	//PHONON_MPLAYER
 }
 
-void Effect::disconnectFromMediaObject(MediaObject * mediaObject) {
+void Effect::disconnectFromMediaObject(PrivateMediaObject * mediaObject) {
 	SinkNode::disconnectFromMediaObject(mediaObject);
 
 #ifdef PHONON_MPLAYER
@@ -82,7 +82,7 @@ void Effect::disconnectFromMediaObject(MediaObject * mediaObject) {
 		break;
 	}
 
-	MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
+	MPlayerProcess * process = _mediaObject->getMPlayerProcess();
 	MPlayerLoader::restart(process);
 #endif	//PHONON_MPLAYER
 }

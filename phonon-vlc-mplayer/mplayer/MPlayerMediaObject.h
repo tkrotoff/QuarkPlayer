@@ -19,14 +19,11 @@
 #ifndef PHONON_VLC_MPLAYER_MPLAYERMEDIAOBJECT_H
 #define PHONON_VLC_MPLAYER_MPLAYERMEDIAOBJECT_H
 
-#include <mplayer/MPlayerProcess.h>
+#include "MPlayerMediaController.h"
 
-#include <phonon/mediaobjectinterface.h>
+#include "../MediaObject.h"
 
-#include <QtCore/QObject>
 #include <QtCore/QProcess>
-
-class MPlayerProcess;
 
 namespace Phonon
 {
@@ -38,25 +35,20 @@ namespace VLC_MPlayer
  *
  * @author Tanguy Krotoff
  */
-class MPlayerMediaObject : public QObject {
+class MPlayerMediaObject : public MediaObject, public MPlayerMediaController {
 	Q_OBJECT
+	Q_INTERFACES(Phonon::MediaObjectInterface Phonon::AddonInterface)
 public:
 
 	MPlayerMediaObject(QObject * parent);
 	~MPlayerMediaObject();
 
-	void setVideoWidgetId(int videoWidgetId);
-
-	void loadMedia(const QString & filename);
-	void play();
 	void pause();
-	void stop();
 	void seek(qint64 milliseconds);
 
 	bool hasVideo() const;
 	bool isSeekable() const;
 
-	qint64 currentTime() const;
 	qint64 totalTime() const;
 
 	QString errorString() const;
@@ -64,49 +56,51 @@ public:
 	/**
 	 * Gets the MPlayerProcess used by this class.
 	 *
-	 * If NULL is returned, this means that method play()
-	 * has not been called yet.
+	 * Cannot be NULL.
 	 *
-	 * @return the MPlayerProcess or NULL
+	 * @return the MPlayerProcess
 	 */
 	MPlayerProcess * getMPlayerProcess() const;
 
 signals:
 
-	//void aboutToFinish()
-	//void bufferStatus(int percentFilled);
-	//void currentSourceChanged(const MediaSource & newSource);
-	void finished();
-	void hasVideoChanged(bool hasVideo);
-	void metaDataChanged(const QMultiMap<QString, QString> & metaData);
-	//void prefinishMarkReached(qint32 msecToEnd);
-	void seekableChanged(bool isSeekable);
-	void stateChanged(Phonon::State newState);
-	void tick(qint64 time);
-	void totalTimeChanged(qint64 newTotalTime);
+	//MediaController signals
+	void availableSubtitlesChanged();
+	void availableAudioChannelsChanged();
+	void availableAnglesChanged(int availableAngles);
+	void availableChaptersChanged(int availableChapters);
+	void availableTitlesChanged(int availableTitles);
+	void angleChanged(int angleNumber);
+	void chapterChanged(int chapterNumber);
+	void titleChanged(int titleNumber);
+
+protected:
+
+	void loadMediaInternal(const QString & filename);
+	void playInternal();
+
+	void stopInternal();
+
+	qint64 currentTimeInternal() const;
 
 private slots:
 
 	void finished(int exitCode, QProcess::ExitStatus exitStatus);
 
-	void stateChanged(MPlayerProcess::State state);
+	void stateChangedInternal(MPlayerProcess::State state);
 
 	void loadMediaInternal();
 
-	void mediaDataChanged();
+	void mediaLoaded();
+
+	void audioStreamAdded(int id, const QString & lang);
+	void subtitleStreamAdded(int id, const QString & lang, const QString & type);
 
 private:
-
-	void setState(Phonon::State newState);
-
-	/** MPlayer process. */
-	MPlayerProcess * _process;
 
 	bool _playRequestReached;
 
 	QString _filename;
-
-	int _videoWidgetId;
 };
 
 }}	//Namespace Phonon::MPlayer

@@ -51,7 +51,7 @@ public:
 	VideoWidget(QWidget * parent);
 	~VideoWidget();
 
-	void connectToMediaObject(MediaObject * mediaObject);
+	void connectToMediaObject(PrivateMediaObject * mediaObject);
 
 	Phonon::VideoWidget::AspectRatio aspectRatio() const;
 	void setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio);

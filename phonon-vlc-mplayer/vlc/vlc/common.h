@@ -2,7 +2,7 @@
  * vlc.h: global header for libvlc (old-style)
  *****************************************************************************
  * Copyright (C) 1998-2004 the VideoLAN team
- * $Id: 860dcb64536bbeb88c098fe1e363d74d021dfbf8 $
+ * $Id: a6827b4e80a24f6cf006664a6f94ebdbecc19fdc $
  *
  * Authors: Vincent Seguin <seguin@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -45,7 +45,6 @@ extern "C" {
 /*****************************************************************************
  * Our custom types
  *****************************************************************************/
-typedef bool vlc_bool_t; /* (shouldn't be exposed) */
 typedef struct vlc_list_t vlc_list_t; /* (shouldn't be exposed) */
 typedef struct vlc_object_t vlc_object_t; /* (shouldn't be exposed) */
 
@@ -61,7 +60,7 @@ typedef signed long long vlc_int64_t;
 typedef union
 {
     int             i_int;
-    vlc_bool_t      b_bool;
+    bool      b_bool;
     float           f_float;
     char *          psz_string;
     void *          p_address;
@@ -108,12 +107,6 @@ struct vlc_list_t
 #define VLC_EEXIT         -255                             /* Program exited */
 #define VLC_EEXITSUCCESS  -999                /* Program exited successfully */
 #define VLC_EGENERIC      -666                              /* Generic error */
-
-/*****************************************************************************
- * Booleans (shouldn't be exposed)
- *****************************************************************************/
-#define VLC_FALSE false
-#define VLC_TRUE  true
 
 /**
  * \defgroup var_type Variable types  (shouldn't be exposed)

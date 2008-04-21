@@ -25,7 +25,7 @@ MainWindow::MainWindow() {
 
 	//Phonon objects
 	_mediaObject = new Phonon::MediaObject(this);
-	_mediaObject->setTickInterval(1000);
+	//_mediaObject->setTickInterval(1000);
 
 	_metaObjectInfoResolver = new Phonon::MediaObject(this);
 

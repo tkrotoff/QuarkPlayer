@@ -20,6 +20,8 @@
 #ifndef MEDIADATA_H
 #define MEDIADATA_H
 
+#include "TrackList.h"
+
 #include <QtCore/QString>
 
 /**
@@ -104,7 +106,12 @@ public:
 	 */
 	bool hasVideo;
 
-	//TrackList audios;
+	/**
+	 * Audio tracks for DVD.
+	 *
+	 * Gives us the list of available audio streams of a DVD.
+	 */
+	TrackList audioTrackList;
 
 	//For DVDs
 	//TrackList titles;

@@ -40,7 +40,7 @@ SinkNode::SinkNode(QObject * parent)
 SinkNode::~SinkNode() {
 }
 
-void SinkNode::connectToMediaObject(MediaObject * mediaObject) {
+void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject) {
 	if (_mediaObject && mediaObject) {
 		qCritical() << __FUNCTION__ << "_mediaObject already connected";
 	}
@@ -48,7 +48,7 @@ void SinkNode::connectToMediaObject(MediaObject * mediaObject) {
 	_mediaObject = mediaObject;
 }
 
-void SinkNode::disconnectFromMediaObject(MediaObject * mediaObject) {
+void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject) {
 	if (_mediaObject == mediaObject) {
 		qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
 	}
@@ -57,10 +57,8 @@ void SinkNode::disconnectFromMediaObject(MediaObject * mediaObject) {
 void SinkNode::sendMPlayerCommand(const QString & command) const {
 #ifdef PHONON_MPLAYER
 	if (_mediaObject) {
-		MPlayerProcess * process = _mediaObject->getPrivateMediaObject().getMPlayerProcess();
-		if (process) {
-			process->writeToStdin(command);
-		}
+		MPlayerProcess * process = _mediaObject->getMPlayerProcess();
+		process->writeToStdin(command);
 	}
 #endif	//PHONON_MPLAYER
 }

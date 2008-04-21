@@ -35,7 +35,7 @@ namespace VLC_MPlayer
 static const int VLC_POSITION_RESOLUTION = 1000;
 
 VLCMediaObject::VLCMediaObject(QObject * parent)
-	: QObject(parent) {
+	: MediaObject(parent), VLCMediaController() {
 
 	//MediaPlayer
 	_vlcMediaPlayer = NULL;
@@ -52,16 +52,10 @@ VLCMediaObject::VLCMediaObject(QObject * parent)
 	_totalTime = 0;
 	_hasVideo = false;
 	_seekable = false;
-
-	_videoWidgetId = 0;
 }
 
 VLCMediaObject::~VLCMediaObject() {
 	//unloadMedia();
-}
-
-void VLCMediaObject::setVideoWidgetId(int videoWidgetId) {
-	_videoWidgetId = videoWidgetId;
 }
 
 void VLCMediaObject::unloadMedia() {
@@ -76,7 +70,7 @@ void VLCMediaObject::unloadMedia() {
 	}
 }
 
-void VLCMediaObject::loadMedia(const QString & filename) {
+void VLCMediaObject::loadMediaInternal(const QString & filename) {
 #ifndef KDE4_FOUND
 	_initLibVLCFuture.waitForFinished();
 #endif	//!KDE4_FOUND
@@ -111,7 +105,7 @@ void VLCMediaObject::setVLCWidgetId() {
 	checkException();
 }
 
-void VLCMediaObject::play() {
+void VLCMediaObject::playInternal() {
 	_vlcCurrentMediaPlayer = _vlcMediaPlayer;
 
 	setVLCWidgetId();
@@ -126,7 +120,7 @@ void VLCMediaObject::pause() {
 	checkException();
 }
 
-void VLCMediaObject::stop() {
+void VLCMediaObject::stopInternal() {
 	//FIXME
 	//inside libvlc, does not check if in playing or paused state
 	p_libvlc_media_player_stop(_vlcMediaPlayer, _vlcException);
@@ -328,7 +322,7 @@ qint64 VLCMediaObject::totalTime() const {
 	return time;
 }
 
-qint64 VLCMediaObject::currentTime() const {
+qint64 VLCMediaObject::currentTimeInternal() const {
 	libvlc_time_t time = p_libvlc_media_player_get_time(_vlcMediaPlayer, _vlcException);
 	checkException();
 

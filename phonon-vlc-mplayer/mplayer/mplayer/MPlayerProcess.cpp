@@ -113,7 +113,7 @@ void MPlayerProcess::writeToStdin(const QString & command) {
 	}
 }
 
-MediaData MPlayerProcess::getMediaData() const {
+const MediaData & MPlayerProcess::getMediaData() const {
 	return _data;
 }
 
@@ -137,6 +137,13 @@ qint64 MPlayerProcess::totalTime() const {
 static QRegExp rx_av("^[AV]: *([0-9,:.-]+)");
 static QRegExp rx_frame("^[AV]:.* (\\d+)\\/.\\d+");// [0-9,.]+");
 static QRegExp rx("^(.*)=(.*)");
+
+			//DVD line example:
+			//ID_AUDIO_ID=129
+			//ID_AID_129_LANG=fr
+			//ID_AUDIO_ID=128
+			//ID_AID_128_LANG=en
+
 static QRegExp rx_audio_mat("^ID_AID_(\\d+)_(LANG|NAME)=(.*)");
 static QRegExp rx_title("^ID_DVD_TITLE_(\\d+)_(LENGTH|CHAPTERS|ANGLES)=(.*)");
 static QRegExp rx_winresolution("^VO: \\[(.*)\\] (\\d+)x(\\d+) => (\\d+)x(\\d+)");
@@ -201,7 +208,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			setState(PlayingState);
 
 			//OK, now all the media datas should be in clean state
-			emit mediaDataChanged();
+			emit mediaLoaded();
 		}
 
 		//qDebug() << __FUNCTION__ << "Tick:" << _data.currentTime;
@@ -299,35 +306,93 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 		}
 
 		//Subtitles
-		/*if (rx_subtitle.indexIn(line) > -1) {
-			_data.subs.process(line);
+		//static QRegExp rx_subtitle("^ID_(SUBTITLE|FILE_SUB|VOBSUB)_ID=(\\d+)");
+		//static QRegExp rx_sid("^ID_(SID|VSID)_(\\d+)_(LANG|NAME)=(.*)");
+		//static QRegExp rx_subtitle_file("^ID_FILE_SUB_FILENAME=(.*)");
+		else if (rx_subtitle.indexIn(line) > -1) {
+			//DVD line example:
+			//subtitle ( sid ): 1 language: en
+			//ID_SUBTITLE_ID=1
+			//ID_SID_1_LANG=en
+			//subtitle ( sid ): 3 language: fr
+			//ID_SUBTITLE_ID=3
+			//ID_SID_3_LANG=fr
+
+			//Matroska line example:
+			//
+			//TODO Need to test with .mkv files...
+
+			int id = rx_subtitle.cap(2).toInt();
+			const QString type = rx_subtitle.cap(1);
+
+			if (type == "FILE_SUB") {
+				//t = SubData::File;
+			} else if (type == "VOBSUB") {
+				//t = SubData::Vob;
+			} else {
+				//t = SubData::Sub;
+			}
 		}
-		else
-		if (rx_sid.indexIn(line) > -1) {
-			_data.subs.process(line);
+
+		else if (rx_sid.indexIn(line) > -1) {
+			int id = rx_sid.cap(2).toInt();
+			const QString lang = rx_sid.cap(4);
+			const QString attr = rx_sid.cap(3);
+			const QString type = rx_sid.cap(1);
+			qDebug() << __FUNCTION__ << "Subtitle id:" << id << "lang:" << lang << "type:" << type << "attr:" << attr;
+
+			if (type == "VSID") {
+			} else if (type == "SID") {
+			}
+
+			if (attr == "NAME") {
+			} else if (attr == "LANG") {
+			}
+
+			emit subtitleStreamAdded(id, lang, type);
 		}
-		else
-		if (rx_subtitle_file.indexIn(line) > -1) {
-			_data.subs.process(line);
-		}*/
+
+		else if (rx_subtitle_file.indexIn(line) > -1) {
+			/*const QString file = rx_subtitle_file.cap(1);
+			if (subs.count() > 0) {
+				int last = subs.count() -1;
+				if (subs[last].type() == SubData::File) {
+					subs[last].setFilename(file);
+				}
+			}*/
+		}
 
 		//AO
-		if (rx_ao.indexIn(line) > -1) {
+		else if (rx_ao.indexIn(line) > -1) {
 			//emit receivedAO(rx_ao.cap(1));
 		}
 
-		//DVD and Matroska audio
+		//DVD and Matroska audio tracks
 		else if (rx_audio_mat.indexIn(line) > -1) {
+			//DVD line example:
+			//ID_AUDIO_ID=129
+			//ID_AID_129_LANG=fr
+			//ID_AUDIO_ID=128
+			//ID_AID_128_LANG=en
+
+			//Matroska line example:
+			//
+			//TODO Need to test with .mkv files...
+
 			int id = rx_audio_mat.cap(1).toInt();
 			QString lang = rx_audio_mat.cap(3);
-			QString type = rx_audio_mat.cap(2);
-			qDebug() << __FUNCTION__ << "Audio:" << id << "lang:" << lang << "type:" << type;
+			QString attr = rx_audio_mat.cap(2);
+			qDebug() << __FUNCTION__ << "Audio id:" << id << "lang:" << lang << "attr:" << attr;
 
-			if (type == "NAME") {
-				//_data.audios.addName(id, lang);
-			} else {
-				//_data.audios.addLang(id, lang);
+			if (attr == "NAME") {
+				//lang=english, spanish...
+				//_data.audioTrackList.addName(id, lang);
+			} else if (attr == "LANG") {
+				//lang=en, fr...
+				//_data.audioTrackList.addLang(id, lang);
 			}
+
+			emit audioStreamAdded(id, lang);
 		}
 
 		//Matroshka chapters
@@ -374,19 +439,21 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 
 			if (title == "LENGTH") {
 				double length = rx_title.cap(3).toDouble();
-				qDebug() << __FUNCTION__ << "DVD:" << "title:" << id << "length:" << length;
+				qDebug() << __FUNCTION__ << "DVD id:" << id << "length:" << length << "title:" << title;
 				//_data.titles.addDuration(id, length);
+
+				//emit titleAdded(id, length);
 			}
 
 			else if (title == "CHAPTERS") {
 				int chapters = rx_title.cap(3).toInt();
-				qDebug() << __FUNCTION__ << "DVD:" << "title:" << id << "chapters:" << chapters;
+				qDebug() << __FUNCTION__ << "DVD id:" << id << "chapters:" << chapters;
 				//_data.titles.addChapters(ID, chapters);
 			}
 
 			else if (title == "ANGLES") {
 				int angles = rx_title.cap(3).toInt();
-				qDebug() << __FUNCTION__ << "DVD:" << "title:" << id << "angles:" << angles;
+				qDebug() << __FUNCTION__ << "DVD id:" << id << "angles:" << angles;
 				//_data.titles.addAngles(ID, angles);
 			}
 		}
@@ -489,7 +556,9 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 		//Catch "Starting playback..." message
 		else if (rx_play.indexIn(line) > -1) {
 			//OK, now all the media datas should be in clean state
-			emit mediaDataChanged();
+			//Second time we emit mediaLoaded(), this one is usefull for DVD with angles/chapters/subtitles...
+			//This must be changed, see MPlayerMediaObject::mediaLoaded()
+			emit mediaLoaded();
 
 			setState(PlayingState);
 		}
@@ -606,3 +675,61 @@ void MPlayerProcess::setState(State state) {
 	_state = state;
 	emit stateChanged(state);
 }
+
+/*
+void MPlayerProcess::parseSubtitle(const QString & subtitle) {
+	qDebug() << __FUNCTION__ << subtitle;
+
+	if (rx_subtitle.indexIn(text) > -1) {
+		int id = rx_subtitle.cap(2).toInt();
+		const QString type = rx_subtitle.cap(1);
+
+		//SubData::Type t;
+		if (type == "FILE_SUB") {
+			//t = SubData::File;
+		} else if (type == "VOBSUB") {
+			//t = SubData::Vob;
+		} else
+			//t = SubData::Sub;
+		}
+
+		if (find(t, id) > -1) {
+			qWarning("SubTracks::process: subtitle type: %d, id: %d already exists!", t, id);
+		} else {
+			add(t,id);
+		}
+	}
+
+	else if (rx_sid.indexIn(text) > -1) {
+		int id = rx_sid.cap(2).toInt();
+		const QString value = rx_sid.cap(4);
+		const QString attr = rx_sid.cap(3);
+		const QString type = rx_sid.cap(1);
+
+		//SubData::Type t = SubData::Sub;
+		if (type == "VSID") {
+			//t = SubData::Vob;
+		}
+
+		if (find(t, id) == -1) {
+			qWarning("SubTracks::process: subtitle type: %d, id: %d doesn't exist!", t, id);
+		} else {
+			if (attr == "NAME") {
+				changeName(t, id, value);
+			} else {
+				changeLang(t, id, value);
+			}
+		}
+	}
+
+	else if (rx_subtitle_file.indexIn(text) > -1) {
+		QString file = rx_subtitle_file.cap(1);
+		if (subs.count() > 0) {
+			int last = subs.count() -1;
+			if (subs[last].type() == SubData::File) {
+				subs[last].setFilename(file);
+			}
+		}
+	}
+}
+*/

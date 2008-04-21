@@ -19,6 +19,10 @@
 #ifndef PHONON_VLC_MPLAYER_VLCMEDIAOBJECT_H
 #define PHONON_VLC_MPLAYER_VLCMEDIAOBJECT_H
 
+#include "VLCMediaController.h"
+
+#include "../MediaObject.h"
+
 #include <vlc/libvlc.h>
 
 #include <phonon/mediaobjectinterface.h>
@@ -41,42 +45,32 @@ namespace VLC_MPlayer
  * @see MediaObject
  * @author Tanguy Krotoff
  */
-class VLCMediaObject : public QObject {
+class VLCMediaObject : public MediaObject, public VLCMediaController {
 	Q_OBJECT
+	Q_INTERFACES(Phonon::MediaObjectInterface)
 public:
 
 	VLCMediaObject(QObject * parent);
 	~VLCMediaObject();
 
-	void setVideoWidgetId(int videoWidgetId);
-
-	void loadMedia(const QString & filename);
-	void play();
 	void pause();
-	void stop();
 	void seek(qint64 milliseconds);
 
 	bool hasVideo() const;
 	bool isSeekable() const;
 
-	qint64 currentTime() const;
 	qint64 totalTime() const;
 
 	QString errorString() const;
 
-signals:
+protected:
 
-	//void aboutToFinish()
-	//void bufferStatus(int percentFilled);
-	//void currentSourceChanged(const Phonon::MediaSource & newSource);
-	void finished();
-	void hasVideoChanged(bool hasVideo);
-	void metaDataChanged(const QMultiMap<QString, QString> & metaData);
-	//void prefinishMarkReached(qint32 msecToEnd);
-	void seekableChanged(bool isSeekable);
-	void stateChanged(Phonon::State newState);
-	void tick(qint64 time);
-	void totalTimeChanged(qint64 newTotalTime);
+	void loadMediaInternal(const QString & filename);
+	void playInternal();
+
+	void stopInternal();
+
+	qint64 currentTimeInternal() const;
 
 private:
 
@@ -125,8 +119,6 @@ private:
 	bool _hasVideo;
 
 	bool _seekable;
-
-	int _videoWidgetId;
 };
 
 }}	//Namespace Phonon::VLC_MPlayer

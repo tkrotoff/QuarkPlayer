@@ -2,7 +2,7 @@
  * libvlc_vlm.h:  libvlc_* new external API
  *****************************************************************************
  * Copyright (C) 1998-2005 the VideoLAN team
- * $Id: 80ca9ff8bea600f90d8b8cc7d8ec609c247de6dd $
+ * $Id: a999ff85407fba0da836c5f3a07c61e7f7cdeffb $
  *
  * Authors: Clément Stenac <zorglub@videolan.org>
  *          Jean-Paul Saman <jpsaman _at_ m2x _dot_ nl>
@@ -38,6 +38,15 @@ extern "C" {
  * @{
  */
 
+    
+/**
+ * Release the vlm instance related to the given libvlc_instance_t
+ *
+ * \param p_instance the instance
+ * \param p_e an initialized exception pointer
+ */
+VLC_PUBLIC_API void libvlc_vlm_release( libvlc_instance_t *, libvlc_exception_t * );
+    
 /**
  * Add a broadcast, with one input.
  *

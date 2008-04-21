@@ -16,55 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_MPLAYER_SINKNODE_H
-#define PHONON_VLC_MPLAYER_SINKNODE_H
+#ifndef PHONON_VLC_MPLAYER_VLCMEDIACONTROLLER_H
+#define PHONON_VLC_MPLAYER_VLCMEDIACONTROLLER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
+#include "../MediaController.h"
 
 namespace Phonon
 {
 namespace VLC_MPlayer
 {
 
-#ifdef PHONON_VLC
-	//#include "VLCMediaObject.h"
-	class VLCMediaObject;
-	typedef VLCMediaObject PrivateMediaObject;
-#endif	//PHONON_VLC
-
-#ifdef PHONON_MPLAYER
-	//#include "MPlayerMediaObject.h"
-	class MPlayerMediaObject;
-	typedef MPlayerMediaObject PrivateMediaObject;
-#endif	//PHONON_MPLAYER
-
 /**
  *
  *
  * @author Tanguy Krotoff
  */
-class SinkNode : public QObject {
-	Q_OBJECT
+class VLCMediaController /*: public MediaController*/ {
 public:
 
-	SinkNode(QObject * parent);
-	virtual ~SinkNode();
-
-	virtual void connectToMediaObject(PrivateMediaObject * mediaObject);
-
-	virtual void disconnectFromMediaObject(PrivateMediaObject * mediaObject);
+	VLCMediaController();
+	virtual ~VLCMediaController();
 
 protected:
 
-	void sendMPlayerCommand(const QString & command) const;
-
-	PrivateMediaObject * _mediaObject;
-
 private:
-
 };
 
 }}	//Namespace Phonon::VLC_MPlayer
 
-#endif	//PHONON_VLC_MPLAYER_SINKNODE_H
+#endif	//PHONON_VLC_MPLAYER_VLCMEDIACONTROLLER_H

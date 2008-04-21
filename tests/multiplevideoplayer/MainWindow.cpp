@@ -35,9 +35,9 @@ MainWindow::MainWindow(QWidget * parent)
 	//connect(_currentMediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
 
 	//actions connect
+	connect(actionNewVideoWindow, SIGNAL(triggered()), SLOT(newVideoWindow()));
 	connect(actionAddPlayFile, SIGNAL(triggered()), SLOT(addPlay()));
 	connect(actionAddFiles, SIGNAL(triggered()), SLOT(addFiles()));
-	connect(actionOpenDVD, SIGNAL(triggered()), SLOT(openDVD()));
 	connect(actionExit, SIGNAL(triggered()), SLOT(close()));
 	connect(actionAbout, SIGNAL(triggered()), SLOT(about()));
 	connect(actionAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
@@ -67,6 +67,11 @@ MainWindow::MainWindow(QWidget * parent)
 MainWindow::~MainWindow() {
 }
 
+void MainWindow::newVideoWindow() {
+	VideoWindow * currentVideoWindow = new VideoWindow(this);
+	currentVideoWindow->show();
+}
+
 void MainWindow::addFiles() {
 	qDebug() << "MainWindow::addFiles()";
 
@@ -85,14 +90,6 @@ void MainWindow::addFiles() {
 	if (!_mediaSources.isEmpty()) {
 		_metaObjectInfoResolver->setCurrentSource(_mediaSources.at(index));
 	}
-}
-
-void MainWindow::openDVD() {
-	/*
-	Phonon::MediaSource * mediaSource = new Phonon::MediaSource(Phonon::Dvd, "D:");
-	_mediaObject->setCurrentSource(*mediaSource);
-	_mediaObject->play();
-	*/
 }
 
 void MainWindow::about() {

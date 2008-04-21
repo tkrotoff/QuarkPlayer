@@ -84,6 +84,10 @@ void MPlayerLoader::loadMedia(MPlayerProcess * process, const QString & filename
 	args << "-identify";
 	args << "-frames";
 	args << "0";
+	args << "-vo";
+	args << "null";
+	args << "-ao";
+	args << "null";
 
 	if (!process->start(args, filename, 0, 0)) {
 		//Error handling

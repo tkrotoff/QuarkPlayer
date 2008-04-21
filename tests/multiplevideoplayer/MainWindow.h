@@ -40,8 +40,8 @@ public:
 
 private slots:
 
+	void newVideoWindow();
 	void addFiles();
-	void openDVD();
 	void about();
 	void aboutToFinish();
 
