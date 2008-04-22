@@ -70,11 +70,61 @@ void MPlayerMediaController::subtitleStreamAdded(int id, const QString & lang, c
 	_availableSubtitleStreams << Phonon::SubtitleStreamDescription(id, properties);
 }
 
+void MPlayerMediaController::loadSubtitleFile(const QString & filename) {
+	if (!filename.isEmpty()) {
+		clearAllButTitle();
+
+		//Loads the selected subtitle file
+		QStringList args;
+		args << "-sub";
+		args << filename;
+
+		MPlayerLoader::restart(_process, args);
+	}
+}
+
 void MPlayerMediaController::setCurrentSubtitleStream(const Phonon::SubtitleStreamDescription & stream) {
 	qDebug() << __FUNCTION__;
 
 	_currentSubtitleStream = stream;
-	_process->writeToStdin("sub_demux " + QString::number(_currentSubtitleStream.index()));
+	int id = _currentSubtitleStream.index();
+	if (id == -1) {
+		//sub_source [source]
+		//  Display first subtitle from [source]. Here [source] is an integer:
+		//  SUB_SOURCE_SUBS   (0) for file subs
+		//  SUB_SOURCE_VOBSUB (1) for VOBsub files
+		//  SUB_SOURCE_DEMUX  (2) for subtitle embedded in the media file or DVD subs.
+		//  If [source] is -1, will turn off subtitle display. If [source] less than -1,
+		//  will cycle between the first subtitle of each currently available sources.
+		_process->writeToStdin("sub_source -1");
+	} else {
+		const QString type = stream.property("type").toString();
+		if (type == "vob") {
+			_process->writeToStdin("sub_vob " + QString::number(id));
+		}
+
+		else if (type == "sub") {
+			_process->writeToStdin("sub_demux " + QString::number(id));
+		}
+
+		else if (type == "file") {
+			const QString filename = stream.property("name").toString();
+
+			if (_availableSubtitleStreams.contains(stream)) {
+				//If already in the list of subtitles
+				//then no need to load the subtitle and restart MPlayer
+				_process->writeToStdin("sub_file " + QString::number(id));
+			} else {
+				//This is a new subtitle file
+				//We must load it and restart MPlayer
+				loadSubtitleFile(filename);
+			}
+		}
+
+		else {
+			qCritical() << __FUNCTION__ << "Error: unknown subtitle type:" << type;
+		}
+	}
 }
 
 QList<Phonon::SubtitleStreamDescription> MPlayerMediaController::availableSubtitleStreams() const {
@@ -102,17 +152,16 @@ void MPlayerMediaController::setCurrentTitle(int titleNumber) {
 	//with parameter: dvd://titleNumber
 	//_process->writeToStdin("switch_title " + QString::number(_currentTitle));
 
-	MPlayerLoader::restart(_process, "dvd://" + QString::number(_currentTitle));
-
 	clearAllButTitle();
+	MPlayerLoader::restart(_process, QStringList(), "dvd://" + QString::number(_currentTitle));
 }
 
 void MPlayerMediaController::clearAllButTitle() {
-	_currentAngle = 1;
-	_availableAngles = 1;
+	_currentAngle = 0;
+	_availableAngles = 0;
 
-	_currentChapter = 1;
-	_availableChapters = 1;
+	_currentChapter = 0;
+	_availableChapters = 0;
 
 	_availableAudioStreams.clear();
 

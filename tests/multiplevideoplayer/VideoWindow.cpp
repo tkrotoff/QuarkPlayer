@@ -26,9 +26,19 @@ VideoWindow::VideoWindow(QWidget * parent)
 
 	setupUi(this);
 
-	//Phonon objects
 	_mediaObject = new Phonon::MediaObject(this);
 	_mediaObject->setTickInterval(1000);
+	connect(_mediaObject, SIGNAL(tick(qint64)),
+		SLOT(tick(qint64)));
+	connect(_mediaObject, SIGNAL(totalTimeChanged(qint64)),
+		SLOT(totalTimeChanged(qint64)));
+	connect(_mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
+		SLOT(stateChanged(Phonon::State, Phonon::State)));
+	connect(_mediaObject, SIGNAL(metaDataChanged()),
+		SLOT(metaDataChanged()));
+	connect(_mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
+		SLOT(sourceChanged(const Phonon::MediaSource &)));
+	connect(_mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
 
 	_mediaController = new Phonon::MediaController(_mediaObject);
 	connect(_mediaController, SIGNAL(availableAudioChannelsChanged()),
@@ -54,25 +64,12 @@ VideoWindow::VideoWindow(QWidget * parent)
 	_audioOutput = new Phonon::AudioOutput(Phonon::VideoCategory, this);
 	Phonon::createPath(_mediaObject, _audioOutput);
 
-	//Phonon objects connect
-	connect(_mediaObject, SIGNAL(tick(qint64)),
-		SLOT(tick(qint64)));
-	connect(_mediaObject, SIGNAL(totalTimeChanged(qint64)),
-		SLOT(totalTimeChanged(qint64)));
-	connect(_mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
-		SLOT(stateChanged(Phonon::State, Phonon::State)));
-	connect(_mediaObject, SIGNAL(metaDataChanged()),
-		SLOT(metaDataChanged()));
-
-	connect(_mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
-		SLOT(sourceChanged(const Phonon::MediaSource &)));
-	connect(_mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
-
 	//actions connect
 	connect(actionPlay, SIGNAL(triggered()), _mediaObject, SLOT(play()));
 	connect(actionPause, SIGNAL(triggered()), _mediaObject, SLOT(pause()));
 	connect(actionStop, SIGNAL(triggered()), _mediaObject, SLOT(stop()));
 	connect(actionPlayDVD, SIGNAL(triggered()), SLOT(playDVD()));
+	connect(actionOpenSubtitleFile, SIGNAL(triggered()), SLOT(openSubtitleFile()));
 	connect(actionExit, SIGNAL(triggered()), _mediaObject, SLOT(stop()));
 	connect(actionExit, SIGNAL(triggered()), SLOT(close()));
 
@@ -122,7 +119,24 @@ void VideoWindow::playDVD() {
 	_mediaObject->play();
 }
 
-void removeAllAction(QWidget * widget) {
+void VideoWindow::openSubtitleFile() {
+	QString filename = QFileDialog::getOpenFileName(this, tr("Select Subtitle File"));
+
+	if (filename.isEmpty()) {
+		return;
+	}
+
+	QHash<QByteArray, QVariant> properties;
+	properties.insert("type", "file");
+	properties.insert("name", filename);
+
+	int id = 0;
+	Phonon::SubtitleStreamDescription subtitle(id, properties);
+
+	_mediaController->setCurrentSubtitleStream(subtitle);
+}
+
+void VideoWindow::removeAllAction(QWidget * widget) {
 	foreach (QAction * action, widget->actions()) {
 		widget->removeAction(action);
 	}

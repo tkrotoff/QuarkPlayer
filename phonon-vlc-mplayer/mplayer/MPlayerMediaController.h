@@ -82,6 +82,8 @@ protected:
 
 private:
 
+	void loadSubtitleFile(const QString & filename);
+
 	void clearAllButTitle();
 };
 

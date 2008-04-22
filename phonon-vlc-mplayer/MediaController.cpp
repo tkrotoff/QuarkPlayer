@@ -24,14 +24,14 @@ namespace VLC_MPlayer
 {
 
 MediaController::MediaController() {
-	_currentAngle = 1;
-	_availableAngles = 1;
+	_currentAngle = 0;
+	_availableAngles = 0;
 
-	_currentChapter = 1;
-	_availableChapters = 1;
+	_currentChapter = 0;
+	_availableChapters = 0;
 
-	_currentTitle = 1;
-	_availableTitles = 1;
+	_currentTitle = 0;
+	_availableTitles = 0;
 
 	_autoplayTitles = false;
 }

@@ -198,6 +198,7 @@
      </property>
      <addaction name="actionSubtitleStream1" />
     </widget>
+    <addaction name="actionOpenSubtitleFile" />
     <addaction name="menuSubtitleStreams" />
    </widget>
    <widget class="QMenu" name="menuBrowse" >
@@ -376,6 +377,11 @@
   <action name="actionAngle1" >
    <property name="text" >
     <string>Angle1</string>
+   </property>
+  </action>
+  <action name="actionOpenSubtitleFile" >
+   <property name="text" >
+    <string>Open...</string>
    </property>
   </action>
  </widget>

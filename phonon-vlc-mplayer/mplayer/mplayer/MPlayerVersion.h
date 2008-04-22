@@ -34,10 +34,10 @@ public:
 	/**
 	 * Parses the MPlayer SVN revision number from the line and returns it.
 	 *
-	 * @param version line to parse to get MPlayer SVN revision number
+	 * @param line line to parse to get MPlayer SVN revision number
 	 * @return MPlayer SVN revision number; 0 if parsing failed
 	 */
-	static int parse(QString & version);
+	static int parse(const QString & line);
 
 private:
 

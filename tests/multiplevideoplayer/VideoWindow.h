@@ -47,6 +47,7 @@ public:
 private slots:
 
 	void playDVD();
+	void openSubtitleFile();
 
 	void aboutToFinish();
 
@@ -74,6 +75,8 @@ private slots:
 private:
 
 	void closeEvent(QCloseEvent * event);
+
+	void removeAllAction(QWidget * widget);
 
 	Phonon::MediaObject * _mediaObject;
 	Phonon::MediaController * _mediaController;

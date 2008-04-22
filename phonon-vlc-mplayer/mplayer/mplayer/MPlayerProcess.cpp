@@ -137,13 +137,6 @@ qint64 MPlayerProcess::totalTime() const {
 static QRegExp rx_av("^[AV]: *([0-9,:.-]+)");
 static QRegExp rx_frame("^[AV]:.* (\\d+)\\/.\\d+");// [0-9,.]+");
 static QRegExp rx("^(.*)=(.*)");
-
-			//DVD line example:
-			//ID_AUDIO_ID=129
-			//ID_AID_129_LANG=fr
-			//ID_AUDIO_ID=128
-			//ID_AID_128_LANG=en
-
 static QRegExp rx_audio_mat("^ID_AID_(\\d+)_(LANG|NAME)=(.*)");
 static QRegExp rx_title("^ID_DVD_TITLE_(\\d+)_(LENGTH|CHAPTERS|ANGLES)=(.*)");
 static QRegExp rx_winresolution("^VO: \\[(.*)\\] (\\d+)x(\\d+) => (\\d+)x(\\d+)");
@@ -318,6 +311,13 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			//ID_SUBTITLE_ID=3
 			//ID_SID_3_LANG=fr
 
+			//.str file example:
+			//SUB: Detected subtitle file format: subviewer
+			//SUB: Read 612 subtitles.
+			//ID_FILE_SUB_ID=0
+			//ID_FILE_SUB_FILENAME=D:/The Ring CD1.srt
+			//SUB: Added subtitle file (1): D:/The Ring CD1.srt
+
 			//Matroska line example:
 			//
 			//TODO Need to test with .mkv files...
@@ -332,6 +332,8 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			} else {
 				//t = SubData::Sub;
 			}
+
+			//emit subtitleStreamAdded(id, "", type);
 		}
 
 		else if (rx_sid.indexIn(line) > -1) {
@@ -353,13 +355,15 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 		}
 
 		else if (rx_subtitle_file.indexIn(line) > -1) {
-			/*const QString file = rx_subtitle_file.cap(1);
-			if (subs.count() > 0) {
+			const QString file = rx_subtitle_file.cap(1);
+			/*if (subs.count() > 0) {
 				int last = subs.count() -1;
 				if (subs[last].type() == SubData::File) {
 					subs[last].setFilename(file);
 				}
 			}*/
+
+			emit subtitleStreamAdded(0, file, "file");
 		}
 
 		//AO

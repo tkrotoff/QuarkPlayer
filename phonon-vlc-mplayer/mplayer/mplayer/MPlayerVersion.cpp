@@ -22,7 +22,7 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QtDebug>
 
-int MPlayerVersion::parse(QString & version) {
+int MPlayerVersion::parse(const QString & line) {
 	//static QRegExp rx_mplayer_revision("^MPlayer (\\S+)-SVN-r(\\d+)-(.*)");
 	static QRegExp rx_mplayer_revision("^MPlayer (.*)-r(\\d+)(.*)");
 	static QRegExp rx_mplayer_version("^MPlayer ([a-z,0-9,.]+)-(.*)");
@@ -31,6 +31,7 @@ int MPlayerVersion::parse(QString & version) {
 	static QRegExp rx_mplayer_version_ubuntu("^MPlayer (\\d):(\\d)\\.(\\d)~(.*)");
 #endif	//!Q_OS_WIN
 
+	QString version(line);
 	int revision = 0;
 
 #ifdef Q_OS_WIN
