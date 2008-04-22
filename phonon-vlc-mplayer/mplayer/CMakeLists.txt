@@ -1,30 +1,10 @@
+add_subdirectory(mplayer)
+
 project(phonon-mplayer)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-DPHONON_MPLAYER)
-
-#libmplayer
-set(libmplayer_SRCS
-	mplayer/MyProcess.cpp
-	mplayer/MediaData.cpp
-	mplayer/MediaSettings.cpp
-	mplayer/MPlayerVersion.cpp
-	mplayer/MPlayerProcess.cpp
-	mplayer/MPlayerLoader.cpp
-	mplayer/MPlayerWindow.cpp
-)
-
-qt4_wrap_cpp(libmplayer_SRCS
-	mplayer/MyProcess.h
-	mplayer/MPlayerProcess.h
-	mplayer/MPlayerLoader.h
-	mplayer/MPlayerWindow.h
-)
-
-add_library(libmplayer STATIC ${libmplayer_SRCS})
-##
-
 
 set(phonon_mplayer_SRCS
 	${phonon_commom_SRCS}
