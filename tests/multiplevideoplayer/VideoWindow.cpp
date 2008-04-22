@@ -18,6 +18,7 @@
 
 #include "VideoWindow.h"
 
+#include <QtCore/QSignalMapper>
 #include <QtGui/QtGui>
 
 VideoWindow::VideoWindow(QWidget * parent)
@@ -34,6 +35,12 @@ VideoWindow::VideoWindow(QWidget * parent)
 		SLOT(availableAudioChannelsChanged()));
 	connect(_mediaController, SIGNAL(availableSubtitlesChanged()),
 		SLOT(availableSubtitlesChanged()));
+	connect(_mediaController, SIGNAL(availableTitlesChanged(int)),
+		SLOT(availableTitlesChanged()));
+	connect(_mediaController, SIGNAL(availableChaptersChanged(int)),
+		SLOT(availableChaptersChanged()));
+	connect(_mediaController, SIGNAL(availableAnglesChanged(int)),
+		SLOT(availableAnglesChanged()));
 
 	_videoWidget = new Phonon::VideoWidget(this);
 #if QT_VERSION >= 0x040400
@@ -115,98 +122,109 @@ void VideoWindow::playDVD() {
 	_mediaObject->play();
 }
 
+void removeAllAction(QWidget * widget) {
+	foreach (QAction * action, widget->actions()) {
+		widget->removeAction(action);
+	}
+}
+
 void VideoWindow::availableAudioChannelsChanged() {
+	QSignalMapper * signalMapper = new QSignalMapper(this);
+
+	removeAllAction(menuAudioChannels);
 
 	QList<Phonon::AudioStreamDescription> streams = _mediaController->availableAudioStreams();
-	actionAudioStream1->setText(streams[0].name());
-	actionAudioStream2->setText(streams[1].name());
-	//actionAudioStream3->setText(streams[2].name());
-	//actionAudioStream4->setText(streams[3].name());
-	//actionAudioStream5->setText(streams[4].name());
+	for (int i = 0; i < streams.size(); i++) {
+		QAction * action = menuAudioChannels->addAction(streams[i].name(), signalMapper, SLOT(map()));
+		signalMapper->setMapping(action, i);
+	}
 
-	connect(actionAudioStream1, SIGNAL(triggered()),
-		SLOT(actionAudioStream1Triggered()));
-	connect(actionAudioStream2, SIGNAL(triggered()),
-		SLOT(actionAudioStream2Triggered()));
-	connect(actionAudioStream3, SIGNAL(triggered()),
-		SLOT(actionAudioStream3Triggered()));
-	connect(actionAudioStream4, SIGNAL(triggered()),
-		SLOT(actionAudioStream4Triggered()));
-	connect(actionAudioStream5, SIGNAL(triggered()),
-		SLOT(actionAudioStream5Triggered()));
+	connect(signalMapper, SIGNAL(mapped(int)),
+		SLOT(actionAudioStreamTriggered(int)));
 }
 
-void VideoWindow::actionAudioStream1Triggered() {
+void VideoWindow::actionAudioStreamTriggered(int id) {
 	QList<Phonon::AudioStreamDescription> streams = _mediaController->availableAudioStreams();
-	_mediaController->setCurrentAudioStream(streams[0]);
+	_mediaController->setCurrentAudioStream(streams[id]);
 }
-
-void VideoWindow::actionAudioStream2Triggered() {
-	QList<Phonon::AudioStreamDescription> streams = _mediaController->availableAudioStreams();
-	_mediaController->setCurrentAudioStream(streams[1]);
-}
-
-void VideoWindow::actionAudioStream3Triggered() {
-	QList<Phonon::AudioStreamDescription> streams = _mediaController->availableAudioStreams();
-	_mediaController->setCurrentAudioStream(streams[2]);
-}
-
-void VideoWindow::actionAudioStream4Triggered() {
-	QList<Phonon::AudioStreamDescription> streams = _mediaController->availableAudioStreams();
-	_mediaController->setCurrentAudioStream(streams[3]);
-}
-
-void VideoWindow::actionAudioStream5Triggered() {
-	QList<Phonon::AudioStreamDescription> streams = _mediaController->availableAudioStreams();
-	_mediaController->setCurrentAudioStream(streams[4]);
-}
-
 
 void VideoWindow::availableSubtitlesChanged() {
+	QSignalMapper * signalMapper = new QSignalMapper(this);
+
+	removeAllAction(menuSubtitleStreams);
 
 	QList<Phonon::SubtitleStreamDescription> streams = _mediaController->availableSubtitleStreams();
-	actionSubtitleStream1->setText(streams[0].name());
-	actionSubtitleStream2->setText(streams[1].name());
-	//actionSubtitleStream3->setText(streams[2].name());
-	//actionSubtitleStream4->setText(streams[3].name());
-	//actionSubtitleStream5->setText(streams[4].name());
+	for (int i = 0; i < streams.size(); i++) {
+		QAction * action = menuSubtitleStreams->addAction(streams[i].name(), signalMapper, SLOT(map()));
+		signalMapper->setMapping(action, i);
+	}
 
-	connect(actionSubtitleStream1, SIGNAL(triggered()),
-		SLOT(actionSubtitleStream1Triggered()));
-	connect(actionSubtitleStream2, SIGNAL(triggered()),
-		SLOT(actionSubtitleStream2Triggered()));
-	connect(actionSubtitleStream3, SIGNAL(triggered()),
-		SLOT(actionSubtitleStream3Triggered()));
-	connect(actionSubtitleStream4, SIGNAL(triggered()),
-		SLOT(actionSubtitleStream4Triggered()));
-	connect(actionSubtitleStream5, SIGNAL(triggered()),
-		SLOT(actionSubtitleStream5Triggered()));
+	connect(signalMapper, SIGNAL(mapped(int)),
+		SLOT(actionSubtitleStreamTriggered(int)));
 }
 
-void VideoWindow::actionSubtitleStream1Triggered() {
+void VideoWindow::actionSubtitleStreamTriggered(int id) {
 	QList<Phonon::SubtitleStreamDescription> streams = _mediaController->availableSubtitleStreams();
-	_mediaController->setCurrentSubtitleStream(streams[0]);
+	_mediaController->setCurrentSubtitleStream(streams[id]);
 }
 
-void VideoWindow::actionSubtitleStream2Triggered() {
-	QList<Phonon::SubtitleStreamDescription> streams = _mediaController->availableSubtitleStreams();
-	_mediaController->setCurrentSubtitleStream(streams[1]);
+void VideoWindow::availableTitlesChanged() {
+	QSignalMapper * signalMapper = new QSignalMapper(this);
+
+	removeAllAction(menuTitles);
+
+	int titles = _mediaController->availableTitles();
+	for (int i = 0; i < titles; i++) {
+		QAction * action = menuTitles->addAction(QString::number(i), signalMapper, SLOT(map()));
+		signalMapper->setMapping(action, i);
+	}
+
+	connect(signalMapper, SIGNAL(mapped(int)),
+		SLOT(actionTitleTriggered(int)));
 }
 
-void VideoWindow::actionSubtitleStream3Triggered() {
-	QList<Phonon::SubtitleStreamDescription> streams = _mediaController->availableSubtitleStreams();
-	_mediaController->setCurrentSubtitleStream(streams[2]);
+void VideoWindow::actionTitleTriggered(int id) {
+	_mediaController->setCurrentTitle(id);
 }
 
-void VideoWindow::actionSubtitleStream4Triggered() {
-	QList<Phonon::SubtitleStreamDescription> streams = _mediaController->availableSubtitleStreams();
-	_mediaController->setCurrentSubtitleStream(streams[3]);
+void VideoWindow::availableChaptersChanged() {
+	QSignalMapper * signalMapper = new QSignalMapper(this);
+
+	removeAllAction(menuChapters);
+
+	int chapters = _mediaController->availableChapters();
+	for (int i = 0; i < chapters; i++) {
+		QAction * action = menuChapters->addAction(QString::number(i), signalMapper, SLOT(map()));
+		signalMapper->setMapping(action, i);
+	}
+
+	connect(signalMapper, SIGNAL(mapped(int)),
+		SLOT(actionChapterTriggered(int)));
 }
 
-void VideoWindow::actionSubtitleStream5Triggered() {
-	QList<Phonon::SubtitleStreamDescription> streams = _mediaController->availableSubtitleStreams();
-	_mediaController->setCurrentSubtitleStream(streams[4]);
+void VideoWindow::actionChapterTriggered(int id) {
+	_mediaController->setCurrentChapter(id);
 }
+
+void VideoWindow::availableAnglesChanged() {
+	QSignalMapper * signalMapper = new QSignalMapper(this);
+
+	removeAllAction(menuAngles);
+
+	int angles = _mediaController->availableAngles();
+	for (int i = 0; i < angles; i++) {
+		QAction * action = menuAngles->addAction(QString::number(i), signalMapper, SLOT(map()));
+		signalMapper->setMapping(action, i);
+	}
+
+	connect(signalMapper, SIGNAL(mapped(int)),
+		SLOT(actionAngleTriggered(int)));
+}
+
+void VideoWindow::actionAngleTriggered(int id) {
+	_mediaController->setCurrentAngle(id);
+}
+
 
 
 void VideoWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {

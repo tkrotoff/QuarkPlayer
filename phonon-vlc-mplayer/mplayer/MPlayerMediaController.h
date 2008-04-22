@@ -40,8 +40,10 @@ public:
 	virtual ~MPlayerMediaController();
 
 	virtual void audioStreamAdded(int id, const QString & lang) = 0;
-
 	virtual void subtitleStreamAdded(int id, const QString & lang, const QString & type) = 0;
+	virtual void titleAdded(int id, qint64 length) = 0;
+	virtual void chapterAdded(int titleId, int chapters) = 0;
+	virtual void angleAdded(int titleId, int angles) = 0;
 
 protected:
 
@@ -55,11 +57,32 @@ protected:
 	QList<Phonon::SubtitleStreamDescription> availableSubtitleStreams() const;
 	Phonon::SubtitleStreamDescription currentSubtitleStream() const;
 
+	//Angle
+	void setCurrentAngle(int angleNumber);
+	int availableAngles() const;
+	int currentAngle() const;
+
+	//Chapter
+	void setCurrentChapter(int chapterNumber);
+	int availableChapters() const;
+	int currentChapter() const;
+
+	//Title
+	void setCurrentTitle(int titleNumber);
+	void setAutoplayTitles(bool autoplay);
+	int availableTitles() const;
+	int currentTitle() const;
+	bool autoplayTitles() const;
+	void nextTitle();
+	void previousTitle();
+
+
 	/** MPlayer process. */
 	MPlayerProcess * _process;
 
 private:
 
+	void clearAllButTitle();
 };
 
 }}	//Namespace Phonon::VLC_MPlayer

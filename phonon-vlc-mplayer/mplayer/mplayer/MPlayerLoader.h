@@ -45,7 +45,7 @@ public:
 
 	static void start(MPlayerProcess * process, const QString & filename, int videoWidgetId, qint64 seek = 0);
 
-	static void restart(MPlayerProcess * process);
+	static void restart(MPlayerProcess * process, const QString & filename = QString());
 
 private:
 

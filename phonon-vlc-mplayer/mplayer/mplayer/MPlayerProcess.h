@@ -252,6 +252,38 @@ signals:
 	 */
 	void subtitleStreamAdded(int id, const QString & lang, const QString & type);
 
+	/**
+	 * A new title has been detected from the media/file/stream.
+	 *
+	 * Title/chapter/angle DVD.
+	 *
+	 * @param id title id
+	 * @param length title duration in milliseconds
+	 */
+	void titleAdded(int id, qint64 length);
+
+	/**
+	 * A new chapter has been detected from the media/file/stream.
+	 *
+	 * Title/chapter/angle DVD.
+	 *
+	 * @param titleId title id
+	 * @param chapters number of chapters
+	 */
+	void chapterAdded(int titleId, int chapters);
+
+	/**
+	 * A new angle has been detected from the media/file/stream.
+	 *
+	 * Title/chapter/angle DVD.
+	 *
+	 * @param titleId title id
+	 * @param angles number of angles
+	 */
+	void angleAdded(int titleId, int angles);
+
+
+
 
 	void failedToParseMplayerVersion(QString line_with_mplayer_version);
 	void receivedCacheMessage(QString);

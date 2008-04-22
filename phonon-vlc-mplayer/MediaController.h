@@ -64,9 +64,41 @@ protected:
 	virtual QList<Phonon::SubtitleStreamDescription> availableSubtitleStreams() const = 0;
 	virtual Phonon::SubtitleStreamDescription currentSubtitleStream() const = 0;
 
+	//Angle
+	virtual void setCurrentAngle(int angleNumber) = 0;
+	virtual int availableAngles() const = 0;
+	virtual int currentAngle() const = 0;
+
+	//Chapter
+	virtual void setCurrentChapter(int chapterNumber) = 0;
+	virtual int availableChapters() const = 0;
+	virtual int currentChapter() const = 0;
+
+	//Title
+	virtual void setCurrentTitle(int titleNumber) = 0;
+	virtual void setAutoplayTitles(bool autoplay) = 0;
+	virtual int availableTitles() const = 0;
+	virtual int currentTitle() const = 0;
+	virtual bool autoplayTitles() const = 0;
+	virtual void nextTitle() = 0;
+	virtual void previousTitle() = 0;
+
+	Phonon::AudioStreamDescription _currentAudioStream;
 	QList<Phonon::AudioStreamDescription> _availableAudioStreams;
 
+	Phonon::SubtitleStreamDescription _currentSubtitleStream;
 	QList<Phonon::SubtitleStreamDescription> _availableSubtitleStreams;
+
+	int _currentAngle;
+	int _availableAngles;
+
+	int _currentChapter;
+	int _availableChapters;
+
+	int _currentTitle;
+	int _availableTitles;
+
+	bool _autoplayTitles;
 
 private:
 };

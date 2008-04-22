@@ -24,6 +24,16 @@ namespace VLC_MPlayer
 {
 
 MediaController::MediaController() {
+	_currentAngle = 1;
+	_availableAngles = 1;
+
+	_currentChapter = 1;
+	_availableChapters = 1;
+
+	_currentTitle = 1;
+	_availableTitles = 1;
+
+	_autoplayTitles = false;
 }
 
 MediaController::~MediaController() {
@@ -62,23 +72,43 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 	case AddonInterface::ChapterInterface:
 		switch (static_cast<AddonInterface::ChapterCommand>(command)) {
 			case AddonInterface::availableChapters:
+				return availableChapters();
 			case AddonInterface::chapter:
+				return currentChapter();
 			case AddonInterface::setChapter:
-				break;
+				if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
+					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					return false;
+				}
+				setCurrentChapter(arguments.first().toInt());
+				return true;
 			default:
 				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::ChapterInterface command:" << command;
-
 		}
 		break;
 
 	case AddonInterface::TitleInterface:
 		switch (static_cast<AddonInterface::TitleCommand>(command)) {
 			case AddonInterface::availableTitles:
+				return availableTitles();
 			case AddonInterface::title:
+				return currentTitle();
 			case AddonInterface::setTitle:
+				if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
+					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					return false;
+				}
+				setCurrentTitle(arguments.first().toInt());
+				return true;
 			case AddonInterface::autoplayTitles:
+				return autoplayTitles();
 			case AddonInterface::setAutoplayTitles:
-				break;
+				if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Bool)) {
+					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					return false;
+				}
+				setAutoplayTitles(arguments.first().toBool());
+				return true;
 			default:
 				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::TitleInterface command:" << command;
 		}

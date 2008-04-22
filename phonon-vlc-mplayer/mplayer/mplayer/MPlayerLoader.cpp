@@ -31,7 +31,7 @@ MPlayerProcess * MPlayerLoader::createNewMPlayerProcess(QObject * parent) {
 	return process;
 }
 
-void MPlayerLoader::restart(MPlayerProcess * process) {
+void MPlayerLoader::restart(MPlayerProcess * process, const QString & filename) {
 	if (!process) {
 		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
 		return;
@@ -41,7 +41,11 @@ void MPlayerLoader::restart(MPlayerProcess * process) {
 	args << readMediaSettings();
 
 	MediaData mediaData = process->getMediaData();
-	if (!process->start(args, mediaData.filename, mediaData.videoWidgetId, mediaData.currentTime)) {
+	QString file = filename;
+	if (file.isEmpty()) {
+		file = mediaData.filename;
+	}
+	if (!process->start(args, file, mediaData.videoWidgetId, mediaData.currentTime)) {
 		//Error handling
 		qCritical() << __FUNCTION__ << "error: MPlayer process couldn't start";
 	}

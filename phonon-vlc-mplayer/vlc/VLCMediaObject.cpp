@@ -71,9 +71,7 @@ void VLCMediaObject::unloadMedia() {
 }
 
 void VLCMediaObject::loadMediaInternal(const QString & filename) {
-#ifndef KDE4_FOUND
 	_initLibVLCFuture.waitForFinished();
-#endif	//!KDE4_FOUND
 
 	qDebug() << (int) this << "loadMedia()" << filename;
 

@@ -57,18 +57,19 @@ private slots:
 	void metaDataChanged();
 
 	void availableAudioChannelsChanged();
-	void actionAudioStream1Triggered();
-	void actionAudioStream2Triggered();
-	void actionAudioStream3Triggered();
-	void actionAudioStream4Triggered();
-	void actionAudioStream5Triggered();
+	void actionAudioStreamTriggered(int id);
 
 	void availableSubtitlesChanged();
-	void actionSubtitleStream1Triggered();
-	void actionSubtitleStream2Triggered();
-	void actionSubtitleStream3Triggered();
-	void actionSubtitleStream4Triggered();
-	void actionSubtitleStream5Triggered();
+	void actionSubtitleStreamTriggered(int id);
+
+	void availableTitlesChanged();
+	void actionTitleTriggered(int id);
+
+	void availableChaptersChanged();
+	void actionChapterTriggered(int id);
+
+	void availableAnglesChanged();
+	void actionAngleTriggered(int id);
 
 private:
 

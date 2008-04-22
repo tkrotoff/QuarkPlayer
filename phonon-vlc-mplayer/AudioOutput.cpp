@@ -42,7 +42,7 @@ AudioOutput::~AudioOutput() {
 }
 
 qreal AudioOutput::volume() const {
-	qreal volume = 0;
+	qreal volume = 1;
 
 #ifdef PHONON_VLC
 	if (_vlcCurrentMediaPlayer) {
@@ -50,8 +50,6 @@ qreal AudioOutput::volume() const {
 		checkException();
 	}
 #endif	//PHONON_VLC
-
-	sendMPlayerCommand("get_property volume");
 
 	return volume;
 }

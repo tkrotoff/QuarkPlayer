@@ -87,7 +87,6 @@ Backend::Backend(QObject * parent, const QVariantList & args)
 
 	qDebug() << "Loading VLC...";
 
-#ifndef KDE4_FOUND
 	//Before everything else
 	//QtConcurrent runs initLibVLC() in another thread
 	//Otherwise it takes to long loading all VLC plugins
@@ -96,9 +95,6 @@ Backend::Backend(QObject * parent, const QVariantList & args)
 		SLOT(initLibVLCFinished()));
 	QFuture<void> _initLibVLCFuture = QtConcurrent::run(initLibVLC);
 	watcher.setFuture(_initLibVLCFuture);
-#else
-	initLibVLC();
-#endif	//!KDE4_FOUND
 
 #endif	//PHONON_VLC
 

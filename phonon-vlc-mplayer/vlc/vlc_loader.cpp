@@ -30,9 +30,7 @@ libvlc_instance_t * _vlcInstance = NULL;
 libvlc_exception_t * _vlcException = new libvlc_exception_t();
 libvlc_media_player_t * _vlcCurrentMediaPlayer = NULL;
 
-#ifndef KDE4_FOUND
 QFuture<void> _initLibVLCFuture;
-#endif	//!KDE4_FOUND
 
 namespace Phonon
 {

@@ -93,8 +93,12 @@ private slots:
 
 	void mediaLoaded();
 
+	//MediaController
 	void audioStreamAdded(int id, const QString & lang);
 	void subtitleStreamAdded(int id, const QString & lang, const QString & type);
+	void titleAdded(int id, qint64 length);
+	void chapterAdded(int titleId, int chapters);
+	void angleAdded(int titleId, int angles);
 
 private:
 

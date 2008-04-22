@@ -63,6 +63,12 @@ MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
 		SLOT(audioStreamAdded(int, const QString &)));
 	connect(_process, SIGNAL(subtitleStreamAdded(int, const QString &, const QString &)),
 		SLOT(subtitleStreamAdded(int, const QString &, const QString &)));
+	connect(_process, SIGNAL(titleAdded(int, qint64)),
+		SLOT(titleAdded(int, qint64)));
+	connect(_process, SIGNAL(chapterAdded(int, int)),
+		SLOT(chapterAdded(int, int)));
+	connect(_process, SIGNAL(angleAdded(int, int)),
+		SLOT(angleAdded(int, int)));
 }
 
 MPlayerMediaObject::~MPlayerMediaObject() {
@@ -127,6 +133,14 @@ void MPlayerMediaObject::mediaLoaded() {
 
 	emit availableAudioChannelsChanged();
 	emit availableSubtitlesChanged();
+
+	emit availableAnglesChanged(availableAngles());
+	emit availableChaptersChanged(availableChapters());
+	emit availableTitlesChanged(availableTitles());
+
+	//angleChanged(int angleNumber);
+	//chapterChanged(int chapterNumber);
+	//titleChanged(int titleNumber);
 
 	emit metaDataChanged(metaDataMap);
 }
@@ -218,12 +232,25 @@ qint64 MPlayerMediaObject::totalTime() const {
 	return _process->totalTime();
 }
 
+//MediaController
 void MPlayerMediaObject::audioStreamAdded(int id, const QString & lang) {
 	MPlayerMediaController::audioStreamAdded(id, lang);
 }
 
 void MPlayerMediaObject::subtitleStreamAdded(int id, const QString & lang, const QString & type) {
 	MPlayerMediaController::subtitleStreamAdded(id, lang, type);
+}
+
+void MPlayerMediaObject::titleAdded(int id, qint64 length) {
+	MPlayerMediaController::titleAdded(id, length);
+}
+
+void MPlayerMediaObject::chapterAdded(int titleId, int chapters) {
+	MPlayerMediaController::chapterAdded(titleId, chapters);
+}
+
+void MPlayerMediaObject::angleAdded(int titleId, int angles) {
+	MPlayerMediaController::angleAdded(titleId, angles);
 }
 
 }}	//Namespace Phonon::VLC_MPlayer

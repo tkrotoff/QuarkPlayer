@@ -21,9 +21,7 @@
 
 #include <vlc/libvlc.h>
 
-#ifndef KDE4_FOUND
-	#include <QtCore/QFuture>
-#endif	//!KDE4_FOUND
+#include <QtCore/QFuture>
 
 /** Libvlc instance global variable. */
 extern libvlc_instance_t * _vlcInstance;
@@ -34,10 +32,8 @@ extern libvlc_exception_t * _vlcException;
 /** Libvlc media player global variable. */
 extern libvlc_media_player_t * _vlcCurrentMediaPlayer;
 
-#ifndef KDE4_FOUND
 /** QFuture permits to run initLibVLC() in another thread. Global variable. */
 extern QFuture<void> _initLibVLCFuture;
-#endif	//!KDE4_FOUND
 
 namespace Phonon
 {

@@ -434,27 +434,31 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 
 		//DVD titles
 		else if (rx_title.indexIn(line) > -1) {
-			int id = rx_title.cap(1).toInt();
-			const QString title = rx_title.cap(2);
+			int titleId = rx_title.cap(1).toInt();
+			const QString attr = rx_title.cap(2);
 
-			if (title == "LENGTH") {
+			if (attr == "LENGTH") {
 				double length = rx_title.cap(3).toDouble();
-				qDebug() << __FUNCTION__ << "DVD id:" << id << "length:" << length << "title:" << title;
+				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "length:" << length << "attr:" << attr;
 				//_data.titles.addDuration(id, length);
 
-				//emit titleAdded(id, length);
+				emit titleAdded(titleId, length * SECONDS_CONVERTION);
 			}
 
-			else if (title == "CHAPTERS") {
+			else if (attr == "CHAPTERS") {
 				int chapters = rx_title.cap(3).toInt();
-				qDebug() << __FUNCTION__ << "DVD id:" << id << "chapters:" << chapters;
-				//_data.titles.addChapters(ID, chapters);
+				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "chapters:" << chapters;
+				//_data.titles.addChapters(id, chapters);
+
+				emit chapterAdded(titleId, chapters);
 			}
 
-			else if (title == "ANGLES") {
+			else if (attr == "ANGLES") {
 				int angles = rx_title.cap(3).toInt();
-				qDebug() << __FUNCTION__ << "DVD id:" << id << "angles:" << angles;
-				//_data.titles.addAngles(ID, angles);
+				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "angles:" << angles;
+				//_data.titles.addAngles(id, angles);
+
+				emit angleAdded(titleId, angles);
 			}
 		}
 
