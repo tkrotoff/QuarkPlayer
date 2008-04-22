@@ -13,8 +13,6 @@ set(libmplayer_SRCS
 	mplayer/MPlayerProcess.cpp
 	mplayer/MPlayerLoader.cpp
 	mplayer/MPlayerWindow.cpp
-	mplayer/TrackList.cpp
-	mplayer/TrackData.cpp
 )
 
 qt4_wrap_cpp(libmplayer_SRCS

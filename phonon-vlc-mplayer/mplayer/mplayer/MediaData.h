@@ -20,8 +20,6 @@
 #ifndef MEDIADATA_H
 #define MEDIADATA_H
 
-#include "TrackList.h"
-
 #include <QtCore/QString>
 
 /**
@@ -96,8 +94,6 @@ public:
 	/** ID_SEEKABLE. Example: 1 */
 	bool isSeekable;
 
-	//QString dvd_id;
-
 	/**
 	 * If the stream contains a video or not.
 	 *
@@ -105,21 +101,6 @@ public:
 	 * @see MPlayerProcess::hasVideoChanged()
 	 */
 	bool hasVideo;
-
-	/**
-	 * Audio tracks for DVD.
-	 *
-	 * Gives us the list of available audio streams of a DVD.
-	 */
-	TrackList audioTrackList;
-
-	//For DVDs
-	//TrackList titles;
-
-	//SubTracks subs;
-
-	//Matroska chapters
-	//int mkv_chapters;
 
 	//Clip info
 	QString clip_name;
