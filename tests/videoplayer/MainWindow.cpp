@@ -209,12 +209,12 @@ void MainWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
 }
 
 void MainWindow::tick(qint64 time) {
-	QTime displayTime(NULL, (time / 60000) % 60, (time / 1000) % 60);
+	QTime displayTime(0, (time / 60000) % 60, (time / 1000) % 60);
 	currentTimeLcdNumber->display(displayTime.toString("mm:ss"));
 }
 
 void MainWindow::totalTimeChanged(qint64 newTotalTime) {
-	QTime displayTime(NULL, (newTotalTime / 60000) % 60, (newTotalTime / 1000) % 60);
+	QTime displayTime(0, (newTotalTime / 60000) % 60, (newTotalTime / 1000) % 60);
 	totalTimeLcdNumber->display(displayTime.toString("mm:ss"));
 }
 

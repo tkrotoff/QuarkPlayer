@@ -194,7 +194,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 
 	//Parse A: V: line
 	if (rx_av.indexIn(line) > -1) {
-		_data.currentTime = rx_av.cap(1).toDouble() * SECONDS_CONVERTION;
+		_data.currentTime = (qint64) (rx_av.cap(1).toDouble() * SECONDS_CONVERTION);
 
 		if (_state != PlayingState) {
 			qDebug() << __FUNCTION__ << "Starting time:" << _data.currentTime;
@@ -446,7 +446,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "length:" << length << "attr:" << attr;
 				//_data.titles.addDuration(id, length);
 
-				emit titleAdded(titleId, length * SECONDS_CONVERTION);
+				emit titleAdded(titleId, (int) (length * SECONDS_CONVERTION));
 			}
 
 			else if (attr == "CHAPTERS") {
@@ -591,7 +591,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			}
 
 			else if (tag == "ID_LENGTH") {
-				_data.totalTime = value.toDouble() * SECONDS_CONVERTION;
+				_data.totalTime = (qint64) (value.toDouble() * SECONDS_CONVERTION);
 				qDebug() << __FUNCTION__ << "Media total time:" << _data.totalTime;
 				emit totalTimeChanged(_data.totalTime);
 			}

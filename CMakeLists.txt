@@ -23,5 +23,10 @@ else (KDE4_FOUND)
 	message(STATUS "KDE4 support disabled")
 endif (KDE4_FOUND)
 
+if (UNIX OR MINGW)
+	#Enable warnings
+	add_definitions(-Wall)
+endif (UNIX OR MINGW)
+
 add_subdirectory(phonon-vlc-mplayer)
 add_subdirectory(tests)

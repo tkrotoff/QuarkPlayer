@@ -87,10 +87,10 @@ void MPlayerWindow::updateVideoWindow() {
 	int w_height = size().height();
 
 	int pos1_w = w_width;
-	int pos1_h = w_width / _aspectRatio + 0.5;
+	int pos1_h = (int) (w_width / _aspectRatio + 0.5);
 
 	int pos2_h = w_height;
-	int pos2_w = w_height * _aspectRatio + 0.5;
+	int pos2_w = (int) (w_height * _aspectRatio + 0.5);
 
 	int w, h;
 	int x = 0;

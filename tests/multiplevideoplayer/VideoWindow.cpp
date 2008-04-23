@@ -297,12 +297,12 @@ void VideoWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
 }
 
 void VideoWindow::tick(qint64 time) {
-	QTime displayTime(NULL, (time / 60000) % 60, (time / 1000) % 60);
+	QTime displayTime(0, (time / 60000) % 60, (time / 1000) % 60);
 	currentTimeLcdNumber->display(displayTime.toString("mm:ss"));
 }
 
 void VideoWindow::totalTimeChanged(qint64 newTotalTime) {
-	QTime displayTime(NULL, (newTotalTime / 60000) % 60, (newTotalTime / 1000) % 60);
+	QTime displayTime(0, (newTotalTime / 60000) % 60, (newTotalTime / 1000) % 60);
 	totalTimeLcdNumber->display(displayTime.toString("mm:ss"));
 }
 

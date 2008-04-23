@@ -57,7 +57,7 @@ qreal AudioOutput::volume() const {
 void AudioOutput::setVolume(qreal volume) {
 #ifdef PHONON_VLC
 	if (_vlcInstance) {
-		p_libvlc_audio_set_volume(_vlcInstance, volume * 100, _vlcException);
+		p_libvlc_audio_set_volume(_vlcInstance, (int) volume * 100, _vlcException);
 		checkException();
 	}
 #endif	//PHONON_VLC
