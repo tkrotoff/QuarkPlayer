@@ -24,16 +24,21 @@ else (KDE4_FOUND)
 	message(STATUS "QT_LIBRARY_DIR=${QT_LIBRARY_DIR}")
 	message(STATUS "QT_PHONON_LIBRARY=${QT_PHONON_LIBRARY}")
 
-	#Qt include dir
+	add_definitions(${QT_DEFINITIONS})
 	include_directories(${QT_INCLUDE_DIR})
 
 	message(STATUS "KDE4 support disabled")
 endif (KDE4_FOUND)
 
-if (UNIX OR MINGW)
+if (UNIX)
 	#Enable warnings
 	add_definitions(-Wall -Wextra)
-endif (UNIX OR MINGW)
+endif (UNIX)
+
+if (MINGW)
+	#Enable warnings
+	add_definitions(-Wall)
+endif (MINGW)
 
 add_subdirectory(phonon-vlc-mplayer)
 add_subdirectory(tests)

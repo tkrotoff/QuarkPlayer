@@ -93,7 +93,7 @@ Backend::Backend(QObject * parent, const QVariantList & args)
 	QFutureWatcher<void> watcher;
 	connect(&watcher, SIGNAL(finished()),
 		SLOT(initLibVLCFinished()));
-	QFuture<void> _initLibVLCFuture = QtConcurrent::run(initLibVLC);
+	_initLibVLCFuture = QtConcurrent::run(initLibVLC);
 	watcher.setFuture(_initLibVLCFuture);
 
 #endif	//PHONON_VLC
