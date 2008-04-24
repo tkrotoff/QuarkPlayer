@@ -89,12 +89,8 @@ Backend::Backend(QObject * parent, const QVariantList & args)
 
 	//Before everything else
 	//QtConcurrent runs initLibVLC() in another thread
-	//Otherwise it takes to long loading all VLC plugins
-	QFutureWatcher<void> watcher;
-	connect(&watcher, SIGNAL(finished()),
-		SLOT(initLibVLCFinished()));
+	//Otherwise it takes too long to load all the VLC plugins
 	_initLibVLCFuture = QtConcurrent::run(initLibVLC);
-	watcher.setFuture(_initLibVLCFuture);
 
 #endif	//PHONON_VLC
 
@@ -114,13 +110,6 @@ Backend::Backend(QObject * parent, const QVariantList & args)
 Backend::~Backend() {
 	//releaseLibVLC();
 	delete _effectManager;
-}
-
-void Backend::initLibVLCFinished() {
-#ifdef PHONON_VLC
-	qDebug() << "Using VLC version:" << p_libvlc_get_version();
-	qDebug() << "VLC loaded";
-#endif	//PHONON_VLC
 }
 
 QObject * Backend::createObject(BackendInterface::Class c, QObject * parent, const QList<QVariant> & args) {

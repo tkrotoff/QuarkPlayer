@@ -52,6 +52,9 @@ void initLibVLC() {
 
 	//FIXME Cannot do that: does not load VLC plugins
 	//changeBackToCurrentDirectory();
+
+	qDebug() << "Using VLC version:" << p_libvlc_get_version();
+	qDebug() << "VLC loaded";
 }
 
 void releaseLibVLC() {
