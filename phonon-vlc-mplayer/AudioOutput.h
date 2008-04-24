@@ -46,6 +46,7 @@ public:
 
 	int outputDevice() const;
 	bool setOutputDevice(int);
+	bool setOutputDevice(const Phonon::AudioOutputDevice & device);
 
 signals:
 

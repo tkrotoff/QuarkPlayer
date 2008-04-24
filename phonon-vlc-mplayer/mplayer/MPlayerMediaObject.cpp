@@ -59,8 +59,8 @@ MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
 	connect(_process, SIGNAL(finished(int, QProcess::ExitStatus)),
 		SLOT(finished(int, QProcess::ExitStatus)));
 
-	connect(_process, SIGNAL(audioStreamAdded(int, const QString &)),
-		SLOT(audioStreamAdded(int, const QString &)));
+	connect(_process, SIGNAL(audioChannelAdded(int, const QString &)),
+		SLOT(audioChannelAdded(int, const QString &)));
 	connect(_process, SIGNAL(subtitleStreamAdded(int, const QString &, const QString &)),
 		SLOT(subtitleStreamAdded(int, const QString &, const QString &)));
 	connect(_process, SIGNAL(titleAdded(int, qint64)),
@@ -233,12 +233,12 @@ qint64 MPlayerMediaObject::totalTime() const {
 }
 
 //MediaController
-void MPlayerMediaObject::audioStreamAdded(int id, const QString & lang) {
-	MPlayerMediaController::audioStreamAdded(id, lang);
+void MPlayerMediaObject::audioChannelAdded(int id, const QString & lang) {
+	MPlayerMediaController::audioChannelAdded(id, lang);
 }
 
-void MPlayerMediaObject::subtitleStreamAdded(int id, const QString & lang, const QString & type) {
-	MPlayerMediaController::subtitleStreamAdded(id, lang, type);
+void MPlayerMediaObject::subtitleAdded(int id, const QString & lang, const QString & type) {
+	MPlayerMediaController::subtitleAdded(id, lang, type);
 }
 
 void MPlayerMediaObject::titleAdded(int id, qint64 length) {

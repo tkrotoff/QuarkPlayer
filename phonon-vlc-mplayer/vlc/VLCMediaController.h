@@ -21,23 +21,57 @@
 
 #include "../MediaController.h"
 
+#include <vlc/libvlc.h>
+
 namespace Phonon
 {
 namespace VLC_MPlayer
 {
 
 /**
- *
+ * MediaController specific code for VLC.
  *
  * @author Tanguy Krotoff
  */
-class VLCMediaController /*: public MediaController*/ {
+class VLCMediaController : public MediaController {
 public:
 
 	VLCMediaController();
 	virtual ~VLCMediaController();
 
 protected:
+
+	//AudioChannel
+	void setCurrentAudioChannel(const Phonon::AudioChannelDescription & audioChannel);
+	QList<Phonon::AudioChannelDescription> availableAudioChannels() const;
+	Phonon::AudioChannelDescription currentAudioChannel() const;
+
+	//Subtitle
+	void setCurrentSubtitle(const Phonon::SubtitleDescription & subtitle);
+	QList<Phonon::SubtitleDescription> availableSubtitles() const;
+	Phonon::SubtitleDescription currentSubtitle() const;
+
+	//Angle
+	void setCurrentAngle(int angleNumber);
+	int availableAngles() const;
+	int currentAngle() const;
+
+	//Chapter
+	void setCurrentChapter(int chapterNumber);
+	int availableChapters() const;
+	int currentChapter() const;
+
+	//Title
+	void setCurrentTitle(int titleNumber);
+	void setAutoplayTitles(bool autoplay);
+	int availableTitles() const;
+	int currentTitle() const;
+	bool autoplayTitles() const;
+	void nextTitle();
+	void previousTitle();
+
+	//MediaPlayer
+	libvlc_media_player_t * _vlcMediaPlayer;
 
 private:
 };

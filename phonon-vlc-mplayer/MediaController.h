@@ -28,8 +28,22 @@ namespace VLC_MPlayer
 {
 
 /**
+ * Interface for AddonInterface.
  *
+ * This class exists only for code factorization between VLC and MPlayer backends.
+ * Normally MediaObject inherits directly from AddonInterface, but wait, I don't want
+ * 3000LOC classes...
  *
+ * This class cannot inherit from QObject has MediaObject already inherit from QObject.
+ * This is a Qt limitation: there is no possibility to inherit virtual Qobject :/
+ * See http://doc.trolltech.com/qq/qq15-academic.html
+ * Phonon implementation got the same problem.
+ *
+ * @see VLCMediaController
+ * @see MPlayerMediaController
+ * @see VLCMediaObject
+ * @see MPlayerMediaObject
+ * @see MediaObject
  * @author Tanguy Krotoff
  */
 class MediaController : public AddonInterface {
@@ -54,15 +68,15 @@ public:
 
 protected:
 
-	//AudioStream
-	virtual void setCurrentAudioStream(const Phonon::AudioStreamDescription & stream) = 0;
-	virtual QList<Phonon::AudioStreamDescription> availableAudioStreams() const = 0;
-	virtual Phonon::AudioStreamDescription currentAudioStream() const = 0;
+	//AudioChannel
+	virtual void setCurrentAudioChannel(const Phonon::AudioChannelDescription & audioChannel) = 0;
+	virtual QList<Phonon::AudioChannelDescription> availableAudioChannels() const = 0;
+	virtual Phonon::AudioChannelDescription currentAudioChannel() const = 0;
 
-	//SubtitleStream
-	virtual void setCurrentSubtitleStream(const Phonon::SubtitleStreamDescription & stream) = 0;
-	virtual QList<Phonon::SubtitleStreamDescription> availableSubtitleStreams() const = 0;
-	virtual Phonon::SubtitleStreamDescription currentSubtitleStream() const = 0;
+	//Subtitle
+	virtual void setCurrentSubtitle(const Phonon::SubtitleDescription & subtitle) = 0;
+	virtual QList<Phonon::SubtitleDescription> availableSubtitles() const = 0;
+	virtual Phonon::SubtitleDescription currentSubtitle() const = 0;
 
 	//Angle
 	virtual void setCurrentAngle(int angleNumber) = 0;
@@ -83,11 +97,11 @@ protected:
 	virtual void nextTitle() = 0;
 	virtual void previousTitle() = 0;
 
-	Phonon::AudioStreamDescription _currentAudioStream;
-	QList<Phonon::AudioStreamDescription> _availableAudioStreams;
+	Phonon::AudioChannelDescription _currentAudioChannel;
+	QList<Phonon::AudioChannelDescription> _availableAudioChannels;
 
-	Phonon::SubtitleStreamDescription _currentSubtitleStream;
-	QList<Phonon::SubtitleStreamDescription> _availableSubtitleStreams;
+	Phonon::SubtitleDescription _currentSubtitle;
+	QList<Phonon::SubtitleDescription> _availableSubtitles;
 
 	int _currentAngle;
 	int _availableAngles;

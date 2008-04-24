@@ -29,7 +29,7 @@ namespace VLC_MPlayer
 {
 
 /**
- *
+ * MediaController specific code for MPlayer.
  *
  * @author Tanguy Krotoff
  */
@@ -39,23 +39,23 @@ public:
 	MPlayerMediaController();
 	virtual ~MPlayerMediaController();
 
-	virtual void audioStreamAdded(int id, const QString & lang) = 0;
-	virtual void subtitleStreamAdded(int id, const QString & lang, const QString & type) = 0;
+	virtual void audioChannelAdded(int id, const QString & lang) = 0;
+	virtual void subtitleAdded(int id, const QString & lang, const QString & type) = 0;
 	virtual void titleAdded(int id, qint64 length) = 0;
 	virtual void chapterAdded(int titleId, int chapters) = 0;
 	virtual void angleAdded(int titleId, int angles) = 0;
 
 protected:
 
-	//AudioStream
-	void setCurrentAudioStream(const Phonon::AudioStreamDescription & stream);
-	QList<Phonon::AudioStreamDescription> availableAudioStreams() const;
-	Phonon::AudioStreamDescription currentAudioStream() const;
+	//AudioChannel
+	void setCurrentAudioChannel(const Phonon::AudioChannelDescription & audioChannel);
+	QList<Phonon::AudioChannelDescription> availableAudioChannels() const;
+	Phonon::AudioChannelDescription currentAudioChannel() const;
 
-	//SubtitleStream
-	void setCurrentSubtitleStream(const Phonon::SubtitleStreamDescription & stream);
-	QList<Phonon::SubtitleStreamDescription> availableSubtitleStreams() const;
-	Phonon::SubtitleStreamDescription currentSubtitleStream() const;
+	//Subtitle
+	void setCurrentSubtitle(const Phonon::SubtitleDescription & subtitle);
+	QList<Phonon::SubtitleDescription> availableSubtitles() const;
+	Phonon::SubtitleDescription currentSubtitle() const;
 
 	//Angle
 	void setCurrentAngle(int angleNumber);

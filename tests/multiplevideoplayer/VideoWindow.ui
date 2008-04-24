@@ -182,9 +182,9 @@
     </property>
     <widget class="QMenu" name="menuAudioChannels" >
      <property name="title" >
-      <string>Audio Streams</string>
+      <string>Audio Channels</string>
      </property>
-     <addaction name="actionAudioStream1" />
+     <addaction name="actionAudioChannel1" />
     </widget>
     <addaction name="menuAudioChannels" />
    </widget>
@@ -192,14 +192,14 @@
     <property name="title" >
      <string>Subtitle</string>
     </property>
-    <widget class="QMenu" name="menuSubtitleStreams" >
+    <widget class="QMenu" name="menuSubtitles" >
      <property name="title" >
-      <string>Subtitle Streams</string>
+      <string>Subtitles</string>
      </property>
-     <addaction name="actionSubtitleStream1" />
+     <addaction name="actionSubtitle1" />
     </widget>
     <addaction name="actionOpenSubtitleFile" />
-    <addaction name="menuSubtitleStreams" />
+    <addaction name="menuSubtitles" />
    </widget>
    <widget class="QMenu" name="menuBrowse" >
     <property name="title" >
@@ -351,17 +351,17 @@
     <string>Play DVD</string>
    </property>
   </action>
-  <action name="actionAudioStream1" >
+  <action name="actionAudioChannel1" >
    <property name="checkable" >
     <bool>true</bool>
    </property>
    <property name="text" >
-    <string>AudioStream1</string>
+    <string>AudioChannel1</string>
    </property>
   </action>
-  <action name="actionSubtitleStream1" >
+  <action name="actionSubtitle1" >
    <property name="text" >
-    <string>SubtitleStream1</string>
+    <string>Subtitle1</string>
    </property>
   </action>
   <action name="actionTitle1" >

@@ -32,34 +32,34 @@ MPlayerMediaController::MPlayerMediaController()
 MPlayerMediaController::~MPlayerMediaController() {
 }
 
-//AudioStream
-void MPlayerMediaController::audioStreamAdded(int id, const QString & lang) {
+//AudioChannel
+void MPlayerMediaController::audioChannelAdded(int id, const QString & lang) {
 	qDebug() << __FUNCTION__;
 
 	QHash<QByteArray, QVariant> properties;
 	properties.insert("name", lang);
 	properties.insert("description", lang);
 
-	_availableAudioStreams << Phonon::AudioStreamDescription(id, properties);
+	_availableAudioChannels << Phonon::AudioChannelDescription(id, properties);
 }
 
-void MPlayerMediaController::setCurrentAudioStream(const Phonon::AudioStreamDescription & stream) {
+void MPlayerMediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription & audioChannel) {
 	qDebug() << __FUNCTION__;
 
-	_currentAudioStream = stream;
-	_process->writeToStdin("switch_audio " + QString::number(_currentAudioStream.index()));
+	_currentAudioChannel = audioChannel;
+	_process->writeToStdin("switch_audio " + QString::number(_currentAudioChannel.index()));
 }
 
-QList<Phonon::AudioStreamDescription> MPlayerMediaController::availableAudioStreams() const {
-	return _availableAudioStreams;
+QList<Phonon::AudioChannelDescription> MPlayerMediaController::availableAudioChannels() const {
+	return _availableAudioChannels;
 }
 
-Phonon::AudioStreamDescription MPlayerMediaController::currentAudioStream() const {
-	return _currentAudioStream;
+Phonon::AudioChannelDescription MPlayerMediaController::currentAudioChannel() const {
+	return _currentAudioChannel;
 }
 
-//SubtitleStream
-void MPlayerMediaController::subtitleStreamAdded(int id, const QString & lang, const QString & type) {
+//Subtitle
+void MPlayerMediaController::subtitleAdded(int id, const QString & lang, const QString & type) {
 	qDebug() << __FUNCTION__;
 
 	QHash<QByteArray, QVariant> properties;
@@ -67,7 +67,7 @@ void MPlayerMediaController::subtitleStreamAdded(int id, const QString & lang, c
 	properties.insert("description", lang);
 	properties.insert("type", type);
 
-	_availableSubtitleStreams << Phonon::SubtitleStreamDescription(id, properties);
+	_availableSubtitles << Phonon::SubtitleDescription(id, properties);
 }
 
 void MPlayerMediaController::loadSubtitleFile(const QString & filename) {
@@ -83,11 +83,11 @@ void MPlayerMediaController::loadSubtitleFile(const QString & filename) {
 	}
 }
 
-void MPlayerMediaController::setCurrentSubtitleStream(const Phonon::SubtitleStreamDescription & stream) {
+void MPlayerMediaController::setCurrentSubtitle(const Phonon::SubtitleDescription & subtitle) {
 	qDebug() << __FUNCTION__;
 
-	_currentSubtitleStream = stream;
-	int id = _currentSubtitleStream.index();
+	_currentSubtitle = subtitle;
+	int id = _currentSubtitle.index();
 	if (id == -1) {
 		//sub_source [source]
 		//  Display first subtitle from [source]. Here [source] is an integer:
@@ -98,7 +98,7 @@ void MPlayerMediaController::setCurrentSubtitleStream(const Phonon::SubtitleStre
 		//  will cycle between the first subtitle of each currently available sources.
 		_process->writeToStdin("sub_source -1");
 	} else {
-		const QString type = stream.property("type").toString();
+		QString type = _currentSubtitle.property("type").toString();
 		if (type == "vob") {
 			_process->writeToStdin("sub_vob " + QString::number(id));
 		}
@@ -108,9 +108,9 @@ void MPlayerMediaController::setCurrentSubtitleStream(const Phonon::SubtitleStre
 		}
 
 		else if (type == "file") {
-			const QString filename = stream.property("name").toString();
+			QString filename = _currentSubtitle.property("name").toString();
 
-			if (_availableSubtitleStreams.contains(stream)) {
+			if (_availableSubtitles.contains(_currentSubtitle)) {
 				//If already in the list of subtitles
 				//then no need to load the subtitle and restart MPlayer
 				_process->writeToStdin("sub_file " + QString::number(id));
@@ -127,12 +127,12 @@ void MPlayerMediaController::setCurrentSubtitleStream(const Phonon::SubtitleStre
 	}
 }
 
-QList<Phonon::SubtitleStreamDescription> MPlayerMediaController::availableSubtitleStreams() const {
-	return _availableSubtitleStreams;
+QList<Phonon::SubtitleDescription> MPlayerMediaController::availableSubtitles() const {
+	return _availableSubtitles;
 }
 
-Phonon::SubtitleStreamDescription MPlayerMediaController::currentSubtitleStream() const {
-	return _currentSubtitleStream;
+Phonon::SubtitleDescription MPlayerMediaController::currentSubtitle() const {
+	return _currentSubtitle;
 }
 
 //Title
@@ -163,9 +163,9 @@ void MPlayerMediaController::clearAllButTitle() {
 	_currentChapter = 0;
 	_availableChapters = 0;
 
-	_availableAudioStreams.clear();
+	_availableAudioChannels.clear();
 
-	_availableSubtitleStreams.clear();
+	_availableSubtitles.clear();
 }
 
 void MPlayerMediaController::setAutoplayTitles(bool autoplay) {

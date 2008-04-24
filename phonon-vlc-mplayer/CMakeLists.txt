@@ -15,7 +15,6 @@ set(phonon_commom_SRCS
 set(phonon_commom_MOCS
 	../Backend.h
 	../MediaObject.h
-	../MediaController.h
 	../VideoWidget.h
 	../AudioOutput.h
 	../EffectManager.h

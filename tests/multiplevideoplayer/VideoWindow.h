@@ -58,10 +58,10 @@ private slots:
 	void metaDataChanged();
 
 	void availableAudioChannelsChanged();
-	void actionAudioStreamTriggered(int id);
+	void actionAudioChannelTriggered(int id);
 
 	void availableSubtitlesChanged();
-	void actionSubtitleStreamTriggered(int id);
+	void actionSubtitleTriggered(int id);
 
 	void availableTitlesChanged();
 	void actionTitleTriggered(int id);

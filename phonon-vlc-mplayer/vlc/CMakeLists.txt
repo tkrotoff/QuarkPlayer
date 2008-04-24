@@ -16,7 +16,6 @@ if (NOT KDE4_FOUND)
 	qt4_wrap_cpp(phonon_vlc_SRCS
 		${phonon_commom_MOCS}
 		VLCMediaObject.h
-		VLCMediaController.h
 	)
 endif (NOT KDE4_FOUND)
 

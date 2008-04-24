@@ -37,9 +37,13 @@ namespace VLC_MPlayer
 {
 
 /**
- * Libvlc MediaObject.
+ * VLC MediaObject.
  *
- * Encapsulates vlc MediaObject specific code.
+ * This is the "brain" of the VLC backend.
+ * VLCMediaObject uses libvlc in order to send commands and receive
+ * events from the VLC.
+ *
+ * Encapsulates VLC specific code.
  * Take care of libvlc events via libvlc_callback()
  *
  * @see MediaObject
@@ -47,7 +51,7 @@ namespace VLC_MPlayer
  */
 class VLCMediaObject : public MediaObject, public VLCMediaController {
 	Q_OBJECT
-	Q_INTERFACES(Phonon::MediaObjectInterface)
+	Q_INTERFACES(Phonon::MediaObjectInterface Phonon::AddonInterface)
 public:
 
 	VLCMediaObject(QObject * parent);
@@ -62,6 +66,18 @@ public:
 	qint64 totalTime() const;
 
 	QString errorString() const;
+
+signals:
+
+	//MediaController signals
+	void availableSubtitlesChanged();
+	void availableAudioChannelsChanged();
+	void availableAnglesChanged(int availableAngles);
+	void availableChaptersChanged(int availableChapters);
+	void availableTitlesChanged(int availableTitles);
+	void angleChanged(int angleNumber);
+	void chapterChanged(int chapterNumber);
+	void titleChanged(int titleNumber);
 
 protected:
 
@@ -103,7 +119,7 @@ private:
 	void setVLCWidgetId();
 
 	//MediaPlayer
-	libvlc_media_player_t * _vlcMediaPlayer;
+	//libvlc_media_player_t * _vlcMediaPlayer;
 	libvlc_event_manager_t * _vlcMediaPlayerEventManager;
 
 	//Media

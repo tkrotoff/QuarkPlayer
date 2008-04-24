@@ -11,11 +11,18 @@ if (KDE4_FOUND)
 else (KDE4_FOUND)
 	find_package(Qt4 REQUIRED)
 
-	#Phonon detection, this should be integrated into FindQt4.cmake
+	#Phonon detection, this should be inside FindQt4.cmake
 	find_library(QT_PHONON_LIBRARY_RELEASE NAMES phonon phonon4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
 	find_library(QT_PHONON_LIBRARY_DEBUG NAMES phonon_debug phonond4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
 	_QT4_ADJUST_LIB_VARS(PHONON)
 	##
+
+	if (NOT QT_PHONON_LIBRARY)
+		set(QT_PHONON_LIBRARY ${QT_PHONON_LIBRARY_RELEASE})
+	endif (NOT QT_PHONON_LIBRARY)
+
+	message(STATUS "QT_LIBRARY_DIR=${QT_LIBRARY_DIR}")
+	message(STATUS "QT_PHONON_LIBRARY=${QT_PHONON_LIBRARY}")
 
 	#Qt include dir
 	include_directories(${QT_INCLUDE_DIR})
@@ -25,7 +32,7 @@ endif (KDE4_FOUND)
 
 if (UNIX OR MINGW)
 	#Enable warnings
-	add_definitions(-Wall)
+	add_definitions(-Wall -Wextra)
 endif (UNIX OR MINGW)
 
 add_subdirectory(phonon-vlc-mplayer)

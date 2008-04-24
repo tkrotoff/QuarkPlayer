@@ -73,4 +73,8 @@ bool AudioOutput::setOutputDevice(int device) {
 	return true;
 }
 
+bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice & device) {
+	return true;
+}
+
 }}	//Namespace Phonon::VLC_MPlayer

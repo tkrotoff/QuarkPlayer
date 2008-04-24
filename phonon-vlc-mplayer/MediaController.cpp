@@ -127,18 +127,18 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 
 	case AddonInterface::SubtitleInterface:
 		switch (static_cast<AddonInterface::SubtitleCommand>(command)) {
-			case AddonInterface::availableSubtitleStreams:
-				return QVariant::fromValue(availableSubtitleStreams());
+			case AddonInterface::availableSubtitles:
+				return QVariant::fromValue(availableSubtitles());
 
-			case AddonInterface::currentSubtitleStream:
-				return QVariant::fromValue(currentSubtitleStream());
+			case AddonInterface::currentSubtitle:
+				return QVariant::fromValue(currentSubtitle());
 
-			case AddonInterface::setCurrentSubtitleStream:
-				if (arguments.isEmpty() || !arguments.first().canConvert<SubtitleStreamDescription>()) {
+			case AddonInterface::setCurrentSubtitle:
+				if (arguments.isEmpty() || !arguments.first().canConvert<SubtitleDescription>()) {
 					qCritical() << __FUNCTION__ << "Error: arguments invalid";
 					return false;
 				}
-				setCurrentSubtitleStream(arguments.first().value<SubtitleStreamDescription>());
+				setCurrentSubtitle(arguments.first().value<SubtitleDescription>());
 				return true;
 
 			default:
@@ -149,18 +149,18 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 	case AddonInterface::AudioChannelInterface:
 		switch (static_cast<AddonInterface::AudioChannelCommand>(command)) {
 
-			case AddonInterface::availableAudioStreams:
-				return QVariant::fromValue(availableAudioStreams());
+			case AddonInterface::availableAudioChannels:
+				return QVariant::fromValue(availableAudioChannels());
 
-			case AddonInterface::currentAudioStream:
-				return QVariant::fromValue(currentAudioStream());
+			case AddonInterface::currentAudioChannel:
+				return QVariant::fromValue(currentAudioChannel());
 
-			case AddonInterface::setCurrentAudioStream:
-				if (arguments.isEmpty() || !arguments.first().canConvert<AudioStreamDescription>()) {
+			case AddonInterface::setCurrentAudioChannel:
+				if (arguments.isEmpty() || !arguments.first().canConvert<AudioChannelDescription>()) {
 					qCritical() << __FUNCTION__ << "Error: arguments invalid";
 					return false;
 				}
-				setCurrentAudioStream(arguments.first().value<AudioStreamDescription>());
+				setCurrentAudioChannel(arguments.first().value<AudioChannelDescription>());
 				return true;
 
 			default:

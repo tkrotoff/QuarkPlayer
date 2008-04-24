@@ -31,7 +31,13 @@ namespace VLC_MPlayer
 {
 
 /**
+ * MPlayer MediaObject.
  *
+ * Encapsulates MPlayer MediaObject specific code.
+ *
+ * This is the "brain" of the MPlayer backend.
+ * MPlayerMediaObject uses libmplayer in order to send commands and receive
+ * events from the MPlayer process.
  *
  * @author Tanguy Krotoff
  */
@@ -94,8 +100,8 @@ private slots:
 	void mediaLoaded();
 
 	//MediaController
-	void audioStreamAdded(int id, const QString & lang);
-	void subtitleStreamAdded(int id, const QString & lang, const QString & type);
+	void audioChannelAdded(int id, const QString & lang);
+	void subtitleAdded(int id, const QString & lang, const QString & type);
 	void titleAdded(int id, qint64 length);
 	void chapterAdded(int titleId, int chapters);
 	void angleAdded(int titleId, int angles);
