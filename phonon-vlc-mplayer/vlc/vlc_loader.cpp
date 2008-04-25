@@ -26,6 +26,7 @@
 
 #include <QtGui/QWidget>
 
+//Global variables
 libvlc_instance_t * _vlcInstance = NULL;
 libvlc_exception_t * _vlcException = new libvlc_exception_t();
 libvlc_media_player_t * _vlcCurrentMediaPlayer = NULL;
@@ -42,7 +43,11 @@ void initLibVLC() {
 	_vlcInstance = NULL;
 	_vlcException = new libvlc_exception_t();
 
-	const char * vlcArgc[] = { getVLCPath().toAscii().constData(), "--plugin-path=", getVLCPluginsPath().toAscii().constData() };
+	const char * vlcArgc[] = {
+			getVLCPath().toAscii().constData(),
+			"--plugin-path=", getVLCPluginsPath().toAscii().constData(),
+			"--no-osd"
+	};
 
 	p_libvlc_exception_init(_vlcException);
 

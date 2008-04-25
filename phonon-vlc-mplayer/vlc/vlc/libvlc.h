@@ -524,7 +524,7 @@ VLC_PUBLIC_API void libvlc_video_set_spu( libvlc_media_player_t *, int , libvlc_
  * \param p_e an initialized exception pointer
  * \return the success status (boolean)
  */
-VLC_PUBLIC_API bool libvlc_video_set_subtitle( libvlc_media_player_t *, char *, libvlc_exception_t * );
+VLC_PUBLIC_API int libvlc_video_set_subtitle( libvlc_media_player_t *, char *, libvlc_exception_t * );
 
 /**
  * Get current crop filter geometry.
@@ -543,6 +543,42 @@ VLC_PUBLIC_API char *libvlc_video_get_crop_geometry( libvlc_media_player_t *, li
  * \param p_e an initialized exception pointer
  */
 VLC_PUBLIC_API void libvlc_video_set_crop_geometry( libvlc_media_player_t *, char *, libvlc_exception_t * );
+
+/**
+ * Set the image hue, between 0 and 360. Defaults to 0.
+ *
+ * \param p_mediaplayer the media player
+ * \param i_value new filter value
+ * \param p_e an initialized exception pointer
+ */
+VLC_PUBLIC_API void libvlc_video_filter_set_hue( libvlc_media_player_t *, int, libvlc_exception_t * );
+
+/**
+ * Set the image contrast, between 0 and 2. Defaults to 1.
+ *
+ * \param p_mediaplayer the media player
+ * \param i_value new filter value
+ * \param p_e an initialized exception pointer
+ */
+VLC_PUBLIC_API void libvlc_video_filter_set_contrast( libvlc_media_player_t *, int, libvlc_exception_t * );
+
+/**
+ * Set the image saturation, between 0 and 3. Defaults to 1.
+ *
+ * \param p_mediaplayer the media player
+ * \param i_value new filter value
+ * \param p_e an initialized exception pointer
+ */
+VLC_PUBLIC_API void libvlc_video_filter_set_saturation( libvlc_media_player_t *, int, libvlc_exception_t * );
+
+/**
+ * Set the image brightness, between 0 and 2. Defaults to 1.
+ *
+ * \param p_mediaplayer the media player
+ * \param i_value new filter value
+ * \param p_e an initialized exception pointer
+ */
+VLC_PUBLIC_API void libvlc_video_filter_set_brightness( libvlc_media_player_t *, int, libvlc_exception_t * );
 
 /**
  * Toggle teletext transparent status on video output.

@@ -594,6 +594,8 @@ DEFINEFUNC(char *, libvlc_video_get_crop_geometry, (libvlc_media_player_t * p_mi
 
 DEFINEFUNC(void, libvlc_video_set_crop_geometry, (libvlc_media_player_t * p_mi, char * psz_geometry, libvlc_exception_t * p_e), (p_mi, psz_geometry, p_e), )
 
+DEFINEFUNC(void, libvlc_video_filter_set_hue, (libvlc_media_player_t * p_mi, int i_value, libvlc_exception_t * p_e), (p_mi, i_value, p_e), )
+
 DEFINEFUNC(void, libvlc_toggle_teletext, (libvlc_media_player_t * p_mi, libvlc_exception_t * p_e), (p_mi, p_e), )
 
 DEFINEFUNC(int, libvlc_video_get_teletext, (libvlc_media_player_t * p_mi, libvlc_exception_t * p_e), (p_mi, p_e), return)

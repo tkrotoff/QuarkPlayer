@@ -26,6 +26,7 @@ namespace VLC_MPlayer
 EffectManager::EffectManager(QObject * parent)
 	: QObject(parent) {
 
+#ifdef PHONON_MPLAYER
 	//Audio effects
 	_effectList.append(new EffectInfo("(Audio) Karaoke", "karaoke", EffectInfo::AudioEffect));
 	_effectList.append(new EffectInfo("(Audio) Extra stereo", "extrastereo", EffectInfo::AudioEffect));
@@ -60,6 +61,7 @@ EffectManager::EffectManager(QObject * parent)
 	//Postprocessing
 	//FIXME does not work
 	//_effectList.append(new EffectInfo("(Video) Postprocessing", "pp -autoq 6", EffectInfo::VideoEffect));
+#endif	//PHONON_MPLAYER
 }
 
 EffectManager::~EffectManager() {

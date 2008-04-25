@@ -62,6 +62,11 @@ void VLCMediaController::setCurrentSubtitle(const Phonon::SubtitleDescription & 
 		QString filename = _currentSubtitle.property("name").toString();
 		if (!filename.isEmpty()) {
 			p_libvlc_video_set_subtitle(_vlcMediaPlayer, filename.toAscii().data(), _vlcException);
+
+			//There is no subtitle event inside libvlc
+			//so let's send our own event...
+			_availableSubtitles << _currentSubtitle;
+			emit availableSubtitlesChanged();
 		}
 	}
 }

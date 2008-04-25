@@ -91,6 +91,23 @@ void VLCMediaObject::loadMediaInternal(const QString & filename) {
 
 	//Gets meta data (artist, title...)
 	updateMetaData();
+
+
+	//Updates available audio channels/subtitles/angles/chapters...
+	//i.e everything from MediaController
+	//There is no audio channel/subtitle/angle/chapter events inside libvlc
+	//so let's send our own events...
+	//This will reset the GUI
+	emit availableAudioChannelsChanged();
+	emit availableSubtitlesChanged();
+
+	emit availableAnglesChanged(availableAngles());
+	emit availableChaptersChanged(availableChapters());
+	emit availableTitlesChanged(availableTitles());
+
+	//emit angleChanged(int angleNumber);
+	//emit chapterChanged(int chapterNumber);
+	//emit titleChanged(int titleNumber);
 }
 
 void VLCMediaObject::setVLCWidgetId() {
@@ -140,6 +157,7 @@ bool VLCMediaObject::hasVideo() const {
 	bool hasVideo = p_libvlc_media_player_has_vout(_vlcMediaPlayer, _vlcException);
 	checkException();
 
+	return true;
 	return hasVideo;
 }
 

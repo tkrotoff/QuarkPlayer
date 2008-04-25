@@ -184,6 +184,12 @@ qreal VideoWidget::hue() const {
 void VideoWidget::setHue(qreal hue) {
 	_hue = hue;
 
+#ifdef PHONON_VLC
+	if (_vlcCurrentMediaPlayer) {
+		p_libvlc_video_filter_set_hue(_vlcCurrentMediaPlayer, hue, _vlcException);
+	}
+#endif	//PHONON_VLC
+
 	sendMPlayerCommand("hue " + QString::number(_hue * 100) + " 1");
 }
 
