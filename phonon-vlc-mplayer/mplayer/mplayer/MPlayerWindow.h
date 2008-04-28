@@ -46,6 +46,8 @@ public:
 
 private:
 
+	void paintEvent(QPaintEvent * event);
+
 	/**
 	 * Sets the background color.
 	 *
@@ -53,7 +55,7 @@ private:
 	 *
 	 * I don't know which one is best: 0x020202 or QColor(0, 0, 0)...
 	 */
-	void setBackgroundColor(const QColor & color);
+	static void setBackgroundColor(QWidget * widget, const QColor & color);
 
 	void updateVideoWindow();
 

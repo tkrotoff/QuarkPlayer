@@ -19,6 +19,8 @@
 
 #include "MPlayerWindow.h"
 
+#include <QtGui/QPainter>
+
 #ifdef USE_GL_WIDGET
 	#include <QtOpenGL/QGLWidget>
 	typedef QGLWidget Widget;
@@ -33,33 +35,44 @@ MPlayerWindow::MPlayerWindow(QWidget * parent)
 
 	_videoLayer->setAutoFillBackground(true);
 
+	//Black background color
+	//TODO: MPlayer set color key !!!
+	//MPlayer needs to have the same color key otherwise impossible to see the video
+	//with some backends like directx
+	//setBackgroundColor(_videoLayer, QColor(0, 0, 0));
+	setBackgroundColor(_videoLayer, 0x020202);
+
+	//Change attributes
+	setAttribute(Qt::WA_NoSystemBackground);
+	setAttribute(Qt::WA_StaticContents);
+	//setAttribute(Qt::WA_OpaquePaintEvent);
+	setAttribute(Qt::WA_PaintOnScreen);
+	setAttribute(Qt::WA_PaintUnclipped);
+	//setAttribute(Qt::WA_PaintOutsidePaintEvent);
+
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	setFocusPolicy(Qt::StrongFocus);
 
 	_aspectRatio = (double) 4 / 3;
 	_scaleAndCrop = false;
 
-	//Black background color
-	//TODO: MPlayer set color key !!!
-	//MPlayer needs to have the same color key otherwise impossible to see the video
-	//with some backends like directx
-	setBackgroundColor(QColor(0, 0, 0));
-
 	setAutoFillBackground(true);
+	setBackgroundColor(this, QColor(0, 0, 0));
 }
 
 MPlayerWindow::~MPlayerWindow() {
 }
 
-void setBackgroundColor(QWidget * widget, const QColor & color) {
+void MPlayerWindow::setBackgroundColor(QWidget * widget, const QColor & color) {
 	QPalette palette = widget->palette();
 	palette.setColor(widget->backgroundRole(), color);
 	widget->setPalette(palette);
 }
 
-void MPlayerWindow::setBackgroundColor(const QColor & color) {
-	::setBackgroundColor(this, color);
-	::setBackgroundColor(_videoLayer, color);
+void MPlayerWindow::paintEvent(QPaintEvent * event) {
+	QPainter painter(this);
+	painter.eraseRect(event->rect());
+	//painter.fillRect(event->rect(), QColor(255, 0, 0));
 }
 
 WId MPlayerWindow::winId() const {

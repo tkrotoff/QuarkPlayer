@@ -126,12 +126,12 @@ public:
 	/**
 	 * Sends a command to the MPlayer process.
 	 *
-	 * Example: writeToStding("pause");
+	 * Example: sendCommand("pause");
 	 *
 	 * @see http://www.mplayerhq.hu/DOCS/tech/slave.txt
 	 * @see mplayer-input-cmdlist.txt
 	 */
-	void writeToStdin(const QString & command);
+	void sendCommand(const QString & command);
 
 	const MediaData & getMediaData() const;
 
@@ -228,21 +228,21 @@ signals:
 	void resolvingMessageReceived(const QString & message);
 
 	/**
-	 * A new audio stream has been detected from the media/file/stream.
+	 * A new audio stream/channel has been detected from the media/file/stream.
 	 *
-	 * Some files can contain several audio stream.
+	 * Some files can contain several audio streams/channels.
 	 * Example: DVD, Matroska
 	 *
 	 * @see http://en.wikipedia.org/wiki/Matroska
 	 * @param id audio id to select if we choose this lang
 	 * @param lang fr, en... / french, english...
 	 */
-	void audioStreamAdded(int id, const QString & lang);
+	void audioChannelAdded(int id, const QString & lang);
 
 	/**
-	 * A new subtitle stream has been detected from the media/file/stream.
+	 * A new subtitle has been detected from the media/file/stream.
 	 *
-	 * Some files can contain several subtitle stream.
+	 * Some files can contain several subtitles.
 	 * Example: DVD, Matroska
 	 *
 	 * @see http://en.wikipedia.org/wiki/Matroska
@@ -250,7 +250,7 @@ signals:
 	 * @param lang fr, en... / french, english...
 	 * @param type still to be done
 	 */
-	void subtitleStreamAdded(int id, const QString & lang, const QString & type);
+	void subtitleAdded(int id, const QString & lang, const QString & type);
 
 	/**
 	 * A new title has been detected from the media/file/stream.
@@ -268,9 +268,17 @@ signals:
 	 * Title/chapter/angle DVD.
 	 *
 	 * @param titleId title id
-	 * @param chapters number of chapters
+	 * @param chapters number of chapters (or chapter id mkv)
 	 */
 	void chapterAdded(int titleId, int chapters);
+
+	/**
+	 * A new Matroska chapter has been detected from the media/file/stream.
+	 *
+	 * @param id chapter id
+	 * @param title chapter' title
+	 */
+	void mkvChapterAdded(int id, const QString & title);
 
 	/**
 	 * A new angle has been detected from the media/file/stream.

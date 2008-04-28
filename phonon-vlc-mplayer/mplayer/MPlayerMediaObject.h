@@ -104,6 +104,7 @@ private slots:
 	void subtitleAdded(int id, const QString & lang, const QString & type);
 	void titleAdded(int id, qint64 length);
 	void chapterAdded(int titleId, int chapters);
+	void mkvChapterAdded(int id, const QString & title);
 	void angleAdded(int titleId, int angles);
 
 private:

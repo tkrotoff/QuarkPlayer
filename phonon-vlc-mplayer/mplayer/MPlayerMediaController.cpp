@@ -47,7 +47,7 @@ void MPlayerMediaController::setCurrentAudioChannel(const Phonon::AudioChannelDe
 	qDebug() << __FUNCTION__;
 
 	_currentAudioChannel = audioChannel;
-	_process->writeToStdin("switch_audio " + QString::number(_currentAudioChannel.index()));
+	_process->sendCommand("switch_audio " + QString::number(_currentAudioChannel.index()));
 }
 
 QList<Phonon::AudioChannelDescription> MPlayerMediaController::availableAudioChannels() const {
@@ -96,24 +96,28 @@ void MPlayerMediaController::setCurrentSubtitle(const Phonon::SubtitleDescriptio
 		//  SUB_SOURCE_DEMUX  (2) for subtitle embedded in the media file or DVD subs.
 		//  If [source] is -1, will turn off subtitle display. If [source] less than -1,
 		//  will cycle between the first subtitle of each currently available sources.
-		_process->writeToStdin("sub_source -1");
+		_process->sendCommand("sub_source -1");
 	} else {
 		QString type = _currentSubtitle.property("type").toString();
-		if (type == "vob") {
-			_process->writeToStdin("sub_vob " + QString::number(id));
+		if (type.compare("vob", Qt::CaseInsensitive)) {
+			_process->sendCommand("sub_vob " + QString::number(id));
 		}
 
-		else if (type == "sub") {
-			_process->writeToStdin("sub_demux " + QString::number(id));
+		else if (type.compare("sub", Qt::CaseInsensitive)) {
+			_process->sendCommand("sub_demux " + QString::number(id));
 		}
 
-		else if (type == "file") {
+		else if (type.compare("sid", Qt::CaseInsensitive)) {
+			_process->sendCommand("sub_demux " + QString::number(id));
+		}
+
+		else if (type.compare("file", Qt::CaseInsensitive)) {
 			QString filename = _currentSubtitle.property("name").toString();
 
 			if (_availableSubtitles.contains(_currentSubtitle)) {
 				//If already in the list of subtitles
 				//then no need to load the subtitle and restart MPlayer
-				_process->writeToStdin("sub_file " + QString::number(id));
+				_process->sendCommand("sub_file " + QString::number(id));
 			} else {
 				//This is a new subtitle file
 				//We must load it and restart MPlayer
@@ -150,7 +154,7 @@ void MPlayerMediaController::setCurrentTitle(int titleNumber) {
 	//DVDNAV only
 	//otherwise needs to restart MPlayerProcess
 	//with parameter: dvd://titleNumber
-	//_process->writeToStdin("switch_title " + QString::number(_currentTitle));
+	//_process->sendCommand("switch_title " + QString::number(_currentTitle));
 
 	clearAllButTitle();
 	MPlayerLoader::restart(_process, QStringList(), "dvd://" + QString::number(_currentTitle));
@@ -194,9 +198,17 @@ void MPlayerMediaController::previousTitle() {
 
 //Chapter
 void MPlayerMediaController::chapterAdded(int titleId, int chapters) {
+	//DVD chapter
 	if (titleId == _currentTitle) {
 		_availableChapters = chapters;
 		qDebug() << __FUNCTION__ << "Chapters: " << _availableChapters;
+	}
+}
+
+void MPlayerMediaController::mkvChapterAdded(int id, const QString & title) {
+	if (_availableChapters < id) {
+		_availableChapters = id;
+		qDebug() << __FUNCTION__ << "Chapter id: " << _availableChapters << "title:" << title;
 	}
 }
 
@@ -204,7 +216,7 @@ void MPlayerMediaController::setCurrentChapter(int chapterNumber) {
 	qDebug() << __FUNCTION__;
 
 	_currentChapter = chapterNumber;
-	_process->writeToStdin("seek_chapter " + QString::number(_currentChapter) +" 1");
+	_process->sendCommand("seek_chapter " + QString::number(_currentChapter) +" 1");
 }
 
 int MPlayerMediaController::availableChapters() const {
@@ -227,7 +239,7 @@ void MPlayerMediaController::setCurrentAngle(int angleNumber) {
 	qDebug() << __FUNCTION__;
 
 	_currentAngle = angleNumber;
-	_process->writeToStdin("switch_angle " + QString::number(_currentAngle));
+	_process->sendCommand("switch_angle " + QString::number(_currentAngle));
 }
 
 int MPlayerMediaController::availableAngles() const {

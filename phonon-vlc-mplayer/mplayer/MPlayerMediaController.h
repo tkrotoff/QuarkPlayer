@@ -43,6 +43,7 @@ public:
 	virtual void subtitleAdded(int id, const QString & lang, const QString & type) = 0;
 	virtual void titleAdded(int id, qint64 length) = 0;
 	virtual void chapterAdded(int titleId, int chapters) = 0;
+	virtual void mkvChapterAdded(int id, const QString & title) = 0;
 	virtual void angleAdded(int titleId, int angles) = 0;
 
 protected:

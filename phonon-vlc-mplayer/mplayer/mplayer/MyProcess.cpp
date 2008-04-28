@@ -86,7 +86,10 @@ void MyProcess::genericRead(const QByteArray & output) {
 		//Some .mp3 files contain tags with starting and ending whitespaces
 		//Unfortunately MPlayer gives us leading and trailing whitespaces,
 		//Winamp for example doesn't show them
-		emit lineAvailable(line.trimmed());
+		line.trimmed();
+		if (!line.isEmpty()) {
+			emit lineAvailable(line);
+		}
 
 		pos = canReadLine2(totalOutput, from);
 	}

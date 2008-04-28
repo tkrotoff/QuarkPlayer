@@ -61,12 +61,14 @@ MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
 
 	connect(_process, SIGNAL(audioChannelAdded(int, const QString &)),
 		SLOT(audioChannelAdded(int, const QString &)));
-	connect(_process, SIGNAL(subtitleStreamAdded(int, const QString &, const QString &)),
-		SLOT(subtitleStreamAdded(int, const QString &, const QString &)));
+	connect(_process, SIGNAL(subtitleAdded(int, const QString &, const QString &)),
+		SLOT(subtitleAdded(int, const QString &, const QString &)));
 	connect(_process, SIGNAL(titleAdded(int, qint64)),
 		SLOT(titleAdded(int, qint64)));
 	connect(_process, SIGNAL(chapterAdded(int, int)),
 		SLOT(chapterAdded(int, int)));
+	connect(_process, SIGNAL(mkvChapterAdded(int, const QString &)),
+		SLOT(mkvChapterAdded(int, const QString &)));
 	connect(_process, SIGNAL(angleAdded(int, int)),
 		SLOT(angleAdded(int, int)));
 }
@@ -156,7 +158,7 @@ MPlayerProcess * MPlayerMediaObject::getMPlayerProcess() const {
 }
 
 void MPlayerMediaObject::pause() {
-	_process->writeToStdin("pause");
+	_process->sendCommand("pause");
 }
 
 void MPlayerMediaObject::stateChangedInternal(MPlayerProcess::State state) {
@@ -209,7 +211,7 @@ void MPlayerMediaObject::finished(int exitCode, QProcess::ExitStatus exitStatus)
 }
 
 void MPlayerMediaObject::seek(qint64 milliseconds) {
-	_process->writeToStdin("seek " + QString::number(milliseconds / 1000.0) + " 2");
+	_process->sendCommand("seek " + QString::number(milliseconds / 1000.0) + " 2");
 }
 
 bool MPlayerMediaObject::hasVideo() const {
@@ -247,6 +249,10 @@ void MPlayerMediaObject::titleAdded(int id, qint64 length) {
 
 void MPlayerMediaObject::chapterAdded(int titleId, int chapters) {
 	MPlayerMediaController::chapterAdded(titleId, chapters);
+}
+
+void MPlayerMediaObject::mkvChapterAdded(int id, const QString & title) {
+	MPlayerMediaController::mkvChapterAdded(id, title);
 }
 
 void MPlayerMediaObject::angleAdded(int titleId, int angles) {

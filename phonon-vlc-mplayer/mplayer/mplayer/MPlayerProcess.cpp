@@ -93,7 +93,7 @@ void MPlayerProcess::stop() {
 		return;
 	}
 
-	writeToStdin("quit");
+	sendCommand("quit");
 
 	qDebug() << __FUNCTION__ << "Finishing MPlayer...";
 	if (!waitForFinished(5000)) {
@@ -103,8 +103,12 @@ void MPlayerProcess::stop() {
 	qDebug() << __FUNCTION__ << "MPlayer finished";
 }
 
-void MPlayerProcess::writeToStdin(const QString & command) {
+void MPlayerProcess::sendCommand(const QString & command) {
 	qDebug() << __FUNCTION__ << "Command:" << command;
+
+	if (command.isEmpty()) {
+		return;
+	}
 
 	if (isRunning()) {
 		write(command.toLocal8Bit() + "\n");
@@ -155,7 +159,7 @@ static QRegExp rx_connecting("^Connecting to .*");
 static QRegExp rx_resolving("^Resolving .*");
 static QRegExp rx_screenshot("^\\*\\*\\* screenshot '(.*)'");
 static QRegExp rx_endoffile("^Exiting... \\(End of file\\)");
-static QRegExp rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from");
+static QRegExp rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from.*, (.*)");
 
 //VCD
 static QRegExp rx_vcd("^ID_VCD_TRACK_(\\d+)_MSF=(.*)");
@@ -189,6 +193,11 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 
 	//Skip empty lines
 	if (line.isEmpty()) {
+		return;
+	}
+
+	//Skip repeatitive lines
+	if (line.contains("Too many buffered pts") || line.contains("pts value <= previous")) {
 		return;
 	}
 
@@ -319,8 +328,14 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			//SUB: Added subtitle file (1): D:/The Ring CD1.srt
 
 			//Matroska line example:
-			//
-			//TODO Need to test with .mkv files...
+			//ID_SUBTITLE_ID=0
+			//ID_SID_0_NAME=Piste de présentation
+			//[mkv] Track ID 4: subtitles (S_TEXT/UTF8) Piste de présentation, -sid 0, -slang mis
+			//ID_SUBTITLE_ID=1
+			//ID_SID_1_LANG=fre
+			//[mkv] Track ID 5: subtitles (S_VOBSUB), -sid 1, -slang fre
+			//ID_SUBTITLE_ID=2
+			//ID_SID_2_LANG=eng
 
 			int id = rx_subtitle.cap(2).toInt();
 			const QString type = rx_subtitle.cap(1);
@@ -333,7 +348,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 				//t = SubData::Sub;
 			}
 
-			//emit subtitleStreamAdded(id, "", type);
+			//emit subtitleAdded(id, "", type);
 		}
 
 		else if (rx_sid.indexIn(line) > -1) {
@@ -351,7 +366,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			} else if (attr == "LANG") {
 			}
 
-			emit subtitleStreamAdded(id, lang, type);
+			emit subtitleAdded(id, lang, type);
 		}
 
 		else if (rx_subtitle_file.indexIn(line) > -1) {
@@ -363,7 +378,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 				}
 			}*/
 
-			emit subtitleStreamAdded(0, file, "file");
+			emit subtitleAdded(0, file, "file");
 		}
 
 		//AO
@@ -380,8 +395,22 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			//ID_AID_128_LANG=en
 
 			//Matroska line example:
-			//
-			//TODO Need to test with .mkv files...
+			//[mkv] Track ID 1: video (V_REAL/RV40), -vid 0
+			//ID_AUDIO_ID=0
+			//ID_AID_0_LANG=fre
+			//[mkv] Track ID 3: audio (A_AAC/MPEG4/LC/SBR), -aid 1, -alang eng
+			//ID_SUBTITLE_ID=0
+			//ID_SID_0_NAME=Piste de présentation
+			//[mkv] Track ID 4: subtitles (S_TEXT/UTF8) Piste de présentation, -sid 0, -slang mis
+			//ID_SUBTITLE_ID=1
+			//ID_SID_1_LANG=fre
+			//[mkv] Track ID 5: subtitles (S_VOBSUB), -sid 1, -slang fre
+			//ID_SUBTITLE_ID=2
+			//ID_SID_2_LANG=eng
+			//[mkv] Track ID 6: subtitles (S_VOBSUB), -sid 2, -slang eng
+			//[mkv] Will play video track 1.
+			//Matroska file format detected.
+			//VIDEO:  [RV40]  704x296  24bpp  25.000 fps    0.0 kbps ( 0.0 kbyte/s)
 
 			int id = rx_audio_mat.cap(1).toInt();
 			QString lang = rx_audio_mat.cap(3);
@@ -396,22 +425,20 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 				//_data.audioTrackList.addLang(id, lang);
 			}
 
-			emit audioStreamAdded(id, lang);
+			emit audioChannelAdded(id, lang);
 		}
 
-		//Matroshka chapters
-		/*if (rx_mkvchapters.indexIn(line)!=-1) {
-			int c = rx_mkvchapters.cap(1).toInt();
-			qDebug("MPlayerProcess::parseLine: mkv chapters: %d", c);
-			if ((c+1) > _data.mkv_chapters) {
-				_data.mkv_chapters = c+1;
-				qDebug("MPlayerProcess::parseLine: mkv_chapters set to: %d", _data.mkv_chapters);
-			}
+		//Matroska chapters
+		else if (rx_mkvchapters.indexIn(line) != -1) {
+			int id = rx_mkvchapters.cap(1).toInt();
+			QString title = rx_mkvchapters.cap(2);
+			qDebug() << __FUNCTION__ << "mkv chapter:" << id << "title:" << title;
+
+			emit mkvChapterAdded(id, title);
 		}
-		else
 
 		//VCD titles
-		if (rx_vcd.indexIn(line) > -1) {
+		/*else if (rx_vcd.indexIn(line) > -1) {
 			int ID = rx_vcd.cap(1).toInt();
 			QString length = rx_vcd.cap(2);
 			//_data.titles.addID(ID);

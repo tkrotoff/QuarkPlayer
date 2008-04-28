@@ -122,6 +122,10 @@ QStringList MPlayerLoader::readMediaSettings() {
 	//shellescapes the filenames.
 	args << "-identify";
 
+	//Get mkv files informations
+	args << "-msglevel";
+	args << "demux=6";
+
 	//Drops frames on a slow computer
 	args << "-framedrop";
 
@@ -138,7 +142,17 @@ QStringList MPlayerLoader::readMediaSettings() {
 	//Compulsary, otherwise we can't see anything from the widget
 	//that gets MPlayer video stream
 	args << "-colorkey";
-	args << "0x000000";
+	args << "0x020202";
+
+	//MPlayer has an ability to resize the video to fit the pixel size of your monitor.
+	//For example, in some cases, a pixel may not be a square. In other words,
+	//the width of a pixel may be less than its height. As a result,
+	//the aspect ratio of the video displayed on the monitor might be incorrect.
+	//MPlayer automatically detects this aspect ratio and corrects it silently.
+	//Unfortunately, it is all wrong on my widescreen laptop. To correct this problem,
+	//you have to specified the aspect ratio that fit your monitor using option -monitorpixelaspect
+	args << "-monitorpixelaspect";
+	args << "1";
 
 	//Video contrast
 	args << "-contrast";

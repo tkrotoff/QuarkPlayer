@@ -58,7 +58,7 @@ void SinkNode::sendMPlayerCommand(const QString & command) const {
 #ifdef PHONON_MPLAYER
 	if (_mediaObject) {
 		MPlayerProcess * process = _mediaObject->getMPlayerProcess();
-		process->writeToStdin(command);
+		process->sendCommand(command);
 	}
 #endif	//PHONON_MPLAYER
 }
