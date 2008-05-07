@@ -46,7 +46,6 @@ public:
 	void setVideoWidgetId(int videoWidgetId);
 
 	void play();
-	void stop();
 
 	qint32 tickInterval() const;
 	void setTickInterval(qint32 interval);
@@ -85,8 +84,6 @@ protected:
 
 	virtual void loadMediaInternal(const QString & filename) = 0;
 	virtual void playInternal() = 0;
-
-	virtual void stopInternal() = 0;
 
 	virtual qint64 currentTimeInternal() const = 0;
 

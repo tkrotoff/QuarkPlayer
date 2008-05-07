@@ -58,6 +58,7 @@ public:
 	~VLCMediaObject();
 
 	void pause();
+	void stop();
 	void seek(qint64 milliseconds);
 
 	bool hasVideo() const;
@@ -83,8 +84,6 @@ protected:
 
 	void loadMediaInternal(const QString & filename);
 	void playInternal();
-
-	void stopInternal();
 
 	qint64 currentTimeInternal() const;
 

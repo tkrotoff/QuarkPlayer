@@ -40,7 +40,6 @@ MediaObject::MediaObject(QObject * parent)
 }
 
 MediaObject::~MediaObject() {
-	stop();
 }
 
 void MediaObject::setVideoWidgetId(int videoWidgetId) {
@@ -68,13 +67,6 @@ void MediaObject::loadMedia(const QString & filename) {
 
 void MediaObject::resume() {
 	pause();
-}
-
-void MediaObject::stop() {
-	Phonon::State st = state();
-	if (st == Phonon::PlayingState || st == Phonon::PausedState) {
-		stopInternal();
-	}
 }
 
 qint32 MediaObject::tickInterval() const {

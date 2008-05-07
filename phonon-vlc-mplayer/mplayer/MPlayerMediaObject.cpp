@@ -192,7 +192,7 @@ void MPlayerMediaObject::stateChangedInternal(MPlayerProcess::State state) {
 	}
 }
 
-void MPlayerMediaObject::stopInternal() {
+void MPlayerMediaObject::stop() {
 	_process->stop();
 }
 

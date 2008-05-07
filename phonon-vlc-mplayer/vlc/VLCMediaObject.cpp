@@ -135,9 +135,7 @@ void VLCMediaObject::pause() {
 	checkException();
 }
 
-void VLCMediaObject::stopInternal() {
-	//FIXME
-	//inside libvlc, does not check if in playing or paused state
+void VLCMediaObject::stop() {
 	p_libvlc_media_player_stop(_vlcMediaPlayer, _vlcException);
 	checkException();
 	//unloadMedia();
