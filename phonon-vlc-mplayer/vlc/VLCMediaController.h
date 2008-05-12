@@ -67,8 +67,6 @@ protected:
 	int availableTitles() const;
 	int currentTitle() const;
 	bool autoplayTitles() const;
-	void nextTitle();
-	void previousTitle();
 
 	//MediaPlayer
 	libvlc_media_player_t * _vlcMediaPlayer;

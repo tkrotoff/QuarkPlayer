@@ -159,7 +159,8 @@ static QRegExp rx_connecting("^Connecting to .*");
 static QRegExp rx_resolving("^Resolving .*");
 static QRegExp rx_screenshot("^\\*\\*\\* screenshot '(.*)'");
 static QRegExp rx_endoffile("^Exiting... \\(End of file\\)");
-static QRegExp rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from.*, (.*)");
+//[mkv] Chapter 1 from 00:15:02.080 to 00:00:00.000, Plus l'on Approche de César
+static QRegExp rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from (.*) to (.*), (.*)");
 
 //VCD
 static QRegExp rx_vcd("^ID_VCD_TRACK_(\\d+)_MSF=(.*)");
@@ -213,7 +214,6 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			emit mediaLoaded();
 		}
 
-		//qDebug() << __FUNCTION__ << "Tick:" << _data.currentTime;
 		emit tick(_data.currentTime);
 
 		//Check for frame number
@@ -388,13 +388,13 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 
 		//DVD and Matroska audio tracks
 		else if (rx_audio_mat.indexIn(line) > -1) {
-			//DVD line example:
+			//DVD examples:
 			//ID_AUDIO_ID=129
 			//ID_AID_129_LANG=fr
 			//ID_AUDIO_ID=128
 			//ID_AID_128_LANG=en
 
-			//Matroska line example:
+			//Matroska examples:
 			//[mkv] Track ID 1: video (V_REAL/RV40), -vid 0
 			//ID_AUDIO_ID=0
 			//ID_AID_0_LANG=fre
@@ -428,13 +428,22 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			emit audioChannelAdded(id, lang);
 		}
 
+		//static QRegExp rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from (.*) to (.*), (.*)");
 		//Matroska chapters
 		else if (rx_mkvchapters.indexIn(line) != -1) {
-			int id = rx_mkvchapters.cap(1).toInt();
-			QString title = rx_mkvchapters.cap(2);
-			qDebug() << __FUNCTION__ << "mkv chapter:" << id << "title:" << title;
+			//Examples:
+			//[mkv] Chapter 0 from 00:10:09.800 to 00:00:00.000, La Cellule
+			//[mkv] Chapter 1 from 00:15:02.080 to 00:00:00.000, Plus l'on Approche de César
+			//[mkv] Chapter 2 from 00:19:16.400 to 00:00:00.000, La Compagnie Charlie
+			//[mkv] Chapter 3 from 00:24:41.520 to 00:00:00.000, Guadalcanal
 
-			emit mkvChapterAdded(id, title);
+			int id = rx_mkvchapters.cap(1).toInt();
+			QString from = rx_mkvchapters.cap(2);
+			QString to = rx_mkvchapters.cap(3);
+			QString title = rx_mkvchapters.cap(4);
+			qDebug() << __FUNCTION__ << "mkv chapter:" << id << "title:" << title << "from:" << from << "to:" << to;
+
+			emit mkvChapterAdded(id, title, from, to);
 		}
 
 		//VCD titles
@@ -471,7 +480,6 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			if (attr == "LENGTH") {
 				double length = rx_title.cap(3).toDouble();
 				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "length:" << length << "attr:" << attr;
-				//_data.titles.addDuration(id, length);
 
 				emit titleAdded(titleId, (int) (length * SECONDS_CONVERTION));
 			}
@@ -479,7 +487,6 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			else if (attr == "CHAPTERS") {
 				int chapters = rx_title.cap(3).toInt();
 				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "chapters:" << chapters;
-				//_data.titles.addChapters(id, chapters);
 
 				emit chapterAdded(titleId, chapters);
 			}
@@ -487,7 +494,6 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			else if (attr == "ANGLES") {
 				int angles = rx_title.cap(3).toInt();
 				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "angles:" << angles;
-				//_data.titles.addAngles(id, angles);
 
 				emit angleAdded(titleId, angles);
 			}

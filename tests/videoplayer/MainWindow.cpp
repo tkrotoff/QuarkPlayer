@@ -30,11 +30,7 @@ MainWindow::MainWindow() {
 	_metaObjectInfoResolver = new Phonon::MediaObject(this);
 
 	_videoWidget = new Phonon::VideoWidget(this);
-#if QT_VERSION >= 0x040400
 	videoLayout->addWidget(_videoWidget);
-#else
-	vboxLayout->addWidget(_videoWidget);
-#endif	//QT_VERSION
 	_videoWidget->setMinimumHeight(200);
 	Phonon::createPath(_mediaObject, _videoWidget);
 
@@ -70,20 +66,12 @@ MainWindow::MainWindow() {
 
 	//seekSlider
 	_seekSlider = new Phonon::SeekSlider();
-#if QT_VERSION >= 0x040400
 	seekerLayout->insertWidget(0, _seekSlider);
-#else
-	hboxLayout->insertWidget(0, _seekSlider);
-#endif	//QT_VERSION
 	_seekSlider->setMediaObject(_mediaObject);
 
 	//volumdeSlider
 	_volumeSlider = new Phonon::VolumeSlider();
-#if QT_VERSION >= 0x040400
 	volumeLayout->insertWidget(0, _volumeSlider);
-#else
-	hboxLayout1->insertWidget(0, _volumeSlider);
-#endif	//QT_VERSION
 	_volumeSlider->setAudioOutput(_audioOutput);
 	_volumeSlider->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 

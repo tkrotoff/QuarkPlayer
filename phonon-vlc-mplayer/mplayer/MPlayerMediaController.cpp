@@ -38,7 +38,7 @@ void MPlayerMediaController::audioChannelAdded(int id, const QString & lang) {
 
 	QHash<QByteArray, QVariant> properties;
 	properties.insert("name", lang);
-	properties.insert("description", lang);
+	properties.insert("description", "");
 
 	_availableAudioChannels << Phonon::AudioChannelDescription(id, properties);
 }
@@ -64,7 +64,7 @@ void MPlayerMediaController::subtitleAdded(int id, const QString & lang, const Q
 
 	QHash<QByteArray, QVariant> properties;
 	properties.insert("name", lang);
-	properties.insert("description", lang);
+	properties.insert("description", "");
 	properties.insert("type", type);
 
 	_availableSubtitles << Phonon::SubtitleDescription(id, properties);
@@ -141,12 +141,56 @@ Phonon::SubtitleDescription MPlayerMediaController::currentSubtitle() const {
 
 //Title
 void MPlayerMediaController::titleAdded(int id, qint64 length) {
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	QHash<QByteArray, QVariant> properties;
+	properties.insert("name", id);
+	properties.insert("description", length);
+
+	_availableTitles << Phonon::TitleDescription(id, properties);
+#else
 	if (_availableTitles < id) {
 		_availableTitles = id;
 	}
 
 	qDebug() << __FUNCTION__ << "Titles: " << _availableTitles;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 }
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+
+void MPlayerMediaController::setCurrentTitle(const Phonon::TitleDescription & title) {
+	_currentTitle = title;
+
+	//DVDNAV only
+	//otherwise needs to restart MPlayerProcess
+	//with parameter: dvd://titleNumber
+	//_process->sendCommand("switch_title " + QString::number(_currentTitle));
+
+	clearAllButTitle();
+	MPlayerLoader::restart(_process, QStringList(), "dvd://" + QString::number(_currentTitle.index()));
+}
+
+void MPlayerMediaController::clearAllButTitle() {
+	_currentAngle = 0;
+	_availableAngles = 0;
+
+	//_currentChapter = 0;
+	_availableChapters.clear();
+
+	_availableAudioChannels.clear();
+
+	_availableSubtitles.clear();
+}
+
+QList<Phonon::TitleDescription> MPlayerMediaController::availableTitles() const {
+	return _availableTitles;
+}
+
+Phonon::TitleDescription MPlayerMediaController::currentTitle() const {
+	return _currentTitle;
+}
+
+#else
 
 void MPlayerMediaController::setCurrentTitle(int titleNumber) {
 	_currentTitle = titleNumber;
@@ -172,10 +216,6 @@ void MPlayerMediaController::clearAllButTitle() {
 	_availableSubtitles.clear();
 }
 
-void MPlayerMediaController::setAutoplayTitles(bool autoplay) {
-	_autoplayTitles = autoplay;
-}
-
 int MPlayerMediaController::availableTitles() const {
 	return _availableTitles;
 }
@@ -184,28 +224,73 @@ int MPlayerMediaController::currentTitle() const {
 	return _currentTitle;
 }
 
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+void MPlayerMediaController::setAutoplayTitles(bool autoplay) {
+	_autoplayTitles = autoplay;
+}
+
 bool MPlayerMediaController::autoplayTitles() const {
 	return _autoplayTitles;
 }
 
-void MPlayerMediaController::nextTitle() {
-	setCurrentTitle(_currentTitle++);
-}
-
-void MPlayerMediaController::previousTitle() {
-	setCurrentTitle(_currentTitle--);
-}
-
 //Chapter
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+
 void MPlayerMediaController::chapterAdded(int titleId, int chapters) {
-	//DVD chapter
+	//DVD chapter added
+	if (titleId == _currentTitle.index()) {
+		_availableChapters.clear();
+		for (int i = 0; i < chapters; i++) {
+			QHash<QByteArray, QVariant> properties;
+			properties.insert("name", i);
+			properties.insert("description", "");
+
+			_availableChapters << Phonon::ChapterDescription(i, properties);
+		}
+
+		qDebug() << __FUNCTION__ << "Chapters: " << _availableChapters.size();
+	}
+}
+
+void MPlayerMediaController::mkvChapterAdded(int id, const QString & title, const QString & from, const QString & to) {
+	//Matroska chapter added
+	QHash<QByteArray, QVariant> properties;
+	properties.insert("name", QString::number(id) + " " + title + " (" + from + ")");
+	properties.insert("description", "");
+
+	_availableChapters << Phonon::ChapterDescription(id, properties);
+	qDebug() << __FUNCTION__ << "Chapter id: " << id << "title:" << title;
+}
+
+void MPlayerMediaController::setCurrentChapter(const Phonon::ChapterDescription & chapter) {
+	qDebug() << __FUNCTION__;
+
+	_currentChapter = chapter;
+	_process->sendCommand("seek_chapter " + QString::number(_currentChapter.index()) + " 1");
+}
+
+QList<Phonon::ChapterDescription> MPlayerMediaController::availableChapters() const {
+	return _availableChapters;
+}
+
+Phonon::ChapterDescription MPlayerMediaController::currentChapter() const {
+	return _currentChapter;
+}
+
+#else
+
+void MPlayerMediaController::chapterAdded(int titleId, int chapters) {
+	//DVD chapter added
 	if (titleId == _currentTitle) {
 		_availableChapters = chapters;
 		qDebug() << __FUNCTION__ << "Chapters: " << _availableChapters;
 	}
 }
 
-void MPlayerMediaController::mkvChapterAdded(int id, const QString & title) {
+void MPlayerMediaController::mkvChapterAdded(int id, const QString & title, const QString & from, const QString & to) {
+	//Matroska chapter added
 	if (_availableChapters < id) {
 		_availableChapters = id;
 		qDebug() << __FUNCTION__ << "Chapter id: " << _availableChapters << "title:" << title;
@@ -216,7 +301,7 @@ void MPlayerMediaController::setCurrentChapter(int chapterNumber) {
 	qDebug() << __FUNCTION__;
 
 	_currentChapter = chapterNumber;
-	_process->sendCommand("seek_chapter " + QString::number(_currentChapter) +" 1");
+	_process->sendCommand("seek_chapter " + QString::number(_currentChapter) + " 1");
 }
 
 int MPlayerMediaController::availableChapters() const {
@@ -227,9 +312,15 @@ int MPlayerMediaController::currentChapter() const {
 	return _currentChapter;
 }
 
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
 //Angle
 void MPlayerMediaController::angleAdded(int titleId, int angles) {
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	if (titleId == _currentTitle.index()) {
+#else
 	if (titleId == _currentTitle) {
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 		_availableAngles = angles;
 		qDebug() << __FUNCTION__ << "Angles: " << _availableAngles;
 	}

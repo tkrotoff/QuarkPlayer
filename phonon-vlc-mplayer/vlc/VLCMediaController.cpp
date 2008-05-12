@@ -100,14 +100,6 @@ bool VLCMediaController::autoplayTitles() const {
 	return _autoplayTitles;
 }
 
-void VLCMediaController::nextTitle() {
-	setCurrentTitle(_currentTitle++);
-}
-
-void VLCMediaController::previousTitle() {
-	setCurrentTitle(_currentTitle--);
-}
-
 //Chapter
 void VLCMediaController::setCurrentChapter(int chapterNumber) {
 }

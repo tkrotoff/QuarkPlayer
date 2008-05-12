@@ -74,9 +74,14 @@ signals:
 	//MediaController signals
 	void availableSubtitlesChanged();
 	void availableAudioChannelsChanged();
-	void availableAnglesChanged(int availableAngles);
+
+	void availableChaptersChanged();
+	void availableTitlesChanged();
+
 	void availableChaptersChanged(int availableChapters);
 	void availableTitlesChanged(int availableTitles);
+
+	void availableAnglesChanged(int availableAngles);
 	void angleChanged(int angleNumber);
 	void chapterChanged(int chapterNumber);
 	void titleChanged(int titleNumber);
@@ -103,7 +108,7 @@ private slots:
 	void subtitleAdded(int id, const QString & lang, const QString & type);
 	void titleAdded(int id, qint64 length);
 	void chapterAdded(int titleId, int chapters);
-	void mkvChapterAdded(int id, const QString & title);
+	void mkvChapterAdded(int id, const QString & title, const QString & from, const QString & to);
 	void angleAdded(int titleId, int angles);
 
 private:

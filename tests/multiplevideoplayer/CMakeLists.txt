@@ -1,5 +1,7 @@
 project(multiplevideoplayer)
 
+#add_definitions(-DNEW_TITLE_CHAPTER_HANDLING)
+
 set(multiplevideoplayer_SRCS
 	main.cpp
 	MainWindow.cpp

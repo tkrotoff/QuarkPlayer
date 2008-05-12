@@ -78,6 +78,8 @@ private:
 
 	void removeAllAction(QWidget * widget);
 
+	static QString convertMilliseconds(qint64 time);
+
 	Phonon::MediaObject * _mediaObject;
 	Phonon::MediaController * _mediaController;
 

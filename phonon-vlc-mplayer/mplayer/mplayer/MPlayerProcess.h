@@ -129,7 +129,6 @@ public:
 	 * Example: sendCommand("pause");
 	 *
 	 * @see http://www.mplayerhq.hu/DOCS/tech/slave.txt
-	 * @see mplayer-input-cmdlist.txt
 	 */
 	void sendCommand(const QString & command);
 
@@ -277,8 +276,10 @@ signals:
 	 *
 	 * @param id chapter id
 	 * @param title chapter' title
+	 * @param from chapter beginning
+	 * @param to chapter end
 	 */
-	void mkvChapterAdded(int id, const QString & title);
+	void mkvChapterAdded(int id, const QString & title, const QString & from, const QString & to);
 
 	/**
 	 * A new angle has been detected from the media/file/stream.

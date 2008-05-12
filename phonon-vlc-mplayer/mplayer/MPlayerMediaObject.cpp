@@ -67,8 +67,8 @@ MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
 		SLOT(titleAdded(int, qint64)));
 	connect(_process, SIGNAL(chapterAdded(int, int)),
 		SLOT(chapterAdded(int, int)));
-	connect(_process, SIGNAL(mkvChapterAdded(int, const QString &)),
-		SLOT(mkvChapterAdded(int, const QString &)));
+	connect(_process, SIGNAL(mkvChapterAdded(int, const QString &, const QString &, const QString &)),
+		SLOT(mkvChapterAdded(int, const QString &, const QString &, const QString &)));
 	connect(_process, SIGNAL(angleAdded(int, int)),
 		SLOT(angleAdded(int, int)));
 }
@@ -136,9 +136,15 @@ void MPlayerMediaObject::mediaLoaded() {
 	emit availableAudioChannelsChanged();
 	emit availableSubtitlesChanged();
 
-	emit availableAnglesChanged(availableAngles());
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	emit availableChaptersChanged();
+	emit availableTitlesChanged();
+#else
 	emit availableChaptersChanged(availableChapters());
 	emit availableTitlesChanged(availableTitles());
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+	emit availableAnglesChanged(availableAngles());
 
 	//angleChanged(int angleNumber);
 	//chapterChanged(int chapterNumber);
@@ -251,8 +257,8 @@ void MPlayerMediaObject::chapterAdded(int titleId, int chapters) {
 	MPlayerMediaController::chapterAdded(titleId, chapters);
 }
 
-void MPlayerMediaObject::mkvChapterAdded(int id, const QString & title) {
-	MPlayerMediaController::mkvChapterAdded(id, title);
+void MPlayerMediaObject::mkvChapterAdded(int id, const QString & title, const QString & from, const QString & to) {
+	MPlayerMediaController::mkvChapterAdded(id, title, from, to);
 }
 
 void MPlayerMediaObject::angleAdded(int titleId, int angles) {

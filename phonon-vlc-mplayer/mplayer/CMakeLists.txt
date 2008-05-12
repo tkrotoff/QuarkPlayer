@@ -5,6 +5,7 @@ project(phonon-mplayer)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-DPHONON_MPLAYER)
+#add_definitions(-DNEW_TITLE_CHAPTER_HANDLING)
 
 set(phonon_mplayer_SRCS
 	${phonon_commom_SRCS}

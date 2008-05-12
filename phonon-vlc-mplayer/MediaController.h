@@ -59,9 +59,16 @@ public:
 	//MediaController signals
 	virtual void availableSubtitlesChanged() = 0;
 	virtual void availableAudioChannelsChanged() = 0;
-	virtual void availableAnglesChanged(int availableAngles) = 0;
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	virtual void availableChaptersChanged() = 0;
+	virtual void availableTitlesChanged() = 0;
+#else
 	virtual void availableChaptersChanged(int availableChapters) = 0;
 	virtual void availableTitlesChanged(int availableTitles) = 0;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+	virtual void availableAnglesChanged(int availableAngles) = 0;
 	virtual void angleChanged(int angleNumber) = 0;
 	virtual void chapterChanged(int chapterNumber) = 0;
 	virtual void titleChanged(int titleNumber) = 0;
@@ -83,19 +90,32 @@ protected:
 	virtual int availableAngles() const = 0;
 	virtual int currentAngle() const = 0;
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	//Chapter
+	virtual void setCurrentChapter(const Phonon::ChapterDescription & chapter) = 0;
+	virtual QList<Phonon::ChapterDescription> availableChapters() const = 0;
+	virtual Phonon::ChapterDescription currentChapter() const = 0;
+#else
 	//Chapter
 	virtual void setCurrentChapter(int chapterNumber) = 0;
 	virtual int availableChapters() const = 0;
 	virtual int currentChapter() const = 0;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	//Title
+	virtual void setCurrentTitle(const Phonon::TitleDescription & title) = 0;
+	virtual QList<Phonon::TitleDescription> availableTitles() const = 0;
+	virtual Phonon::TitleDescription currentTitle() const = 0;
+#else
 	//Title
 	virtual void setCurrentTitle(int titleNumber) = 0;
-	virtual void setAutoplayTitles(bool autoplay) = 0;
 	virtual int availableTitles() const = 0;
 	virtual int currentTitle() const = 0;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+	virtual void setAutoplayTitles(bool autoplay) = 0;
 	virtual bool autoplayTitles() const = 0;
-	virtual void nextTitle() = 0;
-	virtual void previousTitle() = 0;
 
 	Phonon::AudioChannelDescription _currentAudioChannel;
 	QList<Phonon::AudioChannelDescription> _availableAudioChannels;
@@ -106,11 +126,21 @@ protected:
 	int _currentAngle;
 	int _availableAngles;
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	Phonon::ChapterDescription _currentChapter;
+	QList<Phonon::ChapterDescription> _availableChapters;
+#else
 	int _currentChapter;
 	int _availableChapters;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	Phonon::TitleDescription _currentTitle;
+	QList<Phonon::TitleDescription> _availableTitles;
+#else
 	int _currentTitle;
 	int _availableTitles;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 
 	bool _autoplayTitles;
 

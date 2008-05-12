@@ -43,7 +43,7 @@ public:
 	virtual void subtitleAdded(int id, const QString & lang, const QString & type) = 0;
 	virtual void titleAdded(int id, qint64 length) = 0;
 	virtual void chapterAdded(int titleId, int chapters) = 0;
-	virtual void mkvChapterAdded(int id, const QString & title) = 0;
+	virtual void mkvChapterAdded(int id, const QString & title, const QString & from, const QString & to) = 0;
 	virtual void angleAdded(int titleId, int angles) = 0;
 
 protected:
@@ -63,19 +63,32 @@ protected:
 	int availableAngles() const;
 	int currentAngle() const;
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	//Chapter
+	void setCurrentChapter(const Phonon::ChapterDescription & chapter);
+	QList<Phonon::ChapterDescription> availableChapters() const;
+	Phonon::ChapterDescription currentChapter() const;
+#else
 	//Chapter
 	void setCurrentChapter(int chapterNumber);
 	int availableChapters() const;
 	int currentChapter() const;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	//Title
+	void setCurrentTitle(const Phonon::TitleDescription & title);
+	QList<Phonon::TitleDescription> availableTitles() const;
+	Phonon::TitleDescription currentTitle() const;
+#else
 	//Title
 	void setCurrentTitle(int titleNumber);
-	void setAutoplayTitles(bool autoplay);
 	int availableTitles() const;
 	int currentTitle() const;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+	void setAutoplayTitles(bool autoplay);
 	bool autoplayTitles() const;
-	void nextTitle();
-	void previousTitle();
 
 
 	/** MPlayer process. */

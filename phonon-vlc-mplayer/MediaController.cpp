@@ -27,11 +27,13 @@ MediaController::MediaController() {
 	_currentAngle = 0;
 	_availableAngles = 0;
 
+#ifndef NEW_TITLE_CHAPTER_HANDLING
 	_currentChapter = 0;
 	_availableChapters = 0;
 
 	_currentTitle = 0;
 	_availableTitles = 0;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 
 	_autoplayTitles = false;
 }
@@ -71,10 +73,32 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 
 	case AddonInterface::ChapterInterface:
 		switch (static_cast<AddonInterface::ChapterCommand>(command)) {
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+			case AddonInterface::availableChapters:
+				return QVariant::fromValue(availableChapters());
+#else
 			case AddonInterface::availableChapters:
 				return availableChapters();
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+			case AddonInterface::currentChapter:
+				return QVariant::fromValue(currentChapter());
+#else
 			case AddonInterface::chapter:
 				return currentChapter();
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+			case AddonInterface::setCurrentChapter:
+				if (arguments.isEmpty() || !arguments.first().canConvert<ChapterDescription>()) {
+					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					return false;
+				}
+				setCurrentChapter(arguments.first().value<ChapterDescription>());
+				return true;
+#else
 			case AddonInterface::setChapter:
 				if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
 					qCritical() << __FUNCTION__ << "Error: arguments invalid";
@@ -82,6 +106,8 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 				}
 				setCurrentChapter(arguments.first().toInt());
 				return true;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
 			default:
 				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::ChapterInterface command:" << command;
 		}
@@ -89,10 +115,32 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 
 	case AddonInterface::TitleInterface:
 		switch (static_cast<AddonInterface::TitleCommand>(command)) {
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+			case AddonInterface::availableTitles:
+				return QVariant::fromValue(availableTitles());
+#else
 			case AddonInterface::availableTitles:
 				return availableTitles();
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+			case AddonInterface::currentTitle:
+				return QVariant::fromValue(currentTitle());
+#else
 			case AddonInterface::title:
 				return currentTitle();
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+			case AddonInterface::setCurrentTitle:
+				if (arguments.isEmpty() || !arguments.first().canConvert<TitleDescription>()) {
+					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					return false;
+				}
+				setCurrentTitle(arguments.first().value<TitleDescription>());
+				return true;
+#else
 			case AddonInterface::setTitle:
 				if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
 					qCritical() << __FUNCTION__ << "Error: arguments invalid";
@@ -100,6 +148,8 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 				}
 				setCurrentTitle(arguments.first().toInt());
 				return true;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
 			case AddonInterface::autoplayTitles:
 				return autoplayTitles();
 			case AddonInterface::setAutoplayTitles:

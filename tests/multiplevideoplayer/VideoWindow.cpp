@@ -45,19 +45,23 @@ VideoWindow::VideoWindow(QWidget * parent)
 		SLOT(availableAudioChannelsChanged()));
 	connect(_mediaController, SIGNAL(availableSubtitlesChanged()),
 		SLOT(availableSubtitlesChanged()));
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	connect(_mediaController, SIGNAL(availableTitlesChanged()),
+		SLOT(availableTitlesChanged()));
+	connect(_mediaController, SIGNAL(availableChaptersChanged()),
+		SLOT(availableChaptersChanged()));
+#else
 	connect(_mediaController, SIGNAL(availableTitlesChanged(int)),
 		SLOT(availableTitlesChanged()));
 	connect(_mediaController, SIGNAL(availableChaptersChanged(int)),
 		SLOT(availableChaptersChanged()));
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 	connect(_mediaController, SIGNAL(availableAnglesChanged(int)),
 		SLOT(availableAnglesChanged()));
 
 	_videoWidget = new Phonon::VideoWidget(this);
-#if QT_VERSION >= 0x040400
 	videoLayout->addWidget(_videoWidget);
-#else
-	vboxLayout->addWidget(_videoWidget);
-#endif	//QT_VERSION
 	_videoWidget->setMinimumHeight(200);
 	Phonon::createPath(_mediaObject, _videoWidget);
 
@@ -75,20 +79,12 @@ VideoWindow::VideoWindow(QWidget * parent)
 
 	//seekSlider
 	_seekSlider = new Phonon::SeekSlider();
-#if QT_VERSION >= 0x040400
 	seekerLayout->insertWidget(0, _seekSlider);
-#else
-	hboxLayout4->insertWidget(0, _seekSlider);
-#endif	//QT_VERSION
 	_seekSlider->setMediaObject(_mediaObject);
 
 	//volumdeSlider
 	_volumeSlider = new Phonon::VolumeSlider();
-#if QT_VERSION >= 0x040400
 	volumeLayout->insertWidget(0, _volumeSlider);
-#else
-	hboxLayout5->insertWidget(0, _volumeSlider);
-#endif	//QT_VERSION
 	_volumeSlider->setAudioOutput(_audioOutput);
 	_volumeSlider->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
@@ -149,7 +145,7 @@ void VideoWindow::availableAudioChannelsChanged() {
 
 	QList<Phonon::AudioChannelDescription> audios = _mediaController->availableAudioChannels();
 	for (int i = 0; i < audios.size(); i++) {
-		QAction * action = menuAudioChannels->addAction(audios[i].name(), signalMapper, SLOT(map()));
+		QAction * action = menuAudioChannels->addAction(audios[i].name() + " " + audios[i].description(), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 
@@ -169,7 +165,7 @@ void VideoWindow::availableSubtitlesChanged() {
 
 	QList<Phonon::SubtitleDescription> subtitles = _mediaController->availableSubtitles();
 	for (int i = 0; i < subtitles.size(); i++) {
-		QAction * action = menuSubtitles->addAction(subtitles[i].name(), signalMapper, SLOT(map()));
+		QAction * action = menuSubtitles->addAction(subtitles[i].name() + " " + subtitles[i].description(), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 
@@ -187,18 +183,31 @@ void VideoWindow::availableTitlesChanged() {
 
 	removeAllAction(menuTitles);
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	QList<Phonon::TitleDescription> titles = _mediaController->availableTitles2();
+	for (int i = 0; i < titles.size(); i++) {
+		QAction * action = menuTitles->addAction(titles[i].name() + " " + titles[i].description(), signalMapper, SLOT(map()));
+		signalMapper->setMapping(action, i);
+	}
+#else
 	int titles = _mediaController->availableTitles();
 	for (int i = 0; i < titles; i++) {
 		QAction * action = menuTitles->addAction(QString::number(i), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 
 	connect(signalMapper, SIGNAL(mapped(int)),
 		SLOT(actionTitleTriggered(int)));
 }
 
 void VideoWindow::actionTitleTriggered(int id) {
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	QList<Phonon::TitleDescription> titles = _mediaController->availableTitles2();
+	_mediaController->setCurrentTitle(titles[id]);
+#else
 	_mediaController->setCurrentTitle(id);
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 }
 
 void VideoWindow::availableChaptersChanged() {
@@ -206,18 +215,31 @@ void VideoWindow::availableChaptersChanged() {
 
 	removeAllAction(menuChapters);
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	QList<Phonon::ChapterDescription> chapters = _mediaController->availableChapters2();
+	for (int i = 0; i < chapters.size(); i++) {
+		QAction * action = menuChapters->addAction(chapters[i].name() + " " + chapters[i].description(), signalMapper, SLOT(map()));
+		signalMapper->setMapping(action, i);
+	}
+#else
 	int chapters = _mediaController->availableChapters();
 	for (int i = 0; i < chapters; i++) {
 		QAction * action = menuChapters->addAction(QString::number(i), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 
 	connect(signalMapper, SIGNAL(mapped(int)),
 		SLOT(actionChapterTriggered(int)));
 }
 
 void VideoWindow::actionChapterTriggered(int id) {
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	QList<Phonon::ChapterDescription> chapters = _mediaController->availableChapters2();
+	_mediaController->setCurrentChapter(chapters[id]);
+#else
 	_mediaController->setCurrentChapter(id);
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 }
 
 void VideoWindow::availableAnglesChanged() {
@@ -296,14 +318,17 @@ void VideoWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
 	}
 }
 
-void VideoWindow::tick(qint64 time) {
+QString VideoWindow::convertMilliseconds(qint64 time) {
 	QTime displayTime(0, (time / 60000) % 60, (time / 1000) % 60);
-	currentTimeLcdNumber->display(displayTime.toString("mm:ss"));
+	return displayTime.toString("mm:ss");
+}
+
+void VideoWindow::tick(qint64 time) {
+	currentTimeLcdNumber->display(convertMilliseconds(time));
 }
 
 void VideoWindow::totalTimeChanged(qint64 newTotalTime) {
-	QTime displayTime(0, (newTotalTime / 60000) % 60, (newTotalTime / 1000) % 60);
-	totalTimeLcdNumber->display(displayTime.toString("mm:ss"));
+	totalTimeLcdNumber->display(convertMilliseconds(newTotalTime));
 }
 
 void VideoWindow::sourceChanged(const Phonon::MediaSource & source) {
