@@ -25,37 +25,12 @@ macro (ow_get_svn_revision revision)
 		find_package(Subversion)
 	endif (NOT Subversion_FOUND)
 
-	message(Subversion_SVN_EXECUTABLE=${Subversion_SVN_EXECUTABLE})
-
-    EXECUTE_PROCESS(COMMAND ${Subversion_SVN_EXECUTABLE} --version
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-      OUTPUT_VARIABLE Subversion_VERSION_SVN
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-message(Subversion_VERSION_SVN=${Subversion_VERSION_SVN})
-
-    EXECUTE_PROCESS(COMMAND ${Subversion_SVN_EXECUTABLE} info ${CMAKE_SOURCE_DIR}
-      OUTPUT_VARIABLE ${revision}
-      ERROR_VARIABLE Subversion_svn_info_error
-      RESULT_VARIABLE Subversion_svn_info_result
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-message("Current revision is ${${revision}}")
-
-    EXECUTE_PROCESS(COMMAND
-      ${Subversion_SVN_EXECUTABLE} log -r BASE ${CMAKE_SOURCE_DIR}
-      OUTPUT_VARIABLE Subversion_LAST_CHANGED_LOG
-      ERROR_VARIABLE Subversion_svn_log_error
-      RESULT_VARIABLE Subversion_svn_log_result
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-message("Subversion_LAST_CHANGED_LOG=${Subversion_LAST_CHANGED_LOG}")
-
-
 	if (Subversion_FOUND)
-		Subversion_WC_INFO("${CMAKE_SOURCE_DIR}" Project)
-		message("Current revision is ${Project_WC_REVISION} ${CMAKE_SOURCE_DIR} ${PROJECT_SOURCE_DIR}")
-		set(${revision} ${Project_WC_REVISION})
+		Subversion_WC_INFO(${CMAKE_SOURCE_DIR} _TMP)
+		set(${revision} ${_TMP_WC_REVISION})
+
+		#Subversion_WC_LOG(${CMAKE_SOURCE_DIR} _TMP)
+		#message(STATUS LAST_CHANGED_LOG=${_TMP_LAST_CHANGED_LOG})
 	else (Subversion_FOUND)
 		message("Subversion (svn) command line not found, it is recommended to install it")
 		set(${revision} "")
