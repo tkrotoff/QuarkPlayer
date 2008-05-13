@@ -23,6 +23,7 @@ endif (SVN_REVISION)
 #Debian
 set(CPACK_DEBIAN_PACKAGE_DEPENDS
 	${CPACK_DEBIAN_PACKAGE_DEPENDS}
+	"libqt4-core (>=4.4.0), libqt4-gui (>=4.4.0)"
 	"libvlc1, mplayer | mplayer-nogui"
 )
 
