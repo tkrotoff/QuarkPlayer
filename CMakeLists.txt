@@ -1,6 +1,9 @@
+# Mininum required CMake version
 cmake_minimum_required(VERSION 2.6)
 
 project(phonon-vlc-mplayer)
+
+include(CMakeLists-owbuild.txt)
 
 find_package(KDE4)
 if (KDE4_FOUND)
@@ -28,23 +31,14 @@ else (KDE4_FOUND)
 	message(STATUS "KDE4 support disabled")
 endif (KDE4_FOUND)
 
-if (UNIX)
-	#Enable warnings
-	add_definitions(-Wall -Wextra)
-endif (UNIX)
+#Default installation path
+set(CMAKE_INSTALL_PREFIX ${BUILD_DIR})
 
-if (MINGW)
-	#Enable warnings
-	add_definitions(-Wall)
-endif (MINGW)
-
-set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/package)
-
+#Default paths
 set(INCLUDE_INSTALL_DIR include)
 set(BIN_INSTALL_DIR bin)
 set(LIB_INSTALL_DIR lib)
 set(PLUGIN_INSTALL_DIR ${BIN_INSTALL_DIR}/phonon_backend)
-
 set(INSTALL_TARGETS_DEFAULT_ARGS
 	RUNTIME DESTINATION ${BIN_INSTALL_DIR}
 	LIBRARY DESTINATION ${LIB_INSTALL_DIR}
