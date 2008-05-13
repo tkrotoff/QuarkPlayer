@@ -28,7 +28,7 @@ else (KDE4_FOUND)
 
 	include_directories(${QT_INCLUDE_DIR})
 
-	# Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
+	#Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
 	add_definitions(-DNEW_TITLE_CHAPTER_HANDLING)
 
 	message(STATUS "KDE4 support disabled")
@@ -56,6 +56,9 @@ if (WIN32)
 		install(FILES ${QT_BINARY_DIR}/QtCore4.dll DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtGui4.dll DESTINATION ${BIN_INSTALL_DIR})
 	endif (CMAKE_BUILD_TYPE STREQUAL Debug)
+	if (MINGW)
+		install(FILES C:/mingw/bin/mingwm10.dll DESTINATION ${BIN_INSTALL_DIR})
+	endif (MINGW)
 endif (WIN32)
 
 add_subdirectory(phonon)
