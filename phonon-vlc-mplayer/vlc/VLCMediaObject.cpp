@@ -101,9 +101,15 @@ void VLCMediaObject::loadMediaInternal(const QString & filename) {
 	emit availableAudioChannelsChanged();
 	emit availableSubtitlesChanged();
 
-	emit availableAnglesChanged(availableAngles());
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	emit availableChaptersChanged();
+	emit availableTitlesChanged();
+#else
 	emit availableChaptersChanged(availableChapters());
 	emit availableTitlesChanged(availableTitles());
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+	emit availableAnglesChanged(availableAngles());
 
 	//emit angleChanged(int angleNumber);
 	//emit chapterChanged(int chapterNumber);

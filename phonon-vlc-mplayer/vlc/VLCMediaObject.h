@@ -73,9 +73,14 @@ signals:
 	//MediaController signals
 	void availableSubtitlesChanged();
 	void availableAudioChannelsChanged();
-	void availableAnglesChanged(int availableAngles);
+
+	void availableChaptersChanged();
+	void availableTitlesChanged();
+
 	void availableChaptersChanged(int availableChapters);
 	void availableTitlesChanged(int availableTitles);
+
+	void availableAnglesChanged(int availableAngles);
 	void angleChanged(int angleNumber);
 	void chapterChanged(int chapterNumber);
 	void titleChanged(int titleNumber);

@@ -80,12 +80,25 @@ Phonon::SubtitleDescription VLCMediaController::currentSubtitle() const {
 }
 
 //Title
-void VLCMediaController::setCurrentTitle(int titleNumber) {
-	_currentTitle = titleNumber;
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+
+void VLCMediaController::setCurrentTitle(const Phonon::TitleDescription & title) {
+	_currentTitle = title;
 }
 
-void VLCMediaController::setAutoplayTitles(bool autoplay) {
-	_autoplayTitles = autoplay;
+QList<Phonon::TitleDescription> VLCMediaController::availableTitles() const {
+	return _availableTitles;
+}
+
+Phonon::TitleDescription VLCMediaController::currentTitle() const {
+	return _currentTitle;
+}
+
+#else
+
+void VLCMediaController::setCurrentTitle(int titleNumber) {
+	_currentTitle = titleNumber;
 }
 
 int VLCMediaController::availableTitles() const {
@@ -96,11 +109,34 @@ int VLCMediaController::currentTitle() const {
 	return _currentTitle;
 }
 
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+void VLCMediaController::setAutoplayTitles(bool autoplay) {
+	_autoplayTitles = autoplay;
+}
+
 bool VLCMediaController::autoplayTitles() const {
 	return _autoplayTitles;
 }
 
 //Chapter
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+
+void VLCMediaController::setCurrentChapter(const Phonon::ChapterDescription & chapter) {
+	_currentChapter = chapter;
+}
+
+QList<Phonon::ChapterDescription> VLCMediaController::availableChapters() const {
+	return _availableChapters;
+}
+
+Phonon::ChapterDescription VLCMediaController::currentChapter() const {
+	return _currentChapter;
+}
+
+#else
+
 void VLCMediaController::setCurrentChapter(int chapterNumber) {
 }
 
@@ -111,6 +147,8 @@ int VLCMediaController::availableChapters() const {
 int VLCMediaController::currentChapter() const {
 	return _currentChapter;
 }
+
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 
 //Angle
 void VLCMediaController::setCurrentAngle(int angleNumber) {

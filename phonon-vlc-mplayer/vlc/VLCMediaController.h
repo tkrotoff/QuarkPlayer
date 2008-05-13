@@ -56,16 +56,31 @@ protected:
 	int availableAngles() const;
 	int currentAngle() const;
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	//Chapter
+	void setCurrentChapter(const Phonon::ChapterDescription & chapter);
+	QList<Phonon::ChapterDescription> availableChapters() const;
+	Phonon::ChapterDescription currentChapter() const;
+#else
 	//Chapter
 	void setCurrentChapter(int chapterNumber);
 	int availableChapters() const;
 	int currentChapter() const;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	//Title
+	void setCurrentTitle(const Phonon::TitleDescription & title);
+	QList<Phonon::TitleDescription> availableTitles() const;
+	Phonon::TitleDescription currentTitle() const;
+#else
 	//Title
 	void setCurrentTitle(int titleNumber);
-	void setAutoplayTitles(bool autoplay);
 	int availableTitles() const;
 	int currentTitle() const;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+	void setAutoplayTitles(bool autoplay);
 	bool autoplayTitles() const;
 
 	//MediaPlayer
