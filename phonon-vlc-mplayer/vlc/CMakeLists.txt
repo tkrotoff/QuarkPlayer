@@ -55,16 +55,6 @@ if (KDE4_FOUND)
 	install(FILES icons/48x48/phonon-vlc.png DESTINATION /usr/lib/kde4/share/icons/oxygen/48x48/apps)
 	install(FILES icons/128x128/phonon-vlc.png DESTINATION /usr/lib/kde4/share/icons/oxygen/128x128/apps)
 else (KDE4_FOUND)
-	install(TARGETS phonon_vlc DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
-	if (MSVC)
-		if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
-			install(FILES
-				${CMAKE_CURRENT_BINARY_DIR}/phonon_vlc.pdb
-				${CMAKE_CURRENT_BINARY_DIR}/phonon_vlc.dll.manifest
-				${CMAKE_CURRENT_BINARY_DIR}/phonon_vlc.exp
-				${CMAKE_CURRENT_BINARY_DIR}/phonon_vlc.ilk
-				DESTINATION ${QT_PLUGINS_DIR}/phonon_backend
-			)
-		endif (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
-	endif (MSVC)
+	install(TARGETS phonon_vlc DESTINATION ${PLUGIN_INSTALL_DIR})
+	install(TARGETS phonon_vlc DESTINATION ${QT_PLUGINS_DIR}/phonon_backend)
 endif (KDE4_FOUND)

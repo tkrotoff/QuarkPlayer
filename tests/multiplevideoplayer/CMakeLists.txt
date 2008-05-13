@@ -38,3 +38,5 @@ else (KDE4_FOUND)
 		${QT_PHONON_LIBRARY}
 	)
 endif (KDE4_FOUND)
+
+install(TARGETS multiplevideoplayer DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

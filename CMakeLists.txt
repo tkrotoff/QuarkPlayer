@@ -1,3 +1,7 @@
+cmake_minimum_required(VERSION 2.6)
+
+project(phonon-vlc-mplayer)
+
 find_package(KDE4)
 if (KDE4_FOUND)
 	include(KDE4Defaults)
@@ -11,20 +15,14 @@ if (KDE4_FOUND)
 else (KDE4_FOUND)
 	find_package(Qt4 REQUIRED)
 
-	#Phonon detection, this should be inside FindQt4.cmake
-	find_library(QT_PHONON_LIBRARY_RELEASE NAMES phonon phonon4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-	find_library(QT_PHONON_LIBRARY_DEBUG NAMES phonon_debug phonond4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-	_QT4_ADJUST_LIB_VARS(PHONON)
-	##
-
-	if (NOT QT_PHONON_LIBRARY)
-		set(QT_PHONON_LIBRARY ${QT_PHONON_LIBRARY_RELEASE})
-	endif (NOT QT_PHONON_LIBRARY)
-
-	message(STATUS "QT_LIBRARY_DIR=${QT_LIBRARY_DIR}")
-	message(STATUS "QT_PHONON_LIBRARY=${QT_PHONON_LIBRARY}")
-
 	add_definitions(${QT_DEFINITIONS})
+
+	#Does not use Phonon from Qt
+	#Uses Phonon from this repository instead
+	#CMake declarations matters!!!
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+	set(QT_PHONON_LIBRARY phonon)
+
 	include_directories(${QT_INCLUDE_DIR})
 
 	message(STATUS "KDE4 support disabled")
@@ -40,7 +38,24 @@ if (MINGW)
 	add_definitions(-Wall)
 endif (MINGW)
 
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/package)
+
+set(INCLUDE_INSTALL_DIR include)
+set(BIN_INSTALL_DIR bin)
+set(LIB_INSTALL_DIR lib)
+set(PLUGIN_INSTALL_DIR ${BIN_INSTALL_DIR}/phonon_backend)
+
+set(INSTALL_TARGETS_DEFAULT_ARGS
+	RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+	LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+	ARCHIVE DESTINATION ${LIB_INSTALL_DIR} COMPONENT Devel
+)
+
+install(FILES ${QT_BINARY_DIR}/QtCored4.dll DESTINATION ${BIN_INSTALL_DIR})
+install(FILES ${QT_BINARY_DIR}/QtGuid4.dll DESTINATION ${BIN_INSTALL_DIR})
+
+add_subdirectory(phonon)
 add_subdirectory(phonon-vlc-mplayer)
 add_subdirectory(tests)
 
-include(CMakeLists-package.txt)
+include(CPackConfig.txt)
