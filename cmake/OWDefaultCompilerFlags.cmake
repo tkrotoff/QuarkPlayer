@@ -32,12 +32,16 @@ endif (UNIX AND NOT WIN32)
 if (MSVC)
 	#add_definitions(/W4)
 else (MSVC)
-	add_definitions(-Wall -Wstrict-aliasing)
-	if (GCC4)
-		add_definitions(-Wextra)
-	endif (GCC4)
-	add_definitions(-Wno-unused-parameter)
+	add_definitions(-Wall -Wstrict-aliasing -Wno-unused-parameter)
+	# Only for C language, not valid for C++
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-prototypes")
+
+	if (NOT MINGW)
+		# Otherwise Qt-4.4.0 makes a lot of warnings with MinGW
+		if (GCC4)
+			add_definitions(-Wextra)
+		endif (GCC4)
+	endif (NOT MINGW)
 endif (MSVC)
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)

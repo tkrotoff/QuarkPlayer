@@ -28,6 +28,9 @@ else (KDE4_FOUND)
 
 	include_directories(${QT_INCLUDE_DIR})
 
+	# Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
+	add_definitions(-DNEW_TITLE_CHAPTER_HANDLING)
+
 	message(STATUS "KDE4 support disabled")
 endif (KDE4_FOUND)
 
@@ -45,10 +48,15 @@ set(INSTALL_TARGETS_DEFAULT_ARGS
 	ARCHIVE DESTINATION ${LIB_INSTALL_DIR} COMPONENT Devel
 )
 
-if (MSVC)
-	install(FILES ${QT_BINARY_DIR}/QtCored4.dll DESTINATION ${BIN_INSTALL_DIR})
-	install(FILES ${QT_BINARY_DIR}/QtGuid4.dll DESTINATION ${BIN_INSTALL_DIR})
-endif (MSVC)
+if (WIN32)
+	if (CMAKE_BUILD_TYPE STREQUAL Debug)
+		install(FILES ${QT_BINARY_DIR}/QtCored4.dll DESTINATION ${BIN_INSTALL_DIR})
+		install(FILES ${QT_BINARY_DIR}/QtGuid4.dll DESTINATION ${BIN_INSTALL_DIR})
+	else (CMAKE_BUILD_TYPE STREQUAL Debug)
+		install(FILES ${QT_BINARY_DIR}/QtCore4.dll DESTINATION ${BIN_INSTALL_DIR})
+		install(FILES ${QT_BINARY_DIR}/QtGui4.dll DESTINATION ${BIN_INSTALL_DIR})
+	endif (CMAKE_BUILD_TYPE STREQUAL Debug)
+endif (WIN32)
 
 add_subdirectory(phonon)
 add_subdirectory(phonon-vlc-mplayer)
