@@ -588,7 +588,7 @@ DEFINEFUNC(int, libvlc_video_get_spu, (libvlc_media_player_t * p_mi, libvlc_exce
 
 DEFINEFUNC(void, libvlc_video_set_spu, (libvlc_media_player_t * p_mi, int i_spu, libvlc_exception_t * p_e), (p_mi, i_spu, p_e), )
 
-DEFINEFUNC(bool, libvlc_video_set_subtitle, (libvlc_media_player_t * p_mi, char * psz_subtitle, libvlc_exception_t * p_e), (p_mi, psz_subtitle, p_e), return)
+DEFINEFUNC(bool, libvlc_video_set_subtitle_file, (libvlc_media_player_t * p_mi, char * psz_subtitle, libvlc_exception_t * p_e), (p_mi, psz_subtitle, p_e), return)
 
 DEFINEFUNC(char *, libvlc_video_get_crop_geometry, (libvlc_media_player_t * p_mi, libvlc_exception_t * p_e), (p_mi, p_e), return)
 

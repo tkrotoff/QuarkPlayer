@@ -2,7 +2,7 @@
  * deprecated.h:  libvlc deprecated API
  *****************************************************************************
  * Copyright (C) 1998-2005 the VideoLAN team
- * $Id: fe85bfa6e7739d333763a01e6704f64c75dc0b08 $
+ * $Id: 497e65d30c2ad36cc2995f8ad2e4dcd7bf165988 $
  *
  * Authors: Clément Stenac <zorglub@videolan.org>
  *          Jean-Paul Saman <jpsaman _at_ m2x _dot_ nl>
@@ -262,13 +262,6 @@ VLC_DEPRECATED_API libvlc_media_player_t * libvlc_playlist_get_media_player(
  * \return a string containing the libvlc version
  */
 VLC_DEPRECATED_API char const * VLC_Version ( void );
-
-/**
- * Retrieve libvlc compile time
- *
- * \return a string containing the libvlc compile time
- */
-VLC_DEPRECATED_API char const * VLC_CompileTime ( void );
 
 /**
  * Retrieve the username of the libvlc builder

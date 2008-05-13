@@ -2,7 +2,7 @@
  * libvlc.h:  libvlc external API
  *****************************************************************************
  * Copyright (C) 1998-2005 the VideoLAN team
- * $Id: 18797ad0917f36543a7dcd430a11423523723ffd $
+ * $Id: 87501a4842684c9bd737b5d85fcb39af514da58c $
  *
  * Authors: Clément Stenac <zorglub@videolan.org>
  *          Jean-Paul Saman <jpsaman _at_ m2x _dot_ nl>
@@ -524,7 +524,7 @@ VLC_PUBLIC_API void libvlc_video_set_spu( libvlc_media_player_t *, int , libvlc_
  * \param p_e an initialized exception pointer
  * \return the success status (boolean)
  */
-VLC_PUBLIC_API int libvlc_video_set_subtitle( libvlc_media_player_t *, char *, libvlc_exception_t * );
+VLC_PUBLIC_API int libvlc_video_set_subtitle_file( libvlc_media_player_t *, char *, libvlc_exception_t * );
 
 /**
  * Get current crop filter geometry.
