@@ -12,9 +12,9 @@ if (NOT KDE4_FOUND)
   include_directories(${QT_INCLUDE_DIR})
   add_definitions(${QT_DEFINITIONS})
 
+  set(SHARE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/share")
   set(KDE4_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
   set(DBUS_INTERFACES_INSTALL_DIR "${KDE4_INSTALL_DIR}/share/dbus-1/interfaces" )
-
   set(SERVICETYPES_INSTALL_DIR "${SHARE_INSTALL_PREFIX}/servicetypes")
 
   message(STATUS "KDE4 not found")

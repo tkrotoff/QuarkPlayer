@@ -51,8 +51,10 @@ set(INSTALL_TARGETS_DEFAULT_ARGS
 	ARCHIVE DESTINATION ${LIB_INSTALL_DIR} COMPONENT Devel
 )
 
-install(FILES ${QT_BINARY_DIR}/QtCored4.dll DESTINATION ${BIN_INSTALL_DIR})
-install(FILES ${QT_BINARY_DIR}/QtGuid4.dll DESTINATION ${BIN_INSTALL_DIR})
+if (MSVC)
+	install(FILES ${QT_BINARY_DIR}/QtCored4.dll DESTINATION ${BIN_INSTALL_DIR})
+	install(FILES ${QT_BINARY_DIR}/QtGuid4.dll DESTINATION ${BIN_INSTALL_DIR})
+endif (MSVC)
 
 add_subdirectory(phonon)
 add_subdirectory(phonon-vlc-mplayer)
