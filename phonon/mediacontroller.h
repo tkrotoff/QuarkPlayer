@@ -60,10 +60,24 @@ class PHONON_EXPORT MediaController : public QObject
         int availableAngles() const;
         int currentAngle() const;
 
+        /**
+         * \deprecated
+         */
         int availableChapters() const;
+
+        /**
+         * \deprecated
+         */
         int currentChapter() const;
 
+        /**
+         * \deprecated
+         */
         int availableTitles() const;
+
+        /**
+         * \deprecated
+         */
         int currentTitle() const;
 
         bool autoplayTitles() const;
@@ -85,6 +99,22 @@ class PHONON_EXPORT MediaController : public QObject
         SubtitleDescription currentSubtitle() const;
 
         /**
+         * Returns the selected chapter.
+         *
+         * \see availableChapters
+         * \see setCurrentChapter
+         */
+        ChapterDescription currentChapter2() const;
+
+        /**
+         * Returns the selected title.
+         *
+         * \see availableTitles
+         * \see setCurrentTitle
+         */
+        TitleDescription currentTitle2() const;
+
+        /**
          * Returns the audio streams that can be selected by the user. The
          * strings can directly be used in the user interface.
          *
@@ -101,6 +131,24 @@ class PHONON_EXPORT MediaController : public QObject
          * \see setCurrentSubtitle
          */
         QList<SubtitleDescription> availableSubtitles() const;
+
+        /**
+         * Returns the chapter that can be selected by the user. The
+         * strings can directly be used in the user interface.
+         *
+         * \see selectedChapter
+         * \see setCurrentChapter
+         */
+        QList<ChapterDescription> availableChapters2() const;
+
+        /**
+         * Returns the title that can be selected by the user. The
+         * strings can directly be used in the user interface.
+         *
+         * \see selectedTitle
+         * \see setCurrentTitle
+         */
+        QList<TitleDescription> availableTitles2() const;
 
         /**
          * Selects an audio stream from the media.
@@ -128,11 +176,37 @@ class PHONON_EXPORT MediaController : public QObject
          */
         void setCurrentSubtitle(const Phonon::SubtitleDescription &stream);
 
+        /**
+         * Selects a chapter from the media.
+         *
+         * \param chapter description of a chapter
+         *
+         * \see availableChapters()
+         * \see currentChapter()
+         */
+        void setCurrentChapter(const Phonon::ChapterDescription &chapter);
+
+        /**
+         * Selects a title from the media.
+         *
+         * \param title description of a title
+         *
+         * \see availableTitles()
+         * \see currentTitle()
+         */
+        void setCurrentTitle(const Phonon::TitleDescription &title);
+
     public Q_SLOTS:
         void setCurrentAngle(int angleNumber);
+
+        /**
+         * \deprecated
+         */
         void setCurrentChapter(int chapterNumber);
 
         /**
+         * \deprecated
+         *
          * Skips to the given title \p titleNumber.
          *
          * If it was playing before the title change it will start playback on the new title if
@@ -160,11 +234,30 @@ class PHONON_EXPORT MediaController : public QObject
     Q_SIGNALS:
         void availableSubtitlesChanged();
         void availableAudioChannelsChanged();
+        void availableChaptersChanged();
+        void availableTitlesChanged();
+
         void availableAnglesChanged(int availableAngles);
         void angleChanged(int angleNumber);
+
+        /**
+         * \deprecated
+         */
         void availableChaptersChanged(int availableChapters);
+
+        /**
+         * \deprecated
+         */
         void chapterChanged(int chapterNumber);
+
+        /**
+         * \deprecated
+         */
         void availableTitlesChanged(int availableTitles);
+
+        /**
+         * \deprecated
+         */
         void titleChanged(int titleNumber);
 
     protected:

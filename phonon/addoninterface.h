@@ -54,8 +54,12 @@ class AddonInterface
         };
         enum ChapterCommand {
             availableChapters,
+            /** \deprecated */
             chapter,
-            setChapter
+            currentChapter,
+            /** \deprecated */
+            setChapter,
+            setCurrentChapter
         };
         enum AngleCommand {
             availableAngles,
@@ -64,8 +68,12 @@ class AddonInterface
         };
         enum TitleCommand {
             availableTitles,
+            /** \deprecated */
             title,
+            currentTitle,
+            /** \deprecated */
             setTitle,
+            setCurrentTitle,
             autoplayTitles,
             setAutoplayTitles
         };

@@ -51,10 +51,16 @@ void MediaControllerPrivate::backendObjectChanged(QObject *m_backendObject)
 {
     QObject::connect(m_backendObject, SIGNAL(availableSubtitlesChanged()), q, SIGNAL(availableSubtitlesChanged()));
     QObject::connect(m_backendObject, SIGNAL(availableAudioChannelsChanged()), q, SIGNAL(availableAudioChannelsChanged()));
+    QObject::connect(m_backendObject, SIGNAL(availableChaptersChanged()), q, SIGNAL(availableChaptersChanged()));
+    QObject::connect(m_backendObject, SIGNAL(availableTitlesChanged()), q, SIGNAL(availableTitlesChanged()));
+
+    //Deprecated
     QObject::connect(m_backendObject, SIGNAL(titleChanged(int)), q, SIGNAL(titleChanged(int)));
     QObject::connect(m_backendObject, SIGNAL(availableTitlesChanged(int)), q, SIGNAL(availableTitlesChanged(int)));
     QObject::connect(m_backendObject, SIGNAL(chapterChanged(int)), q, SIGNAL(chapterChanged(int)));
     QObject::connect(m_backendObject, SIGNAL(availableChaptersChanged(int)), q, SIGNAL(availableChaptersChanged(int)));
+    //!Deprecated
+
     QObject::connect(m_backendObject, SIGNAL(angleChanged(int)), q, SIGNAL(angleChanged(int)));
     QObject::connect(m_backendObject, SIGNAL(availableAnglesChanged(int)), q, SIGNAL(availableAnglesChanged(int)));
 }
@@ -87,6 +93,7 @@ MediaController::Features MediaController::supportedFeatures() const
     return ret;
 }
 
+//Deprecated
 int MediaController::availableTitles() const
 {
     IFACE 0;
@@ -94,6 +101,7 @@ int MediaController::availableTitles() const
             AddonInterface::availableTitles).toInt();
 }
 
+//Deprecated
 int MediaController::currentTitle() const
 {
     IFACE 0;
@@ -101,6 +109,7 @@ int MediaController::currentTitle() const
             AddonInterface::title).toInt();
 }
 
+//Deprecated
 void MediaController::setCurrentTitle(int titleNumber)
 {
     IFACE;
@@ -124,14 +133,21 @@ void MediaController::setAutoplayTitles(bool b)
 
 void MediaController::nextTitle()
 {
+    //Deprecated
     setCurrentTitle(currentTitle() + 1);
+
+    //TODO
 }
 
 void MediaController::previousTitle()
 {
+    //Deprecated
     setCurrentTitle(currentTitle() - 1);
+
+    //TODO
 }
 
+//Deprecated
 int MediaController::availableChapters() const
 {
     IFACE 0;
@@ -139,6 +155,7 @@ int MediaController::availableChapters() const
             AddonInterface::availableChapters).toInt();
 }
 
+//Deprecated
 int MediaController::currentChapter() const
 {
     IFACE 0;
@@ -146,6 +163,7 @@ int MediaController::currentChapter() const
             AddonInterface::chapter).toInt();
 }
 
+//Deprecated
 void MediaController::setCurrentChapter(int titleNumber)
 {
     IFACE;
@@ -188,6 +206,20 @@ SubtitleDescription MediaController::currentSubtitle() const
         AddonInterface::currentSubtitle).value<SubtitleDescription>();
 }
 
+ChapterDescription MediaController::currentChapter2() const
+{
+    IFACE ChapterDescription();
+    return iface->interfaceCall(AddonInterface::ChapterInterface,
+        AddonInterface::currentChapter).value<ChapterDescription>();
+}
+
+TitleDescription MediaController::currentTitle2() const
+{
+    IFACE TitleDescription();
+    return iface->interfaceCall(AddonInterface::TitleInterface,
+        AddonInterface::currentTitle).value<TitleDescription>();
+}
+
 QList<AudioChannelDescription> MediaController::availableAudioChannels() const
 {
     QList<AudioChannelDescription> retList;
@@ -207,6 +239,26 @@ QList<SubtitleDescription> MediaController::availableSubtitles() const
     return retList;
 }
 
+QList<ChapterDescription> MediaController::availableChapters2() const
+{
+    QList<ChapterDescription> retList;
+    IFACE retList;
+    retList = iface->interfaceCall(AddonInterface::ChapterInterface,
+        AddonInterface::availableChapters)
+        .value< QList<ChapterDescription> >();
+    return retList;
+}
+
+QList<TitleDescription> MediaController::availableTitles2() const
+{
+    QList<TitleDescription> retList;
+    IFACE retList;
+    retList = iface->interfaceCall(AddonInterface::TitleInterface,
+        AddonInterface::availableTitles)
+        .value< QList<TitleDescription> >();
+    return retList;
+}
+
 void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription &stream)
 {
     IFACE;
@@ -219,6 +271,20 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &stre
     IFACE;
     iface->interfaceCall(AddonInterface::SubtitleInterface,
         AddonInterface::setCurrentSubtitle, QList<QVariant>() << qVariantFromValue(stream));
+}
+
+void MediaController::setCurrentChapter(const Phonon::ChapterDescription &chapter)
+{
+    IFACE;
+    iface->interfaceCall(AddonInterface::ChapterInterface,
+        AddonInterface::setCurrentChapter, QList<QVariant>() << qVariantFromValue(chapter));
+}
+
+void MediaController::setCurrentTitle(const Phonon::TitleDescription &title)
+{
+    IFACE;
+    iface->interfaceCall(AddonInterface::TitleInterface,
+        AddonInterface::setCurrentTitle, QList<QVariant>() << qVariantFromValue(title));
 }
 
 #undef IFACE

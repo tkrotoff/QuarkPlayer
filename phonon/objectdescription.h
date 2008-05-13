@@ -60,8 +60,11 @@ namespace Phonon
          * Lists all processing effects the backend supports.
          */
         EffectType,
+
         AudioChannelType,
         SubtitleType,
+        ChapterType,
+        TitleType,
 
         /**
          * Audio capture devices. This can be soundcards (with different drivers), soundservers or
@@ -301,16 +304,22 @@ typedef ObjectDescription<EffectType> EffectDescription;
 //typedef ObjectDescription<VisualizationType> VisualizationDescription;
 typedef ObjectDescription<AudioChannelType> AudioChannelDescription;
 typedef ObjectDescription<SubtitleType> SubtitleDescription;
+typedef ObjectDescription<ChapterType> ChapterDescription;
+typedef ObjectDescription<TitleType> TitleDescription;
 
 } //namespace Phonon
 
 Q_DECLARE_METATYPE(Phonon::AudioChannelDescription)
 Q_DECLARE_METATYPE(Phonon::SubtitleDescription)
+Q_DECLARE_METATYPE(Phonon::ChapterDescription)
+Q_DECLARE_METATYPE(Phonon::TitleDescription)
 Q_DECLARE_METATYPE(Phonon::AudioOutputDevice)
 Q_DECLARE_METATYPE(Phonon::AudioCaptureDevice)
 Q_DECLARE_METATYPE(Phonon::EffectDescription)
 Q_DECLARE_METATYPE(QList<Phonon::AudioChannelDescription>)
 Q_DECLARE_METATYPE(QList<Phonon::SubtitleDescription>)
+Q_DECLARE_METATYPE(QList<Phonon::ChapterDescription>)
+Q_DECLARE_METATYPE(QList<Phonon::TitleDescription>)
 Q_DECLARE_METATYPE(QList<Phonon::AudioOutputDevice>)
 Q_DECLARE_METATYPE(QList<Phonon::AudioCaptureDevice>)
 Q_DECLARE_METATYPE(QList<Phonon::EffectDescription>)
