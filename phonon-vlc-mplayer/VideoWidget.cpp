@@ -209,12 +209,16 @@ Widget * VideoWidget::widget() {
 
 void VideoWidget::videoWidgetSizeChanged(int width, int height) {
 #ifdef PHONON_MPLAYER
-	double aspectRatio = (double) width / height;
+	qDebug() << __FUNCTION__ << "width:" << width << "height:" << height;
 
-	qDebug() << __FUNCTION__ << "aspect ratio:" << aspectRatio << "width:" << width << "height:" << height;
+	QWidget * parent = static_cast<QWidget *>(this->parent());
 
-	_widget->setAspectRatio(aspectRatio);
 	_widget->setVideoSize(width, height);
+	_widget->updateGeometry();
+
+	qDebug() << __FUNCTION__ << "_widget->size():" << _widget->size();
+	qDebug() << __FUNCTION__ << "parent->size():" << parent->size();
+
 #endif	//PHONON_MPLAYER
 }
 

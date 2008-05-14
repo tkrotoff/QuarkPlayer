@@ -38,7 +38,10 @@ void MediaData::clear() {
 
 	videoWidgetId = 0;
 
-	isSeekable = false;
+	//FIXME Change it to true as MPlayer-1.0rc2 does not come
+	//with ID_SEEKABLE (appeared in march 2008)
+	//Reasonable to say that most of the media are seekable
+	isSeekable = true;
 
 	hasVideo = false;
 

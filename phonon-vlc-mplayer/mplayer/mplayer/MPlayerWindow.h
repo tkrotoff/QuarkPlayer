@@ -44,20 +44,20 @@ public:
 
 	QSize sizeHint() const;
 
-private:
+	void updateVideoWindow() const;
 
-	void paintEvent(QPaintEvent * event);
+private:
 
 	/**
 	 * Sets the background color.
 	 *
 	 * This is compulsary otherwise MPlayerWindow won't display MPlayer video.
 	 *
-	 * I don't know which one is best: 0x020202 or QColor(0, 0, 0)...
+	 * I don't know which one is best: 0x020202 or Qt::black...
 	 */
 	static void setBackgroundColor(QWidget * widget, const QColor & color);
 
-	void updateVideoWindow();
+	void paintEvent(QPaintEvent * event);
 
 	void resizeEvent(QResizeEvent * event);
 
@@ -68,14 +68,8 @@ private:
 	/** Scale and crop mode. */
 	bool _scaleAndCrop;
 
-	/** Original pos and dimensions of the _videoLayer. */
-	int orig_x, orig_y;
-	int orig_width, orig_height;
-
 	/** Original size of the video, needed for sizeHint(). */
 	int _videoWidth, _videoHeight;
 };
-
-void setBackgroundColor(QWidget * widget, const QColor & color);
 
 #endif	//MPLAYERWINDOW_H
