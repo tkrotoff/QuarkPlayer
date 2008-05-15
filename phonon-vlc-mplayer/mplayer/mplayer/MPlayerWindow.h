@@ -24,29 +24,19 @@
 #include <QtGui/QResizeEvent>
 
 /**
- * Widget where to show MPlayer video.
+ *
  *
  * @author Tanguy Krotoff
  */
-class MPlayerWindow : public QWidget {
+class WidgetPaintEvent : public QWidget {
 	Q_OBJECT
 public:
 
-	MPlayerWindow(QWidget * parent);
-	~MPlayerWindow();
-
-	void setVideoSize(int videoWidth, int videoHeight);
-	void setAspectRatio(double aspectRatio);
-
-	void setScaleAndCropMode(bool scaleAndCrop);
-
-	WId winId() const;
-
-	QSize sizeHint() const;
-
-	void updateVideoWindow() const;
+	WidgetPaintEvent(QWidget * parent);
 
 private:
+
+	void paintEvent(QPaintEvent * event);
 
 	/**
 	 * Sets the background color.
@@ -56,8 +46,31 @@ private:
 	 * I don't know which one is best: 0x020202 or Qt::black...
 	 */
 	static void setBackgroundColor(QWidget * widget, const QColor & color);
+};
 
-	void paintEvent(QPaintEvent * event);
+/**
+ * Widget where to show MPlayer video.
+ *
+ * @author Tanguy Krotoff
+ */
+class MPlayerWindow : public WidgetPaintEvent {
+	Q_OBJECT
+public:
+
+	MPlayerWindow(QWidget * parent);
+	~MPlayerWindow();
+
+	void setVideoSize(const QSize & videoSize);
+	void setAspectRatio(double aspectRatio);
+	void setScaleAndCropMode(bool scaleAndCrop);
+
+	WId winId() const;
+
+	QSize sizeHint() const;
+
+private:
+
+	void updateVideoWindow() const;
 
 	void resizeEvent(QResizeEvent * event);
 
@@ -69,7 +82,7 @@ private:
 	bool _scaleAndCrop;
 
 	/** Original size of the video, needed for sizeHint(). */
-	int _videoWidth, _videoHeight;
+	QSize _videoSize;
 };
 
 #endif	//MPLAYERWINDOW_H

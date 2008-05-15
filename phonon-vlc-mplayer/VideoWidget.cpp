@@ -35,6 +35,8 @@
 #endif	//PHONON_MPLAYER
 
 #include <QtGui/QWidget>
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
 #include <QtCore/QtDebug>
 
 namespace Phonon
@@ -45,13 +47,7 @@ namespace VLC_MPlayer
 VideoWidget::VideoWidget(QWidget * parent)
 	: SinkNode(parent) {
 
-#ifdef PHONON_MPLAYER
-	_widget = new MPlayerWindow(parent);
-#endif	//PHONON_MPLAYER
-
-#ifdef PHONON_VLC
-	_widget = new QWidget(parent);
-#endif	//PHONON_VLC
+	_widget = new Widget(parent);
 
 	_aspectRatio = Phonon::VideoWidget::AspectRatioAuto;
 	_scaleMode = Phonon::VideoWidget::FitInView;
@@ -90,6 +86,9 @@ Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const {
 
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 	qDebug() << __FUNCTION__ << "aspectRatio:" << aspectRatio;
+
+	//For VLC:
+	//Accepted formats are x:y (4:3, 16:9, etc.) expressing the global image aspect.
 
 	_aspectRatio = aspectRatio;
 	double ratio = (double) 4 / 3;
@@ -209,15 +208,23 @@ Widget * VideoWidget::widget() {
 
 void VideoWidget::videoWidgetSizeChanged(int width, int height) {
 #ifdef PHONON_MPLAYER
-	qDebug() << __FUNCTION__ << "width:" << width << "height:" << height;
-
+	//I spent 2 full days for these few fucking lines of code!
+	//It resizes dynamically the widget + the main window
+	//I didn't find another way
+	//Each line is very important!
+	//If someone finds a better, please tell me!
 	QWidget * parent = static_cast<QWidget *>(this->parent());
 
-	_widget->setVideoSize(width, height);
-	_widget->updateGeometry();
+	QSize videoSize(width, height);
+	videoSize.boundedTo(QApplication::desktop()->availableGeometry().size());
 
-	qDebug() << __FUNCTION__ << "_widget->size():" << _widget->size();
-	qDebug() << __FUNCTION__ << "parent->size():" << parent->size();
+	_widget->hide();
+	_widget->setVideoSize(videoSize);
+	QSize previousSize = parent->minimumSize();
+	parent->setMinimumSize(videoSize);
+	_widget->show();
+	parent->setMinimumSize(previousSize);
+	///
 
 #endif	//PHONON_MPLAYER
 }

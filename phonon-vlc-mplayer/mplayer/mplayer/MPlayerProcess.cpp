@@ -265,7 +265,13 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 
 			qDebug() << __FUNCTION__ << "Video driver:" << rx_winresolution.cap(1);
 
+			//Now we know the real video size
 			emit videoWidgetSizeChanged(width, height);
+
+			//Ok, now we can be in PlayingState if we have a video stream
+			//If we have only an audio stream, we are already in PlayingState
+			setState(PlayingState);
+
 			//emit mplayerFullyLoaded();
 		}
 
@@ -601,7 +607,14 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			//This must be changed, see MPlayerMediaObject::mediaLoaded()
 			emit mediaLoaded();
 
-			setState(PlayingState);
+			if (_data.hasVideo) {
+				//If we have a video to display, wait for getting the video size
+				//before to be in PlayingState
+				//This is a bugfix for mediaplayer example from Trolltech
+			} else {
+				//For audio streams, it's ok we are in PlayingState
+				setState(PlayingState);
+			}
 		}
 
 		//Generic things
@@ -716,61 +729,3 @@ void MPlayerProcess::setState(State state) {
 	_state = state;
 	emit stateChanged(state);
 }
-
-/*
-void MPlayerProcess::parseSubtitle(const QString & subtitle) {
-	qDebug() << __FUNCTION__ << subtitle;
-
-	if (rx_subtitle.indexIn(text) > -1) {
-		int id = rx_subtitle.cap(2).toInt();
-		const QString type = rx_subtitle.cap(1);
-
-		//SubData::Type t;
-		if (type == "FILE_SUB") {
-			//t = SubData::File;
-		} else if (type == "VOBSUB") {
-			//t = SubData::Vob;
-		} else
-			//t = SubData::Sub;
-		}
-
-		if (find(t, id) > -1) {
-			qWarning("SubTracks::process: subtitle type: %d, id: %d already exists!", t, id);
-		} else {
-			add(t,id);
-		}
-	}
-
-	else if (rx_sid.indexIn(text) > -1) {
-		int id = rx_sid.cap(2).toInt();
-		const QString value = rx_sid.cap(4);
-		const QString attr = rx_sid.cap(3);
-		const QString type = rx_sid.cap(1);
-
-		//SubData::Type t = SubData::Sub;
-		if (type == "VSID") {
-			//t = SubData::Vob;
-		}
-
-		if (find(t, id) == -1) {
-			qWarning("SubTracks::process: subtitle type: %d, id: %d doesn't exist!", t, id);
-		} else {
-			if (attr == "NAME") {
-				changeName(t, id, value);
-			} else {
-				changeLang(t, id, value);
-			}
-		}
-	}
-
-	else if (rx_subtitle_file.indexIn(text) > -1) {
-		QString file = rx_subtitle_file.cap(1);
-		if (subs.count() > 0) {
-			int last = subs.count() -1;
-			if (subs[last].type() == SubData::File) {
-				subs[last].setFilename(file);
-			}
-		}
-	}
-}
-*/

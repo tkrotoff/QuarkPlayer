@@ -30,45 +30,54 @@
 	typedef QWidget Widget;
 #endif	//USE_GL_WIDGET
 
-MPlayerWindow::MPlayerWindow(QWidget * parent)
-	: QWidget(parent) {
-
-	_videoLayer = new Widget(this);
+WidgetPaintEvent::WidgetPaintEvent(QWidget * parent)
+: QWidget(parent) {
 
 	//Background color is black
-	setBackgroundColor(this, Qt::black);
+	//setBackgroundColor(this, Qt::black);
+
+	//MPlayer color key for the DirectX backend
+	//This is needed under Windows
+	setBackgroundColor(this, 0x020202);
+	///
 
 	//When resizing fill with black (backgroundRole color) the rest is done by paintEvent
-	_videoLayer->setAttribute(Qt::WA_OpaquePaintEvent);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	//Disable Qt composition management as MPlayer draws onto the widget directly using X calls
-	_videoLayer->setAttribute(Qt::WA_PaintOnScreen);
+	//Disable Qt composition management as MPlayer draws onto the widget directly
+	setAttribute(Qt::WA_PaintOnScreen);
+
+	//Indicates that the widget has no background, i.e. when the widget receives paint events,
+	//the background is not automatically repainted.
+	setAttribute(Qt::WA_NoSystemBackground);
 
 	//Required for dvdnav
 	setMouseTracking(true);
-
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-	_aspectRatio = (double) 4 / 3;
-	_scaleAndCrop = false;
-
-	_videoWidth = 0;
-	_videoHeight = 0;
 }
 
-MPlayerWindow::~MPlayerWindow() {
+void WidgetPaintEvent::paintEvent(QPaintEvent * event) {
+	//Makes everything backgroundRole color
+	QPainter painter(this);
+	painter.eraseRect(rect());
 }
 
-void MPlayerWindow::setBackgroundColor(QWidget * widget, const QColor & color) {
+void WidgetPaintEvent::setBackgroundColor(QWidget * widget, const QColor & color) {
 	QPalette palette = widget->palette();
 	palette.setColor(widget->backgroundRole(), color);
 	widget->setPalette(palette);
 }
 
-void MPlayerWindow::paintEvent(QPaintEvent * event) {
-	//Makes everything black (backgroundRole color)
-	QPainter painter(this);
-	painter.eraseRect(event->rect());
+
+MPlayerWindow::MPlayerWindow(QWidget * parent)
+: WidgetPaintEvent(parent) {
+
+	_videoLayer = new WidgetPaintEvent(this);
+
+	_aspectRatio = (double) 4 / 3;
+	_scaleAndCrop = false;
+}
+
+MPlayerWindow::~MPlayerWindow() {
 }
 
 WId MPlayerWindow::winId() const {
@@ -124,19 +133,13 @@ void MPlayerWindow::updateVideoWindow() const {
 	}
 }
 
-void MPlayerWindow::setVideoSize(int videoWidth, int videoHeight) {
-	_videoWidth = videoWidth;
-	_videoHeight = videoHeight;
-	_aspectRatio = (double) _videoWidth / _videoHeight;
+void MPlayerWindow::setVideoSize(const QSize & videoSize) {
+	_videoSize = videoSize;
+	_aspectRatio = (double) _videoSize.width() / videoSize.height();
 
 	updateVideoWindow();
 }
 
 QSize MPlayerWindow::sizeHint() const {
-	qDebug() << __FUNCTION__ << "_videoWidth:" << _videoWidth << "_videoHeight:" << _videoHeight;
-
-	qDebug() << __FUNCTION__ << "size():" << size();
-	qDebug() << __FUNCTION__ << "_videoLayer->size():" << _videoLayer->size();
-
-	return QSize(_videoWidth, _videoHeight);
+	return _videoSize;
 }
