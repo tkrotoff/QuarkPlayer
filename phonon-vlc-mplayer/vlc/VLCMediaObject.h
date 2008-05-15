@@ -85,12 +85,23 @@ signals:
 	void chapterChanged(int chapterNumber);
 	void titleChanged(int titleNumber);
 
+	/**
+	 * New widget size computed by VLC.
+	 *
+	 * Should be applied to the widget that contains the VLC video.
+	 */
+	void videoWidgetSizeChanged(int width, int height);
+
 protected:
 
 	void loadMediaInternal(const QString & filename);
 	void playInternal();
 
 	qint64 currentTimeInternal() const;
+
+private slots:
+
+	void loadMediaInternal();
 
 private:
 
@@ -133,6 +144,8 @@ private:
 	//MediaDiscoverer
 	libvlc_media_discoverer_t * _vlcMediaDiscoverer;
 	libvlc_event_manager_t * _vlcMediaDiscovererEventManager;
+
+	bool _playRequestReached;
 
 	qint64 _totalTime;
 

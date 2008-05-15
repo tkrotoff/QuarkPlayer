@@ -70,7 +70,10 @@ void MyProcess::genericRead(const QByteArray & output) {
 	while (pos > -1) {
 		//Readline
 		//QByteArray line = totalOutput.left(pos);
-		QByteArray line = totalOutput.mid(start, pos - start);
+
+		//QString line = QString::fromLocal8Bit(tmp);
+
+		QString line = totalOutput.mid(start, pos - start);
 		//totalOutput = totalOutput.mid(pos + 1);
 		from = pos + 1;
 
@@ -86,7 +89,7 @@ void MyProcess::genericRead(const QByteArray & output) {
 		//Some .mp3 files contain tags with starting and ending whitespaces
 		//Unfortunately MPlayer gives us leading and trailing whitespaces,
 		//Winamp for example doesn't show them
-		line.trimmed();
+		line = line.trimmed();
 		if (!line.isEmpty()) {
 			emit lineAvailable(line);
 		}

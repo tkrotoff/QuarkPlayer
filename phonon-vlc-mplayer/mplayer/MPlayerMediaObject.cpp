@@ -84,7 +84,7 @@ void MPlayerMediaObject::loadMediaInternal(const QString & filename) {
 	//Optimization:
 	//wait to see if play() is run just after loadMedia()
 	//100 milliseconds should be OK
-	QTimer::singleShot(50, this, SLOT(loadMediaInternal()));
+	QTimer::singleShot(100, this, SLOT(loadMediaInternal()));
 }
 
 void MPlayerMediaObject::loadMediaInternal() {

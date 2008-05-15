@@ -43,7 +43,7 @@ public:
 signals:
 
 	/** Emitted when there's a line available. */
-	void lineAvailable(const QByteArray & line);
+	void lineAvailable(const QString & line);
 
 private slots:
 

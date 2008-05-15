@@ -89,9 +89,17 @@ void VLCMediaObject::loadMediaInternal(const QString & filename) {
 	//connectToAllVLCEvents() at the end since it needs _vlcMediaPlayer
 	connectToAllVLCEvents();
 
+	///
+	_playRequestReached = false;
+
+	//Optimization:
+	//wait to see if play() is run just after loadMedia()
+	//100 milliseconds should be OK
+	QTimer::singleShot(100, this, SLOT(loadMediaInternal()));
+
 	//Gets meta data (artist, title...)
 	updateMetaData();
-
+	///
 
 	//Updates available audio channels/subtitles/angles/chapters...
 	//i.e everything from MediaController
@@ -116,6 +124,16 @@ void VLCMediaObject::loadMediaInternal(const QString & filename) {
 	//emit titleChanged(int titleNumber);
 }
 
+void VLCMediaObject::loadMediaInternal() {
+	if (_playRequestReached) {
+		//We are already playing the media,
+		//so there no need to load it
+		return;
+	}
+
+	emit stateChanged(Phonon::StoppedState);
+}
+
 void VLCMediaObject::setVLCWidgetId() {
 	//Get our media player to use our window
 	//FIXME This code does not work inside libvlc!
@@ -127,6 +145,8 @@ void VLCMediaObject::setVLCWidgetId() {
 }
 
 void VLCMediaObject::playInternal() {
+	_playRequestReached = true;
+
 	_vlcCurrentMediaPlayer = _vlcMediaPlayer;
 
 	setVLCWidgetId();
@@ -158,18 +178,11 @@ QString VLCMediaObject::errorString() const {
 }
 
 bool VLCMediaObject::hasVideo() const {
-	bool hasVideo = p_libvlc_media_player_has_vout(_vlcMediaPlayer, _vlcException);
-	checkException();
-
-	return true;
-	return hasVideo;
+	return _hasVideo;
 }
 
 bool VLCMediaObject::isSeekable() const {
-	bool isSeekable = p_libvlc_media_player_is_seekable(_vlcMediaPlayer, _vlcException);
-	checkException();
-
-	return isSeekable;
+	return _seekable;
 }
 
 void VLCMediaObject::connectToAllVLCEvents() {
@@ -227,40 +240,58 @@ void VLCMediaObject::connectToAllVLCEvents() {
 }
 
 void VLCMediaObject::libvlc_callback(const libvlc_event_t * event, void * user_data) {
+	static int firstTime_MediaPlayerTimeChanged = 0;
+
 	VLCMediaObject * vlcMediaObject = (VLCMediaObject *) user_data;
 
-	qDebug() << (int) vlcMediaObject << "event:" << p_libvlc_event_type_name(event->type);
+	//qDebug() << (int) vlcMediaObject << "event:" << p_libvlc_event_type_name(event->type);
+
 
 	/* Media player events */
 
 	if (event->type == libvlc_MediaPlayerTimeChanged) {
-		//new_time / VLC_POSITION_RESOLUTION since VLC adds * VLC_POSITION_RESOLUTION, don't know why...
-		qDebug() << "new_time:" << event->u.media_player_time_changed.new_time;
-		vlcMediaObject->totalTime();
-		vlcMediaObject->currentTime();
-		//emit vlcMediaObject->tick(event->u.media_instance_time_changed.new_time / VLC_POSITION_RESOLUTION);
+
+		firstTime_MediaPlayerTimeChanged++;
+
+		if (firstTime_MediaPlayerTimeChanged == 15) {
+			//Checks if the file is seekable
+			bool seekable = p_libvlc_media_player_is_seekable(vlcMediaObject->_vlcMediaPlayer, _vlcException);
+			checkException();
+			if (seekable != vlcMediaObject->_seekable) {
+				qDebug() << "libvlc_callback(): isSeekable:" << seekable;
+				vlcMediaObject->_seekable = seekable;
+				emit vlcMediaObject->seekableChanged(vlcMediaObject->_seekable);
+			}
+
+			//Video width/height
+			int width = p_libvlc_video_get_width(vlcMediaObject->_vlcMediaPlayer, _vlcException);
+			checkException();
+			int height = p_libvlc_video_get_height(vlcMediaObject->_vlcMediaPlayer, _vlcException);
+			checkException();
+			emit vlcMediaObject->videoWidgetSizeChanged(width, height);
+
+			//Checks if the file is a video
+			bool hasVideo = p_libvlc_media_player_has_vout(vlcMediaObject->_vlcMediaPlayer, _vlcException);
+			checkException();
+			if (hasVideo != vlcMediaObject->_hasVideo) {
+				qDebug() << "libvlc_callback(): hasVideo:" << hasVideo;
+				vlcMediaObject->_hasVideo = hasVideo;
+				emit vlcMediaObject->hasVideoChanged(vlcMediaObject->_hasVideo);
+			}
+
+			//Bugfix with mediaplayer example from Trolltech
+			//Now we are in playing state
+			emit vlcMediaObject->stateChanged(Phonon::PlayingState);
+		}
+
 		emit vlcMediaObject->tick(vlcMediaObject->currentTime());
-		////////BUG POSITION//////////
-
-		//Checks if the file is a video
-		bool hasVideo = vlcMediaObject->hasVideo();
-		if (hasVideo != vlcMediaObject->_hasVideo) {
-			qDebug() << "libvlc_callback(): hasVideo:" << hasVideo;
-			vlcMediaObject->_hasVideo = hasVideo;
-			emit vlcMediaObject->hasVideoChanged(vlcMediaObject->_hasVideo);
-		}
-
-		//Checks if the file is seekable
-		bool seekable = vlcMediaObject->isSeekable();
-		if (seekable != vlcMediaObject->_seekable) {
-			qDebug() << "libvlc_callback(): isSeekable:" << seekable;
-			vlcMediaObject->_seekable = seekable;
-			emit vlcMediaObject->seekableChanged(vlcMediaObject->_seekable);
-		}
 	}
 
 	if (event->type == libvlc_MediaPlayerPlayed) {
-		emit vlcMediaObject->stateChanged(Phonon::PlayingState);
+		if (vlcMediaObject->state() != Phonon::LoadingState) {
+			//Bugfix with mediaplayer example from Trolltech
+			emit vlcMediaObject->stateChanged(Phonon::PlayingState);
+		}
 	}
 
 	if (event->type == libvlc_MediaPlayerPaused) {
@@ -268,24 +299,24 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t * event, void * user_d
 	}
 
 	if (event->type == libvlc_MediaPlayerEndReached) {
+		firstTime_MediaPlayerTimeChanged = 0;
 		emit vlcMediaObject->stateChanged(Phonon::StoppedState);
 		emit vlcMediaObject->finished();
 	}
 
 	if (event->type == libvlc_MediaPlayerStopped) {
+		firstTime_MediaPlayerTimeChanged = 0;
 		emit vlcMediaObject->stateChanged(Phonon::StoppedState);
 	}
 
 	/* Media events */
 
 	if (event->type == libvlc_MediaDurationChanged) {
-		//new_duration / VLC_POSITION_RESOLUTION since VLC adds * VLC_POSITION_RESOLUTION, don't know why...
-		qDebug() << "new_duration:" << event->u.media_duration_changed.new_duration / 1000;
-
-		//emit vlcMediaObject->totalTimeChanged(event->u.media_duration_changed.new_duration / 1000);
-
 		//Checks if the file total time changed
-		qint64 totalTime = vlcMediaObject->totalTime();
+		libvlc_time_t totalTime = p_libvlc_media_get_duration(vlcMediaObject->_vlcMedia, _vlcException);
+		checkException();
+		totalTime = totalTime / VLC_POSITION_RESOLUTION;
+
 		if (totalTime != vlcMediaObject->_totalTime) {
 			qDebug() << "libvlc_callback(): totalTime:" << totalTime;
 			vlcMediaObject->_totalTime = totalTime;
@@ -294,9 +325,6 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t * event, void * user_d
 	}
 
 	if (event->type == libvlc_MediaMetaChanged) {
-		QString meta = p_libvlc_media_get_meta(vlcMediaObject->_vlcMedia, event->u.media_meta_changed.meta_type, _vlcException);
-		checkException();
-		qDebug() << "libvlc_callback(): meta:" << meta;
 	}
 }
 
@@ -328,23 +356,15 @@ void VLCMediaObject::updateMetaData() {
 	checkException();
 
 	emit metaDataChanged(metaDataMap);
-
-	emit stateChanged(Phonon::StoppedState);
 }
 
 qint64 VLCMediaObject::totalTime() const {
-	libvlc_time_t time = p_libvlc_media_get_duration(_vlcMedia, _vlcException);
-	checkException();
-
-	time = time / VLC_POSITION_RESOLUTION;
-	qDebug() << "totalTime:" << time;
-
-	return time;
+	return _totalTime;
 }
 
 qint64 VLCMediaObject::currentTimeInternal() const {
 	libvlc_time_t time = p_libvlc_media_player_get_time(_vlcMediaPlayer, _vlcException);
-	checkException();
+	//checkException();
 
 	qDebug() << "currentTime:" << time;
 

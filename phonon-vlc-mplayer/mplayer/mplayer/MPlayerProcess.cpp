@@ -37,8 +37,8 @@ static const double SECONDS_CONVERTION = 1000.0;
 MPlayerProcess::MPlayerProcess(QObject * parent)
 	: MyProcess(parent) {
 
-	connect(this, SIGNAL(lineAvailable(const QByteArray &)),
-		SLOT(parseLine(const QByteArray &)));
+	connect(this, SIGNAL(lineAvailable(const QString &)),
+		SLOT(parseLine(const QString &)));
 
 	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
 		SLOT(finished(int, QProcess::ExitStatus)));
@@ -187,10 +187,10 @@ static QRegExp rx_clip_software("^software: (.*)", Qt::CaseInsensitive);
 
 static QRegExp rx_stream_title("^.* StreamTitle='(.*)';StreamUrl='(.*)';");
 
-void MPlayerProcess::parseLine(const QByteArray & tmp) {
+void MPlayerProcess::parseLine(const QString & tmp) {
 	//qDebug() << __FUNCTION__ << tmp;
 
-	QString line = QString::fromLocal8Bit(tmp);
+	QString line = tmp;
 
 	//Skip empty lines
 	if (line.isEmpty()) {
@@ -289,7 +289,7 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 		}
 
 		//Stream title
-		if (rx_stream_title.indexIn(line) > -1) {
+		else if (rx_stream_title.indexIn(line) > -1) {
 			const QString title = rx_stream_title.cap(1);
 			const QString url = rx_stream_title.cap(2);
 			qDebug() << __FUNCTION__ << "Stream title:" << title;
@@ -299,14 +299,18 @@ void MPlayerProcess::parseLine(const QByteArray & tmp) {
 			//emit streamTitleAndUrl(title, url);
 		}
 
+
 		//The following things are not sent when the file has started to play
 		//(or if sent, GUI will ignore anyway...)
 		//So not process anymore, if video is playing to save some time
 		if (_state == PlayingState) {
+			qDebug() << __FUNCTION__ << "PlayingState";
 			return;
 		}
+		///
 
-		if ((_mplayerSvnRevision == -1) && (line.startsWith("MPlayer "))) {
+
+		else if ((_mplayerSvnRevision == -1) && (line.startsWith("MPlayer "))) {
 			_mplayerSvnRevision = MPlayerVersion::parse(line);
 			if (_mplayerSvnRevision <= 0) {
 				emit failedToParseMplayerVersion(line);

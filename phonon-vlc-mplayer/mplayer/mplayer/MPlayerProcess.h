@@ -305,7 +305,7 @@ private slots:
 	 *
 	 * @param line line to parse
 	 */
-	void parseLine(const QByteArray & line);
+	void parseLine(const QString & line);
 
 	void finished(int exitCode, QProcess::ExitStatus exitStatus);
 

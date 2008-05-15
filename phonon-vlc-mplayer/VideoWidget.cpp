@@ -31,7 +31,6 @@
 	#include "MPlayerMediaObject.h"
 
 	#include <mplayer/MPlayerProcess.h>
-	#include <mplayer/MPlayerWindow.h>
 #endif	//PHONON_MPLAYER
 
 #include <QtGui/QWidget>
@@ -47,7 +46,7 @@ namespace VLC_MPlayer
 VideoWidget::VideoWidget(QWidget * parent)
 	: SinkNode(parent) {
 
-	_widget = new Widget(parent);
+	_videoWidget = new Widget(parent);
 
 	_aspectRatio = Phonon::VideoWidget::AspectRatioAuto;
 	_scaleMode = Phonon::VideoWidget::FitInView;
@@ -70,7 +69,12 @@ void VideoWidget::connectToMediaObject(PrivateMediaObject * mediaObject) {
 		SLOT(videoWidgetSizeChanged(int, int)));
 #endif	//PHONON_MPLAYER
 
-	_mediaObject->setVideoWidgetId((int) _widget->winId());
+#ifdef PHONON_VLC
+	connect(_mediaObject, SIGNAL(videoWidgetSizeChanged(int, int)),
+		SLOT(videoWidgetSizeChanged(int, int)));
+#endif	//PHONON_VLC
+
+	_mediaObject->setVideoWidgetId((int) _videoWidget->winId());
 }
 
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const {
@@ -122,7 +126,7 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 	}
 
 #ifdef PHONON_MPLAYER
-	_widget->setAspectRatio(ratio);
+	_videoWidget->setAspectRatio(ratio);
 #endif	//PHONON_MPLAYER
 }
 
@@ -150,14 +154,14 @@ void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scaleMode) {
 	//The video will be fitted to fill the view keeping aspect ratio
 	case Phonon::VideoWidget::FitInView:
 #ifdef PHONON_MPLAYER
-		_widget->setScaleAndCropMode(false);
+		_videoWidget->setScaleAndCropMode(false);
 #endif	//PHONON_MPLAYER
 		break;
 
 	//The video is scaled
 	case Phonon::VideoWidget::ScaleAndCrop:
 #ifdef PHONON_MPLAYER
-		_widget->setScaleAndCropMode(true);
+		_videoWidget->setScaleAndCropMode(true);
 #endif	//PHONON_MPLAYER
 		break;
 
@@ -203,11 +207,12 @@ void VideoWidget::setSaturation(qreal saturation) {
 }
 
 Widget * VideoWidget::widget() {
-	return _widget;
+	return _videoWidget;
 }
 
 void VideoWidget::videoWidgetSizeChanged(int width, int height) {
-#ifdef PHONON_MPLAYER
+	qDebug() << __FUNCTION__ << "video width" << width << "height:" << height;
+
 	//I spent 2 full days for these few fucking lines of code!
 	//It resizes dynamically the widget + the main window
 	//I didn't find another way
@@ -218,15 +223,14 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height) {
 	QSize videoSize(width, height);
 	videoSize.boundedTo(QApplication::desktop()->availableGeometry().size());
 
-	_widget->hide();
-	_widget->setVideoSize(videoSize);
+	_videoWidget->hide();
+	_videoWidget->setVideoSize(videoSize);
 	QSize previousSize = parent->minimumSize();
 	parent->setMinimumSize(videoSize);
-	_widget->show();
+	_videoWidget->show();
 	parent->setMinimumSize(previousSize);
 	///
 
-#endif	//PHONON_MPLAYER
 }
 
 }}	//Namespace Phonon::VLC_MPlayer

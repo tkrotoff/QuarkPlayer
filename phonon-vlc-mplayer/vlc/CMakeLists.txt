@@ -9,6 +9,7 @@ set(phonon_vlc_SRCS
 	vlc_loader.cpp
 	VLCMediaObject.cpp
 	VLCMediaController.cpp
+	VLCVideoWidget.cpp
 	vlc_symbols.cpp
 )
 
@@ -16,6 +17,7 @@ if (NOT KDE4_FOUND)
 	qt4_wrap_cpp(phonon_vlc_SRCS
 		${phonon_commom_MOCS}
 		VLCMediaObject.h
+		VLCVideoWidget.h
 	)
 endif (NOT KDE4_FOUND)
 

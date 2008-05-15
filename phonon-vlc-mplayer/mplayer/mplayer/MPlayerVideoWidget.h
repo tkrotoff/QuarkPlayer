@@ -17,11 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MPLAYERWINDOW_H
-#define MPLAYERWINDOW_H
+#ifndef MPLAYERVIDEOWIDGET_H
+#define MPLAYERVIDEOWIDGET_H
 
 #include <QtGui/QWidget>
-#include <QtGui/QResizeEvent>
+
+class QResizeEvent;
 
 /**
  *
@@ -53,12 +54,12 @@ private:
  *
  * @author Tanguy Krotoff
  */
-class MPlayerWindow : public WidgetPaintEvent {
+class MPlayerVideoWidget : public WidgetPaintEvent {
 	Q_OBJECT
 public:
 
-	MPlayerWindow(QWidget * parent);
-	~MPlayerWindow();
+	MPlayerVideoWidget(QWidget * parent);
+	~MPlayerVideoWidget();
 
 	void setVideoSize(const QSize & videoSize);
 	void setAspectRatio(double aspectRatio);
@@ -85,4 +86,4 @@ private:
 	QSize _videoSize;
 };
 
-#endif	//MPLAYERWINDOW_H
+#endif	//MPLAYERVIDEOWIDGET_H

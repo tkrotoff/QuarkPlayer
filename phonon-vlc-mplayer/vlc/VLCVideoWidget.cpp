@@ -1,6 +1,5 @@
 /*
  * VLC and MPlayer backends for the Phonon library
- * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,10 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MPlayerWindow.h"
+#include "VLCVideoWidget.h"
+
+#include "vlc_loader.h"
+#include "vlc_symbols.h"
 
 #include <QtGui/QPainter>
-
+#include <QtGui/QResizeEvent>
 #include <QtCore/QDebug>
 
 #ifdef USE_GL_WIDGET
@@ -30,16 +32,16 @@
 	typedef QWidget Widget;
 #endif	//USE_GL_WIDGET
 
+namespace Phonon
+{
+namespace VLC_MPlayer
+{
+
 WidgetPaintEvent::WidgetPaintEvent(QWidget * parent)
 : QWidget(parent) {
 
 	//Background color is black
-	//setBackgroundColor(this, Qt::black);
-
-	//MPlayer color key for the DirectX backend
-	//This is needed under Windows
-	setBackgroundColor(this, 0x020202);
-	///
+	setBackgroundColor(this, Qt::black);
 
 	//When resizing fill with black (backgroundRole color) the rest is done by paintEvent
 	setAttribute(Qt::WA_OpaquePaintEvent);
@@ -68,78 +70,29 @@ void WidgetPaintEvent::setBackgroundColor(QWidget * widget, const QColor & color
 }
 
 
-MPlayerWindow::MPlayerWindow(QWidget * parent)
+VLCVideoWidget::VLCVideoWidget(QWidget * parent)
 : WidgetPaintEvent(parent) {
-
-	_videoLayer = new WidgetPaintEvent(this);
-
-	_aspectRatio = (double) 4 / 3;
-	_scaleAndCrop = false;
 }
 
-MPlayerWindow::~MPlayerWindow() {
+VLCVideoWidget::~VLCVideoWidget() {
 }
 
-WId MPlayerWindow::winId() const {
-	return _videoLayer->winId();
+void VLCVideoWidget::resizeEvent(QResizeEvent * event) {
+	qDebug() << "event->size():" << event->size();
 }
 
-void MPlayerWindow::setAspectRatio(double aspectRatio) {
-	_aspectRatio = aspectRatio;
-
-	updateVideoWindow();
+void VLCVideoWidget::setAspectRatio(double aspectRatio) {
 }
 
-void MPlayerWindow::setScaleAndCropMode(bool scaleAndCrop) {
-	_scaleAndCrop = scaleAndCrop;
-
-	updateVideoWindow();
+void VLCVideoWidget::setScaleAndCropMode(bool scaleAndCrop) {
 }
 
-void MPlayerWindow::resizeEvent(QResizeEvent *) {
-	updateVideoWindow();
-}
-
-void MPlayerWindow::updateVideoWindow() const {
-	int parentWidth = size().width();
-	int parentHeight = size().height();
-
-	int width, height;
-	int x = 0;
-	int y = 0;
-
-	int pos1_h = (int) (parentWidth / _aspectRatio + 0.5);
-
-	if (pos1_h <= parentHeight) {
-		width = parentWidth;
-		height = pos1_h;
-
-		y = (parentHeight - height) / 2;
-	} else {
-		width = (int) (parentHeight * _aspectRatio + 0.5);
-		height = parentHeight;
-
-		x = (parentWidth - width) / 2;
-	}
-
-	if (_scaleAndCrop) {
-		//Expand the video to the maximum size of the parent
-		_videoLayer->move(0, 0);
-		_videoLayer->resize(parentWidth, parentHeight);
-	} else {
-		//Respect the video aspect ratio
-		_videoLayer->move(x, y);
-		_videoLayer->resize(width, height);
-	}
-}
-
-void MPlayerWindow::setVideoSize(const QSize & videoSize) {
+void VLCVideoWidget::setVideoSize(const QSize & videoSize) {
 	_videoSize = videoSize;
-	_aspectRatio = (double) _videoSize.width() / videoSize.height();
-
-	updateVideoWindow();
 }
 
-QSize MPlayerWindow::sizeHint() const {
+QSize VLCVideoWidget::sizeHint() const {
 	return _videoSize;
 }
+
+}}	//Namespace Phonon::VLC_MPlayer

@@ -24,13 +24,13 @@
 #include <phonon/videowidgetinterface.h>
 
 #ifdef PHONON_VLC
-	class QWidget;
-	typedef QWidget Widget;
+	#include "VLCVideoWidget.h"
+	typedef Phonon::VLC_MPlayer::VLCVideoWidget Widget;
 #endif	//PHONON_VLC
 
 #ifdef PHONON_MPLAYER
-	#include <mplayer/MPlayerWindow.h>
-	typedef MPlayerWindow Widget;
+	#include <mplayer/MPlayerVideoWidget.h>
+	typedef MPlayerVideoWidget Widget;
 #endif	//PHONON_MPLAYER
 
 namespace Phonon
@@ -82,7 +82,7 @@ private slots:
 
 private:
 
-	Widget * _widget;
+	Widget * _videoWidget;
 
 	Phonon::VideoWidget::AspectRatio _aspectRatio;
 

@@ -9,13 +9,13 @@ set(libmplayer_SRCS
 	MPlayerVersion.cpp
 	MPlayerProcess.cpp
 	MPlayerLoader.cpp
-	MPlayerWindow.cpp
+	MPlayerVideoWidget.cpp
 )
 
 qt4_wrap_cpp(libmplayer_SRCS
 	MyProcess.h
 	MPlayerProcess.h
-	MPlayerWindow.h
+	MPlayerVideoWidget.h
 )
 
 add_library(libmplayer STATIC ${libmplayer_SRCS})
