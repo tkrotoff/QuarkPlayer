@@ -225,10 +225,14 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height) {
 
 	_videoWidget->hide();
 	_videoWidget->setVideoSize(videoSize);
+#ifdef Q_OS_WIN
 	QSize previousSize = parent->minimumSize();
 	parent->setMinimumSize(videoSize);
+#endif	//Q_OS_WIN
 	_videoWidget->show();
+#ifdef Q_OS_WIN
 	parent->setMinimumSize(previousSize);
+#endif	//Q_OS_WIN
 	///
 
 }
