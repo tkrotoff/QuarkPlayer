@@ -39,7 +39,7 @@ class SeekStack;
  */
 class MediaObject : public QObject, public MediaObjectInterface {
 	Q_OBJECT
-	friend SeekStack;
+	friend class SeekStack;
 public:
 
 	MediaObject(QObject * parent);
