@@ -162,7 +162,7 @@ void MediaObject::setSource(const MediaSource & source) {
 #endif	//PHONON_VLC
 
 #ifdef PHONON_MPLAYER
-			loadMedia("dvd://");
+			loadMedia("dvd://" + QString::number(MPLAYER_DEFAULT_DVD_TITLE));
 #endif	//PHONON_MPLAYER
 
 			break;

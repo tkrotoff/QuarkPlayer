@@ -156,6 +156,9 @@ void MPlayerMediaObject::mediaLoaded() {
 void MPlayerMediaObject::playInternal() {
 	_playRequestReached = true;
 
+	//Clear subtitles/chapters...
+	clearMediaController();
+
 	MPlayerLoader::start(_process, _filename, _videoWidgetId);
 }
 

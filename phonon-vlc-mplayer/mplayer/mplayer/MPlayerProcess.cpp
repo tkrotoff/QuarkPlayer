@@ -142,6 +142,7 @@ static QRegExp rx_av("^[AV]: *([0-9,:.-]+)");
 static QRegExp rx_frame("^[AV]:.* (\\d+)\\/.\\d+");// [0-9,.]+");
 static QRegExp rx("^(.*)=(.*)");
 static QRegExp rx_audio_mat("^ID_AID_(\\d+)_(LANG|NAME)=(.*)");
+static QRegExp rx_titles("^ID_DVD_TITLES=(\\d+)");
 static QRegExp rx_title("^ID_DVD_TITLE_(\\d+)_(LENGTH|CHAPTERS|ANGLES)=(.*)");
 static QRegExp rx_winresolution("^VO: \\[(.*)\\] (\\d+)x(\\d+) => (\\d+)x(\\d+)");
 static QRegExp rx_ao("^AO: \\[(.*)\\]");
@@ -304,7 +305,6 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		//(or if sent, GUI will ignore anyway...)
 		//So not process anymore, if video is playing to save some time
 		if (_state == PlayingState) {
-			qDebug() << __FUNCTION__ << "PlayingState";
 			return;
 		}
 		///
@@ -351,14 +351,9 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			const QString type = rx_subtitle.cap(1);
 
 			if (type == "FILE_SUB") {
-				//t = SubData::File;
 			} else if (type == "VOBSUB") {
-				//t = SubData::Vob;
-			} else {
-				//t = SubData::Sub;
+			} else if (type == "SUBTITLE") {
 			}
-
-			//emit subtitleAdded(id, "", type);
 		}
 
 		else if (rx_sid.indexIn(line) > -1) {
@@ -483,18 +478,27 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		else*/
 
 		//DVD titles
+		else if (rx_titles.indexIn(line) > -1) {
+			//Available DVD titles
+			int titles = rx_title.cap(1).toInt();
+		}
+
 		else if (rx_title.indexIn(line) > -1) {
+			//DVD example:
+			//ID_DVD_TITLES=8
+			//ID_DVD_TITLE_1_CHAPTERS=2
+			//ID_DVD_TITLE_1_ANGLES=1
+			//ID_DVD_TITLE_2_CHAPTERS=12
+			//ID_DVD_TITLE_2_ANGLES=1
+			//ID_DVD_TITLE_1_LENGTH=18.560
+			//ID_DVD_TITLE_2_LENGTH=5055.000
+			//ID_DVD_DISC_ID=6B5CDFED561E882B949047C87A88BCB4
+			//ID_DVD_CURRENT_TITLE=1
+
 			int titleId = rx_title.cap(1).toInt();
 			const QString attr = rx_title.cap(2);
 
-			if (attr == "LENGTH") {
-				double length = rx_title.cap(3).toDouble();
-				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "length:" << length << "attr:" << attr;
-
-				emit titleAdded(titleId, (int) (length * SECONDS_CONVERTION));
-			}
-
-			else if (attr == "CHAPTERS") {
+			if (attr == "CHAPTERS") {
 				int chapters = rx_title.cap(3).toInt();
 				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "chapters:" << chapters;
 
@@ -506,6 +510,13 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "angles:" << angles;
 
 				emit angleAdded(titleId, angles);
+			}
+
+			else if (attr == "LENGTH") {
+				double length = rx_title.cap(3).toDouble();
+				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "length:" << length << "attr:" << attr;
+
+				emit titleAdded(titleId, (int) (length * SECONDS_CONVERTION));
 			}
 		}
 

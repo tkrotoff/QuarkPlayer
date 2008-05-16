@@ -90,6 +90,7 @@ protected:
 	void setAutoplayTitles(bool autoplay);
 	bool autoplayTitles() const;
 
+	void clearMediaController();
 
 	/** MPlayer process. */
 	MPlayerProcess * _process;
@@ -97,8 +98,6 @@ protected:
 private:
 
 	void loadSubtitleFile(const QString & filename);
-
-	void clearAllButTitle();
 };
 
 }}	//Namespace Phonon::VLC_MPlayer

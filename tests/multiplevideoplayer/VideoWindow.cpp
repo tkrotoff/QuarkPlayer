@@ -249,7 +249,7 @@ void VideoWindow::availableAnglesChanged() {
 
 	int angles = _mediaController->availableAngles();
 	for (int i = 0; i < angles; i++) {
-		QAction * action = menuAngles->addAction(QString::number(i), signalMapper, SLOT(map()));
+		QAction * action = menuAngles->addAction(QString::number(i + 1), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 

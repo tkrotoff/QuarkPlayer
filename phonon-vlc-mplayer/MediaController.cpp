@@ -24,21 +24,39 @@ namespace VLC_MPlayer
 {
 
 MediaController::MediaController() {
+	clearMediaController();
+}
+
+MediaController::~MediaController() {
+}
+
+void MediaController::clearMediaController() {
+	_currentAudioChannel = Phonon::AudioChannelDescription();
+	_availableAudioChannels.clear();
+
+	_currentSubtitle = Phonon::SubtitleDescription();
+	_availableSubtitles.clear();
+
 	_currentAngle = 0;
 	_availableAngles = 0;
 
-#ifndef NEW_TITLE_CHAPTER_HANDLING
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	_currentChapter = Phonon::ChapterDescription();
+	_availableChapters.clear();
+#else
 	_currentChapter = 0;
 	_availableChapters = 0;
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	_currentTitle = Phonon::TitleDescription();
+	_availableTitles.clear();
+#else
 	_currentTitle = 0;
 	_availableTitles = 0;
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 
 	_autoplayTitles = false;
-}
-
-MediaController::~MediaController() {
 }
 
 bool MediaController::hasInterface(Interface iface) const {

@@ -28,6 +28,8 @@ namespace Phonon
 namespace VLC_MPlayer
 {
 
+static const int MPLAYER_DEFAULT_DVD_TITLE = 1;
+
 class SeekStack;
 
 /**

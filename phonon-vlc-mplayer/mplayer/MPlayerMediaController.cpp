@@ -18,6 +18,9 @@
 
 #include "MPlayerMediaController.h"
 
+//Because of MPLAYER_DEFAULT_DVD_TITLE
+#include "../MediaObject.h"
+
 #include <mplayer/MPlayerLoader.h>
 
 namespace Phonon
@@ -30,6 +33,15 @@ MPlayerMediaController::MPlayerMediaController()
 }
 
 MPlayerMediaController::~MPlayerMediaController() {
+}
+
+void MPlayerMediaController::clearMediaController() {
+	MediaController::clearMediaController();
+
+	//Hack:
+	//Create a fake subtitle called "None" with -1 for value
+	//This special subtitle let's the user turn off subtitles cf ("sub_demux -1")
+	subtitleAdded(-1, "None", "SID");
 }
 
 //AudioChannel
@@ -72,13 +84,12 @@ void MPlayerMediaController::subtitleAdded(int id, const QString & lang, const Q
 
 void MPlayerMediaController::loadSubtitleFile(const QString & filename) {
 	if (!filename.isEmpty()) {
-		clearAllButTitle();
-
 		//Loads the selected subtitle file
 		QStringList args;
 		args << "-sub";
 		args << filename;
 
+		clearMediaController();
 		MPlayerLoader::restart(_process, args);
 	}
 }
@@ -99,19 +110,15 @@ void MPlayerMediaController::setCurrentSubtitle(const Phonon::SubtitleDescriptio
 		_process->sendCommand("sub_source -1");
 	} else {
 		QString type = _currentSubtitle.property("type").toString();
-		if (type.compare("vob", Qt::CaseInsensitive)) {
+		if (type.compare("vob", Qt::CaseInsensitive) == 0) {
 			_process->sendCommand("sub_vob " + QString::number(id));
 		}
 
-		else if (type.compare("sub", Qt::CaseInsensitive)) {
+		else if (type.compare("sid", Qt::CaseInsensitive) == 0) {
 			_process->sendCommand("sub_demux " + QString::number(id));
 		}
 
-		else if (type.compare("sid", Qt::CaseInsensitive)) {
-			_process->sendCommand("sub_demux " + QString::number(id));
-		}
-
-		else if (type.compare("file", Qt::CaseInsensitive)) {
+		else if (type.compare("file", Qt::CaseInsensitive) == 0) {
 			QString filename = _currentSubtitle.property("name").toString();
 
 			if (_availableSubtitles.contains(_currentSubtitle)) {
@@ -159,27 +166,15 @@ void MPlayerMediaController::titleAdded(int id, qint64 length) {
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 
 void MPlayerMediaController::setCurrentTitle(const Phonon::TitleDescription & title) {
-	_currentTitle = title;
-
 	//DVDNAV only
 	//otherwise needs to restart MPlayerProcess
 	//with parameter: dvd://titleNumber
-	//_process->sendCommand("switch_title " + QString::number(_currentTitle));
+	//FIXME No MPlayer build with DVDNAV support yet :/
+	//_process->sendCommand("switch_title " + QString::number(titleNumber));
 
-	clearAllButTitle();
-	MPlayerLoader::restart(_process, QStringList(), "dvd://" + QString::number(_currentTitle.index()));
-}
-
-void MPlayerMediaController::clearAllButTitle() {
-	_currentAngle = 0;
-	_availableAngles = 0;
-
-	//_currentChapter = 0;
-	_availableChapters.clear();
-
-	_availableAudioChannels.clear();
-
-	_availableSubtitles.clear();
+	clearMediaController();
+	_currentTitle = title;
+	MPlayerLoader::restart(_process, QStringList(), "dvd://" + QString::number(_currentTitle.index()), 0);
 }
 
 QList<Phonon::TitleDescription> MPlayerMediaController::availableTitles() const {
@@ -193,27 +188,15 @@ Phonon::TitleDescription MPlayerMediaController::currentTitle() const {
 #else
 
 void MPlayerMediaController::setCurrentTitle(int titleNumber) {
-	_currentTitle = titleNumber;
-
 	//DVDNAV only
 	//otherwise needs to restart MPlayerProcess
 	//with parameter: dvd://titleNumber
-	//_process->sendCommand("switch_title " + QString::number(_currentTitle));
+	//FIXME No MPlayer build with DVDNAV support yet :/
+	//_process->sendCommand("switch_title " + QString::number(titleNumber));
 
-	clearAllButTitle();
-	MPlayerLoader::restart(_process, QStringList(), "dvd://" + QString::number(_currentTitle));
-}
-
-void MPlayerMediaController::clearAllButTitle() {
-	_currentAngle = 0;
-	_availableAngles = 0;
-
-	_currentChapter = 0;
-	_availableChapters = 0;
-
-	_availableAudioChannels.clear();
-
-	_availableSubtitles.clear();
+	clearMediaController();
+	_currentTitle = titleNumber;
+	MPlayerLoader::restart(_process, QStringList(), "dvd://" + QString::number(_currentTitle), 0);
 }
 
 int MPlayerMediaController::availableTitles() const {
@@ -240,11 +223,34 @@ bool MPlayerMediaController::autoplayTitles() const {
 
 void MPlayerMediaController::chapterAdded(int titleId, int chapters) {
 	//DVD chapter added
+	if (_availableTitles.isEmpty() && (_currentTitle.index() == -1)) {
+		//No default DVD title, let's set the default DVD title
+		//This is because we get this from MPlayer:
+
+		//DVD example:
+		//ID_DVD_TITLES=8
+		//ID_DVD_TITLE_1_CHAPTERS=2
+		//ID_DVD_TITLE_1_ANGLES=1
+		//ID_DVD_TITLE_2_CHAPTERS=12
+		//ID_DVD_TITLE_2_ANGLES=1
+		//ID_DVD_TITLE_1_LENGTH=18.560
+		//ID_DVD_TITLE_2_LENGTH=5055.000
+		//ID_DVD_DISC_ID=6B5CDFED561E882B949047C87A88BCB4
+		//ID_DVD_CURRENT_TITLE=1
+
+		//We get DVD chapters and angles infos before titles infos :/
+
+		QHash<QByteArray, QVariant> properties;
+		properties.insert("name", MPLAYER_DEFAULT_DVD_TITLE);
+
+		_currentTitle = Phonon::TitleDescription(MPLAYER_DEFAULT_DVD_TITLE, properties);
+	}
+
 	if (titleId == _currentTitle.index()) {
 		_availableChapters.clear();
 		for (int i = 0; i < chapters; i++) {
 			QHash<QByteArray, QVariant> properties;
-			properties.insert("name", i);
+			properties.insert("name", i + 1);
 			properties.insert("description", "");
 
 			_availableChapters << Phonon::ChapterDescription(i, properties);
@@ -255,7 +261,7 @@ void MPlayerMediaController::chapterAdded(int titleId, int chapters) {
 }
 
 void MPlayerMediaController::mkvChapterAdded(int id, const QString & title, const QString & from, const QString & to) {
-	//FIXME
+	//HACK
 	//id + 1 since MPlayer starts from 1
 	id += 1;
 
@@ -265,7 +271,7 @@ void MPlayerMediaController::mkvChapterAdded(int id, const QString & title, cons
 	properties.insert("description", "");
 
 	_availableChapters << Phonon::ChapterDescription(id, properties);
-	qDebug() << __FUNCTION__ << "Chapter id: " << id << "title:" << title;
+	qDebug() << __FUNCTION__ << "MKV chapter id: " << id << "title:" << title;
 }
 
 void MPlayerMediaController::setCurrentChapter(const Phonon::ChapterDescription & chapter) {
@@ -287,6 +293,26 @@ Phonon::ChapterDescription MPlayerMediaController::currentChapter() const {
 
 void MPlayerMediaController::chapterAdded(int titleId, int chapters) {
 	//DVD chapter added
+	if ((_availableTitles == 0) && (_currentTitle == 0)) {
+		//No default DVD title, let's set the default DVD title
+		//This is because we get this from MPlayer:
+
+		//DVD example:
+		//ID_DVD_TITLES=8
+		//ID_DVD_TITLE_1_CHAPTERS=2
+		//ID_DVD_TITLE_1_ANGLES=1
+		//ID_DVD_TITLE_2_CHAPTERS=12
+		//ID_DVD_TITLE_2_ANGLES=1
+		//ID_DVD_TITLE_1_LENGTH=18.560
+		//ID_DVD_TITLE_2_LENGTH=5055.000
+		//ID_DVD_DISC_ID=6B5CDFED561E882B949047C87A88BCB4
+		//ID_DVD_CURRENT_TITLE=1
+
+		//We get DVD chapters and angles infos before titles infos :/
+
+		_currentTitle = MPLAYER_DEFAULT_DVD_TITLE;
+	}
+
 	if (titleId == _currentTitle) {
 		_availableChapters = chapters;
 		qDebug() << __FUNCTION__ << "Chapters: " << _availableChapters;

@@ -73,7 +73,7 @@ void VLCMediaObject::unloadMedia() {
 void VLCMediaObject::loadMediaInternal(const QString & filename) {
 	_initLibVLCFuture.waitForFinished();
 
-	qDebug() << (int) this << "loadMedia()" << filename;
+	qDebug() << (int) this << "loadMediaInternal()" << filename;
 
 	//Create a new media from a filename
 	_vlcMedia = p_libvlc_media_new(_vlcInstance, filename.toAscii(), _vlcException);
@@ -146,6 +146,9 @@ void VLCMediaObject::setVLCWidgetId() {
 
 void VLCMediaObject::playInternal() {
 	_playRequestReached = true;
+
+	//Clear subtitles/chapters...
+	clearMediaController();
 
 	_vlcCurrentMediaPlayer = _vlcMediaPlayer;
 

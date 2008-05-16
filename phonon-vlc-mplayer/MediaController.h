@@ -117,6 +117,13 @@ protected:
 	virtual void setAutoplayTitles(bool autoplay) = 0;
 	virtual bool autoplayTitles() const = 0;
 
+	/**
+	 * Clear all (i.e availableSubtitles, availableChapters...).
+	 *
+	 * This is used each time we restart the video.
+	 */
+	virtual void clearMediaController();
+
 	Phonon::AudioChannelDescription _currentAudioChannel;
 	QList<Phonon::AudioChannelDescription> _availableAudioChannels;
 
