@@ -41,7 +41,7 @@ SinkNode::~SinkNode() {
 }
 
 void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject) {
-	if (_mediaObject && mediaObject) {
+	if (_mediaObject) {
 		qCritical() << __FUNCTION__ << "_mediaObject already connected";
 	}
 
@@ -49,7 +49,7 @@ void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject) {
 }
 
 void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject) {
-	if (_mediaObject == mediaObject) {
+	if (_mediaObject != mediaObject) {
 		qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
 	}
 }

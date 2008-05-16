@@ -345,12 +345,21 @@ bool Backend::connectNodes(QObject * source, QObject * sink) {
 	//source = Phonon::VLC_MPlayer::MediaObject
 	//sink = Phonon::VLC_MPlayer::Effect
 
+	//Example:
+	//source = Phonon::VLC_MPlayer::Effect
+	//sink = Phonon::VLC_MPlayer::AudioOutput
+
 	SinkNode * sinkNode = qobject_cast<SinkNode *>(sink);
 	if (sinkNode) {
 		PrivateMediaObject * mediaObject = qobject_cast<PrivateMediaObject *>(source);
 		if (mediaObject) {
 			//Connects the SinkNode to a MediaObject
 			sinkNode->connectToMediaObject(mediaObject);
+			return true;
+		} else {
+			//FIXME try to find a better way...
+			Effect * effect = qobject_cast<Effect * >(source);
+			//Nothing todo, MPlayer does not support this kind of connection
 			return true;
 		}
 	}
@@ -360,7 +369,7 @@ bool Backend::connectNodes(QObject * source, QObject * sink) {
 }
 
 bool Backend::disconnectNodes(QObject * source, QObject * sink) {
-	qDebug() << __FUNCTION__ << source->metaObject()->className() << "" << sink->metaObject()->className();
+	qDebug() << __FUNCTION__ << source->metaObject()->className() << sink->metaObject()->className();
 
 	SinkNode * sinkNode = qobject_cast<SinkNode *>(sink);
 	if (sinkNode) {
@@ -369,7 +378,13 @@ bool Backend::disconnectNodes(QObject * source, QObject * sink) {
 			//Disconnects the SinkNode from a MediaObject
 			sinkNode->disconnectFromMediaObject(mediaObject);
 			return true;
+		} else {
+			//FIXME try to find a better way...
+			Effect * effect = qobject_cast<Effect * >(source);
+			//Nothing todo, MPlayer does not support this kind of connection
+			return true;
 		}
+
 	}
 
 	qWarning() << __FUNCTION__ << "Disconnection not supported";

@@ -40,16 +40,17 @@ SeekStack::~SeekStack() {
 }
 
 void SeekStack::pushSeek(qint64 milliseconds) {
-	if (!_timer->isActive()) {
-		_timer->start();
-	}
-
 	qDebug() << __FUNCTION__ << "seek:" << milliseconds;
 
 	disconnect(_mediaObject, SIGNAL(tickInternal(qint64)),
 		_mediaObject, SLOT(tickInternalSlot(qint64)));
 
 	_stack.push(milliseconds);
+
+	if (!_timer->isActive()) {
+		_timer->start();
+		popSeek();
+	}
 }
 
 void SeekStack::popSeek() {

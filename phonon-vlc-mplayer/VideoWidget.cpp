@@ -218,7 +218,7 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height) {
 	//I didn't find another way
 	//Each line is very important!
 	//If someone finds a better, please tell me!
-	QWidget * parent = static_cast<QWidget *>(this->parent());
+	QWidget * parent = qobject_cast<QWidget *>(this->parent());
 
 	QSize videoSize(width, height);
 	videoSize.boundedTo(QApplication::desktop()->availableGeometry().size());
