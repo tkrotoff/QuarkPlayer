@@ -255,6 +255,10 @@ void MPlayerMediaController::chapterAdded(int titleId, int chapters) {
 }
 
 void MPlayerMediaController::mkvChapterAdded(int id, const QString & title, const QString & from, const QString & to) {
+	//FIXME
+	//id + 1 since MPlayer starts from 1
+	id += 1;
+
 	//Matroska chapter added
 	QHash<QByteArray, QVariant> properties;
 	properties.insert("name", QString::number(id) + " " + title + " (" + from + ")");

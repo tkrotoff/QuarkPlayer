@@ -66,15 +66,13 @@ void MyProcess::genericRead(const QByteArray & output) {
 	int from = 0;
 	int pos = canReadLine2(totalOutput, from);
 
-	//qDebug("MyProcess::read: pos: %d", pos);
 	while (pos > -1) {
 		//Readline
-		//QByteArray line = totalOutput.left(pos);
-
-		//QString line = QString::fromLocal8Bit(tmp);
-
-		QString line = totalOutput.mid(start, pos - start);
-		//totalOutput = totalOutput.mid(pos + 1);
+		//QString line = totalOutput.mid(start, pos - start);
+		//cp1252
+		//Windows-1252
+		//QTextCodec::setCodecForCStrings(QTextCodec::codecForName("Windows-1252"));
+		QString line = QString::fromLocal8Bit(totalOutput.mid(start, pos - start));
 		from = pos + 1;
 
 #ifdef Q_OS_WIN
@@ -104,18 +102,12 @@ int MyProcess::canReadLine2(const QByteArray & output, int from) {
 	int pos1 = output.indexOf('\n', from);
 	int pos2 = output.indexOf('\r', from);
 
-	//qDebug("MyProcess::canReadLine: pos2: %d", pos2);
-
 	if ((pos1 == -1) && (pos2 == -1)) {
 		return -1;
 	}
 
 	int pos = pos1;
 	if ((pos1 != -1) && (pos2 != -1)) {
-		/*
-		if (pos2 == (pos1+1)) pos = pos2; // \r\n
-		else
-		*/
 		if (pos1 < pos2) {
 			pos = pos1;
 		} else {
