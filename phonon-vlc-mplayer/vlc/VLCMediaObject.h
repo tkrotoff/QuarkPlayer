@@ -59,7 +59,6 @@ public:
 
 	void pause();
 	void stop();
-	void seek(qint64 milliseconds);
 
 	bool hasVideo() const;
 	bool isSeekable() const;
@@ -96,6 +95,7 @@ protected:
 
 	void loadMediaInternal(const QString & filename);
 	void playInternal();
+	void seekInternal(qint64 milliseconds);
 
 	qint64 currentTimeInternal() const;
 

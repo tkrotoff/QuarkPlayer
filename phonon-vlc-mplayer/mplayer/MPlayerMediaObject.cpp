@@ -42,7 +42,7 @@ MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
 		SLOT(stateChangedInternal(MPlayerProcess::State)));
 
 	connect(_process, SIGNAL(tick(qint64)),
-		SIGNAL(tick(qint64)));
+		SIGNAL(tickInternal(qint64)));
 
 	connect(_process, SIGNAL(totalTimeChanged(qint64)),
 		SIGNAL(totalTimeChanged(qint64)));
@@ -216,7 +216,7 @@ void MPlayerMediaObject::finished(int exitCode, QProcess::ExitStatus exitStatus)
 	emit stateChanged(Phonon::StoppedState);
 }
 
-void MPlayerMediaObject::seek(qint64 milliseconds) {
+void MPlayerMediaObject::seekInternal(qint64 milliseconds) {
 	_process->sendCommand("seek " + QString::number(milliseconds / 1000.0) + " 2");
 }
 

@@ -28,6 +28,8 @@ namespace Phonon
 namespace VLC_MPlayer
 {
 
+class SeekStack;
+
 /**
  *
  *
@@ -35,6 +37,7 @@ namespace VLC_MPlayer
  */
 class MediaObject : public QObject, public MediaObjectInterface {
 	Q_OBJECT
+	friend SeekStack;
 public:
 
 	MediaObject(QObject * parent);
@@ -46,6 +49,7 @@ public:
 	void setVideoWidgetId(int videoWidgetId);
 
 	void play();
+	void seek(qint64 milliseconds);
 
 	qint32 tickInterval() const;
 	void setTickInterval(qint32 interval);
@@ -80,10 +84,13 @@ signals:
 	//Signal from MPlayerMediaObject and VLCMediaObject
 	void stateChanged(Phonon::State newState);
 
+	void tickInternal(qint64 time);
+
 protected:
 
 	virtual void loadMediaInternal(const QString & filename) = 0;
 	virtual void playInternal() = 0;
+	virtual void seekInternal(qint64 milliseconds) = 0;
 
 	virtual qint64 currentTimeInternal() const = 0;
 
@@ -92,6 +99,8 @@ protected:
 private slots:
 
 	void stateChangedInternal(Phonon::State newState);
+
+	void tickInternalSlot(qint64 time);
 
 private:
 

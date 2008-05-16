@@ -18,6 +18,8 @@
 
 #include "MediaObject.h"
 
+#include "SeekStack.h"
+
 #include <QtCore/QUrl>
 #include <QtCore/QMetaType>
 #include <QtCore/QTimer>
@@ -37,6 +39,9 @@ MediaObject::MediaObject(QObject * parent)
 
 	connect(this, SIGNAL(stateChanged(Phonon::State)),
 		SLOT(stateChangedInternal(Phonon::State)));
+
+	connect(this, SIGNAL(tickInternal(qint64)),
+		SLOT(tickInternalSlot(qint64)));
 }
 
 MediaObject::~MediaObject() {
@@ -55,6 +60,16 @@ void MediaObject::play() {
 		//Play the file
 		playInternal();
 	}
+}
+
+void MediaObject::seek(qint64 milliseconds) {
+	static SeekStack * stack = new SeekStack(this);
+
+	stack->pushSeek(milliseconds);
+}
+
+void MediaObject::tickInternalSlot(qint64 time) {
+	emit tick(time);
 }
 
 void MediaObject::loadMedia(const QString & filename) {

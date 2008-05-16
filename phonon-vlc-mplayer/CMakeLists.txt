@@ -10,6 +10,7 @@ set(phonon_commom_SRCS
 	../EffectManager.cpp
 	../Effect.cpp
 	../SinkNode.cpp
+	../SeekStack.cpp
 )
 
 set(phonon_commom_MOCS
@@ -20,6 +21,7 @@ set(phonon_commom_MOCS
 	../EffectManager.h
 	../Effect.h
 	../SinkNode.h
+	../SeekStack.h
 )
 ##
 

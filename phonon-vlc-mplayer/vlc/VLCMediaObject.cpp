@@ -167,8 +167,8 @@ void VLCMediaObject::stop() {
 	//unloadMedia();
 }
 
-void VLCMediaObject::seek(qint64 milliseconds) {
-	qDebug() << (int) this << "seek() milliseconds:" << milliseconds;
+void VLCMediaObject::seekInternal(qint64 milliseconds) {
+	qDebug() << (int) this << "seek:" << milliseconds;
 	p_libvlc_media_player_set_time(_vlcMediaPlayer, milliseconds, _vlcException);
 	checkException();
 }
@@ -284,7 +284,7 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t * event, void * user_d
 			emit vlcMediaObject->stateChanged(Phonon::PlayingState);
 		}
 
-		emit vlcMediaObject->tick(vlcMediaObject->currentTime());
+		emit vlcMediaObject->tickInternal(vlcMediaObject->currentTime());
 	}
 
 	if (event->type == libvlc_MediaPlayerPlayed) {
