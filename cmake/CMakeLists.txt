@@ -2,8 +2,6 @@
 
 include(OWDefaultConfig)
 
-include(OWCheckCXXCompilerFlag)
-
 include(OWGetGCCVersion)
 include(OWDetectSystem)
 
@@ -15,3 +13,4 @@ include(OWGetCurrentDateTime)
 include(OWGlobalVariables)
 
 include(OWEnsureOutOfSourceBuild)
+include(ReduceQtIncludeDirs)

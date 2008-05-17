@@ -18,7 +18,8 @@ if (KDE4_FOUND)
 else (KDE4_FOUND)
 	find_package(Qt4 REQUIRED)
 
-	add_definitions(${QT_DEFINITIONS})
+	#Includes all wanted definitions for Qt
+	include(${QT_USE_FILE})
 
 	#Does not use Phonon from Qt
 	#Uses Phonon from this repository instead
@@ -26,12 +27,16 @@ else (KDE4_FOUND)
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 	set(QT_PHONON_LIBRARY phonon)
 
-	include_directories(${QT_INCLUDE_DIR})
-
 	#Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
 	add_definitions(-DNEW_TITLE_CHAPTER_HANDLING)
 
 	message(STATUS "KDE4 support disabled")
+
+
+	#Optimization: remove all Qt modules from include path
+	#This will reduce compilation time (less include directories == compilation time reduced)
+	reduce_qt_include_dirs()
+
 endif (KDE4_FOUND)
 
 #Default installation path

@@ -13,21 +13,6 @@
 # For details see the accompanying COPYING file.
 
 
-# With -fPIC
-if (UNIX AND NOT WIN32)
-	if (CMAKE_SIZEOF_VOID_P MATCHES "8")
-		ow_check_cxx_compiler_flag("-fPIC" WITH_FPIC)
-		if (WITH_FPIC)
-			add_definitions(-fPIC)
-		endif (WITH_FPIC)
-	endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
-
-	if (GCC4)
-		# See http://www.cynapses.org/tmp/gcc/fortify_source
-		add_definitions(-D_FORTIFY_SOURCE=2)
-	endif (GCC4)
-endif (UNIX AND NOT WIN32)
-
 # Enable warnings
 if (MSVC)
 	#add_definitions(/W4)

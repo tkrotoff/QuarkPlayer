@@ -1,3 +1,8 @@
+Stripped version of OWBuild (only utility macros) + modifications + some more macros.
+
+Here is the original README from OWBuild:
+
+
 OWBuild is a build system based on CMake.
 OWBuild is not a fork of CMake, it is simply a set of macros for CMake
 that simplifies CMake scripts writing
