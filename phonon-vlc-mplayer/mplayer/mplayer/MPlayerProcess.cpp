@@ -65,11 +65,9 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 	args << arguments;
 
 	//Attach MPlayer video output to our widget
-	if (videoWidgetId > 0) {
-		_data.videoWidgetId = videoWidgetId;
-		args << "-wid";
-		args << QString::number(_data.videoWidgetId);
-	}
+	_data.videoWidgetId = videoWidgetId;
+	args << "-wid";
+	args << QString::number(_data.videoWidgetId);
 
 	//If seek < 5 it's better to allow the video to start from the beginning
 	if (seek > 5) {
