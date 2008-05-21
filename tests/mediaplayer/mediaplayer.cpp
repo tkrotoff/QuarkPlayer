@@ -46,7 +46,6 @@
 #define SLIDER_RANGE 8
 #define TICKINTERVAL 4
 
-#include <phonon/backendcapabilities.h>
 #include "mediaplayer.h"
 #include "ui_settings.h"
 
@@ -63,7 +62,7 @@ public:
         m_action.setShortcutContext(Qt::WindowShortcut);
         connect(&m_action, SIGNAL(toggled(bool)), SLOT(setFullScreen(bool)));
         addAction(&m_action);
-        setAcceptDrops(true);        
+        setAcceptDrops(true);     
     }
 
 protected:
@@ -146,13 +145,14 @@ private:
 
 
 MediaPlayer::MediaPlayer(const QString &filePath) :
-        playButton(0), volumeLabel(0), m_AudioOutput(Phonon::VideoCategory),
+        playButton(0), volumeLabel(0), nextEffect(0), settingsDialog(0), ui(0), 
+            m_AudioOutput(Phonon::VideoCategory),
             m_videoWidget(new MediaVideoWidget(this))
 {
     setWindowTitle("Media Player");
     setContextMenuPolicy(Qt::CustomContextMenu);
     m_videoWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-    
+ 
     QSize buttonSize(34, 28);
 
     QPushButton *openButton = new QPushButton(this);
@@ -232,10 +232,12 @@ MediaPlayer::MediaPlayer(const QString &filePath) :
     buttonPanelLayout->addLayout(layout);
     
     timeLabel = new QLabel(this);
+    progressLabel = new QLabel(this);
     QWidget *sliderPanel = new QWidget(this);
     QHBoxLayout *sliderLayout = new QHBoxLayout();
     sliderLayout->addWidget(slider);
     sliderLayout->addWidget(timeLabel);    
+    sliderLayout->addWidget(progressLabel);    
     sliderLayout->setContentsMargins(0, 0, 0, 0);
     sliderPanel->setLayout(sliderLayout);
 
@@ -245,7 +247,7 @@ MediaPlayer::MediaPlayer(const QString &filePath) :
     layout->setSpacing(4);
     buttonPanelLayout->setSpacing(0);
     info->setMinimumHeight(100);
-    info->setFont(QFont("verdana", 16));
+    info->setFont(QFont("verdana", 15));
     // QStyle *flatButtonStyle = new QWindowsStyle;
     openButton->setFocusPolicy(Qt::NoFocus);
     // openButton->setStyle(flatButtonStyle);
@@ -322,6 +324,7 @@ MediaPlayer::MediaPlayer(const QString &filePath) :
     connect(&m_MediaObject, SIGNAL(tick(qint64)), this, SLOT(updateTime()));
     connect(&m_MediaObject, SIGNAL(finished()), this, SLOT(finished()));
     connect(&m_MediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)), this, SLOT(stateChanged(Phonon::State, Phonon::State)));
+    connect(&m_MediaObject, SIGNAL(bufferStatus(int)), this, SLOT(bufferStatus(int)));
 
     rewindButton->setEnabled(false);
     playButton->setEnabled(false);
@@ -346,9 +349,12 @@ void MediaPlayer::stateChanged(Phonon::State newstate, Phonon::State oldstate)
         info->setVisible(!m_MediaObject.hasVideo());        
         QRect videoHintRect = QRect(QPoint(0, 0), m_videoWindow.sizeHint());
         QRect newVideoRect = QApplication::desktop()->screenGeometry().intersected(videoHintRect);
-        if (m_MediaObject.hasVideo())        
+        if (m_MediaObject.hasVideo()){        
+            // Flush event que so that sizeHint takes the
+            // recently shown/hidden m_videoWindow into account:
+            qApp->processEvents();
             resize(sizeHint());
-        else
+        } else
             resize(minimumSize());
     }
 
@@ -389,42 +395,36 @@ void MediaPlayer::stateChanged(Phonon::State newstate, Phonon::State oldstate)
 
 }
 
-void MediaPlayer::showSettingsDialog()
+void MediaPlayer::initSettingsDialog()
 {
-    Ui_settings ui;
-    QDialog dialog(this);
-    ui.setupUi(&dialog);
+    settingsDialog = new QDialog(this);
+    ui = new Ui_settings();
+    ui->setupUi(settingsDialog);
 
-    float oldBrightness = m_videoWidget->brightness();
-    float oldHue = m_videoWidget->hue();
-    float oldSaturation = m_videoWidget->saturation();
-    float oldContrast = m_videoWidget->contrast();
-    Phonon::VideoWidget::AspectRatio oldAspect = m_videoWidget->aspectRatio();
-    Phonon::VideoWidget::ScaleMode oldScale = m_videoWidget->scaleMode();
+    connect(ui->brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
+    connect(ui->hueSlider, SIGNAL(valueChanged(int)), this, SLOT(setHue(int)));
+    connect(ui->saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(setSaturation(int)));
+    connect(ui->contrastSlider , SIGNAL(valueChanged(int)), this, SLOT(setContrast(int)));
+    connect(ui->aspectCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setAspect(int)));
+    connect(ui->scalemodeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setScale(int)));
 
-    connect(ui.brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
-    connect(ui.hueSlider, SIGNAL(valueChanged(int)), this, SLOT(setHue(int)));
-    connect(ui.saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(setSaturation(int)));
-    connect(ui.contrastSlider , SIGNAL(valueChanged(int)), this, SLOT(setContrast(int)));
-    connect(ui.aspectCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setAspect(int)));
-    connect(ui.scalemodeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setScale(int)));
-
-    ui.brightnessSlider->setValue(int(m_videoWidget->brightness() * SLIDER_RANGE));
-    ui.hueSlider->setValue(int(m_videoWidget->hue() * SLIDER_RANGE));
-    ui.saturationSlider->setValue(int(m_videoWidget->saturation() * SLIDER_RANGE));
-    ui.contrastSlider->setValue(int(m_videoWidget->contrast() * SLIDER_RANGE));
-    ui.aspectCombo->setCurrentIndex(m_videoWidget->aspectRatio());
-    ui.scalemodeCombo->setCurrentIndex(m_videoWidget->scaleMode());
+    ui->brightnessSlider->setValue(int(m_videoWidget->brightness() * SLIDER_RANGE));
+    ui->hueSlider->setValue(int(m_videoWidget->hue() * SLIDER_RANGE));
+    ui->saturationSlider->setValue(int(m_videoWidget->saturation() * SLIDER_RANGE));
+    ui->contrastSlider->setValue(int(m_videoWidget->contrast() * SLIDER_RANGE));
+    ui->aspectCombo->setCurrentIndex(m_videoWidget->aspectRatio());
+    ui->scalemodeCombo->setCurrentIndex(m_videoWidget->scaleMode());
+    connect(ui->effectButton, SIGNAL(clicked()), this, SLOT(configureEffect()));
 
 #ifdef Q_WS_X11
     //Cross fading is not currently implemented in the GStreamer backend
-    ui.crossFadeSlider->setVisible(false);
-    ui.crossFadeLabel->setVisible(false);
-    ui.crossFadeLabel1->setVisible(false);
-    ui.crossFadeLabel2->setVisible(false);
-    ui.crossFadeLabel3->setVisible(false);
+    ui->crossFadeSlider->setVisible(false);
+    ui->crossFadeLabel->setVisible(false);
+    ui->crossFadeLabel1->setVisible(false);
+    ui->crossFadeLabel2->setVisible(false);
+    ui->crossFadeLabel3->setVisible(false);
 #endif
-    ui.crossFadeSlider->setValue((int)(2 * m_MediaObject.transitionTime() / 1000.0f));
+    ui->crossFadeSlider->setValue((int)(2 * m_MediaObject.transitionTime() / 1000.0f));
     
     // Insert audio devices:
     QList<Phonon::AudioOutputDevice> devices = Phonon::BackendCapabilities::availableAudioOutputDevices();
@@ -433,27 +433,81 @@ void MediaPlayer::showSettingsDialog()
         if (!devices[i].description().isEmpty()) {
             itemText += QString::fromLatin1(" (%1)").arg(devices[i].description());
         }
-        ui.deviceCombo->addItem(itemText);
+        ui->deviceCombo->addItem(itemText);
         if (devices[i] == m_AudioOutput.outputDevice())
-            ui.deviceCombo->setCurrentIndex(i);
+            ui->deviceCombo->setCurrentIndex(i);
     }
 
     // Insert audio effects:
-    ui.audioEffectsCombo->addItem("<no effect>");
+    ui->audioEffectsCombo->addItem("<no effect>");
     QList<Phonon::Effect *> currEffects = m_audioOutputPath.effects();
     Phonon::Effect *currEffect = currEffects.size() ? currEffects[0] : 0;
     QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
     for (int i=0; i<availableEffects.size(); i++){
-        ui.audioEffectsCombo->addItem(availableEffects[i].name());
+        ui->audioEffectsCombo->addItem(availableEffects[i].name());
         if (currEffect && availableEffects[i] == currEffect->description())
-            ui.audioEffectsCombo->setCurrentIndex(i+1);
+            ui->audioEffectsCombo->setCurrentIndex(i+1);
     }
+    connect(ui->audioEffectsCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(effectChanged()));
+
+}
+
+void MediaPlayer::effectChanged()
+{
+    int currentIndex = ui->audioEffectsCombo->currentIndex();
+    if (ui->audioEffectsCombo->currentIndex()) {
+        QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
+        Phonon::EffectDescription chosenEffect = availableEffects[ui->audioEffectsCombo->currentIndex() - 1];
+
+        QList<Phonon::Effect *> currEffects = m_audioOutputPath.effects();
+        Phonon::Effect *currentEffect = currEffects.size() ? currEffects[0] : 0;
+
+        // Deleting the running effect will stop playback, it is deleted when removed from path
+        if (nextEffect && !(currentEffect && (currentEffect->description().name() == nextEffect->description().name())))
+            delete nextEffect;
+
+        nextEffect = new Phonon::Effect(chosenEffect);
+    }
+    ui->effectButton->setEnabled(currentIndex);
+}
+
+void MediaPlayer::showSettingsDialog()
+{
+    if (!settingsDialog)
+        initSettingsDialog();
+
+    float oldBrightness = m_videoWidget->brightness();
+    float oldHue = m_videoWidget->hue();
+    float oldSaturation = m_videoWidget->saturation();
+    float oldContrast = m_videoWidget->contrast();
+    Phonon::VideoWidget::AspectRatio oldAspect = m_videoWidget->aspectRatio();
+    Phonon::VideoWidget::ScaleMode oldScale = m_videoWidget->scaleMode();
+    int currentEffect = ui->audioEffectsCombo->currentIndex();
+    settingsDialog->exec();
     
-    dialog.exec();
-    
-    if (dialog.result() == QDialog::Accepted){
-        m_MediaObject.setTransitionTime((int)(1000 * float(ui.crossFadeSlider->value()) / 2.0f));
-        m_AudioOutput.setOutputDevice(devices[ui.deviceCombo->currentIndex()]);
+    if (settingsDialog->result() == QDialog::Accepted){
+        m_MediaObject.setTransitionTime((int)(1000 * float(ui->crossFadeSlider->value()) / 2.0f));
+        QList<Phonon::AudioOutputDevice> devices = Phonon::BackendCapabilities::availableAudioOutputDevices();
+        m_AudioOutput.setOutputDevice(devices[ui->deviceCombo->currentIndex()]);
+        QList<Phonon::Effect *> currEffects = m_audioOutputPath.effects();
+        QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
+
+        if (ui->audioEffectsCombo->currentIndex() > 0){
+            Phonon::Effect *currentEffect = currEffects.size() ? currEffects[0] : 0;    
+            if (!currentEffect || currentEffect->description() != nextEffect->description()){
+                foreach(Phonon::Effect *effect, currEffects) {
+                    m_audioOutputPath.removeEffect(effect);
+                    delete effect;
+                }
+                m_audioOutputPath.insertEffect(nextEffect);
+            }
+        } else {
+            foreach(Phonon::Effect *effect, currEffects) {
+                m_audioOutputPath.removeEffect(effect);
+                delete effect;
+                nextEffect = 0;
+            }
+        }
     } else {
         // Restore previous settings
         m_videoWidget->setBrightness(oldBrightness);
@@ -462,20 +516,7 @@ void MediaPlayer::showSettingsDialog()
         m_videoWidget->setContrast(oldContrast);
         m_videoWidget->setAspectRatio(oldAspect);
         m_videoWidget->setScaleMode(oldScale);
-    }
-    
-    if (ui.audioEffectsCombo->currentIndex() > 0){
-        Phonon::EffectDescription chosenEffect = availableEffects[ui.audioEffectsCombo->currentIndex() - 1];
-        if (!currEffect || currEffect->description() != chosenEffect){
-            foreach(Phonon::Effect *effect, currEffects){
-                m_audioOutputPath.removeEffect(effect);
-            }
-            m_audioOutputPath.insertEffect(chosenEffect);
-        }
-    } else {
-        foreach(Phonon::Effect *effect, currEffects){
-            m_audioOutputPath.removeEffect(effect);
-        }
+        ui->audioEffectsCombo->setCurrentIndex(currentEffect);
     }
 }
 
@@ -488,6 +529,181 @@ void MediaPlayer::initVideoWindow()
     m_videoWindow.setMinimumSize(100, 100);
 }
 
+void MediaPlayer::updateEffect()
+{
+    for (int k=0 ; k< nextEffect->parameters().size() ; ++k) {
+        Phonon::EffectParameter param = nextEffect->parameters()[k];
+        switch(param.type()) {
+        case QVariant::Int: 
+            {
+                QSpinBox *spin = (QSpinBox*)propertyControllers.value(param.name());
+                nextEffect->setParameterValue(param, spin->value());
+            }            
+            break;
+        case QVariant::Double:
+            if (param.minimumValue() == -1.0 && param.maximumValue() == 1.0) {
+                QSlider *slider = (QSlider*)propertyControllers.value(param.name());
+                nextEffect->setParameterValue(param, (double)(slider->value() / (double)SLIDER_RANGE));
+            } else {                        
+                QDoubleSpinBox *spin = (QDoubleSpinBox*)propertyControllers.value(param.name());
+                nextEffect->setParameterValue(param, spin->value());
+            }
+            break;
+        case QVariant::Bool: 
+            {
+                QCheckBox *cb = (QCheckBox*)propertyControllers.value(param.name());
+                nextEffect->setParameterValue(param, cb->isChecked());
+            }            
+            break;
+        case QVariant::String: 
+            {
+                QLineEdit *edit = (QLineEdit*)propertyControllers.value(param.name());
+                nextEffect->setParameterValue(param, edit->text());
+            }            
+            break;
+        default:
+            break;
+        }
+    }    
+}
+
+void MediaPlayer::configureEffect()
+{
+    QList<Phonon::Effect *> currEffects = m_audioOutputPath.effects();
+    QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
+    if (ui->audioEffectsCombo->currentIndex() > 0){
+        QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
+        Phonon::EffectDescription chosenEffect = availableEffects[ui->audioEffectsCombo->currentIndex() - 1];
+
+        QDialog effectDialog;
+        effectDialog.setWindowTitle(tr("Configure effect"));
+        QVBoxLayout *topLayout = new QVBoxLayout(&effectDialog);
+
+        QLabel *description = new QLabel("<b>Description:</b><br>" + chosenEffect.description(), &effectDialog);
+        description->setWordWrap(true); 
+        topLayout->addWidget(description);
+
+        QScrollArea *scrollArea = new QScrollArea(&effectDialog);
+        topLayout->addWidget(scrollArea);
+
+        QWidget *scrollWidget = new QWidget(&effectDialog);
+        QVBoxLayout *scrollLayout = new QVBoxLayout(scrollWidget);
+        scrollWidget->setMinimumWidth(320);
+        scrollArea->setWidget(scrollWidget);
+
+        if (nextEffect) {
+            for (int k=0 ; k< nextEffect->parameters().size() ; ++k) {
+                Phonon::EffectParameter param = nextEffect->parameters()[k];
+                QHBoxLayout *hlayout = new QHBoxLayout();
+                QString labelName = param.name();
+                labelName[0] = labelName[0].toUpper();
+                hlayout->addWidget(new QLabel("<b>" + labelName + ":</b> "));
+                if (param.type() == QVariant::Int) {
+                    QSpinBox *spin = new QSpinBox(&effectDialog);
+                    spin->setMinimum(param.minimumValue().toInt());
+                    spin->setMaximum(param.maximumValue().toInt());
+                    QVariant currentValue = nextEffect->parameterValue(param);
+                    spin->setProperty("oldValue", currentValue.toInt());
+                    spin->setValue(currentValue.toInt());
+                    connect(spin, SIGNAL(valueChanged(int)), this, SLOT(updateEffect()));
+                    hlayout->addWidget(spin);
+                    propertyControllers.insert(param.name(), spin);
+               } else if (param.type() == QVariant::Double) {
+                    if (param.minimumValue() == -1.0 && param.maximumValue() == 1.0) {
+                        //Special case values between -1 and 1.0 to use a slider for improved usability
+                        QSlider *slider = new QSlider(Qt::Horizontal, &effectDialog);
+                        slider->setMinimum(-SLIDER_RANGE);
+                        slider->setMaximum(SLIDER_RANGE);
+                        QVariant currentValue = nextEffect->parameterValue(param);
+                        slider->setProperty("oldValue", currentValue.toDouble());
+                        slider->setValue((int)(SLIDER_RANGE * currentValue.toDouble()));
+                        slider->setTickPosition(QSlider::TicksBelow);
+                        slider->setTickInterval(4);
+                        hlayout->addWidget(slider);
+                        connect(slider, SIGNAL(valueChanged(int)), this, SLOT(updateEffect()));
+                        propertyControllers.insert(param.name(), slider);
+                    } else {
+                        QDoubleSpinBox *spin = new QDoubleSpinBox(&effectDialog);
+                        spin->setSingleStep(0.1);                        
+                        spin->setMinimum(param.minimumValue().toDouble());
+                        spin->setMaximum(param.maximumValue().toDouble());
+                        QVariant currentValue = nextEffect->parameterValue(param);
+                        spin->setProperty("oldValue", currentValue);
+                        spin->setValue(currentValue.toDouble());
+                        connect(spin, SIGNAL(valueChanged(double)), this, SLOT(updateEffect()));
+                        hlayout->addWidget(spin);
+                        propertyControllers.insert(param.name(), spin);
+                    }
+                } else if (param.type() == QVariant::Bool) {
+                    QCheckBox *cb = new QCheckBox(&effectDialog);
+                    QVariant currentValue = nextEffect->parameterValue(param);
+                    cb->setProperty("oldValue", currentValue);
+                    cb->setChecked(currentValue.toBool());
+                    connect(cb, SIGNAL(stateChanged(int)), this, SLOT(updateEffect()));
+                    hlayout->addWidget(cb);
+                    propertyControllers.insert(param.name(), cb);
+                } else if (param.type() == QVariant::String) {
+                    QLineEdit *edit = new QLineEdit(&effectDialog);
+                    QVariant currentValue = nextEffect->parameterValue(param);
+                    edit->setProperty("oldValue", currentValue.toString());
+                    edit->setText(currentValue.toString());
+                    connect(edit, SIGNAL(returnPressed()), this, SLOT(updateEffect()));
+                    hlayout->addWidget(edit);
+                    propertyControllers.insert(param.name(), edit);
+                }
+                scrollLayout->addLayout(hlayout);
+            }
+            QDialogButtonBox *bbox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &effectDialog);
+            connect(bbox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), &effectDialog, SLOT(accept()));
+            connect(bbox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), &effectDialog, SLOT(reject()));
+            topLayout->addWidget(bbox);
+
+            scrollWidget->adjustSize();
+            effectDialog.adjustSize();
+            
+            effectDialog.exec();
+            if (effectDialog.result() != QDialog::Accepted){
+                // Revert any changes
+                for (int k=0 ; k< nextEffect->parameters().size() ; ++k) {
+                    Phonon::EffectParameter param = nextEffect->parameters()[k];
+                    switch(param.type()) {
+                    case QVariant::Int: 
+                        {
+                            QSpinBox *spin = (QSpinBox*)propertyControllers.value(param.name());
+                            nextEffect->setParameterValue(param, spin->property("oldValue").toInt());
+                        }            
+                        break;
+                    case QVariant::Double:
+                        if (param.minimumValue() == -1.0 && param.maximumValue() == 1.0) {
+                            QSlider *slider = (QSlider*)propertyControllers.value(param.name());
+                            nextEffect->setParameterValue(param, slider->property("oldValue").toDouble());
+                        } else {                        
+                            QDoubleSpinBox *spin = (QDoubleSpinBox*)propertyControllers.value(param.name());
+                            nextEffect->setParameterValue(param, spin->property("oldValue").toDouble());
+                        }
+                        break;
+                    case QVariant::Bool: 
+                        {
+                            QCheckBox *cb = (QCheckBox*)propertyControllers.value(param.name());
+                            nextEffect->setParameterValue(param, cb->property("oldValue").toBool());
+                        }            
+                        break;
+                    case QVariant::String: 
+                        {
+                            QLineEdit *edit = (QLineEdit*)propertyControllers.value(param.name());
+                            nextEffect->setParameterValue(param, edit->property("oldValue").toString());
+                        }            
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+            propertyControllers.clear();
+        }
+    }
+}
+
 void MediaPlayer::pause()
 {
     m_MediaObject.pause();
@@ -495,11 +711,8 @@ void MediaPlayer::pause()
 
 void MediaPlayer::handleDrop(QDropEvent *e)
 {
-    if (e->mimeData()->hasUrls())
-        e->acceptProposedAction();
-
     QList<QUrl> urls = e->mimeData()->urls();
-    if (e->keyboardModifiers() & Qt::ShiftModifier){
+    if (e->proposedAction() == Qt::MoveAction){
         // Just add to the que:
         for (int i=0; i<urls.size(); i++)
             m_MediaObject.enqueue(Phonon::MediaSource(urls[i].toLocalFile()));
@@ -530,13 +743,26 @@ void MediaPlayer::handleDrop(QDropEvent *e)
 
 void MediaPlayer::dropEvent(QDropEvent *e)
 {
-    handleDrop(e);
+    if (e->mimeData()->hasUrls() && e->proposedAction() != Qt::LinkAction) {
+        e->acceptProposedAction();
+        handleDrop(e);
+    } else {
+        e->ignore(); 
+    }
 }
 
 void MediaPlayer::dragEnterEvent(QDragEnterEvent *e)
 {
-    if (e->mimeData()->hasUrls())
-        e->acceptProposedAction();
+    dragMoveEvent(e);
+}
+
+void MediaPlayer::dragMoveEvent(QDragMoveEvent *e)
+{
+    if (e->mimeData()->hasUrls()) {
+        if (e->proposedAction() == Qt::CopyAction || e->proposedAction() == Qt::MoveAction){
+            e->acceptProposedAction();
+        }
+    }
 }
 
 void MediaPlayer::playPause()
@@ -587,6 +813,18 @@ void MediaPlayer::openFile()
     forwardButton->setEnabled(m_MediaObject.queue().size() > 0);
 }
 
+void MediaPlayer::bufferStatus(int percent)
+{
+    if (percent == 0 || percent == 100)
+        progressLabel->setText("");
+    else {
+        QString str("(");
+        str += QString::number(percent);
+        str += "%)";
+        progressLabel->setText(str);
+    }
+}
+
 void MediaPlayer::setSaturation(int val)
 {
     m_videoWidget->setSaturation(val / qreal(SLIDER_RANGE));
@@ -629,9 +867,6 @@ void MediaPlayer::updateInfo()
         trackArtist = trackArtist.left(maxLength) + "...";
     
     QString trackTitle = metaData.value("TITLE");
-    if (trackTitle.length() > maxLength)
-        trackTitle = trackTitle.left(maxLength) + "...";
-
     int trackBitrate = metaData.value("BITRATE").toInt();
 
     QString fileName;
@@ -643,10 +878,15 @@ void MediaPlayer::updateInfo()
         if (fileName.length() > maxLength)
             fileName = fileName.left(maxLength) + "...";
     }
+    
     QString title;    
     if (!trackTitle.isEmpty()) {
+        if (trackTitle.length() > maxLength)
+            trackTitle = trackTitle.left(maxLength) + "...";
         title = "Title: " + font + trackTitle + "<br></font>";
     } else if (!fileName.isEmpty()) {
+        if (fileName.length() > maxLength)
+            fileName = fileName.left(maxLength) + "...";
         title = font + fileName + "</font>";
         if (m_MediaObject.currentSource().type() == Phonon::MediaSource::Url) {
             title.prepend("Url: ");

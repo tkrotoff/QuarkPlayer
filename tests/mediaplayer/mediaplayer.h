@@ -49,6 +49,7 @@
 #include <QtCore/QTimerEvent>
 #include <QtGui/QShowEvent>
 #include <QtGui/QIcon>
+#include <QtCore/QHash>
 
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>
@@ -56,6 +57,9 @@
 #include <phonon/videowidget.h>
 #include <phonon/seekslider.h>
 #include <phonon/effect.h>
+#include <phonon/backendcapabilities.h>
+#include <phonon/effect.h>
+#include <phonon/effectparameter.h>
 
 QT_BEGIN_NAMESPACE
 class QThread;
@@ -64,6 +68,7 @@ class QLabel;
 class QSlider;
 class QTextEdit;
 class QMenu;
+class Ui_settings;
 QT_END_NAMESPACE
 
 class MediaPlayer :
@@ -80,17 +85,20 @@ public slots:
     void forward();
     void setVolume(int);
     void dragEnterEvent(QDragEnterEvent *e);
+    void dragMoveEvent(QDragMoveEvent *e);
     void dropEvent(QDropEvent *e);
     void handleDrop(QDropEvent *e);
     void setFile(const QString &text);
     void initVideoWindow();
+    void initSettingsDialog();
+    void updateEffect();
     void updateInfo();
     void updateTime();
     void finished();
     void scaleChanged(QAction *);
     void aspectChanged(QAction *);
     void playPause();
-    
+
 private slots:
     void setAspect(int);
     void setScale(int);
@@ -99,9 +107,12 @@ private slots:
     void setHue(int);
     void setBrightness(int);
     void stateChanged(Phonon::State newstate, Phonon::State oldstate);
+    void effectChanged();
     void showSettingsDialog();
     void showContextMenu(const QPoint &);
+    void bufferStatus(int percent);
     void openUrl();
+    void configureEffect();
 
 private:
     QIcon playIcon;
@@ -115,13 +126,18 @@ private:
     Phonon::SeekSlider *slider;
     QLabel *volumeLabel;
     QLabel *timeLabel;
+    QLabel *progressLabel;
     QSlider *volume;
     QSlider *m_hueSlider;
     QSlider *m_satSlider;
     QSlider *m_contSlider;
     QLabel *info;
     long duration;
-    
+    QHash <QString, QWidget*> propertyControllers;
+    Phonon::Effect *nextEffect;
+    QDialog *settingsDialog;
+    Ui_settings *ui;
+
     QWidget m_videoWindow;
     Phonon::MediaObject m_MediaObject;
     Phonon::AudioOutput m_AudioOutput;

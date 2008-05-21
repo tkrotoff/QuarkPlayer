@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>360</width>
-    <height>379</height>
+    <height>362</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -239,7 +239,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" >
+       <layout class="QHBoxLayout" name="horizontalLayout" >
         <item>
          <widget class="QLabel" name="label_6" >
           <property name="sizePolicy" >
@@ -265,10 +265,20 @@
         <item>
          <widget class="QComboBox" name="audioEffectsCombo" >
           <property name="sizePolicy" >
-           <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+           <sizepolicy vsizetype="Maximum" hsizetype="Minimum" >
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="effectButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="text" >
+           <string>Setup</string>
           </property>
          </widget>
         </item>
