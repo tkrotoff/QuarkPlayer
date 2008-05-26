@@ -19,59 +19,26 @@
 
 #include "MPlayerVideoWidget.h"
 
-#include <QtGui/QPainter>
 #include <QtGui/QResizeEvent>
 #include <QtCore/QDebug>
 
-#ifdef USE_GL_WIDGET
-	#include <QtOpenGL/QGLWidget>
-	typedef QGLWidget Widget;
-#else
-	typedef QWidget Widget;
-#endif	//USE_GL_WIDGET
+namespace Phonon
+{
+namespace VLC_MPlayer
+{
 
-WidgetPaintEvent::WidgetPaintEvent(QWidget * parent)
-: QWidget(parent) {
+MPlayerVideoWidget::MPlayerVideoWidget(QWidget * parent)
+: WidgetNoPaintEvent(parent) {
+
+	_videoLayer = new WidgetNoPaintEvent(this);
 
 	//Background color is black
-	//setBackgroundColor(this, Qt::black);
+	setBackgroundColor(Qt::black);
 
 	//MPlayer color key for the DirectX backend
 	//This is needed under Windows
-	setBackgroundColor(this, 0x020202);
+	_videoLayer->setBackgroundColor(0x020202);
 	///
-
-	//When resizing fill with black (backgroundRole color) the rest is done by paintEvent
-	setAttribute(Qt::WA_OpaquePaintEvent);
-
-	//Disable Qt composition management as MPlayer draws onto the widget directly
-	setAttribute(Qt::WA_PaintOnScreen);
-
-	//Indicates that the widget has no background, i.e. when the widget receives paint events,
-	//the background is not automatically repainted.
-	setAttribute(Qt::WA_NoSystemBackground);
-
-	//Required for dvdnav
-	setMouseTracking(true);
-}
-
-void WidgetPaintEvent::paintEvent(QPaintEvent * event) {
-	//Makes everything backgroundRole color
-	QPainter painter(this);
-	painter.eraseRect(rect());
-}
-
-void WidgetPaintEvent::setBackgroundColor(QWidget * widget, const QColor & color) {
-	QPalette palette = widget->palette();
-	palette.setColor(widget->backgroundRole(), color);
-	widget->setPalette(palette);
-}
-
-
-MPlayerVideoWidget::MPlayerVideoWidget(QWidget * parent)
-: WidgetPaintEvent(parent) {
-
-	_videoLayer = new WidgetPaintEvent(this);
 
 	_aspectRatio = (double) 4 / 3;
 	_scaleAndCrop = false;
@@ -145,3 +112,5 @@ void MPlayerVideoWidget::setVideoSize(const QSize & videoSize) {
 QSize MPlayerVideoWidget::sizeHint() const {
 	return _videoSize;
 }
+
+}}	//Namespace Phonon::VLC_MPlayer

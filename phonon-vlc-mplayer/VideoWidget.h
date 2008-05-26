@@ -29,8 +29,8 @@
 #endif	//PHONON_VLC
 
 #ifdef PHONON_MPLAYER
-	#include <mplayer/MPlayerVideoWidget.h>
-	typedef MPlayerVideoWidget Widget;
+	#include "MPlayerVideoWidget.h"
+	typedef Phonon::VLC_MPlayer::MPlayerVideoWidget Widget;
 #endif	//PHONON_MPLAYER
 
 namespace Phonon

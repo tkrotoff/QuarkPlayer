@@ -234,7 +234,6 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height) {
 	parent->setMinimumSize(previousSize);
 #endif	//Q_OS_WIN
 	///
-
 }
 
 }}	//Namespace Phonon::VLC_MPlayer

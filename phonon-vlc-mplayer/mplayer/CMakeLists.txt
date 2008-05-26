@@ -10,12 +10,14 @@ set(phonon_mplayer_SRCS
 	${phonon_commom_SRCS}
 	MPlayerMediaObject.cpp
 	MPlayerMediaController.cpp
+	MPlayerVideoWidget.cpp
 )
 
 if (NOT KDE4_FOUND)
 	qt4_wrap_cpp(phonon_mplayer_SRCS
 		${phonon_commom_MOCS}
 		MPlayerMediaObject.h
+		MPlayerVideoWidget.h
 	)
 endif (NOT KDE4_FOUND)
 

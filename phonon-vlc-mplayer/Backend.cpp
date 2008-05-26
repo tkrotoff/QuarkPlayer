@@ -281,6 +281,16 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 
 	switch (type) {
 	case Phonon::AudioOutputDeviceType:
+		//For MPlayer:
+		//mplayer *.mp3
+		//mplayer -ao oss *.mp3
+		//mplayer -ao alsa *.mp3
+		//mplayer -ao oss:/dev/dsp *.mp3
+		//mplayer -ao alsa:device=hw=0.0 *.mp3
+		//mplayer -ao oss:/dev/dsp1 *.mp3
+		//mplayer -ao alsa:device=hw=1.0 *.mp3
+		//See http://linux.dsplabs.com.au/mplayer-multiple-sound-cards-select-audio-device-p77/
+		//mplayer -ao dsound:device=0
 		ret.insert("device", "0");
 		break;
 	/*case Phonon::AudioCaptureDeviceType:

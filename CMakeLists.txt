@@ -69,5 +69,6 @@ endif (WIN32)
 add_subdirectory(phonon)
 add_subdirectory(phonon-vlc-mplayer)
 add_subdirectory(tests)
+add_subdirectory(quarkplayer)
 
 include(CPackConfig.txt)

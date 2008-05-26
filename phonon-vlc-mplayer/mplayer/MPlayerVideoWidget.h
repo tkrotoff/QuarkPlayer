@@ -20,41 +20,23 @@
 #ifndef MPLAYERVIDEOWIDGET_H
 #define MPLAYERVIDEOWIDGET_H
 
+#include "../WidgetNoPaintEvent.h"
+
 #include <QtGui/QWidget>
 
 class QResizeEvent;
 
-/**
- *
- *
- * @author Tanguy Krotoff
- */
-class WidgetPaintEvent : public QWidget {
-	Q_OBJECT
-public:
-
-	WidgetPaintEvent(QWidget * parent);
-
-private:
-
-	void paintEvent(QPaintEvent * event);
-
-	/**
-	 * Sets the background color.
-	 *
-	 * This is compulsary otherwise MPlayerWindow won't display MPlayer video.
-	 *
-	 * I don't know which one is best: 0x020202 or Qt::black...
-	 */
-	static void setBackgroundColor(QWidget * widget, const QColor & color);
-};
+namespace Phonon
+{
+namespace VLC_MPlayer
+{
 
 /**
  * Widget where to show MPlayer video.
  *
  * @author Tanguy Krotoff
  */
-class MPlayerVideoWidget : public WidgetPaintEvent {
+class MPlayerVideoWidget : public WidgetNoPaintEvent {
 	Q_OBJECT
 public:
 
@@ -75,7 +57,7 @@ private:
 
 	void resizeEvent(QResizeEvent * event);
 
-	QWidget * _videoLayer;
+	WidgetNoPaintEvent * _videoLayer;
 
 	double _aspectRatio;
 
@@ -85,5 +67,7 @@ private:
 	/** Original size of the video, needed for sizeHint(). */
 	QSize _videoSize;
 };
+
+}}	//Namespace Phonon::VLC_MPlayer
 
 #endif	//MPLAYERVIDEOWIDGET_H

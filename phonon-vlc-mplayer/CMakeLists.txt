@@ -11,6 +11,7 @@ set(phonon_commom_SRCS
 	../Effect.cpp
 	../SinkNode.cpp
 	../SeekStack.cpp
+	../WidgetNoPaintEvent.cpp
 )
 
 set(phonon_commom_MOCS
@@ -22,6 +23,7 @@ set(phonon_commom_MOCS
 	../Effect.h
 	../SinkNode.h
 	../SeekStack.h
+	../WidgetNoPaintEvent.h
 )
 ##
 
