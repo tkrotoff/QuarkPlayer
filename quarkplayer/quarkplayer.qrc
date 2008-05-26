@@ -1,0 +1,27 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+	<file>images/dvd.png</file>
+	<file>images/play.png</file>
+	<file>images/stop.png</file>
+	<file>images/pause.png</file>
+	<file>images/volume.png</file>
+	<file>images/fullscreen.png</file>
+	<file>images/qt.png</file>
+	<file>images/exit.png</file>
+	<file>images/plus.png</file>
+	<file>images/logo-background.png</file>
+	<file>images/preference.png</file>
+	<file>images/url.png</file>
+	<file>images/subtitle.png</file>
+	<file>images/angle.png</file>
+	<file>images/chapter.png</file>
+	<file>images/title.png</file>
+	<file>images/audio_channel.png</file>
+	<file>images/delete.png</file>
+	<file>images/vcd.png</file>
+	<file>images/preference_general.png</file>
+	<file>images/previous.png</file>
+	<file>images/next.png</file>
+	<file>images/file_open.png</file>
+</qresource>
+</RCC>
