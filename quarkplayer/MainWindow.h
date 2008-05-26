@@ -31,7 +31,6 @@ namespace Phonon {
 	class MediaController;
 	class AudioOutput;
 	class MediaSource;
-	enum State;
 }
 
 /**

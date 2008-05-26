@@ -19,11 +19,12 @@
 #ifndef STATUSBAR_H
 #define STATUSBAR_H
 
+#include <phonon/phononnamespace.h>
+
 #include <QtGui/QStatusBar>
 
 namespace Phonon {
 	class MediaObject;
-	enum State;
 }
 
 class QLabel;

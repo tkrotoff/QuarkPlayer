@@ -19,6 +19,8 @@
 #ifndef PLAYTOOLBAR_H
 #define PLAYTOOLBAR_H
 
+#include <phonon/phononnamespace.h>
+
 #include <QtGui/QToolBar>
 
 class MainWindow;
@@ -30,7 +32,6 @@ namespace Phonon {
 	class AudioOutput;
 	class SeekSlider;
 	class VolumeSlider;
-	enum State;
 }
 
 class QLabel;
