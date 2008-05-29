@@ -108,7 +108,7 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 #ifdef PHONON_MPLAYER
 		if (_mediaObject) {
 			MPlayerProcess * process = _mediaObject->getMPlayerProcess();
-			ratio = process->getMediaData().videoAspectRatio;
+			ratio = process->mediaData().videoAspectRatio;
 		}
 #endif	//PHONON_MPLAYER
 		break;

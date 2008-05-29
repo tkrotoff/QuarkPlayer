@@ -53,7 +53,7 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 		stop();
 	}
 
-	_data.clear();
+	_mediaData.clear();
 
 	//Not found yet
 	_mplayerSvnRevision = -1;
@@ -65,19 +65,19 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 	args << arguments;
 
 	//Attach MPlayer video output to our widget
-	_data.videoWidgetId = videoWidgetId;
+	_mediaData.videoWidgetId = videoWidgetId;
 	args << "-wid";
-	args << QString::number(_data.videoWidgetId);
+	args << QString::number(_mediaData.videoWidgetId);
 
 	//If seek < 5 it's better to allow the video to start from the beginning
 	if (seek > 5) {
-		_data.currentTime = seek;
+		_mediaData.currentTime = seek;
 		args << "-ss";
-		args << QString::number(_data.currentTime / SECONDS_CONVERTION);
+		args << QString::number(_mediaData.currentTime / SECONDS_CONVERTION);
 	}
 
 	//File to play
-	_data.filename = filename;
+	_mediaData.filename = filename;
 	args << filename;
 
 
@@ -115,24 +115,24 @@ void MPlayerProcess::sendCommand(const QString & command) {
 	}
 }
 
-const MediaData & MPlayerProcess::getMediaData() const {
-	return _data;
+const MediaData & MPlayerProcess::mediaData() const {
+	return _mediaData;
 }
 
 bool MPlayerProcess::hasVideo() const {
-	return _data.hasVideo;
+	return _mediaData.hasVideo;
 }
 
 bool MPlayerProcess::isSeekable() const {
-	return _data.isSeekable;
+	return _mediaData.isSeekable;
 }
 
 qint64 MPlayerProcess::currentTime() const {
-	return _data.currentTime;
+	return _mediaData.currentTime;
 }
 
 qint64 MPlayerProcess::totalTime() const {
-	return _data.totalTime;
+	return _mediaData.totalTime;
 }
 
 
@@ -203,17 +203,17 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 
 	//Parse A: V: line
 	if (rx_av.indexIn(line) > -1) {
-		_data.currentTime = (qint64) (rx_av.cap(1).toDouble() * SECONDS_CONVERTION);
+		_mediaData.currentTime = (qint64) (rx_av.cap(1).toDouble() * SECONDS_CONVERTION);
 
 		if (_state != PlayingState) {
-			qDebug() << __FUNCTION__ << "Starting time:" << _data.currentTime;
+			qDebug() << __FUNCTION__ << "Starting time:" << _mediaData.currentTime;
 			setState(PlayingState);
 
 			//OK, now all the media datas should be in clean state
-			emit mediaLoaded();
+			emit mediaLoaded(_mediaData);
 		}
 
-		emit tick(_data.currentTime);
+		emit tick(_mediaData.currentTime);
 
 		//Check for frame number
 		if (rx_frame.indexIn(line) > -1) {
@@ -276,9 +276,9 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 
 		//No video
 		else if (rx_novideo.indexIn(line) > -1) {
-			_data.hasVideo = false;
-			qDebug() << __FUNCTION__ << "Video:" << _data.hasVideo;
-			emit hasVideoChanged(_data.hasVideo);
+			_mediaData.hasVideo = false;
+			qDebug() << __FUNCTION__ << "Video:" << _mediaData.hasVideo;
+			emit hasVideoChanged(_mediaData.hasVideo);
 			//emit mplayerFullyLoaded();
 		}
 
@@ -293,8 +293,8 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			const QString url = rx_stream_title.cap(2);
 			qDebug() << __FUNCTION__ << "Stream title:" << title;
 			qDebug() << __FUNCTION__ << "Stream url:" << url;
-			_data.stream_title = title;
-			_data.stream_url = url;
+			_mediaData.stream_title = title;
+			_mediaData.stream_url = url;
 			//emit streamTitleAndUrl(title, url);
 		}
 
@@ -422,10 +422,10 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 
 			if (attr == "NAME") {
 				//lang=english, spanish...
-				//_data.audioTrackList.addName(id, lang);
+				//_mediaData.audioTrackList.addName(id, lang);
 			} else if (attr == "LANG") {
 				//lang=en, fr...
-				//_data.audioTrackList.addLang(id, lang);
+				//_mediaData.audioTrackList.addLang(id, lang);
 			}
 
 			emit audioChannelAdded(id, lang);
@@ -453,8 +453,8 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		/*else if (rx_vcd.indexIn(line) > -1) {
 			int ID = rx_vcd.cap(1).toInt();
 			QString length = rx_vcd.cap(2);
-			//_data.titles.addID(ID);
-			_data.titles.addName(ID, length);
+			//_mediaData.titles.addID(ID);
+			_mediaData.titles.addName(ID, length);
 		}
 		else
 
@@ -468,10 +468,10 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 				duration = r.cap(1).toInt() * 60;
 				duration += r.cap(2).toInt();
 			}
-			_data.titles.addID(ID);
+			_mediaData.titles.addID(ID);
 			//QString name = QString::number(ID) + " (" + length + ")";
-			//_data.titles.addName(ID, name);
-			_data.titles.addDuration(ID, duration);
+			//_mediaData.titles.addName(ID, name);
+			_mediaData.titles.addDuration(ID, duration);
 		}
 		else*/
 
@@ -547,70 +547,70 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		else if (rx_clip_name.indexIn(line) > -1) {
 			const QString s = rx_clip_name.cap(2);
 			qDebug() << __FUNCTION__ << "Clip name:" << s;
-			_data.clip_name = s;
+			_mediaData.clip_name = s;
 		}
 
 		//Artist
 		else if (rx_clip_artist.indexIn(line) > -1) {
 			const QString s = rx_clip_artist.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_artist: '%s'", s.toUtf8().data());
-			_data.clip_artist = s;
+			_mediaData.clip_artist = s;
 		}
 
 		//Author
 		else if (rx_clip_author.indexIn(line) > -1) {
 			const QString s = rx_clip_author.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_author: '%s'", s.toUtf8().data());
-			_data.clip_author = s;
+			_mediaData.clip_author = s;
 		}
 
 		//Album
 		else if (rx_clip_album.indexIn(line) > -1) {
 			const QString s = rx_clip_album.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_album: '%s'", s.toUtf8().data());
-			_data.clip_album = s;
+			_mediaData.clip_album = s;
 		}
 
 		//Genre
 		else if (rx_clip_genre.indexIn(line) > -1) {
 			const QString s = rx_clip_genre.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_genre: '%s'", s.toUtf8().data());
-			_data.clip_genre = s;
+			_mediaData.clip_genre = s;
 		}
 
 		//Date
 		else if (rx_clip_date.indexIn(line) > -1) {
 			const QString s = rx_clip_date.cap(2);
 			qDebug("MPlayerProcess::parseLine: clip_date: '%s'", s.toUtf8().data());
-			_data.clip_date = s;
+			_mediaData.clip_date = s;
 		}
 
 		//Track
 		else if (rx_clip_track.indexIn(line) > -1) {
 			const QString s = rx_clip_track.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_track: '%s'", s.toUtf8().data());
-			_data.clip_track = s;
+			_mediaData.clip_track = s;
 		}
 
 		//Copyright
 		else if (rx_clip_copyright.indexIn(line) > -1) {
 			const QString s = rx_clip_copyright.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_copyright: '%s'", s.toUtf8().data());
-			_data.clip_copyright = s;
+			_mediaData.clip_copyright = s;
 		}
 
 		//Comment
 		else if (rx_clip_comment.indexIn(line) > -1) {
 			const QString s = rx_clip_comment.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_comment: '%s'", s.toUtf8().data());
-			_data.clip_comment = s;
+			_mediaData.clip_comment = s;
 		}
 
 		//Software
 		else if (rx_clip_software.indexIn(line) > -1) {
 			const QString s = rx_clip_software.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_software: '%s'", s.toUtf8().data());
-			_data.clip_software = s;
+			_mediaData.clip_software = s;
 		}
 
 		//Catch "Starting playback..." message
@@ -618,9 +618,9 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			//OK, now all the media datas should be in clean state
 			//Second time we emit mediaLoaded(), this one is usefull for DVD with angles/chapters/subtitles...
 			//This must be changed, see MPlayerMediaObject::mediaLoaded()
-			emit mediaLoaded();
+			emit mediaLoaded(_mediaData);
 
-			if (_data.hasVideo) {
+			if (_mediaData.hasVideo) {
 				//If we have a video to display, wait for getting the video size
 				//before to be in PlayingState
 				//This is a bugfix for mediaplayer example from Trolltech
@@ -637,9 +637,9 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 
 			if (tag == "ID_VIDEO_ID") {
 				//First string to tell us that the media contains a video track
-				_data.hasVideo = true;
-				qDebug() << __FUNCTION__ << "Video:" << _data.hasVideo;
-				emit hasVideoChanged(_data.hasVideo);
+				_mediaData.hasVideo = true;
+				qDebug() << __FUNCTION__ << "Video:" << _mediaData.hasVideo;
+				emit hasVideoChanged(_mediaData.hasVideo);
 			}
 
 			else if (tag == "ID_AUDIO_ID") {
@@ -650,80 +650,80 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			}
 
 			else if (tag == "ID_LENGTH") {
-				_data.totalTime = (qint64) (value.toDouble() * SECONDS_CONVERTION);
-				qDebug() << __FUNCTION__ << "Media total time:" << _data.totalTime;
-				emit totalTimeChanged(_data.totalTime);
+				_mediaData.totalTime = (qint64) (value.toDouble() * SECONDS_CONVERTION);
+				qDebug() << __FUNCTION__ << "Media total time:" << _mediaData.totalTime;
+				emit totalTimeChanged(_mediaData.totalTime);
 			}
 
 			else if (tag == "ID_SEEKABLE") {
-				_data.isSeekable = value.toInt();
-				qDebug() << __FUNCTION__ << "Media seekable:" << _data.isSeekable;
-				emit seekableChanged(_data.isSeekable);
+				_mediaData.isSeekable = value.toInt();
+				qDebug() << __FUNCTION__ << "Media seekable:" << _mediaData.isSeekable;
+				emit seekableChanged(_mediaData.isSeekable);
 			}
 
 			else if (tag == "ID_VIDEO_WIDTH") {
-				_data.videoWidth = value.toInt();
-				qDebug() << __FUNCTION__ << "Video width:" << _data.videoWidth;
+				_mediaData.videoWidth = value.toInt();
+				qDebug() << __FUNCTION__ << "Video width:" << _mediaData.videoWidth;
 			}
 
 			else if (tag == "ID_VIDEO_HEIGHT") {
-				_data.videoHeight = value.toInt();
-				qDebug() << __FUNCTION__ << "Video height:" << _data.videoHeight;
+				_mediaData.videoHeight = value.toInt();
+				qDebug() << __FUNCTION__ << "Video height:" << _mediaData.videoHeight;
 			}
 
 			else if (tag == "ID_VIDEO_ASPECT") {
-				_data.videoAspectRatio = value.toDouble();
-				if (_data.videoAspectRatio == 0.0) {
+				_mediaData.videoAspectRatio = value.toDouble();
+				if (_mediaData.videoAspectRatio == 0.0) {
 					//I hope width & height are already set
-					_data.videoAspectRatio = (double) _data.videoWidth / _data.videoHeight;
+					_mediaData.videoAspectRatio = (double) _mediaData.videoWidth / _mediaData.videoHeight;
 				}
-				qDebug() << __FUNCTION__ << "Video aspect:" << _data.videoAspectRatio;
+				qDebug() << __FUNCTION__ << "Video aspect:" << _mediaData.videoAspectRatio;
 			}
 
 			else if (tag == "ID_DVD_DISC_ID") {
-				//_data.dvd_id = value;
+				//_mediaData.dvd_id = value;
 				qDebug() << __FUNCTION__ << "DVD disc Id:" << value;
 			}
 
 			else if (tag == "ID_DEMUXER") {
-				_data.demuxer = value;
+				_mediaData.demuxer = value;
 			}
 
 			else if (tag == "ID_VIDEO_FORMAT") {
-				_data.videoFormat = value;
+				_mediaData.videoFormat = value;
 			}
 
 			else if (tag == "ID_AUDIO_FORMAT") {
-				_data.audioFormat = value;
+				_mediaData.audioFormat = value;
 			}
 
 			else if (tag == "ID_VIDEO_BITRATE") {
-				_data.videoBitrate = value.toInt();
+				_mediaData.videoBitrate = value.toInt();
 			}
 
 			else if (tag == "ID_VIDEO_FPS") {
-				_data.videoFPS = value.toDouble();
-				qDebug() << __FUNCTION__ << "Video FPS:" << _data.videoFPS;
+				_mediaData.videoFPS = value.toDouble();
+				qDebug() << __FUNCTION__ << "Video FPS:" << _mediaData.videoFPS;
 			}
 
 			else if (tag == "ID_AUDIO_BITRATE") {
-				_data.audioBitrate = value.toInt();
+				_mediaData.audioBitrate = value.toInt();
 			}
 
 			else if (tag == "ID_AUDIO_RATE") {
-				_data.audioRate = value.toInt();
+				_mediaData.audioRate = value.toInt();
 			}
 
 			else if (tag == "ID_AUDIO_NCH") {
-				_data.audioNbChannels = value.toInt();
+				_mediaData.audioNbChannels = value.toInt();
 			}
 
 			else if (tag == "ID_VIDEO_CODEC") {
-				_data.videoCodec = value;
+				_mediaData.videoCodec = value;
 			}
 
 			else if (tag == "ID_AUDIO_CODEC") {
-				_data.audioCodec = value;
+				_mediaData.audioCodec = value;
 			}
 		}
 	}

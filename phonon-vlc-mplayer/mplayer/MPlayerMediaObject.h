@@ -101,7 +101,7 @@ private slots:
 
 	void loadMediaInternal();
 
-	void mediaLoaded();
+	void mediaLoaded(const MediaData & mediaData);
 
 	//MediaController
 	void audioChannelAdded(int id, const QString & lang);

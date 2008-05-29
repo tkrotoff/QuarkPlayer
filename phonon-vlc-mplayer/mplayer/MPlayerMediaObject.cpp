@@ -53,8 +53,8 @@ MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
 	connect(_process, SIGNAL(seekableChanged(bool)),
 		SIGNAL(seekableChanged(bool)));
 
-	connect(_process, SIGNAL(mediaLoaded()),
-		SLOT(mediaLoaded()));
+	connect(_process, SIGNAL(mediaLoaded(const MediaData &)),
+		SLOT(mediaLoaded(const MediaData &)));
 
 	connect(_process, SIGNAL(finished(int, QProcess::ExitStatus)),
 		SLOT(finished(int, QProcess::ExitStatus)));
@@ -97,9 +97,7 @@ void MPlayerMediaObject::loadMediaInternal() {
 	MPlayerLoader::loadMedia(_process, _filename);
 }
 
-void MPlayerMediaObject::mediaLoaded() {
-	const MediaData & mediaData = _process->getMediaData();
-
+void MPlayerMediaObject::mediaLoaded(const MediaData & mediaData) {
 	QMultiMap<QString, QString> metaDataMap;
 	metaDataMap.insert(QLatin1String("ARTIST"), mediaData.clip_artist);
 	metaDataMap.insert(QLatin1String("ALBUM"), mediaData.clip_album);

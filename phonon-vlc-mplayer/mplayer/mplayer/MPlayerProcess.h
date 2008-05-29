@@ -132,7 +132,7 @@ public:
 	 */
 	void sendCommand(const QString & command);
 
-	const MediaData & getMediaData() const;
+	const MediaData & mediaData() const;
 
 	bool hasVideo() const;
 	bool isSeekable() const;
@@ -192,10 +192,8 @@ signals:
 	 * Media has been loaded: everything is ready to do a 'play'.
 	 *
 	 * Notifies that the MediaData informations are ready to be read.
-	 *
-	 * @see getMediaData()
 	 */
-	void mediaLoaded();
+	void mediaLoaded(const MediaData & mediaData);
 
 	/**
 	 * New widget size computed by MPlayer.
@@ -315,7 +313,7 @@ private:
 
 	bool _endOfFileReached;
 
-	MediaData _data;
+	MediaData _mediaData;
 
 	int _mplayerSvnRevision;
 

@@ -43,7 +43,7 @@ void MPlayerLoader::restart(MPlayerProcess * process, const QStringList & argume
 		args << arguments;
 	}
 
-	MediaData mediaData = process->getMediaData();
+	MediaData mediaData = process->mediaData();
 	if (!filename.isEmpty()) {
 		mediaData.filename = filename;
 	}

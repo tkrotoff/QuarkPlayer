@@ -26,7 +26,7 @@ namespace VLC_MPlayer
 {
 
 WidgetNoPaintEvent::WidgetNoPaintEvent(QWidget * parent)
-: QWidget(parent) {
+	: QWidget(parent) {
 
 	//When resizing fill with black (backgroundRole color) the rest is done by paintEvent
 	setAttribute(Qt::WA_OpaquePaintEvent);
