@@ -19,6 +19,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <phonon/phononnamespace.h>
+
 #include <QtGui/QMainWindow>
 
 namespace Ui { class MainWindow; }
@@ -34,7 +36,7 @@ namespace Phonon {
 }
 
 /**
- *
+ * Main interface, the main window: QMainWindow.
  *
  * @author Tanguy Krotoff
  */
@@ -71,6 +73,7 @@ private slots:
 
 	void sourceChanged(const Phonon::MediaSource & source);
 	void metaDataChanged();
+	void stateChanged(Phonon::State newState, Phonon::State oldState);
 
 private:
 

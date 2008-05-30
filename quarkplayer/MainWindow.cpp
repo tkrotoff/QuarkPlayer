@@ -49,6 +49,8 @@ MainWindow::MainWindow(QWidget * parent)
 		SLOT(metaDataChanged()));
 	connect(_mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
 		SLOT(sourceChanged(const Phonon::MediaSource &)));
+	connect(_mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
+		SLOT(stateChanged(Phonon::State, Phonon::State)));
 	connect(_mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
 
 	MediaController * mediaController = new MediaController(_ui, _mediaObject, this);
@@ -195,6 +197,21 @@ void MainWindow::metaDataChanged() {
 	yearLabel->setText(metaData.value("DATE"));*/
 
 	setWindowTitle("QuarkPlayer - " + title);
+}
+
+void MainWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
+	if (oldState == Phonon::LoadingState) {
+		//Resize the main window to the size of the video
+		//i.e increase or decrease main window size if needed
+		if (_mediaObject->hasVideo()) {
+			//Flush event so that sizeHint takes the
+			//recently shown/hidden _videoWidget into account
+			QApplication::instance()->processEvents();
+			resize(sizeHint());
+		} else {
+			resize(minimumSize());
+		}
+	}
 }
 
 void MainWindow::aboutToFinish() {

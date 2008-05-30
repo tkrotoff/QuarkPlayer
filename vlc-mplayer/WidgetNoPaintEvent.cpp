@@ -43,6 +43,7 @@ WidgetNoPaintEvent::WidgetNoPaintEvent(QWidget * parent)
 }
 
 void WidgetNoPaintEvent::paintEvent(QPaintEvent * event) {
+	//FIXME this makes the video flicker
 	//Makes everything backgroundRole color
 	QPainter painter(this);
 	painter.eraseRect(rect());

@@ -210,8 +210,10 @@ void VideoWidget::stateChanged(Phonon::State newState, Phonon::State oldState) {
 		delete _backgroundLogoWidget;
 		_backgroundLogoWidget = NULL;
 
+		//FIXME does not work :/ I want to disconnect without knowing mediaObject
 		//No need to be connected anymore to the play event
-		disconnect(this, SLOT(stateChanged(Phonon::State, Phonon::State)));
+		//disconnect(SIGNAL(stateChanged(Phonon::State, Phonon::State)),
+		//	this, SLOT(stateChanged(Phonon::State, Phonon::State)));
 		break;
 	}
 }
