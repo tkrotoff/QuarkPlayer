@@ -69,7 +69,7 @@ void setCurrentDirectory(const char * dir) {
 }
 
 QString getVLCPath() {
-	static const char * libvlc_control_name = "libvlc-control";
+	static const char * libvlc_control_name = "libvlc";
 	static const char * libvlc_control_functionToTest = "libvlc_exception_init";
 
 	static QString libvlc_path;

@@ -2,7 +2,7 @@
  * libvlc.h:  libvlc external API
  *****************************************************************************
  * Copyright (C) 1998-2005 the VideoLAN team
- * $Id: 87501a4842684c9bd737b5d85fcb39af514da58c $
+ * $Id: 50377f758f82ce2614a414add4fd1e88d743ab2e $
  *
  * Authors: Clément Stenac <zorglub@videolan.org>
  *          Jean-Paul Saman <jpsaman _at_ m2x _dot_ nl>
@@ -144,6 +144,27 @@ VLC_PUBLIC_API void libvlc_release( libvlc_instance_t * );
  * \param p_instance the instance to reference
  */
 VLC_PUBLIC_API void libvlc_retain( libvlc_instance_t * );
+
+/**
+ * Try to start a user interface for the libvlc instance, and wait until the
+ * user exits.
+ *
+ * \param p_instance the instance
+ * \param name interface name, or NULL for default
+ * \param p_exception an initialized exception pointer
+ */
+VLC_PUBLIC_API
+void libvlc_add_intf( libvlc_instance_t *p_instance, const char *name,
+                      libvlc_exception_t *p_exception );
+
+/**
+ * Waits until an interface causes the instance to exit.
+ * You should start at least one interface first, using libvlc_add_intf().
+ *
+ * \param p_instance the instance
+ */
+VLC_PUBLIC_API
+void libvlc_wait( libvlc_instance_t *p_instance );
 
 /**
  * Retrieve libvlc version.
@@ -543,42 +564,6 @@ VLC_PUBLIC_API char *libvlc_video_get_crop_geometry( libvlc_media_player_t *, li
  * \param p_e an initialized exception pointer
  */
 VLC_PUBLIC_API void libvlc_video_set_crop_geometry( libvlc_media_player_t *, char *, libvlc_exception_t * );
-
-/**
- * Set the image hue, between 0 and 360. Defaults to 0.
- *
- * \param p_mediaplayer the media player
- * \param i_value new filter value
- * \param p_e an initialized exception pointer
- */
-VLC_PUBLIC_API void libvlc_video_filter_set_hue( libvlc_media_player_t *, int, libvlc_exception_t * );
-
-/**
- * Set the image contrast, between 0 and 2. Defaults to 1.
- *
- * \param p_mediaplayer the media player
- * \param i_value new filter value
- * \param p_e an initialized exception pointer
- */
-VLC_PUBLIC_API void libvlc_video_filter_set_contrast( libvlc_media_player_t *, int, libvlc_exception_t * );
-
-/**
- * Set the image saturation, between 0 and 3. Defaults to 1.
- *
- * \param p_mediaplayer the media player
- * \param i_value new filter value
- * \param p_e an initialized exception pointer
- */
-VLC_PUBLIC_API void libvlc_video_filter_set_saturation( libvlc_media_player_t *, int, libvlc_exception_t * );
-
-/**
- * Set the image brightness, between 0 and 2. Defaults to 1.
- *
- * \param p_mediaplayer the media player
- * \param i_value new filter value
- * \param p_e an initialized exception pointer
- */
-VLC_PUBLIC_API void libvlc_video_filter_set_brightness( libvlc_media_player_t *, int, libvlc_exception_t * );
 
 /**
  * Toggle teletext transparent status on video output.

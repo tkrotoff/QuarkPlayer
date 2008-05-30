@@ -43,10 +43,18 @@ void initLibVLC() {
 	_vlcInstance = NULL;
 	_vlcException = new libvlc_exception_t();
 
+	//Complete list of VLC command line options:
+	//http://wiki.videolan.org/VLC_command-line_help
 	const char * vlcArgc[] = {
-			getVLCPath().toAscii().constData(),
-			"--plugin-path=", getVLCPluginsPath().toAscii().constData(),
-			"--no-osd"
+		getVLCPath().toAscii().constData(),
+		"--plugin-path=", getVLCPluginsPath().toAscii().constData(),
+		"--intf=dummy",
+		"--no-media-library",
+		"--no-one-instance",
+		"--reset-plugins-cache",
+		"--no-stats",
+		"--no-osd",
+		"--no-video-title-show"
 	};
 
 	p_libvlc_exception_init(_vlcException);
@@ -55,7 +63,7 @@ void initLibVLC() {
 	_vlcInstance = p_libvlc_new(sizeof(vlcArgc) / sizeof(*vlcArgc), vlcArgc, _vlcException);
 	checkException();
 
-	//FIXME Cannot do that: does not load VLC plugins
+	//FIXME Cannot do that: otherwise does not load VLC plugins
 	//changeBackToCurrentDirectory();
 
 	qDebug() << "Using VLC version:" << p_libvlc_get_version();
