@@ -152,6 +152,7 @@
     <property name="title" >
      <string>Options</string>
     </property>
+    <addaction name="actionQuickSettings" />
     <addaction name="actionPreferences" />
    </widget>
    <addaction name="menuFile" />
@@ -358,6 +359,15 @@
    </property>
    <property name="text" >
     <string>Play VCD</string>
+   </property>
+  </action>
+  <action name="actionQuickSettings" >
+   <property name="icon" >
+    <iconset resource="quarkplayer.qrc" >
+     <normaloff>:/images/preference.png</normaloff>:/images/preference.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Quick Settings</string>
    </property>
   </action>
  </widget>

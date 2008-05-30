@@ -8,6 +8,7 @@ set(quarkplayer_SRCS
 	StatusBar.cpp
 	MediaController.cpp
 	QuarkPlayerStyle.cpp
+	QuickSettingsWindow.cpp
 	config/IConfig.cpp
 	config/Config.cpp
 	config/ConfigWindow.cpp
@@ -26,6 +27,7 @@ qt4_wrap_cpp(quarkplayer_SRCS
 	StatusBar.h
 	MediaController.h
 	QuarkPlayerStyle.h
+	QuickSettingsWindow.h
 	config/Config.h
 	config/ConfigWindow.h
 	config/GeneralConfigWidget.h
@@ -35,6 +37,7 @@ qt4_wrap_cpp(quarkplayer_SRCS
 qt4_wrap_ui(quarkplayer_SRCS
 	MainWindow.ui
 	PlayToolBar.ui
+	QuickSettingsWindow.ui
 	config/ConfigWindow.ui
 	config/GeneralConfigWidget.ui
 	config/SettingsBrowser.ui

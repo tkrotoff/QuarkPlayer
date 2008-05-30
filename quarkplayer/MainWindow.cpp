@@ -24,6 +24,7 @@
 #include "VideoWidget.h"
 #include "StatusBar.h"
 #include "MediaController.h"
+#include "QuickSettingsWindow.h"
 #include "config/Config.h"
 #include "config/ConfigWindow.h"
 
@@ -57,7 +58,7 @@ MainWindow::MainWindow(QWidget * parent)
 
 	//audioOutput
 	_audioOutput = new Phonon::AudioOutput(Phonon::VideoCategory, this);
-	Phonon::createPath(_mediaObject, _audioOutput);
+	_audioOutputPath = Phonon::createPath(_mediaObject, _audioOutput);
 
 	//toolBar
 	_playToolBar = new PlayToolBar(_mediaObject, _audioOutput);
@@ -74,6 +75,7 @@ MainWindow::MainWindow(QWidget * parent)
 	connect(_ui->actionPlayURL, SIGNAL(triggered()), SLOT(playURL()));
 	connect(_ui->actionAddFiles, SIGNAL(triggered()), SLOT(addFiles()));
 	connect(_ui->actionOpenSubtitleFile, SIGNAL(triggered()), SLOT(openSubtitleFile()));
+	connect(_ui->actionQuickSettings, SIGNAL(triggered()), SLOT(showQuickSettingsWindow()));
 	connect(_ui->actionPreferences, SIGNAL(triggered()), SLOT(showConfigWindow()));
 	connect(_ui->actionExit, SIGNAL(triggered()), _mediaObject, SLOT(stop()));
 	connect(_ui->actionExit, SIGNAL(triggered()), SLOT(close()));
@@ -225,6 +227,10 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 void MainWindow::showConfigWindow() {
 	static ConfigWindow * configWindow = new ConfigWindow(this);
 	configWindow->show();
+}
+
+void MainWindow::showQuickSettingsWindow() {
+	QuickSettingsWindow * quickSettings = new QuickSettingsWindow(_videoWidget, *_audioOutput, _audioOutputPath, *_mediaObject, this);
 }
 
 void MainWindow::about() {

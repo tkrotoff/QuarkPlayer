@@ -20,6 +20,7 @@
 #define MAINWINDOW_H
 
 #include <phonon/phononnamespace.h>
+#include <phonon/path.h>
 
 #include <QtGui/QMainWindow>
 
@@ -59,6 +60,7 @@ private slots:
 	void about();
 
 	void showConfigWindow();
+	void showQuickSettingsWindow();
 
 	void playDVD();
 	void playURL();
@@ -85,6 +87,7 @@ private:
 
 	VideoWidget * _videoWidget;
 	Phonon::AudioOutput * _audioOutput;
+	Phonon::Path _audioOutputPath;
 	Phonon::MediaSource * _mediaSource;
 
 	PlayToolBar * _playToolBar;
