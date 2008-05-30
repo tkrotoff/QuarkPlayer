@@ -46,18 +46,28 @@ class LockFreeQueueBase
         ~LockFreeQueueBase();
 
     public:
-        struct NodeBase;
+        class NodeBase;
         typedef volatile NodeBase * NodeBasePointer;
-        struct NodeBase
+        class NodeBase
         {
-            inline NodeBase() {}
-            inline NodeBase(NodeBase *n) : next(n) {}
-            virtual ~NodeBase() {}
-            NodeBasePointer next;
+            public:
+                inline NodeBase(int p) : priority(p) {}
+                inline NodeBase(NodeBase *n) : next(n), priority(0) {}
+                NodeBasePointer next;
+                int priority;
+
+                inline void ref() { refCount.ref(); }
+                inline void deref() { if (!refCount.deref()) delete this; }
+
+            protected:
+                ~NodeBase() { Q_ASSERT(refCount == 0); }
+            private:
+                QAtomicInt refCount;
         };
 
         struct NodeBaseKeepNodePool : public NodeBase
         {
+            inline NodeBaseKeepNodePool(int priority) : NodeBase(priority) {}
             // allocation is a bottleneck in _enqueue
             void *operator new(size_t s);
             void operator delete(void *p, size_t s);
@@ -74,7 +84,6 @@ class LockFreeQueueBase
         void _enqueue(NodeBase *);
         NodeBase *_acquireHeadNode();
         NodeBase *_acquireHeadNodeBlocking();
-        void _releaseHeadNode(NodeBase *node);
 
         LockFreeQueueBasePrivate *const d;
 
@@ -91,13 +100,13 @@ class LockFreeQueue : public LockFreeQueueBase
 
         struct Node : public MemoryManagementNodeBase
         {
-            inline Node(const T &d) : data(d) {}
+            inline Node(const T &d, int priority) : MemoryManagementNodeBase(priority), data(d) {}
             T data;
         };
 
-        inline void enqueue(const T &data)
+        inline void enqueue(const T &data, int priority = 0)
         {
-            _enqueue(new Node(data));
+            _enqueue(new Node(data, 0));
         }
 
         inline void dequeue(QVector<T> &data, BlockingSwitch block = BlockUnlessEmpty)
@@ -114,7 +123,7 @@ class LockFreeQueue : public LockFreeQueueBase
                     data << static_cast<Node *>(node)->data;
                 }
                 ++count;
-                _releaseHeadNode(node);
+                node->deref();
             }
             data.resize(count);
         }
@@ -124,7 +133,7 @@ class LockFreeQueue : public LockFreeQueueBase
             NodeBase *node = (block == NeverBlock) ? _acquireHeadNode() : _acquireHeadNodeBlocking();
             if (node) {
                 *data = static_cast<Node *>(node)->data;
-                _releaseHeadNode(node);
+                node->deref();
                 return true;
             }
             return false;
@@ -136,7 +145,7 @@ class LockFreeQueue : public LockFreeQueueBase
             NodeBase *node = _acquireHeadNodeBlocking();
             if (node) {
                 data = static_cast<Node *>(node)->data;
-                _releaseHeadNode(node);
+                node->deref();
             }
             return *this;
         }

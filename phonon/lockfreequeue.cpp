@@ -20,20 +20,18 @@
 
 #include "lockfreequeue_p.h"
 #include <QtCore/QHash>
-#include <QtCore/QMutex>
-#include <QtCore/QMutexLocker>
+#include <QtCore/QWriteLocker>
+#include <QtCore/QReadWriteLock>
 #include <stdlib.h>
 #include "globalstatic_p.h"
 
 struct MemoryPool
 {
-    MemoryPool() : size(0) {}
     ~MemoryPool();
     // Stack structure:
     QAtomicPointer<LockFreeQueueBase::NodeBase> stack;
     QAtomicInt count;
-    size_t size;
-    const int *poolSize;
+    QAtomicInt size;
 
     void clear();
 };
@@ -63,29 +61,25 @@ MemoryPool::~MemoryPool()
 struct MemoryPoolVector
 {
     static const int POOL_COUNT = 16;
-    MemoryPoolVector() : next(0), poolSize(128) {}
     ~MemoryPoolVector() { delete next; }
     inline MemoryPool &operator[](size_t s)
     {
         for (int i = 0; i < POOL_COUNT; ++i) {
-            if (m_pools[i].size == s) {
+            if (m_pools[i].size == static_cast<int>(s)) {
                 return m_pools[i];
             } else if (m_pools[i].size == 0) {
-                QMutexLocker lock(&m_mutex);
-                if (m_pools[i].size == 0) {
-                    m_pools[i].size = s;
-                    m_pools[i].poolSize = &poolSize;
+                if (m_pools[i].size.testAndSetRelaxed(0, static_cast<int>(s))) {
                     return m_pools[i];
                 }
-                if (m_pools[i].size == s) {
+                if (m_pools[i].size == static_cast<int>(s)) {
                     return m_pools[i];
                 }
             }
         }
         if (!next) {
-            QMutexLocker lock(&m_mutex);
-            if (!next) {
-                next = new MemoryPoolVector;
+            MemoryPoolVector *newPoolVector = new MemoryPoolVector;
+            if (!next.testAndSetRelaxed(0, newPoolVector)) {
+                delete newPoolVector;
             }
         }
         return (*next)[s];
@@ -105,11 +99,10 @@ struct MemoryPoolVector
     }
 
     MemoryPool m_pools[POOL_COUNT];
-    MemoryPoolVector *next;
-    QMutex m_mutex;
-    int poolSize;
+    QAtomicPointer<MemoryPoolVector> next;
 };
 
+static int s_poolSize = 128;
 PHONON_GLOBAL_STATIC(MemoryPoolVector, s_memoryPool)
 
 void *LockFreeQueueBase::NodeBaseKeepNodePool::operator new(size_t s)
@@ -129,7 +122,7 @@ void *LockFreeQueueBase::NodeBaseKeepNodePool::operator new(size_t s)
 void LockFreeQueueBase::NodeBaseKeepNodePool::operator delete(void *ptr, size_t s)
 {
     MemoryPool &p = (*s_memoryPool)[s];
-    if (p.count > *p.poolSize) {
+    if (p.count > s_poolSize) {
         ::free(ptr);
         return;
     }
@@ -150,12 +143,12 @@ void LockFreeQueueBase::NodeBaseKeepNodePool::clear()
 
 void LockFreeQueueBase::NodeBaseKeepNodePool::setPoolSize(int s)
 {
-    s_memoryPool->poolSize = s;
+    s_poolSize = s;
 }
 
 int LockFreeQueueBase::NodeBaseKeepNodePool::poolSize()
 {
-    return s_memoryPool->poolSize;
+    return s_poolSize;
 }
 
 class LockFreeQueueBasePrivate
@@ -163,8 +156,8 @@ class LockFreeQueueBasePrivate
     public:
         LockFreeQueueBasePrivate();
         ~LockFreeQueueBasePrivate();
-        QMutex dataReadyHandlerMutex;
-        LockFreeQueueBase::NodeBase sentinel; // end marker
+        QReadWriteLock dataReadyHandlerMutex;
+        LockFreeQueueBase::NodeBase *sentinel; // end marker
         LockFreeQueueBase::NodeBase *lastHeadNode;
         QAtomicPointer<LockFreeQueueBase::NodeBasePointer> queueHead;
         QAtomicPointer<LockFreeQueueBase::NodeBasePointer> queueTail;
@@ -173,25 +166,26 @@ class LockFreeQueueBasePrivate
 };
 
 LockFreeQueueBasePrivate::LockFreeQueueBasePrivate()
-    : lastHeadNode(new LockFreeQueueBase::NodeBase(&sentinel)),
+    : sentinel(new LockFreeQueueBase::NodeBase(0)),
+    lastHeadNode(new LockFreeQueueBase::NodeBase(sentinel)),
     queueHead(&lastHeadNode->next),
     queueTail(&lastHeadNode->next),
     size(0),
     dataReadyHandler(0)
 {
-    // let d->sentinel point to itself so that we can use d->sentinel.next as
+    // let d->sentinel point to itself so that we can use d->sentinel->next as
     // QAtomicPointer<Node> for d->queueHead and d->queueTail
-    sentinel.next = &sentinel;
+    sentinel->next = sentinel;
 }
 
 LockFreeQueueBasePrivate::~LockFreeQueueBasePrivate()
 {
     Q_ASSERT(queueHead);
     LockFreeQueueBase::NodeBase *node = lastHeadNode;
-    while (node != &sentinel) {
+    while (node != sentinel) {
         LockFreeQueueBase::NodeBase *toDelete = node;
         node = const_cast<LockFreeQueueBase::NodeBase *>(node->next);
-        delete toDelete;
+        toDelete->deref();
     }
 }
 
@@ -207,37 +201,62 @@ LockFreeQueueBase::~LockFreeQueueBase()
 
 void LockFreeQueueBase::setDataReadyHandler(DataReadyHandler *h)
 {
-    QMutexLocker lock(&d->dataReadyHandlerMutex);
+    QWriteLocker lock(&d->dataReadyHandlerMutex);
     d->dataReadyHandler = h;
 }
 
 void LockFreeQueueBase::_enqueue(NodeBase *newNode)
 {
-    newNode->next = &d->sentinel;
-    NodeBasePointer &lastNextPointer = *d->queueTail.fetchAndStoreAcquire(&newNode->next);
-    lastNextPointer = newNode;
-    d->size.ref();
-
-    if (d->dataReadyHandler) {
-        QMutexLocker lock(&d->dataReadyHandlerMutex);
-        if (d->dataReadyHandler) {
-            d->dataReadyHandler->dataReady();
+    newNode->ref();
+    newNode->next = d->sentinel;
+    /*if (d->size > 0 && newNode->priority > std::numeric_limits<int>::min()) {
+        NodeBasePointer *node = d->queueHead.fetchAndStoreRelaxed(&d->sentinel->next);
+        if (node == &d->sentinel->next) {
+            // Another thread got the real node, we just got the placeholder telling us to not touch
+            // anything. As we replaced &d->sentinel->next with &d->sentinel->next in
+            // d->queueHead we don't have to reset anything.
         }
-    }
+        // node is a pointer to a Node::next member pointing to the first entry in
+        // the list
+        if (*node == d->sentinel) {
+            // the list is empty, good
+        }
+    } else {*/
+        // just append
+        NodeBasePointer &lastNextPointer = *d->queueTail.fetchAndStoreAcquire(&newNode->next);
+        lastNextPointer = newNode;
+        d->size.ref();
+
+        if (d->dataReadyHandler) {
+            QReadLocker lock(&d->dataReadyHandlerMutex);
+            if (d->dataReadyHandler) {
+                d->dataReadyHandler->dataReady();
+            }
+        }
+    //}
 }
 
 LockFreeQueueBase::NodeBase *LockFreeQueueBase::_acquireHeadNodeBlocking()
 {
     NodeBasePointer *node = 0;
     while (d->size > 0) {
-        if ((node = d->queueHead.fetchAndStoreRelaxed(&d->sentinel.next)) != &d->sentinel.next) {
+        if ((node = d->queueHead.fetchAndStoreRelaxed(&d->sentinel->next)) != &d->sentinel->next) {
             // node is a pointer to a Node::next member pointing to the first entry in the list
-            if (*node != &d->sentinel) {
+            if (*node != d->sentinel) {
                 d->size.deref();
-                return const_cast<NodeBase *>(*node);
+                NodeBase *_node = const_cast<NodeBase *>(*node); // cast volatile away
+                _node->ref();
+
+                NodeBase *toDeref = d->lastHeadNode;
+                d->lastHeadNode = _node;
+                const bool check = d->queueHead.testAndSetRelease(&d->sentinel->next, &_node->next);
+                Q_ASSERT(check); Q_UNUSED(check);
+                toDeref->deref();
+
+                return _node;
             }
             // empty (d->size == 0), put it back
-            const bool check = d->queueHead.testAndSetRelaxed(&d->sentinel.next, node);
+            const bool check = d->queueHead.testAndSetRelaxed(&d->sentinel->next, node);
             Q_ASSERT(check); Q_UNUSED(check);
             // try again, with some luck d->size is > 0 again
         }
@@ -247,38 +266,39 @@ LockFreeQueueBase::NodeBase *LockFreeQueueBase::_acquireHeadNodeBlocking()
 
 LockFreeQueueBase::NodeBase *LockFreeQueueBase::_acquireHeadNode()
 {
-    if (*d->queueHead == &d->sentinel || d->queueHead == &d->sentinel.next) {
+    if (*d->queueHead == d->sentinel || d->queueHead == &d->sentinel->next) {
         return 0;
     }
-    // setting d->queueHead to &d->sentinel.next makes the above check fail (i.e. all
+    // setting d->queueHead to &d->sentinel->next makes the above check fail (i.e. all
     // other threads in a dequeue function will exit). Also enqueue will not modify
-    // this as d->queueTail references d->lastHeadNode->next which != d->sentinel.next
-    NodeBasePointer *node = d->queueHead.fetchAndStoreRelaxed(&d->sentinel.next);
-    if (node == &d->sentinel.next) {
+    // this as d->queueTail references d->lastHeadNode->next which != d->sentinel->next
+    NodeBasePointer *node = d->queueHead.fetchAndStoreRelaxed(&d->sentinel->next);
+    if (node == &d->sentinel->next) {
         // Another thread got the real node, we just got the placeholder telling us to not touch
-        // anything. As we replaced &d->sentinel.next with &d->sentinel.next in
+        // anything. As we replaced &d->sentinel->next with &d->sentinel->next in
         // d->queueHead we don't have to reset anything.
         return 0;
     }
     // node is a pointer to a Node::next member pointing to the first entry in
     // the list
-    if (*node == &d->sentinel) {
+    if (*node == d->sentinel) {
         //qDebug() << "empty, put it back";
-        const bool check = d->queueHead.testAndSetRelaxed(&d->sentinel.next, node);
+        const bool check = d->queueHead.testAndSetRelaxed(&d->sentinel->next, node);
         Q_ASSERT(check); Q_UNUSED(check);
         return 0;
     }
     d->size.deref();
-    return const_cast<NodeBase *>(*node);
-}
 
-void LockFreeQueueBase::_releaseHeadNode(NodeBase *node)
-{
-    NodeBase *toDelete = d->lastHeadNode;
-    d->lastHeadNode = node;
-    const bool check = d->queueHead.testAndSetRelease(&d->sentinel.next, &node->next);
+    NodeBase *_node = const_cast<NodeBase *>(*node);
+    _node->ref();
+
+    NodeBase *toDeref = d->lastHeadNode;
+    d->lastHeadNode = _node;
+    const bool check = d->queueHead.testAndSetRelease(&d->sentinel->next, &_node->next);
     Q_ASSERT(check); Q_UNUSED(check);
-    delete toDelete;
+    toDeref->deref();
+
+    return _node;
 }
 
 int LockFreeQueueBase::size() const
