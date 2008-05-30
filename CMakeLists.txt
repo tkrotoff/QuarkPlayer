@@ -16,6 +16,7 @@ if (KDE4_FOUND)
 	message(STATUS "KDE4 support enabled")
 	message(STATUS "KDE4 dir: ${KDE4_DATA_DIR}")
 else (KDE4_FOUND)
+	set(QT_MIN_VERSION 4.4.0)
 	find_package(Qt4 REQUIRED)
 
 	#Includes all wanted definitions for Qt
@@ -28,10 +29,9 @@ else (KDE4_FOUND)
 	set(QT_PHONON_LIBRARY phonon)
 
 	#Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
-	add_definitions(-DNEW_TITLE_CHAPTER_HANDLING)
+	#add_definitions(-DNEW_TITLE_CHAPTER_HANDLING)
 
 	message(STATUS "KDE4 support disabled")
-
 
 	#Optimization: remove all Qt modules from include path
 	#This will reduce compilation time (less include directories == compilation time reduced)
@@ -67,7 +67,7 @@ if (WIN32)
 endif (WIN32)
 
 add_subdirectory(phonon)
-add_subdirectory(phonon-vlc-mplayer)
+add_subdirectory(vlc-mplayer)
 add_subdirectory(tests)
 add_subdirectory(quarkplayer)
 
