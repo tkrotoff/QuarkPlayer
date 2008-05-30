@@ -20,6 +20,7 @@
 #define VIDEOWIDGET_H
 
 #include <phonon/videowidget.h>
+#include <phonon/phononnamespace.h>
 
 #include <QtGui/QAction>
 
@@ -27,7 +28,9 @@
 
 class MainWindow;
 
-class QLabel;
+namespace Phonon {
+	class MediaObject;
+}
 
 /**
  * Where the video lays.
@@ -40,7 +43,7 @@ class VideoWidget : public Phonon::VideoWidget {
 	Q_OBJECT
 public:
 
-	VideoWidget(MainWindow * mainWindow);
+	VideoWidget(MainWindow * mainWindow, Phonon::MediaObject * mediaObject);
 
 	~VideoWidget();
 
@@ -48,7 +51,12 @@ private slots:
 
 	void setFullScreenSlot(bool fullScreen);
 
+	void stateChanged(Phonon::State newState, Phonon::State oldState);
+
 private:
+
+	/** Add a logo inside the video widget. */
+	void addBackgroundLogo();
 
 	void mouseDoubleClickEvent(QMouseEvent * event);
 
@@ -66,15 +74,14 @@ private:
 
 	void checkMousePos();
 
-	void showBackgroundLogo();
-
-	void hideBackgroundLogo();
+	void resizeEvent(QResizeEvent * event);
 
 	MainWindow * _mainWindow;
 
 	QBasicTimer _timer;
 
-	QLabel * _backgroundLogo;
+	/** Widget that contains the logo. */
+	QWidget * _backgroundLogoWidget;
 };
 
 #endif	//VIDEOWIDGET_H

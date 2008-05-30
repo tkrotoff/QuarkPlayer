@@ -29,8 +29,8 @@
 
 #include <QtGui/QtGui>
 
-PlayToolBar::PlayToolBar(MainWindow * parent, Phonon::MediaObject * mediaObject, Phonon::AudioOutput * audioOutput)
-	: QToolBar("playToolBar", parent) {
+PlayToolBar::PlayToolBar(Phonon::MediaObject * mediaObject, Phonon::AudioOutput * audioOutput)
+	: QToolBar("playToolBar", NULL) {
 
 	_mediaObject = mediaObject;
 	_audioOutput = audioOutput;
@@ -57,8 +57,8 @@ PlayToolBar::PlayToolBar(MainWindow * parent, Phonon::MediaObject * mediaObject,
 
 	addWidget(widget);
 
-	setMovable(false);
-	setFloatable(false);
+	//setMovable(false);
+	//setFloatable(false);
 }
 
 PlayToolBar::~PlayToolBar() {

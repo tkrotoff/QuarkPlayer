@@ -58,12 +58,10 @@ MainWindow::MainWindow(QWidget * parent)
 	Phonon::createPath(_mediaObject, _audioOutput);
 
 	//toolBar
-	_playToolBar = new PlayToolBar(this, _mediaObject, _audioOutput);
-	//addToolBar(Qt::TopToolBarArea, _playToolBar);
-	insertToolBar(_ui->mainToolBar, _playToolBar);
+	_playToolBar = new PlayToolBar(_mediaObject, _audioOutput);
 
 	//videoWidget
-	_videoWidget = new VideoWidget(this);
+	_videoWidget = new VideoWidget(this, _mediaObject);
 	Phonon::createPath(_mediaObject, _videoWidget);
 	_ui->videoLayout->addWidget(_videoWidget);
 

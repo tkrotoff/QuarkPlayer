@@ -46,7 +46,7 @@ class PlayToolBar : public QToolBar {
 	Q_OBJECT
 public:
 
-	PlayToolBar(MainWindow * parent, Phonon::MediaObject * mediaObject, Phonon::AudioOutput * audioOutput);
+	PlayToolBar(Phonon::MediaObject * mediaObject, Phonon::AudioOutput * audioOutput);
 
 	~PlayToolBar();
 
