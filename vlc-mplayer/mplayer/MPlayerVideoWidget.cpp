@@ -28,7 +28,7 @@ namespace VLC_MPlayer
 {
 
 MPlayerVideoWidget::MPlayerVideoWidget(QWidget * parent)
-: WidgetNoPaintEvent(parent) {
+	: WidgetNoPaintEvent(parent) {
 
 	_videoLayer = new WidgetNoPaintEvent(this);
 

@@ -19,6 +19,7 @@
 #include "MainWindow.h"
 
 #include "ui_MainWindow.h"
+#include "ui_BackgroundLogoWidget.h"
 
 #include "PlayToolBar.h"
 #include "VideoWidget.h"
@@ -63,10 +64,17 @@ MainWindow::MainWindow(QWidget * parent)
 	//toolBar
 	_playToolBar = new PlayToolBar(_mediaObject, _audioOutput);
 
+	//Logo widget
+	_backgroundLogoWidget = new QWidget();
+	_ui->stackedWidget->addWidget(_backgroundLogoWidget);
+	Ui::BackgroundLogoWidget * logo = new Ui::BackgroundLogoWidget();
+	logo->setupUi(_backgroundLogoWidget);
+	_ui->stackedWidget->setCurrentWidget(_backgroundLogoWidget);
+
 	//videoWidget
 	_videoWidget = new VideoWidget(this, _mediaObject);
 	Phonon::createPath(_mediaObject, _videoWidget);
-	_ui->videoLayout->addWidget(_videoWidget);
+	_ui->stackedWidget->addWidget(_videoWidget);
 
 	//statusBar
 	setStatusBar(new StatusBar(_mediaObject));
@@ -93,6 +101,10 @@ PlayToolBar * MainWindow::playToolBar() const {
 
 VideoWidget * MainWindow::videoWidget() const {
 	return _videoWidget;
+}
+
+QStackedWidget * MainWindow::stackedWidget() const {
+	return _ui->stackedWidget;
 }
 
 void MainWindow::addRecentFilesToMenu() {
@@ -198,7 +210,7 @@ void MainWindow::metaDataChanged() {
 	albumLabel->setText(metaData.value("ALBUM"));
 	yearLabel->setText(metaData.value("DATE"));*/
 
-	setWindowTitle("QuarkPlayer - " + title);
+	setWindowTitle(title + " - QuarkPlayer");
 }
 
 void MainWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
@@ -206,11 +218,15 @@ void MainWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
 		//Resize the main window to the size of the video
 		//i.e increase or decrease main window size if needed
 		if (_mediaObject->hasVideo()) {
+			_ui->stackedWidget->setCurrentWidget(_videoWidget);
+
 			//Flush event so that sizeHint takes the
 			//recently shown/hidden _videoWidget into account
 			QApplication::instance()->processEvents();
 			resize(sizeHint());
 		} else {
+			_ui->stackedWidget->setCurrentWidget(_backgroundLogoWidget);
+
 			resize(minimumSize());
 		}
 	}

@@ -29,11 +29,9 @@
     <property name="margin" >
      <number>0</number>
     </property>
-    <property name="spacing" >
-     <number>0</number>
-    </property>
     <item row="0" column="0" >
-     <layout class="QVBoxLayout" name="videoLayout" />
+     <widget class="QStackedWidget" name="stackedWidget" >
+     </widget>
     </item>
    </layout>
   </widget>

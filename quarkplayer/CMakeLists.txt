@@ -38,6 +38,7 @@ qt4_wrap_ui(quarkplayer_SRCS
 	MainWindow.ui
 	PlayToolBar.ui
 	QuickSettingsWindow.ui
+	BackgroundLogoWidget.ui
 	config/ConfigWindow.ui
 	config/GeneralConfigWidget.ui
 	config/SettingsBrowser.ui

@@ -37,12 +37,6 @@ VideoWidget::VideoWidget(MainWindow * mainWindow, Phonon::MediaObject * mediaObj
 
 	setAcceptDrops(true);
 
-	addBackgroundLogo();
-
-	//The logo will be removed when play event is received
-	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
-		SLOT(stateChanged(Phonon::State, Phonon::State)));
-
 	connect(_mainWindow->playToolBar(), SIGNAL(fullScreenButtonClicked(bool)),
 		SLOT(setFullScreenSlot(bool)));
 
@@ -53,39 +47,22 @@ VideoWidget::VideoWidget(MainWindow * mainWindow, Phonon::MediaObject * mediaObj
 VideoWidget::~VideoWidget() {
 }
 
-void VideoWidget::addBackgroundLogo() {
-	//Background logo widget
-	//VideoWidget has already a layout so we recreate a widget with a layout inside
-	//We put the logo in the middle of this layout
-	//The little hack that we have to do is to resize the widget to the size of the VideoWidget
-	_backgroundLogoWidget = new QWidget(this);
-
-	//Black background
-	_backgroundLogoWidget->setStyleSheet("background-color: rgb(0, 0, 0);");
-
-	QLabel * logo = new QLabel(_backgroundLogoWidget);
-
-	//Logo in the middle of the widget
-	QVBoxLayout * vLayout = new QVBoxLayout(_backgroundLogoWidget);
-	vLayout->setSpacing(0);
-	vLayout->setMargin(0);
-	vLayout->addWidget(logo, 0, Qt::AlignHCenter | Qt::AlignVCenter );
-
-	logo->setAttribute(Qt::WA_PaintOnScreen);
-	QPixmap pixmap(":/images/logo-background.png");
-	logo->setPixmap(pixmap);
-
-	//Force VideoWidget to be the size of the logo
-	setMinimumSize(pixmap.size());
-}
-
 void VideoWidget::setFullScreenSlot(bool fullScreen) {
-	if (!fullScreen) {
+	if (fullScreen) {
+		//FIXME QStackedWidget and fullscreen mode are not well together
+		//I hope to remove this code in the future...
+		//There should be no reason why a widget inside a QStackedWidget could
+		//not be fullscreen
+		_mainWindow->stackedWidget()->removeWidget(this);
+		setFullScreen(fullScreen);
+	} else {
+		setFullScreen(fullScreen);
+		_mainWindow->stackedWidget()->addWidget(this);
+		_mainWindow->stackedWidget()->setCurrentWidget(this);
+
 		//Leaving fullscreen
 		addPlayToolBarToMainWindow();
 	}
-
-	setFullScreen(fullScreen);
 }
 
 void VideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
@@ -112,7 +89,7 @@ bool VideoWidget::event(QEvent * event) {
 		return true;
 
 	case QEvent::MouseMove:
-		if (isFullScreen() && !_backgroundLogoWidget) {
+		if (isFullScreen()) {
 			checkMousePos();
 			_timer.start(1000, this);
 		}
@@ -120,7 +97,7 @@ bool VideoWidget::event(QEvent * event) {
 		break;
 
 	case QEvent::WindowStateChange:
-		if (isFullScreen() && !_backgroundLogoWidget) {
+		if (isFullScreen()) {
 			_timer.start(1000, this);
 		} else {
 			_timer.stop();
@@ -175,9 +152,7 @@ void VideoWidget::checkMousePos() {
 			playToolBar->setWindowFlags(Qt::Window | Qt::FramelessWindowHint |
 					Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 
-			//FIXME This makes the screen flicker
 			playToolBar->showOver(this);
-			///
 		}
 	} else {
 		if (nearBottom) {
@@ -190,30 +165,4 @@ void VideoWidget::checkMousePos() {
 void VideoWidget::addPlayToolBarToMainWindow() {
 	qDebug() << __FUNCTION__;
 	_mainWindow->addToolBar(Qt::BottomToolBarArea, _mainWindow->playToolBar());
-}
-
-void VideoWidget::resizeEvent(QResizeEvent * event) {
-	if (_backgroundLogoWidget) {
-		//Little hack: resize the logo widget to the size of the VideoWidget
-		_backgroundLogoWidget->resize(event->size());
-	}
-
-	Phonon::VideoWidget::resizeEvent(event);
-}
-
-void VideoWidget::stateChanged(Phonon::State newState, Phonon::State oldState) {
-	switch (newState) {
-	case Phonon::PlayingState:
-		qDebug() << __FUNCTION__;
-
-		//Remove the logo now that there is a video playing
-		delete _backgroundLogoWidget;
-		_backgroundLogoWidget = NULL;
-
-		//FIXME does not work :/ I want to disconnect without knowing mediaObject
-		//No need to be connected anymore to the play event
-		//disconnect(SIGNAL(stateChanged(Phonon::State, Phonon::State)),
-		//	this, SLOT(stateChanged(Phonon::State, Phonon::State)));
-		break;
-	}
 }

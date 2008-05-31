@@ -33,7 +33,7 @@ namespace Phonon {
 }
 
 /**
- * Where the video lays.
+ * Where the video lies.
  *
  * Inspired from class MediaVideoWidget from mediaplayer example from Trolltech.
  *
@@ -51,12 +51,7 @@ private slots:
 
 	void setFullScreenSlot(bool fullScreen);
 
-	void stateChanged(Phonon::State newState, Phonon::State oldState);
-
 private:
-
-	/** Add a logo inside the video widget. */
-	void addBackgroundLogo();
 
 	void mouseDoubleClickEvent(QMouseEvent * event);
 
@@ -74,14 +69,9 @@ private:
 
 	void checkMousePos();
 
-	void resizeEvent(QResizeEvent * event);
-
 	MainWindow * _mainWindow;
 
 	QBasicTimer _timer;
-
-	/** Widget that contains the logo. */
-	QWidget * _backgroundLogoWidget;
 };
 
 #endif	//VIDEOWIDGET_H

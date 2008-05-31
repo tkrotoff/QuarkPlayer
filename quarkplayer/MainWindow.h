@@ -36,6 +36,8 @@ namespace Phonon {
 	class MediaSource;
 }
 
+class QStackedWidget;
+
 /**
  * Main interface, the main window: QMainWindow.
  *
@@ -52,6 +54,8 @@ public:
 	PlayToolBar * playToolBar() const;
 
 	VideoWidget * videoWidget() const;
+
+	QStackedWidget * stackedWidget() const;
 
 private slots:
 
@@ -85,7 +89,12 @@ private:
 
 	Phonon::MediaObject * _mediaObject;
 
+	/** Widget containing the video. */
 	VideoWidget * _videoWidget;
+
+	/** Widget containing the logo. */
+	QWidget * _backgroundLogoWidget;
+
 	Phonon::AudioOutput * _audioOutput;
 	Phonon::Path _audioOutputPath;
 	Phonon::MediaSource * _mediaSource;
