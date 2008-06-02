@@ -2,6 +2,12 @@ project(phonon)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+set(PHONON_LIB_MAJOR_VERSION "4")
+set(PHONON_LIB_MINOR_VERSION "2")
+set(PHONON_LIB_PATCH_VERSION "70")
+set(PHONON_LIB_VERSION "${PHONON_LIB_MAJOR_VERSION}.3.0")
+set(PHONON_LIB_SOVERSION ${PHONON_LIB_MAJOR_VERSION})
+
 set(SHARE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/share")
 set(KDE4_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
 set(DBUS_INTERFACES_INSTALL_DIR "${KDE4_INSTALL_DIR}/share/dbus-1/interfaces" )
@@ -41,8 +47,7 @@ set(phonon_LIB_SRCS
    )
 
 if (QT_QTDBUS_FOUND)
-   set(phonon_LIB_SRCS
-      ${phonon_LIB_SRCS}
+   list(APPEND phonon_LIB_SRCS
       audiooutputadaptor.cpp
    )
 endif (QT_QTDBUS_FOUND)
@@ -54,6 +59,7 @@ if (QT_QTDBUS_FOUND)
 else (QT_QTDBUS_FOUND)
    target_link_libraries(phonon ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 endif (QT_QTDBUS_FOUND)
+
 set_target_properties(phonon PROPERTIES
                              VERSION ${PHONON_LIB_VERSION}
                              SOVERSION ${PHONON_LIB_SOVERSION}
