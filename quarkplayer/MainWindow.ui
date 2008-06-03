@@ -13,16 +13,16 @@
    <string>QuarkPlayer</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="quarkplayer.qrc" >
+   <iconset>
     <normaloff>:/images/volume.png</normaloff>:/images/volume.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget" >
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>53</y>
+     <y>43</y>
      <width>386</width>
-     <height>314</height>
+     <height>324</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout" >
@@ -30,8 +30,7 @@
      <number>0</number>
     </property>
     <item row="0" column="0" >
-     <widget class="QStackedWidget" name="stackedWidget" >
-     </widget>
+     <widget class="QStackedWidget" name="stackedWidget" />
     </item>
    </layout>
   </widget>
@@ -52,10 +51,14 @@
      <property name="title" >
       <string>Recent Files</string>
      </property>
+     <property name="icon" >
+      <iconset>
+       <normaloff>:/icons/oxygen/16x16/actions/document-open-recent.png</normaloff>:/icons/oxygen/16x16/actions/document-open-recent.png</iconset>
+     </property>
      <addaction name="separator" />
      <addaction name="actionClearRecentFiles" />
     </widget>
-    <addaction name="actionAddFiles" />
+    <addaction name="actionPlayFile" />
     <addaction name="menuRecentFiles" />
     <addaction name="actionPlayDVD" />
     <addaction name="actionActionPlayVCD" />
@@ -77,7 +80,7 @@
       <string>Audio Channels</string>
      </property>
      <property name="icon" >
-      <iconset resource="quarkplayer.qrc" >
+      <iconset>
        <normaloff>:/images/audio_channel.png</normaloff>:/images/audio_channel.png</iconset>
      </property>
      <addaction name="actionAudioChannelEmpty" />
@@ -93,7 +96,7 @@
       <string>Subtitles</string>
      </property>
      <property name="icon" >
-      <iconset resource="quarkplayer.qrc" >
+      <iconset>
        <normaloff>:/images/subtitle.png</normaloff>:/images/subtitle.png</iconset>
      </property>
      <addaction name="actionSubtitleEmpty" />
@@ -110,8 +113,8 @@
       <string>Title</string>
      </property>
      <property name="icon" >
-      <iconset resource="quarkplayer.qrc" >
-       <normaloff>:/images/title.png</normaloff>:/images/title.png</iconset>
+      <iconset>
+       <normaloff>:/icons/oxygen/16x16/actions/format-list-ordered.png</normaloff>:/icons/oxygen/16x16/actions/format-list-ordered.png</iconset>
      </property>
      <addaction name="actionTitleEmpty" />
     </widget>
@@ -120,18 +123,14 @@
       <string>Chapter</string>
      </property>
      <property name="icon" >
-      <iconset resource="quarkplayer.qrc" >
-       <normaloff>:/images/chapter.png</normaloff>:/images/chapter.png</iconset>
+      <iconset>
+       <normaloff>:/icons/oxygen/16x16/mimetypes/x-office-address-book.png</normaloff>:/icons/oxygen/16x16/mimetypes/x-office-address-book.png</iconset>
      </property>
      <addaction name="actionChapterEmpty" />
     </widget>
     <widget class="QMenu" name="menuAngles" >
      <property name="title" >
       <string>Angle</string>
-     </property>
-     <property name="icon" >
-      <iconset resource="quarkplayer.qrc" >
-       <normaloff>:/images/angle.png</normaloff>:/images/angle.png</iconset>
      </property>
      <addaction name="actionAngleEmpty" />
     </widget>
@@ -167,7 +166,7 @@
      <x>0</x>
      <y>19</y>
      <width>386</width>
-     <height>34</height>
+     <height>24</height>
     </rect>
    </property>
    <property name="windowTitle" >
@@ -179,7 +178,7 @@
    <attribute name="toolBarBreak" >
     <bool>false</bool>
    </attribute>
-   <addaction name="actionAddFiles" />
+   <addaction name="actionPlayFile" />
    <addaction name="actionPlayDVD" />
    <addaction name="actionPlayURL" />
    <addaction name="separator" />
@@ -187,82 +186,38 @@
    <addaction name="separator" />
    <addaction name="actionExit" />
   </widget>
-  <action name="actionAddFiles" >
+  <action name="actionPlayFile" >
    <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+    <iconset>
+     <normaloff>:/icons/oxygen/16x16/actions/document-open.png</normaloff>:/icons/oxygen/16x16/actions/document-open.png</iconset>
    </property>
    <property name="text" >
-    <string>Add Files...</string>
+    <string>Play File...</string>
    </property>
   </action>
   <action name="actionExit" >
    <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/exit.png</normaloff>:/images/exit.png</iconset>
+    <iconset>
+     <normaloff>:/icons/oxygen/16x16/actions/application-exit.png</normaloff>:/icons/oxygen/16x16/actions/application-exit.png</iconset>
    </property>
    <property name="text" >
     <string>Close</string>
    </property>
   </action>
   <action name="actionAbout" >
-   <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/volume.png</normaloff>:/images/volume.png</iconset>
-   </property>
    <property name="text" >
     <string>About</string>
    </property>
   </action>
   <action name="actionAboutQt" >
-   <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/qt.png</normaloff>:/images/qt.png</iconset>
-   </property>
    <property name="text" >
     <string>About Qt</string>
    </property>
   </action>
-  <action name="actionPlay" >
-   <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/play.png</normaloff>:/images/play.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Play</string>
-   </property>
-  </action>
-  <action name="actionPause" >
-   <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/pause.png</normaloff>:/images/pause.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Pause</string>
-   </property>
-  </action>
-  <action name="actionStop" >
-   <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/stop.png</normaloff>:/images/stop.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Stop</string>
-   </property>
-  </action>
-  <action name="actionFullscreen" >
-   <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/fullscreen.png</normaloff>:/images/fullscreen.png</iconset>
-   </property>
-   <property name="text" >
-    <string>Fullscreen</string>
-   </property>
-  </action>
   <action name="actionPlayDVD" >
    <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/dvd.png</normaloff>:/images/dvd.png</iconset>
+    <iconset>
+     <normaloff>:/icons/oxygen/16x16/devices/media-optical.png</normaloff>:/icons/oxygen/16x16/devices/media-optical.png</iconset>
    </property>
    <property name="text" >
     <string>Play DVD</string>
@@ -310,8 +265,8 @@
   </action>
   <action name="actionOpenSubtitleFile" >
    <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/file_open.png</normaloff>:/images/file_open.png</iconset>
+    <iconset>
+     <normaloff>:/icons/oxygen/16x16/actions/document-open.png</normaloff>:/icons/oxygen/16x16/actions/document-open.png</iconset>
    </property>
    <property name="text" >
     <string>Open...</string>
@@ -319,8 +274,8 @@
   </action>
   <action name="actionClearRecentFiles" >
    <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/delete.png</normaloff>:/images/delete.png</iconset>
+    <iconset>
+     <normaloff>:/icons/oxygen/16x16/actions/edit-delete.png</normaloff>:/icons/oxygen/16x16/actions/edit-delete.png</iconset>
    </property>
    <property name="text" >
     <string>Clear</string>
@@ -328,8 +283,8 @@
   </action>
   <action name="actionPreferences" >
    <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/preference.png</normaloff>:/images/preference.png</iconset>
+    <iconset>
+     <normaloff>:/icons/oxygen/16x16/categories/preferences-system.png</normaloff>:/icons/oxygen/16x16/categories/preferences-system.png</iconset>
    </property>
    <property name="text" >
     <string>Preferences</string>
@@ -337,8 +292,8 @@
   </action>
   <action name="actionPlayURL" >
    <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/url.png</normaloff>:/images/url.png</iconset>
+    <iconset>
+     <normaloff>:/icons/oxygen/16x16/actions/document-open-remote.png</normaloff>:/icons/oxygen/16x16/actions/document-open-remote.png</iconset>
    </property>
    <property name="text" >
     <string>Play URL...</string>
@@ -352,8 +307,8 @@
   </action>
   <action name="actionActionPlayVCD" >
    <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/vcd.png</normaloff>:/images/vcd.png</iconset>
+    <iconset>
+     <normaloff>:/icons/oxygen/16x16/devices/media-optical.png</normaloff>:/icons/oxygen/16x16/devices/media-optical.png</iconset>
    </property>
    <property name="text" >
     <string>Play VCD</string>
@@ -361,8 +316,8 @@
   </action>
   <action name="actionQuickSettings" >
    <property name="icon" >
-    <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/preference.png</normaloff>:/images/preference.png</iconset>
+    <iconset>
+     <normaloff>:/icons/oxygen/16x16/devices/video-television.png</normaloff>:/icons/oxygen/16x16/devices/video-television.png</iconset>
    </property>
    <property name="text" >
     <string>Quick Settings</string>

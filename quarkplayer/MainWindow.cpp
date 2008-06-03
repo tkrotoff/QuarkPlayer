@@ -18,9 +18,10 @@
 
 #include "MainWindow.h"
 
-#include "ui_MainWindow.h"
 #include "ui_BackgroundLogoWidget.h"
 
+#include "ActionCollection.h"
+#include "MyIcon.h"
 #include "PlayToolBar.h"
 #include "VideoWidget.h"
 #include "StatusBar.h"
@@ -40,8 +41,9 @@
 MainWindow::MainWindow(QWidget * parent)
 	: QMainWindow(parent) {
 
-	_ui = new Ui::MainWindow();
-	_ui->setupUi(this);
+	populateActionCollection();
+
+	setupUi();
 
 	addRecentFilesToMenu();
 
@@ -55,7 +57,7 @@ MainWindow::MainWindow(QWidget * parent)
 		SLOT(stateChanged(Phonon::State, Phonon::State)));
 	connect(_mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
 
-	MediaController * mediaController = new MediaController(_ui, _mediaObject, this);
+	MediaController * mediaController = new MediaController(this, _mediaObject, this);
 
 	//audioOutput
 	_audioOutput = new Phonon::AudioOutput(Phonon::VideoCategory, this);
@@ -66,33 +68,32 @@ MainWindow::MainWindow(QWidget * parent)
 
 	//Logo widget
 	_backgroundLogoWidget = new QWidget();
-	_ui->stackedWidget->addWidget(_backgroundLogoWidget);
+	_stackedWidget->addWidget(_backgroundLogoWidget);
 	Ui::BackgroundLogoWidget * logo = new Ui::BackgroundLogoWidget();
 	logo->setupUi(_backgroundLogoWidget);
-	_ui->stackedWidget->setCurrentWidget(_backgroundLogoWidget);
+	_stackedWidget->setCurrentWidget(_backgroundLogoWidget);
 
 	//videoWidget
 	_videoWidget = new VideoWidget(this, _mediaObject);
 	Phonon::createPath(_mediaObject, _videoWidget);
-	_ui->stackedWidget->addWidget(_videoWidget);
+	_stackedWidget->addWidget(_videoWidget);
 
 	//statusBar
 	setStatusBar(new StatusBar(_mediaObject));
 
-	connect(_ui->actionPlayDVD, SIGNAL(triggered()), SLOT(playDVD()));
-	connect(_ui->actionPlayURL, SIGNAL(triggered()), SLOT(playURL()));
-	connect(_ui->actionAddFiles, SIGNAL(triggered()), SLOT(addFiles()));
-	connect(_ui->actionOpenSubtitleFile, SIGNAL(triggered()), SLOT(openSubtitleFile()));
-	connect(_ui->actionQuickSettings, SIGNAL(triggered()), SLOT(showQuickSettingsWindow()));
-	connect(_ui->actionPreferences, SIGNAL(triggered()), SLOT(showConfigWindow()));
-	connect(_ui->actionExit, SIGNAL(triggered()), _mediaObject, SLOT(stop()));
-	connect(_ui->actionExit, SIGNAL(triggered()), SLOT(close()));
-	connect(_ui->actionAbout, SIGNAL(triggered()), SLOT(about()));
-	connect(_ui->actionAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+	connect(ActionCollection::action("actionPlayDVD"), SIGNAL(triggered()), SLOT(playDVD()));
+	connect(ActionCollection::action("actionPlayURL"), SIGNAL(triggered()), SLOT(playURL()));
+	connect(ActionCollection::action("actionPlayFile"), SIGNAL(triggered()), SLOT(playFile()));
+	connect(ActionCollection::action("actionOpenSubtitleFile"), SIGNAL(triggered()), SLOT(openSubtitleFile()));
+	connect(ActionCollection::action("actionEqualizer"), SIGNAL(triggered()), SLOT(showQuickSettingsWindow()));
+	connect(ActionCollection::action("actionPreferences"), SIGNAL(triggered()), SLOT(showConfigWindow()));
+	connect(ActionCollection::action("actionExit"), SIGNAL(triggered()), _mediaObject, SLOT(stop()));
+	connect(ActionCollection::action("actionExit"), SIGNAL(triggered()), SLOT(close()));
+	connect(ActionCollection::action("actionAbout"), SIGNAL(triggered()), SLOT(about()));
+	connect(ActionCollection::action("actionAboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
 
 MainWindow::~MainWindow() {
-	delete _ui;
 }
 
 PlayToolBar * MainWindow::playToolBar() const {
@@ -104,26 +105,27 @@ VideoWidget * MainWindow::videoWidget() const {
 }
 
 QStackedWidget * MainWindow::stackedWidget() const {
-	return _ui->stackedWidget;
+	return _stackedWidget;
 }
 
 void MainWindow::addRecentFilesToMenu() {
-	connect(_ui->actionClearRecentFiles, SIGNAL(triggered()), SLOT(clearRecentFiles()));
+	connect(ActionCollection::action("actionClearRecentFiles"), SIGNAL(triggered()), SLOT(clearRecentFiles()));
 
 	QStringList recentFiles = Config::instance().recentFiles();
 	if (!recentFiles.isEmpty()) {
 
-		_ui->menuRecentFiles->clear();
+		_menuRecentFiles->clear();
 
 		QSignalMapper * signalMapper = new QSignalMapper(this);
 
 		for (int i = 0; i < recentFiles.size(); i++) {
-			QAction * action = _ui->menuRecentFiles->addAction(recentFiles[i], signalMapper, SLOT(map()));
+			QFileInfo file(recentFiles[i]);
+			QAction * action = _menuRecentFiles->addAction(file.completeBaseName(), signalMapper, SLOT(map()));
 			signalMapper->setMapping(action, i);
 		}
 
-		_ui->menuRecentFiles->addSeparator();
-		_ui->menuRecentFiles->addAction(_ui->actionClearRecentFiles);
+		_menuRecentFiles->addSeparator();
+		_menuRecentFiles->addAction(ActionCollection::action("actionClearRecentFiles"));
 
 		connect(signalMapper, SIGNAL(mapped(int)),
 			SLOT(playRecentFile(int)));
@@ -137,15 +139,15 @@ void MainWindow::playRecentFile(int id) {
 
 void MainWindow::clearRecentFiles() {
 	//Clear recent files menu
-	_ui->menuRecentFiles->clear();
-	_ui->menuRecentFiles->addSeparator();
-	_ui->menuRecentFiles->addAction(_ui->actionClearRecentFiles);
+	_menuRecentFiles->clear();
+	_menuRecentFiles->addSeparator();
+	_menuRecentFiles->addAction(ActionCollection::action("actionClearRecentFiles"));
 
 	//Clear recent files configuration
 	Config::instance().setValue(Config::RECENT_FILES_KEY, QStringList());
 }
 
-void MainWindow::addFiles() {
+void MainWindow::playFile() {
 	static const int MAX_RECENT_FILES = 10;
 
 	QString fileName = QFileDialog::getOpenFileName(this, tr("Select Audio/Video File"));
@@ -218,14 +220,14 @@ void MainWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
 		//Resize the main window to the size of the video
 		//i.e increase or decrease main window size if needed
 		if (_mediaObject->hasVideo()) {
-			_ui->stackedWidget->setCurrentWidget(_videoWidget);
+			_stackedWidget->setCurrentWidget(_videoWidget);
 
 			//Flush event so that sizeHint takes the
 			//recently shown/hidden _videoWidget into account
 			QApplication::instance()->processEvents();
 			resize(sizeHint());
 		} else {
-			_ui->stackedWidget->setCurrentWidget(_backgroundLogoWidget);
+			_stackedWidget->setCurrentWidget(_backgroundLogoWidget);
 
 			resize(minimumSize());
 		}
@@ -259,4 +261,151 @@ void MainWindow::about() {
 			"the Free Software Foundation, either version 3 of the License, or\n" \
 			"(at your option) any later version."
 			));
+}
+
+void MainWindow::populateActionCollection() {
+	QCoreApplication * app = QApplication::instance();
+	QAction * action;
+
+	action = new QAction(app);
+	action->setText(tr("Play File..."));
+	action->setIcon(MyIcon("document-open"));
+	ActionCollection::addAction("actionPlayFile", action);
+
+	action = new QAction(app);
+	action->setText(tr("Exit"));
+	action->setIcon(MyIcon("application-exit"));
+	ActionCollection::addAction("actionExit", action);
+
+	action = new QAction(app);
+	action->setText(tr("View Equalizer"));
+	action->setIcon(MyIcon("view-media-equalizer"));
+	ActionCollection::addAction("actionViewEqualizer", action);
+
+	action = new QAction(app);
+	action->setText(tr("About"));
+	action->setIcon(MyIcon("help-about"));
+	ActionCollection::addAction("actionAbout", action);
+
+	action = new QAction(app);
+	action->setText(tr("About Qt"));
+	action->setIcon(MyIcon("help-about"));
+	ActionCollection::addAction("actionAboutQt", action);
+
+	action = new QAction(app);
+	action->setText(tr("Play DVD"));
+	action->setIcon(MyIcon("media-optical"));
+	ActionCollection::addAction("actionPlayDVD", action);
+
+	action = new QAction(app);
+	action->setText(tr("Play URL..."));
+	action->setIcon(MyIcon("document-open-remote"));
+	ActionCollection::addAction("actionPlayURL", action);
+
+	action = new QAction(app);
+	action->setText(tr("Play VCD"));
+	action->setIcon(MyIcon("media-optical"));
+	ActionCollection::addAction("actionPlayVCD", action);
+
+	action = new QAction(app);
+	action->setText(tr("Equalizer"));
+	action->setIcon(MyIcon("view-media-equalizer"));
+	ActionCollection::addAction("actionEqualizer", action);
+
+	action = new QAction(app);
+	action->setText(tr("Preferences"));
+	action->setIcon(MyIcon("preferences-system"));
+	ActionCollection::addAction("actionPreferences", action);
+
+	action = new QAction(app);
+	action->setText(tr("Open Subtitle..."));
+	action->setIcon(MyIcon("document-open"));
+	ActionCollection::addAction("actionOpenSubtitleFile", action);
+
+	action = new QAction(app);
+	action->setText(tr("Clear"));
+	action->setIcon(MyIcon("edit-delete"));
+	ActionCollection::addAction("actionClearRecentFiles", action);
+}
+
+void MainWindow::setupUi() {
+	setWindowTitle(tr("QuarkPlayer"));
+	setWindowIcon(QIcon(":/icons/quarkplayer.png"));
+
+	_stackedWidget = new QStackedWidget();
+	setCentralWidget(_stackedWidget);
+
+	QMenu * menuFile = menuBar()->addMenu(tr("File"));
+	menuFile->addAction(ActionCollection::action("actionPlayFile"));
+
+	_menuRecentFiles = new QMenu(tr("Recent Files"));
+	_menuRecentFiles->setIcon(MyIcon("document-open-recent"));
+	menuFile->addMenu(_menuRecentFiles);
+
+	menuFile->addAction(ActionCollection::action("actionPlayDVD"));
+	menuFile->addAction(ActionCollection::action("actionPlayURL"));
+	menuFile->addAction(ActionCollection::action("actionPlayVCD"));
+	menuFile->addSeparator();
+	menuFile->addAction(ActionCollection::action("actionExit"));
+
+	QMenu * menuAudio = menuBar()->addMenu(tr("Audio"));
+	_menuAudioChannels = new QMenu(tr("Audio Channels"));
+	_menuAudioChannels->setIcon(MyIcon("audio-x-generic"));
+	menuAudio->addMenu(_menuAudioChannels);
+
+	QMenu * menuSubtitle = menuBar()->addMenu(tr("Subtitle"));
+	menuSubtitle->addAction(ActionCollection::action("actionOpenSubtitleFile"));
+	_menuSubtitles = new QMenu(tr("Subtitles"));
+	_menuSubtitles->setIcon(MyIcon("format-text-underline"));
+	menuSubtitle->addMenu(_menuSubtitles);
+
+	QMenu * menuBrowse = menuBar()->addMenu(tr("Browse"));
+	_menuTitles = new QMenu(tr("Title"));
+	_menuTitles->setIcon(MyIcon("format-list-ordered"));
+	menuBrowse->addMenu(_menuTitles);
+	_menuChapters = new QMenu(tr("Chapter"));
+	_menuChapters->setIcon(MyIcon("x-office-address-book"));
+	menuBrowse->addMenu(_menuChapters);
+	_menuAngles = new QMenu(tr("Angle"));
+	menuBrowse->addMenu(_menuAngles);
+
+	QMenu * menuOptions = menuBar()->addMenu(tr("Options"));
+	menuOptions->addAction(ActionCollection::action("actionQuickSettings"));
+	menuOptions->addAction(ActionCollection::action("actionPreferences"));
+
+	QMenu * menuHelp = menuBar()->addMenu(tr("Help"));
+	menuHelp->addAction(ActionCollection::action("actionAbout"));
+	menuHelp->addAction(ActionCollection::action("actionAboutQt"));
+
+	//mainToolBar
+	QToolBar * mainToolBar = new QToolBar(tr("Main ToolBar"));
+	mainToolBar->addAction(ActionCollection::action("actionPlayFile"));
+	mainToolBar->addAction(ActionCollection::action("actionPlayDVD"));
+	mainToolBar->addAction(ActionCollection::action("actionPlayURL"));
+	mainToolBar->addSeparator();
+	mainToolBar->addAction(ActionCollection::action("actionEqualizer"));
+	mainToolBar->addAction(ActionCollection::action("actionPreferences"));
+	mainToolBar->addSeparator();
+	mainToolBar->addAction(ActionCollection::action("actionExit"));
+	addToolBar(mainToolBar);
+}
+
+QMenu * MainWindow::menuAudioChannels() const {
+	return _menuAudioChannels;
+}
+
+QMenu * MainWindow::menuSubtitles() const {
+	return _menuSubtitles;
+}
+
+QMenu * MainWindow::menuTitles() const {
+	return _menuTitles;
+}
+
+QMenu * MainWindow::menuChapters() const {
+	return _menuChapters;
+}
+
+QMenu * MainWindow::menuAngles() const {
+	return _menuAngles;
 }

@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>329</width>
-    <height>383</height>
+    <height>391</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -17,9 +17,6 @@
     <widget class="QGroupBox" name="videoGroupBox" >
      <property name="title" >
       <string>Video</string>
-     </property>
-     <property name="flat" >
-      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout" >
       <item row="0" column="0" >
@@ -198,9 +195,6 @@
      <property name="title" >
       <string>Audio</string>
      </property>
-     <property name="flat" >
-      <bool>false</bool>
-     </property>
      <layout class="QVBoxLayout" name="verticalLayout" >
       <item>
        <layout class="QHBoxLayout" >
@@ -221,8 +215,8 @@
           <property name="text" >
            <string>Audio Device:</string>
           </property>
-          <property name="alignment" >
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          <property name="pixmap" >
+           <pixmap resource="quarkplayer.qrc" >:/icons/oxygen/16x16/devices/audio-card.png</pixmap>
           </property>
          </widget>
         </item>
@@ -256,9 +250,6 @@
           </property>
           <property name="text" >
            <string>Audio Effect:</string>
-          </property>
-          <property name="alignment" >
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
           </property>
          </widget>
         </item>
@@ -302,9 +293,6 @@
           </property>
           <property name="text" >
            <string>Cross Fade:</string>
-          </property>
-          <property name="alignment" >
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
           </property>
          </widget>
         </item>
@@ -426,7 +414,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="quarkplayer.qrc" />
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

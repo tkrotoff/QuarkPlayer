@@ -22,6 +22,7 @@
 #include <QtGui/QDialog>
 
 #include <QtCore/QList>
+#include <QtCore/QMap>
 
 class IConfigWidget;
 namespace Ui { class ConfigWindow; }
@@ -53,7 +54,18 @@ private:
 
 	Ui::ConfigWindow * _ui;
 
+	/** List of all config widget. */
 	QList<IConfigWidget *> _configWidgetList;
+
+	/**
+	 * List of opened config widget.
+	 *
+	 * Trick for not having saving conflicts between config widgets.
+	 * Saves the config widgets in the exact order they were last opened.
+	 */
+	QMap<IConfigWidget *, int> _configWidgetOpenedMap;
+
+	int _lastConfigWindowOpenedIndex;
 };
 
 #endif	//CONFIGWINDOW_H

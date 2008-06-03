@@ -24,8 +24,6 @@
 
 #include <QtGui/QMainWindow>
 
-namespace Ui { class MainWindow; }
-
 class VideoWidget;
 class PlayToolBar;
 
@@ -57,15 +55,24 @@ public:
 
 	QStackedWidget * stackedWidget() const;
 
-private slots:
+	QMenu * menuAudioChannels() const;
 
-	void addFiles();
+	QMenu * menuSubtitles() const;
+
+	QMenu * menuTitles() const;
+
+	QMenu * menuChapters() const;
+
+	QMenu * menuAngles() const;
+
+private slots:
 
 	void about();
 
 	void showConfigWindow();
 	void showQuickSettingsWindow();
 
+	void playFile();
 	void playDVD();
 	void playURL();
 
@@ -83,9 +90,11 @@ private slots:
 
 private:
 
-	void closeEvent(QCloseEvent * event);
+	void populateActionCollection();
 
-	Ui::MainWindow * _ui;
+	void setupUi();
+
+	void closeEvent(QCloseEvent * event);
 
 	Phonon::MediaObject * _mediaObject;
 
@@ -94,6 +103,14 @@ private:
 
 	/** Widget containing the logo. */
 	QWidget * _backgroundLogoWidget;
+
+	QStackedWidget * _stackedWidget;
+	QMenu * _menuRecentFiles;
+	QMenu * _menuAudioChannels;
+	QMenu * _menuSubtitles;
+	QMenu * _menuTitles;
+	QMenu * _menuChapters;
+	QMenu * _menuAngles;
 
 	Phonon::AudioOutput * _audioOutput;
 	Phonon::Path _audioOutputPath;

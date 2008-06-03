@@ -22,14 +22,19 @@
 
 #include "GeneralConfigWidget.h"
 #include "SettingsBrowser.h"
+#include "../MyIcon.h"
 
 #include <QtGui/QtGui>
+
+#include <QtCore/QDebug>
 
 ConfigWindow::ConfigWindow(QWidget * parent)
 	: QDialog(parent) {
 
 	_ui = new Ui::ConfigWindow();
 	_ui->setupUi(this);
+
+	_lastConfigWindowOpenedIndex = 0;
 
 	//Add all config panels/widgets to the list
 	_configWidgetList += new GeneralConfigWidget(this);
@@ -39,12 +44,11 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	connect(_ui->listWidget, SIGNAL(currentRowChanged(int)),
 		SLOT(showConfigWidget(int)));
 
-	//stackedWidget
+	//stackedWidget + read config for each config widget
 	foreach (IConfigWidget * configWidget, _configWidgetList) {
+		configWidget->readConfig();
 		_ui->stackedWidget->addWidget(configWidget);
-		QString iconName = QString(":pics/config/%1.png").arg(configWidget->iconName());
-		QIcon icon = QPixmap(iconName);
-		new QListWidgetItem(icon, configWidget->name(), _ui->listWidget);
+		new QListWidgetItem(MyIcon(configWidget->iconName()), configWidget->name(), _ui->listWidget);
 	}
 
 	//Select the first (top one) config panel/widget from the list
@@ -55,8 +59,7 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	_ui->listWidget->setFixedWidth(computeListViewMinimumWidth(_ui->listWidget) + 20);
 
 	//saveButton
-	connect(_ui->buttonBox, SIGNAL(accepted()),
-		SLOT(saveConfig()));
+	connect(_ui->buttonBox, SIGNAL(accepted()), SLOT(saveConfig()));
 }
 
 ConfigWindow::~ConfigWindow() {
@@ -69,12 +72,24 @@ void ConfigWindow::showConfigWidget(int row) {
 	}
 
 	IConfigWidget * configWidget = _configWidgetList.at(row);
+	if (!configWidget) {
+		qCritical() << __FUNCTION__ << "Error: configWidget cannot be NULL";
+	}
+
+	_configWidgetOpenedMap[configWidget] = _lastConfigWindowOpenedIndex;
+	_lastConfigWindowOpenedIndex++;
+
 	_ui->stackedWidget->setCurrentWidget(configWidget);
 }
 
 void ConfigWindow::saveConfig() {
-	foreach (IConfigWidget * configWidget, _configWidgetList) {
-		configWidget->saveConfig();
+	//Trick for not having saving conflicts between config widgets.
+	//Saves the config widgets in the exact order they were last opened.
+	for (int i = 0; i < _lastConfigWindowOpenedIndex; ++i) {
+		IConfigWidget * configWidget = _configWidgetOpenedMap.key(i);
+		if (configWidget) {
+			configWidget->saveConfig();
+		}
 	}
 }
 

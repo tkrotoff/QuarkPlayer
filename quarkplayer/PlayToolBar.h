@@ -25,8 +25,6 @@
 
 class MainWindow;
 
-namespace Ui { class PlayToolBar; }
-
 namespace Phonon {
 	class MediaObject;
 	class AudioOutput;
@@ -64,11 +62,11 @@ private slots:
 
 private:
 
+	void populateActionCollection();
+
 	QToolBar * createSeekToolBar();
 
 	QToolBar * createControlToolBar();
-
-	Ui::PlayToolBar * _ui;
 
 	Phonon::MediaObject * _mediaObject;
 

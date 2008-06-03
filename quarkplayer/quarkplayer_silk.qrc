@@ -1,0 +1,31 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="silk">
+	<file alias="16x16/application-exit.png">icons/silk/cancel.png</file>
+	<file alias="16x16/document-open">icons/silk/page.png</file>
+	<file alias="16x16/document-open-folder">icons/silk/folder.png</file>
+	<file alias="16x16/document-open-recent">icons/silk/clock.png</file>
+	<file alias="16x16/document-open-remote">icons/silk/page_link.png</file>
+	<file alias="16x16/edit-delete">icons/silk/delete.png</file>
+	<file alias="16x16/format-list-ordered">icons/silk/text_list_numbers.png</file>
+	<file alias="16x16/speaker">icons/silk/sound.png</file>
+	<file alias="16x16/player-volume">icons/silk/sound_none.png</file>
+	<file alias="16x16/view-media-equalizer">icons/silk/color_wheel.png</file>
+
+	<file alias="16x16/format-text-underline">icons/silk/text_underline.png</file>
+	<file alias="16x16/media-playback-pause">icons/silk/control_pause.png</file>
+	<file alias="16x16/media-playback-start">icons/silk/control_play.png</file>
+	<file alias="16x16/media-playback-stop">icons/silk/control_stop.png</file>
+	<file alias="16x16/media-skip-backward">icons/silk/control_start.png</file>
+	<file alias="16x16/media-skip-forward">icons/silk/control_end.png</file>
+	<file alias="16x16/view-fullscreen">icons/silk/arrow_out.png</file>
+	<file alias="16x16/help-about">icons/silk/information.png</file>
+
+	<file alias="16x16/preferences-system">icons/silk/wrench.png</file>
+
+	<file alias="16x16/media-optical">icons/silk/cd.png</file>
+
+	<file alias="16x16/audio-x-generic">icons/silk/music.png</file>
+	<file alias="16x16/video-x-generic">icons/silk/film.png</file>
+	<file alias="16x16/x-office-address-book">icons/silk/book.png</file>
+</qresource>
+</RCC>

@@ -21,10 +21,13 @@
 #include "ui_GeneralConfigWidget.h"
 
 #include "Config.h"
+#include "../ComboBoxUtil.h"
 
 #include <QtGui/QApplication>
 #include <QtGui/QStyleFactory>
 #include <QtGui/QStyle>
+
+#include <QtCore/QDebug>
 
 GeneralConfigWidget::GeneralConfigWidget(QWidget * parent)
 	: IConfigWidget(parent) {
@@ -34,8 +37,8 @@ GeneralConfigWidget::GeneralConfigWidget(QWidget * parent)
 
 	connect(_ui->styleComboBox, SIGNAL(activated(const QString &)),
 		SLOT(styleChanged(const QString &)));
-
-	readConfig();
+	connect(_ui->iconThemeComboBox, SIGNAL(activated(const QString &)),
+		SLOT(iconThemeChanged(const QString &)));
 }
 
 GeneralConfigWidget::~GeneralConfigWidget() {
@@ -51,13 +54,25 @@ QString GeneralConfigWidget::iconName() const {
 }
 
 void GeneralConfigWidget::saveConfig() {
+	Config & config = Config::instance();
+
+	config.setValue(Config::ICON_THEME_KEY, _ui->iconThemeComboBox->currentText().toLower());
 }
 
 void GeneralConfigWidget::readConfig() {
+	Config & config = Config::instance();
+
+	_ui->styleComboBox->clear();
 	_ui->styleComboBox->addItems(QStyleFactory::keys());
+	_ui->iconThemeComboBox->clear();
+	_ui->iconThemeComboBox->addItems(config.iconThemeList());
+	ComboBoxUtil::setCurrentText(_ui->iconThemeComboBox, config.iconTheme());
 }
 
 void GeneralConfigWidget::styleChanged(const QString & styleName) {
 	QStyle * style = QStyleFactory::create(styleName);
 	QApplication::setStyle(style);
+}
+
+void GeneralConfigWidget::iconThemeChanged(const QString & iconTheme) {
 }

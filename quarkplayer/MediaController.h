@@ -21,7 +21,7 @@
 
 #include <QtCore/QObject>
 
-namespace Ui { class MainWindow; }
+class MainWindow;
 
 namespace Phonon {
 	class MediaController;
@@ -39,7 +39,7 @@ class MediaController : public QObject {
 	Q_OBJECT
 public:
 
-	MediaController(Ui::MainWindow * ui, Phonon::MediaObject * mediaObject, QWidget * parent);
+	MediaController(MainWindow * mainWindow, Phonon::MediaObject * mediaObject, QWidget * parent);
 
 	~MediaController();
 
@@ -66,7 +66,7 @@ private:
 
 	void removeAllAction(QWidget * widget);
 
-	Ui::MainWindow * _ui;
+	MainWindow * _mainWindow;
 
 	QWidget * _parent;
 

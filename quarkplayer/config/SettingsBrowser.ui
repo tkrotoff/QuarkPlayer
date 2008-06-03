@@ -5,12 +5,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>529</width>
-    <height>457</height>
+    <width>626</width>
+    <height>480</height>
    </rect>
-  </property>
-  <property name="windowTitle" >
-   <string>Settings Browser</string>
   </property>
   <layout class="QGridLayout" name="gridLayout" >
    <item row="0" column="0" >
@@ -46,9 +43,16 @@
        <string>Value</string>
       </property>
      </column>
+     <column>
+      <property name="text" >
+       <string> </string>
+      </property>
+     </column>
     </widget>
    </item>
   </layout>
+  <zorder>label</zorder>
+  <zorder>tableWidget</zorder>
  </widget>
  <resources/>
  <connections/>

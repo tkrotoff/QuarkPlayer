@@ -25,6 +25,7 @@ const char * Config::LANGUAGE_AUTODETECT_KEYVALUE = "autodetect";
 const char * Config::LANGUAGE_KEY = "language";
 
 const char * Config::STYLE_KEY = "style";
+const char * Config::ICON_THEME_KEY = "icon_theme";
 
 const char * Config::RECENT_FILES_KEY = "recent_files";
 
@@ -53,10 +54,9 @@ Config::~Config() {
 }
 
 void Config::setDefaultValues() {
-	QStringList languages;
-	languages << LANGUAGE_AUTODETECT_KEYVALUE;
-	_keyDefaultValueMap[LANGUAGE_KEY] = languages;
+	_keyDefaultValueMap[LANGUAGE_KEY] = LANGUAGE_AUTODETECT_KEYVALUE;
 	_keyDefaultValueMap[STYLE_KEY] = QString();
+	_keyDefaultValueMap[ICON_THEME_KEY] = "oxygen";
 	_keyDefaultValueMap[RECENT_FILES_KEY] = QStringList();
 	_keyDefaultValueMap[TEST_INT_KEY] = 0;
 	_keyDefaultValueMap[TEST_BOOL_KEY] = false;
@@ -68,6 +68,17 @@ QString Config::language() const {
 
 QString Config::style() const {
 	return value(STYLE_KEY).toString();
+}
+
+QStringList Config::iconThemeList() const {
+	QStringList list;
+	list << "Oxygen";
+	list << "Silk";
+	return list;
+}
+
+QString Config::iconTheme() const {
+	return value(ICON_THEME_KEY).toString();
 }
 
 QStringList Config::recentFiles() const {

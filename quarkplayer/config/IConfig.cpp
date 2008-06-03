@@ -36,8 +36,20 @@ QSettings & IConfig::settings() {
 	return _settings;
 }
 
-void IConfig::setValue(const QString & key, const QVariant & defaultValue) {
-	_settings.setValue(key, defaultValue);
+void IConfig::setValue(const QString & key, const QVariant & value) {
+	QVariant previousValue = this->value(key);
+	qDebug() << __FUNCTION__ << "previousValue:" << previousValue;
+
+	QVariant defaultValue = this->defaultValue(key);
+	qDebug() << __FUNCTION__ << "defaultValue:" << defaultValue;
+
+	qDebug() << __FUNCTION__ << "value:" << value;
+
+	if (value != previousValue) {
+		qDebug() << __FUNCTION__ << "value saved:" << value;
+		//Do not save the value if it is the same as the previous one
+		_settings.setValue(key, value);
+	}
 }
 
 QVariant IConfig::defaultValue(const QString & key) const {

@@ -39,11 +39,9 @@ public:
 
 	virtual QString iconName() const = 0;
 
-	virtual void saveConfig() = 0;
-
-protected:
-
 	virtual void readConfig() = 0;
+
+	virtual void saveConfig() = 0;
 };
 
 #endif	//ICONFIGWIDGET_H

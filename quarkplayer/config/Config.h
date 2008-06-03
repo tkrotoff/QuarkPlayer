@@ -45,6 +45,10 @@ public:
 	static const char * STYLE_KEY;
 	QString style() const;
 
+	static const char * ICON_THEME_KEY;
+	QStringList iconThemeList() const;
+	QString iconTheme() const;
+
 	static const char * RECENT_FILES_KEY;
 	QStringList recentFiles() const;
 

@@ -40,15 +40,17 @@ public:
 
 	QString iconName() const;
 
+	void readConfig();
+
 	void saveConfig();
 
 private slots:
 
 	void styleChanged(const QString & styleName);
 
-private:
+	void iconThemeChanged(const QString & iconTheme);
 
-	void readConfig();
+private:
 
 	Ui::GeneralConfigWidget * _ui;
 };

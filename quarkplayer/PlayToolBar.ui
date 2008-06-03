@@ -21,7 +21,7 @@
   <action name="actionPlay" >
    <property name="icon" >
     <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/play.png</normaloff>:/images/play.png</iconset>
+     <normaloff>:/icons/oxygen/16x16/actions/media-playback-start.png</normaloff>:/icons/oxygen/16x16/actions/media-playback-start.png</iconset>
    </property>
    <property name="text" >
     <string>Play</string>
@@ -30,7 +30,7 @@
   <action name="actionPause" >
    <property name="icon" >
     <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/pause.png</normaloff>:/images/pause.png</iconset>
+     <normaloff>:/icons/oxygen/16x16/actions/media-playback-pause.png</normaloff>:/icons/oxygen/16x16/actions/media-playback-pause.png</iconset>
    </property>
    <property name="text" >
     <string>Pause</string>
@@ -45,7 +45,7 @@
   <action name="actionStop" >
    <property name="icon" >
     <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/stop.png</normaloff>:/images/stop.png</iconset>
+     <normaloff>:/icons/oxygen/16x16/actions/media-playback-stop.png</normaloff>:/icons/oxygen/16x16/actions/media-playback-stop.png</iconset>
    </property>
    <property name="text" >
     <string>Stop</string>
@@ -57,7 +57,7 @@
    </property>
    <property name="icon" >
     <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/fullscreen.png</normaloff>:/images/fullscreen.png</iconset>
+     <normaloff>:/icons/oxygen/16x16/actions/view-fullscreen.png</normaloff>:/icons/oxygen/16x16/actions/view-fullscreen.png</iconset>
    </property>
    <property name="text" >
     <string>FullScreen</string>
@@ -72,7 +72,7 @@
   <action name="actionNextTrack" >
    <property name="icon" >
     <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
+     <normaloff>:/icons/oxygen/16x16/actions/media-skip-forward.png</normaloff>:/icons/oxygen/16x16/actions/media-skip-forward.png</iconset>
    </property>
    <property name="text" >
     <string>Next Track</string>
@@ -81,7 +81,7 @@
   <action name="actionPreviousTrack" >
    <property name="icon" >
     <iconset resource="quarkplayer.qrc" >
-     <normaloff>:/images/previous.png</normaloff>:/images/previous.png</iconset>
+     <normaloff>:/icons/oxygen/16x16/actions/media-skip-backward.png</normaloff>:/icons/oxygen/16x16/actions/media-skip-backward.png</iconset>
    </property>
    <property name="text" >
     <string>Previous Track</string>

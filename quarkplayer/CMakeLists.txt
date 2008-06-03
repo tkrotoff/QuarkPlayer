@@ -9,6 +9,10 @@ set(quarkplayer_SRCS
 	MediaController.cpp
 	QuarkPlayerStyle.cpp
 	QuickSettingsWindow.cpp
+	ActionCollection.cpp
+	MyIcon.cpp
+	IconEngine.cpp
+	ComboBoxUtil.cpp
 	config/IConfig.cpp
 	config/Config.cpp
 	config/ConfigWindow.cpp
@@ -18,6 +22,8 @@ set(quarkplayer_SRCS
 
 qt4_add_resources(quarkplayer_SRCS
 	quarkplayer.qrc
+	quarkplayer_oxygen.qrc
+	quarkplayer_silk.qrc
 )
 
 qt4_wrap_cpp(quarkplayer_SRCS
@@ -28,15 +34,24 @@ qt4_wrap_cpp(quarkplayer_SRCS
 	MediaController.h
 	QuarkPlayerStyle.h
 	QuickSettingsWindow.h
+	ActionCollection.h
+	MyIcon.h
+	IconEngine.h
+	ComboBoxUtil.h
 	config/Config.h
 	config/ConfigWindow.h
 	config/GeneralConfigWidget.h
 	config/SettingsBrowser.h
 )
 
+if (WIN32)
+	list(APPEND quarkplayer_SRCS
+		quarkplayer.rc
+	)
+endif (WIN32)
+
 qt4_wrap_ui(quarkplayer_SRCS
 	MainWindow.ui
-	PlayToolBar.ui
 	QuickSettingsWindow.ui
 	BackgroundLogoWidget.ui
 	config/ConfigWindow.ui
@@ -45,7 +60,14 @@ qt4_wrap_ui(quarkplayer_SRCS
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(quarkplayer ${quarkplayer_SRCS})
+set(quarkplayer_TRANSLATIONS
+	${quarkplayer_SRCS}
+	translations/quarkplayer_fr.ts
+)
+#qt4_create_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
+#qt4_add_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
+
+add_executable(quarkplayer ${quarkplayer_SRCS} ${quarkplayer_QMS})
 
 if (KDE4_FOUND)
 	target_link_libraries(quarkplayer
@@ -62,3 +84,4 @@ else (KDE4_FOUND)
 endif (KDE4_FOUND)
 
 install(TARGETS quarkplayer DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(FILES ${quarkplayer_QMS} DESTINATION ${BIN_INSTALL_DIR}/translations)

@@ -26,6 +26,7 @@
 namespace Ui { class SettingsBrowser; }
 
 class QVariant;
+class QTableWidgetItem;
 
 /**
  * QSettings browser.
@@ -50,17 +51,45 @@ public:
 
 	QString iconName() const;
 
+	void readConfig();
+
 	void saveConfig();
+
+private slots:
+
+	void valueChanged();
+
+	void resetValue();
 
 private:
 
-	void readConfig();
+	void setRowBold(int row, bool bold) const;
 
-	void setItem(const QVariant & defaultValue, const QVariant & value, int row, int column);
+	/** Code factorization. */
+	void addResetButton(int row) const;
 
-	QVariant item(const QVariant & defaultValue, int row, int column);
+	/** Code factorization. */
+	void removeResetButton(int row) const;
+
+	/** Code factorization. */
+	int findRow(QWidget * widget, int column) const;
+
+	/** Code factorization. */
+	QString findKey(int row) const;
+
+	void showEvent(QShowEvent * event);
+
+	void hideEvent(QHideEvent * event);
+
+	void closeEvent(QCloseEvent * event);
+
+	void setItem(const QVariant & defaultValue, const QVariant & value, int row);
+
+	QVariant item(const QVariant & defaultValue, const QVariant & value, int row);
 
 	Ui::SettingsBrowser * _ui;
+
+	bool _settingsChangedAndUnsaved;
 };
 
 #endif	//SETTINGSBROWSER_H

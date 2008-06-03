@@ -18,7 +18,8 @@
 
 #include "PlayToolBar.h"
 
-#include "ui_PlayToolBar.h"
+#include "ActionCollection.h"
+#include "MyIcon.h"
 
 #include "MainWindow.h"
 
@@ -30,7 +31,9 @@
 #include <QtGui/QtGui>
 
 PlayToolBar::PlayToolBar(Phonon::MediaObject * mediaObject, Phonon::AudioOutput * audioOutput)
-	: QToolBar("playToolBar", NULL) {
+	: QToolBar("Play ToolBar", NULL) {
+
+	populateActionCollection();
 
 	_mediaObject = mediaObject;
 	_audioOutput = audioOutput;
@@ -49,12 +52,6 @@ PlayToolBar::PlayToolBar(Phonon::MediaObject * mediaObject, Phonon::AudioOutput 
 	QToolBar * controlToolBar = createControlToolBar();
 	vLayout->addWidget(controlToolBar);
 
-	//Actions connect
-	connect(_ui->actionPlay, SIGNAL(triggered()), _mediaObject, SLOT(play()));
-	connect(_ui->actionPause, SIGNAL(triggered()), _mediaObject, SLOT(pause()));
-	connect(_ui->actionStop, SIGNAL(triggered()), _mediaObject, SLOT(stop()));
-	connect(_ui->actionFullScreen, SIGNAL(toggled(bool)), SIGNAL(fullScreenButtonClicked(bool)));
-
 	addWidget(widget);
 
 	//setMovable(false);
@@ -62,11 +59,10 @@ PlayToolBar::PlayToolBar(Phonon::MediaObject * mediaObject, Phonon::AudioOutput 
 }
 
 PlayToolBar::~PlayToolBar() {
-	delete _ui;
 }
 
 void PlayToolBar::setCheckedFullScreenButton(bool checked) {
-	_ui->actionFullScreen->setChecked(checked);
+	ActionCollection::action("actionFullScreen")->setChecked(checked);
 }
 
 void PlayToolBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
@@ -75,21 +71,21 @@ void PlayToolBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
 		break;
 
 	case Phonon::PlayingState:
-		_ui->actionPlay->setEnabled(false);
-		_ui->actionPause->setEnabled(true);
-		_ui->actionStop->setEnabled(true);
+		ActionCollection::action("actionPlay")->setEnabled(false);
+		ActionCollection::action("actionPause")->setEnabled(true);
+		ActionCollection::action("actionStop")->setEnabled(true);
 		break;
 
 	case Phonon::StoppedState:
-		_ui->actionStop->setEnabled(false);
-		_ui->actionPlay->setEnabled(true);
-		_ui->actionPause->setEnabled(false);
+		ActionCollection::action("actionStop")->setEnabled(false);
+		ActionCollection::action("actionPlay")->setEnabled(true);
+		ActionCollection::action("actionPause")->setEnabled(false);
 		break;
 
 	case Phonon::PausedState:
-		_ui->actionPause->setEnabled(false);
-		_ui->actionStop->setEnabled(true);
-		_ui->actionPlay->setEnabled(true);
+		ActionCollection::action("actionPause")->setEnabled(false);
+		ActionCollection::action("actionStop")->setEnabled(true);
+		ActionCollection::action("actionPlay")->setEnabled(true);
 		break;
 
 	case Phonon::LoadingState:
@@ -131,15 +127,67 @@ QToolBar * PlayToolBar::createSeekToolBar() {
 QToolBar * PlayToolBar::createControlToolBar() {
 	QToolBar * controlToolBar = new QToolBar();
 
-	_ui = new Ui::PlayToolBar();
-	_ui->setupUi(controlToolBar);
+	controlToolBar->addAction(ActionCollection::action("actionPlay"));
+	controlToolBar->addAction(ActionCollection::action("actionPause"));
+	controlToolBar->addAction(ActionCollection::action("actionStop"));
+	controlToolBar->addSeparator();
+	controlToolBar->addAction(ActionCollection::action("actionPreviousTrack"));
+	controlToolBar->addAction(ActionCollection::action("actionNextTrack"));
+	controlToolBar->addSeparator();
+	controlToolBar->addAction(ActionCollection::action("actionFullScreen"));
+	controlToolBar->addSeparator();
+
+	//Actions connect
+	connect(ActionCollection::action("actionPlay"), SIGNAL(triggered()), _mediaObject, SLOT(play()));
+	connect(ActionCollection::action("actionPause"), SIGNAL(triggered()), _mediaObject, SLOT(pause()));
+	connect(ActionCollection::action("actionStop"), SIGNAL(triggered()), _mediaObject, SLOT(stop()));
+	connect(ActionCollection::action("actionFullScreen"), SIGNAL(toggled(bool)), SIGNAL(fullScreenButtonClicked(bool)));
 
 	//volumdeSlider
 	_volumeSlider = new Phonon::VolumeSlider(_audioOutput);
+	_volumeSlider->setIconSize(controlToolBar->iconSize());
+	_volumeSlider->setVolumeIcon(MyIcon("speaker"));
+	_volumeSlider->setMutedIcon(MyIcon("speaker"));
 	//volumeSlider only takes the space it needs
 	_volumeSlider->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
 	controlToolBar->addWidget(_volumeSlider);
 
 	return controlToolBar;
+}
+
+void PlayToolBar::populateActionCollection() {
+	QCoreApplication * app = QApplication::instance();
+	QAction * action;
+
+	action = new QAction(app);
+	action->setText(tr("Play"));
+	action->setIcon(MyIcon("media-playback-start"));
+	ActionCollection::addAction("actionPlay", action);
+
+	action = new QAction(app);
+	action->setText(tr("Pause"));
+	action->setIcon(MyIcon("media-playback-pause"));
+	ActionCollection::addAction("actionPause", action);
+
+	action = new QAction(app);
+	action->setText(tr("Stop"));
+	action->setIcon(MyIcon("media-playback-stop"));
+	ActionCollection::addAction("actionStop", action);
+
+	action = new QAction(app);
+	action->setText(tr("Next Track"));
+	action->setIcon(MyIcon("media-skip-forward"));
+	ActionCollection::addAction("actionNextTrack", action);
+
+	action = new QAction(app);
+	action->setText(tr("Previous Track"));
+	action->setIcon(MyIcon("media-skip-backward"));
+	ActionCollection::addAction("actionPreviousTrack", action);
+
+	action = new QAction(app);
+	action->setText(tr("FullScreen"));
+	action->setIcon(MyIcon("view-fullscreen"));
+	action->setCheckable(true);
+	ActionCollection::addAction("actionFullScreen", action);
 }

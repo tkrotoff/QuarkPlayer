@@ -43,7 +43,7 @@ public:
 
 	QStringList allKeys() const;
 
-	void setValue(const QString & key, const QVariant & defaultValue);
+	void setValue(const QString & key, const QVariant & value);
 
 	QVariant defaultValue(const QString & key) const;
 

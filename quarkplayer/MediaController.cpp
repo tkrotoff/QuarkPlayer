@@ -18,7 +18,8 @@
 
 #include "MediaController.h"
 
-#include "ui_MainWindow.h"
+#include "MainWindow.h"
+#include "ActionCollection.h"
 
 #include <phonon/audiooutput.h>
 #include <phonon/volumeslider.h>
@@ -30,11 +31,11 @@
 #include <QtCore/QSignalMapper>
 #include <QtCore/QDebug>
 
-MediaController::MediaController(Ui::MainWindow * ui, Phonon::MediaObject * mediaObject, QWidget * parent)
+MediaController::MediaController(MainWindow * mainWindow, Phonon::MediaObject * mediaObject, QWidget * parent)
 	: QObject(parent) {
 
 	_parent = parent;
-	_ui = ui;
+	_mainWindow = mainWindow;
 
 	_mediaController = new Phonon::MediaController(mediaObject);
 	connect(_mediaController, SIGNAL(availableAudioChannelsChanged()),
@@ -56,7 +57,7 @@ MediaController::MediaController(Ui::MainWindow * ui, Phonon::MediaObject * medi
 	connect(_mediaController, SIGNAL(availableAnglesChanged(int)),
 		SLOT(availableAnglesChanged()));
 
-	connect(_ui->actionOpenSubtitleFile, SIGNAL(triggered()), SLOT(openSubtitleFile()));
+	connect(ActionCollection::action("actionOpenSubtitleFile"), SIGNAL(triggered()), SLOT(openSubtitleFile()));
 }
 
 MediaController::~MediaController() {
@@ -90,11 +91,11 @@ void MediaController::availableAudioChannelsChanged() {
 
 	QList<Phonon::AudioChannelDescription> audios = _mediaController->availableAudioChannels();
 	if (!audios.isEmpty()) {
-		removeAllAction(_ui->menuAudioChannels);
+		removeAllAction(_mainWindow->menuAudioChannels());
 	}
 
 	for (int i = 0; i < audios.size(); i++) {
-		QAction * action = _ui->menuAudioChannels->addAction(audios[i].name() + " " + audios[i].description(), signalMapper, SLOT(map()));
+		QAction * action = _mainWindow->menuAudioChannels()->addAction(audios[i].name() + " " + audios[i].description(), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 
@@ -112,11 +113,11 @@ void MediaController::availableSubtitlesChanged() {
 
 	QList<Phonon::SubtitleDescription> subtitles = _mediaController->availableSubtitles();
 	if (!subtitles.isEmpty()) {
-		removeAllAction(_ui->menuSubtitles);
+		removeAllAction(_mainWindow->menuSubtitles());
 	}
 
 	for (int i = 0; i < subtitles.size(); i++) {
-		QAction * action = _ui->menuSubtitles->addAction(subtitles[i].name() + " " + subtitles[i].description(), signalMapper, SLOT(map()));
+		QAction * action = _mainWindow->menuSubtitles()->addAction(subtitles[i].name() + " " + subtitles[i].description(), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 
@@ -135,21 +136,21 @@ void MediaController::availableTitlesChanged() {
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 	QList<Phonon::TitleDescription> titles = _mediaController->availableTitles2();
 	if (!titles.isEmpty()) {
-		removeAllAction(_ui->menuTitles);
+		removeAllAction(_mainWindow->menuTitles());
 	}
 
 	for (int i = 0; i < titles.size(); i++) {
-		QAction * action = _ui->menuTitles->addAction(titles[i].name() + " " + titles[i].description(), signalMapper, SLOT(map()));
+		QAction * action = _mainWindow->menuTitles()->addAction(titles[i].name() + " " + titles[i].description(), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 #else
 	int titles = _mediaController->availableTitles();
 	if (titles > 0) {
-		removeAllAction(_ui->menuTitles);
+		removeAllAction(_mainWindow->menuTitles());
 	}
 
 	for (int i = 0; i < titles; i++) {
-		QAction * action = _ui->menuTitles->addAction(QString::number(i), signalMapper, SLOT(map()));
+		QAction * action = _mainWindow->menuTitles()->addAction(QString::number(i), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 #endif	//NEW_TITLE_CHAPTER_HANDLING
@@ -173,21 +174,21 @@ void MediaController::availableChaptersChanged() {
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 	QList<Phonon::ChapterDescription> chapters = _mediaController->availableChapters2();
 	if (!chapters.isEmpty()) {
-		removeAllAction(_ui->menuChapters);
+		removeAllAction(_mainWindow->menuChapters());
 	}
 
 	for (int i = 0; i < chapters.size(); i++) {
-		QAction * action = _ui->menuChapters->addAction(chapters[i].name() + " " + chapters[i].description(), signalMapper, SLOT(map()));
+		QAction * action = _mainWindow->menuChapters()->addAction(chapters[i].name() + " " + chapters[i].description(), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 #else
 	int chapters = _mediaController->availableChapters();
 	if (chapters > 0) {
-		removeAllAction(_ui->menuChapters);
+		removeAllAction(_mainWindow->menuChapters());
 	}
 
 	for (int i = 0; i < chapters; i++) {
-		QAction * action = _ui->menuChapters->addAction(QString::number(i), signalMapper, SLOT(map()));
+		QAction * action = _mainWindow->menuChapters()->addAction(QString::number(i), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 #endif	//NEW_TITLE_CHAPTER_HANDLING
@@ -210,11 +211,11 @@ void MediaController::availableAnglesChanged() {
 
 	int angles = _mediaController->availableAngles();
 	if (angles > 0) {
-		removeAllAction(_ui->menuAngles);
+		removeAllAction(_mainWindow->menuAngles());
 	}
 
 	for (int i = 0; i < angles; i++) {
-		QAction * action = _ui->menuAngles->addAction(QString::number(i), signalMapper, SLOT(map()));
+		QAction * action = _mainWindow->menuAngles()->addAction(QString::number(i), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 
