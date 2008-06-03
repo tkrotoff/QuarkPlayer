@@ -29,6 +29,7 @@
 #include "factory_p.h"
 #include "audiooutput.h"
 #include <QtGui/QIcon>
+#include <QtGui/QStyle>
 #include <QtCore/QPointer>
 #include "platform_p.h"
 
@@ -45,8 +46,15 @@ class VolumeSliderPrivate
             layout(QBoxLayout::LeftToRight, parent),
             slider(Qt::Horizontal, parent),
             muteButton(parent),
-            volumeIcon(Platform::icon(QLatin1String("player-volume"))),
-            mutedIcon(Platform::icon(QLatin1String("player-volume-muted"))),
+
+            //Default volume icon
+            //volumeIcon(Platform::icon(QLatin1String("player-volume"))),
+            volumeIcon(parent->style()->standardIcon(QStyle::SP_MediaVolume)),
+
+            //Default muted icon
+            //mutedIcon(Platform::icon(QLatin1String("player-volume-muted"))),
+            mutedIcon(parent->style()->standardIcon(QStyle::SP_MediaVolumeMuted)),
+
             output(0),
             ignoreVolumeChange(false)
         {
@@ -54,7 +62,9 @@ class VolumeSliderPrivate
             slider.setPageStep(5);
             slider.setSingleStep(1);
 
+            //Set the default volume icon
             muteButton.setIcon(volumeIcon);
+
             muteButton.setAutoRaise(true);
             layout.setMargin(0);
             layout.setSpacing(2);
