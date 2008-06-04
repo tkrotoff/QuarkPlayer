@@ -1,6 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="oxygen">
-	<file alias="16x16/application-exit.png">icons/oxygen/16x16/actions/application-exit.png</file>
+	<file alias="16x16/application-exit">icons/oxygen/16x16/actions/application-exit.png</file>
 	<file alias="16x16/document-open">icons/oxygen/16x16/actions/document-open.png</file>
 	<file alias="16x16/document-open-folder">icons/oxygen/16x16/actions/document-open-folder.png</file>
 	<file alias="16x16/document-open-recent">icons/oxygen/16x16/actions/document-open-recent.png</file>

@@ -1,6 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="silk">
-	<file alias="16x16/application-exit.png">icons/silk/cancel.png</file>
+	<file alias="16x16/application-exit">icons/silk/stop.png</file>
 	<file alias="16x16/document-open">icons/silk/page.png</file>
 	<file alias="16x16/document-open-folder">icons/silk/folder.png</file>
 	<file alias="16x16/document-open-recent">icons/silk/clock.png</file>

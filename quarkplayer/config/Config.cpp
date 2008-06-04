@@ -73,6 +73,7 @@ QStringList Config::iconThemeList() const {
 	QStringList list;
 	list << "Oxygen";
 	list << "Silk";
+	list << "Tango";
 	return list;
 }
 

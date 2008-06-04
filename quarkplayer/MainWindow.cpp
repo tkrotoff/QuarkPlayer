@@ -81,16 +81,16 @@ MainWindow::MainWindow(QWidget * parent)
 	//statusBar
 	setStatusBar(new StatusBar(_mediaObject));
 
-	connect(ActionCollection::action("actionPlayDVD"), SIGNAL(triggered()), SLOT(playDVD()));
-	connect(ActionCollection::action("actionPlayURL"), SIGNAL(triggered()), SLOT(playURL()));
-	connect(ActionCollection::action("actionPlayFile"), SIGNAL(triggered()), SLOT(playFile()));
-	connect(ActionCollection::action("actionOpenSubtitleFile"), SIGNAL(triggered()), SLOT(openSubtitleFile()));
-	connect(ActionCollection::action("actionEqualizer"), SIGNAL(triggered()), SLOT(showQuickSettingsWindow()));
-	connect(ActionCollection::action("actionPreferences"), SIGNAL(triggered()), SLOT(showConfigWindow()));
-	connect(ActionCollection::action("actionExit"), SIGNAL(triggered()), _mediaObject, SLOT(stop()));
-	connect(ActionCollection::action("actionExit"), SIGNAL(triggered()), SLOT(close()));
-	connect(ActionCollection::action("actionAbout"), SIGNAL(triggered()), SLOT(about()));
-	connect(ActionCollection::action("actionAboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+	connect(ActionCollection::action("playDVD"), SIGNAL(triggered()), SLOT(playDVD()));
+	connect(ActionCollection::action("playURL"), SIGNAL(triggered()), SLOT(playURL()));
+	connect(ActionCollection::action("playFile"), SIGNAL(triggered()), SLOT(playFile()));
+	connect(ActionCollection::action("openSubtitleFile"), SIGNAL(triggered()), SLOT(openSubtitleFile()));
+	connect(ActionCollection::action("equalizer"), SIGNAL(triggered()), SLOT(showQuickSettingsWindow()));
+	connect(ActionCollection::action("preferences"), SIGNAL(triggered()), SLOT(showConfigWindow()));
+	connect(ActionCollection::action("exit"), SIGNAL(triggered()), _mediaObject, SLOT(stop()));
+	connect(ActionCollection::action("exit"), SIGNAL(triggered()), SLOT(close()));
+	connect(ActionCollection::action("about"), SIGNAL(triggered()), SLOT(about()));
+	connect(ActionCollection::action("aboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
 
 MainWindow::~MainWindow() {
@@ -109,7 +109,7 @@ QStackedWidget * MainWindow::stackedWidget() const {
 }
 
 void MainWindow::addRecentFilesToMenu() {
-	connect(ActionCollection::action("actionClearRecentFiles"), SIGNAL(triggered()), SLOT(clearRecentFiles()));
+	connect(ActionCollection::action("clearRecentFiles"), SIGNAL(triggered()), SLOT(clearRecentFiles()));
 
 	QStringList recentFiles = Config::instance().recentFiles();
 	if (!recentFiles.isEmpty()) {
@@ -125,7 +125,7 @@ void MainWindow::addRecentFilesToMenu() {
 		}
 
 		_menuRecentFiles->addSeparator();
-		_menuRecentFiles->addAction(ActionCollection::action("actionClearRecentFiles"));
+		_menuRecentFiles->addAction(ActionCollection::action("clearRecentFiles"));
 
 		connect(signalMapper, SIGNAL(mapped(int)),
 			SLOT(playRecentFile(int)));
@@ -141,7 +141,7 @@ void MainWindow::clearRecentFiles() {
 	//Clear recent files menu
 	_menuRecentFiles->clear();
 	_menuRecentFiles->addSeparator();
-	_menuRecentFiles->addAction(ActionCollection::action("actionClearRecentFiles"));
+	_menuRecentFiles->addAction(ActionCollection::action("clearRecentFiles"));
 
 	//Clear recent files configuration
 	Config::instance().setValue(Config::RECENT_FILES_KEY, QStringList());
@@ -265,129 +265,149 @@ void MainWindow::about() {
 
 void MainWindow::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
-	QAction * action;
 
-	action = new QAction(app);
-	action->setText(tr("Play File..."));
-	action->setIcon(MyIcon("document-open"));
-	ActionCollection::addAction("actionPlayFile", action);
-
-	action = new QAction(app);
-	action->setText(tr("Exit"));
-	action->setIcon(MyIcon("application-exit"));
-	ActionCollection::addAction("actionExit", action);
-
-	action = new QAction(app);
-	action->setText(tr("View Equalizer"));
-	action->setIcon(MyIcon("view-media-equalizer"));
-	ActionCollection::addAction("actionViewEqualizer", action);
-
-	action = new QAction(app);
-	action->setText(tr("About"));
-	action->setIcon(MyIcon("help-about"));
-	ActionCollection::addAction("actionAbout", action);
-
-	action = new QAction(app);
-	action->setText(tr("About Qt"));
-	action->setIcon(MyIcon("help-about"));
-	ActionCollection::addAction("actionAboutQt", action);
-
-	action = new QAction(app);
-	action->setText(tr("Play DVD"));
-	action->setIcon(MyIcon("media-optical"));
-	ActionCollection::addAction("actionPlayDVD", action);
-
-	action = new QAction(app);
-	action->setText(tr("Play URL..."));
-	action->setIcon(MyIcon("document-open-remote"));
-	ActionCollection::addAction("actionPlayURL", action);
-
-	action = new QAction(app);
-	action->setText(tr("Play VCD"));
-	action->setIcon(MyIcon("media-optical"));
-	ActionCollection::addAction("actionPlayVCD", action);
-
-	action = new QAction(app);
-	action->setText(tr("Equalizer"));
-	action->setIcon(MyIcon("view-media-equalizer"));
-	ActionCollection::addAction("actionEqualizer", action);
-
-	action = new QAction(app);
-	action->setText(tr("Preferences"));
-	action->setIcon(MyIcon("preferences-system"));
-	ActionCollection::addAction("actionPreferences", action);
-
-	action = new QAction(app);
-	action->setText(tr("Open Subtitle..."));
-	action->setIcon(MyIcon("document-open"));
-	ActionCollection::addAction("actionOpenSubtitleFile", action);
-
-	action = new QAction(app);
-	action->setText(tr("Clear"));
-	action->setIcon(MyIcon("edit-delete"));
-	ActionCollection::addAction("actionClearRecentFiles", action);
+	ActionCollection::addAction("playFile", new QAction(app));
+	ActionCollection::addAction("exit", new QAction(app));
+	ActionCollection::addAction("about", new QAction(app));
+	ActionCollection::addAction("aboutQt", new QAction(app));
+	ActionCollection::addAction("playDVD", new QAction(app));
+	ActionCollection::addAction("playURL", new QAction(app));
+	ActionCollection::addAction("playVCD", new QAction(app));
+	ActionCollection::addAction("equalizer", new QAction(app));
+	ActionCollection::addAction("preferences", new QAction(app));
+	ActionCollection::addAction("openSubtitleFile", new QAction(app));
+	ActionCollection::addAction("clearRecentFiles", new QAction(app));
 }
 
 void MainWindow::setupUi() {
-	setWindowTitle(tr("QuarkPlayer"));
-	setWindowIcon(QIcon(":/icons/quarkplayer.png"));
-
 	_stackedWidget = new QStackedWidget();
 	setCentralWidget(_stackedWidget);
 
-	QMenu * menuFile = menuBar()->addMenu(tr("File"));
-	menuFile->addAction(ActionCollection::action("actionPlayFile"));
+	_menuFile = new QMenu();
+	menuBar()->addAction(_menuFile->menuAction());
+	_menuFile->addAction(ActionCollection::action("playFile"));
+	_menuRecentFiles = new QMenu();
+	_menuFile->addAction(_menuRecentFiles->menuAction());
+	_menuFile->addAction(ActionCollection::action("playDVD"));
+	_menuFile->addAction(ActionCollection::action("playURL"));
+	_menuFile->addAction(ActionCollection::action("playVCD"));
+	_menuFile->addSeparator();
+	_menuFile->addAction(ActionCollection::action("exit"));
 
-	_menuRecentFiles = new QMenu(tr("Recent Files"));
+	_menuAudio = new QMenu();
+	menuBar()->addAction(_menuAudio->menuAction());
+	_menuAudioChannels = new QMenu();
+	_menuAudio->addAction(_menuAudioChannels->menuAction());
+
+	_menuSubtitle = new QMenu();
+	menuBar()->addAction(_menuSubtitle->menuAction());
+	_menuSubtitle->addAction(ActionCollection::action("openSubtitleFile"));
+	_menuSubtitles = new QMenu();
+	_menuSubtitle->addAction(_menuSubtitles->menuAction());
+
+	_menuBrowse = new QMenu();
+	menuBar()->addAction(_menuBrowse->menuAction());
+	_menuTitles = new QMenu();
+	_menuBrowse->addAction(_menuTitles->menuAction());
+	_menuChapters = new QMenu();
+	_menuBrowse->addAction(_menuChapters->menuAction());
+	_menuAngles = new QMenu();
+	_menuBrowse->addAction(_menuAngles->menuAction());
+
+	_menuOptions = new QMenu();
+	menuBar()->addAction(_menuOptions->menuAction());
+	_menuOptions->addAction(ActionCollection::action("equalizer"));
+	_menuOptions->addAction(ActionCollection::action("preferences"));
+
+	_menuHelp = new QMenu();
+	menuBar()->addAction(_menuHelp->menuAction());
+	_menuHelp->addAction(ActionCollection::action("about"));
+	_menuHelp->addAction(ActionCollection::action("aboutQt"));
+
+	//Main ToolBar
+	_mainToolBar = new QToolBar();
+	_mainToolBar->addAction(ActionCollection::action("playFile"));
+	_mainToolBar->addAction(ActionCollection::action("playDVD"));
+	_mainToolBar->addAction(ActionCollection::action("playURL"));
+	_mainToolBar->addSeparator();
+	_mainToolBar->addAction(ActionCollection::action("equalizer"));
+	_mainToolBar->addAction(ActionCollection::action("preferences"));
+	_mainToolBar->addSeparator();
+	_mainToolBar->addAction(ActionCollection::action("exit"));
+	addToolBar(_mainToolBar);
+
+	retranslate();
+}
+
+void MainWindow::changeEvent(QEvent * event) {
+	if (event->type() == QEvent::LanguageChange) {
+		retranslate();
+	} else {
+		QMainWindow::changeEvent(event);
+	}
+}
+
+void MainWindow::retranslate() {
+	setWindowTitle(tr("QuarkPlayer"));
+	setWindowIcon(QIcon(":/icons/quarkplayer.png"));
+
+	ActionCollection::action("playFile")->setText(tr("Play File..."));
+	ActionCollection::action("playFile")->setIcon(MyIcon("document-open"));
+
+	ActionCollection::action("exit")->setText(tr("Exit"));
+	ActionCollection::action("exit")->setIcon(MyIcon("application-exit"));
+
+	ActionCollection::action("about")->setText(tr("About"));
+	ActionCollection::action("about")->setIcon(MyIcon("help-about"));
+
+	ActionCollection::action("aboutQt")->setText(tr("About Qt"));
+	ActionCollection::action("aboutQt")->setIcon(MyIcon("help-about"));
+
+	ActionCollection::action("playDVD")->setText(tr("Play DVD"));
+	ActionCollection::action("playDVD")->setIcon(MyIcon("media-optical"));
+
+	ActionCollection::action("playURL")->setText(tr("Play URL..."));
+	ActionCollection::action("playURL")->setIcon(MyIcon("document-open-remote"));
+
+	ActionCollection::action("playVCD")->setText(tr("Play VCD"));
+	ActionCollection::action("playVCD")->setIcon(MyIcon("media-optical"));
+
+	ActionCollection::action("equalizer")->setText(tr("Equalizer"));
+	ActionCollection::action("equalizer")->setIcon(MyIcon("view-media-equalizer"));
+
+	ActionCollection::action("preferences")->setText(tr("Preferences"));
+	ActionCollection::action("preferences")->setIcon(MyIcon("preferences-system"));
+
+	ActionCollection::action("openSubtitleFile")->setText(tr("Open Subtitle..."));
+	ActionCollection::action("openSubtitleFile")->setIcon(MyIcon("document-open"));
+
+	ActionCollection::action("clearRecentFiles")->setText(tr("Clear"));
+	ActionCollection::action("clearRecentFiles")->setIcon(MyIcon("edit-delete"));
+
+	_mainToolBar->setWindowTitle(tr("Main ToolBar"));
+
+	_menuRecentFiles->setTitle(tr("Recent Files"));
 	_menuRecentFiles->setIcon(MyIcon("document-open-recent"));
-	menuFile->addMenu(_menuRecentFiles);
 
-	menuFile->addAction(ActionCollection::action("actionPlayDVD"));
-	menuFile->addAction(ActionCollection::action("actionPlayURL"));
-	menuFile->addAction(ActionCollection::action("actionPlayVCD"));
-	menuFile->addSeparator();
-	menuFile->addAction(ActionCollection::action("actionExit"));
-
-	QMenu * menuAudio = menuBar()->addMenu(tr("Audio"));
-	_menuAudioChannels = new QMenu(tr("Audio Channels"));
+	_menuAudioChannels->setTitle(tr("Audio Channels"));
 	_menuAudioChannels->setIcon(MyIcon("audio-x-generic"));
-	menuAudio->addMenu(_menuAudioChannels);
 
-	QMenu * menuSubtitle = menuBar()->addMenu(tr("Subtitle"));
-	menuSubtitle->addAction(ActionCollection::action("actionOpenSubtitleFile"));
-	_menuSubtitles = new QMenu(tr("Subtitles"));
+	_menuSubtitles->setTitle(tr("Subtitles"));
 	_menuSubtitles->setIcon(MyIcon("format-text-underline"));
-	menuSubtitle->addMenu(_menuSubtitles);
 
-	QMenu * menuBrowse = menuBar()->addMenu(tr("Browse"));
-	_menuTitles = new QMenu(tr("Title"));
+	_menuTitles->setTitle(tr("Title"));
 	_menuTitles->setIcon(MyIcon("format-list-ordered"));
-	menuBrowse->addMenu(_menuTitles);
-	_menuChapters = new QMenu(tr("Chapter"));
+
+	_menuChapters->setTitle(tr("Chapter"));
 	_menuChapters->setIcon(MyIcon("x-office-address-book"));
-	menuBrowse->addMenu(_menuChapters);
-	_menuAngles = new QMenu(tr("Angle"));
-	menuBrowse->addMenu(_menuAngles);
 
-	QMenu * menuOptions = menuBar()->addMenu(tr("Options"));
-	menuOptions->addAction(ActionCollection::action("actionQuickSettings"));
-	menuOptions->addAction(ActionCollection::action("actionPreferences"));
-
-	QMenu * menuHelp = menuBar()->addMenu(tr("Help"));
-	menuHelp->addAction(ActionCollection::action("actionAbout"));
-	menuHelp->addAction(ActionCollection::action("actionAboutQt"));
-
-	//mainToolBar
-	QToolBar * mainToolBar = new QToolBar(tr("Main ToolBar"));
-	mainToolBar->addAction(ActionCollection::action("actionPlayFile"));
-	mainToolBar->addAction(ActionCollection::action("actionPlayDVD"));
-	mainToolBar->addAction(ActionCollection::action("actionPlayURL"));
-	mainToolBar->addSeparator();
-	mainToolBar->addAction(ActionCollection::action("actionEqualizer"));
-	mainToolBar->addAction(ActionCollection::action("actionPreferences"));
-	mainToolBar->addSeparator();
-	mainToolBar->addAction(ActionCollection::action("actionExit"));
-	addToolBar(mainToolBar);
+	_menuAngles->setTitle(tr("Angle"));
+	_menuFile->setTitle(tr("File"));
+	_menuAudio->setTitle(tr("Audio"));
+	_menuSubtitle->setTitle(tr("Subtitle"));
+	_menuBrowse->setTitle(tr("Browse"));
+	_menuOptions->setTitle(tr("Options"));
+	_menuHelp->setTitle(tr("Help"));
 }
 
 QMenu * MainWindow::menuAudioChannels() const {

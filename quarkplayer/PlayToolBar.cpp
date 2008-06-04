@@ -31,7 +31,7 @@
 #include <QtGui/QtGui>
 
 PlayToolBar::PlayToolBar(Phonon::MediaObject * mediaObject, Phonon::AudioOutput * audioOutput)
-	: QToolBar("Play ToolBar", NULL) {
+	: QToolBar(NULL) {
 
 	populateActionCollection();
 
@@ -62,7 +62,7 @@ PlayToolBar::~PlayToolBar() {
 }
 
 void PlayToolBar::setCheckedFullScreenButton(bool checked) {
-	ActionCollection::action("actionFullScreen")->setChecked(checked);
+	ActionCollection::action("fullScreen")->setChecked(checked);
 }
 
 void PlayToolBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
@@ -71,21 +71,21 @@ void PlayToolBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
 		break;
 
 	case Phonon::PlayingState:
-		ActionCollection::action("actionPlay")->setEnabled(false);
-		ActionCollection::action("actionPause")->setEnabled(true);
-		ActionCollection::action("actionStop")->setEnabled(true);
+		ActionCollection::action("play")->setEnabled(false);
+		ActionCollection::action("pause")->setEnabled(true);
+		ActionCollection::action("stop")->setEnabled(true);
 		break;
 
 	case Phonon::StoppedState:
-		ActionCollection::action("actionStop")->setEnabled(false);
-		ActionCollection::action("actionPlay")->setEnabled(true);
-		ActionCollection::action("actionPause")->setEnabled(false);
+		ActionCollection::action("stop")->setEnabled(false);
+		ActionCollection::action("play")->setEnabled(true);
+		ActionCollection::action("pause")->setEnabled(false);
 		break;
 
 	case Phonon::PausedState:
-		ActionCollection::action("actionPause")->setEnabled(false);
-		ActionCollection::action("actionStop")->setEnabled(true);
-		ActionCollection::action("actionPlay")->setEnabled(true);
+		ActionCollection::action("pause")->setEnabled(false);
+		ActionCollection::action("stop")->setEnabled(true);
+		ActionCollection::action("play")->setEnabled(true);
 		break;
 
 	case Phonon::LoadingState:
@@ -127,27 +127,25 @@ QToolBar * PlayToolBar::createSeekToolBar() {
 QToolBar * PlayToolBar::createControlToolBar() {
 	QToolBar * controlToolBar = new QToolBar();
 
-	controlToolBar->addAction(ActionCollection::action("actionPlay"));
-	controlToolBar->addAction(ActionCollection::action("actionPause"));
-	controlToolBar->addAction(ActionCollection::action("actionStop"));
+	controlToolBar->addAction(ActionCollection::action("play"));
+	controlToolBar->addAction(ActionCollection::action("pause"));
+	controlToolBar->addAction(ActionCollection::action("stop"));
 	controlToolBar->addSeparator();
-	controlToolBar->addAction(ActionCollection::action("actionPreviousTrack"));
-	controlToolBar->addAction(ActionCollection::action("actionNextTrack"));
+	controlToolBar->addAction(ActionCollection::action("previousTrack"));
+	controlToolBar->addAction(ActionCollection::action("nextTrack"));
 	controlToolBar->addSeparator();
-	controlToolBar->addAction(ActionCollection::action("actionFullScreen"));
+	controlToolBar->addAction(ActionCollection::action("fullScreen"));
 	controlToolBar->addSeparator();
 
 	//Actions connect
-	connect(ActionCollection::action("actionPlay"), SIGNAL(triggered()), _mediaObject, SLOT(play()));
-	connect(ActionCollection::action("actionPause"), SIGNAL(triggered()), _mediaObject, SLOT(pause()));
-	connect(ActionCollection::action("actionStop"), SIGNAL(triggered()), _mediaObject, SLOT(stop()));
-	connect(ActionCollection::action("actionFullScreen"), SIGNAL(toggled(bool)), SIGNAL(fullScreenButtonClicked(bool)));
+	connect(ActionCollection::action("play"), SIGNAL(triggered()), _mediaObject, SLOT(play()));
+	connect(ActionCollection::action("pause"), SIGNAL(triggered()), _mediaObject, SLOT(pause()));
+	connect(ActionCollection::action("stop"), SIGNAL(triggered()), _mediaObject, SLOT(stop()));
+	connect(ActionCollection::action("fullScreen"), SIGNAL(toggled(bool)), SIGNAL(fullScreenButtonClicked(bool)));
 
 	//volumdeSlider
 	_volumeSlider = new Phonon::VolumeSlider(_audioOutput);
 	_volumeSlider->setIconSize(controlToolBar->iconSize());
-	_volumeSlider->setVolumeIcon(MyIcon("speaker"));
-	_volumeSlider->setMutedIcon(MyIcon("speaker"));
 	//volumeSlider only takes the space it needs
 	_volumeSlider->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
@@ -158,36 +156,47 @@ QToolBar * PlayToolBar::createControlToolBar() {
 
 void PlayToolBar::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
-	QAction * action;
 
-	action = new QAction(app);
-	action->setText(tr("Play"));
-	action->setIcon(MyIcon("media-playback-start"));
-	ActionCollection::addAction("actionPlay", action);
+	ActionCollection::addAction("play", new QAction(app));
+	ActionCollection::addAction("pause", new QAction(app));
+	ActionCollection::addAction("stop", new QAction(app));
+	ActionCollection::addAction("nextTrack", new QAction(app));
+	ActionCollection::addAction("previousTrack", new QAction(app));
 
-	action = new QAction(app);
-	action->setText(tr("Pause"));
-	action->setIcon(MyIcon("media-playback-pause"));
-	ActionCollection::addAction("actionPause", action);
-
-	action = new QAction(app);
-	action->setText(tr("Stop"));
-	action->setIcon(MyIcon("media-playback-stop"));
-	ActionCollection::addAction("actionStop", action);
-
-	action = new QAction(app);
-	action->setText(tr("Next Track"));
-	action->setIcon(MyIcon("media-skip-forward"));
-	ActionCollection::addAction("actionNextTrack", action);
-
-	action = new QAction(app);
-	action->setText(tr("Previous Track"));
-	action->setIcon(MyIcon("media-skip-backward"));
-	ActionCollection::addAction("actionPreviousTrack", action);
-
-	action = new QAction(app);
-	action->setText(tr("FullScreen"));
-	action->setIcon(MyIcon("view-fullscreen"));
+	QAction * action = new QAction(app);
 	action->setCheckable(true);
-	ActionCollection::addAction("actionFullScreen", action);
+	ActionCollection::addAction("fullScreen", action);
+}
+
+void PlayToolBar::changeEvent(QEvent * event) {
+	if (event->type() == QEvent::LanguageChange) {
+		retranslate();
+	} else {
+		QToolBar::changeEvent(event);
+	}
+}
+
+void PlayToolBar::retranslate() {
+	ActionCollection::action("play")->setText(tr("Play"));
+	ActionCollection::action("play")->setIcon(MyIcon("media-playback-start"));
+
+	ActionCollection::action("pause")->setText(tr("Pause"));
+	ActionCollection::action("pause")->setIcon(MyIcon("media-playback-pause"));
+
+	ActionCollection::action("stop")->setText(tr("Stop"));
+	ActionCollection::action("stop")->setIcon(MyIcon("media-playback-stop"));
+
+	ActionCollection::action("nextTrack")->setText(tr("Next Track"));
+	ActionCollection::action("nextTrack")->setIcon(MyIcon("media-skip-forward"));
+
+	ActionCollection::action("previousTrack")->setText(tr("Previous Track"));
+	ActionCollection::action("previousTrack")->setIcon(MyIcon("media-skip-backward"));
+
+	ActionCollection::action("fullScreen")->setText(tr("FullScreen"));
+	ActionCollection::action("fullScreen")->setIcon(MyIcon("view-fullscreen"));
+
+	setWindowTitle(tr("Play ToolBar"));
+
+	_volumeSlider->setVolumeIcon(MyIcon("speaker"));
+	_volumeSlider->setMutedIcon(MyIcon("speaker"));
 }

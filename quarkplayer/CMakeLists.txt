@@ -25,6 +25,7 @@ qt4_add_resources(quarkplayer_SRCS
 	quarkplayer.qrc
 	quarkplayer_oxygen.qrc
 	quarkplayer_silk.qrc
+	quarkplayer_tango.qrc
 )
 
 qt4_wrap_cpp(quarkplayer_SRCS

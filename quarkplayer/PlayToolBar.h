@@ -62,6 +62,10 @@ private slots:
 
 private:
 
+	void changeEvent(QEvent * event);
+
+	void retranslate();
+
 	void populateActionCollection();
 
 	QToolBar * createSeekToolBar();

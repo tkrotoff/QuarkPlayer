@@ -90,6 +90,10 @@ private slots:
 
 private:
 
+	void changeEvent(QEvent * event);
+
+	void retranslate();
+
 	void populateActionCollection();
 
 	void setupUi();
@@ -105,12 +109,19 @@ private:
 	QWidget * _backgroundLogoWidget;
 
 	QStackedWidget * _stackedWidget;
+	QToolBar * _mainToolBar;
 	QMenu * _menuRecentFiles;
 	QMenu * _menuAudioChannels;
 	QMenu * _menuSubtitles;
 	QMenu * _menuTitles;
 	QMenu * _menuChapters;
 	QMenu * _menuAngles;
+	QMenu * _menuFile;
+	QMenu * _menuAudio;
+	QMenu * _menuSubtitle;
+	QMenu * _menuBrowse;
+	QMenu * _menuOptions;
+	QMenu * _menuHelp;
 
 	Phonon::AudioOutput * _audioOutput;
 	Phonon::Path _audioOutputPath;

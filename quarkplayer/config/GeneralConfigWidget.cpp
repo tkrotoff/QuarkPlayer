@@ -50,12 +50,15 @@ QString GeneralConfigWidget::iconName() const {
 void GeneralConfigWidget::saveConfig() {
 	Config & config = Config::instance();
 
+	//Style
 	QString styleName = _ui->iconThemeComboBox->currentText();
 	QApplication::setStyle(QStyleFactory::create(styleName));
 	config.setValue(Config::STYLE_KEY, styleName);
 
+	//Icon theme
 	config.setValue(Config::ICON_THEME_KEY, _ui->iconThemeComboBox->currentText().toLower());
 
+	//Language
 	QString language = _ui->languageComboBox->currentText();
 	QString locale = languageList().key(language);
 	config.setValue(Config::LANGUAGE_KEY, locale);
@@ -66,20 +69,29 @@ void GeneralConfigWidget::saveConfig() {
 void GeneralConfigWidget::readConfig() {
 	Config & config = Config::instance();
 
+	//Style
 	_ui->styleComboBox->clear();
 	_ui->styleComboBox->addItems(QStyleFactory::keys());
 
+	//Icon theme
 	_ui->iconThemeComboBox->clear();
 	_ui->iconThemeComboBox->addItems(config.iconThemeList());
 	ComboBoxUtil::setCurrentText(_ui->iconThemeComboBox, config.iconTheme());
 
+	//Language
 	_ui->languageComboBox->clear();
 	QMapIterator<QString, QString> it(languageList());
 	while (it.hasNext()) {
 		it.next();
+		//Add each language to the combobox
 		_ui->languageComboBox->addItem(it.value());
 	}
-	ComboBoxUtil::setCurrentText(_ui->languageComboBox, languageList().value(config.language()));
+	QString language = config.language();
+	if (language.isEmpty()) {
+		//Default language is English
+		language = "en";
+	}
+	ComboBoxUtil::setCurrentText(_ui->languageComboBox, languageList().value(language));
 }
 
 QMap<QString, QString> GeneralConfigWidget::languageList() {

@@ -11,7 +11,7 @@
 <context>
     <name>GeneralConfigWidget</name>
     <message>
-        <location filename="../config/GeneralConfigWidget.cpp" line="49"/>
+        <location filename="../config/GeneralConfigWidget.cpp" line="43"/>
         <source>General</source>
         <translation>Général</translation>
     </message>
@@ -28,6 +28,16 @@
     <message>
         <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="103"/>
         <source>Icon Theme:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../config/GeneralConfigWidget.cpp" line="99"/>
+        <source>English</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../config/GeneralConfigWidget.cpp" line="100"/>
+        <source>French</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -226,27 +236,22 @@ the Free Software Foundation, either version 3 of the License, or
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="276"/>
+        <location filename="../MainWindow.cpp" line="357"/>
         <source>Exit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="281"/>
-        <source>View Equalizer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.cpp" line="311"/>
+        <location filename="../MainWindow.cpp" line="375"/>
         <source>Equalizer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="321"/>
+        <location filename="../MainWindow.cpp" line="381"/>
         <source>Open Subtitle...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="381"/>
+        <location filename="../MainWindow.cpp" line="387"/>
         <source>Main ToolBar</source>
         <translation type="unfinished"></translation>
     </message>
@@ -267,12 +272,12 @@ the Free Software Foundation, either version 3 of the License, or
         <translation type="obsolete">Barre de contrôle</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="164"/>
+        <location filename="../PlayToolBar.cpp" line="180"/>
         <source>Play</source>
         <translation>Jouer</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="169"/>
+        <location filename="../PlayToolBar.cpp" line="183"/>
         <source>Pause</source>
         <translation>Pause</translation>
     </message>
@@ -282,12 +287,12 @@ the Free Software Foundation, either version 3 of the License, or
         <translation type="obsolete">Espace</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="174"/>
+        <location filename="../PlayToolBar.cpp" line="186"/>
         <source>Stop</source>
         <translation>Stop</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="189"/>
+        <location filename="../PlayToolBar.cpp" line="195"/>
         <source>FullScreen</source>
         <translation>Plein écran</translation>
     </message>
@@ -297,14 +302,19 @@ the Free Software Foundation, either version 3 of the License, or
         <translation type="obsolete">Alt+Entrée</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="179"/>
+        <location filename="../PlayToolBar.cpp" line="189"/>
         <source>Next Track</source>
         <translation>Piste suivante</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="184"/>
+        <location filename="../PlayToolBar.cpp" line="192"/>
         <source>Previous Track</source>
         <translation>Piste précédente</translation>
+    </message>
+    <message>
+        <location filename="../PlayToolBar.cpp" line="198"/>
+        <source>Play ToolBar</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
