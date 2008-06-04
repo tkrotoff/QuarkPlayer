@@ -39,11 +39,8 @@
 #include <QtCore/QSet>
 #include <QtCore/QVariant>
 #include <QtCore/QtPlugin>
-
-#ifndef KDE4_FOUND
-	#include <QtCore/QtConcurrentRun>
-	#include <QtCore/QFutureWatcher>
-#endif	//!KDE4_FOUND
+#include <QtCore/QtConcurrentRun>
+#include <QtCore/QFutureWatcher>
 
 #ifdef KDE4_FOUND
 	#include <kpluginfactory.h>
