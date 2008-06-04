@@ -21,6 +21,8 @@
 
 #include "IConfigWidget.h"
 
+#include <QtCore/QMap>
+
 namespace Ui { class GeneralConfigWidget; }
 
 /**
@@ -44,13 +46,9 @@ public:
 
 	void saveConfig();
 
-private slots:
-
-	void styleChanged(const QString & styleName);
-
-	void iconThemeChanged(const QString & iconTheme);
-
 private:
+
+	static QMap<QString, QString> languageList();
 
 	Ui::GeneralConfigWidget * _ui;
 };

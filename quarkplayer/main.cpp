@@ -19,6 +19,8 @@
 #include "MainWindow.h"
 
 #include "QuarkPlayerStyle.h"
+#include "Translator.h"
+#include "config/Config.h"
 
 #ifdef KDE4_FOUND
 	#include <KApplication>
@@ -28,9 +30,6 @@
 	#include <QtGui/QApplication>
 #endif	//KDE4_FOUND
 
-#include <QtCore/QLocale>
-#include <QtCore/QLibraryInfo>
-#include <QtCore/QTranslator>
 #include <QtCore/QSettings>
 
 int main(int argc, char * argv[]) {
@@ -59,17 +58,6 @@ int main(int argc, char * argv[]) {
 	QApplication app(argc, argv);
 #endif	//KDE4_FOUND
 
-	//Qt translation
-	QTranslator qtTranslator;
-	qtTranslator.load("qt_" + QLocale::system().name(),
-	QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-	app.installTranslator(&qtTranslator);
-
-	//QuarkPlayer translation
-	QTranslator quarkPlayerTranslator;
-	quarkPlayerTranslator.load("translations/quarkplayer_" + QLocale::system().name());
-	app.installTranslator(&quarkPlayerTranslator);
-
 	//General infos
  	app.setOrganizationName("QuarkPlayer");
 	app.setOrganizationDomain("quarkplayer.org");
@@ -77,6 +65,9 @@ int main(int argc, char * argv[]) {
 	app.setApplicationVersion("0.1.0");
 
 	app.setQuitOnLastWindowClosed(true);
+
+	//Translator
+	Translator::instance().load(Config::instance().language());
 
 	//Specific style for QuarkPlayer
 	//Fix some ugly things under Windows XP

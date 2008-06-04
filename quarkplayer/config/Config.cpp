@@ -21,7 +21,6 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
 
-const char * Config::LANGUAGE_AUTODETECT_KEYVALUE = "autodetect";
 const char * Config::LANGUAGE_KEY = "language";
 
 const char * Config::STYLE_KEY = "style";
@@ -54,7 +53,7 @@ Config::~Config() {
 }
 
 void Config::setDefaultValues() {
-	_keyDefaultValueMap[LANGUAGE_KEY] = LANGUAGE_AUTODETECT_KEYVALUE;
+	_keyDefaultValueMap[LANGUAGE_KEY] = QString();
 	_keyDefaultValueMap[STYLE_KEY] = QString();
 	_keyDefaultValueMap[ICON_THEME_KEY] = "oxygen";
 	_keyDefaultValueMap[RECENT_FILES_KEY] = QStringList();

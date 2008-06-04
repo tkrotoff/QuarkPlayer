@@ -21,11 +21,10 @@
 #include "ui_GeneralConfigWidget.h"
 
 #include "Config.h"
+#include "../Translator.h"
 #include "../ComboBoxUtil.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QStyleFactory>
-#include <QtGui/QStyle>
+#include <QtGui/QtGui>
 
 #include <QtCore/QDebug>
 
@@ -34,11 +33,6 @@ GeneralConfigWidget::GeneralConfigWidget(QWidget * parent)
 
 	_ui = new Ui::GeneralConfigWidget();
 	_ui->setupUi(this);
-
-	connect(_ui->styleComboBox, SIGNAL(activated(const QString &)),
-		SLOT(styleChanged(const QString &)));
-	connect(_ui->iconThemeComboBox, SIGNAL(activated(const QString &)),
-		SLOT(iconThemeChanged(const QString &)));
 }
 
 GeneralConfigWidget::~GeneralConfigWidget() {
@@ -56,7 +50,17 @@ QString GeneralConfigWidget::iconName() const {
 void GeneralConfigWidget::saveConfig() {
 	Config & config = Config::instance();
 
+	QString styleName = _ui->iconThemeComboBox->currentText();
+	QApplication::setStyle(QStyleFactory::create(styleName));
+	config.setValue(Config::STYLE_KEY, styleName);
+
 	config.setValue(Config::ICON_THEME_KEY, _ui->iconThemeComboBox->currentText().toLower());
+
+	QString language = _ui->languageComboBox->currentText();
+	QString locale = languageList().key(language);
+	config.setValue(Config::LANGUAGE_KEY, locale);
+	qDebug() << __FUNCTION__ << "language:" << language << "locale:" << locale;
+	Translator::instance().load(locale);
 }
 
 void GeneralConfigWidget::readConfig() {
@@ -64,15 +68,23 @@ void GeneralConfigWidget::readConfig() {
 
 	_ui->styleComboBox->clear();
 	_ui->styleComboBox->addItems(QStyleFactory::keys());
+
 	_ui->iconThemeComboBox->clear();
 	_ui->iconThemeComboBox->addItems(config.iconThemeList());
 	ComboBoxUtil::setCurrentText(_ui->iconThemeComboBox, config.iconTheme());
+
+	_ui->languageComboBox->clear();
+	QMapIterator<QString, QString> it(languageList());
+	while (it.hasNext()) {
+		it.next();
+		_ui->languageComboBox->addItem(it.value());
+	}
+	ComboBoxUtil::setCurrentText(_ui->languageComboBox, languageList().value(config.language()));
 }
 
-void GeneralConfigWidget::styleChanged(const QString & styleName) {
-	QStyle * style = QStyleFactory::create(styleName);
-	QApplication::setStyle(style);
-}
-
-void GeneralConfigWidget::iconThemeChanged(const QString & iconTheme) {
+QMap<QString, QString> GeneralConfigWidget::languageList() {
+	QMap<QString, QString> list;
+	list["en"] = tr("English");
+	list["fr"] = tr("French");
+	return list;
 }

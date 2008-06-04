@@ -13,6 +13,7 @@ set(quarkplayer_SRCS
 	MyIcon.cpp
 	IconEngine.cpp
 	ComboBoxUtil.cpp
+	Translator.cpp
 	config/IConfig.cpp
 	config/Config.cpp
 	config/ConfigWindow.cpp

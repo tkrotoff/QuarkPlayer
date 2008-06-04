@@ -16,56 +16,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef TRANSLATOR_H
+#define TRANSLATOR_H
 
-#include "IConfig.h"
+#include <QtCore/QString>
+#include <QtCore/QTranslator>
 
 /**
- * Stores QuarkPlayer configuration.
+ * Install translations (QTranslator) for the application.
  *
  * Pattern singleton.
  *
- * @see IConfig
- * @see QSettings
+ * @see QTranslator
  * @author Tanguy Krotoff
  */
-class Config : public IConfig {
+class Translator {
 public:
 
 	/** Singleton. */
-	static Config & instance();
+	static Translator & instance();
 
-	~Config();
+	~Translator();
 
-	static const char * LANGUAGE_KEY;
-	QString language() const;
-
-	static const char * STYLE_KEY;
-	QString style() const;
-
-	static const char * ICON_THEME_KEY;
-	QStringList iconThemeList() const;
-	QString iconTheme() const;
-
-	static const char * RECENT_FILES_KEY;
-	QStringList recentFiles() const;
-
-	static const char * TEST_INT_KEY;
-	int testInt() const;
-
-	static const char * TEST_BOOL_KEY;
-	bool testBool() const;
+	void load(const QString & locale);
 
 private:
 
-	virtual void setDefaultValues();
+	bool loadLocale(QTranslator & translator, const QString & name, const QString & locale, const QString & dir);
 
 	/** Singleton. */
-	Config();
+	Translator();
 
 	/** Singleton. */
-	static Config * _instance;
+	static Translator * _instance;
+
+	QTranslator _appTranslator;
+
+	QTranslator _qtTranslator;
 };
 
-#endif	//CONFIG_H
+#endif	//TRANSLATOR_H
