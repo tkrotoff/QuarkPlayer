@@ -64,7 +64,7 @@ set(quarkplayer_TRANSLATIONS
 	${quarkplayer_SRCS}
 	translations/quarkplayer_fr.ts
 )
-#qt4_create_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
+qt4_create_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
 #qt4_add_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
 
 add_executable(quarkplayer ${quarkplayer_SRCS} ${quarkplayer_QMS})
