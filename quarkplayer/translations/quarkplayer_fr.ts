@@ -59,12 +59,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="255"/>
+        <location filename="../MainWindow.cpp" line="262"/>
         <source>About QuarkPlayer</source>
         <translation>A propos de QuarkPlayer</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="263"/>
+        <location filename="../MainWindow.cpp" line="270"/>
         <source>QuarkPlayer, a Phonon media player
 Copyright (C) 2008  Tanguy Krotoff &lt;tkrotoff@gmail.com&gt;
 
@@ -236,22 +236,22 @@ the Free Software Foundation, either version 3 of the License, or
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="357"/>
+        <location filename="../MainWindow.cpp" line="364"/>
         <source>Exit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="375"/>
+        <location filename="../MainWindow.cpp" line="382"/>
         <source>Equalizer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="381"/>
+        <location filename="../MainWindow.cpp" line="388"/>
         <source>Open Subtitle...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="387"/>
+        <location filename="../MainWindow.cpp" line="394"/>
         <source>Main ToolBar</source>
         <translation type="unfinished"></translation>
     </message>

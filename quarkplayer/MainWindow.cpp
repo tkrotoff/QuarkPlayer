@@ -35,6 +35,7 @@
 #include <phonon/mediasource.h>
 
 #include <QtCore/QSignalMapper>
+#include <QtCore/QCoreApplication>
 
 #include <QtGui/QtGui>
 
@@ -84,7 +85,6 @@ MainWindow::MainWindow(QWidget * parent)
 	connect(ActionCollection::action("playDVD"), SIGNAL(triggered()), SLOT(playDVD()));
 	connect(ActionCollection::action("playURL"), SIGNAL(triggered()), SLOT(playURL()));
 	connect(ActionCollection::action("playFile"), SIGNAL(triggered()), SLOT(playFile()));
-	connect(ActionCollection::action("openSubtitleFile"), SIGNAL(triggered()), SLOT(openSubtitleFile()));
 	connect(ActionCollection::action("equalizer"), SIGNAL(triggered()), SLOT(showQuickSettingsWindow()));
 	connect(ActionCollection::action("preferences"), SIGNAL(triggered()), SLOT(showConfigWindow()));
 	connect(ActionCollection::action("exit"), SIGNAL(triggered()), _mediaObject, SLOT(stop()));
@@ -183,6 +183,8 @@ void MainWindow::playDVD() {
 
 void MainWindow::playURL() {
 	QString url = QInputDialog::getText(this, tr("Open Location"), tr("Please enter a valid address here:"));
+	qDebug() << __FUNCTION__ << "url:" << url;
+
 	if (!url.isEmpty()) {
 		play(url);
 	}
@@ -202,9 +204,14 @@ void MainWindow::metaDataChanged() {
 
 	QMultiMap<QString, QString> metaData = _mediaObject->metaData();
 
+	QString windowTitle;
+	QString artist = metaData.value("ARTIST");
 	QString title = metaData.value("TITLE");
-	if (title.isEmpty()) {
-		title = _mediaObject->currentSource().fileName();
+	if (artist.isEmpty() && title.isEmpty()) {
+		QFileInfo file(_mediaObject->currentSource().fileName());
+		windowTitle = file.completeBaseName();
+	} else {
+		windowTitle = title + " - " + artist;
 	}
 
 	/*titleLabel->setText(title);
@@ -212,7 +219,7 @@ void MainWindow::metaDataChanged() {
 	albumLabel->setText(metaData.value("ALBUM"));
 	yearLabel->setText(metaData.value("DATE"));*/
 
-	setWindowTitle(title + " - QuarkPlayer");
+	setWindowTitle(windowTitle + " - " + QCoreApplication::applicationName());
 }
 
 void MainWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
@@ -348,7 +355,7 @@ void MainWindow::changeEvent(QEvent * event) {
 }
 
 void MainWindow::retranslate() {
-	setWindowTitle(tr("QuarkPlayer"));
+	setWindowTitle(QCoreApplication::applicationName());
 	setWindowIcon(QIcon(":/icons/quarkplayer.png"));
 
 	ActionCollection::action("playFile")->setText(tr("Play File..."));

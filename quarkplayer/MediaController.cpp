@@ -57,7 +57,7 @@ MediaController::MediaController(MainWindow * mainWindow, Phonon::MediaObject * 
 	connect(_mediaController, SIGNAL(availableAnglesChanged(int)),
 		SLOT(availableAnglesChanged()));
 
-	connect(ActionCollection::action("actionOpenSubtitleFile"), SIGNAL(triggered()), SLOT(openSubtitleFile()));
+	connect(ActionCollection::action("openSubtitleFile"), SIGNAL(triggered()), SLOT(openSubtitleFile()));
 }
 
 MediaController::~MediaController() {
