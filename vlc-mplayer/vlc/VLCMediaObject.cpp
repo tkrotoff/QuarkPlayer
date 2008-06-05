@@ -73,7 +73,7 @@ void VLCMediaObject::unloadMedia() {
 void VLCMediaObject::loadMediaInternal(const QString & filename) {
 	_initLibVLCFuture.waitForFinished();
 
-	qDebug() << (int) this << "loadMediaInternal()" << filename;
+	qDebug() << __FUNCTION__ << filename;
 
 	//Create a new media from a filename
 	_vlcMedia = p_libvlc_media_new(_vlcInstance, filename.toAscii(), _vlcException);
@@ -171,7 +171,7 @@ void VLCMediaObject::stop() {
 }
 
 void VLCMediaObject::seekInternal(qint64 milliseconds) {
-	qDebug() << (int) this << "seek:" << milliseconds;
+	qDebug() << __FUNCTION__ << milliseconds;
 	p_libvlc_media_player_set_time(_vlcMediaPlayer, milliseconds, _vlcException);
 	checkException();
 }
