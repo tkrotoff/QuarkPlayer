@@ -10,7 +10,7 @@ if (KDE4_FOUND)
 	include(KDE4Defaults)
 	include(MacroLibrary)
 
-	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE4_FOUND)
+	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS})
 	include_directories(${QDBUS_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
 
 	message(STATUS "KDE4 support enabled")
@@ -29,7 +29,7 @@ else (KDE4_FOUND)
 	set(QT_PHONON_LIBRARY phonon)
 
 	#Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
-	add_definitions(-DNEW_TITLE_CHAPTER_HANDLING)
+	set(NEW_TITLE_CHAPTER_HANDLING 1)
 
 	message(STATUS "KDE4 support disabled")
 

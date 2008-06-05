@@ -20,6 +20,7 @@
 
 #include "MainWindow.h"
 #include "ActionCollection.h"
+#include "config.h"
 
 #include <phonon/audiooutput.h>
 #include <phonon/volumeslider.h>

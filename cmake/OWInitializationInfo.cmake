@@ -7,10 +7,10 @@
 # For details see the accompanying COPYING file.
 
 
-message(STATUS "OS: " ${CMAKE_SYSTEM})
+message(STATUS "System: " ${SYSTEM_NAME})
 message(STATUS "Processor: " ${CMAKE_SYSTEM_PROCESSOR})
-message(STATUS "Compiler: " ${CMAKE_C_COMPILER})
-message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
-message(STATUS "Build tool: " ${CMAKE_BUILD_TOOL})
-message(STATUS "Build directory: " ${BUILD_DIR})
-message(STATUS "SVN revision: " ${SVN_REVISION})
+message(STATUS "Compiler: " ${COMPILER_NAME})
+message(STATUS "Build Type: " ${CMAKE_BUILD_TYPE})
+message(STATUS "Build Tool: " ${CMAKE_BUILD_TOOL})
+message(STATUS "Build Directory: " ${BUILD_DIR})
+message(STATUS "SVN Revision: " ${SVN_REVISION})

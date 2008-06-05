@@ -81,6 +81,8 @@ void MPlayerMediaObject::loadMediaInternal(const QString & filename) {
 
 	_filename = filename;
 
+	qDebug() << __FUNCTION__ << _filename;
+
 	//Optimization:
 	//wait to see if play() is run just after loadMedia()
 	//100 milliseconds should be OK

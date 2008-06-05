@@ -1,5 +1,13 @@
 project(quarkplayer)
 
+set(QUARKPLAYER_MAJOR_VERSION 0)
+set(QUARKPLAYER_MINOR_VERSION 0)
+set(QUARKPLAYER_PATCH_VERSION 1)
+
+configure_file(version.h.in ${CMAKE_CURRENT_BINARY_DIR}/version.h)
+
+configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+
 set(quarkplayer_SRCS
 	main.cpp
 	MainWindow.cpp
@@ -14,6 +22,7 @@ set(quarkplayer_SRCS
 	IconEngine.cpp
 	ComboBoxUtil.cpp
 	Translator.cpp
+	AboutWindow.cpp
 	config/IConfig.cpp
 	config/Config.cpp
 	config/ConfigWindow.cpp
@@ -56,6 +65,7 @@ qt4_wrap_ui(quarkplayer_SRCS
 	MainWindow.ui
 	QuickSettingsWindow.ui
 	BackgroundLogoWidget.ui
+	AboutWindow.ui
 	config/ConfigWindow.ui
 	config/GeneralConfigWidget.ui
 	config/SettingsBrowser.ui

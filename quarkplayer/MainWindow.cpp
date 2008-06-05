@@ -27,6 +27,7 @@
 #include "StatusBar.h"
 #include "MediaController.h"
 #include "QuickSettingsWindow.h"
+#include "AboutWindow.h"
 #include "config/Config.h"
 #include "config/ConfigWindow.h"
 
@@ -259,15 +260,8 @@ void MainWindow::showQuickSettingsWindow() {
 }
 
 void MainWindow::about() {
-	QMessageBox::information(this, tr("About QuarkPlayer"),
-			tr(
-			"QuarkPlayer, a Phonon media player\n" \
-			"Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>\n\n" \
-			"This program is free software: you can redistribute it and/or modify\n" \
-			"it under the terms of the GNU General Public License as published by\n" \
-			"the Free Software Foundation, either version 3 of the License, or\n" \
-			"(at your option) any later version."
-			));
+	static AboutWindow * aboutWindow = new AboutWindow(this);
+	aboutWindow->show();
 }
 
 void MainWindow::populateActionCollection() {
