@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget * parent)
 		SLOT(stateChanged(Phonon::State, Phonon::State)));
 	connect(_mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
 
-	MediaController * mediaController = new MediaController(this, _mediaObject, this);
+	MediaController * mediaController = new MediaController(this, _mediaObject);
 
 	//audioOutput
 	_audioOutput = new Phonon::AudioOutput(Phonon::VideoCategory, this);

@@ -19,6 +19,8 @@
 #ifndef MEDIACONTROLLER_H
 #define MEDIACONTROLLER_H
 
+#include <QtGui/QToolBar>
+
 #include <QtCore/QObject>
 
 class MainWindow;
@@ -28,7 +30,39 @@ namespace Phonon {
 	class MediaObject;
 }
 
-class QWidget;
+class QPushButton;
+class QMenu;
+class QEvent;
+
+/**
+ * Media controller toolbar.
+ *
+ * @author Tanguy Krotoff
+ */
+class MediaControllerToolBar : public QToolBar {
+	Q_OBJECT
+public:
+
+	MediaControllerToolBar();
+
+	~MediaControllerToolBar();
+
+	QMenu * menuAudioChannels() const;
+
+	QMenu * menuSubtitles() const;
+
+private:
+
+	void changeEvent(QEvent * event);
+
+	void retranslate();
+
+	QPushButton * _audioChannelsButton;
+	QMenu * _menuAudioChannels;
+
+	QPushButton * _subtitlesButton;
+	QMenu * _menuSubtitles;
+};
 
 /**
  * Handles Phonon::MediaController.
@@ -39,7 +73,7 @@ class MediaController : public QObject {
 	Q_OBJECT
 public:
 
-	MediaController(MainWindow * mainWindow, Phonon::MediaObject * mediaObject, QWidget * parent);
+	MediaController(MainWindow * mainWindow, Phonon::MediaObject * mediaObject);
 
 	~MediaController();
 
@@ -64,11 +98,11 @@ private slots:
 
 private:
 
-	void removeAllAction(QWidget * widget);
+	static void removeAllAction(QWidget * widget);
 
 	MainWindow * _mainWindow;
 
-	QWidget * _parent;
+	MediaControllerToolBar * _toolBar;
 
 	Phonon::MediaController * _mediaController;
 };

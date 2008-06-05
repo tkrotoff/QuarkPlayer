@@ -32,11 +32,14 @@
 #include <QtCore/QSignalMapper>
 #include <QtCore/QDebug>
 
-MediaController::MediaController(MainWindow * mainWindow, Phonon::MediaObject * mediaObject, QWidget * parent)
-	: QObject(parent) {
+MediaController::MediaController(MainWindow * mainWindow, Phonon::MediaObject * mediaObject)
+	: QObject(mainWindow) {
 
-	_parent = parent;
 	_mainWindow = mainWindow;
+
+	//Media controller toolbar
+	_toolBar = new MediaControllerToolBar();
+	_mainWindow->addToolBar(_toolBar);
 
 	_mediaController = new Phonon::MediaController(mediaObject);
 	connect(_mediaController, SIGNAL(availableAudioChannelsChanged()),
@@ -58,14 +61,15 @@ MediaController::MediaController(MainWindow * mainWindow, Phonon::MediaObject * 
 	connect(_mediaController, SIGNAL(availableAnglesChanged(int)),
 		SLOT(availableAnglesChanged()));
 
-	connect(ActionCollection::action("openSubtitleFile"), SIGNAL(triggered()), SLOT(openSubtitleFile()));
+	connect(ActionCollection::action("openSubtitleFile"), SIGNAL(triggered()),
+		SLOT(openSubtitleFile()));
 }
 
 MediaController::~MediaController() {
 }
 
 void MediaController::openSubtitleFile() {
-	QString fileName = QFileDialog::getOpenFileName(_parent, tr("Select Subtitle File"));
+	QString fileName = QFileDialog::getOpenFileName(_mainWindow, tr("Select Subtitle File"));
 
 	if (fileName.isEmpty()) {
 		return;
@@ -93,11 +97,17 @@ void MediaController::availableAudioChannelsChanged() {
 	QList<Phonon::AudioChannelDescription> audios = _mediaController->availableAudioChannels();
 	if (!audios.isEmpty()) {
 		removeAllAction(_mainWindow->menuAudioChannels());
+		removeAllAction(_toolBar->menuAudioChannels());
 	}
 
 	for (int i = 0; i < audios.size(); i++) {
-		QAction * action = _mainWindow->menuAudioChannels()->addAction(audios[i].name() + " " + audios[i].description(), signalMapper, SLOT(map()));
-		signalMapper->setMapping(action, i);
+		QString audioChannelText(audios[i].name() + " " + audios[i].description());
+
+		QAction * actionMainWindow = _mainWindow->menuAudioChannels()->addAction(audioChannelText, signalMapper, SLOT(map()));
+		signalMapper->setMapping(actionMainWindow, i);
+
+		QAction * actionToolBar = _toolBar->menuAudioChannels()->addAction(audioChannelText, signalMapper, SLOT(map()));
+		signalMapper->setMapping(actionToolBar, i);
 	}
 
 	connect(signalMapper, SIGNAL(mapped(int)),
@@ -115,11 +125,17 @@ void MediaController::availableSubtitlesChanged() {
 	QList<Phonon::SubtitleDescription> subtitles = _mediaController->availableSubtitles();
 	if (!subtitles.isEmpty()) {
 		removeAllAction(_mainWindow->menuSubtitles());
+		removeAllAction(_toolBar->menuSubtitles());
 	}
 
 	for (int i = 0; i < subtitles.size(); i++) {
-		QAction * action = _mainWindow->menuSubtitles()->addAction(subtitles[i].name() + " " + subtitles[i].description(), signalMapper, SLOT(map()));
-		signalMapper->setMapping(action, i);
+		QString subtitleText(subtitles[i].name() + " " + subtitles[i].description());
+
+		QAction * actionMainWindow = _mainWindow->menuSubtitles()->addAction(subtitleText, signalMapper, SLOT(map()));
+		signalMapper->setMapping(actionMainWindow, i);
+
+		QAction * actionToolBar = _toolBar->menuSubtitles()->addAction(subtitleText, signalMapper, SLOT(map()));
+		signalMapper->setMapping(actionToolBar, i);
 	}
 
 	connect(signalMapper, SIGNAL(mapped(int)),
@@ -226,4 +242,44 @@ void MediaController::availableAnglesChanged() {
 
 void MediaController::actionAngleTriggered(int id) {
 	_mediaController->setCurrentAngle(id);
+}
+
+
+//MediaControllerToolBar
+MediaControllerToolBar::MediaControllerToolBar()
+	: QToolBar(NULL) {
+
+	_audioChannelsButton = new QPushButton();
+	_menuAudioChannels = new QMenu();
+	_audioChannelsButton->setMenu(_menuAudioChannels);
+	addWidget(_audioChannelsButton);
+
+	_subtitlesButton = new QPushButton();
+	_menuSubtitles = new QMenu();
+	_subtitlesButton->setMenu(_menuSubtitles);
+	addWidget(_subtitlesButton);
+}
+
+MediaControllerToolBar::~MediaControllerToolBar() {
+}
+
+QMenu * MediaControllerToolBar::menuAudioChannels() const {
+	return _menuAudioChannels;
+}
+
+QMenu * MediaControllerToolBar::menuSubtitles() const {
+	return _menuSubtitles;
+}
+
+void MediaControllerToolBar::changeEvent(QEvent * event) {
+	if (event->type() == QEvent::LanguageChange) {
+		retranslate();
+	} else {
+		QToolBar::changeEvent(event);
+	}
+}
+
+void MediaControllerToolBar::retranslate() {
+	_audioChannelsButton->setText(tr("Audio"));
+	_subtitlesButton->setText(tr("Subtitle"));
 }

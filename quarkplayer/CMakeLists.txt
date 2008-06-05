@@ -62,7 +62,6 @@ if (WIN32)
 endif (WIN32)
 
 qt4_wrap_ui(quarkplayer_SRCS
-	MainWindow.ui
 	QuickSettingsWindow.ui
 	BackgroundLogoWidget.ui
 	AboutWindow.ui
