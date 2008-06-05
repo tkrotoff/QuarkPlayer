@@ -23,6 +23,7 @@
 #include "AudioOutput.h"
 #include "EffectManager.h"
 #include "Effect.h"
+#include "config.h"
 
 #ifdef PHONON_VLC
 	#include "vlc_loader.h"

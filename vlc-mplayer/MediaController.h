@@ -19,6 +19,8 @@
 #ifndef PHONON_VLC_MPLAYER_MEDIACONTROLLER_H
 #define PHONON_VLC_MPLAYER_MEDIACONTROLLER_H
 
+#include "config.h"
+
 #include <phonon/addoninterface.h>
 #include <phonon/objectdescription.h>
 

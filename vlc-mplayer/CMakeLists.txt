@@ -1,5 +1,10 @@
 project(phonon-vlc-mplayer)
 
+#Copy config.h to the current source directory
+#since build dir in not inside the include path
+#If it needed, this can be changed
+configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+
 #phonon-common
 set(phonon_commom_SRCS
 	../Backend.cpp
