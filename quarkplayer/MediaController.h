@@ -98,8 +98,7 @@ private slots:
 
 private:
 
-	/** Code factorization. */
-	static void removeAllAction(QObject * object);
+	static void removeAllAction(QWidget * widget);
 
 	MainWindow * _mainWindow;
 
