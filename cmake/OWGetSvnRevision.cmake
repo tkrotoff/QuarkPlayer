@@ -8,9 +8,8 @@
 # SVN_REVSION variable already thus you don't need to call ow_get_svn_revision()
 #
 # Example:
-# set(SVN_REVISION "0")
 # ow_get_svn_revision(SVN_REVISION)
-# message(STATUS "svn revision: " ${SVN_REVISION})
+# message(STATUS "SVN Revision: " ${SVN_REVISION})
 #
 # Copyright (C) 2006  Andreas Schneider <mail@cynapses.org>
 # Copyright (C) 2006-2007  Wengo
@@ -33,7 +32,7 @@ macro (ow_get_svn_revision revision)
 		#message(STATUS LAST_CHANGED_LOG=${_TMP_LAST_CHANGED_LOG})
 	else (Subversion_FOUND)
 		message("Subversion (svn) command line not found, it is recommended to install it")
-		set(${revision} "")
+		set(${revision} 0)
 	endif (Subversion_FOUND)
 
 endmacro (ow_get_svn_revision)
