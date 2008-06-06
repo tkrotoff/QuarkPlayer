@@ -24,12 +24,14 @@
 #include "MyIcon.h"
 #include "PlayToolBar.h"
 #include "VideoWidget.h"
+#include "MediaDataWidget.h"
 #include "StatusBar.h"
 #include "MediaController.h"
 #include "QuickSettingsWindow.h"
 #include "AboutWindow.h"
 #include "config/Config.h"
 #include "config/ConfigWindow.h"
+#include "version.h"
 
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>
@@ -51,8 +53,7 @@ MainWindow::MainWindow(QWidget * parent)
 
 	_mediaObject = new Phonon::MediaObject(this);
 	_mediaObject->setTickInterval(1000);
-	connect(_mediaObject, SIGNAL(metaDataChanged()),
-		SLOT(metaDataChanged()));
+	connect(_mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
 	connect(_mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
 		SLOT(sourceChanged(const Phonon::MediaSource &)));
 	connect(_mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
@@ -79,6 +80,10 @@ MainWindow::MainWindow(QWidget * parent)
 	_videoWidget = new VideoWidget(this, _mediaObject);
 	Phonon::createPath(_mediaObject, _videoWidget);
 	_stackedWidget->addWidget(_videoWidget);
+
+	//mediaDataWidget
+	_mediaDataWidget = new MediaDataWidget(*_mediaObject);
+	_stackedWidget->addWidget(_mediaDataWidget);
 
 	//statusBar
 	setStatusBar(new StatusBar(_mediaObject));
@@ -124,8 +129,7 @@ void MainWindow::addRecentFilesToMenu() {
 			QUrl url(filename);
 			if (url.host().isEmpty()) {
 				//Then we have a local file and not a real url (i.e "http://blabla")
-				QFileInfo file(recentFiles[i]);
-				filename = file.completeBaseName();
+				filename = filename.right(filename.length() - filename.lastIndexOf('/') - 1);
 			}
 
 			QAction * action = _menuRecentFiles->addAction(filename, signalMapper, SLOT(map()));
@@ -224,21 +228,35 @@ void MainWindow::metaDataChanged() {
 	QString artist = metaData.value("ARTIST");
 	QString title = metaData.value("TITLE");
 	if (artist.isEmpty() && title.isEmpty()) {
-		QFileInfo file(_mediaObject->currentSource().fileName());
-		windowTitle = file.completeBaseName();
+		windowTitle = _mediaObject->currentSource().fileName();
+		windowTitle = windowTitle.right(windowTitle.length() - windowTitle.lastIndexOf('/') - 1);
 	} else {
-		windowTitle = title + " - " + artist;
+		if (!title.isEmpty()) {
+			windowTitle = title;
+		}
+		if (!artist.isEmpty()) {
+			if (!windowTitle.isEmpty()) {
+				windowTitle += " - ";
+			}
+			windowTitle += artist;
+		}
 	}
 
-	/*titleLabel->setText(title);
-	artistLabel->setText(metaData.value("ARTIST"));
-	albumLabel->setText(metaData.value("ALBUM"));
-	yearLabel->setText(metaData.value("DATE"));*/
-
-	setWindowTitle(windowTitle + " - " + QCoreApplication::applicationName());
+	if (windowTitle.isEmpty()) {
+		setWindowTitle(QCoreApplication::applicationName());
+	} else {
+		setWindowTitle(windowTitle + " - " + QCoreApplication::applicationName() + " ");
+	}
 }
 
 void MainWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
+	//Remove the background logo, not needed anymore
+	if (_backgroundLogoWidget) {
+		_stackedWidget->removeWidget(_backgroundLogoWidget);
+		delete _backgroundLogoWidget;
+		_backgroundLogoWidget = NULL;
+	}
+
 	if (oldState == Phonon::LoadingState) {
 		//Resize the main window to the size of the video
 		//i.e increase or decrease main window size if needed
@@ -250,8 +268,11 @@ void MainWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
 			QApplication::instance()->processEvents();
 			resize(sizeHint());
 		} else {
-			_stackedWidget->setCurrentWidget(_backgroundLogoWidget);
+			_stackedWidget->setCurrentWidget(_mediaDataWidget);
 
+			//Flush event so that sizeHint takes the
+			//recently shown/hidden _videoWidget into account
+			QApplication::instance()->processEvents();
 			resize(minimumSize());
 		}
 	}
@@ -369,7 +390,7 @@ void MainWindow::changeEvent(QEvent * event) {
 }
 
 void MainWindow::retranslate() {
-	setWindowTitle(QCoreApplication::applicationName());
+	setWindowTitle(QCoreApplication::applicationName() + "-" + QString(QUARKPLAYER_VERSION));
 	setWindowIcon(QIcon(":/icons/hi16-app-quarkplayer.png"));
 
 	ActionCollection::action("playFile")->setText(tr("Play File..."));
@@ -409,6 +430,7 @@ void MainWindow::retranslate() {
 	ActionCollection::action("emptyMenu")->setEnabled(false);
 
 	_mainToolBar->setWindowTitle(tr("Main ToolBar"));
+	_mainToolBar->setMinimumSize(_mainToolBar->sizeHint());
 
 	_menuRecentFiles->setTitle(tr("Recent Files"));
 	_menuRecentFiles->setIcon(MyIcon("document-open-recent"));

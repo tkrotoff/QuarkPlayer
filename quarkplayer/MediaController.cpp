@@ -395,4 +395,8 @@ void MediaControllerToolBar::changeEvent(QEvent * event) {
 void MediaControllerToolBar::retranslate() {
 	_audioChannelsButton->setText(tr("Audio"));
 	_subtitlesButton->setText(tr("Subtitle"));
+
+	setWindowTitle(tr("Language ToolBar"));
+
+	setMinimumSize(sizeHint());
 }

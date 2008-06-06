@@ -23,6 +23,7 @@ set(quarkplayer_SRCS
 	ComboBoxUtil.cpp
 	Translator.cpp
 	AboutWindow.cpp
+	MediaDataWidget.cpp
 	config/IConfig.cpp
 	config/Config.cpp
 	config/ConfigWindow.cpp
@@ -49,6 +50,7 @@ qt4_wrap_cpp(quarkplayer_SRCS
 	MyIcon.h
 	IconEngine.h
 	ComboBoxUtil.h
+	MediaDataWidget.h
 	config/Config.h
 	config/ConfigWindow.h
 	config/GeneralConfigWidget.h

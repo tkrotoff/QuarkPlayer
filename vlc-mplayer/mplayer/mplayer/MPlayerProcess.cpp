@@ -173,7 +173,7 @@ static QRegExp rx_sid("^ID_(SID|VSID)_(\\d+)_(LANG|NAME)=(.*)");
 static QRegExp rx_subtitle_file("^ID_FILE_SUB_FILENAME=(.*)");
 
 //Clip info
-static QRegExp rx_clip_name("^(name|title): (.*)", Qt::CaseInsensitive);
+static QRegExp rx_clip_title("^(name|title): (.*)", Qt::CaseInsensitive);
 static QRegExp rx_clip_artist("^artist: (.*)", Qt::CaseInsensitive);
 static QRegExp rx_clip_author("^author: (.*)", Qt::CaseInsensitive);
 static QRegExp rx_clip_album("^album: (.*)", Qt::CaseInsensitive);
@@ -210,7 +210,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			setState(PlayingState);
 
 			//OK, now all the media datas should be in clean state
-			emit mediaLoaded(_mediaData);
+			emit mediaLoaded();
 		}
 
 		emit tick(_mediaData.currentTime);
@@ -293,9 +293,10 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			const QString url = rx_stream_title.cap(2);
 			qDebug() << __FUNCTION__ << "Stream title:" << title;
 			qDebug() << __FUNCTION__ << "Stream url:" << url;
-			_mediaData.stream_title = title;
-			_mediaData.stream_url = url;
-			//emit streamTitleAndUrl(title, url);
+			_mediaData.title = title;
+			_mediaData.url = url;
+
+			emit mediaDataChanged(_mediaData);
 		}
 
 
@@ -549,74 +550,74 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 
 		//Clip info
 
-		//Name
-		else if (rx_clip_name.indexIn(line) > -1) {
-			const QString s = rx_clip_name.cap(2);
-			qDebug() << __FUNCTION__ << "Clip name:" << s;
-			_mediaData.clip_name = s;
+		//Title
+		else if (rx_clip_title.indexIn(line) > -1) {
+			QString title = rx_clip_title.cap(2);
+			qDebug() << __FUNCTION__ << "Clip title:" << title;
+			_mediaData.title = title;
 		}
 
 		//Artist
 		else if (rx_clip_artist.indexIn(line) > -1) {
-			const QString s = rx_clip_artist.cap(1);
+			QString s = rx_clip_artist.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_artist: '%s'", s.toUtf8().data());
-			_mediaData.clip_artist = s;
+			_mediaData.artist = s;
 		}
 
 		//Author
 		else if (rx_clip_author.indexIn(line) > -1) {
-			const QString s = rx_clip_author.cap(1);
+			QString s = rx_clip_author.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_author: '%s'", s.toUtf8().data());
-			_mediaData.clip_author = s;
+			_mediaData.author = s;
 		}
 
 		//Album
 		else if (rx_clip_album.indexIn(line) > -1) {
-			const QString s = rx_clip_album.cap(1);
+			QString s = rx_clip_album.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_album: '%s'", s.toUtf8().data());
-			_mediaData.clip_album = s;
+			_mediaData.album = s;
 		}
 
 		//Genre
 		else if (rx_clip_genre.indexIn(line) > -1) {
-			const QString s = rx_clip_genre.cap(1);
+			QString s = rx_clip_genre.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_genre: '%s'", s.toUtf8().data());
-			_mediaData.clip_genre = s;
+			_mediaData.genre = s;
 		}
 
 		//Date
 		else if (rx_clip_date.indexIn(line) > -1) {
-			const QString s = rx_clip_date.cap(2);
+			QString s = rx_clip_date.cap(2);
 			qDebug("MPlayerProcess::parseLine: clip_date: '%s'", s.toUtf8().data());
-			_mediaData.clip_date = s;
+			_mediaData.date = s;
 		}
 
 		//Track
 		else if (rx_clip_track.indexIn(line) > -1) {
-			const QString s = rx_clip_track.cap(1);
+			QString s = rx_clip_track.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_track: '%s'", s.toUtf8().data());
-			_mediaData.clip_track = s;
+			_mediaData.track = s;
 		}
 
 		//Copyright
 		else if (rx_clip_copyright.indexIn(line) > -1) {
-			const QString s = rx_clip_copyright.cap(1);
+			QString s = rx_clip_copyright.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_copyright: '%s'", s.toUtf8().data());
-			_mediaData.clip_copyright = s;
+			_mediaData.copyright = s;
 		}
 
 		//Comment
 		else if (rx_clip_comment.indexIn(line) > -1) {
-			const QString s = rx_clip_comment.cap(1);
+			QString s = rx_clip_comment.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_comment: '%s'", s.toUtf8().data());
-			_mediaData.clip_comment = s;
+			_mediaData.comment = s;
 		}
 
 		//Software
 		else if (rx_clip_software.indexIn(line) > -1) {
-			const QString s = rx_clip_software.cap(1);
+			QString s = rx_clip_software.cap(1);
 			qDebug("MPlayerProcess::parseLine: clip_software: '%s'", s.toUtf8().data());
-			_mediaData.clip_software = s;
+			_mediaData.software = s;
 		}
 
 		//Catch "Starting playback..." message
@@ -624,7 +625,8 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			//OK, now all the media datas should be in clean state
 			//Second time we emit mediaLoaded(), this one is usefull for DVD with angles/chapters/subtitles...
 			//This must be changed, see MPlayerMediaObject::mediaLoaded()
-			emit mediaLoaded(_mediaData);
+			emit mediaLoaded();
+			emit mediaDataChanged(_mediaData);
 
 			if (_mediaData.hasVideo) {
 				//If we have a video to display, wait for getting the video size

@@ -21,8 +21,6 @@
 
 #include <QtCore/QtDebug>
 
-#include <cmath>
-
 MediaData::MediaData() {
 	clear();
 }
@@ -49,19 +47,18 @@ void MediaData::clear() {
 	videoHeight = 0;
 	videoAspectRatio = (double) 4 / 3;
 
-	clip_name.clear();
-	clip_artist.clear();
-	clip_author.clear();
-	clip_album.clear();
-	clip_genre.clear();
-	clip_date.clear();
-	clip_track.clear();
-	clip_copyright.clear();
-	clip_comment.clear();
-	clip_software.clear();
+	title.clear();
+	artist.clear();
+	author.clear();
+	album.clear();
+	genre.clear();
+	date.clear();
+	track.clear();
+	copyright.clear();
+	comment.clear();
+	software.clear();
 
-	stream_title.clear();
-	stream_url.clear();
+	url.clear();
 
 	demuxer.clear();
 	videoFormat.clear();

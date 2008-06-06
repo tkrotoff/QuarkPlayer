@@ -53,8 +53,11 @@ MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
 	connect(_process, SIGNAL(seekableChanged(bool)),
 		SIGNAL(seekableChanged(bool)));
 
-	connect(_process, SIGNAL(mediaLoaded(const MediaData &)),
-		SLOT(mediaLoaded(const MediaData &)));
+	connect(_process, SIGNAL(mediaLoaded()),
+		SLOT(mediaLoaded()));
+
+	connect(_process, SIGNAL(mediaDataChanged(const MediaData &)),
+		SLOT(mediaDataChanged(const MediaData &)));
 
 	connect(_process, SIGNAL(finished(int, QProcess::ExitStatus)),
 		SLOT(finished(int, QProcess::ExitStatus)));
@@ -99,18 +102,18 @@ void MPlayerMediaObject::loadMediaInternal() {
 	MPlayerLoader::loadMedia(_process, _filename);
 }
 
-void MPlayerMediaObject::mediaLoaded(const MediaData & mediaData) {
+void MPlayerMediaObject::mediaDataChanged(const MediaData & mediaData) {
 	QMultiMap<QString, QString> metaDataMap;
-	metaDataMap.insert(QLatin1String("ARTIST"), mediaData.clip_artist);
-	metaDataMap.insert(QLatin1String("ALBUM"), mediaData.clip_album);
-	metaDataMap.insert(QLatin1String("TITLE"), mediaData.clip_name);
-	metaDataMap.insert(QLatin1String("DATE"), mediaData.clip_date);
-	metaDataMap.insert(QLatin1String("GENRE"), mediaData.clip_genre);
-	metaDataMap.insert(QLatin1String("TRACKNUMBER"), mediaData.clip_track);
-	metaDataMap.insert(QLatin1String("DESCRIPTION"), mediaData.clip_comment);
-	metaDataMap.insert(QLatin1String("COPYRIGHT"), mediaData.clip_copyright);
-	metaDataMap.insert(QLatin1String("URL"), mediaData.stream_url);
-	metaDataMap.insert(QLatin1String("ENCODEDBY"), mediaData.clip_software);
+	metaDataMap.insert(QLatin1String("ARTIST"), mediaData.artist);
+	metaDataMap.insert(QLatin1String("ALBUM"), mediaData.album);
+	metaDataMap.insert(QLatin1String("TITLE"), mediaData.title);
+	metaDataMap.insert(QLatin1String("DATE"), mediaData.date);
+	metaDataMap.insert(QLatin1String("GENRE"), mediaData.genre);
+	metaDataMap.insert(QLatin1String("TRACKNUMBER"), mediaData.track);
+	metaDataMap.insert(QLatin1String("DESCRIPTION"), mediaData.comment);
+	metaDataMap.insert(QLatin1String("COPYRIGHT"), mediaData.copyright);
+	metaDataMap.insert(QLatin1String("URL"), mediaData.url);
+	metaDataMap.insert(QLatin1String("ENCODEDBY"), mediaData.software);
 
 	//Other infos
 	metaDataMap.insert(QLatin1String("DEMUXER"), mediaData.demuxer);
@@ -133,6 +136,10 @@ void MPlayerMediaObject::mediaLoaded(const MediaData & mediaData) {
 		metaDataMap.insert(QLatin1String("BITRATE"), QString::number(mediaData.audioBitrate));
 	}
 
+	emit metaDataChanged(metaDataMap);
+}
+
+void MPlayerMediaObject::mediaLoaded() {
 	emit availableAudioChannelsChanged();
 	emit availableSubtitlesChanged();
 
@@ -149,8 +156,6 @@ void MPlayerMediaObject::mediaLoaded(const MediaData & mediaData) {
 	//angleChanged(int angleNumber);
 	//chapterChanged(int chapterNumber);
 	//titleChanged(int titleNumber);
-
-	emit metaDataChanged(metaDataMap);
 }
 
 void MPlayerMediaObject::playInternal() {

@@ -21,8 +21,6 @@
 #include "ActionCollection.h"
 #include "MyIcon.h"
 
-#include "MainWindow.h"
-
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>
 #include <phonon/seekslider.h>
@@ -199,4 +197,6 @@ void PlayToolBar::retranslate() {
 
 	_volumeSlider->setVolumeIcon(MyIcon("speaker"));
 	_volumeSlider->setMutedIcon(MyIcon("speaker"));
+
+	setMinimumSize(sizeHint());
 }

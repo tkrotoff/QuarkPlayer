@@ -102,20 +102,18 @@ public:
 	 */
 	bool hasVideo;
 
-	//Clip info
-	QString clip_name;
-	QString clip_artist;
-	QString clip_author;
-	QString clip_album;
-	QString clip_genre;
-	QString clip_date;
-	QString clip_track;
-	QString clip_copyright;
-	QString clip_comment;
-	QString clip_software;
-
-	QString stream_title;
-	QString stream_url;
+	//Meta data info
+	QString title;
+	QString artist;
+	QString author;
+	QString album;
+	QString genre;
+	QString date;
+	QString track;
+	QString copyright;
+	QString comment;
+	QString software;
+	QString url;
 
 	//Other dataz not really useful for us,
 	//just to show info to the user

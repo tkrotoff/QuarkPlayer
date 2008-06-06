@@ -40,27 +40,34 @@ VideoWidget::VideoWidget(MainWindow * mainWindow, Phonon::MediaObject * mediaObj
 	connect(_mainWindow->playToolBar(), SIGNAL(fullScreenButtonClicked(bool)),
 		SLOT(setFullScreenSlot(bool)));
 
-	//By default not in fullscreen mode
-	setFullScreenSlot(false);
+	//We do this in order to add the play toolbar to the mainwindow
+	//when starting
+	addPlayToolBarToMainWindow();
 }
 
 VideoWidget::~VideoWidget() {
 }
 
 void VideoWidget::setFullScreenSlot(bool fullScreen) {
+	QStackedWidget * stackedWidget = _mainWindow->stackedWidget();
+
 	if (fullScreen) {
+		//Going fullscreen
+
 		//FIXME QStackedWidget and fullscreen mode are not well together
 		//I hope to remove this code in the future...
 		//There should be no reason why a widget inside a QStackedWidget could
 		//not be fullscreen
-		_mainWindow->stackedWidget()->removeWidget(this);
+		stackedWidget->removeWidget(this);
+
 		setFullScreen(fullScreen);
 	} else {
-		setFullScreen(fullScreen);
-		_mainWindow->stackedWidget()->addWidget(this);
-		_mainWindow->stackedWidget()->setCurrentWidget(this);
-
 		//Leaving fullscreen
+
+		setFullScreen(fullScreen);
+		stackedWidget->addWidget(this);
+		stackedWidget->setCurrentWidget(this);
+
 		addPlayToolBarToMainWindow();
 	}
 }

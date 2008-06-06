@@ -190,10 +190,13 @@ signals:
 
 	/**
 	 * Media has been loaded: everything is ready to do a 'play'.
-	 *
-	 * Notifies that the MediaData informations are ready to be read.
 	 */
-	void mediaLoaded(const MediaData & mediaData);
+	void mediaLoaded();
+
+	/**
+	 * Media/meta (artist, title, album, url...) data just changed.
+	 */
+	void mediaDataChanged(const MediaData & mediaData);
 
 	/**
 	 * New widget size computed by MPlayer.

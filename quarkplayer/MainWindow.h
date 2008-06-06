@@ -108,7 +108,11 @@ private:
 	/** Widget containing the logo. */
 	QWidget * _backgroundLogoWidget;
 
+	/** Widget containing the media data. */
+	QWidget * _mediaDataWidget;
+
 	QStackedWidget * _stackedWidget;
+
 	QToolBar * _mainToolBar;
 	QMenu * _menuRecentFiles;
 	QMenu * _menuAudioChannels;
