@@ -5,77 +5,52 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>367</width>
-    <height>340</height>
+    <width>409</width>
+    <height>224</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>About</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2" >
-   <item row="0" column="0" >
+  <layout class="QGridLayout" name="gridLayout" >
+   <item rowspan="2" row="0" column="0" >
     <widget class="QLabel" name="logoLabel" >
      <property name="pixmap" >
       <pixmap resource="quarkplayer.qrc" >:/icons/hi48-app-quarkplayer.png</pixmap>
      </property>
+     <property name="alignment" >
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
     </widget>
    </item>
-   <item row="2" column="0" >
+   <item row="0" column="1" >
+    <widget class="QLabel" name="descriptionLabel" >
+     <property name="text" >
+      <string>&lt;b>QuarkPlayer, a Phonon media player&lt;/b>&lt;br>
+&lt;br>
+&lt;a href="http://phonon-vlc-mplayer.googlecode.com">http://phonon-vlc-mplayer.googlecode.com&lt;/a>&lt;br>
+&lt;br>
+Copyright (C) 2008  Tanguy Krotoff &lt;tkrotoff@gmail.com>&lt;br>
+&lt;br>
+This program is free software: you can redistribute it and/or modify&lt;br>
+it under the terms of the GNU General Public License as published by&lt;br>
+the Free Software Foundation, either version 3 of the License, or&lt;br>
+(at your option) any later version.&lt;br>
+</string>
+     </property>
+     <property name="openExternalLinks" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" >
+    <widget class="QLabel" name="versionLabel" />
+   </item>
+   <item row="2" column="0" colspan="2" >
     <widget class="QDialogButtonBox" name="buttonBox" >
      <property name="standardButtons" >
       <set>QDialogButtonBox::Close</set>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="0" >
-    <widget class="QTabWidget" name="tabWidget" >
-     <widget class="QWidget" name="aboutTab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>345</width>
-        <height>212</height>
-       </rect>
-      </property>
-      <attribute name="title" >
-       <string>About</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_3" >
-       <item row="2" column="0" >
-        <spacer>
-         <property name="sizeHint" stdset="0" >
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="0" >
-        <widget class="QLabel" name="descriptionLabel" >
-         <property name="text" >
-          <string>QuarkPlayer, a Phonon media player
-
-Copyright (C) 2008  Tanguy Krotoff &lt;tkrotoff@gmail.com>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" >
-        <widget class="QLabel" name="versionLabel" >
-         <property name="enabled" >
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
   </layout>

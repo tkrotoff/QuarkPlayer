@@ -321,12 +321,18 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		//static QRegExp rx_subtitle_file("^ID_FILE_SUB_FILENAME=(.*)");
 		else if (rx_subtitle.indexIn(line) > -1) {
 			//DVD line example:
+
 			//subtitle ( sid ): 1 language: en
 			//ID_SUBTITLE_ID=1
 			//ID_SID_1_LANG=en
+
 			//subtitle ( sid ): 3 language: fr
 			//ID_SUBTITLE_ID=3
 			//ID_SID_3_LANG=fr
+
+			//subtitle ( sid ): 4 language: unknown
+			//ID_SUBTITLE_ID=4
+			//Warning! ---> No ID_SID...
 
 			//.str file example:
 			//SUB: Detected subtitle file format: subviewer

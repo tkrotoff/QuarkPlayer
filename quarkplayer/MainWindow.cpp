@@ -132,12 +132,14 @@ void MainWindow::addRecentFilesToMenu() {
 			signalMapper->setMapping(action, i);
 		}
 
-		_menuRecentFiles->addSeparator();
-		_menuRecentFiles->addAction(ActionCollection::action("clearRecentFiles"));
-
 		connect(signalMapper, SIGNAL(mapped(int)),
 			SLOT(playRecentFile(int)));
+	} else {
+		_menuRecentFiles->addAction(ActionCollection::action("emptyMenu"));
 	}
+
+	_menuRecentFiles->addSeparator();
+	_menuRecentFiles->addAction(ActionCollection::action("clearRecentFiles"));
 }
 
 void MainWindow::playRecentFile(int id) {
@@ -148,6 +150,7 @@ void MainWindow::playRecentFile(int id) {
 void MainWindow::clearRecentFiles() {
 	//Clear recent files menu
 	_menuRecentFiles->clear();
+	_menuRecentFiles->addAction(ActionCollection::action("emptyMenu"));
 	_menuRecentFiles->addSeparator();
 	_menuRecentFiles->addAction(ActionCollection::action("clearRecentFiles"));
 
@@ -182,7 +185,7 @@ void MainWindow::play(const Phonon::MediaSource & mediaSource) {
 	QString filename = mediaSource.fileName();
 	if (filename.isEmpty()) {
 		//filename is not a local file, so maybe an url
-		//it can a DVD too, but then we don't add it the list of recent files
+		//it can be a DVD too, but then we don't add it the list of recent files
 		filename = mediaSource.url().toString();
 	}
 
@@ -191,17 +194,12 @@ void MainWindow::play(const Phonon::MediaSource & mediaSource) {
 		//filename is either a local file or an url
 		//We don't add other types of media inside the list of recent files opened
 		QStringList recentFiles = Config::instance().recentFiles();
-		bool prepend = false;
-		if (recentFiles.isEmpty()) {
-			prepend = true;
-		} else if (!recentFiles.contains(filename)) {
-			prepend = true;
+		if (recentFiles.contains(filename)) {
+			recentFiles.removeAll(filename);
 		}
-		if (prepend) {
-			recentFiles.prepend(filename);
-			if (recentFiles.size() > MAX_RECENT_FILES) {
-				recentFiles.removeLast();
-			}
+		recentFiles.prepend(filename);
+		if (recentFiles.size() > MAX_RECENT_FILES) {
+			recentFiles.removeLast();
 		}
 
 		Config::instance().setValue(Config::RECENT_FILES_KEY, recentFiles);
@@ -296,6 +294,7 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("preferences", new QAction(app));
 	ActionCollection::addAction("openSubtitleFile", new QAction(app));
 	ActionCollection::addAction("clearRecentFiles", new QAction(app));
+	ActionCollection::addAction("emptyMenu", new QAction(app));
 }
 
 void MainWindow::setupUi() {
@@ -316,21 +315,26 @@ void MainWindow::setupUi() {
 	_menuAudio = new QMenu();
 	menuBar()->addAction(_menuAudio->menuAction());
 	_menuAudioChannels = new QMenu();
+	_menuAudioChannels->addAction(ActionCollection::action("emptyMenu"));
 	_menuAudio->addAction(_menuAudioChannels->menuAction());
 
 	_menuSubtitle = new QMenu();
 	menuBar()->addAction(_menuSubtitle->menuAction());
 	_menuSubtitle->addAction(ActionCollection::action("openSubtitleFile"));
 	_menuSubtitles = new QMenu();
+	_menuSubtitles->addAction(ActionCollection::action("emptyMenu"));
 	_menuSubtitle->addAction(_menuSubtitles->menuAction());
 
 	_menuBrowse = new QMenu();
 	menuBar()->addAction(_menuBrowse->menuAction());
 	_menuTitles = new QMenu();
+	_menuTitles->addAction(ActionCollection::action("emptyMenu"));
 	_menuBrowse->addAction(_menuTitles->menuAction());
 	_menuChapters = new QMenu();
+	_menuChapters->addAction(ActionCollection::action("emptyMenu"));
 	_menuBrowse->addAction(_menuChapters->menuAction());
 	_menuAngles = new QMenu();
+	_menuAngles->addAction(ActionCollection::action("emptyMenu"));
 	_menuBrowse->addAction(_menuAngles->menuAction());
 
 	_menuOptions = new QMenu();
@@ -400,6 +404,9 @@ void MainWindow::retranslate() {
 
 	ActionCollection::action("clearRecentFiles")->setText(tr("Clear"));
 	ActionCollection::action("clearRecentFiles")->setIcon(MyIcon("edit-delete"));
+
+	ActionCollection::action("emptyMenu")->setText(tr("<empty>"));
+	ActionCollection::action("emptyMenu")->setEnabled(false);
 
 	_mainToolBar->setWindowTitle(tr("Main ToolBar"));
 

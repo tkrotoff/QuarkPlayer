@@ -34,7 +34,7 @@ AboutWindow::AboutWindow(QWidget * parent)
 	_ui->setupUi(this);
 
 	_ui->versionLabel->setText(
-		QString(QUARKPLAYER_VERSION) +
+		"Version: " + QString(QUARKPLAYER_VERSION) +
 #ifdef KDE4_FOUND
 		"/KDE4" +
 #endif	//KDE4_FOUND
