@@ -1,6 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-	<file>icons/quarkplayer.png</file>
-	<file>icons/16-quarkplayer.png</file>
+	<file>icons/hi16-app-quarkplayer.png</file>
+	<file>icons/hi32-app-quarkplayer.png</file>
+	<file>icons/hi48-app-quarkplayer.png</file>
+	<file>icons/hi300-app-quarkplayer.png</file>
 </qresource>
 </RCC>

@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>367</width>
-    <height>308</height>
+    <height>340</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -16,7 +16,7 @@
    <item row="0" column="0" >
     <widget class="QLabel" name="logoLabel" >
      <property name="pixmap" >
-      <pixmap resource="quarkplayer.qrc" >:/icons/16-quarkplayer.png</pixmap>
+      <pixmap resource="quarkplayer.qrc" >:/icons/hi48-app-quarkplayer.png</pixmap>
      </property>
     </widget>
    </item>
@@ -29,9 +29,6 @@
    </item>
    <item row="1" column="0" >
     <widget class="QTabWidget" name="tabWidget" >
-     <property name="currentIndex" >
-      <number>0</number>
-     </property>
      <widget class="QWidget" name="aboutTab" >
       <property name="geometry" >
        <rect>

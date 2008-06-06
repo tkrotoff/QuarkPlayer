@@ -120,8 +120,15 @@ void MainWindow::addRecentFilesToMenu() {
 		QSignalMapper * signalMapper = new QSignalMapper(this);
 
 		for (int i = 0; i < recentFiles.size(); i++) {
-			QFileInfo file(recentFiles[i]);
-			QAction * action = _menuRecentFiles->addAction(file.completeBaseName(), signalMapper, SLOT(map()));
+			QString filename = recentFiles[i];
+			QUrl url(filename);
+			if (url.host().isEmpty()) {
+				//Then we have a local file and not a real url (i.e "http://blabla")
+				QFileInfo file(recentFiles[i]);
+				filename = file.completeBaseName();
+			}
+
+			QAction * action = _menuRecentFiles->addAction(filename, signalMapper, SLOT(map()));
 			signalMapper->setMapping(action, i);
 		}
 
@@ -149,33 +156,11 @@ void MainWindow::clearRecentFiles() {
 }
 
 void MainWindow::playFile() {
-	static const int MAX_RECENT_FILES = 10;
+	QString filename = QFileDialog::getOpenFileName(this, tr("Select Audio/Video File"));
 
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Select Audio/Video File"));
-
-	if (fileName.isEmpty()) {
-		return;
+	if (!filename.isEmpty()) {
+		play(filename);
 	}
-
-	QStringList recentFiles = Config::instance().recentFiles();
-	bool prepend = false;
-	if (recentFiles.isEmpty()) {
-		prepend = true;
-	} else if (fileName != recentFiles.first()) {
-		prepend = true;
-	}
-	if (prepend) {
-		recentFiles.prepend(fileName);
-		if (recentFiles.size() > MAX_RECENT_FILES) {
-			recentFiles.removeLast();
-		}
-	}
-
-	Config::instance().setValue(Config::RECENT_FILES_KEY, recentFiles);
-
-	addRecentFilesToMenu();
-
-	play(fileName);
 }
 
 void MainWindow::playDVD() {
@@ -192,6 +177,38 @@ void MainWindow::playURL() {
 }
 
 void MainWindow::play(const Phonon::MediaSource & mediaSource) {
+	static const int MAX_RECENT_FILES = 10;
+
+	QString filename = mediaSource.fileName();
+	if (filename.isEmpty()) {
+		//filename is not a local file, so maybe an url
+		//it can a DVD too, but then we don't add it the list of recent files
+		filename = mediaSource.url().toString();
+	}
+
+	//Add the file to the list of recent files opened
+	if (!filename.isEmpty()) {
+		//filename is either a local file or an url
+		//We don't add other types of media inside the list of recent files opened
+		QStringList recentFiles = Config::instance().recentFiles();
+		bool prepend = false;
+		if (recentFiles.isEmpty()) {
+			prepend = true;
+		} else if (!recentFiles.contains(filename)) {
+			prepend = true;
+		}
+		if (prepend) {
+			recentFiles.prepend(filename);
+			if (recentFiles.size() > MAX_RECENT_FILES) {
+				recentFiles.removeLast();
+			}
+		}
+
+		Config::instance().setValue(Config::RECENT_FILES_KEY, recentFiles);
+
+		addRecentFilesToMenu();
+	}
+
 	_mediaObject->setCurrentSource(mediaSource);
 	_mediaObject->play();
 }
@@ -256,7 +273,8 @@ void MainWindow::showConfigWindow() {
 }
 
 void MainWindow::showQuickSettingsWindow() {
-	QuickSettingsWindow * quickSettings = new QuickSettingsWindow(_videoWidget, *_audioOutput, _audioOutputPath, *_mediaObject, this);
+	static QuickSettingsWindow * quickSettings = new QuickSettingsWindow(_videoWidget, *_audioOutput, _audioOutputPath, *_mediaObject, this);
+	quickSettings->show();
 }
 
 void MainWindow::about() {
@@ -336,8 +354,6 @@ void MainWindow::setupUi() {
 	_mainToolBar->addSeparator();
 	_mainToolBar->addAction(ActionCollection::action("exit"));
 	addToolBar(_mainToolBar);
-
-	retranslate();
 }
 
 void MainWindow::changeEvent(QEvent * event) {
@@ -350,7 +366,7 @@ void MainWindow::changeEvent(QEvent * event) {
 
 void MainWindow::retranslate() {
 	setWindowTitle(QCoreApplication::applicationName());
-	setWindowIcon(QIcon(":/icons/quarkplayer.png"));
+	setWindowIcon(QIcon(":/icons/hi16-app-quarkplayer.png"));
 
 	ActionCollection::action("playFile")->setText(tr("Play File..."));
 	ActionCollection::action("playFile")->setIcon(MyIcon("document-open"));
