@@ -13,6 +13,22 @@
 # For details see the accompanying COPYING file.
 
 
+# With -fPIC, CMake-2.6 should fix this, does not seem to be the case :/
+# cf http://code.google.com/p/phonon-vlc-mplayer/issues/detail?id=1
+if (UNIX OR MINGW)
+	if (CMAKE_SIZEOF_VOID_P MATCHES "8")
+		check_cxx_compiler_flag("-fPIC" WITH_FPIC)
+		if (WITH_FPIC)
+			add_definitions(-fPIC)
+		endif (WITH_FPIC)
+	endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
+
+	if (GCC4)
+		# See http://www.cynapses.org/tmp/gcc/fortify_source
+		add_definitions(-D_FORTIFY_SOURCE=2)
+	endif (GCC4)
+endif (UNIX OR MINGW)
+
 # Enable warnings
 if (MSVC)
 	#add_definitions(/W4)
