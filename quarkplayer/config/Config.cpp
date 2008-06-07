@@ -55,7 +55,7 @@ Config::~Config() {
 void Config::setDefaultValues() {
 	_keyDefaultValueMap[LANGUAGE_KEY] = QString();
 	_keyDefaultValueMap[STYLE_KEY] = QString();
-	_keyDefaultValueMap[ICON_THEME_KEY] = "oxygen";
+	_keyDefaultValueMap[ICON_THEME_KEY] = "silk";
 	_keyDefaultValueMap[RECENT_FILES_KEY] = QStringList();
 	_keyDefaultValueMap[TEST_INT_KEY] = 0;
 	_keyDefaultValueMap[TEST_BOOL_KEY] = false;

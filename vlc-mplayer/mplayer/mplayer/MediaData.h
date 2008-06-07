@@ -102,7 +102,7 @@ public:
 	 */
 	bool hasVideo;
 
-	//Meta data info
+	//Meta data infos
 	QString title;
 	QString artist;
 	QString author;
@@ -113,7 +113,12 @@ public:
 	QString copyright;
 	QString comment;
 	QString software;
-	QString url;
+
+	//Radio streaming infos
+	QString streamName;
+	QString streamGenre;
+	QString streamWebsite;
+	QString streamUrl;
 
 	//Other dataz not really useful for us,
 	//just to show info to the user

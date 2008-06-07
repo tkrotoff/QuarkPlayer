@@ -58,7 +58,10 @@ void MediaData::clear() {
 	comment.clear();
 	software.clear();
 
-	url.clear();
+	streamName.clear();
+	streamGenre.clear();
+	streamWebsite.clear();
+	streamUrl.clear();
 
 	demuxer.clear();
 	videoFormat.clear();

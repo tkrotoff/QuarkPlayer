@@ -112,8 +112,12 @@ void MPlayerMediaObject::mediaDataChanged(const MediaData & mediaData) {
 	metaDataMap.insert(QLatin1String("TRACKNUMBER"), mediaData.track);
 	metaDataMap.insert(QLatin1String("DESCRIPTION"), mediaData.comment);
 	metaDataMap.insert(QLatin1String("COPYRIGHT"), mediaData.copyright);
-	metaDataMap.insert(QLatin1String("URL"), mediaData.url);
 	metaDataMap.insert(QLatin1String("ENCODEDBY"), mediaData.software);
+
+	metaDataMap.insert(QLatin1String("STREAM_URL"), mediaData.streamUrl);
+	metaDataMap.insert(QLatin1String("STREAM_NAME"), mediaData.streamName);
+	metaDataMap.insert(QLatin1String("STREAM_GENRE"), mediaData.streamGenre);
+	metaDataMap.insert(QLatin1String("STREAM_WEBSITE"), mediaData.streamWebsite);
 
 	//Other infos
 	metaDataMap.insert(QLatin1String("DEMUXER"), mediaData.demuxer);

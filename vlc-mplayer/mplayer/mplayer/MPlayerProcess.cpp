@@ -172,7 +172,7 @@ static QRegExp rx_subtitle("^ID_(SUBTITLE|FILE_SUB|VOBSUB)_ID=(\\d+)");
 static QRegExp rx_sid("^ID_(SID|VSID)_(\\d+)_(LANG|NAME)=(.*)");
 static QRegExp rx_subtitle_file("^ID_FILE_SUB_FILENAME=(.*)");
 
-//Clip info
+//Meta data infos
 static QRegExp rx_clip_title("^(name|title): (.*)", Qt::CaseInsensitive);
 static QRegExp rx_clip_artist("^artist: (.*)", Qt::CaseInsensitive);
 static QRegExp rx_clip_author("^author: (.*)", Qt::CaseInsensitive);
@@ -184,7 +184,12 @@ static QRegExp rx_clip_copyright("^copyright: (.*)", Qt::CaseInsensitive);
 static QRegExp rx_clip_comment("^comment: (.*)", Qt::CaseInsensitive);
 static QRegExp rx_clip_software("^software: (.*)", Qt::CaseInsensitive);
 
+//Radio streaming infos
 static QRegExp rx_stream_title("^.* StreamTitle='(.*)';StreamUrl='(.*)';");
+static QRegExp rx_stream_title_only("^.* StreamTitle='(.*)';");
+static QRegExp rx_stream_name("Name   : (.*)");
+static QRegExp rx_stream_genre("Genre  : (.*)");
+static QRegExp rx_stream_website("Website: (.*)");
 
 void MPlayerProcess::parseLine(const QString & tmp) {
 	//qDebug() << __FUNCTION__ << tmp;
@@ -287,14 +292,26 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			setState(PausedState);
 		}
 
-		//Stream title
+		//Stream title and url
 		else if (rx_stream_title.indexIn(line) > -1) {
-			const QString title = rx_stream_title.cap(1);
-			const QString url = rx_stream_title.cap(2);
+			QString title = rx_stream_title.cap(1);
+			QString url = rx_stream_title.cap(2);
 			qDebug() << __FUNCTION__ << "Stream title:" << title;
 			qDebug() << __FUNCTION__ << "Stream url:" << url;
 			_mediaData.title = title;
-			_mediaData.url = url;
+			if (url.at(url.size() - 1) == '/') {
+				url.remove(url.size() - 1, 1);
+			}
+			_mediaData.streamUrl = url;
+
+			emit mediaDataChanged(_mediaData);
+		}
+
+		//Stream title only
+		else if (rx_stream_title_only.indexIn(line) > -1) {
+			QString title = rx_stream_title_only.cap(1);
+			qDebug() << __FUNCTION__ << "Stream title:" << title;
+			_mediaData.title = title;
 
 			emit mediaDataChanged(_mediaData);
 		}
@@ -314,6 +331,30 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			if (_mplayerSvnRevision <= 0) {
 				emit failedToParseMplayerVersion(line);
 			}
+		}
+
+		//Stream name
+		else if (rx_stream_name.indexIn(line) > -1) {
+			QString name = rx_stream_name.cap(1);
+			qDebug() << __FUNCTION__ << "Stream name:" << name;
+			_mediaData.streamName = name;
+		}
+
+		//Stream genre
+		else if (rx_stream_genre.indexIn(line) > -1) {
+			QString genre = rx_stream_genre.cap(1);
+			qDebug() << __FUNCTION__ << "Stream genre:" << genre;
+			_mediaData.streamGenre = genre;
+		}
+
+		//Stream website
+		else if (rx_stream_website.indexIn(line) > -1) {
+			QString website = rx_stream_website.cap(1);
+			qDebug() << __FUNCTION__ << "Stream website:" << website;
+			if (website.at(website.size() - 1) == '/') {
+				website.remove(website.size() - 1, 1);
+			}
+			_mediaData.streamWebsite = website;
 		}
 
 		//Subtitles
@@ -548,7 +589,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			emit resolvingMessageReceived(line);
 		}
 
-		//Clip info
+		//Meta data infos
 
 		//Title
 		else if (rx_clip_title.indexIn(line) > -1) {

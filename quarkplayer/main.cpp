@@ -21,6 +21,7 @@
 #include "QuarkPlayerStyle.h"
 #include "Translator.h"
 #include "config/Config.h"
+#include "version.h"
 
 #ifdef KDE4_FOUND
 	#include <KApplication>
@@ -62,7 +63,7 @@ int main(int argc, char * argv[]) {
  	app.setOrganizationName("QuarkPlayer");
 	app.setOrganizationDomain("quarkplayer.org");
 	app.setApplicationName("QuarkPlayer");
-	app.setApplicationVersion("0.1.0");
+	app.setApplicationVersion(QUARKPLAYER_VERSION);
 
 	app.setQuitOnLastWindowClosed(true);
 

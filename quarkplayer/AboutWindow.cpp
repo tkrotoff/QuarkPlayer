@@ -33,12 +33,17 @@ AboutWindow::AboutWindow(QWidget * parent)
 	_ui = new Ui::AboutWindow();
 	_ui->setupUi(this);
 
+	QString rev;
+	if (QUARKPLAYER_SVN_REVISION > 0) {
+		rev = "-rev" + QString::number(QUARKPLAYER_SVN_REVISION);
+	}
+
 	_ui->versionLabel->setText(
 		"Version: " + QString(QUARKPLAYER_VERSION) +
 #ifdef KDE4_FOUND
 		"/KDE4" +
 #endif	//KDE4_FOUND
-		"-rev" + QString::number(QUARKPLAYER_SVN_REVISION) +
+		rev +
 		"-" + QString(QUARKPLAYER_SYSTEM).toLower() +
 		"-" + QString(QUARKPLAYER_COMPILER).toLower() +
 		"-" + QString(QUARKPLAYER_BUILD_TYPE).toLower() +

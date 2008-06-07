@@ -36,7 +36,7 @@ MediaDataWidget::MediaDataWidget(Phonon::MediaObject & mediaObject)
 
 	_dataLabel = new QLabel();
 
-	_dataLabel->setMinimumHeight(70);
+	_dataLabel->setMinimumHeight(90);
 	_dataLabel->setOpenExternalLinks(true);
 	_dataLabel->setAcceptDrops(false);
 	//_dataLabel->setMargin(2);
@@ -61,42 +61,27 @@ MediaDataWidget::~MediaDataWidget() {
 
 void MediaDataWidget::metaDataChanged() {
 	static const QString font = "<font color=#ffeeaa>";
+	static const QString endfont = "</font>";
 	static const QString href = "<a href=\"";
-	static const QString fontmono = "<font family=\"monospace,courier new\" color=#ffeeaa>";
-	static const int maxLength = 100;
+	static const QString endhref1 = "\">";
+	static const QString endhref2 = "</a>";
+	static const QString br = "<br>";
 
 	QMap<QString, QString> metaData = _mediaObject.metaData();
-	QString trackArtist = metaData.value("ARTIST");
-	if (trackArtist.length() > maxLength) {
-		trackArtist = trackArtist.left(maxLength) + "...";
-	}
 
-	QString trackTitle = metaData.value("TITLE");
-	QString trackURL = metaData.value("URL");
-	int trackBitrate = metaData.value("BITRATE").toInt();
-
-	QString fileName;
+	QString filename;
 	if (_mediaObject.currentSource().type() == Phonon::MediaSource::Url) {
-		fileName = _mediaObject.currentSource().url().toString();
+		filename = _mediaObject.currentSource().url().toString();
 	} else {
-		fileName = _mediaObject.currentSource().fileName();
-		fileName = fileName.right(fileName.length() - fileName.lastIndexOf('/') - 1);
-		if (fileName.length() > maxLength) {
-			fileName = fileName.left(maxLength) + "...";
-		}
+		filename = _mediaObject.currentSource().fileName();
+		filename = filename.right(filename.length() - filename.lastIndexOf('/') - 1);
 	}
 
-	QString title;
-	if (!trackTitle.isEmpty()) {
-		if (trackTitle.length() > maxLength) {
-			trackTitle = trackTitle.left(maxLength) + "...";
-		}
-		title = "Title: " + font + trackTitle + "<br></font>";
-	} else if (!fileName.isEmpty()) {
-		if (fileName.length() > maxLength) {
-			fileName = fileName.left(maxLength) + "...";
-		}
-		title = font + fileName + "<br></font>";
+	QString title = metaData.value("TITLE");
+	if (!title.isEmpty()) {
+		title = "Title: " + font + title + endfont;
+	} else if (!filename.isEmpty()) {
+		title = font + filename + endfont;
 		if (_mediaObject.currentSource().type() == Phonon::MediaSource::Url) {
 			title.prepend("Url: ");
 		} else {
@@ -104,24 +89,38 @@ void MediaDataWidget::metaDataChanged() {
 		}
 	}
 
-	QString artist;
-	if (!trackArtist.isEmpty()) {
-		artist = "Artist:  " + font + trackArtist + "</font>";
+	QString artist = metaData.value("ARTIST");
+	if (!artist.isEmpty()) {
+		artist = br + "Artist:  " + font + artist + endfont;
 	}
 
-	QString url;
-	if (!trackURL.isEmpty()) {
-		if (_mediaObject.currentSource().type() == Phonon::MediaSource::Url) {
-			url = "Website:  " + href + trackURL + "\">";
-			url += font + trackURL + "</font>";
-			url += "</a>";
-		}
+	QString streamName = metaData.value("STREAM_NAME");
+	if (!streamName.isEmpty()) {
+		streamName = br + "Stream Name:  " + font + streamName + endfont;
 	}
 
+	QString streamGenre = metaData.value("STREAM_GENRE");
+	if (!streamGenre.isEmpty()) {
+		streamGenre = br + "Stream Genre:  " + font + streamGenre + endfont;
+	}
+
+	QString streamWebsite = metaData.value("STREAM_WEBSITE");
+	if (!streamWebsite.isEmpty()) {
+		streamWebsite = br + "Stream Website:  " + href + streamWebsite + endhref1 +
+				font + streamWebsite + endfont + endhref2;
+	}
+
+	QString streamURL = metaData.value("STREAM_URL");
+	if (!streamURL.isEmpty()) {
+		streamURL = br + "Url:  " + href + streamURL + endhref1 +
+			font + streamURL + endfont + endhref2;
+	}
+
+	int trackBitrate = metaData.value("BITRATE").toInt();
 	QString bitrate;
 	if (trackBitrate != 0) {
-		bitrate = "<br>Bitrate:  " + font + QString::number(trackBitrate / 1000) + "kbit</font>";
+		bitrate = br + "Bitrate:  " + font + QString::number(trackBitrate / 1000) + "kbit" + endfont;
 	}
 
-	_dataLabel->setText(title + artist + url + bitrate);
+	_dataLabel->setText(title + artist + bitrate + streamName + streamGenre + streamWebsite /*+ streamURL*/);
 }
