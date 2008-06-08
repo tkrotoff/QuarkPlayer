@@ -8,10 +8,13 @@
 #
 # Copyright (C) 2006-2007  Wengo
 # Copyright (C) 2006-2007  Andreas Schneider <mail@cynapses.org>
+# Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING file.
 
+
+include(CheckCXXCompilerFlag)
 
 # With -fPIC, CMake-2.6 should fix this, does not seem to be the case :/
 # cf http://code.google.com/p/phonon-vlc-mplayer/issues/detail?id=1
