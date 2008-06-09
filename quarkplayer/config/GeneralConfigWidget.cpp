@@ -51,7 +51,7 @@ void GeneralConfigWidget::saveConfig() {
 	Config & config = Config::instance();
 
 	//Style
-	QString styleName = _ui->iconThemeComboBox->currentText();
+	QString styleName = _ui->styleComboBox->currentText();
 	QApplication::setStyle(QStyleFactory::create(styleName));
 	config.setValue(Config::STYLE_KEY, styleName);
 

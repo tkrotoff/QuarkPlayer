@@ -138,8 +138,7 @@ void MediaController::availableAudioChannelsChanged() {
 		connect(actionToolBar, SIGNAL(triggered(bool)), actionMainWindow, SLOT(setChecked(bool)));
 	}
 
-	connect(signalMapper, SIGNAL(mapped(int)),
-		SLOT(actionAudioChannelTriggered(int)));
+	connect(signalMapper, SIGNAL(mapped(int)), SLOT(actionAudioChannelTriggered(int)));
 
 	//Sets the current audio channel
 	if (!audios.isEmpty()) {
@@ -190,8 +189,7 @@ void MediaController::availableSubtitlesChanged() {
 		connect(actionToolBar, SIGNAL(triggered(bool)), actionMainWindow, SLOT(setChecked(bool)));
 	}
 
-	connect(signalMapper, SIGNAL(mapped(int)),
-		SLOT(actionSubtitleTriggered(int)));
+	connect(signalMapper, SIGNAL(mapped(int)), SLOT(actionSubtitleTriggered(int)));
 
 	//Sets the current subtitle
 	if (!subtitles.isEmpty()) {
@@ -243,13 +241,19 @@ void MediaController::availableTitlesChanged() {
 	}
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 
-	connect(signalMapper, SIGNAL(mapped(int)),
-		SLOT(actionTitleTriggered(int)));
+	connect(signalMapper, SIGNAL(mapped(int)), SLOT(actionTitleTriggered(int)));
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
 	//Sets the current title
 	if (!titles.isEmpty()) {
 		_mainWindow->menuTitles()->actions()[0]->setChecked(true);
 	}
+#else
+	//Sets the current title
+	if (titles > 0) {
+		_mainWindow->menuTitles()->actions()[0]->setChecked(true);
+	}
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 }
 
 void MediaController::actionTitleTriggered(int id) {
@@ -299,13 +303,19 @@ void MediaController::availableChaptersChanged() {
 	}
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 
-	connect(signalMapper, SIGNAL(mapped(int)),
-		SLOT(actionChapterTriggered(int)));
+	connect(signalMapper, SIGNAL(mapped(int)), SLOT(actionChapterTriggered(int)));
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
 	//Sets the current chapter
 	if (!chapters.isEmpty()) {
 		_mainWindow->menuChapters()->actions()[0]->setChecked(true);
 	}
+#else
+	//Sets the current chapter
+	if (chapters > 0) {
+		_mainWindow->menuChapters()->actions()[0]->setChecked(true);
+	}
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 }
 
 void MediaController::actionChapterTriggered(int id) {
@@ -371,6 +381,8 @@ MediaControllerToolBar::MediaControllerToolBar()
 	_menuSubtitles->addAction(ActionCollection::action("emptyMenu"));
 	_subtitlesButton->setMenu(_menuSubtitles);
 	addWidget(_subtitlesButton);
+
+	retranslate();
 }
 
 MediaControllerToolBar::~MediaControllerToolBar() {

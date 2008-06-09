@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget * parent)
 	populateActionCollection();
 
 	setupUi();
+	retranslate();
 
 	addRecentFilesToMenu();
 
