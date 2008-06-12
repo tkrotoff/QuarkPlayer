@@ -139,4 +139,19 @@ private:
 	QStyle * _systemStyle;
 };
 
+#include <QtGui/QStylePlugin>
+
+/**
+ * QStylePlugin.
+ *
+ * @author Tanguy Krotoff
+ */
+class QuarkPlayerStylePlugin : public QStylePlugin {
+public:
+
+	QStringList keys() const;
+
+	QStyle * create(const QString & key);
+};
+
 #endif	//QUARKPLAYERSTYLE_H

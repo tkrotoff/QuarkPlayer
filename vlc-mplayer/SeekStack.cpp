@@ -27,7 +27,7 @@ namespace VLC_MPlayer
 {
 
 SeekStack::SeekStack(MediaObject * mediaObject)
-: QObject(mediaObject) {
+	: QObject(mediaObject) {
 
 	_mediaObject = mediaObject;
 

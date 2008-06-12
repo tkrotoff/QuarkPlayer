@@ -54,7 +54,7 @@ public:
 	void seek(qint64 milliseconds);
 
 	qint32 tickInterval() const;
-	void setTickInterval(qint32 interval);
+	void setTickInterval(qint32 tickInterval);
 
 	qint64 currentTime() const;
 	Phonon::State state() const;
@@ -64,20 +64,20 @@ public:
 	void setNextSource(const MediaSource & source);
 
 	qint32 prefinishMark() const;
-	void setPrefinishMark(qint32);
+	void setPrefinishMark(qint32 msecToEnd);
 
 	qint32 transitionTime() const;
 	void setTransitionTime(qint32);
 
 signals:
 
-	//void aboutToFinish();
+	void aboutToFinish();
 	//void bufferStatus(int percentFilled);
 	//void currentSourceChanged(const MediaSource & newSource);
 	void finished();
 	void hasVideoChanged(bool hasVideo);
 	void metaDataChanged(const QMultiMap<QString, QString> & metaData);
-	//void prefinishMarkReached(qint32 msecToEnd);
+	void prefinishMarkReached(qint32 msecToEnd);
 	void seekableChanged(bool isSeekable);
 	void stateChanged(Phonon::State newState, Phonon::State oldState);
 	void tick(qint64 time);
@@ -113,6 +113,13 @@ private:
 	MediaSource _mediaSource;
 
 	Phonon::State _currentState;
+
+	qint32 _prefinishMark;
+	bool _prefinishMarkReachedEmitted;
+
+	bool _aboutToFinishEmitted;
+
+	qint32 _tickInterval;
 };
 
 }}	//Namespace Phonon::VLC_MPlayer

@@ -18,7 +18,6 @@
 
 #include "MainWindow.h"
 
-#include "QuarkPlayerStyle.h"
 #include "Translator.h"
 #include "config/Config.h"
 #include "version.h"
@@ -30,6 +29,8 @@
 #else
 	#include <QtGui/QApplication>
 #endif	//KDE4_FOUND
+
+#include <QtGui/QStyleFactory>
 
 #include <QtCore/QSettings>
 
@@ -70,9 +71,9 @@ int main(int argc, char * argv[]) {
 	//Translator
 	Translator::instance().load(Config::instance().language());
 
-	//Specific style for QuarkPlayer
+	//By default QuarkPlayerStyle: specific style for QuarkPlayer
 	//Fix some ugly things under Windows XP
-	app.setStyle(new QuarkPlayerStyle());
+	app.setStyle(QStyleFactory::create(Config::instance().style()));
 
 	MainWindow window(NULL);
 	window.show();

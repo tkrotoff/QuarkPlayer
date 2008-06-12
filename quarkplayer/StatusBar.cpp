@@ -29,14 +29,16 @@ StatusBar::StatusBar(Phonon::MediaObject * mediaObject)
 	_totalTime = 0;
 	_mediaObject = mediaObject;
 
-	connect(_mediaObject, SIGNAL(tick(qint64)),
-		SLOT(tick(qint64)));
-	connect(_mediaObject, SIGNAL(totalTimeChanged(qint64)),
-		SLOT(totalTimeChanged(qint64)));
+	connect(_mediaObject, SIGNAL(tick(qint64)), SLOT(tick(qint64)));
+	connect(_mediaObject, SIGNAL(totalTimeChanged(qint64)), SLOT(totalTimeChanged(qint64)));
 	connect(_mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(stateChanged(Phonon::State, Phonon::State)));
-	connect(_mediaObject, SIGNAL(metaDataChanged()),
-		SLOT(metaDataChanged()));
+	connect(_mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
+	connect(_mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
+
+	//10 seconds before the end
+	_mediaObject->setPrefinishMark(10000);
+	connect(_mediaObject, SIGNAL(prefinishMarkReached(qint32)), SLOT(prefinishMarkReached(qint32)));
 
 	_timeLabel = new QLabel(this);
 	//Text color is white
@@ -122,4 +124,12 @@ void StatusBar::metaDataChanged() {
 
 	_fileTitle = title;
 	showMessage(title);
+}
+
+void StatusBar::aboutToFinish() {
+	showMessage(tr("Media finishing..."));
+}
+
+void StatusBar::prefinishMarkReached(qint32 msecToEnd) {
+	showMessage(tr("%1 seconds left...").arg(msecToEnd / 1000));
 }

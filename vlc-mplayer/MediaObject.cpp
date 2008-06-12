@@ -24,6 +24,10 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QTimer>
 
+//Time in milliseconds before sending aboutToFinish() signal
+//2 seconds
+static const int ABOUT_TO_FINISH_TIME = 2000;
+
 namespace Phonon
 {
 namespace VLC_MPlayer
@@ -34,14 +38,18 @@ MediaObject::MediaObject(QObject * parent)
 
 	_currentState = Phonon::LoadingState;
 	_videoWidgetId = 0;
+	_prefinishMarkReachedEmitted = false;
+	_aboutToFinishEmitted = false;
+
+	//By default, no tick() signal
+	//FIXME: Not implemented yet
+	_tickInterval = 0;
 
 	qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 
-	connect(this, SIGNAL(stateChanged(Phonon::State)),
-		SLOT(stateChangedInternal(Phonon::State)));
+	connect(this, SIGNAL(stateChanged(Phonon::State)), SLOT(stateChangedInternal(Phonon::State)));
 
-	connect(this, SIGNAL(tickInternal(qint64)),
-		SLOT(tickInternalSlot(qint64)));
+	connect(this, SIGNAL(tickInternal(qint64)), SLOT(tickInternalSlot(qint64)));
 }
 
 MediaObject::~MediaObject() {
@@ -66,10 +74,42 @@ void MediaObject::seek(qint64 milliseconds) {
 	static SeekStack * stack = new SeekStack(this);
 
 	stack->pushSeek(milliseconds);
+
+	qint64 currentTime = this->currentTime();
+	qint64 totalTime = this->totalTime();
+
+	if (currentTime < totalTime - _prefinishMark) {
+		_prefinishMarkReachedEmitted = false;
+	}
+	if (currentTime < totalTime - ABOUT_TO_FINISH_TIME) {
+		_aboutToFinishEmitted = false;
+	}
 }
 
-void MediaObject::tickInternalSlot(qint64 time) {
-	emit tick(time);
+void MediaObject::tickInternalSlot(qint64 currentTime) {
+	qint64 totalTime = this->totalTime();
+
+	if (_tickInterval > 0) {
+		//If _tickInternal == 0 means tick() signal is disabled
+		//Default is _tickInternal = 0
+		emit tick(currentTime);
+	}
+
+	if (_currentState == Phonon::PlayingState) {
+		if (currentTime >= totalTime - _prefinishMark) {
+			if (!_prefinishMarkReachedEmitted) {
+				_prefinishMarkReachedEmitted = true;
+				emit prefinishMarkReached(totalTime - currentTime);
+			}
+		}
+		if (currentTime >= totalTime - ABOUT_TO_FINISH_TIME) {
+			if (!_aboutToFinishEmitted) {
+				//Track is about to finish
+				_aboutToFinishEmitted = true;
+				emit aboutToFinish();
+			}
+		}
+	}
 }
 
 void MediaObject::loadMedia(const QString & filename) {
@@ -85,10 +125,16 @@ void MediaObject::resume() {
 }
 
 qint32 MediaObject::tickInterval() const {
-	return 1000;
+	return _tickInterval;
 }
 
-void MediaObject::setTickInterval(qint32 interval) {
+void MediaObject::setTickInterval(qint32 tickInterval) {
+	_tickInterval = tickInterval;
+	/*if (_tickInterval <= 0) {
+		_tickTimer->setInterval(50);
+	} else {
+		_tickTimer->setInterval(_tickInterval);
+	}*/
 }
 
 qint64 MediaObject::currentTime() const {
@@ -188,10 +234,15 @@ void MediaObject::setNextSource(const MediaSource & source) {
 }
 
 qint32 MediaObject::prefinishMark() const {
-	return 0;
+	return _prefinishMark;
 }
 
-void MediaObject::setPrefinishMark(qint32) {
+void MediaObject::setPrefinishMark(qint32 msecToEnd) {
+	_prefinishMark = msecToEnd;
+	if (currentTime() < totalTime() - _prefinishMark) {
+		//Not about to finish
+		_prefinishMarkReachedEmitted = false;
+	}
 }
 
 qint32 MediaObject::transitionTime() const {

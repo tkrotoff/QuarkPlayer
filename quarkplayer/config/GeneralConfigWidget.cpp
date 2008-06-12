@@ -72,6 +72,7 @@ void GeneralConfigWidget::readConfig() {
 	//Style
 	_ui->styleComboBox->clear();
 	_ui->styleComboBox->addItems(QStyleFactory::keys());
+	ComboBoxUtil::setCurrentText(_ui->styleComboBox, config.style());
 
 	//Icon theme
 	_ui->iconThemeComboBox->clear();

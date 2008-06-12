@@ -4,7 +4,6 @@
 # BUILD_TYPE = same as CMAKE_BUILD_TYPE but lowercase (debug, release, minsizerel...)
 # BUILD_NAME = build name used by BUILD_DIR
 # BUILD_DIR = directory where compiled files will be copied, ${CMAKE_BINARY_DIR}/${BUILD_NAME} by default
-# LOCALE_COPY_DIR = location for translations files (*.qm), ${BUILD_DIR}/lang by default
 # SVN_REVISION = subversion revision number, see ow_get_svn_revision()
 # CURRENT_DATE_TIME = current date time: 20070323121316 (e.g 2007-03-23 12:13:16)
 #
@@ -40,13 +39,6 @@ set(BUILD_DIR
 	${CMAKE_BINARY_DIR}/${BUILD_NAME}
 	CACHE PATH "Build directory, depends on build type, system name and OS name" FORCE
 )
-
-# Location for translation files (*.qm), ${BUILD_DIR}/lang by default
-set(LOCALE_COPY_DIR
-	"${BUILD_DIR}/lang"
-	CACHE PATH "Location for translations (*.qm files)" FORCE
-)
-file(MAKE_DIRECTORY ${LOCALE_COPY_DIR})
 
 # Gets svn revision
 set(SVN_REVISION "")

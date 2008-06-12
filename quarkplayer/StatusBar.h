@@ -52,6 +52,10 @@ private slots:
 
 	void metaDataChanged();
 
+	void aboutToFinish();
+
+	void prefinishMarkReached(qint32 msecToEnd);
+
 private:
 
 	static QString convertMilliseconds(qint64 time);

@@ -20,6 +20,8 @@
 
 #include <QtGui/QtGui>
 
+Q_EXPORT_PLUGIN2(quarkplayerstyle, QuarkPlayerStylePlugin)
+
 QuarkPlayerStyle::QuarkPlayerStyle() {
 	QString styleName = QApplication::style()->objectName();
 	_systemStyle = QStyleFactory::create(styleName);
@@ -57,4 +59,16 @@ void QuarkPlayerStyle::drawPrimitive(PrimitiveElement element, const QStyleOptio
 	}
 
 	_systemStyle->drawPrimitive(element, option, painter, widget);
+}
+
+//QStylePlugin
+QStringList QuarkPlayerStylePlugin::keys() const {
+	return QStringList() << "QuarkPlayerStyle";
+}
+
+QStyle * QuarkPlayerStylePlugin::create(const QString & key) {
+	if (key.toLower() == "quarkplayerstyle") {
+		return new QuarkPlayerStyle();
+	}
+	return NULL;
 }
