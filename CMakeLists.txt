@@ -71,7 +71,7 @@ endif (WIN32)
 
 add_subdirectory(phonon)
 add_subdirectory(vlc-mplayer)
-add_subdirectory(ds9)
+#add_subdirectory(ds9)
 add_subdirectory(tests)
 add_subdirectory(quarkplayer)
 
