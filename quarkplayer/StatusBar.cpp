@@ -127,9 +127,11 @@ void StatusBar::metaDataChanged() {
 }
 
 void StatusBar::aboutToFinish() {
+	qDebug() << __FUNCTION__;
 	showMessage(tr("Media finishing..."));
 }
 
 void StatusBar::prefinishMarkReached(qint32 msecToEnd) {
+	qDebug() << __FUNCTION__ << msecToEnd;
 	showMessage(tr("%1 seconds left...").arg(msecToEnd / 1000));
 }

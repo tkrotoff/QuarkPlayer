@@ -1,8 +1,8 @@
 project(quarkplayer)
 
 set(QUARKPLAYER_MAJOR_VERSION 0)
-set(QUARKPLAYER_MINOR_VERSION 0)
-set(QUARKPLAYER_PATCH_VERSION 1)
+set(QUARKPLAYER_MINOR_VERSION 1)
+set(QUARKPLAYER_PATCH_VERSION 0)
 
 configure_file(version.h.in ${CMAKE_CURRENT_BINARY_DIR}/version.h)
 
@@ -15,7 +15,6 @@ set(quarkplayer_SRCS
 	VideoWidget.cpp
 	StatusBar.cpp
 	MediaController.cpp
-	QuarkPlayerStyle.cpp
 	QuickSettingsWindow.cpp
 	ActionCollection.cpp
 	MyIcon.cpp
@@ -44,7 +43,6 @@ qt4_wrap_cpp(quarkplayer_SRCS
 	VideoWidget.h
 	StatusBar.h
 	MediaController.h
-	QuarkPlayerStyle.h
 	QuickSettingsWindow.h
 	ActionCollection.h
 	MyIcon.h
@@ -80,7 +78,11 @@ set(quarkplayer_TRANSLATIONS
 qt4_create_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
 #qt4_add_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
 
-add_executable(quarkplayer ${quarkplayer_SRCS} ${quarkplayer_QMS})
+if (CMAKE_BUILD_TYPE STREQUAL Debug)
+	add_executable(quarkplayer ${quarkplayer_SRCS} ${quarkplayer_QMS})
+else (CMAKE_BUILD_TYPE STREQUAL Debug)
+	add_executable(quarkplayer WIN32 ${quarkplayer_SRCS} ${quarkplayer_QMS})
+endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
 if (KDE4_FOUND)
 	target_link_libraries(quarkplayer
@@ -93,8 +95,11 @@ else (KDE4_FOUND)
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
 		${QT_PHONON_LIBRARY}
+		${QT_QTMAIN_LIBRARY}
 	)
 endif (KDE4_FOUND)
 
 install(TARGETS quarkplayer DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES ${quarkplayer_QMS} DESTINATION ${BIN_INSTALL_DIR}/translations)
+
+add_subdirectory(style)
