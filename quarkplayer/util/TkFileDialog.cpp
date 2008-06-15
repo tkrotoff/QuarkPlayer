@@ -16,31 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FILEDIALOG_H
-#define FILEDIALOG_H
+#include "TkFileDialog.h"
 
-#include <QtGui/QFileDialog>
+#include "../config.h"
 
-/**
- * Provides a dialog that allow users to select files or directories.
- *
- * Internally selects either QFileDialog or KFileDialog.
- *
- * @see QFileDialog
- * @see KFileDialog
- * @author Tanguy Krotoff
- */
-class FileDialog {
-public:
+#ifdef KDE4_FOUND
+	#include <KFileDialog>
+#endif	//!KDE4_FOUND
 
-	/** Follows Qt API. */
-	static QString getOpenFileName(QWidget * parent = 0, const QString & caption = QString(),
-		const QString & dir = QString(), const QString & filter = QString(),
-		QString * selectedFilter = 0, QFileDialog::Options options = 0);
+QString TkFileDialog::getOpenFileName(QWidget * parent, const QString & caption,
+		const QString & dir, const QString & filter,
+		QString * selectedFilter, QFileDialog::Options options) {
 
-private:
-
-	FileDialog();
-};
-
-#endif	//FILEDIALOG_H
+#ifdef KDE4_FOUND
+	return KFileDialog::getOpenFileName(dir, filter, parent, caption);
+#else
+	return QFileDialog::getOpenFileName(parent, caption, dir, filter, selectedFilter, options);
+#endif	//!KDE4_FOUND
+}
