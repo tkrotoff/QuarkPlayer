@@ -19,7 +19,7 @@ else (VLC_LIBRARIES AND VLC_INCLUDE_DIRS)
 
   find_path(VLC_INCLUDE_DIR
     NAMES
-      vlc/libvlc.h
+      vlc/vlc.h
     PATHS
       /usr/include
       /usr/local/include
