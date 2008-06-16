@@ -193,7 +193,7 @@ void VLCMediaObject::connectToAllVLCEvents() {
 	//MediaPlayer
 	_vlcMediaPlayerEventManager = p_libvlc_media_player_event_manager(_vlcMediaPlayer, _vlcException);
 	libvlc_event_type_t eventsMediaPlayer[] = {
-		libvlc_MediaPlayerPlayed,
+		libvlc_MediaPlayerPlaying,
 		libvlc_MediaPlayerPaused,
 		libvlc_MediaPlayerEndReached,
 		libvlc_MediaPlayerStopped,
@@ -290,7 +290,7 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t * event, void * user_d
 		emit vlcMediaObject->tickInternal(vlcMediaObject->currentTime());
 	}
 
-	if (event->type == libvlc_MediaPlayerPlayed) {
+	if (event->type == libvlc_MediaPlayerPlaying) {
 		if (vlcMediaObject->state() != Phonon::LoadingState) {
 			//Bugfix with mediaplayer example from Trolltech
 			emit vlcMediaObject->stateChanged(Phonon::PlayingState);

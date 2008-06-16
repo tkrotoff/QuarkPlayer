@@ -15,10 +15,14 @@
 
 macro (reduce_qt_include_dirs)
 
+	# Hack so that QT_QT_INCLUDE_DIR is recognized
+	# There is no module QT but QT_QT_INCLUDE_DIR exists
+	set(QT_QT_FOUND true)
+
 	get_directory_property(include_dirs INCLUDE_DIRECTORIES)
 	foreach(module QT3SUPPORT QTOPENGL QTASSISTANT QTDESIGNER QTMOTIF QTNSPLUGIN
 		QTSCRIPT QTSVG QTUITOOLS QTHELP QTWEBKIT PHONON QTGUI QTTEST
-		QTDBUS QTXML QTSQL QTXMLPATTERNS QTNETWORK QTCORE)
+		QTDBUS QTXML QTSQL QTXMLPATTERNS QTNETWORK QTCORE QT)
 
 		if (QT_${module}_FOUND)
 			string(REPLACE ${QT_${module}_INCLUDE_DIR} "" include_dirs "${include_dirs}")

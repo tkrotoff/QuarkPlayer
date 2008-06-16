@@ -13,21 +13,9 @@ set(phonon_mplayer_SRCS
 	MPlayerVideoWidget.cpp
 )
 
-if (NOT KDE4_FOUND)
-	qt4_wrap_cpp(phonon_mplayer_SRCS
-		${phonon_commom_MOCS}
-		MPlayerMediaObject.h
-		MPlayerVideoWidget.h
-	)
-endif (NOT KDE4_FOUND)
-
 if (KDE4_FOUND)
 	kde4_add_plugin(phonon_mplayer ${phonon_mplayer_SRCS})
-else (KDE4_FOUND)
-	add_library(phonon_mplayer MODULE ${phonon_mplayer_SRCS})
-endif (KDE4_FOUND)
 
-if (KDE4_FOUND)
 	target_link_libraries(phonon_mplayer
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
@@ -35,6 +23,14 @@ if (KDE4_FOUND)
 		libmplayer
 	)
 else (KDE4_FOUND)
+	qt4_wrap_cpp(phonon_mplayer_SRCS
+		${phonon_commom_MOCS}
+		MPlayerMediaObject.h
+		MPlayerVideoWidget.h
+	)
+
+	add_library(phonon_mplayer MODULE ${phonon_mplayer_SRCS})
+
 	target_link_libraries(phonon_mplayer
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}

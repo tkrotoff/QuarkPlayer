@@ -1,5 +1,13 @@
 project(phonon-vlc)
 
+find_package(VLC)
+if (VLC_FOUND)
+	include_directories(${VLC_INCLUDE_DIRS})
+else (VLC_FOUND)
+	message(STATUS "libvlc external support disabled, revert to internal libvlc.h")
+	#Do nothing, use internal libvlc.h, already in the include path
+endif (VLC_FOUND)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-DPHONON_VLC)
@@ -13,33 +21,35 @@ set(phonon_vlc_SRCS
 	vlc_symbols.cpp
 )
 
-if (NOT KDE4_FOUND)
-	qt4_wrap_cpp(phonon_vlc_SRCS
-		${phonon_commom_MOCS}
-		VLCMediaObject.h
-		VLCVideoWidget.h
-	)
-endif (NOT KDE4_FOUND)
-
 if (KDE4_FOUND)
 	kde4_add_plugin(phonon_vlc ${phonon_vlc_SRCS})
-else (KDE4_FOUND)
-	add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
-endif (KDE4_FOUND)
 
-if (KDE4_FOUND)
 	target_link_libraries(phonon_vlc
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
 		${QT_PHONON_LIBRARY}
 	)
 else (KDE4_FOUND)
+	qt4_wrap_cpp(phonon_vlc_SRCS
+		${phonon_commom_MOCS}
+		VLCMediaObject.h
+		VLCVideoWidget.h
+	)
+
+	add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
+
 	target_link_libraries(phonon_vlc
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
 		${QT_PHONON_LIBRARY}
 	)
 endif (KDE4_FOUND)
+
+if (VLC_FOUND)
+	target_link_libraries(phonon_vlc
+		${VLC_LIBRARIES}
+	)
+endif (VLC_FOUND)
 
 if (KDE4_FOUND)
 	install(TARGETS phonon_vlc DESTINATION ${PLUGIN_INSTALL_DIR}/plugins/phonon_backend)

@@ -8,7 +8,7 @@ include(CMakeLists-owbuild.txt)
 #Desactivate KDE4 integration since it gives some troubles
 #will be changed in the future
 #cf http://code.google.com/p/phonon-vlc-mplayer/issues/detail?id=2
-#find_package(KDE4)
+find_package(KDE4)
 if (KDE4_FOUND)
 	include(KDE4Defaults)
 	include(MacroLibrary)
@@ -26,15 +26,15 @@ else (KDE4_FOUND)
 	set(NEW_TITLE_CHAPTER_HANDLING 1)
 
 	message(STATUS "KDE4 support disabled")
-
-	#Optimization: remove all Qt modules from include path
-	#This will reduce compilation time (less include directories == compilation time reduced)
-	reduce_qt_include_dirs()
 endif (KDE4_FOUND)
+
+#Optimization: remove all Qt modules from include path
+#This will reduce compilation time (less include directories == compilation time reduced)
+reduce_qt_include_dirs()
 
 #Does not use Phonon from Qt or KDE4
 #Uses Phonon from this repository instead
-#CMake declarations matters!!!
+#CMake declarations order matters!!!
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 set(QT_PHONON_LIBRARY phonon)
 

@@ -19,6 +19,7 @@
 #ifndef PHONON_VLC_MPLAYER_VLC_LOADER_H
 #define PHONON_VLC_MPLAYER_VLC_LOADER_H
 
+#include <vlc/vlc.h>
 #include <vlc/libvlc.h>
 
 #include <QtCore/QFuture>
