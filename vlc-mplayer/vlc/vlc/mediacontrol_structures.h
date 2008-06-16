@@ -2,7 +2,7 @@
  * control_structures.h: global header for mediacontrol
  *****************************************************************************
  * Copyright (C) 2005 the VideoLAN team
- * $Id: 8d7f9b850212b682e880b39256ce7348990f928d $
+ * $Id: dbcf5aae5a6fd6f3b3df4bbbb653ae416bebda61 $
  *
  * Authors: Olivier Aubert <olivier.aubert@liris.univ-lyon1.fr>
  *
@@ -62,12 +62,15 @@ typedef enum {
 
 /**
  * Possible player status
+ * Note the order of these enums must match exactly the order of
+ * libvlc_state_t and input_state_e enums.
  */
 typedef enum {
-    mediacontrol_PlayingStatus, mediacontrol_PauseStatus,
-    mediacontrol_ForwardStatus, mediacontrol_BackwardStatus,
-    mediacontrol_InitStatus,    mediacontrol_EndStatus,
-    mediacontrol_UndefinedStatus
+    mediacontrol_UndefinedStatus=0, mediacontrol_InitStatus,
+    mediacontrol_BufferingStatus, mediacontrol_PlayingStatus,
+    mediacontrol_PauseStatus,     mediacontrol_StopStatus,
+    mediacontrol_ForwardStatus,   mediacontrol_BackwardStatus,
+    mediacontrol_EndStatus,       mediacontrol_ErrorStatus,
 } mediacontrol_PlayerStatus;
 
 /**
@@ -76,7 +79,7 @@ typedef enum {
 typedef struct {
     mediacontrol_PositionOrigin origin;
     mediacontrol_PositionKey key;
-    vlc_int64_t value;
+    int64_t value;
 } mediacontrol_Position;
 
 /**
@@ -87,7 +90,7 @@ typedef struct {
     int  width;
     int  height;
     uint32_t type;
-    vlc_int64_t date;
+    int64_t date;
     int  size;
     char *data;
 } mediacontrol_RGBPicture;
@@ -122,8 +125,8 @@ typedef struct {
 typedef struct {
     mediacontrol_PlayerStatus streamstatus;
     char *url;         /* The URL of the current media stream */
-    vlc_int64_t position;  /* actual location in the stream (in ms) */
-    vlc_int64_t length;    /* total length of the stream (in ms) */
+    int64_t position;  /* actual location in the stream (in ms) */
+    int64_t length;    /* total length of the stream (in ms) */
 } mediacontrol_StreamInformation;
 
 

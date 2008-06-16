@@ -2,7 +2,7 @@
  * libvlc.h:  libvlc external API
  *****************************************************************************
  * Copyright (C) 1998-2005 the VideoLAN team
- * $Id: 50377f758f82ce2614a414add4fd1e88d743ab2e $
+ * $Id: 7c82df8e9e26e8486a44e34d42e01706da786907 $
  *
  * Authors: Clément Stenac <zorglub@videolan.org>
  *          Jean-Paul Saman <jpsaman _at_ m2x _dot_ nl>
@@ -31,10 +31,24 @@
  */
 
 
-#ifndef _LIBVLC_H
-#define _LIBVLC_H 1
+#ifndef VLC_LIBVLC_H
+#define VLC_LIBVLC_H 1
 
-#include <vlc/vlc.h>
+#if defined (WIN32) && defined (DLL_EXPORT)
+# define VLC_PUBLIC_API __declspec(dllexport)
+#else
+# define VLC_PUBLIC_API
+#endif
+
+#ifdef __LIBVLC__
+/* Avoid unuseful warnings from libvlc with our deprecated APIs */
+#   define VLC_DEPRECATED_API VLC_PUBLIC_API
+#elif defined(__GNUC__) && \
+      (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
+# define VLC_DEPRECATED_API VLC_PUBLIC_API __attribute__((deprecated))
+#else
+# define VLC_DEPRECATED_API VLC_PUBLIC_API
+#endif
 
 # ifdef __cplusplus
 extern "C" {
@@ -173,7 +187,7 @@ void libvlc_wait( libvlc_instance_t *p_instance );
  *
  * \return a string containing the libvlc version
  */
-VLC_PUBLIC_API const char * libvlc_get_version();
+VLC_PUBLIC_API const char * libvlc_get_version(void);
 
 /**
  * Retrieve libvlc compiler version.
@@ -182,7 +196,7 @@ VLC_PUBLIC_API const char * libvlc_get_version();
  *
  * \return a string containing the libvlc compiler version
  */
-VLC_PUBLIC_API const char * libvlc_get_compiler();
+VLC_PUBLIC_API const char * libvlc_get_compiler(void);
 
 /**
  * Retrieve libvlc changeset.
@@ -191,7 +205,7 @@ VLC_PUBLIC_API const char * libvlc_get_compiler();
  *
  * \return a string containing the libvlc changeset
  */
-VLC_PUBLIC_API const char * libvlc_get_changeset();
+VLC_PUBLIC_API const char * libvlc_get_changeset(void);
 
 /** @}*/
 
@@ -605,8 +619,6 @@ VLC_PUBLIC_API void libvlc_video_set_teletext( libvlc_media_player_t *, int, lib
  */
 VLC_PUBLIC_API void libvlc_video_take_snapshot( libvlc_media_player_t *, char *,unsigned int, unsigned int, libvlc_exception_t * );
 
-VLC_PUBLIC_API int libvlc_video_destroy( libvlc_media_player_t *, libvlc_exception_t *);
-
 /**
  * Resize the current video output window.
  *
@@ -636,28 +648,6 @@ VLC_PUBLIC_API int libvlc_video_reparent( libvlc_media_player_t *, libvlc_drawab
  * \param p_e an initialized exception pointer
  */
 VLC_PUBLIC_API void libvlc_video_redraw_rectangle( libvlc_media_player_t *, const libvlc_rectangle_t *, libvlc_exception_t * );
-
-/**
- * Set the default video output's parent.
- *
- * This setting will be used as default for all video outputs.
- *
- * \param p_instance libvlc instance
- * \param drawable the new parent window (Drawable on X11, CGrafPort on MacOSX, HWND on Win32)
- * \param p_e an initialized exception pointer
- */
-VLC_PUBLIC_API void libvlc_video_set_parent( libvlc_instance_t *, libvlc_drawable_t, libvlc_exception_t * );
-
-/**
- * Set the default video output parent.
- *
- * This setting will be used as default for all video outputs.
- *
- * \param p_instance libvlc instance
- * \param drawable the new parent window (Drawable on X11, CGrafPort on MacOSX, HWND on Win32)
- * \param p_e an initialized exception pointer
- */
-VLC_PUBLIC_API libvlc_drawable_t libvlc_video_get_parent( libvlc_instance_t *, libvlc_exception_t * );
 
 /**
  * Set the default video output size.

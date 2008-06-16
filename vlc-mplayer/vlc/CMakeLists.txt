@@ -10,6 +10,12 @@ endif (VLC_FOUND)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+if (MSVC)
+	#stdint.h is not shipped with Visual C++
+	#see http://en.wikipedia.org/wiki/Stdint.h
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/vlc/msvc)
+endif (MSVC)
+
 add_definitions(-DPHONON_VLC)
 
 set(phonon_vlc_SRCS

@@ -2,7 +2,7 @@
  * vlc.h: global header for libvlc
  *****************************************************************************
  * Copyright (C) 1998-2004 the VideoLAN team
- * $Id: 09707063248f6165e4303c850df1244e17300536 $
+ * $Id: cb020164868ef7ca6f8f75fbdd8967402d98940a $
  *
  * Authors: Vincent Seguin <seguin@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -32,7 +32,6 @@
 extern "C" {
 # endif
 
-#include <vlc/common.h>
 #include <vlc/libvlc_structures.h>
 #include <vlc/libvlc_events.h>
 #include <vlc/libvlc.h>
@@ -43,11 +42,5 @@ extern "C" {
 # ifdef __cplusplus
 }
 # endif
-
-#define LICENSE_MSG \
-  _("This program comes with NO WARRANTY, to the extent permitted by " \
-    "law.\nYou may redistribute it under the terms of the GNU General " \
-    "Public License;\nsee the file named COPYING for details.\n" \
-    "Written by the VideoLAN team; see the AUTHORS file.\n")
 
 #endif /* _VLC_VLC_H */

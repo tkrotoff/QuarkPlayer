@@ -47,10 +47,15 @@ typedef enum libvlc_event_type_t {
     libvlc_MediaFreed,
     libvlc_MediaStateChanged,
 
-    libvlc_MediaPlayerPlayed,
+    libvlc_MediaPlayerNothingSpecial,
+    libvlc_MediaPlayerOpening,
+    libvlc_MediaPlayerBuffering,
+    libvlc_MediaPlayerPlaying,
     libvlc_MediaPlayerPaused,
-    libvlc_MediaPlayerEndReached,
     libvlc_MediaPlayerStopped,
+    libvlc_MediaPlayerForward,
+    libvlc_MediaPlayerBackward,
+    libvlc_MediaPlayerEndReached,
     libvlc_MediaPlayerEncounteredError,
     libvlc_MediaPlayerTimeChanged,
     libvlc_MediaPlayerPositionChanged,
@@ -100,7 +105,7 @@ typedef struct libvlc_event_t
         } media_subitem_added;
         struct
         {
-            vlc_int64_t new_duration;
+            int64_t new_duration;
         } media_duration_changed;
         struct
         {
