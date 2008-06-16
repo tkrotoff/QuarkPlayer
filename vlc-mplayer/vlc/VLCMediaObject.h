@@ -23,8 +23,6 @@
 
 #include "../MediaObject.h"
 
-#include <vlc/libvlc.h>
-
 #include <phonon/mediaobjectinterface.h>
 
 #include <QtCore/QObject>

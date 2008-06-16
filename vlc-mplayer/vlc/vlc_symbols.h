@@ -20,7 +20,6 @@
 #define VLC_SYMBOLS_H
 
 #include <vlc/vlc.h>
-#include <vlc/libvlc.h>
 
 #include <QtCore/QString>
 

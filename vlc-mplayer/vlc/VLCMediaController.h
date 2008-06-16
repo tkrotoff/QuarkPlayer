@@ -22,7 +22,6 @@
 #include "../MediaController.h"
 
 #include <vlc/vlc.h>
-#include <vlc/libvlc.h>
 
 namespace Phonon
 {
