@@ -24,13 +24,15 @@
 
 //Example: ":/icons/oxygen/16x16/actions/media-playback-start.png"
 //Example: ":/oxygen/16x16/media-playback-start"
-MyIcon::MyIcon(const QString & standardName)
-	: QIcon(":/" + Config::instance().iconTheme() + "/16x16/" + standardName) {
+MyIcon::MyIcon(const QString & standardIconName)
+#ifdef KDE4_FOUND
+	: PrivateIcon(standardIconName)
+#else
+	: PrivateIcon(":/" + Config::instance().iconTheme() + "/16x16/" + standardIconName)
+#endif	//KDE4_FOUND
+	{
 
 	/*QString filename = Helper::appHomePath() + _fileName;
 	if (!QFile::exists(filename)) {
 	}*/
-}
-
-MyIcon::~MyIcon() {
 }

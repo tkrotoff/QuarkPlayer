@@ -19,6 +19,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <tkutil/TkMainWindow.h>
+#include <tkutil/TkToolBar.h>
+
 #include <phonon/phononnamespace.h>
 #include <phonon/path.h>
 
@@ -41,7 +44,7 @@ class QStackedWidget;
  *
  * @author Tanguy Krotoff
  */
-class MainWindow : public QMainWindow {
+class MainWindow : public TkMainWindow {
 	Q_OBJECT
 public:
 
@@ -87,12 +90,11 @@ private slots:
 	void sourceChanged(const Phonon::MediaSource & source);
 	void metaDataChanged();
 	void stateChanged(Phonon::State newState, Phonon::State oldState);
-
-private:
-
-	void changeEvent(QEvent * event);
+	void hasVideoChanged(bool hasVideo);
 
 	void retranslate();
+
+private:
 
 	void populateActionCollection();
 
@@ -113,7 +115,7 @@ private:
 
 	QStackedWidget * _stackedWidget;
 
-	QToolBar * _mainToolBar;
+	TkToolBar * _mainToolBar;
 	QMenu * _menuRecentFiles;
 	QMenu * _menuAudioChannels;
 	QMenu * _menuSubtitles;
@@ -124,7 +126,7 @@ private:
 	QMenu * _menuAudio;
 	QMenu * _menuSubtitle;
 	QMenu * _menuBrowse;
-	QMenu * _menuOptions;
+	QMenu * _menuSettings;
 	QMenu * _menuHelp;
 
 	Phonon::AudioOutput * _audioOutput;

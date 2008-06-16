@@ -22,7 +22,8 @@
 
 #include "Config.h"
 #include "../Translator.h"
-#include "../ComboBoxUtil.h"
+
+#include <tkutil/TkComboBox.h>
 
 #include <QtGui/QtGui>
 
@@ -44,7 +45,7 @@ QString GeneralConfigWidget::name() const {
 }
 
 QString GeneralConfigWidget::iconName() const {
-	return "";
+	return "preferences-desktop";
 }
 
 void GeneralConfigWidget::saveConfig() {
@@ -72,12 +73,12 @@ void GeneralConfigWidget::readConfig() {
 	//Style
 	_ui->styleComboBox->clear();
 	_ui->styleComboBox->addItems(QStyleFactory::keys());
-	ComboBoxUtil::setCurrentText(_ui->styleComboBox, config.style());
+	TkComboBox::setCurrentText(_ui->styleComboBox, config.style());
 
 	//Icon theme
 	_ui->iconThemeComboBox->clear();
 	_ui->iconThemeComboBox->addItems(config.iconThemeList());
-	ComboBoxUtil::setCurrentText(_ui->iconThemeComboBox, config.iconTheme());
+	TkComboBox::setCurrentText(_ui->iconThemeComboBox, config.iconTheme());
 
 	//Language
 	_ui->languageComboBox->clear();
@@ -92,7 +93,7 @@ void GeneralConfigWidget::readConfig() {
 		//Default language is English
 		language = "en";
 	}
-	ComboBoxUtil::setCurrentText(_ui->languageComboBox, languageList().value(language));
+	TkComboBox::setCurrentText(_ui->languageComboBox, languageList().value(language));
 }
 
 QMap<QString, QString> GeneralConfigWidget::languageList() {

@@ -56,7 +56,7 @@ QString SettingsBrowser::name() const {
 }
 
 QString SettingsBrowser::iconName() const {
-	return "";
+	return "preferences-system";
 }
 
 void SettingsBrowser::saveConfig() {

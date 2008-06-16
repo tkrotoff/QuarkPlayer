@@ -16,15 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FILEDIALOG_H
-#define FILEDIALOG_H
+#ifndef TKFILEDIALOG_H
+#define TKFILEDIALOG_H
 
 #include <QtGui/QFileDialog>
 
 /**
- * Provides a dialog that allow users to select files or directories.
- *
- * Internally selects either QFileDialog or KFileDialog.
+ * Thin class above QFileDialog/KFileDialog.
  *
  * @see QFileDialog
  * @see KFileDialog
@@ -43,4 +41,4 @@ private:
 	TkFileDialog();
 };
 
-#endif	//FILEDIALOG_H
+#endif	//TKFILEDIALOG_H

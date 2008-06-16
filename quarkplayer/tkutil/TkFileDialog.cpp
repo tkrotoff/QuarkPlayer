@@ -18,11 +18,11 @@
 
 #include "TkFileDialog.h"
 
-#include "../config.h"
+#include "config.h"
 
 #ifdef KDE4_FOUND
 	#include <KFileDialog>
-#endif	//!KDE4_FOUND
+#endif	//KDE4_FOUND
 
 QString TkFileDialog::getOpenFileName(QWidget * parent, const QString & caption,
 		const QString & dir, const QString & filter,
@@ -32,5 +32,5 @@ QString TkFileDialog::getOpenFileName(QWidget * parent, const QString & caption,
 	return KFileDialog::getOpenFileName(dir, filter, parent, caption);
 #else
 	return QFileDialog::getOpenFileName(parent, caption, dir, filter, selectedFilter, options);
-#endif	//!KDE4_FOUND
+#endif	//KDE4_FOUND
 }

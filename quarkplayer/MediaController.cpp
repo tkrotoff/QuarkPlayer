@@ -22,6 +22,9 @@
 #include "ActionCollection.h"
 #include "config.h"
 
+#include <tkutil/TkFileDialog.h>
+#include <tkutil/TkLanguageChangeEventFilter.h>
+
 #include <phonon/audiooutput.h>
 #include <phonon/volumeslider.h>
 #include <phonon/mediaobject.h>
@@ -69,7 +72,7 @@ MediaController::~MediaController() {
 }
 
 void MediaController::openSubtitleFile() {
-	QString fileName = QFileDialog::getOpenFileName(_mainWindow, tr("Select Subtitle File"));
+	QString fileName = TkFileDialog::getOpenFileName(_mainWindow, tr("Select Subtitle File"));
 
 	if (fileName.isEmpty()) {
 		return;
@@ -368,7 +371,7 @@ void MediaController::actionAngleTriggered(int id) {
 
 //MediaControllerToolBar
 MediaControllerToolBar::MediaControllerToolBar()
-	: QToolBar(NULL) {
+	: TkToolBar(NULL) {
 
 	_audioChannelsButton = new QPushButton();
 	_menuAudioChannels = new QMenu();
@@ -382,6 +385,7 @@ MediaControllerToolBar::MediaControllerToolBar()
 	_subtitlesButton->setMenu(_menuSubtitles);
 	addWidget(_subtitlesButton);
 
+	RETRANSLATE(this);
 	retranslate();
 }
 
@@ -394,14 +398,6 @@ QMenu * MediaControllerToolBar::menuAudioChannels() const {
 
 QMenu * MediaControllerToolBar::menuSubtitles() const {
 	return _menuSubtitles;
-}
-
-void MediaControllerToolBar::changeEvent(QEvent * event) {
-	if (event->type() == QEvent::LanguageChange) {
-		retranslate();
-	} else {
-		QToolBar::changeEvent(event);
-	}
 }
 
 void MediaControllerToolBar::retranslate() {

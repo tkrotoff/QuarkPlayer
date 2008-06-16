@@ -56,7 +56,7 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	showConfigWidget(0);
 
 	//listWidget width
-	_ui->listWidget->setFixedWidth(computeListViewMinimumWidth(_ui->listWidget) + 20);
+	_ui->listWidget->setFixedWidth(computeListViewMinimumWidth(_ui->listWidget) + 30);
 
 	//saveButton
 	connect(_ui->buttonBox, SIGNAL(accepted()), SLOT(saveConfig()));

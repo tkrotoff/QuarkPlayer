@@ -16,18 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ComboBoxUtil.h"
+#ifndef TKCOMBOBOX_H
+#define TKCOMBOBOX_H
 
-#include <QtGui/QtGui>
+class QComboBox;
+class QString;
 
-void ComboBoxUtil::setCurrentText(QComboBox * comboBox, const QString & text) {
-	//Case insensitive search
-	int i = comboBox->findText(text, Qt::MatchFixedString);
-	if (i != -1) {
-		comboBox->setCurrentIndex(i);
-	} else if (comboBox->isEditable()) {
-		comboBox->setEditText(text);
-	} else {
-		comboBox->setItemText(comboBox->currentIndex(), text);
-	}
-}
+/**
+ * Usefull functions for QComboBox.
+ *
+ * @see QComboBox
+ * @author Tanguy Krotoff
+ */
+class TkComboBox {
+public:
+
+	static void setCurrentText(QComboBox * comboBox, const QString & text);
+
+private:
+
+};
+
+#endif	//TKCOMBOBOX_H

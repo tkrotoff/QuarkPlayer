@@ -16,21 +16,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TkFileDialog.h"
+#ifndef TKMAINWINDOW_H
+#define TKMAINWINDOW_H
 
-#include "../config.h"
-
-#ifdef KDE4_FOUND
-	#include <KFileDialog>
-#endif	//!KDE4_FOUND
-
-QString TkFileDialog::getOpenFileName(QWidget * parent, const QString & caption,
-		const QString & dir, const QString & filter,
-		QString * selectedFilter, QFileDialog::Options options) {
+#include "config.h"
 
 #ifdef KDE4_FOUND
-	return KFileDialog::getOpenFileName(dir, filter, parent, caption);
+	#include <KMainWindow>
+	#include <KToolBar>
+	#include <KMenuBar>
+	#include <KStatusBar>
+	typedef KMainWindow PrivateMainWindow;
 #else
-	return QFileDialog::getOpenFileName(parent, caption, dir, filter, selectedFilter, options);
-#endif	//!KDE4_FOUND
-}
+	#include <QtGui/QMainWindow>
+	typedef QMainWindow PrivateMainWindow;
+#endif	//KDE4_FOUND
+
+/**
+ * Thin class above QMainWindow/KMainWindow.
+ *
+ * @see QMainWindow
+ * @see KMainWindow
+ * @author Tanguy Krotoff
+ */
+class TkMainWindow : public PrivateMainWindow {
+public:
+
+	TkMainWindow(QWidget * parent = 0)
+		: PrivateMainWindow(parent) {
+	}
+
+private:
+};
+
+#endif	//TKMAINWINDOW_H

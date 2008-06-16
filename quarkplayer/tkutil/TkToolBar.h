@@ -16,25 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMBOBOXUTIL_H
-#define COMBOBOXUTIL_H
+#ifndef TKTOOLBAR_H
+#define TKTOOLBAR_H
 
-class QComboBox;
-class QString;
+#include "config.h"
+
+#ifdef KDE4_FOUND
+	#include <KToolBar>
+	typedef KToolBar PrivateToolBar;
+#else
+	#include <QtGui/QToolBar>
+	typedef QToolBar PrivateToolBar;
+#endif	//KDE4_FOUND
 
 /**
- * Usefull functions for QComboBox.
+ * Thin class above QToolBar/KToolBar.
  *
- * @see QComboBox
+ * @see QToolBar
+ * @see KToolBar
  * @author Tanguy Krotoff
  */
-class ComboBoxUtil {
+class TkToolBar : public PrivateToolBar {
 public:
 
-	static void setCurrentText(QComboBox * comboBox, const QString & text);
+	/** Makes a parent compulsary, KToolBar requires a parent, not QToolBar. */
+	TkToolBar(QWidget * parent)
+		: PrivateToolBar(parent) {
+	}
 
 private:
-
 };
 
-#endif	//COMBOBOXUTIL_H
+#endif	//TKTOOLBAR_H

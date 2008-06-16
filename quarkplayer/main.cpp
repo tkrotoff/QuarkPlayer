@@ -21,6 +21,7 @@
 #include "Translator.h"
 #include "config/Config.h"
 #include "version.h"
+#include "config.h"
 
 #ifdef KDE4_FOUND
 	#include <KApplication>
@@ -47,18 +48,33 @@ int main(int argc, char * argv[]) {
 #endif	//Q_OS_WIN
 
 #ifdef KDE4_FOUND
-	KAboutData aboutData("QuarkPlayer", 0,
-		ki18n(""), "",
-		ki18n(""),
-		KAboutData::License_GPL,
-		ki18n(""));
+	KAboutData aboutData(
+			//appName
+			"quarkplayer",
+			//catalogName
+			NULL,
+			//programName
+			ki18n("QuarkPlayer"),
+			//version
+			QUARKPLAYER_VERSION,
+			//shortDescription
+			ki18n("QuarkPlayer, a Phonon media player"),
+			KAboutData::License_GPL,
+			//copyrightStatement
+			ki18n("Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>"),
+			//text
+			ki18n(""),
+			//homePageAddress
+			"http://phonon-vlc-mplayer.googlecode.com",
+			//bugsEmailAddress
+			"phonon-vlc-mplayer@googlegroups.com"
+	);
 
 	KCmdLineArgs::init(argc, argv, &aboutData);
 
 	KApplication app;
 #else
 	QApplication app(argc, argv);
-#endif	//KDE4_FOUND
 
 	//General infos
  	app.setOrganizationName("QuarkPlayer");
@@ -66,14 +82,15 @@ int main(int argc, char * argv[]) {
 	app.setApplicationName("QuarkPlayer");
 	app.setApplicationVersion(QUARKPLAYER_VERSION);
 
+	//By default QuarkPlayerStyle: specific style for QuarkPlayer
+	//Fix some ugly things under Windows XP
+	app.setStyle(QStyleFactory::create(Config::instance().style()));
+#endif	//KDE4_FOUND
+
 	app.setQuitOnLastWindowClosed(true);
 
 	//Translator
 	Translator::instance().load(Config::instance().language());
-
-	//By default QuarkPlayerStyle: specific style for QuarkPlayer
-	//Fix some ugly things under Windows XP
-	app.setStyle(QStyleFactory::create(Config::instance().style()));
 
 	MainWindow window(NULL);
 	window.show();

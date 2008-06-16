@@ -19,7 +19,7 @@
 #ifndef MEDIACONTROLLER_H
 #define MEDIACONTROLLER_H
 
-#include <QtGui/QToolBar>
+#include <tkutil/TkToolBar.h>
 
 #include <QtCore/QObject>
 
@@ -39,7 +39,7 @@ class QEvent;
  *
  * @author Tanguy Krotoff
  */
-class MediaControllerToolBar : public QToolBar {
+class MediaControllerToolBar : public TkToolBar {
 	Q_OBJECT
 public:
 
@@ -51,11 +51,11 @@ public:
 
 	QMenu * menuSubtitles() const;
 
-private:
-
-	void changeEvent(QEvent * event);
+private slots:
 
 	void retranslate();
+
+private:
 
 	QPushButton * _audioChannelsButton;
 	QMenu * _menuAudioChannels;

@@ -16,29 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IconEngine.h"
+#include "TkComboBox.h"
 
 #include <QtGui/QtGui>
 
-void IconEngine::paint(QPainter * painter, const QRect & rect, QIcon::Mode mode, QIcon::State state) {
-/*
-	Q_UNUSED(state)
-
-	const int kstate = qIconModeToKIconState(mode);
-	KIconLoader::Group group = KIconLoader::Desktop;
-
-	if (QWidget * targetWidget = dynamic_cast<QWidget *>(painter->device())) {
-		if (qobject_cast<QMenu *>(targetWidget)) {
-			group = KIconLoader::Small;
-		} else if (qobject_cast<QToolBar*>(targetWidget->parent())) {
-			group = KIconLoader::Toolbar;
-		}
+void TkComboBox::setCurrentText(QComboBox * comboBox, const QString & text) {
+	//Case insensitive search
+	int i = comboBox->findText(text, Qt::MatchFixedString);
+	if (i != -1) {
+		comboBox->setCurrentIndex(i);
+	} else if (comboBox->isEditable()) {
+		comboBox->setEditText(text);
+	} else {
+		comboBox->setItemText(comboBox->currentIndex(), text);
 	}
-
-	const int iconSize = qMin(rect.width(), rect.height());
-	QPixmap pix = iconLoader()->loadIcon(d->iconName, group, iconSize, kstate, d->overlays);
-	painter->drawPixmap(rect, pix);
-*/
-
-	//QIconEngineV2::paint(painter, rect, mode, state);
 }

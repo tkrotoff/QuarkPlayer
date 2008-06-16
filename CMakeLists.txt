@@ -1,4 +1,4 @@
-# Mininum required CMake version
+#Mininum required CMake version
 cmake_minimum_required(VERSION 2.6)
 
 project(phonon-vlc-mplayer)
@@ -15,21 +15,12 @@ if (KDE4_FOUND)
 
 	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS})
 	include_directories(${QDBUS_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
-
-	message(STATUS "KDE4 support enabled")
-	message(STATUS "KDE4 dir: ${KDE4_DATA_DIR}")
 else (KDE4_FOUND)
 	set(QT_MIN_VERSION 4.4.0)
 	find_package(Qt4 REQUIRED)
 
 	#Includes all wanted definitions for Qt
 	include(${QT_USE_FILE})
-
-	#Does not use Phonon from Qt
-	#Uses Phonon from this repository instead
-	#CMake declarations matters!!!
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-	set(QT_PHONON_LIBRARY phonon)
 
 	#Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
 	set(NEW_TITLE_CHAPTER_HANDLING 1)
@@ -39,8 +30,13 @@ else (KDE4_FOUND)
 	#Optimization: remove all Qt modules from include path
 	#This will reduce compilation time (less include directories == compilation time reduced)
 	reduce_qt_include_dirs()
-
 endif (KDE4_FOUND)
+
+#Does not use Phonon from Qt or KDE4
+#Uses Phonon from this repository instead
+#CMake declarations matters!!!
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+set(QT_PHONON_LIBRARY phonon)
 
 #Default installation path
 set(CMAKE_INSTALL_PREFIX ${BUILD_DIR})

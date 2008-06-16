@@ -19,24 +19,33 @@
 #ifndef MYICON_H
 #define MYICON_H
 
-#include <QtGui/QIcon>
+#include "config.h"
+
+#ifdef KDE4_FOUND
+	#include <KIcon>
+	typedef KIcon PrivateIcon;
+#else
+	#include <QtGui/QIcon>
+	typedef QIcon PrivateIcon;
+#endif	//KDE4_FOUND
 
 /**
  * Loads a standard icon.
  *
+ * Thin wrapper above QIcon and KIcon.
  * A standard pixmap/icon is a one that follows KDE naming conventions.
  * see Oxygen and freedesktop.org naming conventions.
  *
  * @see http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
  * @see http://tango.freedesktop.org/
+ * @see QIcon
+ * @see KIcon
  * @author Tanguy Krotoff
  */
-class MyIcon : public QIcon {
+class MyIcon : public PrivateIcon {
 public:
 
-	MyIcon(const QString & standardName);
-
-	~MyIcon();
+	MyIcon(const QString & standardIconName);
 
 private:
 };

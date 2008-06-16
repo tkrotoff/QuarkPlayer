@@ -21,6 +21,8 @@
 #include "ActionCollection.h"
 #include "MyIcon.h"
 
+#include <tkutil/TkLanguageChangeEventFilter.h>
+
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>
 #include <phonon/seekslider.h>
@@ -30,6 +32,8 @@
 
 PlayToolBar::PlayToolBar(Phonon::MediaObject * mediaObject, Phonon::AudioOutput * audioOutput)
 	: QToolBar(NULL) {
+
+	RETRANSLATE(this);
 
 	populateActionCollection();
 
@@ -94,7 +98,6 @@ void PlayToolBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
 
 	default:
 		qDebug() << "State? newState=" << newState << "oldState=" << oldState;
-		;
 	}
 }
 
@@ -109,7 +112,7 @@ void PlayToolBar::showOver(QWidget * widgetUnder) {
 }
 
 QToolBar * PlayToolBar::createSeekToolBar() {
-	QToolBar * seekToolBar = new QToolBar();
+	QToolBar * seekToolBar = new QToolBar(NULL);
 
 	//SeekSlider
 	_seekSlider = new Phonon::SeekSlider();
@@ -123,7 +126,7 @@ QToolBar * PlayToolBar::createSeekToolBar() {
 }
 
 QToolBar * PlayToolBar::createControlToolBar() {
-	QToolBar * controlToolBar = new QToolBar();
+	QToolBar * controlToolBar = new QToolBar(NULL);
 
 	controlToolBar->addAction(ActionCollection::action("play"));
 	controlToolBar->addAction(ActionCollection::action("pause"));
@@ -139,7 +142,8 @@ QToolBar * PlayToolBar::createControlToolBar() {
 	connect(ActionCollection::action("play"), SIGNAL(triggered()), _mediaObject, SLOT(play()));
 	connect(ActionCollection::action("pause"), SIGNAL(triggered()), _mediaObject, SLOT(pause()));
 	connect(ActionCollection::action("stop"), SIGNAL(triggered()), _mediaObject, SLOT(stop()));
-	connect(ActionCollection::action("fullScreen"), SIGNAL(toggled(bool)), SIGNAL(fullScreenButtonClicked(bool)));
+	connect(ActionCollection::action("fullScreen"), SIGNAL(toggled(bool)),
+		SIGNAL(fullScreenButtonClicked(bool)));
 
 	//volumdeSlider
 	_volumeSlider = new Phonon::VolumeSlider(_audioOutput);
@@ -164,14 +168,6 @@ void PlayToolBar::populateActionCollection() {
 	QAction * action = new QAction(app);
 	action->setCheckable(true);
 	ActionCollection::addAction("fullScreen", action);
-}
-
-void PlayToolBar::changeEvent(QEvent * event) {
-	if (event->type() == QEvent::LanguageChange) {
-		retranslate();
-	} else {
-		QToolBar::changeEvent(event);
-	}
 }
 
 void PlayToolBar::retranslate() {

@@ -19,9 +19,9 @@
 #ifndef PLAYTOOLBAR_H
 #define PLAYTOOLBAR_H
 
-#include <phonon/phononnamespace.h>
+#include <tkutil/TkToolBar.h>
 
-#include <QtGui/QToolBar>
+#include <phonon/phononnamespace.h>
 
 class MainWindow;
 
@@ -60,11 +60,9 @@ private slots:
 
 	void stateChanged(Phonon::State newState, Phonon::State oldState);
 
-private:
-
-	void changeEvent(QEvent * event);
-
 	void retranslate();
+
+private:
 
 	void populateActionCollection();
 

@@ -31,7 +31,7 @@ if (KDE4_FOUND)
 	target_link_libraries(phonon_vlc
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
-		${KDE4_PHONON_LIBS}
+		${QT_PHONON_LIBRARY}
 	)
 else (KDE4_FOUND)
 	target_link_libraries(phonon_vlc
