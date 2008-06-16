@@ -20,28 +20,37 @@
 
 #include <QtGui/QtGui>
 
+#include <QtCore/QDebug>
+
 Q_EXPORT_PLUGIN2(quarkplayerstyle, QuarkPlayerStylePlugin)
+
+static const QString QUARKPLAYERSTYLE_NAME = "QuarkPlayerStyle";
+
+//Saves the last valid system style name (i.e valid means different than QuarkPlayerStyle)
+//This permit to avoid a crash when applying QuarkPlayerStyle on QuarkPlayerStyle
+static QString _lastValidSystemStyleName;
 
 QuarkPlayerStyle::QuarkPlayerStyle() {
 	QString styleName = QApplication::style()->objectName();
-	_systemStyle = QStyleFactory::create(styleName);
+
+	if (styleName != QUARKPLAYERSTYLE_NAME.toLower()) {
+		_lastValidSystemStyleName = styleName;
+		_systemStyle = QStyleFactory::create(_lastValidSystemStyleName);
+	} else {
+		//If styleName == QUARKPLAYERSTYLE_NAME, then we end up in recursion
+		_systemStyle = QStyleFactory::create(_lastValidSystemStyleName);
+	}
 }
 
 QuarkPlayerStyle::~QuarkPlayerStyle() {
-	delete _systemStyle;
-}
-
-void QuarkPlayerStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex * option,
-	QPainter * painter, const QWidget * widget) const {
-
-	_systemStyle->drawComplexControl(control, option, painter, widget);
+	//delete _systemStyle;
 }
 
 void QuarkPlayerStyle::drawControl(ControlElement element, const QStyleOption * option,
 	QPainter * painter, const QWidget * widget) const {
 
 	//QToolbar
-	//Removes the ugly toolbar bottom line
+	//Removes the ugly toolbar bottom line under Windows
 	if (element == CE_ToolBar) {
 		return;
 	}
@@ -63,11 +72,11 @@ void QuarkPlayerStyle::drawPrimitive(PrimitiveElement element, const QStyleOptio
 
 //QStylePlugin
 QStringList QuarkPlayerStylePlugin::keys() const {
-	return QStringList() << "QuarkPlayerStyle";
+	return QStringList() << QUARKPLAYERSTYLE_NAME;
 }
 
 QStyle * QuarkPlayerStylePlugin::create(const QString & key) {
-	if (key.toLower() == "quarkplayerstyle") {
+	if (key.toLower() == QUARKPLAYERSTYLE_NAME.toLower()) {
 		return new QuarkPlayerStyle();
 	}
 	return NULL;

@@ -68,6 +68,8 @@ private slots:
 
 	void restoreSettings();
 
+	void retranslate();
+
 private:
 
 	void init();

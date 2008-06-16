@@ -48,7 +48,11 @@ private slots:
 
 	void saveConfig();
 
+	void retranslate();
+
 private:
+
+	void populateStackedWidget();
 
 	static int computeListViewMinimumWidth(QAbstractItemView * view);
 

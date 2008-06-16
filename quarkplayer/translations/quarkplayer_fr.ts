@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="fr_FR">
+<defaultcodec></defaultcodec>
 <context>
     <name>AboutWindow</name>
     <message>
         <location filename="../../build/quarkplayer/ui_AboutWindow.h" line="83"/>
         <source>About</source>
-        <translation type="unfinished">A propos</translation>
+        <translation>A propos</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_AboutWindow.h" line="94"/>
@@ -20,7 +21,17 @@ it under the terms of the GNU General Public License as published by&lt;br&gt;
 the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 (at your option) any later version.&lt;br&gt;
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;QuarkPlayer, un visionneur Phonon&lt;/b&gt;&lt;br&gt;
+&lt;br&gt;
+&lt;a href=&quot;http://phonon-vlc-mplayer.googlecode.com&quot;&gt;http://phonon-vlc-mplayer.googlecode.com&lt;/a&gt;&lt;br&gt;
+&lt;br&gt;
+Copyright (C) 2008  Tanguy Krotoff &lt;tkrotoff@gmail.com&gt;&lt;br&gt;
+&lt;br&gt;
+This program is free software: you can redistribute it and/or modify&lt;br&gt;
+it under the terms of the GNU General Public License as published by&lt;br&gt;
+the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
+(at your option) any later version.&lt;br&gt;
+</translation>
     </message>
 </context>
 <context>
@@ -34,7 +45,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>GeneralConfigWidget</name>
     <message>
-        <location filename="../config/GeneralConfigWidget.cpp" line="44"/>
+        <location filename="../config/GeneralConfigWidget.cpp" line="45"/>
         <source>General</source>
         <translation>Général</translation>
     </message>
@@ -51,17 +62,22 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="103"/>
         <source>Icon Theme:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../config/GeneralConfigWidget.cpp" line="101"/>
-        <source>English</source>
-        <translation type="unfinished"></translation>
+        <translation>Theme d&apos;icone:</translation>
     </message>
     <message>
         <location filename="../config/GeneralConfigWidget.cpp" line="102"/>
+        <source>English</source>
+        <translation>Anglais</translation>
+    </message>
+    <message>
+        <location filename="../config/GeneralConfigWidget.cpp" line="103"/>
         <source>French</source>
-        <translation type="unfinished"></translation>
+        <translation>Francais</translation>
+    </message>
+    <message>
+        <location filename="../config/GeneralConfigWidget.cpp" line="104"/>
+        <source>German</source>
+        <translation>Allemand</translation>
     </message>
 </context>
 <context>
@@ -69,17 +85,17 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../MainWindow.cpp" line="173"/>
         <source>Select Audio/Video File</source>
-        <translation type="unfinished"></translation>
+        <translation>Selectionnez un fichier audio ou video</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="185"/>
         <source>Open Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Ouvrir une adresse Internet</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="185"/>
         <source>Please enter a valid address here:</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserez une adresse Internet valide ici:</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="262"/>
@@ -256,122 +272,122 @@ the Free Software Foundation, either version 3 of the License, or
     <message>
         <location filename="../MainWindow.cpp" line="460"/>
         <source>Main ToolBar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barre principale</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="483"/>
         <source>&amp;Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Options</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="424"/>
         <source>Play &amp;File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Jouer &amp;fichier</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="427"/>
         <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Quitter</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="430"/>
         <source>&amp;About</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;A propos</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="433"/>
         <source>About &amp;Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>A propos de &amp;Qt</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="436"/>
         <source>Play &amp;DVD</source>
-        <translation type="unfinished"></translation>
+        <translation>Jouer &amp;DVD</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="439"/>
         <source>Play &amp;URL...</source>
-        <translation type="unfinished"></translation>
+        <translation>Jouer &amp;URL...</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="442"/>
         <source>Play &amp;VCD</source>
-        <translation type="unfinished"></translation>
+        <translation>Jouer &amp;VCD</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="445"/>
         <source>&amp;Equalizer...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Equalizer...</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="448"/>
         <source>&amp;Configure QuarkPlayer...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Configurer QuarkPlayer...</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="454"/>
         <source>&amp;Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Effacer</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="463"/>
         <source>&amp;Recent Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichiers &amp;récents</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="466"/>
         <source>&amp;Audio Channels</source>
-        <translation type="unfinished"></translation>
+        <translation>Pistes &amp;audio</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="469"/>
         <source>&amp;Subtitles</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Sous-titres</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="472"/>
         <source>&amp;Title</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Titre</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="478"/>
         <source>&amp;Angle</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Angle</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="479"/>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Fichier</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="480"/>
         <source>&amp;Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Audio</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="481"/>
         <source>&amp;Subtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Sous-titre</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="482"/>
         <source>&amp;Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Parcourir</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="451"/>
         <source>&amp;Open Subtitle...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ouvrir sous-titre</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="475"/>
         <source>&amp;Chapter</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Chapitre</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="484"/>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Aide</translation>
     </message>
 </context>
 <context>
@@ -387,17 +403,17 @@ the Free Software Foundation, either version 3 of the License, or
     <message>
         <location filename="../MediaController.cpp" line="404"/>
         <source>Audio</source>
-        <translation type="unfinished">Audio</translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../MediaController.cpp" line="405"/>
         <source>Subtitle</source>
-        <translation type="unfinished">Sous-titre</translation>
+        <translation>Sous-titre</translation>
     </message>
     <message>
         <location filename="../MediaController.cpp" line="407"/>
         <source>Language ToolBar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barre de langue</translation>
     </message>
 </context>
 <context>
@@ -408,12 +424,12 @@ the Free Software Foundation, either version 3 of the License, or
         <translation type="obsolete">Barre de contrôle</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="174"/>
+        <location filename="../PlayToolBar.cpp" line="173"/>
         <source>Play</source>
         <translation>Jouer</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="177"/>
+        <location filename="../PlayToolBar.cpp" line="176"/>
         <source>Pause</source>
         <translation>Pause</translation>
     </message>
@@ -423,12 +439,12 @@ the Free Software Foundation, either version 3 of the License, or
         <translation type="obsolete">Espace</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="180"/>
+        <location filename="../PlayToolBar.cpp" line="179"/>
         <source>Stop</source>
         <translation>Stop</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="189"/>
+        <location filename="../PlayToolBar.cpp" line="188"/>
         <source>FullScreen</source>
         <translation>Plein écran</translation>
     </message>
@@ -438,25 +454,25 @@ the Free Software Foundation, either version 3 of the License, or
         <translation type="obsolete">Alt+Entrée</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="183"/>
+        <location filename="../PlayToolBar.cpp" line="182"/>
         <source>Next Track</source>
         <translation>Piste suivante</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="186"/>
+        <location filename="../PlayToolBar.cpp" line="185"/>
         <source>Previous Track</source>
         <translation>Piste précédente</translation>
     </message>
     <message>
-        <location filename="../PlayToolBar.cpp" line="192"/>
+        <location filename="../PlayToolBar.cpp" line="191"/>
         <source>Play ToolBar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barre de contrôle</translation>
     </message>
 </context>
 <context>
     <name>QuickSettingsWindow</name>
     <message>
-        <location filename="../QuickSettingsWindow.cpp" line="225"/>
+        <location filename="../QuickSettingsWindow.cpp" line="229"/>
         <source>Configure effect</source>
         <translation>Configurer l&apos;effet</translation>
     </message>
@@ -488,87 +504,87 @@ the Free Software Foundation, either version 3 of the License, or
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="316"/>
         <source>Hue:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="317"/>
         <source>Aspect Ratio:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="320"/>
         <source>Auto</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="321"/>
         <source>Stretch</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="322"/>
         <source>4/3</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="323"/>
         <source>16/9</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="324"/>
         <source>Scale Mode:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="327"/>
         <source>Fit in view</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="328"/>
         <source>Scale and crop</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="329"/>
         <source>Audio</source>
-        <translation type="unfinished">Audio</translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="330"/>
         <source>Audio Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Peripherique audio:</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="331"/>
         <source>Audio Effect:</source>
-        <translation type="unfinished"></translation>
+        <translation>Effet audio:</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="332"/>
         <source>Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurer</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="333"/>
         <source>Cross Fade:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="334"/>
         <source>-10 Sec</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="335"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_QuickSettingsWindow.h" line="336"/>
         <source>10 Sec</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -576,37 +592,47 @@ the Free Software Foundation, either version 3 of the License, or
     <message>
         <location filename="../config/SettingsBrowser.cpp" line="55"/>
         <source>Settings Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Préférences</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_SettingsBrowser.h" line="66"/>
         <source>Preference Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom préférence</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_SettingsBrowser.h" line="67"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_SettingsBrowser.h" line="68"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Type</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_SettingsBrowser.h" line="69"/>
         <source>Default Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valeur par defaut</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_SettingsBrowser.h" line="70"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valeur</translation>
     </message>
     <message>
         <location filename="../config/SettingsBrowser.cpp" line="155"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Remettre a zero</translation>
+    </message>
+    <message>
+        <location filename="../config/SettingsBrowser.cpp" line="326"/>
+        <source>True</source>
+        <translation>Vrai</translation>
+    </message>
+    <message>
+        <location filename="../config/SettingsBrowser.cpp" line="257"/>
+        <source>False</source>
+        <translation>Faux</translation>
     </message>
 </context>
 <context>
@@ -614,12 +640,12 @@ the Free Software Foundation, either version 3 of the License, or
     <message>
         <location filename="../StatusBar.cpp" line="131"/>
         <source>Media finishing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lecture bientot fini...</translation>
     </message>
     <message>
         <location filename="../StatusBar.cpp" line="136"/>
         <source>%1 seconds left...</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 secondes avant la fin de la lecture...</translation>
     </message>
 </context>
 </TS>

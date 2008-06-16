@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MYICON_H
-#define MYICON_H
+#ifndef TKICON_H
+#define TKICON_H
 
 #include "config.h"
 
@@ -42,12 +42,20 @@
  * @see KIcon
  * @author Tanguy Krotoff
  */
-class MyIcon : public PrivateIcon {
+class TkIcon : public PrivateIcon {
 public:
 
-	MyIcon(const QString & standardIconName);
+	TkIcon(const QString & standardIconName);
+
+	static void setIconTheme(const QString & iconTheme);
+
+	static void setIconSize(int iconSize);
 
 private:
+
+	static QString _iconTheme;
+
+	static QString _iconSize;
 };
 
-#endif	//MYICON_H
+#endif	//TKICON_H

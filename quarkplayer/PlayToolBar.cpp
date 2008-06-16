@@ -18,10 +18,9 @@
 
 #include "PlayToolBar.h"
 
-#include "ActionCollection.h"
-#include "MyIcon.h"
-
-#include <tkutil/TkLanguageChangeEventFilter.h>
+#include <tkutil/ActionCollection.h>
+#include <tkutil/TkIcon.h>
+#include <tkutil/LanguageChangeEventFilter.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>
@@ -172,27 +171,27 @@ void PlayToolBar::populateActionCollection() {
 
 void PlayToolBar::retranslate() {
 	ActionCollection::action("play")->setText(tr("Play"));
-	ActionCollection::action("play")->setIcon(MyIcon("media-playback-start"));
+	ActionCollection::action("play")->setIcon(TkIcon("media-playback-start"));
 
 	ActionCollection::action("pause")->setText(tr("Pause"));
-	ActionCollection::action("pause")->setIcon(MyIcon("media-playback-pause"));
+	ActionCollection::action("pause")->setIcon(TkIcon("media-playback-pause"));
 
 	ActionCollection::action("stop")->setText(tr("Stop"));
-	ActionCollection::action("stop")->setIcon(MyIcon("media-playback-stop"));
+	ActionCollection::action("stop")->setIcon(TkIcon("media-playback-stop"));
 
 	ActionCollection::action("nextTrack")->setText(tr("Next Track"));
-	ActionCollection::action("nextTrack")->setIcon(MyIcon("media-skip-forward"));
+	ActionCollection::action("nextTrack")->setIcon(TkIcon("media-skip-forward"));
 
 	ActionCollection::action("previousTrack")->setText(tr("Previous Track"));
-	ActionCollection::action("previousTrack")->setIcon(MyIcon("media-skip-backward"));
+	ActionCollection::action("previousTrack")->setIcon(TkIcon("media-skip-backward"));
 
 	ActionCollection::action("fullScreen")->setText(tr("FullScreen"));
-	ActionCollection::action("fullScreen")->setIcon(MyIcon("view-fullscreen"));
+	ActionCollection::action("fullScreen")->setIcon(TkIcon("view-fullscreen"));
 
 	setWindowTitle(tr("Play ToolBar"));
 
-	_volumeSlider->setVolumeIcon(MyIcon("speaker"));
-	_volumeSlider->setMutedIcon(MyIcon("speaker"));
+	_volumeSlider->setVolumeIcon(TkIcon("speaker"));
+	_volumeSlider->setMutedIcon(TkIcon("speaker"));
 
 	setMinimumSize(sizeHint());
 }

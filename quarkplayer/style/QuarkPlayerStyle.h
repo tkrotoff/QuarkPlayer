@@ -19,34 +19,27 @@
 #ifndef QUARKPLAYERSTYLE_H
 #define QUARKPLAYERSTYLE_H
 
-#include <QtCore/qglobal.h>
-
-#ifdef Q_OS_MAC
-	#include <QtGui/QMacStyle>
-	typedef QMacStyle BaseStyle;
-#else
-	#include <QtGui/QCommonStyle>
-	typedef QCommonStyle BaseStyle;
-#endif
+#include <QtGui/QStyle>
 
 /**
  * General Qt style for correcting some bugs or ugly style.
  *
- * - Removes the ugly toolbar bottom line
- * - Changes QToolButton style under MacOSX
+ * - Removes the ugly toolbar bottom line under Windows
  * - Removes the ugly frame/marging around the status bar icons under Windows
  *
  * @author Tanguy Krotoff
  */
-class QuarkPlayerStyle : public BaseStyle {
+class QuarkPlayerStyle : public QStyle {
 public:
 
 	QuarkPlayerStyle();
 
 	~QuarkPlayerStyle();
 
-	void drawComplexControl(ComplexControl control, const QStyleOptionComplex * option,
-		QPainter * painter, const QWidget * widget = 0) const;
+	void drawComplexControl(ComplexControl control, const QStyleOptionComplex * option, 
+		QPainter * painter, const QWidget * widget = 0) const {
+		_systemStyle->drawComplexControl(control, option, painter, widget);
+	}
 
 	void drawControl(ControlElement element, const QStyleOption * option,
 		QPainter * painter, const QWidget * widget = 0) const;
@@ -58,7 +51,6 @@ public:
 		return _systemStyle->styleHint(hint, option, widget, returnData);
 	}
 
-#ifndef Q_OS_MAC
 	void drawItemPixmap(QPainter * painter, const QRect & rectangle, int alignment, const QPixmap & pixmap) const {
 		_systemStyle->drawItemPixmap(painter, rectangle, alignment, pixmap);
 	}
@@ -131,8 +123,6 @@ public:
 	void unpolish(QApplication * application) {
 		_systemStyle->unpolish(application);
 	}
-
-#endif	//Q_OS_MAC
 
 private:
 

@@ -35,6 +35,8 @@ public:
 
 private:
 
+	TkComboBox();
+
 };
 
 #endif	//TKCOMBOBOX_H

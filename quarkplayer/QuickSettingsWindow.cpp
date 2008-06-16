@@ -20,6 +20,8 @@
 
 #include "ui_QuickSettingsWindow.h"
 
+#include <tkutil/LanguageChangeEventFilter.h>
+
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>
 #include <phonon/mediasource.h>
@@ -50,6 +52,8 @@ QuickSettingsWindow::QuickSettingsWindow(Phonon::VideoWidget * videoWidget, Phon
 
 	init();
 	show();
+
+	RETRANSLATE(this);
 }
 
 QuickSettingsWindow::~QuickSettingsWindow() {
@@ -383,4 +387,8 @@ void QuickSettingsWindow::setBrightness(int val) {
 
 void QuickSettingsWindow::setContrast(int val) {
 	_videoWidget->setContrast(val / qreal(SLIDER_RANGE));
+}
+
+void QuickSettingsWindow::retranslate() {
+	_ui->retranslateUi(this);
 }

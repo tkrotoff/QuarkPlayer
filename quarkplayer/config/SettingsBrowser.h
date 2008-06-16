@@ -55,6 +55,8 @@ public:
 
 	void saveConfig();
 
+	void retranslate();
+
 private slots:
 
 	void valueChanged();

@@ -253,8 +253,8 @@ void SettingsBrowser::setItem(const QVariant & defaultValue, const QVariant & va
 		_ui->tableWidget->setCellWidget(row, VALUE_COLUMN, comboBox);
 		comboBox->setEditable(false);
 		QStringList items;
-		items << "True";
-		items << "False";
+		items << tr("True");
+		items << tr("False");
 		comboBox->insertItems(-1, items);
 		bool tmp = value.toBool();
 		if (tmp) {
@@ -323,7 +323,7 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 		}
 
 		QString tmp = comboBox->currentText();
-		if (tmp == "True") {
+		if (tmp == tr("True")) {
 			return true;
 		} else {
 			return false;
@@ -416,4 +416,8 @@ void SettingsBrowser::valueChanged() {
 	if (value != previousValue) {
 		_settingsChangedAndUnsaved = true;
 	}
+}
+
+void SettingsBrowser::retranslate() {
+	_ui->retranslateUi(this);
 }

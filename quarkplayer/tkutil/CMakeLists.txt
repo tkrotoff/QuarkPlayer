@@ -5,13 +5,18 @@ configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 set(tkutil_SRCS
 	TkFileDialog.cpp
 	TkComboBox.cpp
-	TkEventFilter.cpp
-	TkLanguageChangeEventFilter.cpp
+	EventFilter.cpp
+	LanguageChangeEventFilter.cpp
+	TkIcon.cpp
+	ActionCollection.cpp
+	IConfig.cpp
+	Translator.cpp
+	TkStackedWidget.cpp
 )
 
 qt4_wrap_cpp(tkutil_SRCS
-	TkEventFilter.h
-	TkLanguageChangeEventFilter.h
+	EventFilter.h
+	LanguageChangeEventFilter.h
 )
 
 add_library(tkutil STATIC ${tkutil_SRCS})

@@ -16,23 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MyIcon.h"
-
-#include "config/Config.h"
+#include "TkStackedWidget.h"
 
 #include <QtGui/QtGui>
 
-//Example: ":/icons/oxygen/16x16/actions/media-playback-start.png"
-//Example: ":/oxygen/16x16/media-playback-start"
-MyIcon::MyIcon(const QString & standardIconName)
-#ifdef KDE4_FOUND
-	: PrivateIcon(standardIconName)
-#else
-	: PrivateIcon(":/" + Config::instance().iconTheme() + "/16x16/" + standardIconName)
-#endif	//KDE4_FOUND
-	{
-
-	/*QString filename = Helper::appHomePath() + _fileName;
-	if (!QFile::exists(filename)) {
-	}*/
+void TkStackedWidget::removeAllWidgets(QStackedWidget * stackedWidget) {
+	int nbWidget = stackedWidget->count();
+	for (int i = 0; i < nbWidget; i++) {
+		stackedWidget->removeWidget(stackedWidget->widget(i));
+	}
 }

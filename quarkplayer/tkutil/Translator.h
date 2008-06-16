@@ -25,6 +25,13 @@
 /**
  * Install translations (QTranslator) for the application.
  *
+ * Loads Qt translation + the application translation (via its name QCoreApplication::applicationName().toLower()).
+ *
+ * Default path is "translations/" where *.qm should be:
+ * "translations/myapplication_fr.qm"
+ * "translations/qt_fr.qm"
+ * fr is the locale to be used with <pre>Translator::load("fr");</pre>
+ *
  * Pattern singleton.
  *
  * @see QTranslator
@@ -38,6 +45,14 @@ public:
 
 	~Translator();
 
+	/**
+	 * Loads a locale (i.e en, fr...).
+	 *
+	 * Example:
+	 * <pre>
+	 * Translator::instance().load("fr");
+	 * </pre>
+	 */
 	void load(const QString & locale);
 
 private:

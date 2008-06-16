@@ -17,18 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TkLanguageChangeEventFilter.h"
+#include "EventFilter.h"
 
 #include <QtCore/QEvent>
 
-TkLanguageChangeEventFilter::TkLanguageChangeEventFilter(QObject * receiver, const char * member)
-	: TkEventFilter(receiver, member) {
+EventFilter::EventFilter(QObject * receiver, const char * member)
+	: QObject() {
+	connect(this, SIGNAL(activate(QEvent *)), receiver, member);
 }
 
-bool TkLanguageChangeEventFilter::eventFilter(QObject * watched, QEvent * event) {
-	if (event->type() == QEvent::LanguageChange) {
-		filter(event);
-		return false;
-	}
-	return TkEventFilter::eventFilter(watched, event);
+void EventFilter::filter(QEvent * event) {
+	activate(event);
+}
+
+bool EventFilter::eventFilter(QObject * watched, QEvent * event) {
+	return QObject::eventFilter(watched, event);
 }

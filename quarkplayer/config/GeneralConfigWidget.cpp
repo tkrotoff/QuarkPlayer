@@ -21,9 +21,10 @@
 #include "ui_GeneralConfigWidget.h"
 
 #include "Config.h"
-#include "../Translator.h"
 
+#include <tkutil/Translator.h>
 #include <tkutil/TkComboBox.h>
+#include <tkutil/TkIcon.h>
 
 #include <QtGui/QtGui>
 
@@ -53,17 +54,17 @@ void GeneralConfigWidget::saveConfig() {
 
 	//Style
 	QString styleName = _ui->styleComboBox->currentText();
-	QApplication::setStyle(QStyleFactory::create(styleName));
 	config.setValue(Config::STYLE_KEY, styleName);
+	QApplication::setStyle(QStyleFactory::create(styleName));
 
 	//Icon theme
 	config.setValue(Config::ICON_THEME_KEY, _ui->iconThemeComboBox->currentText().toLower());
+	TkIcon::setIconTheme(config.iconTheme());
 
 	//Language
 	QString language = _ui->languageComboBox->currentText();
 	QString locale = languageList().key(language);
 	config.setValue(Config::LANGUAGE_KEY, locale);
-	qDebug() << __FUNCTION__ << "language:" << language << "locale:" << locale;
 	Translator::instance().load(locale);
 }
 
@@ -98,7 +99,12 @@ void GeneralConfigWidget::readConfig() {
 
 QMap<QString, QString> GeneralConfigWidget::languageList() {
 	QMap<QString, QString> list;
-	list["en"] = tr("English");
-	list["fr"] = tr("French");
+	list["en"] = tr("English") + " (English)";
+	list["fr"] = tr("French") + " (French)";
+	list["de"] = tr("German") + " (German)";
 	return list;
+}
+
+void GeneralConfigWidget::retranslate() {
+	_ui->retranslateUi(this);
 }

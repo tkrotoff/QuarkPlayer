@@ -22,7 +22,10 @@
 
 #include "GeneralConfigWidget.h"
 #include "SettingsBrowser.h"
-#include "../MyIcon.h"
+
+#include <tkutil/TkIcon.h>
+#include <tkutil/LanguageChangeEventFilter.h>
+#include <tkutil/TkStackedWidget.h>
 
 #include <QtGui/QtGui>
 
@@ -34,6 +37,8 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	_ui = new Ui::ConfigWindow();
 	_ui->setupUi(this);
 
+	RETRANSLATE(this);
+
 	_lastConfigWindowOpenedIndex = 0;
 
 	//Add all config panels/widgets to the list
@@ -44,12 +49,7 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	connect(_ui->listWidget, SIGNAL(currentRowChanged(int)),
 		SLOT(showConfigWidget(int)));
 
-	//stackedWidget + read config for each config widget
-	foreach (IConfigWidget * configWidget, _configWidgetList) {
-		configWidget->readConfig();
-		_ui->stackedWidget->addWidget(configWidget);
-		new QListWidgetItem(MyIcon(configWidget->iconName()), configWidget->name(), _ui->listWidget);
-	}
+	populateStackedWidget();
 
 	//Select the first (top one) config panel/widget from the list
 	_ui->listWidget->setCurrentRow(0);
@@ -64,6 +64,17 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 
 ConfigWindow::~ConfigWindow() {
 	delete _ui;
+}
+
+void ConfigWindow::populateStackedWidget() {
+	//stackedWidget + read config for each config widget
+	TkStackedWidget::removeAllWidgets(_ui->stackedWidget);
+	_ui->listWidget->clear();
+	foreach (IConfigWidget * configWidget, _configWidgetList) {
+		configWidget->readConfig();
+		_ui->stackedWidget->addWidget(configWidget);
+		new QListWidgetItem(TkIcon(configWidget->iconName()), configWidget->name(), _ui->listWidget);
+	}
 }
 
 void ConfigWindow::showConfigWidget(int row) {
@@ -110,4 +121,14 @@ int ConfigWindow::computeListViewMinimumWidth(QAbstractItemView * view) {
 	}
 	minWidth += 2 * view->frameWidth();
 	return minWidth;
+}
+
+void ConfigWindow::retranslate() {
+	_ui->retranslateUi(this);
+
+	foreach (IConfigWidget * configWidget, _configWidgetList) {
+		configWidget->retranslate();
+	}
+
+	populateStackedWidget();
 }

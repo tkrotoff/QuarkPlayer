@@ -42,6 +42,8 @@ public:
 	virtual void readConfig() = 0;
 
 	virtual void saveConfig() = 0;
+
+	virtual void retranslate() = 0;
 };
 
 #endif	//ICONFIGWIDGET_H

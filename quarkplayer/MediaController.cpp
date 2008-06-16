@@ -19,11 +19,11 @@
 #include "MediaController.h"
 
 #include "MainWindow.h"
-#include "ActionCollection.h"
 #include "config.h"
 
+#include <tkutil/ActionCollection.h>
 #include <tkutil/TkFileDialog.h>
-#include <tkutil/TkLanguageChangeEventFilter.h>
+#include <tkutil/LanguageChangeEventFilter.h>
 
 #include <phonon/audiooutput.h>
 #include <phonon/volumeslider.h>

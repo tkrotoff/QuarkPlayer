@@ -17,27 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TKLANGUAGECHANGEEVENTFILTER_H
-#define TKLANGUAGECHANGEEVENTFILTER_H
+#ifndef LANGUAGECHANGEEVENTFILTER_H
+#define LANGUAGECHANGEEVENTFILTER_H
 
-#include <tkutil/TkEventFilter.h>
+#include <tkutil/EventFilter.h>
 
 #define RETRANSLATE(watched) \
-watched->installEventFilter(new TkLanguageChangeEventFilter(this, SLOT(retranslate())))
+watched->installEventFilter(new LanguageChangeEventFilter(this, SLOT(retranslate())))
 
 /**
  * Catch LanguageChange event.
  *
  * @author Tanguy Krotoff
  */
-class TkLanguageChangeEventFilter : public TkEventFilter {
+class LanguageChangeEventFilter : public EventFilter {
 public:
 
-	TkLanguageChangeEventFilter(QObject * receiver, const char * member);
+	LanguageChangeEventFilter(QObject * receiver, const char * member);
 
 private:
 
 	virtual bool eventFilter(QObject * watched, QEvent * event);
 };
 
-#endif	//TKLANGUAGECHANGEEVENTFILTER_H
+#endif	//LANGUAGECHANGEEVENTFILTER_H

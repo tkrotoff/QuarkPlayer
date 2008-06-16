@@ -16,43 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GENERALCONFIGWIDGET_H
-#define GENERALCONFIGWIDGET_H
+#ifndef TKSTACKEDWIDGET_H
+#define TKSTACKEDWIDGET_H
 
-#include "IConfigWidget.h"
-
-#include <QtCore/QMap>
-
-namespace Ui { class GeneralConfigWidget; }
+class QStackedWidget;
 
 /**
- * General QuarkPlayer configuration widget.
+ * Usefull functions for QStackedWidget.
  *
+ * @see QStackedWidget
  * @author Tanguy Krotoff
  */
-class GeneralConfigWidget : public IConfigWidget {
-	Q_OBJECT
+class TkStackedWidget {
 public:
 
-	GeneralConfigWidget(QWidget * parent);
-
-	~GeneralConfigWidget();
-
-	QString name() const;
-
-	QString iconName() const;
-
-	void readConfig();
-
-	void saveConfig();
-
-	void retranslate();
+	static void removeAllWidgets(QStackedWidget * stackedWidget);
 
 private:
 
-	static QMap<QString, QString> languageList();
+	TkStackedWidget();
 
-	Ui::GeneralConfigWidget * _ui;
 };
 
-#endif	//GENERALCONFIGWIDGET_H
+#endif	//TKSTACKEDWIDGET_H

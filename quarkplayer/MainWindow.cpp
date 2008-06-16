@@ -20,8 +20,6 @@
 
 #include "ui_BackgroundLogoWidget.h"
 
-#include "ActionCollection.h"
-#include "MyIcon.h"
 #include "PlayToolBar.h"
 #include "VideoWidget.h"
 #include "MediaDataWidget.h"
@@ -33,8 +31,10 @@
 #include "config/ConfigWindow.h"
 #include "version.h"
 
+#include <tkutil/ActionCollection.h>
+#include <tkutil/TkIcon.h>
 #include <tkutil/TkFileDialog.h>
-#include <tkutil/TkLanguageChangeEventFilter.h>
+#include <tkutil/LanguageChangeEventFilter.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>
@@ -422,37 +422,37 @@ void MainWindow::retranslate() {
 	setWindowIcon(QIcon(":/icons/hi16-app-quarkplayer.png"));
 
 	ActionCollection::action("playFile")->setText(tr("Play &File..."));
-	ActionCollection::action("playFile")->setIcon(MyIcon("document-open"));
+	ActionCollection::action("playFile")->setIcon(TkIcon("document-open"));
 
 	ActionCollection::action("quit")->setText(tr("&Quit"));
-	ActionCollection::action("quit")->setIcon(MyIcon("application-exit"));
+	ActionCollection::action("quit")->setIcon(TkIcon("application-exit"));
 
 	ActionCollection::action("about")->setText(tr("&About"));
-	ActionCollection::action("about")->setIcon(MyIcon("help-about"));
+	ActionCollection::action("about")->setIcon(TkIcon("help-about"));
 
 	ActionCollection::action("aboutQt")->setText(tr("About &Qt"));
-	ActionCollection::action("aboutQt")->setIcon(MyIcon("help-about"));
+	ActionCollection::action("aboutQt")->setIcon(TkIcon("help-about"));
 
 	ActionCollection::action("playDVD")->setText(tr("Play &DVD"));
-	ActionCollection::action("playDVD")->setIcon(MyIcon("media-optical"));
+	ActionCollection::action("playDVD")->setIcon(TkIcon("media-optical"));
 
 	ActionCollection::action("playURL")->setText(tr("Play &URL..."));
-	ActionCollection::action("playURL")->setIcon(MyIcon("document-open-remote"));
+	ActionCollection::action("playURL")->setIcon(TkIcon("document-open-remote"));
 
 	ActionCollection::action("playVCD")->setText(tr("Play &VCD"));
-	ActionCollection::action("playVCD")->setIcon(MyIcon("media-optical"));
+	ActionCollection::action("playVCD")->setIcon(TkIcon("media-optical"));
 
 	ActionCollection::action("equalizer")->setText(tr("&Equalizer..."));
-	ActionCollection::action("equalizer")->setIcon(MyIcon("view-media-equalizer"));
+	ActionCollection::action("equalizer")->setIcon(TkIcon("view-media-equalizer"));
 
 	ActionCollection::action("configure")->setText(tr("&Configure QuarkPlayer..."));
-	ActionCollection::action("configure")->setIcon(MyIcon("preferences-system"));
+	ActionCollection::action("configure")->setIcon(TkIcon("preferences-system"));
 
 	ActionCollection::action("openSubtitleFile")->setText(tr("&Open Subtitle..."));
-	ActionCollection::action("openSubtitleFile")->setIcon(MyIcon("document-open"));
+	ActionCollection::action("openSubtitleFile")->setIcon(TkIcon("document-open"));
 
 	ActionCollection::action("clearRecentFiles")->setText(tr("&Clear"));
-	ActionCollection::action("clearRecentFiles")->setIcon(MyIcon("edit-delete"));
+	ActionCollection::action("clearRecentFiles")->setIcon(TkIcon("edit-delete"));
 
 	ActionCollection::action("emptyMenu")->setText(tr("<empty>"));
 	ActionCollection::action("emptyMenu")->setEnabled(false);
@@ -461,19 +461,19 @@ void MainWindow::retranslate() {
 	_mainToolBar->setMinimumSize(_mainToolBar->sizeHint());
 
 	_menuRecentFiles->setTitle(tr("&Recent Files"));
-	_menuRecentFiles->setIcon(MyIcon("document-open-recent"));
+	_menuRecentFiles->setIcon(TkIcon("document-open-recent"));
 
 	_menuAudioChannels->setTitle(tr("&Audio Channels"));
-	_menuAudioChannels->setIcon(MyIcon("audio-x-generic"));
+	_menuAudioChannels->setIcon(TkIcon("audio-x-generic"));
 
 	_menuSubtitles->setTitle(tr("&Subtitles"));
-	_menuSubtitles->setIcon(MyIcon("format-text-underline"));
+	_menuSubtitles->setIcon(TkIcon("format-text-underline"));
 
 	_menuTitles->setTitle(tr("&Title"));
-	_menuTitles->setIcon(MyIcon("format-list-ordered"));
+	_menuTitles->setIcon(TkIcon("format-list-ordered"));
 
 	_menuChapters->setTitle(tr("&Chapter"));
-	_menuChapters->setIcon(MyIcon("x-office-address-book"));
+	_menuChapters->setIcon(TkIcon("x-office-address-book"));
 
 	_menuAngles->setTitle(tr("&Angle"));
 	_menuFile->setTitle(tr("&File"));

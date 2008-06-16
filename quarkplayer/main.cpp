@@ -18,10 +18,12 @@
 
 #include "MainWindow.h"
 
-#include "Translator.h"
 #include "config/Config.h"
 #include "version.h"
 #include "config.h"
+
+#include <tkutil/Translator.h>
+#include <tkutil/TkIcon.h>
 
 #ifdef KDE4_FOUND
 	#include <KApplication>
@@ -91,6 +93,10 @@ int main(int argc, char * argv[]) {
 
 	//Translator
 	Translator::instance().load(Config::instance().language());
+
+	//Icons
+	TkIcon::setIconTheme(Config::instance().iconTheme());
+	TkIcon::setIconSize(16);
 
 	MainWindow window(NULL);
 	window.show();

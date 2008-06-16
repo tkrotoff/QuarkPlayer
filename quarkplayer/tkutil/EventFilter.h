@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TKEVENTFILTER_H
-#define TKEVENTFILTER_H
+#ifndef EVENTFILTER_H
+#define EVENTFILTER_H
 
 #include <QtCore/QObject>
 
@@ -39,7 +39,7 @@ class QEvent;
  *
  * @author Tanguy Krotoff
  */
-class TkEventFilter : public QObject {
+class EventFilter : public QObject {
 	Q_OBJECT
 public:
 
@@ -50,7 +50,7 @@ public:
 	 * @param member member of the object called by the filter signal
 	 * @param watched watched object the filter is going to be applied on
 	 */
-	TkEventFilter(QObject * receiver, const char * member);
+	EventFilter(QObject * receiver, const char * member);
 
 protected:
 
@@ -75,4 +75,4 @@ signals:
 	void activate(QEvent * event);
 };
 
-#endif	//TKEVENTFILTER_H
+#endif	//EVENTFILTER_H

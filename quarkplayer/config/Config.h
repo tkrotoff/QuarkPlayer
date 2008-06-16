@@ -19,7 +19,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include "IConfig.h"
+#include <tkutil/IConfig.h>
 
 /**
  * Stores QuarkPlayer configuration.

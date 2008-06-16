@@ -16,43 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GENERALCONFIGWIDGET_H
-#define GENERALCONFIGWIDGET_H
+#include "TkIcon.h"
 
-#include "IConfigWidget.h"
+#include <QtGui/QtGui>
 
-#include <QtCore/QMap>
+#include <QtCore/QDebug>
 
-namespace Ui { class GeneralConfigWidget; }
+QString TkIcon::_iconTheme;
+QString TkIcon::_iconSize;
 
-/**
- * General QuarkPlayer configuration widget.
- *
- * @author Tanguy Krotoff
- */
-class GeneralConfigWidget : public IConfigWidget {
-	Q_OBJECT
-public:
+//Example: ":/icons/oxygen/16x16/actions/media-playback-start.png"
+//Example: ":/oxygen/16x16/media-playback-start"
+TkIcon::TkIcon(const QString & standardIconName)
+#ifdef KDE4_FOUND
+	: PrivateIcon(standardIconName)
+#else
+	: PrivateIcon(":/" + _iconTheme + "/" + _iconSize + "/" + standardIconName)
+#endif	//KDE4_FOUND
+	{
 
-	GeneralConfigWidget(QWidget * parent);
+	/*QString filename = Helper::appHomePath() + _fileName;
+	if (!QFile::exists(filename)) {
+	}*/
+}
 
-	~GeneralConfigWidget();
+void TkIcon::setIconTheme(const QString & iconTheme) {
+	_iconTheme = iconTheme;
+}
 
-	QString name() const;
-
-	QString iconName() const;
-
-	void readConfig();
-
-	void saveConfig();
-
-	void retranslate();
-
-private:
-
-	static QMap<QString, QString> languageList();
-
-	Ui::GeneralConfigWidget * _ui;
-};
-
-#endif	//GENERALCONFIGWIDGET_H
+void TkIcon::setIconSize(int iconSize) {
+	QString size = QString::number(iconSize);
+	_iconSize = size + "x" + size;
+}

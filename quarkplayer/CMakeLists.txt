@@ -20,12 +20,8 @@ set(quarkplayer_SRCS
 	StatusBar.cpp
 	MediaController.cpp
 	QuickSettingsWindow.cpp
-	ActionCollection.cpp
-	MyIcon.cpp
-	Translator.cpp
 	AboutWindow.cpp
 	MediaDataWidget.cpp
-	config/IConfig.cpp
 	config/Config.cpp
 	config/ConfigWindow.cpp
 	config/GeneralConfigWidget.cpp
@@ -46,8 +42,6 @@ qt4_wrap_cpp(quarkplayer_SRCS
 	StatusBar.h
 	MediaController.h
 	QuickSettingsWindow.h
-	ActionCollection.h
-	MyIcon.h
 	MediaDataWidget.h
 	config/Config.h
 	config/ConfigWindow.h
