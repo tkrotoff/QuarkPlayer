@@ -8,6 +8,12 @@ include(CMakeLists-owbuild.txt)
 #Desactivate KDE4 integration since it gives some troubles
 #will be changed in the future
 #cf http://code.google.com/p/phonon-vlc-mplayer/issues/detail?id=2
+if (NOT ENV{KDEDIRS})
+	#Ubuntu 8.04, if GNOME is run instead of KDE, KDEDIRS variable is not defined,
+	#let's define it
+	set(ENV{KDEDIRS} /usr/lib/kde4)
+endif (NOT ENV{KDEDIRS})
+
 #find_package(KDE4)
 if (KDE4_FOUND)
 	include(KDE4Defaults)

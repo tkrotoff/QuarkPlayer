@@ -40,7 +40,7 @@ else (KDE4_FOUND)
 endif (KDE4_FOUND)
 
 if (KDE4_FOUND)
-	install(TARGETS phonon_mplayer DESTINATION ${PLUGIN_INSTALL_DIR}/plugins/phonon_backend)
+	install(TARGETS phonon_mplayer DESTINATION ${PLUGIN_INSTALL_DIR})
 	install(FILES mplayer.desktop DESTINATION ${SERVICES_INSTALL_DIR}/phononbackends)
 	install(FILES icons/16x16/phonon-mplayer.png DESTINATION ${ICON_INSTALL_DIR}/oxygen/16x16/apps)
 	install(FILES icons/22x22/phonon-mplayer.png DESTINATION ${ICON_INSTALL_DIR}/oxygen/22x22/apps)

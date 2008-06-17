@@ -58,7 +58,7 @@ if (VLC_FOUND)
 endif (VLC_FOUND)
 
 if (KDE4_FOUND)
-	install(TARGETS phonon_vlc DESTINATION ${PLUGIN_INSTALL_DIR}/plugins/phonon_backend)
+	install(TARGETS phonon_vlc DESTINATION ${PLUGIN_INSTALL_DIR})
 	install(FILES vlc.desktop DESTINATION ${SERVICES_INSTALL_DIR}/phononbackends)
 	install(FILES icons/16x16/phonon-vlc.png DESTINATION ${ICON_INSTALL_DIR}/oxygen/16x16/apps)
 	install(FILES icons/32x32/phonon-vlc.png DESTINATION ${ICON_INSTALL_DIR}/oxygen/32x32/apps)
