@@ -28,6 +28,7 @@
 	<file>icons/oxygen/16x16/apps/preferences-system-windows.png</file>
 
 	<file alias="16x16/preferences-system">icons/oxygen/16x16/categories/preferences-system.png</file>
+	<file alias="16x16/preferences-desktop">icons/oxygen/16x16/categories/preferences-desktop.png</file>
 
 	<file>icons/oxygen/16x16/devices/audio-card.png</file>
 	<file>icons/oxygen/16x16/devices/drive-optical.png</file>

@@ -21,6 +21,7 @@
 	<file alias="16x16/help-about">icons/silk/information.png</file>
 
 	<file alias="16x16/preferences-system">icons/silk/wrench.png</file>
+	<file alias="16x16/preferences-desktop">icons/silk/monitor.png</file>
 
 	<file alias="16x16/media-optical">icons/silk/cd.png</file>
 

@@ -23,7 +23,7 @@ class QComboBox;
 class QString;
 
 /**
- * Usefull functions for QComboBox.
+ * Useful functions for QComboBox.
  *
  * @see QComboBox
  * @author Tanguy Krotoff
