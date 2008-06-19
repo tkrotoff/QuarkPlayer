@@ -275,6 +275,7 @@ void SettingsBrowser::setItem(const QVariant & defaultValue, const QVariant & va
 	case QVariant::Double: {
 		_ui->tableWidget->setItem(row, TYPE_COLUMN, new QTableWidgetItem("Double"));
 		QDoubleSpinBox * spinBox = new QDoubleSpinBox(this);
+		spinBox->setSingleStep(0.1);
 		spinBox->setRange(DBL_MIN, DBL_MAX);
 		_ui->tableWidget->setCellWidget(row, VALUE_COLUMN, spinBox);
 		spinBox->setValue(value.toDouble());

@@ -26,10 +26,8 @@
 #include <phonon/audiooutput.h>
 #include <phonon/mediasource.h>
 #include <phonon/videowidget.h>
-#include <phonon/seekslider.h>
 #include <phonon/effect.h>
 #include <phonon/backendcapabilities.h>
-#include <phonon/effect.h>
 #include <phonon/effectparameter.h>
 
 #include <QtGui/QtGui>
@@ -90,24 +88,26 @@ void QuickSettingsWindow::init() {
 	QList<Phonon::AudioOutputDevice> devices = Phonon::BackendCapabilities::availableAudioOutputDevices();
 	for (int i = 0; i < devices.size(); i++) {
 		QString itemText = devices[i].name();
-		if (!devices[i].description().isEmpty()) {
-			itemText += QString::fromLatin1(" (%1)").arg(devices[i].description());
-		}
 		_ui->deviceCombo->addItem(itemText);
 		if (devices[i] == _audioOutput.outputDevice()) {
 			_ui->deviceCombo->setCurrentIndex(i);
+			if (!devices[i].description().isEmpty()) {
+				//TODO Change tooltip when a different item is selected
+				_ui->deviceCombo->setToolTip(QString("%1").arg(devices[i].description()));
+			}
 		}
 	}
 
 	//Insert audio effects
-	_ui->audioEffectsCombo->addItem("<no effect>");
+	_ui->audioEffectsCombo->addItem(tr("<no effect>"));
 	QList<Phonon::Effect *> currEffects = _audioOutputPath.effects();
 	Phonon::Effect * currEffect = currEffects.size() ? currEffects[0] : 0;
 	QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
 	for (int i = 0; i < availableEffects.size(); i++) {
 		_ui->audioEffectsCombo->addItem(availableEffects[i].name());
-		if (currEffect && availableEffects[i] == currEffect->description())
+		if (currEffect && availableEffects[i] == currEffect->description()) {
 			_ui->audioEffectsCombo->setCurrentIndex(i + 1);
+		}
 	}
 	connect(_ui->audioEffectsCombo, SIGNAL(currentIndexChanged(int)), SLOT(effectChanged()));
 }
@@ -165,9 +165,9 @@ void QuickSettingsWindow::effectChanged() {
 		Phonon::EffectDescription chosenEffect = availableEffects[_ui->audioEffectsCombo->currentIndex() - 1];
 
 		QList<Phonon::Effect *> currEffects = _audioOutputPath.effects();
-		Phonon::Effect *currentEffect = currEffects.size() ? currEffects[0] : 0;
+		Phonon::Effect * currentEffect = currEffects.size() ? currEffects[0] : 0;
 
-		// Deleting the running effect will stop playback, it is deleted when removed from path
+		//Deleting the running effect will stop playback, it is deleted when removed from path
 		if (_nextEffect && !(currentEffect && (currentEffect->description().name() == _nextEffect->description().name()))) {
 			delete _nextEffect;
 		}
@@ -242,12 +242,11 @@ void QuickSettingsWindow::configureEffect() {
 		scrollArea->setWidget(scrollWidget);
 
 		if (_nextEffect) {
-			for (int k = 0; k < _nextEffect->parameters().size(); ++k) {
-				Phonon::EffectParameter param = _nextEffect->parameters()[k];
+			foreach (Phonon::EffectParameter param, _nextEffect->parameters()) {
 				QHBoxLayout * hlayout = new QHBoxLayout();
 				QString labelName = param.name();
 				labelName[0] = labelName[0].toUpper();
-				hlayout->addWidget(new QLabel("<b>" + labelName + ":</b> "));
+				hlayout->addWidget(new QLabel("<b>" + labelName + ":</b>"));
 
 				if (param.type() == QVariant::Int) {
 					QSpinBox * spin = new QSpinBox(&effectDialog);
@@ -321,9 +320,8 @@ void QuickSettingsWindow::configureEffect() {
 
 			effectDialog.exec();
 			if (effectDialog.result() != QDialog::Accepted) {
-				// Revert any changes
-				for (int k = 0; k < _nextEffect->parameters().size(); ++k) {
-					Phonon::EffectParameter param = _nextEffect->parameters()[k];
+				//Revert any changes
+				foreach (Phonon::EffectParameter param, _nextEffect->parameters()) {
 
 					switch (param.type()) {
 

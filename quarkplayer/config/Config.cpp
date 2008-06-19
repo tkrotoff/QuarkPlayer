@@ -65,7 +65,7 @@ TkConfig::KeyDefaultValueMap Config::defaultValues() {
 	values[ICON_THEME_KEY] = "silk";
 	values[RECENT_FILES_KEY] = QStringList();
 	values[LAST_DIRECTORY_USED_KEY] = QString();
-	values[LAST_VOLUME_USED_KEY] = (qreal) 1.0;
+	values[LAST_VOLUME_USED_KEY] = 1.0f;
 
 	values[TEST_INT_KEY] = 0;
 	values[TEST_BOOL_KEY] = false;
