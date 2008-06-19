@@ -19,24 +19,28 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <tkutil/IConfig.h>
+#include <tkutil/TkConfig.h>
 
 /**
  * Stores QuarkPlayer configuration.
  *
  * Pattern singleton.
  *
- * @see IConfig
+ * @see TkConfig
  * @see QSettings
  * @author Tanguy Krotoff
  */
-class Config : public IConfig {
+class Config : public TkConfig {
 public:
 
 	/** Singleton. */
 	static Config & instance();
 
 	~Config();
+
+	static const char * BACKEND_KEY;
+	QStringList backendList() const;
+	QString backend() const;
 
 	static const char * LANGUAGE_KEY;
 	QString language() const;
@@ -51,6 +55,13 @@ public:
 	static const char * RECENT_FILES_KEY;
 	QStringList recentFiles() const;
 
+	static const char * LAST_DIRECTORY_USED_KEY;
+	QString lastDirectoryUsed() const;
+
+	static const char * LAST_VOLUME_USED_KEY;
+	qreal lastVolumeUsed() const;
+
+
 	static const char * TEST_INT_KEY;
 	int testInt() const;
 
@@ -59,7 +70,7 @@ public:
 
 private:
 
-	virtual void setDefaultValues();
+	static KeyDefaultValueMap defaultValues();
 
 	/** Singleton. */
 	Config();

@@ -22,6 +22,7 @@
 
 #include "GeneralConfigWidget.h"
 #include "SettingsBrowser.h"
+#include "BackendCapabilitiesWidget.h"
 
 #include <tkutil/TkIcon.h>
 #include <tkutil/LanguageChangeEventFilter.h>
@@ -43,6 +44,7 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 
 	//Add all config panels/widgets to the list
 	_configWidgetList += new GeneralConfigWidget(this);
+	_configWidgetList += new BackendCapabilitiesWidget(this);
 	_configWidgetList += new SettingsBrowser(this);
 
 	//listWidget
@@ -54,9 +56,6 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	//Select the first (top one) config panel/widget from the list
 	_ui->listWidget->setCurrentRow(0);
 	showConfigWidget(0);
-
-	//listWidget width
-	_ui->listWidget->setFixedWidth(computeListViewMinimumWidth(_ui->listWidget) + 30);
 
 	//saveButton
 	connect(_ui->buttonBox, SIGNAL(accepted()), SLOT(saveConfig()));
@@ -75,6 +74,9 @@ void ConfigWindow::populateStackedWidget() {
 		_ui->stackedWidget->addWidget(configWidget);
 		new QListWidgetItem(TkIcon(configWidget->iconName()), configWidget->name(), _ui->listWidget);
 	}
+
+	//listWidget width
+	_ui->listWidget->setFixedWidth(computeListViewMinimumWidth(_ui->listWidget) + 30);
 }
 
 void ConfigWindow::showConfigWidget(int row) {

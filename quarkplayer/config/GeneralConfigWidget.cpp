@@ -21,6 +21,7 @@
 #include "ui_GeneralConfigWidget.h"
 
 #include "Config.h"
+#include "../config.h"
 
 #include <tkutil/Translator.h>
 #include <tkutil/TkComboBox.h>
@@ -35,6 +36,11 @@ GeneralConfigWidget::GeneralConfigWidget(QWidget * parent)
 
 	_ui = new Ui::GeneralConfigWidget();
 	_ui->setupUi(this);
+
+#ifdef KDE4_FOUND
+	//Not available under KDE, systemsettings will do it
+	_ui->backendGroupBox->setEnabled(false);
+#endif	//KDE4_FOUND
 }
 
 GeneralConfigWidget::~GeneralConfigWidget() {
@@ -51,6 +57,10 @@ QString GeneralConfigWidget::iconName() const {
 
 void GeneralConfigWidget::saveConfig() {
 	Config & config = Config::instance();
+
+	//Backend
+	QString backendName = _ui->backendComboBox->currentText();
+	config.setValue(Config::BACKEND_KEY, backendName.toLower());
 
 	//Style
 	QString styleName = _ui->styleComboBox->currentText();
@@ -70,6 +80,11 @@ void GeneralConfigWidget::saveConfig() {
 
 void GeneralConfigWidget::readConfig() {
 	Config & config = Config::instance();
+
+	//Backend
+	_ui->backendComboBox->clear();
+	_ui->backendComboBox->addItems(config.backendList());
+	TkComboBox::setCurrentText(_ui->backendComboBox, config.backend());
 
 	//Style
 	_ui->styleComboBox->clear();

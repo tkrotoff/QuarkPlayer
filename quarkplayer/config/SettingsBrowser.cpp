@@ -27,6 +27,7 @@
 #include <QtCore/QVariant>
 
 #include <climits>
+#include <cfloat>
 
 static const int KEY_NAME_COLUMN = 0;
 static const int STATUS_COLUMN = 1;
@@ -34,11 +35,6 @@ static const int TYPE_COLUMN = 2;
 static const int DEFAULT_VALUE_COLUMN = 3;
 static const int VALUE_COLUMN = 4;
 static const int RESET_COLUMN = 5;
-
-static const QString TYPE_STRING = "string";
-static const QString TYPE_STRINGLIST = "stringlist";
-static const QString TYPE_BOOLEAN = "boolean";
-static const QString TYPE_INTEGER = "integer";
 
 SettingsBrowser::SettingsBrowser(QWidget * parent)
 	: IConfigWidget(parent) {
@@ -276,6 +272,16 @@ void SettingsBrowser::setItem(const QVariant & defaultValue, const QVariant & va
 		break;
 	}
 
+	case QVariant::Double: {
+		_ui->tableWidget->setItem(row, TYPE_COLUMN, new QTableWidgetItem("Double"));
+		QDoubleSpinBox * spinBox = new QDoubleSpinBox(this);
+		spinBox->setRange(DBL_MIN, DBL_MAX);
+		_ui->tableWidget->setCellWidget(row, VALUE_COLUMN, spinBox);
+		spinBox->setValue(value.toDouble());
+		connect(spinBox, SIGNAL(valueChanged(double)), SLOT(valueChanged()));
+		break;
+	}
+
 	case QVariant::String: {
 		_ui->tableWidget->setItem(row, TYPE_COLUMN, new QTableWidgetItem("String"));
 		QLineEdit * lineEdit = new QLineEdit(this);
@@ -342,6 +348,17 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 		break;
 	}
 
+	case QVariant::Double: {
+		QDoubleSpinBox * spinBox = qobject_cast<QDoubleSpinBox *>(widget);
+		if (!spinBox) {
+			qCritical() << __FUNCTION__ << "Error: the widget does not match the QVariant::Type:" << defaultValue;
+			return value;
+		}
+
+		return spinBox->value();
+		break;
+	}
+
 	case QVariant::String: {
 		QLineEdit * lineEdit = qobject_cast<QLineEdit *>(widget);
 		if (!lineEdit) {
@@ -362,7 +379,6 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 
 		QString tmp = lineEdit->text();
 		if (tmp.isEmpty()) {
-			//Otherwise return "" instead of nothing
 			return QStringList();
 		} else {
 			return tmp.split(";");

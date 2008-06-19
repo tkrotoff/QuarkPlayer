@@ -21,12 +21,18 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
 
+const char * Config::BACKEND_KEY = "backend";
+
 const char * Config::LANGUAGE_KEY = "language";
 
 const char * Config::STYLE_KEY = "style";
 const char * Config::ICON_THEME_KEY = "icon_theme";
 
 const char * Config::RECENT_FILES_KEY = "recent_files";
+
+const char * Config::LAST_DIRECTORY_USED_KEY = "last_directory_used";
+
+const char * Config::LAST_VOLUME_USED_KEY = "last_volume_used";
 
 const char * Config::TEST_INT_KEY = "test_int";
 const char * Config::TEST_BOOL_KEY = "test_bool";
@@ -44,21 +50,39 @@ Config & Config::instance() {
 }
 
 Config::Config()
-	: IConfig() {
-
-	setDefaultValues();
+	: TkConfig(defaultValues()) {
 }
 
 Config::~Config() {
 }
 
-void Config::setDefaultValues() {
-	_keyDefaultValueMap[LANGUAGE_KEY] = QString();
-	_keyDefaultValueMap[STYLE_KEY] = "QuarkPlayerStyle";
-	_keyDefaultValueMap[ICON_THEME_KEY] = "silk";
-	_keyDefaultValueMap[RECENT_FILES_KEY] = QStringList();
-	_keyDefaultValueMap[TEST_INT_KEY] = 0;
-	_keyDefaultValueMap[TEST_BOOL_KEY] = false;
+TkConfig::KeyDefaultValueMap Config::defaultValues() {
+	KeyDefaultValueMap values;
+
+	values[BACKEND_KEY] = "mplayer";
+	values[LANGUAGE_KEY] = QString();
+	values[STYLE_KEY] = "QuarkPlayerStyle";
+	values[ICON_THEME_KEY] = "silk";
+	values[RECENT_FILES_KEY] = QStringList();
+	values[LAST_DIRECTORY_USED_KEY] = QString();
+	values[LAST_VOLUME_USED_KEY] = (qreal) 1.0;
+
+	values[TEST_INT_KEY] = 0;
+	values[TEST_BOOL_KEY] = false;
+
+	return values;
+}
+
+QStringList Config::backendList() const {
+	QStringList list;
+	list << "MPlayer"
+		<< "VLC"
+		<< "DS9";
+	return list;
+}
+
+QString Config::backend() const {
+	return value(BACKEND_KEY).toString();
 }
 
 QString Config::language() const {
@@ -71,9 +95,9 @@ QString Config::style() const {
 
 QStringList Config::iconThemeList() const {
 	QStringList list;
-	list << "Oxygen";
-	list << "Silk";
-	list << "Tango";
+	list << "Oxygen"
+		<< "Silk"
+		<< "Tango";
 	return list;
 }
 
@@ -84,6 +108,21 @@ QString Config::iconTheme() const {
 QStringList Config::recentFiles() const {
 	return value(RECENT_FILES_KEY).toStringList();
 }
+
+QString Config::lastDirectoryUsed() const {
+	return value(LAST_DIRECTORY_USED_KEY).toString();
+}
+
+qreal Config::lastVolumeUsed() const {
+	//Between 0.0 and 1.0
+	return value(LAST_VOLUME_USED_KEY).toDouble();
+}
+
+
+
+
+
+
 
 int Config::testInt() const {
 	return value(TEST_INT_KEY).toInt();
