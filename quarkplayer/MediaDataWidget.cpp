@@ -47,7 +47,7 @@ MediaDataWidget::MediaDataWidget(Phonon::MediaObject & mediaObject)
 	QPalette palette;
 	palette.setBrush(QPalette::WindowText, Qt::white);
 	_dataLabel->setPalette(palette);
-	_dataLabel->setText("<center>No media</center>");
+	_dataLabel->setText(tr("<center>No media</center>"));
 
 #ifdef Q_OS_MAC
 	_dataLabel->setFont(QFont("verdana", 15));
@@ -79,7 +79,7 @@ void MediaDataWidget::metaDataChanged() {
 
 	QString title = metaData.value("TITLE");
 	if (!title.isEmpty()) {
-		title = "Title: " + font + title + endfont;
+		title = tr("Title:  ") + font + title + endfont;
 	} else if (!filename.isEmpty()) {
 		title = font + filename + endfont;
 		if (_mediaObject.currentSource().type() == Phonon::MediaSource::Url) {
@@ -91,36 +91,41 @@ void MediaDataWidget::metaDataChanged() {
 
 	QString artist = metaData.value("ARTIST");
 	if (!artist.isEmpty()) {
-		artist = br + "Artist:  " + font + artist + endfont;
+		artist = br + tr("Artist:  ") + font + artist + endfont;
+	}
+
+	QString album = metaData.value("ALBUM");
+	if (!album.isEmpty()) {
+		album = br + tr("Album:  ") + font + album + endfont;
 	}
 
 	QString streamName = metaData.value("STREAM_NAME");
 	if (!streamName.isEmpty()) {
-		streamName = br + "Stream Name:  " + font + streamName + endfont;
+		streamName = br + tr("Stream Name:  ") + font + streamName + endfont;
 	}
 
 	QString streamGenre = metaData.value("STREAM_GENRE");
 	if (!streamGenre.isEmpty()) {
-		streamGenre = br + "Stream Genre:  " + font + streamGenre + endfont;
+		streamGenre = br + tr("Stream Genre:  ") + font + streamGenre + endfont;
 	}
 
 	QString streamWebsite = metaData.value("STREAM_WEBSITE");
 	if (!streamWebsite.isEmpty()) {
-		streamWebsite = br + "Stream Website:  " + href + streamWebsite + endhref1 +
+		streamWebsite = br + tr("Stream Website:  ") + href + streamWebsite + endhref1 +
 				font + streamWebsite + endfont + endhref2;
 	}
 
 	QString streamURL = metaData.value("STREAM_URL");
 	if (!streamURL.isEmpty()) {
-		streamURL = br + "Url:  " + href + streamURL + endhref1 +
+		streamURL = br + tr("Url:  ") + href + streamURL + endhref1 +
 			font + streamURL + endfont + endhref2;
 	}
 
 	int trackBitrate = metaData.value("BITRATE").toInt();
 	QString bitrate;
 	if (trackBitrate != 0) {
-		bitrate = br + "Bitrate:  " + font + QString::number(trackBitrate / 1000) + "kbit" + endfont;
+		bitrate = br + tr("Bitrate:  ") + font + QString::number(trackBitrate / 1000) + tr("kbit") + endfont;
 	}
 
-	_dataLabel->setText(title + artist + bitrate + streamName + streamGenre + streamWebsite /*+ streamURL*/);
+	_dataLabel->setText(title + artist + album + bitrate + streamName + streamGenre + streamWebsite /*+ streamURL*/);
 }

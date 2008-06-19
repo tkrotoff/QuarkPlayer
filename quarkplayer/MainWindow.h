@@ -29,6 +29,7 @@
 
 class VideoWidget;
 class PlayToolBar;
+class StatusBar;
 
 namespace Phonon {
 	class MediaObject;
@@ -54,6 +55,8 @@ public:
 
 	PlayToolBar * playToolBar() const;
 
+	StatusBar * myStatusBar() const;
+
 	VideoWidget * videoWidget() const;
 
 	QStackedWidget * stackedWidget() const;
@@ -67,6 +70,14 @@ public:
 	QMenu * menuChapters() const;
 
 	QMenu * menuAngles() const;
+
+signals:
+
+	void subtitleFileDropped(const QString & subtitle);
+
+public slots:
+
+	void play(const Phonon::MediaSource & mediaSource);
 
 private slots:
 
@@ -83,8 +94,6 @@ private slots:
 	void playRecentFile(int id);
 	void clearRecentFiles();
 
-	void play(const Phonon::MediaSource & mediaSource);
-
 	void aboutToFinish();
 
 	void sourceChanged(const Phonon::MediaSource & source);
@@ -94,6 +103,8 @@ private slots:
 
 	void retranslate();
 
+	void volumeChanged(qreal newVolume);
+
 private:
 
 	void populateActionCollection();
@@ -101,6 +112,12 @@ private:
 	void setupUi();
 
 	void closeEvent(QCloseEvent * event);
+
+	void dragEnterEvent(QDragEnterEvent * event);
+
+	void dropEvent(QDropEvent * event);
+
+	void volumeInit();
 
 	Phonon::MediaObject * _mediaObject;
 
@@ -134,6 +151,7 @@ private:
 	Phonon::MediaSource * _mediaSource;
 
 	PlayToolBar * _playToolBar;
+	StatusBar * _statusBar;
 };
 
 #endif	//MAINWINDOW_H

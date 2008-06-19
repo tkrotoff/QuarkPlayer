@@ -27,6 +27,7 @@
 #include "MediaController.h"
 #include "QuickSettingsWindow.h"
 #include "AboutWindow.h"
+#include "FileExtensions.h"
 #include "config/Config.h"
 #include "config/ConfigWindow.h"
 #include "version.h"
@@ -52,13 +53,32 @@ MainWindow::MainWindow(QWidget * parent)
 
 	setupUi();
 
+	//Accepts Drag&Drop
+	setAcceptDrops(true);
+
 	RETRANSLATE(this);
 	retranslate();
 
 	addRecentFilesToMenu();
 
+#ifndef KDE4_FOUND
+	//FIXME Backend selection, this is a hack
+	//Not available under KDE, systemsettings will do it
+	/*QStringList originalPaths = QCoreApplication::libraryPaths();
+	QString backendName = Config::instance().backend();
+	QStringList paths;
+	paths << QCoreApplication::applicationDirPath() + "/" + backendName;
+	QCoreApplication::setLibraryPaths(paths);
+	*/
+#endif	//KDE4_FOUND
+
 	_mediaObject = new Phonon::MediaObject(this);
 	_mediaObject->setTickInterval(1000);
+
+#ifndef KDE4_FOUND
+	//QCoreApplication::setLibraryPaths(originalPaths);
+#endif	//KDE4_FOUND
+
 	connect(_mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
 	connect(_mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
 		SLOT(sourceChanged(const Phonon::MediaSource &)));
@@ -71,10 +91,15 @@ MainWindow::MainWindow(QWidget * parent)
 
 	//audioOutput
 	_audioOutput = new Phonon::AudioOutput(Phonon::VideoCategory, this);
+	connect(_audioOutput, SIGNAL(volumeChanged (qreal)), SLOT(volumeChanged(qreal)));
+	_audioOutput->setVolume(Config::instance().lastVolumeUsed());
 	_audioOutputPath = Phonon::createPath(_mediaObject, _audioOutput);
 
-	//toolBar
+	//playToolBar
 	_playToolBar = new PlayToolBar(_mediaObject, _audioOutput);
+
+	//statusBar
+	_statusBar = new StatusBar(_mediaObject);
 
 	//Logo widget
 	_backgroundLogoWidget = new QWidget();
@@ -92,9 +117,6 @@ MainWindow::MainWindow(QWidget * parent)
 	_mediaDataWidget = new MediaDataWidget(*_mediaObject);
 	_stackedWidget->addWidget(_mediaDataWidget);
 
-	//statusBar
-	setStatusBar(new StatusBar(_mediaObject));
-
 	connect(ActionCollection::action("playDVD"), SIGNAL(triggered()), SLOT(playDVD()));
 	connect(ActionCollection::action("playURL"), SIGNAL(triggered()), SLOT(playURL()));
 	connect(ActionCollection::action("playFile"), SIGNAL(triggered()), SLOT(playFile()));
@@ -111,6 +133,10 @@ MainWindow::~MainWindow() {
 
 PlayToolBar * MainWindow::playToolBar() const {
 	return _playToolBar;
+}
+
+StatusBar * MainWindow::myStatusBar() const {
+	return _statusBar;
 }
 
 VideoWidget * MainWindow::videoWidget() const {
@@ -170,7 +196,18 @@ void MainWindow::clearRecentFiles() {
 }
 
 void MainWindow::playFile() {
-	QString filename = TkFileDialog::getOpenFileName(this, tr("Select Audio/Video File"));
+	QString filename = TkFileDialog::getOpenFileName(
+		this, tr("Select Audio/Video File"), Config::instance().lastDirectoryUsed(),
+		tr("Multimedia") + FileExtensions::toFilterFormat(FileExtensions::multimedia()) + ";;" +
+		tr("Video") + FileExtensions::toFilterFormat(FileExtensions::video()) +";;" +
+		tr("Audio") + FileExtensions::toFilterFormat(FileExtensions::audio()) +";;" +
+		tr("Playlist") + FileExtensions::toFilterFormat(FileExtensions::playlist()) + ";;" +
+		tr("All Files") + " (*)"
+	);
+
+	if (QFile::exists(filename)) {
+		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
+	}
 
 	if (!filename.isEmpty()) {
 		play(filename);
@@ -218,6 +255,7 @@ void MainWindow::play(const Phonon::MediaSource & mediaSource) {
 		addRecentFilesToMenu();
 	}
 
+	_statusBar->showMessage(tr("Processing") + " " + filename + "...");
 	_mediaObject->setCurrentSource(mediaSource);
 	_mediaObject->play();
 }
@@ -257,7 +295,8 @@ void MainWindow::metaDataChanged() {
 }
 
 void MainWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
-	/*
+	qDebug() << __FUNCTION__ << "newState:" << newState << "oldState:" << oldState;
+
 	//Remove the background logo, not needed anymore
 	if (_backgroundLogoWidget) {
 		_stackedWidget->removeWidget(_backgroundLogoWidget);
@@ -268,33 +307,11 @@ void MainWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
 	if (oldState == Phonon::LoadingState) {
 		//Resize the main window to the size of the video
 		//i.e increase or decrease main window size if needed
-		if (_mediaObject->hasVideo()) {
-			_stackedWidget->setCurrentWidget(_videoWidget);
-
-			//Flush event so that sizeHint takes the
-			//recently shown/hidden _videoWidget into account
-			QApplication::instance()->processEvents();
-			resize(sizeHint());
-		} else {
-			_stackedWidget->setCurrentWidget(_mediaDataWidget);
-
-			//Flush event so that sizeHint takes the
-			//recently shown/hidden _videoWidget into account
-			QApplication::instance()->processEvents();
-			resize(minimumSize());
-		}
+		hasVideoChanged(_mediaObject->hasVideo());
 	}
-	*/
 }
 
 void MainWindow::hasVideoChanged(bool hasVideo) {
-	//Remove the background logo, not needed anymore
-	if (_backgroundLogoWidget) {
-		_stackedWidget->removeWidget(_backgroundLogoWidget);
-		delete _backgroundLogoWidget;
-		_backgroundLogoWidget = NULL;
-	}
-
 	//Resize the main window to the size of the video
 	//i.e increase or decrease main window size if needed
 	if (hasVideo) {
@@ -502,4 +519,64 @@ QMenu * MainWindow::menuChapters() const {
 
 QMenu * MainWindow::menuAngles() const {
 	return _menuAngles;
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent * event) {
+	if (event->mimeData()->hasUrls()) {
+		event->acceptProposedAction();
+	}
+}
+
+void MainWindow::dropEvent(QDropEvent * event) {
+	QStringList files;
+
+	//Add urls to a list
+	if (event->mimeData()->hasUrls()) {
+		QList<QUrl> urlList = event->mimeData()->urls();
+		QString filename;
+		foreach (QUrl url, urlList) {
+			if (url.isValid()) {
+				qDebug() << __FUNCTION__ << "File scheme:" << url.scheme();
+				if (url.scheme() == "file") {
+					filename = url.toLocalFile();
+				} else {
+					filename = url.toString();
+				}
+				qDebug() << __FUNCTION__ << "File dropped:" << filename;
+				files.append(filename);
+			}
+		}
+	}
+
+	if (files.count() > 0) {
+		if (files.count() == 1) {
+			//1 file
+			QString filename = files[0];
+
+			QFileInfo fileInfo(filename);
+
+			qDebug() << __FUNCTION__ << "File suffix:" << fileInfo.suffix();
+
+			bool isSubtitle = FileExtensions::subtitle().contains(fileInfo.suffix(), Qt::CaseInsensitive);
+			if (isSubtitle) {
+				qDebug() << __FUNCTION__ << "Loading subtitle:" << filename;
+				emit subtitleFileDropped(filename);
+			} else if (fileInfo.isDir()) {
+				//TODO open directory
+			} else {
+				//TODO add to playlist if 'auto-add-playlist' option
+				play(filename);
+			}
+		} else {
+			//Several files
+
+			//TODO add files to playlist
+			//and play the first one in the list
+		}
+	}
+}
+
+void MainWindow::volumeChanged(qreal newVolume) {
+	Config & config = Config::instance();
+	config.setValue(Config::LAST_VOLUME_USED_KEY, newVolume);
 }

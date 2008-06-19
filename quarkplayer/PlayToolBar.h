@@ -50,8 +50,6 @@ public:
 
 	void setCheckedFullScreenButton(bool checked);
 
-	void showOver(QWidget * widgetUnder);
-
 signals:
 
 	void fullScreenButtonClicked(bool checked);
@@ -66,9 +64,20 @@ private:
 
 	void populateActionCollection();
 
-	QToolBar * createSeekToolBar();
+	void createSeekToolBar();
 
-	QToolBar * createControlToolBar();
+	void createControlToolBar();
+
+	/**
+	 * Disable everything but volumeSlider which is always enabled.
+	 *
+	 * @see QWidget::setEnabled()
+	 */
+	void setToolBarEnabled(bool enabled);
+
+	QToolBar * _seekToolBar;
+
+	QToolBar * _controlToolBar;
 
 	Phonon::MediaObject * _mediaObject;
 

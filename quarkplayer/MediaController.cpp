@@ -18,12 +18,14 @@
 
 #include "MediaController.h"
 
+#include "MediaControllerToolBar.h"
 #include "MainWindow.h"
+#include "FileExtensions.h"
+#include "config/Config.h"
 #include "config.h"
 
 #include <tkutil/ActionCollection.h>
 #include <tkutil/TkFileDialog.h>
-#include <tkutil/LanguageChangeEventFilter.h>
 
 #include <phonon/audiooutput.h>
 #include <phonon/volumeslider.h>
@@ -39,6 +41,8 @@ MediaController::MediaController(MainWindow * mainWindow, Phonon::MediaObject * 
 	: QObject(mainWindow) {
 
 	_mainWindow = mainWindow;
+	connect(_mainWindow, SIGNAL(subtitleFileDropped(const QString &)),
+		SLOT(openSubtitleFile(const QString &)));
 
 	//Media controller toolbar
 	_toolBar = new MediaControllerToolBar();
@@ -72,15 +76,27 @@ MediaController::~MediaController() {
 }
 
 void MediaController::openSubtitleFile() {
-	QString fileName = TkFileDialog::getOpenFileName(_mainWindow, tr("Select Subtitle File"));
+	QString filename = TkFileDialog::getOpenFileName(
+		_mainWindow, tr("Select Subtitle File"), Config::instance().lastDirectoryUsed(),
+		tr("Subtitle") + FileExtensions::toFilterFormat(FileExtensions::subtitle()) + ";;" +
+		tr("All Files") + " (*)"
+	);
 
-	if (fileName.isEmpty()) {
+	if (QFile::exists(filename)) {
+		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
+	}
+
+	openSubtitleFile(filename);
+}
+
+void MediaController::openSubtitleFile(const QString & subtitleFile) {
+	if (subtitleFile.isEmpty()) {
 		return;
 	}
 
 	QHash<QByteArray, QVariant> properties;
 	properties.insert("type", "file");
-	properties.insert("name", fileName);
+	properties.insert("name", subtitleFile);
 
 	int id = 0;
 	Phonon::SubtitleDescription subtitle(id, properties);
@@ -366,45 +382,4 @@ void MediaController::availableAnglesChanged() {
 
 void MediaController::actionAngleTriggered(int id) {
 	_mediaController->setCurrentAngle(id);
-}
-
-
-//MediaControllerToolBar
-MediaControllerToolBar::MediaControllerToolBar()
-	: TkToolBar(NULL) {
-
-	_audioChannelsButton = new QPushButton();
-	_menuAudioChannels = new QMenu();
-	_menuAudioChannels->addAction(ActionCollection::action("emptyMenu"));
-	_audioChannelsButton->setMenu(_menuAudioChannels);
-	addWidget(_audioChannelsButton);
-
-	_subtitlesButton = new QPushButton();
-	_menuSubtitles = new QMenu();
-	_menuSubtitles->addAction(ActionCollection::action("emptyMenu"));
-	_subtitlesButton->setMenu(_menuSubtitles);
-	addWidget(_subtitlesButton);
-
-	RETRANSLATE(this);
-	retranslate();
-}
-
-MediaControllerToolBar::~MediaControllerToolBar() {
-}
-
-QMenu * MediaControllerToolBar::menuAudioChannels() const {
-	return _menuAudioChannels;
-}
-
-QMenu * MediaControllerToolBar::menuSubtitles() const {
-	return _menuSubtitles;
-}
-
-void MediaControllerToolBar::retranslate() {
-	_audioChannelsButton->setText(tr("Audio"));
-	_subtitlesButton->setText(tr("Subtitle"));
-
-	setWindowTitle(tr("Language ToolBar"));
-
-	setMinimumSize(sizeHint());
 }

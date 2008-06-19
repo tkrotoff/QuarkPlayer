@@ -19,13 +19,18 @@ set(quarkplayer_SRCS
 	VideoWidget.cpp
 	StatusBar.cpp
 	MediaController.cpp
+	MediaControllerToolBar.cpp
 	QuickSettingsWindow.cpp
 	AboutWindow.cpp
 	MediaDataWidget.cpp
+	FileExtensions.cpp
+	CommandLineHelp.cpp
+	CommandLineParser.cpp
 	config/Config.cpp
 	config/ConfigWindow.cpp
 	config/GeneralConfigWidget.cpp
 	config/SettingsBrowser.cpp
+	config/BackendCapabilitiesWidget.cpp
 )
 
 qt4_add_resources(quarkplayer_SRCS
@@ -41,12 +46,14 @@ qt4_wrap_cpp(quarkplayer_SRCS
 	VideoWidget.h
 	StatusBar.h
 	MediaController.h
+	MediaControllerToolBar.h
 	QuickSettingsWindow.h
 	MediaDataWidget.h
 	config/Config.h
 	config/ConfigWindow.h
 	config/GeneralConfigWidget.h
 	config/SettingsBrowser.h
+	config/BackendCapabilitiesWidget.h
 )
 
 if (WIN32)
@@ -62,12 +69,15 @@ qt4_wrap_ui(quarkplayer_SRCS
 	config/ConfigWindow.ui
 	config/GeneralConfigWidget.ui
 	config/SettingsBrowser.ui
+	config/BackendCapabilitiesWidget.ui
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 set(quarkplayer_TRANSLATIONS
 	${quarkplayer_SRCS}
+	translations/quarkplayer_en.ts
 	translations/quarkplayer_fr.ts
+	translations/quarkplayer_de.ts
 )
 qt4_create_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
 #qt4_add_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})

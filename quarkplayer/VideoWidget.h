@@ -61,17 +61,18 @@ private:
 
 	void timerEvent(QTimerEvent * event);
 
-	void dropEvent(QDropEvent * event);
-
-	void dragEnterEvent(QDragEnterEvent * event);
-
 	void addPlayToolBarToMainWindow();
 
 	void checkMousePos();
 
+	static void showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder);
+
 	MainWindow * _mainWindow;
 
 	QBasicTimer _timer;
+
+	/** QWidget that contains PlayToolBar + StatusBar. */
+	QWidget * _widgetOverFullScreen;
 };
 
 #endif	//VIDEOWIDGET_H

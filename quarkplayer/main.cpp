@@ -18,12 +18,15 @@
 
 #include "MainWindow.h"
 
+#include "CommandLineParser.h"
 #include "config/Config.h"
 #include "version.h"
 #include "config.h"
 
 #include <tkutil/Translator.h>
 #include <tkutil/TkIcon.h>
+
+#include <phonon/mediaobject.h>
 
 #ifdef KDE4_FOUND
 	#include <KApplication>
@@ -35,19 +38,10 @@
 
 #include <QtGui/QStyleFactory>
 
-#include <QtCore/QSettings>
-
 int main(int argc, char * argv[]) {
 	Q_INIT_RESOURCE(quarkplayer);
 	Q_INIT_RESOURCE(quarkplayer_oxygen);
 	Q_INIT_RESOURCE(quarkplayer_silk);
-
-#ifdef Q_OS_WIN
-	//Under Windows, do not use registry database
-	//use INI format instead
-	//Under other OS, use the default storage format
-	QSettings::setDefaultFormat(QSettings::IniFormat);
-#endif	//Q_OS_WIN
 
 #ifdef KDE4_FOUND
 	KAboutData aboutData(
@@ -77,6 +71,7 @@ int main(int argc, char * argv[]) {
 	KApplication app;
 #else
 	QApplication app(argc, argv);
+#endif	//KDE4_FOUND
 
 	//General infos
  	app.setOrganizationName("QuarkPlayer");
@@ -84,22 +79,32 @@ int main(int argc, char * argv[]) {
 	app.setApplicationName("QuarkPlayer");
 	app.setApplicationVersion(QUARKPLAYER_VERSION);
 
+	//Do it now, otherwise organizationName and applicationName are not set
+	Config & config = Config::instance();
+
+#ifdef Q_OS_WIN
 	//By default QuarkPlayerStyle: specific style for QuarkPlayer
 	//Fix some ugly things under Windows XP
 	app.setStyle(QStyleFactory::create(Config::instance().style()));
-#endif	//KDE4_FOUND
+#endif	//Q_OS_WIN
 
 	app.setQuitOnLastWindowClosed(true);
 
 	//Translator
-	Translator::instance().load(Config::instance().language());
+	Translator::instance().load(config.language());
+
+	//CommandLineParser
+	CommandLineParser parser;
 
 	//Icons
-	TkIcon::setIconTheme(Config::instance().iconTheme());
+	TkIcon::setIconTheme(config.iconTheme());
 	TkIcon::setIconSize(16);
 
 	MainWindow window(NULL);
 	window.show();
+	if (!parser.fileToPlay().isEmpty()) {
+		window.play(parser.fileToPlay());
+	}
 
 	return app.exec();
 }

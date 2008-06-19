@@ -20,13 +20,12 @@
 
 #include "MainWindow.h"
 #include "PlayToolBar.h"
+#include "StatusBar.h"
 
 #include <phonon/mediaobject.h>
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
-#include <QtGui/QDropEvent>
-#include <QtGui/QDragEnterEvent>
 #include <QtGui/QLabel>
 #include <QtGui/QtGui>
 #include <QtCore/QTimerEvent>
@@ -35,10 +34,11 @@ VideoWidget::VideoWidget(MainWindow * mainWindow, Phonon::MediaObject * mediaObj
 	: Phonon::VideoWidget(NULL),
 	_mainWindow(mainWindow) {
 
-	setAcceptDrops(true);
-
 	connect(_mainWindow->playToolBar(), SIGNAL(fullScreenButtonClicked(bool)),
 		SLOT(setFullScreenSlot(bool)));
+
+	//Lazy initialization
+	_widgetOverFullScreen = NULL;
 
 	//We do this in order to add the play toolbar to the mainwindow
 	//when starting
@@ -61,6 +61,18 @@ void VideoWidget::setFullScreenSlot(bool fullScreen) {
 		stackedWidget->removeWidget(this);
 
 		setFullScreen(fullScreen);
+
+		//QWidget that contains PlayToolBar + StatusBar
+		//Lazy initialization
+		if (!_widgetOverFullScreen) {
+			_widgetOverFullScreen = new QWidget(NULL);
+			_widgetOverFullScreen->setWindowFlags(Qt::Window | Qt::FramelessWindowHint |
+				Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+
+			QVBoxLayout * layout = new QVBoxLayout();
+			layout->setContentsMargins(0, 0, 0, 0);
+			_widgetOverFullScreen->setLayout(layout);
+		}
 	} else {
 		//Leaving fullscreen
 
@@ -69,6 +81,7 @@ void VideoWidget::setFullScreenSlot(bool fullScreen) {
 		stackedWidget->setCurrentWidget(this);
 
 		addPlayToolBarToMainWindow();
+		_widgetOverFullScreen->hide();
 	}
 }
 
@@ -127,49 +140,61 @@ void VideoWidget::timerEvent(QTimerEvent * event) {
 	Phonon::VideoWidget::timerEvent(event);
 }
 
-void VideoWidget::dropEvent(QDropEvent * event) {
-	//_mainWindow->handleDrop(event);
-}
+void VideoWidget::showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder) {
+	widgetOver->resize(widgetUnder->width(), widgetOver->height());
 
-void VideoWidget::dragEnterEvent(QDragEnterEvent * event) {
-	if (event->mimeData()->hasUrls()) {
-		event->acceptProposedAction();
-	}
+	int x = 0;
+	int y = widgetUnder->height() - widgetOver->height();
+
+	widgetOver->move(x, y);
+	widgetOver->show();
 }
 
 void VideoWidget::checkMousePos() {
 	static const int MARGIN = 70;
-	static bool nearBottom = false;
+	static bool bottomCursor = false;
 
 	if (!isFullScreen()) {
 		return;
 	}
 
 	PlayToolBar * playToolBar = _mainWindow->playToolBar();
+	StatusBar * statusBar = _mainWindow->myStatusBar();
+	//Computing size of the widgetOverFullScreen
+	int widgetOverFullScreenHeight = playToolBar->height() + statusBar->height();
+	_widgetOverFullScreen->setMaximumHeight(widgetOverFullScreenHeight);
 
 	QPoint pos = QCursor::pos();
 
-	if (pos.y() > height() - MARGIN) {
-		if (!nearBottom) {
+	if (pos.y() > height() - widgetOverFullScreenHeight) {
+		//Going near bottom
+
+		if (!bottomCursor) {
 			qDebug() << __FUNCTION__;
-			nearBottom = true;
+			bottomCursor = true;
 
-			_mainWindow->removeToolBar(playToolBar);
-			playToolBar->setParent(NULL);
-			playToolBar->setWindowFlags(Qt::Window | Qt::FramelessWindowHint |
-					Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+			//PlayToolBar
+			_widgetOverFullScreen->layout()->removeWidget(playToolBar);
+			_widgetOverFullScreen->layout()->addWidget(playToolBar);
 
-			playToolBar->showOver(this);
+			//StatusBar
+			_widgetOverFullScreen->layout()->removeWidget(statusBar);
+			_widgetOverFullScreen->layout()->addWidget(statusBar);
+
+			showWidgetOver(_widgetOverFullScreen, this);
 		}
 	} else {
-		if (nearBottom) {
-			nearBottom = false;
-			addPlayToolBarToMainWindow();
+		//Leaving near bottom
+
+		if (bottomCursor) {
+			bottomCursor = false;
+
+			_widgetOverFullScreen->hide();
 		}
 	}
 }
 
 void VideoWidget::addPlayToolBarToMainWindow() {
-	qDebug() << __FUNCTION__;
 	_mainWindow->addToolBar(Qt::BottomToolBarArea, _mainWindow->playToolBar());
+	_mainWindow->setStatusBar(_mainWindow->myStatusBar());
 }

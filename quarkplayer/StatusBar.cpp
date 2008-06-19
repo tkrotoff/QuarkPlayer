@@ -23,7 +23,7 @@
 #include <QtGui/QtGui>
 
 StatusBar::StatusBar(Phonon::MediaObject * mediaObject)
-	: QStatusBar() {
+	: QStatusBar(NULL) {
 
 	_currentTime = 0;
 	_totalTime = 0;
@@ -105,7 +105,7 @@ void StatusBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
 		break;
 
 	default:
-		qDebug() << "State? newState=" << newState << "oldState=" << oldState;
+		qCritical() << "Error: unknown newState:" << newState << "oldState:" << oldState;
 	}
 }
 

@@ -21,6 +21,9 @@
 	<file alias="16x16/help-about">icons/tango/16x16/apps/help-browser.png</file>
 
 	<file alias="16x16/preferences-desktop-display">icons/tango/16x16/apps/preferences-system-windows.png</file>
+	<file alias="16x16/preferences-desktop">icons/tango/16x16/apps/preferences-system-windows.png</file>
+	<file alias="16x16/system-help">icons/tango/16x16/apps/help-browser.png</file>
+
 	<file>icons/tango/16x16/apps/preferences-desktop-locale.png</file>
 	<file>icons/tango/16x16/apps/preferences-system-windows.png</file>
 

@@ -37,6 +37,9 @@ PlayToolBar::PlayToolBar(Phonon::MediaObject * mediaObject, Phonon::AudioOutput 
 	populateActionCollection();
 
 	_mediaObject = mediaObject;
+	connect(_mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
+		SLOT(stateChanged(Phonon::State, Phonon::State)));
+
 	_audioOutput = audioOutput;
 	_volumeSlider = NULL;
 	_seekSlider = NULL;
@@ -47,16 +50,17 @@ PlayToolBar::PlayToolBar(Phonon::MediaObject * mediaObject, Phonon::AudioOutput 
 	QWidget * widget = new QWidget();
 	widget->setLayout(vLayout);
 
-	QToolBar * seekToolBar = createSeekToolBar();
-	vLayout->addWidget(seekToolBar);
+	createSeekToolBar();
+	vLayout->addWidget(_seekToolBar);
 
-	QToolBar * controlToolBar = createControlToolBar();
-	vLayout->addWidget(controlToolBar);
+	createControlToolBar();
+	vLayout->addWidget(_controlToolBar);
 
 	addWidget(widget);
 
-	//setMovable(false);
-	//setFloatable(false);
+	//PlayToolBar is disabled at the beginning
+	//it will be enabled when a file is being played
+	setToolBarEnabled(false);
 }
 
 PlayToolBar::~PlayToolBar() {
@@ -67,6 +71,20 @@ void PlayToolBar::setCheckedFullScreenButton(bool checked) {
 }
 
 void PlayToolBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
+	static bool firstTime = true;
+
+	if (firstTime) {
+		firstTime = false;
+		setToolBarEnabled(true);
+	}
+
+	//Enabled/disabled fullscreen button depending if media file is a video or audio
+	if (_mediaObject->hasVideo()) {
+		ActionCollection::action("fullScreen")->setEnabled(true);
+	} else {
+		ActionCollection::action("fullScreen")->setEnabled(false);
+	}
+
 	switch (newState) {
 	case Phonon::ErrorState:
 		break;
@@ -100,18 +118,8 @@ void PlayToolBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
 	}
 }
 
-void PlayToolBar::showOver(QWidget * widgetUnder) {
-	resize(widgetUnder->width(), height());
-
-	int x = 0;
-	int y = widgetUnder->height() - height();
-
-	move(x, y);
-	show();
-}
-
-QToolBar * PlayToolBar::createSeekToolBar() {
-	QToolBar * seekToolBar = new QToolBar(NULL);
+void PlayToolBar::createSeekToolBar() {
+	_seekToolBar = new QToolBar(NULL);
 
 	//SeekSlider
 	_seekSlider = new Phonon::SeekSlider();
@@ -119,23 +127,21 @@ QToolBar * PlayToolBar::createSeekToolBar() {
 	//_seekSlider->setTracking(false);
 	_seekSlider->setMediaObject(_mediaObject);
 
-	seekToolBar->addWidget(_seekSlider);
-
-	return seekToolBar;
+	_seekToolBar->addWidget(_seekSlider);
 }
 
-QToolBar * PlayToolBar::createControlToolBar() {
-	QToolBar * controlToolBar = new QToolBar(NULL);
+void PlayToolBar::createControlToolBar() {
+	_controlToolBar = new QToolBar(NULL);
 
-	controlToolBar->addAction(ActionCollection::action("play"));
-	controlToolBar->addAction(ActionCollection::action("pause"));
-	controlToolBar->addAction(ActionCollection::action("stop"));
-	controlToolBar->addSeparator();
-	controlToolBar->addAction(ActionCollection::action("previousTrack"));
-	controlToolBar->addAction(ActionCollection::action("nextTrack"));
-	controlToolBar->addSeparator();
-	controlToolBar->addAction(ActionCollection::action("fullScreen"));
-	controlToolBar->addSeparator();
+	_controlToolBar->addAction(ActionCollection::action("play"));
+	_controlToolBar->addAction(ActionCollection::action("pause"));
+	_controlToolBar->addAction(ActionCollection::action("stop"));
+	_controlToolBar->addSeparator();
+	_controlToolBar->addAction(ActionCollection::action("previousTrack"));
+	_controlToolBar->addAction(ActionCollection::action("nextTrack"));
+	_controlToolBar->addSeparator();
+	_controlToolBar->addAction(ActionCollection::action("fullScreen"));
+	_controlToolBar->addSeparator();
 
 	//Actions connect
 	connect(ActionCollection::action("play"), SIGNAL(triggered()), _mediaObject, SLOT(play()));
@@ -146,13 +152,11 @@ QToolBar * PlayToolBar::createControlToolBar() {
 
 	//volumdeSlider
 	_volumeSlider = new Phonon::VolumeSlider(_audioOutput);
-	_volumeSlider->setIconSize(controlToolBar->iconSize());
+	_volumeSlider->setIconSize(_controlToolBar->iconSize());
 	//volumeSlider only takes the space it needs
 	_volumeSlider->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
-	controlToolBar->addWidget(_volumeSlider);
-
-	return controlToolBar;
+	_controlToolBar->addWidget(_volumeSlider);
 }
 
 void PlayToolBar::populateActionCollection() {
@@ -194,4 +198,15 @@ void PlayToolBar::retranslate() {
 	_volumeSlider->setMutedIcon(TkIcon("speaker"));
 
 	setMinimumSize(sizeHint());
+}
+
+void PlayToolBar::setToolBarEnabled(bool enabled) {
+	_seekToolBar->setEnabled(enabled);
+
+	ActionCollection::action("play")->setEnabled(enabled);
+	ActionCollection::action("pause")->setEnabled(enabled);
+	ActionCollection::action("stop")->setEnabled(enabled);
+	ActionCollection::action("nextTrack")->setEnabled(enabled);
+	ActionCollection::action("previousTrack")->setEnabled(enabled);
+	ActionCollection::action("fullScreen")->setEnabled(enabled);
 }

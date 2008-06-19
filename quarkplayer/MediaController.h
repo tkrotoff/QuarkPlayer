@@ -19,53 +19,20 @@
 #ifndef MEDIACONTROLLER_H
 #define MEDIACONTROLLER_H
 
-#include <tkutil/TkToolBar.h>
-
 #include <QtCore/QObject>
 
 class MainWindow;
+class MediaControllerToolBar;
 
 namespace Phonon {
 	class MediaController;
 	class MediaObject;
 }
 
-class QPushButton;
-class QMenu;
-class QEvent;
-
-/**
- * Media controller toolbar.
- *
- * @author Tanguy Krotoff
- */
-class MediaControllerToolBar : public TkToolBar {
-	Q_OBJECT
-public:
-
-	MediaControllerToolBar();
-
-	~MediaControllerToolBar();
-
-	QMenu * menuAudioChannels() const;
-
-	QMenu * menuSubtitles() const;
-
-private slots:
-
-	void retranslate();
-
-private:
-
-	QPushButton * _audioChannelsButton;
-	QMenu * _menuAudioChannels;
-
-	QPushButton * _subtitlesButton;
-	QMenu * _menuSubtitles;
-};
-
 /**
  * Handles Phonon::MediaController.
+ *
+ * Handles subtitles, audio channels, angles...
  *
  * @author Tanguy Krotoff
  */
@@ -80,6 +47,7 @@ public:
 private slots:
 
 	void openSubtitleFile();
+	void openSubtitleFile(const QString & subtitleFile);
 
 	void availableAudioChannelsChanged();
 	void actionAudioChannelTriggered(int id);
