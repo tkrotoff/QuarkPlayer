@@ -201,7 +201,8 @@ void PlayToolBar::retranslate() {
 }
 
 void PlayToolBar::setToolBarEnabled(bool enabled) {
-	_seekToolBar->setEnabled(enabled);
+	//FIXME don't why, seekToolBar does not get enabled afterwards
+	//_seekToolBar->setEnabled(enabled);
 
 	ActionCollection::action("play")->setEnabled(enabled);
 	ActionCollection::action("pause")->setEnabled(enabled);
