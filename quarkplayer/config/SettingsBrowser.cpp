@@ -30,10 +30,10 @@
 #include <cfloat>
 
 static const int KEY_NAME_COLUMN = 0;
-static const int STATUS_COLUMN = 1;
-static const int TYPE_COLUMN = 2;
-static const int DEFAULT_VALUE_COLUMN = 3;
-static const int VALUE_COLUMN = 4;
+static const int VALUE_COLUMN = 1;
+static const int DEFAULT_VALUE_COLUMN = 2;
+static const int STATUS_COLUMN = 3;
+static const int TYPE_COLUMN = 4;
 static const int RESET_COLUMN = 5;
 
 SettingsBrowser::SettingsBrowser(QWidget * parent)
@@ -41,6 +41,10 @@ SettingsBrowser::SettingsBrowser(QWidget * parent)
 
 	_ui = new Ui::SettingsBrowser();
 	_ui->setupUi(this);
+
+	_ui->tableWidget->resizeColumnToContents(RESET_COLUMN);
+	_ui->tableWidget->setColumnWidth(VALUE_COLUMN, 300);
+	_ui->tableWidget->verticalHeader()->hide();
 }
 
 SettingsBrowser::~SettingsBrowser() {
@@ -130,7 +134,6 @@ void SettingsBrowser::readConfig() {
 		_ui->tableWidget->setItem(row, DEFAULT_VALUE_COLUMN, new QTableWidgetItem(defaultValue.toString()));
 
 		QVariant value = config.value(key);
-
 		if (value == defaultValue) {
 			_ui->tableWidget->setItem(row, STATUS_COLUMN, new QTableWidgetItem("Default"));
 		} else {
@@ -144,6 +147,12 @@ void SettingsBrowser::readConfig() {
 		//Same as Firefox about:config
 		setRowBold(row, value != defaultValue);
 	}
+
+	_ui->tableWidget->resizeColumnToContents(KEY_NAME_COLUMN);
+	_ui->tableWidget->resizeColumnToContents(DEFAULT_VALUE_COLUMN);
+	_ui->tableWidget->resizeColumnToContents(STATUS_COLUMN);
+	_ui->tableWidget->resizeColumnToContents(TYPE_COLUMN);
+	_ui->tableWidget->resizeRowsToContents();
 }
 
 void SettingsBrowser::addResetButton(int row) const {

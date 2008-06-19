@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>626</width>
-    <height>480</height>
+    <width>632</width>
+    <height>373</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout" >
@@ -18,9 +18,22 @@
      <property name="selectionBehavior" >
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
+     <property name="gridStyle" >
+      <enum>Qt::NoPen</enum>
+     </property>
      <column>
       <property name="text" >
        <string>Preference Name</string>
+      </property>
+     </column>
+     <column>
+      <property name="text" >
+       <string>Value</string>
+      </property>
+     </column>
+     <column>
+      <property name="text" >
+       <string>Default Value</string>
       </property>
      </column>
      <column>
@@ -35,23 +48,12 @@
      </column>
      <column>
       <property name="text" >
-       <string>Default Value</string>
-      </property>
-     </column>
-     <column>
-      <property name="text" >
-       <string>Value</string>
-      </property>
-     </column>
-     <column>
-      <property name="text" >
-       <string> </string>
+       <string>Reset</string>
       </property>
      </column>
     </widget>
    </item>
   </layout>
-  <zorder>label</zorder>
   <zorder>tableWidget</zorder>
  </widget>
  <resources/>
