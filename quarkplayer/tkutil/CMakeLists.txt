@@ -9,7 +9,7 @@ set(tkutil_SRCS
 	LanguageChangeEventFilter.cpp
 	TkIcon.cpp
 	ActionCollection.cpp
-	IConfig.cpp
+	TkConfig.cpp
 	Translator.cpp
 	TkStackedWidget.cpp
 )

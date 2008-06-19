@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ICONFIG_H
-#define ICONFIG_H
+#ifndef TKCONFIG_H
+#define TKCONFIG_H
 
 #include <QtCore/QSettings>
 #include <QtCore/QMap>
@@ -27,19 +27,22 @@
  *
  * Interface for class Config.
  *
- * IConfig will be used for a future plugin system.
+ * TkConfig will be used for a future plugin system.
  *
  * @see QSettings
  * @author Tanguy Krotoff
  */
-class IConfig {
+class TkConfig {
 public:
 
-	virtual ~IConfig();
+	/** Associates a key to a default value. */
+	typedef QMap<QString, QVariant> KeyDefaultValueMap;
+
+	TkConfig(const KeyDefaultValueMap & defaultValues);
+
+	virtual ~TkConfig();
 
 	QString fileName() const;
-
-	QSettings & settings();
 
 	QStringList allKeys() const;
 
@@ -49,14 +52,13 @@ public:
 
 	QVariant value(const QString & key) const;
 
-protected:
+private:
 
-	virtual void setDefaultValues() = 0;
+	void checkStatus() const;
 
 	QSettings _settings;
 
-	/** Associates a key to a default value. */
-	QMap<QString, QVariant> _keyDefaultValueMap;
+	const KeyDefaultValueMap _defaultValues;
 };
 
-#endif	//ICONFIG_H
+#endif	//TKCONFIG_H
