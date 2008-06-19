@@ -59,19 +59,39 @@ StatusBar::StatusBar(Phonon::MediaObject * mediaObject)
 StatusBar::~StatusBar() {
 }
 
-QString StatusBar::convertMilliseconds(qint64 time) {
-	QTime displayTime((time / 3600000) % 60, (time / 60000) % 60, (time / 1000) % 60);
-	return displayTime.toString("hh:mm:ss");
+QString StatusBar::convertMilliseconds(qint64 currentTime, qint64 totalTime) {
+	QTime displayCurrentTime((currentTime / 3600000) % 60, (currentTime / 60000) % 60, (currentTime / 1000) % 60);
+	QTime displayTotalTime((totalTime / 3600000) % 60, (totalTime / 60000) % 60, (totalTime / 1000) % 60);
+
+	QString timeFormat;
+
+	if (displayTotalTime.hour() == 0 && displayTotalTime.minute() == 0 &&
+		displayTotalTime.second() == 0 && displayTotalTime.msec() == 0) {
+		//Total time is 0, then only return current time
+		if (displayCurrentTime.hour() > 0) {
+			timeFormat = "hh:mm:ss";
+		} else {
+			timeFormat = "mm:ss";
+		}
+		return displayCurrentTime.toString(timeFormat);
+	} else {
+		if (displayTotalTime.hour() > 0) {
+			timeFormat = "hh:mm:ss";
+		} else {
+			timeFormat = "mm:ss";
+		}
+		return displayCurrentTime.toString(timeFormat) + " / " + displayTotalTime.toString(timeFormat);
+	}
 }
 
 void StatusBar::tick(qint64 time) {
 	_currentTime = time;
-	_timeLabel->setText(convertMilliseconds(_currentTime) + " / " + convertMilliseconds(_totalTime));
+	_timeLabel->setText(convertMilliseconds(_currentTime, _totalTime));
 }
 
 void StatusBar::totalTimeChanged(qint64 totalTime) {
 	_totalTime = totalTime;
-	_timeLabel->setText(convertMilliseconds(_currentTime) + " / " + convertMilliseconds(_totalTime));
+	_timeLabel->setText(convertMilliseconds(_currentTime, _totalTime));
 }
 
 void StatusBar::stateChanged(Phonon::State newState, Phonon::State oldState) {

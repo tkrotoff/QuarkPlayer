@@ -58,7 +58,7 @@ private slots:
 
 private:
 
-	static QString convertMilliseconds(qint64 time);
+	static QString convertMilliseconds(qint64 currentTime, qint64 totalTime);
 
 	Phonon::MediaObject * _mediaObject;
 
