@@ -75,22 +75,6 @@ private:
 
 	void dropEvent(QDropEvent * event);
 
-	/**
-	 * Finds root files (non recursive) of a given directory.
-	 *
-	 * @param path directory where to find the files.
-	 * @return list of files
-	 */
-	static QStringList findFiles(const QString & path);
-
-	/**
-	 * Finds all the files (recursive) of a given directory.
-	 *
-	 * @param path directory where to search for files
-	 * @return list of files
-	 */
-	static QStringList findAllFiles(const QString & path);
-
 	Phonon::MediaObject * _mediaObject;
 
 	Phonon::MediaObject * _metaObjectInfoResolver;

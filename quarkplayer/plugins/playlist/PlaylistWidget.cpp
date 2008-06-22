@@ -26,6 +26,7 @@
 
 #include <tkutil/ActionCollection.h>
 #include <tkutil/TkIcon.h>
+#include <tkutil/FindFiles.h>
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
@@ -279,36 +280,6 @@ void PlaylistWidget::dragEnterEvent(QDragEnterEvent * event) {
 	}
 }
 
-QStringList PlaylistWidget::findFiles(const QString & path) {
-	QStringList files;
-
-	QDir dir(path);
-	dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
-
-	QFileInfoList fileInfoList = dir.entryInfoList();
-	foreach (QFileInfo fileInfo, fileInfoList) {
-		files << fileInfo.absoluteFilePath();
-	}
-
-	return files;
-}
-
-QStringList PlaylistWidget::findAllFiles(const QString & path) {
-	QStringList files;
-
-	files << findFiles(path);
-
-	QDir dir(path);
-	dir.setFilter(QDir::AllDirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
-
-	QFileInfoList fileInfoList = dir.entryInfoList();
-	foreach (QFileInfo fileInfo, fileInfoList) {
-		files << findAllFiles(fileInfo.filePath());
-	}
-
-	return files;
-}
-
 void PlaylistWidget::dropEvent(QDropEvent * event) {
 	QStringList files;
 
@@ -331,7 +302,7 @@ void PlaylistWidget::dropEvent(QDropEvent * event) {
 				if (isMultimediaFile) {
 					files << filename;
 				} else if (fileInfo.isDir()) {
-					QStringList tmp(findAllFiles(filename));
+					QStringList tmp(FindFiles::findAllFiles(filename));
 					foreach (QString filename2, tmp) {
 						QFileInfo fileInfo2(filename2);
 						bool isMultimediaFile2 = FileExtensions::multimedia().contains(fileInfo2.suffix(), Qt::CaseInsensitive);
