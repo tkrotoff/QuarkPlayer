@@ -21,7 +21,7 @@
 
 #include <quarkplayer/PluginInterface.h>
 
-#include <phonon/Path.h>
+#include <phonon/path.h>
 
 #include <QtGui/QDialog>
 
