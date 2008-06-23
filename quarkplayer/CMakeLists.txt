@@ -57,7 +57,7 @@ add_library(libquarkplayer SHARED ${libquarkplayer_SRCS})
 
 if (KDE4_FOUND)
 	target_link_libraries(libquarkplayer
-		tktutil
+		tkutil
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
 		${KDE4_KIO_LIBS}
