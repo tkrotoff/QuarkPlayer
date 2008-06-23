@@ -19,6 +19,8 @@
 #ifndef PLAYLISTWIDGET_H
 #define PLAYLISTWIDGET_H
 
+#include <quarkplayer/PluginInterface.h>
+
 #include <QtGui/QWidget>
 
 #include <QtCore/QList>
@@ -27,7 +29,7 @@
 
 namespace Ui { class PlaylistWidget; }
 
-class MainWindow;
+class QuarkPlayer;
 
 namespace Phonon {
 	class MediaObject;
@@ -41,11 +43,11 @@ class QToolBar;
  *
  * @author Tanguy Krotoff
  */
-class PlaylistWidget : public QWidget {
+class PlaylistWidget : public QWidget, public PluginInterface {
 	Q_OBJECT
 public:
 
-	PlaylistWidget(MainWindow * mainWindow, Phonon::MediaObject * mediaObject);
+	PlaylistWidget(QuarkPlayer & quarkPlayer);
 
 	~PlaylistWidget();
 
@@ -75,17 +77,23 @@ private:
 
 	void dropEvent(QDropEvent * event);
 
-	Phonon::MediaObject * _mediaObject;
-
 	Phonon::MediaObject * _metaObjectInfoResolver;
-
-	MainWindow * _mainWindow;
 
 	QList<Phonon::MediaSource> _mediaSources;
 
 	Ui::PlaylistWidget * _ui;
 
 	QToolBar * _playlistToolBar;
+};
+
+#include <quarkplayer/PluginFactory.h>
+
+class PlaylistWidgetFactory : public QObject, public PluginFactory {
+	Q_OBJECT
+	Q_INTERFACES(PluginFactory)
+public:
+
+	PluginInterface * create(QuarkPlayer & quarkPlayer) const;
 };
 
 #endif	//PLAYLISTWIDGET_H

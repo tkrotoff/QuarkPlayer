@@ -113,6 +113,7 @@ void MPlayerMediaObject::mediaDataChanged(const MediaData & mediaData) {
 	metaDataMap.insert(QLatin1String("DESCRIPTION"), mediaData.comment);
 	metaDataMap.insert(QLatin1String("COPYRIGHT"), mediaData.copyright);
 	metaDataMap.insert(QLatin1String("ENCODEDBY"), mediaData.software);
+	metaDataMap.insert(QLatin1String("LENGTH"), QString::number(mediaData.totalTime));
 
 	metaDataMap.insert(QLatin1String("STREAM_URL"), mediaData.streamUrl);
 	metaDataMap.insert(QLatin1String("STREAM_NAME"), mediaData.streamName);
@@ -132,7 +133,6 @@ void MPlayerMediaObject::mediaDataChanged(const MediaData & mediaData) {
 		metaDataMap.insert(QLatin1String("AUDIO_BITRATE"), QString::number(mediaData.audioBitrate));
 		metaDataMap.insert(QLatin1String("AUDIO_RATE"), QString::number(mediaData.audioRate));
 		metaDataMap.insert(QLatin1String("AUDIO_NCH"), QString::number(mediaData.audioNbChannels));
-		metaDataMap.insert(QLatin1String("LENGTH"), QString::number(mediaData.totalTime));
 		metaDataMap.insert(QLatin1String("VIDEO_CODEC"), mediaData.videoCodec);
 		metaDataMap.insert(QLatin1String("AUDIO_CODEC"), mediaData.audioCodec);
 	} else {
@@ -199,14 +199,20 @@ void MPlayerMediaObject::stateChangedInternal(MPlayerProcess::State state) {
 		break;
 	case MPlayerProcess::EndOfFileState:
 		qDebug() << __FUNCTION__ << "EndOfFileState";
-		emit stateChanged(Phonon::StoppedState);
+		//FIXME duplicate Phonon::StoppedState?
+		//Since MPlayer process will end and send a Phonon::StoppedState
+		//via MPlayerMediaObject::finished(), not necessary to send this one.
+		//emit stateChanged(Phonon::StoppedState);
 		//emit finished();
 		break;
 	case MPlayerProcess::ErrorState:
 		qDebug() << __FUNCTION__ << "ErrorState";
+		//_errorMessage = "MPlayer process crashed";
+		//_errorType = Phonon::FatalError;
+		emit stateChanged(Phonon::ErrorState);
 		break;
 	default:
-		qDebug() << __FUNCTION__ << "Error: unknown state:" << state;
+		qCritical() << __FUNCTION__ << "Error: unknown state:" << state;
 	}
 }
 
@@ -217,15 +223,18 @@ void MPlayerMediaObject::stop() {
 void MPlayerMediaObject::finished(int exitCode, QProcess::ExitStatus exitStatus) {
 	switch (exitStatus) {
 	case QProcess::NormalExit:
-		qDebug() << "MPlayer process exited normally";
+		qDebug() << __FUNCTION__ << "MPlayer process exited normally";
+		emit stateChanged(Phonon::StoppedState);
 		break;
 	case QProcess::CrashExit:
-		qCritical() << __FUNCTION__ << "MPlayer process crashed";
+		qCritical() << __FUNCTION__ << "Error: MPlayer process crashed";
+		//_errorMessage = "MPlayer process crashed";
+		//_errorType = Phonon::FatalError;
+		emit stateChanged(Phonon::ErrorState);
 		break;
+	default:
+		qCritical() << __FUNCTION__ << "Error: unknown state:" << exitStatus;
 	}
-
-	qDebug() << __FUNCTION__ << "StoppedState";
-	emit stateChanged(Phonon::StoppedState);
 }
 
 void MPlayerMediaObject::seekInternal(qint64 milliseconds) {

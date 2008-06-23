@@ -19,6 +19,8 @@
 #ifndef ICONFIGWIDGET_H
 #define ICONFIGWIDGET_H
 
+#include <quarkplayer/quarkplayer_export.h>
+
 #include <QtGui/QWidget>
 
 class QString;
@@ -28,7 +30,8 @@ class QString;
  *
  * @author Tanguy Krotoff
  */
-class IConfigWidget : public QWidget {
+class QUARKPLAYER_API IConfigWidget : public QWidget {
+	Q_OBJECT
 public:
 
 	IConfigWidget(QWidget * parent) : QWidget(parent) { }

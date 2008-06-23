@@ -81,7 +81,7 @@ void SettingsBrowser::saveConfig() {
 }
 
 void SettingsBrowser::showEvent(QShowEvent * event) {
-	qDebug() << __FUNCTION__ << "showEvent";
+	//qDebug() << __FUNCTION__ << "showEvent";
 
 	//Re-read the config before to show SettingsBrowser
 	readConfig();
@@ -90,13 +90,13 @@ void SettingsBrowser::showEvent(QShowEvent * event) {
 }
 
 void SettingsBrowser::hideEvent(QHideEvent * event) {
-	qDebug() << __FUNCTION__ << "hideEvent";
+	//qDebug() << __FUNCTION__ << "hideEvent";
 
 	QWidget::hideEvent(event);
 }
 
 void SettingsBrowser::closeEvent(QCloseEvent * event) {
-	qDebug() << __FUNCTION__ << "closeEvent";
+	//qDebug() << __FUNCTION__ << "closeEvent";
 
 	//Ask for saving settings if needed
 	/*if (_settingsChangedAndUnsaved) {

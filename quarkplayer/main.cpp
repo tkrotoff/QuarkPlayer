@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MainWindow.h"
-
-#include "CommandLineParser.h"
-#include "config/Config.h"
-#include "version.h"
-#include "config.h"
+#include <quarkplayer/QuarkPlayer.h>
+#include <quarkplayer/PluginManager.h>
+#include <quarkplayer/CommandLineParser.h>
+#include <quarkplayer/config/Config.h>
+#include <quarkplayer/version.h>
+#include <quarkplayer/config.h>
 
 #include <tkutil/Translator.h>
 #include <tkutil/TkIcon.h>
@@ -100,11 +100,11 @@ int main(int argc, char * argv[]) {
 	TkIcon::setIconTheme(config.iconTheme());
 	TkIcon::setIconSize(16);
 
-	MainWindow window(NULL);
-	window.show();
-	if (!parser.fileToPlay().isEmpty()) {
+	QuarkPlayer quarkPlayer(NULL);
+	PluginManager::loadPlugins(quarkPlayer);
+	/*if (!parser.fileToPlay().isEmpty()) {
 		window.play(parser.fileToPlay());
-	}
+	}*/
 
 	return app.exec();
 }

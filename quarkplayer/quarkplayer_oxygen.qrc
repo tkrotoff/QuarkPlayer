@@ -2,6 +2,7 @@
 <qresource prefix="oxygen">
 	<file alias="16x16/application-exit">icons/oxygen/16x16/actions/application-exit.png</file>
 	<file alias="16x16/document-open">icons/oxygen/16x16/actions/document-open.png</file>
+	<file alias="16x16/document-save">icons/oxygen/16x16/actions/document-save.png</file>
 	<file alias="16x16/document-open-folder">icons/oxygen/16x16/actions/document-open-folder.png</file>
 	<file alias="16x16/document-open-recent">icons/oxygen/16x16/actions/document-open-recent.png</file>
 	<file alias="16x16/document-open-remote">icons/oxygen/16x16/actions/document-open-remote.png</file>
@@ -19,11 +20,13 @@
 	<file alias="16x16/media-skip-forward">icons/oxygen/16x16/actions/media-skip-forward.png</file>
 	<file alias="16x16/view-fullscreen">icons/oxygen/16x16/actions/view-fullscreen.png</file>
 	<file alias="16x16/help-about">icons/oxygen/16x16/actions/help-about.png</file>
+	<file alias="16x16/list-add">icons/oxygen/16x16/actions/list-add.png</file>
+	<file alias="16x16/list-remove">icons/oxygen/16x16/actions/list-remove.png</file>
 
 	<file alias="16x16/preferences-desktop-display">icons/oxygen/16x16/apps/preferences-desktop-display.png</file>
 	<file>icons/oxygen/16x16/apps/preferences-desktop-locale.png</file>
 	<file>icons/oxygen/16x16/apps/preferences-desktop-sound.png</file>
-	<file>icons/oxygen/16x16/apps/preferences-plugin.png</file>
+	<file alias="16x16/preferences-plugin.png">icons/oxygen/16x16/apps/preferences-plugin.png</file>
 	<file>icons/oxygen/16x16/apps/preferences-system-performance.png</file>
 	<file>icons/oxygen/16x16/apps/preferences-system-windows.png</file>
 
@@ -36,9 +39,12 @@
 	<file alias="16x16/media-optical">icons/oxygen/16x16/devices/media-optical.png</file>
 	<file>icons/oxygen/16x16/devices/video-television.png</file>
 
-
 	<file alias="16x16/audio-x-generic">icons/oxygen/16x16/mimetypes/audio-x-generic.png</file>
 	<file alias="16x16/video-x-generic">icons/oxygen/16x16/mimetypes/video-x-generic.png</file>
 	<file alias="16x16/x-office-address-book">icons/oxygen/16x16/mimetypes/x-office-address-book.png</file>
+
+	<file alias="16x16/media-playlist-repeat">icons/oxygen/16x16/status/media-playlist-repeat.png</file>
+	<file alias="16x16/media-playlist-shuffle">icons/oxygen/16x16/status/media-playlist-shuffle.png</file>
+
 </qresource>
 </RCC>

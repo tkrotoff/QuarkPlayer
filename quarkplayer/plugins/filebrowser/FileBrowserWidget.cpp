@@ -23,6 +23,7 @@
 #include "SimpleDirModel.h"
 #include "config/FileBrowserConfigWidget.h"
 
+#include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
 #include <quarkplayer/FileExtensions.h>
 #include <quarkplayer/config/Config.h>
@@ -36,13 +37,18 @@
 
 #include <QtCore/QDebug>
 
-FileBrowserWidget::FileBrowserWidget(MainWindow * mainWindow)
-	: QWidget(NULL) {
+Q_EXPORT_PLUGIN2(filebrowser, FileBrowserWidgetFactory);
+
+PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer) const {
+	return new FileBrowserWidget(quarkPlayer);
+}
+
+FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
+	: QWidget(NULL),
+	PluginInterface(quarkPlayer) {
 
 	_ui = new Ui::FileBrowserWidget();
 	_ui->setupUi(this);
-
-	Config & config = Config::instance();
 
 	layout()->setMargin(0);
 	layout()->setSpacing(0);
@@ -53,8 +59,6 @@ FileBrowserWidget::FileBrowserWidget(MainWindow * mainWindow)
 	connect(_ui->clearSearchButton, SIGNAL(clicked()), _ui->searchLineEdit, SLOT(clear()));
 	connect(_ui->searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search(const QString &)));
 
-	_mainWindow = mainWindow;
-
 	QStringList nameFilters;
 	foreach (QString ext, FileExtensions::multimedia()) {
 		nameFilters << "*." + ext;
@@ -64,15 +68,15 @@ FileBrowserWidget::FileBrowserWidget(MainWindow * mainWindow)
 
 	_ui->treeView->setHeaderHidden(true);
 	_ui->treeView->setModel(_dirModel);
-	connect(&config, SIGNAL(valueChanged(const QString &, const QVariant &)),
+	connect(&(quarkPlayer.config()), SIGNAL(valueChanged(const QString &, const QVariant &)),
 		SLOT(musicDirChanged(const QString &, const QVariant &)));
-	_ui->treeView->setRootIndex(_dirModel->index(config.musicDir()));
+	_ui->treeView->setRootIndex(_dirModel->index(quarkPlayer.config().musicDir()));
 	_ui->treeView->setDragEnabled(true);
 	connect(_ui->treeView, SIGNAL(doubleClicked(const QModelIndex &)),
 		SLOT(doubleClicked(const QModelIndex &)));
 
 	//Add to the main window
-	QTabWidget * browserTabWidget = _mainWindow->browserTabWidget();
+	QTabWidget * browserTabWidget = quarkPlayer.mainWindow().browserTabWidget();
 	browserTabWidget->addTab(this, tr("Files"));
 }
 
@@ -83,7 +87,7 @@ void FileBrowserWidget::doubleClicked(const QModelIndex & index) {
 	QFileInfo fileInfo = _dirModel->fileInfo(index);
 	//FIXME sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
 	QString slashSlashBugFix = fileInfo.absoluteFilePath().replace("//", "/");
-	_mainWindow->play(slashSlashBugFix);
+	quarkPlayer().mainWindow().play(slashSlashBugFix);
 }
 
 void FileBrowserWidget::search(const QString & pattern) {
@@ -99,14 +103,13 @@ void FileBrowserWidget::search(const QString & pattern) {
 	}
 
 	_dirModel->setNameFilters(nameFilters);
-	_ui->treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
+	_ui->treeView->setRootIndex(_dirModel->index(quarkPlayer().config().musicDir()));
 }
 
 void FileBrowserWidget::configure() {
-	Config & config = Config::instance();
-	QString musicDir = TkFileDialog::getExistingDirectory(this, tr("Select a Directory"), config.musicDir());
+	QString musicDir = TkFileDialog::getExistingDirectory(this, tr("Select a Directory"), quarkPlayer().config().musicDir());
 	if (!musicDir.isEmpty()) {
-		config.setValue(Config::MUSIC_DIR_KEY, musicDir);
+		quarkPlayer().config().setValue(Config::MUSIC_DIR_KEY, musicDir);
 	}
 }
 
@@ -114,7 +117,7 @@ void FileBrowserWidget::musicDirChanged(const QString & key, const QVariant & va
 	qDebug() << __FUNCTION__ << key << value;
 
 	if (key == Config::MUSIC_DIR_KEY) {
-		_ui->treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
+		_ui->treeView->setRootIndex(_dirModel->index(quarkPlayer().config().musicDir()));
 		_dirModel->refresh();
 	}
 }

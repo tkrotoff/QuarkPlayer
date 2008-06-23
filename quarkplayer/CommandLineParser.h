@@ -19,6 +19,8 @@
 #ifndef COMMANDLINEPARSER_H
 #define COMMANDLINEPARSER_H
 
+#include <quarkplayer/quarkplayer_export.h>
+
 #include <QtCore/QStringList>
 
 /**
@@ -26,7 +28,7 @@
  *
  * @author Tanguy Krotoff
  */
-class CommandLineParser {
+class QUARKPLAYER_API CommandLineParser {
 public:
 
 	CommandLineParser();

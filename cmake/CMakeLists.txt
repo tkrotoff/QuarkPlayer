@@ -9,8 +9,11 @@ include(OWDefaultCompilerFlags)
 
 include(OWGetSvnRevision)
 include(OWGetCurrentDateTime)
+include(LocCounter)
 
 include(OWGlobalVariables)
 
 include(OWEnsureOutOfSourceBuild)
 include(ReduceQtIncludeDirs)
+
+#include(MacroPushRequiredVars)

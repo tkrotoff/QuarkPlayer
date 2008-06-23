@@ -50,5 +50,5 @@ if (SVN_REVISION)
 endif (SVN_REVISION)
 
 # Gets current date time
-set(CURRENT_DATE_TIME "0")
-ow_get_current_date_time(CURRENT_DATE_TIME)
+set(CMAKE_BUILD_DATE "0")
+ow_get_current_date_time(CMAKE_BUILD_DATE)

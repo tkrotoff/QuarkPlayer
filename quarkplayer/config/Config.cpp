@@ -18,6 +18,8 @@
 
 #include "Config.h"
 
+#include <QtGui/QDesktopServices>
+
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
 
@@ -33,6 +35,9 @@ const char * Config::RECENT_FILES_KEY = "recent_files";
 const char * Config::LAST_DIRECTORY_USED_KEY = "last_directory_used";
 
 const char * Config::LAST_VOLUME_USED_KEY = "last_volume_used";
+
+const char * Config::MUSIC_DIR_KEY = "music_dir";
+
 
 const char * Config::TEST_INT_KEY = "test_int";
 const char * Config::TEST_BOOL_KEY = "test_bool";
@@ -50,27 +55,22 @@ Config & Config::instance() {
 }
 
 Config::Config()
-	: TkConfig(defaultValues()) {
+	: TkConfig() {
+
+	addKey(BACKEND_KEY, "mplayer");
+	addKey(LANGUAGE_KEY, QString());
+	addKey(STYLE_KEY, "QuarkPlayerStyle");
+	addKey(ICON_THEME_KEY, "silk");
+	addKey(RECENT_FILES_KEY, QStringList());
+	addKey(LAST_DIRECTORY_USED_KEY, QString());
+	addKey(LAST_VOLUME_USED_KEY, 1.0f);
+	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
+
+	addKey(TEST_INT_KEY, 0);
+	addKey(TEST_BOOL_KEY, false);
 }
 
 Config::~Config() {
-}
-
-TkConfig::KeyDefaultValueMap Config::defaultValues() {
-	KeyDefaultValueMap values;
-
-	values[BACKEND_KEY] = "mplayer";
-	values[LANGUAGE_KEY] = QString();
-	values[STYLE_KEY] = "QuarkPlayerStyle";
-	values[ICON_THEME_KEY] = "silk";
-	values[RECENT_FILES_KEY] = QStringList();
-	values[LAST_DIRECTORY_USED_KEY] = QString();
-	values[LAST_VOLUME_USED_KEY] = 1.0f;
-
-	values[TEST_INT_KEY] = 0;
-	values[TEST_BOOL_KEY] = false;
-
-	return values;
 }
 
 QStringList Config::backendList() const {
@@ -116,6 +116,10 @@ QString Config::lastDirectoryUsed() const {
 qreal Config::lastVolumeUsed() const {
 	//Between 0.0 and 1.0
 	return value(LAST_VOLUME_USED_KEY).toDouble();
+}
+
+QString Config::musicDir() const {
+	return value(MUSIC_DIR_KEY).toString();
 }
 
 

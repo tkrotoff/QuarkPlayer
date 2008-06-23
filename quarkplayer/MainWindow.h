@@ -19,47 +19,39 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/PluginInterface.h>
+
 #include <tkutil/TkMainWindow.h>
 #include <tkutil/TkToolBar.h>
 
-#include <phonon/phononnamespace.h>
-#include <phonon/path.h>
-
 #include <QtGui/QMainWindow>
 
-class VideoWidget;
+class QuarkPlayer;
 class PlayToolBar;
-class StatusBar;
+
+class QDockWidget;
+class QTabWidget;
 
 namespace Phonon {
-	class MediaObject;
-	class MediaController;
-	class AudioOutput;
 	class MediaSource;
 }
-
-class QStackedWidget;
 
 /**
  * Main interface, the main window: QMainWindow.
  *
  * @author Tanguy Krotoff
  */
-class MainWindow : public TkMainWindow {
+class QUARKPLAYER_API MainWindow : public TkMainWindow, public PluginInterface {
 	Q_OBJECT
 public:
 
-	MainWindow(QWidget * parent);
+	MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent);
 
 	~MainWindow();
 
-	PlayToolBar * playToolBar() const;
-
-	StatusBar * myStatusBar() const;
-
-	VideoWidget * videoWidget() const;
-
-	QStackedWidget * stackedWidget() const;
+	void setPlayToolBar(QToolBar * playToolBar);
+	QToolBar * playToolBar() const;
 
 	QMenu * menuAudioChannels() const;
 
@@ -71,9 +63,17 @@ public:
 
 	QMenu * menuAngles() const;
 
+	QTabWidget * browserTabWidget() const;
+
+	QTabWidget * playlistTabWidget() const;
+
+	QTabWidget * videoTabWidget() const;
+
 signals:
 
 	void subtitleFileDropped(const QString & subtitle);
+
+	void playToolBarAdded(QToolBar * playToolBar);
 
 public slots:
 
@@ -84,7 +84,6 @@ private slots:
 	void about();
 
 	void showConfigWindow();
-	void showQuickSettingsWindow();
 
 	void playFile();
 	void playDVD();
@@ -94,16 +93,9 @@ private slots:
 	void playRecentFile(int id);
 	void clearRecentFiles();
 
-	void aboutToFinish();
-
-	void sourceChanged(const Phonon::MediaSource & source);
 	void metaDataChanged();
-	void stateChanged(Phonon::State newState, Phonon::State oldState);
-	void hasVideoChanged(bool hasVideo);
 
 	void retranslate();
-
-	void volumeChanged(qreal newVolume);
 
 private:
 
@@ -111,26 +103,11 @@ private:
 
 	void setupUi();
 
-	void closeEvent(QCloseEvent * event);
+	void createDockWidgets();
 
 	void dragEnterEvent(QDragEnterEvent * event);
 
 	void dropEvent(QDropEvent * event);
-
-	void volumeInit();
-
-	Phonon::MediaObject * _mediaObject;
-
-	/** Widget containing the video. */
-	VideoWidget * _videoWidget;
-
-	/** Widget containing the logo. */
-	QWidget * _backgroundLogoWidget;
-
-	/** Widget containing the media data. */
-	QWidget * _mediaDataWidget;
-
-	QStackedWidget * _stackedWidget;
 
 	TkToolBar * _mainToolBar;
 	QMenu * _menuRecentFiles;
@@ -140,18 +117,20 @@ private:
 	QMenu * _menuChapters;
 	QMenu * _menuAngles;
 	QMenu * _menuFile;
+	QMenu * _menuPlay;
 	QMenu * _menuAudio;
 	QMenu * _menuSubtitle;
 	QMenu * _menuBrowse;
 	QMenu * _menuSettings;
 	QMenu * _menuHelp;
 
-	Phonon::AudioOutput * _audioOutput;
-	Phonon::Path _audioOutputPath;
-	Phonon::MediaSource * _mediaSource;
+	QToolBar * _playToolBar;
 
-	PlayToolBar * _playToolBar;
-	StatusBar * _statusBar;
+	QTabWidget * _videoTabWidget;
+
+	QTabWidget * _browserTabWidget;
+
+	QTabWidget * _playlistTabWidget;
 };
 
 #endif	//MAINWINDOW_H

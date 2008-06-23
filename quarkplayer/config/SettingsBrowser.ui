@@ -18,8 +18,8 @@
      <property name="selectionBehavior" >
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
-     <property name="gridStyle" >
-      <enum>Qt::NoPen</enum>
+     <property name="showGrid" >
+      <bool>false</bool>
      </property>
      <column>
       <property name="text" >
@@ -54,7 +54,6 @@
     </widget>
    </item>
   </layout>
-  <zorder>tableWidget</zorder>
  </widget>
  <resources/>
  <connections/>

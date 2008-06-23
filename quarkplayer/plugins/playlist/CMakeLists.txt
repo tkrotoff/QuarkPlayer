@@ -13,17 +13,21 @@ qt4_wrap_ui(playlist_SRCS
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(playlist STATIC ${playlist_SRCS})
+add_library(playlist SHARED ${playlist_SRCS})
 
 if (KDE4_FOUND)
 	target_link_libraries(playlist
+		libquarkplayer
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
 		${KDE4_KIO_LIBS}
 	)
 else (KDE4_FOUND)
 	target_link_libraries(playlist
+		libquarkplayer
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
 	)
 endif (KDE4_FOUND)
+
+install(TARGETS playlist DESTINATION ${BIN_INSTALL_DIR}/plugins)

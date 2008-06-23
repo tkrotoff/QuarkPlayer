@@ -1,28 +1,27 @@
-project(quarkplayer)
+project(libquarkplayer)
 
 set(QUARKPLAYER_MAJOR_VERSION 0)
 set(QUARKPLAYER_MINOR_VERSION 1)
 set(QUARKPLAYER_PATCH_VERSION 0)
 
+configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 configure_file(version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/version.h)
 
-configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+add_definitions(-DBUILD_QUARKPLAYER)
 
-#For tkutil
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-##
+#Takes a lot of time :/
+#loc_counter(${CMAKE_CURRENT_SOURCE_DIR} QUARKPLAYER_ROOT_LOC 0)
+#loc_counter(${CMAKE_CURRENT_SOURCE_DIR}/plugins QUARKPLAYER_PLUGINS_LOC 1)
+#loc_counter(${CMAKE_CURRENT_SOURCE_DIR}/tkutil QUARKPLAYER_TKUTIL_LOC 1)
+#loc_counter(${CMAKE_CURRENT_SOURCE_DIR} QUARKPLAYER_LOC 1)
+configure_file(metrics.h.in ${CMAKE_CURRENT_SOURCE_DIR}/metrics.h)
 
-set(quarkplayer_SRCS
-	main.cpp
+set(libquarkplayer_SRCS
+	QuarkPlayer.cpp
+	PluginInterface.cpp
+	PluginManager.cpp
 	MainWindow.cpp
-	PlayToolBar.cpp
-	VideoWidget.cpp
-	StatusBar.cpp
-	MediaController.cpp
-	MediaControllerToolBar.cpp
-	QuickSettingsWindow.cpp
 	AboutWindow.cpp
-	MediaDataWidget.cpp
 	FileExtensions.cpp
 	CommandLineHelp.cpp
 	CommandLineParser.cpp
@@ -33,38 +32,19 @@ set(quarkplayer_SRCS
 	config/BackendCapabilitiesWidget.cpp
 )
 
-qt4_add_resources(quarkplayer_SRCS
-	quarkplayer.qrc
-	quarkplayer_oxygen.qrc
-	quarkplayer_silk.qrc
-	quarkplayer_tango.qrc
-)
-
-qt4_wrap_cpp(quarkplayer_SRCS
+qt4_wrap_cpp(libquarkplayer_SRCS
+	QuarkPlayer.h
 	MainWindow.h
-	PlayToolBar.h
-	VideoWidget.h
-	StatusBar.h
-	MediaController.h
-	MediaControllerToolBar.h
-	QuickSettingsWindow.h
-	MediaDataWidget.h
+	PluginManager.h
 	config/Config.h
 	config/ConfigWindow.h
+	config/IConfigWidget.h
 	config/GeneralConfigWidget.h
 	config/SettingsBrowser.h
 	config/BackendCapabilitiesWidget.h
 )
 
-if (WIN32)
-	list(APPEND quarkplayer_SRCS
-		quarkplayer.rc
-	)
-endif (WIN32)
-
-qt4_wrap_ui(quarkplayer_SRCS
-	QuickSettingsWindow.ui
-	BackgroundLogoWidget.ui
+qt4_wrap_ui(libquarkplayer_SRCS
 	AboutWindow.ui
 	config/ConfigWindow.ui
 	config/GeneralConfigWidget.ui
@@ -73,31 +53,18 @@ qt4_wrap_ui(quarkplayer_SRCS
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-set(quarkplayer_TRANSLATIONS
-	${quarkplayer_SRCS}
-	translations/quarkplayer_en.ts
-	translations/quarkplayer_fr.ts
-	translations/quarkplayer_de.ts
-)
-qt4_create_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
-#qt4_add_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
-
-if (CMAKE_BUILD_TYPE STREQUAL Debug)
-	add_executable(quarkplayer ${quarkplayer_SRCS} ${quarkplayer_QMS})
-else (CMAKE_BUILD_TYPE STREQUAL Debug)
-	add_executable(quarkplayer WIN32 ${quarkplayer_SRCS} ${quarkplayer_QMS})
-endif (CMAKE_BUILD_TYPE STREQUAL Debug)
+add_library(libquarkplayer SHARED ${libquarkplayer_SRCS})
 
 if (KDE4_FOUND)
-	target_link_libraries(quarkplayer
-		tkutil
+	target_link_libraries(libquarkplayer
+		tktutil
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
 		${KDE4_KIO_LIBS}
 		${QT_PHONON_LIBRARY}
 	)
 else (KDE4_FOUND)
-	target_link_libraries(quarkplayer
+	target_link_libraries(libquarkplayer
 		tkutil
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
@@ -106,8 +73,4 @@ else (KDE4_FOUND)
 	)
 endif (KDE4_FOUND)
 
-install(TARGETS quarkplayer DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
-install(FILES ${quarkplayer_QMS} DESTINATION ${BIN_INSTALL_DIR}/translations)
-
-add_subdirectory(style)
-add_subdirectory(tkutil)
+install(TARGETS libquarkplayer DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

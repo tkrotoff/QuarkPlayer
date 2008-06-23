@@ -60,8 +60,8 @@ set(INSTALL_TARGETS_DEFAULT_ARGS
 
 if (WIN32)
 	if (CMAKE_BUILD_TYPE STREQUAL Debug)
-		install(FILES ${QT_BINARY_DIR}/QtCored4.dll DESTINATION ${BIN_INSTALL_DIR})
-		install(FILES ${QT_BINARY_DIR}/QtGuid4.dll DESTINATION ${BIN_INSTALL_DIR})
+		install(FILES ${QT_BINARY_DIR}/QtCore4.dll DESTINATION ${BIN_INSTALL_DIR})
+		install(FILES ${QT_BINARY_DIR}/QtGui4.dll DESTINATION ${BIN_INSTALL_DIR})
 	else (CMAKE_BUILD_TYPE STREQUAL Debug)
 		install(FILES ${QT_BINARY_DIR}/QtCore4.dll DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtGui4.dll DESTINATION ${BIN_INSTALL_DIR})
@@ -75,6 +75,11 @@ add_subdirectory(phonon)
 add_subdirectory(vlc-mplayer)
 #add_subdirectory(ds9)
 add_subdirectory(tests)
+
+add_subdirectory(tkutil)
 add_subdirectory(quarkplayer)
+add_subdirectory(quarkplayer/executable)
+add_subdirectory(quarkplayer/style)
+add_subdirectory(quarkplayer/plugins)
 
 include(CPackConfig.txt)

@@ -19,6 +19,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <quarkplayer/quarkplayer_export.h>
+
 #include <tkutil/TkConfig.h>
 
 /**
@@ -30,7 +32,7 @@
  * @see QSettings
  * @author Tanguy Krotoff
  */
-class Config : public TkConfig {
+class QUARKPLAYER_API Config : public TkConfig {
 public:
 
 	/** Singleton. */
@@ -61,6 +63,10 @@ public:
 	static const char * LAST_VOLUME_USED_KEY;
 	qreal lastVolumeUsed() const;
 
+	static const char * MUSIC_DIR_KEY;
+	QString musicDir() const;
+
+
 
 	static const char * TEST_INT_KEY;
 	int testInt() const;
@@ -69,8 +75,6 @@ public:
 	bool testBool() const;
 
 private:
-
-	static KeyDefaultValueMap defaultValues();
 
 	/** Singleton. */
 	Config();

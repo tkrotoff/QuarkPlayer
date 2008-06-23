@@ -21,7 +21,7 @@
 #include "ui_AboutWindow.h"
 
 #include "version.h"
-#include "config.h"
+#include "metrics.h"
 
 #include <phonon/phononnamespace.h>
 
@@ -33,26 +33,20 @@ AboutWindow::AboutWindow(QWidget * parent)
 	_ui = new Ui::AboutWindow();
 	_ui->setupUi(this);
 
-	QString rev;
-	if (QUARKPLAYER_SVN_REVISION > 0) {
-		rev = "-rev" + QString::number(QUARKPLAYER_SVN_REVISION);
-	}
-
 	_ui->versionLabel->setText(
-		"Version: " + QString(QUARKPLAYER_VERSION) +
-#ifdef KDE4_FOUND
-		"/KDE4" +
-#endif	//KDE4_FOUND
-		rev +
-		"-" + QString(QUARKPLAYER_SYSTEM).toLower() +
-		"-" + QString(QUARKPLAYER_COMPILER).toLower() +
-		"-" + QString(QUARKPLAYER_BUILD_TYPE).toLower() +
-		"<br>" +
+		"Version: " + quarkPlayerFullVersion() + "<br>" +
 		"Qt: " + QString(qVersion()) + "<br>" +
 		"Phonon: " + QString(Phonon::phononVersion()) + "<br>"
+	);
+
+	_ui->metricsLabel->setText(
+		"Pushing intelligence to the edge; KISS Keep It Simple, Stupid; Small is Beautiful!<br><br>"
+		"QuarkPlayer: " + QString(QUARKPLAYER_ROOT_LOC) + " LOC<br>"
+		"TkUtil: " + QString(QUARKPLAYER_TKUTIL_LOC) + " LOC<br>"
+		"Plugins: " + QString(QUARKPLAYER_PLUGINS_LOC) + " LOC<br>"
+		"Total: " + QString(QUARKPLAYER_LOC) + "<br>"
 	);
 }
 
 AboutWindow::~AboutWindow() {
-	delete _ui;
 }

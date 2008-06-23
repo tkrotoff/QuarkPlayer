@@ -20,13 +20,19 @@
 macro (ow_get_current_date_time time)
 
 	if (UNIX AND NOT WIN32)
-		set(flags -DLINK_LIBRARIES=stdc++)
+		set(flags
+			-DLINK_LIBRARIES=stdc++
+		)
 	endif (UNIX AND NOT WIN32)
 
-	try_run(runResult compileResult ${CMAKE_BINARY_DIR}
-		"${CMAKE_SOURCE_DIR}/cmake/getcurrentdatetime.cpp"
-		OUTPUT_VARIABLE ${time}
+	try_run(
+		runResult
+		compileResult
+		${CMAKE_BINARY_DIR}
+		${CMAKE_SOURCE_DIR}/cmake/getcurrentdatetime.cpp
 		CMAKE_FLAGS ${flags}
+		COMPILE_OUTPUT_VARIABLE compileOutput
+		RUN_OUTPUT_VARIABLE ${time}
 	)
 	string(REGEX MATCH "[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]" ${time} ${${time}})
 

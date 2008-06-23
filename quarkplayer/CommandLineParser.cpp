@@ -61,7 +61,7 @@ void CommandLineParser::run() {
 		if ((arg == "--help") || (arg == "-help") || (arg == "-h") || (arg == "-?")) {
 			CommandLineHelp help;
 			std::cout << help.toString().toStdString();
-			exit(0);
+			exit(EXIT_SUCCESS);
 		}
 
 		else {

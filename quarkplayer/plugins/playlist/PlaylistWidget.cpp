@@ -20,6 +20,7 @@
 
 #include "ui_PlaylistWidget.h"
 
+#include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
 #include <quarkplayer/FileExtensions.h>
 #include <quarkplayer/config/Config.h>
@@ -38,6 +39,12 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
+Q_EXPORT_PLUGIN2(playlistwidget, PlaylistWidgetFactory);
+
+PluginInterface * PlaylistWidgetFactory::create(QuarkPlayer & quarkPlayer) const {
+	return new PlaylistWidget(quarkPlayer);
+}
+
 static const int TRACK_COLUMN = 0;
 static const int TITLE_COLUMN = 1;
 static const int ARTIST_COLUMN = 2;
@@ -46,10 +53,9 @@ static const int LENGTH_COLUMN = 4;
 static const int MAXIMUM_COLUMN_WIDTH = 200;
 static const int COLUMN_MARGIN = 20;
 
-PlaylistWidget::PlaylistWidget(MainWindow * mainWindow, Phonon::MediaObject * mediaObject)
-	: QWidget(NULL) {
-
-	_mainWindow = mainWindow;
+PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
+	: PluginInterface(quarkPlayer),
+	QWidget(NULL) {
 
 	//Accepts Drag&Drop
 	setAcceptDrops(true);
@@ -72,8 +78,7 @@ PlaylistWidget::PlaylistWidget(MainWindow * mainWindow, Phonon::MediaObject * me
 		SLOT(metaStateChanged(Phonon::State, Phonon::State)));
 
 	//Phonon media object
-	_mediaObject = mediaObject;
-	connect(_mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
+	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
 
 	//actions connect
 	//connect(actionNewVideoWindow, SIGNAL(triggered()), SLOT(newVideoWindow()));
@@ -83,7 +88,7 @@ PlaylistWidget::PlaylistWidget(MainWindow * mainWindow, Phonon::MediaObject * me
 	connect(_ui->tableWidget, SIGNAL(cellDoubleClicked(int, int)), SLOT(tableDoubleClicked(int, int)));
 
 	//Add to the main window
-	QTabWidget * playlistTabWidget = _mainWindow->playlistTabWidget();
+	QTabWidget * playlistTabWidget = quarkPlayer.mainWindow().playlistTabWidget();
 	playlistTabWidget->addTab(this, tr("Playlist"));
 
 	_ui->tableWidget->resizeColumnsToContents();
@@ -191,7 +196,7 @@ void PlaylistWidget::addFiles(const QStringList & files) {
 }
 
 void PlaylistWidget::tableDoubleClicked(int row, int column) {
-	_mainWindow->play(_mediaSources[row]);
+	quarkPlayer().mainWindow().play(_mediaSources[row]);
 }
 
 void PlaylistWidget::metaStateChanged(Phonon::State newState, Phonon::State oldState) {
@@ -238,7 +243,7 @@ void PlaylistWidget::metaStateChanged(Phonon::State newState, Phonon::State oldS
 
 	if (_ui->tableWidget->selectedItems().isEmpty()) {
 		_ui->tableWidget->selectRow(0);
-		//_mediaObject->setCurrentSource(source);
+		//quarkPlayer().currentMediaObject().setCurrentSource(source);
 	}
 
 	int index = _mediaSources.indexOf(source) + 1;
@@ -266,11 +271,11 @@ void PlaylistWidget::metaStateChanged(Phonon::State newState, Phonon::State oldS
 void PlaylistWidget::aboutToFinish() {
 	qDebug() << __FUNCTION__;
 
-	int index = _mediaSources.indexOf(_mediaObject->currentSource()) + 1;
+	int index = _mediaSources.indexOf(quarkPlayer().currentMediaObject().currentSource()) + 1;
 	if (_mediaSources.size() > index) {
 		//TODO
-		//_mediaObject->enqueue(_mediaSources.at(index));
-		_mainWindow->play(_mediaSources.at(index));
+		//quarkPlayer().currentMediaObject().enqueue(_mediaSources.at(index));
+		quarkPlayer().mainWindow().play(_mediaSources.at(index));
 	}
 }
 

@@ -18,14 +18,7 @@
 
 #include "MainWindow.h"
 
-#include "ui_BackgroundLogoWidget.h"
-
-#include "PlayToolBar.h"
-#include "VideoWidget.h"
-#include "MediaDataWidget.h"
-#include "StatusBar.h"
-#include "MediaController.h"
-#include "QuickSettingsWindow.h"
+#include "QuarkPlayer.h"
 #include "AboutWindow.h"
 #include "FileExtensions.h"
 #include "config/Config.h"
@@ -38,7 +31,6 @@
 #include <tkutil/LanguageChangeEventFilter.h>
 
 #include <phonon/mediaobject.h>
-#include <phonon/audiooutput.h>
 #include <phonon/mediasource.h>
 
 #include <QtCore/QSignalMapper>
@@ -46,12 +38,14 @@
 
 #include <QtGui/QtGui>
 
-MainWindow::MainWindow(QWidget * parent)
-	: TkMainWindow(parent) {
+MainWindow::MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent)
+	: TkMainWindow(parent),
+	PluginInterface(quarkPlayer) {
 
 	populateActionCollection();
 
 	setupUi();
+	createDockWidgets();
 
 	//Accepts Drag&Drop
 	setAcceptDrops(true);
@@ -61,68 +55,18 @@ MainWindow::MainWindow(QWidget * parent)
 
 	addRecentFilesToMenu();
 
-#ifndef KDE4_FOUND
-	//FIXME Backend selection, this is a hack
-	//Not available under KDE, systemsettings will do it
-	/*QStringList originalPaths = QCoreApplication::libraryPaths();
-	QString backendName = Config::instance().backend();
-	QStringList paths;
-	paths << QCoreApplication::applicationDirPath() + "/" + backendName;
-	QCoreApplication::setLibraryPaths(paths);
-	*/
-#endif	//KDE4_FOUND
-
-	_mediaObject = new Phonon::MediaObject(this);
-	_mediaObject->setTickInterval(1000);
-
-#ifndef KDE4_FOUND
-	//QCoreApplication::setLibraryPaths(originalPaths);
-#endif	//KDE4_FOUND
-
-	connect(_mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
-	connect(_mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
+	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
+	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
 		SLOT(sourceChanged(const Phonon::MediaSource &)));
-	connect(_mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
-		SLOT(stateChanged(Phonon::State, Phonon::State)));
-	connect(_mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
-	connect(_mediaObject, SIGNAL(hasVideoChanged(bool)), SLOT(hasVideoChanged(bool)));
-
-	MediaController * mediaController = new MediaController(this, _mediaObject);
-
-	//audioOutput
-	_audioOutput = new Phonon::AudioOutput(Phonon::VideoCategory, this);
-	connect(_audioOutput, SIGNAL(volumeChanged (qreal)), SLOT(volumeChanged(qreal)));
-	_audioOutput->setVolume(Config::instance().lastVolumeUsed());
-	_audioOutputPath = Phonon::createPath(_mediaObject, _audioOutput);
 
 	//playToolBar
-	_playToolBar = new PlayToolBar(_mediaObject, _audioOutput);
-
-	//statusBar
-	_statusBar = new StatusBar(_mediaObject);
-
-	//Logo widget
-	_backgroundLogoWidget = new QWidget();
-	_stackedWidget->addWidget(_backgroundLogoWidget);
-	Ui::BackgroundLogoWidget * logo = new Ui::BackgroundLogoWidget();
-	logo->setupUi(_backgroundLogoWidget);
-	_stackedWidget->setCurrentWidget(_backgroundLogoWidget);
-
-	//videoWidget
-	_videoWidget = new VideoWidget(this, _mediaObject);
-	Phonon::createPath(_mediaObject, _videoWidget);
-	_stackedWidget->addWidget(_videoWidget);
-
-	//mediaDataWidget
-	_mediaDataWidget = new MediaDataWidget(*_mediaObject);
-	_stackedWidget->addWidget(_mediaDataWidget);
+	_playToolBar = NULL;
 
 	connect(ActionCollection::action("playDVD"), SIGNAL(triggered()), SLOT(playDVD()));
 	connect(ActionCollection::action("playURL"), SIGNAL(triggered()), SLOT(playURL()));
 	connect(ActionCollection::action("playFile"), SIGNAL(triggered()), SLOT(playFile()));
-	connect(ActionCollection::action("equalizer"), SIGNAL(triggered()), SLOT(showQuickSettingsWindow()));
 	connect(ActionCollection::action("configure"), SIGNAL(triggered()), SLOT(showConfigWindow()));
-	connect(ActionCollection::action("quit"), SIGNAL(triggered()), _mediaObject, SLOT(stop()));
+	connect(ActionCollection::action("quit"), SIGNAL(triggered()), &(quarkPlayer.currentMediaObject()), SLOT(stop()));
 	connect(ActionCollection::action("quit"), SIGNAL(triggered()), SLOT(close()));
 	connect(ActionCollection::action("about"), SIGNAL(triggered()), SLOT(about()));
 	connect(ActionCollection::action("aboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
@@ -131,20 +75,14 @@ MainWindow::MainWindow(QWidget * parent)
 MainWindow::~MainWindow() {
 }
 
-PlayToolBar * MainWindow::playToolBar() const {
+void MainWindow::setPlayToolBar(QToolBar * playToolBar) {
+	_playToolBar = playToolBar;
+	addToolBar(Qt::BottomToolBarArea, playToolBar);
+	emit playToolBarAdded(_playToolBar);
+}
+
+QToolBar * MainWindow::playToolBar() const {
 	return _playToolBar;
-}
-
-StatusBar * MainWindow::myStatusBar() const {
-	return _statusBar;
-}
-
-VideoWidget * MainWindow::videoWidget() const {
-	return _videoWidget;
-}
-
-QStackedWidget * MainWindow::stackedWidget() const {
-	return _stackedWidget;
 }
 
 void MainWindow::addRecentFilesToMenu() {
@@ -255,25 +193,19 @@ void MainWindow::play(const Phonon::MediaSource & mediaSource) {
 		addRecentFilesToMenu();
 	}
 
-	_statusBar->showMessage(tr("Processing") + " " + filename + "...");
-	_mediaObject->setCurrentSource(mediaSource);
-	_mediaObject->play();
-}
-
-void MainWindow::sourceChanged(const Phonon::MediaSource & source) {
-	//currentTimeLcdNumber->display("00:00:00");
+	//_statusBar->showMessage(tr("Processing") + " " + filename + "...");
+	quarkPlayer().currentMediaObject().setCurrentSource(mediaSource);
+	quarkPlayer().currentMediaObject().play();
 }
 
 void MainWindow::metaDataChanged() {
-	qDebug() << __FUNCTION__;
-
-	QMultiMap<QString, QString> metaData = _mediaObject->metaData();
+	QMultiMap<QString, QString> metaData = quarkPlayer().currentMediaObject().metaData();
 
 	QString windowTitle;
 	QString artist = metaData.value("ARTIST");
 	QString title = metaData.value("TITLE");
 	if (artist.isEmpty() && title.isEmpty()) {
-		windowTitle = _mediaObject->currentSource().fileName();
+		windowTitle = quarkPlayer().currentMediaObject().currentSource().fileName();
 		windowTitle = windowTitle.right(windowTitle.length() - windowTitle.lastIndexOf('/') - 1);
 	} else {
 		if (!title.isEmpty()) {
@@ -294,59 +226,9 @@ void MainWindow::metaDataChanged() {
 	}
 }
 
-void MainWindow::stateChanged(Phonon::State newState, Phonon::State oldState) {
-	qDebug() << __FUNCTION__ << "newState:" << newState << "oldState:" << oldState;
-
-	//Remove the background logo, not needed anymore
-	if (_backgroundLogoWidget) {
-		_stackedWidget->removeWidget(_backgroundLogoWidget);
-		delete _backgroundLogoWidget;
-		_backgroundLogoWidget = NULL;
-	}
-
-	if (oldState == Phonon::LoadingState) {
-		//Resize the main window to the size of the video
-		//i.e increase or decrease main window size if needed
-		hasVideoChanged(_mediaObject->hasVideo());
-	}
-}
-
-void MainWindow::hasVideoChanged(bool hasVideo) {
-	//Resize the main window to the size of the video
-	//i.e increase or decrease main window size if needed
-	if (hasVideo) {
-		_stackedWidget->setCurrentWidget(_videoWidget);
-
-		//Flush event so that sizeHint takes the
-		//recently shown/hidden _videoWidget into account
-		QApplication::instance()->processEvents();
-		resize(sizeHint());
-	} else {
-		_stackedWidget->setCurrentWidget(_mediaDataWidget);
-
-		//Flush event so that sizeHint takes the
-		//recently shown/hidden _videoWidget into account
-		QApplication::instance()->processEvents();
-		resize(minimumSize());
-	}
-}
-
-void MainWindow::aboutToFinish() {
-}
-
-void MainWindow::closeEvent(QCloseEvent * event) {
-	_mediaObject->stop();
-	event->accept();
-}
-
 void MainWindow::showConfigWindow() {
 	static ConfigWindow * configWindow = new ConfigWindow(this);
 	configWindow->show();
-}
-
-void MainWindow::showQuickSettingsWindow() {
-	static QuickSettingsWindow * quickSettings = new QuickSettingsWindow(_videoWidget, *_audioOutput, _audioOutputPath, *_mediaObject, this);
-	quickSettings->show();
 }
 
 void MainWindow::about() {
@@ -372,8 +254,8 @@ void MainWindow::populateActionCollection() {
 }
 
 void MainWindow::setupUi() {
-	_stackedWidget = new QStackedWidget();
-	setCentralWidget(_stackedWidget);
+	//No central widget, only QDockWidget
+	setCentralWidget(NULL);
 
 	_menuFile = new QMenu();
 	menuBar()->addAction(_menuFile->menuAction());
@@ -423,6 +305,8 @@ void MainWindow::setupUi() {
 
 	//Main ToolBar
 	_mainToolBar = new TkToolBar(this);
+	//_mainToolBar->setIconSize(QSize(16, 16));
+
 	_mainToolBar->addAction(ActionCollection::action("playFile"));
 	_mainToolBar->addAction(ActionCollection::action("playDVD"));
 	_mainToolBar->addAction(ActionCollection::action("playURL"));
@@ -543,7 +427,7 @@ void MainWindow::dropEvent(QDropEvent * event) {
 					filename = url.toString();
 				}
 				qDebug() << __FUNCTION__ << "File dropped:" << filename;
-				files.append(filename);
+				files << filename;
 			}
 		}
 	}
@@ -576,7 +460,37 @@ void MainWindow::dropEvent(QDropEvent * event) {
 	}
 }
 
-void MainWindow::volumeChanged(qreal newVolume) {
-	Config & config = Config::instance();
-	config.setValue(Config::LAST_VOLUME_USED_KEY, newVolume);
+void MainWindow::createDockWidgets() {
+	//browserDockWidget
+	QDockWidget * browserDockWidget = new QDockWidget(tr("Browser"), this);
+	addDockWidget(Qt::LeftDockWidgetArea, browserDockWidget);
+	_browserTabWidget = new QTabWidget();
+	_browserTabWidget->setTabPosition(QTabWidget::West);
+	browserDockWidget->setWidget(_browserTabWidget);
+
+	//videoDockWidget
+	QDockWidget * videoDockWidget = new QDockWidget(tr("Video"), NULL);
+	addDockWidget(Qt::RightDockWidgetArea, videoDockWidget);
+	_videoTabWidget = new QTabWidget();
+	_videoTabWidget->setTabPosition(QTabWidget::West);
+	videoDockWidget->setWidget(_videoTabWidget);
+
+	//playlistDockWidget
+	QDockWidget * playlistDockWidget = new QDockWidget(tr("Playlist"), NULL);
+	addDockWidget(Qt::RightDockWidgetArea, playlistDockWidget);
+	_playlistTabWidget = new QTabWidget();
+	_playlistTabWidget->setTabPosition(QTabWidget::West);
+	playlistDockWidget->setWidget(_playlistTabWidget);
+}
+
+QTabWidget * MainWindow::browserTabWidget() const {
+	return _browserTabWidget;
+}
+
+QTabWidget * MainWindow::playlistTabWidget() const {
+	return _playlistTabWidget;
+}
+
+QTabWidget * MainWindow::videoTabWidget() const {
+	return _videoTabWidget;
 }

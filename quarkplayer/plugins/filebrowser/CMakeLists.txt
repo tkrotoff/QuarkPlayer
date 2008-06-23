@@ -17,17 +17,21 @@ qt4_wrap_ui(filebrowser_SRCS
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(filebrowser STATIC ${filebrowser_SRCS})
+add_library(filebrowser SHARED ${filebrowser_SRCS})
 
 if (KDE4_FOUND)
 	target_link_libraries(filebrowser
+		libquarkplayer
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
 		${KDE4_KIO_LIBS}
 	)
 else (KDE4_FOUND)
 	target_link_libraries(filebrowser
+		libquarkplayer
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
 	)
 endif (KDE4_FOUND)
+
+install(TARGETS filebrowser DESTINATION ${BIN_INSTALL_DIR}/plugins)

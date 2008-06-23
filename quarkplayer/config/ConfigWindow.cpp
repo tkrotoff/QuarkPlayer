@@ -46,6 +46,7 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	_configWidgetList += new GeneralConfigWidget(this);
 	_configWidgetList += new BackendCapabilitiesWidget(this);
 	_configWidgetList += new SettingsBrowser(this);
+	//_configWidgetList += new FileBrowserConfigWidget(this);
 
 	//listWidget
 	connect(_ui->listWidget, SIGNAL(currentRowChanged(int)),
@@ -71,6 +72,11 @@ void ConfigWindow::populateStackedWidget() {
 	_ui->listWidget->clear();
 	foreach (IConfigWidget * configWidget, _configWidgetList) {
 		configWidget->readConfig();
+		QLayout * layout = configWidget->layout();
+		if (layout) {
+			layout->setMargin(0);
+			layout->setSpacing(0);
+		}
 		_ui->stackedWidget->addWidget(configWidget);
 		new QListWidgetItem(TkIcon(configWidget->iconName()), configWidget->name(), _ui->listWidget);
 	}

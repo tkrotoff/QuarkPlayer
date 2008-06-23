@@ -19,6 +19,8 @@
 #ifndef FILEEXTENSIONS_H
 #define FILEEXTENSIONS_H
 
+#include <quarkplayer/quarkplayer_export.h>
+
 #include <QtCore/QStringList>
 
 /**
@@ -26,7 +28,7 @@
  *
  * @author Tanguy Krotoff
  */
-class FileExtensions {
+class QUARKPLAYER_API FileExtensions {
 public:
 
 	static QStringList video();

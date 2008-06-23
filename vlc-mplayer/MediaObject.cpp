@@ -253,7 +253,7 @@ void MediaObject::setTransitionTime(qint32) {
 }
 
 void MediaObject::stateChangedInternal(Phonon::State newState) {
-	qDebug() << __FUNCTION__ << "previousState:" << _currentState << "newState:" << newState;
+	qDebug() << __FUNCTION__ << "newState:" << newState << "previousState:" << _currentState ;
 
 	if (newState == _currentState) {
 		//No state changed

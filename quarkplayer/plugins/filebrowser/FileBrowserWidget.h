@@ -19,12 +19,16 @@
 #ifndef FILEBROWSERWIDGET_H
 #define FILEBROWSERWIDGET_H
 
+#include <quarkplayer/PluginInterface.h>
+
 #include <QtGui/QWidget>
 
 namespace Ui { class FileBrowserWidget; }
 
-class MainWindow;
 class SimpleDirModel;
+
+class MainWindow;
+class QuarkPlayer;
 
 class QModelIndex;
 
@@ -33,11 +37,11 @@ class QModelIndex;
  *
  * @author Tanguy Krotoff
  */
-class FileBrowserWidget : public QWidget {
+class FileBrowserWidget : public QWidget, public PluginInterface {
 	Q_OBJECT
 public:
 
-	FileBrowserWidget(MainWindow * mainWindow);
+	FileBrowserWidget(QuarkPlayer & quarkPlayer);
 
 	~FileBrowserWidget();
 
@@ -55,9 +59,17 @@ private:
 
 	Ui::FileBrowserWidget * _ui;
 
-	MainWindow * _mainWindow;
-
 	SimpleDirModel * _dirModel;
+};
+
+#include <quarkplayer/PluginFactory.h>
+
+class FileBrowserWidgetFactory : public QObject, public PluginFactory {
+	Q_OBJECT
+	Q_INTERFACES(PluginFactory)
+public:
+
+	PluginInterface * create(QuarkPlayer & quarkPlayer) const;
 };
 
 #endif	//FILEBROWSERWIDGET_H
