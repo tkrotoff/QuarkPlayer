@@ -204,7 +204,7 @@ void MediaObject::setSource(const MediaSource & source) {
 		case Phonon::Dvd:
 
 #ifdef PHONON_VLC
-			loadMedia(_mediaSource.deviceName());
+			loadMedia("dvd://" + _mediaSource.deviceName());
 #endif	//PHONON_VLC
 
 #ifdef PHONON_MPLAYER
