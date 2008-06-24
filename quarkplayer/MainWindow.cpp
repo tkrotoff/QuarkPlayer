@@ -153,7 +153,9 @@ void MainWindow::playFile() {
 }
 
 void MainWindow::playDVD() {
-	play(Phonon::MediaSource(Phonon::Dvd, "D:"));
+    QString directory = TkFileDialog::getExistingDirectory(
+        this, tr("Select DVD folder"), Config::instance().lastDirectoryUsed());
+	play(Phonon::MediaSource(Phonon::Dvd, directory));
 }
 
 void MainWindow::playURL() {
