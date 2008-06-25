@@ -1,5 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
+ * Copyright (C) 2004-2007  Wengo
  * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,48 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLUGININTERFACE_H
-#define PLUGININTERFACE_H
+#ifndef CLOSEEVENTFILTER_H
+#define CLOSEEVENTFILTER_H
 
-#include <quarkplayer/quarkplayer_export.h>
-
-#include <QtCore/QString>
-
-class QuarkPlayer;
+#include <tkutil/EventFilter.h>
 
 /**
- * Interface for plugins.
+ * Catch Close event.
  *
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API PluginInterface {
+class TKUTIL_API CloseEventFilter : public EventFilter {
 public:
 
-	PluginInterface(QuarkPlayer & quarkPlayer);
-
-	virtual ~PluginInterface();
-
-/*
-	virtual QString name() const = 0;
-
-	virtual QString description() const = 0;
-
-	virtual QString version() const = 0;
-
-	virtual QString authors() const = 0;
-
-	virtual QString license() const = 0;
-
-	virtual QString copyright() const = 0;
-*/
-
-protected:
-
-	QuarkPlayer & quarkPlayer() const;
+	CloseEventFilter(QObject * receiver, const char * member, bool filter = false);
 
 private:
 
-	QuarkPlayer & _quarkPlayer;
+	virtual bool eventFilter(QObject * watched, QEvent * event);
 };
 
-#endif	//PLUGININTERFACE_H
+#endif	//CLOSEEVENTFILTER_H

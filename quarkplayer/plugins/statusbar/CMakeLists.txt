@@ -8,7 +8,7 @@ qt4_wrap_cpp(statusbar_SRCS
 	StatusBar.h
 )
 
-add_library(statusbar SHARED ${statusbar_SRCS})
+add_library(statusbar MODULE ${statusbar_SRCS})
 
 if (KDE4_FOUND)
 	target_link_libraries(statusbar

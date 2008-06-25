@@ -21,20 +21,48 @@
 
 #include <quarkplayer/quarkplayer_export.h>
 
+#include <QtCore/QObject>
+
 class QuarkPlayer;
 
 /**
  * Manages/loads QuarkPlayer plugins.
  *
+ * Pattern singleton.
+ *
+ * @see QPluginLoader
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API PluginManager {
+class QUARKPLAYER_API PluginManager : public QObject {
+	Q_OBJECT
 public:
 
-	static void loadPlugins(QuarkPlayer & quarkPlayer);
+	~PluginManager();
+
+	static PluginManager & instance();
+
+	void loadPlugins(QuarkPlayer & quarkPlayer);
+
+signals:
+
+	void allPluginsLoaded();
 
 private:
 
+	PluginManager();
+
+	template <class T>
+	static QList<T> & randomize(QList<T> & list);
+
+	/**
+	 * Generates a random number between min (included) and max (included).
+	 *
+	 * @see http://www.geekpedia.com/tutorial39_Random-Number-Generation.html
+	 */
+	static int randomInt(int min, int max);
+
+	/** Singleton. */
+	static PluginManager * _pluginManager;
 };
 
 #endif	//PLUGINMANAGER_H

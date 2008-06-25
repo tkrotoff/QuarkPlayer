@@ -45,7 +45,6 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent)
 	populateActionCollection();
 
 	setupUi();
-	createDockWidgets();
 
 	//Accepts Drag&Drop
 	setAcceptDrops(true);
@@ -55,21 +54,23 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent)
 
 	addRecentFilesToMenu();
 
-	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
-	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
-		SLOT(sourceChanged(const Phonon::MediaSource &)));
-
 	//playToolBar
 	_playToolBar = NULL;
+	_statusBar = NULL;
+	_videoDockWidget = NULL;
+	_browserDockWidget = NULL;
+	_playlistDockWidget = NULL;
 
 	connect(ActionCollection::action("playDVD"), SIGNAL(triggered()), SLOT(playDVD()));
 	connect(ActionCollection::action("playURL"), SIGNAL(triggered()), SLOT(playURL()));
 	connect(ActionCollection::action("playFile"), SIGNAL(triggered()), SLOT(playFile()));
 	connect(ActionCollection::action("configure"), SIGNAL(triggered()), SLOT(showConfigWindow()));
-	connect(ActionCollection::action("quit"), SIGNAL(triggered()), &(quarkPlayer.currentMediaObject()), SLOT(stop()));
 	connect(ActionCollection::action("quit"), SIGNAL(triggered()), SLOT(close()));
 	connect(ActionCollection::action("about"), SIGNAL(triggered()), SLOT(about()));
 	connect(ActionCollection::action("aboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+
+	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
+		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 }
 
 MainWindow::~MainWindow() {
@@ -78,11 +79,22 @@ MainWindow::~MainWindow() {
 void MainWindow::setPlayToolBar(QToolBar * playToolBar) {
 	_playToolBar = playToolBar;
 	addToolBar(Qt::BottomToolBarArea, playToolBar);
+	qDebug() << __FUNCTION__;
 	emit playToolBarAdded(_playToolBar);
 }
 
 QToolBar * MainWindow::playToolBar() const {
 	return _playToolBar;
+}
+
+void MainWindow::setStatusBar(QStatusBar * statusBar) {
+	_statusBar = statusBar;
+	QMainWindow::setStatusBar(statusBar);
+	emit statusBarAdded(_statusBar);
+}
+
+QStatusBar * MainWindow::statusBar() const {
+	return _statusBar;
 }
 
 void MainWindow::addRecentFilesToMenu() {
@@ -153,9 +165,12 @@ void MainWindow::playFile() {
 }
 
 void MainWindow::playDVD() {
-    QString directory = TkFileDialog::getExistingDirectory(
-        this, tr("Select DVD folder"), Config::instance().lastDirectoryUsed());
-	play(Phonon::MediaSource(Phonon::Dvd, directory));
+	QString directory = TkFileDialog::getExistingDirectory(this, tr("Select DVD folder"),
+			Config::instance().lastDirectoryUsed());
+
+	if (!directory.isEmpty()) {
+		play(Phonon::MediaSource(Phonon::Dvd, directory));
+	}
 }
 
 void MainWindow::playURL() {
@@ -168,6 +183,12 @@ void MainWindow::playURL() {
 }
 
 void MainWindow::play(const Phonon::MediaSource & mediaSource) {
+	addFileToRecentFilesMenu(mediaSource);
+	quarkPlayer().play(mediaSource);
+	//_statusBar->showMessage(tr("Processing") + " " + filename + "...");
+}
+
+void MainWindow::addFileToRecentFilesMenu(const Phonon::MediaSource & mediaSource) {
 	static const int MAX_RECENT_FILES = 10;
 
 	QString filename = mediaSource.fileName();
@@ -194,37 +215,15 @@ void MainWindow::play(const Phonon::MediaSource & mediaSource) {
 
 		addRecentFilesToMenu();
 	}
-
-	//_statusBar->showMessage(tr("Processing") + " " + filename + "...");
-	quarkPlayer().currentMediaObject().setCurrentSource(mediaSource);
-	quarkPlayer().currentMediaObject().play();
 }
 
 void MainWindow::metaDataChanged() {
-	QMultiMap<QString, QString> metaData = quarkPlayer().currentMediaObject().metaData();
+	QString title = quarkPlayer().currentMediaObjectTitle();
 
-	QString windowTitle;
-	QString artist = metaData.value("ARTIST");
-	QString title = metaData.value("TITLE");
-	if (artist.isEmpty() && title.isEmpty()) {
-		windowTitle = quarkPlayer().currentMediaObject().currentSource().fileName();
-		windowTitle = windowTitle.right(windowTitle.length() - windowTitle.lastIndexOf('/') - 1);
-	} else {
-		if (!title.isEmpty()) {
-			windowTitle = title;
-		}
-		if (!artist.isEmpty()) {
-			if (!windowTitle.isEmpty()) {
-				windowTitle += " - ";
-			}
-			windowTitle += artist;
-		}
-	}
-
-	if (windowTitle.isEmpty()) {
+	if (title.isEmpty()) {
 		setWindowTitle(QCoreApplication::applicationName());
 	} else {
-		setWindowTitle(windowTitle + " - " + QCoreApplication::applicationName() + " ");
+		setWindowTitle(title + " - " + QCoreApplication::applicationName() + " ");
 	}
 }
 
@@ -462,37 +461,43 @@ void MainWindow::dropEvent(QDropEvent * event) {
 	}
 }
 
-void MainWindow::createDockWidgets() {
-	//browserDockWidget
-	QDockWidget * browserDockWidget = new QDockWidget(tr("Browser"), this);
-	addDockWidget(Qt::LeftDockWidgetArea, browserDockWidget);
-	_browserTabWidget = new QTabWidget();
-	_browserTabWidget->setTabPosition(QTabWidget::West);
-	browserDockWidget->setWidget(_browserTabWidget);
+void MainWindow::addBrowserDockWidget(QDockWidget * widget) {
+	static QDockWidget * lastDockWidget = NULL;
 
-	//videoDockWidget
-	QDockWidget * videoDockWidget = new QDockWidget(tr("Video"), NULL);
-	addDockWidget(Qt::RightDockWidgetArea, videoDockWidget);
-	_videoTabWidget = new QTabWidget();
-	_videoTabWidget->setTabPosition(QTabWidget::West);
-	videoDockWidget->setWidget(_videoTabWidget);
-
-	//playlistDockWidget
-	QDockWidget * playlistDockWidget = new QDockWidget(tr("Playlist"), NULL);
-	addDockWidget(Qt::RightDockWidgetArea, playlistDockWidget);
-	_playlistTabWidget = new QTabWidget();
-	_playlistTabWidget->setTabPosition(QTabWidget::West);
-	playlistDockWidget->setWidget(_playlistTabWidget);
+	addDockWidget(Qt::LeftDockWidgetArea, widget);
+	if (lastDockWidget) {
+		tabifyDockWidget(lastDockWidget, widget);
+	}
+	lastDockWidget = widget;
 }
 
-QTabWidget * MainWindow::browserTabWidget() const {
-	return _browserTabWidget;
+void MainWindow::addVideoDockWidget(QDockWidget * widget) {
+	static QDockWidget * lastDockWidget = NULL;
+
+	addDockWidget(Qt::RightDockWidgetArea, widget);
+	if (lastDockWidget) {
+		tabifyDockWidget(lastDockWidget, widget);
+	}
+	lastDockWidget = widget;
 }
 
-QTabWidget * MainWindow::playlistTabWidget() const {
-	return _playlistTabWidget;
+void MainWindow::addPlaylistDockWidget(QDockWidget * widget) {
+	static QDockWidget * lastDockWidget = NULL;
+
+	addDockWidget(Qt::RightDockWidgetArea, widget);
+	if (lastDockWidget) {
+		tabifyDockWidget(lastDockWidget, widget);
+	}
+	lastDockWidget = widget;
 }
 
-QTabWidget * MainWindow::videoTabWidget() const {
-	return _videoTabWidget;
+void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
+	foreach (Phonon::MediaObject * tmp, quarkPlayer().mediaObjectList()) {
+		tmp->disconnect(this);
+	}
+
+	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
+
+	disconnect(ActionCollection::action("quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
+	connect(ActionCollection::action("quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
 }

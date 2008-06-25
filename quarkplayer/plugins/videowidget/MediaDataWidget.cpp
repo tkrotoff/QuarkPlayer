@@ -25,11 +25,11 @@
 #include <QtCore/QDebug>
 #include <QtCore/QtGlobal>
 
-MediaDataWidget::MediaDataWidget(Phonon::MediaObject & mediaObject)
+MediaDataWidget::MediaDataWidget(Phonon::MediaObject * mediaObject)
 	: QWidget(NULL),
 	_mediaObject(mediaObject) {
 
-	connect(&_mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
+	connect(_mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
 
 	QVBoxLayout * vLayout = new QVBoxLayout(this);
 	vLayout->setContentsMargins(2, 2, 2, 2);
@@ -67,13 +67,13 @@ void MediaDataWidget::metaDataChanged() {
 	static const QString endhref2 = "</a>";
 	static const QString br = "<br>";
 
-	QMap<QString, QString> metaData = _mediaObject.metaData();
+	QMap<QString, QString> metaData = _mediaObject->metaData();
 
 	QString filename;
-	if (_mediaObject.currentSource().type() == Phonon::MediaSource::Url) {
-		filename = _mediaObject.currentSource().url().toString();
+	if (_mediaObject->currentSource().type() == Phonon::MediaSource::Url) {
+		filename = _mediaObject->currentSource().url().toString();
 	} else {
-		filename = _mediaObject.currentSource().fileName();
+		filename = _mediaObject->currentSource().fileName();
 		filename = filename.right(filename.length() - filename.lastIndexOf('/') - 1);
 	}
 
@@ -82,7 +82,7 @@ void MediaDataWidget::metaDataChanged() {
 		title = tr("Title:  ") + font + title + endfont;
 	} else if (!filename.isEmpty()) {
 		title = font + filename + endfont;
-		if (_mediaObject.currentSource().type() == Phonon::MediaSource::Url) {
+		if (_mediaObject->currentSource().type() == Phonon::MediaSource::Url) {
 			title.prepend("Url: ");
 		} else {
 			title.prepend("File: ");

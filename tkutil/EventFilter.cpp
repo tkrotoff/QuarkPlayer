@@ -21,13 +21,15 @@
 
 #include <QtCore/QEvent>
 
-EventFilter::EventFilter(QObject * receiver, const char * member)
+EventFilter::EventFilter(QObject * receiver, const char * member, bool filter)
 	: QObject() {
+	_filter = filter;
 	connect(this, SIGNAL(activate(QEvent *)), receiver, member);
 }
 
-void EventFilter::filter(QEvent * event) {
-	activate(event);
+bool EventFilter::filter(QEvent * event) {
+	emit activate(event);
+	return _filter;
 }
 
 bool EventFilter::eventFilter(QObject * watched, QEvent * event) {

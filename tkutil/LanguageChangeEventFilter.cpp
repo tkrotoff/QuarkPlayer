@@ -22,13 +22,12 @@
 #include <QtCore/QEvent>
 
 LanguageChangeEventFilter::LanguageChangeEventFilter(QObject * receiver, const char * member)
-	: EventFilter(receiver, member) {
+	: EventFilter(receiver, member, false) {
 }
 
 bool LanguageChangeEventFilter::eventFilter(QObject * watched, QEvent * event) {
 	if (event->type() == QEvent::LanguageChange) {
-		filter(event);
-		return false;
+		return filter(event);
 	}
 	return EventFilter::eventFilter(watched, event);
 }

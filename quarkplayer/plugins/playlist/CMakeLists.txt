@@ -13,7 +13,7 @@ qt4_wrap_ui(playlist_SRCS
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(playlist SHARED ${playlist_SRCS})
+add_library(playlist MODULE ${playlist_SRCS})
 
 if (KDE4_FOUND)
 	target_link_libraries(playlist

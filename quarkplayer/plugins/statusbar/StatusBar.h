@@ -50,27 +50,21 @@ private slots:
 
 	void tick(qint64 time);
 
-	void totalTimeChanged(qint64 totalTime);
+	void stateChanged(Phonon::State newState);
 
-	void stateChanged(Phonon::State newState, Phonon::State oldState);
-
-	void metaDataChanged();
+	void showTitle();
 
 	void aboutToFinish();
 
 	void prefinishMarkReached(qint32 msecToEnd);
+
+	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
 
 private:
 
 	static QString convertMilliseconds(qint64 currentTime, qint64 totalTime);
 
 	QLabel * _timeLabel;
-
-	qint64 _totalTime;
-
-	qint64 _currentTime;
-
-	QString _fileTitle;
 };
 
 #include <quarkplayer/PluginFactory.h>

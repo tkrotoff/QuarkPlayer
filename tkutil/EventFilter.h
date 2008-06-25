@@ -33,12 +33,19 @@ class QEvent;
  * Example:
  * <code>
  * QMainWindow * widget = new QMainWindow();
- * CloseEventFilter * closeFilter = new CloseEventFilter(this, SLOT(printHelloWorld()));
- * ResizeEventFilter * resizeFilter = new ResizeEventFilter(this, SLOT(printHelloWorld()));
+ * CloseEventFilter * closeFilter = new CloseEventFilter(this, SLOT(printHelloWorld()), true);
+ * ResizeEventFilter * resizeFilter = new ResizeEventFilter(this, SLOT(printHelloWorld()), false);
  * widget->installEventFilter(closeFilter);
  * widget->installEventFilter(resizeFilter);
  * </code>
  *
+ * The eventFilter() function must return true if the event should be filtered,
+ * (i.e. stopped); otherwise it must return false.
+ * If you want to filter the event out, i.e. stop it being handled further,
+ * return true; otherwise return false.
+ *
+ * @see QObject::installEventFilter()
+ * @see QObject::eventFilter()
  * @author Tanguy Krotoff
  */
 class TKUTIL_API EventFilter : public QObject {
@@ -51,8 +58,9 @@ public:
 	 * @param receiver object receiver of the filter signal
 	 * @param member member of the object called by the filter signal
 	 * @param watched watched object the filter is going to be applied on
+	 * @param filter if the event needs to be filtered or not
 	 */
-	EventFilter(QObject * receiver, const char * member);
+	EventFilter(QObject * receiver, const char * member, bool filter);
 
 protected:
 
@@ -61,7 +69,7 @@ protected:
 	 *
 	 * @param event event filtered
 	 */
-	void filter(QEvent * event);
+	bool filter(QEvent * event);
 
 	/**
 	 * Filters the event.
@@ -75,6 +83,11 @@ protected:
 signals:
 
 	void activate(QEvent * event);
+
+private:
+
+	/** If the event should be filtered or not. */
+	bool _filter;
 };
 
 #endif	//EVENTFILTER_H

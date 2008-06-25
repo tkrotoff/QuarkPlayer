@@ -77,9 +77,6 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	connect(_metaObjectInfoResolver, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(metaStateChanged(Phonon::State, Phonon::State)));
 
-	//Phonon media object
-	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
-
 	//actions connect
 	//connect(actionNewVideoWindow, SIGNAL(triggered()), SLOT(newVideoWindow()));
 	//connect(actionAddPlayFile, SIGNAL(triggered()), SLOT(addPlay()));
@@ -88,8 +85,12 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	connect(_ui->tableWidget, SIGNAL(cellDoubleClicked(int, int)), SLOT(tableDoubleClicked(int, int)));
 
 	//Add to the main window
-	QTabWidget * playlistTabWidget = quarkPlayer.mainWindow().playlistTabWidget();
-	playlistTabWidget->addTab(this, tr("Playlist"));
+	QDockWidget * dockWidget = new QDockWidget(tr("Playlist"));
+	quarkPlayer.mainWindow().addPlaylistDockWidget(dockWidget);
+	dockWidget->setWidget(this);
+
+	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
+		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 
 	_ui->tableWidget->resizeColumnsToContents();
 	_ui->tableWidget->resizeRowsToContents();
@@ -271,11 +272,11 @@ void PlaylistWidget::metaStateChanged(Phonon::State newState, Phonon::State oldS
 void PlaylistWidget::aboutToFinish() {
 	qDebug() << __FUNCTION__;
 
-	int index = _mediaSources.indexOf(quarkPlayer().currentMediaObject().currentSource()) + 1;
+	int index = _mediaSources.indexOf(quarkPlayer().currentMediaObject()->currentSource()) + 1;
 	if (_mediaSources.size() > index) {
 		//TODO
 		//quarkPlayer().currentMediaObject().enqueue(_mediaSources.at(index));
-		quarkPlayer().mainWindow().play(_mediaSources.at(index));
+		quarkPlayer().play(_mediaSources.at(index));
 	}
 }
 
@@ -345,4 +346,12 @@ QString PlaylistWidget::convertMilliseconds(qint64 totalTime) {
 		}
 		return displayTotalTime.toString(timeFormat);
 	}
+}
+
+void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
+	foreach (Phonon::MediaObject * tmp, quarkPlayer().mediaObjectList()) {
+		tmp->disconnect(this);
+	}
+
+	connect(mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
 }

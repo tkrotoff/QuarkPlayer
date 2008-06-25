@@ -26,19 +26,26 @@
 
 #include <QtCore/QTimerEvent>
 
-VideoWidget::VideoWidget(QStackedWidget * stackedWidget, MainWindow * mainWindow)
+VideoWidget::VideoWidget(QDockWidget * dockWidget, MainWindow & mainWindow)
 	: Phonon::VideoWidget(NULL) {
 
-	_mainWindow = mainWindow;
-	_stackedWidget = stackedWidget;
+	_dockWidget = dockWidget;
+	_mainWindow = &mainWindow;
 
-	_statusBar = NULL;
+	_playToolBar = _mainWindow->playToolBar();
+	_statusBar = _mainWindow->statusBar();
 
 	connect(_mainWindow, SIGNAL(playToolBarAdded(QToolBar *)),
 		SLOT(playToolBarAdded(QToolBar *)));
+	connect(_mainWindow, SIGNAL(statusBarAdded(QStatusBar *)),
+		SLOT(statusBarAdded(QStatusBar *)));
 
 	//Lazy initialization
 	_widgetOverFullScreen = NULL;
+
+	if (_playToolBar) {
+		playToolBarAdded(_playToolBar);
+	}
 }
 
 VideoWidget::~VideoWidget() {
@@ -48,13 +55,12 @@ void VideoWidget::setFullScreenSlot(bool fullScreen) {
 	if (fullScreen) {
 		//Going fullscreen
 
-		//FIXME QStackedWidget and fullscreen mode are not well together
-		//I hope to remove this code in the future...
-		//There should be no reason why a widget inside a QStackedWidget could
-		//not be fullscreen
-		_stackedWidget->removeWidget(this);
-
+		//Bugfix: when going fullscreen, dockWidget does not have any child widget
+		//and thus get closed. In order to avoid this, we set a fake child widget to dockWidget
+		_dockWidget->setWidget(new QLabel("Fullscreen bugfix"));
 		setFullScreen(fullScreen);
+		show();
+		//
 
 		//QWidget that contains PlayToolBar + StatusBar
 		//Lazy initialization
@@ -71,8 +77,7 @@ void VideoWidget::setFullScreenSlot(bool fullScreen) {
 		//Leaving fullscreen
 
 		setFullScreen(fullScreen);
-		_stackedWidget->addWidget(this);
-		_stackedWidget->setCurrentWidget(this);
+		_dockWidget->setWidget(this);
 
 		addPlayToolBarToMainWindow();
 		_widgetOverFullScreen->hide();
@@ -81,7 +86,12 @@ void VideoWidget::setFullScreenSlot(bool fullScreen) {
 
 void VideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
 	Phonon::VideoWidget::mouseDoubleClickEvent(event);
-	ActionCollection::action("fullScreen")->setChecked(!isFullScreen());
+	QAction * fullScreen = ActionCollection::action("fullScreen");
+	if (fullScreen) {
+		fullScreen->setChecked(!isFullScreen());
+	} else {
+		setFullScreenSlot(!isFullScreen());
+	}
 }
 
 void VideoWidget::keyPressEvent(QKeyEvent * event) {
@@ -152,10 +162,20 @@ void VideoWidget::checkMousePos() {
 		return;
 	}
 
-	QToolBar * playToolBar = _mainWindow->playToolBar();
-	_statusBar = _mainWindow->statusBar();
-	//Computing size of the widgetOverFullScreen
-	int widgetOverFullScreenHeight = playToolBar->height() + _statusBar->height();
+	//playToolBar can be NULL
+	int playToolBarHeight = 0;
+	if (_playToolBar) {
+		playToolBarHeight = _playToolBar->height();
+	}
+
+	//statusBar can be NULL
+	int statusBarHeight = 0;
+	if (_statusBar) {
+		statusBarHeight = _statusBar->height();
+	}
+
+	//Computing size of the _widgetOverFullScreen
+	int widgetOverFullScreenHeight = playToolBarHeight + statusBarHeight;
 	_widgetOverFullScreen->setMaximumHeight(widgetOverFullScreenHeight);
 
 	QPoint pos = QCursor::pos();
@@ -168,12 +188,16 @@ void VideoWidget::checkMousePos() {
 			bottomCursor = true;
 
 			//PlayToolBar
-			_widgetOverFullScreen->layout()->removeWidget(playToolBar);
-			_widgetOverFullScreen->layout()->addWidget(playToolBar);
+			if (_playToolBar) {
+				_widgetOverFullScreen->layout()->removeWidget(_playToolBar);
+				_widgetOverFullScreen->layout()->addWidget(_playToolBar);
+			}
 
 			//StatusBar
-			_widgetOverFullScreen->layout()->removeWidget(_statusBar);
-			_widgetOverFullScreen->layout()->addWidget(_statusBar);
+			if (_statusBar) {
+				_widgetOverFullScreen->layout()->removeWidget(_statusBar);
+				_widgetOverFullScreen->layout()->addWidget(_statusBar);
+			}
 
 			showWidgetOver(_widgetOverFullScreen, this);
 		}
@@ -189,6 +213,10 @@ void VideoWidget::checkMousePos() {
 }
 
 void VideoWidget::playToolBarAdded(QToolBar * playToolBar) {
+	qDebug() << __FUNCTION__;
+
+	_playToolBar = playToolBar;
+
 	//We do this in order to add the play toolbar to the mainwindow
 	//when starting
 	addPlayToolBarToMainWindow();
@@ -197,9 +225,13 @@ void VideoWidget::playToolBarAdded(QToolBar * playToolBar) {
 		SLOT(setFullScreenSlot(bool)));
 }
 
+void VideoWidget::statusBarAdded(QStatusBar * statusBar) {
+	_statusBar = statusBar;
+}
+
 void VideoWidget::addPlayToolBarToMainWindow() {
-	if (_mainWindow->playToolBar()) {
-		_mainWindow->addToolBar(Qt::BottomToolBarArea, _mainWindow->playToolBar());
+	if (_playToolBar) {
+		_mainWindow->addToolBar(Qt::BottomToolBarArea, _playToolBar);
 	}
 
 	if (_statusBar) {

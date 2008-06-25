@@ -76,8 +76,9 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 		SLOT(doubleClicked(const QModelIndex &)));
 
 	//Add to the main window
-	QTabWidget * browserTabWidget = quarkPlayer.mainWindow().browserTabWidget();
-	browserTabWidget->addTab(this, tr("Files"));
+	QDockWidget * dockWidget = new QDockWidget(tr("Files"));
+	quarkPlayer.mainWindow().addBrowserDockWidget(dockWidget);
+	dockWidget->setWidget(this);
 }
 
 FileBrowserWidget::~FileBrowserWidget() {
@@ -87,7 +88,7 @@ void FileBrowserWidget::doubleClicked(const QModelIndex & index) {
 	QFileInfo fileInfo = _dirModel->fileInfo(index);
 	//FIXME sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
 	QString slashSlashBugFix = fileInfo.absoluteFilePath().replace("//", "/");
-	quarkPlayer().mainWindow().play(slashSlashBugFix);
+	quarkPlayer().play(slashSlashBugFix);
 }
 
 void FileBrowserWidget::search(const QString & pattern) {

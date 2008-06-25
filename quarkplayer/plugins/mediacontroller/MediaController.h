@@ -30,6 +30,7 @@ class MainWindow;
 
 namespace Phonon {
 	class MediaController;
+	class MediaObject;
 }
 
 /**
@@ -67,6 +68,8 @@ private slots:
 
 	void availableAnglesChanged();
 	void actionAngleTriggered(int id);
+
+	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
 
 private:
 

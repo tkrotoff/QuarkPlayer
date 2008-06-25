@@ -23,18 +23,27 @@
 
 #include <phonon/phononnamespace.h>
 
-#include <QtGui/QStackedWidget>
+#include <QtCore/QObject>
+#include <QtCore/QMap>
 
 class VideoWidget;
 
 class QuarkPlayer;
+
+namespace Phonon {
+	class MediaObject;
+}
+
+class QWidget;
+class QStackedWidget;
+class QDockWidget;
 
 /**
  * Video widget plugin.
  *
  * @author Tanguy Krotoff
  */
-class VideoWidgetPlugin : public QStackedWidget, public PluginInterface {
+class VideoWidgetPlugin : public QObject, public PluginInterface {
 	Q_OBJECT
 public:
 
@@ -48,16 +57,47 @@ private slots:
 
 	void hasVideoChanged(bool hasVideo);
 
+	void mediaObjectAdded(Phonon::MediaObject * mediaObject);
+
+	void metaDataChanged();
+
+	void visibilityChanged(bool visible = true);
+
+	void newDockWidgetVisibilityChanged(bool visible);
+
+	void dockWidgetClosed();
+
 private:
 
-	/** Widget containing the video. */
-	VideoWidget * _videoWidget;
+	class VideoContainer {
+	public:
 
-	/** Widget containing the logo. */
-	QWidget * _backgroundLogoWidget;
+		VideoContainer() {
+			videoWidget = NULL;
+			backgroundLogoWidget = NULL;
+			mediaDataWidget = NULL;
+			videoDockWidget = NULL;
+		}
 
-	/** Widget containing the media data. */
-	QWidget * _mediaDataWidget;
+		/** Widget containing the video. */
+		VideoWidget * videoWidget;
+
+		/** Widget containing the logo. */
+		QWidget * backgroundLogoWidget;
+
+		/** Widget containing the media data. */
+		QWidget * mediaDataWidget;
+
+		QDockWidget * videoDockWidget;
+	};
+
+	VideoContainer * findMatchingVideoContainer(QDockWidget * dockWidget);
+
+	QMap<Phonon::MediaObject *, VideoContainer *> _mediaObjectMap;
+
+	QDockWidget * _previousDockWidget;
+
+	bool _dockWidgetClosed;
 };
 
 #include <quarkplayer/PluginFactory.h>

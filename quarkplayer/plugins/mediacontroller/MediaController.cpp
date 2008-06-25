@@ -57,25 +57,9 @@ MediaController::MediaController(QuarkPlayer & quarkPlayer)
 	_toolBar = new MediaControllerToolBar();
 	_mainWindow->addToolBar(_toolBar);
 
-	_mediaController = new Phonon::MediaController(&(quarkPlayer.currentMediaObject()));
-	connect(_mediaController, SIGNAL(availableAudioChannelsChanged()),
-		SLOT(availableAudioChannelsChanged()));
-	connect(_mediaController, SIGNAL(availableSubtitlesChanged()),
-		SLOT(availableSubtitlesChanged()));
-
-#ifdef NEW_TITLE_CHAPTER_HANDLING
-	connect(_mediaController, SIGNAL(availableTitlesChanged()),
-		SLOT(availableTitlesChanged()));
-	connect(_mediaController, SIGNAL(availableChaptersChanged()),
-		SLOT(availableChaptersChanged()));
-#else
-	connect(_mediaController, SIGNAL(availableTitlesChanged(int)),
-		SLOT(availableTitlesChanged()));
-	connect(_mediaController, SIGNAL(availableChaptersChanged(int)),
-		SLOT(availableChaptersChanged()));
-#endif	//NEW_TITLE_CHAPTER_HANDLING
-	connect(_mediaController, SIGNAL(availableAnglesChanged(int)),
-		SLOT(availableAnglesChanged()));
+	_mediaController = NULL;
+	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
+		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 
 	connect(ActionCollection::action("openSubtitleFile"), SIGNAL(triggered()),
 		SLOT(openSubtitleFile()));
@@ -391,4 +375,26 @@ void MediaController::availableAnglesChanged() {
 
 void MediaController::actionAngleTriggered(int id) {
 	_mediaController->setCurrentAngle(id);
+}
+
+void MediaController::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
+	_mediaController = new Phonon::MediaController(mediaObject);
+	connect(_mediaController, SIGNAL(availableAudioChannelsChanged()),
+		SLOT(availableAudioChannelsChanged()));
+	connect(_mediaController, SIGNAL(availableSubtitlesChanged()),
+		SLOT(availableSubtitlesChanged()));
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	connect(_mediaController, SIGNAL(availableTitlesChanged()),
+		SLOT(availableTitlesChanged()));
+	connect(_mediaController, SIGNAL(availableChaptersChanged()),
+		SLOT(availableChaptersChanged()));
+#else
+	connect(_mediaController, SIGNAL(availableTitlesChanged(int)),
+		SLOT(availableTitlesChanged()));
+	connect(_mediaController, SIGNAL(availableChaptersChanged(int)),
+		SLOT(availableChaptersChanged()));
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+	connect(_mediaController, SIGNAL(availableAnglesChanged(int)),
+		SLOT(availableAnglesChanged()));
 }

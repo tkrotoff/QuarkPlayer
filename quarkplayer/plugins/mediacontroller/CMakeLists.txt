@@ -10,7 +10,7 @@ qt4_wrap_cpp(mediacontroller_SRCS
 	MediaControllerToolBar.h
 )
 
-add_library(mediacontroller SHARED ${mediacontroller_SRCS})
+add_library(mediacontroller MODULE ${mediacontroller_SRCS})
 
 if (KDE4_FOUND)
 	target_link_libraries(mediacontroller

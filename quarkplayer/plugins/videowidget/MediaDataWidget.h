@@ -36,7 +36,7 @@ class MediaDataWidget : public QWidget {
 	Q_OBJECT
 public:
 
-	MediaDataWidget(Phonon::MediaObject & mediaObject);
+	MediaDataWidget(Phonon::MediaObject * mediaObject);
 
 	~MediaDataWidget();
 
@@ -46,7 +46,7 @@ private slots:
 
 private:
 
-	Phonon::MediaObject & _mediaObject;
+	Phonon::MediaObject * _mediaObject;
 
 	QLabel * _dataLabel;
 };

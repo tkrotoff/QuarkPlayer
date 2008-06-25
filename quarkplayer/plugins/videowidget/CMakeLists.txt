@@ -17,7 +17,7 @@ qt4_wrap_ui(videowidget_SRCS
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(videowidget SHARED ${videowidget_SRCS})
+add_library(videowidget MODULE ${videowidget_SRCS})
 
 if (KDE4_FOUND)
 	target_link_libraries(videowidget

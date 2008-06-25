@@ -25,6 +25,9 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
 
+#include <tkutil/MouseEventFilter.h>
+#include <tkutil/CloseEventFilter.h>
+
 #include <phonon/mediaobject.h>
 
 #include <QtGui/QtGui>
@@ -38,61 +41,155 @@ PluginInterface * VideoWidgetPluginFactory::create(QuarkPlayer & quarkPlayer) co
 }
 
 VideoWidgetPlugin::VideoWidgetPlugin(QuarkPlayer & quarkPlayer)
-	: QStackedWidget(NULL),
+	: QObject(NULL),
 	PluginInterface(quarkPlayer) {
 
-	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(stateChanged(Phonon::State, Phonon::State)),
-		SLOT(stateChanged(Phonon::State, Phonon::State)));
-	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(hasVideoChanged(bool)), SLOT(hasVideoChanged(bool)));
+	_dockWidgetClosed = false;
 
-	//Logo widget
-	_backgroundLogoWidget = new QWidget();
-	addWidget(_backgroundLogoWidget);
-	Ui::BackgroundLogoWidget * logo = new Ui::BackgroundLogoWidget();
-	logo->setupUi(_backgroundLogoWidget);
-	setCurrentWidget(_backgroundLogoWidget);
-
-	//videoWidget
-	_videoWidget = new VideoWidget(this, &(quarkPlayer.mainWindow()));
-	quarkPlayer.setCurrentVideoWidget(_videoWidget);
-	Phonon::createPath(&(quarkPlayer.currentMediaObject()), _videoWidget);
-	addWidget(_videoWidget);
-
-	//mediaDataWidget
-	_mediaDataWidget = new MediaDataWidget(quarkPlayer.currentMediaObject());
-	addWidget(_mediaDataWidget);
-
-	//Add to the main window
-	QTabWidget * videoTabWidget = quarkPlayer.mainWindow().videoTabWidget();
-	videoTabWidget->addTab(this, tr("Video"));
+	connect(&quarkPlayer, SIGNAL(mediaObjectAdded(Phonon::MediaObject *)),
+		SLOT(mediaObjectAdded(Phonon::MediaObject *)));
 }
 
 VideoWidgetPlugin::~VideoWidgetPlugin() {
 }
 
 void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldState) {
+	VideoContainer * container = _mediaObjectMap.value(quarkPlayer().currentMediaObject());
+
 	qDebug() << __FUNCTION__ << "newState:" << newState << "oldState:" << oldState;
 
 	//Remove the background logo, not needed anymore
-	if (_backgroundLogoWidget) {
-		removeWidget(_backgroundLogoWidget);
-		delete _backgroundLogoWidget;
-		_backgroundLogoWidget = NULL;
+	if (container->backgroundLogoWidget) {
+		delete container->backgroundLogoWidget;
+		container->backgroundLogoWidget = NULL;
 	}
 
 	if (oldState == Phonon::LoadingState) {
 		//Resize the main window to the size of the video
 		//i.e increase or decrease main window size if needed
-		hasVideoChanged(quarkPlayer().currentMediaObject().hasVideo());
+		hasVideoChanged(quarkPlayer().currentMediaObject()->hasVideo());
 	}
 }
 
 void VideoWidgetPlugin::hasVideoChanged(bool hasVideo) {
+	VideoContainer * container = _mediaObjectMap.value(quarkPlayer().currentMediaObject());
+
 	//Resize the main window to the size of the video
 	//i.e increase or decrease main window size if needed
 	if (hasVideo) {
-		setCurrentWidget(_videoWidget);
+		container->videoDockWidget->setWidget(container->videoWidget);
+		container->videoDockWidget->resize(container->videoWidget->sizeHint());
 	} else {
-		setCurrentWidget(_mediaDataWidget);
+		container->videoDockWidget->setWidget(container->mediaDataWidget);
+		container->videoDockWidget->resize(container->mediaDataWidget->minimumSize());
 	}
+}
+
+void VideoWidgetPlugin::metaDataChanged() {
+	VideoContainer * container = _mediaObjectMap.value(quarkPlayer().currentMediaObject());
+
+	QString title = quarkPlayer().currentMediaObjectTitle();
+	container->videoDockWidget->setWindowTitle(title);
+}
+
+void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
+	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
+		SLOT(stateChanged(Phonon::State, Phonon::State)));
+	connect(mediaObject, SIGNAL(hasVideoChanged(bool)), SLOT(hasVideoChanged(bool)));
+	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
+
+	VideoContainer * container = new VideoContainer();
+
+	container->videoDockWidget = new QDockWidget();
+
+	//Logo widget
+	container->backgroundLogoWidget = new QWidget();
+	Ui::BackgroundLogoWidget * logo = new Ui::BackgroundLogoWidget();
+	logo->setupUi(container->backgroundLogoWidget);
+	container->videoDockWidget->setWidget(container->backgroundLogoWidget);
+
+	//mediaDataWidget
+	container->mediaDataWidget = new MediaDataWidget(mediaObject);
+
+	//videoWidget
+	container->videoWidget = new VideoWidget(container->videoDockWidget, quarkPlayer().mainWindow());
+	Phonon::createPath(mediaObject, container->videoWidget);
+
+	_mediaObjectMap[mediaObject] = container;
+
+	//Add to the main window
+	quarkPlayer().mainWindow().addVideoDockWidget(container->videoDockWidget);
+
+	container->videoDockWidget->installEventFilter(new CloseEventFilter(this, SLOT(dockWidgetClosed())));
+	container->videoDockWidget->installEventFilter(new CloseEventFilter(mediaObject, SLOT(stop())));
+	connect(container->videoDockWidget, SIGNAL(visibilityChanged(bool)), SLOT(visibilityChanged(bool)));
+	//container->videoDockWidget->titleBarWidget()->installEventFilter(new MousePressEventFilter(this, SLOT(visibilityChanged())));
+	//container->videoDockWidget->widget()->installEventFilter(new MousePressEventFilter(this, SLOT(visibilityChanged())));
+
+	QDockWidget * newDockWidget = new QDockWidget(tr("..."));
+	quarkPlayer().mainWindow().addVideoDockWidget(newDockWidget);
+	connect(newDockWidget, SIGNAL(visibilityChanged(bool)), SLOT(newDockWidgetVisibilityChanged(bool)));
+}
+
+VideoWidgetPlugin::VideoContainer * VideoWidgetPlugin::findMatchingVideoContainer(QDockWidget * dockWidget) {
+	VideoContainer * container = NULL;
+	QMapIterator<Phonon::MediaObject *, VideoContainer *> it(_mediaObjectMap);
+	while (it.hasNext()) {
+		it.next();
+		container = it.value();
+		if (container->videoDockWidget == dockWidget) {
+			break;
+		}
+	}
+	return container;
+}
+
+void VideoWidgetPlugin::visibilityChanged(bool visible) {
+	if (!visible) {
+		return;
+	}
+
+	VideoContainer * container = findMatchingVideoContainer(qobject_cast<QDockWidget *>(sender()));
+	Phonon::MediaObject * mediaObject = _mediaObjectMap.key(container);
+	quarkPlayer().setCurrentMediaObject(mediaObject);
+}
+
+void VideoWidgetPlugin::newDockWidgetVisibilityChanged(bool visible) {
+	static bool firstTimeVisible = true;
+
+	qDebug() << __FUNCTION__ << visible << firstTimeVisible;
+
+	if (!visible) {
+		return;
+	}
+
+	if (firstTimeVisible) {
+		//Drop the first time the DockWidget is visible
+		//It does not mean DockWidget has been selected by the user
+		//It is just Qt that make it visible for the first time
+		//before to hide it
+		firstTimeVisible = false;
+		return;
+	}
+
+	if (_dockWidgetClosed) {
+		//Another DockWidget is being closed, this make our newDockWidget
+		//being visible and we don't want this.
+		//We only want to filter real user interaction.
+		_dockWidgetClosed = false;
+		return;
+	}
+
+	firstTimeVisible = true;
+
+	QDockWidget * dockWidget = qobject_cast<QDockWidget *>(sender());
+	dockWidget->disconnect(this);
+	dockWidget->close();
+	//_previousDockWidget->raise();
+
+	quarkPlayer().createNewMediaObject();
+}
+
+void VideoWidgetPlugin::dockWidgetClosed() {
+	_dockWidgetClosed = true;
 }

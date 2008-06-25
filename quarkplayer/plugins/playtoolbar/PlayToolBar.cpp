@@ -46,9 +46,6 @@ PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer)
 
 	populateActionCollection();
 
-	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(stateChanged(Phonon::State, Phonon::State)),
-		SLOT(stateChanged(Phonon::State, Phonon::State)));
-
 	_volumeSlider = NULL;
 	_seekSlider = NULL;
 
@@ -72,12 +69,15 @@ PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer)
 
 	//Add to the main window
 	quarkPlayer.mainWindow().setPlayToolBar(this);
+
+	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
+		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 }
 
 PlayToolBar::~PlayToolBar() {
 }
 
-void PlayToolBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
+void PlayToolBar::stateChanged(Phonon::State newState) {
 	static bool firstTime = true;
 
 	if (firstTime) {
@@ -86,7 +86,7 @@ void PlayToolBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
 	}
 
 	//Enabled/disabled fullscreen button depending if media file is a video or audio
-	if (quarkPlayer().currentMediaObject().hasVideo()) {
+	if (quarkPlayer().currentMediaObject()->hasVideo()) {
 		ActionCollection::action("fullScreen")->setEnabled(true);
 	} else {
 		ActionCollection::action("fullScreen")->setEnabled(false);
@@ -121,7 +121,7 @@ void PlayToolBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
 		break;
 
 	default:
-		qDebug() << "State? newState=" << newState << "oldState=" << oldState;
+		qDebug() << "State? newState=" << newState;
 	}
 }
 
@@ -133,7 +133,6 @@ void PlayToolBar::createSeekToolBar() {
 	_seekSlider = new Phonon::SeekSlider();
 	_seekSlider->setIconVisible(false);
 	//_seekSlider->setTracking(false);
-	_seekSlider->setMediaObject(&(quarkPlayer().currentMediaObject()));
 
 	_seekToolBar->addWidget(_seekSlider);
 }
@@ -152,16 +151,8 @@ void PlayToolBar::createControlToolBar() {
 	_controlToolBar->addAction(ActionCollection::action("fullScreen"));
 	_controlToolBar->addSeparator();
 
-	//Actions connect
-	connect(ActionCollection::action("play"), SIGNAL(triggered()),
-		&(quarkPlayer().currentMediaObject()), SLOT(play()));
-	connect(ActionCollection::action("pause"), SIGNAL(triggered()),
-		&(quarkPlayer().currentMediaObject()), SLOT(pause()));
-	connect(ActionCollection::action("stop"), SIGNAL(triggered()),
-		&(quarkPlayer().currentMediaObject()), SLOT(stop()));
-
 	//volumdeSlider
-	_volumeSlider = new Phonon::VolumeSlider(&(quarkPlayer().currentAudioOutput()));
+	_volumeSlider = new Phonon::VolumeSlider();
 	_volumeSlider->setIconSize(_controlToolBar->iconSize());
 	//volumeSlider only takes the space it needs
 	_volumeSlider->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -220,4 +211,32 @@ void PlayToolBar::setToolBarEnabled(bool enabled) {
 	ActionCollection::action("nextTrack")->setEnabled(enabled);
 	ActionCollection::action("previousTrack")->setEnabled(enabled);
 	ActionCollection::action("fullScreen")->setEnabled(enabled);
+}
+
+void PlayToolBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
+	foreach (Phonon::MediaObject * tmp, quarkPlayer().mediaObjectList()) {
+		tmp->disconnect(this);
+	}
+
+	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
+		SLOT(stateChanged(Phonon::State)));
+
+	//Update current MediaObject state
+	stateChanged(mediaObject->state());
+
+	//Actions connect
+	disconnect(ActionCollection::action("play"), 0, 0, 0);
+	connect(ActionCollection::action("play"), SIGNAL(triggered()),
+		mediaObject, SLOT(play()));
+
+	disconnect(ActionCollection::action("pause"), 0, 0, 0);
+	connect(ActionCollection::action("pause"), SIGNAL(triggered()),
+		mediaObject, SLOT(pause()));
+
+	disconnect(ActionCollection::action("stop"), 0, 0, 0);
+	connect(ActionCollection::action("stop"), SIGNAL(triggered()),
+		mediaObject, SLOT(stop()));
+
+	_seekSlider->setMediaObject(mediaObject);
+	_volumeSlider->setAudioOutput(quarkPlayer().currentAudioOutput());
 }

@@ -63,6 +63,8 @@ private slots:
 
 	void retranslate();
 
+	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
+
 private:
 
 	void populateActionCollection();

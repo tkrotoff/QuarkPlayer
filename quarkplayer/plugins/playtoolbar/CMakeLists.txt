@@ -8,7 +8,7 @@ qt4_wrap_cpp(playtoolbar_SRCS
 	PlayToolBar.h
 )
 
-add_library(playtoolbar SHARED ${playtoolbar_SRCS})
+add_library(playtoolbar MODULE ${playtoolbar_SRCS})
 
 if (KDE4_FOUND)
 	target_link_libraries(playtoolbar

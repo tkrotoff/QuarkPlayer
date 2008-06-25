@@ -17,7 +17,7 @@ qt4_wrap_ui(filebrowser_SRCS
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(filebrowser SHARED ${filebrowser_SRCS})
+add_library(filebrowser MODULE ${filebrowser_SRCS})
 
 if (KDE4_FOUND)
 	target_link_libraries(filebrowser

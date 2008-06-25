@@ -11,6 +11,8 @@ set(tkutil_SRCS
 	TkComboBox.cpp
 	EventFilter.cpp
 	LanguageChangeEventFilter.cpp
+	MouseEventFilter.cpp
+	CloseEventFilter.cpp
 	TkIcon.cpp
 	ActionCollection.cpp
 	TkConfig.cpp
@@ -22,6 +24,8 @@ set(tkutil_SRCS
 qt4_wrap_cpp(tkutil_SRCS
 	EventFilter.h
 	LanguageChangeEventFilter.h
+	MouseEventFilter.h
+	CloseEventFilter.h
 	TkConfig.h
 )
 

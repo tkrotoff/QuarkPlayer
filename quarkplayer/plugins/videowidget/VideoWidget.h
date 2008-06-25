@@ -32,7 +32,7 @@ namespace Phonon {
 	class MediaObject;
 }
 
-class QStackedWidget;
+class QDockWidget;
 class QStatusBar;
 class QToolBar;
 
@@ -47,7 +47,7 @@ class VideoWidget : public Phonon::VideoWidget {
 	Q_OBJECT
 public:
 
-	VideoWidget(QStackedWidget * stackedWidget, MainWindow * mainWindow);
+	VideoWidget(QDockWidget * dockWidget, MainWindow & mainWindow);
 
 	~VideoWidget();
 
@@ -56,6 +56,7 @@ private slots:
 	void setFullScreenSlot(bool fullScreen);
 
 	void playToolBarAdded(QToolBar * playToolBar);
+	void statusBarAdded(QStatusBar * statusBar);
 
 private:
 
@@ -67,15 +68,17 @@ private:
 
 	void timerEvent(QTimerEvent * event);
 
-	void addPlayToolBarToMainWindow();
-
 	void checkMousePos();
 
 	static void showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder);
 
+	void addPlayToolBarToMainWindow();
+
+	QDockWidget * _dockWidget;
+
 	MainWindow * _mainWindow;
 
-	QStackedWidget * _stackedWidget;
+	QToolBar * _playToolBar;
 
 	QStatusBar * _statusBar;
 

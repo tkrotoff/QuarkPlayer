@@ -49,32 +49,38 @@ static const int TICKINTERVAL = 4;
 
 QuickSettingsWindow::QuickSettingsWindow(QuarkPlayer & quarkPlayer)
 	: QDialog(&(quarkPlayer.mainWindow())),
-	PluginInterface(quarkPlayer),
-	_audioOutput(quarkPlayer.currentAudioOutput()),
-	_mediaObject(quarkPlayer.currentMediaObject()) {
+	PluginInterface(quarkPlayer) {
 
-	_videoWidget = quarkPlayer.currentVideoWidget();
-	_audioOutputPath = quarkPlayer.currentAudioOutputPath();
-
+	_audioOutput = NULL;
+	_mediaObject = NULL;
+	_videoWidget = NULL;
 	_nextEffect = NULL;
+	_ui = NULL;
 
-	//init();
+	connect(ActionCollection::action("equalizer"), SIGNAL(triggered()), SLOT(show()));
 }
 
 QuickSettingsWindow::~QuickSettingsWindow() {
 }
 
 void QuickSettingsWindow::show() {
+	_audioOutput = quarkPlayer().currentAudioOutput();
+	_mediaObject = quarkPlayer().currentMediaObject();
+	_videoWidget = quarkPlayer().currentVideoWidget();
+	_audioOutputPath = quarkPlayer().currentAudioOutputPath();
+
+	init();
 	QDialog::show();
 }
 
 void QuickSettingsWindow::init() {
-	_ui = new Ui::QuickSettingsWindow();
-	_ui->setupUi(this);
+	if (!_ui) {
+		//If not already done before
+		_ui = new Ui::QuickSettingsWindow();
+		_ui->setupUi(this);
+	}
 
 	RETRANSLATE(this);
-
-	connect(ActionCollection::action("equalizer"), SIGNAL(triggered()), SLOT(show()));
 
 	//saveButton
 	connect(_ui->buttonBox, SIGNAL(accepted()), SLOT(saveSettings()));
@@ -97,14 +103,14 @@ void QuickSettingsWindow::init() {
 	_ui->scaleModeCombo->setCurrentIndex(_videoWidget->scaleMode());
 	connect(_ui->effectButton, SIGNAL(clicked()), SLOT(configureEffect()));
 
-	_ui->crossFadeSlider->setValue((int) (2 * _mediaObject.transitionTime() / 1000.0f));
+	_ui->crossFadeSlider->setValue((int) (2 * _mediaObject->transitionTime() / 1000.0f));
 
 	//Insert audio devices
 	QList<Phonon::AudioOutputDevice> devices = Phonon::BackendCapabilities::availableAudioOutputDevices();
 	for (int i = 0; i < devices.size(); i++) {
 		QString itemText = devices[i].name();
 		_ui->deviceCombo->addItem(itemText);
-		if (devices[i] == _audioOutput.outputDevice()) {
+		if (devices[i] == _audioOutput->outputDevice()) {
 			_ui->deviceCombo->setCurrentIndex(i);
 			if (!devices[i].description().isEmpty()) {
 				//TODO Change tooltip when a different item is selected
@@ -128,9 +134,9 @@ void QuickSettingsWindow::init() {
 }
 
 void QuickSettingsWindow::saveSettings() {
-	_mediaObject.setTransitionTime((int) (1000 * float(_ui->crossFadeSlider->value()) / 2.0f));
+	_mediaObject->setTransitionTime((int) (1000 * float(_ui->crossFadeSlider->value()) / 2.0f));
 	QList<Phonon::AudioOutputDevice> devices = Phonon::BackendCapabilities::availableAudioOutputDevices();
-	_audioOutput.setOutputDevice(devices[_ui->deviceCombo->currentIndex()]);
+	_audioOutput->setOutputDevice(devices[_ui->deviceCombo->currentIndex()]);
 	QList<Phonon::Effect *> currEffects = _audioOutputPath.effects();
 	QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
 

@@ -13,7 +13,7 @@ qt4_wrap_ui(quicksettings_SRCS
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(quicksettings SHARED ${quicksettings_SRCS})
+add_library(quicksettings MODULE ${quicksettings_SRCS})
 
 if (KDE4_FOUND)
 	target_link_libraries(quicksettings

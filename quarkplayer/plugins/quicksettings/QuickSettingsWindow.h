@@ -86,11 +86,11 @@ private:
 
 	QHash<QString, QWidget *> _propertyControllers;
 
-	Phonon::AudioOutput & _audioOutput;
+	Phonon::AudioOutput * _audioOutput;
 
 	Phonon::Path _audioOutputPath;
 
-	Phonon::MediaObject & _mediaObject;
+	Phonon::MediaObject * _mediaObject;
 
 	Phonon::VideoWidget * _videoWidget;
 };

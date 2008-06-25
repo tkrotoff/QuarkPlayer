@@ -22,6 +22,7 @@
 #include <quarkplayer/quarkplayer_export.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QList>
 
 #include <phonon/phononnamespace.h>
 #include <phonon/path.h>
@@ -55,32 +56,81 @@ public:
 
 	~QuarkPlayer();
 
+	/** Gets the QuarkPlayer main window. */
 	MainWindow & mainWindow() const;
 
-	Phonon::AudioOutput & currentAudioOutput() const;
+	/** Creates a new media object. */
+	Phonon::MediaObject * createNewMediaObject();
+
+	/** Changes the current media object to be used. */
+	void setCurrentMediaObject(Phonon::MediaObject * mediaObject);
+
+	/**
+	 * Gets the current media object used.
+	 *
+	 * @return current media object or NULL
+	 */
+	Phonon::MediaObject * currentMediaObject() const;
+
+	/** Gets the list of all available media object. */
+	QList<Phonon::MediaObject *> mediaObjectList() const;
+
+	/**
+	 * Gets the music/video title of the current media object.
+	 *
+	 * This is a utility function.
+	 */
+	QString currentMediaObjectTitle() const;
+
+	/** Play a file, an url, whatever... using the current media object available. */
+	void play(const Phonon::MediaSource & mediaSource);
+
+	/** Returns the current audio output associated with the current media object. */
+	Phonon::AudioOutput * currentAudioOutput() const;
 
 	Phonon::Path currentAudioOutputPath() const;
 
-	Phonon::MediaObject & currentMediaObject() const;
-
-	void setCurrentVideoWidget(Phonon::VideoWidget * videoWidget);
+	/** Returns the current video widget associated with the current media object. */
 	Phonon::VideoWidget * currentVideoWidget() const;
 
+	/** Gets QuarkPlayer configuration framework. */
 	Config & config() const;
+
+signals:
+
+	/**
+	 * The current media object has been changed.
+	 *
+	 * @param mediaObject new current media object to be used
+	 * @see setCurrentMediaObject()
+	 */
+	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
+
+	/**
+	 * A new media object has been added/created.
+	 *
+	 * @param mediaObject the new media object that has been added
+	 * @see createNewMediaObject()
+	 */
+	void mediaObjectAdded(Phonon::MediaObject * mediaObject);
 
 private slots:
 
+	/**
+	 * Volume output has been changed, let's save it.
+	 * FIXME Moves this somewhere else?
+	 */
 	void volumeChanged(qreal volume);
+
+	/** All plugins have been loaded. */
+	void allPluginsLoaded();
 
 private:
 
 	MainWindow * _mainWindow;
 
-	Phonon::MediaObject * _mediaObject;
-	Phonon::AudioOutput * _audioOutput;
-	Phonon::Path _audioOutputPath;
-	Phonon::MediaSource * _mediaSource;
-	Phonon::VideoWidget * _videoWidget;
+	Phonon::MediaObject * _currentMediaObject;
+	QList<Phonon::MediaObject *> _mediaObjectList;
 };
 
 #endif	//QUARKPLAYER_H

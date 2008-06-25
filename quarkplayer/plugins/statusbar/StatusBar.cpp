@@ -35,27 +35,11 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer)
 	: QStatusBar(NULL),
 	PluginInterface(quarkPlayer) {
 
-	_currentTime = 0;
-	_totalTime = 0;
-
-	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(tick(qint64)), SLOT(tick(qint64)));
-	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(totalTimeChanged(qint64)), SLOT(totalTimeChanged(qint64)));
-	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(stateChanged(Phonon::State, Phonon::State)),
-		SLOT(stateChanged(Phonon::State, Phonon::State)));
-	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
-	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
-
-	//10 seconds before the end
-	quarkPlayer.currentMediaObject().setPrefinishMark(10000);
-	connect(&(quarkPlayer.currentMediaObject()), SIGNAL(prefinishMarkReached(qint32)), SLOT(prefinishMarkReached(qint32)));
-
 	_timeLabel = new QLabel(this);
 	//Text color is white
 	_timeLabel->setStyleSheet("color: rgb(255, 255, 255);");
 	_timeLabel->setMargin(2);
 	_timeLabel->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
-	//Resets timeLabel
-	tick(0);
 
 	addPermanentWidget(_timeLabel);
 
@@ -66,6 +50,9 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer)
 
 	//Add the statusbar to the main window
 	quarkPlayer.mainWindow().setStatusBar(this);
+
+	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
+		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 }
 
 StatusBar::~StatusBar() {
@@ -97,22 +84,16 @@ QString StatusBar::convertMilliseconds(qint64 currentTime, qint64 totalTime) {
 }
 
 void StatusBar::tick(qint64 time) {
-	_currentTime = time;
-	_timeLabel->setText(convertMilliseconds(_currentTime, _totalTime));
+	_timeLabel->setText(convertMilliseconds(time, quarkPlayer().currentMediaObject()->totalTime()));
 }
 
-void StatusBar::totalTimeChanged(qint64 totalTime) {
-	_totalTime = totalTime;
-	_timeLabel->setText(convertMilliseconds(_currentTime, _totalTime));
-}
-
-void StatusBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
+void StatusBar::stateChanged(Phonon::State newState) {
 	switch (newState) {
 	case Phonon::ErrorState:
-		if (quarkPlayer().currentMediaObject().errorType() == Phonon::FatalError) {
-			showMessage("Fatal error:" + quarkPlayer().currentMediaObject().errorString());
+		if (quarkPlayer().currentMediaObject()->errorType() == Phonon::FatalError) {
+			showMessage("Fatal error:" + quarkPlayer().currentMediaObject()->errorString());
 		} else {
-			showMessage("Error:" + quarkPlayer().currentMediaObject().errorString());
+			showMessage("Error:" + quarkPlayer().currentMediaObject()->errorString());
 		}
 		break;
 
@@ -137,24 +118,12 @@ void StatusBar::stateChanged(Phonon::State newState, Phonon::State oldState) {
 		break;
 
 	default:
-		qCritical() << "Error: unknown newState:" << newState << "oldState:" << oldState;
+		qCritical() << "Error: unknown newState:" << newState;
 	}
 }
 
-void StatusBar::metaDataChanged() {
-	QMultiMap<QString, QString> metaData = quarkPlayer().currentMediaObject().metaData();
-
-	QString title = metaData.value("TITLE");
-	if (title.isEmpty()) {
-		title = quarkPlayer().currentMediaObject().currentSource().fileName();
-	}
-
-	/*titleLabel->setText(title);
-	artistLabel->setText(metaData.value("ARTIST"));
-	albumLabel->setText(metaData.value("ALBUM"));
-	yearLabel->setText(metaData.value("DATE"));*/
-
-	_fileTitle = title;
+void StatusBar::showTitle() {
+	QString title = quarkPlayer().currentMediaObjectTitle();
 	showMessage(title);
 }
 
@@ -166,4 +135,26 @@ void StatusBar::aboutToFinish() {
 void StatusBar::prefinishMarkReached(qint32 msecToEnd) {
 	qDebug() << __FUNCTION__ << msecToEnd;
 	showMessage(tr("%1 seconds left...").arg(msecToEnd / 1000));
+}
+
+void StatusBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
+	foreach (Phonon::MediaObject * tmp, quarkPlayer().mediaObjectList()) {
+		tmp->disconnect(this);
+	}
+
+	//Update title since we changed from a MediaObject to another
+	showTitle();
+
+	//Update current MediaObject state
+	stateChanged(mediaObject->state());
+
+	connect(mediaObject, SIGNAL(tick(qint64)), SLOT(tick(qint64)));
+	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
+		SLOT(stateChanged(Phonon::State)));
+	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(showTitle()));
+	connect(mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
+
+	//10 seconds before the end
+	mediaObject->setPrefinishMark(10000);
+	connect(mediaObject, SIGNAL(prefinishMarkReached(qint32)), SLOT(prefinishMarkReached(qint32)));
 }

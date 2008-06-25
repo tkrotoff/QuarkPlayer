@@ -1,5 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
+ * Copyright (C) 2004-2007  Wengo
  * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,6 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PluginInterface.h"
+#include "CloseEventFilter.h"
 
-#include "QuarkPlayer.h"
+#include <QtCore/QEvent>
+
+CloseEventFilter::CloseEventFilter(QObject * receiver, const char * member, bool filter)
+	: EventFilter(receiver, member, filter) {
+}
+
+bool CloseEventFilter::eventFilter(QObject * watched, QEvent * event) {
+	if (event->type() == QEvent::Close) {
+		return filter(event);
+	}
+	return EventFilter::eventFilter(watched, event);
+}

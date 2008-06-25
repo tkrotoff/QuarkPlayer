@@ -28,6 +28,8 @@
 namespace Phonon {
 	class SeekSlider;
 	class VolumeSlider;
+	class MediaObject;
+	class AudioOutput;
 }
 
 /**
@@ -45,9 +47,11 @@ public:
 
 private slots:
 
-	void stateChanged(Phonon::State newState, Phonon::State oldState);
+	void stateChanged(Phonon::State newState);
 
 	void retranslate();
+
+	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
 
 private:
 

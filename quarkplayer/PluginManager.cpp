@@ -26,9 +26,35 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
+#include <cstdlib>
+#include <ctime>
+
+PluginManager * PluginManager::_pluginManager = NULL;
+
+PluginManager::PluginManager() {
+	srand(time(NULL));
+}
+
+PluginManager::~PluginManager() {
+}
+
+PluginManager & PluginManager::instance() {
+	if (!_pluginManager) {
+		_pluginManager = new PluginManager();
+	}
+	return *_pluginManager;
+}
+
 void PluginManager::loadPlugins(QuarkPlayer & quarkPlayer) {
+	QList<int> randomList;
+
 	QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "/plugins");
-	foreach (QString filename, pluginsDir.entryList(QDir::Files)) {
+	QStringList before = pluginsDir.entryList(QDir::Files);
+	qDebug() << __FUNCTION__ << "Before randomize:" << before;
+	QStringList pluginList = randomize(before);
+	qDebug() << __FUNCTION__ << "After randomize:" << pluginList;
+
+	foreach (QString filename, pluginList) {
 		QPluginLoader loader(pluginsDir.absoluteFilePath(filename));
 		QObject * plugin = loader.instance();
 		if (plugin) {
@@ -41,4 +67,34 @@ void PluginManager::loadPlugins(QuarkPlayer & quarkPlayer) {
 			qCritical() << __FUNCTION__ << "Error: plugin not loaded:" << filename << loader.errorString();
 		}
 	}
+	emit allPluginsLoaded();
+}
+
+template <class T>
+QList<T> & PluginManager::randomize(QList<T> & list) {
+	int min = 0;
+	int max = list.size();
+
+	int randomIndex1 = randomInt(min, max - 1);
+	int randomIndex2 = randomInt(min, max - 1);
+
+	for (int i = 0; i < max; i++) {
+		list.swap(randomIndex1, randomIndex2);
+	}
+
+	return list;
+}
+
+int PluginManager::randomInt(int min, int max) {
+	int number = 0;
+
+	if (min > max) {
+		number = max + (int) (rand() * (min - max + 1) / (RAND_MAX + 1.0));
+	} else {
+		number = min + (int) (rand() * (max - min + 1) / (RAND_MAX + 1.0));
+	}
+
+	qDebug() << __FUNCTION__ << number;
+
+	return number;
 }

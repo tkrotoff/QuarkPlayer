@@ -28,14 +28,13 @@
 #include <QtGui/QMainWindow>
 
 class QuarkPlayer;
-class PlayToolBar;
-
-class QDockWidget;
-class QTabWidget;
 
 namespace Phonon {
 	class MediaSource;
+	class MediaObject;
 }
+
+class QDockWidget;
 
 /**
  * Main interface, the main window: QMainWindow.
@@ -53,6 +52,9 @@ public:
 	void setPlayToolBar(QToolBar * playToolBar);
 	QToolBar * playToolBar() const;
 
+	void setStatusBar(QStatusBar * statusBar);
+	QStatusBar * statusBar() const;
+
 	QMenu * menuAudioChannels() const;
 
 	QMenu * menuSubtitles() const;
@@ -63,11 +65,11 @@ public:
 
 	QMenu * menuAngles() const;
 
-	QTabWidget * browserTabWidget() const;
+	void addBrowserDockWidget(QDockWidget * widget);
 
-	QTabWidget * playlistTabWidget() const;
+	void addVideoDockWidget(QDockWidget * widget);
 
-	QTabWidget * videoTabWidget() const;
+	void addPlaylistDockWidget(QDockWidget * widget);
 
 signals:
 
@@ -75,9 +77,19 @@ signals:
 
 	void playToolBarAdded(QToolBar * playToolBar);
 
+	void statusBarAdded(QStatusBar * statusBar);
+
 public slots:
 
+	/**
+	 * Play a media source using the current media object.
+	 *
+	 * @see QuarkPlayer::play()
+	 */
 	void play(const Phonon::MediaSource & mediaSource);
+
+	/** Adds a file to the list of recent files that have been played. */
+	void addFileToRecentFilesMenu(const Phonon::MediaSource & mediaSource);
 
 private slots:
 
@@ -96,6 +108,8 @@ private slots:
 	void metaDataChanged();
 
 	void retranslate();
+
+	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
 
 private:
 
@@ -125,12 +139,13 @@ private:
 	QMenu * _menuHelp;
 
 	QToolBar * _playToolBar;
+	QStatusBar * _statusBar;
 
-	QTabWidget * _videoTabWidget;
+	QDockWidget * _videoDockWidget;
 
-	QTabWidget * _browserTabWidget;
+	QDockWidget * _browserDockWidget;
 
-	QTabWidget * _playlistTabWidget;
+	QDockWidget * _playlistDockWidget;
 };
 
 #endif	//MAINWINDOW_H
