@@ -78,7 +78,7 @@ add_subdirectory(tests)
 
 add_subdirectory(tkutil)
 add_subdirectory(quarkplayer)
-add_subdirectory(quarkplayer-bin)
+add_subdirectory(quarkplayer-app)
 add_subdirectory(quarkplayer/style)
 add_subdirectory(quarkplayer/plugins)
 
