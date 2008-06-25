@@ -1,27 +1,27 @@
 project(quarkplayer)
 
 set(quarkplayer_SRCS
-	../main.cpp
+	main.cpp
 )
 
 qt4_add_resources(quarkplayer_SRCS
-	../quarkplayer.qrc
-	../quarkplayer_oxygen.qrc
-	../quarkplayer_silk.qrc
-	../quarkplayer_tango.qrc
+	quarkplayer.qrc
+	quarkplayer_oxygen.qrc
+	quarkplayer_silk.qrc
+	quarkplayer_tango.qrc
 )
 
 if (WIN32)
 	list(APPEND quarkplayer_SRCS
-		../quarkplayer.rc
+		quarkplayer.rc
 	)
 endif (WIN32)
 
 set(quarkplayer_TRANSLATIONS
-	${quarkplayer_SRCS}
-	../translations/quarkplayer_en.ts
-	../translations/quarkplayer_fr.ts
-	../translations/quarkplayer_de.ts
+	${quarkplayercore_SRCS}
+	translations/quarkplayer_en.ts
+	translations/quarkplayer_fr.ts
+	translations/quarkplayer_de.ts
 )
 
 #Pretty slow :/
@@ -37,7 +37,7 @@ endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
 if (KDE4_FOUND)
 	target_link_libraries(quarkplayer
-		libquarkplayer
+		quarkplayercore
 		tkutil
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
@@ -46,7 +46,7 @@ if (KDE4_FOUND)
 	)
 else (KDE4_FOUND)
 	target_link_libraries(quarkplayer
-		libquarkplayer
+		quarkplayercore
 		tkutil
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}

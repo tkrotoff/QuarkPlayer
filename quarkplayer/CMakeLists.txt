@@ -1,4 +1,4 @@
-project(libquarkplayer)
+project(quarkplayercore)
 
 set(QUARKPLAYER_MAJOR_VERSION 0)
 set(QUARKPLAYER_MINOR_VERSION 1)
@@ -10,13 +10,13 @@ configure_file(version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/version.h)
 add_definitions(-DBUILD_QUARKPLAYER)
 
 #Takes a lot of time :/
-#loc_counter(${CMAKE_CURRENT_SOURCE_DIR} QUARKPLAYER_ROOT_LOC 0)
-#loc_counter(${CMAKE_CURRENT_SOURCE_DIR}/plugins QUARKPLAYER_PLUGINS_LOC 1)
-#loc_counter(${CMAKE_CURRENT_SOURCE_DIR}/tkutil QUARKPLAYER_TKUTIL_LOC 1)
-#loc_counter(${CMAKE_CURRENT_SOURCE_DIR} QUARKPLAYER_LOC 1)
+loc_counter(${CMAKE_CURRENT_SOURCE_DIR} QUARKPLAYER_CORE_LOC 0)
+loc_counter(${CMAKE_CURRENT_SOURCE_DIR}/plugins QUARKPLAYER_PLUGINS_LOC 1)
+loc_counter(${CMAKE_SOURCE_DIR}/tkutil QUARKPLAYER_TKUTIL_LOC 1)
+loc_counter(${CMAKE_CURRENT_SOURCE_DIR} QUARKPLAYER_LOC 1)
 configure_file(metrics.h.in ${CMAKE_CURRENT_SOURCE_DIR}/metrics.h)
 
-set(libquarkplayer_SRCS
+set(quarkplayercore_SRCS
 	QuarkPlayer.cpp
 	PluginInterface.cpp
 	PluginManager.cpp
@@ -32,7 +32,7 @@ set(libquarkplayer_SRCS
 	config/BackendCapabilitiesWidget.cpp
 )
 
-qt4_wrap_cpp(libquarkplayer_SRCS
+qt4_wrap_cpp(quarkplayercore_SRCS
 	QuarkPlayer.h
 	MainWindow.h
 	PluginManager.h
@@ -44,7 +44,7 @@ qt4_wrap_cpp(libquarkplayer_SRCS
 	config/BackendCapabilitiesWidget.h
 )
 
-qt4_wrap_ui(libquarkplayer_SRCS
+qt4_wrap_ui(quarkplayercore_SRCS
 	AboutWindow.ui
 	config/ConfigWindow.ui
 	config/GeneralConfigWidget.ui
@@ -53,10 +53,10 @@ qt4_wrap_ui(libquarkplayer_SRCS
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(libquarkplayer SHARED ${libquarkplayer_SRCS})
+add_library(quarkplayercore SHARED ${quarkplayercore_SRCS})
 
 if (KDE4_FOUND)
-	target_link_libraries(libquarkplayer
+	target_link_libraries(quarkplayercore
 		tkutil
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
@@ -64,7 +64,7 @@ if (KDE4_FOUND)
 		${QT_PHONON_LIBRARY}
 	)
 else (KDE4_FOUND)
-	target_link_libraries(libquarkplayer
+	target_link_libraries(quarkplayercore
 		tkutil
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
@@ -73,4 +73,4 @@ else (KDE4_FOUND)
 	)
 endif (KDE4_FOUND)
 
-install(TARGETS libquarkplayer DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS quarkplayercore DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

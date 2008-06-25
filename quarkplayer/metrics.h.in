@@ -21,18 +21,18 @@
 
 /**
  */
-static const char * QUARKPLAYER_LOC = "@QUARKPLAYER_LOC@";
+static const int QUARKPLAYER_LOC = @QUARKPLAYER_LOC@;
 
 /**
  */
-static const char * QUARKPLAYER_ROOT_LOC = "@QUARKPLAYER_ROOT_LOC@";
+static const int QUARKPLAYER_CORE_LOC = @QUARKPLAYER_CORE_LOC@;
 
 /**
  */
-static const char * QUARKPLAYER_TKUTIL_LOC = "@QUARKPLAYER_TKUTIL_LOC@";
+static const int QUARKPLAYER_TKUTIL_LOC = @QUARKPLAYER_TKUTIL_LOC@;
 
 /**
  */
-static const char * QUARKPLAYER_PLUGINS_LOC = "@QUARKPLAYER_PLUGINS_LOC@";
+static const int QUARKPLAYER_PLUGINS_LOC = @QUARKPLAYER_PLUGINS_LOC@;
 
 #endif	//METRICS_H_IN
