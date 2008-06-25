@@ -202,6 +202,16 @@ bool Path::reconnect(MediaNode *source, MediaNode *sink)
     }
 }
 
+MediaNode *Path::sourceNode() const
+{
+    return d->sourceNode;
+}
+
+MediaNode *Path::sinkNode() const
+{
+    return d->sinkNode;
+}
+
 bool Path::disconnect()
 {
     if (!isValid()) {
