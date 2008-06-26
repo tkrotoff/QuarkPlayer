@@ -44,8 +44,6 @@ VideoWidgetPlugin::VideoWidgetPlugin(QuarkPlayer & quarkPlayer)
 	: QObject(NULL),
 	PluginInterface(quarkPlayer) {
 
-	_dockWidgetClosed = false;
-
 	connect(&quarkPlayer, SIGNAL(mediaObjectAdded(Phonon::MediaObject *)),
 		SLOT(mediaObjectAdded(Phonon::MediaObject *)));
 }
@@ -100,7 +98,7 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 
 	VideoContainer * container = new VideoContainer();
 
-	container->videoDockWidget = new QDockWidget();
+	container->videoDockWidget = new QDockWidget(tr("No Media"));
 
 	//Logo widget
 	container->backgroundLogoWidget = new QWidget();
@@ -120,15 +118,11 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	//Add to the main window
 	quarkPlayer().mainWindow().addVideoDockWidget(container->videoDockWidget);
 
-	container->videoDockWidget->installEventFilter(new CloseEventFilter(this, SLOT(dockWidgetClosed())));
+	//Stop the current media object
 	container->videoDockWidget->installEventFilter(new CloseEventFilter(mediaObject, SLOT(stop())));
-	connect(container->videoDockWidget, SIGNAL(visibilityChanged(bool)), SLOT(visibilityChanged(bool)));
-	//container->videoDockWidget->titleBarWidget()->installEventFilter(new MousePressEventFilter(this, SLOT(visibilityChanged())));
-	//container->videoDockWidget->widget()->installEventFilter(new MousePressEventFilter(this, SLOT(visibilityChanged())));
 
-	QDockWidget * newDockWidget = new QDockWidget(tr("..."));
-	quarkPlayer().mainWindow().addVideoDockWidget(newDockWidget);
-	connect(newDockWidget, SIGNAL(visibilityChanged(bool)), SLOT(newDockWidgetVisibilityChanged(bool)));
+	//Change the current media object
+	connect(container->videoDockWidget, SIGNAL(visibilityChanged(bool)), SLOT(visibilityChanged(bool)));
 }
 
 VideoWidgetPlugin::VideoContainer * VideoWidgetPlugin::findMatchingVideoContainer(QDockWidget * dockWidget) {
@@ -152,44 +146,4 @@ void VideoWidgetPlugin::visibilityChanged(bool visible) {
 	VideoContainer * container = findMatchingVideoContainer(qobject_cast<QDockWidget *>(sender()));
 	Phonon::MediaObject * mediaObject = _mediaObjectMap.key(container);
 	quarkPlayer().setCurrentMediaObject(mediaObject);
-}
-
-void VideoWidgetPlugin::newDockWidgetVisibilityChanged(bool visible) {
-	static bool firstTimeVisible = true;
-
-	qDebug() << __FUNCTION__ << visible << firstTimeVisible;
-
-	if (!visible) {
-		return;
-	}
-
-	if (firstTimeVisible) {
-		//Drop the first time the DockWidget is visible
-		//It does not mean DockWidget has been selected by the user
-		//It is just Qt that make it visible for the first time
-		//before to hide it
-		firstTimeVisible = false;
-		return;
-	}
-
-	if (_dockWidgetClosed) {
-		//Another DockWidget is being closed, this make our newDockWidget
-		//being visible and we don't want this.
-		//We only want to filter real user interaction.
-		_dockWidgetClosed = false;
-		return;
-	}
-
-	firstTimeVisible = true;
-
-	QDockWidget * dockWidget = qobject_cast<QDockWidget *>(sender());
-	dockWidget->disconnect(this);
-	dockWidget->close();
-	//_previousDockWidget->raise();
-
-	quarkPlayer().createNewMediaObject();
-}
-
-void VideoWidgetPlugin::dockWidgetClosed() {
-	_dockWidgetClosed = true;
 }

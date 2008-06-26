@@ -61,9 +61,10 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent)
 	_browserDockWidget = NULL;
 	_playlistDockWidget = NULL;
 
+	connect(ActionCollection::action("playFile"), SIGNAL(triggered()), SLOT(playFile()));
 	connect(ActionCollection::action("playDVD"), SIGNAL(triggered()), SLOT(playDVD()));
 	connect(ActionCollection::action("playURL"), SIGNAL(triggered()), SLOT(playURL()));
-	connect(ActionCollection::action("playFile"), SIGNAL(triggered()), SLOT(playFile()));
+	connect(ActionCollection::action("newMediaObject"), SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
 	connect(ActionCollection::action("configure"), SIGNAL(triggered()), SLOT(showConfigWindow()));
 	connect(ActionCollection::action("quit"), SIGNAL(triggered()), SLOT(close()));
 	connect(ActionCollection::action("about"), SIGNAL(triggered()), SLOT(about()));
@@ -165,17 +166,16 @@ void MainWindow::playFile() {
 }
 
 void MainWindow::playDVD() {
-	QString directory = TkFileDialog::getExistingDirectory(this, tr("Select DVD folder"),
+	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select DVD folder"),
 			Config::instance().lastDirectoryUsed());
 
-	if (!directory.isEmpty()) {
-		play(Phonon::MediaSource(Phonon::Dvd, directory));
+	if (!dir.isEmpty()) {
+		play(Phonon::MediaSource(Phonon::Dvd, dir));
 	}
 }
 
 void MainWindow::playURL() {
 	QString url = QInputDialog::getText(this, tr("Open Location"), tr("Please enter a valid address here:"));
-	qDebug() << __FUNCTION__ << "url:" << url;
 
 	if (!url.isEmpty()) {
 		play(url);
@@ -217,7 +217,7 @@ void MainWindow::addFileToRecentFilesMenu(const Phonon::MediaSource & mediaSourc
 	}
 }
 
-void MainWindow::metaDataChanged() {
+void MainWindow::updateWindowTitle() {
 	QString title = quarkPlayer().currentMediaObjectTitle();
 
 	if (title.isEmpty()) {
@@ -247,6 +247,7 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("playDVD", new QAction(app));
 	ActionCollection::addAction("playURL", new QAction(app));
 	ActionCollection::addAction("playVCD", new QAction(app));
+	ActionCollection::addAction("newMediaObject", new QAction(app));
 	ActionCollection::addAction("equalizer", new QAction(app));
 	ActionCollection::addAction("configure", new QAction(app));
 	ActionCollection::addAction("openSubtitleFile", new QAction(app));
@@ -266,6 +267,8 @@ void MainWindow::setupUi() {
 	_menuFile->addAction(ActionCollection::action("playDVD"));
 	_menuFile->addAction(ActionCollection::action("playURL"));
 	_menuFile->addAction(ActionCollection::action("playVCD"));
+	_menuFile->addSeparator();
+	_menuFile->addAction(ActionCollection::action("newMediaObject"));
 	_menuFile->addSeparator();
 	_menuFile->addAction(ActionCollection::action("quit"));
 
@@ -314,8 +317,6 @@ void MainWindow::setupUi() {
 	_mainToolBar->addSeparator();
 	_mainToolBar->addAction(ActionCollection::action("equalizer"));
 	_mainToolBar->addAction(ActionCollection::action("configure"));
-	_mainToolBar->addSeparator();
-	_mainToolBar->addAction(ActionCollection::action("quit"));
 	addToolBar(_mainToolBar);
 }
 
@@ -343,6 +344,9 @@ void MainWindow::retranslate() {
 
 	ActionCollection::action("playVCD")->setText(tr("Play &VCD"));
 	ActionCollection::action("playVCD")->setIcon(TkIcon("media-optical"));
+
+	ActionCollection::action("newMediaObject")->setText(tr("New Media window"));
+	ActionCollection::action("newMediaObject")->setIcon(TkIcon("preferences-system-windows"));
 
 	ActionCollection::action("equalizer")->setText(tr("&Equalizer..."));
 	ActionCollection::action("equalizer")->setIcon(TkIcon("view-media-equalizer"));
@@ -496,7 +500,9 @@ void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 		tmp->disconnect(this);
 	}
 
-	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
+	//Resets the main window title
+	updateWindowTitle();
+	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(updateWindowTitle()));
 
 	disconnect(ActionCollection::action("quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
 	connect(ActionCollection::action("quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));

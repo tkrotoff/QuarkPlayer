@@ -24,6 +24,7 @@
 	<file alias="16x16/list-remove">icons/oxygen/16x16/actions/list-remove.png</file>
 
 	<file alias="16x16/preferences-desktop-display">icons/oxygen/16x16/apps/preferences-desktop-display.png</file>
+	<file alias="16x16/preferences-system-windows">icons/oxygen/16x16/apps/preferences-system-windows.png</file>
 	<file>icons/oxygen/16x16/apps/preferences-desktop-locale.png</file>
 	<file>icons/oxygen/16x16/apps/preferences-desktop-sound.png</file>
 	<file alias="16x16/preferences-plugin.png">icons/oxygen/16x16/apps/preferences-plugin.png</file>

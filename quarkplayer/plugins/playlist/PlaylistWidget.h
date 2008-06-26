@@ -53,7 +53,11 @@ public:
 
 private slots:
 
+	void addDir();
+
 	void addFiles();
+
+	void addURL();
 
 	void aboutToFinish();
 

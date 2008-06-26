@@ -77,10 +77,6 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	connect(_metaObjectInfoResolver, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(metaStateChanged(Phonon::State, Phonon::State)));
 
-	//actions connect
-	//connect(actionNewVideoWindow, SIGNAL(triggered()), SLOT(newVideoWindow()));
-	//connect(actionAddPlayFile, SIGNAL(triggered()), SLOT(addPlay()));
-
 	//tableWidget connect
 	connect(_ui->tableWidget, SIGNAL(cellDoubleClicked(int, int)), SLOT(tableDoubleClicked(int, int)));
 
@@ -126,15 +122,15 @@ void PlaylistWidget::createPlaylistToolBar() {
 	connect(ActionCollection::action("playlistAddFiles"), SIGNAL(triggered()), SLOT(addFiles()));
 	addMenu->addAction(ActionCollection::action("playlistAddDirectory"));
 	connect(ActionCollection::action("playlistAddDirectory"), SIGNAL(triggered()), SLOT(addDir()));
-	addMenu->addAction(ActionCollection::action("playlistAddFiles"));
+	addMenu->addAction(ActionCollection::action("playlistAddURL"));
 	connect(ActionCollection::action("playlistAddURL"), SIGNAL(triggered()), SLOT(addURL()));
 	addButton->setMenu(addMenu);
 
 	QMenu * removeMenu = new QMenu();
 	removeMenu->addAction(ActionCollection::action("playlistRemoveSelected"));
-	connect(ActionCollection::action("playlistRemoveSelected"), SIGNAL(triggered()), SLOT(removeSelected()));
+	connect(ActionCollection::action("playlistRemoveSelected"), SIGNAL(triggered()), _ui->tableWidget, SLOT(clearSelection()));
 	removeMenu->addAction(ActionCollection::action("playlistRemoveAll"));
-	connect(ActionCollection::action("playlistRemoveAll"), SIGNAL(triggered()), SLOT(removeAll()));
+	connect(ActionCollection::action("playlistRemoveAll"), SIGNAL(triggered()), _ui->tableWidget, SLOT(clearContents()));
 	removeButton->setMenu(removeMenu);
 }
 
@@ -180,6 +176,24 @@ void PlaylistWidget::addFiles() {
 	addFiles(files);
 }
 
+void PlaylistWidget::addDir() {
+	QStringList files;
+
+	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select DVD folder"),
+			Config::instance().lastDirectoryUsed());
+
+	QStringList tmp(FindFiles::findAllFiles(dir));
+	foreach (QString file, tmp) {
+		QFileInfo fileInfo(file);
+		bool isMultimediaFile = FileExtensions::multimedia().contains(fileInfo.suffix(), Qt::CaseInsensitive);
+		if (isMultimediaFile) {
+			files << file;
+		}
+	}
+
+	addFiles(files);
+}
+
 void PlaylistWidget::addFiles(const QStringList & files) {
 	if (files.isEmpty()) {
 		return;
@@ -196,8 +210,15 @@ void PlaylistWidget::addFiles(const QStringList & files) {
 	}
 }
 
+void PlaylistWidget::addURL() {
+	QString url = QInputDialog::getText(this, tr("Open Location"), tr("Please enter a valid address here:"));
+
+	QStringList files;
+	files << url;
+}
+
 void PlaylistWidget::tableDoubleClicked(int row, int column) {
-	quarkPlayer().mainWindow().play(_mediaSources[row]);
+	quarkPlayer().play(_mediaSources[row]);
 }
 
 void PlaylistWidget::metaStateChanged(Phonon::State newState, Phonon::State oldState) {

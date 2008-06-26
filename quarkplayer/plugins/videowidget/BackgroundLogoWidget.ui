@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>318</width>
-    <height>318</height>
+    <width>82</width>
+    <height>82</height>
    </rect>
   </property>
   <property name="styleSheet" >
@@ -16,7 +16,7 @@
    <item row="0" column="0" colspan="2" >
     <widget class="QLabel" name="logoLabel" >
      <property name="pixmap" >
-      <pixmap resource="quarkplayer.qrc" >:/icons/hi300-app-quarkplayer.png</pixmap>
+      <pixmap resource="../../../quarkplayer-app/quarkplayer.qrc" >:/icons/hi64-app-quarkplayer.png</pixmap>
      </property>
      <property name="alignment" >
       <set>Qt::AlignCenter</set>
@@ -26,7 +26,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="quarkplayer.qrc" />
+  <include location="../../../quarkplayer-app/quarkplayer.qrc" />
  </resources>
  <connections/>
 </ui>

@@ -23,6 +23,7 @@
 	<file alias="16x16/list-add">icons/silk/page_add.png</file>
 	<file alias="16x16/list-remove">icons/silk/page_delete.png</file>
 
+	<file alias="16x16/preferences-system-windows">icons/silk/application_double.png</file>
 	<file alias="16x16/preferences-system">icons/silk/wrench.png</file>
 	<file alias="16x16/preferences-desktop">icons/silk/monitor.png</file>
 	<file alias="16x16/system-help">icons/silk/information.png</file>

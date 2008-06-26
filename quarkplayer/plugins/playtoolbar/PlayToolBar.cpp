@@ -150,6 +150,8 @@ void PlayToolBar::createControlToolBar() {
 	_controlToolBar->addSeparator();
 	_controlToolBar->addAction(ActionCollection::action("fullScreen"));
 	_controlToolBar->addSeparator();
+	_controlToolBar->addAction(ActionCollection::action("newMediaObject"));
+	_controlToolBar->addSeparator();
 
 	//volumdeSlider
 	_volumeSlider = new Phonon::VolumeSlider();
@@ -166,8 +168,8 @@ void PlayToolBar::populateActionCollection() {
 	ActionCollection::addAction("play", new QAction(app));
 	ActionCollection::addAction("pause", new QAction(app));
 	ActionCollection::addAction("stop", new QAction(app));
-	ActionCollection::addAction("nextTrack", new QAction(app));
 	ActionCollection::addAction("previousTrack", new QAction(app));
+	ActionCollection::addAction("nextTrack", new QAction(app));
 
 	QAction * action = new QAction(app);
 	action->setCheckable(true);
@@ -184,11 +186,11 @@ void PlayToolBar::retranslate() {
 	ActionCollection::action("stop")->setText(tr("Stop"));
 	ActionCollection::action("stop")->setIcon(TkIcon("media-playback-stop"));
 
-	ActionCollection::action("nextTrack")->setText(tr("Next Track"));
-	ActionCollection::action("nextTrack")->setIcon(TkIcon("media-skip-forward"));
-
 	ActionCollection::action("previousTrack")->setText(tr("Previous Track"));
 	ActionCollection::action("previousTrack")->setIcon(TkIcon("media-skip-backward"));
+
+	ActionCollection::action("nextTrack")->setText(tr("Next Track"));
+	ActionCollection::action("nextTrack")->setIcon(TkIcon("media-skip-forward"));
 
 	ActionCollection::action("fullScreen")->setText(tr("FullScreen"));
 	ActionCollection::action("fullScreen")->setIcon(TkIcon("view-fullscreen"));

@@ -61,11 +61,7 @@ private slots:
 
 	void metaDataChanged();
 
-	void visibilityChanged(bool visible = true);
-
-	void newDockWidgetVisibilityChanged(bool visible);
-
-	void dockWidgetClosed();
+	void visibilityChanged(bool visible);
 
 private:
 
@@ -94,10 +90,6 @@ private:
 	VideoContainer * findMatchingVideoContainer(QDockWidget * dockWidget);
 
 	QMap<Phonon::MediaObject *, VideoContainer *> _mediaObjectMap;
-
-	QDockWidget * _previousDockWidget;
-
-	bool _dockWidgetClosed;
 };
 
 #include <quarkplayer/PluginFactory.h>

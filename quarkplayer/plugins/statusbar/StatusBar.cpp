@@ -148,6 +148,9 @@ void StatusBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	//Update current MediaObject state
 	stateChanged(mediaObject->state());
 
+	//Resets current and total time display
+	tick(mediaObject->currentTime());
+
 	connect(mediaObject, SIGNAL(tick(qint64)), SLOT(tick(qint64)));
 	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(stateChanged(Phonon::State)));

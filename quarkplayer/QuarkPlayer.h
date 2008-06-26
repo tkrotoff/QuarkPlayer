@@ -59,9 +59,6 @@ public:
 	/** Gets the QuarkPlayer main window. */
 	MainWindow & mainWindow() const;
 
-	/** Creates a new media object. */
-	Phonon::MediaObject * createNewMediaObject();
-
 	/** Changes the current media object to be used. */
 	void setCurrentMediaObject(Phonon::MediaObject * mediaObject);
 
@@ -95,6 +92,11 @@ public:
 
 	/** Gets QuarkPlayer configuration framework. */
 	Config & config() const;
+
+public slots:
+
+	/** Creates a new media object. */
+	Phonon::MediaObject * createNewMediaObject();
 
 signals:
 

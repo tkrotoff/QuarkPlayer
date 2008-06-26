@@ -105,7 +105,7 @@ private slots:
 	void playRecentFile(int id);
 	void clearRecentFiles();
 
-	void metaDataChanged();
+	void updateWindowTitle();
 
 	void retranslate();
 

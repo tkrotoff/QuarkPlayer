@@ -47,7 +47,6 @@ MediaDataWidget::MediaDataWidget(Phonon::MediaObject * mediaObject)
 	QPalette palette;
 	palette.setBrush(QPalette::WindowText, Qt::white);
 	_dataLabel->setPalette(palette);
-	_dataLabel->setText(tr("<center>No media</center>"));
 
 #ifdef Q_OS_MAC
 	_dataLabel->setFont(QFont("verdana", 15));
