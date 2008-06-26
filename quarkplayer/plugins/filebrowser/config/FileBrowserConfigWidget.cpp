@@ -29,9 +29,7 @@
 
 #include <QtCore/QDebug>
 
-FileBrowserConfigWidget::FileBrowserConfigWidget(QWidget * parent)
-	: IConfigWidget(parent) {
-
+FileBrowserConfigWidget::FileBrowserConfigWidget() {
 	_ui = new Ui::FileBrowserConfigWidget();
 	_ui->setupUi(this);
 

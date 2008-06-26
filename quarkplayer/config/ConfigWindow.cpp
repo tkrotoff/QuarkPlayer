@@ -32,6 +32,8 @@
 
 #include <QtCore/QDebug>
 
+QList<IConfigWidget *> ConfigWindow::_configWidgetList;
+
 ConfigWindow::ConfigWindow(QWidget * parent)
 	: QDialog(parent) {
 
@@ -43,10 +45,9 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	_lastConfigWindowOpenedIndex = 0;
 
 	//Add all config panels/widgets to the list
-	_configWidgetList += new GeneralConfigWidget(this);
-	_configWidgetList += new BackendCapabilitiesWidget(this);
-	_configWidgetList += new SettingsBrowser(this);
-	//_configWidgetList += new FileBrowserConfigWidget(this);
+	_configWidgetList.prepend(new SettingsBrowser());
+	_configWidgetList.prepend(new BackendCapabilitiesWidget());
+	_configWidgetList.prepend(new GeneralConfigWidget());
 
 	//listWidget
 	connect(_ui->listWidget, SIGNAL(currentRowChanged(int)),
@@ -64,6 +65,10 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 
 ConfigWindow::~ConfigWindow() {
 	delete _ui;
+}
+
+void ConfigWindow::addConfigWidget(IConfigWidget * configWidget) {
+	_configWidgetList += configWidget;
 }
 
 void ConfigWindow::populateStackedWidget() {

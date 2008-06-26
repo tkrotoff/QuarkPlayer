@@ -34,7 +34,7 @@ class GeneralConfigWidget : public IConfigWidget {
 	Q_OBJECT
 public:
 
-	GeneralConfigWidget(QWidget * parent);
+	GeneralConfigWidget();
 
 	~GeneralConfigWidget();
 

@@ -44,8 +44,6 @@ PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer)
 
 	RETRANSLATE(this);
 
-	populateActionCollection();
-
 	_volumeSlider = NULL;
 	_seekSlider = NULL;
 
@@ -162,39 +160,7 @@ void PlayToolBar::createControlToolBar() {
 	_controlToolBar->addWidget(_volumeSlider);
 }
 
-void PlayToolBar::populateActionCollection() {
-	QCoreApplication * app = QApplication::instance();
-
-	ActionCollection::addAction("play", new QAction(app));
-	ActionCollection::addAction("pause", new QAction(app));
-	ActionCollection::addAction("stop", new QAction(app));
-	ActionCollection::addAction("previousTrack", new QAction(app));
-	ActionCollection::addAction("nextTrack", new QAction(app));
-
-	QAction * action = new QAction(app);
-	action->setCheckable(true);
-	ActionCollection::addAction("fullScreen", action);
-}
-
 void PlayToolBar::retranslate() {
-	ActionCollection::action("play")->setText(tr("Play"));
-	ActionCollection::action("play")->setIcon(TkIcon("media-playback-start"));
-
-	ActionCollection::action("pause")->setText(tr("Pause"));
-	ActionCollection::action("pause")->setIcon(TkIcon("media-playback-pause"));
-
-	ActionCollection::action("stop")->setText(tr("Stop"));
-	ActionCollection::action("stop")->setIcon(TkIcon("media-playback-stop"));
-
-	ActionCollection::action("previousTrack")->setText(tr("Previous Track"));
-	ActionCollection::action("previousTrack")->setIcon(TkIcon("media-skip-backward"));
-
-	ActionCollection::action("nextTrack")->setText(tr("Next Track"));
-	ActionCollection::action("nextTrack")->setIcon(TkIcon("media-skip-forward"));
-
-	ActionCollection::action("fullScreen")->setText(tr("FullScreen"));
-	ActionCollection::action("fullScreen")->setIcon(TkIcon("view-fullscreen"));
-
 	setWindowTitle(tr("Play ToolBar"));
 
 	_volumeSlider->setVolumeIcon(TkIcon("speaker"));

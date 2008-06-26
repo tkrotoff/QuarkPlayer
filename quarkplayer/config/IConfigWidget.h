@@ -34,8 +34,6 @@ class QUARKPLAYER_API IConfigWidget : public QWidget {
 	Q_OBJECT
 public:
 
-	IConfigWidget(QWidget * parent) : QWidget(parent) { }
-
 	virtual ~IConfigWidget() { }
 
 	virtual QString name() const = 0;

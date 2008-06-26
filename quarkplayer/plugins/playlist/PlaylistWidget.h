@@ -61,6 +61,10 @@ private slots:
 
 	void aboutToFinish();
 
+	void playNextTrack();
+
+	void playPreviousTrack();
+
 	void metaStateChanged(Phonon::State newState, Phonon::State oldState);
 
 	void tableDoubleClicked(int row, int column);

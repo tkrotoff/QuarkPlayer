@@ -29,9 +29,7 @@
 
 #include <QtCore/QDebug>
 
-BackendCapabilitiesWidget::BackendCapabilitiesWidget(QWidget * parent)
-	: IConfigWidget(parent) {
-
+BackendCapabilitiesWidget::BackendCapabilitiesWidget() {
 	_ui = new Ui::BackendCapabilitiesWidget();
 	_ui->setupUi(this);
 

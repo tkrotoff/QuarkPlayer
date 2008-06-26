@@ -32,7 +32,7 @@ class FileBrowserConfigWidget : public IConfigWidget {
 	Q_OBJECT
 public:
 
-	FileBrowserConfigWidget(QWidget * parent);
+	FileBrowserConfigWidget();
 
 	~FileBrowserConfigWidget();
 

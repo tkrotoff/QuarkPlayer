@@ -43,7 +43,7 @@ class SettingsBrowser : public IConfigWidget {
 	Q_OBJECT
 public:
 
-	SettingsBrowser(QWidget * parent);
+	SettingsBrowser();
 
 	~SettingsBrowser();
 

@@ -31,9 +31,7 @@
 
 #include <QtCore/QDebug>
 
-GeneralConfigWidget::GeneralConfigWidget(QWidget * parent)
-	: IConfigWidget(parent) {
-
+GeneralConfigWidget::GeneralConfigWidget() {
 	_ui = new Ui::GeneralConfigWidget();
 	_ui->setupUi(this);
 

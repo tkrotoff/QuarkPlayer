@@ -253,6 +253,16 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("openSubtitleFile", new QAction(app));
 	ActionCollection::addAction("clearRecentFiles", new QAction(app));
 	ActionCollection::addAction("emptyMenu", new QAction(app));
+
+	ActionCollection::addAction("play", new QAction(app));
+	ActionCollection::addAction("pause", new QAction(app));
+	ActionCollection::addAction("stop", new QAction(app));
+	ActionCollection::addAction("previousTrack", new QAction(app));
+	ActionCollection::addAction("nextTrack", new QAction(app));
+
+	QAction * action = new QAction(app);
+	action->setCheckable(true);
+	ActionCollection::addAction("fullScreen", action);
 }
 
 void MainWindow::setupUi() {
@@ -268,9 +278,20 @@ void MainWindow::setupUi() {
 	_menuFile->addAction(ActionCollection::action("playURL"));
 	_menuFile->addAction(ActionCollection::action("playVCD"));
 	_menuFile->addSeparator();
-	_menuFile->addAction(ActionCollection::action("newMediaObject"));
-	_menuFile->addSeparator();
 	_menuFile->addAction(ActionCollection::action("quit"));
+
+	_menuPlay = new QMenu();
+	menuBar()->addAction(_menuPlay->menuAction());
+	_menuPlay->addAction(ActionCollection::action("play"));
+	_menuPlay->addAction(ActionCollection::action("pause"));
+	_menuPlay->addAction(ActionCollection::action("stop"));
+	_menuPlay->addSeparator();
+	_menuPlay->addAction(ActionCollection::action("previousTrack"));
+	_menuPlay->addAction(ActionCollection::action("nextTrack"));
+	_menuPlay->addSeparator();
+	_menuPlay->addAction(ActionCollection::action("fullScreen"));
+	_menuPlay->addSeparator();
+	_menuPlay->addAction(ActionCollection::action("newMediaObject"));
 
 	_menuAudio = new QMenu();
 	menuBar()->addAction(_menuAudio->menuAction());
@@ -383,11 +404,30 @@ void MainWindow::retranslate() {
 
 	_menuAngles->setTitle(tr("&Angle"));
 	_menuFile->setTitle(tr("&File"));
+	_menuPlay->setTitle(tr("&Play"));
 	_menuAudio->setTitle(tr("&Audio"));
 	_menuSubtitle->setTitle(tr("&Subtitle"));
 	_menuBrowse->setTitle(tr("&Browse"));
 	_menuSettings->setTitle(tr("&Settings"));
 	_menuHelp->setTitle(tr("&Help"));
+
+	ActionCollection::action("play")->setText(tr("P&lay"));
+	ActionCollection::action("play")->setIcon(TkIcon("media-playback-start"));
+
+	ActionCollection::action("pause")->setText(tr("&Pause"));
+	ActionCollection::action("pause")->setIcon(TkIcon("media-playback-pause"));
+
+	ActionCollection::action("stop")->setText(tr("&Stop"));
+	ActionCollection::action("stop")->setIcon(TkIcon("media-playback-stop"));
+
+	ActionCollection::action("previousTrack")->setText(tr("P&revious Track"));
+	ActionCollection::action("previousTrack")->setIcon(TkIcon("media-skip-backward"));
+
+	ActionCollection::action("nextTrack")->setText(tr("&Next Track"));
+	ActionCollection::action("nextTrack")->setIcon(TkIcon("media-skip-forward"));
+
+	ActionCollection::action("fullScreen")->setText(tr("&FullScreen"));
+	ActionCollection::action("fullScreen")->setIcon(TkIcon("view-fullscreen"));
 }
 
 QMenu * MainWindow::menuAudioChannels() const {

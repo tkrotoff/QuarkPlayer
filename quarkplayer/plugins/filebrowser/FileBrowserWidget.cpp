@@ -27,6 +27,7 @@
 #include <quarkplayer/MainWindow.h>
 #include <quarkplayer/FileExtensions.h>
 #include <quarkplayer/config/Config.h>
+#include <quarkplayer/config/ConfigWindow.h>
 
 #include <tkutil/TkIcon.h>
 #include <tkutil/TkFileDialog.h>
@@ -75,8 +76,11 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	connect(_ui->treeView, SIGNAL(doubleClicked(const QModelIndex &)),
 		SLOT(doubleClicked(const QModelIndex &)));
 
+	//Add to config window
+	ConfigWindow::addConfigWidget(new FileBrowserConfigWidget());
+
 	//Add to the main window
-	QDockWidget * dockWidget = new QDockWidget(tr("Files"));
+	QDockWidget * dockWidget = new QDockWidget(tr("Local Files"));
 	quarkPlayer.mainWindow().addBrowserDockWidget(dockWidget);
 	dockWidget->setWidget(this);
 }

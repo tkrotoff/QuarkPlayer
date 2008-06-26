@@ -294,9 +294,23 @@ void PlaylistWidget::aboutToFinish() {
 	qDebug() << __FUNCTION__;
 
 	int index = _mediaSources.indexOf(quarkPlayer().currentMediaObject()->currentSource()) + 1;
-	if (_mediaSources.size() > index) {
+	if (index >= 0 && _mediaSources.size() > index) {
 		//TODO
 		//quarkPlayer().currentMediaObject().enqueue(_mediaSources.at(index));
+		quarkPlayer().play(_mediaSources.at(index));
+	}
+}
+
+void PlaylistWidget::playNextTrack() {
+	int index = _mediaSources.indexOf(quarkPlayer().currentMediaObject()->currentSource()) + 1;
+	if (index >= 0 && _mediaSources.size() > index) {
+		quarkPlayer().play(_mediaSources.at(index));
+	}
+}
+
+void PlaylistWidget::playPreviousTrack() {
+	int index = _mediaSources.indexOf(quarkPlayer().currentMediaObject()->currentSource()) - 1;
+	if (index >= 0 && _mediaSources.size() > index) {
 		quarkPlayer().play(_mediaSources.at(index));
 	}
 }
@@ -374,5 +388,14 @@ void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject
 		tmp->disconnect(this);
 	}
 
+	//aboutToFinish -> let's play the next track
 	connect(mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
+
+	//Next track
+	disconnect(ActionCollection::action("nextTrack"), 0, 0, 0);
+	connect(ActionCollection::action("nextTrack"), SIGNAL(triggered()), SLOT(playNextTrack()));
+
+	//Previous track
+	disconnect(ActionCollection::action("previousTrack"), 0, 0, 0);
+	connect(ActionCollection::action("previousTrack"), SIGNAL(triggered()), SLOT(playPreviousTrack()));
 }

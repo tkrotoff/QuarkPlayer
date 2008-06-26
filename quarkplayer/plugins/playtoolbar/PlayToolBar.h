@@ -55,8 +55,6 @@ private slots:
 
 private:
 
-	void populateActionCollection();
-
 	void createSeekToolBar();
 
 	void createControlToolBar();

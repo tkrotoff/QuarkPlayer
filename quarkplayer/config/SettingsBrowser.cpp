@@ -36,9 +36,7 @@ static const int STATUS_COLUMN = 3;
 static const int TYPE_COLUMN = 4;
 static const int RESET_COLUMN = 5;
 
-SettingsBrowser::SettingsBrowser(QWidget * parent)
-	: IConfigWidget(parent) {
-
+SettingsBrowser::SettingsBrowser() {
 	_ui = new Ui::SettingsBrowser();
 	_ui->setupUi(this);
 

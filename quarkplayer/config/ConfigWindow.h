@@ -19,6 +19,8 @@
 #ifndef CONFIGWINDOW_H
 #define CONFIGWINDOW_H
 
+#include <quarkplayer/quarkplayer_export.h>
+
 #include <QtGui/QDialog>
 
 #include <QtCore/QList>
@@ -34,13 +36,15 @@ class QAbstractItemView;
  *
  * @author Tanguy Krotoff
  */
-class ConfigWindow : public QDialog {
+class QUARKPLAYER_API ConfigWindow : public QDialog {
 	Q_OBJECT
 public:
 
 	ConfigWindow(QWidget * parent);
 
 	~ConfigWindow();
+
+	static void addConfigWidget(IConfigWidget * configWidget);
 
 private slots:
 
@@ -59,7 +63,7 @@ private:
 	Ui::ConfigWindow * _ui;
 
 	/** List of all config widget. */
-	QList<IConfigWidget *> _configWidgetList;
+	static QList<IConfigWidget *> _configWidgetList;
 
 	/**
 	 * List of opened config widget.

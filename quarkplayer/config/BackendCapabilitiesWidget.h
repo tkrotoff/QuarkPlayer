@@ -32,7 +32,7 @@ class BackendCapabilitiesWidget : public IConfigWidget {
 	Q_OBJECT
 public:
 
-	BackendCapabilitiesWidget(QWidget * parent);
+	BackendCapabilitiesWidget();
 
 	~BackendCapabilitiesWidget();
 
