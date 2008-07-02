@@ -216,10 +216,6 @@ void PlaylistView::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) 
 	//aboutToFinish -> let's play the next track
 	connect(mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
 
-	//When current media object stops then switch to the next track
-	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
-		SLOT(stateChanged(Phonon::State, Phonon::State)));
-
 	//Next track
 	disconnect(ActionCollection::action("nextTrack"), 0, 0, 0);
 	connect(ActionCollection::action("nextTrack"), SIGNAL(triggered()), _playlistModel, SLOT(playNextTrack()));

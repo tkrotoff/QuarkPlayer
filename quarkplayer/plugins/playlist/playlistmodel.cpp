@@ -212,24 +212,26 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 }
 
 void PlaylistModel::addFiles(const QStringList & files, int row) {
-	foreach (QString file, files) {
-		QFileInfo fileInfo(file);
-		qDebug() << fileInfo.fileName();
-	}
+	_filesInfoResolver << files;
 
 	int first = row;
 	if (row == -1) {
 		first = _mediaSources.size();
 	}
-	int last = first + files.size() - 1;
+	int last = first + _filesInfoResolver.size() - 1;
 	int position = first;
 
 	beginInsertRows(QModelIndex(), first, last);
-	foreach (QString file, files) {
+	foreach (QString file, _filesInfoResolver) {
 		_mediaSources.insert(position++, Track(file));
-		_metaObjectInfoResolver->setCurrentSource(file);
 	}
 	endInsertRows();
+
+	//Resolve first meta data file
+	//The other ones an queued
+	if (!_filesInfoResolver.isEmpty()) {
+		_metaObjectInfoResolver->setCurrentSource(_filesInfoResolver.first());
+	}
 }
 
 QMimeData * PlaylistModel::mimeData(const QModelIndexList & indexes) const {
@@ -289,7 +291,6 @@ void PlaylistModel::metaStateChanged(Phonon::State newState, Phonon::State oldSt
 	//Finds the matching MediaSource
 	int row = 0;
 	foreach (Track track, _mediaSources) {
-		qDebug() << __FUNCTION__ << track.fileName();
 		if (track == Track(source)) {
 			//We found the right MediaSource
 			track.setTrackNumber(metaData.value("TRACKNUMBER"));
@@ -301,6 +302,11 @@ void PlaylistModel::metaStateChanged(Phonon::State newState, Phonon::State oldSt
 			updateRow(row);
 		}
 		row++;
+	}
+
+	_filesInfoResolver.takeFirst();
+	if (!_filesInfoResolver.isEmpty()) {
+		_metaObjectInfoResolver->setCurrentSource(_filesInfoResolver.first());
 	}
 }
 
@@ -447,8 +453,6 @@ PlaylistModel::Track & PlaylistModel::Track::operator=(const Track & right) {
 }
 
 int PlaylistModel::Track::operator==(const Track & right) {
-	qDebug() << __FUNCTION__ << right._filename;
-
 	return _filename == right._filename;
 }
 

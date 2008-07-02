@@ -85,6 +85,7 @@ private:
 
 	QuarkPlayer & _quarkPlayer;
 
+	/** Resolves the list of pending files for meta data/info. */
 	Phonon::MediaObject * _metaObjectInfoResolver;
 
 	class Track {
@@ -129,6 +130,9 @@ private:
 	};
 
 	QList<Track> _mediaSources;
+
+	/** List of pending files for meta data/info to be resolved. */
+	QList<QString> _filesInfoResolver;
 
 	int _position;
 };
