@@ -391,6 +391,10 @@ void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject
 	//aboutToFinish -> let's play the next track
 	connect(mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
 
+	//When current media object stops then switch to the next track
+	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
+		SLOT(stateChanged(Phonon::State, Phonon::State)));
+
 	//Next track
 	disconnect(ActionCollection::action("nextTrack"), 0, 0, 0);
 	connect(ActionCollection::action("nextTrack"), SIGNAL(triggered()), SLOT(playNextTrack()));
@@ -398,4 +402,11 @@ void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject
 	//Previous track
 	disconnect(ActionCollection::action("previousTrack"), 0, 0, 0);
 	connect(ActionCollection::action("previousTrack"), SIGNAL(triggered()), SLOT(playPreviousTrack()));
+}
+
+void PlaylistWidget::stateChanged(Phonon::State newState, Phonon::State oldState) {
+	if (newState == Phonon::StoppedState && oldState == Phonon::PlayingState) {
+		//When current media object stops then switch to the next track
+		playNextTrack();
+	}
 }

@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLAYLISTWIDGET_H
-#define PLAYLISTWIDGET_H
+#ifndef PLAYLISTVIEW_H
+#define PLAYLISTVIEW_H
 
 #include <quarkplayer/PluginInterface.h>
 
@@ -27,7 +27,9 @@
 
 #include <phonon/phononnamespace.h>
 
-namespace Ui { class PlaylistWidget; }
+namespace Ui { class PlaylistView; }
+
+class PlaylistModel;
 
 class QuarkPlayer;
 
@@ -43,13 +45,13 @@ class QToolBar;
  *
  * @author Tanguy Krotoff
  */
-class PlaylistWidget : public QWidget, public PluginInterface {
+class PlaylistView : public QWidget, public PluginInterface {
 	Q_OBJECT
 public:
 
-	PlaylistWidget(QuarkPlayer & quarkPlayer);
+	PlaylistView(QuarkPlayer & quarkPlayer);
 
-	~PlaylistWidget();
+	~PlaylistView();
 
 private slots:
 
@@ -59,21 +61,11 @@ private slots:
 
 	void addURL();
 
-	void aboutToFinish();
-
-	void playNextTrack();
-
-	void playPreviousTrack();
-
-	void metaStateChanged(Phonon::State newState, Phonon::State oldState);
-
-	void tableDoubleClicked(int row, int column);
-
 	void retranslate();
 
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
 
-	void stateChanged(Phonon::State newState, Phonon::State oldState);
+	void resizeColumnsToContents();
 
 private:
 
@@ -81,26 +73,16 @@ private:
 
 	void createPlaylistToolBar();
 
-	void addFiles(const QStringList & files);
+	Ui::PlaylistView * _ui;
 
-	QString convertMilliseconds(qint64 totalTime);
-
-	void dragEnterEvent(QDragEnterEvent * event);
-
-	void dropEvent(QDropEvent * event);
-
-	Phonon::MediaObject * _metaObjectInfoResolver;
-
-	QList<Phonon::MediaSource> _mediaSources;
-
-	Ui::PlaylistWidget * _ui;
+	PlaylistModel * _playlistModel;
 
 	QToolBar * _playlistToolBar;
 };
 
 #include <quarkplayer/PluginFactory.h>
 
-class PlaylistWidgetFactory : public QObject, public PluginFactory {
+class PlaylistViewFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)
 public:
@@ -108,4 +90,4 @@ public:
 	PluginInterface * create(QuarkPlayer & quarkPlayer) const;
 };
 
-#endif	//PLAYLISTWIDGET_H
+#endif	//PLAYLISTVIEW_H

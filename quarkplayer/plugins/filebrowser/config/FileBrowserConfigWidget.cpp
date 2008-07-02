@@ -46,7 +46,7 @@ FileBrowserConfigWidget::~FileBrowserConfigWidget() {
 }
 
 QString FileBrowserConfigWidget::name() const {
-	return tr("File Browser Plugin");
+	return tr("File Browser");
 }
 
 QString FileBrowserConfigWidget::iconName() const {

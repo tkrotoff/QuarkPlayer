@@ -75,11 +75,16 @@ void VideoWidgetPlugin::hasVideoChanged(bool hasVideo) {
 	//Resize the main window to the size of the video
 	//i.e increase or decrease main window size if needed
 	if (hasVideo) {
-		container->videoDockWidget->setWidget(container->videoWidget);
-		container->videoDockWidget->resize(container->videoWidget->sizeHint());
+		if (container->videoDockWidget->widget() != container->videoWidget) {
+			container->videoDockWidget->setWidget(container->videoWidget);
+			container->videoDockWidget->resize(container->videoWidget->sizeHint());
+		}
 	} else {
-		container->videoDockWidget->setWidget(container->mediaDataWidget);
-		container->videoDockWidget->resize(container->mediaDataWidget->minimumSize());
+		if (container->videoDockWidget->widget() != container->mediaDataWidget) {
+			container->videoDockWidget->setWidget(container->mediaDataWidget);
+			container->videoDockWidget->setMaximumSize(container->mediaDataWidget->minimumSize());
+			container->videoDockWidget->resize(container->mediaDataWidget->minimumSize());
+		}
 	}
 }
 

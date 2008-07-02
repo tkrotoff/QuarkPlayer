@@ -18,6 +18,8 @@
 
 #include "MediaDataWidget.h"
 
+#include <tkutil/TkFile.h>
+
 #include <phonon/mediaobject.h>
 
 #include <QtGui/QtGui>
@@ -72,8 +74,7 @@ void MediaDataWidget::metaDataChanged() {
 	if (_mediaObject->currentSource().type() == Phonon::MediaSource::Url) {
 		filename = _mediaObject->currentSource().url().toString();
 	} else {
-		filename = _mediaObject->currentSource().fileName();
-		filename = filename.right(filename.length() - filename.lastIndexOf('/') - 1);
+		filename = TkFile::fileName(_mediaObject->currentSource().fileName());
 	}
 
 	QString title = metaData.value("TITLE");
