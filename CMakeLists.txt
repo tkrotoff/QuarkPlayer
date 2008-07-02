@@ -1,7 +1,7 @@
 #Mininum required CMake version
 cmake_minimum_required(VERSION 2.6)
 
-project(phonon-vlc-mplayer)
+project(quarkplayer)
 
 include(CMakeLists-owbuild.txt)
 

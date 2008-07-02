@@ -2,9 +2,9 @@ if (LINUX)
 	set(CPACK_GENERATOR "TGZ;DEB;RPM")
 endif (LINUX)
 
-set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_BINARY_DIR};phonon-vlc-mplayer;ALL;/")
+set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_BINARY_DIR};quarkplayer;ALL;/")
 
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "VLC and MPlayer backends for the Phonon library http://phonon-vlc-mplayer.googlecode.com/")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "QuarkPlayer, a Phonon media player http://phonon-vlc-mplayer.googlecode.com/")
 set(CPACK_PACKAGE_VENDOR "http://phonon-vlc-mplayer.googlecode.com/")
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_SOURCE_DIR}/vlc-mplayer/README)
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/vlc-mplayer/COPYING.LESSER)
@@ -33,10 +33,6 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS
 set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\phonon-vlc-mplayer.googlecode.com")
 set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\phonon-vlc-mplayer.googlecode.com")
 set(CPACK_PACKAGE_EXECUTABLES
-	"multiplevideoplayer" "multiplevideoplayer"
-	"videoplayer" "videoplayer"
-	"mediaplayer" "mediaplayer"
-	"capabilities" "capabilities"
 	"quarkplayer" "quarkplayer"
 )
 
