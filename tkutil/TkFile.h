@@ -39,6 +39,13 @@ public:
 	 */
 	static QString fileName(const QString & path);
 
+	/**
+	 * Removes the extension (i.e .mp3) from the filename.
+	 *
+	 * Example: path=/usr/lib/toto.txt => /usr/lib/toto
+	 */
+	static QString removeFileExtension(const QString & path);
+
 private:
 
 	TkFile();
