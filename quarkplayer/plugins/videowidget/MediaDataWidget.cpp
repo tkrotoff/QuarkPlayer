@@ -74,7 +74,7 @@ void MediaDataWidget::metaDataChanged() {
 	if (_mediaObject->currentSource().type() == Phonon::MediaSource::Url) {
 		filename = _mediaObject->currentSource().url().toString();
 	} else {
-		filename = TkFile::fileName(_mediaObject->currentSource().fileName());
+		filename = TkFile::removeFileExtension(TkFile::fileName(_mediaObject->currentSource().fileName()));
 	}
 
 	QString title = metaData.value("TITLE");

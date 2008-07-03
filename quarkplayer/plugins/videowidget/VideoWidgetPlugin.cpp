@@ -54,8 +54,6 @@ VideoWidgetPlugin::~VideoWidgetPlugin() {
 void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldState) {
 	VideoContainer * container = _mediaObjectMap.value(quarkPlayer().currentMediaObject());
 
-	qDebug() << __FUNCTION__ << "newState:" << newState << "oldState:" << oldState;
-
 	//Remove the background logo, not needed anymore
 	if (container->backgroundLogoWidget) {
 		delete container->backgroundLogoWidget;
@@ -82,7 +80,7 @@ void VideoWidgetPlugin::hasVideoChanged(bool hasVideo) {
 	} else {
 		if (container->videoDockWidget->widget() != container->mediaDataWidget) {
 			container->videoDockWidget->setWidget(container->mediaDataWidget);
-			container->videoDockWidget->setMaximumSize(container->mediaDataWidget->minimumSize());
+			//container->videoDockWidget->setMaximumSize(container->mediaDataWidget->minimumSize());
 			container->videoDockWidget->resize(container->mediaDataWidget->minimumSize());
 		}
 	}
