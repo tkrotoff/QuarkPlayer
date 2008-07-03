@@ -3,6 +3,7 @@ project(playlist)
 set(playlist_SRCS
 	PlaylistView.cpp
 	PlaylistModel.cpp
+	Track.cpp
 )
 
 qt4_wrap_cpp(playlist_SRCS

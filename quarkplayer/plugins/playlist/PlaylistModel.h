@@ -20,12 +20,16 @@
 #define PLAYLISTMODEL_H
 
 #include <phonon/phononnamespace.h>
-#include <phonon/mediaobject.h>
-#include <phonon/mediasource.h>
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QList>
 #include <QtCore/QString>
+
+namespace Phonon {
+	class MediaObject;
+}
+
+class Track;
 
 class QuarkPlayer;
 
@@ -71,6 +75,10 @@ public slots:
 
 	void playPreviousTrack();
 
+	void setShuffle(bool shuffle);
+
+	void setRepeat(bool repeat);
+
 private slots:
 
 	void metaStateChanged(Phonon::State newState, Phonon::State oldState);
@@ -78,6 +86,8 @@ private slots:
 	void stateChanged(Phonon::State newState, Phonon::State oldState);
 
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
+
+	void enqueueNextTrack();
 
 private:
 
@@ -88,53 +98,16 @@ private:
 	/** Resolves the list of pending files for meta data/info. */
 	Phonon::MediaObject * _metaObjectInfoResolver;
 
-	class Track {
-	public:
-
-		Track(const Phonon::MediaSource & mediaSource);
-		Track(const Track & track);
-
-		~Track();
-
-		Track & operator=(const Track & right);
-		int operator==(const Track & right);
-
-		QString fileName() const;
-		Phonon::MediaSource mediaSource() const;
-		void setTrackNumber(const QString & trackNumber);
-		QString trackNumber() const;
-		void setTitle(const QString & title);
-		QString title() const;
-		void setArtist(const QString & artist);
-		QString artist() const;
-		void setAlbum(const QString & album);
-		QString album() const;
-		void setLength(const QString & length);
-		QString length() const;
-
-	private:
-
-		void copy(const Track & track);
-
-		QString convertMilliseconds(qint64 totalTime) const;
-
-		Phonon::MediaSource _source;
-
-		QString _filename;
-
-		QString _trackNumber;
-		QString _title;
-		QString _artist;
-		QString _album;
-		QString _length;
-	};
-
 	QList<Track> _mediaSources;
 
 	/** List of pending files for meta data/info to be resolved. */
 	QList<QString> _filesInfoResolver;
 
 	int _position;
+
+	bool _shuffle;
+
+	bool _repeat;
 };
 
 #endif	//PLAYLISTMODEL_H

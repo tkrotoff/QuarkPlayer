@@ -63,7 +63,7 @@ PlaylistView::PlaylistView(QuarkPlayer & quarkPlayer)
 	_ui->treeView->setAllColumnsShowFocus(true);
 	_ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
 	_ui->treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	//_ui->treeView->setSortingEnabled(true);
+	_ui->treeView->setSortingEnabled(true);
 
 	_playlistModel = new PlaylistModel(this, quarkPlayer);
 	connect(_playlistModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
@@ -133,6 +133,12 @@ void PlaylistView::createPlaylistToolBar() {
 	removeMenu->addAction(ActionCollection::action("playlistRemoveAll"));
 	connect(ActionCollection::action("playlistRemoveAll"), SIGNAL(triggered()), _playlistModel, SLOT(clear()));
 	removeButton->setMenu(removeMenu);
+
+	_playlistToolBar->addSeparator();
+	_playlistToolBar->addAction(ActionCollection::action("playlistShuffle"));
+	connect(ActionCollection::action("playlistShuffle"), SIGNAL(toggled(bool)), _playlistModel, SLOT(setShuffle(bool)));
+	_playlistToolBar->addAction(ActionCollection::action("playlistRepeat"));
+	connect(ActionCollection::action("playlistRepeat"), SIGNAL(toggled(bool)), _playlistModel, SLOT(setRepeat(bool)));
 }
 
 void PlaylistView::populateActionCollection() {
@@ -150,9 +156,12 @@ void PlaylistView::populateActionCollection() {
 	ActionCollection::addAction("playlistRemoveSelected", new QAction(app));
 	ActionCollection::addAction("playlistRemoveAll", new QAction(app));
 
-	ActionCollection::addAction("playlistRemoveSelected", new QAction(app));
-	ActionCollection::addAction("playlistRemoveAll", new QAction(app));
-
+	QAction * action = new QAction(app);
+	action->setCheckable(true);
+	ActionCollection::addAction("playlistShuffle", action);
+	action = new QAction(app);
+	action->setCheckable(true);
+	ActionCollection::addAction("playlistRepeat", action);
 }
 
 void PlaylistView::retranslate() {
@@ -174,6 +183,14 @@ void PlaylistView::retranslate() {
 
 	ActionCollection::action("playlistRemoveSelected")->setText(tr("Remove Selected"));
 	ActionCollection::action("playlistRemoveAll")->setText(tr("Remove All"));
+
+	ActionCollection::action("playlistShuffle")->setText(tr("Shuffle"));
+	ActionCollection::action("playlistShuffle")->setIcon(TkIcon("media-playlist-shuffle"));
+
+	ActionCollection::action("playlistRepeat")->setText(tr("Repeat"));
+	ActionCollection::action("playlistRepeat")->setIcon(TkIcon("media-playlist-repeat"));
+
+	_playlistToolBar->setMinimumSize(_playlistToolBar->sizeHint());
 }
 
 void PlaylistView::addFiles() {
@@ -212,9 +229,6 @@ void PlaylistView::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) 
 	foreach (Phonon::MediaObject * tmp, quarkPlayer().mediaObjectList()) {
 		tmp->disconnect(this);
 	}
-
-	//aboutToFinish -> let's play the next track
-	connect(mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
 
 	//Next track
 	disconnect(ActionCollection::action("nextTrack"), 0, 0, 0);

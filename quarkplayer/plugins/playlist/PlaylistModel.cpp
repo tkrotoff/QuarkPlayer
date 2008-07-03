@@ -18,11 +18,14 @@
 
 #include "PlaylistModel.h"
 
+#include "Track.h"
+
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/FileExtensions.h>
 
 #include <tkutil/FindFiles.h>
 #include <tkutil/TkFile.h>
+#include <tkutil/Random.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>
@@ -43,6 +46,8 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 	: QAbstractItemModel(parent),
 	_quarkPlayer(quarkPlayer) {
 
+	_shuffle = false;
+	_repeat = false;
 	clear();
 
 	//Info resolver
@@ -264,17 +269,10 @@ Qt::DropActions PlaylistModel::supportedDropActions() const {
 }
 
 void PlaylistModel::metaStateChanged(Phonon::State newState, Phonon::State oldState) {
-	qDebug() << __FUNCTION__ << "newState:" << newState << "oldState:" << oldState;
-
 	Phonon::MediaSource source = _metaObjectInfoResolver->currentSource();
 	QMap<QString, QString> metaData = _metaObjectInfoResolver->metaData();
 
 	if (newState == Phonon::ErrorState) {
-		/*QMessageBox::warning(this, tr("Error opening files"),
-				_metaObjectInfoResolver->errorString());
-
-		while (!_mediaSources.isEmpty() &&
-			!(_mediaSources.takeLast() == source));*/
 		return;
 	}
 
@@ -285,8 +283,6 @@ void PlaylistModel::metaStateChanged(Phonon::State newState, Phonon::State oldSt
 	if (source.type() == Phonon::MediaSource::Invalid) {
 		return;
 	}
-
-	qDebug() << __FUNCTION__ << source.fileName();
 
 	//Finds the matching MediaSource
 	int row = 0;
@@ -328,11 +324,16 @@ void PlaylistModel::highlightItem(int row) {
 }
 
 void PlaylistModel::updateRow(int row) {
+	qDebug() << __FUNCTION__ << row;
 	emit dataChanged(index(row, 0), index(row, COLUMN_COUNT));
 }
 
 void PlaylistModel::playNextTrack() {
-	_position++;
+	if (_shuffle) {
+		_position = Random::randomInt(0, _mediaSources.size());
+	} else {
+		_position++;
+	}
 
 	if (_position < 0 || _position >= _mediaSources.size()) {
 		//Back to the top of the playlist
@@ -343,7 +344,11 @@ void PlaylistModel::playNextTrack() {
 }
 
 void PlaylistModel::playPreviousTrack() {
-	_position--;
+	if (_shuffle) {
+		_position = Random::randomInt(0, _mediaSources.size());
+	} else {
+		_position--;
+	}
 
 	if (_position < 0 || _position >= _mediaSources.size()) {
 		//Back to the bottom of the playlist
@@ -369,6 +374,9 @@ void PlaylistModel::currentMediaObjectChanged(Phonon::MediaObject * mediaObject)
 
 	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(stateChanged(Phonon::State, Phonon::State)));
+
+	//aboutToFinish -> let's play the next track
+	connect(mediaObject, SIGNAL(aboutToFinish()), SLOT(enqueueNextTrack()));
 }
 
 void PlaylistModel::stateChanged(Phonon::State newState, Phonon::State oldState) {
@@ -383,147 +391,33 @@ void PlaylistModel::stateChanged(Phonon::State newState, Phonon::State oldState)
 	}
 }
 
-
-
-
-//Track class
-PlaylistModel::Track::Track(const Phonon::MediaSource & mediaSource) {
-	_source = mediaSource;
-
-	QString shortFilename;
-	switch (_source.type()) {
-	case Phonon::MediaSource::LocalFile:
-		_filename = _source.fileName();
-		shortFilename = TkFile::fileName(_filename);
-		break;
-	case Phonon::MediaSource::Url:
-		shortFilename = _filename = _source.url().toString();
-		break;
-	case Phonon::MediaSource::Disc:
-		shortFilename = _filename = _source.deviceName();
-		break;
-	case Phonon::MediaSource::Invalid: {
-		//Try to get the filename from the url
-		QUrl url(_source.url());
-		if (url.isValid()) {
-			if (url.scheme() == "file") {
-				_filename = url.toLocalFile();
-				shortFilename = TkFile::fileName(_filename);
-			} else {
-				shortFilename = _filename = url.toString();
-			}
-		}
-		break;
-	}
-	default:
-		qCritical() << __FUNCTION__ << "Error: unknown MediaSource type:" << _source.type();
-	}
-
-	//By default, title is just the filename
-	_title = shortFilename;
-}
-
-PlaylistModel::Track::Track(const Track & track) {
-	copy(track);
-}
-
-PlaylistModel::Track::~Track() {
-}
-
-void PlaylistModel::Track::copy(const Track & track) {
-	_source = track._source;
-
-	_filename = track._filename;
-
-	_trackNumber = track._trackNumber;
-	_title = track._title;
-	_artist = track._artist;
-	_album = track._album;
-	_length = track._length;
-}
-
-PlaylistModel::Track & PlaylistModel::Track::operator=(const Track & right) {
-	//Handle self-assignment
-	if (this == &right) {
-		return *this;
-	}
-
-	copy(right);
-	return *this;
-}
-
-int PlaylistModel::Track::operator==(const Track & right) {
-	return _filename == right._filename;
-}
-
-QString PlaylistModel::Track::fileName() const {
-	return _filename;
-}
-
-Phonon::MediaSource PlaylistModel::Track::mediaSource() const {
-	return _source;
-}
-
-void PlaylistModel::Track::setTrackNumber(const QString & trackNumber) {
-	_trackNumber = trackNumber;
-}
-
-QString PlaylistModel::Track::trackNumber() const {
-	return _trackNumber;
-}
-
-void PlaylistModel::Track::setTitle(const QString & title) {
-	if (title.isEmpty()) {
-		//Not the fullpath, only the filename
-		_title = TkFile::fileName(_filename);
+void PlaylistModel::enqueueNextTrack() {
+	if (_shuffle) {
+		_position = Random::randomInt(0, _mediaSources.size());
 	} else {
-		_title = title;
+		_position++;
 	}
-}
 
-QString PlaylistModel::Track::title() const {
-	return _title;
-}
-
-void PlaylistModel::Track::setArtist(const QString & artist) {
-	_artist = artist;
-}
-
-QString PlaylistModel::Track::artist() const {
-	return _artist;
-}
-
-void PlaylistModel::Track::setAlbum(const QString & album) {
-	_album = album;
-}
-
-QString PlaylistModel::Track::album() const {
-	return _album;
-}
-
-void PlaylistModel::Track::setLength(const QString & length) {
-	_length = convertMilliseconds(length.toULongLong());
-}
-
-QString PlaylistModel::Track::length() const {
-	return _length;
-}
-
-QString PlaylistModel::Track::convertMilliseconds(qint64 totalTime) const {
-	QTime displayTotalTime((totalTime / 3600000) % 60, (totalTime / 60000) % 60, (totalTime / 1000) % 60);
-
-	QString timeFormat;
-
-	if (displayTotalTime.hour() == 0 && displayTotalTime.minute() == 0 &&
-		displayTotalTime.second() == 0 && displayTotalTime.msec() == 0) {
-		//Total time is 0, return nothing
-		return QString();
-	} else {
-		if (displayTotalTime.hour() > 0) {
-			timeFormat = "hh:mm:ss";
-		} else {
-			timeFormat = "mm:ss";
+	if (_position < 0 || _position >= _mediaSources.size()) {
+		if (_repeat) {
+			//Back to the top of the playlist
+			_position = 0;
 		}
-		return displayTotalTime.toString(timeFormat);
 	}
+
+	if (_position >= 0 && _position < _mediaSources.size()) {
+		_quarkPlayer.currentMediaObject()->enqueue(_mediaSources[_position].mediaSource());
+
+		//enqueue does not send a stateChanged event :/
+		//let's highlight ourself the new current item
+		highlightItem(_position);
+	}
+}
+
+void PlaylistModel::setShuffle(bool shuffle) {
+	_shuffle = shuffle;
+}
+
+void PlaylistModel::setRepeat(bool repeat) {
+	_repeat = repeat;
 }
