@@ -24,7 +24,6 @@
 #include <quarkplayer/FileExtensions.h>
 
 #include <tkutil/FindFiles.h>
-#include <tkutil/TkFile.h>
 #include <tkutil/Random.h>
 
 #include <phonon/mediaobject.h>

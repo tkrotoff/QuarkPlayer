@@ -1,18 +1,18 @@
 project(playlist)
 
 set(playlist_SRCS
-	PlaylistView.cpp
+	PlaylistWidget.cpp
 	PlaylistModel.cpp
 	Track.cpp
 )
 
 qt4_wrap_cpp(playlist_SRCS
-	PlaylistView.h
+	PlaylistWidget.h
 	PlaylistModel.h
 )
 
 qt4_wrap_ui(playlist_SRCS
-	PlaylistView.ui
+	PlaylistWidget.ui
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
