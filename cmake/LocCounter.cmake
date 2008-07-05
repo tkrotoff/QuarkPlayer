@@ -16,6 +16,8 @@
 
 macro (loc_counter path loc recursive)
 
+	message(STATUS "LOC ${path}...")
+
 	if (NOT QT4_FOUND)
 		find_package(Qt4 REQUIRED)
 	endif (NOT QT4_FOUND)
