@@ -27,8 +27,6 @@
 
 #include <phonon/phononnamespace.h>
 
-namespace Ui { class PlaylistWidget; }
-
 class PlaylistModel;
 
 class QuarkPlayer;
@@ -39,6 +37,7 @@ namespace Phonon {
 }
 
 class QToolBar;
+class QTreeView;
 
 /**
  * Playlist.
@@ -61,6 +60,12 @@ private slots:
 
 	void addURL();
 
+	void openPlaylist();
+
+	void savePlaylist();
+
+	void clearSelection();
+
 	void retranslate();
 
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
@@ -73,9 +78,9 @@ private:
 
 	void createPlaylistToolBar();
 
-	Ui::PlaylistWidget * _ui;
-
 	PlaylistModel * _playlistModel;
+
+	QTreeView * _treeView;
 
 	QToolBar * _playlistToolBar;
 };

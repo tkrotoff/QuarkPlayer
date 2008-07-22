@@ -11,17 +11,13 @@ qt4_wrap_cpp(playlist_SRCS
 	PlaylistModel.h
 )
 
-qt4_wrap_ui(playlist_SRCS
-	PlaylistWidget.ui
-)
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
 add_library(playlist MODULE ${playlist_SRCS})
 
 if (KDE4_FOUND)
 	target_link_libraries(playlist
 		quarkplayercore
 		tkutil
+		playlistparser
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
 		${KDE4_KIO_LIBS}
@@ -30,6 +26,7 @@ else (KDE4_FOUND)
 	target_link_libraries(playlist
 		quarkplayercore
 		tkutil
+		playlistparser
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
 	)

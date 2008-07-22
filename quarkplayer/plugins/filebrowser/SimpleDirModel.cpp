@@ -21,10 +21,13 @@
 #include <QtGui/QtGui>
 
 SimpleDirModel::SimpleDirModel(const QStringList & nameFilters)
-	: QDirModel(nameFilters, QDir::AllEntries | QDir::NoDotAndDotDot, QDir::Name | QDir::DirsFirst) {
+	: QDirModel(
+		nameFilters,
+		QDir::AllEntries | QDir::NoDotAndDotDot,
+		QDir::Name | QDir::DirsFirst
+	) {
 
-	//Optimization?
-	//setLazyChildCount(true);
+	setLazyChildCount(true);
 }
 
 SimpleDirModel::~SimpleDirModel() {

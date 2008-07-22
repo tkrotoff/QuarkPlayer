@@ -31,6 +31,7 @@ class MainWindow;
 class QuarkPlayer;
 
 class QModelIndex;
+class QDockWidget;
 
 /**
  * File browser inside QuarkPlayer main window.
@@ -60,6 +61,8 @@ private:
 	Ui::FileBrowserWidget * _ui;
 
 	SimpleDirModel * _dirModel;
+
+	QDockWidget * _dockWidget;
 };
 
 #include <quarkplayer/PluginFactory.h>
@@ -70,6 +73,12 @@ class FileBrowserWidgetFactory : public QObject, public PluginFactory {
 public:
 
 	PluginInterface * create(QuarkPlayer & quarkPlayer) const;
+
+	~FileBrowserWidgetFactory();
+
+private:
+
+	mutable PluginInterface * _plugin;
 };
 
 #endif	//FILEBROWSERWIDGET_H

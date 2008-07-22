@@ -20,8 +20,6 @@
 
 #include "PlaylistModel.h"
 
-#include "ui_PlaylistWidget.h"
-
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
 #include <quarkplayer/FileExtensions.h>
@@ -32,6 +30,10 @@
 #include <tkutil/FindFiles.h>
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
+#include <tkutil/KeyEventFilter.h>
+#include <tkutil/DropEventFilter.h>
+
+#include <playlistparser/PlaylistParser.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>
@@ -47,41 +49,79 @@ PluginInterface * PlaylistWidgetFactory::create(QuarkPlayer & quarkPlayer) const
 	return new PlaylistWidget(quarkPlayer);
 }
 
+class DragAndDropTreeView : public QTreeView {
+public:
+
+	DragAndDropTreeView() {
+		setUniformRowHeights(true);
+		setDragEnabled(true);
+		setAcceptDrops(true);
+		setDropIndicatorShown(true);
+		setDragDropMode(QAbstractItemView::DragDrop);
+		setRootIsDecorated(false);
+		setAllColumnsShowFocus(true);
+		setSelectionBehavior(QAbstractItemView::SelectRows);
+		setSelectionMode(QAbstractItemView::ExtendedSelection);
+		setSortingEnabled(true);
+		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	}
+
+private:
+
+	void mousePressEvent(QMouseEvent *event) {
+		//This should be an internal move
+		//since we are doing a drag&drop within the playlist, not from outside
+		setDragDropMode(QAbstractItemView::InternalMove);
+		QTreeView::mousePressEvent(event);
+	}
+
+	void dragEvent(QDropEvent * event) {
+		if (event->source() == this) {
+			//This should be an internal move
+			//since we are doing a drag&drop within the playlist, not from outside
+			setDragDropMode(QAbstractItemView::InternalMove);
+		} else {
+			setDragDropMode(QAbstractItemView::DragDrop);
+		}
+	}
+
+	void dropEvent(QDropEvent * event) {
+		dragEvent(event);
+		QTreeView::dropEvent(event);
+	}
+
+	void dragEnterEvent(QDragEnterEvent * event) {
+		dragEvent(event);
+		QTreeView::dragEnterEvent(event);
+	}
+
+	void dragMoveEvent(QDragMoveEvent * event) {
+		dragEvent(event);
+		QTreeView::dragMoveEvent(event);
+	}
+};
+
 PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	: PluginInterface(quarkPlayer),
 	QWidget(NULL) {
 
-	_ui = new Ui::PlaylistWidget();
-	_ui->setupUi(this);
-
-	layout()->setMargin(0);
-	layout()->setSpacing(0);
-
-	_ui->treeView->setUniformRowHeights(true);
-	_ui->treeView->setDragEnabled(true);
-	_ui->treeView->setAcceptDrops(true);
-	_ui->treeView->setDropIndicatorShown(true);
-	_ui->treeView->setDragDropMode(QAbstractItemView::DragDrop);
-	_ui->treeView->setRootIsDecorated(false);
-	_ui->treeView->setAllColumnsShowFocus(true);
-	_ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
-	_ui->treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	_ui->treeView->setSortingEnabled(true);
-	_ui->treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	_treeView = new DragAndDropTreeView();
+	QVBoxLayout * layout = new QVBoxLayout();
+	setLayout(layout);
+	layout->setMargin(0);
+	layout->setSpacing(0);
+	layout->addWidget(_treeView);
 
 	_playlistModel = new PlaylistModel(this, quarkPlayer);
 	connect(_playlistModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
 		SLOT(resizeColumnsToContents()));
-	connect(_ui->treeView, SIGNAL(activated(const QModelIndex &)),
+	connect(_treeView, SIGNAL(activated(const QModelIndex &)),
 		_playlistModel, SLOT(play(const QModelIndex &)));
 
-	_ui->treeView->setModel(_playlistModel);
+	_treeView->setModel(_playlistModel);
 	for (int i = 0; i < _playlistModel->columnCount(); i++) {
-		_ui->treeView->resizeColumnToContents(i);
+		_treeView->resizeColumnToContents(i);
 	}
-
-	layout()->setMargin(0);
-	layout()->setSpacing(0);
 
 	populateActionCollection();
 	createPlaylistToolBar();
@@ -107,7 +147,9 @@ void PlaylistWidget::createPlaylistToolBar() {
 	layout()->addWidget(_playlistToolBar);
 
 	_playlistToolBar->addAction(ActionCollection::action("playlistOpen"));
+	connect(ActionCollection::action("playlistOpen"), SIGNAL(triggered()), SLOT(openPlaylist()));
 	_playlistToolBar->addAction(ActionCollection::action("playlistSave"));
+	connect(ActionCollection::action("playlistSave"), SIGNAL(triggered()), SLOT(savePlaylist()));
 	//_playlistToolBar->addSeparator();
 
 	//We have to use a QToolButton instead of a QAction,
@@ -133,7 +175,9 @@ void PlaylistWidget::createPlaylistToolBar() {
 
 	QMenu * removeMenu = new QMenu();
 	removeMenu->addAction(ActionCollection::action("playlistRemoveSelected"));
-	connect(ActionCollection::action("playlistRemoveSelected"), SIGNAL(triggered()), _playlistModel, SLOT(clearSelection()));
+	connect(ActionCollection::action("playlistRemoveSelected"), SIGNAL(triggered()), SLOT(clearSelection()));
+	KeyPressEventFilter * deleteKeyFilter = new KeyPressEventFilter(this, SLOT(clearSelection()), Qt::Key_Delete);
+	_treeView->installEventFilter(deleteKeyFilter);
 	removeMenu->addAction(ActionCollection::action("playlistRemoveAll"));
 	connect(ActionCollection::action("playlistRemoveAll"), SIGNAL(triggered()), _playlistModel, SLOT(clear()));
 	removeButton->setMenu(removeMenu);
@@ -217,7 +261,7 @@ void PlaylistWidget::addFiles() {
 void PlaylistWidget::addDir() {
 	QStringList files;
 
-	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select DVD folder"),
+	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select Directory"),
 			Config::instance().lastDirectoryUsed());
 
 	QStringList tmp(FindFiles::findAllFiles(dir));
@@ -241,6 +285,34 @@ void PlaylistWidget::addURL() {
 	_playlistModel->addFiles(files);
 }
 
+void PlaylistWidget::openPlaylist() {
+	QString file = TkFileDialog::getOpenFileName(this, tr("Select Playlist File"), Config::instance().lastDirectoryUsed());
+	PlaylistParser parser(file);
+	_playlistModel->clear();
+	_playlistModel->addFiles(parser.load());
+}
+
+void PlaylistWidget::savePlaylist() {
+	QString file = TkFileDialog::getSaveFileName(this, tr("Save Playlist File"), Config::instance().lastDirectoryUsed());
+	PlaylistParser parser(file);
+	parser.save(_playlistModel->files());
+}
+
+void PlaylistWidget::clearSelection() {
+	QModelIndexList list = _treeView->selectionModel()->selectedIndexes();
+	QList<int> rows;
+	foreach (QModelIndex index, list) {
+		int row = index.row();
+		if (!rows.contains(row)) {
+			rows += row;
+		}
+	}
+
+	if (!rows.isEmpty()) {
+		_playlistModel->removeRows(rows.first(), rows.size());
+	}
+}
+
 void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	foreach (Phonon::MediaObject * tmp, quarkPlayer().mediaObjectList()) {
 		tmp->disconnect(this);
@@ -262,14 +334,14 @@ void PlaylistWidget::resizeColumnsToContents() {
 	//Does not start at 0 and does not finish at columnCount():
 	//drops the first and last columns
 	for (int i = 1; i < _playlistModel->columnCount() - 1; i++) {
-		_ui->treeView->resizeColumnToContents(i);
+		_treeView->resizeColumnToContents(i);
 
 		//Cannot be over a maximum of COLUMN_MAX_WIDTH pixels
-		if (_ui->treeView->columnWidth(i) > COLUMN_MAX_WIDTH) {
-			_ui->treeView->setColumnWidth(i, COLUMN_MAX_WIDTH);
+		if (_treeView->columnWidth(i) > COLUMN_MAX_WIDTH) {
+			_treeView->setColumnWidth(i, COLUMN_MAX_WIDTH);
 		}
 
 		//Add a margin to make it look nice
-		_ui->treeView->setColumnWidth(i, _ui->treeView->columnWidth(i) + COLUMN_MARGIN);
+		_treeView->setColumnWidth(i, _treeView->columnWidth(i) + COLUMN_MARGIN);
 	}
 }

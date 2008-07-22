@@ -21,11 +21,22 @@
 
 #include <QtGui/QWidget>
 
+#include <QtCore/QList>
+
+namespace Ui {
+	class MediaDataWidget;
+}
+
+class CoverArtWindow;
+
 namespace Phonon {
 	class MediaObject;
 }
 
 class QLabel;
+class QToolButton;
+class QFile;
+class QTimer;
 
 /**
  * Shows the media data inside a widget.
@@ -44,11 +55,28 @@ private slots:
 
 	void metaDataChanged();
 
+	void coverArtFound(const QByteArray & coverArt, bool accuracy);
+
+	void updateCoverArtPixmap();
+
 private:
+
+	void loadCoverArt(const QString & album, const QString & artist, const QString & title);
+
+	void setCoverArtPixmap(const QFile & coverArtFile);
 
 	Phonon::MediaObject * _mediaObject;
 
-	QLabel * _dataLabel;
+	Ui::MediaDataWidget * _ui;
+
+	CoverArtWindow * _coverArtWindow;
+
+	QTimer * _coverArtSwitchTimer;
+
+	QList<QString> _coverArtList;
+	int _currentCoverArtIndex;
+
+	QString _amazonCoverArtFilename;
 };
 
 #endif	//MEDIADATAWIDGET_H

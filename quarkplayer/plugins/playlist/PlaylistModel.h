@@ -50,6 +50,9 @@ public:
 
 	void addFiles(const QStringList & files, int row = -1);
 
+	/** Returns the files displayed in the playlist. */
+	QStringList files() const;
+
 	//Inherited from QAbstractItemModel
 	int columnCount(const QModelIndex & parent = QModelIndex()) const;
 	QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
@@ -57,6 +60,7 @@ public:
 	QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
 	QModelIndex parent(const QModelIndex & index) const;
 	int rowCount(const QModelIndex & parent = QModelIndex()) const;
+	bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex());
 
 	Qt::ItemFlags flags(const QModelIndex & index) const;
 
@@ -91,6 +95,8 @@ private slots:
 
 private:
 
+	void saveCurrentPlaylist() const;
+
 	void updateRow(int row);
 
 	QuarkPlayer & _quarkPlayer;
@@ -98,6 +104,7 @@ private:
 	/** Resolves the list of pending files for meta data/info. */
 	Phonon::MediaObject * _metaObjectInfoResolver;
 
+	/** List of all the media available in this QAbstractItemModel. */
 	QList<Track> _mediaSources;
 
 	/** List of pending files for meta data/info to be resolved. */

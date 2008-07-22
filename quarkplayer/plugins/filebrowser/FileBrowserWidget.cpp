@@ -41,7 +41,14 @@
 Q_EXPORT_PLUGIN2(filebrowser, FileBrowserWidgetFactory);
 
 PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer) const {
-	return new FileBrowserWidget(quarkPlayer);
+	_plugin = new FileBrowserWidget(quarkPlayer);
+	return _plugin;
+}
+
+FileBrowserWidgetFactory::~FileBrowserWidgetFactory() {
+	qDebug() << __FUNCTION__ << "Plugin unloaded";
+
+	delete _plugin;
 }
 
 FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
@@ -61,14 +68,22 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	connect(_ui->searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search(const QString &)));
 
 	QStringList nameFilters;
-	foreach (QString ext, FileExtensions::multimedia()) {
+	/*foreach (QString ext, FileExtensions::multimedia()) {
 		nameFilters << "*." + ext;
-	}
+	}*/
 	nameFilters << "*";
 	_dirModel = new SimpleDirModel(nameFilters);
-
-	_ui->treeView->setHeaderHidden(true);
 	_ui->treeView->setModel(_dirModel);
+	_ui->treeView->setHeaderHidden(true);
+
+	QHeaderView * header = _ui->treeView->header();
+	header->hideSection(1);
+	header->hideSection(2);
+	header->hideSection(3);
+	header->setResizeMode(QHeaderView::ResizeToContents);
+	header->setStretchLastSection(false);
+	header->setVisible(false);
+
 	connect(&(quarkPlayer.config()), SIGNAL(valueChanged(const QString &, const QVariant &)),
 		SLOT(musicDirChanged(const QString &, const QVariant &)));
 	_ui->treeView->setRootIndex(_dirModel->index(quarkPlayer.config().musicDir()));
@@ -80,19 +95,27 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	ConfigWindow::addConfigWidget(new FileBrowserConfigWidget());
 
 	//Add to the main window
-	QDockWidget * dockWidget = new QDockWidget(tr("Local Files"));
-	quarkPlayer.mainWindow().addBrowserDockWidget(dockWidget);
-	dockWidget->setWidget(this);
+	_dockWidget = new QDockWidget(tr("Local Files"));
+	quarkPlayer.mainWindow().addBrowserDockWidget(_dockWidget);
+	_dockWidget->setWidget(this);
 }
 
 FileBrowserWidget::~FileBrowserWidget() {
+	qDebug() << __FUNCTION__ << "Unloading plugin";
+	quarkPlayer().mainWindow().removeBrowserDockWidget(_dockWidget);
+	_dockWidget->close();
+	close();
+	//delete _dockWidget;
+	//delete _ui;
 }
 
 void FileBrowserWidget::doubleClicked(const QModelIndex & index) {
 	QFileInfo fileInfo = _dirModel->fileInfo(index);
-	//FIXME sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
-	QString slashSlashBugFix = fileInfo.absoluteFilePath().replace("//", "/");
-	quarkPlayer().play(slashSlashBugFix);
+	if (fileInfo.isFile()) {
+		//FIXME sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
+		QString slashSlashBugFix = fileInfo.absoluteFilePath().replace("//", "/");
+		quarkPlayer().play(slashSlashBugFix);
+	}
 }
 
 void FileBrowserWidget::search(const QString & pattern) {

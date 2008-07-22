@@ -21,10 +21,13 @@
 #include "Track.h"
 
 #include <quarkplayer/QuarkPlayer.h>
+#include <quarkplayer/config/Config.h>
 #include <quarkplayer/FileExtensions.h>
 
 #include <tkutil/FindFiles.h>
 #include <tkutil/Random.h>
+
+#include <playlistparser/PlaylistParser.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>
@@ -32,6 +35,7 @@
 #include <QtGui/QtGui>
 
 #include <QtCore/QDebug>
+#include <QtCore/QCoreApplication>
 
 static const int COLUMN_TRACK = 0;
 static const int COLUMN_TITLE = 1;
@@ -41,13 +45,17 @@ static const int COLUMN_LENGTH = 4;
 
 static const int COLUMN_COUNT = 5;
 
+static const QString CURRENT_PLAYLIST = "/current_playlist.m3u";
+
+static const int POSITION_INVALID = -1;
+
 PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 	: QAbstractItemModel(parent),
 	_quarkPlayer(quarkPlayer) {
 
 	_shuffle = false;
 	_repeat = false;
-	clear();
+	_position = POSITION_INVALID;
 
 	//Info resolver
 	_metaObjectInfoResolver = new Phonon::MediaObject(this);
@@ -56,6 +64,12 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 
 	connect(&_quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
+
+	//Restore last current playlist
+	Config & config = Config::instance();
+	QString path(config.configDir());
+	PlaylistParser parser(path + CURRENT_PLAYLIST);
+	addFiles(parser.load());
 }
 
 PlaylistModel::~PlaylistModel() {
@@ -175,12 +189,16 @@ Qt::ItemFlags PlaylistModel::flags(const QModelIndex & index) const {
 }
 
 bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) {
+	qDebug() << __FUNCTION__ << "data:" << data << "action:" << action;
+	qDebug() << __FUNCTION__ << "row:" << row << "column:" << column << "parent:" << parent;
+
 	QStringList files;
 
 	//Add urls to a list
 	if (data->hasUrls()) {
 		QList<QUrl> urlList = data->urls();
 		QString filename;
+		int i = 0;
 		foreach (QUrl url, urlList) {
 			if (url.isValid()) {
 				qDebug() << __FUNCTION__ << "File scheme:" << url.scheme();
@@ -206,16 +224,27 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 					}
 				}
 			}
+			if (i > 5) {
+				//Add the files every 5 file found
+				addFiles(files, row);
+				files.clear();
+			}
+			i++;
 		}
 	} else {
 		return false;
 	}
 
+	//Add the other files not already added
 	addFiles(files, row);
 	return true;
 }
 
 void PlaylistModel::addFiles(const QStringList & files, int row) {
+	if (files.isEmpty()) {
+		return;
+	}
+
 	_filesInfoResolver << files;
 
 	int first = row;
@@ -223,19 +252,81 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 		first = _mediaSources.size();
 	}
 	int last = first + _filesInfoResolver.size() - 1;
-	int position = first;
+	int currentRow = first;
+	qDebug() << __FUNCTION__ << "row:" << row << "first:" << first << "last:" << last;
 
 	beginInsertRows(QModelIndex(), first, last);
-	foreach (QString file, _filesInfoResolver) {
-		_mediaSources.insert(position++, Track(file));
+	foreach (QString filename, _filesInfoResolver) {
+		_mediaSources.insert(currentRow, Track(filename));
+
+		qDebug() << __FUNCTION__ << "Add row:" << currentRow;
+
+		//Change the item that is currently playing
+		if (currentRow == _position) {
+			_position++;
+		}
+		else if (currentRow < _position) {
+			_position++;
+		}
+
+		currentRow++;
 	}
 	endInsertRows();
 
 	//Resolve first meta data file
 	//The other ones an queued
 	if (!_filesInfoResolver.isEmpty()) {
-		_metaObjectInfoResolver->setCurrentSource(_filesInfoResolver.first());
+		//_metaObjectInfoResolver->setCurrentSource(_filesInfoResolver.first());
 	}
+
+	QCoreApplication::processEvents();
+
+	//Save current playlist each time we add files to it
+	//saveCurrentPlaylist();
+}
+
+bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
+	qDebug() << __FUNCTION__ << "position:" << _position;
+	if (row == _position) {
+		_position = (- 1) * count;
+	}
+	qDebug() << __FUNCTION__ << "position:" << _position;
+
+	beginRemoveRows(QModelIndex(), row, row + count - 1);
+	for (int i = 0; i < count; i++) {
+		qDebug() << __FUNCTION__ << "Remove row:" << row;
+
+		if (row < _position) {
+			_position--;
+		}
+
+		//Remove from _filesInfoResolver the MediaSource that has been removed
+		_filesInfoResolver.removeAll(_mediaSources[row].fileName());
+
+		//Updates the list of MediaSource
+		_mediaSources.removeAt(row);
+	}
+	endRemoveRows();
+
+	//Save current playlist each time we remove files from it
+	saveCurrentPlaylist();
+
+	return true;
+}
+
+void PlaylistModel::saveCurrentPlaylist() const {
+	Config & config = Config::instance();
+	QString path(config.configDir());
+	PlaylistParser parser(path + CURRENT_PLAYLIST);
+	parser.save(this->files());
+}
+
+QStringList PlaylistModel::files() const {
+	QStringList files;
+	foreach (Track track, _mediaSources) {
+		files << track.fileName();
+	}
+	return files;
 }
 
 QMimeData * PlaylistModel::mimeData(const QModelIndexList & indexes) const {
@@ -295,11 +386,13 @@ void PlaylistModel::metaStateChanged(Phonon::State newState, Phonon::State oldSt
 			track.setLength(metaData.value("LENGTH"));
 			_mediaSources[row] = track;
 			updateRow(row);
+
+			//Removes from _filesInfoResolver the MediaSource that has been updated
+			_filesInfoResolver.removeAll(track.fileName());
 		}
 		row++;
 	}
 
-	_filesInfoResolver.takeFirst();
 	if (!_filesInfoResolver.isEmpty()) {
 		_metaObjectInfoResolver->setCurrentSource(_filesInfoResolver.first());
 	}
@@ -307,8 +400,12 @@ void PlaylistModel::metaStateChanged(Phonon::State newState, Phonon::State oldSt
 
 void PlaylistModel::clear() {
 	_mediaSources.clear();
-	_position = -1;
+	_filesInfoResolver.clear();
+	_position = POSITION_INVALID;
 	reset();
+
+	//Save current playlist each time we remove files from it
+	saveCurrentPlaylist();
 }
 
 void PlaylistModel::highlightItem(int row) {
@@ -329,7 +426,7 @@ void PlaylistModel::updateRow(int row) {
 
 void PlaylistModel::playNextTrack() {
 	if (_shuffle) {
-		_position = Random::randomInt(0, _mediaSources.size());
+		_position = Random::randomInt(0, _mediaSources.size() - 1);
 	} else {
 		_position++;
 	}
@@ -344,7 +441,7 @@ void PlaylistModel::playNextTrack() {
 
 void PlaylistModel::playPreviousTrack() {
 	if (_shuffle) {
-		_position = Random::randomInt(0, _mediaSources.size());
+		_position = Random::randomInt(0, _mediaSources.size() - 1);
 	} else {
 		_position--;
 	}
@@ -379,9 +476,13 @@ void PlaylistModel::currentMediaObjectChanged(Phonon::MediaObject * mediaObject)
 }
 
 void PlaylistModel::stateChanged(Phonon::State newState, Phonon::State oldState) {
+	if (_mediaSources.isEmpty()) {
+		return;
+	}
+
 	if (newState == Phonon::PlayingState) {
 		Track track(_quarkPlayer.currentMediaObject()->currentSource());
-		if (_position >= 0 && _mediaSources[_position] == track) {
+		if (_position >= 0 && _position < _mediaSources.size() && _mediaSources[_position] == track) {
 			//No need to change _position: we have already the right _position
 		} else {
 			_position = _mediaSources.indexOf(track);
@@ -392,7 +493,7 @@ void PlaylistModel::stateChanged(Phonon::State newState, Phonon::State oldState)
 
 void PlaylistModel::enqueueNextTrack() {
 	if (_shuffle) {
-		_position = Random::randomInt(0, _mediaSources.size());
+		_position = Random::randomInt(0, _mediaSources.size() - 1);
 	} else {
 		_position++;
 	}
