@@ -11,6 +11,12 @@
 	<file alias="16x16/speaker">icons/oxygen/16x16/actions/speaker.png</file>
 	<file alias="16x16/player-volume">icons/oxygen/16x16/actions/player-volume.png</file>
 	<file alias="16x16/view-media-equalizer">icons/oxygen/16x16/actions/view-media-equalizer.png</file>
+	<file alias="16x16/go-next">icons/oxygen/16x16/actions/go-next.png</file>
+	<file alias="16x16/go-previous">icons/oxygen/16x16/actions/go-previous.png</file>
+	<file alias="16x16/process-stop">icons/oxygen/16x16/actions/process-stop.png</file>
+	<file alias="16x16/view-refresh">icons/oxygen/16x16/actions/view-refresh.png</file>
+	<file alias="16x16/go-home">icons/oxygen/16x16/actions/go-home.png</file>
+	<file alias="16x16/go-jump-locationbar">icons/oxygen/16x16/actions/go-jump-locationbar.png</file>
 
 	<file alias="16x16/format-text-underline">icons/oxygen/16x16/actions/format-text-underline.png</file>
 	<file alias="16x16/media-playback-pause">icons/oxygen/16x16/actions/media-playback-pause.png</file>
@@ -30,6 +36,7 @@
 	<file alias="16x16/preferences-plugin.png">icons/oxygen/16x16/apps/preferences-plugin.png</file>
 	<file>icons/oxygen/16x16/apps/preferences-system-performance.png</file>
 	<file>icons/oxygen/16x16/apps/preferences-system-windows.png</file>
+	<file alias="16x16/internet-web-browser">icons/oxygen/16x16/apps/internet-web-browser.png</file>
 
 	<file alias="16x16/preferences-system">icons/oxygen/16x16/categories/preferences-system.png</file>
 	<file alias="16x16/preferences-desktop">icons/oxygen/16x16/categories/preferences-desktop.png</file>

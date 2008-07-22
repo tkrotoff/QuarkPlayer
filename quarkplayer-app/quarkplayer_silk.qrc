@@ -11,6 +11,12 @@
 	<file alias="16x16/speaker">icons/silk/sound.png</file>
 	<file alias="16x16/player-volume">icons/silk/sound_none.png</file>
 	<file alias="16x16/view-media-equalizer">icons/silk/control_equalizer.png</file>
+	<file alias="16x16/go-next">icons/silk/resultset_next.png</file>
+	<file alias="16x16/go-previous">icons/silk/resultset_previous.png</file>
+	<file alias="16x16/process-stop">icons/silk/cancel.png</file>
+	<file alias="16x16/view-refresh">icons/silk/arrow_refresh.png</file>
+	<file alias="16x16/go-home">icons/silk/house.png</file>
+	<file alias="16x16/go-jump-locationbar">icons/silk/tick.png</file>
 
 	<file alias="16x16/format-text-underline">icons/silk/text_underline.png</file>
 	<file alias="16x16/media-playback-pause">icons/silk/control_pause.png</file>
@@ -28,6 +34,7 @@
 	<file alias="16x16/preferences-desktop">icons/silk/monitor.png</file>
 	<file alias="16x16/system-help">icons/silk/information.png</file>
 	<file alias="16x16/preferences-plugin.png">icons/silk/plugin.png</file>
+	<file alias="16x16/internet-web-browser">icons/silk/world_go.png</file>
 
 	<file alias="16x16/media-optical">icons/silk/cd.png</file>
 
