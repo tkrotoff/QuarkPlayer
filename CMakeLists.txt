@@ -42,6 +42,7 @@ reduce_qt_include_dirs()
 #Uses Phonon from this repository instead
 #CMake declarations order matters!!!
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)
 set(QT_PHONON_LIBRARY phonon)
 
 #Default installation path
@@ -75,6 +76,8 @@ add_subdirectory(phonon)
 add_subdirectory(vlc-mplayer)
 #add_subdirectory(ds9)
 add_subdirectory(tests)
+
+add_subdirectory(libs)
 
 add_subdirectory(tkutil)
 add_subdirectory(quarkplayer)
