@@ -1,1 +1,3 @@
 add_subdirectory(playlistparser)
+add_subdirectory(contentfetcher)
+add_subdirectory(webbrowser)
