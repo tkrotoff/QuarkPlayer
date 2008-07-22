@@ -34,7 +34,7 @@ public:
 
 private:
 
-	virtual bool eventFilter(QObject * watched, QEvent * event);
+	bool eventFilter(QObject * watched, QEvent * event);
 };
 
 
@@ -50,7 +50,7 @@ public:
 
 private:
 
-	virtual bool eventFilter(QObject * watched, QEvent * event);
+	bool eventFilter(QObject * watched, QEvent * event);
 
 	Qt::MouseButton _button;
 };
@@ -68,41 +68,41 @@ public:
 
 private:
 
-	virtual bool eventFilter(QObject * watched, QEvent * event);
+	bool eventFilter(QObject * watched, QEvent * event);
 
 	Qt::MouseButton _button;
 };
 
 
 /**
- * Catch HoverEnter event.
+ * Catch Enter event.
  *
  * @author Tanguy Krotoff
  */
-class TKUTIL_API MouseHoverEnterEventFilter : public EventFilter {
+class TKUTIL_API MouseEnterEventFilter : public EventFilter {
 public:
 
-	MouseHoverEnterEventFilter(QObject * receiver, const char * member, bool filter = false);
+	MouseEnterEventFilter(QObject * receiver, const char * member, bool filter = false);
 
 private:
 
-	virtual bool eventFilter(QObject * watched, QEvent * event);
+	bool eventFilter(QObject * watched, QEvent * event);
 };
 
 
 /**
- * Catch HoverLeave event.
+ * Catch Leave event.
  *
  * @author Tanguy Krotoff
  */
-class TKUTIL_API MouseHoverLeaveEventFilter : public EventFilter {
+class TKUTIL_API MouseLeaveEventFilter : public EventFilter {
 public:
 
-	MouseHoverLeaveEventFilter(QObject * receiver, const char * member, bool filter = false);
+	MouseLeaveEventFilter(QObject * receiver, const char * member, bool filter = false);
 
 private:
 
-	virtual bool eventFilter(QObject * watched, QEvent * event);
+	bool eventFilter(QObject * watched, QEvent * event);
 };
 
 #endif	//MOUSEEVENTFILTER_H

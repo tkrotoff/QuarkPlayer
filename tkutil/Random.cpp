@@ -24,19 +24,26 @@
 #include <ctime>
 
 int Random::randomInt(int min, int max) {
+	//Initializes qrand()
 	static bool firstTime = true;
 	if (firstTime) {
 		firstTime = false;
 		qsrand(time(NULL));
 	}
+	///
 
+	static int lastNumber = -1;
 	int number = 0;
-
-	if (min > max) {
-		number = max + (int) (qrand() * (min - max + 1) / (RAND_MAX + 1.0));
-	} else {
-		number = min + (int) (qrand() * (max - min + 1) / (RAND_MAX + 1.0));
-	}
+	//We don't want 2 consecutive equal numbers
+	//I do this because having the same song playing 2 times in a row it pretty boring...
+	do {
+		if (min > max) {
+			number = max + (int) (qrand() * (min - max + 1) / (RAND_MAX + 1.0));
+		} else {
+			number = min + (int) (qrand() * (max - min + 1) / (RAND_MAX + 1.0));
+		}
+	} while (number == lastNumber);
+	lastNumber = number;
 
 	qDebug() << __FUNCTION__ << number;
 

@@ -13,6 +13,8 @@ set(tkutil_SRCS
 	LanguageChangeEventFilter.cpp
 	MouseEventFilter.cpp
 	CloseEventFilter.cpp
+	KeyEventFilter.cpp
+	DropEventFilter.cpp
 	TkIcon.cpp
 	ActionCollection.cpp
 	TkConfig.cpp
@@ -21,6 +23,8 @@ set(tkutil_SRCS
 	FindFiles.cpp
 	TkFile.cpp
 	Random.cpp
+	TkTextBrowser.cpp
+	SyncHttp.cpp
 )
 
 qt4_wrap_cpp(tkutil_SRCS
@@ -28,7 +32,11 @@ qt4_wrap_cpp(tkutil_SRCS
 	LanguageChangeEventFilter.h
 	MouseEventFilter.h
 	CloseEventFilter.h
+	KeyEventFilter.h
+	DropEventFilter.h
 	TkConfig.h
+	TkTextBrowser.h
+	SyncHttp.h
 )
 
 add_library(tkutil SHARED ${tkutil_SRCS})
@@ -43,6 +51,7 @@ else (KDE4_FOUND)
 	target_link_libraries(tkutil
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
+		${QT_QTNETWORK_LIBRARY}
 	)
 endif (KDE4_FOUND)
 

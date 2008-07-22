@@ -50,6 +50,8 @@ public:
 	/**
 	 * Generates a random number between min (included) and max (included).
 	 *
+	 * Will never give you the 2 same numbers in a row (i.e 3,3; 3,5,3 however is ok)
+	 *
 	 * @see http://www.geekpedia.com/tutorial39_Random-Number-Generation.html
 	 */
 	static int randomInt(int min, int max);

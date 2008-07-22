@@ -17,24 +17,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLOSEEVENTFILTER_H
-#define CLOSEEVENTFILTER_H
+#ifndef KEYEVENTFILTER_H
+#define KEYEVENTFILTER_H
 
 #include <tkutil/EventFilter.h>
 
 /**
- * Catch Close event.
+ * Catch KeyPress event.
  *
+ * @author Philippe Bernery
  * @author Tanguy Krotoff
  */
-class TKUTIL_API CloseEventFilter : public EventFilter {
+class TKUTIL_API KeyPressEventFilter : public EventFilter {
 public:
 
-	CloseEventFilter(QObject * receiver, const char * member, bool filter = false);
+	KeyPressEventFilter(QObject * receiver, const char * member, Qt::Key key, bool filter = false);
 
 private:
 
 	bool eventFilter(QObject * watched, QEvent * event);
+
+	Qt::Key _key;
 };
 
-#endif	//CLOSEEVENTFILTER_H
+
+/**
+ * Catch KeyRelease event.
+ *
+ * @author Philippe Bernery
+ * @author Tanguy Krotoff
+ */
+class TKUTIL_API KeyReleaseEventFilter : public EventFilter {
+public:
+
+	KeyReleaseEventFilter(QObject * receiver, const char * member, Qt::Key key, bool filter = false);
+
+private:
+
+	bool eventFilter(QObject * watched, QEvent * event);
+
+	Qt::Key _key;
+};
+
+#endif	//KEYEVENTFILTER_H

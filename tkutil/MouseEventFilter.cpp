@@ -67,23 +67,23 @@ bool MouseReleaseEventFilter::eventFilter(QObject * watched, QEvent * event) {
 	return EventFilter::eventFilter(watched, event);
 }
 
-MouseHoverEnterEventFilter::MouseHoverEnterEventFilter(QObject * receiver, const char * member, bool filter)
+MouseEnterEventFilter::MouseEnterEventFilter(QObject * receiver, const char * member, bool filter)
 	: EventFilter(receiver, member, false) {
 }
 
-bool MouseHoverEnterEventFilter::eventFilter(QObject * watched, QEvent * event) {
-	if (event->type() == QEvent::HoverEnter) {
+bool MouseEnterEventFilter::eventFilter(QObject * watched, QEvent * event) {
+	if (event->type() == QEvent::Enter) {
 		return filter(event);
 	}
 	return EventFilter::eventFilter(watched, event);
 }
 
-MouseHoverLeaveEventFilter::MouseHoverLeaveEventFilter(QObject * receiver, const char * member, bool filter)
+MouseLeaveEventFilter::MouseLeaveEventFilter(QObject * receiver, const char * member, bool filter)
 	: EventFilter(receiver, member, filter) {
 }
 
-bool MouseHoverLeaveEventFilter::eventFilter(QObject * watched, QEvent * event) {
-	if (event->type() == QEvent::HoverLeave) {
+bool MouseLeaveEventFilter::eventFilter(QObject * watched, QEvent * event) {
+	if (event->type() == QEvent::Leave) {
 		return filter(event);
 	}
 	return EventFilter::eventFilter(watched, event);

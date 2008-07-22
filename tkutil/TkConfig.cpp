@@ -19,6 +19,7 @@
 #include "TkConfig.h"
 
 #include <QtCore/QStringList>
+#include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
@@ -47,6 +48,10 @@ QStringList TkConfig::allKeys() const {
 
 QString TkConfig::fileName() const {
 	return _settings.fileName();
+}
+
+QString TkConfig::configDir() const {
+	return QFileInfo(fileName()).absolutePath();
 }
 
 void TkConfig::setValue(const QString & key, const QVariant & value) {

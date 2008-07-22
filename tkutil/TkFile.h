@@ -46,6 +46,9 @@ public:
 	 */
 	static QString removeFileExtension(const QString & path);
 
+	/** Gets the path of a file (i.e /toto/titi for /toto/titi/caca.txt). */
+	static QString path(const QString & filename);
+
 private:
 
 	TkFile();

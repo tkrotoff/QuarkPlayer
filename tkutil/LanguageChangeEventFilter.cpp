@@ -21,8 +21,8 @@
 
 #include <QtCore/QEvent>
 
-LanguageChangeEventFilter::LanguageChangeEventFilter(QObject * receiver, const char * member)
-	: EventFilter(receiver, member, false) {
+LanguageChangeEventFilter::LanguageChangeEventFilter(QObject * receiver, const char * member, bool filter)
+	: EventFilter(receiver, member, filter) {
 }
 
 bool LanguageChangeEventFilter::eventFilter(QObject * watched, QEvent * event) {

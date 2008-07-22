@@ -25,3 +25,7 @@ QString TkFile::fileName(const QString & path) {
 QString TkFile::removeFileExtension(const QString & path) {
 	return path.left(path.lastIndexOf('.'));
 }
+
+QString TkFile::path(const QString & filename) {
+	return filename.left(filename.lastIndexOf('/'));
+}

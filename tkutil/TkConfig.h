@@ -45,6 +45,8 @@ public:
 
 	QString fileName() const;
 
+	QString configDir() const;
+
 	QStringList allKeys() const;
 
 	void setValue(const QString & key, const QVariant & value);

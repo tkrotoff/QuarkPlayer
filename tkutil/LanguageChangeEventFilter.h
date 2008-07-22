@@ -33,11 +33,11 @@ watched->installEventFilter(new LanguageChangeEventFilter(this, SLOT(retranslate
 class TKUTIL_API LanguageChangeEventFilter : public EventFilter {
 public:
 
-	LanguageChangeEventFilter(QObject * receiver, const char * member);
+	LanguageChangeEventFilter(QObject * receiver, const char * member, bool filter = false);
 
 private:
 
-	virtual bool eventFilter(QObject * watched, QEvent * event);
+	bool eventFilter(QObject * watched, QEvent * event);
 };
 
 #endif	//LANGUAGECHANGEEVENTFILTER_H
