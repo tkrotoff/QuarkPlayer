@@ -26,6 +26,8 @@
 #include <QtCore/QTextCodec>
 #include <QtCore/QDebug>
 
+static const int FILES_FOUND_LIMIT = 100;
+
 M3UParser::M3UParser(const QString & filename)
 	: IPlaylistParser(filename) {
 
@@ -42,7 +44,7 @@ QStringList M3UParser::fileExtensions() const {
 	return extensions;
 }
 
-QStringList M3UParser::load() {
+void M3UParser::load() {
 	QStringList files;
 
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
@@ -62,11 +64,12 @@ QStringList M3UParser::load() {
 			stream.setCodec(QTextCodec::codecForLocale());
 		}
 
+		int filesCount = 0;
 		while (!stream.atEnd()) {
 			//Line of text excluding '\n'
 			QString line = stream.readLine();
 
-			qDebug() << __FUNCTION__ << "Line:" << line;
+			//qDebug() << __FUNCTION__ << "Line:" << line;
 
 			if (extm3u.indexIn(line) != -1) {
 				//#EXTM3U line, ignored
@@ -77,7 +80,7 @@ QStringList M3UParser::load() {
 				//Do nothing with these informations
 				double duration = extinf.cap(1).toDouble();
 				QString name = extinf.cap(2);
-				qDebug() << __FUNCTION__ << "Name:" << name << "duration:" << duration;
+				//qDebug() << __FUNCTION__ << "Name:" << name << "duration:" << duration;
 			}
 
 			else if (line.startsWith("#")) {
@@ -96,15 +99,25 @@ QStringList M3UParser::load() {
 					}
 				}
 
+				filesCount++;
+
 				//Add file to the list of files
 				files << filename;
+
+				if (filesCount > FILES_FOUND_LIMIT) {
+					//Emits the signal every FILES_FOUND_LIMIT files found
+					emit filesFound(files);
+					files.clear();
+					filesCount = 0;
+				}
 			}
 		}
 	}
 
 	file.close();
 
-	return files;
+	//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
+	emit filesFound(files);
 }
 
 bool M3UParser::save(const QStringList & files) {

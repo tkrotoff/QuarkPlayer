@@ -19,15 +19,21 @@
 #ifndef IPLAYLISTPARSER_H
 #define IPLAYLISTPARSER_H
 
+#include <QtCore/QObject>
+
 class QString;
 class QStringList;
 
 /**
  * Interface for implementing playlist file format parser.
  *
+ * Don't forget to use QCoreApplication::processEvents() between
+ * 2 filesFound() signal.
+ *
  * @author Tanguy Krotoff
  */
-class IPlaylistParser {
+class IPlaylistParser : public QObject {
+	Q_OBJECT
 public:
 
 	/**
@@ -48,10 +54,8 @@ public:
 
 	/**
 	 * Loads the playlist.
-	 *
-	 * @return list of files (full path filename) contained inside the playlist
 	 */
-	virtual QStringList load() = 0;
+	virtual void load() = 0;
 
 	/**
 	 * Saves the playlist.
@@ -60,6 +64,15 @@ public:
 	 * @return true if everything Ok; false otherwise
 	 */
 	virtual bool save(const QStringList & files) = 0;
+
+signals:
+
+	/**
+	 * Sends the signal every FILES_FOUND_LIMIT files found.
+	 *
+	 * @param files list of files (full path filename) contained inside the playlist
+	 */
+	void filesFound(const QStringList & files);
 };
 
 #endif	//IPLAYLISTPARSER_H

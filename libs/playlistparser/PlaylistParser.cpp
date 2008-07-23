@@ -37,6 +37,9 @@ PlaylistParser::PlaylistParser(const QString & filename)
 	foreach (IPlaylistParser * parser, _parserList) {
 		if (parser->fileExtensions().contains(extension)) {
 			_parser = parser;
+			connect(_parser, SIGNAL(filesFound(const QStringList &)),
+				SIGNAL(filesFound(const QStringList &)));
+			break;
 		}
 	}
 
@@ -59,12 +62,10 @@ QStringList PlaylistParser::fileExtensions() const {
 	return extensions;
 }
 
-QStringList PlaylistParser::load() {
-	QStringList files;
+void PlaylistParser::load() {
 	if (_parser) {
-		files = _parser->load();
+		_parser->load();
 	}
-	return files;
 }
 
 bool PlaylistParser::save(const QStringList & files) {

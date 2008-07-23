@@ -43,7 +43,7 @@ public:
 
 	QStringList fileExtensions() const;
 
-	QStringList load();
+	void load();
 
 	bool save(const QStringList & files);
 

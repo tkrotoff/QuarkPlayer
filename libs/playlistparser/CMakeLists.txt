@@ -7,6 +7,10 @@ set(playlistparser_SRCS
 	M3UParser.cpp
 )
 
+qt4_wrap_cpp(playlistparser_SRCS
+	IPlaylistParser.h
+)
+
 add_library(playlistparser SHARED ${playlistparser_SRCS})
 
 target_link_libraries(playlistparser
