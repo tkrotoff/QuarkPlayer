@@ -22,32 +22,46 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
-QStringList FindFiles::findFiles(const QString & path) {
+static const int FILES_FOUND_LIMIT = 100;
+
+FindFiles::FindFiles() {
+}
+
+FindFiles::~FindFiles() {
+}
+
+void FindFiles::findFiles(const QString & path) {
 	QStringList files;
 
 	QDir dir(path);
 	dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
 
 	QFileInfoList fileInfoList = dir.entryInfoList();
+	int filesCount = 0;
 	foreach (QFileInfo fileInfo, fileInfoList) {
+		filesCount++;
 		files << fileInfo.absoluteFilePath();
+
+		if (filesCount > FILES_FOUND_LIMIT) {
+			//Emits the signal every FILES_FOUND_LIMIT files found
+			emit filesFound(files);
+			files.clear();
+			filesCount = 0;
+		}
 	}
 
-	return files;
+	//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
+	emit filesFound(files);
 }
 
-QStringList FindFiles::findAllFiles(const QString & path) {
-	QStringList files;
-
-	files << findFiles(path);
+void FindFiles::findAllFiles(const QString & path) {
+	findFiles(path);
 
 	QDir dir(path);
 	dir.setFilter(QDir::AllDirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
 
 	QFileInfoList fileInfoList = dir.entryInfoList();
 	foreach (QFileInfo fileInfo, fileInfoList) {
-		files << findAllFiles(fileInfo.filePath());
+		findAllFiles(fileInfo.filePath());
 	}
-
-	return files;
 }

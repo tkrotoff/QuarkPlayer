@@ -35,6 +35,7 @@ qt4_wrap_cpp(tkutil_SRCS
 	KeyEventFilter.h
 	DropEventFilter.h
 	TkConfig.h
+	FindFiles.h
 	TkTextBrowser.h
 	SyncHttp.h
 )

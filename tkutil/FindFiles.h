@@ -21,15 +21,26 @@
 
 #include <tkutil/tkutil_export.h>
 
+#include <QtCore/QObject>
 #include <QtCore/QStringList>
 
 /**
  * Find files for a directory, recursively or not.
  *
+ * Optimized version that works fine with thousands of files.
+ *
+ * Don't forget to use QCoreApplication::processEvents() between
+ * 2 filesFound() signal.
+ *
  * @author Tanguy Krotoff
  */
-class TKUTIL_API FindFiles {
+class TKUTIL_API FindFiles : public QObject {
+	Q_OBJECT
 public:
+
+	FindFiles();
+
+	~FindFiles();
 
 	/**
 	 * Finds root files (non recursive) of a given directory.
@@ -37,7 +48,7 @@ public:
 	 * @param path directory where to search for files.
 	 * @return list of files
 	 */
-	static QStringList findFiles(const QString & path);
+	void findFiles(const QString & path);
 
 	/**
 	 * Finds all the files (recursive) of a given directory.
@@ -45,11 +56,15 @@ public:
 	 * @param path directory where to search for files
 	 * @return list of files
 	 */
-	static QStringList findAllFiles(const QString & path);
+	void findAllFiles(const QString & path);
+
+signals:
+
+	/** Sends the signal every FILES_FOUND_LIMIT files found. */
+	void filesFound(const QStringList & files);
 
 private:
 
-	FindFiles();
 };
 
 #endif	//FINDFILES_H
