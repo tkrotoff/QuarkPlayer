@@ -37,10 +37,9 @@ public:
 		int min = 0;
 		int max = list.size();
 
-		int randomIndex1 = randomInt(min, max - 1);
-		int randomIndex2 = randomInt(min, max - 1);
-
 		for (int i = 0; i < max; i++) {
+			int randomIndex1 = randomInt(min, max - 1);
+			int randomIndex2 = randomInt(min, max - 1);
 			list.swap(randomIndex1, randomIndex2);
 		}
 
