@@ -51,6 +51,16 @@ public:
 private:
 
 	FileExtensions();
+
+	static QStringList _videoExtensions;
+
+	static QStringList _audioExtensions;
+
+	static QStringList _multimediaExtensions;
+
+	static QStringList _subtitleExtensions;
+
+	static QStringList _playlistExtensions;
 };
 
 #endif	//FILEEXTENSIONS_H

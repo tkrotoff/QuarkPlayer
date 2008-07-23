@@ -18,48 +18,60 @@
 
 #include "FileExtensions.h"
 
+QStringList FileExtensions::_videoExtensions;
+QStringList FileExtensions::_audioExtensions;
+QStringList FileExtensions::_multimediaExtensions;
+QStringList FileExtensions::_subtitleExtensions;
+QStringList FileExtensions::_playlistExtensions;
+
 QStringList FileExtensions::video() {
-	QStringList list;
-	list << "avi" << "vfw" << "divx"
-		<< "mpg" << "mpeg" << "m1v" << "m2v" << "mpv" << "dv" << "3gp"
-		<< "mov" << "mp4" << "m4v" << "mqv"
-		<< "dat" << "vcd"
-		<< "ogg" << "ogm"
-		<< "asf" << "wmv"
-		<< "bin" << "iso" << "vob"
-		<< "mkv" << "nsv" << "ram" << "flv"
-		<< "rm" << "swf"
-		<< "ts" << "rmvb" << "dvr-ms" << "m2t";
-	return list;
+	if (_videoExtensions.isEmpty()) {
+		_videoExtensions << "avi" << "vfw" << "divx"
+			<< "mpg" << "mpeg" << "m1v" << "m2v" << "mpv" << "dv" << "3gp"
+			<< "mov" << "mp4" << "m4v" << "mqv"
+			<< "dat" << "vcd"
+			<< "ogg" << "ogm"
+			<< "asf" << "wmv"
+			<< "bin" << "iso" << "vob"
+			<< "mkv" << "nsv" << "ram" << "flv"
+			<< "rm" << "swf"
+			<< "ts" << "rmvb" << "dvr-ms" << "m2t";
+	}
+	return _videoExtensions;
 }
 
 QStringList FileExtensions::audio() {
-	QStringList list;
-	list << "mp3" << "ogg" << "wav" << "wma" <<  "ac3" << "ra" << "ape" << "flac";
-	return list;
+	if (_audioExtensions.isEmpty()) {
+		_audioExtensions << "mp3" << "ogg" << "wav" << "wma" <<  "ac3" << "ra" << "ape" << "flac";
+	}
+	return _audioExtensions;
 }
 
 QStringList FileExtensions::multimedia() {
-	QStringList multimedia(video());
-	foreach (QString tmp, audio()) {
-		if (!multimedia.contains(tmp)) {
-			multimedia << tmp;
+	if (_multimediaExtensions.isEmpty()) {
+		_multimediaExtensions << video();
+		foreach (QString tmp, audio()) {
+			if (!_multimediaExtensions.contains(tmp)) {
+				_multimediaExtensions << tmp;
+			}
 		}
 	}
-	return multimedia;
+	return _multimediaExtensions;
 }
 
 QStringList FileExtensions::subtitle() {
-	QStringList list;
-	list << "srt" << "sub" << "ssa" << "ass" << "idx" << "txt" << "smi"
-		<< "rt" << "utf" << "aqt";
-	return list;
+	if (_subtitleExtensions.isEmpty()) {
+		_subtitleExtensions << "srt" << "sub" << "ssa" << "ass" << "idx" << "txt" << "smi"
+			<< "rt" << "utf" << "aqt";
+	}
+	return _subtitleExtensions;
 }
 
 QStringList FileExtensions::playlist() {
-	QStringList list;
-	list << "m3u" << "m3u8" << "pls";
-	return list;
+	if (_playlistExtensions.isEmpty()) {
+		_playlistExtensions << "m3u" << "m3u8" << "pls";
+	}
+	return _playlistExtensions;
 }
 
 QString FileExtensions::toFilterFormat(const QStringList & extensions) {
