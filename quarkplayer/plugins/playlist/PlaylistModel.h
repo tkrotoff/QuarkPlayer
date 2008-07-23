@@ -23,7 +23,8 @@
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QList>
-#include <QtCore/QString>
+#include <QtCore/QMap>
+#include <QtCore/QStringList>
 
 namespace Phonon {
 	class MediaObject;
@@ -48,6 +49,12 @@ public:
 
 	void highlightItem(int row);
 
+	/**
+	 * Add files to the model.
+	 *
+	 * @param files files to add to the model
+	 * @param row location in the model where to add the files; if -1 then append the files
+	 */
 	void addFiles(const QStringList & files, int row = -1);
 
 	/** Returns the files displayed in the playlist. */
@@ -93,6 +100,10 @@ private slots:
 
 	void enqueueNextTrack();
 
+	void filesFound(const QStringList & files);
+
+	void loadCurrentPlaylist();
+
 private:
 
 	void saveCurrentPlaylist() const;
@@ -104,17 +115,38 @@ private:
 	/** Resolves the list of pending files for meta data/info. */
 	Phonon::MediaObject * _metaObjectInfoResolver;
 
-	/** List of all the media available in this QAbstractItemModel. */
+	/**
+	 * List of all the media available in this QAbstractItemModel.
+	 *
+	 * Cannot be replaced by a QSet (i.e no duplicated data) since the index
+	 * inside the QList is the row in the model where the MediaSource is.
+	 */
 	QList<Track> _mediaSources;
 
-	/** List of pending files for meta data/info to be resolved. */
-	QList<QString> _filesInfoResolver;
+	/**
+	 * Pending file for meta data/info to be resolved.
+	 */
+	mutable QString _filesInfoResolver;
+
+	/** _filesInfoResolver is working (already resolving some meta datas. */
+	mutable bool _metaObjectInfoResolverLaunched;
 
 	int _position;
 
 	bool _shuffle;
 
 	bool _repeat;
+
+	/**
+	 * Trick: row where to insert new files.
+	 *
+	 * I have to do that because of Qt slot/signal limitation :/
+	 * this works with filesFound() slot defined above.
+	 *
+	 * @see filesFound()
+	 * @see http://lists.trolltech.com/qt-interest/1998-01/thread00097-0.html
+	 */
+	int _rowWhereToInsertFiles;
 };
 
 #endif	//PLAYLISTMODEL_H

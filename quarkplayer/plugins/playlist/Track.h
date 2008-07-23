@@ -37,6 +37,8 @@ public:
 	~Track();
 
 	Track & operator=(const Track & right);
+
+	/** Comparison based on filenames only. */
 	int operator==(const Track & right);
 
 	QString fileName() const;
@@ -57,6 +59,12 @@ public:
 	void setLength(const QString & length);
 	QString length() const;
 
+	void setMediaDataResolved(bool resolved);
+	bool mediaDataResolved() const;
+
+	void setPlaying(bool playing);
+	bool playing() const;
+
 private:
 
 	void copy(const Track & track);
@@ -72,6 +80,8 @@ private:
 	QString _artist;
 	QString _album;
 	QString _length;
+	bool _resolved;
+	bool _playing;
 };
 
 #endif	//TRACK_H

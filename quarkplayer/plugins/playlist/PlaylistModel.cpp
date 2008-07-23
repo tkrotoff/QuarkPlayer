@@ -23,6 +23,7 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/FileExtensions.h>
+#include <quarkplayer/PluginManager.h>
 
 #include <tkutil/FindFiles.h>
 #include <tkutil/Random.h>
@@ -56,6 +57,8 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 	_shuffle = false;
 	_repeat = false;
 	_position = POSITION_INVALID;
+	_metaObjectInfoResolverLaunched = false;
+	_rowWhereToInsertFiles = -1;
 
 	//Info resolver
 	_metaObjectInfoResolver = new Phonon::MediaObject(this);
@@ -65,11 +68,8 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 	connect(&_quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 
-	//Restore last current playlist
-	Config & config = Config::instance();
-	QString path(config.configDir());
-	PlaylistParser parser(path + CURRENT_PLAYLIST);
-	addFiles(parser.load());
+	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
+		SLOT(loadCurrentPlaylist()));
 }
 
 PlaylistModel::~PlaylistModel() {
@@ -137,6 +137,16 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 		default:
 			qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
 		}
+
+		if (!track.mediaDataResolved()) {
+			_filesInfoResolver = track.fileName();
+
+			//Resolve meta data file one by one
+			if (!_metaObjectInfoResolverLaunched) {
+				_metaObjectInfoResolverLaunched = true;
+				_metaObjectInfoResolver->setCurrentSource(_filesInfoResolver);
+			}
+		}
 	}
 
 	if (row == _position) {
@@ -194,6 +204,11 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 
 	QStringList files;
 
+	FindFiles findFiles;
+	_rowWhereToInsertFiles = row;
+	connect(&findFiles, SIGNAL(filesFound(const QStringList &)),
+		SLOT(filesFound(const QStringList &)));
+
 	//Add urls to a list
 	if (data->hasUrls()) {
 		QList<QUrl> urlList = data->urls();
@@ -214,81 +229,60 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 				if (isMultimediaFile) {
 					files << filename;
 				} else if (fileInfo.isDir()) {
-					QStringList tmp(FindFiles::findAllFiles(filename));
-					foreach (QString filename2, tmp) {
-						QFileInfo fileInfo2(filename2);
-						bool isMultimediaFile2 = FileExtensions::multimedia().contains(fileInfo2.suffix(), Qt::CaseInsensitive);
-						if (isMultimediaFile2) {
-							files << filename2;
-						}
-					}
+					findFiles.findAllFiles(filename);
 				}
 			}
-			if (i > 5) {
-				//Add the files every 5 file found
-				addFiles(files, row);
-				files.clear();
-			}
-			i++;
 		}
 	} else {
 		return false;
 	}
 
-	//Add the other files not already added
 	addFiles(files, row);
 	return true;
 }
 
+void PlaylistModel::filesFound(const QStringList & files) {
+	addFiles(files, _rowWhereToInsertFiles);
+}
+
 void PlaylistModel::addFiles(const QStringList & files, int row) {
-	if (files.isEmpty()) {
+	QStringList filenameList;
+	foreach (QString filename, files) {
+		QFileInfo fileInfo(filename);
+		bool isMultimediaFile = FileExtensions::multimedia().contains(fileInfo.suffix(), Qt::CaseInsensitive);
+		if (isMultimediaFile) {
+			filenameList << filename;
+		}
+	}
+	if (filenameList.isEmpty()) {
 		return;
 	}
 
-	_filesInfoResolver << files;
-
-	int first = row;
+	int first = 0;
 	if (row == -1) {
+		//row == -1 means append the files
 		first = _mediaSources.size();
+	} else {
+		//row != -1 means we have a specific row location where to add the files
+		first = row;
 	}
-	int last = first + _filesInfoResolver.size() - 1;
+	int last = first + filenameList.size() - 1;
 	int currentRow = first;
-	qDebug() << __FUNCTION__ << "row:" << row << "first:" << first << "last:" << last;
 
 	beginInsertRows(QModelIndex(), first, last);
-	foreach (QString filename, _filesInfoResolver) {
+	foreach (QString filename, filenameList) {
 		_mediaSources.insert(currentRow, Track(filename));
-
-		qDebug() << __FUNCTION__ << "Add row:" << currentRow;
-
-		//Change the item that is currently playing
-		if (currentRow == _position) {
-			_position++;
-		}
-		else if (currentRow < _position) {
-			_position++;
-		}
-
 		currentRow++;
 	}
 	endInsertRows();
 
-	//Resolve first meta data file
-	//The other ones an queued
-	if (!_filesInfoResolver.isEmpty()) {
-		//_metaObjectInfoResolver->setCurrentSource(_filesInfoResolver.first());
-	}
-
 	QCoreApplication::processEvents();
-
-	//Save current playlist each time we add files to it
-	//saveCurrentPlaylist();
 }
 
 bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
 	qDebug() << __FUNCTION__ << "position:" << _position;
 	if (row == _position) {
-		_position = (- 1) * count;
+		_position = (-1) * count;
 	}
 	qDebug() << __FUNCTION__ << "position:" << _position;
 
@@ -300,9 +294,6 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
 			_position--;
 		}
 
-		//Remove from _filesInfoResolver the MediaSource that has been removed
-		_filesInfoResolver.removeAll(_mediaSources[row].fileName());
-
 		//Updates the list of MediaSource
 		_mediaSources.removeAt(row);
 	}
@@ -312,6 +303,16 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
 	saveCurrentPlaylist();
 
 	return true;
+}
+
+void PlaylistModel::loadCurrentPlaylist() {
+	//Restore last current playlist
+	Config & config = Config::instance();
+	QString path(config.configDir());
+	PlaylistParser parser(path + CURRENT_PLAYLIST);
+	connect(&parser, SIGNAL(filesFound(const QStringList &)),
+		SLOT(filesFound(const QStringList &)));
+	parser.load();
 }
 
 void PlaylistModel::saveCurrentPlaylist() const {
@@ -362,40 +363,45 @@ void PlaylistModel::metaStateChanged(Phonon::State newState, Phonon::State oldSt
 	Phonon::MediaSource source = _metaObjectInfoResolver->currentSource();
 	QMap<QString, QString> metaData = _metaObjectInfoResolver->metaData();
 
-	if (newState == Phonon::ErrorState) {
-		return;
-	}
-
-	if (newState != Phonon::StoppedState && newState != Phonon::PausedState) {
-		return;
-	}
-
 	if (source.type() == Phonon::MediaSource::Invalid) {
 		return;
 	}
 
-	//Finds the matching MediaSource
-	int row = 0;
-	foreach (Track track, _mediaSources) {
-		if (track == Track(source)) {
-			//We found the right MediaSource
-			track.setTrackNumber(metaData.value("TRACKNUMBER"));
+	if (newState != Phonon::ErrorState && newState != Phonon::StoppedState) {
+		//If ErrorState, we want to continue getting media data
+		//using _filesInfoResolver that's why there is no return here
+		//StoppedState means the backend finished getting the media meta data
+		return;
+	}
+
+	if (newState == Phonon::StoppedState) {
+		//Update the media data only if we have a valid MediaSource
+		//i.e newState should be == to StoppedState
+		Track track(source);
+
+		//Finds all the matching MediaSource
+		for (int row = 0; ; row++) {
+			row = _mediaSources.indexOf(track, row);
+			if (row == -1) {
+				break;
+			}
+
+			//track.setTrackNumber(metaData.value("TRACKNUMBER"));
+			track.setTrackNumber(QString::number(row));
 			track.setTitle(metaData.value("TITLE"));
 			track.setArtist(metaData.value("ARTIST"));
 			track.setAlbum(metaData.value("ALBUM"));
 			track.setLength(metaData.value("LENGTH"));
+			track.setMediaDataResolved(true);
+
 			_mediaSources[row] = track;
+
+			//Update the row since the matching MediaSource has been modified
 			updateRow(row);
-
-			//Removes from _filesInfoResolver the MediaSource that has been updated
-			_filesInfoResolver.removeAll(track.fileName());
 		}
-		row++;
 	}
 
-	if (!_filesInfoResolver.isEmpty()) {
-		_metaObjectInfoResolver->setCurrentSource(_filesInfoResolver.first());
-	}
+	_metaObjectInfoResolverLaunched = false;
 }
 
 void PlaylistModel::clear() {
@@ -420,8 +426,10 @@ void PlaylistModel::highlightItem(int row) {
 }
 
 void PlaylistModel::updateRow(int row) {
-	qDebug() << __FUNCTION__ << row;
-	emit dataChanged(index(row, 0), index(row, COLUMN_COUNT));
+	QModelIndex topLeft = index(row, 0);
+	QModelIndex bottomRight = index(row, COLUMN_COUNT - 1);
+	qDebug() << __FUNCTION__ << row << topLeft << bottomRight;
+	emit dataChanged(topLeft, bottomRight);
 }
 
 void PlaylistModel::playNextTrack() {

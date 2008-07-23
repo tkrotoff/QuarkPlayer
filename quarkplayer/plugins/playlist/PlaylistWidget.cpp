@@ -113,8 +113,8 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	layout->addWidget(_treeView);
 
 	_playlistModel = new PlaylistModel(this, quarkPlayer);
-	connect(_playlistModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
-		SLOT(resizeColumnsToContents()));
+	/*connect(_playlistModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
+		SLOT(resizeColumnsToContents()));*/
 	connect(_treeView, SIGNAL(activated(const QModelIndex &)),
 		_playlistModel, SLOT(play(const QModelIndex &)));
 
@@ -264,7 +264,7 @@ void PlaylistWidget::addDir() {
 	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select Directory"),
 			Config::instance().lastDirectoryUsed());
 
-	QStringList tmp(FindFiles::findAllFiles(dir));
+	QStringList tmp/*(FindFiles::findAllFiles(dir))*/;
 	foreach (QString file, tmp) {
 		QFileInfo fileInfo(file);
 		bool isMultimediaFile = FileExtensions::multimedia().contains(fileInfo.suffix(), Qt::CaseInsensitive);
@@ -286,10 +286,12 @@ void PlaylistWidget::addURL() {
 }
 
 void PlaylistWidget::openPlaylist() {
-	QString file = TkFileDialog::getOpenFileName(this, tr("Select Playlist File"), Config::instance().lastDirectoryUsed());
+	/*QString file = TkFileDialog::getOpenFileName(this, tr("Select Playlist File"), Config::instance().lastDirectoryUsed());
 	PlaylistParser parser(file);
+	connect(&parser, SIGNAL(), SLOT());
 	_playlistModel->clear();
-	_playlistModel->addFiles(parser.load());
+	parser.load();
+	_playlistModel->addFiles();*/
 }
 
 void PlaylistWidget::savePlaylist() {

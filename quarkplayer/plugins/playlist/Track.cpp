@@ -60,6 +60,9 @@ Track::Track(const Phonon::MediaSource & mediaSource) {
 
 	//By default, title is just the filename
 	_title = shortFilename;
+
+	_resolved = false;
+	_playing = false;
 }
 
 Track::Track(const Track & track) {
@@ -79,6 +82,8 @@ void Track::copy(const Track & track) {
 	_artist = track._artist;
 	_album = track._album;
 	_length = track._length;
+	_resolved = track._resolved;
+	_playing = track._playing;
 }
 
 Track & Track::operator=(const Track & right) {
@@ -146,6 +151,22 @@ void Track::setLength(const QString & length) {
 
 QString Track::length() const {
 	return _length;
+}
+
+void Track::setMediaDataResolved(bool resolved) {
+	_resolved = resolved;
+}
+
+bool Track::mediaDataResolved() const {
+	return _resolved;
+}
+
+void Track::setPlaying(bool playing) {
+	_playing = playing;
+}
+
+bool Track::playing() const {
+	return _playing;
 }
 
 QString Track::convertMilliseconds(qint64 totalTime) const {
