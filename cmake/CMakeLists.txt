@@ -16,4 +16,4 @@ include(OWGlobalVariables)
 include(OWEnsureOutOfSourceBuild)
 include(ReduceQtIncludeDirs)
 
-#include(MacroPushRequiredVars)
+include(AddQtTranslations)
