@@ -79,7 +79,7 @@ QVariant TkTextBrowser::loadResource(int type, const QUrl & name) {
 
 				_httpDownloader->setHost(name.host(), mode, name.port() == -1 ? 0 : name.port());
 				_httpSyncDownloader->setHost(name.host(), mode, name.port() == -1 ? 0 : name.port());
-				QString path = name.encodedPath();
+				QString path = name.path();
 				if (name.hasQuery()) {
 					path += "?" + name.encodedQuery();
 				}
