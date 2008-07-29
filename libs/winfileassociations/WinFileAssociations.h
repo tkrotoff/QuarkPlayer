@@ -28,6 +28,9 @@ class QSettings;
 /**
  * Handles file associations with an application under Windows Vista/XP/2000.
  *
+ * A file extension can be of the form "mp3" or ".mp3".
+ * In the first case, WinFileAssociations will add the necessary "."
+ *
  * @author Tanguy Krotoff
  */
 class WINFILEASSOCIATIONS_API WinFileAssociations {
@@ -67,12 +70,29 @@ private:
 
 	bool checkError();
 
-	QString backupKey(const QString & extension) const;
-
-	QSettings * _hkcr;
+	/** Code factorization. */
+	void updateNeededKeys(const QString & extension);
 
 	/** Application name, example: QuarkPlayer. */
 	QString _applicationName;
+
+	/** Extension key, example: .mp3, .avi... */
+	QString _extKey;
+
+	/** Application key, example: QuarkPlayer.mp3, QuarkPlayer.avi... */
+	QString _appKey;
+
+	/** Application play key, example: QuarkPlayer.mp3/shell/Play. */
+	QString _appKeyPlay;
+
+	/** Application default icon key, example: QuarkPlayer.mp3/DefaultIcon. */
+	QString _appKeyDefaultIcon;
+
+	/** Application backup key, example: .mp3/QuarkPlayer.backup.*/
+	QString _backupKey;
+
+	/** Allows to browse inside HKEY_CLASSES_ROOT. */
+	QSettings * _hkcr;
 };
 
 #endif	//WINFILEASSOCIATIONS_H

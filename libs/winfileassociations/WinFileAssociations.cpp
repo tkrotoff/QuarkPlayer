@@ -31,40 +31,53 @@ WinFileAssociations::WinFileAssociations(const QString & applicationName) {
 WinFileAssociations::~WinFileAssociations() {
 }
 
+void WinFileAssociations::updateNeededKeys(const QString & extension) {
+	static const QString defaultStr("/Default");
+
+	//extension: mp3, avi...
+	QString ext(extension);
+	if (!ext.startsWith(".")) {
+		ext.prepend(".");
+	}
+	//.mp3, .avi
+	_extKey = ext + defaultStr;
+	//QuarkPlayer.mp3, QuarkPlayer.avi...
+	_appKey = _applicationName + ext;
+	//QuarkPlayer.mp3/shell/Play
+	_appKeyPlay = _appKey + "/shell/Play/command" + defaultStr;
+	//QuarkPlayer.mp3/DefaultIcon
+	_appKeyDefaultIcon = _appKey + "/DefaultIcon" + defaultStr;
+	//.mp3/QuarkPlayer.backup
+	_backupKey = ext + "/" + _applicationName + ".backup";
+}
+
 void WinFileAssociations::addAssociation(const QString & extension) {
 	if (checkError()) {
 		//An error occured
 		return;
 	}
 
-	//.mp3, .avi
-	QString extKey(extension + "/" + QString("Default"));
-	//QuarkPlayer.mp3, QuarkPlayer.avi...
-	QString appValue(_applicationName + extension);
-	//.mp3/QuarkPlayer.backup
-	QString backupKey(extension + "/" + _applicationName + ".backup");
+	updateNeededKeys(extension);
 
 	//Saves a backup key (QuarkPlayer.backup) if the key (extension: .mp3, .avi...) is already assigned
-	QString backupValue = _hkcr->value(extKey).toString();
+	QString backupValue(_hkcr->value(_extKey).toString());
 	if (!backupValue.isEmpty()) {
-		_hkcr->setValue(backupKey, backupValue);
+		_hkcr->setValue(_backupKey, backupValue);
 	}
 
 	//Put a "link" to QuarkPlayer.extension as default
 	//Examples:
 	//.mp3 -> QuarkPlayer.mp3
 	//.avi -> QuarkPlayer.avi
-	_hkcr->setValue(extKey, appValue);
+	_hkcr->setValue(_extKey, _appKey);
 
 	//Creates the needed key if not already done
-	if (!_hkcr->contains(appValue)) {
-		_hkcr->setValue(extKey, appValue);
-
+	if (!_hkcr->contains(_appKeyPlay)) {
 		//Play command + default icon of the application
-		QString quote("\"");
-		QString app(quote + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + quote);
-		_hkcr->setValue(appValue + "/shell/Play/command/Default", app + " \"%1\"");
-		_hkcr->setValue(appValue + "/DefaultIcon/Default", app + ",0");
+		static const QString quote("\"");
+		static const QString app(quote + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + quote);
+		_hkcr->setValue(_appKeyPlay, app + " \"%1\"");
+		_hkcr->setValue(_appKeyDefaultIcon, app + ",0");
 	}
 }
 
@@ -74,40 +87,36 @@ void WinFileAssociations::deleteAssociation(const QString & extension) {
 		return;
 	}
 
-	//.mp3, .avi
-	QString extKey(extension + "/" + QString("Default"));
-	//QuarkPlayer.mp3, QuarkPlayer.avi...
-	QString appValue(_applicationName + extension);
-	//.mp3/QuarkPlayer.backup
-	QString backupKey(extension + "/" + _applicationName + ".backup");
+	updateNeededKeys(extension);
 
-	QString extValue(_hkcr->value(extKey).toString());
+	//Looking for .mp3/QuarkPlayer.mp3
+	QString extValue(_hkcr->value(_extKey).toString());
 
-	if (!extValue.isEmpty() && appValue == extValue) {
-		//Example of a backup key: .mp3/QuarkPlayer.backup
-		QString backupValue(_hkcr->value(backupKey).toString());
-
+	if (!extValue.isEmpty() && _appKey == extValue) {
+		QString backupValue(_hkcr->value(_backupKey).toString());
 		if (!backupValue.isEmpty()) {
 			//Restores the previous association
-			_hkcr->setValue(extKey, backupValue);
+			_hkcr->setValue(_extKey, backupValue);
 		}
 
 		//Removes .mp3/QuarkPlayer.backup
-		_hkcr->remove(backupKey);
+		_hkcr->remove(_backupKey);
+	}
+
+	if (_hkcr->contains(_appKeyPlay)) {
+		//Removes QuarkPlayer.mp3
+		_hkcr->remove(_appKey);
 	}
 }
 
 bool WinFileAssociations::isAssociated(const QString & extension) {
-	if (_hkcr->value(extension).toString() == QString(_applicationName + extension)) {
+	updateNeededKeys(extension);
+
+	if (_hkcr->value(_extKey).toString() == _appKey) {
 		return true;
 	} else {
 		return false;
 	}
-}
-
-QString WinFileAssociations::backupKey(const QString & extension) const {
-	//Example of a backup key: .mp3/QuarkPlayer.backup
-	return extension + "/" + _applicationName + ".backup";
 }
 
 bool WinFileAssociations::checkError() {
