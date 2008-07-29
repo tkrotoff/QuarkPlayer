@@ -20,4 +20,7 @@ target_link_libraries(webbrowser
 	${QT_QTGUI_LIBRARY}
 )
 
+#Translations
+add_qt_translations(${webbrowser_SRCS})
+
 install(TARGETS webbrowser DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

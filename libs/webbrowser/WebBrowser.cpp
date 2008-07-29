@@ -126,9 +126,11 @@ void WebBrowser::populateActionCollection() {
 }
 
 void WebBrowser::go() {
-	QUrl url(_lineEdit->text());
-	if (url.scheme().isEmpty()) {
-		url.setScheme("http");
+	QString url(_lineEdit->text());
+	if (!url.contains("http://") &&
+		!url.contains("file://") &&
+		!url.contains("://")) {
+		url.prepend("http://");
 	}
 	_textBrowser->setSource(url);
 }
@@ -156,5 +158,5 @@ void WebBrowser::sourceChanged(const QUrl & src) {
 }
 
 void WebBrowser::openBrowser() {
-	QDesktopServices::openUrl(_lineEdit->text());
+	QDesktopServices::openUrl(QUrl::fromPercentEncoding(_lineEdit->text().toAscii()));
 }
