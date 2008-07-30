@@ -120,7 +120,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>CoverArtWindow</name>
     <message>
-        <location filename="../../quarkplayer-plugins/videowidget/CoverArtWindow.cpp" line="90"/>
+        <location filename="../../quarkplayer-plugins/videowidget/CoverArtWindow.cpp" line="92"/>
         <source>Refresh Informations</source>
         <translation>Mettre à jour les informations</translation>
     </message>
@@ -160,7 +160,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer-plugins/filebrowser/config/FileBrowserConfigWidget.cpp" line="76"/>
         <source>Select a Directory</source>
-        <translation>Selectionner un répertoire</translation>
+        <translation>Sélectionner un répertoire</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer-plugins/filebrowser/ui_FileBrowserConfigWidget.h" line="69"/>
@@ -178,12 +178,12 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="135"/>
         <source>Select a Directory</source>
-        <translation>Selectionner un répertoire</translation>
+        <translation>Sélectionner un répertoire</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer-plugins/filebrowser/ui_FileBrowserWidget.h" line="87"/>
         <source>Enter a Search Expression</source>
-        <translation>Entrez une recherche</translation>
+        <translation>Entrer une recherche</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer-plugins/filebrowser/ui_FileBrowserWidget.h" line="92"/>
@@ -221,7 +221,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="140"/>
         <source>Icon Theme:</source>
-        <translation>Theme d&apos;icone:</translation>
+        <translation>Thême d&apos;icone :</translation>
     </message>
     <message>
         <location filename="../../quarkplayer/config/GeneralConfigWidget.cpp" line="115"/>
@@ -231,7 +231,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer/config/GeneralConfigWidget.cpp" line="116"/>
         <source>French</source>
-        <translation>Francais</translation>
+        <translation>Français</translation>
     </message>
     <message>
         <location filename="../../quarkplayer/config/GeneralConfigWidget.cpp" line="117"/>
@@ -246,7 +246,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="134"/>
         <source>Backend Selection</source>
-        <translation>Séléction du module</translation>
+        <translation>Sélection du module</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="137"/>
@@ -264,7 +264,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer/MainWindow.cpp" line="153"/>
         <source>Select Audio/Video File</source>
-        <translation>Selectionnez un fichier audio ou video</translation>
+        <translation>Sélectionner un fichier audio ou vidéo</translation>
     </message>
     <message>
         <location filename="../../quarkplayer/MainWindow.cpp" line="180"/>
@@ -274,7 +274,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer/MainWindow.cpp" line="180"/>
         <source>Please enter a valid address here:</source>
-        <translation>Inserez une adresse Internet valide ici:</translation>
+        <translation>Insérer une adresse Internet valide ici :</translation>
     </message>
     <message>
         <location filename="../../quarkplayer/MainWindow.cpp" line="386"/>
@@ -429,7 +429,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer/MainWindow.cpp" line="171"/>
         <source>Select DVD folder</source>
-        <translation>Séléctioner un répertoire DVD</translation>
+        <translation>Sélectionner un répertoire DVD</translation>
     </message>
     <message>
         <location filename="../../quarkplayer/MainWindow.cpp" line="371"/>
@@ -477,7 +477,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="73"/>
         <source>Select Subtitle File</source>
-        <translation>Séléctionner un fichier de sous-titre</translation>
+        <translation>Sélectionner un fichier de sous-titre</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="74"/>
@@ -518,47 +518,47 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="100"/>
         <source>Title:</source>
-        <translation>Titre:</translation>
+        <translation>Titre :</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="132"/>
         <source>Url:</source>
-        <translation>Lien:</translation>
+        <translation>Lien :</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="106"/>
         <source>File:</source>
-        <translation>Fichier:</translation>
+        <translation>Fichier :</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="111"/>
         <source>Artist:</source>
-        <translation>Artiste:</translation>
+        <translation>Artiste :</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="115"/>
         <source>Album:</source>
-        <translation>Album:</translation>
+        <translation>Album :</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="119"/>
         <source>Stream Name:</source>
-        <translation>Nom du flux:</translation>
+        <translation>Nom du flux :</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="123"/>
         <source>Stream Genre:</source>
-        <translation>Genre du flux:</translation>
+        <translation>Genre du flux :</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="127"/>
         <source>Stream Website:</source>
-        <translation>Site web du flux:</translation>
+        <translation>Site web du flux :</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="138"/>
         <source>Bitrate:</source>
-        <translation>Débit:</translation>
+        <translation>Débit :</translation>
     </message>
 </context>
 <context>
@@ -667,12 +667,12 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="273"/>
         <source>Select Audio/Video Files</source>
-        <translation>Selectionnez des fichiers audio ou video</translation>
+        <translation>Sélectionner des fichiers audio ou video</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="280"/>
         <source>Select Directory</source>
-        <translation>Selectionner un répertoire</translation>
+        <translation>éelectionner un répertoire</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="296"/>
@@ -682,7 +682,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="296"/>
         <source>Please enter a valid address here:</source>
-        <translation>Inserez une adresse Internet valide ici :</translation>
+        <translation>Insérer une adresse Internet valide ici :</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="314"/>
@@ -750,7 +750,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="161"/>
         <source>License:</source>
-        <translation>Lisense :</translation>
+        <translation>Licence :</translation>
     </message>
 </context>
 <context>
@@ -773,17 +773,17 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="313"/>
         <source>Contrast:</source>
-        <translation>Constraste:</translation>
+        <translation>Constraste :</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="314"/>
         <source>Brightness:</source>
-        <translation>Luminosité:</translation>
+        <translation>Luminosité :</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="315"/>
         <source>Saturation:</source>
-        <translation>Saturation:</translation>
+        <translation>Saturation :</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="316"/>
@@ -838,12 +838,12 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="330"/>
         <source>Audio Device:</source>
-        <translation>Peripherique audio:</translation>
+        <translation>Périphérique audio :</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="331"/>
         <source>Audio Effect:</source>
-        <translation>Effet audio:</translation>
+        <translation>Effet audio :</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="332"/>
@@ -901,7 +901,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../build/quarkplayer/ui_SettingsBrowser.h" line="68"/>
         <source>Default Value</source>
-        <translation>Valeur par defaut</translation>
+        <translation>Valeur par défaut</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_SettingsBrowser.h" line="67"/>
@@ -911,7 +911,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../build/quarkplayer/ui_SettingsBrowser.h" line="71"/>
         <source>Reset</source>
-        <translation>Remettre a zero</translation>
+        <translation>Remettre à zéro</translation>
     </message>
     <message>
         <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="340"/>
@@ -929,7 +929,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="132"/>
         <source>Media finishing...</source>
-        <translation>Lecture bientot fini...</translation>
+        <translation>Lecture bientôt finie...</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="137"/>

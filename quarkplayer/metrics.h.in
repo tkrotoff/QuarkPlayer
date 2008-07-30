@@ -20,18 +20,17 @@
 #define METRICS_H_IN
 
 /**
- */
-static const int QUARKPLAYER_LOC = @QUARKPLAYER_LOC@;
-
-/**
+ * Lines of source code inside QuarkPlayer Core.
  */
 static const int QUARKPLAYER_CORE_LOC = @QUARKPLAYER_CORE_LOC@;
 
 /**
+ * Lines of source code inside QuarkPlayer Libraries.
  */
-static const int QUARKPLAYER_TKUTIL_LOC = @QUARKPLAYER_TKUTIL_LOC@;
+static const int QUARKPLAYER_LIBS_LOC = @QUARKPLAYER_LIBS_LOC@;
 
 /**
+ * Lines of source code inside QuarkPlayer Plugins.
  */
 static const int QUARKPLAYER_PLUGINS_LOC = @QUARKPLAYER_PLUGINS_LOC@;
 

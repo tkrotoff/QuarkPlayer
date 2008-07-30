@@ -110,7 +110,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>CoverArtWindow</name>
     <message>
-        <location filename="../../quarkplayer-plugins/videowidget/CoverArtWindow.cpp" line="90"/>
+        <location filename="../../quarkplayer-plugins/videowidget/CoverArtWindow.cpp" line="92"/>
         <source>Refresh Informations</source>
         <translation type="unfinished"></translation>
     </message>

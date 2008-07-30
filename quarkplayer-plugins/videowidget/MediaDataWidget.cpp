@@ -208,11 +208,20 @@ void MediaDataWidget::coverArtFound(const QByteArray & coverArt, bool accuracy) 
 
 		//Saves the downloaded cover art to a file
 		QFile coverArtFile(_amazonCoverArtFilename);
-		coverArtFile.open(QIODevice::WriteOnly);
-		coverArtFile.write(coverArt);
-		coverArtFile.close();
+		if (coverArtFile.open(QIODevice::WriteOnly)) {
+			//The file could be opened
+			qint64 ret = coverArtFile.write(coverArt);
+			if (ret != -1) {
+				//The file could be written
+				coverArtFile.close();
 
-		_coverArtList << _amazonCoverArtFilename;
+				_coverArtList << _amazonCoverArtFilename;
+			} else {
+				qCritical() << __FUNCTION__ << "Error: cover art file couldn't be written:" << _amazonCoverArtFilename;
+			}
+		} else {
+			qCritical() << __FUNCTION__ << "Error: cover art file couldn't be opened:" << _amazonCoverArtFilename;
+		}
 	}
 }
 
@@ -230,9 +239,12 @@ void MediaDataWidget::updateCoverArtPixmap() {
 		//Update the cover art pixmap
 		QString filename(_coverArtList[_currentCoverArtIndex]);
 		QPixmap coverArt(filename);
-		_ui->coverArtButton->setIcon(coverArt);
-
-		_coverArtWindow->setCoverArtFilename(filename);
+		if (!coverArt.isNull()) {
+			_ui->coverArtButton->setIcon(coverArt);
+			_coverArtWindow->setCoverArtFilename(filename);
+		} else {
+			qCritical() << __FUNCTION__ << "Error: cover art image is empty";
+		}
 
 		_currentCoverArtIndex++;
 	}

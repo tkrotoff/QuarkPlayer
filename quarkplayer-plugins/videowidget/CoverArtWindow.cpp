@@ -20,6 +20,8 @@
 
 #include "ui_CoverArtWindow.h"
 
+#include <quarkplayer/config/Config.h>
+
 #include <contentfetcher/LyricsFetcher.h>
 
 #include <webbrowser/WebBrowser.h>
@@ -125,7 +127,7 @@ void CoverArtWindow::refresh() {
 	QString tmp(track.artist);
 	tmp.replace(" ", "_");
 	tmp = QUrl::toPercentEncoding(tmp);
-	_webBrowser->setSource("http://en.wikipedia.org/wiki/" + tmp);
+	_webBrowser->setSource("http://" + Config::instance().language() + ".wikipedia.org/wiki/" + tmp);
 
 	//Download the lyrics
 	LyricsFetcher * lyricsFetcher = new LyricsFetcher(this);
