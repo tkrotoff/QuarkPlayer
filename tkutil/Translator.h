@@ -61,6 +61,10 @@ private:
 
 	bool loadLocale(QTranslator & translator, const QString & name, const QString & locale, const QString & dir);
 
+	void install();
+
+	void remove();
+
 	/** Singleton. */
 	Translator();
 
@@ -70,6 +74,8 @@ private:
 	QTranslator _appTranslator;
 
 	QTranslator _qtTranslator;
+
+	bool _translatorInstalled;
 };
 
 #endif	//TRANSLATOR_H

@@ -38,29 +38,51 @@ Translator & Translator::instance() {
 }
 
 Translator::Translator() {
-	QCoreApplication::instance()->installTranslator(&_appTranslator);
-	QCoreApplication::instance()->installTranslator(&_qtTranslator);
+	_translatorInstalled = false;
 }
 
 Translator::~Translator() {
 }
 
+void Translator::install() {
+	QCoreApplication::instance()->installTranslator(&_appTranslator);
+	QCoreApplication::instance()->installTranslator(&_qtTranslator);
+	_translatorInstalled = true;
+}
+
+void Translator::remove() {
+	QCoreApplication::instance()->removeTranslator(&_appTranslator);
+	QCoreApplication::instance()->removeTranslator(&_qtTranslator);
+	_translatorInstalled = false;
+}
+
 void Translator::load(const QString & locale) {
+	if (!_translatorInstalled) {
+		install();
+	}
+
 	QString myLocale = locale;
 	if (myLocale.isEmpty()) {
 		myLocale = QLocale::system().name();
 	}
 
 	//Qt translation
-	bool ret = loadLocale(_qtTranslator, "qt", myLocale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-	if (!ret) {
+	bool qtRet = loadLocale(_qtTranslator, "qt", myLocale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+	if (!qtRet) {
 		//No Qt framework installed
 		//Try with the application path
-		loadLocale(_qtTranslator, "qt", myLocale, TRANSLATIONS_PATH);
+		qtRet = loadLocale(_qtTranslator, "qt", myLocale, TRANSLATIONS_PATH);
 	}
 
 	//Application translation
-	loadLocale(_appTranslator, QCoreApplication::applicationName().toLower(), myLocale, TRANSLATIONS_PATH);
+	bool appRet = loadLocale(_appTranslator, QCoreApplication::applicationName().toLower(), myLocale, TRANSLATIONS_PATH);
+
+	//Both Qt and app locale loading failed
+	//Let's go back to english builtin
+	if (!qtRet && !appRet) {
+		qDebug() << __FUNCTION__ << "Back to builtin english";
+		remove();
+	}
 }
 
 bool Translator::loadLocale(QTranslator & translator, const QString & name, const QString & locale, const QString & dir) {
