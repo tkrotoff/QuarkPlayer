@@ -5,16 +5,17 @@ project(quarkplayer)
 
 include(CMakeLists-owbuild.txt)
 
-#Desactivate KDE4 integration since it gives some troubles
-#will be changed in the future
-#cf http://code.google.com/p/phonon-vlc-mplayer/issues/detail?id=2
 if (NOT ENV{KDEDIRS})
 	#Ubuntu 8.04, if GNOME is run instead of KDE, KDEDIRS variable is not defined,
 	#let's define it
 	set(ENV{KDEDIRS} /usr/lib/kde4)
 endif (NOT ENV{KDEDIRS})
 
+#Desactivate KDE4 integration since it gives some troubles
+#will be changed in the future
+#cf http://code.google.com/p/phonon-vlc-mplayer/issues/detail?id=2
 #find_package(KDE4)
+
 if (KDE4_FOUND)
 	include(KDE4Defaults)
 	include(MacroLibrary)
@@ -60,6 +61,7 @@ set(INSTALL_TARGETS_DEFAULT_ARGS
 )
 
 if (WIN32)
+	#Copy Qt toolkit dll
 	if (CMAKE_BUILD_TYPE STREQUAL Debug)
 		install(FILES ${QT_BINARY_DIR}/QtCored4.dll DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtGuid4.dll DESTINATION ${BIN_INSTALL_DIR})
@@ -71,9 +73,17 @@ if (WIN32)
 		install(FILES ${QT_BINARY_DIR}/QtNetwork4.dll DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtOpenGL4.dll DESTINATION ${BIN_INSTALL_DIR})
 	endif (CMAKE_BUILD_TYPE STREQUAL Debug)
+
+	#When compiled with MinGW, we need mingwm10.dll
 	if (MINGW)
 		install(FILES C:/mingw/bin/mingwm10.dll DESTINATION ${BIN_INSTALL_DIR})
 	endif (MINGW)
+
+	#Copy Qt toolkit translations
+	install(FILES ${QT_BINARY_DIR}/../translations/qt_fr.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
+	install(FILES ${QT_BINARY_DIR}/../translations/qt_de.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
+	install(FILES ${QT_BINARY_DIR}/../translations/qt_es.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
+	install(FILES ${QT_BINARY_DIR}/../translations/qt_uk.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
 endif (WIN32)
 
 clear_qt_translations()
@@ -81,7 +91,7 @@ clear_qt_translations()
 add_subdirectory(phonon)
 add_subdirectory(vlc-mplayer)
 #add_subdirectory(ds9)
-add_subdirectory(tests)
+#add_subdirectory(tests)
 
 add_subdirectory(libs)
 
