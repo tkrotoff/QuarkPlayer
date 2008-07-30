@@ -71,14 +71,12 @@ void WinFileAssociations::addAssociation(const QString & extension) {
 	//.avi -> QuarkPlayer.avi
 	_hkcr->setValue(_extKey, _appKey);
 
-	//Creates the needed key if not already done
-	if (!_hkcr->contains(_appKeyPlay)) {
-		//Play command + default icon of the application
-		static const QString quote("\"");
-		static const QString app(quote + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + quote);
-		_hkcr->setValue(_appKeyPlay, app + " \"%1\"");
-		_hkcr->setValue(_appKeyDefaultIcon, app + ",0");
-	}
+	//Creates the needed key (or overwrite it)
+	//Play command + default icon of the application
+	static const QString quote("\"");
+	static const QString app(quote + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + quote);
+	_hkcr->setValue(_appKeyPlay, app + " \"%1\"");
+	_hkcr->setValue(_appKeyDefaultIcon, app + ",0");
 }
 
 void WinFileAssociations::deleteAssociation(const QString & extension) {

@@ -1,9 +1,5 @@
 project(quarkplayercore)
 
-set(QUARKPLAYER_MAJOR_VERSION 0)
-set(QUARKPLAYER_MINOR_VERSION 2)
-set(QUARKPLAYER_PATCH_VERSION 0)
-
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 configure_file(version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/version.h)
 

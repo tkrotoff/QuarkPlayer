@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 2.6)
 
 project(quarkplayer)
 
+set(QUARKPLAYER_MAJOR_VERSION 0)
+set(QUARKPLAYER_MINOR_VERSION 2)
+set(QUARKPLAYER_PATCH_VERSION 0)
+
 include(CMakeLists-owbuild.txt)
 
 if (NOT ENV{KDEDIRS})
@@ -14,7 +18,7 @@ endif (NOT ENV{KDEDIRS})
 #Desactivate KDE4 integration since it gives some troubles
 #will be changed in the future
 #cf http://code.google.com/p/phonon-vlc-mplayer/issues/detail?id=2
-find_package(KDE4)
+#find_package(KDE4)
 
 if (KDE4_FOUND)
 	include(KDE4Defaults)
@@ -51,13 +55,11 @@ set(CMAKE_INSTALL_PREFIX ${BUILD_DIR})
 
 #Default paths
 set(INCLUDE_INSTALL_DIR include)
-set(BIN_INSTALL_DIR bin)
+set(BIN_INSTALL_DIR ".")
 set(LIB_INSTALL_DIR lib)
 set(PLUGIN_INSTALL_DIR ${BIN_INSTALL_DIR}/phonon_backend)
 set(INSTALL_TARGETS_DEFAULT_ARGS
 	RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-	LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-	ARCHIVE DESTINATION ${LIB_INSTALL_DIR} COMPONENT Devel
 )
 
 if (WIN32)

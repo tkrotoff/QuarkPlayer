@@ -51,7 +51,12 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	//Add all config panels/widgets to the list
 	_configWidgetList.prepend(ConfigWidget(new PluginsConfigWidget()));
 	_configWidgetList.prepend(ConfigWidget(new SettingsBrowser()));
+
+#ifdef Q_OS_WIN
+	//Make it only available under Windows as this uses the Windows registry
 	_configWidgetList.prepend(ConfigWidget(new WinFileAssociationsConfigWidget()));
+#endif	//Q_OS_WIN
+
 	_configWidgetList.prepend(ConfigWidget(new BackendCapabilitiesWidget()));
 	_configWidgetList.prepend(ConfigWidget(new GeneralConfigWidget()));
 
