@@ -25,6 +25,7 @@
 #include <webbrowser/WebBrowser.h>
 
 #include <tkutil/TkIcon.h>
+#include <tkutil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
 
@@ -38,17 +39,20 @@ CoverArtWindow::CoverArtWindow(QWidget * parent)
 	_ui = new Ui::CoverArtWindow();
 	_ui->setupUi(this);
 
+	//Web browser widget
 	_webBrowser = new WebBrowser(_ui->artistTab);
-	_webBrowser->setBackwardIcon(TkIcon("go-previous"));
-	_webBrowser->setForwardIcon(TkIcon("go-next"));
-	_webBrowser->setReloadIcon(TkIcon("view-refresh"));
-	_webBrowser->setStopIcon(TkIcon("process-stop"));
-	_webBrowser->setHomeIcon(TkIcon("go-home"));
-	_webBrowser->setGoIcon(TkIcon("go-jump-locationbar"));
-	_webBrowser->setOpenBrowserIcon(TkIcon("internet-web-browser"));
 	_ui->artistTab->layout()->setMargin(0);
 	_ui->artistTab->layout()->setSpacing(0);
 	_ui->artistTab->layout()->addWidget(_webBrowser);
+
+	//Refresh button
+	_refreshButton = new QToolButton(this);
+	_ui->tabWidget->setCornerWidget(_refreshButton, Qt::TopRightCorner);
+	_refreshButton->setAutoRaise(true);
+	connect(_refreshButton, SIGNAL(clicked()), SLOT(refresh()));
+
+	RETRANSLATE(this);
+	retranslate();
 }
 
 CoverArtWindow::~CoverArtWindow() {
@@ -65,9 +69,37 @@ void CoverArtWindow::setMediaData(const QString & album, const QString & artist,
 }
 
 void CoverArtWindow::show() {
+	QDialog::show();
+	refresh();
+}
+
+void CoverArtWindow::lyricsFound(const QByteArray & lyrics, bool accuracy) {
+	_ui->lyricsTextEdit->setHtml(QString::fromUtf8(lyrics));
+}
+
+void CoverArtWindow::retranslate() {
+	_webBrowser->setBackwardIcon(TkIcon("go-previous"));
+	_webBrowser->setForwardIcon(TkIcon("go-next"));
+	_webBrowser->setReloadIcon(TkIcon("view-refresh"));
+	_webBrowser->setStopIcon(TkIcon("process-stop"));
+	_webBrowser->setHomeIcon(TkIcon("go-home"));
+	_webBrowser->setGoIcon(TkIcon("go-jump-locationbar"));
+	_webBrowser->setOpenBrowserIcon(TkIcon("internet-web-browser"));
+
+	_refreshButton->setIcon(TkIcon("view-refresh"));
+	_refreshButton->setToolTip(tr("Refresh Informations"));
+
+	_ui->retranslateUi(this);
+}
+
+void CoverArtWindow::refresh() {
+	//Window title
+	setWindowTitle(_artist);
+
 	static const int MAX_WIDTH = 500;
 	static const int MAX_HEIGHT = 500;
 
+	//Shows the cover art
 	if (!_coverArtFilename.isEmpty()) {
 		QPixmap coverArt(_coverArtFilename);
 		_ui->coverArtLabel->setPixmap(coverArt);
@@ -82,12 +114,7 @@ void CoverArtWindow::show() {
 			height = MAX_HEIGHT;
 		}
 		qDebug() << __FUNCTION__ << width << height;
-		resize(width, height);
-
-		//connect(_ui->coverArtButton, SIGNAL(clicked()), SLOT(close()));
-		//QPoint pos = QCursor::pos();
-		//move(pos.x() - (this->width() / 2), pos.y() - (this->height() / 2));
-		QDialog::show();
+		//resize(width, height);
 	}
 
 	ContentFetcher::Track track;
@@ -95,7 +122,10 @@ void CoverArtWindow::show() {
 	track.title = _title;
 
 	//Download the Wikipedia article
-	_webBrowser->setSource("http://en.wikipedia.org/wiki/" + track.artist);
+	QString tmp(track.artist);
+	tmp.replace(" ", "_");
+	tmp = QUrl::toPercentEncoding(tmp);
+	_webBrowser->setSource("http://en.wikipedia.org/wiki/" + tmp);
 
 	//Download the lyrics
 	LyricsFetcher * lyricsFetcher = new LyricsFetcher(this);
@@ -103,8 +133,4 @@ void CoverArtWindow::show() {
 		SLOT(lyricsFound(const QByteArray &, bool)));
 	lyricsFound(QByteArray(), true);
 	lyricsFetcher->start(track);
-}
-
-void CoverArtWindow::lyricsFound(const QByteArray & lyrics, bool accuracy) {
-	_ui->lyricsTextEdit->setHtml(QString::fromUtf8(lyrics));
 }

@@ -43,6 +43,12 @@ class PlaylistModel : public QAbstractItemModel {
 	Q_OBJECT
 public:
 
+	static const int COLUMN_TRACK;
+	static const int COLUMN_TITLE;
+	static const int COLUMN_ARTIST;
+	static const int COLUMN_ALBUM;
+	static const int COLUMN_LENGTH;
+
 	PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer);
 
 	~PlaylistModel();

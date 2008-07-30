@@ -28,9 +28,11 @@
 #include <quarkplayer/FileExtensions.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config/ConfigWindow.h>
+#include <quarkplayer/PluginManager.h>
 
 #include <tkutil/TkIcon.h>
 #include <tkutil/TkFileDialog.h>
+#include <tkutil/LanguageChangeEventFilter.h>
 
 #include <phonon/mediaobject.h>
 
@@ -41,14 +43,7 @@
 Q_EXPORT_PLUGIN2(filebrowser, FileBrowserWidgetFactory);
 
 PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer) const {
-	_plugin = new FileBrowserWidget(quarkPlayer);
-	return _plugin;
-}
-
-FileBrowserWidgetFactory::~FileBrowserWidgetFactory() {
-	qDebug() << __FUNCTION__ << "Plugin unloaded";
-
-	delete _plugin;
+	return new FileBrowserWidget(quarkPlayer);
 }
 
 FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
@@ -60,13 +55,32 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 
 	layout()->setMargin(0);
 	layout()->setSpacing(0);
-	_ui->browseButton->setIcon(TkIcon("document-open-folder"));
 	connect(_ui->browseButton, SIGNAL(clicked()), SLOT(configure()));
-	_ui->clearSearchButton->setIcon(TkIcon("edit-delete"));
 	_ui->clearSearchButton->setEnabled(false);
 	connect(_ui->clearSearchButton, SIGNAL(clicked()), _ui->searchLineEdit, SLOT(clear()));
 	connect(_ui->searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search(const QString &)));
+	connect(_ui->newFileBrowserButton, SIGNAL(clicked()), SLOT(createNewFileBrowserWidget()));
 
+	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
+		SLOT(loadDirModel()), Qt::QueuedConnection);
+
+	//Add to config window
+	ConfigWindow::addConfigWidget(new FileBrowserConfigWidget());
+
+	//Add to the main window
+	_dockWidget = new QDockWidget();
+	quarkPlayer.mainWindow().addBrowserDockWidget(_dockWidget);
+	_dockWidget->setWidget(this);
+
+	RETRANSLATE(this);
+	retranslate();
+}
+
+FileBrowserWidget::~FileBrowserWidget() {
+	delete _ui;
+}
+
+void FileBrowserWidget::loadDirModel() {
 	QStringList nameFilters;
 	/*foreach (QString ext, FileExtensions::multimedia()) {
 		nameFilters << "*." + ext;
@@ -84,29 +98,12 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	header->setStretchLastSection(false);
 	header->setVisible(false);
 
-	connect(&(quarkPlayer.config()), SIGNAL(valueChanged(const QString &, const QVariant &)),
+	connect(&Config::instance(), SIGNAL(valueChanged(const QString &, const QVariant &)),
 		SLOT(musicDirChanged(const QString &, const QVariant &)));
-	_ui->treeView->setRootIndex(_dirModel->index(quarkPlayer.config().musicDir()));
+	_ui->treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
 	_ui->treeView->setDragEnabled(true);
 	connect(_ui->treeView, SIGNAL(doubleClicked(const QModelIndex &)),
 		SLOT(doubleClicked(const QModelIndex &)));
-
-	//Add to config window
-	ConfigWindow::addConfigWidget(new FileBrowserConfigWidget());
-
-	//Add to the main window
-	_dockWidget = new QDockWidget(tr("Local Files"));
-	quarkPlayer.mainWindow().addBrowserDockWidget(_dockWidget);
-	_dockWidget->setWidget(this);
-}
-
-FileBrowserWidget::~FileBrowserWidget() {
-	qDebug() << __FUNCTION__ << "Unloading plugin";
-	quarkPlayer().mainWindow().removeBrowserDockWidget(_dockWidget);
-	_dockWidget->close();
-	close();
-	//delete _dockWidget;
-	//delete _ui;
 }
 
 void FileBrowserWidget::doubleClicked(const QModelIndex & index) {
@@ -148,4 +145,17 @@ void FileBrowserWidget::musicDirChanged(const QString & key, const QVariant & va
 		_ui->treeView->setRootIndex(_dirModel->index(quarkPlayer().config().musicDir()));
 		_dirModel->refresh();
 	}
+}
+
+void FileBrowserWidget::createNewFileBrowserWidget() {
+	new FileBrowserWidget(quarkPlayer());
+}
+
+void FileBrowserWidget::retranslate() {
+	_ui->browseButton->setIcon(TkIcon("document-open-folder"));
+	_ui->clearSearchButton->setIcon(TkIcon("edit-delete"));
+	_ui->newFileBrowserButton->setIcon(TkIcon("preferences-system-windows"));
+	_dockWidget->setWindowTitle(tr("Local Files"));
+
+	_ui->retranslateUi(this);
 }

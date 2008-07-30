@@ -25,6 +25,7 @@
 
 #include <tkutil/TkFile.h>
 #include <tkutil/MouseEventFilter.h>
+#include <tkutil/LanguageChangeEventFilter.h>
 
 #include <contentfetcher/AmazonCoverArt.h>
 
@@ -45,6 +46,7 @@ MediaDataWidget::MediaDataWidget(Phonon::MediaObject * mediaObject)
 	_mediaObject(mediaObject) {
 
 	_coverArtSwitchTimer = NULL;
+	_metaDataChangedAlready = false;
 
 	connect(_mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
 
@@ -53,6 +55,9 @@ MediaDataWidget::MediaDataWidget(Phonon::MediaObject * mediaObject)
 
 	_coverArtWindow = new CoverArtWindow(this);
 	connect(_ui->coverArtButton, SIGNAL(clicked()), _coverArtWindow, SLOT(show()));
+
+	RETRANSLATE(this);
+	retranslate();
 }
 
 MediaDataWidget::~MediaDataWidget() {
@@ -65,6 +70,8 @@ void MediaDataWidget::metaDataChanged() {
 	static const QString endhref1 = "\">";
 	static const QString endhref2 = "</a>";
 	static const QString br = "<br>";
+
+	_metaDataChangedAlready = true;
 
 	QMap<QString, QString> metaData = _mediaObject->metaData();
 
@@ -90,48 +97,57 @@ void MediaDataWidget::metaDataChanged() {
 	loadCoverArt(album, artist, title);
 
 	if (!title.isEmpty()) {
-		title = tr("Title:  ") + font + title + endfont;
+		title = tr("Title:") + "  " + font + title + endfont;
 	} else if (!filename.isEmpty()) {
 		title = font + filename + endfont;
 		if (_mediaObject->currentSource().type() == Phonon::MediaSource::Url) {
-			title.prepend("Url: ");
+			title.prepend(tr("Url:") + "  ");
 		} else {
-			title.prepend("File: ");
+			title.prepend(tr("File:") + "  ");
 		}
 	}
 
 	if (!artist.isEmpty()) {
-		artist = br + tr("Artist:  ") + font + artist + endfont;
+		artist = br + tr("Artist:") + "  " + font + artist + endfont;
 	}
 
 	if (!album.isEmpty()) {
-		album = br + tr("Album:  ") + font + album + endfont;
+		album = br + tr("Album:") + "  " + font + album + endfont;
 	}
 
 	if (!streamName.isEmpty()) {
-		streamName = br + tr("Stream Name:  ") + font + streamName + endfont;
+		streamName = br + tr("Stream Name:") + "  " + font + streamName + endfont;
 	}
 
 	if (!streamGenre.isEmpty()) {
-		streamGenre = br + tr("Stream Genre:  ") + font + streamGenre + endfont;
+		streamGenre = br + tr("Stream Genre:") + "  " + font + streamGenre + endfont;
 	}
 
 	if (!streamWebsite.isEmpty()) {
-		streamWebsite = br + tr("Stream Website:  ") + href + streamWebsite + endhref1 +
+		streamWebsite = br + tr("Stream Website:") + "  " + href + streamWebsite + endhref1 +
 				font + streamWebsite + endfont + endhref2;
 	}
 
 	if (!streamURL.isEmpty()) {
-		streamURL = br + tr("Url:  ") + href + streamURL + endhref1 +
+		streamURL = br + tr("Url:") + "  " + href + streamURL + endhref1 +
 			font + streamURL + endfont + endhref2;
 	}
 
 	QString bitrate;
 	if (trackBitrate != 0) {
-		bitrate = br + tr("Bitrate:  ") + font + QString::number(trackBitrate / 1000) + tr("kbit") + endfont;
+		bitrate = br + tr("Bitrate:") + "  " + font + QString::number(trackBitrate / 1000) + tr("kbit") + endfont;
 	}
 
 	_ui->dataLabel->setText(title + artist + album + bitrate + streamName + streamGenre + streamWebsite /*+ streamURL*/);
+}
+
+void MediaDataWidget::retranslate() {
+	if (_metaDataChangedAlready) {
+		//Updates the meta datas only if necessary
+		metaDataChanged();
+	}
+
+	_ui->retranslateUi(this);
 }
 
 void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist, const QString & title) {

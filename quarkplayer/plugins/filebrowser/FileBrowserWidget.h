@@ -48,6 +48,8 @@ public:
 
 private slots:
 
+	void loadDirModel();
+
 	void doubleClicked(const QModelIndex & index);
 
 	void search(const QString & pattern);
@@ -55,6 +57,11 @@ private slots:
 	void configure();
 
 	void musicDirChanged(const QString & key, const QVariant & value);
+
+	/** Create a new file browser widget that will add itself to the dockwidget. */
+	void createNewFileBrowserWidget();
+
+	void retranslate();
 
 private:
 
@@ -73,12 +80,6 @@ class FileBrowserWidgetFactory : public QObject, public PluginFactory {
 public:
 
 	PluginInterface * create(QuarkPlayer & quarkPlayer) const;
-
-	~FileBrowserWidgetFactory();
-
-private:
-
-	mutable PluginInterface * _plugin;
 };
 
 #endif	//FILEBROWSERWIDGET_H

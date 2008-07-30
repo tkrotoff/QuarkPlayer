@@ -101,7 +101,7 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 
 	VideoContainer * container = new VideoContainer();
 
-	container->videoDockWidget = new QDockWidget(tr("No Media"));
+	container->videoDockWidget = new QDockWidget();
 
 	//Logo widget
 	container->backgroundLogoWidget = new QWidget();

@@ -98,23 +98,23 @@ void StatusBar::stateChanged(Phonon::State newState) {
 		break;
 
 	case Phonon::PlayingState:
-		showMessage("Playing");
+		showMessage(tr("Playing"));
 		break;
 
 	case Phonon::StoppedState:
-		showMessage("Stopped");
+		showMessage(tr("Stopped"));
 		break;
 
 	case Phonon::PausedState:
-		showMessage("Paused");
+		showMessage(tr("Paused"));
 		break;
 
 	case Phonon::LoadingState:
-		showMessage("Loading...");
+		showMessage(tr("Loading..."));
 		break;
 
 	case Phonon::BufferingState:
-		showMessage("Buffering...");
+		showMessage(tr("Buffering..."));
 		break;
 
 	default:

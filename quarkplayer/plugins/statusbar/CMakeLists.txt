@@ -25,4 +25,7 @@ else (KDE4_FOUND)
 	)
 endif (KDE4_FOUND)
 
+#Translations
+add_qt_translations(${statusbar_SRCS})
+
 install(TARGETS statusbar DESTINATION ${BIN_INSTALL_DIR}/plugins)

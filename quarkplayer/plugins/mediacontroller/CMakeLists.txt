@@ -27,4 +27,7 @@ else (KDE4_FOUND)
 	)
 endif (KDE4_FOUND)
 
+#Translations
+add_qt_translations(${mediacontroller_SRCS})
+
 install(TARGETS mediacontroller DESTINATION ${BIN_INSTALL_DIR}/plugins)

@@ -32,4 +32,7 @@ else (KDE4_FOUND)
 	)
 endif (KDE4_FOUND)
 
+#Translations
+add_qt_translations(${playlist_SRCS})
+
 install(TARGETS playlist DESTINATION ${BIN_INSTALL_DIR}/plugins)

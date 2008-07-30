@@ -113,29 +113,30 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	layout->addWidget(_treeView);
 
 	_playlistModel = new PlaylistModel(this, quarkPlayer);
-	/*connect(_playlistModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
-		SLOT(resizeColumnsToContents()));*/
 	connect(_treeView, SIGNAL(activated(const QModelIndex &)),
 		_playlistModel, SLOT(play(const QModelIndex &)));
 
 	_treeView->setModel(_playlistModel);
-	for (int i = 0; i < _playlistModel->columnCount(); i++) {
-		_treeView->resizeColumnToContents(i);
-	}
+
+	//Default column sizes
+	_treeView->resizeColumnToContents(PlaylistModel::COLUMN_TRACK);
+	_treeView->setColumnWidth(PlaylistModel::COLUMN_TITLE, 200);
+	_treeView->setColumnWidth(PlaylistModel::COLUMN_ARTIST, 150);
+	_treeView->setColumnWidth(PlaylistModel::COLUMN_ALBUM, 150);
+	_treeView->resizeColumnToContents(PlaylistModel::COLUMN_LENGTH);
 
 	populateActionCollection();
 	createPlaylistToolBar();
 
-	RETRANSLATE(this);
-	retranslate();
-
 	//Add to the main window
-	QDockWidget * dockWidget = new QDockWidget(tr("Playlist"));
-	quarkPlayer.mainWindow().addPlaylistDockWidget(dockWidget);
-	dockWidget->setWidget(this);
+	_dockWidget = new QDockWidget();
+	quarkPlayer.mainWindow().addPlaylistDockWidget(_dockWidget);
+	_dockWidget->setWidget(this);
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
+	RETRANSLATE(this);
+	retranslate();
 }
 
 PlaylistWidget::~PlaylistWidget() {
@@ -195,10 +196,13 @@ void PlaylistWidget::createPlaylistToolBar() {
 	connect(searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search(const QString &)));
 	QToolButton * clearSearchButton = new QToolButton();
 	clearSearchButton->setAutoRaise(true);
-	clearSearchButton->setIcon(TkIcon("edit-delete"));
+	clearSearchButton->setDefaultAction(ActionCollection::action("playlistClearSearch"));
 	clearSearchButton->setEnabled(false);
 	_playlistToolBar->addWidget(clearSearchButton);
 	connect(clearSearchButton, SIGNAL(clicked()), searchLineEdit, SLOT(clear()));
+
+	_playlistToolBar->addAction(ActionCollection::action("playlistNew"));
+	connect(ActionCollection::action("playlistNew"), SIGNAL(triggered()), SLOT(createNewPlaylistWidget()));
 }
 
 void PlaylistWidget::populateActionCollection() {
@@ -222,6 +226,10 @@ void PlaylistWidget::populateActionCollection() {
 	action = new QAction(app);
 	action->setCheckable(true);
 	ActionCollection::addAction("playlistRepeat", action);
+
+	ActionCollection::addAction("playlistClearSearch", new QAction(app));
+
+	ActionCollection::addAction("playlistNew", new QAction(app));
 }
 
 void PlaylistWidget::retranslate() {
@@ -250,7 +258,15 @@ void PlaylistWidget::retranslate() {
 	ActionCollection::action("playlistRepeat")->setText(tr("Repeat"));
 	ActionCollection::action("playlistRepeat")->setIcon(TkIcon("media-playlist-repeat"));
 
+	ActionCollection::action("playlistClearSearch")->setText(tr("Clear Search"));
+	ActionCollection::action("playlistClearSearch")->setIcon(TkIcon("edit-delete"));
+
+	ActionCollection::action("playlistNew")->setText(tr("New Playlist Window"));
+	ActionCollection::action("playlistNew")->setIcon(TkIcon("preferences-system-windows"));
+
 	_playlistToolBar->setMinimumSize(_playlistToolBar->sizeHint());
+
+	_dockWidget->setWindowTitle(tr("Playlist"));
 }
 
 void PlaylistWidget::addFiles() {
@@ -329,21 +345,6 @@ void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject
 	connect(ActionCollection::action("previousTrack"), SIGNAL(triggered()), _playlistModel, SLOT(playPreviousTrack()));
 }
 
-void PlaylistWidget::resizeColumnsToContents() {
-	static const int COLUMN_MAX_WIDTH = 300;
-	static const int COLUMN_MARGIN = 20;
-
-	//Does not start at 0 and does not finish at columnCount():
-	//drops the first and last columns
-	for (int i = 1; i < _playlistModel->columnCount() - 1; i++) {
-		_treeView->resizeColumnToContents(i);
-
-		//Cannot be over a maximum of COLUMN_MAX_WIDTH pixels
-		if (_treeView->columnWidth(i) > COLUMN_MAX_WIDTH) {
-			_treeView->setColumnWidth(i, COLUMN_MAX_WIDTH);
-		}
-
-		//Add a margin to make it look nice
-		_treeView->setColumnWidth(i, _treeView->columnWidth(i) + COLUMN_MARGIN);
-	}
+void PlaylistWidget::createNewPlaylistWidget() {
+	new PlaylistWidget(quarkPlayer());
 }

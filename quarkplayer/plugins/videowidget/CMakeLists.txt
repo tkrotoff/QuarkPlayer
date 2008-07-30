@@ -36,4 +36,7 @@ target_link_libraries(videowidget
 	${QT_QTWEBKIT_LIBRARY}
 )
 
+#Translations
+add_qt_translations(${videowidget_SRCS})
+
 install(TARGETS videowidget DESTINATION ${BIN_INSTALL_DIR}/plugins)

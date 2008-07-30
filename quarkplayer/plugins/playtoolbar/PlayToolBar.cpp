@@ -42,8 +42,6 @@ PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer)
 	: QToolBar(NULL),
 	PluginInterface(quarkPlayer) {
 
-	RETRANSLATE(this);
-
 	_volumeSlider = NULL;
 	_seekSlider = NULL;
 
@@ -70,6 +68,9 @@ PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer)
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
+
+	RETRANSLATE(this);
+	retranslate();
 }
 
 PlayToolBar::~PlayToolBar() {

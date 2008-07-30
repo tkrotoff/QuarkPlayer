@@ -55,6 +55,8 @@ private slots:
 
 	void metaDataChanged();
 
+	void retranslate();
+
 	void coverArtFound(const QByteArray & coverArt, bool accuracy);
 
 	void updateCoverArtPixmap();
@@ -77,6 +79,8 @@ private:
 	int _currentCoverArtIndex;
 
 	QString _amazonCoverArtFilename;
+
+	bool _metaDataChangedAlready;
 };
 
 #endif	//MEDIADATAWIDGET_H

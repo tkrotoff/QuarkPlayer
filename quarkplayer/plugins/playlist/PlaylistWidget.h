@@ -38,6 +38,7 @@ namespace Phonon {
 
 class QToolBar;
 class QTreeView;
+class QDockWidget;
 
 /**
  * Playlist.
@@ -70,7 +71,8 @@ private slots:
 
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
 
-	void resizeColumnsToContents();
+	/** Create a new playlist widget that will add itself to the dockwidget. */
+	void createNewPlaylistWidget();
 
 private:
 
@@ -83,6 +85,8 @@ private:
 	QTreeView * _treeView;
 
 	QToolBar * _playlistToolBar;
+
+	QDockWidget * _dockWidget;
 };
 
 #include <quarkplayer/PluginFactory.h>

@@ -30,4 +30,7 @@ else (KDE4_FOUND)
 	)
 endif (KDE4_FOUND)
 
+#Translations
+add_qt_translations(${quicksettings_SRCS})
+
 install(TARGETS quicksettings DESTINATION ${BIN_INSTALL_DIR}/plugins)

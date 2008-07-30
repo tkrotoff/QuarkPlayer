@@ -27,6 +27,7 @@ SimpleDirModel::SimpleDirModel(const QStringList & nameFilters)
 		QDir::Name | QDir::DirsFirst
 	) {
 
+	//Optimization
 	setLazyChildCount(true);
 }
 

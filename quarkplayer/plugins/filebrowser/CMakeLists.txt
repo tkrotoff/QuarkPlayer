@@ -34,4 +34,7 @@ else (KDE4_FOUND)
 	)
 endif (KDE4_FOUND)
 
+#Translations
+add_qt_translations(${filebrowser_SRCS})
+
 install(TARGETS filebrowser DESTINATION ${BIN_INSTALL_DIR}/plugins)

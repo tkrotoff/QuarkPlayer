@@ -31,6 +31,7 @@ class WebBrowser;
 
 class QUrl;
 class QLabel;
+class QToolButton;
 
 /**
  * Shows the album cover art and other infos about the media playing.
@@ -57,11 +58,18 @@ private slots:
 
 	void lyricsFound(const QByteArray & lyrics, bool accuracy);
 
+	void retranslate();
+
+	/** Refreshes all informations displayed in the window. */
+	void refresh();
+
 private:
 
 	Ui::CoverArtWindow * _ui;
 
 	WebBrowser * _webBrowser;
+
+	QToolButton * _refreshButton;
 
 	QString _coverArtFilename;
 

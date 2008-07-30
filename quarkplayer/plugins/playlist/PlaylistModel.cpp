@@ -38,11 +38,11 @@
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 
-static const int COLUMN_TRACK = 0;
-static const int COLUMN_TITLE = 1;
-static const int COLUMN_ARTIST = 2;
-static const int COLUMN_ALBUM = 3;
-static const int COLUMN_LENGTH = 4;
+const int PlaylistModel::COLUMN_TRACK = 0;
+const int PlaylistModel::COLUMN_TITLE = 1;
+const int PlaylistModel::COLUMN_ARTIST = 2;
+const int PlaylistModel::COLUMN_ALBUM = 3;
+const int PlaylistModel::COLUMN_LENGTH = 4;
 
 static const int COLUMN_COUNT = 5;
 
@@ -69,7 +69,7 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 
 	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
-		SLOT(loadCurrentPlaylist()));
+		SLOT(loadCurrentPlaylist()), Qt::QueuedConnection);
 }
 
 PlaylistModel::~PlaylistModel() {
@@ -386,8 +386,10 @@ void PlaylistModel::metaStateChanged(Phonon::State newState, Phonon::State oldSt
 				break;
 			}
 
-			//track.setTrackNumber(metaData.value("TRACKNUMBER"));
-			track.setTrackNumber(QString::number(row));
+			//Display track numbers like Winamp
+			//track.setTrackNumber(QString::number(row));
+
+			track.setTrackNumber(metaData.value("TRACKNUMBER"));
 			track.setTitle(metaData.value("TITLE"));
 			track.setArtist(metaData.value("ARTIST"));
 			track.setAlbum(metaData.value("ALBUM"));

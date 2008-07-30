@@ -13,10 +13,17 @@
    <item row="0" column="0" >
     <layout class="QGridLayout" name="gridLayout" >
      <item row="0" column="0" >
-      <widget class="QLineEdit" name="searchLineEdit" />
+      <widget class="QLineEdit" name="searchLineEdit" >
+       <property name="toolTip" >
+        <string>Enter a Search Expression</string>
+       </property>
+      </widget>
      </item>
      <item row="0" column="1" >
       <widget class="QToolButton" name="clearSearchButton" >
+       <property name="toolTip" >
+        <string>Clear Search</string>
+       </property>
        <property name="autoRaise" >
         <bool>true</bool>
        </property>
@@ -24,6 +31,19 @@
      </item>
      <item row="0" column="2" >
       <widget class="QToolButton" name="browseButton" >
+       <property name="toolTip" >
+        <string>Change Directory</string>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3" >
+      <widget class="QToolButton" name="newFileBrowserButton" >
+       <property name="toolTip" >
+        <string>New File Browser Window</string>
+       </property>
        <property name="autoRaise" >
         <bool>true</bool>
        </property>
@@ -32,7 +52,11 @@
     </layout>
    </item>
    <item row="1" column="0" >
-    <widget class="QTreeView" name="treeView" />
+    <widget class="QTreeView" name="treeView" >
+     <property name="horizontalScrollBarPolicy" >
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
