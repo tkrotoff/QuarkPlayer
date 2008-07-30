@@ -95,10 +95,9 @@ add_subdirectory(vlc-mplayer)
 
 add_subdirectory(libs)
 
-add_subdirectory(tkutil)
 add_subdirectory(quarkplayer)
 add_subdirectory(quarkplayer/style)
-add_subdirectory(quarkplayer/plugins)
+add_subdirectory(quarkplayer-plugins)
 add_subdirectory(quarkplayer-app)
 
 include(CPackConfig.txt)
