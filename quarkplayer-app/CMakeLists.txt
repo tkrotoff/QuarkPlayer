@@ -18,15 +18,14 @@ if (WIN32)
 endif (WIN32)
 
 set(quarkplayer_TRANSLATIONS
-	${quarkplayercore_SRCS}
-	translations/quarkplayer_en.ts
+	${SRCS_TRANSLATIONS}
 	translations/quarkplayer_fr.ts
 	translations/quarkplayer_de.ts
 )
 
 #Pretty slow :/
-#qt4_create_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
 set(quarkplayer_QMS "")
+qt4_create_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
 ##
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
