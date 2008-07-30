@@ -35,7 +35,7 @@ class QHttp;
  * @see http://wikipedia.org
  * @author Tanguy Krotoff
  */
-class WikipediaArticle : public ContentFetcher {
+class CONTENTFETCHER_API WikipediaArticle : public ContentFetcher {
 	Q_OBJECT
 public:
 

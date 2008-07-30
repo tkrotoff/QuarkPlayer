@@ -16,8 +16,7 @@ qt4_wrap_cpp(contentfetcher_SRCS
 	WikipediaArticle.h
 )
 
-#add_library(contentfetcher SHARED ${contentfetcher_SRCS})
-add_library(contentfetcher STATIC ${contentfetcher_SRCS})
+add_library(contentfetcher SHARED ${contentfetcher_SRCS})
 
 target_link_libraries(contentfetcher
 	${QT_QTCORE_LIBRARY}

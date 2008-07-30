@@ -23,10 +23,10 @@
 
 #ifdef BUILD_WEBBROWSER
 	//We are building this library
-	//#define CONTENTFETCHER_API Q_DECL_EXPORT
+	#define WEBBROWSER_API Q_DECL_EXPORT
 #else
 	//We are using this library
-	//#define CONTENTFETCHER_API Q_DECL_IMPORT
+	#define WEBBROWSER_API Q_DECL_IMPORT
 #endif
 
 #endif	//WEBBROWSEREXPORT_H

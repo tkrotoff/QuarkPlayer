@@ -10,8 +10,7 @@ qt4_wrap_cpp(webbrowser_SRCS
 	WebBrowser.h
 )
 
-#add_library(webbrowser SHARED ${webbrowser_SRCS})
-add_library(webbrowser STATIC ${webbrowser_SRCS})
+add_library(webbrowser SHARED ${webbrowser_SRCS})
 
 target_link_libraries(webbrowser
 	tkutil

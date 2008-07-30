@@ -32,7 +32,7 @@ class QNetworkAccessManager;
  * @see http://lyricwiki.org
  * @author Tanguy Krotoff
  */
-class LyricsFetcher : public ContentFetcher {
+class CONTENTFETCHER_API LyricsFetcher : public ContentFetcher {
 	Q_OBJECT
 public:
 

@@ -23,10 +23,10 @@
 
 #ifdef BUILD_CONTENTFETCHER
 	//We are building this library
-	//#define CONTENTFETCHER_API Q_DECL_EXPORT
+	#define CONTENTFETCHER_API Q_DECL_EXPORT
 #else
 	//We are using this library
-	//#define CONTENTFETCHER_API Q_DECL_IMPORT
+	#define CONTENTFETCHER_API Q_DECL_IMPORT
 #endif
 
 #endif	//CONTENTFETCHEREXPORT_H

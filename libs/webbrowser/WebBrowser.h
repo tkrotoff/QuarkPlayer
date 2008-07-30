@@ -44,7 +44,7 @@ class QUrl;
  * @see http://doc.trolltech.com/main-snapshot/richtext-html-subset.html
  * @author Tanguy Krotoff
  */
-class WebBrowser : public QWidget {
+class WEBBROWSER_API WebBrowser : public QWidget {
 	Q_OBJECT
 public:
 

@@ -29,7 +29,7 @@
  *
  * @author Tanguy Krotoff
  */
-class ContentFetcher : public QObject {
+class CONTENTFETCHER_API ContentFetcher : public QObject {
 	Q_OBJECT
 public:
 

@@ -36,7 +36,7 @@ class QByteArray;
  * @see http://amazon.com
  * @author Tanguy Krotoff
  */
-class AmazonCoverArt : public ContentFetcher {
+class CONTENTFETCHER_API AmazonCoverArt : public ContentFetcher {
 	Q_OBJECT
 public:
 
