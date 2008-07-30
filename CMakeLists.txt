@@ -14,7 +14,7 @@ endif (NOT ENV{KDEDIRS})
 #Desactivate KDE4 integration since it gives some troubles
 #will be changed in the future
 #cf http://code.google.com/p/phonon-vlc-mplayer/issues/detail?id=2
-#find_package(KDE4)
+find_package(KDE4)
 
 if (KDE4_FOUND)
 	include(KDE4Defaults)

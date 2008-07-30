@@ -34,13 +34,17 @@ int Random::randomInt(int min, int max) {
 
 	static int lastNumber = -1;
 	int number = 0;
+
 	//We don't want 2 consecutive equal numbers
 	//I do this because having the same song playing 2 times in a row it pretty boring...
+	//qrand() returns a value between 0 and RAND_MAX
 	do {
 		if (min > max) {
-			number = max + (int) (qrand() * (min - max + 1) / (RAND_MAX + 1.0));
+			//number = max + (int) (qrand() * (min - max + 1) / (RAND_MAX + 1.0));
+			number = max + ((float) qrand() / (float) RAND_MAX) * (min + 1);
 		} else {
-			number = min + (int) (qrand() * (max - min + 1) / (RAND_MAX + 1.0));
+			//number = min + (int) (qrand() * (max - min + 1) / (RAND_MAX + 1.0));
+			number = min + ((float) qrand() / (float) RAND_MAX) * (max + 1);
 		}
 	} while (number == lastNumber);
 	lastNumber = number;

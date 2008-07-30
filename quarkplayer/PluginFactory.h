@@ -34,6 +34,8 @@ public:
 
 	virtual PluginInterface * create(QuarkPlayer & quarkPlayer) const = 0;
 
+	virtual ~PluginFactory() { }
+
 private:
 };
 
