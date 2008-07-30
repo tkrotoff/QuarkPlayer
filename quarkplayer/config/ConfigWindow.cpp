@@ -23,6 +23,8 @@
 #include "GeneralConfigWidget.h"
 #include "SettingsBrowser.h"
 #include "BackendCapabilitiesWidget.h"
+#include "PluginsConfigWidget.h"
+#include "WinFileAssociationsConfigWidget.h"
 
 #include <tkutil/TkIcon.h>
 #include <tkutil/LanguageChangeEventFilter.h>
@@ -32,7 +34,9 @@
 
 #include <QtCore/QDebug>
 
-QList<IConfigWidget *> ConfigWindow::_configWidgetList;
+QList<ConfigWindow::ConfigWidget> ConfigWindow::_configWidgetList;
+
+static const int COLUMN = 0;
 
 ConfigWindow::ConfigWindow(QWidget * parent)
 	: QDialog(parent) {
@@ -45,57 +49,87 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	_lastConfigWindowOpenedIndex = 0;
 
 	//Add all config panels/widgets to the list
-	_configWidgetList.prepend(new SettingsBrowser());
-	_configWidgetList.prepend(new BackendCapabilitiesWidget());
-	_configWidgetList.prepend(new GeneralConfigWidget());
+	_configWidgetList.prepend(ConfigWidget(new PluginsConfigWidget()));
+	_configWidgetList.prepend(ConfigWidget(new SettingsBrowser()));
+	_configWidgetList.prepend(ConfigWidget(new WinFileAssociationsConfigWidget()));
+	_configWidgetList.prepend(ConfigWidget(new BackendCapabilitiesWidget()));
+	_configWidgetList.prepend(ConfigWidget(new GeneralConfigWidget()));
 
-	//listWidget
-	connect(_ui->listWidget, SIGNAL(currentRowChanged(int)),
-		SLOT(showConfigWidget(int)));
+	//treeWidget item activated/clicked
+	connect(_ui->treeWidget, SIGNAL(itemActivated(QTreeWidgetItem *, int)),
+		SLOT(showConfigWidget(QTreeWidgetItem *)));
+	connect(_ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
+		SLOT(showConfigWidget(QTreeWidgetItem *)));
 
 	populateStackedWidget();
 
-	//Select the first (top one) config panel/widget from the list
-	_ui->listWidget->setCurrentRow(0);
-	showConfigWidget(0);
+	_ui->treeWidget->setHeaderHidden(true);
 
 	//saveButton
 	connect(_ui->buttonBox, SIGNAL(accepted()), SLOT(saveConfig()));
 }
 
 ConfigWindow::~ConfigWindow() {
-	delete _ui;
 }
 
 void ConfigWindow::addConfigWidget(IConfigWidget * configWidget) {
-	_configWidgetList += configWidget;
+	_configWidgetList += ConfigWidget(configWidget, true);
 }
 
 void ConfigWindow::populateStackedWidget() {
+	static QTreeWidgetItem * pluginsItem = NULL;
+	static bool firstTime = true;
+
 	//stackedWidget + read config for each config widget
 	TkStackedWidget::removeAllWidgets(_ui->stackedWidget);
-	_ui->listWidget->clear();
-	foreach (IConfigWidget * configWidget, _configWidgetList) {
-		configWidget->readConfig();
-		QLayout * layout = configWidget->layout();
+	_ui->treeWidget->clear();
+	foreach (ConfigWidget tmp, _configWidgetList) {
+		tmp.configWidget->readConfig();
+		QLayout * layout = tmp.configWidget->layout();
 		if (layout) {
 			layout->setMargin(0);
-			layout->setSpacing(0);
+			//layout->setSpacing(0);
 		}
-		_ui->stackedWidget->addWidget(configWidget);
-		new QListWidgetItem(TkIcon(configWidget->iconName()), configWidget->name(), _ui->listWidget);
+		_ui->stackedWidget->addWidget(tmp.configWidget);
+		QTreeWidgetItem * item;
+		if (tmp.isPlugin) {
+			item = new QTreeWidgetItem(pluginsItem);
+		} else {
+			item = new QTreeWidgetItem(_ui->treeWidget);
+		}
+		item->setExpanded(true);
+		item->setIcon(COLUMN, TkIcon(tmp.configWidget->iconName()));
+		item->setText(COLUMN, tmp.configWidget->name());
+
+		if (qobject_cast<PluginsConfigWidget *>(tmp.configWidget)) {
+			//Saves the QTreeWidgetItem for plugins
+			//then we can add plugins to this item
+			//This works because PluginsConfigWidget is added to the list before the plugins
+			pluginsItem = item;
+		}
+
+		if (firstTime) {
+			//Select the first item in the list
+			firstTime = false;
+			_ui->treeWidget->setCurrentItem(item);
+			showConfigWidget(item);
+		}
 	}
 
-	//listWidget width
-	_ui->listWidget->setFixedWidth(computeListViewMinimumWidth(_ui->listWidget) + 30);
+	//treeWidget width
+	_ui->treeWidget->setFixedWidth(computeListViewMinimumWidth(_ui->treeWidget) + 50);
 }
 
-void ConfigWindow::showConfigWidget(int row) {
-	if (row < 0 || row >= _configWidgetList.size()) {
-		return;
+void ConfigWindow::showConfigWidget(QTreeWidgetItem * item) {
+	IConfigWidget * configWidget = NULL;
+	foreach (ConfigWidget tmp, _configWidgetList) {
+		if (tmp.configWidget->name() == item->text(COLUMN)) {
+			//We found the associated config widget
+			configWidget = tmp.configWidget;
+			break;
+		}
 	}
 
-	IConfigWidget * configWidget = _configWidgetList.at(row);
 	if (!configWidget) {
 		qCritical() << __FUNCTION__ << "Error: configWidget cannot be NULL";
 	}
@@ -139,8 +173,8 @@ int ConfigWindow::computeListViewMinimumWidth(QAbstractItemView * view) {
 void ConfigWindow::retranslate() {
 	_ui->retranslateUi(this);
 
-	foreach (IConfigWidget * configWidget, _configWidgetList) {
-		configWidget->retranslate();
+	foreach (ConfigWidget tmp, _configWidgetList) {
+		tmp.configWidget->retranslate();
 	}
 
 	populateStackedWidget();

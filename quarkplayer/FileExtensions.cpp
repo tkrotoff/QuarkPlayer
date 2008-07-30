@@ -29,13 +29,12 @@ QStringList FileExtensions::video() {
 		_videoExtensions << "avi" << "vfw" << "divx"
 			<< "mpg" << "mpeg" << "m1v" << "m2v" << "mpv" << "dv" << "3gp"
 			<< "mov" << "mp4" << "m4v" << "mqv"
-			<< "dat" << "vcd"
-			<< "ogg" << "ogm"
+			<< "vcd" << "ogg" << "ogm"
 			<< "asf" << "wmv"
-			<< "bin" << "iso" << "vob"
-			<< "mkv" << "nsv" << "ram" << "flv"
+			<< "vob" << "mkv"
+			<< "nsv" << "ram" << "flv"
 			<< "rm" << "swf"
-			<< "ts" << "rmvb" << "dvr-ms" << "m2t";
+			<< "rmvb" << "dvr-ms" << "m2t";
 	}
 	return _videoExtensions;
 }
@@ -61,7 +60,7 @@ QStringList FileExtensions::multimedia() {
 
 QStringList FileExtensions::subtitle() {
 	if (_subtitleExtensions.isEmpty()) {
-		_subtitleExtensions << "srt" << "sub" << "ssa" << "ass" << "idx" << "txt" << "smi"
+		_subtitleExtensions << "srt" << "sub" << "ssa" << "ass" << "idx" << "smi"
 			<< "rt" << "utf" << "aqt";
 	}
 	return _subtitleExtensions;

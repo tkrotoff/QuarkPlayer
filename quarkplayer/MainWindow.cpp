@@ -27,6 +27,7 @@
 
 #include <tkutil/ActionCollection.h>
 #include <tkutil/TkIcon.h>
+#include <tkutil/TkFile.h>
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
@@ -49,9 +50,6 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent)
 	//Accepts Drag&Drop
 	setAcceptDrops(true);
 
-	RETRANSLATE(this);
-	retranslate();
-
 	addRecentFilesToMenu();
 
 	//playToolBar
@@ -72,6 +70,9 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent)
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
+
+	RETRANSLATE(this);
+	retranslate();
 }
 
 MainWindow::~MainWindow() {
@@ -113,6 +114,7 @@ void MainWindow::addRecentFilesToMenu() {
 			QUrl url(filename);
 			if (url.host().isEmpty()) {
 				//Then we have a local file and not a real url (i.e "http://blabla")
+				filename = TkFile::fileName(filename);
 				filename = filename.right(filename.length() - filename.lastIndexOf('/') - 1);
 			}
 
@@ -451,6 +453,8 @@ QMenu * MainWindow::menuAngles() const {
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent * event) {
+	qDebug() << __FUNCTION__ << event->mimeData()->formats();
+
 	if (event->mimeData()->hasUrls()) {
 		event->acceptProposedAction();
 	}
@@ -513,6 +517,10 @@ void MainWindow::addBrowserDockWidget(QDockWidget * widget) {
 		tabifyDockWidget(lastDockWidget, widget);
 	}
 	lastDockWidget = widget;
+}
+
+void MainWindow::removeBrowserDockWidget(QDockWidget * widget) {
+	removeDockWidget(widget);
 }
 
 void MainWindow::addVideoDockWidget(QDockWidget * widget) {

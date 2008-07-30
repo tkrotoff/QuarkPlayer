@@ -24,6 +24,8 @@
 #include "config/Config.h"
 #include "version.h"
 
+#include <tkutil/TkFile.h>
+
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>
 #include <phonon/mediasource.h>
@@ -64,8 +66,7 @@ QString QuarkPlayer::currentMediaObjectTitle() const {
 	QString artist = metaData.value("ARTIST");
 	QString title = metaData.value("TITLE");
 	if (artist.isEmpty() && title.isEmpty()) {
-		fullTitle = _currentMediaObject->currentSource().fileName();
-		fullTitle = fullTitle.right(fullTitle.length() - fullTitle.lastIndexOf('/') - 1);
+		fullTitle = TkFile::removeFileExtension(TkFile::fileName(_currentMediaObject->currentSource().fileName()));
 	} else {
 		if (!title.isEmpty()) {
 			fullTitle = title;
@@ -86,8 +87,10 @@ QList<Phonon::MediaObject *> QuarkPlayer::mediaObjectList() const {
 }
 
 void QuarkPlayer::play(const Phonon::MediaSource & mediaSource) {
-	_currentMediaObject->setCurrentSource(mediaSource);
-	_currentMediaObject->play();
+	if (_currentMediaObject) {
+		_currentMediaObject->setCurrentSource(mediaSource);
+		_currentMediaObject->play();
+	}
 }
 
 Phonon::AudioOutput * QuarkPlayer::currentAudioOutput() const {

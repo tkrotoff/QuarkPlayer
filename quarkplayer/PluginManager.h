@@ -22,8 +22,11 @@
 #include <quarkplayer/quarkplayer_export.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QMap>
 
 class QuarkPlayer;
+
+class QPluginLoader;
 
 /**
  * Manages/loads QuarkPlayer plugins.
@@ -43,26 +46,45 @@ public:
 
 	void loadPlugins(QuarkPlayer & quarkPlayer);
 
+	typedef QMap<QString, QPluginLoader *> PluginMap;
+	PluginMap pluginMap() const;
+
 signals:
 
+	/**
+	 * All plugins have been loaded.
+	 *
+	 * This signal is usefull for doing some processing after the GUI has
+	 * been drew (i.e all plugins loaded since most of the plugins contain GUIs).
+	 *
+	 * Typical case:
+	 * the playlist plugin loads automatically current_playlist.m3u which can
+	 * be huge. Instead of doing it inside the playlist plugin constructor,
+	 * we do it inside a slot connected to this signal. This way, the GUI
+	 * is drew very quickly.
+	 *
+	 * Consider using Qt::QueuedConnection when you connect to this signal,
+	 * this way you won't block the signal from being sent to other slots.
+	 *
+	 * Qt::AutoConnection is in fact Qt::DirectConnection
+	 * and Qt::DirectConnection waits for the current slot to process before
+	 * to deliver the signal to other slots.
+	 *
+	 * So if you're slot needs a lot of time to process, it is better to use
+	 * Qt::QueuedConnection
+	 *
+	 * @see http://doc.trolltech.com/main-snapshot/qt.html#ConnectionType-enum
+	 */
 	void allPluginsLoaded();
 
 private:
 
 	PluginManager();
 
-	template <class T>
-	static QList<T> & randomize(QList<T> & list);
-
-	/**
-	 * Generates a random number between min (included) and max (included).
-	 *
-	 * @see http://www.geekpedia.com/tutorial39_Random-Number-Generation.html
-	 */
-	static int randomInt(int min, int max);
-
 	/** Singleton. */
 	static PluginManager * _pluginManager;
+
+	PluginMap _pluginMap;
 };
 
 #endif	//PLUGINMANAGER_H

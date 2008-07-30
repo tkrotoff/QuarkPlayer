@@ -30,6 +30,7 @@ class IConfigWidget;
 namespace Ui { class ConfigWindow; }
 
 class QAbstractItemView;
+class QTreeWidgetItem;
 
 /**
  * Window that shows QuarkPlayer configuration.
@@ -48,7 +49,7 @@ public:
 
 private slots:
 
-	void showConfigWidget(int row);
+	void showConfigWidget(QTreeWidgetItem * item);
 
 	void saveConfig();
 
@@ -62,8 +63,22 @@ private:
 
 	Ui::ConfigWindow * _ui;
 
+	class ConfigWidget {
+	public:
+
+		ConfigWidget(IConfigWidget * _configWidget, bool _isPlugin = false) {
+			configWidget = _configWidget;
+			isPlugin = _isPlugin;
+		}
+
+		IConfigWidget * configWidget;
+
+		/** If the IConfigWidget should be in the plugin categorie or not. */
+		bool isPlugin;
+	};
+
 	/** List of all config widget. */
-	static QList<IConfigWidget *> _configWidgetList;
+	static QList<ConfigWidget> _configWidgetList;
 
 	/**
 	 * List of opened config widget.

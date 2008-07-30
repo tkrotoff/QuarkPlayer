@@ -66,6 +66,7 @@ public:
 	QMenu * menuAngles() const;
 
 	void addBrowserDockWidget(QDockWidget * widget);
+	void removeBrowserDockWidget(QDockWidget * widget);
 
 	void addVideoDockWidget(QDockWidget * widget);
 

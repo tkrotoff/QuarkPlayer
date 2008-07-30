@@ -34,6 +34,8 @@ set(quarkplayercore_SRCS
 	config/GeneralConfigWidget.cpp
 	config/SettingsBrowser.cpp
 	config/BackendCapabilitiesWidget.cpp
+	config/PluginsConfigWidget.cpp
+	config/WinFileAssociationsConfigWidget.cpp
 )
 
 qt4_wrap_cpp(quarkplayercore_SRCS
@@ -46,6 +48,8 @@ qt4_wrap_cpp(quarkplayercore_SRCS
 	config/GeneralConfigWidget.h
 	config/SettingsBrowser.h
 	config/BackendCapabilitiesWidget.h
+	config/PluginsConfigWidget.h
+	config/WinFileAssociationsConfigWidget.h
 )
 
 qt4_wrap_ui(quarkplayercore_SRCS
@@ -54,6 +58,8 @@ qt4_wrap_ui(quarkplayercore_SRCS
 	config/GeneralConfigWidget.ui
 	config/SettingsBrowser.ui
 	config/BackendCapabilitiesWidget.ui
+	config/PluginsConfigWidget.ui
+	config/WinFileAssociationsConfigWidget.ui
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -62,6 +68,7 @@ add_library(quarkplayercore SHARED ${quarkplayercore_SRCS})
 if (KDE4_FOUND)
 	target_link_libraries(quarkplayercore
 		tkutil
+		winfileassociations
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
 		${KDE4_KIO_LIBS}
@@ -70,11 +77,15 @@ if (KDE4_FOUND)
 else (KDE4_FOUND)
 	target_link_libraries(quarkplayercore
 		tkutil
+		winfileassociations
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
 		${QT_PHONON_LIBRARY}
 		${QT_QTMAIN_LIBRARY}
 	)
 endif (KDE4_FOUND)
+
+#Translations
+add_qt_translations(${quarkplayercore_SRCS})
 
 install(TARGETS quarkplayercore DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

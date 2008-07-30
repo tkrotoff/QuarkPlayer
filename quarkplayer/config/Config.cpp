@@ -21,6 +21,7 @@
 #include <QtGui/QDesktopServices>
 
 #include <QtCore/QStringList>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
 const char * Config::BACKEND_KEY = "backend";
@@ -37,6 +38,9 @@ const char * Config::LAST_DIRECTORY_USED_KEY = "last_directory_used";
 const char * Config::LAST_VOLUME_USED_KEY = "last_volume_used";
 
 const char * Config::MUSIC_DIR_KEY = "music_dir";
+
+const char * Config::PLUGINS_DIR_KEY = "plugins_dir";
+const char * Config::PLUGINS_DISABLED_KEY = "plugins_disabled";
 
 
 const char * Config::TEST_INT_KEY = "test_int";
@@ -65,6 +69,8 @@ Config::Config()
 	addKey(LAST_DIRECTORY_USED_KEY, QString());
 	addKey(LAST_VOLUME_USED_KEY, 1.0f);
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
+	addKey(PLUGINS_DIR_KEY, QString(QCoreApplication::applicationDirPath() + "/plugins"));
+	addKey(PLUGINS_DISABLED_KEY, QStringList());
 
 	addKey(TEST_INT_KEY, 0);
 	addKey(TEST_BOOL_KEY, false);
@@ -122,6 +128,13 @@ QString Config::musicDir() const {
 	return value(MUSIC_DIR_KEY).toString();
 }
 
+QString Config::pluginsDir() const {
+	return value(PLUGINS_DIR_KEY).toString();
+}
+
+QStringList Config::pluginsDisabled() const {
+	return value(PLUGINS_DISABLED_KEY).toStringList();
+}
 
 
 

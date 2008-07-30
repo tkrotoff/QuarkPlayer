@@ -20,19 +20,18 @@
 
 #include "PluginFactory.h"
 #include "PluginInterface.h"
+#include "config/Config.h"
+
+#include <tkutil/Random.h>
 
 #include <QtCore/QPluginLoader>
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
-#include <cstdlib>
-#include <ctime>
-
 PluginManager * PluginManager::_pluginManager = NULL;
 
 PluginManager::PluginManager() {
-	srand(time(NULL));
 }
 
 PluginManager::~PluginManager() {
@@ -46,17 +45,33 @@ PluginManager & PluginManager::instance() {
 }
 
 void PluginManager::loadPlugins(QuarkPlayer & quarkPlayer) {
+	QCoreApplication::processEvents();
+
 	QList<int> randomList;
 
-	QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "/plugins");
+	QDir pluginsDir = QDir(Config::instance().pluginsDir());
 	QStringList before = pluginsDir.entryList(QDir::Files);
 	qDebug() << __FUNCTION__ << "Before randomize:" << before;
-	QStringList pluginList = randomize(before);
+	QStringList pluginList = Random::randomize(before);
 	qDebug() << __FUNCTION__ << "After randomize:" << pluginList;
 
 	foreach (QString filename, pluginList) {
-		QPluginLoader loader(pluginsDir.absoluteFilePath(filename));
-		QObject * plugin = loader.instance();
+		QString filePath(pluginsDir.absoluteFilePath(filename));
+
+		if (!QLibrary::isLibrary(filePath)) {
+			//Don't proced no library file
+			continue;
+		}
+
+		QPluginLoader * loader = new QPluginLoader(filePath);
+		_pluginMap[filename] = loader;
+
+		if (Config::instance().pluginsDisabled().contains(filename)) {
+			//This means this plugin must not be loaded
+			continue;
+		}
+
+		QObject * plugin = loader->instance();
 		if (plugin) {
 			PluginFactory * factory = qobject_cast<PluginFactory *>(plugin);
 			if (factory) {
@@ -64,37 +79,16 @@ void PluginManager::loadPlugins(QuarkPlayer & quarkPlayer) {
 				qDebug() << __FUNCTION__ << "Plugin loaded:" << filename;
 			}
 		} else {
-			qCritical() << __FUNCTION__ << "Error: plugin not loaded:" << filename << loader.errorString();
+			loader->unload();
+			qCritical() << __FUNCTION__ << "Error: plugin not loaded:" << filename << loader->errorString();
 		}
+
+		QCoreApplication::processEvents();
 	}
+
 	emit allPluginsLoaded();
 }
 
-template <class T>
-QList<T> & PluginManager::randomize(QList<T> & list) {
-	int min = 0;
-	int max = list.size();
-
-	int randomIndex1 = randomInt(min, max - 1);
-	int randomIndex2 = randomInt(min, max - 1);
-
-	for (int i = 0; i < max; i++) {
-		list.swap(randomIndex1, randomIndex2);
-	}
-
-	return list;
-}
-
-int PluginManager::randomInt(int min, int max) {
-	int number = 0;
-
-	if (min > max) {
-		number = max + (int) (rand() * (min - max + 1) / (RAND_MAX + 1.0));
-	} else {
-		number = min + (int) (rand() * (max - min + 1) / (RAND_MAX + 1.0));
-	}
-
-	qDebug() << __FUNCTION__ << number;
-
-	return number;
+PluginManager::PluginMap PluginManager::pluginMap() const {
+	return _pluginMap;
 }

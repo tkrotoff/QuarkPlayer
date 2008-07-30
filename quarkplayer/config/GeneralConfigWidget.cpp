@@ -112,7 +112,7 @@ void GeneralConfigWidget::readConfig() {
 
 QMap<QString, QString> GeneralConfigWidget::languageList() {
 	QMap<QString, QString> list;
-	list["en_US"] = tr("English") + " (English)";
+	list["en"] = tr("English") + " (English)";
 	list["fr"] = tr("French") + " (French)";
 	list["de"] = tr("German") + " (German)";
 	return list;

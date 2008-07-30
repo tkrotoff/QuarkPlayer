@@ -31,14 +31,19 @@
 class QUARKPLAYER_API FileExtensions {
 public:
 
+	/** Video extensions: "avi", "mpeg", "divx"... */
 	static QStringList video();
 
+	/** Audio extensions: "mp3", "ogg", "wav"... */
 	static QStringList audio();
 
+	/** Multimedia extensions: video + audio extensions. */
 	static QStringList multimedia();
 
+	/** Subtitle extensions: "srt", "sub", "ssa"... */
 	static QStringList subtitle();
 
+	/** Playlist extensions: "m3u", "m3u8", "pls"... */
 	static QStringList playlist();
 
 	/**

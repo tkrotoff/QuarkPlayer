@@ -44,27 +44,42 @@ public:
 	QStringList backendList() const;
 	QString backend() const;
 
+	/** Language of the application (i.e en, fr, sp...). */
 	static const char * LANGUAGE_KEY;
 	QString language() const;
 
+	/** Qt style name to be used. */
 	static const char * STYLE_KEY;
 	QString style() const;
 
+	/** Icon theme to be used (silk, oxygen, tango...). */
 	static const char * ICON_THEME_KEY;
 	QStringList iconThemeList() const;
 	QString iconTheme() const;
 
+	/** The most recent files played. */
 	static const char * RECENT_FILES_KEY;
 	QStringList recentFiles() const;
 
+	/** Last directory used to open a media. */
 	static const char * LAST_DIRECTORY_USED_KEY;
 	QString lastDirectoryUsed() const;
 
+	/** Last media volume used. */
 	static const char * LAST_VOLUME_USED_KEY;
 	qreal lastVolumeUsed() const;
 
+	/** Standard music location (i.e C:/blabla/My Music). */
 	static const char * MUSIC_DIR_KEY;
 	QString musicDir() const;
+
+	/** Directory where the plugins *.(dll|so|dylib) are located. */
+	static const char * PLUGINS_DIR_KEY;
+	QString pluginsDir() const;
+
+	/** Plugins black list. */
+	static const char * PLUGINS_DISABLED_KEY;
+	QStringList pluginsDisabled() const;
 
 
 
