@@ -21,6 +21,7 @@ set(quarkplayer_TRANSLATIONS
 	${SRCS_TRANSLATIONS}
 	translations/quarkplayer_fr.ts
 	translations/quarkplayer_de.ts
+	translations/quarkplayer_es.ts
 )
 
 #Pretty slow :/
