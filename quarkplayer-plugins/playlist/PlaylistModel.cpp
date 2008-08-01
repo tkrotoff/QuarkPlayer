@@ -208,6 +208,7 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 	_rowWhereToInsertFiles = row;
 	connect(&findFiles, SIGNAL(filesFound(const QStringList &)),
 		SLOT(filesFound(const QStringList &)));
+	connect(&findFiles, SIGNAL(finished()), SLOT(saveCurrentPlaylist()));
 
 	//Add urls to a list
 	if (data->hasUrls()) {
@@ -229,7 +230,8 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 				if (isMultimediaFile) {
 					files << filename;
 				} else if (fileInfo.isDir()) {
-					findFiles.findAllFiles(filename);
+					findFiles.setSearchPath(filename);
+					findFiles.findAllFiles();
 				}
 			}
 		}

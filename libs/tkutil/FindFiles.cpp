@@ -24,10 +24,39 @@
 
 static const int FILES_FOUND_LIMIT = 100;
 
-FindFiles::FindFiles() {
+FindFiles::FindFiles(QObject * parent)
+	: QObject(parent) {
 }
 
 FindFiles::~FindFiles() {
+}
+
+void FindFiles::setSearchPath(const QString & path) {
+	_path = path;
+}
+
+void FindFiles::findFiles() {
+	if (_path.isEmpty()) {
+		qCritical() << __FUNCTION__ << "Error: empty path";
+		return;
+	}
+
+	findFiles(_path);
+
+	//Emits the last signal
+	emit finished();
+}
+
+void FindFiles::findAllFiles() {
+	if (_path.isEmpty()) {
+		qCritical() << __FUNCTION__ << "Error: empty path";
+		return;
+	}
+
+	findAllFiles(_path);
+
+	//Emits the last signal
+	emit finished();
 }
 
 void FindFiles::findFiles(const QString & path) {

@@ -30,6 +30,9 @@ class QStringList;
  * Don't forget to use QCoreApplication::processEvents() between
  * 2 filesFound() signal.
  *
+ * Follows the same API as TkUtil::FindFiles class.
+ *
+ * @see FindFiles
  * @author Tanguy Krotoff
  */
 class IPlaylistParser : public QObject {
@@ -73,6 +76,13 @@ signals:
 	 * @param files list of files (full path filename) contained inside the playlist
 	 */
 	void filesFound(const QStringList & files);
+
+	/**
+	 * Sends the signal after all filesFound() signals, this is the last signal sent.
+	 *
+	 * Guaranteed to be sent only once.
+	 */
+	void finished();
 };
 
 #endif	//IPLAYLISTPARSER_H

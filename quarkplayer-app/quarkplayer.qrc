@@ -6,7 +6,5 @@
 	<file>icons/hi64-app-quarkplayer.png</file>
 	<file>icons/hi128-app-quarkplayer.png</file>
 	<file>icons/hi300-app-quarkplayer.png</file>
-
-	<file>images/media-data-backgound.png</file>
 </qresource>
 </RCC>

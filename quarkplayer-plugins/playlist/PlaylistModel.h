@@ -53,15 +53,18 @@ public:
 
 	~PlaylistModel();
 
-	void highlightItem(int row);
-
 	/**
 	 * Add files to the model.
+	 *
+	 * Does not save the new added files to the current playlist,
+	 * use saveCurrentPlaylist() for that.
 	 *
 	 * @param files files to add to the model
 	 * @param row location in the model where to add the files; if -1 then append the files
 	 */
 	void addFiles(const QStringList & files, int row = -1);
+
+	void highlightItem(int row);
 
 	/** Returns the files displayed in the playlist. */
 	QStringList files() const;
@@ -96,6 +99,9 @@ public slots:
 
 	void setRepeat(bool repeat);
 
+	/** Saves the current playlist to a file. */
+	void saveCurrentPlaylist() const;
+
 private slots:
 
 	void metaStateChanged(Phonon::State newState, Phonon::State oldState);
@@ -106,13 +112,11 @@ private slots:
 
 	void enqueueNextTrack();
 
-	void filesFound(const QStringList & files);
-
 	void loadCurrentPlaylist();
 
-private:
+	void filesFound(const QStringList & files);
 
-	void saveCurrentPlaylist() const;
+private:
 
 	void updateRow(int row);
 

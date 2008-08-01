@@ -74,6 +74,8 @@ private slots:
 	/** Create a new playlist widget that will add itself to the dockwidget. */
 	void createNewPlaylistWidget();
 
+	void parserFilesFound(const QStringList & files);
+
 private:
 
 	void populateActionCollection();

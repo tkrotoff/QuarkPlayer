@@ -32,21 +32,58 @@
  * Don't forget to use QCoreApplication::processEvents() between
  * 2 filesFound() signal.
  *
+ * Follows the same API as PlaylistParser class.
+ *
+ * @see IPlaylistParser
  * @author Tanguy Krotoff
  */
 class TKUTIL_API FindFiles : public QObject {
 	Q_OBJECT
 public:
 
-	FindFiles();
+	FindFiles(QObject * parent = 0);
 
 	~FindFiles();
+
+	/**
+	 * Sets the seach path.
+	 *
+	 * @param path directory where to search for files.
+	 */
+	void setSearchPath(const QString & path);
+
+	/**
+	 * Finds root files (non recursive).
+	 */
+	void findFiles();
+
+	/**
+	 * Finds all the files (recursive) of a given directory.
+	 */
+	void findAllFiles();
+
+signals:
+
+	/**
+	 * Sends the signal every FILES_FOUND_LIMIT files found.
+	 *
+	 * @param files list of files (full path filename)
+	 */
+	void filesFound(const QStringList & files);
+
+	/**
+	 * Sends the signal after all filesFound() signals, this is the last signal sent.
+	 *
+	 * Guaranteed to be sent only once.
+	 */
+	void finished();
+
+private:
 
 	/**
 	 * Finds root files (non recursive) of a given directory.
 	 *
 	 * @param path directory where to search for files.
-	 * @return list of files
 	 */
 	void findFiles(const QString & path);
 
@@ -54,17 +91,10 @@ public:
 	 * Finds all the files (recursive) of a given directory.
 	 *
 	 * @param path directory where to search for files
-	 * @return list of files
 	 */
 	void findAllFiles(const QString & path);
 
-signals:
-
-	/** Sends the signal every FILES_FOUND_LIMIT files found. */
-	void filesFound(const QStringList & files);
-
-private:
-
+	QString _path;
 };
 
 #endif	//FINDFILES_H

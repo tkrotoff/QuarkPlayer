@@ -26,7 +26,8 @@
 #include "MPlayerVersion.h"
 
 #ifdef Q_OS_WIN
-	static const char * MPLAYER_EXE = "C:/Program Files/SMPlayer/mplayer/mplayer.exe";
+	//Under Windows, mplayer.exe should be inside a subdirectory mplayer
+	static const char * MPLAYER_EXE = "mplayer/mplayer.exe";
 #else
 	static const char * MPLAYER_EXE = "mplayer";
 #endif

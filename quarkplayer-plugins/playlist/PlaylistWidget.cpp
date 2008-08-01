@@ -271,7 +271,9 @@ void PlaylistWidget::retranslate() {
 
 void PlaylistWidget::addFiles() {
 	QStringList files = TkFileDialog::getOpenFileNames(this, tr("Select Audio/Video Files"), Config::instance().lastDirectoryUsed());
+
 	_playlistModel->addFiles(files);
+	_playlistModel->saveCurrentPlaylist();
 }
 
 void PlaylistWidget::addDir() {
@@ -290,6 +292,7 @@ void PlaylistWidget::addDir() {
 	}
 
 	_playlistModel->addFiles(files);
+	_playlistModel->saveCurrentPlaylist();
 }
 
 void PlaylistWidget::addURL() {
@@ -299,15 +302,23 @@ void PlaylistWidget::addURL() {
 	files << url;
 
 	_playlistModel->addFiles(files);
+	_playlistModel->saveCurrentPlaylist();
 }
 
 void PlaylistWidget::openPlaylist() {
-	/*QString file = TkFileDialog::getOpenFileName(this, tr("Select Playlist File"), Config::instance().lastDirectoryUsed());
+	QString file = TkFileDialog::getOpenFileName(this, tr("Select Playlist File"), Config::instance().lastDirectoryUsed());
 	PlaylistParser parser(file);
-	connect(&parser, SIGNAL(), SLOT());
+	connect(&parser, SIGNAL(filesFound(const QStringList &)),
+		SLOT(parserFilesFound(const QStringList &)));
+	connect(&parser, SIGNAL(finished()),
+		_playlistModel, SLOT(saveCurrentPlaylist()));
 	_playlistModel->clear();
 	parser.load();
-	_playlistModel->addFiles();*/
+}
+
+void PlaylistWidget::parserFilesFound(const QStringList & files) {
+	_playlistModel->addFiles(files);
+	QCoreApplication::processEvents();
 }
 
 void PlaylistWidget::savePlaylist() {

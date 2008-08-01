@@ -86,6 +86,13 @@ if (WIN32)
 	install(FILES ${QT_BINARY_DIR}/../translations/qt_de.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
 	install(FILES ${QT_BINARY_DIR}/../translations/qt_es.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
 	install(FILES ${QT_BINARY_DIR}/../translations/qt_uk.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
+
+	#Copy MPlayer build from SMPlayer
+	#Used by MPlayer Phonon backend
+	#SMPlayer' MPlayer build can be found at:
+	#http://smplayer.sourceforge.net/
+	#just install SMPlayer inside C:/Program Files/SMPlayer
+	install(DIRECTORY "C:/Program Files/SMPlayer/mplayer" DESTINATION ${BIN_INSTALL_DIR})
 endif (WIN32)
 
 clear_qt_translations()
