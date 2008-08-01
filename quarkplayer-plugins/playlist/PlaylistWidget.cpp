@@ -102,8 +102,8 @@ private:
 };
 
 PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
-	: PluginInterface(quarkPlayer),
-	QWidget(NULL) {
+	: QWidget(NULL),
+	PluginInterface(quarkPlayer) {
 
 	_treeView = new DragAndDropTreeView();
 	QVBoxLayout * layout = new QVBoxLayout();

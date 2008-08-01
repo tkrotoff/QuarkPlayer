@@ -155,7 +155,6 @@ void VideoWidget::showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder) {
 }
 
 void VideoWidget::checkMousePos() {
-	static const int MARGIN = 70;
 	static bool bottomCursor = false;
 
 	if (!isFullScreen()) {
