@@ -12,8 +12,13 @@ qt4_add_resources(quarkplayer_SRCS
 )
 
 if (WIN32)
-	list(APPEND quarkplayer_SRCS
+	configure_file(
 		quarkplayer.rc
+		${CMAKE_CURRENT_BINARY_DIR}/quarkplayer.rc
+	)
+
+	list(APPEND quarkplayer_SRCS
+		${CMAKE_CURRENT_BINARY_DIR}/quarkplayer.rc
 	)
 endif (WIN32)
 
