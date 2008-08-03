@@ -69,11 +69,15 @@ if (WIN32)
 		install(FILES ${QT_BINARY_DIR}/QtGuid4.dll DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtNetworkd4.dll DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtOpenGLd4.dll DESTINATION ${BIN_INSTALL_DIR})
+		install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qjpegd4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
+		install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qgifd4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
 	else (CMAKE_BUILD_TYPE STREQUAL Debug)
 		install(FILES ${QT_BINARY_DIR}/QtCore4.dll DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtGui4.dll DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtNetwork4.dll DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtOpenGL4.dll DESTINATION ${BIN_INSTALL_DIR})
+		install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qjpeg4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
+		install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qgif4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
 	endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
 	#Copy Qt toolkit translations
@@ -96,7 +100,7 @@ if (WIN32)
 		#When compiled with MinGW, we need mingwm10.dll
 		install(FILES "C:/mingw/bin/mingwm10.dll" DESTINATION ${BIN_INSTALL_DIR})
 	else (MINGW)
-		if (MSVC)
+		if (MSVC80)
 			#No manifest for QuarkPlayer plugins,
 			#see http://lists.trolltech.com/qt-interest/2007-09/msg00790.html for good explanations
 			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /MANIFEST:NO")
@@ -123,7 +127,7 @@ if (WIN32)
 				#Copy Microsoft Visual C++ 2005 SP1 manifest
 				install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/msvc8/Microsoft.VC80.CRT.manifest DESTINATION ${BIN_INSTALL_DIR})
 			endif (CMAKE_BUILD_TYPE STREQUAL Debug)
-		endif (MSVC)
+		endif (MSVC80)
 	endif (MINGW)
 endif (WIN32)
 
