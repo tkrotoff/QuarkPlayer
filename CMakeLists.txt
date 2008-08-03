@@ -121,7 +121,7 @@ if (WIN32)
 				endif (EXISTS ${MSVC80CRT})
 
 				#Copy Microsoft Visual C++ 2005 SP1 manifest
-				install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/msvc8/release/Microsoft.VC80.CRT.manifest DESTINATION ${BIN_INSTALL_DIR})
+				install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/msvc8/Microsoft.VC80.CRT.manifest DESTINATION ${BIN_INSTALL_DIR})
 			endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 		endif (MSVC)
 	endif (MINGW)
