@@ -38,12 +38,20 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS
 
 
 #NSIS
+set(CPACK_NSIS_MODIFY_PATH OFF)
 set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\phonon-vlc-mplayer.googlecode.com")
 set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\phonon-vlc-mplayer.googlecode.com")
 set(CPACK_PACKAGE_EXECUTABLES "quarkplayer" "QuarkPlayer")
-#CPACK_NSIS_CREATE_ICONS allows us to fix a bug inside CPack NSIS installer,
-#CPack adds subdirectory bin/quarkplayer.exe instead of quarkplayer.exe, I don't know why
-set(CPACK_NSIS_CREATE_ICONS "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\QuarkPlayer.lnk\\\" \\\"$INSTDIR\\\\quarkplayer.exe\\\"")
+set(CPACK_NSIS_CREATE_ICONS "
+	CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${CPACK_PACKAGE_NAME}.lnk\\\" \\\"$INSTDIR\\\\quarkplayer.exe\\\"
+	CreateShortCut \\\"$DESKTOP\\\\${CPACK_PACKAGE_NAME}.lnk\\\" \\\"$INSTDIR\\\\quarkplayer.exe\\\"
+	CreateShortCut \\\"$QUICKLAUNCH\\\\${CPACK_PACKAGE_NAME}.lnk\\\" \\\"$INSTDIR\\\\quarkplayer.exe\\\"
+")
+set(CPACK_NSIS_DELETE_ICONS "
+	Delete \\\"$SMPROGRAMS\\\\${CPACK_PACKAGE_NAME}.lnk\\\"
+	Delete \\\"$DESKTOP\\\\${CPACK_PACKAGE_NAME}.lnk\\\"
+	Delete \\\"$QUICKLAUNCH\\\\${CPACK_PACKAGE_NAME}.lnk\\\"
+")
 
 
 

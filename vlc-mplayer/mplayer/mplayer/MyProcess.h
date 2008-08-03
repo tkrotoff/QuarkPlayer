@@ -32,6 +32,7 @@ class MyProcess : public QProcess {
 public:
 
 	MyProcess(QObject * parent);
+
 	virtual ~MyProcess();
 
 	/** Return true if the process is running. */
