@@ -307,13 +307,15 @@ void PlaylistWidget::addURL() {
 
 void PlaylistWidget::openPlaylist() {
 	QString file = TkFileDialog::getOpenFileName(this, tr("Select Playlist File"), Config::instance().lastDirectoryUsed());
-	PlaylistParser parser(file);
-	connect(&parser, SIGNAL(filesFound(const QStringList &)),
-		SLOT(parserFilesFound(const QStringList &)));
-	connect(&parser, SIGNAL(finished()),
-		_playlistModel, SLOT(saveCurrentPlaylist()));
-	_playlistModel->clear();
-	parser.load();
+	if (!file.isEmpty()) {
+		PlaylistParser parser(file);
+		connect(&parser, SIGNAL(filesFound(const QStringList &)),
+			SLOT(parserFilesFound(const QStringList &)));
+		connect(&parser, SIGNAL(finished()),
+			_playlistModel, SLOT(saveCurrentPlaylist()));
+		_playlistModel->clear();
+		parser.load();
+	}
 }
 
 void PlaylistWidget::parserFilesFound(const QStringList & files) {

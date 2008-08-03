@@ -76,11 +76,6 @@ if (WIN32)
 		install(FILES ${QT_BINARY_DIR}/QtOpenGL4.dll DESTINATION ${BIN_INSTALL_DIR})
 	endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
-	#When compiled with MinGW, we need mingwm10.dll
-	if (MINGW)
-		install(FILES C:/mingw/bin/mingwm10.dll DESTINATION ${BIN_INSTALL_DIR})
-	endif (MINGW)
-
 	#Copy Qt toolkit translations
 	install(FILES ${QT_BINARY_DIR}/../translations/qt_fr.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
 	install(FILES ${QT_BINARY_DIR}/../translations/qt_de.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
@@ -92,7 +87,44 @@ if (WIN32)
 	#SMPlayer' MPlayer build can be found at:
 	#http://smplayer.sourceforge.net/
 	#just install SMPlayer inside C:/Program Files/SMPlayer
-	install(DIRECTORY "C:/Program Files/SMPlayer/mplayer" DESTINATION ${BIN_INSTALL_DIR})
+	set(MPLAYER_INSTALL_DIR "C:/Program Files/SMPlayer/mplayer")
+	if (EXISTS ${MPLAYER_INSTALL_DIR})
+		install(DIRECTORY ${MPLAYER_INSTALL_DIR} DESTINATION ${BIN_INSTALL_DIR})
+	endif (EXISTS ${MPLAYER_INSTALL_DIR})
+
+	if (MINGW)
+		#When compiled with MinGW, we need mingwm10.dll
+		install(FILES "C:/mingw/bin/mingwm10.dll" DESTINATION ${BIN_INSTALL_DIR})
+	else (MINGW)
+		if (MSVC)
+			#No manifest for QuarkPlayer plugins,
+			#see http://lists.trolltech.com/qt-interest/2007-09/msg00790.html for good explanations
+			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /MANIFEST:NO")
+			set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /MANIFEST:NO")
+
+			if (CMAKE_BUILD_TYPE STREQUAL Debug)
+				#Copy Microsoft Visual C++ 2005 SP1 runtime
+				set(MSVC80CRT "C:/WINDOWS/WinSxS/x86_Microsoft.VC80.DebugCRT_1fc8b3b9a1e18e3b_8.0.50727.762_x-ww_5490cd9f")
+				if (EXISTS ${MSVC80CRT})
+					install(FILES ${MSVC80CRT}/msvcr80d.dll DESTINATION ${BIN_INSTALL_DIR})
+					install(FILES ${MSVC80CRT}/msvcp80d.dll DESTINATION ${BIN_INSTALL_DIR})
+				endif (EXISTS ${MSVC80CRT})
+
+				#Copy Microsoft Visual C++ 2005 SP1 manifest
+				install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/msvc8/Microsoft.VC80.DebugCRT.manifest DESTINATION ${BIN_INSTALL_DIR})
+			else (CMAKE_BUILD_TYPE STREQUAL Debug)
+				#Copy Microsoft Visual C++ 2005 SP1 runtime
+				set(MSVC80CRT "C:/WINDOWS/WinSxS/x86_Microsoft.VC80.CRT_1fc8b3b9a1e18e3b_8.0.50727.762_x-ww_6b128700")
+				if (EXISTS ${MSVC80CRT})
+					install(FILES ${MSVC80CRT}/msvcr80.dll DESTINATION ${BIN_INSTALL_DIR})
+					install(FILES ${MSVC80CRT}/msvcp80.dll DESTINATION ${BIN_INSTALL_DIR})
+				endif (EXISTS ${MSVC80CRT})
+
+				#Copy Microsoft Visual C++ 2005 SP1 manifest
+				install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/msvc8/release/Microsoft.VC80.CRT.manifest DESTINATION ${BIN_INSTALL_DIR})
+			endif (CMAKE_BUILD_TYPE STREQUAL Debug)
+		endif (MSVC)
+	endif (MINGW)
 endif (WIN32)
 
 clear_qt_translations()
