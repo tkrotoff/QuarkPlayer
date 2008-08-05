@@ -43,6 +43,8 @@ const int PlaylistModel::COLUMN_TITLE = 1;
 const int PlaylistModel::COLUMN_ARTIST = 2;
 const int PlaylistModel::COLUMN_ALBUM = 3;
 const int PlaylistModel::COLUMN_LENGTH = 4;
+const int PlaylistModel::COLUMN_FIRST = COLUMN_TRACK;
+const int PlaylistModel::COLUMN_LAST = COLUMN_LENGTH;
 
 static const int COLUMN_COUNT = 5;
 
@@ -54,8 +56,6 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 	: QAbstractItemModel(parent),
 	_quarkPlayer(quarkPlayer) {
 
-	_shuffle = false;
-	_repeat = false;
 	_position = POSITION_INVALID;
 	_metaObjectInfoResolverLaunched = false;
 	_rowWhereToInsertFiles = -1;
@@ -430,40 +430,10 @@ void PlaylistModel::highlightItem(int row) {
 }
 
 void PlaylistModel::updateRow(int row) {
-	QModelIndex topLeft = index(row, 0);
-	QModelIndex bottomRight = index(row, COLUMN_COUNT - 1);
+	QModelIndex topLeft = index(row, COLUMN_FIRST);
+	QModelIndex bottomRight = index(row, COLUMN_LAST);
 	qDebug() << __FUNCTION__ << row << topLeft << bottomRight;
 	emit dataChanged(topLeft, bottomRight);
-}
-
-void PlaylistModel::playNextTrack() {
-	if (_shuffle) {
-		_position = Random::randomInt(0, _mediaSources.size() - 1);
-	} else {
-		_position++;
-	}
-
-	if (_position < 0 || _position >= _mediaSources.size()) {
-		//Back to the top of the playlist
-		_position = 0;
-	}
-
-	_quarkPlayer.play(_mediaSources[_position].mediaSource());
-}
-
-void PlaylistModel::playPreviousTrack() {
-	if (_shuffle) {
-		_position = Random::randomInt(0, _mediaSources.size() - 1);
-	} else {
-		_position--;
-	}
-
-	if (_position < 0 || _position >= _mediaSources.size()) {
-		//Back to the bottom of the playlist
-		_position = _mediaSources.size() - 1;
-	}
-
-	_quarkPlayer.play(_mediaSources[_position].mediaSource());
 }
 
 void PlaylistModel::play(const QModelIndex & index) {
@@ -475,6 +445,19 @@ void PlaylistModel::play(const QModelIndex & index) {
 	_quarkPlayer.play(_mediaSources[_position].mediaSource());
 }
 
+void PlaylistModel::enqueue(const QModelIndex & index) {
+	if (!index.isValid()) {
+		return;
+	}
+
+	_position = index.row();
+	_quarkPlayer.currentMediaObject()->enqueue(_mediaSources[_position].mediaSource());
+
+	//enqueue does not send a stateChanged event :/
+	//let's highlight ourself the new current item
+	highlightItem(_position);
+}
+
 void PlaylistModel::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	foreach (Phonon::MediaObject * tmp, _quarkPlayer.mediaObjectList()) {
 		tmp->disconnect(this);
@@ -482,9 +465,6 @@ void PlaylistModel::currentMediaObjectChanged(Phonon::MediaObject * mediaObject)
 
 	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(stateChanged(Phonon::State, Phonon::State)));
-
-	//aboutToFinish -> let's play the next track
-	connect(mediaObject, SIGNAL(aboutToFinish()), SLOT(enqueueNextTrack()));
 }
 
 void PlaylistModel::stateChanged(Phonon::State newState, Phonon::State oldState) {
@@ -503,33 +483,6 @@ void PlaylistModel::stateChanged(Phonon::State newState, Phonon::State oldState)
 	}
 }
 
-void PlaylistModel::enqueueNextTrack() {
-	if (_shuffle) {
-		_position = Random::randomInt(0, _mediaSources.size() - 1);
-	} else {
-		_position++;
-	}
-
-	if (_position < 0 || _position >= _mediaSources.size()) {
-		if (_repeat) {
-			//Back to the top of the playlist
-			_position = 0;
-		}
-	}
-
-	if (_position >= 0 && _position < _mediaSources.size()) {
-		_quarkPlayer.currentMediaObject()->enqueue(_mediaSources[_position].mediaSource());
-
-		//enqueue does not send a stateChanged event :/
-		//let's highlight ourself the new current item
-		highlightItem(_position);
-	}
-}
-
-void PlaylistModel::setShuffle(bool shuffle) {
-	_shuffle = shuffle;
-}
-
-void PlaylistModel::setRepeat(bool repeat) {
-	_repeat = repeat;
+void PlaylistModel::setPosition(int position) {
+	_position = position;
 }

@@ -48,6 +48,8 @@ public:
 	static const int COLUMN_ARTIST;
 	static const int COLUMN_ALBUM;
 	static const int COLUMN_LENGTH;
+	static const int COLUMN_FIRST;
+	static const int COLUMN_LAST;
 
 	PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer);
 
@@ -65,6 +67,8 @@ public:
 	void addFiles(const QStringList & files, int row = -1);
 
 	void highlightItem(int row);
+
+	void setPosition(int position);
 
 	/** Returns the files displayed in the playlist. */
 	QStringList files() const;
@@ -91,13 +95,7 @@ public slots:
 
 	void play(const QModelIndex & index);
 
-	void playNextTrack();
-
-	void playPreviousTrack();
-
-	void setShuffle(bool shuffle);
-
-	void setRepeat(bool repeat);
+	void enqueue(const QModelIndex & index);
 
 	/** Saves the current playlist to a file. */
 	void saveCurrentPlaylist() const;
@@ -109,8 +107,6 @@ private slots:
 	void stateChanged(Phonon::State newState, Phonon::State oldState);
 
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
-
-	void enqueueNextTrack();
 
 	void loadCurrentPlaylist();
 
@@ -142,10 +138,6 @@ private:
 	mutable bool _metaObjectInfoResolverLaunched;
 
 	int _position;
-
-	bool _shuffle;
-
-	bool _repeat;
 
 	/**
 	 * Trick: row where to insert new files.

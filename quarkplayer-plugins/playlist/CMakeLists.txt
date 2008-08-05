@@ -3,12 +3,14 @@ project(playlist)
 set(playlist_SRCS
 	PlaylistWidget.cpp
 	PlaylistModel.cpp
+	PlaylistFilter.cpp
 	Track.cpp
 )
 
 qt4_wrap_cpp(playlist_SRCS
 	PlaylistWidget.h
 	PlaylistModel.h
+	PlaylistFilter.h
 )
 
 add_library(playlist MODULE ${playlist_SRCS})

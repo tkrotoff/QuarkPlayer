@@ -28,6 +28,7 @@
 #include <phonon/phononnamespace.h>
 
 class PlaylistModel;
+class PlaylistFilter;
 
 class QuarkPlayer;
 
@@ -39,6 +40,7 @@ namespace Phonon {
 class QToolBar;
 class QTreeView;
 class QDockWidget;
+class QLineEdit;
 
 /**
  * Playlist.
@@ -76,6 +78,11 @@ private slots:
 
 	void parserFilesFound(const QStringList & files);
 
+	/** Jumps to current playing media. */
+	void jumpToCurrent();
+
+	void search();
+
 private:
 
 	void populateActionCollection();
@@ -84,7 +91,11 @@ private:
 
 	PlaylistModel * _playlistModel;
 
+	PlaylistFilter * _playlistFilter;
+
 	QTreeView * _treeView;
+
+	QLineEdit * _searchLineEdit;
 
 	QToolBar * _playlistToolBar;
 

@@ -19,6 +19,7 @@
 #include "PlaylistWidget.h"
 
 #include "PlaylistModel.h"
+#include "PlaylistFilter.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
@@ -62,7 +63,7 @@ public:
 		setAllColumnsShowFocus(true);
 		setSelectionBehavior(QAbstractItemView::SelectRows);
 		setSelectionMode(QAbstractItemView::ExtendedSelection);
-		setSortingEnabled(true);
+		//setSortingEnabled(true);
 		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	}
 
@@ -112,11 +113,14 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	layout->setSpacing(0);
 	layout->addWidget(_treeView);
 
+	//Model
 	_playlistModel = new PlaylistModel(this, quarkPlayer);
-	connect(_treeView, SIGNAL(activated(const QModelIndex &)),
-		_playlistModel, SLOT(play(const QModelIndex &)));
 
-	_treeView->setModel(_playlistModel);
+	//Filter
+	_playlistFilter = new PlaylistFilter(this, _playlistModel);
+	connect(_treeView, SIGNAL(activated(const QModelIndex &)),
+		_playlistFilter, SLOT(play(const QModelIndex &)));
+	_treeView->setModel(_playlistFilter);
 
 	//Default column sizes
 	_treeView->resizeColumnToContents(PlaylistModel::COLUMN_TRACK);
@@ -185,21 +189,24 @@ void PlaylistWidget::createPlaylistToolBar() {
 
 	//_playlistToolBar->addSeparator();
 	_playlistToolBar->addAction(ActionCollection::action("playlistShuffle"));
-	connect(ActionCollection::action("playlistShuffle"), SIGNAL(toggled(bool)), _playlistModel, SLOT(setShuffle(bool)));
+	connect(ActionCollection::action("playlistShuffle"), SIGNAL(toggled(bool)), _playlistFilter, SLOT(setShuffle(bool)));
 	_playlistToolBar->addAction(ActionCollection::action("playlistRepeat"));
-	connect(ActionCollection::action("playlistRepeat"), SIGNAL(toggled(bool)), _playlistModel, SLOT(setRepeat(bool)));
+	connect(ActionCollection::action("playlistRepeat"), SIGNAL(toggled(bool)), _playlistFilter, SLOT(setRepeat(bool)));
+
+	_playlistToolBar->addAction(ActionCollection::action("playlistJumpToCurrent"));
+	connect(ActionCollection::action("playlistJumpToCurrent"), SIGNAL(triggered()), SLOT(jumpToCurrent()));
 
 	//Search toolbar
 	//_playlistToolBar->addSeparator();
-	QLineEdit * searchLineEdit = new QLineEdit();
-	_playlistToolBar->addWidget(searchLineEdit);
-	connect(searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search(const QString &)));
+	_searchLineEdit = new QLineEdit();
+	_playlistToolBar->addWidget(_searchLineEdit);
+	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search()));
 	QToolButton * clearSearchButton = new QToolButton();
 	clearSearchButton->setAutoRaise(true);
 	clearSearchButton->setDefaultAction(ActionCollection::action("playlistClearSearch"));
 	clearSearchButton->setEnabled(false);
 	_playlistToolBar->addWidget(clearSearchButton);
-	connect(clearSearchButton, SIGNAL(clicked()), searchLineEdit, SLOT(clear()));
+	connect(clearSearchButton, SIGNAL(clicked()), _searchLineEdit, SLOT(clear()));
 
 	_playlistToolBar->addAction(ActionCollection::action("playlistNew"));
 	connect(ActionCollection::action("playlistNew"), SIGNAL(triggered()), SLOT(createNewPlaylistWidget()));
@@ -226,6 +233,8 @@ void PlaylistWidget::populateActionCollection() {
 	action = new QAction(app);
 	action->setCheckable(true);
 	ActionCollection::addAction("playlistRepeat", action);
+
+	ActionCollection::addAction("playlistJumpToCurrent", new QAction(app));
 
 	ActionCollection::addAction("playlistClearSearch", new QAction(app));
 
@@ -257,6 +266,9 @@ void PlaylistWidget::retranslate() {
 
 	ActionCollection::action("playlistRepeat")->setText(tr("Repeat"));
 	ActionCollection::action("playlistRepeat")->setIcon(TkIcon("media-playlist-repeat"));
+
+	ActionCollection::action("playlistJumpToCurrent")->setText(tr("Jump to Current Playing Media"));
+	ActionCollection::action("playlistJumpToCurrent")->setIcon(TkIcon("go-jump"));
 
 	ActionCollection::action("playlistClearSearch")->setText(tr("Clear Search"));
 	ActionCollection::action("playlistClearSearch")->setIcon(TkIcon("edit-delete"));
@@ -297,12 +309,13 @@ void PlaylistWidget::addDir() {
 
 void PlaylistWidget::addURL() {
 	QString url = QInputDialog::getText(this, tr("Open Location"), tr("Please enter a valid address here:"));
+	if (!url.isEmpty()) {
+		QStringList files;
+		files << url;
 
-	QStringList files;
-	files << url;
-
-	_playlistModel->addFiles(files);
-	_playlistModel->saveCurrentPlaylist();
+		_playlistModel->addFiles(files);
+		_playlistModel->saveCurrentPlaylist();
+	}
 }
 
 void PlaylistWidget::openPlaylist() {
@@ -325,8 +338,10 @@ void PlaylistWidget::parserFilesFound(const QStringList & files) {
 
 void PlaylistWidget::savePlaylist() {
 	QString file = TkFileDialog::getSaveFileName(this, tr("Save Playlist File"), Config::instance().lastDirectoryUsed());
-	PlaylistParser parser(file);
-	parser.save(_playlistModel->files());
+	if (!file.isEmpty()) {
+		PlaylistParser parser(file);
+		parser.save(_playlistModel->files());
+	}
 }
 
 void PlaylistWidget::clearSelection() {
@@ -351,13 +366,32 @@ void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject
 
 	//Next track
 	disconnect(ActionCollection::action("nextTrack"), 0, 0, 0);
-	connect(ActionCollection::action("nextTrack"), SIGNAL(triggered()), _playlistModel, SLOT(playNextTrack()));
+	connect(ActionCollection::action("nextTrack"), SIGNAL(triggered()),
+		_playlistFilter, SLOT(playNextTrack()));
 
 	//Previous track
 	disconnect(ActionCollection::action("previousTrack"), 0, 0, 0);
-	connect(ActionCollection::action("previousTrack"), SIGNAL(triggered()), _playlistModel, SLOT(playPreviousTrack()));
+	connect(ActionCollection::action("previousTrack"), SIGNAL(triggered()),
+		_playlistFilter, SLOT(playPreviousTrack()));
+
+	//aboutToFinish -> let's queue/play the next track
+	connect(mediaObject, SIGNAL(aboutToFinish()),
+		_playlistFilter, SLOT(enqueueNextTrack()));
 }
 
 void PlaylistWidget::createNewPlaylistWidget() {
 	new PlaylistWidget(quarkPlayer());
+}
+
+void PlaylistWidget::jumpToCurrent() {
+	QModelIndex index = _playlistFilter->currentIndex();
+	if (!_playlistFilter->mapFromSource(index).isValid()) {
+		_searchLineEdit->clear();
+		search();
+	}
+	_treeView->scrollTo(_playlistFilter->mapFromSource(index), QAbstractItemView::PositionAtCenter);
+}
+
+void PlaylistWidget::search() {
+	_playlistFilter->setFilter(_searchLineEdit->text().trimmed());
 }
