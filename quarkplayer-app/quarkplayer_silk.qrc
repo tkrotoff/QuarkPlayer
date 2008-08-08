@@ -17,6 +17,7 @@
 	<file alias="16x16/view-refresh">icons/silk/arrow_refresh.png</file>
 	<file alias="16x16/go-home">icons/silk/house.png</file>
 	<file alias="16x16/go-jump-locationbar">icons/silk/tick.png</file>
+	<file alias="16x16/go-jump">icons/silk/bullet_go.png</file>
 
 	<file alias="16x16/format-text-underline">icons/silk/text_underline.png</file>
 	<file alias="16x16/media-playback-pause">icons/silk/control_pause.png</file>

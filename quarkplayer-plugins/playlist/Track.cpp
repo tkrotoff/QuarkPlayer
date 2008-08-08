@@ -33,7 +33,8 @@ Track::Track(const Phonon::MediaSource & mediaSource) {
 	switch (_source.type()) {
 	case Phonon::MediaSource::LocalFile:
 		_filename = _source.fileName();
-		shortFilename = TkFile::removeFileExtension(TkFile::fileName(_filename));
+		shortFilename = TkFile::dir(_filename) + "/";
+		shortFilename += TkFile::removeFileExtension(TkFile::fileName(_filename));
 		break;
 	case Phonon::MediaSource::Url:
 		shortFilename = _filename = _source.url().toString();
@@ -47,7 +48,8 @@ Track::Track(const Phonon::MediaSource & mediaSource) {
 		if (url.isValid()) {
 			if (url.scheme() == "file") {
 				_filename = url.toLocalFile();
-				shortFilename = TkFile::removeFileExtension(TkFile::fileName(_filename));
+				shortFilename = TkFile::dir(_filename) + "/";
+				shortFilename += TkFile::removeFileExtension(TkFile::fileName(_filename));
 			} else {
 				shortFilename = _filename = url.toString();
 			}

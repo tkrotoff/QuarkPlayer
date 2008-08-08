@@ -18,8 +18,15 @@
 
 #include "TkFile.h"
 
+#include <QtCore/QDebug>
+
 QString TkFile::fileName(const QString & path) {
 	return path.right(path.length() - path.lastIndexOf('/') - 1);
+}
+
+QString TkFile::dir(const QString & filename) {
+	QString left(filename.left(filename.lastIndexOf('/')));
+	return left.right(left.length() - left.lastIndexOf('/') - 1);
 }
 
 QString TkFile::removeFileExtension(const QString & path) {

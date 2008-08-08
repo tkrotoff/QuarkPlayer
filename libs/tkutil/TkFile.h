@@ -40,13 +40,24 @@ public:
 	static QString fileName(const QString & path);
 
 	/**
+	 * Gets the directory name that contains the given file.
+	 *
+	 * Example: filename=/usr/lib/toto.txt dir=lib
+	 */
+	static QString dir(const QString & filename);
+
+	/**
 	 * Removes the extension (i.e .mp3) from the filename.
 	 *
 	 * Example: path=/usr/lib/toto.txt => /usr/lib/toto
 	 */
 	static QString removeFileExtension(const QString & path);
 
-	/** Gets the path of a file (i.e /toto/titi for /toto/titi/caca.txt). */
+	/**
+	 * Gets the path of a file.
+	 *
+	 * Example: filename=/toto/titi/caca.txt path=/toto/titi
+	 */
 	static QString path(const QString & filename);
 
 private:
