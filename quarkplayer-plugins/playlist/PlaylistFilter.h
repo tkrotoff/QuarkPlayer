@@ -36,13 +36,7 @@ public:
 
 	void setFilter(const QString & filter);
 
-	void setCurrentIndex(const QModelIndex & index);
-
 	QModelIndex currentIndex() const;
-
-	QModelIndex nextTrack() const;
-
-	QModelIndex previousTrack() const;
 
 public slots:
 
@@ -63,6 +57,12 @@ signals:
 	void filterChanged();
 
 private:
+
+	QModelIndex nextTrack() const;
+
+	QModelIndex previousTrack() const;
+
+	void setCurrentIndex(const QModelIndex & index);
 
 	bool filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const;
 

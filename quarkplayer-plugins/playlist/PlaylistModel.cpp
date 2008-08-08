@@ -65,9 +65,7 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 	connect(_metaObjectInfoResolver, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(metaStateChanged(Phonon::State, Phonon::State)));
 
-	connect(&_quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
-		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
-
+	//Optimization: loads the playlist only when all plugins have been loaded
 	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
 		SLOT(loadCurrentPlaylist()), Qt::QueuedConnection);
 }
@@ -401,7 +399,7 @@ void PlaylistModel::metaStateChanged(Phonon::State newState, Phonon::State oldSt
 			_mediaSources[row] = track;
 
 			//Update the row since the matching MediaSource has been modified
-			updateRow(row);
+			emit dataChanged(index(row, COLUMN_FIRST), index(row, COLUMN_LAST));
 		}
 	}
 
@@ -418,30 +416,11 @@ void PlaylistModel::clear() {
 	saveCurrentPlaylist();
 }
 
-void PlaylistModel::highlightItem(int row) {
-	static int previousPosition = 0;
-
-	if (row >= 0 && _mediaSources.size() > row) {
-		_position = row;
-		updateRow(_position);
-		updateRow(previousPosition);
-		previousPosition = _position;
-	}
-}
-
-void PlaylistModel::updateRow(int row) {
-	QModelIndex topLeft = index(row, COLUMN_FIRST);
-	QModelIndex bottomRight = index(row, COLUMN_LAST);
-	qDebug() << __FUNCTION__ << row << topLeft << bottomRight;
-	emit dataChanged(topLeft, bottomRight);
-}
-
 void PlaylistModel::play(const QModelIndex & index) {
 	if (!index.isValid()) {
 		return;
 	}
 
-	_position = index.row();
 	_quarkPlayer.play(_mediaSources[_position].mediaSource());
 }
 
@@ -452,37 +431,12 @@ void PlaylistModel::enqueue(const QModelIndex & index) {
 
 	_position = index.row();
 	_quarkPlayer.currentMediaObject()->enqueue(_mediaSources[_position].mediaSource());
-
-	//enqueue does not send a stateChanged event :/
-	//let's highlight ourself the new current item
-	highlightItem(_position);
-}
-
-void PlaylistModel::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
-	foreach (Phonon::MediaObject * tmp, _quarkPlayer.mediaObjectList()) {
-		tmp->disconnect(this);
-	}
-
-	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
-		SLOT(stateChanged(Phonon::State, Phonon::State)));
-}
-
-void PlaylistModel::stateChanged(Phonon::State newState, Phonon::State oldState) {
-	if (_mediaSources.isEmpty()) {
-		return;
-	}
-
-	if (newState == Phonon::PlayingState) {
-		Track track(_quarkPlayer.currentMediaObject()->currentSource());
-		if (_position >= 0 && _position < _mediaSources.size() && _mediaSources[_position] == track) {
-			//No need to change _position: we have already the right _position
-		} else {
-			_position = _mediaSources.indexOf(track);
-		}
-		highlightItem(_position);
-	}
 }
 
 void PlaylistModel::setPosition(int position) {
 	_position = position;
+}
+
+int PlaylistModel::position() const {
+	return _position;
 }

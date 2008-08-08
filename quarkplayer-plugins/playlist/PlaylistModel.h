@@ -56,7 +56,7 @@ public:
 	~PlaylistModel();
 
 	/**
-	 * Add files to the model.
+	 * Adds files to the model.
 	 *
 	 * Does not save the new added files to the current playlist,
 	 * use saveCurrentPlaylist() for that.
@@ -66,9 +66,17 @@ public:
 	 */
 	void addFiles(const QStringList & files, int row = -1);
 
-	void highlightItem(int row);
+	/** Plays the file at the given index. */
+	void play(const QModelIndex & index);
 
+	/** Enqueues the file at the given index. */
+	void enqueue(const QModelIndex & index);
+
+	/** Sets the current item position inside the model. */
 	void setPosition(int position);
+
+	/** Gets the current item position inside the model. */
+	int position() const;
 
 	/** Returns the files displayed in the playlist. */
 	QStringList files() const;
@@ -91,11 +99,8 @@ public:
 
 public slots:
 
+	/** Clears the model. */
 	void clear();
-
-	void play(const QModelIndex & index);
-
-	void enqueue(const QModelIndex & index);
 
 	/** Saves the current playlist to a file. */
 	void saveCurrentPlaylist() const;
@@ -104,17 +109,11 @@ private slots:
 
 	void metaStateChanged(Phonon::State newState, Phonon::State oldState);
 
-	void stateChanged(Phonon::State newState, Phonon::State oldState);
-
-	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
-
 	void loadCurrentPlaylist();
 
 	void filesFound(const QStringList & files);
 
 private:
-
-	void updateRow(int row);
 
 	QuarkPlayer & _quarkPlayer;
 
