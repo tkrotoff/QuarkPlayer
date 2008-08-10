@@ -81,6 +81,8 @@ private slots:
 	/** Jumps to current playing media. */
 	void jumpToCurrent();
 
+	void searchChanged();
+
 	void search();
 
 private:

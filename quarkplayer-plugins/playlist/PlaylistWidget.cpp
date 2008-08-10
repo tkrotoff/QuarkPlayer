@@ -200,7 +200,7 @@ void PlaylistWidget::createPlaylistToolBar() {
 	//_playlistToolBar->addSeparator();
 	_searchLineEdit = new QLineEdit();
 	_playlistToolBar->addWidget(_searchLineEdit);
-	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search()));
+	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(searchChanged()));
 	QToolButton * clearSearchButton = new QToolButton();
 	clearSearchButton->setAutoRaise(true);
 	clearSearchButton->setDefaultAction(ActionCollection::action("playlistClearSearch"));
@@ -390,6 +390,20 @@ void PlaylistWidget::jumpToCurrent() {
 		search();
 	}
 	_treeView->scrollTo(_playlistFilter->mapFromSource(index), QAbstractItemView::PositionAtCenter);
+}
+
+void PlaylistWidget::searchChanged() {
+	static QTimer * searchTimer = NULL;
+	if (!searchTimer) {
+		//Lazy initialization
+		searchTimer = new QTimer(this);
+		searchTimer->setSingleShot(true);
+		searchTimer->setInterval(500);
+		connect(searchTimer, SIGNAL(timeout()), SLOT(search()));
+	}
+
+	searchTimer->stop();
+	searchTimer->start();
 }
 
 void PlaylistWidget::search() {
