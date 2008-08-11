@@ -16,16 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COVERARTWINDOW_H
-#define COVERARTWINDOW_H
+#ifndef MEDIAINFOWINDOW_H
+#define MEDIAINFOWINDOW_H
+
+#include <mediainfowindow/mediainfowindow_export.h>
 
 #include <QtGui/QDialog>
 
 #include <QtCore/QString>
 
 namespace Ui {
-	class CoverArtWindow;
+	class MediaInfoWindow;
 }
+class MediaInfoFetcher;
 
 class WebBrowser;
 
@@ -38,17 +41,26 @@ class QToolButton;
  *
  * @author Tanguy Krotoff
  */
-class CoverArtWindow : public QDialog {
+class MEDIAINFOWINDOW_API MediaInfoWindow : public QDialog {
 	Q_OBJECT
 public:
 
-	CoverArtWindow(QWidget * parent);
+	/**
+	 * Constructs a MediaInfoWindow given a locale.
+	 *
+	 * A locale is 'en', 'fr', 'sp'...
+	 * It should follow Wikipedia locale naming
+	 *
+	 * @param locale locale of the MediaInfoWindow
+	 * @param parent QWidget parent
+	 */
+	MediaInfoWindow(const QString & locale, QWidget * parent);
 
-	~CoverArtWindow();
+	~MediaInfoWindow();
 
 	void setCoverArtFilename(const QString & coverArtFilename);
 
-	void setMediaData(const QString & album, const QString & artist, const QString & title);
+	void setMediaFilename(const QString & mediaFilename);
 
 public slots:
 
@@ -58,6 +70,8 @@ private slots:
 
 	void lyricsFound(const QByteArray & lyrics, bool accuracy);
 
+	void mediaInfoFetched();
+
 	void retranslate();
 
 	/** Refreshes all informations displayed in the window. */
@@ -65,17 +79,21 @@ private slots:
 
 private:
 
-	Ui::CoverArtWindow * _ui;
+	void startMediaInfoFetcher();
+
+	MediaInfoFetcher * _mediaInfoFetcher;
+
+	Ui::MediaInfoWindow * _ui;
 
 	WebBrowser * _webBrowser;
 
 	QToolButton * _refreshButton;
 
+	QString _mediaFilename;
+
 	QString _coverArtFilename;
 
-	QString _album;
-	QString _artist;
-	QString _title;
+	QString _locale;
 };
 
-#endif	//COVERARTWINDOW_H
+#endif	//MEDIAINFOWINDOW_H

@@ -16,11 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CoverArtWindow.h"
+#include "MediaInfoWindow.h"
 
-#include "ui_CoverArtWindow.h"
-
-#include <quarkplayer/config/Config.h>
+#include "ui_MediaInfoWindow.h"
+#include "MediaInfoFetcher.h"
 
 #include <contentfetcher/LyricsFetcher.h>
 
@@ -35,10 +34,15 @@
 #include <QtCore/QtGlobal>
 #include <QtCore/QUrl>
 
-CoverArtWindow::CoverArtWindow(QWidget * parent)
+MediaInfoWindow::MediaInfoWindow(const QString & locale, QWidget * parent)
 	: QDialog(parent) {
 
-	_ui = new Ui::CoverArtWindow();
+	//Locale
+	_locale = locale;
+
+	_mediaInfoFetcher = NULL;
+
+	_ui = new Ui::MediaInfoWindow();
 	_ui->setupUi(this);
 
 	//Web browser widget
@@ -57,29 +61,23 @@ CoverArtWindow::CoverArtWindow(QWidget * parent)
 	retranslate();
 }
 
-CoverArtWindow::~CoverArtWindow() {
+MediaInfoWindow::~MediaInfoWindow() {
 }
 
-void CoverArtWindow::setCoverArtFilename(const QString & coverArtFilename) {
+void MediaInfoWindow::setCoverArtFilename(const QString & coverArtFilename) {
 	_coverArtFilename = coverArtFilename;
 }
 
-void CoverArtWindow::setMediaData(const QString & album, const QString & artist, const QString & title) {
-	_album = album;
-	_artist = artist;
-	_title = title;
+void MediaInfoWindow::setMediaFilename(const QString & mediaFilename) {
+	_mediaFilename = mediaFilename;
 }
 
-void CoverArtWindow::show() {
+void MediaInfoWindow::show() {
 	QDialog::show();
 	refresh();
 }
 
-void CoverArtWindow::lyricsFound(const QByteArray & lyrics, bool accuracy) {
-	_ui->lyricsTextEdit->setHtml(QString::fromUtf8(lyrics));
-}
-
-void CoverArtWindow::retranslate() {
+void MediaInfoWindow::retranslate() {
 	_webBrowser->setBackwardIcon(TkIcon("go-previous"));
 	_webBrowser->setForwardIcon(TkIcon("go-next"));
 	_webBrowser->setReloadIcon(TkIcon("view-refresh"));
@@ -94,10 +92,7 @@ void CoverArtWindow::retranslate() {
 	_ui->retranslateUi(this);
 }
 
-void CoverArtWindow::refresh() {
-	//Window title
-	setWindowTitle(_artist);
-
+void MediaInfoWindow::refresh() {
 	static const int MAX_WIDTH = 500;
 	static const int MAX_HEIGHT = 500;
 
@@ -119,15 +114,29 @@ void CoverArtWindow::refresh() {
 		//resize(width, height);
 	}
 
+	startMediaInfoFetcher();
+}
+
+void MediaInfoWindow::startMediaInfoFetcher() {
+	if (!_mediaInfoFetcher) {
+		//Lazy initialization
+		_mediaInfoFetcher = new MediaInfoFetcher(this);
+		connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(mediaInfoFetched()));
+	}
+
+	_mediaInfoFetcher->start(_mediaFilename);
+}
+
+void MediaInfoWindow::mediaInfoFetched() {
 	ContentFetcher::Track track;
-	track.artist = _artist;
-	track.title = _title;
+	track.artist = _mediaInfoFetcher->artist();
+	track.title = _mediaInfoFetcher->title();
 
 	//Download the Wikipedia article
 	QString tmp(track.artist);
 	tmp.replace(" ", "_");
 	tmp = QUrl::toPercentEncoding(tmp);
-	_webBrowser->setSource("http://" + Config::instance().language() + ".wikipedia.org/wiki/" + tmp);
+	_webBrowser->setSource("http://" + _locale + ".wikipedia.org/wiki/" + tmp);
 
 	//Download the lyrics
 	LyricsFetcher * lyricsFetcher = new LyricsFetcher(this);
@@ -135,4 +144,8 @@ void CoverArtWindow::refresh() {
 		SLOT(lyricsFound(const QByteArray &, bool)));
 	lyricsFound(QByteArray(), true);
 	lyricsFetcher->start(track);
+}
+
+void MediaInfoWindow::lyricsFound(const QByteArray & lyrics, bool accuracy) {
+	_ui->lyricsTextEdit->setHtml(QString::fromUtf8(lyrics));
 }

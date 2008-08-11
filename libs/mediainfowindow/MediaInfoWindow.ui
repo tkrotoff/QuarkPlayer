@@ -259,8 +259,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>478</width>
-        <height>265</height>
+        <width>469</width>
+        <height>241</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -292,8 +292,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>478</width>
-            <height>265</height>
+            <width>469</width>
+            <height>241</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_8" >
@@ -337,8 +337,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>478</width>
-        <height>265</height>
+        <width>469</width>
+        <height>241</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -351,8 +351,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>478</width>
-        <height>265</height>
+        <width>469</width>
+        <height>241</height>
        </rect>
       </property>
       <attribute name="title" >
