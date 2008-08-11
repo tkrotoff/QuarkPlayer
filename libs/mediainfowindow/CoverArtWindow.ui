@@ -1,0 +1,159 @@
+<ui version="4.0" >
+ <class>CoverArtWindow</class>
+ <widget class="QDialog" name="CoverArtWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>561</width>
+    <height>585</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" name="gridLayout" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <item row="0" column="0" >
+    <widget class="QTabWidget" name="tabWidget" >
+     <widget class="QWidget" name="coverArtTab" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>557</width>
+        <height>561</height>
+       </rect>
+      </property>
+      <attribute name="title" >
+       <string>Cover Art</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>0</number>
+       </property>
+       <item row="0" column="0" >
+        <widget class="QScrollArea" name="scrollArea" >
+         <property name="frameShape" >
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="verticalScrollBarPolicy" >
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy" >
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="widgetResizable" >
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>557</width>
+            <height>561</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <item row="0" column="0" >
+            <widget class="QLabel" name="coverArtLabel" >
+             <property name="scaledContents" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="amazonLabel" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text" >
+              <string>Cover art from &lt;a href="http://amazon.com">Amazon&lt;/a></string>
+             </property>
+             <property name="openExternalLinks" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="artistTab" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>557</width>
+        <height>561</height>
+       </rect>
+      </property>
+      <attribute name="title" >
+       <string>Artist</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2" />
+     </widget>
+     <widget class="QWidget" name="lyricsTab" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>557</width>
+        <height>561</height>
+       </rect>
+      </property>
+      <attribute name="title" >
+       <string>Lyrics</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>0</number>
+       </property>
+       <item row="0" column="0" >
+        <widget class="QTextEdit" name="lyricsTextEdit" />
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="lyricWikiLabel" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text" >
+          <string>Lyrics from &lt;a href="http://lyricwiki.org">LyricWiki&lt;/a></string>
+         </property>
+         <property name="openExternalLinks" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
