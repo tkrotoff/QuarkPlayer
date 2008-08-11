@@ -45,7 +45,14 @@ public:
 
 	~ConfigWindow();
 
-	static void addConfigWidget(IConfigWidget * configWidget);
+	/**
+	 * Adds an external ConfigWidget to the ConfigWindow.
+	 *
+	 * Useful for plugins that contain a ConfigWidget.
+	 *
+	 * @param configWidget ConfigWidget to add to the ConfigWindow
+	 */
+	void addConfigWidget(IConfigWidget * configWidget);
 
 private slots:
 
@@ -78,7 +85,7 @@ private:
 	};
 
 	/** List of all config widget. */
-	static QList<ConfigWidget> _configWidgetList;
+	QList<ConfigWidget> _configWidgetList;
 
 	/**
 	 * List of opened config widget.

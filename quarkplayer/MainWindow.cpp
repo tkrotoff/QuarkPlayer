@@ -231,6 +231,7 @@ void MainWindow::updateWindowTitle() {
 
 void MainWindow::showConfigWindow() {
 	static ConfigWindow * configWindow = new ConfigWindow(this);
+	emit configWindowCreated(configWindow);
 	configWindow->show();
 }
 

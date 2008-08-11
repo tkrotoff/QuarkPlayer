@@ -146,10 +146,6 @@ Phonon::VideoWidget * QuarkPlayer::currentVideoWidget() const {
 	return videoWidget;
 }
 
-Config & QuarkPlayer::config() const {
-	return Config::instance();
-}
-
 void QuarkPlayer::volumeChanged(qreal volume) {
 	//TODO move to another class?
 	Config & config = Config::instance();

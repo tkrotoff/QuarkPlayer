@@ -28,6 +28,7 @@
 #include <QtGui/QMainWindow>
 
 class QuarkPlayer;
+class ConfigWindow;
 
 namespace Phonon {
 	class MediaSource;
@@ -79,6 +80,32 @@ signals:
 	void playToolBarAdded(QToolBar * playToolBar);
 
 	void statusBarAdded(QStatusBar * statusBar);
+
+	/**
+	 * The ConfigWindow has been created, meaning user asked for the configuration window to be showed.
+	 *
+	 * This usefull for plugins with ConfigWidget inside the ConfigWindow.
+	 * This signal is only sent once (configuration window is constructed only once and then
+	 * show and hide each time the user wants it).
+	 *
+	 * Example:
+	 * <pre>
+	 * #include <quarkplayer/config/ConfigWindow.h>
+	 * #include <quarkplayer/MainWindow.h>
+	 *
+	 * TotoPlugin::TotoPlugin(QuarkPlayer & quarkPlayer) {
+	 * 	connect(&quarkPlayer.mainWindow(), SIGNAL(configWindowCreated(ConfigWindow *)),
+	 * 		SLOT(configWindowCreated(ConfigWindow *)));
+	 * }
+	 *
+	 * TotoPlugin::configWindowCreated(ConfigWindow * configWindow) {
+	 * 	configWindow->addConfigWidget(new TotoPluginConfigWidget());
+	 * }
+	 * </pre>
+	 *
+	 * @param configWindow the configuration window that has been created
+	 */
+	void configWindowCreated(ConfigWindow * configWindow);
 
 public slots:
 

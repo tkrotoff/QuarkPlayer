@@ -34,8 +34,6 @@
 
 #include <QtCore/QDebug>
 
-QList<ConfigWindow::ConfigWidget> ConfigWindow::_configWidgetList;
-
 static const int COLUMN = 0;
 
 ConfigWindow::ConfigWindow(QWidget * parent)
@@ -79,15 +77,19 @@ ConfigWindow::~ConfigWindow() {
 
 void ConfigWindow::addConfigWidget(IConfigWidget * configWidget) {
 	_configWidgetList += ConfigWidget(configWidget, true);
+
+	//Re-populate the stacked widget since a new ConfigWidget has been added to the list
+	populateStackedWidget();
 }
 
 void ConfigWindow::populateStackedWidget() {
-	static QTreeWidgetItem * pluginsItem = NULL;
-	static bool firstTime = true;
+	QTreeWidgetItem * pluginsItem = NULL;
+	bool firstTime = true;
 
 	//stackedWidget + read config for each config widget
 	TkStackedWidget::removeAllWidgets(_ui->stackedWidget);
 	_ui->treeWidget->clear();
+
 	foreach (ConfigWidget tmp, _configWidgetList) {
 		tmp.configWidget->readConfig();
 		QLayout * layout = tmp.configWidget->layout();

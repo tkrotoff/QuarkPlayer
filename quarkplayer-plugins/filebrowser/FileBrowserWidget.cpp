@@ -64,8 +64,8 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
 		SLOT(loadDirModel()), Qt::QueuedConnection);
 
-	//Add to config window
-	ConfigWindow::addConfigWidget(new FileBrowserConfigWidget());
+	connect(&quarkPlayer.mainWindow(), SIGNAL(configWindowCreated(ConfigWindow *)),
+		SLOT(configWindowCreated(ConfigWindow *)));
 
 	//Add to the main window
 	_dockWidget = new QDockWidget();
@@ -128,13 +128,13 @@ void FileBrowserWidget::search(const QString & pattern) {
 	}
 
 	_dirModel->setNameFilters(nameFilters);
-	_ui->treeView->setRootIndex(_dirModel->index(quarkPlayer().config().musicDir()));
+	_ui->treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
 }
 
 void FileBrowserWidget::configure() {
-	QString musicDir = TkFileDialog::getExistingDirectory(this, tr("Select a Directory"), quarkPlayer().config().musicDir());
+	QString musicDir = TkFileDialog::getExistingDirectory(this, tr("Select a Directory"), Config::instance().musicDir());
 	if (!musicDir.isEmpty()) {
-		quarkPlayer().config().setValue(Config::MUSIC_DIR_KEY, musicDir);
+		Config::instance().setValue(Config::MUSIC_DIR_KEY, musicDir);
 	}
 }
 
@@ -142,7 +142,7 @@ void FileBrowserWidget::musicDirChanged(const QString & key, const QVariant & va
 	qDebug() << __FUNCTION__ << key << value;
 
 	if (key == Config::MUSIC_DIR_KEY) {
-		_ui->treeView->setRootIndex(_dirModel->index(quarkPlayer().config().musicDir()));
+		_ui->treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
 		_dirModel->refresh();
 	}
 }
@@ -158,4 +158,9 @@ void FileBrowserWidget::retranslate() {
 	_dockWidget->setWindowTitle(tr("Local Files"));
 
 	_ui->retranslateUi(this);
+}
+
+void FileBrowserWidget::configWindowCreated(ConfigWindow * configWindow) {
+	//Add to config window
+	configWindow->addConfigWidget(new FileBrowserConfigWidget());
 }

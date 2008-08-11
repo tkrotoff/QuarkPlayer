@@ -29,6 +29,7 @@ class SimpleDirModel;
 
 class MainWindow;
 class QuarkPlayer;
+class ConfigWindow;
 
 class QModelIndex;
 class QDockWidget;
@@ -62,6 +63,8 @@ private slots:
 	void createNewFileBrowserWidget();
 
 	void retranslate();
+
+	void configWindowCreated(ConfigWindow * configWindow);
 
 private:
 

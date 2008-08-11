@@ -90,9 +90,6 @@ public:
 	/** Returns the current video widget associated with the current media object. */
 	Phonon::VideoWidget * currentVideoWidget() const;
 
-	/** Gets QuarkPlayer configuration framework. */
-	Config & config() const;
-
 public slots:
 
 	/** Creates a new media object. */
