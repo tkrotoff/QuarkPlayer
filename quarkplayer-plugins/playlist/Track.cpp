@@ -26,25 +26,42 @@
 #include <QtCore/QTime>
 #include <QtCore/QDebug>
 
-Track::Track(const Phonon::MediaSource & mediaSource) {
-	_source = mediaSource;
+Track::Track(const QString & filename) {
+	_filename = filename;
 
+	//Optimization: don't do that because it is slow
+	//to construct a Phonon::MediaSource
+	//setMediaSource(filename);
+	///
+
+	_resolved = false;
+	_playing = false;
+}
+
+Track::Track(const Phonon::MediaSource & mediaSource) {
+	setMediaSource(mediaSource);
+
+	_resolved = false;
+	_playing = false;
+}
+
+void Track::setMediaSource(const Phonon::MediaSource & mediaSource) {
 	QString shortFilename;
-	switch (_source.type()) {
+	switch (mediaSource.type()) {
 	case Phonon::MediaSource::LocalFile:
-		_filename = _source.fileName();
+		_filename = mediaSource.fileName();
 		shortFilename = TkFile::dir(_filename) + "/";
 		shortFilename += TkFile::removeFileExtension(TkFile::fileName(_filename));
 		break;
 	case Phonon::MediaSource::Url:
-		shortFilename = _filename = _source.url().toString();
+		shortFilename = _filename = mediaSource.url().toString();
 		break;
 	case Phonon::MediaSource::Disc:
-		shortFilename = _filename = _source.deviceName();
+		shortFilename = _filename = mediaSource.deviceName();
 		break;
 	case Phonon::MediaSource::Invalid: {
 		//Try to get the filename from the url
-		QUrl url(_source.url());
+		QUrl url(mediaSource.url());
 		if (url.isValid()) {
 			if (url.scheme() == "file") {
 				_filename = url.toLocalFile();
@@ -57,14 +74,11 @@ Track::Track(const Phonon::MediaSource & mediaSource) {
 		break;
 	}
 	default:
-		qCritical() << __FUNCTION__ << "Error: unknown MediaSource type:" << _source.type();
+		qCritical() << __FUNCTION__ << "Error: unknown MediaSource type:" << mediaSource.type();
 	}
 
 	//By default, title is just the filename
 	_title = shortFilename;
-
-	_resolved = false;
-	_playing = false;
 }
 
 Track::Track(const Track & track) {
@@ -75,8 +89,6 @@ Track::~Track() {
 }
 
 void Track::copy(const Track & track) {
-	_source = track._source;
-
 	_filename = track._filename;
 
 	_trackNumber = track._trackNumber;
@@ -107,7 +119,7 @@ QString Track::fileName() const {
 }
 
 Phonon::MediaSource Track::mediaSource() const {
-	return _source;
+	return Phonon::MediaSource(_filename);
 }
 
 void Track::setTrackNumber(const QString & trackNumber) {
@@ -127,7 +139,12 @@ void Track::setTitle(const QString & title) {
 	}
 }
 
-QString Track::title() const {
+QString Track::title() {
+	if (_title.isEmpty()) {
+		Phonon::MediaSource source(_filename);
+		setMediaSource(source);
+	}
+
 	return _title;
 }
 

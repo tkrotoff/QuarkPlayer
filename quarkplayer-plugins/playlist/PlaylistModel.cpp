@@ -26,6 +26,7 @@
 #include <quarkplayer/PluginManager.h>
 
 #include <tkutil/FindFiles.h>
+#include <tkutil/TkFile.h>
 #include <tkutil/Random.h>
 
 #include <playlistparser/PlaylistParser.h>
@@ -248,8 +249,7 @@ void PlaylistModel::filesFound(const QStringList & files) {
 void PlaylistModel::addFiles(const QStringList & files, int row) {
 	QStringList filenameList;
 	foreach (QString filename, files) {
-		QFileInfo fileInfo(filename);
-		bool isMultimediaFile = FileExtensions::multimedia().contains(fileInfo.suffix(), Qt::CaseInsensitive);
+		bool isMultimediaFile = FileExtensions::multimedia().contains(TkFile::fileExtension(filename), Qt::CaseInsensitive);
 		if (isMultimediaFile) {
 			filenameList << filename;
 		}

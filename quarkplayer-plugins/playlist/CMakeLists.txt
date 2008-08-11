@@ -15,24 +15,13 @@ qt4_wrap_cpp(playlist_SRCS
 
 add_library(playlist MODULE ${playlist_SRCS})
 
-if (KDE4_FOUND)
-	target_link_libraries(playlist
-		quarkplayercore
-		tkutil
-		playlistparser
-		${KDE4_KDECORE_LIBS}
-		${KDE4_KDEUI_LIBS}
-		${KDE4_KIO_LIBS}
-	)
-else (KDE4_FOUND)
-	target_link_libraries(playlist
-		quarkplayercore
-		tkutil
-		playlistparser
-		${QT_QTCORE_LIBRARY}
-		${QT_QTGUI_LIBRARY}
-	)
-endif (KDE4_FOUND)
+target_link_libraries(playlist
+	quarkplayercore
+	tkutil
+	playlistparser
+	${QT_QTCORE_LIBRARY}
+	${QT_QTGUI_LIBRARY}
+)
 
 #Translations
 add_qt_translations(${playlist_SRCS})

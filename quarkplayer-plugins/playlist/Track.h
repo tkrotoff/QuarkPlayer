@@ -31,14 +31,16 @@
 class Track {
 public:
 
-	Track(const Phonon::MediaSource & mediaSource);
+	explicit Track(const QString & filename);
+	explicit Track(const Phonon::MediaSource & mediaSource);
+
 	Track(const Track & track);
 
 	~Track();
 
 	Track & operator=(const Track & right);
 
-	/** Comparison based on filenames only. */
+	/** Comparaison based on filenames only. */
 	int operator==(const Track & right);
 
 	QString fileName() const;
@@ -48,7 +50,7 @@ public:
 	QString trackNumber() const;
 
 	void setTitle(const QString & title);
-	QString title() const;
+	QString title();
 
 	void setArtist(const QString & artist);
 	QString artist() const;
@@ -69,9 +71,9 @@ private:
 
 	void copy(const Track & track);
 
-	QString convertMilliseconds(qint64 totalTime) const;
+	void setMediaSource(const Phonon::MediaSource & mediaSource);
 
-	Phonon::MediaSource _source;
+	QString convertMilliseconds(qint64 totalTime) const;
 
 	QString _filename;
 

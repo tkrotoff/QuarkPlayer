@@ -16,27 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TkFile.h"
+#include "TimeElapsed.h"
 
 #include <QtCore/QDebug>
 
-QString TkFile::fileName(const QString & path) {
-	return path.right(path.length() - path.lastIndexOf('/') - 1);
+TimeElapsed::TimeElapsed() {
+	_time.start();
 }
 
-QString TkFile::dir(const QString & filename) {
-	QString left(filename.left(filename.lastIndexOf('/')));
-	return left.right(left.length() - left.lastIndexOf('/') - 1);
-}
-
-QString TkFile::removeFileExtension(const QString & path) {
-	return path.left(path.lastIndexOf('.'));
-}
-
-QString TkFile::fileExtension(const QString & path) {
-	return path.right(path.length() - path.lastIndexOf('.') - 1);
-}
-
-QString TkFile::path(const QString & filename) {
-	return filename.left(filename.lastIndexOf('/'));
+TimeElapsed::~TimeElapsed() {
+	qDebug() << "Time elapsed:" << _time.elapsed() << "ms";
 }

@@ -16,27 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TkFile.h"
+#ifndef TIMEELAPSED_H
+#define TIMEELAPSED_H
 
-#include <QtCore/QDebug>
+#include <QtCore/QTime>
 
-QString TkFile::fileName(const QString & path) {
-	return path.right(path.length() - path.lastIndexOf('/') - 1);
-}
+/**
+ * Compute time elasped of a function.
+ *
+ * Example:
+ * <pre>
+ * void toto() {
+ *     TimeElapsed time;
+ *     some_lengthy_task();
+ *     //TimeElapsed destructor called,
+ *     //shows the time elapsed by the function
+ * }
+ *
+ * @author Tanguy Krotoff
+ */
+class TimeElapsed {
+public:
 
-QString TkFile::dir(const QString & filename) {
-	QString left(filename.left(filename.lastIndexOf('/')));
-	return left.right(left.length() - left.lastIndexOf('/') - 1);
-}
+	TimeElapsed();
 
-QString TkFile::removeFileExtension(const QString & path) {
-	return path.left(path.lastIndexOf('.'));
-}
+	~TimeElapsed();
 
-QString TkFile::fileExtension(const QString & path) {
-	return path.right(path.length() - path.lastIndexOf('.') - 1);
-}
+private:
 
-QString TkFile::path(const QString & filename) {
-	return filename.left(filename.lastIndexOf('/'));
-}
+	QTime _time;
+};
+
+#endif	//TIMEELAPSED_H

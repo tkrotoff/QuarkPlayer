@@ -54,6 +54,13 @@ public:
 	static QString removeFileExtension(const QString & path);
 
 	/**
+	 * Gets the extension (i.e mp3) from the filename.
+	 *
+	 * Example: path=/usr/lib/toto.txt => txt
+	 */
+	static QString fileExtension(const QString & path);
+
+	/**
 	 * Gets the path of a file.
 	 *
 	 * Example: filename=/toto/titi/caca.txt path=/toto/titi
