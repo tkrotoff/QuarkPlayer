@@ -5,14 +5,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>491</width>
-    <height>315</height>
+    <width>411</width>
+    <height>301</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Media Info</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_11" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
    <item row="1" column="0" >
     <widget class="QTabWidget" name="tabWidget" >
      <property name="currentIndex" >
@@ -23,18 +26,18 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>469</width>
-        <height>241</height>
+        <width>407</width>
+        <height>245</height>
        </rect>
       </property>
       <attribute name="title" >
        <string>Media Info</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_5" >
+      <layout class="QGridLayout" name="gridLayout_4" >
        <item row="0" column="0" colspan="2" >
-        <widget class="QLabel" name="filenameLabel" >
-         <property name="textInteractionFlags" >
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+        <widget class="QLineEdit" name="filenameLineEdit" >
+         <property name="readOnly" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -43,104 +46,114 @@
          <property name="title" >
           <string>Metadata</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout" >
+         <layout class="QGridLayout" name="gridLayout_3" >
           <item row="0" column="0" >
-           <layout class="QGridLayout" name="gridLayout_4" >
+           <layout class="QGridLayout" name="gridLayout_2" >
             <item row="0" column="0" >
-             <layout class="QGridLayout" name="gridLayout_2" >
-              <item row="0" column="0" >
-               <widget class="QLabel" name="trackLabel" >
-                <property name="text" >
-                 <string>Track #</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0" >
-               <widget class="QLabel" name="titleLabel" >
-                <property name="text" >
-                 <string>Title</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0" >
-               <widget class="QLabel" name="artistLabel" >
-                <property name="text" >
-                 <string>Artist</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0" >
-               <widget class="QLabel" name="albumLabel" >
-                <property name="text" >
-                 <string>Album</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0" >
-               <widget class="QLabel" name="yearLabel" >
-                <property name="text" >
-                 <string>Year</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0" >
-               <widget class="QLabel" name="commentLabel" >
-                <property name="text" >
-                 <string>Comment</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <widget class="QLabel" name="trackLabel" >
+              <property name="text" >
+               <string>Track #</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
             </item>
-            <item row="0" column="1" >
-             <layout class="QGridLayout" name="gridLayout_3" >
-              <item row="0" column="0" colspan="3" >
-               <widget class="QLineEdit" name="trackLineEdit" />
-              </item>
-              <item row="1" column="0" colspan="3" >
-               <widget class="QLineEdit" name="titleLineEdit" />
-              </item>
-              <item row="2" column="0" colspan="3" >
-               <widget class="QLineEdit" name="artistLineEdit" />
-              </item>
-              <item row="3" column="0" colspan="3" >
-               <widget class="QLineEdit" name="albumLineEdit" />
-              </item>
-              <item row="4" column="0" >
-               <widget class="QLineEdit" name="yearLineEdit" />
-              </item>
-              <item row="4" column="1" >
-               <widget class="QLabel" name="genreLabel" >
-                <property name="text" >
-                 <string>Genre</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="2" >
-               <widget class="QLineEdit" name="genreLineEdit" />
-              </item>
-              <item row="5" column="0" colspan="3" >
-               <widget class="QLineEdit" name="commentLineEdit" />
-              </item>
-             </layout>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="titleLabel" >
+              <property name="text" >
+               <string>Title</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" >
+             <widget class="QLabel" name="artistLabel" >
+              <property name="text" >
+               <string>Artist</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" >
+             <widget class="QLabel" name="albumLabel" >
+              <property name="text" >
+               <string>Album</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" >
+             <widget class="QLabel" name="yearLabel" >
+              <property name="text" >
+               <string>Year</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" >
+             <widget class="QLabel" name="commentLabel" >
+              <property name="text" >
+               <string>Comment</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1" >
+           <layout class="QGridLayout" name="gridLayout" >
+            <item row="0" column="0" >
+             <widget class="QLineEdit" name="trackLineEdit" >
+              <property name="maximumSize" >
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="3" >
+             <widget class="QLineEdit" name="titleLineEdit" />
+            </item>
+            <item row="2" column="0" colspan="3" >
+             <widget class="QLineEdit" name="artistLineEdit" />
+            </item>
+            <item row="3" column="0" colspan="3" >
+             <widget class="QLineEdit" name="albumLineEdit" />
+            </item>
+            <item row="4" column="0" >
+             <widget class="QLineEdit" name="yearLineEdit" >
+              <property name="maximumSize" >
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" >
+             <widget class="QLabel" name="genreLabel" >
+              <property name="text" >
+               <string>Genre</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2" >
+             <widget class="QLineEdit" name="genreLineEdit" />
+            </item>
+            <item row="5" column="0" colspan="3" >
+             <widget class="QLineEdit" name="commentLineEdit" />
             </item>
            </layout>
           </item>
@@ -152,76 +165,96 @@
          <property name="title" >
           <string>Format Info</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_6" >
+         <layout class="QGridLayout" name="gridLayout_5" >
           <item row="0" column="0" >
-           <widget class="QLabel" name="lengthLabel" >
-            <property name="text" >
-             <string>Length:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="2" >
-           <widget class="QLabel" name="lengthLabel_2" >
-            <property name="text" >
-             <string/>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_3" >
+            <item>
+             <widget class="QLabel" name="lengthLabel2" >
+              <property name="text" >
+               <string>Length:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lengthLabel" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item row="1" column="0" >
-           <widget class="QLabel" name="bitrateLabel" >
-            <property name="text" >
-             <string>Bitrate:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1" colspan="2" >
-           <widget class="QLabel" name="bitrateLabel_2" >
-            <property name="text" >
-             <string/>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_2" >
+            <item>
+             <widget class="QLabel" name="bitrateLabel2" >
+              <property name="text" >
+               <string>Bitrate:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="bitrateLabel" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item row="2" column="0" >
-           <widget class="QLabel" name="fileSizeLabel" >
-            <property name="text" >
-             <string>File size:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2" >
-           <widget class="QLabel" name="fileSizeLabel_2" >
-            <property name="text" >
-             <string/>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout" >
+            <item>
+             <widget class="QLabel" name="fileSizeLabel2" >
+              <property name="text" >
+               <string>File size:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="fileSizeLabel" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item row="3" column="0" >
-           <widget class="QLabel" name="channelsLabel" >
-            <property name="text" >
-             <string>Channels:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2" >
-           <widget class="QLabel" name="channelsLabel_2" >
-            <property name="text" >
-             <string/>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_4" >
+            <item>
+             <widget class="QLabel" name="channelsLabel2" >
+              <property name="text" >
+               <string>Channels:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="channelsLabel" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item row="4" column="0" >
-           <widget class="QLabel" name="sampleRateLabel" >
-            <property name="text" >
-             <string>Sample rate:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2" >
-           <widget class="QLabel" name="sampleRateLabel_2" >
-            <property name="text" >
-             <string/>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_5" >
+            <item>
+             <widget class="QLabel" name="sampleRateLabel2" >
+              <property name="text" >
+               <string>Sample rate:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="sampleRateLabel" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -259,8 +292,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>469</width>
-        <height>241</height>
+        <width>407</width>
+        <height>245</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -292,8 +325,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>469</width>
-            <height>241</height>
+            <width>407</width>
+            <height>245</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_8" >
@@ -337,8 +370,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>469</width>
-        <height>241</height>
+        <width>407</width>
+        <height>245</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -351,8 +384,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>469</width>
-        <height>241</height>
+        <width>407</width>
+        <height>245</height>
        </rect>
       </property>
       <attribute name="title" >

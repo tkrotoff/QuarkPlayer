@@ -33,6 +33,7 @@ namespace Phonon {
 class Track;
 
 class QuarkPlayer;
+class MediaInfoFetcher;
 
 /**
  * Playlist model.
@@ -107,7 +108,7 @@ public slots:
 
 private slots:
 
-	void metaStateChanged(Phonon::State newState, Phonon::State oldState);
+	void updateMediaInfo();
 
 	void loadCurrentPlaylist();
 
@@ -117,8 +118,8 @@ private:
 
 	QuarkPlayer & _quarkPlayer;
 
-	/** Resolves the list of pending files for meta data/info. */
-	Phonon::MediaObject * _metaObjectInfoResolver;
+	/** Resolves the list of pending files for metadata/info. */
+	MediaInfoFetcher * _mediaInfoFetcher;
 
 	/**
 	 * List of all the media available in this QAbstractItemModel.
@@ -133,8 +134,8 @@ private:
 	 */
 	mutable QString _filesInfoResolver;
 
-	/** _filesInfoResolver is working (already resolving some meta datas. */
-	mutable bool _metaObjectInfoResolverLaunched;
+	/** _mediaInfoFetcher is working or not (already resolving some metadatas or not). */
+	mutable bool _mediaInfoFetcherLaunched;
 
 	int _position;
 

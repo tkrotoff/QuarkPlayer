@@ -227,6 +227,8 @@ void MediaObject::setSource(const MediaSource & source) {
 		qCritical() << __FUNCTION__ << "Error: unsupported MediaSource:" << source.type();
 		break;
 	}
+
+	emit currentSourceChanged(source);
 }
 
 void MediaObject::setNextSource(const MediaSource & source) {

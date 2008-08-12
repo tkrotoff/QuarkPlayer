@@ -27,10 +27,11 @@ namespace Ui {
 	class MediaDataWidget;
 }
 
-class CoverArtWindow;
+class MediaInfoWindow;
+class MediaInfoFetcher;
 
 namespace Phonon {
-	class MediaObject;
+	class MediaSource;
 }
 
 class QLabel;
@@ -47,13 +48,15 @@ class MediaDataWidget : public QWidget {
 	Q_OBJECT
 public:
 
-	MediaDataWidget(Phonon::MediaObject * mediaObject);
+	MediaDataWidget();
 
 	~MediaDataWidget();
 
+	void startMediaInfoFetcher(const Phonon::MediaSource & mediaSource);
+
 private slots:
 
-	void metaDataChanged();
+	void updateMediaInfo();
 
 	void retranslate();
 
@@ -67,11 +70,11 @@ private:
 
 	void setCoverArtPixmap(const QFile & coverArtFile);
 
-	Phonon::MediaObject * _mediaObject;
-
 	Ui::MediaDataWidget * _ui;
 
-	CoverArtWindow * _coverArtWindow;
+	MediaInfoWindow * _mediaInfoWindow;
+
+	MediaInfoFetcher * _mediaInfoFetcher;
 
 	QTimer * _coverArtSwitchTimer;
 
@@ -79,8 +82,6 @@ private:
 	int _currentCoverArtIndex;
 
 	QString _amazonCoverArtFilename;
-
-	bool _metaDataChangedAlready;
 };
 
 #endif	//MEDIADATAWIDGET_H

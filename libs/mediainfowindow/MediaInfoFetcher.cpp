@@ -21,19 +21,34 @@
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>
 
+#include <tkutil/TkFile.h>
+
+#include <QtCore/QUrl>
+#include <QtCore/QFile>
 #include <QtCore/QDebug>
 
 MediaInfoFetcher::MediaInfoFetcher(QObject * parent)
 	: QObject(parent) {
+
+	_isUrl = false;
+	_fetched = false;
+	_metaObjectInfoResolver = NULL;
 }
 
 MediaInfoFetcher::~MediaInfoFetcher() {
 }
 
-void MediaInfoFetcher::start(const QString & filename) {
+void MediaInfoFetcher::start(const Phonon::MediaSource & mediaSource) {
 	_fetched = false;
-	_filename = filename;
-	_metaObjectInfoResolver = NULL;
+	_mediaSource = mediaSource;
+
+	if (mediaSource.type() == Phonon::MediaSource::Url) {
+		_filename = mediaSource.url().toString();
+		_isUrl = true;
+	} else {
+		_filename = mediaSource.fileName();
+		_isUrl = false;
+	}
 
 #ifdef TAGLIB
 	startTagLibResolver();
@@ -49,8 +64,9 @@ void MediaInfoFetcher::startPhononResolver() {
 		_metaObjectInfoResolver = new Phonon::MediaObject(this);
 		connect(_metaObjectInfoResolver, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 			SLOT(metaStateChanged(Phonon::State, Phonon::State)));
-		_metaObjectInfoResolver->setCurrentSource(_filename);
 	}
+
+	_metaObjectInfoResolver->setCurrentSource(_mediaSource);
 }
 
 void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State oldState) {
@@ -76,7 +92,7 @@ void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State ol
 		_streamName = metaData.value("STREAM_NAME");
 		_streamGenre = metaData.value("STREAM_GENRE");
 		_streamWebsite = metaData.value("STREAM_WEBSITE");
-		_streamURL = metaData.value("STREAM_URL");
+		_streamUrl = metaData.value("STREAM_URL");
 
 		_fetched = true;
 		emit fetched();
@@ -86,12 +102,24 @@ void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State ol
 void MediaInfoFetcher::startTagLibResolver() {
 }
 
-bool MediaInfoFetcher::fetched() const {
+bool MediaInfoFetcher::hasBeenFetched() const {
 	return _fetched;
 }
 
-int MediaInfoFetcher::trackNumber() const {
-	return _trackNumber;
+QString MediaInfoFetcher::filename() const {
+	return _filename;
+}
+
+bool MediaInfoFetcher::isUrl() const {
+	return _isUrl;
+}
+
+QString MediaInfoFetcher::trackNumber() const {
+	if (_trackNumber > 0) {
+		return QString::number(_trackNumber);
+	} else {
+		return QString();
+	}
 }
 
 QString MediaInfoFetcher::title() const {
@@ -106,8 +134,12 @@ QString MediaInfoFetcher::album() const {
 	return _album;
 }
 
-int MediaInfoFetcher::year() const {
-	return _year;
+QString MediaInfoFetcher::year() const {
+	if (_year > 0) {
+		return QString::number(_year);
+	} else {
+		return QString();
+	}
 }
 
 QString MediaInfoFetcher::genre() const {
@@ -118,24 +150,49 @@ QString MediaInfoFetcher::comment() const {
 	return _comment;
 }
 
-int MediaInfoFetcher::length() const {
-	return _length;
+QString MediaInfoFetcher::length() const {
+	if (_length > 0) {
+		return QString::number(_length);
+	} else {
+		return QString();
+	}
 }
 
-int MediaInfoFetcher::bitrate() const {
-	return _bitrate;
+QString MediaInfoFetcher::bitrate() const {
+	if (_bitrate > 0) {
+		return QString::number(_bitrate / 1000.0);
+	} else {
+		return QString();
+	}
 }
 
-long MediaInfoFetcher::fileSize() const {
-	return _fileSize;
+QString MediaInfoFetcher::fileSize() {
+	if (!_isUrl) {
+		//Switch from bytes to megabytes
+		QFile file(_filename);
+		QString tmp;
+		tmp.sprintf("%.3f", file.size() / 1000000.0);
+		tmp.replace(".", ",");
+		return tmp;
+	} else {
+		return QString();
+	}
 }
 
-int MediaInfoFetcher::channels() const {
-	return _channels;
+QString MediaInfoFetcher::channels() const {
+	if (_channels > 0) {
+		return QString::number(_channels);
+	} else {
+		return QString();
+	}
 }
 
-int MediaInfoFetcher::sampleRate() const {
-	return _sampleRate;
+QString MediaInfoFetcher::sampleRate() const {
+	if (_sampleRate > 0) {
+		return QString::number(_sampleRate);
+	} else {
+		return QString();
+	}
 }
 
 QString MediaInfoFetcher::streamName() const {
@@ -150,6 +207,6 @@ QString MediaInfoFetcher::streamWebsite() const {
 	return _streamWebsite;
 }
 
-QString MediaInfoFetcher::streamURL() const {
-	return _streamURL;
+QString MediaInfoFetcher::streamUrl() const {
+	return _streamUrl;
 }

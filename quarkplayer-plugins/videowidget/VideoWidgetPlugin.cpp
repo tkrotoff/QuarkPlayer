@@ -25,6 +25,8 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
 
+#include <mediainfowindow/MediaInfoFetcher.h>
+
 #include <tkutil/MouseEventFilter.h>
 #include <tkutil/CloseEventFilter.h>
 
@@ -93,10 +95,18 @@ void VideoWidgetPlugin::metaDataChanged() {
 	container->videoDockWidget->setWindowTitle(title);
 }
 
+void VideoWidgetPlugin::currentSourceChanged(const Phonon::MediaSource & newSource) {
+	VideoContainer * container = _mediaObjectMap.value(quarkPlayer().currentMediaObject());
+
+	container->mediaDataWidget->startMediaInfoFetcher(newSource);
+}
+
 void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(stateChanged(Phonon::State, Phonon::State)));
 	connect(mediaObject, SIGNAL(hasVideoChanged(bool)), SLOT(hasVideoChanged(bool)));
+	connect(mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
+		SLOT(currentSourceChanged(const Phonon::MediaSource &)));
 	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
 
 	VideoContainer * container = new VideoContainer();
@@ -110,7 +120,7 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	container->videoDockWidget->setWidget(container->backgroundLogoWidget);
 
 	//mediaDataWidget
-	container->mediaDataWidget = new MediaDataWidget(mediaObject);
+	container->mediaDataWidget = new MediaDataWidget();
 
 	//videoWidget
 	container->videoWidget = new VideoWidget(container->videoDockWidget, quarkPlayer().mainWindow());

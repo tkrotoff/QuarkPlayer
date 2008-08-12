@@ -34,11 +34,8 @@
 #include <QtCore/QtGlobal>
 #include <QtCore/QUrl>
 
-MediaInfoWindow::MediaInfoWindow(const QString & locale, QWidget * parent)
+MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 	: QDialog(parent) {
-
-	//Locale
-	_locale = locale;
 
 	_mediaInfoFetcher = NULL;
 
@@ -68,8 +65,12 @@ void MediaInfoWindow::setCoverArtFilename(const QString & coverArtFilename) {
 	_coverArtFilename = coverArtFilename;
 }
 
-void MediaInfoWindow::setMediaFilename(const QString & mediaFilename) {
-	_mediaFilename = mediaFilename;
+void MediaInfoWindow::setMediaInfoFetcher(MediaInfoFetcher * mediaInfoFetcher) {
+	_mediaInfoFetcher = mediaInfoFetcher;
+}
+
+void MediaInfoWindow::setLocale(const QString & locale) {
+	_locale = locale;
 }
 
 void MediaInfoWindow::show() {
@@ -114,20 +115,30 @@ void MediaInfoWindow::refresh() {
 		//resize(width, height);
 	}
 
-	startMediaInfoFetcher();
-}
-
-void MediaInfoWindow::startMediaInfoFetcher() {
-	if (!_mediaInfoFetcher) {
-		//Lazy initialization
-		_mediaInfoFetcher = new MediaInfoFetcher(this);
-		connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(mediaInfoFetched()));
+	if (_mediaInfoFetcher) {
+		if (_mediaInfoFetcher->hasBeenFetched()) {
+			updateMediaInfo();
+		}
 	}
-
-	_mediaInfoFetcher->start(_mediaFilename);
 }
 
-void MediaInfoWindow::mediaInfoFetched() {
+void MediaInfoWindow::updateMediaInfo() {
+	_ui->filenameLineEdit->setText(_mediaInfoFetcher->filename());
+
+	_ui->trackLineEdit->setText(_mediaInfoFetcher->trackNumber());
+	_ui->titleLineEdit->setText(_mediaInfoFetcher->title());
+	_ui->artistLineEdit->setText(_mediaInfoFetcher->artist());
+	_ui->albumLineEdit->setText(_mediaInfoFetcher->album());
+	_ui->yearLineEdit->setText(_mediaInfoFetcher->year());
+	_ui->genreLineEdit->setText(_mediaInfoFetcher->genre());
+	_ui->commentLineEdit->setText(_mediaInfoFetcher->comment());
+
+	_ui->lengthLabel->setText(_mediaInfoFetcher->length());
+	_ui->bitrateLabel->setText(_mediaInfoFetcher->bitrate());
+	_ui->fileSizeLabel->setText(_mediaInfoFetcher->fileSize() + " " + tr("MB"));
+	_ui->channelsLabel->setText(_mediaInfoFetcher->channels());
+	_ui->sampleRateLabel->setText(_mediaInfoFetcher->sampleRate());
+
 	ContentFetcher::Track track;
 	track.artist = _mediaInfoFetcher->artist();
 	track.title = _mediaInfoFetcher->title();

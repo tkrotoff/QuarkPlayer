@@ -19,7 +19,6 @@
 #include "MediaDataWidget.h"
 
 #include "ui_MediaDataWidget.h"
-#include "CoverArtWindow.h"
 
 #include <quarkplayer/config/Config.h>
 
@@ -27,9 +26,10 @@
 #include <tkutil/MouseEventFilter.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
-#include <contentfetcher/AmazonCoverArt.h>
+#include <mediainfowindow/MediaInfoWindow.h>
+#include <mediainfowindow/MediaInfoFetcher.h>
 
-#include <phonon/mediaobject.h>
+#include <contentfetcher/AmazonCoverArt.h>
 
 #include <QtGui/QtGui>
 
@@ -41,20 +41,17 @@
 //Please don't copy this to another program; keys are free from aws.amazon.com
 static const QString AMAZON_WEB_SERVICE_KEY = "1BPZGMNT4PWSJS6NHG02";
 
-MediaDataWidget::MediaDataWidget(Phonon::MediaObject * mediaObject)
-	: QWidget(NULL),
-	_mediaObject(mediaObject) {
+MediaDataWidget::MediaDataWidget()
+	: QWidget(NULL) {
 
+	_mediaInfoFetcher = NULL;
 	_coverArtSwitchTimer = NULL;
-	_metaDataChangedAlready = false;
-
-	connect(_mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
 
 	_ui = new Ui::MediaDataWidget();
 	_ui->setupUi(this);
 
-	_coverArtWindow = new CoverArtWindow(this);
-	connect(_ui->coverArtButton, SIGNAL(clicked()), _coverArtWindow, SLOT(show()));
+	_mediaInfoWindow = new MediaInfoWindow(this);
+	connect(_ui->coverArtButton, SIGNAL(clicked()), _mediaInfoWindow, SLOT(show()));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -63,7 +60,22 @@ MediaDataWidget::MediaDataWidget(Phonon::MediaObject * mediaObject)
 MediaDataWidget::~MediaDataWidget() {
 }
 
-void MediaDataWidget::metaDataChanged() {
+void MediaDataWidget::startMediaInfoFetcher(const Phonon::MediaSource & mediaSource) {
+	_mediaInfoFetcher = new MediaInfoFetcher(this);
+	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
+	_mediaInfoFetcher->start(mediaSource);
+	_mediaInfoWindow->setMediaInfoFetcher(_mediaInfoFetcher);
+	_mediaInfoWindow->setLocale(Config::instance().language());
+	if (_mediaInfoFetcher->hasBeenFetched()) {
+		updateMediaInfo();
+	}
+}
+
+void MediaDataWidget::updateMediaInfo() {
+	if (!_mediaInfoFetcher) {
+		return;
+	}
+
 	static const QString font = "<font><b>";
 	static const QString endfont = "</b></font>";
 	static const QString href = "<a href=\"";
@@ -71,25 +83,15 @@ void MediaDataWidget::metaDataChanged() {
 	static const QString endhref2 = "</a>";
 	static const QString br = "<br>";
 
-	_metaDataChangedAlready = true;
-
-	QMap<QString, QString> metaData = _mediaObject->metaData();
-
-	QString filename;
-	if (_mediaObject->currentSource().type() == Phonon::MediaSource::Url) {
-		filename = _mediaObject->currentSource().url().toString();
-	} else {
-		filename = TkFile::fileName(_mediaObject->currentSource().fileName());
-	}
-
-	QString title = metaData.value("TITLE");
-	QString artist = metaData.value("ARTIST");
-	QString album = metaData.value("ALBUM");
-	QString streamName = metaData.value("STREAM_NAME");
-	QString streamGenre = metaData.value("STREAM_GENRE");
-	QString streamWebsite = metaData.value("STREAM_WEBSITE");
-	QString streamURL = metaData.value("STREAM_URL");
-	int trackBitrate = metaData.value("BITRATE").toInt();
+	QString filename = _mediaInfoFetcher->filename();
+	QString title = _mediaInfoFetcher->title();
+	QString artist = _mediaInfoFetcher->artist();
+	QString album = _mediaInfoFetcher->album();
+	QString streamName = _mediaInfoFetcher->streamName();
+	QString streamGenre = _mediaInfoFetcher->streamGenre();
+	QString streamWebsite = _mediaInfoFetcher->streamWebsite();
+	QString streamUrl = _mediaInfoFetcher->streamUrl();
+	QString bitrate = _mediaInfoFetcher->bitrate();
 
 	_currentCoverArtIndex = 0;
 	_coverArtList.clear();
@@ -100,7 +102,7 @@ void MediaDataWidget::metaDataChanged() {
 		title = tr("Title:") + "  " + font + title + endfont;
 	} else if (!filename.isEmpty()) {
 		title = font + filename + endfont;
-		if (_mediaObject->currentSource().type() == Phonon::MediaSource::Url) {
+		if (_mediaInfoFetcher->isUrl()) {
 			title.prepend(tr("Url:") + "  ");
 		} else {
 			title.prepend(tr("File:") + "  ");
@@ -128,31 +130,27 @@ void MediaDataWidget::metaDataChanged() {
 				font + streamWebsite + endfont + endhref2;
 	}
 
-	if (!streamURL.isEmpty()) {
-		streamURL = br + tr("Url:") + "  " + href + streamURL + endhref1 +
-			font + streamURL + endfont + endhref2;
+	if (!streamUrl.isEmpty()) {
+		streamUrl = br + tr("Url:") + "  " + href + streamUrl + endhref1 +
+			font + streamUrl + endfont + endhref2;
 	}
 
-	QString bitrate;
-	if (trackBitrate != 0) {
-		bitrate = br + tr("Bitrate:") + "  " + font + QString::number(trackBitrate / 1000) + tr("kbit") + endfont;
+	QString trackBitrate;
+	if (bitrate != 0) {
+		trackBitrate = br + tr("Bitrate:") + "  " + font + bitrate + tr("kbit") + endfont;
 	}
 
-	_ui->dataLabel->setText(title + artist + album + bitrate + streamName + streamGenre + streamWebsite /*+ streamURL*/);
+	_ui->dataLabel->setText(title + artist + album + trackBitrate + streamName + streamGenre + streamWebsite /*+ streamUrl*/);
 }
 
 void MediaDataWidget::retranslate() {
-	if (_metaDataChangedAlready) {
-		//Updates the meta datas only if necessary
-		metaDataChanged();
-	}
-
+	updateMediaInfo();
 	_ui->retranslateUi(this);
 }
 
 void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist, const QString & title) {
 	bool amazonCoverArtAlreadyDownloaded = false;
-	QDir path(TkFile::path(_mediaObject->currentSource().fileName()));
+	QDir path(TkFile::path(_mediaInfoFetcher->filename()));
 	if (path.exists()) {
 		QStringList imageExtensions;
 		imageExtensions << "*.jpg";
@@ -197,8 +195,6 @@ void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist
 	//Restarts the timer
 	_coverArtSwitchTimer->start();
 	updateCoverArtPixmap();
-
-	_coverArtWindow->setMediaData(album, artist, title);
 }
 
 void MediaDataWidget::coverArtFound(const QByteArray & coverArt, bool accuracy) {
@@ -241,7 +237,7 @@ void MediaDataWidget::updateCoverArtPixmap() {
 		QPixmap coverArt(filename);
 		if (!coverArt.isNull()) {
 			_ui->coverArtButton->setIcon(coverArt);
-			_coverArtWindow->setCoverArtFilename(filename);
+			_mediaInfoWindow->setCoverArtFilename(filename);
 		} else {
 			qCritical() << __FUNCTION__ << "Error: cover art image is empty";
 		}

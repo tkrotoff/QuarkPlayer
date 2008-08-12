@@ -22,6 +22,7 @@
 #include <mediainfowindow/mediainfowindow_export.h>
 
 #include <phonon/phononnamespace.h>
+#include <phonon/mediasource.h>
 
 #include <QtCore/QString>
 
@@ -48,49 +49,55 @@ public:
 	~MediaInfoFetcher();
 
 	/**
-	 * Starts info fetching given a media filename.
+	 * Starts info fetching given a media source.
 	 *
-	 * @param filename media filename
+	 * @param mediaSource Phonon media source
 	 */
-	void start(const QString & filename);
+	void start(const Phonon::MediaSource & mediaSource);
 
 	/** Tells if the metadata were fetched or not. */
-	bool fetched() const;
+	bool hasBeenFetched() const;
+
+	QString filename() const;
+
+	bool isUrl() const;
 
 	/** Returns the track number; if there is no track number set, this will return 0. */
-	int trackNumber() const;
+	QString trackNumber() const;
 
 	QString title() const;
 	QString artist() const;
 	QString album() const;
-	int year() const;
+	QString year() const;
 	QString genre() const;
 	QString comment() const;
 
 	/** Returns the length of the file in seconds. */
-	int length() const;
+	QString length() const;
 
 	/**
-	 * Returns the most appropriate bit rate for the file in kb/s.
+	 * Returns the most appropriate bit rate for the file in kbit/s.
 	 *
 	 * For constant bitrate formats this is simply the bitrate of the file.
 	 * For variable bitrate formats this is either the average or nominal bitrate.
+	 *
+	 * @return bitrate or -1
 	 */
-	int bitrate() const;
+	QString bitrate() const;
 
-	/** Returns the size of the file in octets. */
-	long fileSize() const;
+	/** Returns the size of the file in kbytes. */
+	QString fileSize();
 
 	/** Returns the number of audio channels. */
-	int channels() const;
+	QString channels() const;
 
 	/** Returns the sample rate in Hz. */
-	int sampleRate() const;
+	QString sampleRate() const;
 
 	QString streamName() const;
 	QString streamGenre() const;
 	QString streamWebsite() const;
-	QString streamURL() const;
+	QString streamUrl() const;
 
 signals:
 
@@ -106,12 +113,15 @@ private:
 
 	void startTagLibResolver();
 
-	QString _filename;
+	Phonon::MediaSource _mediaSource;
 
 	bool _fetched;
 
 	/** Resolves media metadata/info. */
 	Phonon::MediaObject * _metaObjectInfoResolver;
+
+	QString _filename;
+	bool _isUrl;
 
 	int _trackNumber;
 	QString _title;
@@ -124,15 +134,13 @@ private:
 	int _length;
 	int _bitrate;
 
-	long _fileSize;
-
 	int _channels;
 	int _sampleRate;
 
 	QString _streamName;
 	QString _streamGenre;
 	QString _streamWebsite;
-	QString _streamURL;
+	QString _streamUrl;
 };
 
 #endif	//MEDIAINFOFETCHER_H

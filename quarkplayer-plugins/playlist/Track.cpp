@@ -35,14 +35,6 @@ Track::Track(const QString & filename) {
 	///
 
 	_resolved = false;
-	_playing = false;
-}
-
-Track::Track(const Phonon::MediaSource & mediaSource) {
-	setMediaSource(mediaSource);
-
-	_resolved = false;
-	_playing = false;
 }
 
 void Track::setMediaSource(const Phonon::MediaSource & mediaSource) {
@@ -97,7 +89,6 @@ void Track::copy(const Track & track) {
 	_album = track._album;
 	_length = track._length;
 	_resolved = track._resolved;
-	_playing = track._playing;
 }
 
 Track & Track::operator=(const Track & right) {
@@ -178,14 +169,6 @@ void Track::setMediaDataResolved(bool resolved) {
 
 bool Track::mediaDataResolved() const {
 	return _resolved;
-}
-
-void Track::setPlaying(bool playing) {
-	_playing = playing;
-}
-
-bool Track::playing() const {
-	return _playing;
 }
 
 QString Track::convertMilliseconds(qint64 totalTime) const {

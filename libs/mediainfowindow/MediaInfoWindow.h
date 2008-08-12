@@ -46,21 +46,27 @@ class MEDIAINFOWINDOW_API MediaInfoWindow : public QDialog {
 public:
 
 	/**
-	 * Constructs a MediaInfoWindow given a locale.
+	 * Constructs a MediaInfoWindow.
 	 *
-	 * A locale is 'en', 'fr', 'sp'...
-	 * It should follow Wikipedia locale naming
-	 *
-	 * @param locale locale of the MediaInfoWindow
 	 * @param parent QWidget parent
 	 */
-	MediaInfoWindow(const QString & locale, QWidget * parent);
+	MediaInfoWindow(QWidget * parent);
 
 	~MediaInfoWindow();
 
 	void setCoverArtFilename(const QString & coverArtFilename);
 
-	void setMediaFilename(const QString & mediaFilename);
+	void setMediaInfoFetcher(MediaInfoFetcher * mediaInfoFetcher);
+
+	/**
+	 * Sets the locale.
+	 *
+	 * A locale is 'en', 'fr', 'sp'...
+	 * It should follow Wikipedia locale naming
+	 *
+	 * @param locale locale of the MediaInfoWindow
+	 */
+	void setLocale(const QString & locale);
 
 public slots:
 
@@ -70,7 +76,7 @@ private slots:
 
 	void lyricsFound(const QByteArray & lyrics, bool accuracy);
 
-	void mediaInfoFetched();
+	void updateMediaInfo();
 
 	void retranslate();
 
@@ -78,8 +84,6 @@ private slots:
 	void refresh();
 
 private:
-
-	void startMediaInfoFetcher();
 
 	MediaInfoFetcher * _mediaInfoFetcher;
 

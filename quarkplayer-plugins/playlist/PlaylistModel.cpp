@@ -25,6 +25,8 @@
 #include <quarkplayer/FileExtensions.h>
 #include <quarkplayer/PluginManager.h>
 
+#include <mediainfowindow/MediaInfoFetcher.h>
+
 #include <tkutil/FindFiles.h>
 #include <tkutil/TkFile.h>
 #include <tkutil/Random.h>
@@ -58,13 +60,12 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 	_quarkPlayer(quarkPlayer) {
 
 	_position = POSITION_INVALID;
-	_metaObjectInfoResolverLaunched = false;
+	_mediaInfoFetcherLaunched = false;
 	_rowWhereToInsertFiles = -1;
 
-	//Info resolver
-	_metaObjectInfoResolver = new Phonon::MediaObject(this);
-	connect(_metaObjectInfoResolver, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
-		SLOT(metaStateChanged(Phonon::State, Phonon::State)));
+	//Info fetcher
+	_mediaInfoFetcher = new MediaInfoFetcher(this);
+	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
 
 	//Optimization: loads the playlist only when all plugins have been loaded
 	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
@@ -141,9 +142,9 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 			_filesInfoResolver = track.fileName();
 
 			//Resolve meta data file one by one
-			if (!_metaObjectInfoResolverLaunched) {
-				_metaObjectInfoResolverLaunched = true;
-				_metaObjectInfoResolver->setCurrentSource(_filesInfoResolver);
+			if (!_mediaInfoFetcherLaunched) {
+				_mediaInfoFetcherLaunched = true;
+				_mediaInfoFetcher->start(_filesInfoResolver);
 			}
 		}
 	}
@@ -359,51 +360,33 @@ Qt::DropActions PlaylistModel::supportedDropActions() const {
 	return Qt::CopyAction | Qt::MoveAction;
 }
 
-void PlaylistModel::metaStateChanged(Phonon::State newState, Phonon::State oldState) {
-	Phonon::MediaSource source = _metaObjectInfoResolver->currentSource();
-	QMap<QString, QString> metaData = _metaObjectInfoResolver->metaData();
+void PlaylistModel::updateMediaInfo() {
+	Track track(_mediaInfoFetcher->filename());
 
-	if (source.type() == Phonon::MediaSource::Invalid) {
-		return;
-	}
-
-	if (newState != Phonon::ErrorState && newState != Phonon::StoppedState) {
-		//If ErrorState, we want to continue getting media data
-		//using _filesInfoResolver that's why there is no return here
-		//StoppedState means the backend finished getting the media meta data
-		return;
-	}
-
-	if (newState == Phonon::StoppedState) {
-		//Update the media data only if we have a valid MediaSource
-		//i.e newState should be == to StoppedState
-		Track track(source);
-
-		//Finds all the matching MediaSource
-		for (int row = 0; ; row++) {
-			row = _mediaSources.indexOf(track, row);
-			if (row == -1) {
-				break;
-			}
-
-			//Display track numbers like Winamp
-			//track.setTrackNumber(QString::number(row));
-
-			track.setTrackNumber(metaData.value("TRACKNUMBER"));
-			track.setTitle(metaData.value("TITLE"));
-			track.setArtist(metaData.value("ARTIST"));
-			track.setAlbum(metaData.value("ALBUM"));
-			track.setLength(metaData.value("LENGTH"));
-			track.setMediaDataResolved(true);
-
-			_mediaSources[row] = track;
-
-			//Update the row since the matching MediaSource has been modified
-			emit dataChanged(index(row, COLUMN_FIRST), index(row, COLUMN_LAST));
+	//Finds all the matching MediaSource
+	for (int row = 0; ; row++) {
+		row = _mediaSources.indexOf(track, row);
+		if (row == -1) {
+			break;
 		}
+
+		//Display track numbers like Winamp
+		//track.setTrackNumber(QString::number(row));
+
+		track.setTrackNumber(_mediaInfoFetcher->trackNumber());
+		track.setTitle(_mediaInfoFetcher->title());
+		track.setArtist(_mediaInfoFetcher->artist());
+		track.setAlbum(_mediaInfoFetcher->album());
+		track.setLength(_mediaInfoFetcher->length());
+		track.setMediaDataResolved(true);
+
+		_mediaSources[row] = track;
+
+		//Update the row since the matching MediaSource has been modified
+		emit dataChanged(index(row, COLUMN_FIRST), index(row, COLUMN_LAST));
 	}
 
-	_metaObjectInfoResolverLaunched = false;
+	_mediaInfoFetcherLaunched = false;
 }
 
 void PlaylistModel::clear() {

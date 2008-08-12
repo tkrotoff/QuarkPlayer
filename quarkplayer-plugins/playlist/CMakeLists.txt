@@ -19,6 +19,7 @@ target_link_libraries(playlist
 	quarkplayercore
 	tkutil
 	playlistparser
+	mediainfowindow
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )

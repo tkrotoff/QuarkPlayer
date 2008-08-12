@@ -27,11 +27,13 @@
 #include <QtCore/QMap>
 
 class VideoWidget;
+class MediaDataWidget;
 
 class QuarkPlayer;
 
 namespace Phonon {
 	class MediaObject;
+	class MediaSource;
 }
 
 class QWidget;
@@ -56,6 +58,8 @@ private slots:
 	void stateChanged(Phonon::State newState, Phonon::State oldState);
 
 	void hasVideoChanged(bool hasVideo);
+
+	void currentSourceChanged(const Phonon::MediaSource & newSource);
 
 	void mediaObjectAdded(Phonon::MediaObject * mediaObject);
 
@@ -82,7 +86,7 @@ private:
 		QWidget * backgroundLogoWidget;
 
 		/** Widget containing the media data. */
-		QWidget * mediaDataWidget;
+		MediaDataWidget * mediaDataWidget;
 
 		QDockWidget * videoDockWidget;
 	};

@@ -65,6 +65,7 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 	}
 
 	//Remove HTML comments + trim the resulting string
+	//This is due to malformed lyricwiki page
 	QString tmp(QString::fromUtf8(data));
 	tmp.replace(QRegExp("<!--.*-->"), "");
 	tmp = tmp.trimmed();

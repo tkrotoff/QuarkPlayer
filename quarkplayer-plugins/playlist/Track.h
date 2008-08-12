@@ -26,13 +26,15 @@
 /**
  * Track info and meta datas.
  *
+ * Each item inside the playlist is a Track object.
+ * Thus Track should be a simple and lightweight class.
+ *
  * @author Tanguy Krotoff
  */
 class Track {
 public:
 
 	explicit Track(const QString & filename);
-	explicit Track(const Phonon::MediaSource & mediaSource);
 
 	Track(const Track & track);
 
@@ -64,9 +66,6 @@ public:
 	void setMediaDataResolved(bool resolved);
 	bool mediaDataResolved() const;
 
-	void setPlaying(bool playing);
-	bool playing() const;
-
 private:
 
 	void copy(const Track & track);
@@ -83,7 +82,6 @@ private:
 	QString _album;
 	QString _length;
 	bool _resolved;
-	bool _playing;
 };
 
 #endif	//TRACK_H

@@ -73,7 +73,7 @@ signals:
 
 	void aboutToFinish();
 	//void bufferStatus(int percentFilled);
-	//void currentSourceChanged(const MediaSource & newSource);
+	void currentSourceChanged(const MediaSource & newSource);
 	void finished();
 	void hasVideoChanged(bool hasVideo);
 	void metaDataChanged(const QMultiMap<QString, QString> & metaData);
