@@ -64,7 +64,12 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 		return;
 	}
 
-	QStringList lines(QString::fromUtf8(data).split("\n"));
+	//Remove HTML comments + trim the resulting string
+	QString tmp(QString::fromUtf8(data));
+	tmp.replace(QRegExp("<!--.*-->"), "");
+	tmp = tmp.trimmed();
+
+	QStringList lines(tmp.split("\n"));
 	QMutableStringListIterator it(lines);
 	bool inLyrics = true;
 	while (it.hasNext()) {
@@ -85,8 +90,8 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 		}
 	}
 	QString lyrics(lines.join("<br />\n"));
-	lyrics = lyrics.replace(QRegExp("'''([^']+)'''"), "<b>\\1</b>");
-	lyrics = lyrics.replace(QRegExp("''([^']+)''"), "<i>\\1</i>");
+	lyrics.replace(QRegExp("'''([^']+)'''"), "<b>\\1</b>");
+	lyrics.replace(QRegExp("''([^']+)''"), "<i>\\1</i>");
 
 	//We've got the lyrics
 	emit found(lyrics.toUtf8(), true);
