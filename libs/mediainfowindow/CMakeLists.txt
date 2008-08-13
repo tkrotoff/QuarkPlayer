@@ -1,5 +1,12 @@
 project(mediainfowindow)
 
+if (TAGLIB)
+	#This is because of the pretty strange taglib structure
+	include_directories(${CMAKE_SOURCE_DIR}/3rdparty/taglib)
+endif (TAGLIB)
+
+configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+
 add_definitions(-DBUILD_MEDIAINFOWINDOW)
 
 set(mediainfowindow_SRCS
@@ -28,5 +35,9 @@ target_link_libraries(mediainfowindow
 	${QT_QTGUI_LIBRARY}
 	${QT_PHONON_LIBRARY}
 )
+
+if (TAGLIB)
+	target_link_libraries(mediainfowindow tag)
+endif (TAGLIB)
 
 install(TARGETS mediainfowindow DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

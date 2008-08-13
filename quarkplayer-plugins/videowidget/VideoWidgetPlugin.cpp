@@ -66,6 +66,12 @@ void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldSt
 		//Resize the main window to the size of the video
 		//i.e increase or decrease main window size if needed
 		hasVideoChanged(quarkPlayer().currentMediaObject()->hasVideo());
+
+		//FIXME Do it only when we are sure the media start to be played
+		//instead of waiting for currentSourceChanged(const Phonon::MediaSource &) signal
+		//TagLib open files in read/write, opening a file in read/write prevents the backend to open the file too :/
+		//See http://article.gmane.org/gmane.comp.kde.devel.taglib/918
+		container->mediaDataWidget->startMediaInfoFetcher(quarkPlayer().currentMediaObject()->currentSource());
 	}
 }
 
@@ -95,18 +101,10 @@ void VideoWidgetPlugin::metaDataChanged() {
 	container->videoDockWidget->setWindowTitle(title);
 }
 
-void VideoWidgetPlugin::currentSourceChanged(const Phonon::MediaSource & newSource) {
-	VideoContainer * container = _mediaObjectMap.value(quarkPlayer().currentMediaObject());
-
-	container->mediaDataWidget->startMediaInfoFetcher(newSource);
-}
-
 void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(stateChanged(Phonon::State, Phonon::State)));
 	connect(mediaObject, SIGNAL(hasVideoChanged(bool)), SLOT(hasVideoChanged(bool)));
-	connect(mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
-		SLOT(currentSourceChanged(const Phonon::MediaSource &)));
 	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
 
 	VideoContainer * container = new VideoContainer();

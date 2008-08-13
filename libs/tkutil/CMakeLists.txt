@@ -23,6 +23,7 @@ set(tkutil_SRCS
 	Random.cpp
 	TkTextBrowser.cpp
 	SyncHttp.cpp
+	TkTime.cpp
 )
 
 qt4_wrap_cpp(tkutil_SRCS

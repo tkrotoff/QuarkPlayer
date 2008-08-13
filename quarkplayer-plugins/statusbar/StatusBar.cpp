@@ -21,6 +21,8 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
 
+#include <tkutil/TkTime.h>
+
 #include <phonon/mediaobject.h>
 
 #include <QtGui/QtGui>
@@ -58,42 +60,17 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer)
 StatusBar::~StatusBar() {
 }
 
-QString StatusBar::convertMilliseconds(qint64 currentTime, qint64 totalTime) {
-	QTime displayCurrentTime((currentTime / 3600000) % 60, (currentTime / 60000) % 60, (currentTime / 1000) % 60);
-	QTime displayTotalTime((totalTime / 3600000) % 60, (totalTime / 60000) % 60, (totalTime / 1000) % 60);
-
-	QString timeFormat;
-
-	if (displayTotalTime.hour() == 0 && displayTotalTime.minute() == 0 &&
-		displayTotalTime.second() == 0 && displayTotalTime.msec() == 0) {
-		//Total time is 0, then only return current time
-		if (displayCurrentTime.hour() > 0) {
-			timeFormat = "hh:mm:ss";
-		} else {
-			timeFormat = "mm:ss";
-		}
-		return displayCurrentTime.toString(timeFormat);
-	} else {
-		if (displayTotalTime.hour() > 0) {
-			timeFormat = "hh:mm:ss";
-		} else {
-			timeFormat = "mm:ss";
-		}
-		return displayCurrentTime.toString(timeFormat) + " / " + displayTotalTime.toString(timeFormat);
-	}
-}
-
 void StatusBar::tick(qint64 time) {
-	_timeLabel->setText(convertMilliseconds(time, quarkPlayer().currentMediaObject()->totalTime()));
+	_timeLabel->setText(TkTime::convertMilliseconds(time, quarkPlayer().currentMediaObject()->totalTime()));
 }
 
 void StatusBar::stateChanged(Phonon::State newState) {
 	switch (newState) {
 	case Phonon::ErrorState:
 		if (quarkPlayer().currentMediaObject()->errorType() == Phonon::FatalError) {
-			showMessage("Fatal error:" + quarkPlayer().currentMediaObject()->errorString());
+			showMessage("Fatal error: " + quarkPlayer().currentMediaObject()->errorString());
 		} else {
-			showMessage("Error:" + quarkPlayer().currentMediaObject()->errorString());
+			showMessage("Error: " + quarkPlayer().currentMediaObject()->errorString());
 		}
 		break;
 

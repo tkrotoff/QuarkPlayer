@@ -62,6 +62,8 @@ public:
 
 	bool isUrl() const;
 
+	QString fileType() const;
+
 	/** Returns the track number; if there is no track number set, this will return 0. */
 	QString trackNumber() const;
 
@@ -85,14 +87,14 @@ public:
 	 */
 	QString bitrate() const;
 
-	/** Returns the size of the file in kbytes. */
-	QString fileSize();
+	/** Returns the sample rate in Hz. */
+	QString sampleRate() const;
 
 	/** Returns the number of audio channels. */
 	QString channels() const;
 
-	/** Returns the sample rate in Hz. */
-	QString sampleRate() const;
+	/** Returns the size of the file in kbytes. */
+	QString fileSize();
 
 	QString streamName() const;
 	QString streamGenre() const;
@@ -109,9 +111,27 @@ private slots:
 
 private:
 
+	void clear();
+
+	/**
+	 * Use Phonon to find metadata.
+	 */
 	void startPhononResolver();
 
+	/**
+	 * Use TagLib to find metadata.
+	 *
+	 * Call startTagLibResolver() only when you are sure that the backend start to play the file.
+	 *
+	 * TagLib open files in read/write, opening a file in read/write prevents the backend to open the file too :/
+	 *
+	 * @see VideoWidgetPlugin::stateChanged()
+	 * @see http://article.gmane.org/gmane.comp.kde.devel.taglib/918
+	 */
 	void startTagLibResolver();
+
+	/** Determines file type from the file extension. */
+	void determineFileTypeFromExtension();
 
 	Phonon::MediaSource _mediaSource;
 
@@ -123,6 +143,95 @@ private:
 	QString _filename;
 	bool _isUrl;
 
+	enum FileType {
+
+		/** Default unknown format type. */
+		Unknown,
+
+		/**
+		 * MPEG-1 Audio Layer 3.
+		 *
+		 * Extension: .mp3
+		 *
+		 * @see http://en.wikipedia.org/wiki/Mp3
+		 */
+		MP3,
+
+		/**
+		 * Ogg Vorbis.
+		 *
+		 * Extension: .ogg .oga
+		 *
+		 * @see http://en.wikipedia.org/wiki/Vorbis
+		 */
+		Ogg,
+
+		/**
+		 * Free Lossless Audio Codec (FLAC).
+		 *
+		 * Extension: .flac
+		 *
+		 * @see http://en.wikipedia.org/wiki/Flac
+		 */
+		FLAC,
+
+		/**
+		 * Speex.
+		 *
+		 * Extension: .spx
+		 *
+		 * @see http://en.wikipedia.org/wiki/Speex
+		 */
+		Speex,
+
+		/**
+		 * Musepack (MPC), formerly known as MPEGplus, MPEG+ or MP+.
+		 *
+		 * Extension: .mpc, .mp+, .mpp
+		 *
+		 * @see http://en.wikipedia.org/wiki/Musepack
+		 */
+		MPC,
+
+		/**
+		 * WavPack.
+		 *
+		 * Extension: .wv
+		 *
+		 * @see http://en.wikipedia.org/wiki/Wavpack
+		 */
+		WavPack,
+
+		/**
+		 * True Audio (abbreviated TTA).
+		 *
+		 * Extension: .tta
+		 *
+		 * @see http://en.wikipedia.org/wiki/TTA_(codec)
+		 */
+		TrueAudio,
+
+		/**
+		 * Windows Media Audio (WMA).
+		 *
+		 * Extension: .wma
+		 *
+		 * @see http://en.wikipedia.org/wiki/Windows_Media_Audio
+		 */
+		WMA,
+
+		/**
+		 * MP4 (MPEG-4 Part 14).
+		 *
+		 * Extension: .mp4
+		 *
+		 * @see http://en.wikipedia.org/wiki/Mp4
+		 */
+		MP4
+	};
+
+	FileType _fileType;
+
 	int _trackNumber;
 	QString _title;
 	QString _artist;
@@ -133,9 +242,8 @@ private:
 
 	int _length;
 	int _bitrate;
-
-	int _channels;
 	int _sampleRate;
+	int _channels;
 
 	QString _streamName;
 	QString _streamGenre;

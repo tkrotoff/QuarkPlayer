@@ -76,12 +76,12 @@ void MediaDataWidget::updateMediaInfo() {
 		return;
 	}
 
-	static const QString font = "<font><b>";
-	static const QString endfont = "</b></font>";
-	static const QString href = "<a href=\"";
-	static const QString endhref1 = "\">";
-	static const QString endhref2 = "</a>";
-	static const QString br = "<br>";
+	static const QString font("<font><b>");
+	static const QString endfont("</b></font>");
+	static const QString href("<a href=\"");
+	static const QString endhref1("\">");
+	static const QString endhref2("</a>");
+	static const QString br("<br>");
 
 	QString filename = _mediaInfoFetcher->filename();
 	QString title = _mediaInfoFetcher->title();
@@ -101,11 +101,13 @@ void MediaDataWidget::updateMediaInfo() {
 	if (!title.isEmpty()) {
 		title = tr("Title:") + "  " + font + title + endfont;
 	} else if (!filename.isEmpty()) {
-		title = font + filename + endfont;
 		if (_mediaInfoFetcher->isUrl()) {
-			title.prepend(tr("Url:") + "  ");
+			title = tr("Url:") + "  " + font + filename + endfont;
 		} else {
-			title.prepend(tr("File:") + "  ");
+			//Not the fullpath, only the filename + parent directory name
+			QString tmp(TkFile::dir(filename) + "/");
+			tmp += TkFile::removeFileExtension(TkFile::fileName(filename));
+			title = tr("File:") + "  " + font + tmp + endfont;
 		}
 	}
 
@@ -137,7 +139,7 @@ void MediaDataWidget::updateMediaInfo() {
 
 	QString trackBitrate;
 	if (bitrate != 0) {
-		trackBitrate = br + tr("Bitrate:") + "  " + font + bitrate + tr("kbit") + endfont;
+		trackBitrate = br + tr("Bitrate:") + "  " + font + bitrate + " " + tr("kbps") + endfont;
 	}
 
 	_ui->dataLabel->setText(title + artist + album + trackBitrate + streamName + streamGenre + streamWebsite /*+ streamUrl*/);

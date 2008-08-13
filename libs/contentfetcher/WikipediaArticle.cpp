@@ -40,7 +40,11 @@ WikipediaArticle::WikipediaArticle(QObject * parent)
 WikipediaArticle::~WikipediaArticle() {
 }
 
-void WikipediaArticle::start(const Track & track, const QString & locale) {
+bool WikipediaArticle::start(const Track & track, const QString & locale) {
+	if (!ContentFetcher::start(track, locale)) {
+		return false;
+	}
+
 	qDebug() << __FUNCTION__ << "Looking up for the Wikipedia article";
 
 	if (locale.isEmpty()) {
@@ -64,6 +68,8 @@ void WikipediaArticle::start(const Track & track, const QString & locale) {
 	qDebug() << __FUNCTION__ << _wikipediaHostName << QString(path);
 
 	//_wikipediaDownloader->get(QNetworkRequest(wikipediaUrl(track.artist, locale)));
+
+	return true;
 }
 
 void WikipediaArticle::gotWikipediaArticle(bool error) {

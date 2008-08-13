@@ -19,11 +19,11 @@
 #include "Track.h"
 
 #include <tkutil/TkFile.h>
+#include <tkutil/TkTime.h>
 
 #include <phonon/mediasource.h>
 
 #include <QtCore/QUrl>
-#include <QtCore/QTime>
 #include <QtCore/QDebug>
 
 Track::Track(const QString & filename) {
@@ -123,8 +123,9 @@ QString Track::trackNumber() const {
 
 void Track::setTitle(const QString & title) {
 	if (title.isEmpty()) {
-		//Not the fullpath, only the filename
-		_title = TkFile::removeFileExtension(TkFile::fileName(_filename));
+		//Not the fullpath, only the filename + parent directory name
+		_title = TkFile::dir(_filename) + "/";
+		_title += TkFile::removeFileExtension(TkFile::fileName(_filename));
 	} else {
 		_title = title;
 	}
@@ -156,7 +157,7 @@ QString Track::album() const {
 }
 
 void Track::setLength(const QString & length) {
-	_length = convertMilliseconds(length.toULongLong());
+	_length = TkTime::convertMilliseconds(length.toULongLong());
 }
 
 QString Track::length() const {
@@ -169,23 +170,4 @@ void Track::setMediaDataResolved(bool resolved) {
 
 bool Track::mediaDataResolved() const {
 	return _resolved;
-}
-
-QString Track::convertMilliseconds(qint64 totalTime) const {
-	QTime displayTotalTime((totalTime / 3600000) % 60, (totalTime / 60000) % 60, (totalTime / 1000) % 60);
-
-	QString timeFormat;
-
-	if (displayTotalTime.hour() == 0 && displayTotalTime.minute() == 0 &&
-		displayTotalTime.second() == 0 && displayTotalTime.msec() == 0) {
-		//Total time is 0, return nothing
-		return QString();
-	} else {
-		if (displayTotalTime.hour() > 0) {
-			timeFormat = "hh:mm:ss";
-		} else {
-			timeFormat = "mm:ss";
-		}
-		return displayTotalTime.toString(timeFormat);
-	}
 }

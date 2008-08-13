@@ -59,8 +59,6 @@ private slots:
 
 	void hasVideoChanged(bool hasVideo);
 
-	void currentSourceChanged(const Phonon::MediaSource & newSource);
-
 	void mediaObjectAdded(Phonon::MediaObject * mediaObject);
 
 	void metaDataChanged();

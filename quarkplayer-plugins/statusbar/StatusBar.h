@@ -62,8 +62,6 @@ private slots:
 
 private:
 
-	static QString convertMilliseconds(qint64 currentTime, qint64 totalTime);
-
 	QLabel * _timeLabel;
 };
 

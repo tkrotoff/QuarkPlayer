@@ -1,1 +1,3 @@
-add_subdirectory(taglib)
+if (TAGLIB)
+	add_subdirectory(taglib)
+endif (TAGLIB)

@@ -43,7 +43,7 @@ public:
 
 	~WikipediaArticle();
 
-	void start(const Track & track, const QString & locale);
+	bool start(const Track & track, const QString & locale);
 
 private slots:
 

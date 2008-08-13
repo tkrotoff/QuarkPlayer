@@ -55,7 +55,11 @@ QUrl AmazonCoverArt::amazonUrl(const QString & artist, const QString & album) co
 	return url;
 }
 
-void AmazonCoverArt::start(const Track & track, const QString & locale) {
+bool AmazonCoverArt::start(const Track & track, const QString & locale) {
+	if (!ContentFetcher::start(track, locale)) {
+		return false;
+	}
+
 	_album = track.album;
 	_album.replace(QRegExp("[[(<{].+"), QString()).trimmed();
 	_artist = track.artist;
@@ -70,6 +74,8 @@ void AmazonCoverArt::start(const Track & track, const QString & locale) {
 	//Try with both artist and album name
 	_coverArtFirstTry = true;
 	_coverArtDownloader->get(QNetworkRequest(amazonUrl(_artist, _album)));
+
+	return true;
 }
 
 void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {

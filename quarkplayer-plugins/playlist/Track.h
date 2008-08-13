@@ -72,8 +72,6 @@ private:
 
 	void setMediaSource(const Phonon::MediaSource & mediaSource);
 
-	QString convertMilliseconds(qint64 totalTime) const;
-
 	QString _filename;
 
 	QString _trackNumber;

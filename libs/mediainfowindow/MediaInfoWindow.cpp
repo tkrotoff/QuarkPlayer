@@ -133,11 +133,32 @@ void MediaInfoWindow::updateMediaInfo() {
 	_ui->genreLineEdit->setText(_mediaInfoFetcher->genre());
 	_ui->commentLineEdit->setText(_mediaInfoFetcher->comment());
 
-	_ui->lengthLabel->setText(_mediaInfoFetcher->length());
-	_ui->bitrateLabel->setText(_mediaInfoFetcher->bitrate());
-	_ui->fileSizeLabel->setText(_mediaInfoFetcher->fileSize() + " " + tr("MB"));
-	_ui->channelsLabel->setText(_mediaInfoFetcher->channels());
-	_ui->sampleRateLabel->setText(_mediaInfoFetcher->sampleRate());
+	static const QString br("<br>");
+
+	QString fileType(tr("Type:") + " " + _mediaInfoFetcher->fileType());
+	QString length;
+	if (!_mediaInfoFetcher->length().isEmpty()) {
+		length = br + tr("Length:") + " " + _mediaInfoFetcher->length();
+	}
+	QString bitrate;
+	if (!_mediaInfoFetcher->bitrate().isEmpty()) {
+		bitrate = br + tr("Bitrate:") + " " + _mediaInfoFetcher->bitrate() + " " + tr("kbps");
+	}
+	QString fileSize;
+	if (!_mediaInfoFetcher->fileSize().isEmpty()) {
+		fileSize = br + tr("File size:") + " " + _mediaInfoFetcher->fileSize() + " " + tr("MB");
+	}
+	QString channels;
+	if (!_mediaInfoFetcher->length().isEmpty()) {
+		channels = br + tr("Channels:") + " " + _mediaInfoFetcher->channels();
+	}
+	QString sampleRate;
+	if (!_mediaInfoFetcher->sampleRate().isEmpty()) {
+		sampleRate = br + tr("Sample rate:") + " " + _mediaInfoFetcher->sampleRate() + " " + tr("Hz");
+	}
+
+	_ui->formatInfoLabel->setText(fileType + length + bitrate + fileSize + channels + sampleRate);
+
 
 	ContentFetcher::Track track;
 	track.artist = _mediaInfoFetcher->artist();
@@ -147,7 +168,13 @@ void MediaInfoWindow::updateMediaInfo() {
 	QString tmp(track.artist);
 	tmp.replace(" ", "_");
 	tmp = QUrl::toPercentEncoding(tmp);
-	_webBrowser->setSource("http://" + _locale + ".wikipedia.org/wiki/" + tmp);
+	if (!tmp.isEmpty()) {
+		if (_locale.isEmpty()) {
+			//Back to english
+			_locale = "en";
+		}
+		_webBrowser->setSource("http://" + _locale + ".wikipedia.org/wiki/" + tmp);
+	}
 
 	//Download the lyrics
 	LyricsFetcher * lyricsFetcher = new LyricsFetcher(this);

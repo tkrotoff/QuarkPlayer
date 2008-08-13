@@ -7,6 +7,9 @@ set(QUARKPLAYER_MAJOR_VERSION 0)
 set(QUARKPLAYER_MINOR_VERSION 2)
 set(QUARKPLAYER_PATCH_VERSION 0)
 
+#Add options values
+include(Options.cmake)
+
 include(CMakeLists-owbuild.txt)
 
 if (NOT ENV{KDEDIRS})
@@ -48,6 +51,7 @@ reduce_qt_include_dirs()
 #CMake declarations order matters!!!
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
 set(QT_PHONON_LIBRARY phonon)
 
 #Default installation path
@@ -137,6 +141,8 @@ add_subdirectory(phonon)
 add_subdirectory(vlc-mplayer)
 #add_subdirectory(ds9)
 #add_subdirectory(tests)
+
+add_subdirectory(3rdparty)
 
 add_subdirectory(libs)
 

@@ -40,7 +40,7 @@ public:
 
 	~LyricsFetcher();
 
-	void start(const Track & track, const QString & locale = QString());
+	bool start(const Track & track, const QString & locale = QString());
 
 private slots:
 

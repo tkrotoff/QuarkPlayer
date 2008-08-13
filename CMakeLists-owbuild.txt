@@ -1,19 +1,17 @@
-# Always create a project first, otherwise some CMake variables are not defined
-# do not know why, so owbuild is a kind of stub project
-project(owbuild)
+#Always create a project first, otherwise some CMake variables are not defined
 
 if (NOT OWBUILD_INCLUDED)
-	# Where to look first for CMake modules, before ${CMAKE_ROOT}/Modules/ is checked
+	#Where to look first for CMake modules, before ${CMAKE_ROOT}/Modules/ is checked
 	set(CMAKE_MODULE_PATH
 		${CMAKE_SOURCE_DIR}/cmake
 	)
 
-	# Add OWBuild macros
+	#Add OWBuild macros
 	include(cmake/CMakeLists.txt)
 
-	# Disallow in-source build
+	#Disallow in-source build
 	ow_ensure_out_of_source_build()
 
-	# Show general informations to the user
+	#Show general informations to the user
 	include(cmake/OWInitializationInfo.cmake)
 endif (NOT OWBUILD_INCLUDED)

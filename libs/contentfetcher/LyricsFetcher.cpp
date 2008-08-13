@@ -47,10 +47,16 @@ QUrl LyricsFetcher::lyricWikiUrl(const QString & artist, const QString & title) 
 	return url;
 }
 
-void LyricsFetcher::start(const Track & track, const QString & locale) {
+bool LyricsFetcher::start(const Track & track, const QString & locale) {
+	if (!ContentFetcher::start(track, locale)) {
+		return false;
+	}
+
 	qDebug() << __FUNCTION__ << "Looking up for the lyrics";
 
 	_lyricsDownloader->get(QNetworkRequest(lyricWikiUrl(track.artist, track.title)));
+
+	return true;
 }
 
 void LyricsFetcher::gotLyrics(QNetworkReply * reply) {

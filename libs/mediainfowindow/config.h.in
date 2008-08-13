@@ -16,22 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ContentFetcher.h"
+#ifndef CONFIG_H_IN
+#define CONFIG_H_IN
 
-#include <QtCore/QDebug>
+/**
+ * TagLib support enabled or not?
+ *
+ * @see http://developer.kde.org/~wheeler/taglib.html
+ */
+#cmakedefine TAGLIB
 
-ContentFetcher::ContentFetcher(QObject * parent)
-	: QObject(parent) {
-}
-
-ContentFetcher::~ContentFetcher() {
-}
-
-bool ContentFetcher::start(const Track & track, const QString & locale) {
-	if (track.title.isEmpty() && track.artist.isEmpty() && track.album.isEmpty()) {
-		qCritical() << __FUNCTION__ << "Error: Track informations are empty";
-		return false;
-	} else {
-		return true;
-	}
-}
+#endif	//CONFIG_H_IN

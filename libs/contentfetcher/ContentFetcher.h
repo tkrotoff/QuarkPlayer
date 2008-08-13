@@ -43,8 +43,17 @@ public:
 		QString album;
 	};
 
-	/** Starts looking for the content given track informations. */
-	virtual void start(const Track & track, const QString & locale = QString()) = 0;
+	/**
+	 * Starts looking for the content given track informations.
+	 *
+	 * When implementing a ContentFetcher subclass, call this function
+	 * and check the returned value.
+	 *
+	 * @param track track informations
+	 * @param locale locale (en, fr, de...)
+	 * @return true if everything is OK; false otherwise
+	 */
+	virtual bool start(const Track & track, const QString & locale = QString()) = 0;
 
 signals:
 

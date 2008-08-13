@@ -16,22 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ContentFetcher.h"
+#ifndef TKTIME_H
+#define TKTIME_H
 
-#include <QtCore/QDebug>
+#include <tkutil/tkutil_export.h>
 
-ContentFetcher::ContentFetcher(QObject * parent)
-	: QObject(parent) {
-}
+/**
+ * Time convertion functions.
+ *
+ * @author Tanguy Krotoff
+ */
+class TKUTIL_API TkTime {
+public:
 
-ContentFetcher::~ContentFetcher() {
-}
+	~TkTime();
 
-bool ContentFetcher::start(const Track & track, const QString & locale) {
-	if (track.title.isEmpty() && track.artist.isEmpty() && track.album.isEmpty()) {
-		qCritical() << __FUNCTION__ << "Error: Track informations are empty";
-		return false;
-	} else {
-		return true;
-	}
-}
+	static QString convertMilliseconds(qint64 milliseconds);
+
+	static QString convertSeconds(int seconds);
+
+	static QString convertMilliseconds(qint64 currentTime, qint64 totalTime);
+
+private:
+
+	TkTime();
+};
+
+#endif	//TKTIME_H
