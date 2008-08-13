@@ -6,13 +6,13 @@ OPTION(BUILD_EXAMPLES "Build the examples"  OFF)
 OPTION(NO_ITUNES_HACKS "Disable workarounds for iTunes bugs"  OFF)
 
 #add some KDE specific stuff
-set(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
-set(EXEC_INSTALL_PREFIX  ${CMAKE_INSTALL_PREFIX}       CACHE PATH  "Base directory for executables and libraries" FORCE)
+#set(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
+#set(EXEC_INSTALL_PREFIX  ${CMAKE_INSTALL_PREFIX}       CACHE PATH  "Base directory for executables and libraries" FORCE)
 #
 ## the following are directories where stuff will be installed to
-set(BIN_INSTALL_DIR          "${EXEC_INSTALL_PREFIX}/bin"                  CACHE PATH "The kde info install dir (default prefix/info)" FORCE)
-set(LIB_INSTALL_DIR          "${EXEC_INSTALL_PREFIX}/lib${LIB_SUFFIX}"     CACHE PATH "The subdirectory relative to the install prefix where libraries will be installed (default is /lib${LIB_SUFFIX})" FORCE)
-set(INCLUDE_INSTALL_DIR      "${CMAKE_INSTALL_PREFIX}/include"             CACHE PATH "The subdirectory to the header prefix" FORCE)
+#set(BIN_INSTALL_DIR          "${EXEC_INSTALL_PREFIX}/bin"                  CACHE PATH "The kde info install dir (default prefix/info)" FORCE)
+#set(LIB_INSTALL_DIR          "${EXEC_INSTALL_PREFIX}/lib${LIB_SUFFIX}"     CACHE PATH "The subdirectory relative to the install prefix where libraries will be installed (default is /lib${LIB_SUFFIX})" FORCE)
+#set(INCLUDE_INSTALL_DIR      "${CMAKE_INSTALL_PREFIX}/include"             CACHE PATH "The subdirectory to the header prefix" FORCE)
 
 if (CMAKE_COMPILER_IS_GNUCXX)
    if (CMAKE_SYSTEM_NAME MATCHES Linux)
@@ -45,12 +45,12 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/taglib.pc.cmake ${CMAKE_CURRENT_BINAR
 
 configure_file(config-taglib.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h )
 
-ADD_SUBDIRECTORY( taglib ) 
+ADD_SUBDIRECTORY( taglib )
 
-ADD_SUBDIRECTORY(tests)
-ADD_SUBDIRECTORY(examples)
+#ADD_SUBDIRECTORY(tests)
+#ADD_SUBDIRECTORY(examples)
 
-ADD_SUBDIRECTORY(bindings)
+#ADD_SUBDIRECTORY(bindings)
 if(NOT WIN32)
   INSTALL( FILES  ${CMAKE_CURRENT_BINARY_DIR}/taglib.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig )
 endif(NOT WIN32)
