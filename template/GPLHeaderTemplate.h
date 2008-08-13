@@ -16,26 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H_IN
-#define CONFIG_H_IN
+#ifndef GPLHEADERTEMPLATE_H
+#define GPLHEADERTEMPLATE_H
 
 /**
- * KDE4 libs found or not?
- */
-#cmakedefine KDE4_FOUND
-
-/**
- * New title and chapter handling?
+ * Header template with copyright and GNU GPL license.
  *
- * Needs a patched Phonon.
- */
-#cmakedefine NEW_TITLE_CHAPTER_HANDLING
-
-/**
- * TagLib support enabled or not?
+ * End of line character should be LF (UNIX) instead of CR LF (Windows) or CR (MacOS).
+ * Code documentation should be inside header files using the javadoc standard.
  *
- * @see http://developer.kde.org/~wheeler/taglib.html
+ * @see http://code.google.com/p/phonon-vlc-mplayer/wiki/CodeConventions
+ * @author Tanguy Krotoff
  */
-#cmakedefine TAGLIB
+class GPLHeaderTemplate {
+public:
 
-#endif	//CONFIG_H_IN
+private:
+};
+
+#endif	//GPLHEADERTEMPLATE_H

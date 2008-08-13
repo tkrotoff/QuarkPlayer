@@ -19,7 +19,9 @@
 #ifndef TRACK_H
 #define TRACK_H
 
-#include <phonon/mediasource.h>
+namespace Phonon {
+	class MediaSource;
+}
 
 #include <QtCore/QString>
 

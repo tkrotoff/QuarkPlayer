@@ -27,6 +27,10 @@
 
 #include <QtGui/QtGui>
 
+#ifdef TAGLIB
+	#include <taglib/taglib.h>
+#endif	//TAGLIB
+
 AboutWindow::AboutWindow(QWidget * parent)
 	: QDialog(parent) {
 
@@ -37,6 +41,11 @@ AboutWindow::AboutWindow(QWidget * parent)
 		"Version: " + quarkPlayerFullVersion() + "<br>" +
 		"Qt: " + QString(qVersion()) + "<br>" +
 		"Phonon: " + QString(Phonon::phononVersion()) + "<br>"
+#ifdef TAGLIB
+		"TagLib: " + QString::number(TAGLIB_MAJOR_VERSION) + "." +
+			QString::number(TAGLIB_MINOR_VERSION) + "." +
+			QString::number(TAGLIB_PATCH_VERSION) + "<br>"
+#endif	//TAGLIB
 	);
 
 	_ui->metricsLabel->setText(

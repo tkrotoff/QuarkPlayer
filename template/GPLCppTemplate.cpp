@@ -16,26 +16,4 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H_IN
-#define CONFIG_H_IN
-
-/**
- * KDE4 libs found or not?
- */
-#cmakedefine KDE4_FOUND
-
-/**
- * New title and chapter handling?
- *
- * Needs a patched Phonon.
- */
-#cmakedefine NEW_TITLE_CHAPTER_HANDLING
-
-/**
- * TagLib support enabled or not?
- *
- * @see http://developer.kde.org/~wheeler/taglib.html
- */
-#cmakedefine TAGLIB
-
-#endif	//CONFIG_H_IN
+#include "GPLHeaderTemplate.h"

@@ -1288,7 +1288,7 @@ IF (QT4_QMAKE_FOUND)
         ADD_CUSTOM_COMMAND(OUTPUT ${_ts_file}
            COMMAND ${QT_LUPDATE_EXECUTABLE}
            ARGS -noobsolete ${_pro_file} -ts ${_ts_file}
-           DEPENDS ${_my_sources})
+           DEPENDS ${_my_sources} ${_pro_file})
       ENDFOREACH(_ts_file)
       QT4_ADD_TRANSLATION(${_qm_files} ${_my_tsfiles})
    ENDMACRO(QT4_CREATE_TRANSLATION)

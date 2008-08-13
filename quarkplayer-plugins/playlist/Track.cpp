@@ -157,7 +157,7 @@ QString Track::album() const {
 }
 
 void Track::setLength(const QString & length) {
-	_length = TkTime::convertMilliseconds(length.toULongLong());
+	_length = length;
 }
 
 QString Track::length() const {

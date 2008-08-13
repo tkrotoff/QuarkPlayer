@@ -28,6 +28,7 @@
 
 namespace Phonon {
 	class MediaObject;
+	class MediaSource;
 }
 
 class Track;
@@ -81,6 +82,12 @@ public:
 
 	/** Returns the files displayed in the playlist. */
 	QStringList files() const;
+
+	/** Gets the MediaInfoFetcher. */
+	MediaInfoFetcher & mediaInfoFetcher() const;
+
+	/** Gets the Phonon::MediaSource given an index. */
+	Phonon::MediaSource mediaSource(const QModelIndex & index) const;
 
 	//Inherited from QAbstractItemModel
 	int columnCount(const QModelIndex & parent = QModelIndex()) const;

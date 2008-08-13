@@ -389,6 +389,19 @@ void PlaylistModel::updateMediaInfo() {
 	_mediaInfoFetcherLaunched = false;
 }
 
+MediaInfoFetcher & PlaylistModel::mediaInfoFetcher() const {
+	return *_mediaInfoFetcher;
+}
+
+Phonon::MediaSource PlaylistModel::mediaSource(const QModelIndex & index) const {
+	if (index.isValid()) {
+		int row = index.row();
+		Track track(_mediaSources[row]);
+		return track.mediaSource();
+	}
+	return Phonon::MediaSource();
+}
+
 void PlaylistModel::clear() {
 	_mediaSources.clear();
 	_filesInfoResolver.clear();
@@ -400,20 +413,17 @@ void PlaylistModel::clear() {
 }
 
 void PlaylistModel::play(const QModelIndex & index) {
-	if (!index.isValid()) {
-		return;
+	if (index.isValid()) {
+		_position = index.row();
+		_quarkPlayer.play(_mediaSources[_position].mediaSource());
 	}
-
-	_quarkPlayer.play(_mediaSources[_position].mediaSource());
 }
 
 void PlaylistModel::enqueue(const QModelIndex & index) {
-	if (!index.isValid()) {
-		return;
+	if (index.isValid()) {
+		_position = index.row();
+		_quarkPlayer.currentMediaObject()->enqueue(_mediaSources[_position].mediaSource());
 	}
-
-	_position = index.row();
-	_quarkPlayer.currentMediaObject()->enqueue(_mediaSources[_position].mediaSource());
 }
 
 void PlaylistModel::setPosition(int position) {

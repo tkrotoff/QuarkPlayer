@@ -18,6 +18,7 @@
 
 #include "PlaylistWidget.h"
 
+#include "DragAndDropTreeView.h"
 #include "PlaylistModel.h"
 #include "PlaylistFilter.h"
 
@@ -32,7 +33,6 @@
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 #include <tkutil/KeyEventFilter.h>
-#include <tkutil/DropEventFilter.h>
 
 #include <playlistparser/PlaylistParser.h>
 
@@ -50,71 +50,19 @@ PluginInterface * PlaylistWidgetFactory::create(QuarkPlayer & quarkPlayer) const
 	return new PlaylistWidget(quarkPlayer);
 }
 
-class DragAndDropTreeView : public QTreeView {
-public:
-
-	DragAndDropTreeView() {
-		setUniformRowHeights(true);
-		setDragEnabled(true);
-		setAcceptDrops(true);
-		setDropIndicatorShown(true);
-		setDragDropMode(QAbstractItemView::DragDrop);
-		setRootIsDecorated(false);
-		setAllColumnsShowFocus(true);
-		setSelectionBehavior(QAbstractItemView::SelectRows);
-		setSelectionMode(QAbstractItemView::ExtendedSelection);
-		//setSortingEnabled(true);
-		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	}
-
-private:
-
-	void mousePressEvent(QMouseEvent *event) {
-		//This should be an internal move
-		//since we are doing a drag&drop within the playlist, not from outside
-		setDragDropMode(QAbstractItemView::InternalMove);
-		QTreeView::mousePressEvent(event);
-	}
-
-	void dragEvent(QDropEvent * event) {
-		if (event->source() == this) {
-			//This should be an internal move
-			//since we are doing a drag&drop within the playlist, not from outside
-			setDragDropMode(QAbstractItemView::InternalMove);
-		} else {
-			setDragDropMode(QAbstractItemView::DragDrop);
-		}
-	}
-
-	void dropEvent(QDropEvent * event) {
-		dragEvent(event);
-		QTreeView::dropEvent(event);
-	}
-
-	void dragEnterEvent(QDragEnterEvent * event) {
-		dragEvent(event);
-		QTreeView::dragEnterEvent(event);
-	}
-
-	void dragMoveEvent(QDragMoveEvent * event) {
-		dragEvent(event);
-		QTreeView::dragMoveEvent(event);
-	}
-};
-
 PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	: QWidget(NULL),
 	PluginInterface(quarkPlayer) {
 
-	_treeView = new DragAndDropTreeView();
+	//Model
+	_playlistModel = new PlaylistModel(this, quarkPlayer);
+
+	_treeView = new DragAndDropTreeView(_playlistModel);
 	QVBoxLayout * layout = new QVBoxLayout();
 	setLayout(layout);
 	layout->setMargin(0);
 	layout->setSpacing(0);
 	layout->addWidget(_treeView);
-
-	//Model
-	_playlistModel = new PlaylistModel(this, quarkPlayer);
 
 	//Filter
 	_playlistFilter = new PlaylistFilter(this, _playlistModel);

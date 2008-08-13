@@ -18,6 +18,8 @@
 	<file alias="16x16/go-home">icons/oxygen/16x16/actions/go-home.png</file>
 	<file alias="16x16/go-jump-locationbar">icons/oxygen/16x16/actions/go-jump-locationbar.png</file>
 	<file alias="16x16/go-jump">icons/oxygen/16x16/actions/go-jump.png</file>
+	<file alias="16x16/rating">icons/oxygen/16x16/actions/rating.png</file>
+	<file alias="16x16/document-properties">icons/oxygen/16x16/actions/document-properties.png</file>
 
 	<file alias="16x16/format-text-underline">icons/oxygen/16x16/actions/format-text-underline.png</file>
 	<file alias="16x16/media-playback-pause">icons/oxygen/16x16/actions/media-playback-pause.png</file>
@@ -51,6 +53,7 @@
 	<file alias="16x16/audio-x-generic">icons/oxygen/16x16/mimetypes/audio-x-generic.png</file>
 	<file alias="16x16/video-x-generic">icons/oxygen/16x16/mimetypes/video-x-generic.png</file>
 	<file alias="16x16/x-office-address-book">icons/oxygen/16x16/mimetypes/x-office-address-book.png</file>
+	<file alias="16x16/text-x-script">icons/oxygen/16x16/mimetypes/text-x-script.png</file>
 
 	<file alias="16x16/media-playlist-repeat">icons/oxygen/16x16/status/media-playlist-repeat.png</file>
 	<file alias="16x16/media-playlist-shuffle">icons/oxygen/16x16/status/media-playlist-shuffle.png</file>

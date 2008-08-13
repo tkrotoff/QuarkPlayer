@@ -16,22 +16,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HEADERTEMPLATE_H
-#define HEADERTEMPLATE_H
+#ifndef DRAGANDDROPTREEVIEW_H
+#define DRAGANDDROPTREEVIEW_H
+
+#include <QtGui/QTreeView>
+
+class PlaylistModel;
 
 /**
- * Header template with copyright and GNU GPL license.
+ * Drag and drop capable QTreeView.
  *
- * End of line character should be LF (UNIX) instead of CR LF (Windows) or CR (MacOS).
- * Code documentation should be inside header files using the javadoc standard.
+ * + other features.
  *
- * @see http://code.google.com/p/phonon-vlc-mplayer/wiki/CodeConventions
  * @author Tanguy Krotoff
  */
-class HeaderTemplate {
+class DragAndDropTreeView : public QTreeView {
+	Q_OBJECT
 public:
 
+	DragAndDropTreeView(PlaylistModel * playlistModel);
+
+	~DragAndDropTreeView();
+
+private slots:
+
+	void retranslate();
+
+	void playItem();
+
+	void sendTo();
+
+	void deleteItem();
+
+	void rateItem();
+
+	void viewMediaInfo();
+
 private:
+
+	void mousePressEvent(QMouseEvent * event);
+
+	void dragEvent(QDropEvent * event);
+
+	void dropEvent(QDropEvent * event);
+
+	void dragEnterEvent(QDragEnterEvent * event);
+
+	void dragMoveEvent(QDragMoveEvent * event);
+
+	void showMenu(const QPoint & pos);
+
+	void populateActionCollection();
+
+	PlaylistModel * _playlistModel;
 };
 
-#endif	//HEADERTEMPLATE_H
+#endif	//DRAGANDDROPTREEVIEW_H

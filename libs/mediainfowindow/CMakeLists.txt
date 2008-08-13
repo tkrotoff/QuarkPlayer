@@ -40,4 +40,7 @@ if (TAGLIB)
 	target_link_libraries(mediainfowindow tag)
 endif (TAGLIB)
 
+#Translations
+add_qt_translations(${mediainfowindow_SRCS})
+
 install(TARGETS mediainfowindow DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

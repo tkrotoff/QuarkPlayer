@@ -30,8 +30,12 @@ ActionCollection::~ActionCollection() {
 }
 
 void ActionCollection::addAction(const QString & name, QAction * action) {
+	if (!action) {
+		qCritical() << __FUNCTION__ << "Error: QAction is null";
+	}
+
 	if (_actionMap.contains(name)) {
-		qCritical() << __FUNCTION__ << "Error: name:" << name << "already contained";
+		qCritical() << __FUNCTION__ << "Error: QAction name:" << name << "already exist";
 	}
 
 	action->setObjectName(name);
@@ -40,8 +44,13 @@ void ActionCollection::addAction(const QString & name, QAction * action) {
 
 QAction * ActionCollection::action(const QString & name) {
 	if (_actionMap.count(name) != 1) {
-		qCritical() << __FUNCTION__ << "Error: invalid name:" << name;
+		qCritical() << __FUNCTION__ << "Error: invalid QAction name:" << name;
 	}
 
-	return _actionMap.value(name);
+	QAction * action = _actionMap.value(name);
+	if (!action) {
+		qCritical() << __FUNCTION__ << "Error: QAction is null";
+	}
+
+	return action;
 }

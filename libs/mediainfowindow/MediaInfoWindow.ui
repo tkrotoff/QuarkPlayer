@@ -61,7 +61,7 @@
             <item row="0" column="0" >
              <widget class="QLabel" name="trackLabel" >
               <property name="text" >
-               <string>Track #</string>
+               <string># Track:</string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -71,7 +71,7 @@
             <item row="1" column="0" >
              <widget class="QLabel" name="titleLabel" >
               <property name="text" >
-               <string>Title</string>
+               <string>Title:</string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -81,7 +81,7 @@
             <item row="2" column="0" >
              <widget class="QLabel" name="artistLabel" >
               <property name="text" >
-               <string>Artist</string>
+               <string>Artist:</string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -91,7 +91,7 @@
             <item row="3" column="0" >
              <widget class="QLabel" name="albumLabel" >
               <property name="text" >
-               <string>Album</string>
+               <string>Album:</string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -101,7 +101,7 @@
             <item row="4" column="0" >
              <widget class="QLabel" name="yearLabel" >
               <property name="text" >
-               <string>Year</string>
+               <string>Year:</string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -111,7 +111,7 @@
             <item row="5" column="0" >
              <widget class="QLabel" name="commentLabel" >
               <property name="text" >
-               <string>Comment</string>
+               <string>Comment:</string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -154,7 +154,7 @@
             <item row="4" column="1" >
              <widget class="QLabel" name="genreLabel" >
               <property name="text" >
-               <string>Genre</string>
+               <string>Genre:</string>
               </property>
              </widget>
             </item>
@@ -219,7 +219,7 @@
         <x>0</x>
         <y>0</y>
         <width>407</width>
-        <height>245</height>
+        <height>248</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -252,7 +252,7 @@
             <x>0</x>
             <y>0</y>
             <width>407</width>
-            <height>245</height>
+            <height>248</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_8" >
@@ -297,7 +297,7 @@
         <x>0</x>
         <y>0</y>
         <width>407</width>
-        <height>245</height>
+        <height>248</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -311,7 +311,7 @@
         <x>0</x>
         <y>0</y>
         <width>407</width>
-        <height>245</height>
+        <height>248</height>
        </rect>
       </property>
       <attribute name="title" >

@@ -18,6 +18,8 @@
 	<file alias="16x16/go-home">icons/silk/house.png</file>
 	<file alias="16x16/go-jump-locationbar">icons/silk/tick.png</file>
 	<file alias="16x16/go-jump">icons/silk/bullet_go.png</file>
+	<file alias="16x16/rating">icons/silk/star.png</file>
+	<file alias="16x16/document-properties">icons/silk/page_edit.png</file>
 
 	<file alias="16x16/format-text-underline">icons/silk/text_underline.png</file>
 	<file alias="16x16/media-playback-pause">icons/silk/control_pause.png</file>
@@ -42,6 +44,7 @@
 	<file alias="16x16/audio-x-generic">icons/silk/music.png</file>
 	<file alias="16x16/video-x-generic">icons/silk/film.png</file>
 	<file alias="16x16/x-office-address-book">icons/silk/book.png</file>
+	<file alias="16x16/text-x-script">icons/silk/script_code.png</file>
 
 	<file alias="16x16/media-playlist-repeat">icons/silk/control_repeat.png</file>
 	<file alias="16x16/media-playlist-shuffle">icons/silk/arrow_switch.png</file>

@@ -5,12 +5,14 @@ set(playlist_SRCS
 	PlaylistModel.cpp
 	PlaylistFilter.cpp
 	Track.cpp
+	DragAndDropTreeView.cpp
 )
 
 qt4_wrap_cpp(playlist_SRCS
 	PlaylistWidget.h
 	PlaylistModel.h
 	PlaylistFilter.h
+	DragAndDropTreeView.h
 )
 
 add_library(playlist MODULE ${playlist_SRCS})
