@@ -32,11 +32,5 @@ set(phonon_commom_MOCS
 )
 ##
 
-if (WIN32)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/README DESTINATION ".")
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/COPYING DESTINATION ".")
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/COPYING.LESSER DESTINATION ".")
-endif (WIN32)
-
 add_subdirectory(vlc)
 add_subdirectory(mplayer)

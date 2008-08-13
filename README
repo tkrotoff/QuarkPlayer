@@ -1,19 +1,6 @@
-This directory contains:
- * phonon-vlc-mplayer: VLC and MPlayer Phonon backend
- * tests: simple test applications for Phonon
+QuarkPlayer, a Phonon media player
 
-How to build everything
-=======================
-Go to the build directory and then:
+See http://phonon-vlc-mplayer.googlecode.com
 
- * Linux:
-     ./build_make-debug.sh
-     make
-     make install
-
- * Windows:
-     build_nmake-debug.bat
-     nmake
-     nmake install
-
-Please read CMake documentation for more details on how to use CMake.
+--
+Tanguy Krotoff <tkrotoff@gmail.com>

@@ -1,0 +1,28 @@
+== Backends ==
+- fix MPlayer/VLC enqueue
+- fix MPlayer/VLC volume save
+- test DVD playback with all backends
+- fix angle which is always with one item (0) when a video is playing
+- test again VLC backend with latest VLC builds
+- profile MPlayer meta data solving and make it faster
+
+== NSIS ==
+- add file association to NSIS installer via a QuarkPlayer command line
+
+== Playlist ==
+- implement right click to give information from the file
+
+== UI ==
+- fix FileBrowser toolbar: ugly under Vista + Linux
+
+== General ==
+- test under Vista
+- test under a clean WinXP
+- test under Win2k?
+- test under Linux
+- fix quit problems
+- fix several playlist mode
+- fix several FileBrowser mode
+- add profiles (audio, video...) ala Konqueror
+- implement a systray menu
+- implement shortcuts, add shortcuts dialog
