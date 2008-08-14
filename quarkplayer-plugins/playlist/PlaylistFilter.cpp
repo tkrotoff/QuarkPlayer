@@ -95,8 +95,8 @@ void PlaylistFilter::setCurrentIndex(const QModelIndex & index) {
 }
 
 void PlaylistFilter::play(const QModelIndex & index) {
-	setCurrentIndex(index);
 	_playlistModel->play(index);
+	setCurrentIndex(index);
 }
 
 void PlaylistFilter::playNextTrack() {
@@ -122,9 +122,9 @@ void PlaylistFilter::enqueueNextTrack() {
 	}
 
 	if (_position >= 0 && _position < rowCount()) {
-		QModelIndex nextIndex = mapToSource(index(_position, PlaylistModel::COLUMN_FIRST));;
-		setCurrentIndex(nextIndex);
+		QModelIndex nextIndex = mapToSource(index(_position, PlaylistModel::COLUMN_FIRST));
 		_playlistModel->enqueue(nextIndex);
+		setCurrentIndex(nextIndex);
 	}
 }
 
