@@ -12,7 +12,6 @@ qt4_wrap_cpp(filebrowser_SRCS
 )
 
 qt4_wrap_ui(filebrowser_SRCS
-	FileBrowserWidget.ui
 	config/FileBrowserConfigWidget.ui
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})

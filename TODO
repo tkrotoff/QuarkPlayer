@@ -12,9 +12,6 @@
 == Playlist ==
 - implement right click to give information from the file
 
-== UI ==
-- fix FileBrowser toolbar: ugly under Vista + Linux
-
 == General ==
 - test under Vista
 - test under a clean WinXP
@@ -25,4 +22,4 @@
 - fix several FileBrowser mode
 - add profiles (audio, video...) ala Konqueror
 - implement a systray menu
-- implement shortcuts, add shortcuts dialog
+- implement shortcuts dialog

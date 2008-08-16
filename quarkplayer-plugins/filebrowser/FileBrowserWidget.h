@@ -23,16 +23,17 @@
 
 #include <QtGui/QWidget>
 
-namespace Ui { class FileBrowserWidget; }
-
 class SimpleDirModel;
 
-class MainWindow;
 class QuarkPlayer;
 class ConfigWindow;
 
 class QModelIndex;
 class QDockWidget;
+class QToolBar;
+class QTreeView;
+class QLineEdit;
+class QToolButton;
 
 /**
  * File browser inside QuarkPlayer main window.
@@ -53,7 +54,7 @@ private slots:
 
 	void doubleClicked(const QModelIndex & index);
 
-	void search(const QString & pattern);
+	void search();
 
 	void configure();
 
@@ -68,9 +69,19 @@ private slots:
 
 private:
 
-	Ui::FileBrowserWidget * _ui;
+	void populateActionCollection();
+
+	void createToolBar();
 
 	SimpleDirModel * _dirModel;
+
+	QTreeView * _treeView;
+
+	QToolBar * _toolBar;
+
+	QLineEdit * _searchLineEdit;
+
+	QToolButton * _clearSearchButton;
 
 	QDockWidget * _dockWidget;
 };

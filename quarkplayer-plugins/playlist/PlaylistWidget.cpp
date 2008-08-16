@@ -78,7 +78,7 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	_treeView->resizeColumnToContents(PlaylistModel::COLUMN_LENGTH);
 
 	populateActionCollection();
-	createPlaylistToolBar();
+	createToolBar();
 
 	//Add to the main window
 	_dockWidget = new QDockWidget();
@@ -87,6 +87,7 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
+
 	RETRANSLATE(this);
 	retranslate();
 }
@@ -94,28 +95,27 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 PlaylistWidget::~PlaylistWidget() {
 }
 
-void PlaylistWidget::createPlaylistToolBar() {
-	_playlistToolBar = new QToolBar(NULL);
-	_playlistToolBar->setIconSize(QSize(16, 16));
-	layout()->addWidget(_playlistToolBar);
+void PlaylistWidget::createToolBar() {
+	_toolBar = new QToolBar(NULL);
+	_toolBar->setIconSize(QSize(16, 16));
+	layout()->addWidget(_toolBar);
 
-	_playlistToolBar->addAction(ActionCollection::action("playlistOpen"));
+	_toolBar->addAction(ActionCollection::action("playlistOpen"));
 	connect(ActionCollection::action("playlistOpen"), SIGNAL(triggered()), SLOT(openPlaylist()));
-	_playlistToolBar->addAction(ActionCollection::action("playlistSave"));
+	_toolBar->addAction(ActionCollection::action("playlistSave"));
 	connect(ActionCollection::action("playlistSave"), SIGNAL(triggered()), SLOT(savePlaylist()));
-	//_playlistToolBar->addSeparator();
 
 	//We have to use a QToolButton instead of a QAction,
 	//otherwise we cannot use QToolButton::InstantPopup :/
 	QToolButton * addButton = new QToolButton();
 	addButton->setPopupMode(QToolButton::InstantPopup);
 	addButton->setDefaultAction(ActionCollection::action("playlistAdd"));
-	_playlistToolBar->addWidget(addButton);
+	_toolBar->addWidget(addButton);
 
 	QToolButton * removeButton = new QToolButton();
 	removeButton->setPopupMode(QToolButton::InstantPopup);
 	removeButton->setDefaultAction(ActionCollection::action("playlistRemove"));
-	_playlistToolBar->addWidget(removeButton);
+	_toolBar->addWidget(removeButton);
 
 	QMenu * addMenu = new QMenu();
 	addMenu->addAction(ActionCollection::action("playlistAddFiles"));
@@ -135,28 +135,25 @@ void PlaylistWidget::createPlaylistToolBar() {
 	connect(ActionCollection::action("playlistRemoveAll"), SIGNAL(triggered()), _playlistModel, SLOT(clear()));
 	removeButton->setMenu(removeMenu);
 
-	//_playlistToolBar->addSeparator();
-	_playlistToolBar->addAction(ActionCollection::action("playlistShuffle"));
+	_toolBar->addAction(ActionCollection::action("playlistShuffle"));
 	connect(ActionCollection::action("playlistShuffle"), SIGNAL(toggled(bool)), _playlistFilter, SLOT(setShuffle(bool)));
-	_playlistToolBar->addAction(ActionCollection::action("playlistRepeat"));
+	_toolBar->addAction(ActionCollection::action("playlistRepeat"));
 	connect(ActionCollection::action("playlistRepeat"), SIGNAL(toggled(bool)), _playlistFilter, SLOT(setRepeat(bool)));
 
-	_playlistToolBar->addAction(ActionCollection::action("playlistJumpToCurrent"));
+	_toolBar->addAction(ActionCollection::action("playlistJumpToCurrent"));
 	connect(ActionCollection::action("playlistJumpToCurrent"), SIGNAL(triggered()), SLOT(jumpToCurrent()));
 
 	//Search toolbar
-	//_playlistToolBar->addSeparator();
 	_searchLineEdit = new QLineEdit();
-	_playlistToolBar->addWidget(_searchLineEdit);
+	_toolBar->addWidget(_searchLineEdit);
 	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(searchChanged()));
-	QToolButton * clearSearchButton = new QToolButton();
-	clearSearchButton->setAutoRaise(true);
-	clearSearchButton->setDefaultAction(ActionCollection::action("playlistClearSearch"));
-	clearSearchButton->setEnabled(false);
-	_playlistToolBar->addWidget(clearSearchButton);
-	connect(clearSearchButton, SIGNAL(clicked()), _searchLineEdit, SLOT(clear()));
+	_clearSearchButton = new QToolButton();
+	_clearSearchButton->setAutoRaise(true);
+	_clearSearchButton->setDefaultAction(ActionCollection::action("playlistClearSearch"));
+	_toolBar->addWidget(_clearSearchButton);
+	connect(_clearSearchButton, SIGNAL(clicked()), _searchLineEdit, SLOT(clear()));
 
-	_playlistToolBar->addAction(ActionCollection::action("playlistNew"));
+	_toolBar->addAction(ActionCollection::action("playlistNew"));
 	connect(ActionCollection::action("playlistNew"), SIGNAL(triggered()), SLOT(createNewPlaylistWidget()));
 }
 
@@ -221,10 +218,14 @@ void PlaylistWidget::retranslate() {
 	ActionCollection::action("playlistClearSearch")->setText(tr("Clear Search"));
 	ActionCollection::action("playlistClearSearch")->setIcon(TkIcon("edit-delete"));
 
+	_searchLineEdit->setToolTip(tr("Search Playlist"));
+	QString pattern(_searchLineEdit->text().trimmed());
+	_clearSearchButton->setEnabled(!pattern.isEmpty());
+
 	ActionCollection::action("playlistNew")->setText(tr("New Playlist Window"));
 	ActionCollection::action("playlistNew")->setIcon(TkIcon("preferences-system-windows"));
 
-	_playlistToolBar->setMinimumSize(_playlistToolBar->sizeHint());
+	_toolBar->setMinimumSize(_toolBar->sizeHint());
 
 	_dockWidget->setWindowTitle(tr("Playlist"));
 }
@@ -355,5 +356,9 @@ void PlaylistWidget::searchChanged() {
 }
 
 void PlaylistWidget::search() {
-	_playlistFilter->setFilter(_searchLineEdit->text().trimmed());
+	QString pattern(_searchLineEdit->text().trimmed());
+
+	_clearSearchButton->setEnabled(!pattern.isEmpty());
+
+	_playlistFilter->setFilter(pattern);
 }

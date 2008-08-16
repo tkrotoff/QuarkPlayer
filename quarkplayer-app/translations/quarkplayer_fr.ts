@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="fr_FR">
+<defaultcodec></defaultcodec>
 <context>
     <name>AboutWindow</name>
     <message>
@@ -166,34 +167,34 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>FileBrowserWidget</name>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="158"/>
-        <source>Local Files</source>
-        <translation>Fichiers</translation>
-    </message>
-    <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="135"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="178"/>
         <source>Select a Directory</source>
         <translation>Sélectionner un répertoire</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/filebrowser/ui_FileBrowserWidget.h" line="87"/>
-        <source>Enter a Search Expression</source>
-        <translation>Entrer une recherche</translation>
-    </message>
-    <message>
-        <location filename="../../build/quarkplayer-plugins/filebrowser/ui_FileBrowserWidget.h" line="92"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="198"/>
         <source>Clear Search</source>
         <translation>Effacer la recherche</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/filebrowser/ui_FileBrowserWidget.h" line="97"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="205"/>
         <source>Change Directory</source>
         <translation>Changer le répertoire</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/filebrowser/ui_FileBrowserWidget.h" line="102"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="208"/>
         <source>New File Browser Window</source>
         <translation>Nouvelle fenêtre</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="213"/>
+        <source>File Browser</source>
+        <translation>Fichiers</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="201"/>
+        <source>Search Files</source>
+        <translation>Recherche</translation>
     </message>
 </context>
 <context>
@@ -723,109 +724,114 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>PlaylistWidget</name>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="229"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="230"/>
         <source>Playlist</source>
         <translation>Liste de lecture</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="193"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="190"/>
         <source>Open Playlist</source>
         <translation>Ouvrir une liste de lecture</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="196"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="193"/>
         <source>Save Playlist</source>
         <translation>Sauvegarder une liste de lecture</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="199"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="196"/>
         <source>Add...</source>
         <translation>Ajouter...</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="202"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="199"/>
         <source>Add Files</source>
         <translation>Ajouter des fichiers</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="203"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="200"/>
         <source>Add Directory</source>
         <translation>Ajouter un répertoire</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="204"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="201"/>
         <source>Add URL</source>
         <translation>Ajouter un lien</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="206"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="203"/>
         <source>Remove...</source>
         <translation>Supprimer...</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="209"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="206"/>
         <source>Remove Selected</source>
         <translation>Supprimer la sélection</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="210"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="207"/>
         <source>Remove All</source>
         <translation>Supprimer tout</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="212"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="209"/>
         <source>Shuffle</source>
         <translation>Aléatoire</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="215"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="212"/>
         <source>Repeat</source>
         <translation>Répéter</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="224"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="225"/>
         <source>New Playlist Window</source>
         <translation>Nouvelle liste de lecture</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="233"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="234"/>
         <source>Select Audio/Video Files</source>
         <translation>Sélectionner des fichiers audio ou video</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="242"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="243"/>
         <source>Select Directory</source>
         <translation>éelectionner un répertoire</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="259"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="260"/>
         <source>Open Location</source>
         <translation>Ouvrir une adresse Internet</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="259"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="260"/>
         <source>Please enter a valid address here:</source>
         <translation>Insérer une adresse Internet valide ici :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="288"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="289"/>
         <source>Save Playlist File</source>
         <translation>Sauvegarder la liste de lecture</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="221"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="218"/>
         <source>Clear Search</source>
         <translation>Effacer la recherche</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="218"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="215"/>
         <source>Jump to Current Playing Media</source>
         <translation>Aller au média joué</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="270"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="271"/>
         <source>Select Playlist File</source>
         <translation>Sélectionner un fichier de liste de lecture</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="221"/>
+        <source>Search Playlist</source>
+        <translation>Recherche</translation>
     </message>
 </context>
 <context>

@@ -41,6 +41,7 @@ class QToolBar;
 class QTreeView;
 class QDockWidget;
 class QLineEdit;
+class QToolButton;
 
 /**
  * Playlist.
@@ -89,7 +90,7 @@ private:
 
 	void populateActionCollection();
 
-	void createPlaylistToolBar();
+	void createToolBar();
 
 	PlaylistModel * _playlistModel;
 
@@ -99,7 +100,9 @@ private:
 
 	QLineEdit * _searchLineEdit;
 
-	QToolBar * _playlistToolBar;
+	QToolButton * _clearSearchButton;
+
+	QToolBar * _toolBar;
 
 	QDockWidget * _dockWidget;
 };
