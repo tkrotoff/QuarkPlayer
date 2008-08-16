@@ -114,12 +114,9 @@ void FileBrowserWidget::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
 	ActionCollection::addAction("fileBrowserClearSearch", new QAction(app));
-	ActionCollection::addAction("fileBrowserClearSearch", new QAction(app));
 
 	ActionCollection::addAction("fileBrowserBrowse", new QAction(app));
-	ActionCollection::addAction("fileBrowserBrowse", new QAction(app));
 
-	ActionCollection::addAction("fileBrowserNew", new QAction(app));
 	ActionCollection::addAction("fileBrowserNew", new QAction(app));
 }
 
