@@ -34,9 +34,9 @@ public:
 	ThumbnailView(QWidget * parent);
 
 	/**
-	 * Sets the thumbnail size, in pixels.
+	 * Sets the thumbnail size in pixels.
 	 */
-	void setThumbnailSize(int pixel);
+	void setThumbnailSize(int size);
 
 	/**
 	 * Returns the thumbnail size.

@@ -21,18 +21,14 @@
 
 #include "ThumbnailManager.h"
 
-#include <tkutil/TkFile.h>
-
 #include <QtGui/QImageReader>
 #include <QtGui/QPixmap>
-
-#include <QtCore/QTimer>
 
 ThumbnailDirModel::ThumbnailDirModel(QObject * parent)
 	: QAbstractListModel(parent) {
 
-	_dir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-	_dir.setSorting(QDir::Name | QDir::DirsFirst | QDir::LocaleAware | QDir::IgnoreCase);
+	_dir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+	_dir.setSorting(QDir::Name | QDir::LocaleAware | QDir::IgnoreCase);
 
 	_thumbnailManager = new ThumbnailManager(this);
 
@@ -43,34 +39,17 @@ ThumbnailDirModel::ThumbnailDirModel(QObject * parent)
 	}
 
 	connect(_thumbnailManager, SIGNAL(thumbnailUpdated(const QFileInfo &)),
-		SLOT(slotPixmapUpdated(const QFileInfo &)));
+		SLOT(pixmapUpdated(const QFileInfo &)));
 }
 
-void ThumbnailDirModel::setPixmapSize(int size) {
-	_thumbnailManager->setSize(size);
+void ThumbnailDirModel::setThumbnailSize(int size) {
+	_thumbnailManager->setThumbnailSize(size);
 }
 
 void ThumbnailDirModel::setDir(const QString & dir) {
 	_thumbnailManager->clear();
 	_dir.setPath(dir);
 	refresh();
-}
-
-QString ThumbnailDirModel::dir() const {
-	return _dir.absolutePath();
-}
-
-QFileInfo ThumbnailDirModel::fileInfo(const QModelIndex & index) const {
-	int row = index.row();
-	int column = index.column();
-	if (column > 0) {
-		return QFileInfo();
-	}
-
-	if (row >= _infoList.size()) {
-		return QFileInfo();
-	}
-	return _infoList[row];
 }
 
 int ThumbnailDirModel::rowCount(const QModelIndex & /*parent*/) const {
@@ -89,8 +68,8 @@ QVariant ThumbnailDirModel::data(const QModelIndex & index, int role) const {
 	}
 
 	if (role == Qt::DisplayRole) {
-		QString path = _infoList[row].absoluteFilePath();
-		return TkFile::fileName(path);
+		QString path(_infoList[row].absoluteFilePath());
+		return path;
 	} else if (role == Qt::DecorationRole) {
 		return _thumbnailManager->thumbnail(_infoList[row]);
 	}
@@ -103,21 +82,16 @@ void ThumbnailDirModel::refresh() {
 	_infoList.clear();
 
 	foreach (QFileInfo fileInfo, infoList) {
-		//Only add dirs and images
+		//Only add images
 		QString suffix = fileInfo.suffix().toLower();
-		if (fileInfo.isDir() || _imageSuffixList.contains(suffix)) {
-			if (fileInfo.isSymLink()) {
-				//Store the real file in fileInfo
-				QString path = fileInfo.readLink();
-				fileInfo = QFileInfo(path);
-			}
+		if (_imageSuffixList.contains(suffix)) {
 			_infoList << fileInfo;
 		}
 	}
 	reset();
 }
 
-void ThumbnailDirModel::slotPixmapUpdated(const QFileInfo & updatedFileInfo) {
+void ThumbnailDirModel::pixmapUpdated(const QFileInfo & updatedFileInfo) {
 	int row = 0;
 	foreach (QFileInfo fileInfo, _infoList) {
 		if (fileInfo == updatedFileInfo) {

@@ -24,35 +24,40 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
+
 struct ThumbnailEvent : public QEvent {
 
-	ThumbnailEvent(const QString & path, const QImage & image)
+	ThumbnailEvent(const QString & _path, const QImage & _image)
 		: QEvent(User),
-		_path(path),
-		_image(image) {
+		path(_path),
+		image(_image) {
 	}
 
-	QString _path;
-	QImage _image;
+	QString path;
+	QImage image;
 };
 
 
-static QImage generateThumbnailForPath(const QString & path, int size) {
+static QImage generateThumbnailForPath(const QString & path, int thumbnailSize) {
 	QImage image;
 	if (!image.load(path)) {
 		return QImage();
 	}
 
-	if (image.width() > size || image.height() > size) {
-		image = image.scaled(size, size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	if (image.width() > thumbnailSize || image.height() > thumbnailSize) {
+		image = image.scaled(thumbnailSize, thumbnailSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 	}
 	return image;
 }
 
+
+static const int DEFAULT_THUMBNAIL_SIZE = 48;
+
 ThumbnailManager::ThumbnailManager(QObject * parent)
-	: QThread(parent),
-	_size(48),
-	_clearing(false) {
+	: QThread(parent) {
+
+	_thumbnailSize = DEFAULT_THUMBNAIL_SIZE;
+	_clearing = false;
 }
 
 ThumbnailManager::~ThumbnailManager() {
@@ -60,24 +65,18 @@ ThumbnailManager::~ThumbnailManager() {
 	wait();
 }
 
-void ThumbnailManager::setSize(int size) {
+void ThumbnailManager::setThumbnailSize(int size) {
 	QMutexLocker lock(&_mutex);
-	_size = size;
-	//_filePixmap = DesktopService::getInstance()->desktopIconPixmap(DesktopService::FileIcon, size);
+	_thumbnailSize = size;
 }
 
 QPixmap ThumbnailManager::thumbnail(const QFileInfo & fileInfo) {
 	QString path = fileInfo.absoluteFilePath();
 	ThumbnailMap::const_iterator it = _map.find(path);
 	if (it != _map.end()) {
+		//Returns the cached thumbnail
 		return it.value();
 	}
-
-	/*if (fileInfo.isDir()) {
-		QPixmap pixmap = DesktopService::getInstance()->pixmapForPath(path, _size);
-		_map[path] = pixmap;
-		return pixmap;
-	}*/
 
 	QMutexLocker lock(&_mutex);
 	_clearing = false;
@@ -90,7 +89,9 @@ QPixmap ThumbnailManager::thumbnail(const QFileInfo & fileInfo) {
 	} else {
 		qDebug() << __FUNCTION__ << path << "already in queue";
 	}
-	return _filePixmap;
+
+	//Returns an empty pixmap
+	return QPixmap();
 }
 
 void ThumbnailManager::run() {
@@ -105,7 +106,7 @@ void ThumbnailManager::run() {
 			path = _pendingQueue.dequeue();
 		}
 
-		QImage image = generateThumbnailForPath(path, _size);
+		QImage image = generateThumbnailForPath(path, _thumbnailSize);
 		if (image.isNull()) {
 			continue;
 		}
@@ -117,6 +118,7 @@ void ThumbnailManager::run() {
 				return;
 			}
 		}
+
 		ThumbnailEvent * event = new ThumbnailEvent(path, image);
 		QCoreApplication::postEvent(this, event);
 	}
@@ -127,9 +129,9 @@ void ThumbnailManager::customEvent(QEvent * event) {
 
 	ThumbnailEvent * thumbnailEvent = static_cast<ThumbnailEvent *>(event);
 
-	QString path = thumbnailEvent->_path;
+	QString path = thumbnailEvent->path;
+	_map[path] = QPixmap::fromImage(thumbnailEvent->image);
 	QFileInfo fileInfo(path);
-	_map[path] = QPixmap::fromImage(thumbnailEvent->_image);
 	thumbnailUpdated(fileInfo);
 }
 

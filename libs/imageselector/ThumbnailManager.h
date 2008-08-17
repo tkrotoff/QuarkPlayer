@@ -61,7 +61,7 @@ public:
 	/**
 	 * Sets the thumbnail size in pixel.
 	 */
-	void setSize(int size);
+	void setThumbnailSize(int size);
 
 signals:
 
@@ -79,15 +79,15 @@ private:
 	void customEvent(QEvent * event);
 
 	typedef QMap<QString, QPixmap> ThumbnailMap;
-	typedef QQueue<QString> PendingThumbnailQueue;
-
-	QPixmap _filePixmap;
 	ThumbnailMap _map;
-	int _size;
+
+	/** Thumbnail size. */
+	int _thumbnailSize;
 
 	/** This mutex protects _pendingQueue and _clearing. */
 	QMutex _mutex;
 
+	typedef QQueue<QString> PendingThumbnailQueue;
 	PendingThumbnailQueue _pendingQueue;
 
 	/** Set to true if clear() has been called. */

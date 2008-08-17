@@ -45,21 +45,14 @@ public:
 	ThumbnailDirModel(QObject * parent);
 
 	/**
-	 * Sets the size of the item pixmaps
+	 * Sets the thumbnails size.
 	 */
-	void setPixmapSize(int size);
+	void setThumbnailSize(int size);
 
 	/**
-	 * Sets the dir to list
+	 * Sets the dir to list.
 	 */
 	void setDir(const QString & dir);
-
-	/**
-	 * Returns the listed dir
-	 */
-	QString dir() const;
-
-	QFileInfo fileInfo(const QModelIndex & index) const;
 
 	int rowCount(const QModelIndex & parent = QModelIndex()) const;
 
@@ -71,7 +64,7 @@ public slots:
 
 private slots:
 
-	void slotPixmapUpdated(const QFileInfo & updatedFileInfo);
+	void pixmapUpdated(const QFileInfo & updatedFileInfo);
 
 private:
 

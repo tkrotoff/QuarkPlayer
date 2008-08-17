@@ -33,15 +33,13 @@
 #include <QtCore/QDebug>
 #include <QtCore/qglobal.h>
 
-const int COMBOBOX_ICON_SIZE = 16;
-
-const int THUMBNAIL_SIZE = 256;
+const int THUMBNAIL_SIZE = 200;
 
 //Blank space between items
-const int ITEM_SPACING = 6;
+const int ITEM_SPACING = 0;
 
 ImageSelector::ImageSelector(QWidget * parent)
-	: QDialog(parent) {
+	: QWidget(parent) {
 
 	_ui = new Ui::ImageSelector();
 	_ui->setupUi(this);
@@ -49,7 +47,7 @@ ImageSelector::ImageSelector(QWidget * parent)
 
 	//Setup model
 	_model = new ThumbnailDirModel(this);
-	_model->setPixmapSize(THUMBNAIL_SIZE);
+	_model->setThumbnailSize(THUMBNAIL_SIZE);
 
 	//Init thumbnailListView
 	_ui->thumbnailListView->setModel(_model);
@@ -58,34 +56,8 @@ ImageSelector::ImageSelector(QWidget * parent)
 	_ui->thumbnailListView->setSpacing(ITEM_SPACING);
 	_ui->thumbnailListView->setThumbnailSize(THUMBNAIL_SIZE);
 
-	//This is a bit tricky. See showEvent documentation.
+	//This is a bit tricky, see showEvent documentation
 	_ui->thumbnailListView->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-
-	connect(_ui->thumbnailListView, SIGNAL(activated(const QModelIndex &)),
-		SLOT(slotThumbnailListViewActivated(const QModelIndex &)));
-	connect(_ui->thumbnailListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-		SLOT(updateOkButton()));
-
-	//Init startDirListView
-	_startDirModel = new QStandardItemModel(this);
-	_startDirModel->insertColumn(0);
-	_ui->startDirListView->setModel(_startDirModel);
-
-	connect(_ui->startDirListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-		SLOT(slotStartDirListViewChanged(const QModelIndex &)));
-
-	//Icons
-#ifndef Q_OS_MAC
-	//There is usually no icon for parent folder on MacOS X.
-	_ui->goUpButton->setIcon(QIcon(":/pics/parent_folder.png"));
-#endif
-
-	_ui->refreshButton->setIcon(QIcon(":/pics/refresh.png"));
-
-	//Other connections
-	connect(_ui->goUpButton, SIGNAL(clicked()), SLOT(goUp()));
-	connect(_ui->refreshButton, SIGNAL(clicked()), SLOT(refresh()));
-	connect(_ui->dirComboBox, SIGNAL(activated(int)), SLOT(slotDirComboBoxActivated(int)));
 }
 
 ImageSelector::~ImageSelector() {
@@ -93,25 +65,8 @@ ImageSelector::~ImageSelector() {
 }
 
 void ImageSelector::showEvent(QShowEvent * event) {
-	QDialog::showEvent(event);
+	QWidget::showEvent(event);
 	_ui->thumbnailListView->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-}
-
-QString ImageSelector::path() const {
-	return _path;
-}
-
-void ImageSelector::addStartDirItem(const QString & dir, const QString & name, const QPixmap & pixmap) {
-	int row = _startDirModel->rowCount();
-	_startDirModel->insertRow(row);
-	QModelIndex index = _startDirModel->index(row, 0);
-	_startDirModel->setData(index, dir, Qt::UserRole);
-	_startDirModel->setData(index, name, Qt::DisplayRole);
-	_startDirModel->setData(index, pixmap, Qt::DecorationRole);
-
-	//Now that we have some data, let's resize the list
-	int width = _ui->startDirListView->sizeHintForColumn(0) + 2 * layout()->margin();
-	_ui->startDirListView->setFixedWidth(width);
 }
 
 void ImageSelector::setCurrentDir(const QString & dir) {
@@ -125,83 +80,4 @@ void ImageSelector::setCurrentDir(const QString & dir) {
 	}
 
 	_model->setDir(dir);
-
-	updateDirComboBox();
-	updateOkButton();
-
-	_ui->goUpButton->setEnabled(!fileInfo.isRoot());
-}
-
-void ImageSelector::goUp() {
-	QFileInfo fileInfo(_model->dir());
-	setCurrentDir(fileInfo.absolutePath());
-}
-
-void ImageSelector::refresh() {
-	_model->refresh();
-}
-
-void ImageSelector::accept() {
-	QModelIndex index = _ui->thumbnailListView->selectionModel()->currentIndex();
-	if (!index.isValid()) {
-		return;
-	}
-
-	QFileInfo fileInfo = _model->fileInfo(index);
-	_path = fileInfo.absoluteFilePath();
-
-	QDialog::accept();
-}
-
-void ImageSelector::updateOkButton() {
-	bool enabled = false;
-	QModelIndex index = _ui->thumbnailListView->selectionModel()->currentIndex();
-
-	if (index.isValid()) {
-		QFileInfo fileInfo = _model->fileInfo(index);
-		enabled = ! fileInfo.isDir();
-	}
-	_ui->okButton->setEnabled(enabled);
-}
-
-void ImageSelector::updateDirComboBox() {
-	/*_ui->dirComboBox->clear();
-	DesktopService * service = DesktopService::getInstance();
-	QFileInfo fileInfo(_model->dir());
-	while (true) {
-		QString path = fileInfo.absoluteFilePath();
-		QIcon icon = service->pixmapForPath(path, COMBOBOX_ICON_SIZE);
-		QString name = service->userFriendlyNameForPath(path);
-
-		_ui->dirComboBox->addItem(icon, name, path);
-
-		if (fileInfo.isRoot()) {
-			break;
-		}
-		fileInfo = QFileInfo(fileInfo.absolutePath());
-	}*/
-}
-
-void ImageSelector::slotThumbnailListViewActivated(const QModelIndex & current) {
-	if (!current.isValid()) {
-		return;
-	}
-
-	QFileInfo info = _model->fileInfo(current);
-	setCurrentDir(info.absoluteFilePath());
-}
-
-void ImageSelector::slotStartDirListViewChanged(const QModelIndex & current) {
-	if (!current.isValid()) {
-		return;
-	}
-
-	QString path = current.data(Qt::UserRole).toString();
-	setCurrentDir(path);
-}
-
-void ImageSelector::slotDirComboBoxActivated(int index) {
-	QVariant data = _ui->dirComboBox->itemData(index);
-	QString dir = data.toString();
-	setCurrentDir(dir);
 }

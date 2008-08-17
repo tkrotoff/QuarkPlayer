@@ -20,11 +20,10 @@
 #ifndef IMAGESELECTOR_H
 #define IMAGESELECTOR_H
 
-#include <QtGui/QDialog>
+#include <QtGui/QWidget>
 #include <QtGui/QImage>
 
 class QModelIndex;
-class QStandardItemModel;
 class QShowEvent;
 
 class ThumbnailDirModel;
@@ -39,67 +38,30 @@ namespace Ui {
  * @author Aurélien Gâteau
  * @author Tanguy Krotoff
  */
-class ImageSelector : public QDialog {
+class ImageSelector : public QWidget {
 	Q_OBJECT
 public:
-
-	static const int START_DIR_ICON_SIZE = 32;
 
 	ImageSelector(QWidget * parent);
 
 	~ImageSelector();
 
-	QString path() const;
-
-	/**
-	 * Add an item to the "start dir" side bar.
-	 *
-	 * @param dir the path to point to
-	 * @param name the item name in the side bar
-	 * @param pixmap the item icon in the side bar
-	 */
-	void addStartDirItem(const QString & dir, const QString & name, const QPixmap & pixmap);
-
-	void accept();
-
-public slots:
-
 	void setCurrentDir(const QString & currentDir);
-
-private slots:
-
-	void goUp();
-
-	void refresh();
-
-	void updateOkButton();
-
-	void slotThumbnailListViewActivated(const QModelIndex & current);
-
-	void slotStartDirListViewChanged(const QModelIndex & current);
-
-	void slotDirComboBoxActivated(int index);
 
 private:
 
 	/**
 	 * This is a bit tricky: ImageSelector constructor sets the size policy of
-	 * our thumbnail view to Minimum,Minimum so that the dialog get resized to
+	 * our thumbnail view to Minimum,Minimum so that the dialog gets resized to
 	 * show the view at the view.sizeHint() size. In showEvent() we reset the
 	 * size policy of the view back to Preferred,Preferred so that the user can
 	 * resize the dialog smaller.
 	 */
 	void showEvent(QShowEvent * event);
 
-	void updateDirComboBox();
-
 	ThumbnailDirModel * _model;
 
-	QString _path;
-
 	Ui::ImageSelector * _ui;
-
-	QStandardItemModel * _startDirModel;
 };
 
 #endif	//IMAGESELECTOR_H
