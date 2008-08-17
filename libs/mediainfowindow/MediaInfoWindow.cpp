@@ -25,6 +25,8 @@
 
 #include <webbrowser/WebBrowser.h>
 
+#include <thumbnailview/ThumbnailView.h>
+
 #include <tkutil/TkIcon.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
@@ -48,11 +50,32 @@ MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 	_ui->artistTab->layout()->setSpacing(0);
 	_ui->artistTab->layout()->addWidget(_webBrowser);
 
+	//Thumbnail view
+	_thumbnailView = new ThumbnailView(_ui->coverArtTab);
+	_ui->coverArtTab->layout()->setMargin(0);
+	_ui->coverArtTab->layout()->setSpacing(0);
+	_ui->coverArtTab->layout()->addWidget(_thumbnailView);
+
 	//Refresh button
 	_refreshButton = new QToolButton(this);
-	_ui->tabWidget->setCornerWidget(_refreshButton, Qt::TopRightCorner);
 	_refreshButton->setAutoRaise(true);
 	connect(_refreshButton, SIGNAL(clicked()), SLOT(refresh()));
+
+	//open directory button
+	_openDirectoryButton = new QToolButton(this);
+	_openDirectoryButton->setAutoRaise(true);
+	connect(_openDirectoryButton, SIGNAL(clicked()), SLOT(openDirectory()));
+
+	//Tab corner widget
+	QWidget * cornerWidget = new QWidget(this);
+	QHBoxLayout * cornerWidgetLayout = new QHBoxLayout();
+	cornerWidgetLayout->setMargin(0);
+	cornerWidgetLayout->setSpacing(0);
+	cornerWidgetLayout->addWidget(_refreshButton);
+	cornerWidgetLayout->addWidget(_openDirectoryButton);
+	cornerWidget->setLayout(cornerWidgetLayout);
+
+	_ui->tabWidget->setCornerWidget(cornerWidget, Qt::TopRightCorner);
 
 	RETRANSLATE(this);
 	retranslate();
@@ -61,8 +84,8 @@ MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 MediaInfoWindow::~MediaInfoWindow() {
 }
 
-void MediaInfoWindow::setCoverArtFilename(const QString & coverArtFilename) {
-	_coverArtFilename = coverArtFilename;
+void MediaInfoWindow::setCoverArtDirectory(const QString & path) {
+	_thumbnailView->setDir(path);
 }
 
 void MediaInfoWindow::setMediaInfoFetcher(MediaInfoFetcher * mediaInfoFetcher) {
@@ -90,31 +113,20 @@ void MediaInfoWindow::retranslate() {
 	_refreshButton->setIcon(TkIcon("view-refresh"));
 	_refreshButton->setToolTip(tr("Refresh Informations"));
 
+	_openDirectoryButton->setIcon(TkIcon("document-open-folder"));
+	_openDirectoryButton->setToolTip(tr("Open Directory"));
+
 	_ui->retranslateUi(this);
 }
 
+void MediaInfoWindow::openDirectory() {
+	QUrl url = QUrl::fromLocalFile(_thumbnailView->lastRefreshedDirectory());
+	QDesktopServices::openUrl(url);
+
+	qDebug() << __FUNCTION__ << url;
+}
+
 void MediaInfoWindow::refresh() {
-	static const int MAX_WIDTH = 500;
-	static const int MAX_HEIGHT = 500;
-
-	//Shows the cover art
-	if (!_coverArtFilename.isEmpty()) {
-		QPixmap coverArt(_coverArtFilename);
-		_ui->coverArtLabel->setPixmap(coverArt);
-		_ui->coverArtLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-
-		int width = coverArt.width();
-		if (width > MAX_WIDTH) {
-			width = MAX_WIDTH;
-		}
-		int height = coverArt.height();
-		if (height > MAX_HEIGHT) {
-			height = MAX_HEIGHT;
-		}
-		qDebug() << __FUNCTION__ << width << height;
-		//resize(width, height);
-	}
-
 	if (_mediaInfoFetcher) {
 		if (_mediaInfoFetcher->hasBeenFetched()) {
 			updateMediaInfo();
@@ -159,6 +171,8 @@ void MediaInfoWindow::updateMediaInfo() {
 
 	_ui->formatInfoLabel->setText(fileType + length + bitrate + fileSize + channels + sampleRate);
 
+	//Refresh ThumbnailView
+	_thumbnailView->refresh();
 
 	ContentFetcher::Track track;
 	track.artist = _mediaInfoFetcher->artist();
@@ -184,6 +198,6 @@ void MediaInfoWindow::updateMediaInfo() {
 	lyricsFetcher->start(track);
 }
 
-void MediaInfoWindow::lyricsFound(const QByteArray & lyrics, bool accuracy) {
+void MediaInfoWindow::lyricsFound(const QByteArray & lyrics, bool accurate) {
 	_ui->lyricsTextEdit->setHtml(QString::fromUtf8(lyrics));
 }

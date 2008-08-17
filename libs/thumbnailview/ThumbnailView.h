@@ -20,7 +20,7 @@
 #ifndef THUMBNAILVIEW_H
 #define THUMBNAILVIEW_H
 
-#include <thumbmailview/thumbmailview_export.h>
+#include <thumbnailview/thumbnailview_export.h>
 
 #include <QtGui/QWidget>
 
@@ -44,7 +44,11 @@ public:
 
 	~ThumbnailView();
 
-	void setCurrentDir(const QString & currentDir);
+	void setDir(const QString & dir);
+
+	QString lastRefreshedDirectory() const;
+
+	void refresh();
 
 private:
 
@@ -60,6 +64,10 @@ private:
 	ThumbnailDirModel * _model;
 
 	ThumbnailListView * _thumbnailListView;
+
+	QString _dir;
+
+	QString _lastRefreshedDirectory;
 };
 
 #endif	//THUMBNAILVIEW_H

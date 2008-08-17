@@ -60,7 +60,7 @@ private slots:
 
 	void retranslate();
 
-	void coverArtFound(const QByteArray & coverArt, bool accuracy);
+	void coverArtFound(const QByteArray & coverArt, bool accurate);
 
 	void updateCoverArtPixmap();
 

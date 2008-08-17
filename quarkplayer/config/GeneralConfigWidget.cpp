@@ -21,7 +21,7 @@
 #include "ui_GeneralConfigWidget.h"
 
 #include "Config.h"
-#include "../config.h"
+#include <quarkplayer/config.h>
 
 #include <tkutil/Translator.h>
 #include <tkutil/TkComboBox.h>

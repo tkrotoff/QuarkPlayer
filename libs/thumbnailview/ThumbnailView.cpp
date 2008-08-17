@@ -26,11 +26,12 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QStyle>
+#include <QtGui/QVBoxLayout>
 
 #include <QtCore/QDir>
 #include <QtCore/QString>
 #include <QtCore/QDebug>
-#include <QtCore/qglobal.h>
+#include <QtCore/QtGlobal>
 
 const int THUMBNAIL_SIZE = 200;
 
@@ -59,6 +60,12 @@ ThumbnailView::ThumbnailView(QWidget * parent)
 
 	//This is a bit tricky, see showEvent documentation
 	_thumbnailListView->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+
+	QVBoxLayout * layout = new QVBoxLayout();
+	layout->setMargin(0);
+	layout->setSpacing(0);
+	layout->addWidget(_thumbnailListView);
+	setLayout(layout);
 }
 
 ThumbnailView::~ThumbnailView() {
@@ -69,15 +76,27 @@ void ThumbnailView::showEvent(QShowEvent * event) {
 	_thumbnailListView->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
 
-void ThumbnailView::setCurrentDir(const QString & dir) {
-	QFileInfo fileInfo(dir);
+void ThumbnailView::setDir(const QString & dir) {
+	_dir = dir;
+}
+
+QString ThumbnailView::lastRefreshedDirectory() const {
+	return _lastRefreshedDirectory;
+}
+
+void ThumbnailView::refresh() {
+	_lastRefreshedDirectory = _dir;
+
+	QFileInfo fileInfo(_dir);
 	if (!fileInfo.exists()) {
+		qCritical() << __FUNCTION__ << "Error: this directory does not exist:" << _dir;
 		return;
 	}
 
 	if (!fileInfo.isDir()) {
+		qCritical() << __FUNCTION__ << "Error: this is not a directory:" << _dir;
 		return;
 	}
 
-	_model->setDir(dir);
+	_model->setDir(_dir);
 }

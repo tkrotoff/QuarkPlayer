@@ -5,7 +5,7 @@ if (TAGLIB)
 	include_directories(${CMAKE_SOURCE_DIR}/3rdparty/taglib)
 endif (TAGLIB)
 
-configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 add_definitions(-DBUILD_MEDIAINFOWINDOW)
 
@@ -30,6 +30,7 @@ target_link_libraries(mediainfowindow
 	tkutil
 	contentfetcher
 	webbrowser
+	thumbnailview
 	${QT_QTCORE_LIBRARY}
 	${QT_QTNETWORK_LIBRARY}
 	${QT_QTGUI_LIBRARY}

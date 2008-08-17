@@ -58,7 +58,7 @@ public:
 signals:
 
 	/** The content have been retrieved. */
-	void found(const QByteArray & content, bool accuracy);
+	void found(const QByteArray & content, bool accurate);
 
 private:
 

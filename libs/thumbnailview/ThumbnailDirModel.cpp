@@ -35,7 +35,7 @@ ThumbnailDirModel::ThumbnailDirModel(QObject * parent)
 	foreach (QByteArray format, QImageReader::supportedImageFormats()) {
 		QString suffix(format);
 		suffix = suffix.toLower();
-		_imageSuffixList.append(suffix);
+		_imageSuffixList << suffix;
 	}
 
 	connect(_thumbnailManager, SIGNAL(thumbnailUpdated(const QFileInfo &)),

@@ -122,7 +122,9 @@ void FileBrowserWidget::populateActionCollection() {
 
 void FileBrowserWidget::loadDirModel() {
 	QStringList nameFilters;
-	/*foreach (QString ext, FileExtensions::multimedia()) {
+	/*
+	Does not work...
+	foreach (QString ext, FileExtensions::multimedia()) {
 		nameFilters << "*." + ext;
 	}*/
 	nameFilters << "*";

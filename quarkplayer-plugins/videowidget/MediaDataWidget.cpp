@@ -151,17 +151,19 @@ void MediaDataWidget::retranslate() {
 }
 
 void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist, const QString & title) {
-	bool amazonCoverArtAlreadyDownloaded = false;
-	QDir path(TkFile::path(_mediaInfoFetcher->filename()));
-	if (path.exists()) {
-		QStringList imageExtensions;
-		imageExtensions << "*.jpg";
-		imageExtensions << "*.jpeg";
-		imageExtensions << "*.png";
-		imageExtensions << "*.gif";
-		imageExtensions << "*.bmp";
+	QString coverArtDir(TkFile::path(_mediaInfoFetcher->filename()));
+	_mediaInfoWindow->setCoverArtDirectory(coverArtDir);
 
-		QFileInfoList fileList = path.entryInfoList(imageExtensions, QDir::Files);
+	QStringList imageSuffixList;
+	foreach (QByteArray format, QImageReader::supportedImageFormats()) {
+		QString suffix(format);
+		suffix = suffix.toLower();
+		imageSuffixList << "*." + suffix;
+	}
+
+	QDir path(coverArtDir);
+	if (path.exists()) {
+		QFileInfoList fileList = path.entryInfoList(imageSuffixList, QDir::Files);
 		foreach (QFileInfo fileInfo, fileList) {
 			if (fileInfo.size() > 0) {
 				QString filename(fileInfo.absoluteFilePath());
@@ -170,13 +172,9 @@ void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist
 		}
 	}
 
-	QByteArray hash = QCryptographicHash::hash(QString(artist + "#####" + album).toUtf8(), QCryptographicHash::Md5);
-	_amazonCoverArtFilename = Config::instance().configDir() + "/covers/" + hash.toHex() + ".jpg";
-	if (QFile(_amazonCoverArtFilename).exists()) {
-		amazonCoverArtAlreadyDownloaded = true;
-		_coverArtList << _amazonCoverArtFilename;
-	}
+	_amazonCoverArtFilename = coverArtDir + "/coverart-amazon.jpg";
 
+	bool amazonCoverArtAlreadyDownloaded = _coverArtList.contains(_amazonCoverArtFilename);
 	if (!amazonCoverArtAlreadyDownloaded) {
 		//Download the cover art
 		AmazonCoverArt * coverArtFetcher = new AmazonCoverArt(AMAZON_WEB_SERVICE_KEY, this);
@@ -199,11 +197,8 @@ void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist
 	updateCoverArtPixmap();
 }
 
-void MediaDataWidget::coverArtFound(const QByteArray & coverArt, bool accuracy) {
-	if (!_amazonCoverArtFilename.isEmpty()) {
-		//Creates the directory
-		QDir().mkpath(TkFile::path(_amazonCoverArtFilename));
-
+void MediaDataWidget::coverArtFound(const QByteArray & coverArt, bool accurate) {
+	if (accurate) {
 		//Saves the downloaded cover art to a file
 		QFile coverArtFile(_amazonCoverArtFilename);
 		if (coverArtFile.open(QIODevice::WriteOnly)) {
@@ -239,7 +234,6 @@ void MediaDataWidget::updateCoverArtPixmap() {
 		QPixmap coverArt(filename);
 		if (!coverArt.isNull()) {
 			_ui->coverArtButton->setIcon(coverArt);
-			_mediaInfoWindow->setCoverArtFilename(filename);
 		} else {
 			qCritical() << __FUNCTION__ << "Error: cover art image is empty";
 		}

@@ -64,6 +64,7 @@ private:
 
 	QNetworkAccessManager * _coverArtDownloader;
 	bool _coverArtFirstTry;
+	mutable bool _accurate;
 };
 
 #endif	//AMAZONCOVERART_H

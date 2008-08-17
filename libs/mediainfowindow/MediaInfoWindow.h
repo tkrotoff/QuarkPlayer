@@ -31,6 +31,7 @@ namespace Ui {
 class MediaInfoFetcher;
 
 class WebBrowser;
+class ThumbnailView;
 
 class QUrl;
 class QLabel;
@@ -54,7 +55,7 @@ public:
 
 	~MediaInfoWindow();
 
-	void setCoverArtFilename(const QString & coverArtFilename);
+	void setCoverArtDirectory(const QString & path);
 
 	void setMediaInfoFetcher(MediaInfoFetcher * mediaInfoFetcher);
 
@@ -74,7 +75,7 @@ public slots:
 
 private slots:
 
-	void lyricsFound(const QByteArray & lyrics, bool accuracy);
+	void lyricsFound(const QByteArray & lyrics, bool accurate);
 
 	void updateMediaInfo();
 
@@ -82,6 +83,8 @@ private slots:
 
 	/** Refreshes all informations displayed in the window. */
 	void refresh();
+
+	void openDirectory();
 
 private:
 
@@ -91,11 +94,13 @@ private:
 
 	WebBrowser * _webBrowser;
 
+	ThumbnailView * _thumbnailView;
+
 	QToolButton * _refreshButton;
 
-	QString _mediaFilename;
+	QToolButton * _openDirectoryButton;
 
-	QString _coverArtFilename;
+	QString _coverArtDir;
 
 	QString _locale;
 };

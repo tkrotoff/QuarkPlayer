@@ -34,6 +34,7 @@ AmazonCoverArt::AmazonCoverArt(const QString & amazonWebServiceKey, QObject * pa
 	_amazonWebServiceKey = amazonWebServiceKey;
 	_coverArtDownloader = new QNetworkAccessManager(this);
 	_coverArtFirstTry = true;
+	_accurate = true;
 }
 
 AmazonCoverArt::~AmazonCoverArt() {
@@ -48,9 +49,13 @@ QUrl AmazonCoverArt::amazonUrl(const QString & artist, const QString & album) co
 	url.addQueryItem("AWSAccessKeyId", _amazonWebServiceKey);
 	if (!artist.isEmpty()) {
 		url.addQueryItem("Artist", artist);
+	} else {
+		_accurate = false;
 	}
 	if (!album.isEmpty()) {
 		url.addQueryItem("Title", album);
+	} else {
+		_accurate = false;
 	}
 	return url;
 }
@@ -62,8 +67,10 @@ bool AmazonCoverArt::start(const Track & track, const QString & locale) {
 
 	_album = track.album;
 	_album.replace(QRegExp("[[(<{].+"), QString()).trimmed();
+	_album.replace("-", QString()).trimmed();
 	_artist = track.artist;
 	_artist.replace(QRegExp("[[(<{].+"), QString()).trimmed();
+	_artist.replace("-", QString()).trimmed();
 
 	qDebug() << __FUNCTION__ << "Looking up for the album cover art";
 
@@ -94,6 +101,7 @@ void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
 			qWarning() << __FUNCTION__ << "Error: couldn't find cover art with artist+album";
 			//Try again but only with the artist name since artist + album failed
 			_coverArtFirstTry = false;
+			_accurate = false;
 			_coverArtDownloader->get(QNetworkRequest(amazonUrl(_artist, QString())));
 		} else {
 			qWarning() << __FUNCTION__ << "Error: couldn't find cover art with artist";
@@ -120,5 +128,5 @@ void AmazonCoverArt::gotCoverArt(QNetworkReply * reply) {
 	qDebug() << __FUNCTION__ << "URL:" << reply->url();
 
 	//We've got the cover art
-	emit found(reply->readAll(), _coverArtFirstTry);
+	emit found(reply->readAll(), _accurate);
 }
