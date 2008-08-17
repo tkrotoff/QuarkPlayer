@@ -58,6 +58,7 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	createToolBar();
 
 	_treeView = new QTreeView();
+	_treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	layout->addWidget(_treeView);
 
 	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
