@@ -19,177 +19,65 @@
 
 #include "ThumbnailView.h"
 
-#include <tkutil/TkFile.h>
+#include "ThumbnailManager.h"
+#include "ThumbnailDirModel.h"
+#include "ThumbnailListView.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QHelpEvent>
-#include <QtGui/QPainter>
-#include <QtGui/QToolTip>
-#include <QtGui/QDesktopServices>
+#include <QtGui/QLineEdit>
+#include <QtGui/QStandardItemModel>
+#include <QtGui/QStyle>
 
-#include <QtCore/QUrl>
+#include <QtCore/QDir>
+#include <QtCore/QString>
 #include <QtCore/QDebug>
+#include <QtCore/qglobal.h>
 
-//Space between the item outer rect and the content
-static const int ITEM_MARGIN = 2;
+const int THUMBNAIL_SIZE = 200;
 
-static const int DEFAULT_COLUMN_COUNT = 2;
-static const int DEFAULT_ROW_COUNT = 2;
-
-/**
- * An ItemDelegate which generates thumbnails for images.
- *
- * It also makes sure all items are of the same size.
- */
-class PreviewItemDelegate : public QAbstractItemDelegate {
-public:
-
-	PreviewItemDelegate(ThumbnailView * view)
-		: QAbstractItemDelegate(view),
-		_view(view) {
-	}
-
-	QSize sizeHint(const QStyleOptionViewItem & /*option*/, const QModelIndex & /*index*/) const {
-		return QSize(_view->itemWidth(), _view->itemHeight());
-	}
-
-	bool eventFilter(QObject * object, QEvent * event) {
-		switch (event->type()) {
-		case QEvent::ToolTip: {
-			QHelpEvent * helpEvent = static_cast<QHelpEvent *>(event);
-			showToolTip(_view, helpEvent);
-			return true;
-		}
-		case QEvent::MouseButtonPress: {
-			QMouseEvent * mouseEvent = static_cast<QMouseEvent *>(event);
-			openFileExternal(_view, mouseEvent);
-			return true;
-		}
-		/*case QEvent::Enter: {
-			return true;
-		}
-		case QEvent::Leave: {
-			return true;
-		}*/
-		}
-
-		return false;
-	}
-
-	void paint(QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index) const {
-		QVariant value = index.data(Qt::DecorationRole);
-		QPixmap thumbnail = qvariant_cast<QPixmap>(value);
-		QRect rect = option.rect;
-
-		/*
-		//Draw mouse over, does not work
-		if (option.state & QStyle::State_MouseOver) {
-			painter->setPen(Qt::black);
-			painter->setBrush(Qt::NoBrush);
-			painter->drawRect(rect);
-		}
-
-		//Draw selection
-		if (option.state & QStyle::State_Selected) {
-			painter->setPen(Qt::black);
-			painter->setBrush(Qt::NoBrush);
-			painter->drawRect(rect);
-		}
-		*/
-
-		//Draw thumbnail
-		painter->drawPixmap(
-			rect.left() + (rect.width() - thumbnail.width()) / 2,
-			rect.top() + (_view->thumbnailSize() - thumbnail.height()) / 2 + ITEM_MARGIN,
-			thumbnail
-		);
-	}
-
-private:
-
-	/**
-	 * Shows a tooltip.
-	 */
-	void showToolTip(QAbstractItemView * view, QHelpEvent * event) {
-		QModelIndex index = view->indexAt(event->pos());
-		if (!index.isValid()) {
-			return;
-		}
-
-		QString filename(TkFile::fileName(index.data().toString()));
-
-		QRect rect = view->visualRect(index);
-		QPoint pos(rect.left() + ITEM_MARGIN, rect.top() + ITEM_MARGIN);
-		QToolTip::showText(view->mapToGlobal(pos), filename, view);
-
-		qDebug() << __FUNCTION__ << filename;
-	}
-
-	void openFileExternal(QAbstractItemView * view, QMouseEvent * event) {
-		QModelIndex index = view->indexAt(event->pos());
-		if (!index.isValid()) {
-			return;
-		}
-
-		QString filename(index.data().toString());
-
-		QUrl url = QUrl::fromLocalFile(filename);
-		QDesktopServices::openUrl(url);
-
-		qDebug() << __FUNCTION__ << url;
-	}
-
-	ThumbnailView * _view;
-};
-
+//Blank space between items
+const int ITEM_SPACING = 0;
 
 ThumbnailView::ThumbnailView(QWidget * parent)
-	: QListView(parent) {
+	: QWidget(parent) {
 
-	PreviewItemDelegate * delegate = new PreviewItemDelegate(this);
-	setItemDelegate(delegate);
-	viewport()->installEventFilter(delegate);
+	//Setup model
+	_model = new ThumbnailDirModel(this);
+	_model->setThumbnailSize(THUMBNAIL_SIZE);
 
-	setVerticalScrollMode(ScrollPerPixel);
-	setHorizontalScrollMode(ScrollPerPixel);
+	//Setup QListView
+	_thumbnailListView = new ThumbnailListView(this);
+	_thumbnailListView->setModel(_model);
+	_thumbnailListView->setMovement(QListView::Static);
+	_thumbnailListView->setFlow(QListView::LeftToRight);
+	_thumbnailListView->setProperty("isWrapping", QVariant(true));
+	_thumbnailListView->setResizeMode(QListView::Fixed);
+	_thumbnailListView->setViewMode(QListView::IconMode);
+	_thumbnailListView->ensurePolished();
+	_thumbnailListView->setResizeMode(QListView::Adjust);
+	_thumbnailListView->setSpacing(ITEM_SPACING);
+	_thumbnailListView->setThumbnailSize(THUMBNAIL_SIZE);
+
+	//This is a bit tricky, see showEvent documentation
+	_thumbnailListView->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 }
 
-QSize ThumbnailView::sizeHint() const {
-	int viewBorderSize = frameWidth();
-	int scrollBarSize = QApplication::style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-
-	QSize hint;
-
-	//MacOS X wants this amount of extra pixels for width, otherwise it won't
-	//show DEFAULT_COLUMN_COUNT items
-	static const int EXTRA_DELTA = 5;
-
-	//Adjust width to view DEFAULT_COLUMN_COUNT columns
-	hint.rwidth() = itemWidth() * DEFAULT_COLUMN_COUNT
-		+ spacing() * (DEFAULT_COLUMN_COUNT * 2)
-		+ viewBorderSize * 2
-		+ scrollBarSize + EXTRA_DELTA;
-
-	//Adjust height to view DEFAULT_ROW_COUNT rows
-	hint.rheight() = itemHeight() * DEFAULT_ROW_COUNT
-		+ spacing() * (DEFAULT_ROW_COUNT + 1)
-		+ viewBorderSize * 2;
-
-	return hint;
+ThumbnailView::~ThumbnailView() {
 }
 
-void ThumbnailView::setThumbnailSize(int size) {
-	_thumbnailSize = size;
+void ThumbnailView::showEvent(QShowEvent * event) {
+	QWidget::showEvent(event);
+	_thumbnailListView->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
 
-int ThumbnailView::thumbnailSize() const {
-	return _thumbnailSize;
-}
+void ThumbnailView::setCurrentDir(const QString & dir) {
+	QFileInfo fileInfo(dir);
+	if (!fileInfo.exists()) {
+		return;
+	}
 
-int ThumbnailView::itemWidth() const {
-	return _thumbnailSize * 1.4;
-}
+	if (!fileInfo.isDir()) {
+		return;
+	}
 
-int ThumbnailView::itemHeight() const {
-	return _thumbnailSize + 3 * ITEM_MARGIN;
+	_model->setDir(dir);
 }

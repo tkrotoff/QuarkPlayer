@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2004-2007  Wengo
  * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
@@ -20,51 +20,46 @@
 #ifndef THUMBNAILVIEW_H
 #define THUMBNAILVIEW_H
 
-#include <QtGui/QListView>
+#include <thumbmailview/thumbmailview_export.h>
+
+#include <QtGui/QWidget>
+
+class QModelIndex;
+class QShowEvent;
+
+class ThumbnailDirModel;
+class ThumbnailListView;
 
 /**
- * An overloaded QListView, with a custom delegate to draw thumbnails.
+ * A dialog to select an avatar.
  *
- * @author Aurélien Gâteau
+ * @author AurÃ©lien GÃ¢teau
  * @author Tanguy Krotoff
  */
-class ThumbnailView : public QListView {
+class THUMBNAILVIEW_API ThumbnailView : public QWidget {
+	Q_OBJECT
 public:
 
 	ThumbnailView(QWidget * parent);
 
-	/**
-	 * Sets the thumbnail size in pixels.
-	 */
-	void setThumbnailSize(int size);
+	~ThumbnailView();
 
-	/**
-	 * Returns the thumbnail size.
-	 */
-	int thumbnailSize() const;
-
-	/**
-	 * Returns the width of an item.
-	 *
-	 * This width is proportional to the thumbnail size.
-	 */
-	int itemWidth() const;
-
-	/**
-	 * Returns the height of an item.
-	 *
-	 * This width is proportional to the thumbnail size.
-	 */
-	int itemHeight() const;
-
-	/**
-	 * Overloaded so that it shows a reasonable amount of thumbnails.
-	 */
-	QSize sizeHint() const;
+	void setCurrentDir(const QString & currentDir);
 
 private:
 
-	int _thumbnailSize;
+	/**
+	 * This is a bit tricky: ThumbnailView constructor sets the size policy of
+	 * our thumbnail view to Minimum,Minimum so that the dialog gets resized to
+	 * show the view at the view.sizeHint() size. In showEvent() we reset the
+	 * size policy of the view back to Preferred,Preferred so that the user can
+	 * resize the dialog smaller.
+	 */
+	void showEvent(QShowEvent * event);
+
+	ThumbnailDirModel * _model;
+
+	ThumbnailListView * _thumbnailListView;
 };
 
 #endif	//THUMBNAILVIEW_H
