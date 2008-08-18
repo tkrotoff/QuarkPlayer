@@ -215,7 +215,6 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 	if (data->hasUrls()) {
 		QList<QUrl> urlList = data->urls();
 		QString filename;
-		int i = 0;
 		foreach (QUrl url, urlList) {
 			if (url.isValid()) {
 				qDebug() << __FUNCTION__ << "File scheme:" << url.scheme();

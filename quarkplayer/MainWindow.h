@@ -151,6 +151,8 @@ private:
 
 	void dropEvent(QDropEvent * event);
 
+	void closeEvent(QCloseEvent * event);
+
 	TkToolBar * _mainToolBar;
 	QMenu * _menuRecentFiles;
 	QMenu * _menuAudioChannels;

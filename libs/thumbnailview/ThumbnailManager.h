@@ -1,4 +1,4 @@
-ï»¿/*
+/*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2004-2007  Wengo
  * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
@@ -35,7 +35,7 @@ class QFileInfo;
  *
  * Thumbnails are generated in a separated thread and cached.
  *
- * @author AurÃ©lien GÃ¢teau
+ * @author Aurélien Gâteau
  * @author Tanguy Krotoff
  */
 class ThumbnailManager : public QThread {

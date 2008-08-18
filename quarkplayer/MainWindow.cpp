@@ -72,6 +72,8 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent)
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 
+	restoreGeometry(Config::instance().value(Config::MAINWINDOW_GEOMETRY_KEY).toByteArray());
+
 	RETRANSLATE(this);
 	retranslate();
 }
@@ -509,6 +511,11 @@ void MainWindow::dropEvent(QDropEvent * event) {
 			//and play the first one in the list
 		}
 	}
+}
+
+void MainWindow::closeEvent(QCloseEvent * event) {
+	Config::instance().setValue(Config::MAINWINDOW_GEOMETRY_KEY, saveGeometry());
+	TkMainWindow::closeEvent(event);
 }
 
 void MainWindow::addBrowserDockWidget(QDockWidget * widget) {

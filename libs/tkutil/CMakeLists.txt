@@ -28,11 +28,6 @@ set(tkutil_SRCS
 
 qt4_wrap_cpp(tkutil_SRCS
 	EventFilter.h
-	LanguageChangeEventFilter.h
-	MouseEventFilter.h
-	CloseEventFilter.h
-	KeyEventFilter.h
-	DropEventFilter.h
 	TkConfig.h
 	FindFiles.h
 	TkTextBrowser.h

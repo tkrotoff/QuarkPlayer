@@ -81,6 +81,9 @@ public:
 	static const char * PLUGINS_DISABLED_KEY;
 	QStringList pluginsDisabled() const;
 
+	/** @see http://doc.trolltech.com/main-snapshot/qwidget.html#restoreGeometry */
+	static const char * MAINWINDOW_GEOMETRY_KEY;
+	QByteArray mainWindowGeometry() const;
 
 
 	static const char * TEST_INT_KEY;

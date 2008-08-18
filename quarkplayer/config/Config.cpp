@@ -42,6 +42,8 @@ const char * Config::MUSIC_DIR_KEY = "music_dir";
 const char * Config::PLUGINS_DIR_KEY = "plugins_dir";
 const char * Config::PLUGINS_DISABLED_KEY = "plugins_disabled";
 
+const char * Config::MAINWINDOW_GEOMETRY_KEY = "mainwindow_geometry";
+
 
 const char * Config::TEST_INT_KEY = "test_int";
 const char * Config::TEST_BOOL_KEY = "test_bool";
@@ -71,6 +73,7 @@ Config::Config()
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
 	addKey(PLUGINS_DIR_KEY, QString(QCoreApplication::applicationDirPath() + "/plugins"));
 	addKey(PLUGINS_DISABLED_KEY, QStringList());
+	addKey(MAINWINDOW_GEOMETRY_KEY, QByteArray());
 
 	addKey(TEST_INT_KEY, 0);
 	addKey(TEST_BOOL_KEY, false);
@@ -136,7 +139,9 @@ QStringList Config::pluginsDisabled() const {
 	return value(PLUGINS_DISABLED_KEY).toStringList();
 }
 
-
+QByteArray Config::mainWindowGeometry() const {
+	return value(MAINWINDOW_GEOMETRY_KEY).toByteArray();
+}
 
 
 

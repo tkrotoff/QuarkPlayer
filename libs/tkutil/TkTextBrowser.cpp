@@ -53,7 +53,7 @@ QVariant TkTextBrowser::loadResource(int type, const QUrl & name) {
 	QVariant resource;
 
 	bool isHttpRequest = false;
-	QHttp::ConnectionMode mode;
+	QHttp::ConnectionMode mode = QHttp::ConnectionModeHttp;
 	if (name.scheme().toLower() == "http") {
 		isHttpRequest = true;
 		mode = QHttp::ConnectionModeHttp;

@@ -71,6 +71,8 @@ public:
 		case QEvent::Leave: {
 			return true;
 		}*/
+		default:
+			return false;
 		}
 
 		return false;
@@ -190,7 +192,7 @@ int ThumbnailListView::thumbnailSize() const {
 }
 
 int ThumbnailListView::itemWidth() const {
-	return _thumbnailSize * 1.4;
+	return (int) (_thumbnailSize * 1.4);
 }
 
 int ThumbnailListView::itemHeight() const {

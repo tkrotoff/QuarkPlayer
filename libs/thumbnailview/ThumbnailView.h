@@ -1,4 +1,4 @@
-ï»¿/*
+/*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2004-2007  Wengo
  * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
@@ -33,7 +33,7 @@ class ThumbnailListView;
 /**
  * A dialog to select an avatar.
  *
- * @author AurÃ©lien GÃ¢teau
+ * @author Aurélien Gâteau
  * @author Tanguy Krotoff
  */
 class THUMBNAILVIEW_API ThumbnailView : public QWidget {
@@ -53,7 +53,7 @@ public:
 private:
 
 	/**
-	 * This is a bit tricky: ThumbnailView constructor sets the size policy of
+	 * This is a bit tricky: constructor sets the size policy of
 	 * our thumbnail view to Minimum,Minimum so that the dialog gets resized to
 	 * show the view at the view.sizeHint() size. In showEvent() we reset the
 	 * size policy of the view back to Preferred,Preferred so that the user can

@@ -10,7 +10,6 @@ set(thumbnailview_SRCS
 )
 
 qt4_wrap_cpp(thumbnailview_SRCS
-	ThumbnailListView.h
 	ThumbnailDirModel.h
 	ThumbnailManager.h
 	ThumbnailView.h
