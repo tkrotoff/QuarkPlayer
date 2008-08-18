@@ -15,6 +15,7 @@
 - add file association to NSIS installer via a QuarkPlayer command line
 - fix unworking uninstall when QuarkPlayer is running
 - make icons (desktop + quick toolbar) optionnal
+- remove QuarkPlayer user datas
 
 == Windows ==
 - test under Vista
@@ -24,18 +25,31 @@
 
 == Linux ==
 - test under Linux
+- fix .deb
+- fix .rpm
 
 == MacOSX ==
 - buy a Mac and port QuarkPlayer
 
 == GUI ==
 
+== TagLib ==
+- allow tag editing/writing
+
 == General ==
 - fix quit problems
+- fix playlist when in search mode (was working before)
+- fix playlist search
 - fix several playlist mode
+- implement C findFiles() with scandir for a blazing fast playlist
 - fix several FileBrowser mode
 - add profiles (audio, video...) ala Konqueror
 - implement a systray menu
 - implement shortcuts dialog
+
+== Future ==
 - add music visualization
   see http://projectm.sourceforge.net/ and http://www.ios-software.com/?page=projet&quoi=1
+- add an equalizer
+- guess movie title / serie title-episode... from the video filename
+- re-implement FileBrowser to make it really work

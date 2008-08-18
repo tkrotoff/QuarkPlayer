@@ -29,6 +29,7 @@
 
 class PlaylistModel;
 class PlaylistFilter;
+class DragAndDropTreeView;
 
 class QuarkPlayer;
 
@@ -38,10 +39,10 @@ namespace Phonon {
 }
 
 class QToolBar;
-class QTreeView;
 class QDockWidget;
 class QLineEdit;
 class QToolButton;
+class QTimer;
 
 /**
  * Playlist.
@@ -67,8 +68,6 @@ private slots:
 	void openPlaylist();
 
 	void savePlaylist();
-
-	void clearSelection();
 
 	void retranslate();
 
@@ -96,9 +95,11 @@ private:
 
 	PlaylistFilter * _playlistFilter;
 
-	QTreeView * _treeView;
+	DragAndDropTreeView * _treeView;
 
 	QLineEdit * _searchLineEdit;
+
+	QTimer * _searchTimer;
 
 	QToolButton * _clearSearchButton;
 

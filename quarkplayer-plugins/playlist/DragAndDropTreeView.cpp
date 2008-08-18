@@ -53,7 +53,7 @@ DragAndDropTreeView::DragAndDropTreeView(PlaylistModel * playlistModel) {
 
 	connect(ActionCollection::action("playlistPlayItem"), SIGNAL(triggered()), SLOT(playItem()));
 	connect(ActionCollection::action("playlistSendTo"), SIGNAL(triggered()), SLOT(sendTo()));
-	connect(ActionCollection::action("playlistDeleteItem"), SIGNAL(triggered()), SLOT(deleteItem()));
+	connect(ActionCollection::action("playlistDeleteItem"), SIGNAL(triggered()), SLOT(clearSelection()));
 	connect(ActionCollection::action("playlistRateItem"), SIGNAL(triggered()), SLOT(rateItem()));
 	connect(ActionCollection::action("playlistViewMediaInfo"), SIGNAL(triggered()), SLOT(viewMediaInfo()));
 
@@ -109,9 +109,9 @@ void DragAndDropTreeView::showMenu(const QPoint & pos) {
 
 		QMenu * menu = new QMenu(this);
 		menu->addAction(ActionCollection::action("playlistPlayItem"));
-		menu->addAction(ActionCollection::action("playlistSendTo"));
+		//FIXME For the future menu->addAction(ActionCollection::action("playlistSendTo"));
 		menu->addAction(ActionCollection::action("playlistDeleteItem"));
-		menu->addAction(ActionCollection::action("playlistRateItem"));
+		//FIXME For the future menu->addAction(ActionCollection::action("playlistRateItem"));
 		menu->addAction(ActionCollection::action("playlistViewMediaInfo"));
 
 		menu->exec(QCursor::pos());
@@ -150,10 +150,22 @@ void DragAndDropTreeView::playItem() {
 }
 
 void DragAndDropTreeView::sendTo() {
+	//FIXME this will be for scripts: like burning, sending via email, whatever...
 }
 
-void DragAndDropTreeView::deleteItem() {
-	clearSelection();
+void DragAndDropTreeView::clearSelection() {
+	QModelIndexList list = selectionModel()->selectedIndexes();
+	QList<int> rows;
+	foreach (QModelIndex index, list) {
+		int row = index.row();
+		if (!rows.contains(row)) {
+			rows += row;
+		}
+	}
+
+	if (!rows.isEmpty()) {
+		_playlistModel->removeRows(rows.first(), rows.size());
+	}
 }
 
 void DragAndDropTreeView::rateItem() {

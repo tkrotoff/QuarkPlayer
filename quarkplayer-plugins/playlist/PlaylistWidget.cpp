@@ -129,8 +129,8 @@ void PlaylistWidget::createToolBar() {
 
 	QMenu * removeMenu = new QMenu();
 	removeMenu->addAction(ActionCollection::action("playlistRemoveSelected"));
-	connect(ActionCollection::action("playlistRemoveSelected"), SIGNAL(triggered()), SLOT(clearSelection()));
-	KeyPressEventFilter * deleteKeyFilter = new KeyPressEventFilter(this, SLOT(clearSelection()), Qt::Key_Delete);
+	connect(ActionCollection::action("playlistRemoveSelected"), SIGNAL(triggered()), _treeView, SLOT(clearSelection()));
+	KeyPressEventFilter * deleteKeyFilter = new KeyPressEventFilter(_treeView, SLOT(clearSelection()), Qt::Key_Delete);
 	_treeView->installEventFilter(deleteKeyFilter);
 	removeMenu->addAction(ActionCollection::action("playlistRemoveAll"));
 	connect(ActionCollection::action("playlistRemoveAll"), SIGNAL(triggered()), _playlistModel, SLOT(clear()));
@@ -147,6 +147,11 @@ void PlaylistWidget::createToolBar() {
 	//Search toolbar
 	_searchLineEdit = new QLineEdit();
 	_toolBar->addWidget(_searchLineEdit);
+	_searchTimer = new QTimer(this);
+	_searchTimer->setSingleShot(true);
+	_searchTimer->setInterval(700);
+	connect(_searchTimer, SIGNAL(timeout()), SLOT(search()));
+	connect(_searchLineEdit, SIGNAL(returnPressed()), SLOT(search()));
 	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(searchChanged()));
 	_clearSearchButton = new QToolButton();
 	_clearSearchButton->setAutoRaise(true);
@@ -294,21 +299,6 @@ void PlaylistWidget::savePlaylist() {
 	}
 }
 
-void PlaylistWidget::clearSelection() {
-	QModelIndexList list = _treeView->selectionModel()->selectedIndexes();
-	QList<int> rows;
-	foreach (QModelIndex index, list) {
-		int row = index.row();
-		if (!rows.contains(row)) {
-			rows += row;
-		}
-	}
-
-	if (!rows.isEmpty()) {
-		_playlistModel->removeRows(rows.first(), rows.size());
-	}
-}
-
 void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	foreach (Phonon::MediaObject * tmp, quarkPlayer().mediaObjectList()) {
 		tmp->disconnect(this);
@@ -343,20 +333,13 @@ void PlaylistWidget::jumpToCurrent() {
 }
 
 void PlaylistWidget::searchChanged() {
-	static QTimer * searchTimer = NULL;
-	if (!searchTimer) {
-		//Lazy initialization
-		searchTimer = new QTimer(this);
-		searchTimer->setSingleShot(true);
-		searchTimer->setInterval(500);
-		connect(searchTimer, SIGNAL(timeout()), SLOT(search()));
-	}
-
-	searchTimer->stop();
-	searchTimer->start();
+	_searchTimer->stop();
+	_searchTimer->start();
 }
 
 void PlaylistWidget::search() {
+	_searchTimer->stop();
+
 	QString pattern(_searchLineEdit->text().trimmed());
 
 	_clearSearchButton->setEnabled(!pattern.isEmpty());

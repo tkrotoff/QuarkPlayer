@@ -107,6 +107,7 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	VideoContainer * container = new VideoContainer();
 
 	container->videoDockWidget = new QDockWidget();
+	container->videoDockWidget->setWindowTitle(QCoreApplication::applicationName());
 
 	//Logo widget
 	container->backgroundLogoWidget = new QWidget();

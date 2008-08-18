@@ -130,16 +130,31 @@
                 <height>16777215</height>
                </size>
               </property>
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
             <item row="1" column="0" colspan="3" >
-             <widget class="QLineEdit" name="titleLineEdit" />
+             <widget class="QLineEdit" name="titleLineEdit" >
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
             <item row="2" column="0" colspan="3" >
-             <widget class="QLineEdit" name="artistLineEdit" />
+             <widget class="QLineEdit" name="artistLineEdit" >
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
             <item row="3" column="0" colspan="3" >
-             <widget class="QLineEdit" name="albumLineEdit" />
+             <widget class="QLineEdit" name="albumLineEdit" >
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
             <item row="4" column="0" >
              <widget class="QLineEdit" name="yearLineEdit" >
@@ -148,6 +163,9 @@
                 <width>50</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="readOnly" >
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -159,10 +177,18 @@
              </widget>
             </item>
             <item row="4" column="2" >
-             <widget class="QLineEdit" name="genreLineEdit" />
+             <widget class="QLineEdit" name="genreLineEdit" >
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
             <item row="5" column="0" colspan="3" >
-             <widget class="QLineEdit" name="commentLineEdit" />
+             <widget class="QLineEdit" name="commentLineEdit" >
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -216,8 +242,8 @@
      <widget class="QWidget" name="coverArtTab" >
       <property name="geometry" >
        <rect>
-        <x>0</x>
-        <y>0</y>
+        <x>4</x>
+        <y>23</y>
         <width>546</width>
         <height>401</height>
        </rect>
@@ -237,8 +263,8 @@
      <widget class="QWidget" name="artistTab" >
       <property name="geometry" >
        <rect>
-        <x>8</x>
-        <y>46</y>
+        <x>12</x>
+        <y>69</y>
         <width>546</width>
         <height>401</height>
        </rect>
@@ -251,8 +277,8 @@
      <widget class="QWidget" name="lyricsTab" >
       <property name="geometry" >
        <rect>
-        <x>8</x>
-        <y>46</y>
+        <x>12</x>
+        <y>69</y>
         <width>546</width>
         <height>401</height>
        </rect>
@@ -292,11 +318,8 @@
    </item>
    <item row="1" column="0" >
     <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
+      <set>QDialogButtonBox::Close</set>
      </property>
     </widget>
    </item>

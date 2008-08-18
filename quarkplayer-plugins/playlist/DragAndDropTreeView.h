@@ -38,6 +38,11 @@ public:
 
 	~DragAndDropTreeView();
 
+public slots:
+
+	/** Clears the currenlty selected items. */
+	void clearSelection();
+
 private slots:
 
 	void retranslate();
@@ -45,8 +50,6 @@ private slots:
 	void playItem();
 
 	void sendTo();
-
-	void deleteItem();
 
 	void rateItem();
 
