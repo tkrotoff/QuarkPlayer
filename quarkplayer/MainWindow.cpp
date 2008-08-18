@@ -20,7 +20,6 @@
 
 #include "QuarkPlayer.h"
 #include "AboutWindow.h"
-#include "FileExtensions.h"
 #include "config/Config.h"
 #include "config/ConfigWindow.h"
 #include "version.h"
@@ -30,6 +29,8 @@
 #include <tkutil/TkFile.h>
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
+
+#include <filetypes/FileTypes.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>
@@ -151,10 +152,10 @@ void MainWindow::clearRecentFiles() {
 void MainWindow::playFile() {
 	QString filename = TkFileDialog::getOpenFileName(
 		this, tr("Select Audio/Video File"), Config::instance().lastDirectoryUsed(),
-		tr("Multimedia") + FileExtensions::toFilterFormat(FileExtensions::multimedia()) + ";;" +
-		tr("Video") + FileExtensions::toFilterFormat(FileExtensions::video()) +";;" +
-		tr("Audio") + FileExtensions::toFilterFormat(FileExtensions::audio()) +";;" +
-		tr("Playlist") + FileExtensions::toFilterFormat(FileExtensions::playlist()) + ";;" +
+		tr("Multimedia") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video, FileType::Audio)) + ";;" +
+		tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video)) +";;" +
+		tr("Audio") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Audio)) +";;" +
+		tr("Playlist") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Playlist)) + ";;" +
 		tr("All Files") + " (*)"
 	);
 
@@ -491,7 +492,7 @@ void MainWindow::dropEvent(QDropEvent * event) {
 
 			qDebug() << __FUNCTION__ << "File suffix:" << fileInfo.suffix();
 
-			bool isSubtitle = FileExtensions::subtitle().contains(fileInfo.suffix(), Qt::CaseInsensitive);
+			bool isSubtitle = FileTypes::extensions(FileType::Subtitle).contains(fileInfo.suffix(), Qt::CaseInsensitive);
 			if (isSubtitle) {
 				qDebug() << __FUNCTION__ << "Loading subtitle:" << filename;
 				emit subtitleFileDropped(filename);

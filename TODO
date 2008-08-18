@@ -3,23 +3,39 @@
 - fix MPlayer/VLC volume save
 - test DVD playback with all backends
 - fix angle which is always with one item (0) when a video is playing
+
+== VLC backend ==
 - test again VLC backend with latest VLC builds
+
+== MPlayer backend ==
 - profile MPlayer meta data solving and make it faster
+- use MPlayer in slave mode and do not start a process for each file
 
 == NSIS ==
 - add file association to NSIS installer via a QuarkPlayer command line
+- fix unworking uninstall when QuarkPlayer is running
+- make icons (desktop + quick toolbar) optionnal
 
-== Playlist ==
-- implement right click to give information from the file
-
-== General ==
+== Windows ==
 - test under Vista
 - test under a clean WinXP
 - test under Win2k?
+- create a "portable" version
+
+== Linux ==
 - test under Linux
+
+== MacOSX ==
+- buy a Mac and port QuarkPlayer
+
+== GUI ==
+
+== General ==
 - fix quit problems
 - fix several playlist mode
 - fix several FileBrowser mode
 - add profiles (audio, video...) ala Konqueror
 - implement a systray menu
 - implement shortcuts dialog
+- add music visualization
+  see http://projectm.sourceforge.net/ and http://www.ios-software.com/?page=projet&quoi=1

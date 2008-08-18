@@ -20,7 +20,6 @@ set(quarkplayercore_SRCS
 	PluginManager.cpp
 	MainWindow.cpp
 	AboutWindow.cpp
-	FileExtensions.cpp
 	CommandLineHelp.cpp
 	CommandLineParser.cpp
 	config/Config.cpp
@@ -63,6 +62,7 @@ if (KDE4_FOUND)
 	target_link_libraries(quarkplayercore
 		tkutil
 		winfileassociations
+		filetypes
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
 		${KDE4_KIO_LIBS}
@@ -72,6 +72,7 @@ else (KDE4_FOUND)
 	target_link_libraries(quarkplayercore
 		tkutil
 		winfileassociations
+		filetypes
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
 		${QT_PHONON_LIBRARY}

@@ -21,6 +21,8 @@
 
 #include <mediainfowindow/mediainfowindow_export.h>
 
+#include <filetypes/FileType.h>
+
 #include <phonon/phononnamespace.h>
 #include <phonon/mediasource.h>
 
@@ -142,93 +144,6 @@ private:
 
 	QString _filename;
 	bool _isUrl;
-
-	enum FileType {
-
-		/** Default unknown format type. */
-		Unknown,
-
-		/**
-		 * MPEG-1 Audio Layer 3.
-		 *
-		 * Extension: .mp3
-		 *
-		 * @see http://en.wikipedia.org/wiki/Mp3
-		 */
-		MP3,
-
-		/**
-		 * Ogg Vorbis.
-		 *
-		 * Extension: .ogg .oga
-		 *
-		 * @see http://en.wikipedia.org/wiki/Vorbis
-		 */
-		Ogg,
-
-		/**
-		 * Free Lossless Audio Codec (FLAC).
-		 *
-		 * Extension: .flac
-		 *
-		 * @see http://en.wikipedia.org/wiki/Flac
-		 */
-		FLAC,
-
-		/**
-		 * Speex.
-		 *
-		 * Extension: .spx
-		 *
-		 * @see http://en.wikipedia.org/wiki/Speex
-		 */
-		Speex,
-
-		/**
-		 * Musepack (MPC), formerly known as MPEGplus, MPEG+ or MP+.
-		 *
-		 * Extension: .mpc, .mp+, .mpp
-		 *
-		 * @see http://en.wikipedia.org/wiki/Musepack
-		 */
-		MPC,
-
-		/**
-		 * WavPack.
-		 *
-		 * Extension: .wv
-		 *
-		 * @see http://en.wikipedia.org/wiki/Wavpack
-		 */
-		WavPack,
-
-		/**
-		 * True Audio (abbreviated TTA).
-		 *
-		 * Extension: .tta
-		 *
-		 * @see http://en.wikipedia.org/wiki/TTA_(codec)
-		 */
-		TrueAudio,
-
-		/**
-		 * Windows Media Audio (WMA).
-		 *
-		 * Extension: .wma
-		 *
-		 * @see http://en.wikipedia.org/wiki/Windows_Media_Audio
-		 */
-		WMA,
-
-		/**
-		 * MP4 (MPEG-4 Part 14).
-		 *
-		 * Extension: .mp4
-		 *
-		 * @see http://en.wikipedia.org/wiki/Mp4
-		 */
-		MP4
-	};
 
 	FileType _fileType;
 

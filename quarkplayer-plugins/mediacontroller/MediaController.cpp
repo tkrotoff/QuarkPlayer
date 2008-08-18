@@ -22,9 +22,10 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
-#include <quarkplayer/FileExtensions.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config.h>
+
+#include <filetypes/FileTypes.h>
 
 #include <tkutil/ActionCollection.h>
 #include <tkutil/TkFileDialog.h>
@@ -71,7 +72,7 @@ MediaController::~MediaController() {
 void MediaController::openSubtitleFile() {
 	QString filename = TkFileDialog::getOpenFileName(
 		_mainWindow, tr("Select Subtitle File"), Config::instance().lastDirectoryUsed(),
-		tr("Subtitle") + FileExtensions::toFilterFormat(FileExtensions::subtitle()) + ";;" +
+		tr("Subtitle") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Subtitle)) + ";;" +
 		tr("All Files") + " (*)"
 	);
 

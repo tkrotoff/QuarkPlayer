@@ -77,13 +77,10 @@ void VideoWidgetPlugin::hasVideoChanged(bool hasVideo) {
 	if (hasVideo) {
 		if (container->videoDockWidget->widget() != container->videoWidget) {
 			container->videoDockWidget->setWidget(container->videoWidget);
-			container->videoDockWidget->resize(container->videoWidget->sizeHint());
 		}
 	} else {
 		if (container->videoDockWidget->widget() != container->mediaDataWidget) {
 			container->videoDockWidget->setWidget(container->mediaDataWidget);
-			//container->videoDockWidget->setMaximumSize(container->mediaDataWidget->minimumSize());
-			container->videoDockWidget->resize(container->mediaDataWidget->minimumSize());
 		}
 	}
 }
@@ -115,6 +112,7 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	container->backgroundLogoWidget = new QWidget();
 	Ui::BackgroundLogoWidget * logo = new Ui::BackgroundLogoWidget();
 	logo->setupUi(container->backgroundLogoWidget);
+	container->backgroundLogoWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 	container->videoDockWidget->setWidget(container->backgroundLogoWidget);
 
 	//mediaDataWidget

@@ -23,7 +23,8 @@
 #include "Config.h"
 
 #include <quarkplayer/PluginManager.h>
-#include <quarkplayer/FileExtensions.h>
+
+#include <filetypes/FileTypes.h>
 
 #include <winfileassociations/WinFileAssociations.h>
 
@@ -82,19 +83,19 @@ void WinFileAssociationsConfigWidget::readConfig() {
 
 	QTreeWidgetItem * item = new QTreeWidgetItem(QStringList(tr("Video Files")));
 	_ui->treeWidget->addTopLevelItem(item);
-	addItems(item, FileExtensions::video());
+	addItems(item, FileTypes::extensions(FileType::Video));
 
 	item = new QTreeWidgetItem(QStringList(tr("Audio Files")));
 	_ui->treeWidget->addTopLevelItem(item);
-	addItems(item, FileExtensions::audio());
+	addItems(item, FileTypes::extensions(FileType::Audio));
 
 	item = new QTreeWidgetItem(QStringList(tr("Subtitle Files")));
 	_ui->treeWidget->addTopLevelItem(item);
-	addItems(item, FileExtensions::subtitle());
+	addItems(item, FileTypes::extensions(FileType::Subtitle));
 
 	item = new QTreeWidgetItem(QStringList(tr("Playlist Files")));
 	_ui->treeWidget->addTopLevelItem(item);
-	addItems(item, FileExtensions::playlist());
+	addItems(item, FileTypes::extensions(FileType::Playlist));
 
 	_ui->treeWidget->expandAll();
 }

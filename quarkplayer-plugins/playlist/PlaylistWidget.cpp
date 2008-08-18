@@ -24,7 +24,6 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
-#include <quarkplayer/FileExtensions.h>
 #include <quarkplayer/config/Config.h>
 
 #include <tkutil/ActionCollection.h>
@@ -33,6 +32,8 @@
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 #include <tkutil/KeyEventFilter.h>
+
+#include <filetypes/FileTypes.h>
 
 #include <playlistparser/PlaylistParser.h>
 
@@ -246,7 +247,7 @@ void PlaylistWidget::addDir() {
 	QStringList tmp/*(FindFiles::findAllFiles(dir))*/;
 	foreach (QString file, tmp) {
 		QFileInfo fileInfo(file);
-		bool isMultimediaFile = FileExtensions::multimedia().contains(fileInfo.suffix(), Qt::CaseInsensitive);
+		bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(fileInfo.suffix(), Qt::CaseInsensitive);
 		if (isMultimediaFile) {
 			files << file;
 		}

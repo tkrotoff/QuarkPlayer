@@ -22,10 +22,11 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
-#include <quarkplayer/FileExtensions.h>
 #include <quarkplayer/PluginManager.h>
 
 #include <mediainfowindow/MediaInfoFetcher.h>
+
+#include <filetypes/FileTypes.h>
 
 #include <tkutil/FindFiles.h>
 #include <tkutil/TkFile.h>
@@ -226,7 +227,7 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 
 				QFileInfo fileInfo(filename);
 
-				bool isMultimediaFile = FileExtensions::multimedia().contains(fileInfo.suffix(), Qt::CaseInsensitive);
+				bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(fileInfo.suffix(), Qt::CaseInsensitive);
 				if (isMultimediaFile) {
 					files << filename;
 				} else if (fileInfo.isDir()) {
@@ -250,7 +251,7 @@ void PlaylistModel::filesFound(const QStringList & files) {
 void PlaylistModel::addFiles(const QStringList & files, int row) {
 	QStringList filenameList;
 	foreach (QString filename, files) {
-		bool isMultimediaFile = FileExtensions::multimedia().contains(TkFile::fileExtension(filename), Qt::CaseInsensitive);
+		bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(TkFile::fileExtension(filename), Qt::CaseInsensitive);
 		if (isMultimediaFile) {
 			filenameList << filename;
 		}

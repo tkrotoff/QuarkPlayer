@@ -53,6 +53,8 @@ MediaDataWidget::MediaDataWidget()
 	_mediaInfoWindow = new MediaInfoWindow(this);
 	connect(_ui->coverArtButton, SIGNAL(clicked()), _mediaInfoWindow, SLOT(show()));
 
+	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+
 	RETRANSLATE(this);
 	retranslate();
 }

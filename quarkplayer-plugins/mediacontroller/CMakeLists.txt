@@ -12,20 +12,12 @@ qt4_wrap_cpp(mediacontroller_SRCS
 
 add_library(mediacontroller MODULE ${mediacontroller_SRCS})
 
-if (KDE4_FOUND)
-	target_link_libraries(mediacontroller
-		quarkplayercore
-		${KDE4_KDECORE_LIBS}
-		${KDE4_KDEUI_LIBS}
-		${KDE4_KIO_LIBS}
-	)
-else (KDE4_FOUND)
-	target_link_libraries(mediacontroller
-		quarkplayercore
-		${QT_QTCORE_LIBRARY}
-		${QT_QTGUI_LIBRARY}
-	)
-endif (KDE4_FOUND)
+target_link_libraries(mediacontroller
+	quarkplayercore
+	filetypes
+	${QT_QTCORE_LIBRARY}
+	${QT_QTGUI_LIBRARY}
+)
 
 #Translations
 add_qt_translations(${mediacontroller_SRCS})

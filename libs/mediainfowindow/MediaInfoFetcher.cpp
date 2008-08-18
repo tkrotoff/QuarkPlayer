@@ -20,6 +20,8 @@
 
 #include "config.h"
 
+#include <filetypes/FileTypes.h>
+
 #include <tkutil/TkFile.h>
 #include <tkutil/TkTime.h>
 
@@ -73,8 +75,6 @@ void MediaInfoFetcher::clear() {
 	_fetched = false;
 
 	_isUrl = false;
-
-	_fileType = Unknown;
 
 	_trackNumber = -1;
 	_title.clear();
@@ -188,22 +188,21 @@ void MediaInfoFetcher::startTagLibResolver() {
 
 	//File type
 	if (TagLib::MPEG::File * file = dynamic_cast<TagLib::MPEG::File *>(fileRef.file())) {
-		_fileType = MP3;
+		_fileType = FileTypes::fileType(FileType::MP3);
 	} else if (TagLib::Ogg::Vorbis::File * file = dynamic_cast<TagLib::Ogg::Vorbis::File *>(fileRef.file())) {
-		_fileType = Ogg;
+		_fileType = FileTypes::fileType(FileType::Vorbis);
 	} else if (TagLib::Ogg::FLAC::File * file = dynamic_cast<TagLib::Ogg::FLAC::File *>(fileRef.file())) {
-		_fileType = FLAC;
+		_fileType = FileTypes::fileType(FileType::FLAC);
 	} else if (TagLib::Ogg::Speex::File * file = dynamic_cast<TagLib::Ogg::Speex::File *>(fileRef.file())) {
-		_fileType = Speex;
+		_fileType = FileTypes::fileType(FileType::Speex);
 	} else if (TagLib::MPC::File * file = dynamic_cast<TagLib::MPC::File *>(fileRef.file())) {
-		_fileType = MPC;
+		_fileType = FileTypes::fileType(FileType::MPC);
 	} else if (TagLib::WavPack::File * file = dynamic_cast<TagLib::WavPack::File *>(fileRef.file())) {
-		_fileType = WavPack;
+		_fileType = FileTypes::fileType(FileType::WavPack);
 	} else if (TagLib::TrueAudio::File * file = dynamic_cast<TagLib::TrueAudio::File *>(fileRef.file())) {
-		_fileType = TrueAudio;
+		_fileType = FileTypes::fileType(FileType::TTA);
 	}
-
-	//Missing: MP4 .mp4, WMA .wma
+	//Missing: MP4, WMA...
 
 	if (fileIsNull) {
 		qCritical() << __FUNCTION__ << "Error: the FileRef is null:" << _filename;
@@ -237,45 +236,9 @@ void MediaInfoFetcher::startTagLibResolver() {
 }
 
 void MediaInfoFetcher::determineFileTypeFromExtension() {
-	QString ext(TkFile::fileExtension(_filename));
+	QString extension(TkFile::fileExtension(_filename));
 
-	if (ext == "mp3") {
-		_fileType = MP3;
-	} else if (ext == ".ogg" || ext == ".oga") {
-		_fileType = Ogg;
-	} else if (ext == "flac") {
-		_fileType = FLAC;
-	} else if (ext == "spx") {
-		_fileType = Speex;
-	} else if (ext == "mpc" || ext == ".mp+" || ext == "mpp") {
-		_fileType = MPC;
-	} else if (ext == "wv") {
-		_fileType = WavPack;
-	} else if (ext == "tta") {
-		_fileType = TrueAudio;
-	} else if (ext == "wma") {
-		_fileType = WMA;
-	} else if (ext == "mp4") {
-		_fileType = MP4;
-	} else if (ext == "") {
-		_fileType = Unknown;
-	} else if (ext == "") {
-		_fileType = Unknown;
-	} else if (ext == "") {
-		_fileType = Unknown;
-	} else if (ext == "") {
-		_fileType = Unknown;
-	} else if (ext == "") {
-		_fileType = Unknown;
-	} else if (ext == "") {
-		_fileType = Unknown;
-	} else if (ext == "") {
-		_fileType = Unknown;
-	} else if (ext == "") {
-		_fileType = Unknown;
-	} else if (ext == "") {
-		_fileType = Unknown;
-	}
+	_fileType = FileTypes::fileType(extension);
 }
 
 bool MediaInfoFetcher::hasBeenFetched() const {
@@ -291,31 +254,7 @@ bool MediaInfoFetcher::isUrl() const {
 }
 
 QString MediaInfoFetcher::fileType() const {
-	QString type;
-
-	switch (_fileType) {
-	case Unknown:
-		break;
-	case MP3:
-		type = "MP3";
-		break;
-	case Ogg:
-		type = "Ogg Vorbis";
-		break;
-	case WMA:
-		type = "WMA";
-		break;
-	case MP4:
-		type = "MP4";
-		break;
-	case FLAC:
-		type = "FLAC";
-		break;
-	default:
-		qCritical() << __FUNCTION__ << "Error: unknown file type:" << _fileType;
-	}
-
-	return type;
+	return _fileType.fullName;
 }
 
 QString MediaInfoFetcher::trackNumber() const {

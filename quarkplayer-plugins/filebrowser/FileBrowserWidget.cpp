@@ -23,7 +23,6 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
-#include <quarkplayer/FileExtensions.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config/ConfigWindow.h>
 #include <quarkplayer/PluginManager.h>
@@ -71,6 +70,8 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	_dockWidget = new QDockWidget();
 	quarkPlayer.mainWindow().addBrowserDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
+
+	setMaximumSize(1.5 * sizeHint().width(), maximumSize().height());
 
 	RETRANSLATE(this);
 	retranslate();
