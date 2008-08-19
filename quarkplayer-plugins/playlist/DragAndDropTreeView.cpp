@@ -19,6 +19,7 @@
 #include "DragAndDropTreeView.h"
 
 #include "PlaylistModel.h"
+#include "PlaylistFilter.h"
 
 #include <quarkplayer/config/Config.h>
 
@@ -34,8 +35,9 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
-DragAndDropTreeView::DragAndDropTreeView(PlaylistModel * playlistModel) {
+DragAndDropTreeView::DragAndDropTreeView(PlaylistModel * playlistModel, PlaylistFilter * playlistFilter) {
 	_playlistModel = playlistModel;
+	_playlistFilter = playlistFilter;
 
 	setUniformRowHeights(true);
 	setDragEnabled(true);
@@ -105,7 +107,25 @@ void DragAndDropTreeView::dragMoveEvent(QDragMoveEvent * event) {
 void DragAndDropTreeView::showMenu(const QPoint & pos) {
 	QModelIndex index(indexAt(pos));
 	if (index.isValid()) {
-		setCurrentIndex(index);
+		QModelIndexList indexList = selectedIndexes();
+		if (indexList.isEmpty()) {
+			setCurrentIndex(index);
+		} else {
+			int selectedIndexRow = index.row();
+			int selectionBeginRow = indexList.at(0).row();
+			int selectionEndRow = selectionBeginRow + indexList.size();
+			qDebug() << " ";
+			qDebug() << __FUNCTION__ << "indexRow:" << selectedIndexRow;
+			qDebug() << __FUNCTION__ << "beginRow:" << selectionBeginRow;
+			qDebug() << __FUNCTION__ << "endRow:" << selectionEndRow;
+			qDebug() << " ";
+			if (selectedIndexRow >= selectionBeginRow && selectedIndexRow <= selectionEndRow) {
+				//Nothing to do, index is already inside the selection
+			} else {
+				//Index is outside the selection
+				setCurrentIndex(index);
+			}
+		}
 
 		QMenu * menu = new QMenu(this);
 		menu->addAction(ActionCollection::action("playlistPlayItem"));
@@ -146,17 +166,20 @@ void DragAndDropTreeView::retranslate() {
 }
 
 void DragAndDropTreeView::playItem() {
-	_playlistModel->play(currentIndex());
+	QModelIndexList indexList = selectedIndexes();
+	if (!indexList.isEmpty()) {
+		_playlistFilter->play(indexList.at(0));
+	}
 }
 
 void DragAndDropTreeView::sendTo() {
-	//FIXME this will be for scripts: like burning, sending via email, whatever...
+	//FIXME this will be for external scripts: like burning, sending via email, whatever...
 }
 
 void DragAndDropTreeView::clearSelection() {
-	QModelIndexList list = selectionModel()->selectedIndexes();
+	QModelIndexList indexList = selectedIndexes();
 	QList<int> rows;
-	foreach (QModelIndex index, list) {
+	foreach (QModelIndex index, indexList) {
 		int row = index.row();
 		if (!rows.contains(row)) {
 			rows += row;
@@ -175,7 +198,12 @@ void DragAndDropTreeView::viewMediaInfo() {
 	MediaInfoWindow * mediaInfoWindow = new MediaInfoWindow(this);
 
 	MediaInfoFetcher & mediaInfoFetcher(_playlistModel->mediaInfoFetcher());
-	mediaInfoFetcher.start(_playlistModel->mediaSource(currentIndex()));
+	QModelIndexList indexList = selectedIndexes();
+	if (!indexList.isEmpty()) {
+		QModelIndex index(indexList.at(0));
+		QModelIndex sourceIndex(_playlistFilter->mapToSource(index));
+		mediaInfoFetcher.start(_playlistModel->mediaSource(sourceIndex));
+	}
 	mediaInfoWindow->setMediaInfoFetcher(&mediaInfoFetcher);
 	mediaInfoWindow->setLocale(Config::instance().language());
 	mediaInfoWindow->show();

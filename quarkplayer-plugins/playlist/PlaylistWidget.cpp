@@ -58,18 +58,19 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	//Model
 	_playlistModel = new PlaylistModel(this, quarkPlayer);
 
-	_treeView = new DragAndDropTreeView(_playlistModel);
+	//Filter
+	_playlistFilter = new PlaylistFilter(this, _playlistModel);
+
+	//TreeView
+	_treeView = new DragAndDropTreeView(_playlistModel, _playlistFilter);
+	connect(_treeView, SIGNAL(activated(const QModelIndex &)),
+		_playlistFilter, SLOT(play(const QModelIndex &)));
+	_treeView->setModel(_playlistFilter);
 	QVBoxLayout * layout = new QVBoxLayout();
 	setLayout(layout);
 	layout->setMargin(0);
 	layout->setSpacing(0);
 	layout->addWidget(_treeView);
-
-	//Filter
-	_playlistFilter = new PlaylistFilter(this, _playlistModel);
-	connect(_treeView, SIGNAL(activated(const QModelIndex &)),
-		_playlistFilter, SLOT(play(const QModelIndex &)));
-	_treeView->setModel(_playlistFilter);
 
 	//Default column sizes
 	_treeView->resizeColumnToContents(PlaylistModel::COLUMN_TRACK);

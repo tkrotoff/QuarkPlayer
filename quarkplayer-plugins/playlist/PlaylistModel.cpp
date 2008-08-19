@@ -412,7 +412,7 @@ void PlaylistModel::clear() {
 	saveCurrentPlaylist();
 }
 
-void PlaylistModel::play(const QModelIndex & /*index*/) {
+void PlaylistModel::play() {
 	if (_position != POSITION_INVALID) {
 		_quarkPlayer.play(_mediaSources[_position].mediaSource());
 	} else {
@@ -420,7 +420,7 @@ void PlaylistModel::play(const QModelIndex & /*index*/) {
 	}
 }
 
-void PlaylistModel::enqueue(const QModelIndex & index) {
+void PlaylistModel::enqueue() {
 	if (_position != POSITION_INVALID) {
 		_quarkPlayer.currentMediaObject()->enqueue(_mediaSources[_position].mediaSource());
 	} else {

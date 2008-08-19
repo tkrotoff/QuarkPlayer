@@ -22,6 +22,7 @@
 #include <QtGui/QTreeView>
 
 class PlaylistModel;
+class PlaylistFilter;
 
 /**
  * Drag and drop capable QTreeView.
@@ -34,7 +35,7 @@ class DragAndDropTreeView : public QTreeView {
 	Q_OBJECT
 public:
 
-	DragAndDropTreeView(PlaylistModel * playlistModel);
+	DragAndDropTreeView(PlaylistModel * playlistModel, PlaylistFilter * playlistFilter);
 
 	~DragAndDropTreeView();
 
@@ -72,6 +73,8 @@ private:
 	void populateActionCollection();
 
 	PlaylistModel * _playlistModel;
+
+	PlaylistFilter * _playlistFilter;
 };
 
 #endif	//DRAGANDDROPTREEVIEW_H

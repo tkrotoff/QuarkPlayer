@@ -94,9 +94,26 @@ void PlaylistFilter::setCurrentIndex(const QModelIndex & index) {
 			this->index(_position, PlaylistModel::COLUMN_LAST));
 }
 
+/*int PlaylistFilter::position(const QModelIndex & index) {
+	int pos = POSITION_INVALID;
+
+	if (!index.isValid()) {
+		return pos;
+	}
+
+	const QAbstractItemModel * model = index.model();
+	if (model == this) {
+		//_position = index.row();
+		pos = mapToSource(index).row();
+	} else if (model == _playlistModel) {
+		//_position = mapFromSource(index).row();
+		pos = index.row();
+	}
+}*/
+
 void PlaylistFilter::play(const QModelIndex & index) {
 	setCurrentIndex(index);
-	_playlistModel->play(index);
+	_playlistModel->play();
 }
 
 void PlaylistFilter::playNextTrack() {
@@ -124,7 +141,7 @@ void PlaylistFilter::enqueueNextTrack() {
 	if (_position >= 0 && _position < rowCount()) {
 		QModelIndex nextIndex = mapToSource(index(_position, PlaylistModel::COLUMN_FIRST));
 		setCurrentIndex(nextIndex);
-		_playlistModel->enqueue(nextIndex);
+		_playlistModel->enqueue();
 	}
 }
 
