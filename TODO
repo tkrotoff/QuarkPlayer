@@ -41,6 +41,7 @@
 - fix playlist when in search mode (was working before)
 - fix playlist search
 - fix several playlist mode
+- fix playlist open -> does not load the tags using TagLib
 - implement C findFiles() with scandir for a blazing fast playlist
 - fix several FileBrowser mode
 - add profiles (audio, video...) ala Konqueror
@@ -62,5 +63,4 @@
   Python script: http://www.arrakis.es/~rggi3/youtube-dl/
 - Dailymotion support
 - add Magnatune support
-
-
+- add LastFm support

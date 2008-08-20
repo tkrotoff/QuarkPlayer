@@ -5,7 +5,7 @@ project(quarkplayer)
 
 set(QUARKPLAYER_MAJOR_VERSION 0)
 set(QUARKPLAYER_MINOR_VERSION 2)
-set(QUARKPLAYER_PATCH_VERSION 0)
+set(QUARKPLAYER_PATCH_VERSION 1)
 
 #Add options values
 include(Options.cmake)
@@ -65,6 +65,7 @@ set(PLUGIN_INSTALL_DIR ${BIN_INSTALL_DIR}/phonon_backend)
 set(INSTALL_TARGETS_DEFAULT_ARGS
 	RUNTIME DESTINATION ${BIN_INSTALL_DIR}
 	LIBRARY DESTINATION ${BIN_INSTALL_DIR}
+#	ARCHIVE DESTINATION ${BIN_INSTALL_DIR}
 )
 
 if (WIN32)
@@ -79,6 +80,7 @@ if (WIN32)
 		install(FILES ${QT_BINARY_DIR}/QtCored4.dll DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtGuid4.dll DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtNetworkd4.dll DESTINATION ${BIN_INSTALL_DIR})
+		#For phonon_ds9.dll, DirectShow backend
 		install(FILES ${QT_BINARY_DIR}/QtOpenGLd4.dll DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qjpegd4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
 		install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qgifd4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
