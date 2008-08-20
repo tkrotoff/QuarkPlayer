@@ -81,7 +81,7 @@ private:
 	QList<QString> _coverArtList;
 	int _currentCoverArtIndex;
 
-	QString _amazonCoverArtFilename;
+	QString _amazonCoverArtPath;
 };
 
 #endif	//MEDIADATAWIDGET_H

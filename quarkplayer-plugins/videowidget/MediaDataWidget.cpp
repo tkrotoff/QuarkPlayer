@@ -178,18 +178,34 @@ void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist
 		}
 	}
 
-	_amazonCoverArtFilename = coverArtDir + "/coverart-amazon.jpg";
+	if (!album.isEmpty() && !artist.isEmpty()) {
+		//Download the cover only if album + artist are not empty
 
-	bool amazonCoverArtAlreadyDownloaded = _coverArtList.contains(_amazonCoverArtFilename);
-	if (!amazonCoverArtAlreadyDownloaded) {
-		//Download the cover art
-		AmazonCoverArt * coverArtFetcher = new AmazonCoverArt(AMAZON_WEB_SERVICE_KEY, this);
-		connect(coverArtFetcher, SIGNAL(found(const QByteArray &, bool)),
-			SLOT(coverArtFound(const QByteArray &, bool)));
-		ContentFetcher::Track track;
-		track.artist = artist;
-		track.album = album;
-		coverArtFetcher->start(track);
+		QString amazonCoverArtFilename(artist + " - " + album + ".jpg");
+		//Remove all not possible characters for a filename
+		static const QString space(" ");
+		amazonCoverArtFilename.replace("/", space);
+		amazonCoverArtFilename.replace("\\", space);
+		amazonCoverArtFilename.replace(":", space);
+		amazonCoverArtFilename.replace("*", space);
+		amazonCoverArtFilename.replace("?", space);
+		amazonCoverArtFilename.replace(">", space);
+		amazonCoverArtFilename.replace(">", space);
+		amazonCoverArtFilename.replace("|", space);
+
+		_amazonCoverArtPath = coverArtDir + "/" + amazonCoverArtFilename;
+
+		bool amazonCoverArtAlreadyDownloaded = _coverArtList.contains(_amazonCoverArtPath);
+		if (!amazonCoverArtAlreadyDownloaded) {
+			//Download the cover art
+			AmazonCoverArt * coverArtFetcher = new AmazonCoverArt(AMAZON_WEB_SERVICE_KEY, this);
+			connect(coverArtFetcher, SIGNAL(found(const QByteArray &, bool)),
+				SLOT(coverArtFound(const QByteArray &, bool)));
+			ContentFetcher::Track track;
+			track.artist = artist;
+			track.album = album;
+			coverArtFetcher->start(track);
+		}
 	}
 
 	if (!_coverArtSwitchTimer) {
@@ -206,7 +222,7 @@ void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist
 void MediaDataWidget::coverArtFound(const QByteArray & coverArt, bool accurate) {
 	if (accurate) {
 		//Saves the downloaded cover art to a file
-		QFile coverArtFile(_amazonCoverArtFilename);
+		QFile coverArtFile(_amazonCoverArtPath);
 		if (coverArtFile.open(QIODevice::WriteOnly)) {
 			//The file could be opened
 			qint64 ret = coverArtFile.write(coverArt);
@@ -214,12 +230,12 @@ void MediaDataWidget::coverArtFound(const QByteArray & coverArt, bool accurate) 
 				//The file could be written
 				coverArtFile.close();
 
-				_coverArtList << _amazonCoverArtFilename;
+				_coverArtList << _amazonCoverArtPath;
 			} else {
-				qCritical() << __FUNCTION__ << "Error: cover art file couldn't be written:" << _amazonCoverArtFilename;
+				qCritical() << __FUNCTION__ << "Error: cover art file couldn't be written:" << _amazonCoverArtPath;
 			}
 		} else {
-			qCritical() << __FUNCTION__ << "Error: cover art file couldn't be opened:" << _amazonCoverArtFilename;
+			qCritical() << __FUNCTION__ << "Error: cover art file couldn't be opened:" << _amazonCoverArtPath;
 		}
 	}
 }
