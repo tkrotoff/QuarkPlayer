@@ -53,3 +53,14 @@
 - add an equalizer
 - guess movie title / serie title-episode... from the video filename
 - re-implement FileBrowser to make it really work
+- add Jamendo support
+- add Magnatube support
+- add Youtube support
+  info here: http://flex.mediabox.fr/index.php?showtopic=73894
+  examples: http://www.ouideo.com/ http://www.force-download.com/
+  url scheme: http://youtube.com/get_video.php?video_id=%s&t=%s
+  Python script: http://www.arrakis.es/~rggi3/youtube-dl/
+- Dailymotion support
+- add Magnatune support
+
+

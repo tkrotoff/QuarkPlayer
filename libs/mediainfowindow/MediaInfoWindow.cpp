@@ -117,6 +117,8 @@ void MediaInfoWindow::retranslate() {
 	_openDirectoryButton->setToolTip(tr("Open Directory"));
 
 	_ui->retranslateUi(this);
+
+	refresh();
 }
 
 void MediaInfoWindow::openDirectory() {
@@ -147,7 +149,14 @@ void MediaInfoWindow::updateMediaInfo() {
 
 	static const QString br("<br>");
 
-	QString fileType(tr("Type:") + " " + _mediaInfoFetcher->fileType());
+	QString fileType(tr("Type:") + " ");
+	QString fileTypeName(_mediaInfoFetcher->fileType().fullName);
+	QString fileTypeWikipedia(_mediaInfoFetcher->fileType().wikipediaArticle);
+	if (!fileTypeWikipedia.isEmpty()) {
+		fileType += "<a href=\"http://" + _locale + ".wikipedia.org/wiki/" + fileTypeWikipedia + "\">" + fileTypeName + "</a>";
+	} else {
+		fileType += fileTypeName;
+	}
 	QString length;
 	if (!_mediaInfoFetcher->length().isEmpty()) {
 		length = br + tr("Length:") + " " + _mediaInfoFetcher->length();

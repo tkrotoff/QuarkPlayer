@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
-    <height>463</height>
+    <width>575</width>
+    <height>445</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -35,8 +35,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>546</width>
-        <height>401</height>
+        <width>571</width>
+        <height>383</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -206,6 +206,9 @@
             <property name="text" >
              <string/>
             </property>
+            <property name="openExternalLinks" >
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -237,6 +240,22 @@
          </property>
         </spacer>
        </item>
+       <item row="4" column="0" colspan="2" >
+        <widget class="QLabel" name="picardTaggerLinkLabel" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text" >
+          <string>&lt;a href="http://musicbrainz.org/doc/PicardDownload">MusicBrainz Picard Tagger&lt;/a> is recommended for tagging your music files</string>
+         </property>
+         <property name="openExternalLinks" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="coverArtTab" >
@@ -263,8 +282,8 @@
      <widget class="QWidget" name="artistTab" >
       <property name="geometry" >
        <rect>
-        <x>12</x>
-        <y>69</y>
+        <x>4</x>
+        <y>23</y>
         <width>546</width>
         <height>401</height>
        </rect>
@@ -277,8 +296,8 @@
      <widget class="QWidget" name="lyricsTab" >
       <property name="geometry" >
        <rect>
-        <x>12</x>
-        <y>69</y>
+        <x>4</x>
+        <y>23</y>
         <width>546</width>
         <height>401</height>
        </rect>

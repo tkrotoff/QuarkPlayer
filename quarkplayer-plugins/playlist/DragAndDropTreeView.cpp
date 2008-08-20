@@ -39,6 +39,8 @@ DragAndDropTreeView::DragAndDropTreeView(PlaylistModel * playlistModel, Playlist
 	_playlistModel = playlistModel;
 	_playlistFilter = playlistFilter;
 
+	_mediaInfoWindow = NULL;
+
 	setUniformRowHeights(true);
 	setDragEnabled(true);
 	setAcceptDrops(true);
@@ -163,6 +165,10 @@ void DragAndDropTreeView::retranslate() {
 
 	ActionCollection::action("playlistViewMediaInfo")->setText(tr("View Media Info..."));
 	ActionCollection::action("playlistViewMediaInfo")->setIcon(TkIcon("document-properties"));
+
+	if (_mediaInfoWindow) {
+		_mediaInfoWindow->setLocale(Config::instance().language());
+	}
 }
 
 void DragAndDropTreeView::playItem() {
@@ -195,7 +201,7 @@ void DragAndDropTreeView::rateItem() {
 }
 
 void DragAndDropTreeView::viewMediaInfo() {
-	MediaInfoWindow * mediaInfoWindow = new MediaInfoWindow(this);
+	_mediaInfoWindow = new MediaInfoWindow(this);
 
 	MediaInfoFetcher & mediaInfoFetcher(_playlistModel->mediaInfoFetcher());
 	QModelIndexList indexList = selectedIndexes();
@@ -204,7 +210,7 @@ void DragAndDropTreeView::viewMediaInfo() {
 		QModelIndex sourceIndex(_playlistFilter->mapToSource(index));
 		mediaInfoFetcher.start(_playlistModel->mediaSource(sourceIndex));
 	}
-	mediaInfoWindow->setMediaInfoFetcher(&mediaInfoFetcher);
-	mediaInfoWindow->setLocale(Config::instance().language());
-	mediaInfoWindow->show();
+	_mediaInfoWindow->setMediaInfoFetcher(&mediaInfoFetcher);
+	_mediaInfoWindow->setLocale(Config::instance().language());
+	_mediaInfoWindow->show();
 }

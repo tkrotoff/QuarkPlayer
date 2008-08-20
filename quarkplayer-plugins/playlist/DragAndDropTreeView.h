@@ -24,6 +24,8 @@
 class PlaylistModel;
 class PlaylistFilter;
 
+class MediaInfoWindow;
+
 /**
  * Drag and drop capable QTreeView.
  *
@@ -75,6 +77,8 @@ private:
 	PlaylistModel * _playlistModel;
 
 	PlaylistFilter * _playlistFilter;
+
+	MediaInfoWindow * _mediaInfoWindow;
 };
 
 #endif	//DRAGANDDROPTREEVIEW_H

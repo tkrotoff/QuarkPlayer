@@ -44,17 +44,21 @@ struct FileType {
 		MOV,
 		MP4,
 		NSV,
+		OGM,
+		Tarkin,
 		Theora,
+		RealMedia,
 		WMV,
 		DivX,
+		Xvid,
 		NUT,
-		OGM,
 
 		//Audio
 
 		//Lossless audio
 		AIFF,
 		AU,
+		CDDA,
 		WAV,
 		FLAC,
 		AppleLossless,
@@ -71,7 +75,7 @@ struct FileType {
 		AAC,
 		MPC,
 		VQF,
-		RealMedia,
+		RealAudio,
 		MID,
 		MOD,
 
@@ -86,12 +90,12 @@ struct FileType {
 		AQTitle,
 		MicroDVD,
 		MPsub,
-		SSA,
-		SubViewer,
 		RealText,
 		SAMI,
 		SSF,
 		SubRip,
+		SSA,
+		SubViewer,
 		USF,
 		VOBsub
 	};
@@ -99,6 +103,7 @@ struct FileType {
 	Category category;
 	Name name;
 	QString fullName;
+	QString wikipediaArticle;
 	QString extensions;
 	QString mimeTypes;
 };

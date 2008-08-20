@@ -253,8 +253,8 @@ bool MediaInfoFetcher::isUrl() const {
 	return _isUrl;
 }
 
-QString MediaInfoFetcher::fileType() const {
-	return _fileType.fullName;
+FileType MediaInfoFetcher::fileType() const {
+	return _fileType;
 }
 
 QString MediaInfoFetcher::trackNumber() const {

@@ -64,7 +64,7 @@ public:
 
 	bool isUrl() const;
 
-	QString fileType() const;
+	FileType fileType() const;
 
 	/** Returns the track number; if there is no track number set, this will return 0. */
 	QString trackNumber() const;

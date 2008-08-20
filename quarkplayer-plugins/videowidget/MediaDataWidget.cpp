@@ -150,6 +150,10 @@ void MediaDataWidget::updateMediaInfo() {
 void MediaDataWidget::retranslate() {
 	updateMediaInfo();
 	_ui->retranslateUi(this);
+
+	if (_mediaInfoWindow) {
+		_mediaInfoWindow->setLocale(Config::instance().language());
+	}
 }
 
 void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist, const QString & title) {
