@@ -56,15 +56,10 @@ public:
 	void setStatusBar(QStatusBar * statusBar);
 	QStatusBar * statusBar() const;
 
-	QMenu * menuAudioChannels() const;
-
-	QMenu * menuSubtitles() const;
-
-	QMenu * menuTitles() const;
-
-	QMenu * menuChapters() const;
-
-	QMenu * menuAngles() const;
+	QMenu * menuFile() const;
+	QMenu * menuPlay() const;
+	QMenu * menuSettings() const;
+	QMenu * menuHelp() const;
 
 	void addBrowserDockWidget(QDockWidget * widget);
 	void removeBrowserDockWidget(QDockWidget * widget);
@@ -155,16 +150,8 @@ private:
 
 	TkToolBar * _mainToolBar;
 	QMenu * _menuRecentFiles;
-	QMenu * _menuAudioChannels;
-	QMenu * _menuSubtitles;
-	QMenu * _menuTitles;
-	QMenu * _menuChapters;
-	QMenu * _menuAngles;
 	QMenu * _menuFile;
 	QMenu * _menuPlay;
-	QMenu * _menuAudio;
-	QMenu * _menuSubtitle;
-	QMenu * _menuBrowse;
 	QMenu * _menuSettings;
 	QMenu * _menuHelp;
 

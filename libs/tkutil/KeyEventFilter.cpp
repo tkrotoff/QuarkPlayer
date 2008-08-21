@@ -39,6 +39,7 @@ bool KeyPressEventFilter::eventFilter(QObject * watched, QEvent * event) {
 	return EventFilter::eventFilter(watched, event);
 }
 
+
 KeyReleaseEventFilter::KeyReleaseEventFilter(QObject * receiver, const char * member, Qt::Key key, bool filter)
 	: EventFilter(receiver, member, filter),
 	_key(key) {

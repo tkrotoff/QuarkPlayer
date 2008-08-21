@@ -29,6 +29,8 @@
 
 #include <tkutil/ActionCollection.h>
 #include <tkutil/TkFileDialog.h>
+#include <tkutil/LanguageChangeEventFilter.h>
+#include <tkutil/TkIcon.h>
 
 #include <phonon/audiooutput.h>
 #include <phonon/volumeslider.h>
@@ -47,12 +49,16 @@ PluginInterface * MediaControllerFactory::create(QuarkPlayer & quarkPlayer) cons
 }
 
 MediaController::MediaController(QuarkPlayer & quarkPlayer)
-	: QObject(NULL),
+	: QWidget(NULL),
 	PluginInterface(quarkPlayer) {
+
+	populateActionCollection();
 
 	_mainWindow = &(quarkPlayer.mainWindow());
 	connect(_mainWindow, SIGNAL(subtitleFileDropped(const QString &)),
 		SLOT(openSubtitleFile(const QString &)));
+
+	addMenusToMainWindow();
 
 	//Media controller toolbar
 	_toolBar = new MediaControllerToolBar();
@@ -64,9 +70,77 @@ MediaController::MediaController(QuarkPlayer & quarkPlayer)
 
 	connect(ActionCollection::action("openSubtitleFile"), SIGNAL(triggered()),
 		SLOT(openSubtitleFile()));
+
+	RETRANSLATE(this);
+	retranslate();
 }
 
 MediaController::~MediaController() {
+}
+
+void MediaController::populateActionCollection() {
+	QCoreApplication * app = QApplication::instance();
+
+	ActionCollection::addAction("openSubtitleFile", new QAction(app));
+}
+
+void MediaController::addMenusToMainWindow() {
+	QMenuBar * menuBar = _mainWindow->menuBar();
+	if (!menuBar) {
+		qCritical() << __FUNCTION__ << "Error: MainWindow menu bar cannot be NULL";
+		return;
+	}
+
+	QAction * insertBeforeMenuSettings = _mainWindow->menuSettings()->menuAction();
+
+	_menuAudio = new QMenu();
+	menuBar->insertAction(insertBeforeMenuSettings, _menuAudio->menuAction());
+	_menuAudioChannels = new QMenu();
+	_menuAudioChannels->addAction(ActionCollection::action("emptyMenu"));
+	_menuAudio->addAction(_menuAudioChannels->menuAction());
+
+	_menuSubtitle = new QMenu();
+	menuBar->insertAction(insertBeforeMenuSettings, _menuSubtitle->menuAction());
+	_menuSubtitle->addAction(ActionCollection::action("openSubtitleFile"));
+	_menuSubtitles = new QMenu();
+	_menuSubtitles->addAction(ActionCollection::action("emptyMenu"));
+	_menuSubtitle->addAction(_menuSubtitles->menuAction());
+
+	_menuBrowse = new QMenu();
+	menuBar->insertAction(insertBeforeMenuSettings, _menuBrowse->menuAction());
+	_menuTitles = new QMenu();
+	_menuTitles->addAction(ActionCollection::action("emptyMenu"));
+	_menuBrowse->addAction(_menuTitles->menuAction());
+	_menuChapters = new QMenu();
+	_menuChapters->addAction(ActionCollection::action("emptyMenu"));
+	_menuBrowse->addAction(_menuChapters->menuAction());
+	_menuAngles = new QMenu();
+	_menuAngles->addAction(ActionCollection::action("emptyMenu"));
+	_menuBrowse->addAction(_menuAngles->menuAction());
+}
+
+void MediaController::retranslate() {
+	qDebug() << __FUNCTION__;
+
+	ActionCollection::action("openSubtitleFile")->setText(tr("&Open Subtitle..."));
+	ActionCollection::action("openSubtitleFile")->setIcon(TkIcon("document-open"));
+
+	_menuAudioChannels->setTitle(tr("&Audio Channels"));
+	_menuAudioChannels->setIcon(TkIcon("audio-x-generic"));
+
+	_menuSubtitles->setTitle(tr("&Subtitles"));
+	_menuSubtitles->setIcon(TkIcon("format-text-underline"));
+
+	_menuTitles->setTitle(tr("&Title"));
+	_menuTitles->setIcon(TkIcon("format-list-ordered"));
+
+	_menuChapters->setTitle(tr("&Chapter"));
+	_menuChapters->setIcon(TkIcon("x-office-address-book"));
+
+	_menuAngles->setTitle(tr("&Angle"));
+	_menuAudio->setTitle(tr("&Audio"));
+	_menuSubtitle->setTitle(tr("&Subtitle"));
+	_menuBrowse->setTitle(tr("&Browse"));
 }
 
 void MediaController::openSubtitleFile() {
@@ -76,11 +150,11 @@ void MediaController::openSubtitleFile() {
 		tr("All Files") + " (*)"
 	);
 
-	if (QFile::exists(filename)) {
+	if (!filename.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
-	}
 
-	openSubtitleFile(filename);
+		openSubtitleFile(filename);
+	}
 }
 
 void MediaController::openSubtitleFile(const QString & subtitleFile) {
@@ -125,17 +199,17 @@ void MediaController::availableAudioChannelsChanged() {
 	QSignalMapper * signalMapper = new QSignalMapper(this);
 
 	QList<Phonon::AudioChannelDescription> audios = _mediaController->availableAudioChannels();
-	removeAllAction(_mainWindow->menuAudioChannels());
+	removeAllAction(_menuAudioChannels);
 	removeAllAction(_toolBar->menuAudioChannels());
 	if (audios.isEmpty()) {
-		_mainWindow->menuAudioChannels()->addAction(ActionCollection::action("emptyMenu"));
+		_menuAudioChannels->addAction(ActionCollection::action("emptyMenu"));
 		_toolBar->menuAudioChannels()->addAction(ActionCollection::action("emptyMenu"));
 	}
 
 	for (int i = 0; i < audios.size(); i++) {
 		QString audioChannelText(audios[i].name() + " " + audios[i].description());
 
-		QAction * actionMainWindow = _mainWindow->menuAudioChannels()->addAction(audioChannelText, signalMapper, SLOT(map()));
+		QAction * actionMainWindow = _menuAudioChannels->addAction(audioChannelText, signalMapper, SLOT(map()));
 		actionMainWindow->setCheckable(true);
 		actionGroupMainWindow->addAction(actionMainWindow);
 		signalMapper->setMapping(actionMainWindow, i);
@@ -155,7 +229,7 @@ void MediaController::availableAudioChannelsChanged() {
 
 	//Sets the current audio channel
 	if (!audios.isEmpty()) {
-		_mainWindow->menuAudioChannels()->actions()[0]->setChecked(true);
+		_menuAudioChannels->actions()[0]->setChecked(true);
 		_toolBar->menuAudioChannels()->actions()[0]->setChecked(true);
 	}
 }
@@ -176,17 +250,17 @@ void MediaController::availableSubtitlesChanged() {
 	QSignalMapper * signalMapper = new QSignalMapper(this);
 
 	QList<Phonon::SubtitleDescription> subtitles = _mediaController->availableSubtitles();
-	removeAllAction(_mainWindow->menuSubtitles());
+	removeAllAction(_menuSubtitles);
 	removeAllAction(_toolBar->menuSubtitles());
 	if (subtitles.isEmpty()) {
-		_mainWindow->menuSubtitles()->addAction(ActionCollection::action("emptyMenu"));
+		_menuSubtitles->addAction(ActionCollection::action("emptyMenu"));
 		_toolBar->menuSubtitles()->addAction(ActionCollection::action("emptyMenu"));
 	}
 
 	for (int i = 0; i < subtitles.size(); i++) {
 		QString subtitleText(subtitles[i].name() + " " + subtitles[i].description());
 
-		QAction * actionMainWindow = _mainWindow->menuSubtitles()->addAction(subtitleText, signalMapper, SLOT(map()));
+		QAction * actionMainWindow = _menuSubtitles->addAction(subtitleText, signalMapper, SLOT(map()));
 		actionMainWindow->setCheckable(true);
 		actionGroupMainWindow->addAction(actionMainWindow);
 		signalMapper->setMapping(actionMainWindow, i);
@@ -206,7 +280,7 @@ void MediaController::availableSubtitlesChanged() {
 
 	//Sets the current subtitle
 	if (!subtitles.isEmpty()) {
-		_mainWindow->menuSubtitles()->actions()[0]->setChecked(true);
+		_menuSubtitles->actions()[0]->setChecked(true);
 		_toolBar->menuSubtitles()->actions()[0]->setChecked(true);
 	}
 }
@@ -226,13 +300,13 @@ void MediaController::availableTitlesChanged() {
 
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 	QList<Phonon::TitleDescription> titles = _mediaController->availableTitles2();
-	removeAllAction(_mainWindow->menuTitles());
+	removeAllAction(_menuTitles);
 	if (titles.isEmpty()) {
-		_mainWindow->menuTitles()->addAction(ActionCollection::action("emptyMenu"));
+		_menuTitles->addAction(ActionCollection::action("emptyMenu"));
 	}
 
 	for (int i = 0; i < titles.size(); i++) {
-		QAction * action = _mainWindow->menuTitles()->addAction(titles[i].name() + " " + titles[i].description(), signalMapper, SLOT(map()));
+		QAction * action = _menuTitles->addAction(titles[i].name() + " " + titles[i].description(), signalMapper, SLOT(map()));
 		connect(action, SIGNAL(triggered(bool)), action, SLOT(setChecked(bool)));
 		action->setCheckable(true);
 		actionGroup->addAction(action);
@@ -240,13 +314,13 @@ void MediaController::availableTitlesChanged() {
 	}
 #else
 	int titles = _mediaController->availableTitles();
-	removeAllAction(_mainWindow->menuTitles());
+	removeAllAction(_menuTitles);
 	if (titles == 0) {
-		_mainWindow->menuTitles()->addAction(ActionCollection::action("emptyMenu"));
+		_menuTitles->addAction(ActionCollection::action("emptyMenu"));
 	}
 
 	for (int i = 0; i < titles; i++) {
-		QAction * action = _mainWindow->menuTitles()->addAction(QString::number(i), signalMapper, SLOT(map()));
+		QAction * action = _menuTitles->addAction(QString::number(i), signalMapper, SLOT(map()));
 		connect(action, SIGNAL(triggered(bool)), action, SLOT(setChecked(bool)));
 		action->setCheckable(true);
 		actionGroup->addAction(action);
@@ -259,12 +333,12 @@ void MediaController::availableTitlesChanged() {
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 	//Sets the current title
 	if (!titles.isEmpty()) {
-		_mainWindow->menuTitles()->actions()[0]->setChecked(true);
+		_menuTitles->actions()[0]->setChecked(true);
 	}
 #else
 	//Sets the current title
 	if (titles > 0) {
-		_mainWindow->menuTitles()->actions()[0]->setChecked(true);
+		_menuTitles->actions()[0]->setChecked(true);
 	}
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 }
@@ -288,13 +362,13 @@ void MediaController::availableChaptersChanged() {
 
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 	QList<Phonon::ChapterDescription> chapters = _mediaController->availableChapters2();
-	removeAllAction(_mainWindow->menuChapters());
+	removeAllAction(_menuChapters);
 	if (chapters.isEmpty()) {
-		_mainWindow->menuChapters()->addAction(ActionCollection::action("emptyMenu"));
+		_menuChapters->addAction(ActionCollection::action("emptyMenu"));
 	}
 
 	for (int i = 0; i < chapters.size(); i++) {
-		QAction * action = _mainWindow->menuChapters()->addAction(chapters[i].name() + " " + chapters[i].description(), signalMapper, SLOT(map()));
+		QAction * action = _menuChapters->addAction(chapters[i].name() + " " + chapters[i].description(), signalMapper, SLOT(map()));
 		connect(action, SIGNAL(triggered(bool)), action, SLOT(setChecked(bool)));
 		action->setCheckable(true);
 		actionGroup->addAction(action);
@@ -302,13 +376,13 @@ void MediaController::availableChaptersChanged() {
 	}
 #else
 	int chapters = _mediaController->availableChapters();
-	removeAllAction(_mainWindow->menuChapters());
+	removeAllAction(_menuChapters);
 	if (chapters == 0) {
-		_mainWindow->menuChapters()->addAction(ActionCollection::action("emptyMenu"));
+		_menuChapters->addAction(ActionCollection::action("emptyMenu"));
 	}
 
 	for (int i = 0; i < chapters; i++) {
-		QAction * action = _mainWindow->menuChapters()->addAction(QString::number(i), signalMapper, SLOT(map()));
+		QAction * action = _menuChapters->addAction(QString::number(i), signalMapper, SLOT(map()));
 		connect(action, SIGNAL(triggered(bool)), action, SLOT(setChecked(bool)));
 		action->setCheckable(true);
 		actionGroup->addAction(action);
@@ -321,12 +395,12 @@ void MediaController::availableChaptersChanged() {
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 	//Sets the current chapter
 	if (!chapters.isEmpty()) {
-		_mainWindow->menuChapters()->actions()[0]->setChecked(true);
+		_menuChapters->actions()[0]->setChecked(true);
 	}
 #else
 	//Sets the current chapter
 	if (chapters > 0) {
-		_mainWindow->menuChapters()->actions()[0]->setChecked(true);
+		_menuChapters->actions()[0]->setChecked(true);
 	}
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 }
@@ -351,13 +425,13 @@ void MediaController::availableAnglesChanged() {
 	QSignalMapper * signalMapper = new QSignalMapper(this);
 
 	int angles = _mediaController->availableAngles();
-	removeAllAction(_mainWindow->menuAngles());
+	removeAllAction(_menuAngles);
 	if (angles == 0) {
-		_mainWindow->menuAngles()->addAction(ActionCollection::action("emptyMenu"));
+		_menuAngles->addAction(ActionCollection::action("emptyMenu"));
 	}
 
 	for (int i = 0; i < angles; i++) {
-		QAction * action = _mainWindow->menuAngles()->addAction(QString::number(i), signalMapper, SLOT(map()));
+		QAction * action = _menuAngles->addAction(QString::number(i), signalMapper, SLOT(map()));
 		connect(action, SIGNAL(triggered(bool)), action, SLOT(setChecked(bool)));
 		action->setCheckable(true);
 		actionGroup->addAction(action);
@@ -370,7 +444,7 @@ void MediaController::availableAnglesChanged() {
 	//Sets the current angle
 	if (angles > 0) {
 		qDebug() << _mediaController->currentAngle();
-		_mainWindow->menuAngles()->actions()[0]->setChecked(true);
+		_menuAngles->actions()[0]->setChecked(true);
 	}
 }
 

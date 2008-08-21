@@ -161,11 +161,9 @@ void MainWindow::playFile() {
 		tr("All Files") + " (*)"
 	);
 
-	if (QFile::exists(filename)) {
-		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
-	}
-
 	if (!filename.isEmpty()) {
+		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
+
 		play(filename);
 	}
 }
@@ -226,9 +224,9 @@ void MainWindow::updateWindowTitle() {
 	QString title = quarkPlayer().currentMediaObjectTitle();
 
 	if (title.isEmpty()) {
-		setWindowTitle(QCoreApplication::applicationName());
+		setWindowTitle(QCoreApplication::applicationName() + "-" + QString(QUARKPLAYER_VERSION));
 	} else {
-		setWindowTitle(title + " - " + QCoreApplication::applicationName() + " ");
+		setWindowTitle(title + " - " + QCoreApplication::applicationName());
 	}
 }
 
@@ -256,7 +254,6 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("newMediaObject", new QAction(app));
 	ActionCollection::addAction("equalizer", new QAction(app));
 	ActionCollection::addAction("configure", new QAction(app));
-	ActionCollection::addAction("openSubtitleFile", new QAction(app));
 	ActionCollection::addAction("clearRecentFiles", new QAction(app));
 	ActionCollection::addAction("emptyMenu", new QAction(app));
 
@@ -299,31 +296,6 @@ void MainWindow::setupUi() {
 	_menuPlay->addSeparator();
 	_menuPlay->addAction(ActionCollection::action("newMediaObject"));
 
-	_menuAudio = new QMenu();
-	menuBar()->addAction(_menuAudio->menuAction());
-	_menuAudioChannels = new QMenu();
-	_menuAudioChannels->addAction(ActionCollection::action("emptyMenu"));
-	_menuAudio->addAction(_menuAudioChannels->menuAction());
-
-	_menuSubtitle = new QMenu();
-	menuBar()->addAction(_menuSubtitle->menuAction());
-	_menuSubtitle->addAction(ActionCollection::action("openSubtitleFile"));
-	_menuSubtitles = new QMenu();
-	_menuSubtitles->addAction(ActionCollection::action("emptyMenu"));
-	_menuSubtitle->addAction(_menuSubtitles->menuAction());
-
-	_menuBrowse = new QMenu();
-	menuBar()->addAction(_menuBrowse->menuAction());
-	_menuTitles = new QMenu();
-	_menuTitles->addAction(ActionCollection::action("emptyMenu"));
-	_menuBrowse->addAction(_menuTitles->menuAction());
-	_menuChapters = new QMenu();
-	_menuChapters->addAction(ActionCollection::action("emptyMenu"));
-	_menuBrowse->addAction(_menuChapters->menuAction());
-	_menuAngles = new QMenu();
-	_menuAngles->addAction(ActionCollection::action("emptyMenu"));
-	_menuBrowse->addAction(_menuAngles->menuAction());
-
 	_menuSettings = new QMenu();
 	menuBar()->addAction(_menuSettings->menuAction());
 	_menuSettings->addAction(ActionCollection::action("equalizer"));
@@ -348,7 +320,7 @@ void MainWindow::setupUi() {
 }
 
 void MainWindow::retranslate() {
-	setWindowTitle(QCoreApplication::applicationName() + "-" + QString(QUARKPLAYER_VERSION));
+	updateWindowTitle();
 	setWindowIcon(QIcon(":/icons/hi16-app-quarkplayer.png"));
 
 	ActionCollection::action("playFile")->setText(tr("Play &File..."));
@@ -381,9 +353,6 @@ void MainWindow::retranslate() {
 	ActionCollection::action("configure")->setText(tr("&Configure QuarkPlayer..."));
 	ActionCollection::action("configure")->setIcon(TkIcon("preferences-system"));
 
-	ActionCollection::action("openSubtitleFile")->setText(tr("&Open Subtitle..."));
-	ActionCollection::action("openSubtitleFile")->setIcon(TkIcon("document-open"));
-
 	ActionCollection::action("clearRecentFiles")->setText(tr("&Clear"));
 	ActionCollection::action("clearRecentFiles")->setIcon(TkIcon("edit-delete"));
 
@@ -396,24 +365,8 @@ void MainWindow::retranslate() {
 	_menuRecentFiles->setTitle(tr("&Recent Files"));
 	_menuRecentFiles->setIcon(TkIcon("document-open-recent"));
 
-	_menuAudioChannels->setTitle(tr("&Audio Channels"));
-	_menuAudioChannels->setIcon(TkIcon("audio-x-generic"));
-
-	_menuSubtitles->setTitle(tr("&Subtitles"));
-	_menuSubtitles->setIcon(TkIcon("format-text-underline"));
-
-	_menuTitles->setTitle(tr("&Title"));
-	_menuTitles->setIcon(TkIcon("format-list-ordered"));
-
-	_menuChapters->setTitle(tr("&Chapter"));
-	_menuChapters->setIcon(TkIcon("x-office-address-book"));
-
-	_menuAngles->setTitle(tr("&Angle"));
 	_menuFile->setTitle(tr("&File"));
 	_menuPlay->setTitle(tr("&Play"));
-	_menuAudio->setTitle(tr("&Audio"));
-	_menuSubtitle->setTitle(tr("&Subtitle"));
-	_menuBrowse->setTitle(tr("&Browse"));
 	_menuSettings->setTitle(tr("&Settings"));
 	_menuHelp->setTitle(tr("&Help"));
 
@@ -436,24 +389,20 @@ void MainWindow::retranslate() {
 	ActionCollection::action("fullScreen")->setIcon(TkIcon("view-fullscreen"));
 }
 
-QMenu * MainWindow::menuAudioChannels() const {
-	return _menuAudioChannels;
+QMenu * MainWindow::menuFile() const {
+	return _menuFile;
 }
 
-QMenu * MainWindow::menuSubtitles() const {
-	return _menuSubtitles;
+QMenu * MainWindow::menuPlay() const {
+	return _menuPlay;
 }
 
-QMenu * MainWindow::menuTitles() const {
-	return _menuTitles;
+QMenu * MainWindow::menuSettings() const {
+	return _menuSettings;
 }
 
-QMenu * MainWindow::menuChapters() const {
-	return _menuChapters;
-}
-
-QMenu * MainWindow::menuAngles() const {
-	return _menuAngles;
+QMenu * MainWindow::menuHelp() const {
+	return _menuHelp;
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent * event) {

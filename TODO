@@ -32,6 +32,7 @@
 - buy a Mac and port QuarkPlayer
 
 == GUI ==
+- make mediacontroller add its own menus inside MainWindow
 
 == TagLib ==
 - allow tag editing/writing
@@ -47,6 +48,7 @@
 - add profiles (audio, video...) ala Konqueror
 - implement a systray menu
 - implement shortcuts dialog
+- fix drag&drop inside MainWindow + command line
 
 == Future ==
 - add music visualization

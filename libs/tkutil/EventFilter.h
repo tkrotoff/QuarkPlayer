@@ -44,6 +44,9 @@ class QEvent;
  * If you want to filter the event out, i.e. stop it being handled further,
  * return true; otherwise return false.
  *
+ * Be careful to install an event filter on a QWidget, not a QObject,
+ * otherwise you won't receive any event (QObject has no event, QWidget has)
+ *
  * @see QObject::installEventFilter()
  * @see QObject::eventFilter()
  * @author Tanguy Krotoff

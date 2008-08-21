@@ -21,7 +21,7 @@
 
 #include <quarkplayer/PluginInterface.h>
 
-#include <QtCore/QObject>
+#include <QtGui/QWidget>
 
 class MediaControllerToolBar;
 
@@ -33,15 +33,19 @@ namespace Phonon {
 	class MediaObject;
 }
 
+class QMenu;
+
 /**
  * Handles Phonon::MediaController.
  *
  * Handles subtitles, audio channels, angles...
  *
+ * Inherits from QWidget instead of QObject, otherwise retranslate() does not work.
+ *
  * @see Phonon::MediaController
  * @author Tanguy Krotoff
  */
-class MediaController : public QObject, public PluginInterface {
+class MediaController : public QWidget, public PluginInterface {
 	Q_OBJECT
 public:
 
@@ -71,7 +75,13 @@ private slots:
 
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
 
+	void retranslate();
+
 private:
+
+	void populateActionCollection();
+
+	void addMenusToMainWindow();
 
 	/** Code factorization. */
 	static void removeAllAction(QObject * object);
@@ -81,6 +91,15 @@ private:
 	MediaControllerToolBar * _toolBar;
 
 	Phonon::MediaController * _mediaController;
+
+	QMenu * _menuAudioChannels;
+	QMenu * _menuSubtitles;
+	QMenu * _menuTitles;
+	QMenu * _menuChapters;
+	QMenu * _menuAngles;
+	QMenu * _menuAudio;
+	QMenu * _menuSubtitle;
+	QMenu * _menuBrowse;
 };
 
 #include <quarkplayer/PluginFactory.h>

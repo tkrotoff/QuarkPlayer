@@ -240,8 +240,12 @@ void PlaylistWidget::retranslate() {
 void PlaylistWidget::addFiles() {
 	QStringList files = TkFileDialog::getOpenFileNames(this, tr("Select Audio/Video Files"), Config::instance().lastDirectoryUsed());
 
-	_playlistModel->addFiles(files);
-	_playlistModel->saveCurrentPlaylist();
+	if (!files.isEmpty()) {
+		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(files[0]).absolutePath());
+
+		_playlistModel->addFiles(files);
+		_playlistModel->saveCurrentPlaylist();
+	}
 }
 
 void PlaylistWidget::addDir() {
@@ -275,9 +279,11 @@ void PlaylistWidget::addURL() {
 }
 
 void PlaylistWidget::openPlaylist() {
-	QString file = TkFileDialog::getOpenFileName(this, tr("Select Playlist File"), Config::instance().lastDirectoryUsed());
-	if (!file.isEmpty()) {
-		PlaylistParser parser(file);
+	QString filename = TkFileDialog::getOpenFileName(this, tr("Select Playlist File"), Config::instance().lastDirectoryUsed());
+	if (!filename.isEmpty()) {
+		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
+
+		PlaylistParser parser(filename);
 		connect(&parser, SIGNAL(filesFound(const QStringList &)),
 			SLOT(parserFilesFound(const QStringList &)));
 		connect(&parser, SIGNAL(finished()),
@@ -293,9 +299,11 @@ void PlaylistWidget::parserFilesFound(const QStringList & files) {
 }
 
 void PlaylistWidget::savePlaylist() {
-	QString file = TkFileDialog::getSaveFileName(this, tr("Save Playlist File"), Config::instance().lastDirectoryUsed());
-	if (!file.isEmpty()) {
-		PlaylistParser parser(file);
+	QString filename = TkFileDialog::getSaveFileName(this, tr("Save Playlist File"), Config::instance().lastDirectoryUsed());
+	if (!filename.isEmpty()) {
+		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
+
+		PlaylistParser parser(filename);
 		parser.save(_playlistModel->files());
 	}
 }

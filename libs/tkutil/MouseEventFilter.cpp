@@ -35,6 +35,7 @@ bool MouseMoveEventFilter::eventFilter(QObject * watched, QEvent * event) {
 	return EventFilter::eventFilter(watched, event);
 }
 
+
 MousePressEventFilter::MousePressEventFilter(QObject * receiver, const char * member, Qt::MouseButton button, bool filter)
 	: EventFilter(receiver, member, filter),
 	_button(button) {
@@ -50,6 +51,7 @@ bool MousePressEventFilter::eventFilter(QObject * watched, QEvent * event) {
 	}
 	return EventFilter::eventFilter(watched, event);
 }
+
 
 MouseReleaseEventFilter::MouseReleaseEventFilter(QObject * receiver, const char * member, Qt::MouseButton button, bool filter)
 	: EventFilter(receiver, member, filter),
@@ -67,6 +69,7 @@ bool MouseReleaseEventFilter::eventFilter(QObject * watched, QEvent * event) {
 	return EventFilter::eventFilter(watched, event);
 }
 
+
 MouseEnterEventFilter::MouseEnterEventFilter(QObject * receiver, const char * member, bool filter)
 	: EventFilter(receiver, member, false) {
 }
@@ -77,6 +80,7 @@ bool MouseEnterEventFilter::eventFilter(QObject * watched, QEvent * event) {
 	}
 	return EventFilter::eventFilter(watched, event);
 }
+
 
 MouseLeaveEventFilter::MouseLeaveEventFilter(QObject * receiver, const char * member, bool filter)
 	: EventFilter(receiver, member, filter) {
