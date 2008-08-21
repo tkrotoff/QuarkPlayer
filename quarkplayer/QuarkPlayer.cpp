@@ -60,22 +60,25 @@ Phonon::MediaObject * QuarkPlayer::currentMediaObject() const {
 }
 
 QString QuarkPlayer::currentMediaObjectTitle() const {
-	QMultiMap<QString, QString> metaData = _currentMediaObject->metaData();
-
 	QString fullTitle;
-	QString artist = metaData.value("ARTIST");
-	QString title = metaData.value("TITLE");
-	if (artist.isEmpty() && title.isEmpty()) {
-		fullTitle = TkFile::removeFileExtension(TkFile::fileName(_currentMediaObject->currentSource().fileName()));
-	} else {
-		if (!title.isEmpty()) {
-			fullTitle = title;
-		}
-		if (!artist.isEmpty()) {
-			if (!fullTitle.isEmpty()) {
-				fullTitle += " - ";
+
+	if (_currentMediaObject) {
+		QMultiMap<QString, QString> metaData = _currentMediaObject->metaData();
+
+		QString artist = metaData.value("ARTIST");
+		QString title = metaData.value("TITLE");
+		if (artist.isEmpty() && title.isEmpty()) {
+			fullTitle = TkFile::removeFileExtension(TkFile::fileName(_currentMediaObject->currentSource().fileName()));
+		} else {
+			if (!title.isEmpty()) {
+				fullTitle = title;
 			}
-			fullTitle += artist;
+			if (!artist.isEmpty()) {
+				if (!fullTitle.isEmpty()) {
+					fullTitle += " - ";
+				}
+				fullTitle += artist;
+			}
 		}
 	}
 

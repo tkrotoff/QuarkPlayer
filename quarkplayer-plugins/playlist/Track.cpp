@@ -29,6 +29,10 @@
 Track::Track(const QString & filename) {
 	_filename = filename;
 
+	//This avoid a stupid bug: comparing a filename with \ separator and another with /
+	//By replacing any \ by /, when don't have any comparison problem
+	_filename.replace("\\", "/");
+
 	//Optimization: don't do that because it is slow
 	//to construct a Phonon::MediaSource
 	//setMediaSource(filename);

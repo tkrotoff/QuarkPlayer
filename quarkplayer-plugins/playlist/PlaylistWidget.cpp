@@ -238,7 +238,14 @@ void PlaylistWidget::retranslate() {
 }
 
 void PlaylistWidget::addFiles() {
-	QStringList files = TkFileDialog::getOpenFileNames(this, tr("Select Audio/Video Files"), Config::instance().lastDirectoryUsed());
+	QStringList files = TkFileDialog::getOpenFileNames(
+		this, tr("Select Audio/Video Files"), Config::instance().lastDirectoryUsed(),
+		tr("Multimedia") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video, FileType::Audio)) + ";;" +
+		tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video)) +";;" +
+		tr("Audio") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Audio)) +";;" +
+		tr("Playlist") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Playlist)) + ";;" +
+		tr("All Files") + " (*)"
+	);
 
 	if (!files.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(files[0]).absolutePath());
@@ -279,7 +286,12 @@ void PlaylistWidget::addURL() {
 }
 
 void PlaylistWidget::openPlaylist() {
-	QString filename = TkFileDialog::getOpenFileName(this, tr("Select Playlist File"), Config::instance().lastDirectoryUsed());
+	QString filename = TkFileDialog::getOpenFileName(
+		this, tr("Select Playlist File"), Config::instance().lastDirectoryUsed(),
+		tr("Playlist") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Playlist)) + ";;" +
+		tr("All Files") + " (*)"
+	);
+
 	if (!filename.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
 
@@ -299,7 +311,12 @@ void PlaylistWidget::parserFilesFound(const QStringList & files) {
 }
 
 void PlaylistWidget::savePlaylist() {
-	QString filename = TkFileDialog::getSaveFileName(this, tr("Save Playlist File"), Config::instance().lastDirectoryUsed());
+	QString filename = TkFileDialog::getSaveFileName(
+		this, tr("Save Playlist File"), Config::instance().lastDirectoryUsed(),
+		tr("Playlist") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Playlist)) + ";;" +
+		tr("All Files") + " (*)"
+	);
+
 	if (!filename.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
 
