@@ -65,6 +65,14 @@ public:
 	 */
 	static QString toFilterFormat(const QStringList & extensions);
 
+	/**
+	 * When getting the save file dialog, we need a file format filter.
+	 *
+	 * @param defaultExtension the default extension that will be first in the list for QFileDialog
+	 * @see QFileDialog
+	 */
+	static QString toSaveFilterFormat(const QStringList & extensions, const QString & defaultExtension = QString());
+
 private:
 
 	FileTypes();

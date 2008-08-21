@@ -18,20 +18,12 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(filebrowser MODULE ${filebrowser_SRCS})
 
-if (KDE4_FOUND)
-	target_link_libraries(filebrowser
-		quarkplayercore
-		${KDE4_KDECORE_LIBS}
-		${KDE4_KDEUI_LIBS}
-		${KDE4_KIO_LIBS}
-	)
-else (KDE4_FOUND)
-	target_link_libraries(filebrowser
-		quarkplayercore
-		${QT_QTCORE_LIBRARY}
-		${QT_QTGUI_LIBRARY}
-	)
-endif (KDE4_FOUND)
+target_link_libraries(filebrowser
+	quarkplayercore
+	filetypes
+	${QT_QTCORE_LIBRARY}
+	${QT_QTGUI_LIBRARY}
+)
 
 #Translations
 add_qt_translations(${filebrowser_SRCS})

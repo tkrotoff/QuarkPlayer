@@ -27,6 +27,8 @@
 #include <quarkplayer/config/ConfigWindow.h>
 #include <quarkplayer/PluginManager.h>
 
+#include <filetypes/FileTypes.h>
+
 #include <tkutil/ActionCollection.h>
 #include <tkutil/TkIcon.h>
 #include <tkutil/TkFileDialog.h>
@@ -58,6 +60,13 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 
 	_treeView = new QTreeView();
 	_treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+	//Refresh action
+	connect(ActionCollection::action("fileBrowserRefresh"), SIGNAL(triggered()), _treeView, SLOT(refresh));
+	_treeView->addAction(ActionCollection::action("fileBrowserRefresh"));
+	_treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
+
 	layout->addWidget(_treeView);
 
 	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
@@ -120,17 +129,24 @@ void FileBrowserWidget::populateActionCollection() {
 	ActionCollection::addAction("fileBrowserBrowse", new QAction(app));
 
 	ActionCollection::addAction("fileBrowserNew", new QAction(app));
+
+	ActionCollection::addAction("fileBrowserRefresh", new QAction(app));
+}
+
+QStringList FileBrowserWidget::nameFilters() const {
+	static QStringList tmp;
+	if (tmp.isEmpty()) {
+		QStringList extensions(FileTypes::extensions(FileType::Video, FileType::Audio));
+		extensions << FileTypes::extensions(FileType::Playlist);
+		foreach (QString ext, extensions) {
+			tmp << "*." + ext;
+		}
+	}
+	return tmp;
 }
 
 void FileBrowserWidget::loadDirModel() {
-	QStringList nameFilters;
-	/*
-	Does not work...
-	foreach (QString ext, FileExtensions::multimedia()) {
-		nameFilters << "*." + ext;
-	}*/
-	nameFilters << "*";
-	_dirModel = new SimpleDirModel(nameFilters);
+	_dirModel = new SimpleDirModel(nameFilters());
 	_treeView->setModel(_dirModel);
 	_treeView->setHeaderHidden(true);
 
@@ -162,16 +178,14 @@ void FileBrowserWidget::doubleClicked(const QModelIndex & index) {
 void FileBrowserWidget::search() {
 	QString pattern(_searchLineEdit->text().trimmed());
 
-	QStringList nameFilters;
 	if (pattern.isEmpty()) {
-		nameFilters << "*";
+		_dirModel->setNameFilters(nameFilters());
 		_clearSearchButton->setEnabled(false);
 	} else {
-		nameFilters << "*" + pattern + "*";
+		QStringList(QString("*" + pattern + "*"));
 		_clearSearchButton->setEnabled(true);
 	}
 
-	_dirModel->setNameFilters(nameFilters);
 	_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
 }
 
@@ -208,6 +222,9 @@ void FileBrowserWidget::retranslate() {
 
 	ActionCollection::action("fileBrowserNew")->setText(tr("New File Browser Window"));
 	ActionCollection::action("fileBrowserNew")->setIcon(TkIcon("preferences-system-windows"));
+
+	ActionCollection::action("fileBrowserRefresh")->setText(tr("Refresh"));
+	ActionCollection::action("fileBrowserRefresh")->setIcon(TkIcon("view-refresh"));
 
 	_toolBar->setMinimumSize(_toolBar->sizeHint());
 

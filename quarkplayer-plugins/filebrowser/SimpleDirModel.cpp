@@ -23,7 +23,7 @@
 SimpleDirModel::SimpleDirModel(const QStringList & nameFilters)
 	: QDirModel(
 		nameFilters,
-		QDir::AllEntries | QDir::NoDotAndDotDot,
+		QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot,
 		QDir::Name | QDir::DirsFirst
 	) {
 

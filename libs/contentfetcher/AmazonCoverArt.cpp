@@ -66,11 +66,15 @@ bool AmazonCoverArt::start(const Track & track, const QString & locale) {
 	}
 
 	_album = track.album;
-	_album.replace(QRegExp("[[(<{].+"), QString()).trimmed();
-	_album.replace("-", QString()).trimmed();
+	_album.replace(QRegExp("[[(<{].+"), QString());
+	_album = _album.trimmed();
+	_album.replace("-", QString());
+	_album = _album.trimmed();
 	_artist = track.artist;
-	_artist.replace(QRegExp("[[(<{].+"), QString()).trimmed();
-	_artist.replace("-", QString()).trimmed();
+	_artist.replace(QRegExp("[[(<{].+"), QString());
+	_artist = _artist.trimmed();
+	_artist.replace("-", QString());
+	_album = _album.trimmed();
 
 	qDebug() << __FUNCTION__ << "Looking up for the album cover art";
 

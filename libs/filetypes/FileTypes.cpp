@@ -193,8 +193,25 @@ QString FileTypes::toFilterFormat(const QStringList & extensions) {
 	foreach (QString ext, extensions) {
 		tmp += "*." + ext + " ";
 	}
-	tmp.trimmed();
+	tmp = tmp.trimmed();
 	tmp.prepend(" (");
 	tmp.append(")");
+	qDebug() << __FUNCTION__ << tmp;
+	return tmp;
+}
+
+QString FileTypes::toSaveFilterFormat(const QStringList & extensions, const QString & defaultExtension) {
+	QString tmp;
+	foreach (QString ext, extensions) {
+		FileType type = fileType(ext);
+		QString name(type.fullName);
+		name.replace(QRegExp("\\(.*\\)"), QString());
+		name = name.trimmed();
+		if (ext != defaultExtension) {
+			tmp += name + " (*." + ext + ");;";
+		} else {
+			tmp.prepend(name + " (*." + ext + ");;");
+		}
+	}
 	return tmp;
 }

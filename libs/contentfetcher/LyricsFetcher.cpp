@@ -73,7 +73,7 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 	//Remove HTML comments + trim the resulting string
 	//This is due to malformed lyricwiki page
 	QString tmp(QString::fromUtf8(data));
-	tmp.replace(QRegExp("<!--.*-->"), "");
+	tmp.replace(QRegExp("<!--.*-->"), QString());
 	tmp = tmp.trimmed();
 
 	QStringList lines(tmp.split("\n"));
@@ -90,7 +90,7 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 				inLyrics = true;
 			}
 			if (line.left(2) == "==" && it.peekNext().trimmed() == "<lyric>") {
-				it.setValue("<br /><b>" + it.value().replace("=", "") + "</b>");
+				it.setValue("<br /><b>" + it.value().replace("=", QString()) + "</b>");
 				continue;
 			}
 			it.remove();

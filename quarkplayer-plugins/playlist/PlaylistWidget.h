@@ -71,6 +71,8 @@ private slots:
 
 	void retranslate();
 
+	void updateWindowTitle();
+
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
 
 	/** Create a new playlist widget that will add itself to the dockwidget. */

@@ -73,6 +73,8 @@ private:
 
 	void createToolBar();
 
+	QStringList nameFilters() const;
+
 	SimpleDirModel * _dirModel;
 
 	QTreeView * _treeView;

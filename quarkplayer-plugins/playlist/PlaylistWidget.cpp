@@ -57,6 +57,10 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 
 	//Model
 	_playlistModel = new PlaylistModel(this, quarkPlayer);
+	connect(_playlistModel, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
+		SLOT(updateWindowTitle()));
+	connect(_playlistModel, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
+		SLOT(updateWindowTitle()));
 
 	//Filter
 	_playlistFilter = new PlaylistFilter(this, _playlistModel);
@@ -233,8 +237,12 @@ void PlaylistWidget::retranslate() {
 	ActionCollection::action("playlistNew")->setIcon(TkIcon("preferences-system-windows"));
 
 	_toolBar->setMinimumSize(_toolBar->sizeHint());
+	updateWindowTitle();
+}
 
-	_dockWidget->setWindowTitle(tr("Playlist"));
+void PlaylistWidget::updateWindowTitle() {
+	QString nbItems(QString::number(_playlistModel->rowCount()));
+	_dockWidget->setWindowTitle(tr("Playlist") + " - " + nbItems + " " + tr("items"));
 }
 
 void PlaylistWidget::addFiles() {
@@ -244,7 +252,7 @@ void PlaylistWidget::addFiles() {
 		tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video)) +";;" +
 		tr("Audio") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Audio)) +";;" +
 		tr("Playlist") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Playlist)) + ";;" +
-		tr("All Files") + " (*)"
+		tr("All Files") + " (*.*)"
 	);
 
 	if (!files.isEmpty()) {
@@ -289,7 +297,7 @@ void PlaylistWidget::openPlaylist() {
 	QString filename = TkFileDialog::getOpenFileName(
 		this, tr("Select Playlist File"), Config::instance().lastDirectoryUsed(),
 		tr("Playlist") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Playlist)) + ";;" +
-		tr("All Files") + " (*)"
+		tr("All Files") + " (*.*)"
 	);
 
 	if (!filename.isEmpty()) {
@@ -311,10 +319,12 @@ void PlaylistWidget::parserFilesFound(const QStringList & files) {
 }
 
 void PlaylistWidget::savePlaylist() {
+	static const QString defaultFileExtension("m3u");
+
 	QString filename = TkFileDialog::getSaveFileName(
 		this, tr("Save Playlist File"), Config::instance().lastDirectoryUsed(),
-		tr("Playlist") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Playlist)) + ";;" +
-		tr("All Files") + " (*)"
+		FileTypes::toSaveFilterFormat(FileTypes::extensions(FileType::Playlist), defaultFileExtension) +
+		tr("All Files") + " (*.*)"
 	);
 
 	if (!filename.isEmpty()) {

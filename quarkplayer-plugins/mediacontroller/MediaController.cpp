@@ -147,7 +147,7 @@ void MediaController::openSubtitleFile() {
 	QString filename = TkFileDialog::getOpenFileName(
 		_mainWindow, tr("Select Subtitle File"), Config::instance().lastDirectoryUsed(),
 		tr("Subtitle") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Subtitle)) + ";;" +
-		tr("All Files") + " (*)"
+		tr("All Files") + " (*.*)"
 	);
 
 	if (!filename.isEmpty()) {

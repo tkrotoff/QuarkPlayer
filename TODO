@@ -39,8 +39,7 @@
 
 == General ==
 - fix quit problems
-- fix playlist when in search mode (was working before)
-- fix playlist search
+- fix playlist search, all My Music + chinese man + I've got that tune and wait...
 - fix several playlist mode
 - fix playlist open -> does not load the tags using TagLib
 - implement C findFiles() with scandir for a blazing fast playlist
