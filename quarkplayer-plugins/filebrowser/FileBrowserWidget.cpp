@@ -96,6 +96,13 @@ void FileBrowserWidget::createToolBar() {
 	_toolBar->setIconSize(QSize(16, 16));
 	layout()->addWidget(_toolBar);
 
+	//Browse button
+	QToolButton * browseButton = new QToolButton();
+	browseButton->setAutoRaise(true);
+	browseButton->setDefaultAction(ActionCollection::action("fileBrowserBrowse"));
+	_toolBar->addWidget(browseButton);
+	connect(browseButton, SIGNAL(clicked()), SLOT(configure()));
+
 	//Search toolbar
 	_searchLineEdit = new QLineEdit();
 	_toolBar->addWidget(_searchLineEdit);
@@ -105,13 +112,6 @@ void FileBrowserWidget::createToolBar() {
 	_clearSearchButton->setDefaultAction(ActionCollection::action("fileBrowserClearSearch"));
 	_toolBar->addWidget(_clearSearchButton);
 	connect(_clearSearchButton, SIGNAL(clicked()), _searchLineEdit, SLOT(clear()));
-
-	//Browse button
-	QToolButton * browseButton = new QToolButton();
-	browseButton->setAutoRaise(true);
-	browseButton->setDefaultAction(ActionCollection::action("fileBrowserBrowse"));
-	_toolBar->addWidget(browseButton);
-	connect(browseButton, SIGNAL(clicked()), SLOT(configure()));
 
 	//New file browser button
 	QToolButton * newFileBrowserButton = new QToolButton();

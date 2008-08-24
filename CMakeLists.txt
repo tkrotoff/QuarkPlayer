@@ -57,92 +57,15 @@ set(QT_PHONON_LIBRARY phonon)
 #Default installation path
 set(CMAKE_INSTALL_PREFIX ${BUILD_DIR})
 
-#Default paths
-set(INCLUDE_INSTALL_DIR include)
-set(BIN_INSTALL_DIR ".")
-set(LIB_INSTALL_DIR lib)
-set(PLUGIN_INSTALL_DIR ${BIN_INSTALL_DIR}/phonon_backend)
-set(INSTALL_TARGETS_DEFAULT_ARGS
-	RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-	LIBRARY DESTINATION ${BIN_INSTALL_DIR}
-#	ARCHIVE DESTINATION ${BIN_INSTALL_DIR}
-)
-
 if (WIN32)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/AUTHORS DESTINATION ".")
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/README DESTINATION ".")
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/THANKS DESTINATION ".")
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/COPYING DESTINATION ".")
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/COPYING.LESSER DESTINATION ".")
-
-	#Copy Qt toolkit dll
-	if (CMAKE_BUILD_TYPE STREQUAL Debug)
-		install(FILES ${QT_BINARY_DIR}/QtCored4.dll DESTINATION ${BIN_INSTALL_DIR})
-		install(FILES ${QT_BINARY_DIR}/QtGuid4.dll DESTINATION ${BIN_INSTALL_DIR})
-		install(FILES ${QT_BINARY_DIR}/QtNetworkd4.dll DESTINATION ${BIN_INSTALL_DIR})
-		#For phonon_ds9.dll, DirectShow backend
-		install(FILES ${QT_BINARY_DIR}/QtOpenGLd4.dll DESTINATION ${BIN_INSTALL_DIR})
-		install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qjpegd4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
-		install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qgifd4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
-	else (CMAKE_BUILD_TYPE STREQUAL Debug)
-		install(FILES ${QT_BINARY_DIR}/QtCore4.dll DESTINATION ${BIN_INSTALL_DIR})
-		install(FILES ${QT_BINARY_DIR}/QtGui4.dll DESTINATION ${BIN_INSTALL_DIR})
-		install(FILES ${QT_BINARY_DIR}/QtNetwork4.dll DESTINATION ${BIN_INSTALL_DIR})
-		install(FILES ${QT_BINARY_DIR}/QtOpenGL4.dll DESTINATION ${BIN_INSTALL_DIR})
-		install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qjpeg4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
-		install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qgif4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
-	endif (CMAKE_BUILD_TYPE STREQUAL Debug)
-
-	#Copy Qt toolkit translations
-	install(FILES ${QT_BINARY_DIR}/../translations/qt_fr.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
-	install(FILES ${QT_BINARY_DIR}/../translations/qt_de.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
-	install(FILES ${QT_BINARY_DIR}/../translations/qt_es.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
-	install(FILES ${QT_BINARY_DIR}/../translations/qt_uk.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
-
-	#Copy MPlayer build from SMPlayer
-	#Used by MPlayer Phonon backend
-	#SMPlayer' MPlayer build can be found at:
-	#http://smplayer.sourceforge.net/
-	#just install SMPlayer inside C:/Program Files/SMPlayer
-	set(MPLAYER_INSTALL_DIR "C:/Program Files/SMPlayer/mplayer")
-	if (EXISTS ${MPLAYER_INSTALL_DIR})
-		install(DIRECTORY ${MPLAYER_INSTALL_DIR} DESTINATION ${BIN_INSTALL_DIR})
-	endif (EXISTS ${MPLAYER_INSTALL_DIR})
-
-	if (MINGW)
-		#When compiled with MinGW, we need mingwm10.dll
-		install(FILES "C:/mingw/bin/mingwm10.dll" DESTINATION ${BIN_INSTALL_DIR})
-	else (MINGW)
-		if (MSVC80)
-			#No manifest for QuarkPlayer plugins,
-			#see http://lists.trolltech.com/qt-interest/2007-09/msg00790.html for good explanations
-			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /MANIFEST:NO")
-			set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /MANIFEST:NO")
-
-			if (CMAKE_BUILD_TYPE STREQUAL Debug)
-				#Copy Microsoft Visual C++ 2005 SP1 runtime
-				set(MSVC80CRT "C:/WINDOWS/WinSxS/x86_Microsoft.VC80.DebugCRT_1fc8b3b9a1e18e3b_8.0.50727.762_x-ww_5490cd9f")
-				if (EXISTS ${MSVC80CRT})
-					install(FILES ${MSVC80CRT}/msvcr80d.dll DESTINATION ${BIN_INSTALL_DIR})
-					install(FILES ${MSVC80CRT}/msvcp80d.dll DESTINATION ${BIN_INSTALL_DIR})
-				endif (EXISTS ${MSVC80CRT})
-
-				#Copy Microsoft Visual C++ 2005 SP1 manifest
-				install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/msvc8/Microsoft.VC80.DebugCRT.manifest DESTINATION ${BIN_INSTALL_DIR})
-			else (CMAKE_BUILD_TYPE STREQUAL Debug)
-				#Copy Microsoft Visual C++ 2005 SP1 runtime
-				set(MSVC80CRT "C:/WINDOWS/WinSxS/x86_Microsoft.VC80.CRT_1fc8b3b9a1e18e3b_8.0.50727.762_x-ww_6b128700")
-				if (EXISTS ${MSVC80CRT})
-					install(FILES ${MSVC80CRT}/msvcr80.dll DESTINATION ${BIN_INSTALL_DIR})
-					install(FILES ${MSVC80CRT}/msvcp80.dll DESTINATION ${BIN_INSTALL_DIR})
-				endif (EXISTS ${MSVC80CRT})
-
-				#Copy Microsoft Visual C++ 2005 SP1 manifest
-				install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/msvc8/Microsoft.VC80.CRT.manifest DESTINATION ${BIN_INSTALL_DIR})
-			endif (CMAKE_BUILD_TYPE STREQUAL Debug)
-		endif (MSVC80)
-	endif (MINGW)
+	include(CMakeLists-win32.txt)
 endif (WIN32)
+if (LINUX)
+	include(CMakeLists-linux.txt)
+endif (LINUX)
+if (APPLE)
+	include(CMakeLists-macos.txt)
+endif (APPLE)
 
 clear_qt_translations()
 
