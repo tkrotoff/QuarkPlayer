@@ -1,4 +1,4 @@
-# - loc_counter(path loc)
+# - loc_counter(path loc recursive)
 # Gets the LOC of a given path.
 #
 # Example:
@@ -6,7 +6,7 @@
 # message(${loc})
 #
 # Output generated:
-# 20070323121316
+# 4506
 #
 # Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
 #
@@ -18,17 +18,19 @@ macro (loc_counter path loc recursive)
 
 	message(STATUS "LOC ${path}...")
 
-	if (NOT QT4_FOUND)
-		find_package(Qt4 REQUIRED)
-	endif (NOT QT4_FOUND)
+	if (UNIX AND NOT WIN32)
+		set(flags
+			-DLINK_LIBRARIES=stdc++
+		)
+	endif (UNIX AND NOT WIN32)
 
 	try_run(
 		runResult
 		compileResult
 		${CMAKE_BINARY_DIR}
-		${CMAKE_SOURCE_DIR}/cmake/loc_counter.cpp
-		COMPILE_DEFINITIONS ${QT_DEFINITIONS} -DQT_NO_DEBUG -I${QT_INCLUDE_DIR}
-		CMAKE_FLAGS "-DLINK_LIBRARIES=${QT_QTCORE_LIBRARY}"
+		${CMAKE_SOURCE_DIR}/cmake/loc_counter/loc_counter.cpp
+		COMPILE_DEFINITIONS -I${CMAKE_SOURCE_DIR}/cmake/loc_counter
+		CMAKE_FLAGS ${flags}
 		COMPILE_OUTPUT_VARIABLE compileOutput
 		RUN_OUTPUT_VARIABLE ${loc}
 		ARGS
@@ -36,8 +38,9 @@ macro (loc_counter path loc recursive)
 			${recursive}
 	)
 
-	#message("runResult="${runResult})
 	#message("compileOutput="${compileOutput})
 	#message("compileResult="${compileResult})
+	#message("runResult="${runResult})
+	#message("runOutput="${${loc}})
 
 endmacro (loc_counter)

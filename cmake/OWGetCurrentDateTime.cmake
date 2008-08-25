@@ -29,7 +29,7 @@ macro (ow_get_current_date_time time)
 		runResult
 		compileResult
 		${CMAKE_BINARY_DIR}
-		${CMAKE_SOURCE_DIR}/cmake/getcurrentdatetime.cpp
+		${CMAKE_SOURCE_DIR}/cmake/get_current_datetime/get_current_datetime.cpp
 		CMAKE_FLAGS ${flags}
 		COMPILE_OUTPUT_VARIABLE compileOutput
 		RUN_OUTPUT_VARIABLE ${time}

@@ -10,7 +10,7 @@
 #include <string>
 #include <iostream>
 
-#include "dirent.h"
+#include <dirent.h>
 
 typedef std::list<std::string> StringList;
 
