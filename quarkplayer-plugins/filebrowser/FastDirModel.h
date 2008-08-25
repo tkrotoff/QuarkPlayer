@@ -16,23 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SIMPLEDIRMODEL_H
-#define SIMPLEDIRMODEL_H
+#ifndef FASTDIRMODEL_H
+#define FASTDIRMODEL_H
 
-#include <QtGui/QDirModel>
+#include <QtGui/QFileSystemModel>
 
 /**
- * Simple QDirModel.
+ * Simple and fast QFileSystemModel.
  *
- * @see QDirModel
+ * @see QFileSystemModel
  * @author Tanguy Krotoff
  */
-class SimpleDirModel : public QDirModel {
+class FastDirModel : public QFileSystemModel {
 public:
 
-	SimpleDirModel(const QStringList & nameFilters);
+	FastDirModel(const QStringList & nameFilters);
 
-	~SimpleDirModel();
+	~FastDirModel();
 
 	QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
 
@@ -44,8 +44,12 @@ public:
 
 	int columnCount(const QModelIndex & parent) const;
 
+public slots:
+
+	void refresh();
+
 private:
 
 };
 
-#endif	//SIMPLEDIRMODEL_H
+#endif	//FASTDIRMODEL_H

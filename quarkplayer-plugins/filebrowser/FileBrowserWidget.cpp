@@ -18,7 +18,12 @@
 
 #include "FileBrowserWidget.h"
 
-#include "SimpleDirModel.h"
+#ifdef FASTDIRMODEL
+	#include "FastDirModel.h"
+#else
+	#include "SimpleDirModel.h"
+#endif	//FASTDIRMODEL
+
 #include "config/FileBrowserConfigWidget.h"
 
 #include <quarkplayer/QuarkPlayer.h>
@@ -146,7 +151,7 @@ QStringList FileBrowserWidget::nameFilters() const {
 }
 
 void FileBrowserWidget::loadDirModel() {
-	_dirModel = new SimpleDirModel(nameFilters());
+	_dirModel = new DirModel(nameFilters());
 	_treeView->setModel(_dirModel);
 	_treeView->setHeaderHidden(true);
 
@@ -161,6 +166,7 @@ void FileBrowserWidget::loadDirModel() {
 	connect(&Config::instance(), SIGNAL(valueChanged(const QString &, const QVariant &)),
 		SLOT(musicDirChanged(const QString &, const QVariant &)));
 	_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
+	_dirModel->setRootPath(Config::instance().musicDir());
 	_treeView->setDragEnabled(true);
 	connect(_treeView, SIGNAL(doubleClicked(const QModelIndex &)),
 		SLOT(doubleClicked(const QModelIndex &)));

@@ -23,7 +23,15 @@
 
 #include <QtGui/QWidget>
 
-class SimpleDirModel;
+#define FASTDIRMODEL
+
+#ifdef FASTDIRMODEL
+	class FastDirModel;
+	typedef FastDirModel DirModel;
+#else
+	class SimpleDirModel;
+	typedef SimpleDirModel DirModel;
+#endif	//FASTDIRMODEL
 
 class QuarkPlayer;
 class ConfigWindow;
@@ -75,7 +83,7 @@ private:
 
 	QStringList nameFilters() const;
 
-	SimpleDirModel * _dirModel;
+	DirModel * _dirModel;
 
 	QTreeView * _treeView;
 

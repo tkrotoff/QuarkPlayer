@@ -3,6 +3,7 @@ project(filebrowser)
 set(filebrowser_SRCS
 	FileBrowserWidget.cpp
 	SimpleDirModel.cpp
+	FastDirModel.cpp
 	config/FileBrowserConfigWidget.cpp
 )
 
