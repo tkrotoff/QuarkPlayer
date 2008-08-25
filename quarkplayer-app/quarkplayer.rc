@@ -1,5 +1,3 @@
-#include "afxres.h"
-
 IDI_ICON1 ICON "${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer.ico"
 
 #if defined(UNDER_CE) && UNDER_CE >= 400
