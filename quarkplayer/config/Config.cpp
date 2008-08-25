@@ -68,7 +68,7 @@ Config::Config()
 	addKey(STYLE_KEY, "QuarkPlayerStyle");
 	addKey(ICON_THEME_KEY, "silk");
 	addKey(RECENT_FILES_KEY, QStringList());
-	addKey(LAST_DIRECTORY_USED_KEY, QString());
+	addKey(LAST_DIRECTORY_USED_KEY, QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
 	addKey(LAST_VOLUME_USED_KEY, 1.0f);
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
 	addKey(PLUGINS_DIR_KEY, QString(QCoreApplication::applicationDirPath() + "/plugins"));
