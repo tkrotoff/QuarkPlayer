@@ -20,9 +20,7 @@
 macro (ow_get_current_date_time time)
 
 	if (UNIX AND NOT WIN32)
-		set(flags
-			-DLINK_LIBRARIES=stdc++
-		)
+		set(flags "-DLINK_LIBRARIES=stdc++")
 	endif (UNIX AND NOT WIN32)
 
 	try_run(

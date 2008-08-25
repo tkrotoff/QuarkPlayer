@@ -19,9 +19,7 @@ macro (loc_counter path loc recursive)
 	message(STATUS "LOC ${path}...")
 
 	if (UNIX AND NOT WIN32)
-		set(flags
-			"-DLINK_LIBRARIES=stdc++"
-		)
+		set(flags "-DLINK_LIBRARIES=stdc++")
 	endif (UNIX AND NOT WIN32)
 
 	try_run(
