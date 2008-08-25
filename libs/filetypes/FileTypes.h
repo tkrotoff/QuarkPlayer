@@ -35,6 +35,13 @@ class FILETYPES_API FileTypes {
 public:
 
 	/**
+	 * Gets the complete list of available file types.
+	 *
+	 * @return list of available file types
+	 */
+	static QList<FileType> fileTypes();
+
+	/**
 	 * Gets the file extension of a given category.
 	 *
 	 * Example: Audio: mp3, wav, mp4...

@@ -104,14 +104,26 @@ static const FileType FILETYPELIST[FILETYPELIST_SIZE] = {
 };
 
 
+QList<FileType> FileTypes::fileTypes() {
+	static QList<FileType> list;
+
+	if (list.isEmpty()) {
+		for (int i = 0; i < FILETYPELIST_SIZE; i++) {
+			FileType fileType = FILETYPELIST[i];
+			list += fileType;
+		}
+	}
+
+	return list;
+}
+
 QStringList FileTypes::extensions(FileType::Category category) {
 	static QMap<FileType::Category, QStringList> map;
 
 	if (!map.contains(category)) {
 		//We use QSet then there is no duplicated element
 		QSet<QString> set;
-		for (int i = 0; i < FILETYPELIST_SIZE; i++) {
-			FileType fileType = FILETYPELIST[i];
+		foreach (FileType fileType, fileTypes()) {
 			if (fileType.category == category) {
 				set += QSet<QString>::fromList(fileType.extensions.split(",", QString::SkipEmptyParts));
 			}
@@ -141,8 +153,7 @@ FileType FileTypes::fileType(const QString & extension) {
 	static QMap<QString, FileType> map;
 
 	if (!map.contains(extension)) {
-		for (int i = 0; i < FILETYPELIST_SIZE; i++) {
-			FileType fileType = FILETYPELIST[i];
+		foreach (FileType fileType, fileTypes()) {
 			if (fileType.extensions.contains(extension)) {
 				//The first one that we found
 				map[extension] = fileType;
@@ -168,8 +179,7 @@ FileType FileTypes::fileType(FileType::Name name) {
 	static QMap<FileType::Name, FileType> map;
 
 	if (!map.contains(name)) {
-		for (int i = 0; i < FILETYPELIST_SIZE; i++) {
-			FileType fileType = FILETYPELIST[i];
+		foreach (FileType fileType, fileTypes()) {
 			if (fileType.name == name) {
 				map[name] = fileType;
 				break;
