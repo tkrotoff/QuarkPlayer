@@ -1,10 +1,6 @@
-IDI_ICON1 ICON "${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer.ico"
+#include <winver.h>
 
-#if defined(UNDER_CE) && UNDER_CE >= 400
-	#include <winbase.h>
-#else
-	#include <winver.h>
-#endif
+IDI_ICON1 ICON "${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer.ico"
 
 VS_VERSION_INFO VERSIONINFO
 	FILEVERSION @QUARKPLAYER_MAJOR_VERSION@,@QUARKPLAYER_MINOR_VERSION@,@QUARKPLAYER_PATCH_VERSION@,0
