@@ -19,7 +19,6 @@
 #ifndef PLAYLISTPARSER_H
 #define PLAYLISTPARSER_H
 
-#include <playlistparser/playlistparser_export.h>
 #include <playlistparser/IPlaylistParser.h>
 
 #include <QtCore/QList>

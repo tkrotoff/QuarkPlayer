@@ -19,6 +19,8 @@
 #ifndef IPLAYLISTPARSER_H
 #define IPLAYLISTPARSER_H
 
+#include <playlistparser/playlistparser_export.h>
+
 #include <QtCore/QObject>
 
 class QString;
@@ -35,7 +37,7 @@ class QStringList;
  * @see FindFiles
  * @author Tanguy Krotoff
  */
-class IPlaylistParser : public QObject {
+class PLAYLISTPARSER_API IPlaylistParser : public QObject {
 	Q_OBJECT
 public:
 

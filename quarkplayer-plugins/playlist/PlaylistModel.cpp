@@ -39,6 +39,7 @@
 
 #include <QtGui/QtGui>
 
+#include <QtCore/QtConcurrentRun>
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 
@@ -310,17 +311,17 @@ void PlaylistModel::loadCurrentPlaylist() {
 	//Restore last current playlist
 	Config & config = Config::instance();
 	QString path(config.configDir());
-	PlaylistParser parser(path + CURRENT_PLAYLIST);
-	connect(&parser, SIGNAL(filesFound(const QStringList &)),
+	PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST);
+	connect(parser, SIGNAL(filesFound(const QStringList &)),
 		SLOT(filesFound(const QStringList &)));
-	parser.load();
+	QtConcurrent::run(parser, &PlaylistParser::load);
 }
 
 void PlaylistModel::saveCurrentPlaylist() const {
 	Config & config = Config::instance();
 	QString path(config.configDir());
-	PlaylistParser parser(path + CURRENT_PLAYLIST);
-	parser.save(this->files());
+	PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST);
+	QtConcurrent::run(parser, &PlaylistParser::save, this->files());
 }
 
 QStringList PlaylistModel::files() const {
