@@ -9,9 +9,9 @@ add_definitions(-DBUILD_QUARKPLAYER)
 set(QUARKPLAYER_CORE_LOC 0)
 set(QUARKPLAYER_PLUGINS_LOC 0)
 set(QUARKPLAYER_LIBS_LOC 0)
-#loc_counter(${CMAKE_SOURCE_DIR}/quarkplayer QUARKPLAYER_CORE_LOC 1)
-#loc_counter(${CMAKE_SOURCE_DIR}/quarkplayer-plugins QUARKPLAYER_PLUGINS_LOC 1)
-#loc_counter(${CMAKE_SOURCE_DIR}/libs QUARKPLAYER_LIBS_LOC 1)
+loc_counter(${CMAKE_SOURCE_DIR}/quarkplayer QUARKPLAYER_CORE_LOC 1)
+loc_counter(${CMAKE_SOURCE_DIR}/quarkplayer-plugins QUARKPLAYER_PLUGINS_LOC 1)
+loc_counter(${CMAKE_SOURCE_DIR}/libs QUARKPLAYER_LIBS_LOC 1)
 configure_file(metrics.h.in ${CMAKE_CURRENT_BINARY_DIR}/metrics.h)
 
 set(quarkplayercore_SRCS

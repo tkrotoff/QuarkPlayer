@@ -53,12 +53,7 @@ public:
 	void setSearchPath(const QString & path);
 
 	/**
-	 * Finds root files (non recursive).
-	 */
-	void findFiles();
-
-	/**
-	 * Finds all the files (recursive) of a given directory.
+	 * Finds all files (recursive) given a path.
 	 */
 	void findAllFiles();
 
@@ -85,16 +80,15 @@ private:
 	 *
 	 * @param path directory where to search for files.
 	 */
-	void findFiles(const QString & path);
-
-	/**
-	 * Finds all the files (recursive) of a given directory.
-	 *
-	 * @param path directory where to search for files
-	 */
 	void findAllFiles(const QString & path);
 
+	bool isDirectory(const QString & path) const;
+
 	QString _path;
+
+	QString _currentPath;
+
+	QStringList _files;
 };
 
 #endif	//FINDFILES_H

@@ -4,6 +4,11 @@ configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 
 add_definitions(-DBUILD_TKUTIL)
 
+if (MSVC)
+	#For dirent.h that does not exist under Visual C++
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/msvc)
+endif (MSVC)
+
 set(tkutil_SRCS
 	TkFileDialog.cpp
 	TkComboBox.cpp

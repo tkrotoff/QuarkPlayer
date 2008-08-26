@@ -68,7 +68,8 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
 	//Refresh action
-	connect(ActionCollection::action("fileBrowserRefresh"), SIGNAL(triggered()), _treeView, SLOT(refresh));
+	connect(ActionCollection::action("fileBrowserRefresh"), SIGNAL(triggered()),
+		_treeView, SLOT(refresh()));
 	_treeView->addAction(ActionCollection::action("fileBrowserRefresh"));
 	_treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
 

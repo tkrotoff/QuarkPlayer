@@ -26,7 +26,7 @@
 #include <QtCore/QTextCodec>
 #include <QtCore/QDebug>
 
-static const int FILES_FOUND_LIMIT = 100;
+static const int FILES_FOUND_LIMIT = 1000;
 
 M3UParser::M3UParser(const QString & filename)
 	: IPlaylistParser(filename) {
@@ -64,7 +64,6 @@ void M3UParser::load() {
 			stream.setCodec(QTextCodec::codecForLocale());
 		}
 
-		int filesCount = 0;
 		while (!stream.atEnd()) {
 			//Line of text excluding '\n'
 			QString line = stream.readLine();
@@ -99,16 +98,13 @@ void M3UParser::load() {
 					}
 				}
 
-				filesCount++;
-
 				//Add file to the list of files
 				files << filename;
 
-				if (filesCount > FILES_FOUND_LIMIT) {
+				if (files.size() > FILES_FOUND_LIMIT) {
 					//Emits the signal every FILES_FOUND_LIMIT files found
 					emit filesFound(files);
 					files.clear();
-					filesCount = 0;
 				}
 			}
 		}

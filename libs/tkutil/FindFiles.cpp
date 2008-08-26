@@ -18,11 +18,18 @@
 
 #include "FindFiles.h"
 
+#include "TkFile.h"
+
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
-static const int FILES_FOUND_LIMIT = 100;
+#include <dirent.h>
+#include <direct.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+static const int FILES_FOUND_LIMIT = 500;
 
 FindFiles::FindFiles(QObject * parent)
 	: QObject(parent) {
@@ -35,62 +42,77 @@ void FindFiles::setSearchPath(const QString & path) {
 	_path = path;
 }
 
-void FindFiles::findFiles() {
-	if (_path.isEmpty()) {
-		qCritical() << __FUNCTION__ << "Error: empty path";
-		return;
-	}
-
-	findFiles(_path);
-
-	//Emits the last signal
-	emit finished();
-}
-
 void FindFiles::findAllFiles() {
 	if (_path.isEmpty()) {
 		qCritical() << __FUNCTION__ << "Error: empty path";
 		return;
 	}
 
+	_currentPath.clear();
 	findAllFiles(_path);
+
+	if (!_files.isEmpty()) {
+		emit filesFound(_files);
+		_files.clear();
+	}
 
 	//Emits the last signal
 	emit finished();
 }
 
-void FindFiles::findFiles(const QString & path) {
-	QStringList files;
+#ifndef S_ISDIR
+	#ifdef S_IFDIR
+		#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
+	#else
+		#define S_ISDIR(mode) 0
+	#endif
+#endif	//!S_ISDIR
 
-	QDir dir(path);
-	dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+bool FindFiles::isDirectory(const QString & path) const {
+	struct stat statbuf;
 
-	QFileInfoList fileInfoList = dir.entryInfoList();
-	int filesCount = 0;
-	foreach (QFileInfo fileInfo, fileInfoList) {
-		filesCount++;
-		files << fileInfo.absoluteFilePath();
-
-		if (filesCount > FILES_FOUND_LIMIT) {
-			//Emits the signal every FILES_FOUND_LIMIT files found
-			emit filesFound(files);
-			files.clear();
-			filesCount = 0;
-		}
-	}
-
-	//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
-	emit filesFound(files);
+	stat(path.toUtf8().constData(), &statbuf);
+	return S_ISDIR(statbuf.st_mode);
 }
 
 void FindFiles::findAllFiles(const QString & path) {
-	findFiles(path);
+	DIR * dir = opendir(path.toUtf8().constData());
+	if (dir != NULL) {
 
-	QDir dir(path);
-	dir.setFilter(QDir::AllDirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+		if (_currentPath.isEmpty()) {
+			_currentPath = path;
+		} else {
+			_currentPath += '/' + path;
+		}
 
-	QFileInfoList fileInfoList = dir.entryInfoList();
-	foreach (QFileInfo fileInfo, fileInfoList) {
-		findAllFiles(fileInfo.filePath());
+		_chdir(path.toUtf8().constData());
+
+		struct dirent * entry = NULL;
+		while (entry = readdir(dir)) {
+			QString name(entry->d_name);
+			if (!name.startsWith('.')) {
+
+				if (isDirectory(name)) {
+					findAllFiles(name);
+				}
+
+				else {
+					//qDebug() << _currentPath + '/' + name;
+					_files << _currentPath + '/' + name;
+
+					if (_files.size() > FILES_FOUND_LIMIT) {
+						//Emits the signal every FILES_FOUND_LIMIT files found
+						emit filesFound(_files);
+						_files.clear();
+					}
+				}
+			}
+		}
+
+		_currentPath.remove('/' + path);
+
+		_chdir("..");
+
+		closedir(dir);
 	}
 }

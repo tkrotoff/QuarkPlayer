@@ -11,6 +11,9 @@
 #include <iostream>
 
 #include <dirent.h>
+#include <direct.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 typedef std::list<std::string> StringList;
 
@@ -58,55 +61,62 @@ int locFile(const std::string & filename) {
 	return loc;
 }
 
+#ifndef S_ISDIR
+	#ifdef S_IFDIR
+		#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
+	#else
+		#define S_ISDIR(mode) 0
+	#endif
+#endif	//!S_ISDIR
+
 bool isDirectory(const std::string & path) {
-	bool isDir = false;
-	DIR * dir = opendir(path.c_str());
-	if (dir != NULL) {
-		isDir = true;
-		closedir(dir);
-	}
+	struct stat statbuf;
 
-	return isDir;
+	stat(path.c_str(), &statbuf);
+	return S_ISDIR(statbuf.st_mode);
 }
 
-StringList findFiles(const std::string & path) {
+std::string _currentPath;
+
+StringList findAllFiles(const std::string & path, bool recursive) {
 	StringList files;
 
 	DIR * dir = opendir(path.c_str());
 	if (dir != NULL) {
-		struct dirent * entry = NULL;
-		while ((entry = readdir(dir)) != NULL) {
-			std::string name(entry->d_name);
-			if (name.compare(".") != 0 && name.compare("..") != 0 && name.compare(".svn") != 0) {
-				std::string tmp(path + "/" + name);
-				files.push_back(tmp);
-			}
+
+		if (_currentPath.empty()) {
+			_currentPath = path;
+		} else {
+			_currentPath += '/' + path;
 		}
-		closedir(dir);
-	}
 
-	return files;
-}
+		_chdir(path.c_str());
 
-StringList findAllFiles(const std::string & path) {
-	StringList files;
-
-	std::list<std::string> fuck = findFiles(path);
-	files.splice(files.end(), fuck);
-
-	DIR * dir = opendir(path.c_str());
-	if (dir != NULL) {
 		struct dirent * entry = NULL;
-		while ((entry = readdir(dir)) != NULL) {
+		while (entry = readdir(dir)) {
 			std::string name(entry->d_name);
-			if (name.compare(".") != 0 && name.compare("..") != 0 && name.compare(".svn") != 0) {
-				std::string tmp(path + "/" + name);
-				if (isDirectory(tmp)) {
-					std::list<std::string> fuck = findAllFiles(tmp);
-					files.splice(files.end(), fuck);
+			if (name[0] != '.') {
+
+				if (recursive && isDirectory(name)) {
+					std::list<std::string> tmp = findAllFiles(name, recursive);
+					files.splice(files.end(), tmp);
+				}
+
+				else {
+					files.push_back(_currentPath + '/' + name);
+					//std::cout << _currentPath + '/' + name << std::endl;
 				}
 			}
 		}
+
+		std::string tmp('/' + path);
+		int startPos = _currentPath.size() - tmp.size();
+		if (startPos > -1) {
+			_currentPath.erase(startPos, tmp.size());
+		}
+
+		_chdir("..");
+
 		closedir(dir);
 	}
 
@@ -126,17 +136,12 @@ int main(int argc, char * argv[]) {
 		}
 	}
 	if (argc > 2) {
-		recursive = atoi(argv[2]);
+		recursive = atoi(argv[2]) != 0;
 	}
 
 	int totalLoc = 0;
 
-	StringList files;
-	if (recursive) {
-		files = findAllFiles(rootPath);
-	} else {
-		files = findFiles(rootPath);
-	}
+	StringList files(findAllFiles(rootPath, recursive));
 
 	for (StringList::iterator it = files.begin(); it != files.end(); it++) {
 		totalLoc += locFile(*it);
