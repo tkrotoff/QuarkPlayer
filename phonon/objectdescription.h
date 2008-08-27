@@ -2,18 +2,21 @@
     Copyright (C) 2006-2007 Matthias Kretz <kretz@kde.org>
 
     This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Library General Public
-    License version 2 as published by the Free Software Foundation.
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) version 3, or any
+    later version accepted by the membership of KDE e.V. (or its
+    successor approved by the membership of KDE e.V.), Trolltech ASA 
+    (or its successors, if any) and the KDE Free Qt Foundation, which shall
+    act as a proxy defined in Section 6 of version 3 of the license.
 
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Library General Public License for more details.
+    Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Library General Public License
-    along with this library; see the file COPYING.LIB.  If not, write to
-    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-    Boston, MA 02110-1301, USA.
+    You should have received a copy of the GNU Lesser General Public 
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -60,11 +63,8 @@ namespace Phonon
          * Lists all processing effects the backend supports.
          */
         EffectType,
-
         AudioChannelType,
         SubtitleType,
-        ChapterType,
-        TitleType,
 
         /**
          * Audio capture devices. This can be soundcards (with different drivers), soundservers or
@@ -273,7 +273,9 @@ typedef ObjectDescription<AudioOutputDeviceType> AudioOutputDevice;
 /**
  * \ingroup BackendInformation
  */
+#ifndef QT_NO_PHONON_AUDIOCAPTURE
 typedef ObjectDescription<AudioCaptureDeviceType> AudioCaptureDevice;
+#endif //QT_NO_PHONON_AUDIOCAPTURE
 /**
  * \ingroup BackendInformation
  */
@@ -285,7 +287,10 @@ typedef ObjectDescription<AudioCaptureDeviceType> AudioCaptureDevice;
 /**
  * \ingroup BackendInformation
  */
+#ifndef QT_NO_PHONON_EFFECT
 typedef ObjectDescription<EffectType> EffectDescription;
+#endif //QT_NO_PHONON_EFFECT
+
 /**
  * \ingroup BackendInformation
  */
@@ -302,27 +307,33 @@ typedef ObjectDescription<EffectType> EffectDescription;
  * \ingroup BackendInformation
  */
 //typedef ObjectDescription<VisualizationType> VisualizationDescription;
+#ifndef QT_NO_PHONON_MEDIACONTROLLER
 typedef ObjectDescription<AudioChannelType> AudioChannelDescription;
 typedef ObjectDescription<SubtitleType> SubtitleDescription;
-typedef ObjectDescription<ChapterType> ChapterDescription;
-typedef ObjectDescription<TitleType> TitleDescription;
+#endif //QT_NO_PHONON_MEDIACONTROLLER
 
 } //namespace Phonon
 
+Q_DECLARE_METATYPE(Phonon::AudioOutputDevice)
+Q_DECLARE_METATYPE(QList<Phonon::AudioOutputDevice>)
+
+#ifndef QT_NO_PHONON_AUDIOCAPTURE
+Q_DECLARE_METATYPE(Phonon::AudioCaptureDevice)
+Q_DECLARE_METATYPE(QList<Phonon::AudioCaptureDevice>)
+#endif //QT_NO_PHONON_AUDIOCAPTURE
+
+#ifndef QT_NO_PHONON_EFFECT
+Q_DECLARE_METATYPE(QList<Phonon::EffectDescription>)
+Q_DECLARE_METATYPE(Phonon::EffectDescription)
+#endif //QT_NO_PHONON_EFFECT
+
+
+#ifndef QT_NO_PHONON_MEDIACONTROLLER
 Q_DECLARE_METATYPE(Phonon::AudioChannelDescription)
 Q_DECLARE_METATYPE(Phonon::SubtitleDescription)
-Q_DECLARE_METATYPE(Phonon::ChapterDescription)
-Q_DECLARE_METATYPE(Phonon::TitleDescription)
-Q_DECLARE_METATYPE(Phonon::AudioOutputDevice)
-Q_DECLARE_METATYPE(Phonon::AudioCaptureDevice)
-Q_DECLARE_METATYPE(Phonon::EffectDescription)
 Q_DECLARE_METATYPE(QList<Phonon::AudioChannelDescription>)
 Q_DECLARE_METATYPE(QList<Phonon::SubtitleDescription>)
-Q_DECLARE_METATYPE(QList<Phonon::ChapterDescription>)
-Q_DECLARE_METATYPE(QList<Phonon::TitleDescription>)
-Q_DECLARE_METATYPE(QList<Phonon::AudioOutputDevice>)
-Q_DECLARE_METATYPE(QList<Phonon::AudioCaptureDevice>)
-Q_DECLARE_METATYPE(QList<Phonon::EffectDescription>)
+#endif //QT_NO_PHONON_MEDIACONTROLLER
 
 QT_END_NAMESPACE
 QT_END_HEADER

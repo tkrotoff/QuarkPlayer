@@ -3,18 +3,21 @@
     Copyright (C) 2008 Ian Monroe <ian@monroe.nu>
 
     This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Library General Public
-    License version 2 as published by the Free Software Foundation.
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) version 3, or any
+    later version accepted by the membership of KDE e.V. (or its
+    successor approved by the membership of KDE e.V.), Trolltech ASA
+    (or its successors, if any) and the KDE Free Qt Foundation, which shall
+    act as a proxy defined in Section 6 of version 3 of the license.
 
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Library General Public License for more details.
+    Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Library General Public License
-    along with this library; see the file COPYING.LIB.  If not, write to
-    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-    Boston, MA 02110-1301, USA.
+    You should have received a copy of the GNU Lesser General Public 
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -26,6 +29,8 @@
 #include "frontendinterface_p.h"
 
 QT_BEGIN_NAMESPACE
+
+#ifndef QT_NO_PHONON_MEDIACONTROLLER
 
 namespace Phonon
 {
@@ -51,16 +56,10 @@ void MediaControllerPrivate::backendObjectChanged(QObject *m_backendObject)
 {
     QObject::connect(m_backendObject, SIGNAL(availableSubtitlesChanged()), q, SIGNAL(availableSubtitlesChanged()));
     QObject::connect(m_backendObject, SIGNAL(availableAudioChannelsChanged()), q, SIGNAL(availableAudioChannelsChanged()));
-    QObject::connect(m_backendObject, SIGNAL(availableChaptersChanged()), q, SIGNAL(availableChaptersChanged()));
-    QObject::connect(m_backendObject, SIGNAL(availableTitlesChanged()), q, SIGNAL(availableTitlesChanged()));
-
-    //Deprecated
     QObject::connect(m_backendObject, SIGNAL(titleChanged(int)), q, SIGNAL(titleChanged(int)));
     QObject::connect(m_backendObject, SIGNAL(availableTitlesChanged(int)), q, SIGNAL(availableTitlesChanged(int)));
     QObject::connect(m_backendObject, SIGNAL(chapterChanged(int)), q, SIGNAL(chapterChanged(int)));
     QObject::connect(m_backendObject, SIGNAL(availableChaptersChanged(int)), q, SIGNAL(availableChaptersChanged(int)));
-    //!Deprecated
-
     QObject::connect(m_backendObject, SIGNAL(angleChanged(int)), q, SIGNAL(angleChanged(int)));
     QObject::connect(m_backendObject, SIGNAL(availableAnglesChanged(int)), q, SIGNAL(availableAnglesChanged(int)));
 }
@@ -93,7 +92,6 @@ MediaController::Features MediaController::supportedFeatures() const
     return ret;
 }
 
-//Deprecated
 int MediaController::availableTitles() const
 {
     IFACE 0;
@@ -101,7 +99,6 @@ int MediaController::availableTitles() const
             AddonInterface::availableTitles).toInt();
 }
 
-//Deprecated
 int MediaController::currentTitle() const
 {
     IFACE 0;
@@ -109,7 +106,6 @@ int MediaController::currentTitle() const
             AddonInterface::title).toInt();
 }
 
-//Deprecated
 void MediaController::setCurrentTitle(int titleNumber)
 {
     IFACE;
@@ -133,21 +129,14 @@ void MediaController::setAutoplayTitles(bool b)
 
 void MediaController::nextTitle()
 {
-    //Deprecated
     setCurrentTitle(currentTitle() + 1);
-
-    //TODO
 }
 
 void MediaController::previousTitle()
 {
-    //Deprecated
     setCurrentTitle(currentTitle() - 1);
-
-    //TODO
 }
 
-//Deprecated
 int MediaController::availableChapters() const
 {
     IFACE 0;
@@ -155,7 +144,6 @@ int MediaController::availableChapters() const
             AddonInterface::availableChapters).toInt();
 }
 
-//Deprecated
 int MediaController::currentChapter() const
 {
     IFACE 0;
@@ -163,7 +151,6 @@ int MediaController::currentChapter() const
             AddonInterface::chapter).toInt();
 }
 
-//Deprecated
 void MediaController::setCurrentChapter(int titleNumber)
 {
     IFACE;
@@ -206,20 +193,6 @@ SubtitleDescription MediaController::currentSubtitle() const
         AddonInterface::currentSubtitle).value<SubtitleDescription>();
 }
 
-ChapterDescription MediaController::currentChapter2() const
-{
-    IFACE ChapterDescription();
-    return iface->interfaceCall(AddonInterface::ChapterInterface,
-        AddonInterface::currentChapter).value<ChapterDescription>();
-}
-
-TitleDescription MediaController::currentTitle2() const
-{
-    IFACE TitleDescription();
-    return iface->interfaceCall(AddonInterface::TitleInterface,
-        AddonInterface::currentTitle).value<TitleDescription>();
-}
-
 QList<AudioChannelDescription> MediaController::availableAudioChannels() const
 {
     QList<AudioChannelDescription> retList;
@@ -239,26 +212,6 @@ QList<SubtitleDescription> MediaController::availableSubtitles() const
     return retList;
 }
 
-QList<ChapterDescription> MediaController::availableChapters2() const
-{
-    QList<ChapterDescription> retList;
-    IFACE retList;
-    retList = iface->interfaceCall(AddonInterface::ChapterInterface,
-        AddonInterface::availableChapters)
-        .value< QList<ChapterDescription> >();
-    return retList;
-}
-
-QList<TitleDescription> MediaController::availableTitles2() const
-{
-    QList<TitleDescription> retList;
-    IFACE retList;
-    retList = iface->interfaceCall(AddonInterface::TitleInterface,
-        AddonInterface::availableTitles)
-        .value< QList<TitleDescription> >();
-    return retList;
-}
-
 void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription &stream)
 {
     IFACE;
@@ -273,23 +226,11 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &stre
         AddonInterface::setCurrentSubtitle, QList<QVariant>() << qVariantFromValue(stream));
 }
 
-void MediaController::setCurrentChapter(const Phonon::ChapterDescription &chapter)
-{
-    IFACE;
-    iface->interfaceCall(AddonInterface::ChapterInterface,
-        AddonInterface::setCurrentChapter, QList<QVariant>() << qVariantFromValue(chapter));
-}
-
-void MediaController::setCurrentTitle(const Phonon::TitleDescription &title)
-{
-    IFACE;
-    iface->interfaceCall(AddonInterface::TitleInterface,
-        AddonInterface::setCurrentTitle, QList<QVariant>() << qVariantFromValue(title));
-}
-
 #undef IFACE
 
 } // namespace Phonon
+
+#endif //QT_NO_PHONON_MEDIACONTROLLER
 
 QT_END_NAMESPACE
 

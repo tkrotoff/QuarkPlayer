@@ -2,18 +2,21 @@
     Copyright (C) 2004-2007 Matthias Kretz <kretz@kde.org>
 
     This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Library General Public
-    License version 2 as published by the Free Software Foundation.
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) version 3, or any
+    later version accepted by the membership of KDE e.V. (or its
+    successor approved by the membership of KDE e.V.), Trolltech ASA 
+    (or its successors, if any) and the KDE Free Qt Foundation, which shall
+    act as a proxy defined in Section 6 of version 3 of the license.
 
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Library General Public License for more details.
+    Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Library General Public License
-    along with this library; see the file COPYING.LIB.  If not, write to
-    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-    Boston, MA 02110-1301, USA.
+    You should have received a copy of the GNU Lesser General Public 
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -21,8 +24,8 @@
 
 #include "backendinterface.h"
 #include "medianode_p.h"
+#include "mediaobject.h"
 #include "audiooutput.h"
-#include "audiooutput_p.h"
 #include "globalstatic_p.h"
 #include "objectdescription.h"
 #include "platformplugin.h"
@@ -30,12 +33,9 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QLibrary>
 #include <QtCore/QList>
 #include <QtCore/QPluginLoader>
 #include <QtCore/QPointer>
-#include <QtGui/QIcon>
 #ifndef QT_NO_DBUS
 #include <QtDBus/QtDBus>
 #endif
@@ -54,11 +54,13 @@ class FactoryPrivate : public Phonon::Factory::Sender
         FactoryPrivate();
         ~FactoryPrivate();
         bool createBackend();
+#ifndef QT_NO_PHONON_PLATFORMPLUGIN
         PlatformPlugin *platformPlugin();
 
-        QPointer<QObject> m_backendObject;
         PlatformPlugin *m_platformPlugin;
         bool m_noPlatformPlugin;
+#endif //QT_NO_PHONON_PLATFORMPLUGIN
+        QPointer<QObject> m_backendObject;
 
         QList<QObject *> objects;
         QList<MediaNodePrivate *> mediaNodePrivateList;
@@ -67,7 +69,9 @@ class FactoryPrivate : public Phonon::Factory::Sender
         /**
          * This is called via DBUS when the user changes the Phonon Backend.
          */
+#ifndef QT_NO_DBUS
         void phononBackendChanged();
+#endif //QT_NO_DBUS
 
         /**
          * unregisters the backend object
@@ -97,10 +101,12 @@ void Factory::setBackend(QObject *b)
 bool FactoryPrivate::createBackend()
 {
     Q_ASSERT(m_backendObject == 0);
+#ifndef QT_NO_PHONON_PLATFORMPLUGIN
     PlatformPlugin *f = globalFactory->platformPlugin();
     if (f) {
         m_backendObject = f->createBackend();
     }
+#endif //QT_NO_PHONON_PLATFORMPLUGIN
     if (!m_backendObject) {
         // could not load a backend through the platform plugin. Falling back to the default
         // (finding the first loadable backend).
@@ -146,9 +152,11 @@ bool FactoryPrivate::createBackend()
 }
 
 FactoryPrivate::FactoryPrivate()
-    : m_backendObject(0),
-    m_platformPlugin(0),
+#ifndef QT_NO_PHONON_PLATFORMPLUGIN
+    : m_platformPlugin(0),
     m_noPlatformPlugin(false)
+#endif //QT_NO_PHONON_PLATFORMPLUGIN
+    , m_backendObject(0)
 {
     // Add the post routine to make sure that all other global statics (especially the ones from Qt)
     // are still available. If the FactoryPrivate dtor is called too late many bad things can happen
@@ -162,6 +170,12 @@ FactoryPrivate::FactoryPrivate()
 
 FactoryPrivate::~FactoryPrivate()
 {
+    foreach (QObject *o, objects) {
+        MediaObject *m = qobject_cast<MediaObject *>(o);
+        if (m) {
+            m->stop();
+        }
+    }
     foreach (MediaNodePrivate *bp, mediaNodePrivateList) {
         bp->deleteBackendObject();
     }
@@ -170,7 +184,9 @@ FactoryPrivate::~FactoryPrivate()
         qDeleteAll(objects);
     }
     delete m_backendObject;
+#ifndef QT_NO_PHONON_PLATFORMPLUGIN
     delete m_platformPlugin;
+#endif //QT_NO_PHONON_PLATFORMPLUGIN
 }
 
 void FactoryPrivate::objectDescriptionChanged(ObjectDescriptionType type)
@@ -197,10 +213,14 @@ Factory::Sender *Factory::sender()
 
 bool Factory::isMimeTypeAvailable(const QString &mimeType)
 {
+#ifndef QT_NO_PHONON_PLATFORMPLUGIN
     PlatformPlugin *f = globalFactory->platformPlugin();
     if (f) {
         return f->isMimeTypeAvailable(mimeType);
     }
+#else
+    Q_UNUSED(mimeType);
+#endif //QT_NO_PHONON_PLATFORMPLUGIN
     return true; // the MIME type might be supported, let BackendCapabilities find out
 }
 
@@ -218,6 +238,7 @@ void Factory::deregisterFrontendObject(MediaNodePrivate *bp)
     }
 }
 
+#ifndef QT_NO_DBUS
 void FactoryPrivate::phononBackendChanged()
 {
     if (m_backendObject) {
@@ -245,6 +266,7 @@ void FactoryPrivate::phononBackendChanged()
     }
     emit backendChanged();
 }
+#endif //QT_NO_DBUS
 
 //X void Factory::freeSoundcardDevices()
 //X {
@@ -277,16 +299,20 @@ QObject *Factory::create ## classname(int arg1, QObject *parent) \
 }
 
 FACTORY_IMPL(MediaObject)
+#ifndef QT_NO_PHONON_EFFECT
 FACTORY_IMPL_1ARG(Effect)
+#endif //QT_NO_PHONON_EFFECT
+#ifndef QT_NO_PHONON_VOLUMEFADEREFFECT
 FACTORY_IMPL(VolumeFaderEffect)
+#endif //QT_NO_PHONON_VOLUMEFADEREFFECT
 FACTORY_IMPL(AudioOutput)
-FACTORY_IMPL(AudioDataOutput)
-FACTORY_IMPL(Visualization)
-FACTORY_IMPL(VideoDataOutput)
+#ifndef QT_NO_PHONON_VIDEO
 FACTORY_IMPL(VideoWidget)
+#endif //QT_NO_PHONON_VIDEO
 
 #undef FACTORY_IMPL
 
+#ifndef QT_NO_PHONON_PLATFORMPLUGIN
 PlatformPlugin *FactoryPrivate::platformPlugin()
 {
     if (m_platformPlugin) {
@@ -339,6 +365,7 @@ PlatformPlugin *Factory::platformPlugin()
 {
     return globalFactory->platformPlugin();
 }
+#endif // QT_NO_PHONON_PLATFORMPLUGIN
 
 QObject *Factory::backend(bool createWhenNull)
 {

@@ -2,18 +2,21 @@
     Copyright (C) 2005-2006 Matthias Kretz <kretz@kde.org>
 
     This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Library General Public
-    License version 2 as published by the Free Software Foundation.
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) version 3, or any
+    later version accepted by the membership of KDE e.V. (or its
+    successor approved by the membership of KDE e.V.), Trolltech ASA 
+    (or its successors, if any) and the KDE Free Qt Foundation, which shall
+    act as a proxy defined in Section 6 of version 3 of the license.
 
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Library General Public License for more details.
+    Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Library General Public License
-    along with this library; see the file COPYING.LIB.  If not, write to
-    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-    Boston, MA 02110-1301, USA.
+    You should have received a copy of the GNU Lesser General Public 
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -73,7 +76,9 @@ namespace BackendCapabilities
              * Check BackendCapabilities::availableAudioCaptureDevices to get the
              * current list of available devices.
              */
+#ifndef QT_NO_PHONON_AUDIOCAPTURE
             void availableAudioCaptureDevicesChanged();
+#endif //QT_NO_PHONON_AUDIOCAPTURE
     };
 
     /**
@@ -93,30 +98,6 @@ namespace BackendCapabilities
      */
     PHONON_EXPORT Notifier *notifier();
 
-//X     /**
-//X      * Tells whether the backend is audio only or can handle video files
-//X      * and display of videos.
-//X      *
-//X      * If the backend does not support video all AbstractVideoOutput subclasses won't
-//X      * do anything.
-//X      */
-//X     PHONON_EXPORT bool supportsVideo();
-//X
-//X     /**
-//X      * Tells whether the backend implements the OSD interfaces.
-//X      *
-//X      * \todo there's no interfaces for it at this point
-//X      */
-//X     PHONON_EXPORT bool supportsOSD();
-//X
-//X     /**
-//X      * Tells whether the backend supports subtitle rendering on the
-//X      * video output.
-//X      *
-//X      * \todo there's no interfaces for it at this point
-//X      */
-//X     PHONON_EXPORT bool supportsSubtitles();
-
     /**
      * Returns a list of mime types that the Backend can decode.
      *
@@ -133,31 +114,6 @@ namespace BackendCapabilities
      */
     PHONON_EXPORT bool isMimeTypeAvailable(const QString &mimeType);
 
-#if 0
-    /**
-     * Returns the audio output devices the backend reports as usable. That
-     * doesn't have to say the device will certainly work as the backend
-     * might not be able to open the device if it's blocked by another
-     * application. But at least the device is physically available.
-     *
-     * \return A list of AudioOutputDevice objects that give a name and
-     * description for every supported audio output device.
-     *
-     * \see knownAudioOutputDevices
-     */
-    PHONON_EXPORT QList<AudioOutputDevice> usableAudioOutputDevices();
-
-    /**
-     * Returns the audio output devices the backend has ever reported as
-     * usable.
-     *
-     * \return A list of AudioOutputDevice objects that give a name and
-     * description for every supported audio output device.
-     *
-     * \see usableAudioOutputDevices
-     */
-    PHONON_EXPORT QList<AudioOutputDevice> knownAudioOutputDevices();
-#endif
     /**
      * Returns the audio output devices the backend supports.
      *
@@ -172,7 +128,9 @@ namespace BackendCapabilities
      * \return A list of AudioCaptureDevice objects that give a name and
      * description for every supported audio capture device.
      */
+#ifndef QT_NO_PHONON_AUDIOCAPTURE
     PHONON_EXPORT QList<AudioCaptureDevice> availableAudioCaptureDevices();
+#endif //QT_NO_PHONON_AUDIOCAPTURE
 
     /**
      * Returns the video output devices the backend supports.
@@ -204,7 +162,9 @@ namespace BackendCapabilities
      * \return A list of AudioEffectDescription objects that give a name and
      * description for every supported audio effect.
      */
+#ifndef QT_NO_PHONON_EFFECT
     PHONON_EXPORT QList<EffectDescription> availableAudioEffects();
+#endif //QT_NO_PHONON_EFFECT
 
 //X     /**
 //X      * Returns descriptions for the video effects the backend supports.

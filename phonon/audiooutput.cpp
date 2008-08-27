@@ -2,18 +2,21 @@
     Copyright (C) 2005-2006 Matthias Kretz <kretz@kde.org>
 
     This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Library General Public
-    License version 2 as published by the Free Software Foundation.
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) version 3, or any
+    later version accepted by the membership of KDE e.V. (or its
+    successor approved by the membership of KDE e.V.), Trolltech ASA
+    (or its successors, if any) and the KDE Free Qt Foundation, which shall
+    act as a proxy defined in Section 6 of version 3 of the license.
 
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Library General Public License for more details.
+    Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Library General Public License
-    along with this library; see the file COPYING.LIB.  If not, write to
-    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-    Boston, MA 02110-1301, USA.
+    You should have received a copy of the GNU Lesser General Public 
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "audiooutput.h"
@@ -26,12 +29,12 @@
 #include "phononnamespace_p.h"
 #include "platform_p.h"
 
-#include <QtCore/qmath.h>
+#include <qmath.h>
 
 #define PHONON_CLASSNAME AudioOutput
-#define IFACES2 AudioOutputInterface
+#define IFACES2 AudioOutputInterface42
 #define IFACES1 IFACES2
-#define IFACES0 AudioOutputInterface0, IFACES1
+#define IFACES0 AudioOutputInterface40, IFACES1
 #define PHONON_INTERFACENAME IFACES0
 
 QT_BEGIN_NAMESPACE
@@ -338,26 +341,31 @@ void AudioOutputPrivate::handleAutomaticDeviceChange(const AudioOutputDevice &de
     deviceBeforeFallback = outputDeviceIndex;
     outputDeviceIndex = device2.index();
     emit q->outputDeviceChanged(device2);
-    QString text;
     const AudioOutputDevice &device1 = AudioOutputDevice::fromIndex(deviceBeforeFallback);
     switch (type) {
     case FallbackChange:
         if (g_lastFallback.first != device1.index() || g_lastFallback.second != device2.index()) {
-            text = AudioOutput::tr("<html>The audio playback device <b>%1</b> does not work.<br/>"
+#ifndef QT_NO_PHONON_PLATFORMPLUGIN
+            const QString text = AudioOutput::tr("<html>The audio playback device <b>%1</b> does not work.<br/>"
                     "Falling back to <b>%2</b>.</html>").arg(device1.name()).arg(device2.name());
             Platform::notification("AudioDeviceFallback", text);
+#endif //QT_NO_PHONON_PLATFORMPLUGIN
             g_lastFallback.first = device1.index();
             g_lastFallback.second = device2.index();
         }
         break;
     case HigherPreferenceChange:
-        text = AudioOutput::tr("<html>Switching to the audio playback device <b>%1</b><br/>"
+        {
+#ifndef QT_NO_PHONON_PLATFORMPLUGIN
+        const QString text = AudioOutput::tr("<html>Switching to the audio playback device <b>%1</b><br/>"
                 "which just became available and has higher preference.</html>").arg(device2.name());
         Platform::notification("AudioDeviceFallback", text,
                 QStringList(AudioOutput::tr("Revert back to device '%1'").arg(device1.name())),
                 q, SLOT(_k_revertFallback()));
+#endif //QT_NO_PHONON_PLATFORMPLUGIN
         g_lastFallback.first = 0;
         g_lastFallback.second = 0;
+        }
         break;
     }
 }

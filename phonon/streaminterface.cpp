@@ -2,18 +2,21 @@
     Copyright (C) 2007 Matthias Kretz <kretz@kde.org>
 
     This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Library General Public
-    License version 2 as published by the Free Software Foundation.
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) version 3, or any
+    later version accepted by the membership of KDE e.V. (or its
+    successor approved by the membership of KDE e.V.), Trolltech ASA
+    (or its successors, if any) and the KDE Free Qt Foundation, which shall
+    act as a proxy defined in Section 6 of version 3 of the license.
 
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Library General Public License for more details.
+    Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Library General Public License
-    along with this library; see the file COPYING.LIB.  If not, write to
-    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-    Boston, MA 02110-1301, USA.
+    You should have received a copy of the GNU Lesser General Public 
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -24,6 +27,8 @@
 #include "mediasource_p.h"
 #include "phononnamespace_p.h"
 #include <QtCore/QEvent>
+
+#ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
 
 QT_BEGIN_NAMESPACE
 
@@ -65,6 +70,7 @@ void StreamInterface::connectToSource(const MediaSource &mediaSource)
     d->mediaSource = mediaSource;
     Q_ASSERT(d->mediaSource.type() == MediaSource::Stream);
     Q_ASSERT(d->mediaSource.stream());
+#if 0
     AbstractMediaStream2 *stream2 = qobject_cast<AbstractMediaStream2 *>(d->mediaSource.stream());
     if (stream2) {
         if (!d->qobject) {
@@ -79,6 +85,7 @@ void StreamInterface::connectToSource(const MediaSource &mediaSource)
         d->streamEventQueue->setBackendCommandHandler(d);
         d->streamEventQueue->sendToFrontend(StreamEventQueue::Connect);
     } else {
+#endif
         if (d->awakeSignalConnected) {
             d->awakeSignalConnected = false;
             QObject::disconnect(d->eventDispatcher, SIGNAL(awake()), d->qobject, SLOT(_k_handleStreamEvent()));
@@ -87,7 +94,9 @@ void StreamInterface::connectToSource(const MediaSource &mediaSource)
         AbstractMediaStreamPrivate *dd = d->mediaSource.stream()->d_func();
         dd->setStreamInterface(this);
         d->mediaSource.stream()->reset();
+#if 0
     }
+#endif
 }
 
 void StreamInterfacePrivate::disconnectMediaStream()
@@ -182,6 +191,7 @@ void StreamInterfacePrivate::_k_handleStreamEvent()
     }
 }
 
+#if 0
 void StreamInterface2::needData(quint32 size)
 {
     if (d->streamEventQueue) {
@@ -201,6 +211,7 @@ StreamInterface2::~StreamInterface2()
 {
     d->qobject = 0;
 }
+#endif
 
 } // namespace Phonon
 
@@ -208,3 +219,5 @@ QT_END_NAMESPACE
 
 #include "moc_streaminterface.cpp"
 #include "moc_streaminterface_p.cpp"
+
+#endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM

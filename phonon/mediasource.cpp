@@ -2,18 +2,21 @@
     Copyright (C) 2007 Matthias Kretz <kretz@kde.org>
 
     This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Library General Public
-    License version 2 as published by the Free Software Foundation.
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) version 3, or any
+    later version accepted by the membership of KDE e.V. (or its
+    successor approved by the membership of KDE e.V.), Trolltech ASA 
+    (or its successors, if any) and the KDE Free Qt Foundation, which shall
+    act as a proxy defined in Section 6 of version 3 of the license.
 
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Library General Public License for more details.
+    Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Library General Public License
-    along with this library; see the file COPYING.LIB.  If not, write to
-    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-    Boston, MA 02110-1301, USA.
+    You should have received a copy of the GNU Lesser General Public 
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -46,14 +49,18 @@ MediaSource::MediaSource(const QString &filename)
 {
     const QFileInfo fileInfo(filename);
     if (fileInfo.exists()) {
-        bool localFs = QFSFileEngine(filename).fileFlags(QAbstractFileEngine::LocalDiskFlag);
+        bool localFs = QAbstractFileEngine::LocalDiskFlag & QFSFileEngine(filename).fileFlags(QAbstractFileEngine::LocalDiskFlag);
         if (localFs) {
             d->url = QUrl::fromLocalFile(fileInfo.absoluteFilePath());
         } else {
+#ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
             // it's a Qt resource -> use QFile
             d->type = Stream;
             d->ioDevice = new QFile(filename);
             d->setStream(new IODeviceStream(d->ioDevice, d->ioDevice));
+#else
+            d->type = Invalid;
+#endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM
         }
     } else {
         d->url = filename;
@@ -86,6 +93,7 @@ MediaSource::MediaSource(Phonon::DiscType dt, const QString &deviceName)
     d->deviceName = deviceName;
 }
 
+#ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
 MediaSource::MediaSource(AbstractMediaStream *stream)
     : d(new MediaSourcePrivate(Stream))
 {
@@ -106,6 +114,7 @@ MediaSource::MediaSource(QIODevice *ioDevice)
         d->type = Invalid;
     }
 }
+#endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM
 
 /* post 4.0
 MediaSource::MediaSource(const QList<MediaSource> &mediaList)
@@ -129,6 +138,7 @@ MediaSource::~MediaSource()
 
 MediaSourcePrivate::~MediaSourcePrivate()
 {
+#ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
     if (autoDelete) {
         delete stream;
         delete ioDevice;
@@ -136,6 +146,7 @@ MediaSourcePrivate::~MediaSourcePrivate()
     if (streamEventQueue) {
         streamEventQueue->deref();
     }
+#endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM
 }
 
 MediaSource::MediaSource(const MediaSource &rhs)
@@ -166,9 +177,11 @@ bool MediaSource::autoDelete() const
 
 MediaSource::Type MediaSource::type() const
 {
+#ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
     if (d->type == Stream && d->stream == 0) {
         return Invalid;
     }
+#endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM
     return d->type;
 }
 
@@ -192,6 +205,7 @@ QString MediaSource::deviceName() const
     return d->deviceName;
 }
 
+#ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
 AbstractMediaStream *MediaSource::stream() const
 {
     return d->stream;
@@ -200,13 +214,17 @@ AbstractMediaStream *MediaSource::stream() const
 void MediaSourcePrivate::setStream(AbstractMediaStream *s)
 {
     stream = s;
+#if 0
     AbstractMediaStream2 *s2 = qobject_cast<AbstractMediaStream2 *>(s);
     if (s2) {
         streamEventQueue = s2->d_func()->streamEventQueue;
         Q_ASSERT(streamEventQueue);
         streamEventQueue->ref();
     }
+#endif
 }
+#endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM
+
 
 //X AudioCaptureDevice MediaSource::audioCaptureDevice() const
 //X {
