@@ -1,8 +1,0 @@
-Capabilities example taken from Qt 4.4.1 (snapshot) source code.
-See QTDIR/examples/phonon/capabilities
-
-This is a plain copy to do some hacking if needed
-
-qmake project has been converted to CMake
-
-TODO: update has Trolltech change the code

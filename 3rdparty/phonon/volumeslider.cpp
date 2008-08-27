@@ -100,6 +100,36 @@ void VolumeSlider::setIconSize(const QSize &iconSize)
     k_ptr->muteButton.setIconSize(iconSize);
 }
 
+QIcon VolumeSlider::volumeIcon() const
+{
+    return k_ptr->volumeIcon;
+}
+
+void VolumeSlider::setVolumeIcon(const QIcon &icon)
+{
+    K_D(VolumeSlider);
+    pDebug() << Q_FUNC_INFO << icon;
+    k_ptr->volumeIcon = icon;
+    if (d->output) {
+        //d->_k_mutedChanged(d->output->isMuted());
+    }
+}
+
+QIcon VolumeSlider::mutedIcon() const
+{
+    return k_ptr->mutedIcon;
+}
+
+void VolumeSlider::setMutedIcon(const QIcon &icon)
+{
+    K_D(VolumeSlider);
+    pDebug() << Q_FUNC_INFO << icon;
+    k_ptr->mutedIcon = icon;
+    if (d->output) {
+        //d->_k_mutedChanged(d->output->isMuted());
+    }
+}
+
 qreal VolumeSlider::maximumVolume() const
 {
     return k_ptr->slider.maximum() * 0.01;

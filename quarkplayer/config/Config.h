@@ -69,6 +69,10 @@ public:
 	static const char * LAST_VOLUME_USED_KEY;
 	qreal lastVolumeUsed() const;
 
+	/** Volume muted?. */
+	static const char * VOLUME_MUTED_KEY;
+	bool volumeMuted() const;
+
 	/** Standard music location (i.e C:/blabla/My Music). */
 	static const char * MUSIC_DIR_KEY;
 	QString musicDir() const;
@@ -84,13 +88,6 @@ public:
 	/** @see http://doc.trolltech.com/main-snapshot/qwidget.html#restoreGeometry */
 	static const char * MAINWINDOW_GEOMETRY_KEY;
 	QByteArray mainWindowGeometry() const;
-
-
-	static const char * TEST_INT_KEY;
-	int testInt() const;
-
-	static const char * TEST_BOOL_KEY;
-	bool testBool() const;
 
 private:
 

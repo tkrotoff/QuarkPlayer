@@ -372,9 +372,9 @@ void PlaylistModel::updateMediaInfo() {
 		}
 
 		//Display track numbers like Winamp
-		//track.setTrackNumber(QString::number(row));
+		track.setTrackNumber(QString::number(row));
 
-		track.setTrackNumber(_mediaInfoFetcher->trackNumber());
+		//track.setTrackNumber(_mediaInfoFetcher->trackNumber());
 		track.setTitle(_mediaInfoFetcher->title());
 		track.setArtist(_mediaInfoFetcher->artist());
 		track.setAlbum(_mediaInfoFetcher->album());
@@ -415,6 +415,7 @@ void PlaylistModel::clear() {
 
 void PlaylistModel::play() {
 	if (_position != POSITION_INVALID) {
+		qDebug() << __FUNCTION__ << "_position:" << _position;
 		_quarkPlayer.play(_mediaSources[_position].mediaSource());
 	} else {
 		qCritical() << __FUNCTION__ << "Error: the position is invalid";
@@ -423,6 +424,7 @@ void PlaylistModel::play() {
 
 void PlaylistModel::enqueue() {
 	if (_position != POSITION_INVALID) {
+		qDebug() << __FUNCTION__ << "_position:" << _position;
 		_quarkPlayer.currentMediaObject()->enqueue(_mediaSources[_position].mediaSource());
 	} else {
 		qCritical() << __FUNCTION__ << "Error: the position is invalid";

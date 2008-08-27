@@ -150,9 +150,11 @@ Phonon::VideoWidget * QuarkPlayer::currentVideoWidget() const {
 }
 
 void QuarkPlayer::volumeChanged(qreal volume) {
-	//TODO move to another class?
-	Config & config = Config::instance();
-	config.setValue(Config::LAST_VOLUME_USED_KEY, volume);
+	Config::instance().setValue(Config::LAST_VOLUME_USED_KEY, volume);
+}
+
+void QuarkPlayer::mutedChanged(bool muted) {
+	Config::instance().setValue(Config::VOLUME_MUTED_KEY, muted);
 }
 
 Phonon::MediaObject * QuarkPlayer::createNewMediaObject() {
@@ -181,7 +183,9 @@ Phonon::MediaObject * QuarkPlayer::createNewMediaObject() {
 	//audioOutput
 	Phonon::AudioOutput * audioOutput = new Phonon::AudioOutput(Phonon::VideoCategory, this);
 	connect(audioOutput, SIGNAL(volumeChanged(qreal)), SLOT(volumeChanged(qreal)));
+	connect(audioOutput, SIGNAL(mutedChanged(bool)), SLOT(mutedChanged(bool)));
 	audioOutput->setVolume(Config::instance().lastVolumeUsed());
+	audioOutput->setMuted(Config::instance().volumeMuted());
 
 	//Associates the mediaObject with an audioOutput
 	Phonon::createPath(_currentMediaObject, audioOutput);

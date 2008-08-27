@@ -36,6 +36,7 @@ const char * Config::RECENT_FILES_KEY = "recent_files";
 const char * Config::LAST_DIRECTORY_USED_KEY = "last_directory_used";
 
 const char * Config::LAST_VOLUME_USED_KEY = "last_volume_used";
+const char * Config::VOLUME_MUTED_KEY = "volume_muted";
 
 const char * Config::MUSIC_DIR_KEY = "music_dir";
 
@@ -43,10 +44,6 @@ const char * Config::PLUGINS_DIR_KEY = "plugins_dir";
 const char * Config::PLUGINS_DISABLED_KEY = "plugins_disabled";
 
 const char * Config::MAINWINDOW_GEOMETRY_KEY = "mainwindow_geometry";
-
-
-const char * Config::TEST_INT_KEY = "test_int";
-const char * Config::TEST_BOOL_KEY = "test_bool";
 
 
 Config * Config::_instance = NULL;
@@ -70,13 +67,11 @@ Config::Config()
 	addKey(RECENT_FILES_KEY, QStringList());
 	addKey(LAST_DIRECTORY_USED_KEY, QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
 	addKey(LAST_VOLUME_USED_KEY, 1.0f);
+	addKey(VOLUME_MUTED_KEY, false);
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
 	addKey(PLUGINS_DIR_KEY, QString(QCoreApplication::applicationDirPath() + "/plugins"));
 	addKey(PLUGINS_DISABLED_KEY, QStringList());
 	addKey(MAINWINDOW_GEOMETRY_KEY, QByteArray());
-
-	addKey(TEST_INT_KEY, 0);
-	addKey(TEST_BOOL_KEY, false);
 }
 
 Config::~Config() {
@@ -127,6 +122,10 @@ qreal Config::lastVolumeUsed() const {
 	return value(LAST_VOLUME_USED_KEY).toDouble();
 }
 
+bool Config::volumeMuted() const {
+	return value(VOLUME_MUTED_KEY).toBool();
+}
+
 QString Config::musicDir() const {
 	return value(MUSIC_DIR_KEY).toString();
 }
@@ -141,15 +140,4 @@ QStringList Config::pluginsDisabled() const {
 
 QByteArray Config::mainWindowGeometry() const {
 	return value(MAINWINDOW_GEOMETRY_KEY).toByteArray();
-}
-
-
-
-
-int Config::testInt() const {
-	return value(TEST_INT_KEY).toInt();
-}
-
-bool Config::testBool() const {
-	return value(TEST_BOOL_KEY).toBool();
 }

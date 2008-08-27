@@ -14,6 +14,8 @@
 project(phonon-ds9)
 include(ConfigureChecks.cmake)
 
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
 if (BUILD_PHONON_DS9)
     find_package(OPENGL REQUIRED)
 
@@ -40,14 +42,11 @@ if (BUILD_PHONON_DS9)
 	)
 
     add_definitions(-DPHONON_MAKE_QT_ONLY_BACKEND -DUNICODE)
-    automoc4_add_library(phonon_ds9 SHARED ${phonon_ds9_SRCS})
+    qt4_automoc(${phonon_ds9_SRCS})
+    add_library(phonon_ds9 MODULE ${phonon_ds9_SRCS})
     set_target_properties(phonon_ds9 PROPERTIES PREFIX "")
     target_link_libraries(phonon_ds9
-                ${PHONON_LIBS}  ${QT_QTOPENGL_LIBRARY} ${OPENGL_gl_LIBRARY}
+                phonon ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTOPENGL_LIBRARY} ${OPENGL_gl_LIBRARY}
                 dxguid strmiids dmoguids msdmo ole32 oleaut32 uuid gdi32)
-    install(TARGETS phonon_ds9
-	    RUNTIME DESTINATION ${BIN_INSTALL_DIR}/phonon_backend
-	    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-	    ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
-    install(FILES ds9.desktop DESTINATION ${SERVICES_INSTALL_DIR}/phononbackends)
+    install(TARGETS phonon_ds9 DESTINATION ${PLUGIN_INSTALL_DIR})
 endif (BUILD_PHONON_DS9)

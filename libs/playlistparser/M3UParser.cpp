@@ -112,8 +112,10 @@ void M3UParser::load() {
 
 	file.close();
 
-	//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
-	emit filesFound(files);
+	if (!files.isEmpty()) {
+		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
+		emit filesFound(files);
+	}
 
 	emit finished();
 }

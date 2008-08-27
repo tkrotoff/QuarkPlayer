@@ -184,6 +184,16 @@ class PHONON_EXPORT Path
         bool reconnect(MediaNode *source, MediaNode *sink);
 
         /**
+         * Returns the source MediaNode used by the path.
+         */
+        MediaNode *sourceNode() const;
+
+        /**
+         * Returns the sink MediaNode used by the path.
+         */
+        MediaNode *sinkNode() const;
+
+        /**
          * Disconnects the path from the MediaNodes it was connected to. This invalidates the path
          * (isValid returns \p false then).
          */

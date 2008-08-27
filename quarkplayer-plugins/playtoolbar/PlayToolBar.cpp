@@ -130,7 +130,7 @@ void PlayToolBar::createSeekToolBar() {
 
 	//SeekSlider
 	_seekSlider = new Phonon::SeekSlider();
-	_seekSlider->setIconVisible(false);
+	_seekSlider->setIconVisible(true);
 	//_seekSlider->setTracking(false);
 
 	_seekToolBar->addWidget(_seekSlider);
@@ -164,8 +164,10 @@ void PlayToolBar::createControlToolBar() {
 void PlayToolBar::retranslate() {
 	setWindowTitle(tr("Play ToolBar"));
 
-	_volumeSlider->setVolumeIcon(TkIcon("speaker"));
-	_volumeSlider->setMutedIcon(TkIcon("speaker"));
+	_volumeSlider->setVolumeIcon(TkIcon("player-volume"));
+	_volumeSlider->setMutedIcon(TkIcon("player-volume-muted"));
+
+	_seekSlider->setIcon(TkIcon("player-time"));
 
 	setMinimumSize(sizeHint());
 }

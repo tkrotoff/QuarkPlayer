@@ -10,6 +10,8 @@
 	<file alias="16x16/format-list-ordered">icons/oxygen/16x16/actions/format-list-ordered.png</file>
 	<file alias="16x16/speaker">icons/oxygen/16x16/actions/speaker.png</file>
 	<file alias="16x16/player-volume">icons/oxygen/16x16/actions/player-volume.png</file>
+	<file alias="16x16/player-volume-muted">icons/oxygen/16x16/actions/player-volume-muted.png</file>
+	<file alias="16x16/player-time">icons/oxygen/16x16/actions/player-time.png</file>
 	<file alias="16x16/view-media-equalizer">icons/oxygen/16x16/actions/view-media-equalizer.png</file>
 	<file alias="16x16/go-next">icons/oxygen/16x16/actions/go-next.png</file>
 	<file alias="16x16/go-previous">icons/oxygen/16x16/actions/go-previous.png</file>

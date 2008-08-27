@@ -1,8 +1,0 @@
-Mediaplayer demo taken from Qt 4.4.1 (snapshot) source code.
-See QTDIR/demos/mediaplayer
-
-This is a plain copy to do some hacking if needed
-
-qmake project has been converted to CMake
-
-TODO: update has Trolltech change the code

@@ -1,3 +1,5 @@
+add_subdirectory(ds9)
+add_subdirectory(phonon)
 if (TAGLIB)
 	add_subdirectory(taglib)
 endif (TAGLIB)

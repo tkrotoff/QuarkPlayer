@@ -9,7 +9,9 @@
 	<file alias="16x16/edit-delete">icons/silk/delete.png</file>
 	<file alias="16x16/format-list-ordered">icons/silk/text_list_numbers.png</file>
 	<file alias="16x16/speaker">icons/silk/sound.png</file>
-	<file alias="16x16/player-volume">icons/silk/sound_none.png</file>
+	<file alias="16x16/player-volume">icons/silk/sound.png</file>
+	<file alias="16x16/player-volume-muted">icons/silk/sound_mute.png</file>
+	<file alias="16x16/player-time">icons/silk/clock.png</file>
 	<file alias="16x16/view-media-equalizer">icons/silk/control_equalizer.png</file>
 	<file alias="16x16/go-next">icons/silk/resultset_next.png</file>
 	<file alias="16x16/go-previous">icons/silk/resultset_previous.png</file>

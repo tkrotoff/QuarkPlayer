@@ -121,6 +121,12 @@ private slots:
 	 */
 	void volumeChanged(qreal volume);
 
+	/**
+	 * Volume output has been muted, let's save it.
+	 * FIXME Moves this somewhere else?
+	 */
+	void mutedChanged(bool muted);
+
 	/** All plugins have been loaded. */
 	void allPluginsLoaded();
 

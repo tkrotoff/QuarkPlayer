@@ -32,29 +32,26 @@
 - buy a Mac and port QuarkPlayer
 
 == GUI ==
-- make mediacontroller add its own menus inside MainWindow
 
 == TagLib ==
 - allow tag editing/writing
 
 == General ==
-- fix quit problems
+- fix quit problems (QWaitCondition: Destroyed while threads are still waiting)
 - fix playlist search, all My Music + chinese man + I've got that tune and wait...
 - fix several playlist mode
-- fix playlist open -> does not load the tags using TagLib
-- implement C findFiles() with scandir for a blazing fast playlist
 - fix several FileBrowser mode
 - add profiles (audio, video...) ala Konqueror
 - implement a systray menu
 - implement shortcuts dialog
 - fix drag&drop inside MainWindow + command line
+- re-implement FileBrowser to make it really work
 
 == Future ==
 - add music visualization
   see http://projectm.sourceforge.net/ and http://www.ios-software.com/?page=projet&quoi=1
 - add an equalizer
 - guess movie title / serie title-episode... from the video filename
-- re-implement FileBrowser to make it really work
 - add Jamendo support
 - add Magnatube support
 - add Youtube support
@@ -65,3 +62,4 @@
 - Dailymotion support
 - add Magnatune support
 - add LastFm support
+- add Deezer support
