@@ -58,8 +58,8 @@ bool PlaylistFilter::filterAcceptsRow(int sourceRow, const QModelIndex & sourceP
 void PlaylistFilter::setFilter(const QString & filter) {
 	if (filter != _filter) {
 		_filter = filter;
-		QModelIndex current = currentIndex();
 		invalidateFilter();
+		QModelIndex current = currentIndex();
 		if (current.isValid()) {
 			_position = mapFromSource(current).row();
 		}
@@ -93,23 +93,6 @@ void PlaylistFilter::setCurrentIndex(const QModelIndex & index) {
 	emit dataChanged(this->index(_position, PlaylistModel::COLUMN_FIRST),
 			this->index(_position, PlaylistModel::COLUMN_LAST));
 }
-
-/*int PlaylistFilter::position(const QModelIndex & index) {
-	int pos = POSITION_INVALID;
-
-	if (!index.isValid()) {
-		return pos;
-	}
-
-	const QAbstractItemModel * model = index.model();
-	if (model == this) {
-		//_position = index.row();
-		pos = mapToSource(index).row();
-	} else if (model == _playlistModel) {
-		//_position = mapFromSource(index).row();
-		pos = index.row();
-	}
-}*/
 
 void PlaylistFilter::play(const QModelIndex & index) {
 	setCurrentIndex(index);

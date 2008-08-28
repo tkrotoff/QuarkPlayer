@@ -19,10 +19,6 @@
 #ifndef TRACK_H
 #define TRACK_H
 
-namespace Phonon {
-	class MediaSource;
-}
-
 #include <QtCore/QString>
 
 /**
@@ -36,19 +32,9 @@ namespace Phonon {
 class Track {
 public:
 
-	explicit Track(const QString & filename);
-
-	Track(const Track & track);
+	Track();
 
 	~Track();
-
-	Track & operator=(const Track & right);
-
-	/** Comparaison based on filenames only. */
-	int operator==(const Track & right);
-
-	QString fileName() const;
-	Phonon::MediaSource mediaSource() const;
 
 	void setTrackNumber(const QString & trackNumber);
 	QString trackNumber() const;
@@ -65,23 +51,13 @@ public:
 	void setLength(const QString & length);
 	QString length() const;
 
-	void setMediaDataResolved(bool resolved);
-	bool mediaDataResolved() const;
-
 private:
-
-	void copy(const Track & track);
-
-	void setMediaSource(const Phonon::MediaSource & mediaSource);
-
-	QString _filename;
 
 	QString _trackNumber;
 	QString _title;
 	QString _artist;
 	QString _album;
 	QString _length;
-	bool _resolved;
 };
 
 #endif	//TRACK_H

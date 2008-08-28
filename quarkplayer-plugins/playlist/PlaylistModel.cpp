@@ -57,13 +57,20 @@ static const QString CURRENT_PLAYLIST = "/current_playlist.m3u";
 
 static const int POSITION_INVALID = -1;
 
+static const char * PLAYLIST_CACHE_LIMIT_CONFIG_KEY = "playlist_cache_limit";
+
 PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 	: QAbstractItemModel(parent),
 	_quarkPlayer(quarkPlayer) {
 
-	_position = POSITION_INVALID;
-	_mediaInfoFetcherLaunched = false;
-	_rowWhereToInsertFiles = -1;
+	clearInternal();
+
+	//Cache system
+	connect(&Config::instance(), SIGNAL(valueChanged(const QString &, const QVariant &)),
+		SLOT(cacheMaxCostChanged(const QString &, const QVariant &)));
+	static const int PLAYLIST_CACHE_LIMIT_DEFAULT = 100000;
+	Config::instance().addKey(PLAYLIST_CACHE_LIMIT_CONFIG_KEY, PLAYLIST_CACHE_LIMIT_DEFAULT);
+	_cache.setMaxCost(Config::instance().value(PLAYLIST_CACHE_LIMIT_CONFIG_KEY).toInt());
 
 	//Info fetcher
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
@@ -118,35 +125,44 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 
 	int row = index.row();
 	int column = index.column();
-	Track track(_mediaSources[row]);
 	if (role == Qt::DisplayRole) {
-		switch (column) {
-		case COLUMN_TRACK:
-			tmp = track.trackNumber();
-			break;
-		case COLUMN_TITLE:
-			tmp = track.title();
-			break;
-		case COLUMN_ARTIST:
-			tmp = track.artist();
-			break;
-		case COLUMN_ALBUM:
-			tmp = track.album();
-			break;
-		case COLUMN_LENGTH:
-			tmp = track.length();
-			break;
-		default:
-			qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
+		Track * track = _cache.object(row);
+		if (track) {
+			switch (column) {
+			case COLUMN_TRACK:
+				tmp = track->trackNumber();
+				break;
+			case COLUMN_TITLE:
+				tmp = track->title();
+				break;
+			case COLUMN_ARTIST:
+				tmp = track->artist();
+				break;
+			case COLUMN_ALBUM:
+				tmp = track->album();
+				break;
+			case COLUMN_LENGTH:
+				tmp = track->length();
+				break;
+			default:
+				qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
+			}
 		}
 
-		if (!track.mediaDataResolved()) {
-			_filesInfoResolver = track.fileName();
+		else {
+			QString filename(_filenames[row]);
+
+			switch (column) {
+			case COLUMN_TITLE:
+				tmp = TkFile::dir(filename) + "/" +
+						TkFile::removeFileExtension(TkFile::fileName(filename));
+				break;
+			}
 
 			//Resolve meta data file one by one
-			if (!_mediaInfoFetcherLaunched) {
-				_mediaInfoFetcherLaunched = true;
-				_mediaInfoFetcher->start(_filesInfoResolver);
+			if (_mediaInfoFetcherRow == POSITION_INVALID) {
+				_mediaInfoFetcherRow = row;
+				_mediaInfoFetcher->start(filename);
 			}
 		}
 	}
@@ -189,7 +205,7 @@ int PlaylistModel::rowCount(const QModelIndex & parent) const {
 		return 0;
 	}
 
-	return _mediaSources.size();
+	return _filenames.size();
 }
 
 Qt::ItemFlags PlaylistModel::flags(const QModelIndex & index) const {
@@ -263,19 +279,15 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 	int first = 0;
 	if (row == -1) {
 		//row == -1 means append the files
-		first = _mediaSources.size();
+		first = _filenames.size();
 	} else {
 		//row != -1 means we have a specific row location where to add the files
 		first = row;
 	}
 	int last = first + filenameList.size() - 1;
-	int currentRow = first;
 
 	beginInsertRows(QModelIndex(), first, last);
-	foreach (QString filename, filenameList) {
-		_mediaSources.insert(currentRow, Track(filename));
-		currentRow++;
-	}
+	_filenames << filenameList;
 	endInsertRows();
 
 	QCoreApplication::processEvents();
@@ -296,8 +308,11 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
 			_position--;
 		}
 
-		//Updates the list of MediaSource
-		_mediaSources.removeAt(row);
+		//Remove from the list of filenames
+		_filenames.removeAt(row);
+
+		//Remove from cache
+		_cache.remove(row);
 	}
 	endRemoveRows();
 
@@ -321,15 +336,11 @@ void PlaylistModel::saveCurrentPlaylist() const {
 	Config & config = Config::instance();
 	QString path(config.configDir());
 	PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST);
-	QtConcurrent::run(parser, &PlaylistParser::save, this->files());
+	QtConcurrent::run(parser, &PlaylistParser::save, _filenames);
 }
 
-QStringList PlaylistModel::files() const {
-	QStringList files;
-	foreach (Track track, _mediaSources) {
-		files << track.fileName();
-	}
-	return files;
+const QStringList & PlaylistModel::filenames() const {
+	return _filenames;
 }
 
 QMimeData * PlaylistModel::mimeData(const QModelIndexList & indexes) const {
@@ -339,7 +350,7 @@ QMimeData * PlaylistModel::mimeData(const QModelIndexList & indexes) const {
 		//Number of index is the number of columns
 		//Here we have 5 columns, we only want to select 1 column per row
 		if (index.column() == COLUMN_TITLE) {
-			QString filename(_mediaSources[index.row()].fileName());
+			QString filename(_filenames[index.row()]);
 			if (!filename.isEmpty()) {
 				files << filename;
 			}
@@ -362,51 +373,54 @@ Qt::DropActions PlaylistModel::supportedDropActions() const {
 }
 
 void PlaylistModel::updateMediaInfo() {
-	Track track(_mediaInfoFetcher->filename());
+	QString filename(_filenames[_mediaInfoFetcherRow]);
 
-	//Finds all the matching MediaSource
-	for (int row = 0; ; row++) {
-		row = _mediaSources.indexOf(track, row);
-		if (row == -1) {
-			break;
-		}
+	if (filename == _mediaInfoFetcher->filename() &&
+		!_cache.object(_mediaInfoFetcherRow)) {
+
+		Track * track = new Track();
 
 		//Display track numbers like Winamp
-		track.setTrackNumber(QString::number(row));
+		//track->setTrackNumber(QString::number(_mediaInfoFetcherRow));
 
-		//track.setTrackNumber(_mediaInfoFetcher->trackNumber());
-		track.setTitle(_mediaInfoFetcher->title());
-		track.setArtist(_mediaInfoFetcher->artist());
-		track.setAlbum(_mediaInfoFetcher->album());
-		track.setLength(_mediaInfoFetcher->length());
-		track.setMediaDataResolved(true);
+		track->setTrackNumber(_mediaInfoFetcher->trackNumber());
+		track->setTitle(_mediaInfoFetcher->title());
+		track->setArtist(_mediaInfoFetcher->artist());
+		track->setAlbum(_mediaInfoFetcher->album());
+		track->setLength(_mediaInfoFetcher->length());
 
-		_mediaSources[row] = track;
+		_cache.insert(_mediaInfoFetcherRow, track);
+		qDebug() << "Cache size:" << _cache.size() << sizeof(_cache);
 
 		//Update the row since the matching MediaSource has been modified
-		emit dataChanged(index(row, COLUMN_FIRST), index(row, COLUMN_LAST));
+		emit dataChanged(index(_mediaInfoFetcherRow, COLUMN_FIRST), index(_mediaInfoFetcherRow, COLUMN_LAST));
 	}
-
-	_mediaInfoFetcherLaunched = false;
+	_mediaInfoFetcherRow = POSITION_INVALID;
 }
 
 MediaInfoFetcher & PlaylistModel::mediaInfoFetcher() const {
 	return *_mediaInfoFetcher;
 }
 
-Phonon::MediaSource PlaylistModel::mediaSource(const QModelIndex & index) const {
+QString PlaylistModel::filename(const QModelIndex & index) const {
+	QString tmp;
 	if (index.isValid()) {
 		int row = index.row();
-		Track track(_mediaSources[row]);
-		return track.mediaSource();
+		tmp = _filenames[row];
 	}
-	return Phonon::MediaSource();
+	return tmp;
+}
+
+void PlaylistModel::clearInternal() {
+	_filenames.clear();
+	_cache.clear();
+	_position = POSITION_INVALID;
+	_mediaInfoFetcherRow = POSITION_INVALID;
+	_rowWhereToInsertFiles = POSITION_INVALID;
 }
 
 void PlaylistModel::clear() {
-	_mediaSources.clear();
-	_filesInfoResolver.clear();
-	_position = POSITION_INVALID;
+	clearInternal();
 	reset();
 
 	//Save current playlist each time we remove files from it
@@ -416,7 +430,7 @@ void PlaylistModel::clear() {
 void PlaylistModel::play() {
 	if (_position != POSITION_INVALID) {
 		qDebug() << __FUNCTION__ << "_position:" << _position;
-		_quarkPlayer.play(_mediaSources[_position].mediaSource());
+		_quarkPlayer.play(Phonon::MediaSource(_filenames[_position]));
 	} else {
 		qCritical() << __FUNCTION__ << "Error: the position is invalid";
 	}
@@ -425,7 +439,7 @@ void PlaylistModel::play() {
 void PlaylistModel::enqueue() {
 	if (_position != POSITION_INVALID) {
 		qDebug() << __FUNCTION__ << "_position:" << _position;
-		_quarkPlayer.currentMediaObject()->enqueue(_mediaSources[_position].mediaSource());
+		_quarkPlayer.currentMediaObject()->enqueue(Phonon::MediaSource(_filenames[_position]));
 	} else {
 		qCritical() << __FUNCTION__ << "Error: the position is invalid";
 	}
@@ -437,4 +451,10 @@ void PlaylistModel::setPosition(int position) {
 
 int PlaylistModel::position() const {
 	return _position;
+}
+
+void PlaylistModel::cacheMaxCostChanged(const QString & key, const QVariant & value) {
+	if (key == PLAYLIST_CACHE_LIMIT_CONFIG_KEY) {
+		_cache.setMaxCost(Config::instance().value(PLAYLIST_CACHE_LIMIT_CONFIG_KEY).toInt());
+	}
 }

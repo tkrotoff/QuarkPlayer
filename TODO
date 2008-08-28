@@ -37,7 +37,9 @@
 - allow tag editing/writing
 
 == General ==
-- fix quit problems (QWaitCondition: Destroyed while threads are still waiting)
+- fix quit problems
+  QWaitCondition: Destroyed while threads are still waiting
+  QObject::killTimers: timers cannot be stopped from another thread
 - fix playlist search, all My Music + chinese man + I've got that tune and wait...
 - fix several playlist mode
 - fix several FileBrowser mode

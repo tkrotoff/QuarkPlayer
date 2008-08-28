@@ -22,14 +22,8 @@
 #include <phonon/phononnamespace.h>
 
 #include <QtCore/QAbstractItemModel>
-#include <QtCore/QList>
-#include <QtCore/QMap>
 #include <QtCore/QStringList>
-
-namespace Phonon {
-	class MediaObject;
-	class MediaSource;
-}
+#include <QtCore/QCache>
 
 class Track;
 
@@ -89,13 +83,13 @@ public:
 	int position() const;
 
 	/** Returns the files displayed in the playlist. */
-	QStringList files() const;
+	const QStringList & filenames() const;
 
 	/** Gets the MediaInfoFetcher. */
 	MediaInfoFetcher & mediaInfoFetcher() const;
 
-	/** Gets the Phonon::MediaSource given an index. */
-	Phonon::MediaSource mediaSource(const QModelIndex & index) const;
+	/** Gets the filename given its index. */
+	QString filename(const QModelIndex & index) const;
 
 	//Inherited from QAbstractItemModel
 	int columnCount(const QModelIndex & parent = QModelIndex()) const;
@@ -129,7 +123,11 @@ private slots:
 
 	void filesFound(const QStringList & files);
 
+	void cacheMaxCostChanged(const QString & key, const QVariant & value);
+
 private:
+
+	void clearInternal();
 
 	QuarkPlayer & _quarkPlayer;
 
@@ -137,20 +135,21 @@ private:
 	MediaInfoFetcher * _mediaInfoFetcher;
 
 	/**
-	 * List of all the media available in this QAbstractItemModel.
-	 *
-	 * Cannot be replaced by a QSet (i.e no duplicated data) since the index
-	 * inside the QList is the row in the model where the MediaSource is.
+	 * List of all the media (filenames) available in this QAbstractItemModel.
 	 */
-	QList<Track> _mediaSources;
+	QStringList _filenames;
+
+	/** Cache system for optimal performance.
+	 *
+	 * The index is the row in the QAbstractItemModel.
+	 */
+	QCache<int, Track> _cache;
 
 	/**
-	 * Pending file for meta data/info to be resolved.
+	 * _mediaInfoFetcher is working or not (already resolving some metadatas or not).
+	 * Pending row for meta data/info to be resolved.
 	 */
-	mutable QString _filesInfoResolver;
-
-	/** _mediaInfoFetcher is working or not (already resolving some metadatas or not). */
-	mutable bool _mediaInfoFetcherLaunched;
+	mutable int _mediaInfoFetcherRow;
 
 	int _position;
 

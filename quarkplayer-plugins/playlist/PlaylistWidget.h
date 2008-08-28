@@ -87,6 +87,10 @@ private slots:
 
 	void search();
 
+	void searchStarted();
+
+	void searchFinished();
+
 private:
 
 	void populateActionCollection();

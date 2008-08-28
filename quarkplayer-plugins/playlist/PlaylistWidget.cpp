@@ -42,6 +42,7 @@
 
 #include <QtGui/QtGui>
 
+#include <QtCore/QtConcurrentRun>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
@@ -139,6 +140,7 @@ void PlaylistWidget::createToolBar() {
 	_treeView->installEventFilter(deleteKeyFilter);
 	removeMenu->addAction(ActionCollection::action("playlistRemoveAll"));
 	connect(ActionCollection::action("playlistRemoveAll"), SIGNAL(triggered()), _playlistModel, SLOT(clear()));
+	connect(ActionCollection::action("playlistRemoveAll"), SIGNAL(triggered()), SLOT(updateWindowTitle()));
 	removeButton->setMenu(removeMenu);
 
 	_toolBar->addAction(ActionCollection::action("playlistShuffle"));
@@ -331,7 +333,7 @@ void PlaylistWidget::savePlaylist() {
 		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
 
 		PlaylistParser parser(filename);
-		parser.save(_playlistModel->files());
+		parser.save(_playlistModel->filenames());
 	}
 }
 
@@ -375,10 +377,30 @@ void PlaylistWidget::searchChanged() {
 
 void PlaylistWidget::search() {
 	_searchTimer->stop();
-
 	QString pattern(_searchLineEdit->text().trimmed());
-
 	_clearSearchButton->setEnabled(!pattern.isEmpty());
 
-	_playlistFilter->setFilter(pattern);
+	QFutureWatcher<void> * watcher = new QFutureWatcher<void>(this);
+	connect(watcher, SIGNAL(started()), SLOT(searchStarted()));
+	connect(watcher, SIGNAL(finished()), SLOT(searchFinished()));
+	qDebug() << __FUNCTION__ << "1";
+	QFuture<void> future = QtConcurrent::run(_playlistFilter, &PlaylistFilter::setFilter, pattern);
+	qDebug() << __FUNCTION__ << "2";
+	watcher->setFuture(future);
+}
+
+void PlaylistWidget::searchStarted() {
+	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
+	qDebug() << __FUNCTION__ << statusBar;
+	if (statusBar) {
+		statusBar->showMessage(tr("Searching..."));
+	}
+}
+
+void PlaylistWidget::searchFinished() {
+	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
+	qDebug() << __FUNCTION__ << statusBar;
+	if (statusBar) {
+		statusBar->showMessage(tr("Search finished"));
+	}
 }
