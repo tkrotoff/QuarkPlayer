@@ -463,7 +463,12 @@ void MainWindow::dropEvent(QDropEvent * event) {
 }
 
 void MainWindow::closeEvent(QCloseEvent * event) {
+	//Saves window geometry
 	Config::instance().setValue(Config::MAINWINDOW_GEOMETRY_KEY, saveGeometry());
+
+	//Quits the application
+	QCoreApplication::quit();
+
 	TkMainWindow::closeEvent(event);
 }
 

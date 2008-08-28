@@ -88,8 +88,6 @@ int main(int argc, char * argv[]) {
 	app.setStyle(QStyleFactory::create(Config::instance().style()));
 #endif	//Q_OS_WIN
 
-	app.setQuitOnLastWindowClosed(true);
-
 	//Translator
 	Translator::instance().load(config.language());
 

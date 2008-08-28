@@ -1,4 +1,4 @@
-#include <winver.h>
+#include <winres.h>
 
 IDI_ICON1 ICON "${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer.ico"
 
