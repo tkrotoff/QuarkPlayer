@@ -11,15 +11,17 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library.  If not, see <http://www.gnu.org/licenses/>.
+
 project(phonon-ds9)
-include(ConfigureChecks.cmake)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-if (BUILD_PHONON_DS9)
+find_package(DirectX)
+
+if (DIRECTX9_FOUND)
     find_package(OPENGL REQUIRED)
 
-    include_directories($ENV{DXDSDK_DIR}/include $ENV{DXSDK_DIR})
+    include_directories(${DIRECTX_INCLUDE_DIRS})
     set(phonon_ds9_SRCS
             abstractvideorenderer.cpp
             audiooutput.cpp
@@ -39,7 +41,7 @@ if (BUILD_PHONON_DS9)
             qasyncreader.cpp
             qaudiocdreader.cpp
             qmeminputpin.cpp
-	)
+    )
 
     add_definitions(-DPHONON_MAKE_QT_ONLY_BACKEND -DUNICODE)
     qt4_automoc(${phonon_ds9_SRCS})
@@ -47,6 +49,7 @@ if (BUILD_PHONON_DS9)
     set_target_properties(phonon_ds9 PROPERTIES PREFIX "")
     target_link_libraries(phonon_ds9
                 phonon ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTOPENGL_LIBRARY} ${OPENGL_gl_LIBRARY}
-                dxguid strmiids dmoguids msdmo ole32 oleaut32 uuid gdi32)
+                ${DIRECTX9_LIBRARIES}
+    )
     install(TARGETS phonon_ds9 DESTINATION ${PLUGIN_INSTALL_DIR})
-endif (BUILD_PHONON_DS9)
+endif (DIRECTX9_FOUND)
