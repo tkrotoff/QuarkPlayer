@@ -87,10 +87,6 @@ private slots:
 
 	void search();
 
-	void searchStarted();
-
-	void searchFinished();
-
 	void currentSourceChanged(const Phonon::MediaSource & source);
 
 private:

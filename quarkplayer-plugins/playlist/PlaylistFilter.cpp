@@ -59,7 +59,6 @@ void PlaylistFilter::setFilter(const QString & filter) {
 	if (filter != _filter) {
 		_filter = filter;
 		invalidateFilter();
-		emit filterChanged();
 	}
 }
 

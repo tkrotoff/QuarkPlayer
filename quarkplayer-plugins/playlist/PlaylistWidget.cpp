@@ -42,7 +42,6 @@
 
 #include <QtGui/QtGui>
 
-#include <QtCore/QtConcurrentRun>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
@@ -390,25 +389,11 @@ void PlaylistWidget::search() {
 	_searchTimer->stop();
 	QString pattern(_searchLineEdit->text().trimmed());
 	_clearSearchButton->setEnabled(!pattern.isEmpty());
-
-	QFutureWatcher<void> * watcher = new QFutureWatcher<void>(this);
-	connect(watcher, SIGNAL(started()), SLOT(searchStarted()));
-	connect(watcher, SIGNAL(finished()), SLOT(searchFinished()));
-	QFuture<void> future = QtConcurrent::run(_playlistFilter, &PlaylistFilter::setFilter, pattern);
-	watcher->setFuture(future);
-}
-
-void PlaylistWidget::searchStarted() {
 	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
-	qDebug() << __FUNCTION__ << statusBar;
 	if (statusBar) {
 		statusBar->showMessage(tr("Searching..."));
 	}
-}
-
-void PlaylistWidget::searchFinished() {
-	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
-	qDebug() << __FUNCTION__ << statusBar;
+	_playlistFilter->setFilter(pattern);
 	if (statusBar) {
 		statusBar->showMessage(tr("Search finished"));
 	}
