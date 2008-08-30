@@ -70,11 +70,9 @@ public:
 	void play();
 
 	/**
-	 * Enqueues the file at position.
-	 *
-	 * @see setPosition()
+	 * Enqueues the file at int nextTrack position.
 	 */
-	void enqueue();
+	void enqueue(int nextTrack);
 
 	/** Sets the current item position inside the model. */
 	void setPosition(int position);
@@ -84,9 +82,6 @@ public:
 
 	/** Returns the files displayed in the playlist. */
 	const QStringList & filenames() const;
-
-	/** Gets the MediaInfoFetcher. */
-	MediaInfoFetcher & mediaInfoFetcher() const;
 
 	/** Gets the filename given its index. */
 	QString filename(const QModelIndex & index) const;

@@ -353,8 +353,30 @@ void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject
 		_playlistFilter, SLOT(playPreviousTrack()));
 
 	//aboutToFinish -> let's queue/play the next track
-	connect(mediaObject, SIGNAL(aboutToFinish()),
-		_playlistFilter, SLOT(enqueueNextTrack()));
+	//connect(mediaObject, SIGNAL(aboutToFinish()),
+	//	_playlistFilter, SLOT(enqueueNextTrack()));
+	connect(mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
+		SLOT(currentSourceChanged(const Phonon::MediaSource &)));
+	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
+		SLOT(stateChanged(Phonon::State, Phonon::State)));
+	connect(mediaObject, SIGNAL(finished()),
+		SLOT(finished()));
+}
+
+void PlaylistWidget::stateChanged(Phonon::State newState, Phonon::State oldState) {
+	qDebug() << __FUNCTION__ << "newState:" << newState << "oldState:" << oldState;
+	if (newState == Phonon::PlayingState) {
+		//_playlistFilter->enqueueNextTrack();
+	}
+}
+
+void PlaylistWidget::currentSourceChanged(const Phonon::MediaSource & source) {
+	qDebug() << __FUNCTION__ << "source:" << source.fileName();
+	_playlistFilter->enqueueNextTrack();
+}
+
+void PlaylistWidget::finished() {
+	qDebug() << __FUNCTION__;
 }
 
 void PlaylistWidget::createNewPlaylistWidget() {

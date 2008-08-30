@@ -63,6 +63,7 @@ private:
 	QModelIndex previousTrack() const;
 
 	void setCurrentIndex(const QModelIndex & index);
+	int modelPosition(const QModelIndex & index);
 
 	bool filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const;
 

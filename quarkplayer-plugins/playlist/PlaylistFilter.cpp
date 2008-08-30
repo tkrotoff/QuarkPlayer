@@ -94,6 +94,19 @@ void PlaylistFilter::setCurrentIndex(const QModelIndex & index) {
 			this->index(_position, PlaylistModel::COLUMN_LAST));
 }
 
+int PlaylistFilter::modelPosition(const QModelIndex & index) {
+	int position = POSITION_INVALID;
+	if (index.isValid()) {
+		const QAbstractItemModel * model = index.model();
+		if (model == this) {
+			position = mapToSource(index).row();
+		} else if (model == _playlistModel) {
+			position = index.row();
+		}
+	}
+	return position;
+}
+
 void PlaylistFilter::play(const QModelIndex & index) {
 	setCurrentIndex(index);
 	_playlistModel->play();
@@ -108,23 +121,28 @@ void PlaylistFilter::playPreviousTrack() {
 }
 
 void PlaylistFilter::enqueueNextTrack() {
+	static int previousTrack = _position;
+	_position = previousTrack;
+	int nextTrack = _position;
+	qDebug() << __FUNCTION__ << "previousTrack:" << previousTrack;
+
 	if (_shuffle) {
-		_position = Random::randomInt(0, rowCount() - 1);
+		nextTrack = Random::randomInt(0, rowCount() - 1);
 	} else {
-		_position++;
+		nextTrack++;
 	}
 
-	if (_position < 0 || _position >= rowCount()) {
+	if (nextTrack < 0 || nextTrack >= rowCount()) {
 		if (_repeat) {
 			//Back to the top of the playlist
-			_position = 0;
+			nextTrack = 0;
 		}
 	}
+	previousTrack = nextTrack;
 
-	if (_position >= 0 && _position < rowCount()) {
-		QModelIndex nextIndex = mapToSource(index(_position, PlaylistModel::COLUMN_FIRST));
-		setCurrentIndex(nextIndex);
-		_playlistModel->enqueue();
+	if (nextTrack >= 0 && nextTrack < rowCount()) {
+		QModelIndex nextIndex = mapToSource(index(nextTrack, PlaylistModel::COLUMN_FIRST));
+		_playlistModel->enqueue(modelPosition(nextIndex));
 	}
 }
 
