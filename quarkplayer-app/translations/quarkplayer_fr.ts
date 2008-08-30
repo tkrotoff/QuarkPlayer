@@ -86,7 +86,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer/CommandLineHelp.cpp" line="39"/>
         <source>media</source>
-        <translation>media</translation>
+        <translation>média</translation>
     </message>
     <message>
         <location filename="../../quarkplayer/CommandLineHelp.cpp" line="43"/>
@@ -198,7 +198,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="233"/>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Rafraîchir</translation>
     </message>
 </context>
 <context>
@@ -691,7 +691,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="296"/>
         <source>&lt;a href=&quot;http://musicbrainz.org/doc/PicardDownload&quot;&gt;MusicBrainz Picard Tagger&lt;/a&gt; is recommended for tagging your music files</source>
-        <translation>&lt;a href=&quot;http://musicbrainz.org/doc/PicardDownload&quot;&gt;MusicBrainz Picard Tagger&lt;/a&gt;est recommandé pour &quot;tagger&quot; vos fichiers musicaux</translation>
+        <translation>&lt;a href=&quot;http://musicbrainz.org/doc/PicardDownload&quot;&gt;MusicBrainz Picard Tagger&lt;/a&gt; est recommandé pour &quot;tagger&quot; vos fichiers musicaux</translation>
     </message>
 </context>
 <context>
@@ -705,27 +705,27 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>PlaylistModel</name>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="89"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="90"/>
         <source>#</source>
         <translation>#</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="92"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="93"/>
         <source>Title</source>
         <translation>Titre</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="95"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="96"/>
         <source>Artist</source>
         <translation>Artiste</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="98"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="99"/>
         <source>Album</source>
         <translation>Album</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="101"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="102"/>
         <source>Length</source>
         <translation>Durée</translation>
     </message>
@@ -845,27 +845,27 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="245"/>
         <source>items</source>
-        <translation type="unfinished"></translation>
+        <translation>médias</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="251"/>
         <source>Multimedia</source>
-        <translation type="unfinished">Multimédia</translation>
+        <translation>Multimédia</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="252"/>
         <source>Video</source>
-        <translation type="unfinished">Vidéo</translation>
+        <translation>Vidéo</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="253"/>
         <source>Audio</source>
-        <translation type="unfinished">Audio</translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="327"/>
         <source>All Files</source>
-        <translation type="unfinished">Tous les fichiers</translation>
+        <translation>Tous les fichiers</translation>
     </message>
 </context>
 <context>
@@ -969,77 +969,77 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
         <translation></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="321"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="320"/>
         <source>Auto</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="322"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="321"/>
         <source>Stretch</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="323"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="322"/>
         <source>4/3</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="324"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="323"/>
         <source>16/9</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="325"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="324"/>
         <source>Scale Mode:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="329"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="327"/>
         <source>Fit in view</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="330"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="328"/>
         <source>Scale and crop</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="331"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="329"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="332"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="330"/>
         <source>Audio Device:</source>
         <translation>Périphérique audio :</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="333"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="331"/>
         <source>Audio Effect:</source>
         <translation>Effet audio :</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="334"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="332"/>
         <source>Setup</source>
         <translation>Configurer</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="335"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="333"/>
         <source>Cross Fade:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="336"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="334"/>
         <source>-10 Sec</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="337"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="335"/>
         <source>0</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="338"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="336"/>
         <source>10 Sec</source>
         <translation></translation>
     </message>
