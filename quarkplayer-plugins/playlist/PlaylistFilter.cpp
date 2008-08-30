@@ -33,7 +33,7 @@ PlaylistFilter::PlaylistFilter(QObject * parent, PlaylistModel * playlistModel)
 
 	_shuffle = false;
 	_repeat = false;
-	_position = POSITION_INVALID;
+	_previousPosition = POSITION_INVALID;
 
 	setSourceModel(_playlistModel);
 }
@@ -59,42 +59,20 @@ void PlaylistFilter::setFilter(const QString & filter) {
 	if (filter != _filter) {
 		_filter = filter;
 		invalidateFilter();
-		QModelIndex current = currentIndex();
-		if (current.isValid()) {
-			_position = mapFromSource(current).row();
-		}
 		emit filterChanged();
 	}
 }
 
 QModelIndex PlaylistFilter::currentIndex() const {
-	if (_position >= 0) {
-		return _playlistModel->index(_playlistModel->position(), PlaylistModel::COLUMN_FIRST);
-	}
-	return QModelIndex();
+	return _playlistModel->index(_playlistModel->position(), PlaylistModel::COLUMN_FIRST);
 }
 
-void PlaylistFilter::setCurrentIndex(const QModelIndex & index) {
-	if (!index.isValid()) {
-		_position = POSITION_INVALID;
-		_playlistModel->setPosition(_position);
-		return;
-	}
-
-	const QAbstractItemModel * model = index.model();
-	if (model == this) {
-		_position = index.row();
-		_playlistModel->setPosition(mapToSource(index).row());
-	} else if (model == _playlistModel) {
-		_position = mapFromSource(index).row();
-		_playlistModel->setPosition(index.row());
-	}
-
-	emit dataChanged(this->index(_position, PlaylistModel::COLUMN_FIRST),
-			this->index(_position, PlaylistModel::COLUMN_LAST));
+int PlaylistFilter::convertCurrentModelToFilterPosition() {
+	QModelIndex index = _playlistModel->index(_playlistModel->position(), PlaylistModel::COLUMN_FIRST);
+	return mapFromSource(index).row();
 }
 
-int PlaylistFilter::modelPosition(const QModelIndex & index) {
+int PlaylistFilter::convertToModelPosition(const QModelIndex & index) {
 	int position = POSITION_INVALID;
 	if (index.isValid()) {
 		const QAbstractItemModel * model = index.model();
@@ -108,8 +86,9 @@ int PlaylistFilter::modelPosition(const QModelIndex & index) {
 }
 
 void PlaylistFilter::play(const QModelIndex & index) {
-	setCurrentIndex(index);
-	_playlistModel->play();
+	int position = convertToModelPosition(index);
+	_previousPosition = position;
+	_playlistModel->play(position);
 }
 
 void PlaylistFilter::playNextTrack() {
@@ -121,59 +100,46 @@ void PlaylistFilter::playPreviousTrack() {
 }
 
 void PlaylistFilter::enqueueNextTrack() {
-	static int previousTrack = _position;
-	_position = previousTrack;
-	int nextTrack = _position;
-	qDebug() << __FUNCTION__ << "previousTrack:" << previousTrack;
+	_playlistModel->setPosition(_previousPosition);
 
-	if (_shuffle) {
-		nextTrack = Random::randomInt(0, rowCount() - 1);
-	} else {
-		nextTrack++;
-	}
+	int nextPosition = convertToModelPosition(nextTrack());
+	_playlistModel->enqueue(nextPosition);
 
-	if (nextTrack < 0 || nextTrack >= rowCount()) {
-		if (_repeat) {
-			//Back to the top of the playlist
-			nextTrack = 0;
-		}
-	}
-	previousTrack = nextTrack;
-
-	if (nextTrack >= 0 && nextTrack < rowCount()) {
-		QModelIndex nextIndex = mapToSource(index(nextTrack, PlaylistModel::COLUMN_FIRST));
-		_playlistModel->enqueue(modelPosition(nextIndex));
-	}
+	_previousPosition = nextPosition;
 }
 
-QModelIndex PlaylistFilter::nextTrack() const {
+QModelIndex PlaylistFilter::nextTrack() {
+	int position = convertCurrentModelToFilterPosition();
+
 	if (_shuffle) {
-		_position = Random::randomInt(0, rowCount() - 1);
+		position = Random::randomInt(0, rowCount() - 1);
 	} else {
-		_position++;
+		position++;
 	}
 
-	if (_position < 0 || _position >= rowCount()) {
+	if (position < 0 || position >= rowCount()) {
 		//Back to the top of the playlist
-		_position = 0;
+		position = 0;
 	}
 
-	return mapToSource(index(_position, PlaylistModel::COLUMN_FIRST));
+	return mapToSource(index(position, PlaylistModel::COLUMN_FIRST));
 }
 
-QModelIndex PlaylistFilter::previousTrack() const {
+QModelIndex PlaylistFilter::previousTrack() {
+	int position = convertCurrentModelToFilterPosition();
+
 	if (_shuffle) {
-		_position = Random::randomInt(0, rowCount() - 1);
+		position = Random::randomInt(0, rowCount() - 1);
 	} else {
-		_position--;
+		position--;
 	}
 
-	if (_position < 0 || _position >= rowCount()) {
+	if (position < 0 || position >= rowCount()) {
 		//Back to the bottom of the playlist
-		_position = rowCount() - 1;
+		position = rowCount() - 1;
 	}
 
-	return mapToSource(index(_position, PlaylistModel::COLUMN_FIRST));
+	return mapToSource(index(position, PlaylistModel::COLUMN_FIRST));
 }
 
 void PlaylistFilter::setShuffle(bool shuffle) {

@@ -352,31 +352,20 @@ void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject
 	connect(ActionCollection::action("previousTrack"), SIGNAL(triggered()),
 		_playlistFilter, SLOT(playPreviousTrack()));
 
+	//FIXME aboutToFinish does not work properly with DS9 backend :/
 	//aboutToFinish -> let's queue/play the next track
 	//connect(mediaObject, SIGNAL(aboutToFinish()),
 	//	_playlistFilter, SLOT(enqueueNextTrack()));
+
 	connect(mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
 		SLOT(currentSourceChanged(const Phonon::MediaSource &)));
-	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
-		SLOT(stateChanged(Phonon::State, Phonon::State)));
-	connect(mediaObject, SIGNAL(finished()),
-		SLOT(finished()));
-}
-
-void PlaylistWidget::stateChanged(Phonon::State newState, Phonon::State oldState) {
-	qDebug() << __FUNCTION__ << "newState:" << newState << "oldState:" << oldState;
-	if (newState == Phonon::PlayingState) {
-		//_playlistFilter->enqueueNextTrack();
-	}
 }
 
 void PlaylistWidget::currentSourceChanged(const Phonon::MediaSource & source) {
+	//Each time the track changes, we enqueue the next track
+	//currentSourceChanged() is the only signal that we get when we queue tracks
 	qDebug() << __FUNCTION__ << "source:" << source.fileName();
 	_playlistFilter->enqueueNextTrack();
-}
-
-void PlaylistWidget::finished() {
-	qDebug() << __FUNCTION__;
 }
 
 void PlaylistWidget::createNewPlaylistWidget() {
@@ -405,9 +394,7 @@ void PlaylistWidget::search() {
 	QFutureWatcher<void> * watcher = new QFutureWatcher<void>(this);
 	connect(watcher, SIGNAL(started()), SLOT(searchStarted()));
 	connect(watcher, SIGNAL(finished()), SLOT(searchFinished()));
-	qDebug() << __FUNCTION__ << "1";
 	QFuture<void> future = QtConcurrent::run(_playlistFilter, &PlaylistFilter::setFilter, pattern);
-	qDebug() << __FUNCTION__ << "2";
 	watcher->setFuture(future);
 }
 

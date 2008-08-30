@@ -91,11 +91,7 @@ private slots:
 
 	void searchFinished();
 
-	void stateChanged(Phonon::State newState, Phonon::State oldState);
-
 	void currentSourceChanged(const Phonon::MediaSource & source);
-
-	void finished();
 
 private:
 

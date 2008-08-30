@@ -63,16 +63,14 @@ public:
 	void addFiles(const QStringList & files, int row = -1);
 
 	/**
-	 * Plays the file at position.
-	 *
-	 * @see setPosition()
+	 * Plays the file at the given position.
 	 */
-	void play();
+	void play(int position);
 
 	/**
-	 * Enqueues the file at int nextTrack position.
+	 * Enqueues the file at the given position.
 	 */
-	void enqueue(int nextTrack);
+	void enqueue(int position);
 
 	/** Sets the current item position inside the model. */
 	void setPosition(int position);

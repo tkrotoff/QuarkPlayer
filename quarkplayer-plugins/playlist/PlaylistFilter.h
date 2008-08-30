@@ -58,12 +58,13 @@ signals:
 
 private:
 
-	QModelIndex nextTrack() const;
+	QModelIndex nextTrack();
 
-	QModelIndex previousTrack() const;
+	QModelIndex previousTrack();
 
-	void setCurrentIndex(const QModelIndex & index);
-	int modelPosition(const QModelIndex & index);
+	int convertCurrentModelToFilterPosition();
+
+	int convertToModelPosition(const QModelIndex & index);
 
 	bool filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const;
 
@@ -71,7 +72,7 @@ private:
 
 	PlaylistModel * _playlistModel;
 
-	mutable int _position;
+	int _previousPosition;
 
 	bool _shuffle;
 
