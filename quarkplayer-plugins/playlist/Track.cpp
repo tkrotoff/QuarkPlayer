@@ -20,10 +20,16 @@
 
 #include <QtCore/QDebug>
 
-Track::Track() {
+Track::Track(const QString & filename) {
+	_filename = filename;
+	_resolved = false;
 }
 
 Track::~Track() {
+}
+
+QString Track::fileName() const {
+	return _filename;
 }
 
 void Track::setTrackNumber(const QString & trackNumber) {
@@ -64,4 +70,12 @@ void Track::setLength(const QString & length) {
 
 QString Track::length() const {
 	return _length;
+}
+
+void Track::setMediaDataResolved(bool resolved) {
+	_resolved = resolved;
+}
+
+bool Track::mediaDataResolved() const {
+	return _resolved;
 }

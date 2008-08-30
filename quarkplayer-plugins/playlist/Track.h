@@ -32,9 +32,11 @@
 class Track {
 public:
 
-	Track();
+	explicit Track(const QString & filename);
 
 	~Track();
+
+	QString fileName() const;
 
 	void setTrackNumber(const QString & trackNumber);
 	QString trackNumber() const;
@@ -51,13 +53,18 @@ public:
 	void setLength(const QString & length);
 	QString length() const;
 
+	void setMediaDataResolved(bool resolved);
+	bool mediaDataResolved() const;
+
 private:
 
+	QString _filename;
 	QString _trackNumber;
 	QString _title;
 	QString _artist;
 	QString _album;
 	QString _length;
+	bool _resolved;
 };
 
 #endif	//TRACK_H

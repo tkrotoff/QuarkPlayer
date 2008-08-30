@@ -333,7 +333,7 @@ void PlaylistWidget::savePlaylist() {
 		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
 
 		PlaylistParser parser(filename);
-		parser.save(_playlistModel->filenames());
+		parser.save(_playlistModel->fileNames());
 	}
 }
 

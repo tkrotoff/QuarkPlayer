@@ -22,8 +22,7 @@
 #include <phonon/phononnamespace.h>
 
 #include <QtCore/QAbstractItemModel>
-#include <QtCore/QStringList>
-#include <QtCore/QCache>
+#include <QtCore/QList>
 
 class Track;
 
@@ -79,7 +78,7 @@ public:
 	int position() const;
 
 	/** Returns the files displayed in the playlist. */
-	const QStringList & filenames() const;
+	QStringList fileNames() const;
 
 	/** Gets the filename given its index. */
 	QString filename(const QModelIndex & index) const;
@@ -116,8 +115,6 @@ private slots:
 
 	void filesFound(const QStringList & files);
 
-	void cacheMaxCostChanged(const QString & key, const QVariant & value);
-
 private:
 
 	void clearInternal();
@@ -130,13 +127,7 @@ private:
 	/**
 	 * List of all the media (filenames) available in this QAbstractItemModel.
 	 */
-	QStringList _filenames;
-
-	/** Cache system for optimal performance.
-	 *
-	 * The index is the row in the QAbstractItemModel.
-	 */
-	QCache<int, Track> _cache;
+	QList<Track> _filenames;
 
 	/**
 	 * _mediaInfoFetcher is working or not (already resolving some metadatas or not).
