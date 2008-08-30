@@ -17,6 +17,3 @@ include(OWEnsureOutOfSourceBuild)
 include(ReduceQtIncludeDirs)
 
 include(AddQtTranslations)
-
-#Required by DS9 Phonon backend
-include(MacroPushRequiredVars)
