@@ -47,6 +47,8 @@ install(FILES ${QT_BINARY_DIR}/../translations/qt_uk.qm DESTINATION ${BIN_INSTAL
 set(MPLAYER_INSTALL_DIR "C:/Program Files/SMPlayer/mplayer")
 if (EXISTS ${MPLAYER_INSTALL_DIR})
 	install(DIRECTORY ${MPLAYER_INSTALL_DIR} DESTINATION ${BIN_INSTALL_DIR})
+else (EXISTS ${MPLAYER_INSTALL_DIR})
+	message(STATUS "SMPlayer was not found, the MPlayer backend won't run (no MPlayer build)")
 endif (EXISTS ${MPLAYER_INSTALL_DIR})
 
 if (MINGW)
