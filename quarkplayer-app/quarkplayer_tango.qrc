@@ -2,6 +2,7 @@
 <qresource prefix="tango">
 	<file alias="16x16/application-exit">icons/tango/16x16/actions/system-log-out.png</file>
 	<file alias="16x16/document-open">icons/tango/16x16/actions/document-open.png</file>
+	<file alias="16x16/document-save">icons/tango/16x16/actions/document-save.png</file>
 	<file alias="16x16/document-open-folder">icons/tango/16x16/actions/document-open.png</file>
 	<file alias="16x16/document-open-recent">icons/tango/16x16/actions/document-open.png</file>
 	<file alias="16x16/document-open-remote">icons/tango/16x16/categories/applications-internet.png</file>
@@ -9,7 +10,22 @@
 	<file alias="16x16/format-list-ordered">icons/tango/16x16/actions/format-justify-fill.png</file>
 	<file alias="16x16/speaker">icons/tango/16x16/devices/audio-card.png</file>
 	<file alias="16x16/player-volume">icons/tango/16x16/status/audio-volume-medium.png</file>
+	<file alias="16x16/player-volume-muted">icons/tango/16x16/status/audio-volume-muted.png</file>
+	<file alias="16x16/player-volume-low">icons/tango/16x16/status/audio-volume-low.png</file>
+	<file alias="16x16/player-volume-medium">icons/tango/16x16/status/audio-volume-medium.png</file>
+	<file alias="16x16/player-time">icons/oxygen/16x16/actions/player-time.png</file>
 	<file alias="16x16/view-media-equalizer">icons/tango/16x16/categories/preferences-desktop.png</file>
+	<file alias="16x16/go-next">icons/tango/16x16/actions/go-next.png</file>
+	<file alias="16x16/go-previous">icons/tango/16x16/actions/go-previous.png</file>
+	<file alias="16x16/process-stop">icons/tango/16x16/actions/process-stop.png</file>
+	<file alias="16x16/view-refresh">icons/tango/16x16/actions/view-refresh.png</file>
+	<file alias="16x16/go-home">icons/tango/16x16/actions/go-home.png</file>
+	<file alias="16x16/go-jump-locationbar">icons/tango/16x16/actions/go-jump.png</file>
+	<file alias="16x16/go-jump">icons/tango/16x16/actions/go-jump.png</file>
+	<file alias="16x16/rating">icons/tango/16x16/emblems/emblem-favorite.png</file>
+	<file alias="16x16/document-properties">icons/tango/16x16/actions/document-properties.png</file>
+	<file alias="16x16/window-new">icons/tango/16x16/actions/window-new.png</file>
+	<file alias="16x16/window-duplicate">icons/tango/16x16/actions/window-new.png</file>
 
 	<file alias="16x16/format-text-underline">icons/tango/16x16/actions/format-text-underline.png</file>
 	<file alias="16x16/media-playback-pause">icons/tango/16x16/actions/media-playback-pause.png</file>
@@ -19,24 +35,27 @@
 	<file alias="16x16/media-skip-forward">icons/tango/16x16/actions/media-skip-forward.png</file>
 	<file alias="16x16/view-fullscreen">icons/tango/16x16/actions/view-fullscreen.png</file>
 	<file alias="16x16/help-about">icons/tango/16x16/apps/help-browser.png</file>
+	<file alias="16x16/list-add">icons/tango/16x16/actions/list-add.png</file>
+	<file alias="16x16/list-remove">icons/tango/16x16/actions/list-remove.png</file>
 
 	<file alias="16x16/preferences-desktop-display">icons/tango/16x16/apps/preferences-system-windows.png</file>
 	<file alias="16x16/preferences-system-windows">icons/tango/16x16/apps/preferences-system-windows.png</file>
+	<file alias="16x16/preferences-plugin.png">icons/tango/16x16/apps/system-file-manager.png</file>
+	<file alias="16x16/internet-web-browser">icons/tango/16x16/apps/internet-web-browser.png</file>
+
+	<file alias="16x16/preferences-system">icons/tango/16x16/categories/preferences-system.png</file>
 	<file alias="16x16/preferences-desktop">icons/tango/16x16/apps/preferences-system-windows.png</file>
 	<file alias="16x16/system-help">icons/tango/16x16/apps/help-browser.png</file>
 
-	<file>icons/tango/16x16/apps/preferences-desktop-locale.png</file>
-	<file>icons/tango/16x16/apps/preferences-system-windows.png</file>
-
-	<file alias="16x16/preferences-system">icons/tango/16x16/categories/preferences-system.png</file>
-
-	<file>icons/tango/16x16/devices/audio-card.png</file>
-	<file>icons/tango/16x16/devices/drive-optical.png</file>
 	<file alias="16x16/media-optical">icons/tango/16x16/devices/media-optical.png</file>
-
 
 	<file alias="16x16/audio-x-generic">icons/tango/16x16/mimetypes/audio-x-generic.png</file>
 	<file alias="16x16/video-x-generic">icons/tango/16x16/mimetypes/video-x-generic.png</file>
 	<file alias="16x16/x-office-address-book">icons/tango/16x16/mimetypes/x-office-address-book.png</file>
+	<file alias="16x16/text-x-script">icons/tango/16x16/mimetypes/text-x-script.png</file>
+
+	<file alias="16x16/media-playlist-repeat">icons/tango/16x16/actions/view-refresh.png</file>
+	<file alias="16x16/media-playlist-shuffle">icons/tango/16x16/actions/mail-send-receive.png</file>
+
 </qresource>
 </RCC>

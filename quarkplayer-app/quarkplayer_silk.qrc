@@ -11,6 +11,8 @@
 	<file alias="16x16/speaker">icons/silk/sound.png</file>
 	<file alias="16x16/player-volume">icons/silk/sound.png</file>
 	<file alias="16x16/player-volume-muted">icons/silk/sound_mute.png</file>
+	<file alias="16x16/player-volume-low">icons/silk/sound_low.png</file>
+	<file alias="16x16/player-volume-medium">icons/silk/sound.png</file>
 	<file alias="16x16/player-time">icons/silk/clock.png</file>
 	<file alias="16x16/view-media-equalizer">icons/silk/control_equalizer.png</file>
 	<file alias="16x16/go-next">icons/silk/resultset_next.png</file>
@@ -22,6 +24,8 @@
 	<file alias="16x16/go-jump">icons/silk/bullet_go.png</file>
 	<file alias="16x16/rating">icons/silk/star.png</file>
 	<file alias="16x16/document-properties">icons/silk/page_edit.png</file>
+	<file alias="16x16/window-new">icons/silk/application_add.png</file>
+	<file alias="16x16/window-duplicate">icons/silk/application_double.png</file>
 
 	<file alias="16x16/format-text-underline">icons/silk/text_underline.png</file>
 	<file alias="16x16/media-playback-pause">icons/silk/control_pause.png</file>
@@ -34,12 +38,14 @@
 	<file alias="16x16/list-add">icons/silk/page_add.png</file>
 	<file alias="16x16/list-remove">icons/silk/page_delete.png</file>
 
+	<file alias="16x16/preferences-desktop-display">icons/oxygen/16x16/apps/preferences-desktop-display.png</file>
 	<file alias="16x16/preferences-system-windows">icons/silk/application_double.png</file>
+	<file alias="16x16/preferences-plugin.png">icons/silk/plugin.png</file>
+	<file alias="16x16/internet-web-browser">icons/silk/world_go.png</file>
+
 	<file alias="16x16/preferences-system">icons/silk/wrench.png</file>
 	<file alias="16x16/preferences-desktop">icons/silk/monitor.png</file>
 	<file alias="16x16/system-help">icons/silk/information.png</file>
-	<file alias="16x16/preferences-plugin.png">icons/silk/plugin.png</file>
-	<file alias="16x16/internet-web-browser">icons/silk/world_go.png</file>
 
 	<file alias="16x16/media-optical">icons/silk/cd.png</file>
 
