@@ -110,9 +110,7 @@ void VolumeSlider::setVolumeIcon(const QIcon &icon)
     K_D(VolumeSlider);
     pDebug() << Q_FUNC_INFO << icon;
     k_ptr->volumeIcon = icon;
-    if (d->output) {
-        //d->_k_mutedChanged(d->output->isMuted());
-    }
+    d->updateIcon();
 }
 
 QIcon VolumeSlider::mutedIcon() const
@@ -125,8 +123,15 @@ void VolumeSlider::setMutedIcon(const QIcon &icon)
     K_D(VolumeSlider);
     pDebug() << Q_FUNC_INFO << icon;
     k_ptr->mutedIcon = icon;
-    if (d->output) {
-        //d->_k_mutedChanged(d->output->isMuted());
+    d->updateIcon();
+}
+
+void VolumeSliderPrivate::updateIcon()
+{
+    if (output && output->isMuted()) {
+        muteButton.setIcon(mutedIcon);
+    } else {
+        muteButton.setIcon(volumeIcon);
     }
 }
 
