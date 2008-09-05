@@ -1,0 +1,61 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="crystal">
+	<file alias="16x16/application-exit">icons/crystal/16x16/actions/exit.png</file>
+	<file alias="16x16/document-open">icons/crystal/16x16/actions/fileopen.png</file>
+	<file alias="16x16/document-save">icons/crystal/16x16/actions/filesave.png</file>
+	<file alias="16x16/document-open-folder">icons/crystal/16x16/actions/folder.png</file>
+	<file alias="16x16/document-open-recent">icons/crystal/16x16/actions/history.png</file>
+	<file alias="16x16/document-open-remote">icons/crystal/16x16/actions/network.png</file>
+	<file alias="16x16/edit-delete">icons/crystal/16x16/actions/editdelete.png</file>
+	<file alias="16x16/format-list-ordered">icons/crystal/16x16/actions/unsortedlist1.png</file>
+	<file alias="16x16/speaker">icons/noicon.png</file>
+	<file alias="16x16/player-volume">icons/crystal/16x16/actions/player_volume.png</file>
+	<file alias="16x16/player-volume-muted">icons/crystal/16x16/actions/player_volume.png</file>
+	<file alias="16x16/player-volume-low">icons/crystal/16x16/actions/player_volume.png</file>
+	<file alias="16x16/player-volume-medium">icons/crystal/16x16/actions/player_volume.png</file>
+	<file alias="16x16/player-time">icons/crystal/16x16/actions/player_time.png</file>
+	<file alias="16x16/view-media-equalizer">icons/crystal/16x16/actions/mix_audio.png</file>
+	<file alias="16x16/go-next">icons/crystal/16x16/actions/next.png</file>
+	<file alias="16x16/go-previous">icons/crystal/16x16/actions/previous.png</file>
+	<file alias="16x16/process-stop">icons/crystal/16x16/actions/stop.png</file>
+	<file alias="16x16/view-refresh">icons/crystal/16x16/actions/reload.png</file>
+	<file alias="16x16/go-home">icons/crystal/16x16/actions/gohome.png</file>
+	<file alias="16x16/go-jump-locationbar">icons/crystal/16x16/actions/goto.png</file>
+	<file alias="16x16/go-jump">icons/crystal/16x16/actions/goto.png</file>
+	<file alias="16x16/rating">icons/crystal/16x16/actions/bookmark.png</file>
+	<file alias="16x16/document-properties">icons/crystal/16x16/actions/edit.png</file>
+	<file alias="16x16/window-new">icons/crystal/16x16/actions/window_new.png</file>
+	<file alias="16x16/window-duplicate">icons/crystal/16x16/actions/window_new.png</file>
+
+	<file alias="16x16/format-text-underline">icons/crystal/16x16/actions/text_sub.png</file>
+	<file alias="16x16/media-playback-pause">icons/crystal/16x16/actions/player_pause.png</file>
+	<file alias="16x16/media-playback-start">icons/crystal/16x16/actions/player_play.png</file>
+	<file alias="16x16/media-playback-stop">icons/crystal/16x16/actions/player_stop.png</file>
+	<file alias="16x16/media-skip-backward">icons/crystal/16x16/actions/player_rew.png</file>
+	<file alias="16x16/media-skip-forward">icons/crystal/16x16/actions/player_fwd.png</file>
+	<file alias="16x16/view-fullscreen">icons/crystal/16x16/actions/viewmag.png</file>
+	<file alias="16x16/help-about">icons/crystal/16x16/actions/documentinfo.png</file>
+	<file alias="16x16/list-add">icons/crystal/16x16/actions/edit_add.png</file>
+	<file alias="16x16/list-remove">icons/crystal/16x16/actions/edit_remove.png</file>
+
+	<file alias="16x16/preferences-desktop-display">icons/crystal/16x16/apps/display.png</file>
+	<file alias="16x16/preferences-system-windows">icons/crystal/16x16/apps/display.png</file>
+	<file alias="16x16/preferences-plugin.png">icons/crystal/16x16/apps/package.png</file>
+	<file alias="16x16/internet-web-browser">icons/crystal/16x16/apps/internet.png</file>
+
+	<file alias="16x16/preferences-system">icons/crystal/16x16/apps/systemsettings.png</file>
+	<file alias="16x16/preferences-desktop">icons/crystal/16x16/apps/systemsettings.png</file>
+	<file alias="16x16/system-help">icons/crystal/16x16/actions/documentinfo.png</file>
+
+	<file alias="16x16/media-optical">icons/crystal/16x16/devices/dvd_unmount.png</file>
+
+	<file alias="16x16/audio-x-generic">icons/crystal/16x16/mimetypes/sound.png</file>
+	<file alias="16x16/video-x-generic">icons/crystal/16x16/mimetypes/video.png</file>
+	<file alias="16x16/x-office-address-book">icons/noicon.png</file>
+	<file alias="16x16/text-x-script">icons/crystal/16x16/mimetypes/shellscript.png</file>
+
+	<file alias="16x16/media-playlist-repeat">icons/crystal/16x16/actions/recur.png</file>
+	<file alias="16x16/media-playlist-shuffle">icons/oxygen/16x16/status/media-playlist-shuffle.png</file>
+
+</qresource>
+</RCC>

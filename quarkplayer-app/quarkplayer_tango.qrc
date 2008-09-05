@@ -13,7 +13,7 @@
 	<file alias="16x16/player-volume-muted">icons/tango/16x16/status/audio-volume-muted.png</file>
 	<file alias="16x16/player-volume-low">icons/tango/16x16/status/audio-volume-low.png</file>
 	<file alias="16x16/player-volume-medium">icons/tango/16x16/status/audio-volume-medium.png</file>
-	<file alias="16x16/player-time">icons/oxygen/16x16/actions/player-time.png</file>
+	<file alias="16x16/player-time">icons/noicon.png</file>
 	<file alias="16x16/view-media-equalizer">icons/tango/16x16/categories/preferences-desktop.png</file>
 	<file alias="16x16/go-next">icons/tango/16x16/actions/go-next.png</file>
 	<file alias="16x16/go-previous">icons/tango/16x16/actions/go-previous.png</file>

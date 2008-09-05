@@ -9,6 +9,8 @@ qt4_add_resources(quarkplayer_SRCS
 	quarkplayer_oxygen.qrc
 	quarkplayer_silk.qrc
 	quarkplayer_tango.qrc
+	quarkplayer_crystal.qrc
+	quarkplayer_gartoonredux.qrc
 )
 
 if (WIN32)
