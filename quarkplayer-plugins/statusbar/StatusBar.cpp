@@ -20,12 +20,16 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
+#include <quarkplayer/config/Config.h>
 
 #include <tkutil/TkTime.h>
+#include <tkutil/MouseEventFilter.h>
 
 #include <phonon/mediaobject.h>
 
 #include <QtGui/QtGui>
+
+static const char * STATUSBAR_DISPLAY_TIME_MODE_KEY = "statusbar_diplay_time_mode";
 
 Q_EXPORT_PLUGIN2(statusbar, StatusBarFactory);
 
@@ -42,7 +46,7 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer)
 	_timeLabel->setStyleSheet("color: rgb(255, 255, 255);");
 	_timeLabel->setMargin(2);
 	_timeLabel->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
-
+	_timeLabel->installEventFilter(new MousePressEventFilter(this, SLOT(changeDisplayTimeMode())));
 	addPermanentWidget(_timeLabel);
 
 	setSizeGripEnabled(false);
@@ -53,6 +57,8 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer)
 	//Add the statusbar to the main window
 	quarkPlayer.mainWindow().setStatusBar(this);
 
+	Config::instance().addKey(STATUSBAR_DISPLAY_TIME_MODE_KEY, DisplayTimeModeElapsed);
+
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 }
@@ -61,7 +67,43 @@ StatusBar::~StatusBar() {
 }
 
 void StatusBar::tick(qint64 time) {
-	_timeLabel->setText(TkTime::convertMilliseconds(time, quarkPlayer().currentMediaObject()->totalTime()));
+	QString timeText;
+	if (time != 0) {
+		qint64 totalTime = quarkPlayer().currentMediaObject()->totalTime();
+		DisplayTimeMode displayTimeMode = static_cast<DisplayTimeMode>(Config::instance().value(STATUSBAR_DISPLAY_TIME_MODE_KEY).toInt());
+
+		switch (displayTimeMode) {
+		case DisplayTimeModeElapsed:
+			timeText = TkTime::convertMilliseconds(time, totalTime);
+			break;
+		case DisplayTimeModeRemaining:
+			timeText = "- " + TkTime::convertMilliseconds(totalTime - time, totalTime);
+			break;
+		default:
+			qCritical() << __FUNCTION__ << "Error: unknown DisplayTimeMode:" << displayTimeMode;
+		}
+	}
+	_timeLabel->setText(timeText);
+}
+
+void StatusBar::changeDisplayTimeMode() {
+	qDebug() << __FUNCTION__;
+
+	DisplayTimeMode displayTimeMode = static_cast<DisplayTimeMode>(Config::instance().value(STATUSBAR_DISPLAY_TIME_MODE_KEY).toInt());
+	DisplayTimeMode newDisplayTimeMode;
+	switch (displayTimeMode) {
+	case DisplayTimeModeElapsed:
+		newDisplayTimeMode = DisplayTimeModeRemaining;
+		break;
+	case DisplayTimeModeRemaining:
+		newDisplayTimeMode = DisplayTimeModeElapsed;
+		break;
+	default:
+		qCritical() << __FUNCTION__ << "Error: unknown DisplayTimeMode:" << displayTimeMode;
+	}
+	Config::instance().setValue(STATUSBAR_DISPLAY_TIME_MODE_KEY, newDisplayTimeMode);
+
+	tick(quarkPlayer().currentMediaObject()->currentTime());
 }
 
 void StatusBar::stateChanged(Phonon::State newState) {

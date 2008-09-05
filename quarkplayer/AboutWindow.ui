@@ -16,7 +16,7 @@
    <item rowspan="5" row="0" column="0" >
     <widget class="QLabel" name="logoLabel" >
      <property name="pixmap" >
-      <pixmap resource="quarkplayer.qrc" >:/icons/hi48-app-quarkplayer.png</pixmap>
+      <pixmap resource="../quarkplayer-app/quarkplayer.qrc" >:/icons/hi48-app-quarkplayer.png</pixmap>
      </property>
      <property name="alignment" >
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -30,16 +30,18 @@
 &lt;br>
 &lt;a href="http://phonon-vlc-mplayer.googlecode.com">http://phonon-vlc-mplayer.googlecode.com&lt;/a>&lt;br>
 &lt;br>
-Copyright (C) 2008  Tanguy Krotoff &lt;tkrotoff@gmail.com>&lt;br>
+Copyright (C) 2008  Tanguy Krotoff&lt;br>
 &lt;br>
 This program is free software: you can redistribute it and/or modify&lt;br>
 it under the terms of the GNU General Public License as published by&lt;br>
 the Free Software Foundation, either version 3 of the License, or&lt;br>
-(at your option) any later version.&lt;br>
-</string>
+(at your option) any later version.&lt;br></string>
      </property>
      <property name="openExternalLinks" >
       <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags" >
+      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
      </property>
     </widget>
    </item>
@@ -51,7 +53,14 @@ the Free Software Foundation, either version 3 of the License, or&lt;br>
     </widget>
    </item>
    <item row="2" column="1" >
-    <widget class="QLabel" name="versionLabel" />
+    <widget class="QLabel" name="versionLabel" >
+     <property name="openExternalLinks" >
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags" >
+      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+     </property>
+    </widget>
    </item>
    <item row="3" column="1" >
     <widget class="Line" name="line_2" >
@@ -61,7 +70,11 @@ the Free Software Foundation, either version 3 of the License, or&lt;br>
     </widget>
    </item>
    <item row="4" column="1" >
-    <widget class="QLabel" name="metricsLabel" />
+    <widget class="QLabel" name="metricsLabel" >
+     <property name="textInteractionFlags" >
+      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+     </property>
+    </widget>
    </item>
    <item row="5" column="0" colspan="2" >
     <widget class="QDialogButtonBox" name="buttonBox" >
@@ -73,7 +86,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br>
   </layout>
  </widget>
  <resources>
-  <include location="quarkplayer.qrc" />
+  <include location="../quarkplayer-app/quarkplayer.qrc" />
  </resources>
  <connections>
   <connection>

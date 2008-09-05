@@ -235,7 +235,7 @@ void PlaylistWidget::retranslate() {
 	_clearSearchButton->setEnabled(!pattern.isEmpty());
 
 	ActionCollection::action("playlistNew")->setText(tr("New Playlist Window"));
-	ActionCollection::action("playlistNew")->setIcon(TkIcon("preferences-system-windows"));
+	ActionCollection::action("playlistNew")->setIcon(TkIcon("window-new"));
 
 	_toolBar->setMinimumSize(_toolBar->sizeHint());
 	updateWindowTitle();

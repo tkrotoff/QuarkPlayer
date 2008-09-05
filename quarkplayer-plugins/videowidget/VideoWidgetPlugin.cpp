@@ -75,10 +75,12 @@ void VideoWidgetPlugin::hasVideoChanged(bool hasVideo) {
 	//Resize the main window to the size of the video
 	//i.e increase or decrease main window size if needed
 	if (hasVideo) {
+		container->videoWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 		if (container->videoDockWidget->widget() != container->videoWidget) {
 			container->videoDockWidget->setWidget(container->videoWidget);
 		}
 	} else {
+		container->mediaDataWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 		if (container->videoDockWidget->widget() != container->mediaDataWidget) {
 			container->videoDockWidget->setWidget(container->mediaDataWidget);
 		}

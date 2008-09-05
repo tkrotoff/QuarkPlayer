@@ -37,6 +37,7 @@
 == General ==
 - fix quit problems
   QWaitCondition: Destroyed while threads are still waiting
+  corelib\thread\qwaitcondition_win.cpp:161: qWarning("QWaitCondition: Destroyed while threads are still waiting");
   QObject::killTimers: timers cannot be stopped from another thread
 - fix playlist search, all My Music + chinese man + I've got that tune and wait...
 - fix several playlist mode
@@ -46,6 +47,8 @@
 - implement shortcuts dialog
 - fix drag&drop inside MainWindow + command line
 - re-implement FileBrowser to make it really work
+- add right click file browser: add to playlist + double click is add to playlist
+- double click on current time inside status bar
 
 == Future ==
 - add music visualization

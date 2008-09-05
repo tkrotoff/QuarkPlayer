@@ -58,7 +58,7 @@ public:
 
 private:
 
-	QString _filename;
+	mutable QString _filename;
 	QString _trackNumber;
 	QString _title;
 	QString _artist;

@@ -62,6 +62,10 @@ private slots:
 
 	void doubleClicked(const QModelIndex & index);
 
+	void addToPlaylist();
+
+	void play();
+
 	void search();
 
 	void configure();

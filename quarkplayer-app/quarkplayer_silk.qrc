@@ -54,7 +54,7 @@
 	<file alias="16x16/x-office-address-book">icons/silk/book.png</file>
 	<file alias="16x16/text-x-script">icons/silk/script_code.png</file>
 
-	<file alias="16x16/media-playlist-repeat">icons/silk/control_repeat.png</file>
+	<file alias="16x16/media-playlist-repeat">icons/silk/arrow_refresh.png</file>
 	<file alias="16x16/media-playlist-shuffle">icons/silk/arrow_switch.png</file>
 
 </qresource>

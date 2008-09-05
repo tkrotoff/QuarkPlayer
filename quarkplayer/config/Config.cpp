@@ -101,7 +101,9 @@ QStringList Config::iconThemeList() const {
 	QStringList list;
 	list << "Oxygen"
 		<< "Silk"
-		<< "Tango";
+		<< "Tango"
+		<< "Crystal"
+		<< "GartoonRedux";
 	return list;
 }
 

@@ -18,6 +18,8 @@
 
 #include "Track.h"
 
+#include <tkutil/TkFile.h>
+
 #include <QtCore/QDebug>
 
 Track::Track(const QString & filename) {
@@ -29,6 +31,10 @@ Track::~Track() {
 }
 
 QString Track::fileName() const {
+	//This avoid a stupid bug: comparing a filename with \ separator and another with /
+	//By replacing any \ by /, we don't have any comparison problem
+	_filename.replace("\\", "/");
+
 	return _filename;
 }
 
@@ -41,7 +47,13 @@ QString Track::trackNumber() const {
 }
 
 void Track::setTitle(const QString & title) {
-	_title = title;
+	if (title.isEmpty()) {
+		//Not the fullpath, only the filename + parent directory name
+		_title = TkFile::dir(_filename) + "/" +
+			TkFile::removeFileExtension(TkFile::fileName(_filename));
+	} else {
+		_title = title;
+	}
 }
 
 QString Track::title() {

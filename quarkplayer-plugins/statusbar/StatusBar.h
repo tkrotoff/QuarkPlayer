@@ -50,6 +50,8 @@ private slots:
 
 	void tick(qint64 time);
 
+	void changeDisplayTimeMode();
+
 	void stateChanged(Phonon::State newState);
 
 	void showTitle();
@@ -61,6 +63,11 @@ private slots:
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
 
 private:
+
+	enum DisplayTimeMode {
+		DisplayTimeModeElapsed,
+		DisplayTimeModeRemaining
+	};
 
 	QLabel * _timeLabel;
 };

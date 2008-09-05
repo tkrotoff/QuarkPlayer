@@ -66,12 +66,23 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	_treeView = new QTreeView();
 	_treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	_treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
+
+	//Add to playlist
+	connect(ActionCollection::action("fileBrowserAddToPlaylist"), SIGNAL(triggered()),
+		SLOT(addToPlaylist()));
+	_treeView->addAction(ActionCollection::action("fileBrowserAddToPlaylist"));
+
+	//Play
+	connect(ActionCollection::action("fileBrowserPlay"), SIGNAL(triggered()),
+		SLOT(play()));
+	_treeView->addAction(ActionCollection::action("fileBrowserPlay"));
 
 	//Refresh action
 	connect(ActionCollection::action("fileBrowserRefresh"), SIGNAL(triggered()),
 		_treeView, SLOT(refresh()));
 	_treeView->addAction(ActionCollection::action("fileBrowserRefresh"));
-	_treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
+
 
 	layout->addWidget(_treeView);
 
@@ -137,6 +148,8 @@ void FileBrowserWidget::populateActionCollection() {
 	ActionCollection::addAction("fileBrowserNew", new QAction(app));
 
 	ActionCollection::addAction("fileBrowserRefresh", new QAction(app));
+	ActionCollection::addAction("fileBrowserAddToPlaylist", new QAction(app));
+	ActionCollection::addAction("fileBrowserPlay", new QAction(app));
 }
 
 QStringList FileBrowserWidget::nameFilters() const {
@@ -174,12 +187,21 @@ void FileBrowserWidget::loadDirModel() {
 }
 
 void FileBrowserWidget::doubleClicked(const QModelIndex & index) {
+	addToPlaylist();
+}
+
+void FileBrowserWidget::addToPlaylist() {
+}
+
+void FileBrowserWidget::play() {
+	/*const QModelIndex & index;
+
 	QFileInfo fileInfo = _dirModel->fileInfo(index);
 	if (fileInfo.isFile()) {
 		//FIXME sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
 		QString slashSlashBugFix = fileInfo.absoluteFilePath().replace("//", "/");
 		quarkPlayer().play(slashSlashBugFix);
-	}
+	}*/
 }
 
 void FileBrowserWidget::search() {
@@ -228,7 +250,13 @@ void FileBrowserWidget::retranslate() {
 	ActionCollection::action("fileBrowserBrowse")->setIcon(TkIcon("document-open-folder"));
 
 	ActionCollection::action("fileBrowserNew")->setText(tr("New File Browser Window"));
-	ActionCollection::action("fileBrowserNew")->setIcon(TkIcon("preferences-system-windows"));
+	ActionCollection::action("fileBrowserNew")->setIcon(TkIcon("window-new"));
+
+	ActionCollection::action("fileBrowserAddToPlaylist")->setText(tr("Add to Playlist"));
+	ActionCollection::action("fileBrowserAddToPlaylist")->setIcon(TkIcon("list-add"));
+
+	ActionCollection::action("fileBrowserPlay")->setText(tr("Play"));
+	ActionCollection::action("fileBrowserPlay")->setIcon(TkIcon("media-playback-start"));
 
 	ActionCollection::action("fileBrowserRefresh")->setText(tr("Refresh"));
 	ActionCollection::action("fileBrowserRefresh")->setIcon(TkIcon("view-refresh"));

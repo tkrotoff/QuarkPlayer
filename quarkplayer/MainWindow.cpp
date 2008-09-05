@@ -72,7 +72,10 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent)
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 
-	restoreGeometry(Config::instance().value(Config::MAINWINDOW_GEOMETRY_KEY).toByteArray());
+	bool ok = restoreGeometry(Config::instance().mainWindowGeometry());
+	if (!ok) {
+		qCritical() << __FUNCTION__ << "Error: coudn't restore the main window geometry";
+	}
 
 	RETRANSLATE(this);
 	retranslate();
@@ -345,7 +348,7 @@ void MainWindow::retranslate() {
 	ActionCollection::action("playVCD")->setIcon(TkIcon("media-optical"));
 
 	ActionCollection::action("newMediaObject")->setText(tr("New Media window"));
-	ActionCollection::action("newMediaObject")->setIcon(TkIcon("preferences-system-windows"));
+	ActionCollection::action("newMediaObject")->setIcon(TkIcon("window-new"));
 
 	ActionCollection::action("equalizer")->setText(tr("&Equalizer..."));
 	ActionCollection::action("equalizer")->setIcon(TkIcon("view-media-equalizer"));
@@ -466,10 +469,10 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 	//Saves window geometry
 	Config::instance().setValue(Config::MAINWINDOW_GEOMETRY_KEY, saveGeometry());
 
+	TkMainWindow::closeEvent(event);
+
 	//Quits the application
 	QCoreApplication::quit();
-
-	TkMainWindow::closeEvent(event);
 }
 
 void MainWindow::addBrowserDockWidget(QDockWidget * widget) {
