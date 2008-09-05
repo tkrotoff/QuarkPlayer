@@ -42,7 +42,7 @@ MousePressEventFilter::MousePressEventFilter(QObject * receiver, const char * me
 }
 
 bool MousePressEventFilter::eventFilter(QObject * watched, QEvent * event) {
-	if (event->type() == QEvent::MouseButtonPress, false) {
+	if (event->type() == QEvent::MouseButtonPress) {
 		QMouseEvent * mouseEvent = static_cast<QMouseEvent *>(event);
 
 		if ((_button == Qt::NoButton) || (mouseEvent->button() == _button)) {

@@ -59,8 +59,7 @@ public:
 	 * Filters an event.
 	 *
 	 * @param receiver object receiver of the filter signal
-	 * @param member member of the object called by the filter signal
-	 * @param watched watched object the filter is going to be applied on
+	 * @param member slot member of the object called by the filter signal
 	 * @param filter if the event needs to be filtered or not
 	 */
 	EventFilter(QObject * receiver, const char * member, bool filter);
