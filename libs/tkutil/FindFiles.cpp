@@ -25,9 +25,19 @@
 #include <QtCore/QDebug>
 
 #include <dirent.h>
-#include <direct.h>
+#ifdef Q_OS_WIN
+	#include <direct.h>
+#endif	//Q_OS_WIN
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#ifndef S_ISDIR
+	#ifdef S_IFDIR
+		#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
+	#else
+		#define S_ISDIR(mode) 0
+	#endif
+#endif	//!S_ISDIR
 
 static const int FILES_FOUND_LIMIT = 500;
 
@@ -60,14 +70,6 @@ void FindFiles::findAllFiles() {
 	emit finished();
 }
 
-#ifndef S_ISDIR
-	#ifdef S_IFDIR
-		#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
-	#else
-		#define S_ISDIR(mode) 0
-	#endif
-#endif	//!S_ISDIR
-
 bool FindFiles::isDirectory(const QString & path) const {
 	struct stat statbuf;
 
@@ -85,7 +87,7 @@ void FindFiles::findAllFiles(const QString & path) {
 			_currentPath += '/' + path;
 		}
 
-		_chdir(path.toUtf8().constData());
+		chdir(path.toUtf8().constData());
 
 		struct dirent * entry = NULL;
 		while (entry = readdir(dir)) {
@@ -111,7 +113,7 @@ void FindFiles::findAllFiles(const QString & path) {
 
 		_currentPath.remove('/' + path);
 
-		_chdir("..");
+		chdir("..");
 
 		closedir(dir);
 	}
