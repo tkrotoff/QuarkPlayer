@@ -358,6 +358,9 @@ void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject
 
 	connect(mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
 		SLOT(currentSourceChanged(const Phonon::MediaSource &)));
+
+	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
+		SLOT(stateChanged(Phonon::State)));
 }
 
 void PlaylistWidget::currentSourceChanged(const Phonon::MediaSource & source) {
@@ -365,6 +368,33 @@ void PlaylistWidget::currentSourceChanged(const Phonon::MediaSource & source) {
 	//currentSourceChanged() is the only signal that we get when we queue tracks
 	qDebug() << __FUNCTION__ << "source:" << source.fileName();
 	_playlistFilter->enqueueNextTrack();
+}
+
+void PlaylistWidget::stateChanged(Phonon::State newState) {
+	switch (newState) {
+	case Phonon::ErrorState:
+		//Jump to the next track if possible since the current one is not playable
+		_playlistFilter->playNextTrack();
+		break;
+
+	case Phonon::PlayingState:
+		break;
+
+	case Phonon::StoppedState:
+		break;
+
+	case Phonon::PausedState:
+		break;
+
+	case Phonon::LoadingState:
+		break;
+
+	case Phonon::BufferingState:
+		break;
+
+	default:
+		qCritical() << "Error: unknown newState:" << newState;
+	}
 }
 
 void PlaylistWidget::createNewPlaylistWidget() {

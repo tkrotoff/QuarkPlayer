@@ -25,7 +25,7 @@ else (DIRECTX_INCLUDE_DIRS)
   )
 
   set(DIRECTX_LIBRARY_DIR
-    "$ENV{DXSDK_DIR}Lib/x86"
+    "$ENV{DXSDK_DIR}/Lib/x86"
   )
 
   macro (_DIRECTX_ADJUST_LIB_VARS basename)
@@ -92,9 +92,6 @@ else (DIRECTX_INCLUDE_DIRS)
     "${DIRECTX_LIBRARY_DIR}/dxgi.lib"
     "${DIRECTX_LIBRARY_DIR}/dxguid.lib"
     "${DIRECTX_LIBRARY_DIR}/X3DAudio.lib"
-    "${DIRECTX_LIBRARY_DIR}/xapobase.lib"
-    "${DIRECTX_LIBRARY_DIR}/xapobased.lib"
-    "${DIRECTX_LIBRARY_DIR}/XAPOFX.lib"
     "${DIRECTX_LIBRARY_DIR}/XInput.lib"
     strmiids dmoguids msdmo ole32 oleaut32 uuid gdi32
     ${D3D9_LIBRARY}

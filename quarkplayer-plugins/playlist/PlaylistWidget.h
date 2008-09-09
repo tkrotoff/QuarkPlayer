@@ -89,6 +89,8 @@ private slots:
 
 	void currentSourceChanged(const Phonon::MediaSource & source);
 
+	void stateChanged(Phonon::State newState);
+
 private:
 
 	void populateActionCollection();
