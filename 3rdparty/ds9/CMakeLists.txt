@@ -18,7 +18,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 find_package(DirectX)
 
-if (DIRECTX9_FOUND)
+if (DIRECTX9_FOUND AND MSVC)
     find_package(OPENGL REQUIRED)
 
     include_directories(${DIRECTX_INCLUDE_DIRS})
@@ -52,4 +52,4 @@ if (DIRECTX9_FOUND)
                 ${DIRECTX9_LIBRARIES}
     )
     install(TARGETS phonon_ds9 DESTINATION ${PLUGIN_INSTALL_DIR})
-endif (DIRECTX9_FOUND)
+endif (DIRECTX9_FOUND AND MSVC)
