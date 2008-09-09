@@ -261,10 +261,6 @@ void SeekSlider::setIcon(const QIcon &icon)
 {
     K_D(SeekSlider);
     d->icon = icon;
-    if (d->icon.isNull()) {
-        d->iconLabel.setVisible(true);
-    }
-
     d->iconLabel.setPixmap(d->icon.pixmap(d->iconSize, d->slider.isEnabled() ? QIcon::Normal : QIcon::Disabled));
 }
 
