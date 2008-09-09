@@ -1,8 +1,8 @@
 Index: seekslider.cpp
 ===================================================================
---- seekslider.cpp	(revision 419)
+--- seekslider.cpp	(revision 859154)
 +++ seekslider.cpp	(working copy)
-@@ -252,6 +252,22 @@
+@@ -252,6 +252,18 @@
      d->iconLabel.setPixmap(d->icon.pixmap(d->iconSize, d->slider.isEnabled() ? QIcon::Normal : QIcon::Disabled));
  }
  
@@ -15,10 +15,6 @@ Index: seekslider.cpp
 +{
 +    K_D(SeekSlider);
 +    d->icon = icon;
-+    if (d->icon.isNull()) {
-+        d->iconLabel.setVisible(true);
-+    }
-+
 +    d->iconLabel.setPixmap(d->icon.pixmap(d->iconSize, d->slider.isEnabled() ? QIcon::Normal : QIcon::Disabled));
 +}
 +
@@ -27,7 +23,7 @@ Index: seekslider.cpp
  #endif //QT_NO_PHONON_SEEKSLIDER
 Index: seekslider.h
 ===================================================================
---- seekslider.h	(revision 419)
+--- seekslider.h	(revision 859154)
 +++ seekslider.h	(working copy)
 @@ -95,12 +95,19 @@
      Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
@@ -67,9 +63,9 @@ Index: seekslider.h
           * Sets the media object to be controlled by this slider.
 Index: volumeslider.cpp
 ===================================================================
---- volumeslider.cpp	(revision 419)
+--- volumeslider.cpp	(revision 859154)
 +++ volumeslider.cpp	(working copy)
-@@ -100,6 +100,36 @@
+@@ -100,6 +100,41 @@
      k_ptr->muteButton.setIconSize(iconSize);
  }
  
@@ -83,9 +79,7 @@ Index: volumeslider.cpp
 +    K_D(VolumeSlider);
 +    pDebug() << Q_FUNC_INFO << icon;
 +    k_ptr->volumeIcon = icon;
-+    if (d->output) {
-+        d->_k_mutedChanged(d->output->isMuted());
-+    }
++    d->updateIcon();
 +}
 +
 +QIcon VolumeSlider::mutedIcon() const
@@ -98,8 +92,15 @@ Index: volumeslider.cpp
 +    K_D(VolumeSlider);
 +    pDebug() << Q_FUNC_INFO << icon;
 +    k_ptr->mutedIcon = icon;
-+    if (d->output) {
-+        d->_k_mutedChanged(d->output->isMuted());
++    d->updateIcon();
++}
++
++void VolumeSliderPrivate::updateIcon()
++{
++    if (output && output->isMuted()) {
++        muteButton.setIcon(mutedIcon);
++    } else {
++        muteButton.setIcon(volumeIcon);
 +    }
 +}
 +
@@ -108,7 +109,7 @@ Index: volumeslider.cpp
      return k_ptr->slider.maximum() * 0.01;
 Index: volumeslider.h
 ===================================================================
---- volumeslider.h	(revision 419)
+--- volumeslider.h	(revision 859154)
 +++ volumeslider.h	(working copy)
 @@ -98,11 +98,26 @@
      Q_PROPERTY(bool muteVisible READ isMuteVisible WRITE setMuteVisible)
@@ -156,3 +157,16 @@ Index: volumeslider.h
  
          /**
           * Sets the audio output object to be controlled by this slider.
+Index: volumeslider_p.h
+===================================================================
+--- volumeslider_p.h	(revision 859154)
++++ volumeslider_p.h	(working copy)
+@@ -76,6 +76,8 @@
+ 
+         VolumeSlider *q_ptr;
+ 
++        void updateIcon();
++
+         void _k_sliderChanged(int);
+         void _k_volumeChanged(qreal);
+         void _k_mutedChanged(bool);
