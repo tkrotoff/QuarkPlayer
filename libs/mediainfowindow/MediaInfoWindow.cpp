@@ -90,6 +90,7 @@ void MediaInfoWindow::setCoverArtDirectory(const QString & path) {
 
 void MediaInfoWindow::setMediaInfoFetcher(MediaInfoFetcher * mediaInfoFetcher) {
 	_mediaInfoFetcher = mediaInfoFetcher;
+	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
 }
 
 void MediaInfoWindow::setLocale(const QString & locale) {
@@ -149,13 +150,16 @@ void MediaInfoWindow::updateMediaInfo() {
 
 	static const QString br("<br>");
 
-	QString fileType(tr("Type:") + " ");
+	QString fileType;
 	QString fileTypeName(_mediaInfoFetcher->fileType().fullName);
-	QString fileTypeWikipedia(_mediaInfoFetcher->fileType().wikipediaArticle);
-	if (!fileTypeWikipedia.isEmpty()) {
-		fileType += "<a href=\"http://" + _locale + ".wikipedia.org/wiki/" + fileTypeWikipedia + "\">" + fileTypeName + "</a>";
-	} else {
-		fileType += fileTypeName;
+	if (!fileTypeName.isEmpty()) {
+		fileType += tr("Type:") + " ";
+		QString fileTypeWikipedia(_mediaInfoFetcher->fileType().wikipediaArticle);
+		if (!fileTypeWikipedia.isEmpty()) {
+			fileType += "<a href=\"http://" + _locale + ".wikipedia.org/wiki/" + fileTypeWikipedia + "\">" + fileTypeName + "</a>";
+		} else {
+			fileType += fileTypeName;
+		}
 	}
 	QString length;
 	if (!_mediaInfoFetcher->length().isEmpty()) {
@@ -179,6 +183,19 @@ void MediaInfoWindow::updateMediaInfo() {
 	}
 
 	_ui->formatInfoLabel->setText(fileType + length + bitrate + fileSize + channels + sampleRate);
+
+	QString moreInfo;
+	if (_mediaInfoFetcher->fileType().name == FileType::WMA) {
+		moreInfo += tr("Warning:") + br +
+			tr("WMA is a proprietary, Windows specific audio codec that includes DRM and thus is not recommended") + br +
+			tr("Use instead a well supported standard audio codec like MP3 or Ogg/Vorbis");
+	}
+	else if (_mediaInfoFetcher->fileType().name == FileType::WMV) {
+		moreInfo += tr("Warning:") + br +
+			tr("WMV is a proprietary, Windows specific video codec that includes DRM and thus is not recommended") + br +
+			tr("Use instead a well supported standard video codec like XVid or Ogg/Theora");
+	}
+	_ui->moreInfoLabel->setText(moreInfo);
 
 	//Refresh ThumbnailView
 	_thumbnailView->refresh();

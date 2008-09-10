@@ -139,18 +139,9 @@ void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State ol
 	Phonon::MediaSource source = _metaObjectInfoResolver->currentSource();
 	QMap<QString, QString> metaData = _metaObjectInfoResolver->metaData();
 
-	if (source.type() == Phonon::MediaSource::Invalid) {
-		return;
-	}
-
-	if (newState != Phonon::ErrorState && newState != Phonon::StoppedState) {
-		return;
-	}
-
 	if (newState == Phonon::ErrorState) {
 		_fetched = true;
 		emit fetched();
-		return;
 	}
 
 	if (newState == Phonon::StoppedState) {
