@@ -28,16 +28,6 @@
 #ifdef Q_OS_WIN
 	#include <direct.h>
 #endif	//Q_OS_WIN
-#include <sys/types.h>
-#include <sys/stat.h>
-
-#ifndef S_ISDIR
-	#ifdef S_IFDIR
-		#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
-	#else
-		#define S_ISDIR(mode) 0
-	#endif
-#endif	//!S_ISDIR
 
 static const int FILES_FOUND_LIMIT = 500;
 
@@ -70,13 +60,6 @@ void FindFiles::findAllFiles() {
 	emit finished();
 }
 
-bool FindFiles::isDirectory(const QString & path) const {
-	struct stat statbuf;
-
-	stat(path.toUtf8().constData(), &statbuf);
-	return S_ISDIR(statbuf.st_mode);
-}
-
 void FindFiles::findAllFiles(const QString & path) {
 	DIR * dir = opendir(path.toUtf8().constData());
 	if (dir != NULL) {
@@ -92,13 +75,19 @@ void FindFiles::findAllFiles(const QString & path) {
 		struct dirent * entry = NULL;
 		while (entry = readdir(dir)) {
 			QString name(entry->d_name);
+
+			//Avoid '.', '..' and other hidden files
 			if (!name.startsWith('.')) {
 
-				if (isDirectory(name)) {
+				if (TkFile::isDir(name)) {
 					findAllFiles(name);
 				}
 
 				else {
+					if (_currentPath.contains("C:ocuments")) {
+						qDebug() << _currentPath + '/' + name;
+					}
+
 					//qDebug() << _currentPath + '/' + name;
 					_files << _currentPath + '/' + name;
 
@@ -111,7 +100,9 @@ void FindFiles::findAllFiles(const QString & path) {
 			}
 		}
 
-		_currentPath.remove('/' + path);
+		QString tmp('/' + path);
+		int pos = _currentPath.lastIndexOf(tmp);
+		_currentPath.remove(pos, tmp.length());
 
 		chdir("..");
 

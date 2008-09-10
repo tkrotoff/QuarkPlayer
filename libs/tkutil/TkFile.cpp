@@ -20,6 +20,17 @@
 
 #include <QtCore/QDebug>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#ifndef S_ISDIR
+	#ifdef S_IFDIR
+		#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
+	#else
+		#define S_ISDIR(mode) 0
+	#endif
+#endif	//!S_ISDIR
+
 QString TkFile::fileName(const QString & path) {
 	return path.right(path.length() - path.lastIndexOf('/') - 1);
 }
@@ -30,13 +41,26 @@ QString TkFile::dir(const QString & filename) {
 }
 
 QString TkFile::removeFileExtension(const QString & path) {
-	return path.left(path.lastIndexOf('.'));
+	int dotLastIndex = path.lastIndexOf('.');
+	return path.left(dotLastIndex);
 }
 
 QString TkFile::fileExtension(const QString & path) {
-	return path.right(path.length() - path.lastIndexOf('.') - 1);
+	int dotLastIndex = path.lastIndexOf('.');
+	if (dotLastIndex == -1) {
+		return QString();
+	} else {
+		return path.right(path.length() - dotLastIndex - 1);
+	}
 }
 
 QString TkFile::path(const QString & filename) {
 	return filename.left(filename.lastIndexOf('/'));
+}
+
+bool TkFile::isDir(const QString & path) {
+	struct stat statbuf;
+
+	stat(path.toUtf8().constData(), &statbuf);
+	return S_ISDIR(statbuf.st_mode);
 }

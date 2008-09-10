@@ -26,7 +26,10 @@
 /**
  * Useful functions for QFile.
  *
+ * This has been reimplemented since QFile and QFileInfo is pretty slow.
+ *
  * @see QFile
+ * @see QFileInfo
  * @author Tanguy Krotoff
  */
 class TKUTIL_API TkFile {
@@ -66,6 +69,13 @@ public:
 	 * Example: filename=/toto/titi/caca.txt path=/toto/titi
 	 */
 	static QString path(const QString & filename);
+
+	/**
+	 * Checks if a path is a directory or a file.
+	 *
+	 * @return true if it is a path; false otherwise
+	 */
+	static bool isDir(const QString & path);
 
 private:
 

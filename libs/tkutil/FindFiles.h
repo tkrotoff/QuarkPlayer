@@ -82,8 +82,6 @@ private:
 	 */
 	void findAllFiles(const QString & path);
 
-	bool isDirectory(const QString & path) const;
-
 	QString _path;
 
 	QString _currentPath;
