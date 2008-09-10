@@ -18,6 +18,8 @@
 
 #include "FileBrowserWidget.h"
 
+#include "FileBrowserTreeView.h"
+
 #ifdef FASTDIRMODEL
 	#include "FastDirModel.h"
 #else
@@ -38,8 +40,6 @@
 #include <tkutil/TkIcon.h>
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
-
-#include <phonon/mediaobject.h>
 
 #include <QtGui/QtGui>
 
@@ -63,27 +63,7 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	populateActionCollection();
 	createToolBar();
 
-	_treeView = new QTreeView();
-	_treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	_treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
-
-	//Add to playlist
-	connect(ActionCollection::action("fileBrowserAddToPlaylist"), SIGNAL(triggered()),
-		SLOT(addToPlaylist()));
-	_treeView->addAction(ActionCollection::action("fileBrowserAddToPlaylist"));
-
-	//Play
-	connect(ActionCollection::action("fileBrowserPlay"), SIGNAL(triggered()),
-		SLOT(play()));
-	_treeView->addAction(ActionCollection::action("fileBrowserPlay"));
-
-	//Refresh action
-	connect(ActionCollection::action("fileBrowserRefresh"), SIGNAL(triggered()),
-		_treeView, SLOT(refresh()));
-	_treeView->addAction(ActionCollection::action("fileBrowserRefresh"));
-
-
+	_treeView = new FileBrowserTreeView(quarkPlayer);
 	layout->addWidget(_treeView);
 
 	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
@@ -146,10 +126,6 @@ void FileBrowserWidget::populateActionCollection() {
 	ActionCollection::addAction("fileBrowserBrowse", new QAction(app));
 
 	ActionCollection::addAction("fileBrowserNew", new QAction(app));
-
-	ActionCollection::addAction("fileBrowserRefresh", new QAction(app));
-	ActionCollection::addAction("fileBrowserAddToPlaylist", new QAction(app));
-	ActionCollection::addAction("fileBrowserPlay", new QAction(app));
 }
 
 QStringList FileBrowserWidget::nameFilters() const {
@@ -182,26 +158,6 @@ void FileBrowserWidget::loadDirModel() {
 	_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
 	_dirModel->setRootPath(Config::instance().musicDir());
 	_treeView->setDragEnabled(true);
-	connect(_treeView, SIGNAL(doubleClicked(const QModelIndex &)),
-		SLOT(doubleClicked(const QModelIndex &)));
-}
-
-void FileBrowserWidget::doubleClicked(const QModelIndex & index) {
-	addToPlaylist();
-}
-
-void FileBrowserWidget::addToPlaylist() {
-}
-
-void FileBrowserWidget::play() {
-	/*const QModelIndex & index;
-
-	QFileInfo fileInfo = _dirModel->fileInfo(index);
-	if (fileInfo.isFile()) {
-		//FIXME sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
-		QString slashSlashBugFix = fileInfo.absoluteFilePath().replace("//", "/");
-		quarkPlayer().play(slashSlashBugFix);
-	}*/
 }
 
 void FileBrowserWidget::search() {
@@ -251,15 +207,6 @@ void FileBrowserWidget::retranslate() {
 
 	ActionCollection::action("fileBrowserNew")->setText(tr("New File Browser Window"));
 	ActionCollection::action("fileBrowserNew")->setIcon(TkIcon("window-new"));
-
-	ActionCollection::action("fileBrowserAddToPlaylist")->setText(tr("Add to Playlist"));
-	ActionCollection::action("fileBrowserAddToPlaylist")->setIcon(TkIcon("list-add"));
-
-	ActionCollection::action("fileBrowserPlay")->setText(tr("Play"));
-	ActionCollection::action("fileBrowserPlay")->setIcon(TkIcon("media-playback-start"));
-
-	ActionCollection::action("fileBrowserRefresh")->setText(tr("Refresh"));
-	ActionCollection::action("fileBrowserRefresh")->setIcon(TkIcon("view-refresh"));
 
 	_toolBar->setMinimumSize(_toolBar->sizeHint());
 

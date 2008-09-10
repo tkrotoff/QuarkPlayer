@@ -20,15 +20,17 @@
 
 #include "CommandLineHelp.h"
 
+#include <tkutil/TkFile.h>
+
+#include <filetypes/FileTypes.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
 #include <iostream>
 
-#include <cstdio>
-
 CommandLineParser::CommandLineParser() {
-	run();
+	start();
 }
 
 CommandLineParser::~CommandLineParser() {
@@ -38,7 +40,12 @@ QString CommandLineParser::fileToPlay() const {
 	QString fileToPlay;
 
 	if (!_filesForPlaylist.isEmpty()) {
-		fileToPlay = _filesForPlaylist[0];
+		QString filename(_filesForPlaylist[0]);
+		bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(TkFile::fileExtension(filename), Qt::CaseInsensitive);
+		if (isMultimediaFile) {
+			//The file is a playable file
+			fileToPlay = filename;
+		}
 	}
 
 	return fileToPlay;
@@ -48,7 +55,7 @@ QStringList CommandLineParser::filesForPlaylist() const {
 	return _filesForPlaylist;
 }
 
-void CommandLineParser::run() {
+void CommandLineParser::start() {
 	QStringList args(QCoreApplication::arguments());
 
 	//Delete the first one in the list,
@@ -61,7 +68,9 @@ void CommandLineParser::run() {
 		if ((arg == "--help") || (arg == "-help") || (arg == "-h") || (arg == "-?")) {
 			CommandLineHelp help;
 			std::cout << help.toString().toUtf8().constData();
-			exit(EXIT_SUCCESS);
+
+			//Quits the application
+			QCoreApplication::quit();
 		}
 
 		else {

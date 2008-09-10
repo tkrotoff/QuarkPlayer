@@ -16,34 +16,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMANDLINEPARSER_H
-#define COMMANDLINEPARSER_H
+#ifndef FILEBROWSERTREEVIEW_H
+#define FILEBROWSERTREEVIEW_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <QtGui/QTreeView>
 
-#include <QtCore/QStringList>
+#define FASTDIRMODEL
+
+#ifdef FASTDIRMODEL
+	class FastDirModel;
+	typedef FastDirModel DirModel;
+#else
+	class SimpleDirModel;
+	typedef SimpleDirModel DirModel;
+#endif	//FASTDIRMODEL
+
+class QuarkPlayer;
+
+class QMouseEvent;
 
 /**
- * Parse command line arguments.
+ * File browser QTreeView.
  *
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API CommandLineParser {
+class FileBrowserTreeView : public QTreeView {
+	Q_OBJECT
 public:
 
-	CommandLineParser();
+	FileBrowserTreeView(QuarkPlayer & quarkPlayer);
 
-	~CommandLineParser();
+	~FileBrowserTreeView();
 
-	QString fileToPlay() const;
+private slots:
 
-	QStringList filesForPlaylist() const;
+	void addToPlaylist();
+
+	void play();
+
+	void retranslate();
 
 private:
 
-	void start();
+	void populateActionCollection();
 
-	QStringList _filesForPlaylist;
+	void mouseDoubleClickEvent(QMouseEvent * event);
+
+	DirModel * dirModel();
+
+	QuarkPlayer & _quarkPlayer;
 };
 
-#endif	//COMMANDLINEPARSER_H
+#endif	//FILEBROWSERTREEVIEW_H

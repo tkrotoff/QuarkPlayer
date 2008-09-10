@@ -80,6 +80,8 @@ private slots:
 
 	void parserFilesFound(const QStringList & files);
 
+	void addFilesToCurrentPlaylist(const QStringList & files);
+
 	/** Jumps to current playing media. */
 	void jumpToCurrent();
 

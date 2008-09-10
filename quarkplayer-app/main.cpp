@@ -103,6 +103,9 @@ int main(int argc, char * argv[]) {
 	if (!parser.fileToPlay().isEmpty()) {
 		quarkPlayer.play(parser.fileToPlay());
 	}
+	if (!parser.filesForPlaylist().isEmpty()) {
+		quarkPlayer.addFilesToPlaylist(parser.filesForPlaylist());
+	}
 
 	return app.exec();
 }

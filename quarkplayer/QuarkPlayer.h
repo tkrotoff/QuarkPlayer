@@ -82,6 +82,9 @@ public:
 	/** Play a file, an url, whatever... using the current media object available. */
 	void play(const Phonon::MediaSource & mediaSource);
 
+	/** Add a list of files to current playlist. */
+	void addFilesToPlaylist(const QStringList & files);
+
 	/** Returns the current audio output associated with the current media object. */
 	Phonon::AudioOutput * currentAudioOutput() const;
 
@@ -112,6 +115,13 @@ signals:
 	 * @see createNewMediaObject()
 	 */
 	void mediaObjectAdded(Phonon::MediaObject * mediaObject);
+
+	/**
+	 * Signal emitted when files should be added to the current playlist.
+	 *
+	 * @param files list of files to be added
+	 */
+	void addFilesToCurrentPlaylist(const QStringList & files);
 
 private slots:
 

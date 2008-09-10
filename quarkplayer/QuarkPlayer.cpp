@@ -96,6 +96,10 @@ void QuarkPlayer::play(const Phonon::MediaSource & mediaSource) {
 	}
 }
 
+void QuarkPlayer::addFilesToPlaylist(const QStringList & files) {
+	emit addFilesToCurrentPlaylist(files);
+}
+
 Phonon::AudioOutput * QuarkPlayer::currentAudioOutput() const {
 	Phonon::AudioOutput * audioOutput = NULL;
 

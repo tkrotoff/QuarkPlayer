@@ -103,7 +103,8 @@ QStringList Config::iconThemeList() const {
 		<< "Silk"
 		<< "Tango"
 		<< "Crystal"
-		<< "GartoonRedux";
+		<< "GartoonRedux"
+		<< "Null";
 	return list;
 }
 

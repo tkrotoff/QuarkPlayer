@@ -118,6 +118,7 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 	int column = index.column();
 	if (role == Qt::DisplayRole) {
 		Track track = _filenames[row];
+		QString filename(track.fileName());
 		if (track.mediaDataResolved()) {
 			switch (column) {
 			case COLUMN_TRACK:
@@ -141,8 +142,6 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 		}
 
 		else {
-			QString filename(track.fileName());
-
 			switch (column) {
 			case COLUMN_TITLE:
 				tmp = TkFile::dir(filename) + "/" +
@@ -210,12 +209,6 @@ Qt::ItemFlags PlaylistModel::flags(const QModelIndex & index) const {
 bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) {
 	QStringList files;
 
-	FindFiles findFiles;
-	_rowWhereToInsertFiles = row;
-	connect(&findFiles, SIGNAL(filesFound(const QStringList &)),
-		SLOT(filesFound(const QStringList &)));
-	connect(&findFiles, SIGNAL(finished()), SLOT(saveCurrentPlaylist()));
-
 	//Add urls to a list
 	if (data->hasUrls()) {
 		QList<QUrl> urlList = data->urls();
@@ -228,23 +221,14 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 				} else {
 					filename = url.toString();
 				}
-
-				QFileInfo fileInfo(filename);
-
-				bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(fileInfo.suffix(), Qt::CaseInsensitive);
-				if (isMultimediaFile) {
-					files << filename;
-				} else if (fileInfo.isDir()) {
-					findFiles.setSearchPath(filename);
-					findFiles.findAllFiles();
-				}
+				files << filename;
 			}
 		}
 	} else {
 		return false;
 	}
 
-	addFiles(files, row);
+	addFilesAndSaveCurrentPlaylist(files, row);
 	return true;
 }
 
@@ -252,37 +236,50 @@ void PlaylistModel::filesFound(const QStringList & files) {
 	addFiles(files, _rowWhereToInsertFiles);
 }
 
+void PlaylistModel::addFilesAndSaveCurrentPlaylist(const QStringList & files, int row) {
+	if (!files.isEmpty()) {
+		addFiles(files, row);
+		saveCurrentPlaylist();
+	}
+}
+
 void PlaylistModel::addFiles(const QStringList & files, int row) {
+	FindFiles findFiles;
+	connect(&findFiles, SIGNAL(filesFound(const QStringList &)),
+		SLOT(filesFound(const QStringList &)));
+
 	QStringList filenameList;
 	foreach (QString filename, files) {
 		bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(TkFile::fileExtension(filename), Qt::CaseInsensitive);
 		if (isMultimediaFile) {
 			filenameList << filename;
+		} else if (TkFile::isDir(filename)) {
+			findFiles.setSearchPath(filename);
+			findFiles.findAllFiles();
 		}
 	}
-	if (filenameList.isEmpty()) {
-		return;
-	}
 
-	int first = 0;
-	if (row == -1) {
-		//row == -1 means append the files
-		first = _filenames.size();
-	} else {
-		//row != -1 means we have a specific row location where to add the files
-		first = row;
-	}
-	int last = first + filenameList.size() - 1;
-	int currentRow = first;
+	if (!filenameList.isEmpty()) {
+		int first = 0;
+		if (row == -1) {
+			//row == -1 means append the files
+			first = _filenames.size();
+		} else {
+			//row != -1 means we have a specific row location where to add the files
+			first = row;
+		}
+		int last = first + filenameList.size() - 1;
+		int currentRow = first;
 
-	beginInsertRows(QModelIndex(), first, last);
-	foreach (QString filename, filenameList) {
-		_filenames.insert(currentRow, Track(filename));
-		currentRow++;
-	}
-	endInsertRows();
+		beginInsertRows(QModelIndex(), first, last);
+		foreach (QString filename, filenameList) {
+			_filenames.insert(currentRow, Track(filename));
+			currentRow++;
+		}
+		endInsertRows();
 
-	QCoreApplication::processEvents();
+		QCoreApplication::processEvents();
+	}
 }
 
 bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
@@ -325,7 +322,10 @@ void PlaylistModel::saveCurrentPlaylist() const {
 	Config & config = Config::instance();
 	QString path(config.configDir());
 	PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST);
-	QtConcurrent::run(parser, &PlaylistParser::save, fileNames());
+	QStringList files(fileNames());
+	if (!files.isEmpty()) {
+		QtConcurrent::run(parser, &PlaylistParser::save, files);
+	}
 }
 
 QStringList PlaylistModel::fileNames() const {

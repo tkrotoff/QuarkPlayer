@@ -54,12 +54,22 @@ public:
 	 * Adds files to the model.
 	 *
 	 * Does not save the new added files to the current playlist,
-	 * use saveCurrentPlaylist() for that.
+	 * use addFilesAndSaveCurrentPlaylist() for that.
+	 *
+	 * The list of files can contain directory, addFiles() will go recursive to find all the files.
 	 *
 	 * @param files files to add to the model
 	 * @param row location in the model where to add the files; if -1 then append the files
+	 * @see addFilesAndSaveCurrentPlaylist()
 	 */
 	void addFiles(const QStringList & files, int row = -1);
+
+	/**
+	 * Adds files to the model and saves the current playlist.
+	 *
+	 * @see addFiles()
+	 */
+	void addFilesAndSaveCurrentPlaylist(const QStringList & files, int row = -1);
 
 	/**
 	 * Plays the file at the given position.

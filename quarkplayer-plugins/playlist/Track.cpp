@@ -48,9 +48,8 @@ QString Track::trackNumber() const {
 
 void Track::setTitle(const QString & title) {
 	if (title.isEmpty()) {
-		//Not the fullpath, only the filename + parent directory name
-		_title = TkFile::dir(_filename) + "/" +
-			TkFile::removeFileExtension(TkFile::fileName(_filename));
+		//Not the fullpath, only the filename
+		_title = TkFile::fileName(_filename);
 	} else {
 		_title = title;
 	}

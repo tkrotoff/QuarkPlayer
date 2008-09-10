@@ -152,7 +152,7 @@ void PlayToolBar::createControlToolBar() {
 	_controlToolBar->addAction(ActionCollection::action("newMediaObject"));
 	_controlToolBar->addSeparator();
 
-	//volumdeSlider
+	//volumeSlider
 	_volumeSlider = new Phonon::VolumeSlider();
 	_volumeSlider->setIconSize(_controlToolBar->iconSize());
 	//volumeSlider only takes the space it needs

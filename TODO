@@ -36,9 +36,12 @@
 
 == General ==
 - fix quit problems
-  QWaitCondition: Destroyed while threads are still waiting
-  corelib\thread\qwaitcondition_win.cpp:161: qWarning("QWaitCondition: Destroyed while threads are still waiting");
-  QObject::killTimers: timers cannot be stopped from another thread
+  infos:
+   QWaitCondition: Destroyed while threads are still waiting
+   corelib\thread\qwaitcondition_win.cpp:161: qWarning("QWaitCondition: Destroyed while threads are still waiting");
+   QObject::killTimers: timers cannot be stopped from another thread
+   ASSERT failure in QCoreApplication::sendEvent: "Cannot send events to objects owned by a different thread.
+   Current thread 136f4f18. Receiver '' (of type 'Phonon::AudioOutput') was created in thread 3eaad8", file kernel\qcoreapplication.cpp, line 301
 - fix several playlist mode
 - fix several FileBrowser mode
 - add profiles (audio, video...) ala Konqueror

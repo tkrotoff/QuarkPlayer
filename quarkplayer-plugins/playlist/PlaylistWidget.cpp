@@ -94,6 +94,9 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 
+	connect(&quarkPlayer, SIGNAL(addFilesToCurrentPlaylist(const QStringList &)),
+		SLOT(addFilesToCurrentPlaylist(const QStringList &)));
+
 	RETRANSLATE(this);
 	retranslate();
 }
@@ -259,8 +262,7 @@ void PlaylistWidget::addFiles() {
 	if (!files.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(files[0]).absolutePath());
 
-		_playlistModel->addFiles(files);
-		_playlistModel->saveCurrentPlaylist();
+		_playlistModel->addFilesAndSaveCurrentPlaylist(files);
 	}
 }
 
@@ -269,28 +271,19 @@ void PlaylistWidget::addDir() {
 
 	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select Directory"),
 			Config::instance().lastDirectoryUsed());
-
-	QStringList tmp/*(FindFiles::findAllFiles(dir))*/;
-	foreach (QString file, tmp) {
-		QFileInfo fileInfo(file);
-		bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(fileInfo.suffix(), Qt::CaseInsensitive);
-		if (isMultimediaFile) {
-			files << file;
-		}
+	if (!dir.isEmpty()) {
+		QStringList tmp;
+		tmp << dir;
+		_playlistModel->addFilesAndSaveCurrentPlaylist(tmp);
 	}
-
-	_playlistModel->addFiles(files);
-	_playlistModel->saveCurrentPlaylist();
 }
 
 void PlaylistWidget::addURL() {
 	QString url = QInputDialog::getText(this, tr("Open Location"), tr("Please enter a valid address here:"));
 	if (!url.isEmpty()) {
-		QStringList files;
-		files << url;
-
-		_playlistModel->addFiles(files);
-		_playlistModel->saveCurrentPlaylist();
+		QStringList tmp;
+		tmp << url;
+		_playlistModel->addFilesAndSaveCurrentPlaylist(tmp);
 	}
 }
 
@@ -317,6 +310,10 @@ void PlaylistWidget::openPlaylist() {
 void PlaylistWidget::parserFilesFound(const QStringList & files) {
 	_playlistModel->addFiles(files);
 	QCoreApplication::processEvents();
+}
+
+void PlaylistWidget::addFilesToCurrentPlaylist(const QStringList & files) {
+	_playlistModel->addFilesAndSaveCurrentPlaylist(files);
 }
 
 void PlaylistWidget::savePlaylist() {
@@ -424,6 +421,11 @@ void PlaylistWidget::search() {
 		statusBar->showMessage(tr("Searching..."));
 	}
 	_playlistFilter->setFilter(pattern);
+
+	//Force the treeView to launch files tags fetching
+	//FIXME Does not work
+	//_treeView->repaint();
+
 	if (statusBar) {
 		statusBar->showMessage(tr("Search finished"));
 	}

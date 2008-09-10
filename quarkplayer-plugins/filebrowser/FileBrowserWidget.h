@@ -33,6 +33,8 @@
 	typedef SimpleDirModel DirModel;
 #endif	//FASTDIRMODEL
 
+class FileBrowserTreeView;
+
 class QuarkPlayer;
 class ConfigWindow;
 
@@ -60,12 +62,6 @@ private slots:
 
 	void loadDirModel();
 
-	void doubleClicked(const QModelIndex & index);
-
-	void addToPlaylist();
-
-	void play();
-
 	void search();
 
 	void configure();
@@ -89,7 +85,7 @@ private:
 
 	DirModel * _dirModel;
 
-	QTreeView * _treeView;
+	FileBrowserTreeView * _treeView;
 
 	QToolBar * _toolBar;
 

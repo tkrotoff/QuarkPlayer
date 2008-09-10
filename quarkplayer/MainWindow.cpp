@@ -40,6 +40,8 @@
 
 #include <QtGui/QtGui>
 
+#include <cstdio>
+
 MainWindow::MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent)
 	: TkMainWindow(parent),
 	PluginInterface(quarkPlayer) {
@@ -442,15 +444,11 @@ void MainWindow::dropEvent(QDropEvent * event) {
 			//1 file
 			QString filename = files[0];
 
-			QFileInfo fileInfo(filename);
-
-			qDebug() << __FUNCTION__ << "File suffix:" << fileInfo.suffix();
-
-			bool isSubtitle = FileTypes::extensions(FileType::Subtitle).contains(fileInfo.suffix(), Qt::CaseInsensitive);
+			bool isSubtitle = FileTypes::extensions(FileType::Subtitle).contains(TkFile::fileExtension(filename), Qt::CaseInsensitive);
 			if (isSubtitle) {
 				qDebug() << __FUNCTION__ << "Loading subtitle:" << filename;
 				emit subtitleFileDropped(filename);
-			} else if (fileInfo.isDir()) {
+			} else if (TkFile::isDir(filename)) {
 				//TODO open directory
 			} else {
 				//TODO add to playlist if 'auto-add-playlist' option
@@ -473,6 +471,9 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 
 	//Quits the application
 	QCoreApplication::quit();
+
+	//FIXME we should use only QCoreApplication::quit()
+	//exit(EXIT_SUCCESS);
 }
 
 void MainWindow::addBrowserDockWidget(QDockWidget * widget) {

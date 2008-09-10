@@ -2,6 +2,7 @@ project(filebrowser)
 
 set(filebrowser_SRCS
 	FileBrowserWidget.cpp
+	FileBrowserTreeView.cpp
 	SimpleDirModel.cpp
 	FastDirModel.cpp
 	config/FileBrowserConfigWidget.cpp
@@ -9,6 +10,7 @@ set(filebrowser_SRCS
 
 qt4_wrap_cpp(filebrowser_SRCS
 	FileBrowserWidget.h
+	FileBrowserTreeView.h
 	config/FileBrowserConfigWidget.h
 )
 
