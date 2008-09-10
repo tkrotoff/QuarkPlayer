@@ -237,10 +237,8 @@ void PlaylistModel::filesFound(const QStringList & files) {
 }
 
 void PlaylistModel::addFilesAndSaveCurrentPlaylist(const QStringList & files, int row) {
-	if (!files.isEmpty()) {
-		addFiles(files, row);
-		saveCurrentPlaylist();
-	}
+	addFiles(files, row);
+	saveCurrentPlaylist();
 }
 
 void PlaylistModel::addFiles(const QStringList & files, int row) {
@@ -323,9 +321,7 @@ void PlaylistModel::saveCurrentPlaylist() const {
 	QString path(config.configDir());
 	PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST);
 	QStringList files(fileNames());
-	if (!files.isEmpty()) {
-		QtConcurrent::run(parser, &PlaylistParser::save, files);
-	}
+	QtConcurrent::run(parser, &PlaylistParser::save, files);
 }
 
 QStringList PlaylistModel::fileNames() const {
