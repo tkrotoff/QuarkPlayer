@@ -18,7 +18,7 @@
 
 #include "win32currentdirectory.h"
 
-#include <QtCore/QtDebug>
+#include <QtCore/QDebug>
 #include <QtCore/QtGlobal>
 
 #ifdef Q_OS_WIN
