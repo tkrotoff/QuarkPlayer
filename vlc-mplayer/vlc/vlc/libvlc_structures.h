@@ -1,7 +1,7 @@
 /*****************************************************************************
  * libvlc.h:  libvlc_* new external API structures
  *****************************************************************************
- * Copyright (C) 1998-2007 the VideoLAN team
+ * Copyright (C) 1998-2008 the VideoLAN team
  * $Id $
  *
  * Authors: Filippo Carone <littlejohn@videolan.org>
@@ -21,8 +21,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
-#ifndef _LIBVLC_STRUCTURES_H
-#define _LIBVLC_STRUCTURES_H 1
+#ifndef LIBVLC_STRUCTURES_H
+#define LIBVLC_STRUCTURES_H 1
+
+/**
+ * \file
+ * This file defines libvlc_* new external API structures
+ */
 
 #include <stdint.h>
 

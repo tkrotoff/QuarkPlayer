@@ -1,8 +1,8 @@
 /*****************************************************************************
  * vlc.h: global header for libvlc
  *****************************************************************************
- * Copyright (C) 1998-2004 the VideoLAN team
- * $Id: cb020164868ef7ca6f8f75fbdd8967402d98940a $
+ * Copyright (C) 1998-2008 the VideoLAN team
+ * $Id: 489b8d2f31ed43ee10e294717c80ab6e9497aa8a $
  *
  * Authors: Vincent Seguin <seguin@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -25,8 +25,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
-#ifndef _VLC_VLC_H
-#define _VLC_VLC_H 1
+#ifndef VLC_VLC_H
+#define VLC_VLC_H 1
+
+/**
+ * \file
+ * This file defines libvlc new external API
+ */
 
 # ifdef __cplusplus
 extern "C" {

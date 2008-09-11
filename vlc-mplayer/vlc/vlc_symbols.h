@@ -24,16 +24,6 @@
 #include <QtCore/QString>
 
 /**
- * Only under Windows.
- *
- * After running getVLCPath(), you must call this function that will use
- * Win32 API function SetCurrentDirectory().
- *
- * @see getVLCPath()
- */
-void changeBackToCurrentDirectory();
-
-/**
  * Loads libvlc-control.(dll|so|dylib), determines and returns the VLC path.
  *
  * Examples:

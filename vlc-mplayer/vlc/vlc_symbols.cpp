@@ -24,49 +24,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
-#include <QtCore/QtGlobal>
-
-#ifdef Q_OS_WIN
-	#include <windows.h>
-
-	char currentDirectory[MAX_PATH];
-#endif	//Q_OS_WIN
 
 static QLibrary * _libvlc_control = NULL;
-
-/**
- * Only under Windows.
- *
- * Use Win32 API function: GetCurrentDirectory()
- *
- * @see setCurrentDirectory()
- * @see changeBackToCurrentDirectory()
- */
-void saveCurrentDirectory() {
-#ifdef Q_OS_WIN
-	DWORD dwRet = GetCurrentDirectoryA(MAX_PATH, currentDirectory);
-	if (dwRet == 0 || dwRet > MAX_PATH) {
-		qFatal("GetCurrentDirectory() failed (%d)", GetLastError());
-	}
-#endif	//Q_OS_WIN
-}
-
-/**
- * Only under Windows.
- *
- * Use Win32 API function: SetCurrentDirectory()
- *
- * @see saveCurrentDirectory()
- * @see changeBackToCurrentDirectory()
- */
-void setCurrentDirectory(const char * dir) {
-#ifdef Q_OS_WIN
-	//Change current directory in order to load all the *.dll (libvlc.dll + all the plugins)
-	if (!SetCurrentDirectoryA(dir)) {
-		qFatal("SetCurrentDirectory() failed (%d)\n", GetLastError());
-	}
-#endif	//Q_OS_WIN
-}
 
 QString getVLCPath() {
 	static const char * libvlc_control_name = "libvlc";
@@ -88,9 +47,13 @@ QString getVLCPath() {
 #endif	//Q_OS_LINUX
 
 #ifdef Q_OS_WIN
-	static const char * libvlc_version = "0.9";
+	//Default path under Windows
+	//Try it since sometimes there is no registry key
+	static const char * common_libvlc_path = "C:\\Program Files\\VideoLAN\\VLC";
+	pathList << common_libvlc_path;
+	///
 
-	saveCurrentDirectory();
+	static const char * libvlc_version = "0.9";
 
 	//QSettings allows us to read the Windows registry
 	//Check if there is a standard VLC installation under Windows
@@ -99,8 +62,6 @@ QString getVLCPath() {
 	if (settings.value("Version").toString().contains(libvlc_version)) {
 		QString vlcInstallDir = settings.value("InstallDir").toString();
 		pathList << vlcInstallDir;
-
-		setCurrentDirectory(vlcInstallDir.toAscii().constData());
 	}
 #endif	//Q_OS_WIN
 
@@ -112,7 +73,7 @@ QString getVLCPath() {
 			qDebug() << "VLC path found:" << libvlc_path;
 			return libvlc_path;
 		}
-		qDebug() << "Warning:" << _libvlc_control->errorString();
+		//qDebug() << "Warning:" << _libvlc_control->errorString();
 	}
 
 	unloadLibVLC();
@@ -120,20 +81,11 @@ QString getVLCPath() {
 	return libvlc_path;
 }
 
-void changeBackToCurrentDirectory() {
-#ifdef Q_OS_WIN
-	//Change back current directory
-	if (!SetCurrentDirectoryA(currentDirectory)) {
-		qFatal("SetCurrentDirectory() failed (%d)\n", GetLastError());
-	}
-#endif	//Q_OS_WIN
-}
-
 QString getVLCPluginsPath() {
 	QString vlcPath = getVLCPath();
 
 #ifdef Q_OS_WIN
-	QString vlcPluginsPath(vlcPath + "/plugins");
+	QString vlcPluginsPath(vlcPath + "\\plugins");
 #endif	//Q_OS_WIN
 
 #ifdef Q_OS_LINUX

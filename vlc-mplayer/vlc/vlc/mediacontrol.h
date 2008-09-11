@@ -1,8 +1,8 @@
 /*****************************************************************************
- * control.h: global header for mediacontrol
+ * mediacontrol.h: global header for mediacontrol
  *****************************************************************************
- * Copyright (C) 2005 the VideoLAN team
- * $Id: 46da6173b80d1d976b3bafc6719bcf8c7f7db667 $
+ * Copyright (C) 2005-2008 the VideoLAN team
+ * $Id: 7f044554b5d3b83dd51f79b59622297bf8b38abf $
  *
  * Authors: Olivier Aubert <olivier.aubert@liris.univ-lyon1.fr>
  *
@@ -22,6 +22,11 @@
  *****************************************************************************/
 
 /**
+ * \file
+ * This file defines libvlc mediacontrol_* external API
+ */
+
+/**
  * \defgroup mediacontrol MediaControl
  * This is the MediaControl API, * intended to provide a generic API to movie players.
  *
@@ -29,8 +34,8 @@
  */
 
 
-#ifndef _VLC_CONTROL_H
-#define _VLC_CONTROL_H 1
+#ifndef VLC_CONTROL_H
+#define VLC_CONTROL_H 1
 
 # ifdef __cplusplus
 extern "C" {

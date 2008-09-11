@@ -43,28 +43,28 @@ void initLibVLC() {
 	_vlcInstance = NULL;
 	_vlcException = new libvlc_exception_t();
 
+	QString pluginPath("--plugin-path=" + getVLCPluginsPath());
+
 	//Complete list of VLC command line options:
 	//http://wiki.videolan.org/VLC_command-line_help
-	const char * vlcArgc[] = {
-		getVLCPath().toAscii().constData(),
-		"--plugin-path=", getVLCPluginsPath().toAscii().constData(),
-		"--intf=dummy",
+	const char * vlcArgs[] = {
+		"--plugin-path=", getVLCPluginsPath().toUtf8().constData(),
+		//"-vvv",		//Debug messages level: maximum
+		"--intf=dummy",		//Don't use any interface
 		"--no-media-library",
 		"--no-one-instance",
 		"--reset-plugins-cache",
 		"--no-stats",
 		"--no-osd",
 		"--no-video-title-show"
+		"--ignore-config",	//Don't use VLC's config
 	};
 
 	p_libvlc_exception_init(_vlcException);
 
 	//Init VLC modules, should be done only once
-	_vlcInstance = p_libvlc_new(sizeof(vlcArgc) / sizeof(*vlcArgc), vlcArgc, _vlcException);
+	_vlcInstance = p_libvlc_new(sizeof(vlcArgs) / sizeof(*vlcArgs), vlcArgs, _vlcException);
 	checkException();
-
-	//FIXME Cannot do that: otherwise does not load VLC plugins
-	//changeBackToCurrentDirectory();
 
 	qDebug() << "Using VLC version:" << p_libvlc_get_version();
 	qDebug() << "VLC loaded";
@@ -78,6 +78,7 @@ void releaseLibVLC() {
 void checkException() {
 	if (p_libvlc_exception_raised(_vlcException)) {
 		qDebug() << "libvlc exception:" << p_libvlc_exception_get_message(_vlcException);
+		p_libvlc_exception_clear(_vlcException);
 	}
 }
 
