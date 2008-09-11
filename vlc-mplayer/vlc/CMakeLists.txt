@@ -25,6 +25,7 @@ set(phonon_vlc_SRCS
 	VLCMediaController.cpp
 	VLCVideoWidget.cpp
 	vlc_symbols.cpp
+	win32currentdirectory.cpp
 )
 
 if (KDE4_FOUND)

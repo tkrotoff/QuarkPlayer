@@ -18,6 +18,8 @@
 
 #include "vlc_symbols.h"
 
+#include "win32currentdirectory.h"
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtDebug>
 #include <QtCore/QLibrary>
@@ -25,11 +27,11 @@
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
 
-static QLibrary * _libvlc_control = NULL;
+static QLibrary * _libvlc = NULL;
 
 QString getVLCPath() {
-	static const char * libvlc_control_name = "libvlc";
-	static const char * libvlc_control_functionToTest = "libvlc_exception_init";
+	static const char * libvlc_name = "libvlc";
+	static const char * libvlc_functionToTest = "libvlc_exception_init";
 
 	static QString libvlc_path;
 
@@ -65,58 +67,63 @@ QString getVLCPath() {
 	}
 #endif	//Q_OS_WIN
 
-	_libvlc_control = new QLibrary();
+	_libvlc = new QLibrary();
 	foreach (libvlc_path, pathList) {
-		_libvlc_control->setFileName(libvlc_path + QDir::separator() + libvlc_control_name);
+		_libvlc->setFileName(libvlc_path + QDir::separator() + libvlc_name);
 
-		if (_libvlc_control->load() && _libvlc_control->resolve(libvlc_control_functionToTest)) {
+		//libvlc depends on libvlccore, thus we need the current process
+		//directory to be libvlc_path otherwise libvlccore won't be find
+		//and thus libvlc won't be loaded
+		setCurrentDirectory(libvlc_path);
+
+		if (_libvlc->load() && _libvlc->resolve(libvlc_functionToTest)) {
 			qDebug() << "VLC path found:" << libvlc_path;
 			return libvlc_path;
 		}
-		//qDebug() << "Warning:" << _libvlc_control->errorString();
+		qDebug() << "Warning:" << _libvlc->errorString();
 	}
 
 	unloadLibVLC();
-	qFatal("Cannot find '%s' on your system", libvlc_control_name);
+	qFatal("Cannot find '%s' on your system", libvlc_name);
 	return libvlc_path;
 }
 
-QString getVLCPluginsPath() {
+QString getVLCPluginPath() {
 	QString vlcPath = getVLCPath();
 
 #ifdef Q_OS_WIN
-	QString vlcPluginsPath(vlcPath + "\\plugins");
+	QString vlcPluginPath(vlcPath + "\\plugins");
 #endif	//Q_OS_WIN
 
 #ifdef Q_OS_LINUX
-	QString vlcPluginsPath(vlcPath + "/vlc");
+	QString vlcPluginPath(vlcPath + "/vlc");
 #endif	//Q_OS_LINUX
 
-	qDebug() << "VLC plugins path:" << vlcPluginsPath;
+	qDebug() << "VLC plugin path:" << vlcPluginPath;
 
-	return vlcPluginsPath;
+	return vlcPluginPath;
 }
 
 void * resolve(const char * name) {
-	if (!_libvlc_control) {
-		qFatal("_libvlc_control cannot be NULL");
+	if (!_libvlc) {
+		qFatal("_libvlc cannot be NULL");
 	}
 
-	if (!_libvlc_control->isLoaded()) {
-		qFatal("Library '%s' not loaded", _libvlc_control->fileName().toAscii().constData());
+	if (!_libvlc->isLoaded()) {
+		qFatal("Library '%s' not loaded", _libvlc->fileName().toAscii().constData());
 		return NULL;
 	}
 
-	void * func = _libvlc_control->resolve(name);
+	void * func = _libvlc->resolve(name);
 	if (!func) {
-		qFatal("Cannot resolve '%s' in library '%s'", name, _libvlc_control->fileName().toAscii().constData());
+		qFatal("Cannot resolve '%s' in library '%s'", name, _libvlc->fileName().toAscii().constData());
 	}
 
 	return func;
 }
 
 void unloadLibVLC() {
-	_libvlc_control->unload();
-	delete _libvlc_control;
-	_libvlc_control = NULL;
+	_libvlc->unload();
+	delete _libvlc;
+	_libvlc = NULL;
 }

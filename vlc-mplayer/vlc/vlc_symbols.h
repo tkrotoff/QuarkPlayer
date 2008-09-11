@@ -39,15 +39,15 @@
 QString getVLCPath();
 
 /**
- * Gets the VLC plugins path.
+ * Gets the VLC plugin path.
  *
  * Examples:
  * C:/Program Files/VideoLAN/VLC/plugins
  * /usr/local/lib/vlc
  *
- * @return the VLC plugins path
+ * @return the VLC plugin path
  */
-QString getVLCPluginsPath();
+QString getVLCPluginPath();
 
 /**
  * Unloads libvlc.
