@@ -56,6 +56,8 @@ private slots:
 
 	void retranslate();
 
+	void clicked(const QModelIndex & index);
+
 private:
 
 	void populateActionCollection();

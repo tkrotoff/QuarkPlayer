@@ -45,6 +45,8 @@ FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setContextMenuPolicy(Qt::ActionsContextMenu);
+	connect(this, SIGNAL(clicked(const QModelIndex &)),
+		SLOT(clicked(const QModelIndex &)));
 
 	//Add to playlist
 	connect(ActionCollection::action("fileBrowserAddToPlaylist"), SIGNAL(triggered()),
@@ -79,6 +81,12 @@ void FileBrowserTreeView::populateActionCollection() {
 void FileBrowserTreeView::mouseDoubleClickEvent(QMouseEvent * event) {
 	QTreeView::mouseDoubleClickEvent(event);
 	addToPlaylist();
+}
+
+void FileBrowserTreeView::clicked(const QModelIndex & index) {
+	QFileInfo fileInfo = dirModel()->fileInfo(index);
+	//Cannot play a directory
+	ActionCollection::action("fileBrowserPlay")->setEnabled(!fileInfo.isDir());
 }
 
 void FileBrowserTreeView::addToPlaylist() {
