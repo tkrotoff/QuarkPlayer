@@ -84,10 +84,6 @@ void FindFiles::findAllFiles(const QString & path) {
 				}
 
 				else {
-					if (_currentPath.contains("C:ocuments")) {
-						qDebug() << _currentPath + '/' + name;
-					}
-
 					//qDebug() << _currentPath + '/' + name;
 					_files << _currentPath + '/' + name;
 

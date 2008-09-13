@@ -27,9 +27,14 @@
 class QEvent;
 
 /**
- * EventFilter for QObject.
+ * EventFilter for QWidget.
  *
- * Permits to make some special actions on Qt events.
+ * It can be uneasy to inherit from a QWidget in order
+ * to deal with <pre>virtual bool event(QEvent * event)</pre>
+ * Another solution is to install a filter, this class and derivated classes
+ * deal with the case when inheriting is difficult.
+ *
+ * This class permits to make some special actions on Qt events.
  * Example:
  * <code>
  * QMainWindow * widget = new QMainWindow();
