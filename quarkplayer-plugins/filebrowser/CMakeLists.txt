@@ -3,14 +3,14 @@ project(filebrowser)
 set(filebrowser_SRCS
 	FileBrowserWidget.cpp
 	FileBrowserTreeView.cpp
-	SimpleDirModel.cpp
-	FastDirModel.cpp
+	FileSearchModel.cpp
 	config/FileBrowserConfigWidget.cpp
 )
 
 qt4_wrap_cpp(filebrowser_SRCS
 	FileBrowserWidget.h
 	FileBrowserTreeView.h
+	FileSearchModel.h
 	config/FileBrowserConfigWidget.h
 )
 
@@ -24,6 +24,7 @@ add_library(filebrowser MODULE ${filebrowser_SRCS})
 target_link_libraries(filebrowser
 	quarkplayercore
 	filetypes
+	tkutil
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )

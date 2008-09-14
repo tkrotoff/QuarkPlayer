@@ -23,31 +23,24 @@
 
 #include <QtGui/QWidget>
 
-#define FASTDIRMODEL
-
-#ifdef FASTDIRMODEL
-	class FastDirModel;
-	typedef FastDirModel DirModel;
-#else
-	class SimpleDirModel;
-	typedef SimpleDirModel DirModel;
-#endif	//FASTDIRMODEL
-
 class FileBrowserTreeView;
 
 class QuarkPlayer;
 class ConfigWindow;
 
-class QModelIndex;
-class QDockWidget;
+class QFileSystemModel;
 class QToolBar;
-class QTreeView;
+class QDockWidget;
 class QLineEdit;
 class QToolButton;
+class QTimer;
 
 /**
- * File browser inside QuarkPlayer main window.
+ * File browser widget inside QuarkPlayer main window.
  *
+ * A lot of code (search toolbar) is a copy-paste from PlaylistWidget.
+ *
+ * @see PlaylistWidget
  * @author Tanguy Krotoff
  */
 class FileBrowserWidget : public QWidget, public PluginInterface {
@@ -61,6 +54,8 @@ public:
 private slots:
 
 	void loadDirModel();
+
+	void searchChanged();
 
 	void search();
 
@@ -83,15 +78,17 @@ private:
 
 	QStringList nameFilters() const;
 
-	DirModel * _dirModel;
+	QFileSystemModel * _dirModel;
 
 	FileBrowserTreeView * _treeView;
 
-	QToolBar * _toolBar;
-
 	QLineEdit * _searchLineEdit;
 
+	QTimer * _searchTimer;
+
 	QToolButton * _clearSearchButton;
+
+	QToolBar * _toolBar;
 
 	QDockWidget * _dockWidget;
 };

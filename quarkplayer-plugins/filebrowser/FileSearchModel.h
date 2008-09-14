@@ -16,39 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DIRMODEL_H
-#define DIRMODEL_H
+#ifndef FILESEARCHMODEL_H
+#define FILESEARCHMODEL_H
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QStringList>
-#include <QtCore/QFileInfo>
 
 /**
- * Minimal dir model that replaces QDirModel and QFileSystemModel.
  *
- * DirModel is read-only and threaded.
  *
- * DirModel was created since it is difficult to perform a recursive search
- * using QDirModel and QFileSystemModel.
- * DirModel was specially designed for the FileBrowser plugin of QuarkPlayer.
- *
- * @see QDirModel
- * @see QFileSystemModel
  * @author Tanguy Krotoff
  */
-class DirModel : public QAbstractItemModel {
+class FileSearchModel : public QAbstractItemModel {
 	Q_OBJECT
 public:
 
 	static const int COLUMN_FILENAME;
 
-	DirModel(QObject * parent);
+	FileSearchModel(QObject * parent);
 
-	~DirModel();
+	~FileSearchModel();
 
-	void setRootPath(const QString & path);
-
-	QFileInfo fileInfo(const QModelIndex & index) const;
+	void search(const QString & path, const QString & pattern, const QStringList & extensions);
 
 	//Inherited from QAbstractItemModel
 	int columnCount(const QModelIndex & parent = QModelIndex()) const;
@@ -61,7 +50,6 @@ public:
 
 	Qt::ItemFlags flags(const QModelIndex & index) const;
 
-	//bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent);
 	QMimeData * mimeData(const QModelIndexList & indexes) const;
 	QStringList mimeTypes() const;
 	Qt::DropActions supportedDropActions() const;
@@ -75,8 +63,10 @@ private slots:
 private:
 
 	QString _rootPath;
+	QString _pattern;
+	QStringList _extensions;
 
 	QStringList _filenames;
 };
 
-#endif	//DIRMODEL_H
+#endif	//FILESEARCHMODEL_H

@@ -18,12 +18,6 @@
 
 #include "FileBrowserTreeView.h"
 
-#ifdef FASTDIRMODEL
-	#include "FastDirModel.h"
-#else
-	#include "SimpleDirModel.h"
-#endif	//FASTDIRMODEL
-
 #include <quarkplayer/QuarkPlayer.h>
 
 #include <tkutil/LanguageChangeEventFilter.h>
@@ -39,6 +33,8 @@
 FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
 	: QTreeView(NULL),
 	_quarkPlayer(quarkPlayer) {
+
+	_dirModel = NULL;
 
 	populateActionCollection();
 
@@ -58,11 +54,6 @@ FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
 		SLOT(play()));
 	addAction(ActionCollection::action("fileBrowserPlay"));
 
-	//Refresh action
-	/*connect(ActionCollection::action("fileBrowserRefresh"), SIGNAL(triggered()),
-		SLOT(refresh()));
-	addAction(ActionCollection::action("fileBrowserRefresh"));*/
-
 	RETRANSLATE(this);
 	retranslate();
 }
@@ -70,10 +61,13 @@ FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
 FileBrowserTreeView::~FileBrowserTreeView() {
 }
 
+void FileBrowserTreeView::setDirModel(QFileSystemModel * dirModel) {
+	_dirModel = dirModel;
+}
+
 void FileBrowserTreeView::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
-	//ActionCollection::addAction("fileBrowserRefresh", new QAction(app));
 	ActionCollection::addAction("fileBrowserAddToPlaylist", new QAction(app));
 	ActionCollection::addAction("fileBrowserPlay", new QAction(app));
 }
@@ -84,7 +78,9 @@ void FileBrowserTreeView::mouseDoubleClickEvent(QMouseEvent * event) {
 }
 
 void FileBrowserTreeView::clicked(const QModelIndex & index) {
-	QFileInfo fileInfo = dirModel()->fileInfo(index);
+	QFileInfo fileInfo = _dirModel->fileInfo(index);
+	qDebug() << __FUNCTION__ << fileInfo.fileName() << index.row() << index.column();
+
 	//Cannot play a directory
 	ActionCollection::action("fileBrowserPlay")->setEnabled(!fileInfo.isDir());
 }
@@ -93,7 +89,7 @@ void FileBrowserTreeView::addToPlaylist() {
 	QStringList filenames;
 	QModelIndexList indexList = selectedIndexes();
 	foreach (QModelIndex index, indexList) {
-		QFileInfo fileInfo = dirModel()->fileInfo(index);
+		QFileInfo fileInfo = _dirModel->fileInfo(index);
 		//Sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
 		filenames += fileInfo.absoluteFilePath().replace("//", "/");
 	}
@@ -107,7 +103,7 @@ void FileBrowserTreeView::play() {
 	if (!indexList.isEmpty()) {
 		QModelIndex index = indexList.at(0);
 		if (index.isValid()) {
-			QFileInfo fileInfo = dirModel()->fileInfo(index);
+			QFileInfo fileInfo = _dirModel->fileInfo(index);
 			if (fileInfo.isFile()) {
 				//Sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
 				QString slashSlashBugFix = fileInfo.absoluteFilePath().replace("//", "/");
@@ -117,18 +113,10 @@ void FileBrowserTreeView::play() {
 	}
 }
 
-DirModel * FileBrowserTreeView::dirModel() {
-	QAbstractItemModel * itemModel = model();
-	return static_cast<DirModel *>(itemModel);
-}
-
 void FileBrowserTreeView::retranslate() {
 	ActionCollection::action("fileBrowserAddToPlaylist")->setText(tr("Add to Playlist"));
 	ActionCollection::action("fileBrowserAddToPlaylist")->setIcon(TkIcon("list-add"));
 
 	ActionCollection::action("fileBrowserPlay")->setText(tr("Play"));
 	ActionCollection::action("fileBrowserPlay")->setIcon(TkIcon("media-playback-start"));
-
-	//ActionCollection::action("fileBrowserRefresh")->setText(tr("Refresh"));
-	//ActionCollection::action("fileBrowserRefresh")->setIcon(TkIcon("view-refresh"));
 }

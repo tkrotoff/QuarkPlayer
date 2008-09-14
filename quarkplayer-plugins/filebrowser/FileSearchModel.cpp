@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DirModel.h"
+#include "FileSearchModel.h"
 
 #include <filetypes/FileTypes.h>
 
@@ -29,23 +29,23 @@
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 
-const int DirModel::COLUMN_FILENAME = 0;
+const int FileSearchModel::COLUMN_FILENAME = 0;
 
 static const int COLUMN_COUNT = 1;
 
-DirModel::DirModel(QObject * parent)
+FileSearchModel::FileSearchModel(QObject * parent)
 	: QAbstractItemModel(parent) {
 
 }
 
-DirModel::~DirModel() {
+FileSearchModel::~FileSearchModel() {
 }
 
-int DirModel::columnCount(const QModelIndex & parent) const {
+int FileSearchModel::columnCount(const QModelIndex & parent) const {
 	return COLUMN_COUNT;
 }
 
-QVariant DirModel::headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant FileSearchModel::headerData(int section, Qt::Orientation orientation, int role) const {
 	QVariant tmp;
 
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
@@ -61,7 +61,7 @@ QVariant DirModel::headerData(int section, Qt::Orientation orientation, int role
 	return tmp;
 }
 
-QVariant DirModel::data(const QModelIndex & index, int role) const {
+QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	QVariant tmp;
 
 	if (!index.isValid() || index.model() != this) {
@@ -75,7 +75,7 @@ QVariant DirModel::data(const QModelIndex & index, int role) const {
 	case Qt::DisplayRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			tmp = _filenames[row];
+			tmp = TkFile::fileName(_filenames[row]);
 			break;
 		default:
 			qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
@@ -112,7 +112,7 @@ QVariant DirModel::data(const QModelIndex & index, int role) const {
 	return tmp;
 }
 
-QModelIndex DirModel::index(int row, int column, const QModelIndex & parent) const {
+QModelIndex FileSearchModel::index(int row, int column, const QModelIndex & parent) const {
 	if (parent.isValid()) {
 		return QModelIndex();
 	}
@@ -124,11 +124,11 @@ QModelIndex DirModel::index(int row, int column, const QModelIndex & parent) con
 	return createIndex(row, column);
 }
 
-QModelIndex DirModel::parent(const QModelIndex & index) const {
+QModelIndex FileSearchModel::parent(const QModelIndex & index) const {
 	return QModelIndex();
 }
 
-int DirModel::rowCount(const QModelIndex & parent) const {
+int FileSearchModel::rowCount(const QModelIndex & parent) const {
 	if (parent.isValid()) {
 		return 0;
 	}
@@ -136,7 +136,7 @@ int DirModel::rowCount(const QModelIndex & parent) const {
 	return _filenames.size();
 }
 
-Qt::ItemFlags DirModel::flags(const QModelIndex & index) const {
+Qt::ItemFlags FileSearchModel::flags(const QModelIndex & index) const {
 	if (!index.isValid()) {
 		return Qt::ItemIsDropEnabled;
 	}
@@ -144,7 +144,7 @@ Qt::ItemFlags DirModel::flags(const QModelIndex & index) const {
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 }
 
-bool DirModel::removeRows(int row, int count, const QModelIndex & parent) {
+bool FileSearchModel::removeRows(int row, int count, const QModelIndex & parent) {
 	beginRemoveRows(QModelIndex(), row, row + count - 1);
 	for (int i = 0; i < count; i++) {
 		qDebug() << __FUNCTION__ << "Remove row:" << row;
@@ -157,7 +157,7 @@ bool DirModel::removeRows(int row, int count, const QModelIndex & parent) {
 	return true;
 }
 
-QMimeData * DirModel::mimeData(const QModelIndexList & indexes) const {
+QMimeData * FileSearchModel::mimeData(const QModelIndexList & indexes) const {
 	QMimeData * mimeData = new QMimeData();
 	QStringList files;
 	foreach (QModelIndex index, indexes) {
@@ -176,20 +176,22 @@ QMimeData * DirModel::mimeData(const QModelIndexList & indexes) const {
 	return mimeData;
 }
 
-QStringList DirModel::mimeTypes() const {
+QStringList FileSearchModel::mimeTypes() const {
 	QStringList types;
 	types << "text/uri-list";
 	return types;
 }
 
-Qt::DropActions DirModel::supportedDropActions() const {
+Qt::DropActions FileSearchModel::supportedDropActions() const {
 	return Qt::CopyAction | Qt::MoveAction;
 }
 
-void DirModel::setRootPath(const QString & path) {
+void FileSearchModel::search(const QString & path, const QString & pattern, const QStringList & extensions) {
 	qDebug() << __FUNCTION__ << path;
 
 	_rootPath = path;
+	_pattern = pattern;
+	_extensions = extensions;
 
 	FindFiles findFiles;
 	connect(&findFiles, SIGNAL(filesFound(const QStringList &)),
@@ -198,17 +200,26 @@ void DirModel::setRootPath(const QString & path) {
 	findFiles.findAllFiles();
 }
 
-void DirModel::filesFound(const QStringList & files) {
+void FileSearchModel::filesFound(const QStringList & files) {
 	qDebug() << __FUNCTION__ << files[0];
 
-	if (!files.isEmpty()) {
+	QStringList filenameList;
+	foreach (QString filename, files) {
+		if (_extensions.contains(TkFile::fileExtension(filename), Qt::CaseInsensitive) &&
+			filename.contains(_pattern, Qt::CaseInsensitive)) {
+
+			filenameList << filename;
+		}
+	}
+
+	if (!filenameList.isEmpty()) {
 		//Append the files
 		int first = _filenames.size();
-		int last = first + files.size() - 1;
+		int last = first + filenameList.size() - 1;
 		int currentRow = first;
 
 		beginInsertRows(QModelIndex(), first, last);
-		foreach (QString filename, files) {
+		foreach (QString filename, filenameList) {
 			_filenames.insert(currentRow, filename);
 			currentRow++;
 		}
@@ -216,14 +227,4 @@ void DirModel::filesFound(const QStringList & files) {
 
 		QCoreApplication::processEvents();
 	}
-}
-
-QFileInfo DirModel::fileInfo(const QModelIndex & index) const {
-	QFileInfo fileInfo;
-
-	if (index.isValid()) {
-		fileInfo = QFileInfo(_filenames[index.row()]);
-	}
-
-	return fileInfo;
 }

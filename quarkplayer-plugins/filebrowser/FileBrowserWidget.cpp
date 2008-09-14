@@ -19,12 +19,7 @@
 #include "FileBrowserWidget.h"
 
 #include "FileBrowserTreeView.h"
-
-#ifdef FASTDIRMODEL
-	#include "FastDirModel.h"
-#else
-	#include "SimpleDirModel.h"
-#endif	//FASTDIRMODEL
+#include "FileSearchModel.h"
 
 #include "config/FileBrowserConfigWidget.h"
 
@@ -54,6 +49,8 @@ PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer) co
 FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	: QWidget(NULL),
 	PluginInterface(quarkPlayer) {
+
+	_dirModel = NULL;
 
 	QVBoxLayout * layout = new QVBoxLayout();
 	setLayout(layout);
@@ -101,9 +98,15 @@ void FileBrowserWidget::createToolBar() {
 	connect(browseButton, SIGNAL(clicked()), SLOT(configure()));
 
 	//Search toolbar
+	//Copy-paste from PlaylistWidget.cpp
 	_searchLineEdit = new QLineEdit();
 	_toolBar->addWidget(_searchLineEdit);
-	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search()));
+	_searchTimer = new QTimer(this);
+	_searchTimer->setSingleShot(true);
+	_searchTimer->setInterval(700);
+	connect(_searchTimer, SIGNAL(timeout()), SLOT(search()));
+	connect(_searchLineEdit, SIGNAL(returnPressed()), SLOT(search()));
+	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(searchChanged()));
 	_clearSearchButton = new QToolButton();
 	_clearSearchButton->setAutoRaise(true);
 	_clearSearchButton->setDefaultAction(ActionCollection::action("fileBrowserClearSearch"));
@@ -141,9 +144,16 @@ QStringList FileBrowserWidget::nameFilters() const {
 }
 
 void FileBrowserWidget::loadDirModel() {
-	_dirModel = new DirModel(nameFilters());
-	_treeView->setModel(_dirModel);
+	_dirModel = new QFileSystemModel(this);
+	_dirModel->setNameFilters(nameFilters());
+	_dirModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+	//_dirModel->setSorting(QDir::Name | QDir::DirsFirst);
+	_dirModel->setReadOnly(true);
+	_dirModel->setNameFilterDisables(false);
+
 	_treeView->setHeaderHidden(true);
+
+	_treeView->setModel(_dirModel);
 
 	QHeaderView * header = _treeView->header();
 	header->hideSection(1);
@@ -160,18 +170,29 @@ void FileBrowserWidget::loadDirModel() {
 	_treeView->setDragEnabled(true);
 }
 
+void FileBrowserWidget::searchChanged() {
+	_searchTimer->stop();
+	_searchTimer->start();
+}
+
 void FileBrowserWidget::search() {
 	QString pattern(_searchLineEdit->text().trimmed());
-
-	if (pattern.isEmpty()) {
-		_dirModel->setNameFilters(nameFilters());
-		_clearSearchButton->setEnabled(false);
-	} else {
-		QStringList(QString("*" + pattern + "*"));
-		_clearSearchButton->setEnabled(true);
+	_clearSearchButton->setEnabled(!pattern.isEmpty());
+	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
+	if (statusBar && !pattern.isEmpty()) {
+		statusBar->showMessage(tr("Searching..."));
 	}
-
-	_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
+	if (pattern.isEmpty()) {
+		_treeView->setModel(_dirModel);
+		_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
+	} else {
+		FileSearchModel * _fileSearchModel = new FileSearchModel(this);
+		_treeView->setModel(_fileSearchModel);
+		_fileSearchModel->search(Config::instance().musicDir(), pattern, QStringList("mp3"));
+	}
+	if (statusBar && !pattern.isEmpty()) {
+		statusBar->showMessage(tr("Search finished"));
+	}
 }
 
 void FileBrowserWidget::configure() {
@@ -182,11 +203,8 @@ void FileBrowserWidget::configure() {
 }
 
 void FileBrowserWidget::musicDirChanged(const QString & key, const QVariant & value) {
-	qDebug() << __FUNCTION__ << key << value;
-
 	if (key == Config::MUSIC_DIR_KEY) {
 		_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
-		_dirModel->refresh();
 	}
 }
 
@@ -198,7 +216,7 @@ void FileBrowserWidget::retranslate() {
 	ActionCollection::action("fileBrowserClearSearch")->setText(tr("Clear Search"));
 	ActionCollection::action("fileBrowserClearSearch")->setIcon(TkIcon("edit-delete"));
 
-	_searchLineEdit->setToolTip(tr("Search Files"));
+	_searchLineEdit->setToolTip(tr("Search files, use whitespaces to separate words"));
 	QString pattern(_searchLineEdit->text().trimmed());
 	_clearSearchButton->setEnabled(!pattern.isEmpty());
 

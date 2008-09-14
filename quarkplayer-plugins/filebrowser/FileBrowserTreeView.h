@@ -21,19 +21,12 @@
 
 #include <QtGui/QTreeView>
 
-#define FASTDIRMODEL
-
-#ifdef FASTDIRMODEL
-	class FastDirModel;
-	typedef FastDirModel DirModel;
-#else
-	class SimpleDirModel;
-	typedef SimpleDirModel DirModel;
-#endif	//FASTDIRMODEL
+class FileBrowserFilter;
 
 class QuarkPlayer;
 
 class QMouseEvent;
+class QFileSystemModel;
 
 /**
  * File browser QTreeView.
@@ -47,6 +40,8 @@ public:
 	FileBrowserTreeView(QuarkPlayer & quarkPlayer);
 
 	~FileBrowserTreeView();
+
+	void setDirModel(QFileSystemModel * dirModel);
 
 private slots:
 
@@ -64,9 +59,9 @@ private:
 
 	void mouseDoubleClickEvent(QMouseEvent * event);
 
-	DirModel * dirModel();
-
 	QuarkPlayer & _quarkPlayer;
+
+	QFileSystemModel * _dirModel;
 };
 
 #endif	//FILEBROWSERTREEVIEW_H
