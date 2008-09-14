@@ -34,8 +34,6 @@ public:
 
 	PlaylistFilter(QObject * parent, PlaylistModel * playlistModel);
 
-	void setFilter(const QString & filter);
-
 	QModelIndex currentIndex() const;
 
 public slots:
@@ -63,8 +61,6 @@ private:
 	int convertToModelPosition(const QModelIndex & index);
 
 	bool filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const;
-
-	QString _filter;
 
 	PlaylistModel * _playlistModel;
 

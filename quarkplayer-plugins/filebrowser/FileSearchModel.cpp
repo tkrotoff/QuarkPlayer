@@ -30,12 +30,12 @@
 #include <QtCore/QCoreApplication>
 
 const int FileSearchModel::COLUMN_FILENAME = 0;
+const int FileSearchModel::COLUMN_PATH = 1;
 
-static const int COLUMN_COUNT = 1;
+static const int COLUMN_COUNT = 2;
 
 FileSearchModel::FileSearchModel(QObject * parent)
 	: QAbstractItemModel(parent) {
-
 }
 
 FileSearchModel::~FileSearchModel() {
@@ -52,6 +52,9 @@ QVariant FileSearchModel::headerData(int section, Qt::Orientation orientation, i
 		switch (section) {
 		case COLUMN_FILENAME:
 			tmp = tr("Name");
+			break;
+		case COLUMN_PATH:
+			tmp = tr("Path");
 			break;
 		default:
 			qCritical() << __FUNCTION__ << "Error: unknown column:" << section;
@@ -71,11 +74,16 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	int row = index.row();
 	int column = index.column();
 
+	QString filename(_filenames[row]);
+
 	switch (role) {
 	case Qt::DisplayRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			tmp = TkFile::fileName(_filenames[row]);
+			tmp = TkFile::fileName(filename);
+			break;
+		case COLUMN_PATH:
+			tmp = TkFile::path(filename);
 			break;
 		default:
 			qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
@@ -83,30 +91,23 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 		break;
 	}
 
-	/*
 	case Qt::DecorationRole: {
 		switch (column) {
-		case COLUMN_FILENAME: {
-			QIcon icon = icon(index);
-			if (icon.isNull()) {
-				if (node(index)->isDir()) {
-					icon = d->fileInfoGatherer.iconProvider()->icon(QFileIconProvider::Folder);
-				} else {
-					icon = d->fileInfoGatherer.iconProvider()->icon(QFileIconProvider::File);
-				}
+		case COLUMN_FILENAME:
+			if (_iconProvider) {
+				tmp = _iconProvider->icon(QFileInfo(filename));
 			}
-			tmp = icon;
 			break;
-		}
+		case COLUMN_PATH:
+			break;
 		default:
 			qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
 		}
 		break;
 	}
-	*/
 
-	/*default:
-		qCritical() << __FUNCTION__ << "Error: unknown role:" << role;*/
+	//default:
+	//	qCritical() << __FUNCTION__ << "Error: unknown role:" << role;
 	}
 
 	return tmp;
@@ -147,8 +148,6 @@ Qt::ItemFlags FileSearchModel::flags(const QModelIndex & index) const {
 bool FileSearchModel::removeRows(int row, int count, const QModelIndex & parent) {
 	beginRemoveRows(QModelIndex(), row, row + count - 1);
 	for (int i = 0; i < count; i++) {
-		qDebug() << __FUNCTION__ << "Remove row:" << row;
-
 		//Remove from the list of filenames
 		_filenames.removeAt(row);
 	}
@@ -186,45 +185,45 @@ Qt::DropActions FileSearchModel::supportedDropActions() const {
 	return Qt::CopyAction | Qt::MoveAction;
 }
 
-void FileSearchModel::search(const QString & path, const QString & pattern, const QStringList & extensions) {
-	qDebug() << __FUNCTION__ << path;
+QFileInfo FileSearchModel::fileInfo(const QModelIndex & index) const {
+	QFileInfo tmp;
 
-	_rootPath = path;
-	_pattern = pattern;
-	_extensions = extensions;
+	if (index.isValid()) {
+		tmp = QFileInfo(_filenames[index.row()]);
+	}
+
+	return tmp;
+}
+
+void FileSearchModel::setIconProvider(QFileIconProvider * provider) {
+	_iconProvider = provider;
+}
+
+void FileSearchModel::search(const QString & path, const QRegExp & pattern, const QStringList & extensions) {
+	qDebug() << __FUNCTION__ << path;
 
 	FindFiles findFiles;
 	connect(&findFiles, SIGNAL(filesFound(const QStringList &)),
 		SLOT(filesFound(const QStringList &)));
-	findFiles.setSearchPath(_rootPath);
-	findFiles.findAllFiles();
+	findFiles.setSearchPath(path);
+	findFiles.setFilesFoundLimit(5);
+	findFiles.findAllFilesAndDirs(pattern, extensions);
+	//TODO make it threaded
+	//QtConcurrent::run(findFiles, &FindFiles::findAllFilesAndDirs, pattern, extensions);
 }
 
 void FileSearchModel::filesFound(const QStringList & files) {
-	qDebug() << __FUNCTION__ << files[0];
+	//Append the files
+	int first = _filenames.size();
+	int last = first + files.size() - 1;
+	int currentRow = first;
 
-	QStringList filenameList;
+	beginInsertRows(QModelIndex(), first, last);
 	foreach (QString filename, files) {
-		if (_extensions.contains(TkFile::fileExtension(filename), Qt::CaseInsensitive) &&
-			filename.contains(_pattern, Qt::CaseInsensitive)) {
-
-			filenameList << filename;
-		}
+		_filenames.insert(currentRow, filename);
+		currentRow++;
 	}
+	endInsertRows();
 
-	if (!filenameList.isEmpty()) {
-		//Append the files
-		int first = _filenames.size();
-		int last = first + filenameList.size() - 1;
-		int currentRow = first;
-
-		beginInsertRows(QModelIndex(), first, last);
-		foreach (QString filename, filenameList) {
-			_filenames.insert(currentRow, filename);
-			currentRow++;
-		}
-		endInsertRows();
-
-		QCoreApplication::processEvents();
-	}
+	QCoreApplication::processEvents();
 }

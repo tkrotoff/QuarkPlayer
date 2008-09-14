@@ -39,27 +39,15 @@ PlaylistFilter::PlaylistFilter(QObject * parent, PlaylistModel * playlistModel)
 }
 
 bool PlaylistFilter::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const {
-	if (_filter.isEmpty()) {
-		return true;
-	}
-
 	QString artist(_playlistModel->data(_playlistModel->index(sourceRow, PlaylistModel::COLUMN_ARTIST, sourceParent)).toString());
 	QString album(_playlistModel->data(_playlistModel->index(sourceRow, PlaylistModel::COLUMN_ALBUM, sourceParent)).toString());
 	QString title(_playlistModel->data(_playlistModel->index(sourceRow, PlaylistModel::COLUMN_TITLE, sourceParent)).toString());
-	bool keep = true;
-	foreach(QString word, _filter.split(' ')) {
-		keep &= artist.contains(word, Qt::CaseInsensitive) ||
-			album.contains(word, Qt::CaseInsensitive) ||
-			title.contains(word, Qt::CaseInsensitive);
-	}
-	return keep;
-}
 
-void PlaylistFilter::setFilter(const QString & filter) {
-	if (filter != _filter) {
-		_filter = filter;
-		invalidateFilter();
-	}
+	bool keep = artist.contains(filterRegExp()) ||
+			album.contains(filterRegExp()) ||
+			title.contains(filterRegExp());
+
+	return keep;
 }
 
 QModelIndex PlaylistFilter::currentIndex() const {

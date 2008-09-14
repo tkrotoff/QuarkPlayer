@@ -420,7 +420,18 @@ void PlaylistWidget::search() {
 	if (statusBar && !pattern.isEmpty()) {
 		statusBar->showMessage(tr("Searching..."));
 	}
-	_playlistFilter->setFilter(pattern);
+
+	QString tmp;
+	foreach (QString word, pattern.split(' ')) {
+		tmp += word + '|';
+	}
+	tmp.remove(tmp.lastIndexOf('|'), 1);
+	tmp.prepend("(");
+	tmp.append(")");
+	qDebug() << __FUNCTION__ << tmp;
+
+	_playlistFilter->setFilterRegExp(QRegExp(tmp,
+			Qt::CaseInsensitive, QRegExp::RegExp2));
 
 	//Force the treeView to launch files tags fetching
 	//FIXME Does not work

@@ -21,12 +21,10 @@
 
 #include <QtGui/QTreeView>
 
-class FileBrowserFilter;
-
 class QuarkPlayer;
 
 class QMouseEvent;
-class QFileSystemModel;
+class QFileInfo;
 
 /**
  * File browser QTreeView.
@@ -41,8 +39,6 @@ public:
 
 	~FileBrowserTreeView();
 
-	void setDirModel(QFileSystemModel * dirModel);
-
 private slots:
 
 	void addToPlaylist();
@@ -53,15 +49,17 @@ private slots:
 
 	void clicked(const QModelIndex & index);
 
+	void viewMediaInfo();
+
 private:
 
 	void populateActionCollection();
 
 	void mouseDoubleClickEvent(QMouseEvent * event);
 
-	QuarkPlayer & _quarkPlayer;
+	QFileInfo fileInfo(const QModelIndex & index) const;
 
-	QFileSystemModel * _dirModel;
+	QuarkPlayer & _quarkPlayer;
 };
 
 #endif	//FILEBROWSERTREEVIEW_H

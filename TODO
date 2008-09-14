@@ -49,7 +49,7 @@
 - add a OSD stuff
 - implement shortcuts dialog
 - fix drag&drop inside MainWindow + command line
-- re-implement FileBrowser to make it really work
+- factorize FileBrowser and Playlist search
 
 == Future ==
 - add music visualization

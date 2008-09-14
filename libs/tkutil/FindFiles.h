@@ -23,6 +23,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
+#include <QtCore/QRegExp>
 
 /**
  * Find files for a directory, recursively or not.
@@ -53,14 +54,34 @@ public:
 	void setSearchPath(const QString & path);
 
 	/**
-	 * Finds all files (recursive) given a path.
+	 * Sets when filesFound() signal will be sent.
+	 *
+	 * Default value is DEFAULT_FILES_FOUND_LIMIT
+	 *
+	 * @param filesFoundLimit number of files found before to send filesFound() signal
+	 * @see filesFound()
 	 */
-	void findAllFiles();
+	void setFilesFoundLimit(int filesFoundLimit);
+
+	/**
+	 * Finds all files (recursive) given a path.
+	 *
+	 * @param pattern pattern to match
+	 * @param extensions file extensions to match ex: "what is love.mp3" matches "mp3" extension
+	 */
+	void findAllFiles(const QRegExp & pattern = QRegExp(), const QStringList & extensions = QStringList());
+
+	/**
+	 * Finds all files and directories (recursive) given a path.
+	 *
+	 * @see findAllFiles()
+	 */
+	void findAllFilesAndDirs(const QRegExp & patterns = QRegExp(), const QStringList & extensions = QStringList());
 
 signals:
 
 	/**
-	 * Sends the signal every FILES_FOUND_LIMIT files found.
+	 * Sends the signal every _filesFoundLimit files found.
 	 *
 	 * @param files list of files (full path filename)
 	 */
@@ -78,15 +99,31 @@ private:
 	/**
 	 * Finds root files (non recursive) of a given directory.
 	 *
+	 * Algorithm taken from http://www.commentcamarche.net/forum/affich-1699952-langage-c-recuperer-un-dir
+	 *
 	 * @param path directory where to search for files.
 	 */
-	void findAllFiles(const QString & path);
+	void findAllFilesInternal(const QString & path);
+
+	/** Filter directory matching the given pattern. */
+	bool dirMatches(const QString & filename) const;
+
+	/** Filter file matching the given pattern and extensions. */
+	bool fileMatches(const QString & filename) const;
 
 	QString _path;
 
 	QString _currentPath;
 
 	QStringList _files;
+
+	bool _findDirs;
+
+	QRegExp _pattern;
+
+	QStringList _extensions;
+
+	int _filesFoundLimit;
 };
 
 #endif	//FINDFILES_H

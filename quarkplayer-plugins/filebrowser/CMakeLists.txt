@@ -25,6 +25,7 @@ target_link_libraries(filebrowser
 	quarkplayercore
 	filetypes
 	tkutil
+	mediainfowindow
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )

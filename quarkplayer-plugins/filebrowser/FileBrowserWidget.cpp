@@ -176,6 +176,7 @@ void FileBrowserWidget::searchChanged() {
 }
 
 void FileBrowserWidget::search() {
+	_searchTimer->stop();
 	QString pattern(_searchLineEdit->text().trimmed());
 	_clearSearchButton->setEnabled(!pattern.isEmpty());
 	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
@@ -183,12 +184,32 @@ void FileBrowserWidget::search() {
 		statusBar->showMessage(tr("Searching..."));
 	}
 	if (pattern.isEmpty()) {
+		_treeView->setRootIsDecorated(true);
+
 		_treeView->setModel(_dirModel);
 		_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
 	} else {
+		_treeView->setRootIsDecorated(false);
+
 		FileSearchModel * _fileSearchModel = new FileSearchModel(this);
+		_fileSearchModel->setIconProvider(_dirModel->iconProvider());
 		_treeView->setModel(_fileSearchModel);
-		_fileSearchModel->search(Config::instance().musicDir(), pattern, QStringList("mp3"));
+
+		QStringList extensions = FileTypes::extensions(FileType::Video, FileType::Audio);
+		extensions << FileTypes::extensions(FileType::Playlist);
+
+		QString tmp;
+		foreach (QString word, pattern.split(' ')) {
+			tmp += word + '|';
+		}
+		tmp.remove(tmp.lastIndexOf('|'), 1);
+		tmp.prepend("(");
+		tmp.append(")");
+		qDebug() << __FUNCTION__ << tmp;
+
+		_fileSearchModel->search(Config::instance().musicDir(),
+				QRegExp(tmp, Qt::CaseInsensitive, QRegExp::RegExp2),
+				extensions);
 	}
 	if (statusBar && !pattern.isEmpty()) {
 		statusBar->showMessage(tr("Search finished"));

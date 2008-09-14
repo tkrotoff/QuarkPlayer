@@ -22,9 +22,19 @@
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QStringList>
 
+class QFileIconProvider;
+class QFileInfo;
+class QRegExp;
+
 /**
+ * Replacement for QDirModel or QFileSystemModel,
+ * simple flat model populated via a recursive file search.
  *
+ * Based on FindFiles
  *
+ * @see QDirModel
+ * @see QFileSystemModel
+ * @see FindFiles
  * @author Tanguy Krotoff
  */
 class FileSearchModel : public QAbstractItemModel {
@@ -32,12 +42,22 @@ class FileSearchModel : public QAbstractItemModel {
 public:
 
 	static const int COLUMN_FILENAME;
+	static const int COLUMN_PATH;
 
 	FileSearchModel(QObject * parent);
 
 	~FileSearchModel();
 
-	void search(const QString & path, const QString & pattern, const QStringList & extensions);
+	QFileInfo fileInfo(const QModelIndex & index) const;
+
+	void setIconProvider(QFileIconProvider * provider);
+
+	/**
+	 * Searches a path for files given a pattern and file extensions.
+	 *
+	 * @see FindFiles
+	 */
+	void search(const QString & path, const QRegExp & pattern, const QStringList & extensions);
 
 	//Inherited from QAbstractItemModel
 	int columnCount(const QModelIndex & parent = QModelIndex()) const;
@@ -54,17 +74,13 @@ public:
 	QStringList mimeTypes() const;
 	Qt::DropActions supportedDropActions() const;
 
-public slots:
-
 private slots:
 
 	void filesFound(const QStringList & files);
 
 private:
 
-	QString _rootPath;
-	QString _pattern;
-	QStringList _extensions;
+	QFileIconProvider * _iconProvider;
 
 	QStringList _filenames;
 };

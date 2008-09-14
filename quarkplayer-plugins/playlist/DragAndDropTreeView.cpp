@@ -109,7 +109,7 @@ void DragAndDropTreeView::dragMoveEvent(QDragMoveEvent * event) {
 void DragAndDropTreeView::showMenu(const QPoint & pos) {
 	QModelIndex index(indexAt(pos));
 	if (index.isValid()) {
-		QModelIndexList indexList = selectedIndexes();
+		QModelIndexList indexList = selectionModel()->selectedRows();
 		if (indexList.isEmpty()) {
 			setCurrentIndex(index);
 		} else {
@@ -172,7 +172,7 @@ void DragAndDropTreeView::retranslate() {
 }
 
 void DragAndDropTreeView::playItem() {
-	QModelIndexList indexList = selectedIndexes();
+	QModelIndexList indexList = selectionModel()->selectedRows();
 	if (!indexList.isEmpty()) {
 		_playlistFilter->play(indexList.at(0));
 	}
@@ -183,17 +183,9 @@ void DragAndDropTreeView::sendTo() {
 }
 
 void DragAndDropTreeView::clearSelection() {
-	QModelIndexList indexList = selectedIndexes();
-	QList<int> rows;
-	foreach (QModelIndex index, indexList) {
-		int row = index.row();
-		if (!rows.contains(row)) {
-			rows += row;
-		}
-	}
-
-	if (!rows.isEmpty()) {
-		_playlistModel->removeRows(rows.first(), rows.size());
+	QModelIndexList indexList = selectionModel()->selectedRows();
+	if (!indexList.isEmpty()) {
+		_playlistModel->removeRows(0, indexList.size());
 	}
 }
 
@@ -204,7 +196,7 @@ void DragAndDropTreeView::viewMediaInfo() {
 	_mediaInfoWindow = new MediaInfoWindow(this);
 
 	MediaInfoFetcher * mediaInfoFetcher = new MediaInfoFetcher(this);
-	QModelIndexList indexList = selectedIndexes();
+	QModelIndexList indexList = selectionModel()->selectedRows();
 	if (!indexList.isEmpty()) {
 		QModelIndex index(indexList.at(0));
 		QModelIndex sourceIndex(_playlistFilter->mapToSource(index));

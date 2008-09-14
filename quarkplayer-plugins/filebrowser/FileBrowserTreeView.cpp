@@ -18,7 +18,13 @@
 
 #include "FileBrowserTreeView.h"
 
+#include "FileSearchModel.h"
+
 #include <quarkplayer/QuarkPlayer.h>
+#include <quarkplayer/config/Config.h>
+
+#include <mediainfowindow/MediaInfoWindow.h>
+#include <mediainfowindow/MediaInfoFetcher.h>
 
 #include <tkutil/LanguageChangeEventFilter.h>
 #include <tkutil/ActionCollection.h>
@@ -34,13 +40,13 @@ FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
 	: QTreeView(NULL),
 	_quarkPlayer(quarkPlayer) {
 
-	_dirModel = NULL;
-
 	populateActionCollection();
 
+	setUniformRowHeights(true);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setContextMenuPolicy(Qt::ActionsContextMenu);
+
 	connect(this, SIGNAL(clicked(const QModelIndex &)),
 		SLOT(clicked(const QModelIndex &)));
 
@@ -54,6 +60,11 @@ FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
 		SLOT(play()));
 	addAction(ActionCollection::action("fileBrowserPlay"));
 
+	//View Media Info...
+	connect(ActionCollection::action("fileBrowserViewMediaInfo"), SIGNAL(triggered()),
+		SLOT(viewMediaInfo()));
+	addAction(ActionCollection::action("fileBrowserViewMediaInfo"));
+
 	RETRANSLATE(this);
 	retranslate();
 }
@@ -61,15 +72,12 @@ FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
 FileBrowserTreeView::~FileBrowserTreeView() {
 }
 
-void FileBrowserTreeView::setDirModel(QFileSystemModel * dirModel) {
-	_dirModel = dirModel;
-}
-
 void FileBrowserTreeView::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
 	ActionCollection::addAction("fileBrowserAddToPlaylist", new QAction(app));
 	ActionCollection::addAction("fileBrowserPlay", new QAction(app));
+	ActionCollection::addAction("fileBrowserViewMediaInfo", new QAction(app));
 }
 
 void FileBrowserTreeView::mouseDoubleClickEvent(QMouseEvent * event) {
@@ -78,7 +86,7 @@ void FileBrowserTreeView::mouseDoubleClickEvent(QMouseEvent * event) {
 }
 
 void FileBrowserTreeView::clicked(const QModelIndex & index) {
-	QFileInfo fileInfo = _dirModel->fileInfo(index);
+	QFileInfo fileInfo = this->fileInfo(index);
 	qDebug() << __FUNCTION__ << fileInfo.fileName() << index.row() << index.column();
 
 	//Cannot play a directory
@@ -87,9 +95,9 @@ void FileBrowserTreeView::clicked(const QModelIndex & index) {
 
 void FileBrowserTreeView::addToPlaylist() {
 	QStringList filenames;
-	QModelIndexList indexList = selectedIndexes();
+	QModelIndexList indexList = selectionModel()->selectedRows();
 	foreach (QModelIndex index, indexList) {
-		QFileInfo fileInfo = _dirModel->fileInfo(index);
+		QFileInfo fileInfo = this->fileInfo(index);
 		//Sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
 		filenames += fileInfo.absoluteFilePath().replace("//", "/");
 	}
@@ -99,11 +107,11 @@ void FileBrowserTreeView::addToPlaylist() {
 }
 
 void FileBrowserTreeView::play() {
-	QModelIndexList indexList = selectedIndexes();
+	QModelIndexList indexList = selectionModel()->selectedRows();
 	if (!indexList.isEmpty()) {
 		QModelIndex index = indexList.at(0);
 		if (index.isValid()) {
-			QFileInfo fileInfo = _dirModel->fileInfo(index);
+			QFileInfo fileInfo = this->fileInfo(index);
 			if (fileInfo.isFile()) {
 				//Sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
 				QString slashSlashBugFix = fileInfo.absoluteFilePath().replace("//", "/");
@@ -119,4 +127,34 @@ void FileBrowserTreeView::retranslate() {
 
 	ActionCollection::action("fileBrowserPlay")->setText(tr("Play"));
 	ActionCollection::action("fileBrowserPlay")->setIcon(TkIcon("media-playback-start"));
+
+	ActionCollection::action("fileBrowserViewMediaInfo")->setText(tr("View Media Info..."));
+	ActionCollection::action("fileBrowserViewMediaInfo")->setIcon(TkIcon("document-properties"));
+}
+
+QFileInfo FileBrowserTreeView::fileInfo(const QModelIndex & index) const {
+	QFileInfo tmp;
+
+	const QAbstractItemModel * model = index.model();
+	if (const QFileSystemModel * dirModel = dynamic_cast<const QFileSystemModel *>(model)) {
+		tmp = dirModel->fileInfo(index);
+	} else if (const FileSearchModel * fileSearchModel = dynamic_cast<const FileSearchModel *>(model)) {
+		tmp = fileSearchModel->fileInfo(index);
+	}
+
+	return tmp;
+}
+
+void FileBrowserTreeView::viewMediaInfo() {
+	static MediaInfoWindow * mediaInfoWindow = new MediaInfoWindow(this);
+
+	MediaInfoFetcher * mediaInfoFetcher = new MediaInfoFetcher(this);
+	QModelIndexList indexList = selectionModel()->selectedRows();
+	if (!indexList.isEmpty()) {
+		QModelIndex index(indexList.at(0));
+		mediaInfoFetcher->start(fileInfo(index).absoluteFilePath());
+	}
+	mediaInfoWindow->setMediaInfoFetcher(mediaInfoFetcher);
+	mediaInfoWindow->setLocale(Config::instance().language());
+	mediaInfoWindow->show();
 }

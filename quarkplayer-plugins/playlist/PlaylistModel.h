@@ -32,6 +32,13 @@ class MediaInfoFetcher;
 /**
  * Playlist model.
  *
+ * Internally, PlaylistModel keeps the entire playlist in memory
+ * via <pre>QList<Track> _filenames</pre>.
+ * This is compulsary since the user can perform some searches
+ * inside the playlist via the search ToolBar.
+ * <pre>QList<Track> _filenames</pre> should be memory efficient and thus the
+ * Track class is very minimalist.
+ *
  * @author Tanguy Krotoff
  */
 class PlaylistModel : public QAbstractItemModel {
