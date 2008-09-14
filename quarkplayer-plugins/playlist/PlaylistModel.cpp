@@ -110,7 +110,7 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
 QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 	QVariant tmp;
 
-	if (!index.isValid()) {
+	if (!index.isValid() || index.model() != this) {
 		return tmp;
 	}
 

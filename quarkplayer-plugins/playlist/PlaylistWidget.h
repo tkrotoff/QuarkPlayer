@@ -47,6 +47,9 @@ class QTimer;
 /**
  * Playlist.
  *
+ * A lot of code (search toolbar) is a copy-paste from FileBrowserWidget.
+ *
+ * @see FileBrowserWidget
  * @author Tanguy Krotoff
  */
 class PlaylistWidget : public QWidget, public PluginInterface {

@@ -28,7 +28,6 @@
 
 #include <tkutil/ActionCollection.h>
 #include <tkutil/TkIcon.h>
-#include <tkutil/FindFiles.h>
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 #include <tkutil/KeyEventFilter.h>
@@ -154,6 +153,7 @@ void PlaylistWidget::createToolBar() {
 	connect(ActionCollection::action("playlistJumpToCurrent"), SIGNAL(triggered()), SLOT(jumpToCurrent()));
 
 	//Search toolbar
+	//Copy-paste from FileBrowserWidget.cpp
 	_searchLineEdit = new QLineEdit();
 	_toolBar->addWidget(_searchLineEdit);
 	_searchTimer = new QTimer(this);
@@ -233,7 +233,7 @@ void PlaylistWidget::retranslate() {
 	ActionCollection::action("playlistClearSearch")->setText(tr("Clear Search"));
 	ActionCollection::action("playlistClearSearch")->setIcon(TkIcon("edit-delete"));
 
-	_searchLineEdit->setToolTip(tr("Search Playlist"));
+	_searchLineEdit->setToolTip(tr("Search files, use whitespaces to separate words"));
 	QString pattern(_searchLineEdit->text().trimmed());
 	_clearSearchButton->setEnabled(!pattern.isEmpty());
 
@@ -417,7 +417,7 @@ void PlaylistWidget::search() {
 	QString pattern(_searchLineEdit->text().trimmed());
 	_clearSearchButton->setEnabled(!pattern.isEmpty());
 	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
-	if (statusBar) {
+	if (statusBar && !pattern.isEmpty()) {
 		statusBar->showMessage(tr("Searching..."));
 	}
 	_playlistFilter->setFilter(pattern);
@@ -426,7 +426,7 @@ void PlaylistWidget::search() {
 	//FIXME Does not work
 	//_treeView->repaint();
 
-	if (statusBar) {
+	if (statusBar && !pattern.isEmpty()) {
 		statusBar->showMessage(tr("Search finished"));
 	}
 }

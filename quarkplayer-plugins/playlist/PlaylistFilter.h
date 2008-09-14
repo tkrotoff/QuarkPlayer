@@ -52,10 +52,6 @@ public slots:
 
 	void setRepeat(bool repeat);
 
-signals:
-
-	void filterChanged();
-
 private:
 
 	QModelIndex nextTrack();
