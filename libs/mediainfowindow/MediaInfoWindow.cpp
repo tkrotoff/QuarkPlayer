@@ -28,6 +28,7 @@
 #include <thumbnailview/ThumbnailView.h>
 
 #include <tkutil/TkIcon.h>
+#include <tkutil/TkFile.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
@@ -82,10 +83,6 @@ MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 }
 
 MediaInfoWindow::~MediaInfoWindow() {
-}
-
-void MediaInfoWindow::setCoverArtDirectory(const QString & path) {
-	_thumbnailView->setDir(path);
 }
 
 void MediaInfoWindow::setMediaInfoFetcher(MediaInfoFetcher * mediaInfoFetcher) {
@@ -198,6 +195,8 @@ void MediaInfoWindow::updateMediaInfo() {
 	_ui->moreInfoLabel->setText(moreInfo);
 
 	//Refresh ThumbnailView
+	QString coverArtDir(TkFile::path(_mediaInfoFetcher->filename()));
+	_thumbnailView->setDir(coverArtDir);
 	_thumbnailView->refresh();
 
 	ContentFetcher::Track track;

@@ -55,8 +55,6 @@ public:
 
 	~MediaInfoWindow();
 
-	void setCoverArtDirectory(const QString & path);
-
 	void setMediaInfoFetcher(MediaInfoFetcher * mediaInfoFetcher);
 
 	/**

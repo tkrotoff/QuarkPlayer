@@ -156,7 +156,6 @@ void MediaDataWidget::retranslate() {
 
 void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist, const QString & title) {
 	QString coverArtDir(TkFile::path(_mediaInfoFetcher->filename()));
-	_mediaInfoWindow->setCoverArtDirectory(coverArtDir);
 
 	QStringList imageSuffixList;
 	foreach (QByteArray format, QImageReader::supportedImageFormats()) {
