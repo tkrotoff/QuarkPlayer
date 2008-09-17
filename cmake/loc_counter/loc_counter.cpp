@@ -10,6 +10,9 @@
 #include <string>
 #include <iostream>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #ifdef WIN32
 	#include <windows.h>
 #else
@@ -87,7 +90,7 @@ void findAllFilesUNIX(const std::string & path, bool recursive) {
 	//See http://insanecoding.blogspot.com/2007/11/pathmax-simply-isnt.html
 	DIR * dir = opendir(path.c_str());
 	if (!dir) {
-		std::cerr << __FUNCTION__ << "Error: opendir() failed" << std::end;
+		std::cerr << __FUNCTION__ << "Error: opendir() failed" << std::endl;
 		perror(path.c_str());
 	} else {
 		struct dirent * entry = NULL;
@@ -112,7 +115,7 @@ void findAllFilesUNIX(const std::string & path, bool recursive) {
 
 		int ret = closedir(dir);
 		if (ret != 0) {
-			std::cerr << __FUNCTION__ << "Error: closedir() failed" << std::end;
+			std::cerr << __FUNCTION__ << "Error: closedir() failed" << std::endl;
 			perror(path.c_str());
 		}
 	}
@@ -120,8 +123,8 @@ void findAllFilesUNIX(const std::string & path, bool recursive) {
 }
 
 void replace(std::string & str, const std::string & before, const std::string & after) {
-	string::size_type pos = 0;
-	while ((pos = tmp.find(before, pos)) != string::npos) {
+	std::string::size_type pos = 0;
+	while ((pos = str.find(before, pos)) != std::string::npos) {
 		str.replace(pos, before.length(), after);
 		pos = pos + after.length();
 	}
@@ -134,18 +137,19 @@ void findAllFilesWin32(const std::string & path, bool recursive) {
 	//See http://msdn.microsoft.com/en-us/library/aa365247.aspx
 
 	std::string longPath("\\\\?\\" + path + "\\*");
-	replace(longPath, '/', '\\');
+	replace(longPath, "/", "\\");
 
 	WIN32_FIND_DATAW fileData;
 	//LPCWSTR = wchar_t *
 	//LPCSTR = char *
-	//TCHAR = char
+	//TCHAR = char or wchar_t
 	//WCHAR = wchar_t
 
 	//Get the first file
-	HANDLE hList = FindFirstFileW((TCHAR *) longPath.utf16(), &fileData);
+	std::wstring wideLongPath(longPath.begin(), longPath.end());
+	HANDLE hList = FindFirstFileW((TCHAR *) wideLongPath.c_str(), &fileData);
 	if (hList == INVALID_HANDLE_VALUE) {
-		qCritical() << __FUNCTION__ << "Error: no files found, error code:" << GetLastError();
+		std::cerr << __FUNCTION__ << "Error: no files found, error code: " << GetLastError() << std::endl;
 	}
 
 	else {
@@ -153,7 +157,8 @@ void findAllFilesWin32(const std::string & path, bool recursive) {
 		bool finished = false;
 		while (!finished) {
 
-			std::string name(QString::fromUtf16((unsigned short *) fileData.cFileName));
+			std::wstring wideName(fileData.cFileName);
+			std::string name(wideName.begin(), wideName.end());
 			std::string filename(path + '\\' + name);
 
 			//Check if the object is a directory or not
@@ -163,7 +168,7 @@ void findAllFilesWin32(const std::string & path, bool recursive) {
 				if (name[0] != '.') {
 					//Filter directory matching the given pattern
 					if (recursive) {
-						findAllFilesWin32(filename);
+						findAllFilesWin32(filename, recursive);
 					}
 				}
 			}
@@ -192,7 +197,7 @@ int main(int argc, char * argv[]) {
 		rootPath = std::string(argv[1]);
 		bool exists = isDirectory(rootPath);
 		if (!exists) {
-			std::cerr << "Error: path does not exist:" << rootPath << std::end;
+			std::cerr << "Error: path does not exist:" << rootPath << std::endl;
 			return EXIT_FAILURE;
 		}
 	}
@@ -201,12 +206,10 @@ int main(int argc, char * argv[]) {
 	}
 
 #ifdef WIN32
-	findAllFilesWin32(_path);
+	findAllFilesWin32(rootPath, recursive);
 #else
-	findAllFilesUNIX(_path);
-#endif	//WIN32
-
 	findAllFilesUNIX(rootPath, recursive);
+#endif	//WIN32
 
 	std::cout << _totalLoc;
 
