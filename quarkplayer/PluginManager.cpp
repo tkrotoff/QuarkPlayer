@@ -51,15 +51,13 @@ void PluginManager::loadPlugins(QuarkPlayer & quarkPlayer) {
 
 	QDir pluginsDir = QDir(Config::instance().pluginsDir());
 	QStringList before = pluginsDir.entryList(QDir::Files);
-	qDebug() << __FUNCTION__ << "Before randomize:" << before;
 	QStringList pluginList = Random::randomize(before);
-	qDebug() << __FUNCTION__ << "After randomize:" << pluginList;
 
 	foreach (QString filename, pluginList) {
 		QString filePath(pluginsDir.absoluteFilePath(filename));
 
 		if (!QLibrary::isLibrary(filePath)) {
-			//Don't proced no library file
+			//Don't proceed files that are not libraries
 			continue;
 		}
 

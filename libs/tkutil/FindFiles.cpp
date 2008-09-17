@@ -135,7 +135,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 	WIN32_FIND_DATAW fileData;
 	//LPCWSTR = wchar_t *
 	//LPCSTR = char *
-	//TCHAR = char
+	//TCHAR = char or wchar_t
 	//WCHAR = wchar_t
 
 	//Get the first file

@@ -1,6 +1,6 @@
 Index: path.cpp
 ===================================================================
---- path.cpp	(revision 419)
+--- path.cpp	(revision 861897)
 +++ path.cpp	(working copy)
 @@ -223,6 +223,16 @@
      }
@@ -21,7 +21,7 @@ Index: path.cpp
      if (!isValid()) {
 Index: path.h
 ===================================================================
---- path.h	(revision 419)
+--- path.h	(revision 861897)
 +++ path.h	(working copy)
 @@ -184,6 +184,16 @@
          bool reconnect(MediaNode *source, MediaNode *sink);
