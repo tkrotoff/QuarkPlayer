@@ -22,10 +22,6 @@ macro (loc_counter path loc recursive)
 		set(flags "-DLINK_LIBRARIES=stdc++")
 	endif (UNIX AND NOT WIN32)
 
-	if (MSVC)
-		set(definitions -I"${CMAKE_SOURCE_DIR}/cmake/loc_counter/msvc")
-	endif (MSVC)
-
 	try_run(
 		runResult
 		compileResult

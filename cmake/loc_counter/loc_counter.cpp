@@ -10,10 +10,11 @@
 #include <string>
 #include <iostream>
 
-#include <dirent.h>
-#include <direct.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#ifdef WIN32
+	#include <windows.h>
+#else
+	#include <dirent.h>
+#endif	//WIN32
 
 typedef std::list<std::string> StringList;
 
@@ -76,51 +77,111 @@ bool isDirectory(const std::string & path) {
 	return S_ISDIR(statbuf.st_mode);
 }
 
-std::string _currentPath;
+int _totalLoc = 0;
 
-StringList findAllFiles(const std::string & path, bool recursive) {
-	StringList files;
+void findAllFilesUNIX(const std::string & path, bool recursive) {
+#ifndef WIN32
+	//http://www.commentcamarche.net/forum/affich-1699952-langage-c-recuperer-un-dir
 
+	//Warning: opendir() is limited to PATH_MAX
+	//See http://insanecoding.blogspot.com/2007/11/pathmax-simply-isnt.html
 	DIR * dir = opendir(path.c_str());
-	if (dir != NULL) {
-
-		if (_currentPath.empty()) {
-			_currentPath = path;
-		} else {
-			_currentPath += '/' + path;
-		}
-
-		_chdir(path.c_str());
-
+	if (!dir) {
+		std::cerr << __FUNCTION__ << "Error: opendir() failed" << std::end;
+		perror(path.c_str());
+	} else {
 		struct dirent * entry = NULL;
 		while (entry = readdir(dir)) {
 			std::string name(entry->d_name);
+
+			//Avoid '.', '..' and other hidden files
 			if (name[0] != '.') {
 
+				std::string filename(path + '/' + name);
+
 				if (recursive && isDirectory(name)) {
-					std::list<std::string> tmp = findAllFiles(name, recursive);
-					files.splice(files.end(), tmp);
+					//Recurse
+					findAllFiles(filename, recursive);
 				}
 
 				else {
-					files.push_back(_currentPath + '/' + name);
-					//std::cout << _currentPath + '/' + name << std::endl;
+					_totalLoc += locFile(filename);
 				}
 			}
 		}
 
-		std::string tmp('/' + path);
-		int startPos = _currentPath.size() - tmp.size();
-		if (startPos > -1) {
-			_currentPath.erase(startPos, tmp.size());
+		int ret = closedir(dir);
+		if (ret != 0) {
+			std::cerr << __FUNCTION__ << "Error: closedir() failed" << std::end;
+			perror(path.c_str());
 		}
+	}
+#endif	//WIN32
+}
 
-		_chdir("..");
+void replace(std::string & str, const std::string & before, const std::string & after) {
+	string::size_type pos = 0;
+	while ((pos = tmp.find(before, pos)) != string::npos) {
+		str.replace(pos, before.length(), after);
+		pos = pos + after.length();
+	}
+}
 
-		closedir(dir);
+void findAllFilesWin32(const std::string & path, bool recursive) {
+#ifdef WIN32
+	//See http://msdn.microsoft.com/en-us/library/ms811896.aspx
+	//See http://msdn.microsoft.com/en-us/library/aa364418.aspx
+	//See http://msdn.microsoft.com/en-us/library/aa365247.aspx
+
+	std::string longPath("\\\\?\\" + path + "\\*");
+	replace(longPath, '/', '\\');
+
+	WIN32_FIND_DATAW fileData;
+	//LPCWSTR = wchar_t *
+	//LPCSTR = char *
+	//TCHAR = char
+	//WCHAR = wchar_t
+
+	//Get the first file
+	HANDLE hList = FindFirstFileW((TCHAR *) longPath.utf16(), &fileData);
+	if (hList == INVALID_HANDLE_VALUE) {
+		qCritical() << __FUNCTION__ << "Error: no files found, error code:" << GetLastError();
 	}
 
-	return files;
+	else {
+		//Traverse through the directory structure
+		bool finished = false;
+		while (!finished) {
+
+			std::string name(QString::fromUtf16((unsigned short *) fileData.cFileName));
+			std::string filename(path + '\\' + name);
+
+			//Check if the object is a directory or not
+			if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+
+				//Avoid '.', '..' and other hidden files
+				if (name[0] != '.') {
+					//Filter directory matching the given pattern
+					if (recursive) {
+						findAllFilesWin32(filename);
+					}
+				}
+			}
+
+			else {
+				_totalLoc += locFile(filename);
+			}
+
+			if (!FindNextFileW(hList, &fileData)) {
+				if (GetLastError() == ERROR_NO_MORE_FILES) {
+					finished = true;
+				}
+			}
+		}
+	}
+
+	FindClose(hList);
+#endif	//WIN32
 }
 
 int main(int argc, char * argv[]) {
@@ -131,7 +192,7 @@ int main(int argc, char * argv[]) {
 		rootPath = std::string(argv[1]);
 		bool exists = isDirectory(rootPath);
 		if (!exists) {
-			std::cout << "Error: path does not exist:" << rootPath;
+			std::cerr << "Error: path does not exist:" << rootPath << std::end;
 			return EXIT_FAILURE;
 		}
 	}
@@ -139,16 +200,15 @@ int main(int argc, char * argv[]) {
 		recursive = atoi(argv[2]) != 0;
 	}
 
-	int totalLoc = 0;
+#ifdef WIN32
+	findAllFilesWin32(_path);
+#else
+	findAllFilesUNIX(_path);
+#endif	//WIN32
 
-	StringList files(findAllFiles(rootPath, recursive));
+	findAllFilesUNIX(rootPath, recursive);
 
-	for (StringList::iterator it = files.begin(); it != files.end(); it++) {
-		totalLoc += locFile(*it);
-		//std::cout << *it << totalLoc << std::endl;
-	}
-
-	std::cout << totalLoc;
+	std::cout << _totalLoc;
 
 	return EXIT_SUCCESS;
 }
