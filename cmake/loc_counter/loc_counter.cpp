@@ -102,9 +102,9 @@ void findAllFilesUNIX(const std::string & path, bool recursive) {
 
 				std::string filename(path + '/' + name);
 
-				if (recursive && isDirectory(name)) {
+				if (recursive && isDirectory(filename)) {
 					//Recurse
-					findAllFiles(filename, recursive);
+					findAllFilesUNIX(filename, recursive);
 				}
 
 				else {

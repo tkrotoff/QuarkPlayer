@@ -22,6 +22,10 @@ macro (loc_counter path loc recursive)
 		set(flags "-DLINK_LIBRARIES=stdc++")
 	endif (UNIX AND NOT WIN32)
 
+	if (WIN32)
+		set(definitions "-DUNICODE")
+	endif (WIN32)
+
 	try_run(
 		runResult
 		compileResult
