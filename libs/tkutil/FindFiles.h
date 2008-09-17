@@ -21,24 +21,21 @@
 
 #include <tkutil/tkutil_export.h>
 
-#include <QtCore/QObject>
+#include <QtCore/QThread>
 #include <QtCore/QStringList>
 #include <QtCore/QRegExp>
 
 /**
  * Find files for a directory, recursively or not.
  *
- * Optimized version that works fine with thousands of files.
- *
- * Don't forget to use QCoreApplication::processEvents() between
- * 2 filesFound() signal.
+ * Optimized and threaded version that works fine with thousands of files.
  *
  * Follows the same API as PlaylistParser class.
  *
  * @see IPlaylistParser
  * @author Tanguy Krotoff
  */
-class TKUTIL_API FindFiles : public QObject {
+class TKUTIL_API FindFiles : public QThread {
 	Q_OBJECT
 public:
 
@@ -64,19 +61,19 @@ public:
 	void setFilesFoundLimit(int filesFoundLimit);
 
 	/**
-	 * Finds all files (recursive) given a path.
-	 *
 	 * @param pattern pattern to match
-	 * @param extensions file extensions to match ex: "what is love.mp3" matches "mp3" extension
 	 */
-	void findAllFiles(const QRegExp & pattern = QRegExp(), const QStringList & extensions = QStringList());
+	void setPattern(const QRegExp & pattern);
 
 	/**
-	 * Finds all files and directories (recursive) given a path.
-	 *
-	 * @see findAllFiles()
+	 * @param extensions file extensions to match ex: "what is love.mp3" matches "mp3" extension
 	 */
-	void findAllFilesAndDirs(const QRegExp & patterns = QRegExp(), const QStringList & extensions = QStringList());
+	void setExtensions(const QStringList & extensions);
+
+	/**
+	 * Set if we filter directories names aswell or not.
+	 */
+	void setFindDirs(bool findDirs);
 
 signals:
 
@@ -92,30 +89,40 @@ signals:
 	 *
 	 * Guaranteed to be sent only once.
 	 */
-	void finished();
+	void finished(int timeElapsed);
 
 private:
 
+	void run();
+
 	/**
-	 * Finds root files (non recursive) of a given directory.
-	 *
-	 * Algorithm taken from http://www.commentcamarche.net/forum/affich-1699952-langage-c-recuperer-un-dir
+	 * UNIX/POSIX version
 	 *
 	 * @param path directory where to search for files.
 	 */
-	void findAllFilesInternal(const QString & path);
+	void findAllFilesUNIX(const QString & path);
 
-	/** Filter directory matching the given pattern. */
-	bool dirMatches(const QString & filename) const;
+	/**
+	 * Generic Qt version.
+	 *
+	 * Very slow :/
+	 */
+	void findAllFilesQt(const QString & path);
 
-	/** Filter file matching the given pattern and extensions. */
-	bool fileMatches(const QString & filename) const;
+	/**
+	 * Win32 version.
+	 */
+	void findAllFilesWin32(const QString & path);
 
-	QString _path;
+	/** Filter file matching the given pattern. */
+	bool patternMatches(const QString & filename) const;
 
-	QString _currentPath;
+	/** Filter file matching the given extensions. */
+	bool extensionMatches(const QString & filename) const;
 
 	QStringList _files;
+
+	QString _path;
 
 	bool _findDirs;
 

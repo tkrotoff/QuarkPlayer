@@ -32,11 +32,15 @@
 #endif	//!S_ISDIR
 
 QString TkFile::fileName(const QString & path) {
-	return path.right(path.length() - path.lastIndexOf('/') - 1);
+	QString tmp(path);
+	tmp.replace('\\', '/');
+	return tmp.right(path.length() - tmp.lastIndexOf('/') - 1);
 }
 
 QString TkFile::dir(const QString & filename) {
-	QString left(filename.left(filename.lastIndexOf('/')));
+	QString tmp(filename);
+	tmp.replace('\\', '/');
+	QString left(tmp.left(tmp.lastIndexOf('/')));
 	return left.right(left.length() - left.lastIndexOf('/') - 1);
 }
 
@@ -55,7 +59,9 @@ QString TkFile::fileExtension(const QString & path) {
 }
 
 QString TkFile::path(const QString & filename) {
-	return filename.left(filename.lastIndexOf('/'));
+	QString tmp(filename);
+	tmp.replace('\\', '/');
+	return tmp.left(tmp.lastIndexOf('/'));
 }
 
 bool TkFile::isDir(const QString & path) {

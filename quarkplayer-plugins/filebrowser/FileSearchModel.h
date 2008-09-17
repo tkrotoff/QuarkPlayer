@@ -74,6 +74,10 @@ public:
 	QStringList mimeTypes() const;
 	Qt::DropActions supportedDropActions() const;
 
+signals:
+
+	void searchFinished(int timeElapsed);
+
 private slots:
 
 	void filesFound(const QStringList & files);

@@ -202,14 +202,17 @@ void FileSearchModel::setIconProvider(QFileIconProvider * provider) {
 void FileSearchModel::search(const QString & path, const QRegExp & pattern, const QStringList & extensions) {
 	qDebug() << __FUNCTION__ << path;
 
-	FindFiles findFiles;
-	connect(&findFiles, SIGNAL(filesFound(const QStringList &)),
+	static FindFiles * findFiles = new FindFiles(this);
+	connect(findFiles, SIGNAL(filesFound(const QStringList &)),
 		SLOT(filesFound(const QStringList &)));
-	findFiles.setSearchPath(path);
-	findFiles.setFilesFoundLimit(5);
-	findFiles.findAllFilesAndDirs(pattern, extensions);
-	//TODO make it threaded
-	//QtConcurrent::run(findFiles, &FindFiles::findAllFilesAndDirs, pattern, extensions);
+	connect(findFiles, SIGNAL(finished(int)),
+		SIGNAL(searchFinished(int)));
+	findFiles->setSearchPath(path);
+	findFiles->setFilesFoundLimit(5);
+	findFiles->setPattern(pattern);
+	findFiles->setExtensions(extensions);
+	findFiles->setFindDirs(true);
+	findFiles->start();
 }
 
 void FileSearchModel::filesFound(const QStringList & files) {
@@ -224,6 +227,4 @@ void FileSearchModel::filesFound(const QStringList & files) {
 		currentRow++;
 	}
 	endInsertRows();
-
-	QCoreApplication::processEvents();
 }

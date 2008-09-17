@@ -59,6 +59,8 @@ private slots:
 
 	void search();
 
+	void searchFinished(int timeElapsed);
+
 	void configure();
 
 	void musicDirChanged(const QString & key, const QVariant & value);

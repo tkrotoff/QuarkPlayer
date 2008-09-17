@@ -179,19 +179,22 @@ void FileBrowserWidget::search() {
 	_searchTimer->stop();
 	QString pattern(_searchLineEdit->text().trimmed());
 	_clearSearchButton->setEnabled(!pattern.isEmpty());
-	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
-	if (statusBar && !pattern.isEmpty()) {
-		statusBar->showMessage(tr("Searching..."));
-	}
 	if (pattern.isEmpty()) {
 		_treeView->setRootIsDecorated(true);
 
 		_treeView->setModel(_dirModel);
 		_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
 	} else {
+		QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
+		if (statusBar) {
+			statusBar->showMessage(tr("Searching..."));
+		}
 		_treeView->setRootIsDecorated(false);
 
 		FileSearchModel * _fileSearchModel = new FileSearchModel(this);
+		connect(_fileSearchModel, SIGNAL(searchFinished(int)),
+			SLOT(searchFinished(int)));
+
 		_fileSearchModel->setIconProvider(_dirModel->iconProvider());
 		_treeView->setModel(_fileSearchModel);
 
@@ -211,8 +214,12 @@ void FileBrowserWidget::search() {
 				QRegExp(tmp, Qt::CaseInsensitive, QRegExp::RegExp2),
 				extensions);
 	}
-	if (statusBar && !pattern.isEmpty()) {
-		statusBar->showMessage(tr("Search finished"));
+}
+
+void FileBrowserWidget::searchFinished(int timeElapsed) {
+	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
+	if (statusBar) {
+		statusBar->showMessage(tr("Search finished:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds"));
 	}
 }
 

@@ -22,17 +22,19 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QTime>
 #include <QtCore/QDebug>
 
-#include <dirent.h>
 #ifdef Q_OS_WIN
-	#include <direct.h>
+	#include <windows.h>
+#else
+	#include <dirent.h>
 #endif	//Q_OS_WIN
 
 static const int DEFAULT_FILES_FOUND_LIMIT = 500;
 
 FindFiles::FindFiles(QObject * parent)
-	: QObject(parent) {
+	: QThread(parent) {
 
 	_findDirs = false;
 	_filesFoundLimit = DEFAULT_FILES_FOUND_LIMIT;
@@ -49,83 +51,157 @@ void FindFiles::setFilesFoundLimit(int filesFoundLimit) {
 	_filesFoundLimit = filesFoundLimit;
 }
 
-void FindFiles::findAllFiles(const QRegExp & pattern, const QStringList & extensions) {
+void FindFiles::setPattern(const QRegExp & pattern) {
 	_pattern = pattern;
-	_extensions = extensions;
+}
 
+void FindFiles::setExtensions(const QStringList & extensions) {
+	_extensions = extensions;
+}
+
+void FindFiles::setFindDirs(bool findDirs) {
+	_findDirs = findDirs;
+}
+
+void FindFiles::run() {
 	if (_path.isEmpty()) {
 		qCritical() << __FUNCTION__ << "Error: empty path";
 		return;
 	}
 
-	_currentPath.clear();
-	findAllFilesInternal(_path);
+	QTime timeElapsed;
+	timeElapsed.start();
 
+#ifdef Q_OS_WIN
+	findAllFilesWin32(_path);
+#else
+	findAllFilesUNIX(_path);
+#endif	//Q_OS_WIN
+	//findAllFilesQt(_path);
+
+	//Emits the signal for the remaining files found
 	if (!_files.isEmpty()) {
 		emit filesFound(_files);
 		_files.clear();
 	}
 
 	//Emits the last signal
-	emit finished();
+	emit finished(timeElapsed.elapsed());
 }
 
-void FindFiles::findAllFilesAndDirs(const QRegExp & pattern, const QStringList & extensions) {
-	_findDirs = true;
-	findAllFiles(pattern, extensions);
+void FindFiles::findAllFilesQt(const QString & path) {
+	QDir dir(path);
+
+	//QDir::setNameFilters() is too slow :/
+	dir.setFilter(QDir::AllDirs | QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+	foreach (QString name, dir.entryList()) {
+
+		QString filename(path + '/' + name);
+
+		if (TkFile::isDir(filename)) {
+			//Filter directory matching the given pattern
+			if (_findDirs && patternMatches(name)) {
+				_files << filename;
+			}
+
+			//Recurse
+			findAllFilesQt(filename);
+		}
+
+		else {
+			//Filter file matching the given pattern and extensions
+			if (extensionMatches(name) && patternMatches(name)) {
+				_files << filename;
+			}
+
+			if (_files.size() > _filesFoundLimit) {
+				//Emits the signal every _filesFoundLimit files found
+				emit filesFound(_files);
+				_files.clear();
+			}
+		}
+	}
 }
 
-void FindFiles::findAllFilesInternal(const QString & path) {
+void FindFiles::findAllFilesWin32(const QString & path) {
+#ifdef Q_OS_WIN
+	//See http://msdn.microsoft.com/en-us/library/ms811896.aspx
+	//See http://msdn.microsoft.com/en-us/library/aa364418.aspx
+	//See http://msdn.microsoft.com/en-us/library/aa365247.aspx
 
-	//Warning: opendir() is limited to MAX_PATH i.e 255 characters
-	//This is a pretty stupid limitation
-	//chdir() helps to overcome this limitation
+	QString longPath("\\\\?\\" + path + "\\*");
+	longPath = QDir::toNativeSeparators(longPath);
+
+	WIN32_FIND_DATAW fileData;
+	//LPCWSTR = wchar_t *
+	//LPCSTR = char *
+	//TCHAR = char
+	//WCHAR = wchar_t
+
+	//Get the first file
+	HANDLE hList = FindFirstFileW((TCHAR *) longPath.utf16(), &fileData);
+	if (hList == INVALID_HANDLE_VALUE) {
+		qCritical() << __FUNCTION__ << "Error: no files found, error code:" << GetLastError();
+	}
+
+	else {
+		//Traverse through the directory structure
+		bool finished = false;
+		while (!finished) {
+
+			QString name(QString::fromUtf16((unsigned short *) fileData.cFileName));
+			QString filename(path + '\\' + name);
+
+			//Check if the object is a directory or not
+			if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+
+				//Avoid '.', '..' and other hidden files
+				if (!name.startsWith('.')) {
+					//Filter directory matching the given pattern
+					if (_findDirs && patternMatches(name)) {
+						_files << filename;
+					}
+
+					findAllFilesWin32(filename);
+				}
+			}
+
+			else {
+				//Filter file matching the given pattern and extensions
+				if (extensionMatches(name) && patternMatches(name)) {
+					_files << filename;
+				}
+
+				if (_files.size() > _filesFoundLimit) {
+					//Emits the signal every _filesFoundLimit files found
+					emit filesFound(_files);
+					_files.clear();
+				}
+			}
+
+			if (!FindNextFileW(hList, &fileData)) {
+				if (GetLastError() == ERROR_NO_MORE_FILES) {
+					finished = true;
+				}
+			}
+		}
+	}
+
+	FindClose(hList);
+#endif	//Q_OS_WIN
+}
+
+void FindFiles::findAllFilesUNIX(const QString & path) {
+#ifndef Q_OS_WIN
+	//http://www.commentcamarche.net/forum/affich-1699952-langage-c-recuperer-un-dir
+
+	//Warning: opendir() is limited to PATH_MAX
+	//See http://insanecoding.blogspot.com/2007/11/pathmax-simply-isnt.html
 	DIR * dir = opendir(path.toUtf8().constData());
-
 	if (!dir) {
 		qCritical() << __FUNCTION__ << "Error: opendir() failed";
 		perror(path.toUtf8().constData());
 	} else {
-		if (_currentPath.isEmpty()) {
-			_currentPath = path;
-		} else {
-			_currentPath += '/' + path;
-		}
-		_currentPath.replace("//", "/");
-
-		//Found a crazy bug!
-		//Under Windows it seems that doing chdir("Documents and Settings")
-		//you go directly to "C:/Documents and Settings" even if you
-		//have another directory named "Documents and Settings" inside another subdirectory
-		//I think Windows detects and treats special directories names like "Documents and Settings"
-		//in a different manner
-		//FIXME int ret = chdir(path.toUtf8().constData());
-#ifdef Q_OS_WIN
-		int ret = _chdir(_currentPath.toUtf8().constData());
-#else
-		int ret = chdir(_currentPath.toUtf8().constData());
-#endif	//Q_OS_WIN
-
-		if (ret < 0) {
-			qCritical() << __FUNCTION__ << "Error: chdir() failed";
-			perror(_currentPath.toUtf8().constData());
-		}
-
-#ifdef Q_OS_WIN
-		char * currentDir = _getcwd(NULL, MAX_PATH);
-#else
-		char * currentDir = getcwd(NULL, MAX_PATH);
-#endif	//Q_OS_WIN
-
-		if (!currentDir) {
-			qCritical() << __FUNCTION__ << "Error: getcwd() failed";
-			perror("");
-		}
-		if (_currentPath != QString(currentDir).replace("\\", "/")) {
-			qCritical() << __FUNCTION__ << "Error: _currentPath and currentDir are different, currentDir:"
-				<< currentDir << "_currentPath:" << _currentPath;
-		}
-
 		struct dirent * entry = NULL;
 		while (entry = readdir(dir)) {
 			QString name(entry->d_name);
@@ -133,20 +209,21 @@ void FindFiles::findAllFilesInternal(const QString & path) {
 			//Avoid '.', '..' and other hidden files
 			if (!name.startsWith('.')) {
 
-				QString filename(_currentPath + '/' + name);
+				QString filename(path + '/' + name);
 
 				if (TkFile::isDir(filename)) {
 					//Filter directory matching the given pattern
-					if (dirMatches(name)) {
+					if (_findDirs && patternMatches(name)) {
 						_files << filename;
 					}
 
-					findAllFilesInternal(name);
+					//Recurse
+					findAllFilesUNIX(filename);
 				}
 
 				else {
 					//Filter file matching the given pattern and extensions
-					if (fileMatches(name)) {
+					if (extensionMatches(name) && patternMatches(name)) {
 						_files << filename;
 					}
 
@@ -159,55 +236,34 @@ void FindFiles::findAllFilesInternal(const QString & path) {
 			}
 		}
 
-		QString tmp('/' + path);
-		int pos = _currentPath.lastIndexOf(tmp);
-		_currentPath.remove(pos, tmp.length());
-
-		const char * parent = "..";
-#ifdef Q_OS_WIN
-		ret = _chdir(parent);
-#else
-		ret = chdir(parent);
-#endif	//Q_OS_WIN
-
-		if (ret < 0) {
-			qCritical() << __FUNCTION__ << "Error: chdir() failed";
-			perror(parent);
-		}
-
-		ret = closedir(dir);
-		if (ret < 0) {
+		int ret = closedir(dir);
+		if (ret != 0) {
 			qCritical() << __FUNCTION__ << "Error: closedir() failed";
 			perror(path.toUtf8().constData());
 		}
 	}
+#endif	//Q_OS_WIN
 }
 
-bool FindFiles::dirMatches(const QString & filename) const {
-	bool tmp = true;
+bool FindFiles::patternMatches(const QString & filename) const {
+	bool tmp = false;
 
-	if (!_pattern.isEmpty()) {
-		if (!filename.contains(_pattern)) {
-			tmp = false;
-		}
+	if (_pattern.isEmpty()) {
+		tmp = true;
+	} else if (filename.contains(_pattern)) {
+		tmp = true;
 	}
 
 	return tmp;
 }
 
-bool FindFiles::fileMatches(const QString & filename) const {
-	bool tmp = true;
+bool FindFiles::extensionMatches(const QString & filename) const {
+	bool tmp = false;
 
-	if (!_extensions.isEmpty()) {
-		if (!_extensions.contains(TkFile::fileExtension(filename), Qt::CaseInsensitive)) {
-			tmp = false;
-		}
-	}
-
-	if (!_pattern.isEmpty()) {
-		if (!filename.contains(_pattern)) {
-			tmp = false;
-		}
+	if (_extensions.isEmpty()) {
+		tmp = true;
+	} else if (_extensions.contains(TkFile::fileExtension(filename), Qt::CaseInsensitive)) {
+		tmp = true;
 	}
 
 	return tmp;

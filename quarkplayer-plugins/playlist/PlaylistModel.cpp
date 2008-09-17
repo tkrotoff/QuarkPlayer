@@ -236,24 +236,32 @@ void PlaylistModel::filesFound(const QStringList & files) {
 	addFiles(files, _rowWhereToInsertFiles);
 }
 
-void PlaylistModel::addFilesAndSaveCurrentPlaylist(const QStringList & files, int row) {
-	addFiles(files, row);
+void PlaylistModel::searchfinished(int timeElapsed) {
+	qDebug() << __FUNCTION__ << "Time elapsed:" << timeElapsed;
 	saveCurrentPlaylist();
 }
 
-void PlaylistModel::addFiles(const QStringList & files, int row) {
-	FindFiles findFiles;
-	connect(&findFiles, SIGNAL(filesFound(const QStringList &)),
-		SLOT(filesFound(const QStringList &)));
+void PlaylistModel::addFilesAndSaveCurrentPlaylist(const QStringList & files, int row) {
+	addFiles(files, row);
+}
 
+void PlaylistModel::addFiles(const QStringList & files, int row) {
 	QStringList filenameList;
 	foreach (QString filename, files) {
-		bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(TkFile::fileExtension(filename), Qt::CaseInsensitive);
+		bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(
+					TkFile::fileExtension(filename), Qt::CaseInsensitive);
 		if (isMultimediaFile) {
 			filenameList << filename;
 		} else if (TkFile::isDir(filename)) {
-			findFiles.setSearchPath(filename);
-			findFiles.findAllFiles();
+			FindFiles * findFiles = new FindFiles(this);
+			connect(findFiles, SIGNAL(filesFound(const QStringList &)),
+				SLOT(filesFound(const QStringList &)));
+			connect(findFiles, SIGNAL(finished(int)),
+				SLOT(searchfinished(int)));
+			findFiles->setSearchPath(filename);
+			findFiles->setFilesFoundLimit(500);
+			findFiles->setFindDirs(false);
+			findFiles->start();
 		}
 	}
 
@@ -275,8 +283,6 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 			currentRow++;
 		}
 		endInsertRows();
-
-		QCoreApplication::processEvents();
 	}
 }
 

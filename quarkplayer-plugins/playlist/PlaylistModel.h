@@ -132,6 +132,8 @@ private slots:
 
 	void filesFound(const QStringList & files);
 
+	void searchfinished(int timeElapsed);
+
 private:
 
 	void clearInternal();
