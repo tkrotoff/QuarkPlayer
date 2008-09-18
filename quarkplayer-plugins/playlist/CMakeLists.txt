@@ -27,6 +27,6 @@ target_link_libraries(playlist
 )
 
 #Translations
-add_qt_translations(${playlist_SRCS})
+add_qt_translations(${CMAKE_CURRENT_SOURCE_DIR})
 
 install(TARGETS playlist DESTINATION ${BIN_INSTALL_DIR}/plugins)

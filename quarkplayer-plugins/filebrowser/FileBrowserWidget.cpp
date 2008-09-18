@@ -51,6 +51,7 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	PluginInterface(quarkPlayer) {
 
 	_dirModel = NULL;
+	_fileSearchModel = NULL;
 
 	QVBoxLayout * layout = new QVBoxLayout();
 	setLayout(layout);
@@ -184,6 +185,11 @@ void FileBrowserWidget::search() {
 
 		_treeView->setModel(_dirModel);
 		_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
+
+		if (_fileSearchModel) {
+			_fileSearchModel->stop();
+		}
+
 	} else {
 		QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
 		if (statusBar) {
@@ -191,9 +197,11 @@ void FileBrowserWidget::search() {
 		}
 		_treeView->setRootIsDecorated(false);
 
-		FileSearchModel * _fileSearchModel = new FileSearchModel(this);
-		connect(_fileSearchModel, SIGNAL(searchFinished(int)),
-			SLOT(searchFinished(int)));
+		if (!_fileSearchModel) {
+			_fileSearchModel = new FileSearchModel(this);
+			connect(_fileSearchModel, SIGNAL(searchFinished(int)),
+				SLOT(searchFinished(int)));
+		}
 
 		_fileSearchModel->setIconProvider(_dirModel->iconProvider());
 		_treeView->setModel(_fileSearchModel);

@@ -61,25 +61,35 @@ void PluginManager::loadPlugins(QuarkPlayer & quarkPlayer) {
 			continue;
 		}
 
-		QPluginLoader * loader = new QPluginLoader(filePath);
-		_pluginMap[filename] = loader;
+		PluginData pluginData;
+		pluginData.loader = NULL;
+		pluginData.interface = NULL;
+		_pluginMap[filename] = pluginData;
 
 		if (Config::instance().pluginsDisabled().contains(filename)) {
 			//This means this plugin must not be loaded
 			continue;
 		}
 
-		QObject * plugin = loader->instance();
-		if (plugin) {
-			PluginFactory * factory = qobject_cast<PluginFactory *>(plugin);
-			if (factory) {
-				PluginInterface * interface = factory->create(quarkPlayer);
-				qDebug() << __FUNCTION__ << "Plugin loaded:" << filename;
+		QPluginLoader * loader = new QPluginLoader(filePath);
+
+		if (loader) {
+			QObject * plugin = loader->instance();
+			pluginData.loader = loader;
+			if (plugin) {
+				PluginFactory * factory = qobject_cast<PluginFactory *>(plugin);
+				if (factory) {
+					PluginInterface * interface = factory->create(quarkPlayer);
+					pluginData.interface = interface;
+					qDebug() << __FUNCTION__ << "Plugin loaded:" << filename;
+				}
+			} else {
+				loader->unload();
+				qCritical() << __FUNCTION__ << "Error: plugin not loaded:" << filename << loader->errorString();
 			}
-		} else {
-			loader->unload();
-			qCritical() << __FUNCTION__ << "Error: plugin not loaded:" << filename << loader->errorString();
 		}
+
+		_pluginMap[filename] = pluginData;
 
 		QCoreApplication::processEvents();
 	}
@@ -89,4 +99,21 @@ void PluginManager::loadPlugins(QuarkPlayer & quarkPlayer) {
 
 PluginManager::PluginMap PluginManager::pluginMap() const {
 	return _pluginMap;
+}
+
+void PluginManager::deleteAllPlugins() {
+	PluginMapIterator it(_pluginMap);
+	while (it.hasNext()) {
+		it.next();
+		PluginData pluginData = it.value();
+		if (pluginData.interface) {
+			delete pluginData.interface;
+			pluginData.interface = NULL;
+		}
+		if (pluginData.loader) {
+			//This is too dangerous: it crashes
+			//pluginData.loader->unload();
+		}
+		//it.value() = pluginData;
+	}
 }

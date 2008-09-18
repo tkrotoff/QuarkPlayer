@@ -39,11 +39,13 @@ class TKUTIL_API SyncHttp : public QHttp {
 	Q_OBJECT
 public:
 
-	SyncHttp(QObject * parent = 0);
+	SyncHttp(QObject * parent);
 
-	SyncHttp(const QString & hostName, quint16 port = 80, QObject * parent = 0);
+	SyncHttp(const QString & hostName, QObject * parent);
 
-	SyncHttp(const QString & hostName, ConnectionMode mode, quint16 port = 0, QObject * parent = 0);
+	SyncHttp(const QString & hostName, quint16 port, QObject * parent);
+
+	SyncHttp(const QString & hostName, ConnectionMode mode, quint16 port, QObject * parent);
 
 	~SyncHttp();
 

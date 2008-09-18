@@ -38,9 +38,11 @@ FindFiles::FindFiles(QObject * parent)
 
 	_findDirs = false;
 	_filesFoundLimit = DEFAULT_FILES_FOUND_LIMIT;
+	_stop = false;
 }
 
 FindFiles::~FindFiles() {
+	stop();
 }
 
 void FindFiles::setSearchPath(const QString & path) {
@@ -63,7 +65,14 @@ void FindFiles::setFindDirs(bool findDirs) {
 	_findDirs = findDirs;
 }
 
+void FindFiles::stop() {
+	_stop = true;
+	wait();
+}
+
 void FindFiles::run() {
+	_stop = false;
+
 	if (_path.isEmpty()) {
 		qCritical() << __FUNCTION__ << "Error: empty path";
 		return;
@@ -90,6 +99,10 @@ void FindFiles::run() {
 }
 
 void FindFiles::findAllFilesQt(const QString & path) {
+	if (_stop) {
+		return;
+	}
+
 	QDir dir(path);
 
 	//QDir::setNameFilters() is too slow :/
@@ -128,6 +141,12 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 	//See http://msdn.microsoft.com/en-us/library/ms811896.aspx
 	//See http://msdn.microsoft.com/en-us/library/aa364418.aspx
 	//See http://msdn.microsoft.com/en-us/library/aa365247.aspx
+
+	//msleep(2000);
+
+	if (_stop) {
+		return;
+	}
 
 	QString longPath("\\\\?\\" + path + "\\*");
 	longPath = QDir::toNativeSeparators(longPath);
@@ -194,6 +213,10 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 void FindFiles::findAllFilesUNIX(const QString & path) {
 #ifndef Q_OS_WIN
 	//http://www.commentcamarche.net/forum/affich-1699952-langage-c-recuperer-un-dir
+
+	if (_stop) {
+		return;
+	}
 
 	//Warning: opendir() is limited to PATH_MAX
 	//See http://insanecoding.blogspot.com/2007/11/pathmax-simply-isnt.html

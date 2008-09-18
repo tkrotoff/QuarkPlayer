@@ -26,7 +26,7 @@
 #include <QtCore/QRegExp>
 
 /**
- * Find files for a directory, recursively or not.
+ * Find files for a directory recursively.
  *
  * Optimized and threaded version that works fine with thousands of files.
  *
@@ -39,7 +39,7 @@ class TKUTIL_API FindFiles : public QThread {
 	Q_OBJECT
 public:
 
-	FindFiles(QObject * parent = 0);
+	FindFiles(QObject * parent);
 
 	~FindFiles();
 
@@ -74,6 +74,11 @@ public:
 	 * Set if we filter directories names aswell or not.
 	 */
 	void setFindDirs(bool findDirs);
+
+	/**
+	 * Stops the thread.
+	 */
+	void stop();
 
 signals:
 
@@ -131,6 +136,16 @@ private:
 	QStringList _extensions;
 
 	int _filesFoundLimit;
+
+	/**
+	 * From http://lists.trolltech.com/qt-interest/2007-03/thread00874-0.html
+	 * Note, you may want to add volatile to your bool flag declaration
+	 * so the compiler will not cache the flag result; modern compilers
+	 * can easily detect that your loop code does not change the flag value,
+	 * and thus emit code that will not fetch the class attribute but
+	 * rather use a local copy, fetched on entry into your while loop.
+	 */
+	volatile bool _stop;
 };
 
 #endif	//FINDFILES_H

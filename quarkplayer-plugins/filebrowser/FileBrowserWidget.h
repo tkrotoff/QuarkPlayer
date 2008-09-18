@@ -27,6 +27,7 @@ class FileBrowserTreeView;
 
 class QuarkPlayer;
 class ConfigWindow;
+class FileSearchModel;
 
 class QFileSystemModel;
 class QToolBar;
@@ -81,6 +82,8 @@ private:
 	QStringList nameFilters() const;
 
 	QFileSystemModel * _dirModel;
+
+	FileSearchModel * _fileSearchModel;
 
 	FileBrowserTreeView * _treeView;
 

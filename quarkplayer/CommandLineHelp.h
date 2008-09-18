@@ -28,6 +28,7 @@
  * @author Tanguy Krotoff
  */
 class CommandLineHelp : public QObject {
+	Q_OBJECT
 public:
 
 	CommandLineHelp();

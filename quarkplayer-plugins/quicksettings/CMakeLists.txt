@@ -31,6 +31,6 @@ else (KDE4_FOUND)
 endif (KDE4_FOUND)
 
 #Translations
-add_qt_translations(${quicksettings_SRCS})
+add_qt_translations(${CMAKE_CURRENT_SOURCE_DIR})
 
 install(TARGETS quicksettings DESTINATION ${BIN_INSTALL_DIR}/plugins)

@@ -26,7 +26,7 @@ if (WIN32)
 endif (WIN32)
 
 set(quarkplayer_TRANSLATIONS
-	${SRCS_TRANSLATIONS}
+	${DIRS_TRANSLATIONS}
 	translations/quarkplayer_fr.ts
 	translations/quarkplayer_de.ts
 	translations/quarkplayer_es.ts

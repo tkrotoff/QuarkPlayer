@@ -39,9 +39,7 @@
 
 #include <QtGui/QtGui>
 
-#include <QtCore/QtConcurrentRun>
 #include <QtCore/QDebug>
-#include <QtCore/QCoreApplication>
 
 const int PlaylistModel::COLUMN_TRACK = 0;
 const int PlaylistModel::COLUMN_TITLE = 1;
@@ -228,7 +226,7 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 		return false;
 	}
 
-	addFilesAndSaveCurrentPlaylist(files, row);
+	addFiles(files, row);
 	return true;
 }
 
@@ -237,12 +235,7 @@ void PlaylistModel::filesFound(const QStringList & files) {
 }
 
 void PlaylistModel::searchfinished(int timeElapsed) {
-	qDebug() << __FUNCTION__ << "Time elapsed:" << timeElapsed;
 	saveCurrentPlaylist();
-}
-
-void PlaylistModel::addFilesAndSaveCurrentPlaylist(const QStringList & files, int row) {
-	addFiles(files, row);
 }
 
 void PlaylistModel::addFiles(const QStringList & files, int row) {
@@ -283,6 +276,8 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 			currentRow++;
 		}
 		endInsertRows();
+
+		_currentPlaylistModified = true;
 	}
 }
 
@@ -306,6 +301,8 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
 	}
 	endRemoveRows();
 
+	_currentPlaylistModified = true;
+
 	//Save current playlist each time we remove files from it
 	saveCurrentPlaylist();
 
@@ -316,18 +313,21 @@ void PlaylistModel::loadCurrentPlaylist() {
 	//Restore last current playlist
 	Config & config = Config::instance();
 	QString path(config.configDir());
-	PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST);
+	PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST, this);
 	connect(parser, SIGNAL(filesFound(const QStringList &)),
 		SLOT(filesFound(const QStringList &)));
-	QtConcurrent::run(parser, &PlaylistParser::load);
+	parser->load();
 }
 
-void PlaylistModel::saveCurrentPlaylist() const {
-	Config & config = Config::instance();
-	QString path(config.configDir());
-	PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST);
-	QStringList files(fileNames());
-	QtConcurrent::run(parser, &PlaylistParser::save, files);
+void PlaylistModel::saveCurrentPlaylist() {
+	if (_currentPlaylistModified) {
+		_currentPlaylistModified = false;
+
+		Config & config = Config::instance();
+		QString path(config.configDir());
+		PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST, this);
+		parser->save(fileNames());
+	}
 }
 
 QStringList PlaylistModel::fileNames() const {
@@ -371,25 +371,27 @@ void PlaylistModel::updateMediaInfo() {
 	if (_mediaInfoFetcherRow == POSITION_INVALID) {
 		qCritical() << __FUNCTION__ << "Error: _mediaInfoFetcherRow invalid";
 	} else {
-		Track track = _filenames[_mediaInfoFetcherRow];
+		if (_mediaInfoFetcherRow < _filenames.size()) {
+			Track track = _filenames[_mediaInfoFetcherRow];
 
-		if (track.fileName() == _mediaInfoFetcher->filename() &&
-			!track.mediaDataResolved()) {
+			if (track.fileName() == _mediaInfoFetcher->filename() &&
+				!track.mediaDataResolved()) {
 
-			//Display track numbers like Winamp
-			//track.setTrackNumber(QString::number(_mediaInfoFetcherRow));
+				//Display track numbers like Winamp
+				//track.setTrackNumber(QString::number(_mediaInfoFetcherRow));
 
-			track.setTrackNumber(_mediaInfoFetcher->trackNumber());
-			track.setTitle(_mediaInfoFetcher->title());
-			track.setArtist(_mediaInfoFetcher->artist());
-			track.setAlbum(_mediaInfoFetcher->album());
-			track.setLength(_mediaInfoFetcher->length());
-			track.setMediaDataResolved(true);
+				track.setTrackNumber(_mediaInfoFetcher->trackNumber());
+				track.setTitle(_mediaInfoFetcher->title());
+				track.setArtist(_mediaInfoFetcher->artist());
+				track.setAlbum(_mediaInfoFetcher->album());
+				track.setLength(_mediaInfoFetcher->length());
+				track.setMediaDataResolved(true);
 
-			_filenames[_mediaInfoFetcherRow] = track;
+				_filenames[_mediaInfoFetcherRow] = track;
 
-			//Update the row since the matching MediaSource has been modified
-			emit dataChanged(index(_mediaInfoFetcherRow, COLUMN_FIRST), index(_mediaInfoFetcherRow, COLUMN_LAST));
+				//Update the row since the matching MediaSource has been modified
+				emit dataChanged(index(_mediaInfoFetcherRow, COLUMN_FIRST), index(_mediaInfoFetcherRow, COLUMN_LAST));
+			}
 		}
 	}
 	_mediaInfoFetcherRow = POSITION_INVALID;
@@ -409,6 +411,7 @@ void PlaylistModel::clearInternal() {
 	_position = POSITION_INVALID;
 	_mediaInfoFetcherRow = POSITION_INVALID;
 	_rowWhereToInsertFiles = POSITION_INVALID;
+	_currentPlaylistModified = false;
 }
 
 void PlaylistModel::clear() {

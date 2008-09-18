@@ -43,6 +43,6 @@ if (TAGLIB)
 endif (TAGLIB)
 
 #Translations
-add_qt_translations(${mediainfowindow_SRCS})
+add_qt_translations(${CMAKE_CURRENT_SOURCE_DIR})
 
 install(TARGETS mediainfowindow DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

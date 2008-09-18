@@ -38,7 +38,7 @@ class TKUTIL_API TkTextBrowser : public QTextBrowser {
 	Q_OBJECT
 public:
 
-	TkTextBrowser(QWidget * parent = 0);
+	TkTextBrowser(QWidget * parent);
 
 	~TkTextBrowser();
 

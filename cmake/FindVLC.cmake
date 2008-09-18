@@ -6,11 +6,7 @@
 #  VLC_LIBRARIES - Link these to use libvlc
 #
 #  Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
-#
-#  Redistribution and use is allowed according to the terms of the New
-#  BSD license.
-#  For details see the accompanying COPYING-CMAKE-SCRIPTS file.
-#
+
 
 if (VLC_LIBRARIES AND VLC_INCLUDE_DIRS)
   # in cache already

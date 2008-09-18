@@ -31,6 +31,6 @@ target_link_libraries(filebrowser
 )
 
 #Translations
-add_qt_translations(${filebrowser_SRCS})
+add_qt_translations(${CMAKE_CURRENT_SOURCE_DIR})
 
 install(TARGETS filebrowser DESTINATION ${BIN_INSTALL_DIR}/plugins)

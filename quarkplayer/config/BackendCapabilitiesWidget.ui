@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>536</width>
+    <width>534</width>
     <height>448</height>
    </rect>
   </property>
@@ -24,36 +24,48 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" >
-    <widget class="QListView" name="audioDevicesListView" />
-   </item>
-   <item row="1" column="1" >
-    <widget class="QListWidget" name="mimeTypesListWidget" />
-   </item>
-   <item row="2" column="0" >
-    <widget class="QLabel" name="label_3" >
-     <property name="text" >
-      <string>Available Audio Effects:</string>
+   <item row="1" column="0" colspan="2" >
+    <widget class="QSplitter" name="splitter_2" >
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
      </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="2" >
-    <widget class="QTreeWidget" name="audioEffectsTreeWidget" >
-     <column>
-      <property name="text" >
-       <string>Type</string>
+     <widget class="QSplitter" name="splitter" >
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
       </property>
-     </column>
-     <column>
-      <property name="text" >
-       <string>Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text" >
-       <string>Description</string>
-      </property>
-     </column>
+      <widget class="QListView" name="audioDevicesListView" />
+      <widget class="QListWidget" name="mimeTypesListWidget" />
+     </widget>
+     <widget class="QWidget" name="" >
+      <layout class="QVBoxLayout" name="verticalLayout" >
+       <item>
+        <widget class="QLabel" name="label_3" >
+         <property name="text" >
+          <string>Available Audio Effects:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTreeWidget" name="audioEffectsTreeWidget" >
+         <column>
+          <property name="text" >
+           <string>Type</string>
+          </property>
+         </column>
+         <column>
+          <property name="text" >
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text" >
+           <string>Description</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

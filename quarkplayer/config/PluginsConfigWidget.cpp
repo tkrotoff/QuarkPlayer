@@ -23,6 +23,7 @@
 #include "Config.h"
 
 #include <quarkplayer/PluginManager.h>
+#include <quarkplayer/PluginInterface.h>
 
 #include <QtGui/QtGui>
 
@@ -75,9 +76,12 @@ void PluginsConfigWidget::readConfig() {
 		_ui->tableWidget->setItem(row, FILENAME_COLUMN, new QTableWidgetItem(filename));
 
 		PluginManager::PluginMap pluginMap = PluginManager::instance().pluginMap();
-		QPluginLoader * loader = pluginMap.value(filename);
+		PluginManager::PluginData pluginData = pluginMap.value(filename);
 
-		bool loaded = loader->isLoaded();
+		bool loaded = false;
+		if (pluginData.loader) {
+			loaded = pluginData.loader->isLoaded();
+		}
 
 		QTableWidgetItem * item = new QTableWidgetItem();
 		if (loaded) {
@@ -107,15 +111,24 @@ void PluginsConfigWidget::cellDoubleClicked(int row, int column) {
 	QTableWidgetItem * item = _ui->tableWidget->item(row, FILENAME_COLUMN);
 	QString filename = item->text();
 	PluginManager::PluginMap pluginMap = PluginManager::instance().pluginMap();
-	QPluginLoader * loader = pluginMap.value(filename);
-	bool loaded = loader->isLoaded();
+	PluginManager::PluginData pluginData = pluginMap.value(filename);
+
+	bool loaded = false;
+	if (pluginData.loader) {
+		loaded = pluginData.loader->isLoaded();
+	}
+
 	if (loaded) {
 		//Unloads the plugin
-		//Do nothing, wait for the application to restart
+		delete pluginData.interface;
+		pluginData.interface = NULL;
+		pluginMap[filename] = pluginData;
 	} else {
-		//Loads the plugin
-		bool ok = loader->load();
-		qDebug() << __FUNCTION__ << "Plugin loaded?:" << ok;
+		if (pluginData.loader) {
+			//Loads the plugin
+			bool ok = pluginData.loader->load();
+			qDebug() << __FUNCTION__ << "Plugin loaded?:" << ok;
+		}
 	}
 }
 

@@ -63,6 +63,8 @@ else (MINGW)
 		set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /MANIFEST:NO")
 	endif (MSVC_VERSION GREATER 1399)
 
+	#This can be probably replaced by Modules/InstallRequiredSystemLibraries.cmake that comes with CMake
+
 	if (MSVC71)
 		if (CMAKE_BUILD_TYPE STREQUAL Debug)
 			set(msvcrtDir "C:/WINDOWS/System32")

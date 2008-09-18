@@ -32,6 +32,11 @@ SyncHttp::SyncHttp(QObject * parent)
 	connect(this, SIGNAL(requestFinished(int, bool)), SLOT(requestFinished(int, bool)));
 }
 
+SyncHttp::SyncHttp(const QString & hostName, QObject * parent)
+	: QHttp(hostName, 80, parent),
+	_requestId(-1) {
+}
+
 SyncHttp::SyncHttp(const QString & hostName, quint16 port, QObject * parent)
 	: QHttp(hostName, port, parent),
 	_requestId(-1) {

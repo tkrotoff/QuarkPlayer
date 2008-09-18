@@ -67,6 +67,11 @@ public:
 	 */
 	virtual void save(const QStringList & files) = 0;
 
+	/**
+	 * Stops the thread.
+	 */
+	virtual void stop() = 0;
+
 signals:
 
 	/**

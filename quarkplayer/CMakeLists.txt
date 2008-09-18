@@ -35,6 +35,7 @@ qt4_wrap_cpp(quarkplayercore_SRCS
 	QuarkPlayer.h
 	MainWindow.h
 	PluginManager.h
+	CommandLineHelp.h
 	config/Config.h
 	config/ConfigWindow.h
 	config/IConfigWidget.h
@@ -81,6 +82,6 @@ else (KDE4_FOUND)
 endif (KDE4_FOUND)
 
 #Translations
-add_qt_translations(${quarkplayercore_SRCS})
+add_qt_translations(${CMAKE_CURRENT_SOURCE_DIR})
 
 install(TARGETS quarkplayercore DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

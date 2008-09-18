@@ -41,7 +41,6 @@
 
 #include <QtGui/QtGui>
 
-#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
 Q_EXPORT_PLUGIN2(PlaylistWidget, PlaylistWidgetFactory);
@@ -262,7 +261,7 @@ void PlaylistWidget::addFiles() {
 	if (!files.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(files[0]).absolutePath());
 
-		_playlistModel->addFilesAndSaveCurrentPlaylist(files);
+		_playlistModel->addFiles(files);
 	}
 }
 
@@ -274,7 +273,7 @@ void PlaylistWidget::addDir() {
 	if (!dir.isEmpty()) {
 		QStringList tmp;
 		tmp << dir;
-		_playlistModel->addFilesAndSaveCurrentPlaylist(tmp);
+		_playlistModel->addFiles(tmp);
 	}
 }
 
@@ -283,7 +282,7 @@ void PlaylistWidget::addURL() {
 	if (!url.isEmpty()) {
 		QStringList tmp;
 		tmp << url;
-		_playlistModel->addFilesAndSaveCurrentPlaylist(tmp);
+		_playlistModel->addFiles(tmp);
 	}
 }
 
@@ -297,23 +296,19 @@ void PlaylistWidget::openPlaylist() {
 	if (!filename.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
 
-		PlaylistParser parser(filename);
-		connect(&parser, SIGNAL(filesFound(const QStringList &)),
+		PlaylistParser * parser = new PlaylistParser(filename, this);
+		connect(parser, SIGNAL(filesFound(const QStringList &)),
 			SLOT(parserFilesFound(const QStringList &)));
-		connect(&parser, SIGNAL(finished()),
-			_playlistModel, SLOT(saveCurrentPlaylist()));
-		_playlistModel->clear();
-		parser.load();
+		parser->load();
 	}
 }
 
 void PlaylistWidget::parserFilesFound(const QStringList & files) {
 	_playlistModel->addFiles(files);
-	QCoreApplication::processEvents();
 }
 
 void PlaylistWidget::addFilesToCurrentPlaylist(const QStringList & files) {
-	_playlistModel->addFilesAndSaveCurrentPlaylist(files);
+	_playlistModel->addFiles(files);
 }
 
 void PlaylistWidget::savePlaylist() {
@@ -328,8 +323,8 @@ void PlaylistWidget::savePlaylist() {
 	if (!filename.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
 
-		PlaylistParser parser(filename);
-		parser.save(_playlistModel->fileNames());
+		PlaylistParser * parser = new PlaylistParser(filename, this);
+		parser->save(_playlistModel->fileNames());
 	}
 }
 

@@ -33,9 +33,11 @@ M3UParser::M3UParser(const QString & filename, QObject * parent)
 	: IPlaylistParser(filename, parent) {
 
 	_filename = filename;
+	_stop = false;
 }
 
 M3UParser::~M3UParser() {
+	stop();
 }
 
 QStringList M3UParser::fileExtensions() const {
@@ -45,7 +47,13 @@ QStringList M3UParser::fileExtensions() const {
 	return extensions;
 }
 
+void M3UParser::stop() {
+	_stop = true;
+}
+
 void M3UParser::load() {
+	_stop = false;
+
 	QStringList files;
 
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
@@ -65,7 +73,7 @@ void M3UParser::load() {
 			stream.setCodec(QTextCodec::codecForLocale());
 		}
 
-		while (!stream.atEnd()) {
+		while (!stream.atEnd() && !_stop) {
 			//qDebug() << __FUNCTION__ << "Parsing...";
 
 			//Line of text excluding '\n'
@@ -124,6 +132,8 @@ void M3UParser::load() {
 }
 
 void M3UParser::save(const QStringList & files) {
+	_stop = false;
+
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
 	QString path = QFileInfo(_filename).path();
@@ -152,6 +162,10 @@ void M3UParser::save(const QStringList & files) {
 		stream << "#EXTM3U" << "\n";
 
 		foreach (QString filename, files) {
+			if (_stop) {
+				break;
+			}
+
 			/*
 			stream << "#EXTINF:";
 			stream << duration << ",";

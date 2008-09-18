@@ -98,7 +98,7 @@ int main(int argc, char * argv[]) {
 	TkIcon::setIconTheme(config.iconTheme());
 	TkIcon::setIconSize(16);
 
-	QuarkPlayer quarkPlayer(NULL);
+	QuarkPlayer quarkPlayer(&app);
 	PluginManager::instance().loadPlugins(quarkPlayer);
 	if (!parser.fileToPlay().isEmpty()) {
 		quarkPlayer.play(parser.fileToPlay());

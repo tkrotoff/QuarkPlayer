@@ -36,6 +36,12 @@ static const int COLUMN_COUNT = 2;
 
 FileSearchModel::FileSearchModel(QObject * parent)
 	: QAbstractItemModel(parent) {
+
+	_findFiles = new FindFiles(this);
+	connect(_findFiles, SIGNAL(filesFound(const QStringList &)),
+		SLOT(filesFound(const QStringList &)));
+	connect(_findFiles, SIGNAL(finished(int)),
+		SIGNAL(searchFinished(int)));
 }
 
 FileSearchModel::~FileSearchModel() {
@@ -202,17 +208,22 @@ void FileSearchModel::setIconProvider(QFileIconProvider * provider) {
 void FileSearchModel::search(const QString & path, const QRegExp & pattern, const QStringList & extensions) {
 	qDebug() << __FUNCTION__ << path;
 
-	static FindFiles * findFiles = new FindFiles(this);
-	connect(findFiles, SIGNAL(filesFound(const QStringList &)),
-		SLOT(filesFound(const QStringList &)));
-	connect(findFiles, SIGNAL(finished(int)),
-		SIGNAL(searchFinished(int)));
-	findFiles->setSearchPath(path);
-	findFiles->setFilesFoundLimit(5);
-	findFiles->setPattern(pattern);
-	findFiles->setExtensions(extensions);
-	findFiles->setFindDirs(true);
-	findFiles->start();
+	//Clears the model before starting a new search
+	_filenames.clear();
+	reset();
+
+	//Starts a new file search
+	_findFiles->setSearchPath(path);
+	_findFiles->setFilesFoundLimit(5);
+	_findFiles->setPattern(pattern);
+	_findFiles->setExtensions(extensions);
+	_findFiles->setFindDirs(true);
+	_findFiles->stop();
+	_findFiles->start();
+}
+
+void FileSearchModel::stop() {
+	_findFiles->stop();
 }
 
 void FileSearchModel::filesFound(const QStringList & files) {

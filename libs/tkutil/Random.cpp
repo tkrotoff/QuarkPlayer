@@ -49,7 +49,5 @@ int Random::randomInt(int min, int max) {
 	} while (number == lastNumber);
 	lastNumber = number;
 
-	qDebug() << __FUNCTION__ << number;
-
 	return number;
 }

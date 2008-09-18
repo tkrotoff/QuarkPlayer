@@ -44,6 +44,7 @@ QuarkPlayer::QuarkPlayer(QObject * parent)
 }
 
 QuarkPlayer::~QuarkPlayer() {
+	PluginManager::instance().deleteAllPlugins();
 }
 
 MainWindow & QuarkPlayer::mainWindow() const {

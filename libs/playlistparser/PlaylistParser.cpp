@@ -18,17 +18,19 @@
 
 #include "PlaylistParser.h"
 
+#include "PlaylistParserThread.h"
+
 #include "M3UParser.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
-#include <QtCore/QtConcurrentRun>
 #include <QtCore/QDebug>
 
 PlaylistParser::PlaylistParser(const QString & filename, QObject * parent)
 	: IPlaylistParser(filename, parent) {
 
 	_parser = NULL;
+	_parserThread = NULL;
 
 	_parserList += new M3UParser(filename, this);
 	//_parserList += new PLSParser(filename, this);
@@ -39,6 +41,8 @@ PlaylistParser::PlaylistParser(const QString & filename, QObject * parent)
 		if (parser->fileExtensions().contains(extension)) {
 			//Found the right parser
 			_parser = parser;
+			_parserThread = new PlaylistParserThread(_parser);
+
 			connect(_parser, SIGNAL(filesFound(const QStringList &)),
 				SIGNAL(filesFound(const QStringList &)));
 			connect(_parser, SIGNAL(finished()),
@@ -53,8 +57,7 @@ PlaylistParser::PlaylistParser(const QString & filename, QObject * parent)
 }
 
 PlaylistParser::~PlaylistParser() {
-	//_loadFuture.waitForFinished();
-	_saveFuture.waitForFinished();
+	stop();
 }
 
 QStringList PlaylistParser::fileExtensions() const {
@@ -68,15 +71,20 @@ QStringList PlaylistParser::fileExtensions() const {
 }
 
 void PlaylistParser::load() {
-	if (_parser) {
-		//_parser->load();
-		_loadFuture = QtConcurrent::run(_parser, &IPlaylistParser::load);
+	if (_parserThread) {
+		_parserThread->load();
 	}
 }
 
 void PlaylistParser::save(const QStringList & files) {
-	if (_parser) {
-		//_parser->save(files);
-		_saveFuture = QtConcurrent::run(_parser, &IPlaylistParser::save, files);
+	if (_parserThread) {
+		_parserThread->save(files);
+	}
+}
+
+void PlaylistParser::stop() {
+	if (_parserThread) {
+		_parserThread->stop();
+		_parserThread->wait();
 	}
 }

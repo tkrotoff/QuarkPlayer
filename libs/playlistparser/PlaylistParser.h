@@ -22,7 +22,8 @@
 #include <playlistparser/IPlaylistParser.h>
 
 #include <QtCore/QList>
-#include <QtCore/QFuture>
+
+class PlaylistParserThread;
 
 /**
  * Parses a playlist file.
@@ -47,6 +48,8 @@ public:
 
 	void save(const QStringList & files);
 
+	void stop();
+
 private:
 
 	/** List of all available parsers. */
@@ -55,9 +58,7 @@ private:
 	/** Current selected parser. */
 	IPlaylistParser * _parser;
 
-	QFuture<void> _loadFuture;
-
-	QFuture<void> _saveFuture;
+	PlaylistParserThread * _parserThread;
 };
 
 #endif	//PLAYLISTPARSER_H

@@ -65,7 +65,7 @@ QVariant TkTextBrowser::loadResource(int type, const QUrl & name) {
 		qDebug() << __FUNCTION__ << "Relative:" << name.toString();
 	}
 
-	qDebug() << name.toString();
+	qDebug() << __FUNCTION__ << name.toString();
 
 	if (isHttpRequest) {
 		//HTTP link

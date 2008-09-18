@@ -22,6 +22,8 @@
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QStringList>
 
+class FindFiles;
+
 class QFileIconProvider;
 class QFileInfo;
 class QRegExp;
@@ -59,6 +61,8 @@ public:
 	 */
 	void search(const QString & path, const QRegExp & pattern, const QStringList & extensions);
 
+	void stop();
+
 	//Inherited from QAbstractItemModel
 	int columnCount(const QModelIndex & parent = QModelIndex()) const;
 	QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
@@ -85,6 +89,8 @@ private slots:
 private:
 
 	QFileIconProvider * _iconProvider;
+
+	FindFiles * _findFiles;
 
 	QStringList _filenames;
 };

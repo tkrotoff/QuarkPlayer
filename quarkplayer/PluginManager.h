@@ -25,6 +25,7 @@
 #include <QtCore/QMap>
 
 class QuarkPlayer;
+class PluginInterface;
 
 class QPluginLoader;
 
@@ -46,8 +47,16 @@ public:
 
 	void loadPlugins(QuarkPlayer & quarkPlayer);
 
-	typedef QMap<QString, QPluginLoader *> PluginMap;
+	struct PluginData {
+		QPluginLoader * loader;
+		PluginInterface * interface;
+	};
+
+	typedef QMap<QString, PluginData> PluginMap;
+	typedef QMapIterator<QString, PluginData> PluginMapIterator;
 	PluginMap pluginMap() const;
+
+	void deleteAllPlugins();
 
 signals:
 

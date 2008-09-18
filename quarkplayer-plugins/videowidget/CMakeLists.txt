@@ -28,6 +28,6 @@ target_link_libraries(videowidget
 )
 
 #Translations
-add_qt_translations(${videowidget_SRCS})
+add_qt_translations(${CMAKE_CURRENT_SOURCE_DIR})
 
 install(TARGETS videowidget DESTINATION ${BIN_INSTALL_DIR}/plugins)

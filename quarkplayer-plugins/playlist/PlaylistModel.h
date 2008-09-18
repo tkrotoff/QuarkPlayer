@@ -60,23 +60,14 @@ public:
 	/**
 	 * Adds files to the model.
 	 *
-	 * Does not save the new added files to the current playlist,
-	 * use addFilesAndSaveCurrentPlaylist() for that.
+	 * Saves the new added files to the current playlist if needed.
 	 *
 	 * The list of files can contain directory, addFiles() will go recursive to find all the files.
 	 *
 	 * @param files files to add to the model
 	 * @param row location in the model where to add the files; if -1 then append the files
-	 * @see addFilesAndSaveCurrentPlaylist()
 	 */
 	void addFiles(const QStringList & files, int row = -1);
-
-	/**
-	 * Adds files to the model and saves the current playlist.
-	 *
-	 * @see addFiles()
-	 */
-	void addFilesAndSaveCurrentPlaylist(const QStringList & files, int row = -1);
 
 	/**
 	 * Plays the file at the given position.
@@ -121,9 +112,6 @@ public slots:
 	/** Clears the model. */
 	void clear();
 
-	/** Saves the current playlist to a file. */
-	void saveCurrentPlaylist() const;
-
 private slots:
 
 	void updateMediaInfo();
@@ -135,6 +123,9 @@ private slots:
 	void searchfinished(int timeElapsed);
 
 private:
+
+	/** Saves the current playlist to a file. */
+	void saveCurrentPlaylist();
 
 	void clearInternal();
 
@@ -166,6 +157,13 @@ private:
 	 * @see http://lists.trolltech.com/qt-interest/1998-01/thread00097-0.html
 	 */
 	int _rowWhereToInsertFiles;
+
+	/**
+	 * If the current playlist has been modified or not.
+	 *
+	 * If yes this means we have to save the current playlist.
+	 */
+	bool _currentPlaylistModified;
 };
 
 #endif	//PLAYLISTMODEL_H

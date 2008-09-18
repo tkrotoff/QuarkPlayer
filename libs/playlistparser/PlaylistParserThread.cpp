@@ -16,42 +16,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef M3UPARSER_H
-#define M3UPARSER_H
+#include "PlaylistParserThread.h"
 
-#include "PlaylistParser.h"
+#include "IPlaylistParser.h"
 
-#include <QtCore/QString>
+#include <QtCore/QDebug>
 
-/**
- * Parses a m3u/m3u8 playlist.
- *
- * @author Tanguy Krotoff
- */
-class M3UParser : public IPlaylistParser {
-public:
+PlaylistParserThread::PlaylistParserThread(IPlaylistParser * parser) {
+	_parser = parser;
+	_save = true;
+	_load = true;
+}
 
-	M3UParser(const QString & filename, QObject * parent);
+PlaylistParserThread::~PlaylistParserThread() {
+	stop();
+}
 
-	~M3UParser();
+void PlaylistParserThread::load() {
+	_load = true;
+	start();
+}
 
-	QStringList fileExtensions() const;
+void PlaylistParserThread::save(const QStringList & files) {
+	_save = true;
+	start();
+}
 
-	void load();
+void PlaylistParserThread::run() {
+	if (_parser) {
+		if (_load) {
+			_load = false;
+			_parser->load();
+		} else if (_save) {
+			_save = false;
+			_parser->save(_files);
+		}
+	}
+}
 
-	void save(const QStringList & files);
-
-	void stop();
-
-private:
-
-	static QString changeSlashes(const QString & filename);
-
-	bool isUtf8() const;
-
-	QString _filename;
-
-	volatile bool _stop;
-};
-
-#endif	//M3UPARSER_H
+void PlaylistParserThread::stop() {
+	if (_parser) {
+		_parser->stop();
+	}
+}

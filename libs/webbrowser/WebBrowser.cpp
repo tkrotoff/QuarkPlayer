@@ -37,7 +37,7 @@ WebBrowser::WebBrowser(QWidget * parent)
 	layout->setMargin(0);
 	layout->setSpacing(0);
 
-	_textBrowser = new TkTextBrowser();
+	_textBrowser = new TkTextBrowser(this);
 	connect(_textBrowser, SIGNAL(backwardAvailable(bool)), SLOT(backwardAvailable(bool)));
 	connect(_textBrowser, SIGNAL(forwardAvailable(bool)), SLOT(forwardAvailable(bool)));
 	backwardAvailable(_textBrowser->isBackwardAvailable());
@@ -52,7 +52,7 @@ WebBrowser::WebBrowser(QWidget * parent)
 	_toolBar->addAction(ActionCollection::action("webBrowserReload"));
 	connect(ActionCollection::action("webBrowserReload"), SIGNAL(triggered()), _textBrowser, SLOT(reload()));
 	_toolBar->addAction(ActionCollection::action("webBrowserStop"));
-	connect(ActionCollection::action("webBrowserStop"), SIGNAL(triggered()), _textBrowser, SLOT(stop()));
+	//connect(ActionCollection::action("webBrowserStop"), SIGNAL(triggered()), _textBrowser, SLOT(stop()));
 	_toolBar->addAction(ActionCollection::action("webBrowserHome"));
 	connect(ActionCollection::action("webBrowserHome"), SIGNAL(triggered()), _textBrowser, SLOT(home()));
 	_lineEdit = new QLineEdit();
