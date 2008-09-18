@@ -1,8 +1,8 @@
 Index: FindQt4.cmake
 ===================================================================
---- FindQt4.cmake	(revision 124)
+--- FindQt4.cmake	(revision 477)
 +++ FindQt4.cmake	(working copy)
-@@ -1239,12 +1239,16 @@
+@@ -1274,12 +1274,16 @@
  
              GET_FILENAME_COMPONENT(_abs_PATH ${_abs_FILE} PATH)
  
