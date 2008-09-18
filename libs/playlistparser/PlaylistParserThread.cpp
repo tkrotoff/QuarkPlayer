@@ -24,8 +24,8 @@
 
 PlaylistParserThread::PlaylistParserThread(IPlaylistParser * parser) {
 	_parser = parser;
-	_save = true;
-	_load = true;
+	_save = false;
+	_load = false;
 }
 
 PlaylistParserThread::~PlaylistParserThread() {
