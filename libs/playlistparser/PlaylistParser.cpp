@@ -45,8 +45,8 @@ PlaylistParser::PlaylistParser(const QString & filename, QObject * parent)
 
 			connect(_parser, SIGNAL(filesFound(const QStringList &)),
 				SIGNAL(filesFound(const QStringList &)));
-			connect(_parser, SIGNAL(finished()),
-				SIGNAL(finished()));
+			connect(_parser, SIGNAL(finished(int)),
+				SIGNAL(finished(int)));
 			break;
 		}
 	}

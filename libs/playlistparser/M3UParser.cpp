@@ -25,6 +25,7 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QDir>
 #include <QtCore/QTextCodec>
+#include <QtCore/QTime>
 #include <QtCore/QDebug>
 
 static const int FILES_FOUND_LIMIT = 1000;
@@ -52,6 +53,9 @@ void M3UParser::stop() {
 }
 
 void M3UParser::load() {
+	QTime timeElapsed;
+	timeElapsed.start();
+
 	_stop = false;
 
 	QStringList files;
@@ -128,10 +132,14 @@ void M3UParser::load() {
 		emit filesFound(files);
 	}
 
-	emit finished();
+	//Emits the last signal
+	emit finished(timeElapsed.elapsed());
 }
 
 void M3UParser::save(const QStringList & files) {
+	QTime timeElapsed;
+	timeElapsed.start();
+
 	_stop = false;
 
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
@@ -185,6 +193,9 @@ void M3UParser::save(const QStringList & files) {
 
 		file.close();
 	}
+
+	//Emits the last signal
+	emit finished(timeElapsed.elapsed());
 }
 
 QString M3UParser::changeSlashes(const QString & filename) {

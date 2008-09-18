@@ -39,6 +39,7 @@ void PlaylistParserThread::load() {
 
 void PlaylistParserThread::save(const QStringList & files) {
 	_save = true;
+	_files = files;
 	start();
 }
 

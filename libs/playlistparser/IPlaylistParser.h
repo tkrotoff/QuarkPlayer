@@ -86,7 +86,7 @@ signals:
 	 *
 	 * Guaranteed to be sent only once.
 	 */
-	void finished();
+	void finished(int timeElapsed);
 };
 
 #endif	//IPLAYLISTPARSER_H
