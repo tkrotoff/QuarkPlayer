@@ -112,20 +112,29 @@ public slots:
 	/** Clears the model. */
 	void clear();
 
+	/** Saves the current playlist to a file. */
+	void saveCurrentPlaylist();
+
+signals:
+
+	void playlistLoaded(int timeElapsed);
+
+	void playlistSaved(int timeElapsed);
+
 private slots:
 
 	void updateMediaInfo();
 
+	/** Loads the current playlist. */
 	void loadCurrentPlaylist();
 
 	void filesFound(const QStringList & files);
 
+	void addFilesToCurrentPlaylist(const QStringList & files);
+
 	void searchfinished(int timeElapsed);
 
 private:
-
-	/** Saves the current playlist to a file. */
-	void saveCurrentPlaylist();
 
 	void clearInternal();
 
@@ -158,12 +167,7 @@ private:
 	 */
 	int _rowWhereToInsertFiles;
 
-	/**
-	 * If the current playlist has been modified or not.
-	 *
-	 * If yes this means we have to save the current playlist.
-	 */
-	bool _currentPlaylistModified;
+	int _nbFindFiles;
 };
 
 #endif	//PLAYLISTMODEL_H

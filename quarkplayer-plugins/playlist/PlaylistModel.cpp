@@ -61,6 +61,9 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 
 	clearInternal();
 
+	connect(&quarkPlayer, SIGNAL(addFilesToCurrentPlaylist(const QStringList &)),
+		SLOT(addFilesToCurrentPlaylist(const QStringList &)));
+
 	//Info fetcher
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
 	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
@@ -227,15 +230,13 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 	}
 
 	addFiles(files, row);
+	saveCurrentPlaylist();
+
 	return true;
 }
 
 void PlaylistModel::filesFound(const QStringList & files) {
 	addFiles(files, _rowWhereToInsertFiles);
-}
-
-void PlaylistModel::searchfinished(int timeElapsed) {
-	saveCurrentPlaylist();
 }
 
 void PlaylistModel::addFiles(const QStringList & files, int row) {
@@ -246,6 +247,7 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 		if (isMultimediaFile) {
 			filenameList << filename;
 		} else if (TkFile::isDir(filename)) {
+			_nbFindFiles++;
 			FindFiles * findFiles = new FindFiles(this);
 			connect(findFiles, SIGNAL(filesFound(const QStringList &)),
 				SLOT(filesFound(const QStringList &)));
@@ -276,21 +278,28 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 			currentRow++;
 		}
 		endInsertRows();
+	}
+}
 
-		_currentPlaylistModified = true;
+void PlaylistModel::addFilesToCurrentPlaylist(const QStringList & files) {
+	addFiles(files);
+	saveCurrentPlaylist();
+}
+
+void PlaylistModel::searchfinished(int timeElapsed) {
+	_nbFindFiles--;
+	if (_nbFindFiles <= 0) {
+		saveCurrentPlaylist();
 	}
 }
 
 bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
-	qDebug() << __FUNCTION__ << "position:" << _position;
 	if (row == _position) {
 		_position = (-1) * count;
 	}
-	qDebug() << __FUNCTION__ << "position:" << _position;
 
 	beginRemoveRows(QModelIndex(), row, row + count - 1);
 	for (int i = 0; i < count; i++) {
-		qDebug() << __FUNCTION__ << "Remove row:" << row;
 
 		if (row < _position) {
 			_position--;
@@ -300,8 +309,6 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
 		_filenames.removeAt(row);
 	}
 	endRemoveRows();
-
-	_currentPlaylistModified = true;
 
 	//Save current playlist each time we remove files from it
 	saveCurrentPlaylist();
@@ -316,17 +323,25 @@ void PlaylistModel::loadCurrentPlaylist() {
 	PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST, this);
 	connect(parser, SIGNAL(filesFound(const QStringList &)),
 		SLOT(filesFound(const QStringList &)));
+	connect(parser, SIGNAL(finished(int)),
+		SIGNAL(playlistLoaded(int)));
 	parser->load();
 }
 
 void PlaylistModel::saveCurrentPlaylist() {
-	if (_currentPlaylistModified) {
-		_currentPlaylistModified = false;
+	static QStringList lastPlaylistSaved("this string should be unique");
 
+	QStringList newPlaylist = fileNames();
+	if (newPlaylist != lastPlaylistSaved) {
+		lastPlaylistSaved = newPlaylist;
 		Config & config = Config::instance();
 		QString path(config.configDir());
 		PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST, this);
-		parser->save(fileNames());
+		connect(parser, SIGNAL(finished(int)),
+			SIGNAL(playlistSaved(int)));
+		parser->save(newPlaylist);
+	} else {
+		qDebug() << __FUNCTION__ << "Playlist already saved";
 	}
 }
 
@@ -411,14 +426,14 @@ void PlaylistModel::clearInternal() {
 	_position = POSITION_INVALID;
 	_mediaInfoFetcherRow = POSITION_INVALID;
 	_rowWhereToInsertFiles = POSITION_INVALID;
-	_currentPlaylistModified = false;
+	_nbFindFiles = 0;
 }
 
 void PlaylistModel::clear() {
 	clearInternal();
 	reset();
 
-	//Save current playlist each time we remove files from it
+	//Save current playlist
 	saveCurrentPlaylist();
 }
 

@@ -59,6 +59,10 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 		SLOT(updateWindowTitle()));
 	connect(_playlistModel, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
 		SLOT(updateWindowTitle()));
+	connect(_playlistModel, SIGNAL(playlistLoaded(int)),
+			SLOT(playlistLoaded(int)));
+	connect(_playlistModel, SIGNAL(playlistSaved(int)),
+			SLOT(playlistSaved(int)));
 
 	//Filter
 	_playlistFilter = new PlaylistFilter(this, _playlistModel);
@@ -91,9 +95,6 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
-
-	connect(&quarkPlayer, SIGNAL(addFilesToCurrentPlaylist(const QStringList &)),
-		SLOT(addFilesToCurrentPlaylist(const QStringList &)));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -262,6 +263,7 @@ void PlaylistWidget::addFiles() {
 		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(files[0]).absolutePath());
 
 		_playlistModel->addFiles(files);
+		_playlistModel->saveCurrentPlaylist();
 	}
 }
 
@@ -283,6 +285,7 @@ void PlaylistWidget::addURL() {
 		QStringList tmp;
 		tmp << url;
 		_playlistModel->addFiles(tmp);
+		_playlistModel->saveCurrentPlaylist();
 	}
 }
 
@@ -299,6 +302,10 @@ void PlaylistWidget::openPlaylist() {
 		PlaylistParser * parser = new PlaylistParser(filename, this);
 		connect(parser, SIGNAL(filesFound(const QStringList &)),
 			SLOT(parserFilesFound(const QStringList &)));
+		connect(parser, SIGNAL(finished(int)),
+			SLOT(playlistLoaded(int)));
+		connect(parser, SIGNAL(finished(int)),
+			_playlistModel, SLOT(saveCurrentPlaylist()));
 		parser->load();
 	}
 }
@@ -307,8 +314,18 @@ void PlaylistWidget::parserFilesFound(const QStringList & files) {
 	_playlistModel->addFiles(files);
 }
 
-void PlaylistWidget::addFilesToCurrentPlaylist(const QStringList & files) {
-	_playlistModel->addFiles(files);
+void PlaylistWidget::playlistLoaded(int timeElapsed) {
+	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
+	if (statusBar) {
+		statusBar->showMessage(tr("Playlist loaded:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds"));
+	}
+}
+
+void PlaylistWidget::playlistSaved(int timeElapsed) {
+	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
+	if (statusBar) {
+		statusBar->showMessage(tr("Playlist saved:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds"));
+	}
 }
 
 void PlaylistWidget::savePlaylist() {
@@ -324,6 +341,8 @@ void PlaylistWidget::savePlaylist() {
 		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
 
 		PlaylistParser * parser = new PlaylistParser(filename, this);
+		connect(parser, SIGNAL(finished(int)),
+			SLOT(playlistSaved(int)));
 		parser->save(_playlistModel->fileNames());
 	}
 }
