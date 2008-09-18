@@ -22,6 +22,7 @@
 #include <playlistparser/IPlaylistParser.h>
 
 #include <QtCore/QList>
+#include <QtCore/QFuture>
 
 /**
  * Parses a playlist file.
@@ -36,7 +37,7 @@
 class PLAYLISTPARSER_API PlaylistParser : public IPlaylistParser {
 public:
 
-	PlaylistParser(const QString & filename);
+	PlaylistParser(const QString & filename, QObject * parent);
 
 	~PlaylistParser();
 
@@ -44,7 +45,7 @@ public:
 
 	void load();
 
-	bool save(const QStringList & files);
+	void save(const QStringList & files);
 
 private:
 
@@ -53,6 +54,10 @@ private:
 
 	/** Current selected parser. */
 	IPlaylistParser * _parser;
+
+	QFuture<void> _loadFuture;
+
+	QFuture<void> _saveFuture;
 };
 
 #endif	//PLAYLISTPARSER_H

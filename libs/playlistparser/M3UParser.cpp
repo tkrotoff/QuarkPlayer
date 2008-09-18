@@ -23,13 +23,14 @@
 #include <QtCore/QFile>
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
+#include <QtCore/QDir>
 #include <QtCore/QTextCodec>
 #include <QtCore/QDebug>
 
 static const int FILES_FOUND_LIMIT = 1000;
 
-M3UParser::M3UParser(const QString & filename)
-	: IPlaylistParser(filename) {
+M3UParser::M3UParser(const QString & filename, QObject * parent)
+	: IPlaylistParser(filename, parent) {
 
 	_filename = filename;
 }
@@ -65,6 +66,8 @@ void M3UParser::load() {
 		}
 
 		while (!stream.atEnd()) {
+			//qDebug() << __FUNCTION__ << "Parsing...";
+
 			//Line of text excluding '\n'
 			QString line = stream.readLine();
 
@@ -120,7 +123,7 @@ void M3UParser::load() {
 	emit finished();
 }
 
-bool M3UParser::save(const QStringList & files) {
+void M3UParser::save(const QStringList & files) {
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
 	QString path = QFileInfo(_filename).path();
@@ -167,9 +170,6 @@ bool M3UParser::save(const QStringList & files) {
 		}
 
 		file.close();
-		return true;
-	} else {
-		return false;
 	}
 }
 
@@ -178,10 +178,10 @@ QString M3UParser::changeSlashes(const QString & filename) {
 
 	//Only change if file exists (it's a local file)
 	if (QFileInfo(tmp).exists()) {
-		return tmp.replace('/', '\\');
-	} else {
-		return tmp;
+		tmp = QDir::toNativeSeparators(tmp);
 	}
+
+	return tmp;
 }
 
 bool M3UParser::isUtf8() const {

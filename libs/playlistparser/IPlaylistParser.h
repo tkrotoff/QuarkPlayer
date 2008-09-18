@@ -29,9 +29,6 @@ class QStringList;
 /**
  * Interface for implementing playlist file format parser.
  *
- * Don't forget to use QCoreApplication::processEvents() between
- * 2 filesFound() signal.
- *
  * Follows the same API as TkUtil::FindFiles class.
  *
  * @see FindFiles
@@ -46,7 +43,8 @@ public:
 	 *
 	 * @param filename playlist file (full path) to parse.
 	 */
-	IPlaylistParser(const QString & filename) { }
+	IPlaylistParser(const QString & filename, QObject * parent)
+		: QObject(parent) { }
 
 	virtual ~IPlaylistParser() { }
 
@@ -66,9 +64,8 @@ public:
 	 * Saves the playlist.
 	 *
 	 * @param files files to add to the playlist file
-	 * @return true if everything Ok; false otherwise
 	 */
-	virtual bool save(const QStringList & files) = 0;
+	virtual void save(const QStringList & files) = 0;
 
 signals:
 

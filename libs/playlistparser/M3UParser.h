@@ -31,7 +31,7 @@
 class M3UParser : public IPlaylistParser {
 public:
 
-	M3UParser(const QString & filename);
+	M3UParser(const QString & filename, QObject * parent);
 
 	~M3UParser();
 
@@ -39,7 +39,7 @@ public:
 
 	void load();
 
-	bool save(const QStringList & files);
+	void save(const QStringList & files);
 
 private:
 
