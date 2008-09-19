@@ -4,6 +4,7 @@ if (NOT OWBUILD_INCLUDED)
 	#Where to look first for CMake modules, before ${CMAKE_ROOT}/Modules/ is checked
 	set(CMAKE_MODULE_PATH
 		${CMAKE_SOURCE_DIR}/cmake
+		${CMAKE_SOURCE_DIR}/cmake/modules
 	)
 
 	#Add OWBuild macros
