@@ -5,7 +5,7 @@ project(quarkplayer)
 
 set(QUARKPLAYER_MAJOR_VERSION 0)
 set(QUARKPLAYER_MINOR_VERSION 2)
-set(QUARKPLAYER_PATCH_VERSION 1)
+set(QUARKPLAYER_PATCH_VERSION 2)
 
 #Add options values
 include(Options.cmake)
@@ -13,8 +13,8 @@ include(Options.cmake)
 include(CMakeLists-owbuild.txt)
 
 if (NOT ENV{KDEDIRS})
-	#Ubuntu 8.04, if GNOME is run instead of KDE, KDEDIRS variable is not defined,
-	#let's define it
+	#Ubuntu 8.04, if GNOME is run instead of KDE, KDEDIRS variable is not defined
+	#so let's define it
 	set(ENV{KDEDIRS} /usr/lib/kde4)
 endif (NOT ENV{KDEDIRS})
 
