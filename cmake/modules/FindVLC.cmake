@@ -4,8 +4,8 @@
 #  VLC_FOUND - system has libvlc
 #  VLC_INCLUDE_DIRS - the livlc include directory
 #  VLC_LIBRARIES - Link these to use libvlc
-#
-#  Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+
+# Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 

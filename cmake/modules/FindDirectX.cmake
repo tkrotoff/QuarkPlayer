@@ -8,11 +8,10 @@
 #  DIRECTX9_LIBRARIES - Link these to use DirectX 9
 #  DIRECTX10_LIBRARIES - Link these to use DirectX 10
 #  DIRECTX10_1_LIBRARIES - Link these to use DirectX 10.1
-#
-#  Copyright (c) 2008 Tanguy Krotoff <tkrotoff@gmail.com>
+
+# Copyright (c) 2008 Tanguy Krotoff <tkrotoff@gmail.com>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
-
 
 if (DIRECTX_INCLUDE_DIRS)
   # in cache already
