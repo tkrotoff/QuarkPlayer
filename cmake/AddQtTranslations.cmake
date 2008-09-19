@@ -1,8 +1,8 @@
 # - add_qt_translations(dir1 ... dirN)
-# Adds directories which contain source files (*.cpp, *.h, *.cxx...) to a list of directories to be translated.
-# Creates a global variable named SRCS_TRANSLATIONS
+# Adds directories which contain source files to be translated.
+# Creates a global variable named DIRS_TRANSLATIONS
 # - clear_qt_translations()
-# Clears global variable named SRCS_TRANSLATIONS
+# Clears global variable named DIRS_TRANSLATIONS
 #
 # Example:
 # clear_qt_translations()
@@ -24,24 +24,17 @@ macro (clear_qt_translations)
 
 	set(DIRS_TRANSLATIONS
 		""
-		CACHE INTERNAL "Directories which contain source files (*.cpp, *.h, *.cxx...) to be translated" FORCE
+		CACHE INTERNAL "Directories to be translated" FORCE
 	)
 
 endmacro (clear_qt_translations)
 
 macro (add_qt_translations)
 
-	set(_dirList "")
-	foreach(dir ${ARGN})
-		list(APPEND _dirList
-			${dir}
-		)
-	endforeach(dir ${ARGN})
-
 	set(DIRS_TRANSLATIONS
 		${DIRS_TRANSLATIONS}
-		${_dirList}
-		CACHE INTERNAL "Directories which contain source files (*.cpp, *.h, *.cxx...) to be translated" FORCE
+		${ARGN}
+		CACHE INTERNAL "Directories to be translated" FORCE
 	)
 
 endmacro (add_qt_translations)

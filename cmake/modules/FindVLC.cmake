@@ -1,4 +1,4 @@
-# - Try to find libvlc 0.9
+# - Try to find libvlc
 # Once done this will define
 #
 #  VLC_FOUND - system has libvlc
@@ -6,6 +6,8 @@
 #  VLC_LIBRARIES - Link these to use libvlc
 #
 #  Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+#
+# Redistribution and use is allowed according to the terms of the BSD license.
 
 
 if (VLC_LIBRARIES AND VLC_INCLUDE_DIRS)
