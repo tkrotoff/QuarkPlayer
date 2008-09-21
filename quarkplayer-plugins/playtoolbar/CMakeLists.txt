@@ -26,6 +26,6 @@ else (KDE4_FOUND)
 endif (KDE4_FOUND)
 
 #Translations
-add_qt_translations(${CMAKE_CURRENT_SOURCE_DIR})
+add_qt_translations(${playtoolbar_SRCS})
 
 install(TARGETS playtoolbar DESTINATION ${BIN_INSTALL_DIR}/plugins)

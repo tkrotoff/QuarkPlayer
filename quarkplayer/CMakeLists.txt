@@ -82,6 +82,6 @@ else (KDE4_FOUND)
 endif (KDE4_FOUND)
 
 #Translations
-add_qt_translations(${CMAKE_CURRENT_SOURCE_DIR})
+add_qt_translations(${quarkplayercore_SRCS})
 
 install(TARGETS quarkplayercore DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

@@ -22,7 +22,6 @@
 #include "PluginManager.h"
 
 #include "config/Config.h"
-#include "version.h"
 
 #include <tkutil/TkFile.h>
 

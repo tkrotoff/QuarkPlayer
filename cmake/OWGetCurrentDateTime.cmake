@@ -32,6 +32,6 @@ macro (ow_get_current_date_time time)
 		COMPILE_OUTPUT_VARIABLE compileOutput
 		RUN_OUTPUT_VARIABLE ${time}
 	)
-	string(REGEX MATCH "[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]" ${time} ${${time}})
+	string(REGEX MATCH "[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]" ${time} ${${time}})
 
 endmacro (ow_get_current_date_time)

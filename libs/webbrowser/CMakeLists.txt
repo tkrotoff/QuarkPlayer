@@ -20,6 +20,6 @@ target_link_libraries(webbrowser
 )
 
 #Translations
-add_qt_translations(${CMAKE_CURRENT_SOURCE_DIR})
+add_qt_translations(${webbrowser_SRCS})
 
 install(TARGETS webbrowser DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

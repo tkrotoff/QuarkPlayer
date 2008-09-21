@@ -25,22 +25,24 @@ if (WIN32)
 	)
 endif (WIN32)
 
-set(quarkplayer_TRANSLATIONS
-	${DIRS_TRANSLATIONS}
-	translations/quarkplayer_fr.ts
-	translations/quarkplayer_de.ts
-	translations/quarkplayer_es.ts
+set(TS_FILES
+	"${CMAKE_CURRENT_SOURCE_DIR}/translations/quarkplayer_fr.ts"
+	"${CMAKE_CURRENT_SOURCE_DIR}/translations/quarkplayer_de.ts"
+	"${CMAKE_CURRENT_SOURCE_DIR}/translations/quarkplayer_es.ts"
 )
 
 #Pretty slow :/
-set(quarkplayer_QMS "")
-qt4_create_translation(quarkplayer_QMS ${quarkplayer_TRANSLATIONS})
+set(QM_FILES "")
+qt4_create_translation(QM_FILES ${DIRS_TRANSLATIONS} ${TS_FILES})
+add_custom_command(OUTPUT ${TS_FILES} DEPENDS ${SRCS_TRANSLATIONS} APPEND)
 ##
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
-	add_executable(quarkplayer ${quarkplayer_SRCS} ${quarkplayer_QMS})
+	#Console output under Windows
+	add_executable(quarkplayer ${quarkplayer_SRCS} ${QM_FILES})
 else (CMAKE_BUILD_TYPE STREQUAL Debug)
-	add_executable(quarkplayer WIN32 ${quarkplayer_SRCS} ${quarkplayer_QMS})
+	#WIN32: no console output under Windows
+	add_executable(quarkplayer WIN32 ${quarkplayer_SRCS} ${QM_FILES})
 endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
 if (KDE4_FOUND)
@@ -68,4 +70,4 @@ if (UNIX)
 	install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer.sh DESTINATION ${BIN_INSTALL_DIR})
 endif (UNIX)
 
-install(FILES ${quarkplayer_QMS} DESTINATION ${BIN_INSTALL_DIR}/translations)
+install(FILES ${QM_FILES} DESTINATION ${BIN_INSTALL_DIR}/translations)
