@@ -236,7 +236,7 @@ bool MediaInfoFetcher::hasBeenFetched() const {
 	return _fetched;
 }
 
-QString MediaInfoFetcher::filename() const {
+QString MediaInfoFetcher::fileName() const {
 	return _filename;
 }
 
@@ -317,16 +317,19 @@ QString MediaInfoFetcher::channels() const {
 }
 
 QString MediaInfoFetcher::fileSize() {
+	QString tmp;
+
 	if (!_isUrl) {
 		//Switch from bytes to megabytes
 		QFile file(_filename);
-		QString tmp;
-		tmp.sprintf("%.3f", file.size() / 1000000.0);
-		tmp.replace(".", ",");
-		return tmp;
-	} else {
-		return QString();
+		qint64 fileSize = file.size();
+		if (fileSize > 0) {
+			tmp.sprintf("%.3f", fileSize / 1000000.0);
+			tmp.replace(".", ",");
+		}
 	}
+
+	return tmp;
 }
 
 QString MediaInfoFetcher::streamName() const {

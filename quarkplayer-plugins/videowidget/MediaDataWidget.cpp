@@ -83,7 +83,7 @@ void MediaDataWidget::updateMediaInfo() {
 	static const QString endhref2("</a>");
 	static const QString br("<br>");
 
-	QString filename = _mediaInfoFetcher->filename();
+	QString filename = _mediaInfoFetcher->fileName();
 	QString title = _mediaInfoFetcher->title();
 	QString artist = _mediaInfoFetcher->artist();
 	QString album = _mediaInfoFetcher->album();
@@ -155,7 +155,7 @@ void MediaDataWidget::retranslate() {
 }
 
 void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist, const QString & title) {
-	QString coverArtDir(TkFile::path(_mediaInfoFetcher->filename()));
+	QString coverArtDir(TkFile::path(_mediaInfoFetcher->fileName()));
 
 	QStringList imageSuffixList;
 	foreach (QByteArray format, QImageReader::supportedImageFormats()) {

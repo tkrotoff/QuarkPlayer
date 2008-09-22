@@ -389,7 +389,7 @@ void PlaylistModel::updateMediaInfo() {
 		if (_mediaInfoFetcherRow < _filenames.size()) {
 			Track track = _filenames[_mediaInfoFetcherRow];
 
-			if (track.fileName() == _mediaInfoFetcher->filename() &&
+			if (track.fileName() == _mediaInfoFetcher->fileName() &&
 				!track.mediaDataResolved()) {
 
 				//Display track numbers like Winamp
@@ -412,7 +412,7 @@ void PlaylistModel::updateMediaInfo() {
 	_mediaInfoFetcherRow = POSITION_INVALID;
 }
 
-QString PlaylistModel::filename(const QModelIndex & index) const {
+QString PlaylistModel::fileName(const QModelIndex & index) const {
 	QString tmp;
 	if (index.isValid()) {
 		int row = index.row();

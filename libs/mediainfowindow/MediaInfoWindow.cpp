@@ -28,7 +28,6 @@
 #include <thumbnailview/ThumbnailView.h>
 
 #include <tkutil/TkIcon.h>
-#include <tkutil/TkFile.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
@@ -135,7 +134,7 @@ void MediaInfoWindow::refresh() {
 }
 
 void MediaInfoWindow::updateMediaInfo() {
-	_ui->filenameLineEdit->setText(_mediaInfoFetcher->filename());
+	_ui->filenameLineEdit->setText(_mediaInfoFetcher->fileName());
 
 	_ui->trackLineEdit->setText(_mediaInfoFetcher->trackNumber());
 	_ui->titleLineEdit->setText(_mediaInfoFetcher->title());
@@ -195,8 +194,12 @@ void MediaInfoWindow::updateMediaInfo() {
 	_ui->moreInfoLabel->setText(moreInfo);
 
 	//Refresh ThumbnailView
-	QString coverArtDir(TkFile::path(_mediaInfoFetcher->filename()));
-	_thumbnailView->setDir(coverArtDir);
+	QFileInfo filenameInfo(_mediaInfoFetcher->fileName());
+	if (filenameInfo.isDir()) {
+		_thumbnailView->setDir(filenameInfo.absoluteFilePath());
+	} else {
+		_thumbnailView->setDir(filenameInfo.absolutePath());
+	}
 	_thumbnailView->refresh();
 
 	ContentFetcher::Track track;

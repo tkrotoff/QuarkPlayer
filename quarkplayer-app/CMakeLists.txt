@@ -25,6 +25,8 @@ if (WIN32)
 	)
 endif (WIN32)
 
+#"${CMAKE_CURRENT_SOURCE_DIR}/..." is important otherwise
+#it won't work since qt4_create_translation() uses absolute path for *.ts files.
 set(TS_FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/translations/quarkplayer_fr.ts"
 	"${CMAKE_CURRENT_SOURCE_DIR}/translations/quarkplayer_de.ts"

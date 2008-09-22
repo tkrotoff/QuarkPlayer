@@ -18,6 +18,7 @@
 
 #include "TkFile.h"
 
+#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
 #include <sys/types.h>
@@ -61,7 +62,16 @@ QString TkFile::fileExtension(const QString & path) {
 QString TkFile::path(const QString & filename) {
 	QString tmp(filename);
 	tmp.replace('\\', '/');
-	return tmp.left(tmp.lastIndexOf('/'));
+	tmp = tmp.left(tmp.lastIndexOf('/'));
+
+#ifdef DEBUG
+	QString qtPath(QFileInfo(filename).path());
+	if (tmp != qtPath) {
+		qCritical() << __FUNCTION__ << "Error: TkFile::path() failed:" << tmp << qtPath;
+	}
+#endif	//DEBUG
+
+	return tmp;
 }
 
 bool TkFile::isDir(const QString & path) {

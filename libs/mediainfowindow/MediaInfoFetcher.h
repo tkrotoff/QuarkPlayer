@@ -60,7 +60,7 @@ public:
 	/** Tells if the metadata were fetched or not. */
 	bool hasBeenFetched() const;
 
-	QString filename() const;
+	QString fileName() const;
 
 	bool isUrl() const;
 

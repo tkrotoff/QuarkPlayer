@@ -89,7 +89,7 @@ public:
 	QStringList fileNames() const;
 
 	/** Gets the filename given its index. */
-	QString filename(const QModelIndex & index) const;
+	QString fileName(const QModelIndex & index) const;
 
 	//Inherited from QAbstractItemModel
 	int columnCount(const QModelIndex & parent = QModelIndex()) const;

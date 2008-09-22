@@ -39,6 +39,7 @@ public:
 	 * Gets the filename part from a path.
 	 *
 	 * Example: path=/usr/lib/toto.txt filename=toto.txt
+	 * @see QFileInfo::fileName()
 	 */
 	static QString fileName(const QString & path);
 
@@ -53,6 +54,7 @@ public:
 	 * Removes the extension (i.e .mp3) from the filename.
 	 *
 	 * Example: path=/usr/lib/toto.txt => /usr/lib/toto
+	 * @see QFileInfo::baseName()
 	 */
 	static QString removeFileExtension(const QString & path);
 
@@ -60,6 +62,7 @@ public:
 	 * Gets the extension (i.e mp3) from the filename.
 	 *
 	 * Example: path=/usr/lib/toto.txt => txt
+	 * @see QFileInfo::completeSuffix()
 	 */
 	static QString fileExtension(const QString & path);
 
@@ -67,6 +70,7 @@ public:
 	 * Gets the path of a file.
 	 *
 	 * Example: filename=/toto/titi/caca.txt path=/toto/titi
+	 * @see QFileInfo::path()
 	 */
 	static QString path(const QString & filename);
 
@@ -74,6 +78,7 @@ public:
 	 * Checks if a path is a directory or a file.
 	 *
 	 * @return true if it is a path; false otherwise
+	 * @see QFileInfo::isDir()
 	 */
 	static bool isDir(const QString & path);
 

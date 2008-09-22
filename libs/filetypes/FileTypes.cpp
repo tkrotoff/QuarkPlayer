@@ -22,11 +22,14 @@
 #include <QtCore/QSet>
 #include <QtCore/QDebug>
 
-static const int FILETYPELIST_SIZE = 56;
+static const int FILETYPELIST_SIZE = 57;
 
 //See http://en.wikipedia.org/wiki/List_of_file_formats
 static const FileType FILETYPELIST[FILETYPELIST_SIZE] = {
 	//{ FileType::Category, FileType::Name, "fullName", "wikipediaArticle", "extensions", "mimeTypes" },
+
+	//Empty type
+	{ FileType::CategoryUnknown, FileType::NameUnknown, "", "", "", "" },
 
 	//Video
 	//See http://en.wikipedia.org/wiki/List_of_file_formats#Video
