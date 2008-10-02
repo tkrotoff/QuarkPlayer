@@ -109,6 +109,11 @@ void PluginManager::deleteAllPlugins() {
 		if (pluginData.interface) {
 			delete pluginData.interface;
 			pluginData.interface = NULL;
+
+			//FIXME Sometimes QuarkPlayer does not quit
+			//some threads are still running
+			//I guess this line should do it...
+			QCoreApplication::processEvents();
 		}
 		if (pluginData.loader) {
 			//This is too dangerous: it crashes
