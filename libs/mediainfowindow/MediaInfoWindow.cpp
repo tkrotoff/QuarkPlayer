@@ -189,7 +189,7 @@ void MediaInfoWindow::updateMediaInfo() {
 	else if (_mediaInfoFetcher->fileType().name == FileType::WMV) {
 		moreInfo += tr("Warning:") + br +
 			tr("WMV is a proprietary, Windows specific video codec that includes DRM and thus is not recommended") + br +
-			tr("Use instead a well supported standard video codec like XVid or Ogg/Theora");
+			tr("Use instead a well supported standard video codec like Xvid or Ogg/Theora");
 	}
 	_ui->moreInfoLabel->setText(moreInfo);
 

@@ -25,18 +25,15 @@ if (WIN32)
 	)
 endif (WIN32)
 
-#"${CMAKE_CURRENT_SOURCE_DIR}/..." is important otherwise
-#it won't work since qt4_create_translation() uses absolute path for *.ts files.
 set(TS_FILES
-	"${CMAKE_CURRENT_SOURCE_DIR}/translations/quarkplayer_fr.ts"
-	"${CMAKE_CURRENT_SOURCE_DIR}/translations/quarkplayer_de.ts"
-	"${CMAKE_CURRENT_SOURCE_DIR}/translations/quarkplayer_es.ts"
+	translations/quarkplayer_fr.ts
+	translations/quarkplayer_de.ts
+	translations/quarkplayer_es.ts
 )
 
 #Pretty slow :/
 set(QM_FILES "")
-qt4_create_translation(QM_FILES ${DIRS_TRANSLATIONS} ${TS_FILES})
-add_custom_command(OUTPUT ${TS_FILES} DEPENDS ${SRCS_TRANSLATIONS} APPEND)
+qt4_create_translation(QM_FILES ${SRCS_TRANSLATIONS} ${TS_FILES})
 ##
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
