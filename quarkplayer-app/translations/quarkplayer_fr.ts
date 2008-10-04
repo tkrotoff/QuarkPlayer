@@ -792,7 +792,12 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="192"/>
         <source>Use instead a well supported standard video codec like XVid or Ogg/Theora</source>
-        <translation>Utilisez un codec vidéo standard mieux supporté comme XVid ou Ogg/Theora</translation>
+        <translation type="obsolete">Utilisez un codec vidéo standard mieux supporté comme XVid ou Ogg/Theora</translation>
+    </message>
+    <message>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="192"/>
+        <source>Use instead a well supported standard video codec like Xvid or Ogg/Theora</source>
+        <translation>Utilisez un codec vidéo standard mieux supporté comme Xvid ou Ogg/Theora</translation>
     </message>
 </context>
 <context>
