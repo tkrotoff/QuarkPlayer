@@ -442,11 +442,8 @@ void PlaylistWidget::search() {
 
 	QString tmp;
 	foreach (QString word, pattern.split(' ')) {
-		tmp += word + '|';
+		tmp += '(' + word + ')' + ".*";
 	}
-	tmp.remove(tmp.lastIndexOf('|'), 1);
-	tmp.prepend("(");
-	tmp.append(")");
 	qDebug() << __FUNCTION__ << tmp;
 
 	_playlistFilter->setFilterRegExp(QRegExp(tmp,
