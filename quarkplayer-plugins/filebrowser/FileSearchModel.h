@@ -87,8 +87,6 @@ private slots:
 
 	void filesFound(const QStringList & files);
 
-	void searchFinishedInternal(int timeElapsed);
-
 private:
 
 	FindFiles * _findFiles;

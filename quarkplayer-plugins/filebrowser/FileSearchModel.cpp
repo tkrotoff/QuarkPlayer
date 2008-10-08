@@ -29,6 +29,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 
+#include <climits>
+
 const int FileSearchModel::COLUMN_FILENAME = 0;
 const int FileSearchModel::COLUMN_PATH = 1;
 
@@ -43,7 +45,7 @@ FileSearchModel::FileSearchModel(QObject * parent)
 	connect(_findFiles, SIGNAL(filesFound(const QStringList &)),
 		SLOT(filesFound(const QStringList &)), Qt::QueuedConnection);
 	connect(_findFiles, SIGNAL(finished(int)),
-		SLOT(searchFinishedInternal(int)), Qt::QueuedConnection);
+		SIGNAL(searchFinished(int)), Qt::QueuedConnection);
 }
 
 FileSearchModel::~FileSearchModel() {
@@ -211,7 +213,10 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, cons
 
 	//Starts a new file search
 	_findFiles->setSearchPath(path);
-	_findFiles->setFilesFoundLimit(50);
+
+	//Way faster with INT_MAX
+	_findFiles->setFilesFoundLimit(INT_MAX);
+
 	_findFiles->setPattern(pattern);
 	_findFiles->setExtensions(extensions);
 	_findFiles->setFindDirs(true);
@@ -225,10 +230,7 @@ void FileSearchModel::stop() {
 
 void FileSearchModel::filesFound(const QStringList & files) {
 	//Append the files
-	_filenames << files;
-
-	//Append the files
-	/*int first = _filenames.size();
+	int first = _filenames.size();
 	int last = first + files.size() - 1;
 	int currentRow = first;
 
@@ -237,12 +239,5 @@ void FileSearchModel::filesFound(const QStringList & files) {
 		_filenames.insert(currentRow, filename);
 		currentRow++;
 	}
-	endInsertRows();*/
-}
-
-void FileSearchModel::searchFinishedInternal(int timeElapsed) {
-	beginInsertRows(QModelIndex(), 0, _filenames.size());
 	endInsertRows();
-
-	emit searchFinished(timeElapsed);
 }
