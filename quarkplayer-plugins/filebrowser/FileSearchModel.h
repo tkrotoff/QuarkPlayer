@@ -22,6 +22,8 @@
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QStringList>
 
+#include <QtGui/QIcon>
+
 class FindFiles;
 
 class QFileIconProvider;
@@ -70,7 +72,6 @@ public:
 	QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
 	QModelIndex parent(const QModelIndex & index) const;
 	int rowCount(const QModelIndex & parent = QModelIndex()) const;
-	bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex());
 
 	Qt::ItemFlags flags(const QModelIndex & index) const;
 
@@ -86,13 +87,26 @@ private slots:
 
 	void filesFound(const QStringList & files);
 
-private:
+	void searchFinishedInternal(int timeElapsed);
 
-	QFileIconProvider * _iconProvider;
+private:
 
 	FindFiles * _findFiles;
 
 	QStringList _filenames;
+
+	QFileIconProvider * _iconProvider;
+
+	/**
+	 * Saves the icons inside a cache system given a filename extension (mp3, ogg, avi...).
+	 *
+	 * This is for optimization purpose.
+	 * Used with QFileIconProvider.
+	 *
+	 * Key = filename extension or empty if a directory
+	 * Value = icon matching the extension
+	 */
+	static QMap<QString, QIcon> _iconsCache;
 };
 
 #endif	//FILESEARCHMODEL_H

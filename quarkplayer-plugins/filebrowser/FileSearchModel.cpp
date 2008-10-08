@@ -34,14 +34,16 @@ const int FileSearchModel::COLUMN_PATH = 1;
 
 static const int COLUMN_COUNT = 2;
 
+QMap<QString, QIcon> FileSearchModel::_iconsCache;
+
 FileSearchModel::FileSearchModel(QObject * parent)
 	: QAbstractItemModel(parent) {
 
 	_findFiles = new FindFiles(this);
 	connect(_findFiles, SIGNAL(filesFound(const QStringList &)),
-		SLOT(filesFound(const QStringList &)));
+		SLOT(filesFound(const QStringList &)), Qt::QueuedConnection);
 	connect(_findFiles, SIGNAL(finished(int)),
-		SIGNAL(searchFinished(int)));
+		SLOT(searchFinishedInternal(int)), Qt::QueuedConnection);
 }
 
 FileSearchModel::~FileSearchModel() {
@@ -101,7 +103,16 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 		switch (column) {
 		case COLUMN_FILENAME:
 			if (_iconProvider) {
-				tmp = _iconProvider->icon(QFileInfo(filename));
+				//This is too slow:
+				//re-creates an icon for each file
+				//We want a cache system -> way faster!
+				//tmp = _iconProvider->icon(QFileInfo(filename));
+
+				QString ext(TkFile::fileExtension(filename));
+				if (!_iconsCache.contains(ext)) {
+					_iconsCache[ext] = _iconProvider->icon(QFileInfo(filename));
+				}
+				tmp = _iconsCache.value(ext);
 			}
 			break;
 		case COLUMN_PATH:
@@ -111,9 +122,6 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 		}
 		break;
 	}
-
-	//default:
-	//	qCritical() << __FUNCTION__ << "Error: unknown role:" << role;
 	}
 
 	return tmp;
@@ -149,17 +157,6 @@ Qt::ItemFlags FileSearchModel::flags(const QModelIndex & index) const {
 	}
 
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
-}
-
-bool FileSearchModel::removeRows(int row, int count, const QModelIndex & parent) {
-	beginRemoveRows(QModelIndex(), row, row + count - 1);
-	for (int i = 0; i < count; i++) {
-		//Remove from the list of filenames
-		_filenames.removeAt(row);
-	}
-	endRemoveRows();
-
-	return true;
 }
 
 QMimeData * FileSearchModel::mimeData(const QModelIndexList & indexes) const {
@@ -214,7 +211,7 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, cons
 
 	//Starts a new file search
 	_findFiles->setSearchPath(path);
-	_findFiles->setFilesFoundLimit(5);
+	_findFiles->setFilesFoundLimit(50);
 	_findFiles->setPattern(pattern);
 	_findFiles->setExtensions(extensions);
 	_findFiles->setFindDirs(true);
@@ -228,7 +225,10 @@ void FileSearchModel::stop() {
 
 void FileSearchModel::filesFound(const QStringList & files) {
 	//Append the files
-	int first = _filenames.size();
+	_filenames << files;
+
+	//Append the files
+	/*int first = _filenames.size();
 	int last = first + files.size() - 1;
 	int currentRow = first;
 
@@ -237,5 +237,12 @@ void FileSearchModel::filesFound(const QStringList & files) {
 		_filenames.insert(currentRow, filename);
 		currentRow++;
 	}
+	endInsertRows();*/
+}
+
+void FileSearchModel::searchFinishedInternal(int timeElapsed) {
+	beginInsertRows(QModelIndex(), 0, _filenames.size());
 	endInsertRows();
+
+	emit searchFinished(timeElapsed);
 }

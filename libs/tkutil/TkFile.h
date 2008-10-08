@@ -62,6 +62,8 @@ public:
 	 * Gets the extension (i.e mp3) from the filename.
 	 *
 	 * Example: path=/usr/lib/toto.txt => txt
+	 * If the given path is a directory, it will return an empty string.
+	 *
 	 * @see QFileInfo::completeSuffix()
 	 */
 	static QString fileExtension(const QString & path);

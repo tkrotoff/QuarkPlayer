@@ -142,8 +142,6 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 	//See http://msdn.microsoft.com/en-us/library/aa364418.aspx
 	//See http://msdn.microsoft.com/en-us/library/aa365247.aspx
 
-	//msleep(2000);
-
 	if (_stop) {
 		return;
 	}

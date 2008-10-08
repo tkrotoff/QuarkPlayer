@@ -52,7 +52,7 @@ QString TkFile::removeFileExtension(const QString & path) {
 
 QString TkFile::fileExtension(const QString & path) {
 	int dotLastIndex = path.lastIndexOf('.');
-	if (dotLastIndex == -1) {
+	if (dotLastIndex == -1 || isDir(path)) {
 		return QString();
 	} else {
 		return path.right(path.length() - dotLastIndex - 1);

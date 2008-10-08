@@ -227,7 +227,8 @@ void FileBrowserWidget::search() {
 void FileBrowserWidget::searchFinished(int timeElapsed) {
 	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
 	if (statusBar) {
-		statusBar->showMessage(tr("Search finished:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds"));
+		statusBar->showMessage(tr("Search finished:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
+			" (" + QString::number(_fileSearchModel->rowCount()) + " " + tr("medias") + ")");
 	}
 }
 

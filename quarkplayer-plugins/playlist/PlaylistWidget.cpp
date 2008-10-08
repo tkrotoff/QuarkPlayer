@@ -317,14 +317,16 @@ void PlaylistWidget::parserFilesFound(const QStringList & files) {
 void PlaylistWidget::playlistLoaded(int timeElapsed) {
 	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
 	if (statusBar) {
-		statusBar->showMessage(tr("Playlist loaded:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds"));
+		statusBar->showMessage(tr("Playlist loaded:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
+			" (" + QString::number(_playlistModel->rowCount()) + " " + tr("medias") + ")");
 	}
 }
 
 void PlaylistWidget::playlistSaved(int timeElapsed) {
 	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
 	if (statusBar) {
-		statusBar->showMessage(tr("Playlist saved:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds"));
+		statusBar->showMessage(tr("Playlist saved:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
+			" (" + QString::number(_playlistModel->rowCount()) + " " + tr("medias") + ")");
 	}
 }
 
@@ -427,6 +429,9 @@ void PlaylistWidget::searchChanged() {
 }
 
 void PlaylistWidget::search() {
+	QTime timeElapsed;
+	timeElapsed.start();
+
 	_searchTimer->stop();
 	QString pattern(_searchLineEdit->text().trimmed());
 	_clearSearchButton->setEnabled(!pattern.isEmpty());
@@ -452,6 +457,7 @@ void PlaylistWidget::search() {
 	//_treeView->repaint();
 
 	if (statusBar && !pattern.isEmpty()) {
-		statusBar->showMessage(tr("Search finished"));
+		statusBar->showMessage(tr("Search finished:") + ' ' + QString::number((float) timeElapsed.elapsed() / 1000) + ' ' + tr("seconds") +
+			" (" + QString::number(_playlistFilter->rowCount()) + " " + tr("medias") + ")");
 	}
 }
