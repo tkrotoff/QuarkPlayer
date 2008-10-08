@@ -24,8 +24,6 @@
 #include <QtCore/QTranslator>
 #include <QtCore/QDebug>
 
-static const QString TRANSLATIONS_PATH = "translations/";
-
 Translator * Translator::_instance = NULL;
 
 Translator & Translator::instance() {
@@ -39,9 +37,16 @@ Translator & Translator::instance() {
 
 Translator::Translator() {
 	_translatorInstalled = false;
+
+	//Default path containing the translations
+	_translationsPath = QCoreApplication::applicationDirPath() + "/translations/";
 }
 
 Translator::~Translator() {
+}
+
+void Translator::setTranslationsPath(const QString & translationsPath) {
+	_translationsPath = translationsPath;
 }
 
 void Translator::install() {
@@ -71,11 +76,11 @@ void Translator::load(const QString & locale) {
 	if (!qtRet) {
 		//No Qt framework installed
 		//Try with the application path
-		qtRet = loadLocale(_qtTranslator, "qt", myLocale, TRANSLATIONS_PATH);
+		qtRet = loadLocale(_qtTranslator, "qt", myLocale, _translationsPath);
 	}
 
 	//Application translation
-	bool appRet = loadLocale(_appTranslator, QCoreApplication::applicationName().toLower(), myLocale, TRANSLATIONS_PATH);
+	bool appRet = loadLocale(_appTranslator, QCoreApplication::applicationName().toLower(), myLocale, _translationsPath);
 
 	//Both Qt and app locale loading failed
 	//Let's go back to english builtin
@@ -85,13 +90,13 @@ void Translator::load(const QString & locale) {
 	}
 }
 
-bool Translator::loadLocale(QTranslator & translator, const QString & name, const QString & locale, const QString & dir) {
+bool Translator::loadLocale(QTranslator & translator, const QString & name, const QString & locale, const QString & translationsPath) {
 	QString filename = name + "_" + locale;
-	bool ret = translator.load(filename, dir);
+	bool ret = translator.load(filename, translationsPath);
 	if (!ret) {
-		qDebug() << __FUNCTION__ << "Error: couldn't load translation:" << filename << "from:" << dir;
+		qDebug() << __FUNCTION__ << "Error: couldn't load translation:" << filename << "from:" << translationsPath;
 	} else {
-		qDebug() << __FUNCTION__ << "Translation loaded:" << filename << "from:" << dir;
+		qDebug() << __FUNCTION__ << "Translation loaded:" << filename << "from:" << translationsPath;
 	}
 	return ret;
 }

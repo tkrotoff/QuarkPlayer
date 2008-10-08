@@ -48,6 +48,15 @@ public:
 	~Translator();
 
 	/**
+	 * Sets the path containing the translations (*.ts files).
+	 *
+	 * Default path is <pre>QCoreApplication::applicationDirPath() + "/translations/"</pre>
+	 *
+	 * @param translationsPath path containing the translations (*.ts files)
+	 */
+	void setTranslationsPath(const QString & translationsPath);
+
+	/**
 	 * Loads a locale (i.e en, fr...).
 	 *
 	 * Example:
@@ -59,7 +68,7 @@ public:
 
 private:
 
-	bool loadLocale(QTranslator & translator, const QString & name, const QString & locale, const QString & dir);
+	bool loadLocale(QTranslator & translator, const QString & name, const QString & locale, const QString & translationsPath);
 
 	void install();
 
@@ -76,6 +85,9 @@ private:
 	QTranslator _qtTranslator;
 
 	bool _translatorInstalled;
+
+	/** Path to the translations. */
+	QString _translationsPath;
 };
 
 #endif	//TRANSLATOR_H
