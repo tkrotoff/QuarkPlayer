@@ -35,10 +35,11 @@ GeneralConfigWidget::GeneralConfigWidget() {
 	_ui = new Ui::GeneralConfigWidget();
 	_ui->setupUi(this);
 
-#ifdef KDE4_FOUND
+//#ifdef KDE4_FOUND
 	//Not available under KDE, systemsettings will do it
+	//FIXME Not available at all, this feature should be added to Phonon itself
 	_ui->backendGroupBox->setEnabled(false);
-#endif	//KDE4_FOUND
+//#endif	//KDE4_FOUND
 }
 
 GeneralConfigWidget::~GeneralConfigWidget() {

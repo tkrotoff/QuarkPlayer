@@ -237,7 +237,15 @@ void MainWindow::updateWindowTitle() {
 
 void MainWindow::showConfigWindow() {
 	static ConfigWindow * configWindow = new ConfigWindow(this);
-	emit configWindowCreated(configWindow);
+
+	static bool firstTime = true;
+	if (firstTime) {
+		firstTime = false;
+
+		//Emits the signal just once, not each time the ConfigWindow is being showed
+		emit configWindowCreated(configWindow);
+	}
+
 	configWindow->show();
 }
 
