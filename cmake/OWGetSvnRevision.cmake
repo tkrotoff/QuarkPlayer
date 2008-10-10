@@ -31,7 +31,6 @@ macro (ow_get_svn_revision revision)
 		#Subversion_WC_LOG(${CMAKE_SOURCE_DIR} _TMP)
 		#message(STATUS LAST_CHANGED_LOG=${_TMP_LAST_CHANGED_LOG})
 	else (Subversion_FOUND)
-		message("Subversion (svn) command line not found, it is recommended to install it")
 		set(${revision} 0)
 	endif (Subversion_FOUND)
 

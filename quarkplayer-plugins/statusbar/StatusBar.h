@@ -50,7 +50,7 @@ private slots:
 
 	void tick(qint64 time);
 
-	void changeDisplayTimeMode();
+	void changeTimeDisplayMode();
 
 	void stateChanged(Phonon::State newState);
 
@@ -64,9 +64,9 @@ private slots:
 
 private:
 
-	enum DisplayTimeMode {
-		DisplayTimeModeElapsed,
-		DisplayTimeModeRemaining
+	enum TimeDisplayMode {
+		TimeDisplayModeElapsed,
+		TimeDisplayModeRemaining
 	};
 
 	QLabel * _timeLabel;
