@@ -99,7 +99,7 @@ int main(int argc, char * argv[]) {
 	TkIcon::setIconSize(16);
 
 	QuarkPlayer quarkPlayer(&app);
-	PluginManager::instance().loadPlugins(quarkPlayer);
+	PluginManager::instance().loadAllPlugins(quarkPlayer);
 	if (!parser.fileToPlay().isEmpty()) {
 		quarkPlayer.play(parser.fileToPlay());
 	}

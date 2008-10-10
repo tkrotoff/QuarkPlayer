@@ -16,43 +16,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLUGINSCONFIGWIDGET_H
-#define PLUGINSCONFIGWIDGET_H
-
-#include "IConfigWidget.h"
-
-namespace Ui { class PluginsConfigWidget; }
+#ifndef SINGLETON_H
+#define SINGLETON_H
 
 /**
- * Plugins configuration widget.
+ * Template class to create singleton pattern.
+ *
+ * Becareful in multi-threaded environment: this class does not contain a mutex.
  *
  * @author Tanguy Krotoff
  */
-class PluginsConfigWidget : public IConfigWidget {
-	Q_OBJECT
+template<typename T>
+class Singleton {
 public:
 
-	PluginsConfigWidget();
+	static T & instance() {
+		if (!_instance) {
+			_instance = new T;
+		}
+		return *_instance;
+	}
 
-	~PluginsConfigWidget();
+	static void deleteInstance() {
+		delete _instance;
+		_instance = NULL;
+	}
 
-	QString name() const;
+protected:
 
-	QString iconName() const;
+	Singleton() { }
 
-	void readConfig();
-
-	void saveConfig();
-
-	void retranslate();
-
-private slots:
-
-	void stateButtonClicked(int row);
+	~Singleton() { }
 
 private:
 
-	Ui::PluginsConfigWidget * _ui;
+	Singleton(const Singleton &);
+	Singleton & operator=(const Singleton &);
+
+	static T * _instance;
 };
 
-#endif	//PLUGINSCONFIGWIDGET_H
+template<typename T> T * Singleton<T>::_instance = NULL;
+
+#endif	//SINGLETON_H

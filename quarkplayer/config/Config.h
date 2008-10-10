@@ -22,24 +22,31 @@
 #include <quarkplayer/quarkplayer_export.h>
 
 #include <tkutil/TkConfig.h>
+#include <tkutil/Singleton.h>
 
 /**
  * Stores QuarkPlayer configuration.
  *
  * Pattern singleton.
  *
+ * <pre>
+ * //Example for key PLUGINS_DISABLED_KEY
+ * QStringList pluginsDisabled = Config::instance().pluginsDisabled();
+ * //Not recommended, can be written:
+ * //QStringList pluginsDisabled = Config::instance().value(PLUGINS_DISABLED_KEY).toStringList();
+ * pluginsDisabled += "pluginFilenameToBlackList";
+ * Config::instance().setValue(Config::PLUGINS_DISABLED_KEY, pluginsDisabled);
+ * </pre>
+ *
  * @see TkConfig
  * @see QSettings
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API Config : public TkConfig {
+class QUARKPLAYER_API Config : public TkConfig, public Singleton<Config> {
+	friend class Singleton<Config>;
 public:
 
-	/** Singleton. */
-	static Config & instance();
-
-	~Config();
-
+	/** List of available backends + selected backend. */
 	static const char * BACKEND_KEY;
 	QStringList backendList() const;
 	QString backend() const;
@@ -81,7 +88,7 @@ public:
 	static const char * PLUGINS_DIR_KEY;
 	QString pluginsDir() const;
 
-	/** Plugins black list. */
+	/** Plugins blacklist (i.e the ones that shouldn't be loaded). */
 	static const char * PLUGINS_DISABLED_KEY;
 	QStringList pluginsDisabled() const;
 
@@ -91,11 +98,9 @@ public:
 
 private:
 
-	/** Singleton. */
 	Config();
 
-	/** Singleton. */
-	static Config * _instance;
+	~Config();
 };
 
 #endif	//CONFIG_H

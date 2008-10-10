@@ -45,18 +45,6 @@ const char * Config::PLUGINS_DISABLED_KEY = "plugins_disabled";
 
 const char * Config::MAINWINDOW_GEOMETRY_KEY = "mainwindow_geometry";
 
-
-Config * Config::_instance = NULL;
-
-Config & Config::instance() {
-	//Lazy initialization
-	if (!_instance) {
-		_instance = new Config();
-	}
-
-	return *_instance;
-}
-
 Config::Config()
 	: TkConfig() {
 
@@ -113,7 +101,8 @@ QString Config::iconTheme() const {
 }
 
 QStringList Config::recentFiles() const {
-	return value(RECENT_FILES_KEY).toStringList();
+	QSet<QString> tmp = value(RECENT_FILES_KEY).toStringList().toSet();
+	return tmp.toList();
 }
 
 QString Config::lastDirectoryUsed() const {
@@ -138,7 +127,8 @@ QString Config::pluginsDir() const {
 }
 
 QStringList Config::pluginsDisabled() const {
-	return value(PLUGINS_DISABLED_KEY).toStringList();
+	QSet<QString> tmp = value(PLUGINS_DISABLED_KEY).toStringList().toSet();
+	return tmp.toList();
 }
 
 QByteArray Config::mainWindowGeometry() const {

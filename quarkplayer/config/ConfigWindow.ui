@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>440</width>
-    <height>210</height>
+    <width>592</width>
+    <height>428</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -45,11 +45,11 @@
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
    <receiver>ConfigWindow</receiver>
-   <slot>accept()</slot>
+   <slot>repaint()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>248</x>
-     <y>254</y>
+     <x>547</x>
+     <y>418</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -61,11 +61,11 @@
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
    <receiver>ConfigWindow</receiver>
-   <slot>reject()</slot>
+   <slot>repaint()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>316</x>
-     <y>260</y>
+     <x>582</x>
+     <y>418</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>

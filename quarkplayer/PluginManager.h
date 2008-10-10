@@ -21,6 +21,8 @@
 
 #include <quarkplayer/quarkplayer_export.h>
 
+#include <tkutil/Singleton.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 
@@ -37,26 +39,26 @@ class QPluginLoader;
  * @see QPluginLoader
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API PluginManager : public QObject {
+class QUARKPLAYER_API PluginManager : public QObject, public Singleton<PluginManager> {
+	friend class Singleton<PluginManager>;
 	Q_OBJECT
 public:
 
-	~PluginManager();
-
-	static PluginManager & instance();
-
-	void loadPlugins(QuarkPlayer & quarkPlayer);
-
-	struct PluginData {
-		QPluginLoader * loader;
-		PluginInterface * interface;
-	};
-
-	typedef QMap<QString, PluginData> PluginMap;
-	typedef QMapIterator<QString, PluginData> PluginMapIterator;
-	PluginMap pluginMap() const;
+	void loadAllPlugins(QuarkPlayer & quarkPlayer);
 
 	void deleteAllPlugins();
+
+	bool loadPlugin(const QString & filename);
+
+	bool deletePlugin(const QString & filename);
+
+	void enablePlugin(const QString & filename) const;
+
+	void disablePlugin(const QString & filename) const;
+
+	bool isPluginLoaded(const QString & filename) const;
+
+	bool isPluginDisabled(const QString & filename) const;
 
 signals:
 
@@ -90,10 +92,33 @@ private:
 
 	PluginManager();
 
-	/** Singleton. */
-	static PluginManager * _pluginManager;
+	~PluginManager();
+
+	class PluginData {
+	public:
+
+		PluginData() {
+			loader = NULL;
+			interface = NULL;
+		}
+
+		QPluginLoader * loader;
+		PluginInterface * interface;
+	};
+
+	typedef QMap<QString, PluginData> PluginMap;
+	typedef QMapIterator<QString, PluginData> PluginMapIterator;
+
+	/**
+	 * Gets the list of plugins.
+	 *
+	 * Becareful: this is read/write mode (not a const reference)!
+	 */
+	PluginMap & pluginMap();
 
 	PluginMap _pluginMap;
+
+	QuarkPlayer * _quarkPlayer;
 };
 
 #endif	//PLUGINMANAGER_H

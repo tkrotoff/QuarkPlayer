@@ -29,23 +29,16 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
-PluginManager * PluginManager::_pluginManager = NULL;
-
 PluginManager::PluginManager() {
+	_quarkPlayer = NULL;
 }
 
 PluginManager::~PluginManager() {
+	deleteAllPlugins();
 }
 
-PluginManager & PluginManager::instance() {
-	if (!_pluginManager) {
-		_pluginManager = new PluginManager();
-	}
-	return *_pluginManager;
-}
-
-void PluginManager::loadPlugins(QuarkPlayer & quarkPlayer) {
-	QCoreApplication::processEvents();
+void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
+	_quarkPlayer = &quarkPlayer;
 
 	QList<int> randomList;
 
@@ -54,71 +47,129 @@ void PluginManager::loadPlugins(QuarkPlayer & quarkPlayer) {
 	QStringList pluginList = Random::randomize(before);
 
 	foreach (QString filename, pluginList) {
-		QString filePath(pluginsDir.absoluteFilePath(filename));
-
-		if (!QLibrary::isLibrary(filePath)) {
-			//Don't proceed files that are not libraries
-			continue;
+		if (isPluginDisabled(filename)) {
+			//Don't proceed plugins that are blacklisted
+			qDebug() << __FUNCTION__ << "Plugin disabled:" << filename;
+		} else {
+			loadPlugin(filename);
 		}
-
-		PluginData pluginData;
-		pluginData.loader = NULL;
-		pluginData.interface = NULL;
-		_pluginMap[filename] = pluginData;
-
-		if (Config::instance().pluginsDisabled().contains(filename)) {
-			//This means this plugin must not be loaded
-			continue;
-		}
-
-		QPluginLoader * loader = new QPluginLoader(filePath);
-
-		if (loader) {
-			QObject * plugin = loader->instance();
-			pluginData.loader = loader;
-			if (plugin) {
-				PluginFactory * factory = qobject_cast<PluginFactory *>(plugin);
-				if (factory) {
-					PluginInterface * interface = factory->create(quarkPlayer);
-					pluginData.interface = interface;
-					qDebug() << __FUNCTION__ << "Plugin loaded:" << filename;
-				}
-			} else {
-				loader->unload();
-				qCritical() << __FUNCTION__ << "Error: plugin not loaded:" << filename << loader->errorString();
-			}
-		}
-
-		_pluginMap[filename] = pluginData;
-
-		QCoreApplication::processEvents();
 	}
 
 	emit allPluginsLoaded();
-}
-
-PluginManager::PluginMap PluginManager::pluginMap() const {
-	return _pluginMap;
 }
 
 void PluginManager::deleteAllPlugins() {
 	PluginMapIterator it(_pluginMap);
 	while (it.hasNext()) {
 		it.next();
-		PluginData pluginData = it.value();
-		if (pluginData.interface) {
-			delete pluginData.interface;
-			pluginData.interface = NULL;
 
-			//FIXME Sometimes QuarkPlayer does not quit
-			//some threads are still running
-			//I guess this line should do it...
-			QCoreApplication::processEvents();
-		}
-		if (pluginData.loader) {
-			//This is too dangerous: it crashes
-			//pluginData.loader->unload();
-		}
-		//it.value() = pluginData;
+		deletePlugin(it.key());
 	}
+}
+
+PluginManager::PluginMap & PluginManager::pluginMap() {
+	return _pluginMap;
+}
+
+bool PluginManager::loadPlugin(const QString & filename) {
+	bool ret = false;
+
+	QDir pluginsDir = QDir(Config::instance().pluginsDir());
+	QString filePath(pluginsDir.absoluteFilePath(filename));
+
+	if (!QLibrary::isLibrary(filePath)) {
+		//Don't proceed files that are not libraries
+		qCritical() << __FUNCTION__ << "Error: this file is not a library:" << filename;
+		return ret;
+	}
+
+	PluginData pluginData = _pluginMap[filename];
+
+	if (!pluginData.loader) {
+		//Not already loaded
+		pluginData.loader = new QPluginLoader(filePath);
+	}
+
+	QObject * plugin = pluginData.loader->instance();
+	if (plugin) {
+		PluginFactory * factory = qobject_cast<PluginFactory *>(plugin);
+		if (factory) {
+			pluginData.interface = factory->create(*_quarkPlayer);
+			qDebug() << __FUNCTION__ << "Plugin loaded:" << filename;
+			ret = true;
+		} else {
+			qCritical() << __FUNCTION__ << "Error: this is not a QuarkPlayer plugin:" << filename;
+		}
+	} else {
+		pluginData.loader->unload();
+		delete pluginData.loader;
+		pluginData.loader = NULL;
+		qCritical() << __FUNCTION__ << "Error: plugin couldn't be loaded:" << filename << pluginData.loader->errorString();
+	}
+
+	_pluginMap[filename] = pluginData;
+
+	QCoreApplication::processEvents();
+
+	return ret;
+}
+
+bool PluginManager::deletePlugin(const QString & filename) {
+	bool ret = true;
+
+	PluginData pluginData = _pluginMap[filename];
+
+	if (!pluginData.interface) {
+		qCritical() << __FUNCTION__ << "Error: couldn't delete the plugin:" << filename;
+		ret = false;
+	}
+
+	//Unloads the plugin
+	delete pluginData.interface;
+	pluginData.interface = NULL;
+
+	//FIXME Sometimes QuarkPlayer does not quit
+	//some threads are still running
+	//I guess this line should do it...
+	QCoreApplication::processEvents();
+
+	if (pluginData.loader) {
+		//This is too dangerous: it crashes
+		//pluginData.loader->unload();
+		//delete pluginData.loader;
+		//pluginData.loader = NULL;
+	}
+
+	_pluginMap[filename] = pluginData;
+
+	return ret;
+}
+
+void PluginManager::enablePlugin(const QString & filename) const {
+	QStringList pluginsDisabled = Config::instance().pluginsDisabled();
+	qDebug() << "before:" << pluginsDisabled;
+	pluginsDisabled.removeAll(filename);
+	qDebug() << "after:" << pluginsDisabled;
+	Config::instance().setValue(Config::PLUGINS_DISABLED_KEY, pluginsDisabled);
+}
+
+void PluginManager::disablePlugin(const QString & filename) const {
+	QStringList pluginsDisabled = Config::instance().pluginsDisabled();
+	pluginsDisabled += filename;
+	Config::instance().setValue(Config::PLUGINS_DISABLED_KEY, pluginsDisabled);
+}
+
+bool PluginManager::isPluginLoaded(const QString & filename) const {
+	bool loaded = false;
+	if (_pluginMap.contains(filename)) {
+		PluginData pluginData = _pluginMap[filename];
+
+		//If pluginData.interface is not NULL, this means the plugin is loaded
+		loaded = pluginData.interface;
+	}
+	return loaded;
+}
+
+bool PluginManager::isPluginDisabled(const QString & filename) const {
+	return Config::instance().pluginsDisabled().contains(filename);
 }

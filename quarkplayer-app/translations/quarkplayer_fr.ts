@@ -1021,59 +1021,89 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>PluginsConfigWidget</name>
     <message>
-        <location filename="../../quarkplayer/config/PluginsConfigWidget.cpp" line="54"/>
+        <location filename="../../quarkplayer/config/PluginsConfigWidget.cpp" line="51"/>
         <source>Plugins</source>
         <translation>Greffons</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="151"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="157"/>
         <source>Plugin</source>
         <translation>Greffon</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="152"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="158"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="153"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="159"/>
         <source>Version</source>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="154"/>
+        <location filename="../../quarkplayer/config/PluginsConfigWidget.cpp" line="84"/>
         <source>Enabled</source>
         <translation>Activé</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="156"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="163"/>
         <source>Description:</source>
         <translation>Description :</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="157"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="164"/>
         <source>Author(s):</source>
         <translation>Auteur(s) :</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="158"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="165"/>
         <source>E-mail:</source>
         <translation>E-mail :</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="159"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="166"/>
         <source>Homepage:</source>
         <translation>Page web :</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="160"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="167"/>
         <source>Copyright:</source>
         <translation>Droit d&apos;auteur :</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="161"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="168"/>
         <source>License:</source>
         <translation>Licence :</translation>
+    </message>
+    <message>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="160"/>
+        <source>State</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/config/PluginsConfigWidget.cpp" line="79"/>
+        <source>Disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/config/PluginsConfigWidget.cpp" line="88"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="161"/>
+        <source>Warning: Restart QuarkPlayer when done modifying plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/config/PluginsConfigWidget.cpp" line="143"/>
+        <source>Disable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/config/PluginsConfigWidget.cpp" line="146"/>
+        <source>Enable</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1202,7 +1232,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>SettingsBrowser</name>
     <message>
-        <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="53"/>
+        <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="54"/>
         <source>Settings Browser</source>
         <translation>Préférences</translation>
     </message>
@@ -1237,7 +1267,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
         <translation>Remettre à zéro</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="340"/>
+        <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="342"/>
         <source>True</source>
         <translation>Vrai</translation>
     </message>

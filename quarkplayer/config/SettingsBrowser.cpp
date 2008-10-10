@@ -40,8 +40,9 @@ SettingsBrowser::SettingsBrowser() {
 	_ui = new Ui::SettingsBrowser();
 	_ui->setupUi(this);
 
-	_ui->tableWidget->resizeColumnToContents(RESET_COLUMN);
-	_ui->tableWidget->setColumnWidth(VALUE_COLUMN, 300);
+	_ui->tableWidget->setColumnWidth(VALUE_COLUMN, 200);
+	_ui->tableWidget->setColumnWidth(DEFAULT_VALUE_COLUMN, 200);
+	_ui->tableWidget->setColumnWidth(RESET_COLUMN, 100);
 	_ui->tableWidget->verticalHeader()->hide();
 }
 
@@ -147,7 +148,6 @@ void SettingsBrowser::readConfig() {
 	}
 
 	_ui->tableWidget->resizeColumnToContents(KEY_NAME_COLUMN);
-	_ui->tableWidget->resizeColumnToContents(DEFAULT_VALUE_COLUMN);
 	_ui->tableWidget->resizeColumnToContents(STATUS_COLUMN);
 	_ui->tableWidget->resizeColumnToContents(TYPE_COLUMN);
 	_ui->tableWidget->resizeRowsToContents();
@@ -170,7 +170,7 @@ int SettingsBrowser::findRow(QWidget * widget, int column) const {
 	for (; row < rows; row++) {
 		QWidget * cellWidget = _ui->tableWidget->cellWidget(row, column);
 		if (!cellWidget) {
-			//No reset button widget
+			//No cell widget
 			continue;
 		}
 
@@ -308,6 +308,9 @@ void SettingsBrowser::setItem(const QVariant & defaultValue, const QVariant & va
 		break;
 	}
 
+	case QVariant::ByteArray:
+		break;
+
 	default:
 		qCritical() << __FUNCTION__ << "Error: cannot convert value:" << defaultValue;
 	}
@@ -318,12 +321,13 @@ void SettingsBrowser::setItem(const QVariant & defaultValue, const QVariant & va
 }
 
 QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & value, int row) {
+	QVariant ret;
+
 	QWidget * widget = _ui->tableWidget->cellWidget(row, VALUE_COLUMN);
 	if (!widget) {
 		//This means SettingsBrowser was not even show to the user,
 		//thus widgets were not created and are NULL
-		//Let's return the current value
-		return value;
+		return ret;
 	}
 
 	//We base value detection on default value has it contains for sure a clean QVariant::Type
@@ -333,14 +337,13 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 		QComboBox * comboBox = qobject_cast<QComboBox *>(widget);
 		if (!comboBox) {
 			qCritical() << __FUNCTION__ << "Error: the widget does not match the QVariant::Type:" << defaultValue;
-			return value;
-		}
-
-		QString tmp = comboBox->currentText();
-		if (tmp == tr("True")) {
-			return true;
 		} else {
-			return false;
+			QString tmp = comboBox->currentText();
+			if (tmp == tr("True")) {
+				ret = true;
+			} else {
+				ret = false;
+			}
 		}
 		break;
 	}
@@ -349,10 +352,9 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 		QSpinBox * spinBox = qobject_cast<QSpinBox *>(widget);
 		if (!spinBox) {
 			qCritical() << __FUNCTION__ << "Error: the widget does not match the QVariant::Type:" << defaultValue;
-			return value;
+		} else {
+			ret = spinBox->value();
 		}
-
-		return spinBox->value();
 		break;
 	}
 
@@ -360,10 +362,9 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 		QDoubleSpinBox * spinBox = qobject_cast<QDoubleSpinBox *>(widget);
 		if (!spinBox) {
 			qCritical() << __FUNCTION__ << "Error: the widget does not match the QVariant::Type:" << defaultValue;
-			return value;
+		} else {
+			ret = spinBox->value();
 		}
-
-		return spinBox->value();
 		break;
 	}
 
@@ -371,10 +372,9 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 		QLineEdit * lineEdit = qobject_cast<QLineEdit *>(widget);
 		if (!lineEdit) {
 			qCritical() << __FUNCTION__ << "Error: the widget does not match the QVariant::Type:" << defaultValue;
-			return value;
+		} else {
+			ret = lineEdit->text();
 		}
-
-		return lineEdit->text();
 		break;
 	}
 
@@ -382,22 +382,25 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 		QLineEdit * lineEdit = qobject_cast<QLineEdit *>(widget);
 		if (!lineEdit) {
 			qCritical() << __FUNCTION__ << "Error: the widget does not match the QVariant::Type:" << defaultValue;
-			return value;
-		}
-
-		QString tmp = lineEdit->text();
-		if (tmp.isEmpty()) {
-			return QStringList();
 		} else {
-			return tmp.split(";");
+			QString tmp = lineEdit->text();
+			if (tmp.isEmpty()) {
+				ret = QStringList();
+			} else {
+				ret = tmp.split(";");
+			}
 		}
 		break;
 	}
 
+	case QVariant::ByteArray:
+		break;
+
 	default:
 		qCritical() << __FUNCTION__ << "Error: cannot convert value:" << defaultValue;
-		return value;
 	}
+
+	return ret;
 }
 
 void SettingsBrowser::valueChanged() {
