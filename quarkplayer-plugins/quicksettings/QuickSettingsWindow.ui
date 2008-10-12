@@ -215,9 +215,6 @@
           <property name="text" >
            <string>Audio Device:</string>
           </property>
-          <property name="pixmap" >
-           <pixmap resource="quarkplayer.qrc" >:/icons/oxygen/16x16/devices/audio-card.png</pixmap>
-          </property>
          </widget>
         </item>
         <item>
@@ -414,9 +411,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="quarkplayer.qrc" />
- </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
