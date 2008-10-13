@@ -52,6 +52,15 @@ public:
 
 	~FileBrowserWidget();
 
+	QString name() const { return tr("File browser"); }
+	QString description() const { return tr("Add a left file browser panel"); }
+	QString version() const { return "0.0.1"; }
+	QString webpage() const { return "http://quarkplayer.googlecode.com/"; }
+	QString email() const { return "quarkplayer@googlegroups.com"; }
+	QString authors() const { return "Tanguy Krotoff"; }
+	QString license() const { return "GNU GPLv3"; }
+	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
+
 private slots:
 
 	void loadDirModel();

@@ -54,6 +54,8 @@ public:
 	 */
 	void addConfigWidget(IConfigWidget * configWidget);
 
+	void show();
+
 private slots:
 
 	void showConfigWidget(QTreeWidgetItem * item);
@@ -63,6 +65,8 @@ private slots:
 	void retranslate();
 
 private:
+
+	void readConfig();
 
 	void populateStackedWidget();
 

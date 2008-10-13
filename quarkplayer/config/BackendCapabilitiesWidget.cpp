@@ -67,10 +67,16 @@ void BackendCapabilitiesWidget::retranslate() {
 void BackendCapabilitiesWidget::updateCapabilities() {
 	//outputDevices
 	_ui->audioDevicesListView->setModel(new QStandardItemModel());
+
+//This code does not compile under MinGW :/
+//See comments inside phonon/objectdescriptionmodel.h
+//ICE means Internal Compiler Error
+#ifndef Q_CC_MINGW
 	Phonon::ObjectDescriptionModel<Phonon::AudioOutputDeviceType> * model =
 			new Phonon::ObjectDescriptionModel<Phonon::AudioOutputDeviceType>();
 	model->setModelData(Phonon::BackendCapabilities::availableAudioOutputDevices());
 	_ui->audioDevicesListView->setModel(model);
+#endif	//Q_CC_MINGW
 
 	//mimeTypes
 	_ui->mimeTypesListWidget->clear();

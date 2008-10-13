@@ -68,6 +68,16 @@ public:
 
 	void addPlaylistDockWidget(QDockWidget * widget);
 
+
+	QString name() const { return tr("Main window"); }
+	QString description() const { return tr("Main window"); }
+	QString version() const { return "0.0.1"; }
+	QString webpage() const { return "http://quarkplayer.googlecode.com/"; }
+	QString email() const { return "quarkplayer@googlegroups.com"; }
+	QString authors() const { return "Tanguy Krotoff"; }
+	QString license() const { return "GNU GPLv3"; }
+	QString copyright() const { return "Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>"; }
+
 signals:
 
 	void subtitleFileDropped(const QString & subtitle);

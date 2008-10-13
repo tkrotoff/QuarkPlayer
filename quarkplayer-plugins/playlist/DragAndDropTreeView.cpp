@@ -183,9 +183,42 @@ void DragAndDropTreeView::sendTo() {
 }
 
 void DragAndDropTreeView::clearSelection() {
+	//Algorithm a bit complex
+	//It contains optimization, that's why the indexList
+	//does not go from the first to the last
+	//but from the last to the first
+	//This simplifies the algorithm
+
 	QModelIndexList indexList = selectionModel()->selectedRows();
-	if (!indexList.isEmpty()) {
-		_playlistModel->removeRows(0, indexList.size());
+	int currentRow = -1;
+	int previousRow = -1;
+	QList<int> contiguousRows;
+	for (int i = indexList.size() - 1; i >= 0; i--) {
+		QModelIndex index = indexList[i];
+		QModelIndex sourceIndex(_playlistFilter->mapToSource(index));
+		currentRow = sourceIndex.row();
+
+		if (contiguousRows.isEmpty()) {
+			contiguousRows.prepend(currentRow);
+		} else {
+			if (currentRow == previousRow - 1) {
+				contiguousRows.prepend(currentRow);
+			} else {
+				qDebug() << "removeRows:" << contiguousRows.first() << contiguousRows.last();
+				_playlistModel->removeRows(contiguousRows.first(), contiguousRows.size());
+				contiguousRows.clear();
+				qDebug() << "removeRow:" << currentRow;
+				_playlistModel->removeRow(currentRow);
+			}
+		}
+
+		previousRow = currentRow;
+	}
+
+	if (!contiguousRows.isEmpty()) {
+		qDebug() << "removeRows:" << contiguousRows.first() << contiguousRows.last();
+		_playlistModel->removeRows(contiguousRows.first(), contiguousRows.size());
+		contiguousRows.clear();
 	}
 }
 

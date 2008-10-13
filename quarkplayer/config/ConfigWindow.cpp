@@ -82,16 +82,25 @@ void ConfigWindow::addConfigWidget(IConfigWidget * configWidget) {
 	populateStackedWidget();
 }
 
+void ConfigWindow::show() {
+	readConfig();
+	QDialog::show();
+}
+
+void ConfigWindow::readConfig() {
+	foreach (ConfigWidget tmp, _configWidgetList) {
+		tmp.configWidget->readConfig();
+	}
+}
+
 void ConfigWindow::populateStackedWidget() {
 	QTreeWidgetItem * pluginsItem = NULL;
 	bool firstTime = true;
 
-	//stackedWidget + read config for each config widget
 	TkStackedWidget::removeAllWidgets(_ui->stackedWidget);
 	_ui->treeWidget->clear();
 
 	foreach (ConfigWidget tmp, _configWidgetList) {
-		tmp.configWidget->readConfig();
 		QLayout * layout = tmp.configWidget->layout();
 		if (layout) {
 			layout->setMargin(0);

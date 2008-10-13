@@ -12,6 +12,7 @@
 - use MPlayer in slave mode and do not start a process for each file
 
 == NSIS ==
+- remove CPack support as it is not enough powerful (even for RPM and Debian)
 - add file association to NSIS installer via a QuarkPlayer command line
 - fix unworking uninstall when QuarkPlayer is running
 - make icons (desktop + quick toolbar) optionnal
@@ -50,6 +51,7 @@
 - implement shortcuts dialog
 - fix drag&drop inside MainWindow + command line
 - factorize FileBrowser and Playlist search
+- work on the log system, too minimalist right now
 
 == Future ==
 - add music visualization
@@ -67,3 +69,5 @@
 - add Magnatune support
 - add LastFm support
 - add Deezer support
+- add IPod support and others
+- fully configurable playlist (change headers order, sorting...)

@@ -45,6 +45,15 @@ public:
 
 	~PlayToolBar();
 
+	QString name() const { return tr("Play toolbar"); }
+	QString description() const { return tr("Toolbar that controls media playback (play, pause, stop...)"); }
+	QString version() const { return "0.0.1"; }
+	QString webpage() const { return "http://quarkplayer.googlecode.com/"; }
+	QString email() const { return "quarkplayer@googlegroups.com"; }
+	QString authors() const { return "Tanguy Krotoff"; }
+	QString license() const { return "GNU GPLv3"; }
+	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
+
 private slots:
 
 	void stateChanged(Phonon::State newState);

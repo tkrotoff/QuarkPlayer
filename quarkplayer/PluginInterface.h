@@ -37,19 +37,21 @@ public:
 
 	virtual ~PluginInterface();
 
-/*
 	virtual QString name() const = 0;
 
 	virtual QString description() const = 0;
 
 	virtual QString version() const = 0;
 
+	virtual QString webpage() const = 0;
+
+	virtual QString email() const = 0;
+
 	virtual QString authors() const = 0;
 
 	virtual QString license() const = 0;
 
 	virtual QString copyright() const = 0;
-*/
 
 protected:
 

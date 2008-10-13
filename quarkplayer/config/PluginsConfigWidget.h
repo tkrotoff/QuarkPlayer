@@ -48,7 +48,7 @@ public:
 
 private slots:
 
-	void stateButtonClicked(int row);
+	void currentCellChanged(int row, int column);
 
 private:
 

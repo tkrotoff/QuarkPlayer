@@ -60,6 +60,8 @@ public:
 
 	bool isPluginDisabled(const QString & filename) const;
 
+	PluginInterface * pluginInterface(const QString & filename) const;
+
 signals:
 
 	/**

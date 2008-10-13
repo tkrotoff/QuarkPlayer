@@ -46,6 +46,15 @@ public:
 
 	~StatusBar();
 
+	QString name() const { return tr("Status bar"); }
+	QString description() const { return tr("Status bar that gives informations"); }
+	QString version() const { return "0.0.1"; }
+	QString webpage() const { return "http://quarkplayer.googlecode.com/"; }
+	QString email() const { return "quarkplayer@googlegroups.com"; }
+	QString authors() const { return "Tanguy Krotoff"; }
+	QString license() const { return "GNU GPLv3"; }
+	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
+
 private slots:
 
 	void tick(qint64 time);

@@ -55,6 +55,8 @@ static const QString CURRENT_PLAYLIST = "/current_playlist.m3u";
 
 static const int POSITION_INVALID = -1;
 
+static const char * PLAYLIST_TRACK_DISPLAY_MODE_KEY = "playlist_track_display_mode";
+
 PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 	: QAbstractItemModel(parent),
 	_quarkPlayer(quarkPlayer) {
@@ -71,6 +73,8 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 	//Optimization: loads the playlist only when all plugins have been loaded
 	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
 		SLOT(loadCurrentPlaylist()), Qt::QueuedConnection);
+
+	Config::instance().addKey(PLAYLIST_TRACK_DISPLAY_MODE_KEY, TrackDisplayModeNormal);
 }
 
 PlaylistModel::~PlaylistModel() {
@@ -232,6 +236,14 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 	addFiles(files, row);
 	saveCurrentPlaylist();
 
+	/*if (_position >= row) {
+		if (_position <= row + count - 1) {
+			setPosition(POSITION_INVALID);
+		} else {
+			_position -= count;
+		}
+	}*/
+
 	return true;
 }
 
@@ -294,26 +306,27 @@ void PlaylistModel::searchfinished(int timeElapsed) {
 }
 
 bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
-	if (row == _position) {
-		_position = (-1) * count;
-	}
-
-	beginRemoveRows(QModelIndex(), row, row + count - 1);
+	bool success = false;
+	beginRemoveRows(parent, row, row + count - 1);
 	for (int i = 0; i < count; i++) {
-
-		if (row < _position) {
-			_position--;
-		}
-
 		//Remove from the list of filenames
 		_filenames.removeAt(row);
+		success = true;
 	}
 	endRemoveRows();
 
 	//Save current playlist each time we remove files from it
 	saveCurrentPlaylist();
 
-	return true;
+	if (_position >= row) {
+		if (_position <= row + count - 1) {
+			setPosition(POSITION_INVALID);
+		} else {
+			_position -= count;
+		}
+	}
+
+	return success;
 }
 
 void PlaylistModel::loadCurrentPlaylist() {
@@ -392,10 +405,19 @@ void PlaylistModel::updateMediaInfo() {
 			if (track.fileName() == _mediaInfoFetcher->fileName() &&
 				!track.mediaDataResolved()) {
 
-				//Display track numbers like Winamp
-				//track.setTrackNumber(QString::number(_mediaInfoFetcherRow));
+				TrackDisplayMode trackDisplayMode = static_cast<TrackDisplayMode>(Config::instance().value(PLAYLIST_TRACK_DISPLAY_MODE_KEY).toInt());
+				switch (trackDisplayMode) {
+				case TrackDisplayModeNormal:
+					track.setTrackNumber(_mediaInfoFetcher->trackNumber());
+					break;
+				case TrackDisplayModeWinamp:
+					//Display track numbers like Winamp
+					track.setTrackNumber(QString::number(_mediaInfoFetcherRow));
+					break;
+				default:
+					qCritical() << __FUNCTION__ << "Error: unknown TrackDisplayMode:" << trackDisplayMode;
+				}
 
-				track.setTrackNumber(_mediaInfoFetcher->trackNumber());
 				track.setTitle(_mediaInfoFetcher->title());
 				track.setArtist(_mediaInfoFetcher->artist());
 				track.setAlbum(_mediaInfoFetcher->album());
@@ -450,7 +472,7 @@ void PlaylistModel::enqueue(int position) {
 	if (position != POSITION_INVALID) {
 		//Important to clear the queue: otherwise we can get some strange behaviors
 		//One never knows what is inside the queue of the backend,
-		//better to erase it and to be sure
+		//better to erase it and be sure
 		_quarkPlayer.currentMediaObject()->clearQueue();
 		_quarkPlayer.currentMediaObject()->enqueue(Phonon::MediaSource(_filenames[position].fileName()));
 	} else {
@@ -459,15 +481,17 @@ void PlaylistModel::enqueue(int position) {
 }
 
 void PlaylistModel::setPosition(int position) {
+	static int lastValidPosition = POSITION_INVALID;
+
+	_position = position;
+
 	if (position != POSITION_INVALID) {
-		if (_position != position) {
-			_position = position;
-			emit dataChanged(this->index(_position, PlaylistModel::COLUMN_FIRST),
-				this->index(_position, PlaylistModel::COLUMN_LAST));
-		}
-	} else {
-		qCritical() << __FUNCTION__ << "Error: the position is invalid";
+		lastValidPosition = _position;
 	}
+
+	//Update graphically the last valid position
+	emit dataChanged(this->index(lastValidPosition, PlaylistModel::COLUMN_FIRST),
+		this->index(lastValidPosition, PlaylistModel::COLUMN_LAST));
 }
 
 int PlaylistModel::position() const {

@@ -136,6 +136,11 @@ private slots:
 
 private:
 
+	enum TrackDisplayMode {
+		TrackDisplayModeNormal,
+		TrackDisplayModeWinamp
+	};
+
 	void clearInternal();
 
 	QuarkPlayer & _quarkPlayer;

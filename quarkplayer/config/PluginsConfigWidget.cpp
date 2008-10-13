@@ -30,10 +30,11 @@
 #include <QtCore/QPluginLoader>
 #include <QtCore/QDebug>
 
-static const int FILENAME_COLUMN = 0;
-static const int NAME_COLUMN = 1;
-static const int VERSION_COLUMN = 2;
-static const int STATE_COLUMN = 3;
+static const int CHECKBOX_COLUMN = 0;
+static const int FILENAME_COLUMN = 1;
+static const int NAME_COLUMN = 2;
+static const int VERSION_COLUMN = 3;
+static const int STATE_COLUMN = 4;
 
 PluginsConfigWidget::PluginsConfigWidget() {
 	_ui = new Ui::PluginsConfigWidget();
@@ -41,6 +42,9 @@ PluginsConfigWidget::PluginsConfigWidget() {
 
 	_ui->tableWidget->setColumnWidth(STATE_COLUMN, 100);
 	_ui->tableWidget->verticalHeader()->hide();
+
+	connect(_ui->tableWidget, SIGNAL(currentCellChanged(int, int, int, int)),
+		this, SLOT(currentCellChanged(int, int)));
 }
 
 PluginsConfigWidget::~PluginsConfigWidget() {
@@ -67,26 +71,33 @@ void PluginsConfigWidget::readConfig() {
 
 		_ui->tableWidget->setItem(row, FILENAME_COLUMN, new QTableWidgetItem(filename));
 
-		QToolButton * stateButton = new QToolButton();
-		_ui->tableWidget->setCellWidget(row, STATE_COLUMN, stateButton);
-		QSignalMapper * signalMapper = new QSignalMapper(this);
-		signalMapper->setMapping(stateButton, row);
-		connect(signalMapper, SIGNAL(mapped(int)), SLOT(stateButtonClicked(int)));
-		connect(stateButton, SIGNAL(clicked()), signalMapper, SLOT(map()));
+		PluginInterface * interface = PluginManager::instance().pluginInterface(filename);
+		if (interface) {
+			_ui->tableWidget->setItem(row, NAME_COLUMN, new QTableWidgetItem(interface->name()));
+			_ui->tableWidget->setItem(row, VERSION_COLUMN, new QTableWidgetItem(interface->version()));
+		} else {
+			_ui->tableWidget->setItem(row, NAME_COLUMN, new QTableWidgetItem(""));
+			_ui->tableWidget->setItem(row, VERSION_COLUMN, new QTableWidgetItem(""));
+		}
+
+		QCheckBox * checkBox = new QCheckBox();
+		_ui->tableWidget->setCellWidget(row, CHECKBOX_COLUMN, checkBox);
 
 		if (PluginManager::instance().isPluginDisabled(filename)) {
 			//Don't proceed plugins that are blacklisted
-			stateButton->setText(tr("Disabled"));
+			checkBox->setChecked(false);
+			_ui->tableWidget->setItem(row, STATE_COLUMN, new QTableWidgetItem(tr("Disabled")));
 			//Red
 			//stateButton->setStyleSheet("background-color: rgb(255, 0, 0);");
 		} else {
 			if (PluginManager::instance().isPluginLoaded(filename)) {
-				stateButton->setText(tr("Enabled"));
+				checkBox->setChecked(true);
+				_ui->tableWidget->setItem(row, STATE_COLUMN, new QTableWidgetItem(tr("Enabled")));
 				//Green
 				//stateButton->setStyleSheet("background-color: rgb(0, 170, 0);");
 			} else {
-				stateButton->setText(tr("Error"));
-				stateButton->setEnabled(false);
+				checkBox->setChecked(false);
+				_ui->tableWidget->setItem(row, STATE_COLUMN, new QTableWidgetItem(tr("Error")));
 				//Red
 				//stateButton->setStyleSheet("background-color: rgb(255, 0, 0);");
 			}
@@ -95,62 +106,64 @@ void PluginsConfigWidget::readConfig() {
 		row++;
 	}
 
+	_ui->tableWidget->resizeColumnToContents(CHECKBOX_COLUMN);
 	_ui->tableWidget->resizeColumnToContents(FILENAME_COLUMN);
 	_ui->tableWidget->resizeColumnToContents(NAME_COLUMN);
 	_ui->tableWidget->resizeColumnToContents(VERSION_COLUMN);
+	_ui->tableWidget->resizeColumnToContents(STATE_COLUMN);
 	_ui->tableWidget->resizeRowsToContents();
 }
 
 void PluginsConfigWidget::saveConfig() {
 	for (int row = 0; row < _ui->tableWidget->rowCount(); row++) {
-		QToolButton * stateButton = qobject_cast<QToolButton *>(_ui->tableWidget->cellWidget(row, STATE_COLUMN));
-		if (!stateButton) {
-			//No state button widget
-			qCritical() << __FUNCTION__ << "Error: couldn't get the state button:" << sender();
-			continue;
+		QCheckBox * checkBox = qobject_cast<QCheckBox *>(_ui->tableWidget->cellWidget(row, CHECKBOX_COLUMN));
+		if (!checkBox) {
+			//No checkbox
+			qCritical() << __FUNCTION__ << "Error: couldn't get the checkbox";
+			return;
 		}
 
 		QTableWidgetItem * item = _ui->tableWidget->item(row, FILENAME_COLUMN);
 		QString filename(item->text());
 
-		qDebug() << row << filename << stateButton->text() << stateButton;
-
-		if (stateButton->text() == tr("Disable")) {
-			//Unloads the plugin
-			PluginManager::instance().disablePlugin(filename);
-			PluginManager::instance().deletePlugin(filename);
-		} else if (stateButton->text() == tr("Enable")) {
+		bool loaded = PluginManager::instance().isPluginLoaded(filename);
+		if (checkBox->isChecked() && !loaded) {
 			//Loads the plugin
 			PluginManager::instance().enablePlugin(filename);
 			PluginManager::instance().loadPlugin(filename);
+		} else if (!checkBox->isChecked() && loaded) {
+			//Unloads the plugin
+			PluginManager::instance().disablePlugin(filename);
+			PluginManager::instance().deletePlugin(filename);
 		}
 	}
 }
 
-void PluginsConfigWidget::stateButtonClicked(int row) {
-	QToolButton * stateButton = qobject_cast<QToolButton *>(_ui->tableWidget->cellWidget(row, STATE_COLUMN));
-	if (!stateButton) {
-		//No state button widget
-		qCritical() << __FUNCTION__ << "Error: couldn't get the state button:" << sender();
-		return;
-	}
+void PluginsConfigWidget::retranslate() {
+	_ui->retranslateUi(this);
+}
 
+void PluginsConfigWidget::currentCellChanged(int row, int column) {
 	QTableWidgetItem * item = _ui->tableWidget->item(row, FILENAME_COLUMN);
 	QString filename(item->text());
 
-	if (PluginManager::instance().isPluginLoaded(filename)) {
-		//Unloads the plugin
-		stateButton->setText(tr("Disable"));
+	PluginInterface * interface = PluginManager::instance().pluginInterface(filename);
+	if (interface) {
+		_ui->descriptionGroupBox->setTitle(interface->name());
+		_ui->descriptionLabel->setText(interface->description());
+		_ui->webpageLabel->setText("<a href=\"" + interface->webpage() + "\">" + interface->webpage() + "</a>");
+		_ui->emailLabel->setText("<a href=\"mailto:" + interface->email() +
+				"?subject=[QuarkPlayer plugin] " + filename + "\">" + interface->email() + "</a>");
+		_ui->authorsLabel->setText(interface->authors());
+		_ui->licenseLabel->setText(interface->license());
+		_ui->copyrightLabel->setText(interface->copyright());
 	} else {
-		//Loads the plugin
-		stateButton->setText(tr("Enable"));
+		_ui->descriptionGroupBox->setTitle(filename + tr(": plugin not loaded"));
+		_ui->descriptionLabel->setText("");
+		_ui->webpageLabel->setText("");
+		_ui->emailLabel->setText("");
+		_ui->authorsLabel->setText("");
+		_ui->licenseLabel->setText("");
+		_ui->copyrightLabel->setText("");
 	}
-
-	//_ui->tableWidget->setCellWidget(row, STATE_COLUMN, stateButton);
-
-	qDebug() << "z" << row << filename << stateButton->text() << stateButton;
-}
-
-void PluginsConfigWidget::retranslate() {
-	_ui->retranslateUi(this);
 }

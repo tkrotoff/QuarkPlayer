@@ -147,9 +147,7 @@ bool PluginManager::deletePlugin(const QString & filename) {
 
 void PluginManager::enablePlugin(const QString & filename) const {
 	QStringList pluginsDisabled = Config::instance().pluginsDisabled();
-	qDebug() << "before:" << pluginsDisabled;
 	pluginsDisabled.removeAll(filename);
-	qDebug() << "after:" << pluginsDisabled;
 	Config::instance().setValue(Config::PLUGINS_DISABLED_KEY, pluginsDisabled);
 }
 
@@ -172,4 +170,13 @@ bool PluginManager::isPluginLoaded(const QString & filename) const {
 
 bool PluginManager::isPluginDisabled(const QString & filename) const {
 	return Config::instance().pluginsDisabled().contains(filename);
+}
+
+PluginInterface * PluginManager::pluginInterface(const QString & filename) const {
+	PluginInterface * interface = NULL;
+	if (_pluginMap.contains(filename)) {
+		PluginData pluginData = _pluginMap[filename];
+		interface = pluginData.interface;
+	}
+	return interface;
 }
