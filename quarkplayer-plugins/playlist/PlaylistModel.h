@@ -57,6 +57,8 @@ public:
 
 	~PlaylistModel();
 
+	static const int APPEND_FILES;
+
 	/**
 	 * Adds files to the model.
 	 *
@@ -65,9 +67,9 @@ public:
 	 * The list of files can contain directory, addFiles() will go recursive to find all the files.
 	 *
 	 * @param files files to add to the model
-	 * @param row location in the model where to add the files; if -1 then append the files
+	 * @param row location in the model where to add the files; if APPEND_FILES then append the files
 	 */
-	void addFiles(const QStringList & files, int row = -1);
+	void addFiles(const QStringList & files, int row = APPEND_FILES);
 
 	/**
 	 * Plays the file at the given position.
@@ -173,6 +175,13 @@ private:
 	int _rowWhereToInsertFiles;
 
 	int _nbFindFiles;
+
+	/**
+	 * The rows drag and droped internaly.
+	 * This is needed for detecting we the current playlist row
+	 * is being drag and droped.
+	 */
+	mutable QList<int> _dragAndDropRows;
 };
 
 #endif	//PLAYLISTMODEL_H

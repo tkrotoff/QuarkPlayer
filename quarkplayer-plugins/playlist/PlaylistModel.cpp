@@ -54,6 +54,7 @@ static const int COLUMN_COUNT = 5;
 static const QString CURRENT_PLAYLIST = "/current_playlist.m3u";
 
 static const int POSITION_INVALID = -1;
+const int PlaylistModel::APPEND_FILES = -1;
 
 static const char * PLAYLIST_TRACK_DISPLAY_MODE_KEY = "playlist_track_display_mode";
 
@@ -234,15 +235,6 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 	}
 
 	addFiles(files, row);
-	saveCurrentPlaylist();
-
-	/*if (_position >= row) {
-		if (_position <= row + count - 1) {
-			setPosition(POSITION_INVALID);
-		} else {
-			_position -= count;
-		}
-	}*/
 
 	return true;
 }
@@ -275,11 +267,11 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 
 	if (!filenameList.isEmpty()) {
 		int first = 0;
-		if (row == -1) {
-			//row == -1 means append the files
+		if (row == APPEND_FILES) {
+			//row == APPEND_FILES means append the files
 			first = _filenames.size();
 		} else {
-			//row != -1 means we have a specific row location where to add the files
+			//row != APPEND_FILES means we have a specific row location where to add the files
 			first = row;
 		}
 		int last = first + filenameList.size() - 1;
@@ -291,6 +283,30 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 			currentRow++;
 		}
 		endInsertRows();
+
+		//Save current playlist each time we add files to it
+		saveCurrentPlaylist();
+
+		//Change current playing position
+		bool positionAlreadyChanged = false;
+		foreach(int dragAndDropRow, _dragAndDropRows) {
+			if (_position == dragAndDropRow) {
+				//This means the current playing media is getting drag and droped
+				int firstRow = _dragAndDropRows.first();
+				int offset = dragAndDropRow - firstRow;
+				setPosition(first + offset);
+				positionAlreadyChanged = true;
+				break;
+			}
+		}
+		if (!positionAlreadyChanged) {
+			int count = filenameList.size();
+			if (_position != POSITION_INVALID && row != APPEND_FILES) {
+				if (_position >= row) {
+					_position += count;
+				}
+			}
+		}
 	}
 }
 
@@ -319,6 +335,7 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
 	//Save current playlist each time we remove files from it
 	saveCurrentPlaylist();
 
+	//Change current playing position
 	if (_position >= row) {
 		if (_position <= row + count - 1) {
 			setPosition(POSITION_INVALID);
@@ -368,15 +385,18 @@ QStringList PlaylistModel::fileNames() const {
 }
 
 QMimeData * PlaylistModel::mimeData(const QModelIndexList & indexes) const {
+	_dragAndDropRows.clear();
 	QMimeData * mimeData = new QMimeData();
 	QStringList files;
 	foreach (QModelIndex index, indexes) {
 		//Number of index is the number of columns
 		//Here we have 5 columns, we only want to select 1 column per row
 		if (index.column() == COLUMN_TITLE) {
-			QString filename(_filenames[index.row()].fileName());
+			int dragAndDropRow = index.row();
+			QString filename(_filenames[dragAndDropRow].fileName());
 			if (!filename.isEmpty()) {
 				files << filename;
+				_dragAndDropRows += dragAndDropRow;
 			}
 		}
 	}
@@ -448,7 +468,7 @@ void PlaylistModel::clearInternal() {
 	_filenames.clear();
 	_position = POSITION_INVALID;
 	_mediaInfoFetcherRow = POSITION_INVALID;
-	_rowWhereToInsertFiles = POSITION_INVALID;
+	_rowWhereToInsertFiles = APPEND_FILES;
 	_nbFindFiles = 0;
 }
 
