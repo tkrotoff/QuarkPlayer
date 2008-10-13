@@ -21,6 +21,8 @@
 
 #include <tkutil/tkutil_export.h>
 
+#include <tkutil/Singleton.h>
+
 #include <QtCore/QString>
 #include <QtCore/QTranslator>
 
@@ -39,13 +41,9 @@
  * @see QTranslator
  * @author Tanguy Krotoff
  */
-class TKUTIL_API Translator {
+class TKUTIL_API Translator : public Singleton<Translator> {
+	friend class Singleton<Translator>;
 public:
-
-	/** Singleton. */
-	static Translator & instance();
-
-	~Translator();
 
 	/**
 	 * Sets the path containing the translations (*.ts files).
@@ -59,6 +57,9 @@ public:
 	/**
 	 * Loads a locale (i.e en, fr...).
 	 *
+	 * Checks if the given locale has not been already loaded.
+	 * In this case, it will not load the same locale several times.
+	 *
 	 * Example:
 	 * <pre>
 	 * Translator::instance().load("fr");
@@ -68,17 +69,15 @@ public:
 
 private:
 
+	Translator();
+
+	~Translator();
+
 	bool loadLocale(QTranslator & translator, const QString & name, const QString & locale, const QString & translationsPath);
 
 	void install();
 
 	void remove();
-
-	/** Singleton. */
-	Translator();
-
-	/** Singleton. */
-	static Translator * _instance;
 
 	QTranslator _appTranslator;
 
@@ -88,6 +87,8 @@ private:
 
 	/** Path to the translations. */
 	QString _translationsPath;
+
+	QString _lastLoadedLocale;
 };
 
 #endif	//TRANSLATOR_H

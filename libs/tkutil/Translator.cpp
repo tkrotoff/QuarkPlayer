@@ -24,17 +24,6 @@
 #include <QtCore/QTranslator>
 #include <QtCore/QDebug>
 
-Translator * Translator::_instance = NULL;
-
-Translator & Translator::instance() {
-	//Lazy initialization
-	if (!_instance) {
-		_instance = new Translator();
-	}
-
-	return *_instance;
-}
-
 Translator::Translator() {
 	_translatorInstalled = false;
 
@@ -64,6 +53,11 @@ void Translator::remove() {
 void Translator::load(const QString & locale) {
 	if (!_translatorInstalled) {
 		install();
+	}
+
+	if (locale == _lastLoadedLocale) {
+		qWarning() << __FUNCTION__ << "Locale already loaded:" << locale;
+		return;
 	}
 
 	QString myLocale = locale;
@@ -96,6 +90,7 @@ bool Translator::loadLocale(QTranslator & translator, const QString & name, cons
 	if (!ret) {
 		qDebug() << __FUNCTION__ << "Error: couldn't load translation:" << filename << "from:" << translationsPath;
 	} else {
+		_lastLoadedLocale = locale;
 		qDebug() << __FUNCTION__ << "Translation loaded:" << filename << "from:" << translationsPath;
 	}
 	return ret;

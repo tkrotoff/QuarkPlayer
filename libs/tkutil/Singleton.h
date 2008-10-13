@@ -24,6 +24,23 @@
  *
  * Becareful in multi-threaded environment: this class does not contain a mutex.
  *
+ * Example:
+ * <pre>
+ * #include <tkutil/Singleton.h>
+ *
+ * class MyClass : public Singleton<MyClass> {
+ * 	friend class Singleton<MyClass>;
+ * public:
+ *
+ * 	void doSomething();
+ *
+ * private:
+ *
+ * 	MyClass();
+ * 	~MyClass();
+ * };
+ * </pre>
+ *
  * @author Tanguy Krotoff
  */
 template<typename T>
