@@ -252,6 +252,7 @@ void PlaylistModel::filesFound(const QStringList & files) {
 }
 
 void PlaylistModel::addFiles(const QStringList & files, int row) {
+	_rowWhereToInsertFiles = row;
 	QStringList filenameList;
 	foreach (QString filename, files) {
 		bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(

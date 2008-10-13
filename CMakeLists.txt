@@ -5,7 +5,7 @@ project(quarkplayer)
 
 set(QUARKPLAYER_MAJOR_VERSION 0)
 set(QUARKPLAYER_MINOR_VERSION 2)
-set(QUARKPLAYER_PATCH_VERSION 2)
+set(QUARKPLAYER_PATCH_VERSION 3)
 
 #Add options values
 include(Options.cmake)
