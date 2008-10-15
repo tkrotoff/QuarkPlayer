@@ -61,6 +61,7 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	populateActionCollection();
 	createToolBar();
 
+	//TreeView
 	_treeView = new FileBrowserTreeView(quarkPlayer);
 	layout->addWidget(_treeView);
 
@@ -102,12 +103,7 @@ void FileBrowserWidget::createToolBar() {
 	//Copy-paste from PlaylistWidget.cpp
 	_searchLineEdit = new QLineEdit();
 	_toolBar->addWidget(_searchLineEdit);
-	_searchTimer = new QTimer(this);
-	_searchTimer->setSingleShot(true);
-	_searchTimer->setInterval(700);
-	connect(_searchTimer, SIGNAL(timeout()), SLOT(search()));
-	connect(_searchLineEdit, SIGNAL(returnPressed()), SLOT(search()));
-	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(searchChanged()));
+	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search()));
 	_clearSearchButton = new QToolButton();
 	_clearSearchButton->setAutoRaise(true);
 	_clearSearchButton->setDefaultAction(ActionCollection::action("fileBrowserClearSearch"));
@@ -171,16 +167,11 @@ void FileBrowserWidget::loadDirModel() {
 	_treeView->setDragEnabled(true);
 }
 
-void FileBrowserWidget::searchChanged() {
-	_searchTimer->stop();
-	_searchTimer->start();
-}
-
 void FileBrowserWidget::search() {
-	_searchTimer->stop();
 	QString pattern(_searchLineEdit->text().trimmed());
 	_clearSearchButton->setEnabled(!pattern.isEmpty());
 	if (pattern.isEmpty()) {
+		setWindowTitle(QString());
 		_treeView->setRootIsDecorated(true);
 
 		_treeView->setModel(_dirModel);
@@ -191,10 +182,7 @@ void FileBrowserWidget::search() {
 		}
 
 	} else {
-		QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
-		if (statusBar) {
-			statusBar->showMessage(tr("Searching..."));
-		}
+		setWindowTitle(tr("Searching..."));
 		_treeView->setRootIsDecorated(false);
 
 		if (!_fileSearchModel) {
@@ -210,8 +198,12 @@ void FileBrowserWidget::search() {
 		extensions << FileTypes::extensions(FileType::Playlist);
 
 		QString tmp;
-		foreach (QString word, pattern.split(' ')) {
-			tmp += '(' + word + ')' + ".*";
+		QStringList words(pattern.split(' '));
+		for (int i = 0; i < words.size(); i++) {
+			tmp += '(' + words[i] + ')';
+			if (i < words.size() - 1) {
+				tmp += ".*";
+			}
 		}
 		qDebug() << __FUNCTION__ << tmp;
 
@@ -222,11 +214,8 @@ void FileBrowserWidget::search() {
 }
 
 void FileBrowserWidget::searchFinished(int timeElapsed) {
-	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
-	if (statusBar) {
-		statusBar->showMessage(tr("Search finished:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
+	setWindowTitle(tr("Search finished:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
 			" (" + QString::number(_fileSearchModel->rowCount()) + " " + tr("medias") + ")");
-	}
 }
 
 void FileBrowserWidget::configure() {
@@ -262,7 +251,19 @@ void FileBrowserWidget::retranslate() {
 
 	_toolBar->setMinimumSize(_toolBar->sizeHint());
 
-	_dockWidget->setWindowTitle(tr("File Browser"));
+	setWindowTitle(QString());
+}
+
+void FileBrowserWidget::setWindowTitle(const QString & statusMessage) {
+	if (statusMessage.isEmpty()) {
+		_dockWidget->setWindowTitle(tr("File Browser"));
+	} else {
+		_dockWidget->setWindowTitle(statusMessage);
+		QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
+		if (statusBar) {
+			statusBar->showMessage(statusMessage);
+		}
+	}
 }
 
 void FileBrowserWidget::configWindowCreated(ConfigWindow * configWindow) {

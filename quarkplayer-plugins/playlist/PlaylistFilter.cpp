@@ -35,6 +35,8 @@ PlaylistFilter::PlaylistFilter(QObject * parent, PlaylistModel * playlistModel)
 	_repeat = false;
 	_previousPosition = POSITION_INVALID;
 
+	setSortCaseSensitivity(Qt::CaseInsensitive);
+
 	setSourceModel(_playlistModel);
 }
 

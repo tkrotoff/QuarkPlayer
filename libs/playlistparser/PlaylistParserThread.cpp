@@ -34,12 +34,14 @@ PlaylistParserThread::~PlaylistParserThread() {
 
 void PlaylistParserThread::load() {
 	_load = true;
+	stop();
 	start();
 }
 
 void PlaylistParserThread::save(const QStringList & files) {
 	_save = true;
 	_files = files;
+	stop();
 	start();
 }
 
@@ -58,5 +60,6 @@ void PlaylistParserThread::run() {
 void PlaylistParserThread::stop() {
 	if (_parser) {
 		_parser->stop();
+		wait();
 	}
 }

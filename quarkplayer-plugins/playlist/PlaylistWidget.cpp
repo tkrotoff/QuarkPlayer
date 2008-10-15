@@ -60,9 +60,9 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	connect(_playlistModel, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
 		SLOT(updateWindowTitle()));
 	connect(_playlistModel, SIGNAL(playlistLoaded(int)),
-			SLOT(playlistLoaded(int)));
+		SLOT(playlistLoaded(int)));
 	connect(_playlistModel, SIGNAL(playlistSaved(int)),
-			SLOT(playlistSaved(int)));
+		SLOT(playlistSaved(int)));
 
 	//Filter
 	_playlistFilter = new PlaylistFilter(this, _playlistModel);
@@ -76,7 +76,6 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 	setLayout(layout);
 	layout->setMargin(0);
 	layout->setSpacing(0);
-	layout->addWidget(_treeView);
 
 	//Default column sizes
 	_treeView->resizeColumnToContents(PlaylistModel::COLUMN_TRACK);
@@ -87,6 +86,8 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer)
 
 	populateActionCollection();
 	createToolBar();
+
+	layout->addWidget(_treeView);
 
 	//Add to the main window
 	_dockWidget = new QDockWidget();
@@ -107,6 +108,27 @@ void PlaylistWidget::createToolBar() {
 	_toolBar = new QToolBar(NULL);
 	_toolBar->setIconSize(QSize(16, 16));
 	layout()->addWidget(_toolBar);
+
+	_toolBar->addAction(ActionCollection::action("playlistShuffle"));
+	connect(ActionCollection::action("playlistShuffle"), SIGNAL(toggled(bool)), _playlistFilter, SLOT(setShuffle(bool)));
+	_toolBar->addAction(ActionCollection::action("playlistRepeat"));
+	connect(ActionCollection::action("playlistRepeat"), SIGNAL(toggled(bool)), _playlistFilter, SLOT(setRepeat(bool)));
+
+	_toolBar->addAction(ActionCollection::action("playlistJumpToCurrent"));
+	connect(ActionCollection::action("playlistJumpToCurrent"), SIGNAL(triggered()), SLOT(jumpToCurrent()));
+
+	//Search toolbar
+	//Copy-paste from FileBrowserWidget.cpp
+	_searchLineEdit = new QLineEdit();
+	_toolBar->addWidget(_searchLineEdit);
+	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search()));
+	_clearSearchButton = new QToolButton();
+	_clearSearchButton->setAutoRaise(true);
+	_clearSearchButton->setDefaultAction(ActionCollection::action("playlistClearSearch"));
+	_toolBar->addWidget(_clearSearchButton);
+	connect(_clearSearchButton, SIGNAL(clicked()), _searchLineEdit, SLOT(clear()));
+
+	_toolBar->addSeparator();
 
 	_toolBar->addAction(ActionCollection::action("playlistOpen"));
 	connect(ActionCollection::action("playlistOpen"), SIGNAL(triggered()), SLOT(openPlaylist()));
@@ -144,29 +166,7 @@ void PlaylistWidget::createToolBar() {
 	connect(ActionCollection::action("playlistRemoveAll"), SIGNAL(triggered()), SLOT(updateWindowTitle()));
 	removeButton->setMenu(removeMenu);
 
-	_toolBar->addAction(ActionCollection::action("playlistShuffle"));
-	connect(ActionCollection::action("playlistShuffle"), SIGNAL(toggled(bool)), _playlistFilter, SLOT(setShuffle(bool)));
-	_toolBar->addAction(ActionCollection::action("playlistRepeat"));
-	connect(ActionCollection::action("playlistRepeat"), SIGNAL(toggled(bool)), _playlistFilter, SLOT(setRepeat(bool)));
-
-	_toolBar->addAction(ActionCollection::action("playlistJumpToCurrent"));
-	connect(ActionCollection::action("playlistJumpToCurrent"), SIGNAL(triggered()), SLOT(jumpToCurrent()));
-
-	//Search toolbar
-	//Copy-paste from FileBrowserWidget.cpp
-	_searchLineEdit = new QLineEdit();
-	_toolBar->addWidget(_searchLineEdit);
-	_searchTimer = new QTimer(this);
-	_searchTimer->setSingleShot(true);
-	_searchTimer->setInterval(700);
-	connect(_searchTimer, SIGNAL(timeout()), SLOT(search()));
-	connect(_searchLineEdit, SIGNAL(returnPressed()), SLOT(search()));
-	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(searchChanged()));
-	_clearSearchButton = new QToolButton();
-	_clearSearchButton->setAutoRaise(true);
-	_clearSearchButton->setDefaultAction(ActionCollection::action("playlistClearSearch"));
-	_toolBar->addWidget(_clearSearchButton);
-	connect(_clearSearchButton, SIGNAL(clicked()), _searchLineEdit, SLOT(clear()));
+	_toolBar->addSeparator();
 
 	_toolBar->addAction(ActionCollection::action("playlistNew"));
 	connect(ActionCollection::action("playlistNew"), SIGNAL(triggered()), SLOT(createNewPlaylistWidget()));
@@ -241,12 +241,8 @@ void PlaylistWidget::retranslate() {
 	ActionCollection::action("playlistNew")->setIcon(TkIcon("window-new"));
 
 	_toolBar->setMinimumSize(_toolBar->sizeHint());
-	updateWindowTitle();
-}
 
-void PlaylistWidget::updateWindowTitle() {
-	QString nbItems(QString::number(_playlistModel->rowCount()));
-	_dockWidget->setWindowTitle(tr("Playlist") + " - " + nbItems + " " + tr("items"));
+	updateWindowTitle();
 }
 
 void PlaylistWidget::addFiles() {
@@ -315,18 +311,25 @@ void PlaylistWidget::parserFilesFound(const QStringList & files) {
 }
 
 void PlaylistWidget::playlistLoaded(int timeElapsed) {
-	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
-	if (statusBar) {
-		statusBar->showMessage(tr("Playlist loaded:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
+	updateWindowTitle(tr("Playlist loaded:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
 			" (" + QString::number(_playlistModel->rowCount()) + " " + tr("medias") + ")");
-	}
 }
 
 void PlaylistWidget::playlistSaved(int timeElapsed) {
+	updateWindowTitle(tr("Playlist saved:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
+			" (" + QString::number(_playlistModel->rowCount()) + " " + tr("medias") + ")");
+}
+
+void PlaylistWidget::updateWindowTitle(const QString & statusMessage) {
+	QString nbMedias(QString::number(_playlistModel->rowCount()));
+	QString windowTitle(nbMedias + " " + tr("medias"));
+	if (!statusMessage.isEmpty()) {
+		windowTitle += " - " + statusMessage;
+	}
+	_dockWidget->setWindowTitle(windowTitle);
 	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
 	if (statusBar) {
-		statusBar->showMessage(tr("Playlist saved:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
-			" (" + QString::number(_playlistModel->rowCount()) + " " + tr("medias") + ")");
+		statusBar->showMessage(statusMessage);
 	}
 }
 
@@ -423,26 +426,25 @@ void PlaylistWidget::jumpToCurrent() {
 	_treeView->scrollTo(_playlistFilter->mapFromSource(index), QAbstractItemView::PositionAtCenter);
 }
 
-void PlaylistWidget::searchChanged() {
-	_searchTimer->stop();
-	_searchTimer->start();
-}
-
 void PlaylistWidget::search() {
 	QTime timeElapsed;
 	timeElapsed.start();
 
-	_searchTimer->stop();
 	QString pattern(_searchLineEdit->text().trimmed());
 	_clearSearchButton->setEnabled(!pattern.isEmpty());
-	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
-	if (statusBar && !pattern.isEmpty()) {
-		statusBar->showMessage(tr("Searching..."));
+	if (!pattern.isEmpty()) {
+		updateWindowTitle(tr("Searching..."));
+	} else {
+		updateWindowTitle();
 	}
 
 	QString tmp;
-	foreach (QString word, pattern.split(' ')) {
-		tmp += '(' + word + ')' + ".*";
+	QStringList words(pattern.split(' '));
+	for (int i = 0; i < words.size(); i++) {
+		tmp += '(' + words[i] + ')';
+		if (i < words.size() - 1) {
+			tmp += ".*";
+		}
 	}
 	qDebug() << __FUNCTION__ << tmp;
 
@@ -453,8 +455,10 @@ void PlaylistWidget::search() {
 	//FIXME Does not work
 	//_treeView->repaint();
 
-	if (statusBar && !pattern.isEmpty()) {
-		statusBar->showMessage(tr("Search finished:") + ' ' + QString::number((float) timeElapsed.elapsed() / 1000) + ' ' + tr("seconds") +
+	if (!pattern.isEmpty()) {
+		updateWindowTitle(tr("Search finished:") + ' ' + QString::number((float) timeElapsed.elapsed() / 1000) + ' ' + tr("seconds") +
 			" (" + QString::number(_playlistFilter->rowCount()) + " " + tr("medias") + ")");
+	} else {
+		updateWindowTitle();
 	}
 }

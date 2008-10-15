@@ -34,7 +34,6 @@ class QToolBar;
 class QDockWidget;
 class QLineEdit;
 class QToolButton;
-class QTimer;
 
 /**
  * File browser widget inside QuarkPlayer main window.
@@ -58,14 +57,12 @@ public:
 	QString webpage() const { return "http://quarkplayer.googlecode.com/"; }
 	QString email() const { return "quarkplayer@googlegroups.com"; }
 	QString authors() const { return "Tanguy Krotoff"; }
-	QString license() const { return "GNU GPLv3"; }
+	QString license() const { return "GNU GPLv3+"; }
 	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
 
 private slots:
 
 	void loadDirModel();
-
-	void searchChanged();
 
 	void search();
 
@@ -88,6 +85,8 @@ private:
 
 	void createToolBar();
 
+	void setWindowTitle(const QString & statusMessage);
+
 	QStringList nameFilters() const;
 
 	QFileSystemModel * _dirModel;
@@ -97,8 +96,6 @@ private:
 	FileBrowserTreeView * _treeView;
 
 	QLineEdit * _searchLineEdit;
-
-	QTimer * _searchTimer;
 
 	QToolButton * _clearSearchButton;
 

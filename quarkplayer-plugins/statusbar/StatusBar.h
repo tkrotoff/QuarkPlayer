@@ -52,7 +52,7 @@ public:
 	QString webpage() const { return "http://quarkplayer.googlecode.com/"; }
 	QString email() const { return "quarkplayer@googlegroups.com"; }
 	QString authors() const { return "Tanguy Krotoff"; }
-	QString license() const { return "GNU GPLv3"; }
+	QString license() const { return "GNU GPLv3+"; }
 	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
 
 private slots:

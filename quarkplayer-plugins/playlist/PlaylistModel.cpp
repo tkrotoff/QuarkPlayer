@@ -235,6 +235,7 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 	}
 
 	addFiles(files, row);
+	saveCurrentPlaylist();
 
 	return true;
 }
@@ -283,9 +284,6 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 			currentRow++;
 		}
 		endInsertRows();
-
-		//Save current playlist each time we add files to it
-		saveCurrentPlaylist();
 
 		//Change current playing position
 		bool positionAlreadyChanged = false;
@@ -349,8 +347,7 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
 
 void PlaylistModel::loadCurrentPlaylist() {
 	//Restore last current playlist
-	Config & config = Config::instance();
-	QString path(config.configDir());
+	QString path(Config::instance().configDir());
 	PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST, this);
 	connect(parser, SIGNAL(filesFound(const QStringList &)),
 		SLOT(filesFound(const QStringList &)));
@@ -360,19 +357,39 @@ void PlaylistModel::loadCurrentPlaylist() {
 }
 
 void PlaylistModel::saveCurrentPlaylist() {
-	static QStringList lastPlaylistSaved("this string should be unique");
+	//Optimization:
+	//saves the playlist only if no playlist change for at least 2 seconds (2000 ms)
+	static QTimer * saveCurrentPlaylistTimer = NULL;
+	if (!saveCurrentPlaylistTimer) {
+		//Lazy initialization
+		saveCurrentPlaylistTimer = new QTimer(this);
+		saveCurrentPlaylistTimer->setSingleShot(true);
+		saveCurrentPlaylistTimer->setInterval(2000);
+		connect(saveCurrentPlaylistTimer, SIGNAL(timeout()), SLOT(saveCurrentPlaylist()));
+	}
 
-	QStringList newPlaylist = fileNames();
-	if (newPlaylist != lastPlaylistSaved) {
-		lastPlaylistSaved = newPlaylist;
-		Config & config = Config::instance();
-		QString path(config.configDir());
-		PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST, this);
-		connect(parser, SIGNAL(finished(int)),
-			SIGNAL(playlistSaved(int)));
-		parser->save(newPlaylist);
-	} else {
-		qDebug() << __FUNCTION__ << "Playlist already saved";
+	static bool timerAlreadyStarted = false;
+	if (!timerAlreadyStarted) {
+		timerAlreadyStarted = true;
+		saveCurrentPlaylistTimer->stop();
+		saveCurrentPlaylistTimer->start();
+	}
+
+	else if (!saveCurrentPlaylistTimer->isActive()) {
+		timerAlreadyStarted = false;
+
+		//Optimization:
+		//saves the playlist only if the playlist has been changed
+		static QStringList lastPlaylistSaved("this string should be unique");
+		QStringList newPlaylist = fileNames();
+		if (newPlaylist != lastPlaylistSaved) {
+			lastPlaylistSaved = newPlaylist;
+			QString path(Config::instance().configDir());
+			PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST, this);
+			connect(parser, SIGNAL(finished(int)),
+				SIGNAL(playlistSaved(int)));
+			parser->save(newPlaylist);
+		}
 	}
 }
 

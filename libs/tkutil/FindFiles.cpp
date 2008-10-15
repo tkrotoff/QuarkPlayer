@@ -88,14 +88,16 @@ void FindFiles::run() {
 #endif	//Q_OS_WIN
 	//findAllFilesQt(_path);
 
-	//Emits the signal for the remaining files found
-	if (!_files.isEmpty()) {
-		emit filesFound(_files);
-		_files.clear();
-	}
+	if (!_stop) {
+		//Emits the signal for the remaining files found
+		if (!_files.isEmpty()) {
+			emit filesFound(_files);
+			_files.clear();
+		}
 
-	//Emits the last signal
-	emit finished(timeElapsed.elapsed());
+		//Emits the last signal
+		emit finished(timeElapsed.elapsed());
+	}
 }
 
 void FindFiles::findAllFilesQt(const QString & path) {
@@ -108,6 +110,9 @@ void FindFiles::findAllFilesQt(const QString & path) {
 	//QDir::setNameFilters() is too slow :/
 	dir.setFilter(QDir::AllDirs | QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
 	foreach (QString name, dir.entryList()) {
+		if (_stop) {
+			break;
+		}
 
 		QString filename(path + '/' + name);
 
@@ -129,7 +134,9 @@ void FindFiles::findAllFilesQt(const QString & path) {
 
 			if (_files.size() > _filesFoundLimit) {
 				//Emits the signal every _filesFoundLimit files found
-				emit filesFound(_files);
+				if (!_stop) {
+					emit filesFound(_files);
+				}
 				_files.clear();
 			}
 		}
@@ -165,6 +172,9 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 		//Traverse through the directory structure
 		bool finished = false;
 		while (!finished) {
+			if (_stop) {
+				break;
+			}
 
 			QString name(QString::fromUtf16((unsigned short *) fileData.cFileName));
 			QString filename(path + '\\' + name);
@@ -191,7 +201,9 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 
 				if (_files.size() > _filesFoundLimit) {
 					//Emits the signal every _filesFoundLimit files found
-					emit filesFound(_files);
+					if (!_stop) {
+						emit filesFound(_files);
+					}
 					_files.clear();
 				}
 			}
@@ -225,6 +237,9 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 	} else {
 		struct dirent * entry = NULL;
 		while (entry = readdir(dir)) {
+			if (_stop) {
+				break;
+			}
 			QString name(entry->d_name);
 
 			//Avoid '.', '..' and other hidden files
@@ -250,7 +265,9 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 
 					if (_files.size() > _filesFoundLimit) {
 						//Emits the signal every _filesFoundLimit files found
-						emit filesFound(_files);
+						if (!_stop) {
+							emit filesFound(_files);
+						}
 						_files.clear();
 					}
 				}

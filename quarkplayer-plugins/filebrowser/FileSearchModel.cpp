@@ -41,11 +41,7 @@ QMap<QString, QIcon> FileSearchModel::_iconsCache;
 FileSearchModel::FileSearchModel(QObject * parent)
 	: QAbstractItemModel(parent) {
 
-	_findFiles = new FindFiles(this);
-	connect(_findFiles, SIGNAL(filesFound(const QStringList &)),
-		SLOT(filesFound(const QStringList &)), Qt::QueuedConnection);
-	connect(_findFiles, SIGNAL(finished(int)),
-		SIGNAL(searchFinished(int)), Qt::QueuedConnection);
+	_findFiles = NULL;
 }
 
 FileSearchModel::~FileSearchModel() {
@@ -207,28 +203,54 @@ void FileSearchModel::setIconProvider(QFileIconProvider * provider) {
 void FileSearchModel::search(const QString & path, const QRegExp & pattern, const QStringList & extensions) {
 	qDebug() << __FUNCTION__ << path;
 
+	//Uninitialize/remove/disconnect... previous _findFiles
+	disconnect(_findFiles, SIGNAL(filesFound(const QStringList &)), this,
+		SLOT(filesFound(const QStringList &)));
+	disconnect(_findFiles, SIGNAL(finished(int)), this,
+		SIGNAL(searchFinished(int)));
+
+	//Stops the previous search
+	//Do it first (i.e before setPattern(), setExtensions()...) otherwise it can crash
+	//inside FindFiles since there is no mutex
+	stop();
+
 	//Clears the model before starting a new search
 	_filenames.clear();
 	reset();
 
+	//Starts a new search
+	delete _findFiles;
+	_findFiles = new FindFiles(this);
+
 	//Starts a new file search
 	_findFiles->setSearchPath(path);
 
-	//Way faster with INT_MAX
+	//Way faster with INT_MAX because beginInsertRows() is slow
+	//It's better to call only once thus INT_MAX instead of 1 for example
 	_findFiles->setFilesFoundLimit(INT_MAX);
 
 	_findFiles->setPattern(pattern);
 	_findFiles->setExtensions(extensions);
 	_findFiles->setFindDirs(true);
-	_findFiles->stop();
+	connect(_findFiles, SIGNAL(filesFound(const QStringList &)),
+		SLOT(filesFound(const QStringList &)), Qt::QueuedConnection);
+	connect(_findFiles, SIGNAL(finished(int)),
+		SIGNAL(searchFinished(int)), Qt::QueuedConnection);
 	_findFiles->start();
 }
 
 void FileSearchModel::stop() {
-	_findFiles->stop();
+	if (_findFiles) {
+		_findFiles->stop();
+	}
 }
 
 void FileSearchModel::filesFound(const QStringList & files) {
+	if (sender() != _findFiles) {
+		//filesFound() signal from a previous _findFiles
+		return;
+	}
+
 	//Append the files
 	int first = _filenames.size();
 	int last = first + files.size() - 1;

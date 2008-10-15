@@ -42,7 +42,6 @@ class QToolBar;
 class QDockWidget;
 class QLineEdit;
 class QToolButton;
-class QTimer;
 
 /**
  * Playlist.
@@ -66,7 +65,7 @@ public:
 	QString webpage() const { return "http://quarkplayer.googlecode.com/"; }
 	QString email() const { return "quarkplayer@googlegroups.com"; }
 	QString authors() const { return "Tanguy Krotoff"; }
-	QString license() const { return "GNU GPLv3"; }
+	QString license() const { return "GNU GPLv3+"; }
 	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
 
 private slots:
@@ -83,7 +82,7 @@ private slots:
 
 	void retranslate();
 
-	void updateWindowTitle();
+	void updateWindowTitle(const QString & statusMessage = QString());
 
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
 
@@ -98,8 +97,6 @@ private slots:
 
 	/** Jumps to current playing media. */
 	void jumpToCurrent();
-
-	void searchChanged();
 
 	void search();
 
@@ -120,8 +117,6 @@ private:
 	DragAndDropTreeView * _treeView;
 
 	QLineEdit * _searchLineEdit;
-
-	QTimer * _searchTimer;
 
 	QToolButton * _clearSearchButton;
 
