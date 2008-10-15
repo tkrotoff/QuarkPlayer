@@ -58,7 +58,8 @@ QModelIndex PlaylistFilter::currentIndex() const {
 
 int PlaylistFilter::convertCurrentModelToFilterPosition() {
 	QModelIndex index = _playlistModel->index(_playlistModel->position(), PlaylistModel::COLUMN_FIRST);
-	return mapFromSource(index).row();
+	int position = mapFromSource(index).row();
+	return position;
 }
 
 int PlaylistFilter::convertToModelPosition(const QModelIndex & index) {
@@ -89,12 +90,9 @@ void PlaylistFilter::playPreviousTrack() {
 }
 
 void PlaylistFilter::enqueueNextTrack() {
-	_playlistModel->setPosition(_previousPosition);
-
 	int nextPosition = convertToModelPosition(nextTrack());
 	_playlistModel->enqueue(nextPosition);
-
-	_previousPosition = nextPosition;
+	_playlistModel->setPosition(nextPosition);
 }
 
 QModelIndex PlaylistFilter::nextTrack() {

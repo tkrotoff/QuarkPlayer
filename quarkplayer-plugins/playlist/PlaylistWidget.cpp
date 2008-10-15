@@ -369,8 +369,8 @@ void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject
 
 	//FIXME aboutToFinish does not work properly with DS9 backend :/
 	//aboutToFinish -> let's queue/play the next track
-	//connect(mediaObject, SIGNAL(aboutToFinish()),
-	//	_playlistFilter, SLOT(enqueueNextTrack()));
+	connect(mediaObject, SIGNAL(aboutToFinish()),
+		_playlistFilter, SLOT(enqueueNextTrack()));
 
 	connect(mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
 		SLOT(currentSourceChanged(const Phonon::MediaSource &)));
@@ -383,7 +383,7 @@ void PlaylistWidget::currentSourceChanged(const Phonon::MediaSource & source) {
 	//Each time the track changes, we enqueue the next track
 	//currentSourceChanged() is the only signal that we get when we queue tracks
 	qDebug() << __FUNCTION__ << "source:" << source.fileName();
-	_playlistFilter->enqueueNextTrack();
+	//_playlistFilter->enqueueNextTrack();
 }
 
 void PlaylistWidget::stateChanged(Phonon::State newState) {

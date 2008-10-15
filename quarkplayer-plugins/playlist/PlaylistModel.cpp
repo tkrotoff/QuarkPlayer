@@ -292,7 +292,8 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 				//This means the current playing media is getting drag and droped
 				int firstRow = _dragAndDropRows.first();
 				int offset = dragAndDropRow - firstRow;
-				setPosition(first + offset);
+				int newPosition = first + offset;
+				setPosition(newPosition);
 				positionAlreadyChanged = true;
 				break;
 			}
@@ -523,13 +524,17 @@ void PlaylistModel::setPosition(int position) {
 
 	_position = position;
 
-	if (position != POSITION_INVALID) {
+	if (_position != POSITION_INVALID) {
 		lastValidPosition = _position;
 	}
 
 	//Update graphically the last valid position
 	emit dataChanged(this->index(lastValidPosition, PlaylistModel::COLUMN_FIRST),
 		this->index(lastValidPosition, PlaylistModel::COLUMN_LAST));
+
+	//Update graphically the current position
+	emit dataChanged(this->index(_position, PlaylistModel::COLUMN_FIRST),
+		this->index(_position, PlaylistModel::COLUMN_LAST));
 }
 
 int PlaylistModel::position() const {
