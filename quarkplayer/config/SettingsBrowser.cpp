@@ -41,8 +41,9 @@ SettingsBrowser::SettingsBrowser() {
 	_ui->setupUi(this);
 
 	_ui->tableWidget->setColumnWidth(VALUE_COLUMN, 200);
-	_ui->tableWidget->setColumnWidth(DEFAULT_VALUE_COLUMN, 200);
-	_ui->tableWidget->setColumnWidth(RESET_COLUMN, 100);
+	//_ui->tableWidget->setColumnWidth(DEFAULT_VALUE_COLUMN, 200);
+	//_ui->tableWidget->setColumnWidth(RESET_COLUMN, 100);
+	//_ui->tableWidget->resizeColumnToContents(RESET_COLUMN);
 	_ui->tableWidget->verticalHeader()->hide();
 }
 
@@ -148,9 +149,15 @@ void SettingsBrowser::readConfig() {
 	}
 
 	_ui->tableWidget->resizeColumnToContents(KEY_NAME_COLUMN);
+	//_ui->tableWidget->resizeColumnToContents(VALUE_COLUMN);
+
+	_ui->tableWidget->resizeColumnToContents(DEFAULT_VALUE_COLUMN);
+	_ui->tableWidget->resizeRowsToContents();
+	_ui->tableWidget->setColumnWidth(DEFAULT_VALUE_COLUMN, 200);
+
 	_ui->tableWidget->resizeColumnToContents(STATUS_COLUMN);
 	_ui->tableWidget->resizeColumnToContents(TYPE_COLUMN);
-	_ui->tableWidget->resizeRowsToContents();
+	_ui->tableWidget->resizeColumnToContents(RESET_COLUMN);
 }
 
 void SettingsBrowser::addResetButton(int row) const {
