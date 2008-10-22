@@ -29,7 +29,9 @@
 
 #include <QtCore/QDebug>
 
-FileBrowserConfigWidget::FileBrowserConfigWidget() {
+FileBrowserConfigWidget::FileBrowserConfigWidget(const QUuid & uuid) {
+	_uuid = uuid;
+
 	_ui = new Ui::FileBrowserConfigWidget();
 	_ui->setupUi(this);
 
@@ -54,18 +56,14 @@ QString FileBrowserConfigWidget::iconName() const {
 }
 
 void FileBrowserConfigWidget::saveConfig() {
-	Config & config = Config::instance();
-
 	//musicDir
 	QString musicDir = _ui->musicDirLineEdit->text();
-	config.setValue(Config::MUSIC_DIR_KEY, musicDir);
+	Config::instance().addMusicDir(musicDir, _uuid);
 }
 
 void FileBrowserConfigWidget::readConfig() {
-	Config & config = Config::instance();
-
 	//musicDir
-	_ui->musicDirLineEdit->setText(config.musicDir());
+	_ui->musicDirLineEdit->setText(Config::instance().musicDir(_uuid));
 }
 
 void FileBrowserConfigWidget::retranslate() {
@@ -73,6 +71,7 @@ void FileBrowserConfigWidget::retranslate() {
 }
 
 void FileBrowserConfigWidget::browseDir() {
-	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select a Directory"), Config::instance().musicDir());
+	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select a Directory"),
+			Config::instance().musicDir(_uuid));
 	_ui->musicDirLineEdit->setText(dir);
 }

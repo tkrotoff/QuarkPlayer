@@ -16,31 +16,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLUGINFACTORY_H
-#define PLUGINFACTORY_H
+#ifndef PLUGINSCONFIG_H
+#define PLUGINSCONFIG_H
 
-#include <QtCore/QObject>
+#include <quarkplayer/PluginData.h>
 
-class PluginInterface;
-class QuarkPlayer;
-
-struct QUuid;
+#include <tkutil/Singleton.h>
 
 /**
- * Plugin factory.
+ * Load and save QuarkPlayer plugins configuration.
  *
+ * Cannot inherit from Config since instance() is a static member.
+ *
+ * @see Config
  * @author Tanguy Krotoff
  */
-class PluginFactory {
+class PluginsConfig : public Singleton<PluginsConfig> {
+	friend class Singleton<PluginsConfig>;
 public:
 
-	virtual PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const = 0;
-
-	virtual ~PluginFactory() { }
+	/**
+	 * Plugins list.
+	 *
+	 * This is used by PluginManager at launch time.
+	 *
+	 * @see PluginManager
+	 */
+	static const char * PLUGINS_KEY;
+	PluginData::PluginList plugins() const;
+	void setPlugins(const PluginData::PluginList & plugins);
 
 private:
+
+	PluginsConfig();
+
+	~PluginsConfig();
 };
 
-Q_DECLARE_INTERFACE(PluginFactory, "org.quarkplayer.PluginFactory/1.0");
-
-#endif	//PLUGINFACTORY_H
+#endif	//PLUGINSCONFIG_H

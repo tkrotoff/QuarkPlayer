@@ -30,6 +30,7 @@
 class PlaylistModel;
 class PlaylistFilter;
 class DragAndDropTreeView;
+class SearchToolBar;
 
 class QuarkPlayer;
 
@@ -38,10 +39,7 @@ namespace Phonon {
 	class MediaSource;
 }
 
-class QToolBar;
 class QDockWidget;
-class QLineEdit;
-class QToolButton;
 
 /**
  * Playlist.
@@ -55,7 +53,7 @@ class PlaylistWidget : public QWidget, public PluginInterface {
 	Q_OBJECT
 public:
 
-	PlaylistWidget(QuarkPlayer & quarkPlayer);
+	PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid);
 
 	~PlaylistWidget();
 
@@ -116,11 +114,7 @@ private:
 
 	DragAndDropTreeView * _treeView;
 
-	QLineEdit * _searchLineEdit;
-
-	QToolButton * _clearSearchButton;
-
-	QToolBar * _toolBar;
+	SearchToolBar * _searchToolBar;
 
 	QDockWidget * _dockWidget;
 };
@@ -132,7 +126,7 @@ class PlaylistWidgetFactory : public QObject, public PluginFactory {
 	Q_INTERFACES(PluginFactory)
 public:
 
-	PluginInterface * create(QuarkPlayer & quarkPlayer) const;
+	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };
 
 #endif	//PLAYLISTWIDGET_H

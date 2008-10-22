@@ -42,9 +42,6 @@ class QAction;
 class TKUTIL_API ActionCollection {
 public:
 
-	~ActionCollection();
-
-	/** Helper, a bit shorter syntax. */
 	static QAction * action(const QString & name);
 
 	static void addAction(const QString & name, QAction * action);
@@ -53,6 +50,8 @@ private:
 
 	/** Singleton. */
 	ActionCollection();
+
+	~ActionCollection();
 
 	/** Associates a name to a QAction. */
 	static QMap<QString, QAction *> _actionMap;

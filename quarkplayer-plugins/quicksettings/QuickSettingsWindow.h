@@ -49,7 +49,7 @@ class QuickSettingsWindow : public QDialog, public PluginInterface {
 	Q_OBJECT
 public:
 
-	QuickSettingsWindow(QuarkPlayer & quarkPlayer);
+	QuickSettingsWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid);
 
 	~QuickSettingsWindow();
 
@@ -111,7 +111,7 @@ class QuickSettingsWindowFactory : public QObject, public PluginFactory {
 	Q_INTERFACES(PluginFactory)
 public:
 
-	PluginInterface * create(QuarkPlayer & quarkPlayer) const;
+	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };
 
 #endif	//QUICKSETTINGSWINDOW_H

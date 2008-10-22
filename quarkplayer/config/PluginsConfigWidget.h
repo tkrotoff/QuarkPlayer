@@ -26,6 +26,8 @@ namespace Ui { class PluginsConfigWidget; }
 /**
  * Plugins configuration widget.
  *
+ * @see PluginsManager
+ * @see PluginData
  * @author Tanguy Krotoff
  */
 class PluginsConfigWidget : public IConfigWidget {

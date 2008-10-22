@@ -21,6 +21,8 @@
 
 #include <quarkplayer/config/IConfigWidget.h>
 
+#include <QtCore/QUuid>
+
 namespace Ui { class FileBrowserConfigWidget; }
 
 /**
@@ -32,7 +34,7 @@ class FileBrowserConfigWidget : public IConfigWidget {
 	Q_OBJECT
 public:
 
-	FileBrowserConfigWidget();
+	FileBrowserConfigWidget(const QUuid & uuid);
 
 	~FileBrowserConfigWidget();
 
@@ -53,6 +55,8 @@ private slots:
 private:
 
 	Ui::FileBrowserConfigWidget * _ui;
+
+	QUuid _uuid;
 };
 
 #endif	//FILEBROWSERCONFIGWIDGET_H

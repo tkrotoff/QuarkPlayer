@@ -22,6 +22,7 @@
 #include <quarkplayer/quarkplayer_export.h>
 
 #include <QtCore/QString>
+#include <QtCore/QUuid>
 
 class QuarkPlayer;
 
@@ -33,9 +34,11 @@ class QuarkPlayer;
 class QUARKPLAYER_API PluginInterface {
 public:
 
-	PluginInterface(QuarkPlayer & quarkPlayer);
+	PluginInterface(QuarkPlayer & quarkPlayer, const QUuid & uuid);
 
 	virtual ~PluginInterface();
+
+	QUuid uuid() const;
 
 	virtual QString name() const = 0;
 
@@ -60,6 +63,8 @@ protected:
 private:
 
 	QuarkPlayer & _quarkPlayer;
+
+	QUuid _uuid;
 };
 
 #endif	//PLUGININTERFACE_H

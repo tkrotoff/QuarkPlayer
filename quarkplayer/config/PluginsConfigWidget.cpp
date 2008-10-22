@@ -20,9 +20,7 @@
 
 #include "ui_PluginsConfigWidget.h"
 
-#include "Config.h"
-
-#include <quarkplayer/PluginManager.h>
+#include <quarkplayer/PluginsManager.h>
 #include <quarkplayer/PluginInterface.h>
 
 #include <QtGui/QtGui>
@@ -35,6 +33,7 @@ static const int FILENAME_COLUMN = 1;
 static const int NAME_COLUMN = 2;
 static const int VERSION_COLUMN = 3;
 static const int STATE_COLUMN = 4;
+static const int UUID_COLUMN = 5;
 
 PluginsConfigWidget::PluginsConfigWidget() {
 	_ui = new Ui::PluginsConfigWidget();
@@ -44,7 +43,7 @@ PluginsConfigWidget::PluginsConfigWidget() {
 	_ui->tableWidget->verticalHeader()->hide();
 
 	connect(_ui->tableWidget, SIGNAL(currentCellChanged(int, int, int, int)),
-		this, SLOT(currentCellChanged(int, int)));
+		SLOT(currentCellChanged(int, int)));
 }
 
 PluginsConfigWidget::~PluginsConfigWidget() {
@@ -60,18 +59,23 @@ QString PluginsConfigWidget::iconName() const {
 }
 
 void PluginsConfigWidget::readConfig() {
-	QDir pluginsDir(Config::instance().pluginsDir());
-	QStringList pluginList = pluginsDir.entryList(QDir::Files);
+	PluginData::PluginList plugins = PluginsManager::instance().plugins();
 
 	int row = 0;
-	foreach (QString filename, pluginList) {
+	PluginData::PluginListIterator it(plugins);
+	while (it.hasNext()) {
+		it.next();
+
+		QString filename(it.key());
+		PluginData pluginData(it.value());
+
 		if (row >= _ui->tableWidget->rowCount()) {
 			_ui->tableWidget->insertRow(row);
 		}
 
 		_ui->tableWidget->setItem(row, FILENAME_COLUMN, new QTableWidgetItem(filename));
 
-		PluginInterface * interface = PluginManager::instance().pluginInterface(filename);
+		PluginInterface * interface = pluginData.interface();
 		if (interface) {
 			_ui->tableWidget->setItem(row, NAME_COLUMN, new QTableWidgetItem(interface->name()));
 			_ui->tableWidget->setItem(row, VERSION_COLUMN, new QTableWidgetItem(interface->version()));
@@ -83,25 +87,21 @@ void PluginsConfigWidget::readConfig() {
 		QCheckBox * checkBox = new QCheckBox();
 		_ui->tableWidget->setCellWidget(row, CHECKBOX_COLUMN, checkBox);
 
-		if (PluginManager::instance().isPluginDisabled(filename)) {
+		if (!pluginData.isEnabled()) {
 			//Don't proceed plugins that are blacklisted
 			checkBox->setChecked(false);
 			_ui->tableWidget->setItem(row, STATE_COLUMN, new QTableWidgetItem(tr("Disabled")));
-			//Red
-			//stateButton->setStyleSheet("background-color: rgb(255, 0, 0);");
 		} else {
-			if (PluginManager::instance().isPluginLoaded(filename)) {
+			if (interface) {
 				checkBox->setChecked(true);
 				_ui->tableWidget->setItem(row, STATE_COLUMN, new QTableWidgetItem(tr("Enabled")));
-				//Green
-				//stateButton->setStyleSheet("background-color: rgb(0, 170, 0);");
 			} else {
 				checkBox->setChecked(false);
 				_ui->tableWidget->setItem(row, STATE_COLUMN, new QTableWidgetItem(tr("Error")));
-				//Red
-				//stateButton->setStyleSheet("background-color: rgb(255, 0, 0);");
 			}
 		}
+
+		_ui->tableWidget->setItem(row, UUID_COLUMN, new QTableWidgetItem(pluginData.uuid().toString()));
 
 		row++;
 	}
@@ -111,6 +111,7 @@ void PluginsConfigWidget::readConfig() {
 	_ui->tableWidget->resizeColumnToContents(NAME_COLUMN);
 	_ui->tableWidget->resizeColumnToContents(VERSION_COLUMN);
 	_ui->tableWidget->resizeColumnToContents(STATE_COLUMN);
+	_ui->tableWidget->resizeColumnToContents(UUID_COLUMN);
 	_ui->tableWidget->resizeRowsToContents();
 }
 
@@ -126,15 +127,20 @@ void PluginsConfigWidget::saveConfig() {
 		QTableWidgetItem * item = _ui->tableWidget->item(row, FILENAME_COLUMN);
 		QString filename(item->text());
 
-		bool loaded = PluginManager::instance().isPluginLoaded(filename);
+		item = _ui->tableWidget->item(row, UUID_COLUMN);
+		QString uuid(item->text());
+
+		PluginData pluginData = PluginsManager::instance().pluginData(filename, uuid);
+
+		bool loaded = pluginData.interface();
 		if (checkBox->isChecked() && !loaded) {
 			//Loads the plugin
-			PluginManager::instance().enablePlugin(filename);
-			PluginManager::instance().loadPlugin(filename);
+			pluginData.setEnabled(true);
+			PluginsManager::instance().loadPlugin(filename, pluginData);
 		} else if (!checkBox->isChecked() && loaded) {
 			//Unloads the plugin
-			PluginManager::instance().disablePlugin(filename);
-			PluginManager::instance().deletePlugin(filename);
+			pluginData.setEnabled(false);
+			PluginsManager::instance().deletePlugin(filename, pluginData);
 		}
 	}
 }
@@ -147,7 +153,12 @@ void PluginsConfigWidget::currentCellChanged(int row, int column) {
 	QTableWidgetItem * item = _ui->tableWidget->item(row, FILENAME_COLUMN);
 	QString filename(item->text());
 
-	PluginInterface * interface = PluginManager::instance().pluginInterface(filename);
+	item = _ui->tableWidget->item(row, UUID_COLUMN);
+	QString uuid(item->text());
+
+	PluginData pluginData = PluginsManager::instance().pluginData(filename, uuid);
+	PluginInterface * interface = pluginData.interface();
+
 	if (interface) {
 		_ui->descriptionGroupBox->setTitle(interface->name());
 		_ui->descriptionLabel->setText(interface->description());

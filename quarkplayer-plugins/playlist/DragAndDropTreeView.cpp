@@ -20,13 +20,13 @@
 
 #include "PlaylistModel.h"
 #include "PlaylistFilter.h"
+#include "UuidActionCollection.h"
 
 #include <quarkplayer/config/Config.h>
 
 #include <mediainfowindow/MediaInfoWindow.h>
 #include <mediainfowindow/MediaInfoFetcher.h>
 
-#include <tkutil/ActionCollection.h>
 #include <tkutil/TkIcon.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
@@ -55,11 +55,11 @@ DragAndDropTreeView::DragAndDropTreeView(PlaylistModel * playlistModel, Playlist
 
 	populateActionCollection();
 
-	connect(ActionCollection::action("playlistPlayItem"), SIGNAL(triggered()), SLOT(playItem()));
-	connect(ActionCollection::action("playlistSendTo"), SIGNAL(triggered()), SLOT(sendTo()));
-	connect(ActionCollection::action("playlistDeleteItem"), SIGNAL(triggered()), SLOT(clearSelection()));
-	connect(ActionCollection::action("playlistRateItem"), SIGNAL(triggered()), SLOT(rateItem()));
-	connect(ActionCollection::action("playlistViewMediaInfo"), SIGNAL(triggered()), SLOT(viewMediaInfo()));
+	connect(uuidAction("playlistPlayItem"), SIGNAL(triggered()), SLOT(playItem()));
+	connect(uuidAction("playlistSendTo"), SIGNAL(triggered()), SLOT(sendTo()));
+	connect(uuidAction("playlistDeleteItem"), SIGNAL(triggered()), SLOT(clearSelection()));
+	connect(uuidAction("playlistRateItem"), SIGNAL(triggered()), SLOT(rateItem()));
+	connect(uuidAction("playlistViewMediaInfo"), SIGNAL(triggered()), SLOT(viewMediaInfo()));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -130,11 +130,11 @@ void DragAndDropTreeView::showMenu(const QPoint & pos) {
 		}
 
 		QMenu * menu = new QMenu(this);
-		menu->addAction(ActionCollection::action("playlistPlayItem"));
-		//FIXME For the future menu->addAction(ActionCollection::action("playlistSendTo"));
-		menu->addAction(ActionCollection::action("playlistDeleteItem"));
-		//FIXME For the future menu->addAction(ActionCollection::action("playlistRateItem"));
-		menu->addAction(ActionCollection::action("playlistViewMediaInfo"));
+		menu->addAction(uuidAction("playlistPlayItem"));
+		//FIXME For the future menu->addAction(uuidAction("playlistSendTo"));
+		menu->addAction(uuidAction("playlistDeleteItem"));
+		//FIXME For the future menu->addAction(uuidAction("playlistRateItem"));
+		menu->addAction(uuidAction("playlistViewMediaInfo"));
 
 		menu->exec(QCursor::pos());
 	}
@@ -143,28 +143,28 @@ void DragAndDropTreeView::showMenu(const QPoint & pos) {
 void DragAndDropTreeView::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
-	ActionCollection::addAction("playlistPlayItem", new QAction(app));
-	ActionCollection::addAction("playlistSendTo", new QAction(app));
-	ActionCollection::addAction("playlistDeleteItem", new QAction(app));
-	ActionCollection::addAction("playlistRateItem", new QAction(app));
-	ActionCollection::addAction("playlistViewMediaInfo", new QAction(app));
+	addUuidAction("playlistPlayItem", new QAction(app));
+	addUuidAction("playlistSendTo", new QAction(app));
+	addUuidAction("playlistDeleteItem", new QAction(app));
+	addUuidAction("playlistRateItem", new QAction(app));
+	addUuidAction("playlistViewMediaInfo", new QAction(app));
 }
 
 void DragAndDropTreeView::retranslate() {
-	ActionCollection::action("playlistPlayItem")->setText(tr("Play"));
-	ActionCollection::action("playlistPlayItem")->setIcon(TkIcon("media-playback-start"));
+	uuidAction("playlistPlayItem")->setText(tr("Play"));
+	uuidAction("playlistPlayItem")->setIcon(TkIcon("media-playback-start"));
 
-	ActionCollection::action("playlistSendTo")->setText(tr("Sent To"));
-	ActionCollection::action("playlistSendTo")->setIcon(TkIcon("text-x-script"));
+	uuidAction("playlistSendTo")->setText(tr("Sent To"));
+	uuidAction("playlistSendTo")->setIcon(TkIcon("text-x-script"));
 
-	ActionCollection::action("playlistDeleteItem")->setText(tr("Delete from Playlist"));
-	ActionCollection::action("playlistDeleteItem")->setIcon(TkIcon("edit-delete"));
+	uuidAction("playlistDeleteItem")->setText(tr("Delete from Playlist"));
+	uuidAction("playlistDeleteItem")->setIcon(TkIcon("edit-delete"));
 
-	ActionCollection::action("playlistRateItem")->setText(tr("Rate"));
-	ActionCollection::action("playlistRateItem")->setIcon(TkIcon("rating"));
+	uuidAction("playlistRateItem")->setText(tr("Rate"));
+	uuidAction("playlistRateItem")->setIcon(TkIcon("rating"));
 
-	ActionCollection::action("playlistViewMediaInfo")->setText(tr("View Media Info..."));
-	ActionCollection::action("playlistViewMediaInfo")->setIcon(TkIcon("document-properties"));
+	uuidAction("playlistViewMediaInfo")->setText(tr("View Media Info..."));
+	uuidAction("playlistViewMediaInfo")->setIcon(TkIcon("document-properties"));
 
 	if (_mediaInfoWindow) {
 		_mediaInfoWindow->setLocale(Config::instance().language());

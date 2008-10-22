@@ -33,13 +33,13 @@ static const char * STATUSBAR_TIME_DIPLAY_MODE_KEY = "statusbar_time_display_mod
 
 Q_EXPORT_PLUGIN2(statusbar, StatusBarFactory);
 
-PluginInterface * StatusBarFactory::create(QuarkPlayer & quarkPlayer) const {
-	return new StatusBar(quarkPlayer);
+PluginInterface * StatusBarFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
+	return new StatusBar(quarkPlayer, uuid);
 }
 
-StatusBar::StatusBar(QuarkPlayer & quarkPlayer)
+StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QStatusBar(NULL),
-	PluginInterface(quarkPlayer) {
+	PluginInterface(quarkPlayer, uuid) {
 
 	_timeLabel = new QLabel(this);
 	//Text color is white
@@ -64,6 +64,8 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer)
 }
 
 StatusBar::~StatusBar() {
+	//Remove the statusbar from the main window
+	quarkPlayer().mainWindow().setStatusBar(NULL);
 }
 
 void StatusBar::tick(qint64 time) {

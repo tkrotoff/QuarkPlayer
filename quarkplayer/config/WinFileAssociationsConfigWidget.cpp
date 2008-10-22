@@ -22,8 +22,6 @@
 
 #include "Config.h"
 
-#include <quarkplayer/PluginManager.h>
-
 #include <filetypes/FileTypes.h>
 
 #include <winfileassociations/WinFileAssociations.h>

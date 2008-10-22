@@ -42,7 +42,7 @@ class StatusBar : public QStatusBar, public PluginInterface {
 	Q_OBJECT
 public:
 
-	StatusBar(QuarkPlayer & quarkPlayer);
+	StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid);
 
 	~StatusBar();
 
@@ -88,7 +88,7 @@ class StatusBarFactory : public QObject, public PluginFactory {
 	Q_INTERFACES(PluginFactory)
 public:
 
-	PluginInterface * create(QuarkPlayer & quarkPlayer) const;
+	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };
 
 #endif	//STATUSBAR_H

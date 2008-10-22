@@ -19,7 +19,7 @@
 #include "QuarkPlayer.h"
 
 #include "MainWindow.h"
-#include "PluginManager.h"
+#include "PluginsManager.h"
 
 #include "config/Config.h"
 
@@ -36,14 +36,14 @@ QuarkPlayer::QuarkPlayer(QObject * parent)
 	_currentMediaObject = NULL;
 
 	//mainWindow is an internal plugin in fact...
-	_mainWindow = new MainWindow(*this, NULL);
+	_mainWindow = new MainWindow(*this, QUuid::createUuid(), NULL);
 	_mainWindow->show();
 
-	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()), SLOT(allPluginsLoaded()));
+	connect(&PluginsManager::instance(), SIGNAL(allPluginsLoaded()), SLOT(allPluginsLoaded()));
 }
 
 QuarkPlayer::~QuarkPlayer() {
-	PluginManager::instance().deleteInstance();
+	PluginsManager::instance().deleteInstance();
 	Config::instance().deleteInstance();
 }
 

@@ -53,6 +53,8 @@ public:
 
 	QVariant defaultValue(const QString & key) const;
 
+	bool contains(const QString & key) const;
+
 	QVariant value(const QString & key) const;
 
 	void addKey(const QString & key, const QVariant & defaultValue);

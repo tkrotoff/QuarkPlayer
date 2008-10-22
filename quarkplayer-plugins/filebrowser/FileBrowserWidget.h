@@ -24,16 +24,14 @@
 #include <QtGui/QWidget>
 
 class FileBrowserTreeView;
+class SearchToolBar;
 
 class QuarkPlayer;
 class ConfigWindow;
 class FileSearchModel;
 
 class QFileSystemModel;
-class QToolBar;
 class QDockWidget;
-class QLineEdit;
-class QToolButton;
 
 /**
  * File browser widget inside QuarkPlayer main window.
@@ -47,7 +45,7 @@ class FileBrowserWidget : public QWidget, public PluginInterface {
 	Q_OBJECT
 public:
 
-	FileBrowserWidget(QuarkPlayer & quarkPlayer);
+	FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid);
 
 	~FileBrowserWidget();
 
@@ -95,11 +93,7 @@ private:
 
 	FileBrowserTreeView * _treeView;
 
-	QLineEdit * _searchLineEdit;
-
-	QToolButton * _clearSearchButton;
-
-	QToolBar * _toolBar;
+	SearchToolBar * _searchToolBar;
 
 	QDockWidget * _dockWidget;
 };
@@ -111,7 +105,7 @@ class FileBrowserWidgetFactory : public QObject, public PluginFactory {
 	Q_INTERFACES(PluginFactory)
 public:
 
-	PluginInterface * create(QuarkPlayer & quarkPlayer) const;
+	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };
 
 #endif	//FILEBROWSERWIDGET_H

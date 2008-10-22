@@ -16,31 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLUGINFACTORY_H
-#define PLUGINFACTORY_H
-
-#include <QtCore/QObject>
-
-class PluginInterface;
-class QuarkPlayer;
+#ifndef UUIDACTIONCOLLECTION_H
+#define UUIDACTIONCOLLECTION_H
 
 struct QUuid;
+class QAction;
+class QString;
 
 /**
- * Plugin factory.
+ * UUID ActionCollection.
  *
+ * Code factorization when using ActionCollection with UUID.
+ *
+ * Standard C functions instead of a class UuidActionCollection with static methods
+ * in order to make syntax as short as possible.
+ *
+ * @see ActionCollection
  * @author Tanguy Krotoff
  */
-class PluginFactory {
-public:
 
-	virtual PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const = 0;
+void setUuid(const QUuid & uuid);
 
-	virtual ~PluginFactory() { }
+QAction * uuidAction(const QString & name);
 
-private:
-};
+void addUuidAction(const QString & name, QAction * action);
 
-Q_DECLARE_INTERFACE(PluginFactory, "org.quarkplayer.PluginFactory/1.0");
-
-#endif	//PLUGINFACTORY_H
+#endif	//UUIDACTIONCOLLECTION_H

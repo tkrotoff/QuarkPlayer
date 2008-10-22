@@ -20,7 +20,12 @@
      </property>
      <column>
       <property name="text" >
-       <string/>
+       <string>Name</string>
+      </property>
+     </column>
+     <column>
+      <property name="text" >
+       <string>Private</string>
       </property>
      </column>
     </widget>

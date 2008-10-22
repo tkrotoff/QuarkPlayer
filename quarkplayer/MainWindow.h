@@ -46,7 +46,7 @@ class QUARKPLAYER_API MainWindow : public TkMainWindow, public PluginInterface {
 	Q_OBJECT
 public:
 
-	MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent);
+	MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * parent);
 
 	~MainWindow();
 
@@ -61,12 +61,17 @@ public:
 	QMenu * menuSettings() const;
 	QMenu * menuHelp() const;
 
-	void addBrowserDockWidget(QDockWidget * widget);
-	void removeBrowserDockWidget(QDockWidget * widget);
+	void addBrowserDockWidget(QDockWidget * dockWidget);
+	void resetBrowserDockWidget();
 
-	void addVideoDockWidget(QDockWidget * widget);
+	void addVideoDockWidget(QDockWidget * dockWidget);
+	void resetVideoDockWidget();
 
-	void addPlaylistDockWidget(QDockWidget * widget);
+	void addPlaylistDockWidget(QDockWidget * dockWidget);
+	void resetPlaylistDockWidget();
+
+	/** Returns the ConfigWindow or NULL if not yet created. */
+	ConfigWindow * configWindow() const;
 
 
 	QString name() const { return tr("Main window"); }
@@ -150,7 +155,8 @@ private:
 
 	void setupUi();
 
-	void createDockWidgets();
+	/** Internal factorization code. */
+	void addDockWidget(Qt::DockWidgetArea area, QDockWidget * dockWidget, QDockWidget * lastDockWidget);
 
 	void dragEnterEvent(QDragEnterEvent * event);
 
@@ -168,11 +174,7 @@ private:
 	QToolBar * _playToolBar;
 	QStatusBar * _statusBar;
 
-	QDockWidget * _videoDockWidget;
-
-	QDockWidget * _browserDockWidget;
-
-	QDockWidget * _playlistDockWidget;
+	ConfigWindow * _configWindow;
 };
 
 #endif	//MAINWINDOW_H

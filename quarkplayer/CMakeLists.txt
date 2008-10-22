@@ -17,7 +17,9 @@ configure_file(metrics.h.in ${CMAKE_CURRENT_BINARY_DIR}/metrics.h)
 set(quarkplayercore_SRCS
 	QuarkPlayer.cpp
 	PluginInterface.cpp
-	PluginManager.cpp
+	PluginData.cpp
+	PluginsManager.cpp
+	PluginsConfig.cpp
 	MainWindow.cpp
 	AboutWindow.cpp
 	CommandLineHelp.cpp
@@ -34,7 +36,7 @@ set(quarkplayercore_SRCS
 qt4_wrap_cpp(quarkplayercore_SRCS
 	QuarkPlayer.h
 	MainWindow.h
-	PluginManager.h
+	PluginsManager.h
 	CommandLineHelp.h
 	config/Config.h
 	config/ConfigWindow.h

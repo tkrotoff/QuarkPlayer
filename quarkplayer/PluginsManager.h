@@ -16,20 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLUGINMANAGER_H
-#define PLUGINMANAGER_H
+#ifndef PLUGINSMANAGER_H
+#define PLUGINSMANAGER_H
 
 #include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/PluginData.h>
 
 #include <tkutil/Singleton.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QMap>
 
 class QuarkPlayer;
-class PluginInterface;
-
-class QPluginLoader;
 
 /**
  * Manages/loads QuarkPlayer plugins.
@@ -39,8 +36,8 @@ class QPluginLoader;
  * @see QPluginLoader
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API PluginManager : public QObject, public Singleton<PluginManager> {
-	friend class Singleton<PluginManager>;
+class QUARKPLAYER_API PluginsManager : public QObject, public Singleton<PluginsManager> {
+	friend class Singleton<PluginsManager>;
 	Q_OBJECT
 public:
 
@@ -50,17 +47,15 @@ public:
 
 	bool loadPlugin(const QString & filename);
 
-	bool deletePlugin(const QString & filename);
+	bool loadPlugin(const QString & filename, PluginData & pluginData);
 
-	void enablePlugin(const QString & filename) const;
+	bool deletePlugin(const QString & filename, PluginData & pluginData);
 
-	void disablePlugin(const QString & filename) const;
+	PluginData pluginData(const QString & filename, const QUuid & uuid) const;
 
-	bool isPluginLoaded(const QString & filename) const;
+	PluginData::PluginList plugins() const;
 
-	bool isPluginDisabled(const QString & filename) const;
-
-	PluginInterface * pluginInterface(const QString & filename) const;
+	bool allPluginsAlreadyLoaded() const;
 
 signals:
 
@@ -92,35 +87,17 @@ signals:
 
 private:
 
-	PluginManager();
+	PluginsManager();
 
-	~PluginManager();
+	~PluginsManager();
 
-	class PluginData {
-	public:
-
-		PluginData() {
-			loader = NULL;
-			interface = NULL;
-		}
-
-		QPluginLoader * loader;
-		PluginInterface * interface;
-	};
-
-	typedef QMap<QString, PluginData> PluginMap;
-	typedef QMapIterator<QString, PluginData> PluginMapIterator;
-
-	/**
-	 * Gets the list of plugins.
-	 *
-	 * Becareful: this is read/write mode (not a const reference)!
-	 */
-	PluginMap & pluginMap();
-
-	PluginMap _pluginMap;
+	void changeOrAddPluginData(const QString & filename, const PluginData & pluginData);
 
 	QuarkPlayer * _quarkPlayer;
+
+	bool _allPluginsAlreadyLoaded;
+
+	PluginData::PluginList _plugins;
 };
 
-#endif	//PLUGINMANAGER_H
+#endif	//PLUGINSMANAGER_H

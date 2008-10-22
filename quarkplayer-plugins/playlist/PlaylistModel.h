@@ -23,6 +23,7 @@
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QList>
+#include <QtCore/QUuid>
 
 class Track;
 
@@ -53,7 +54,7 @@ public:
 	static const int COLUMN_FIRST;
 	static const int COLUMN_LAST;
 
-	PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer);
+	PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const QUuid & uuid);
 
 	~PlaylistModel();
 
@@ -145,6 +146,8 @@ private:
 
 	void clearInternal();
 
+	QString currentPlaylist() const;
+
 	QuarkPlayer & _quarkPlayer;
 
 	/** Resolves the list of pending files for metadata/info. */
@@ -182,6 +185,13 @@ private:
 	 * is being drag and droped.
 	 */
 	mutable QList<int> _dragAndDropRows;
+
+	/**
+	 * UUID from PluginInterface and PlaylistWidget.
+	 *
+	 * Necessary for loading and saving several playlist.
+	 */
+	QUuid _uuid;
 };
 
 #endif	//PLAYLISTMODEL_H

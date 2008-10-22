@@ -49,7 +49,7 @@ class VideoWidgetPlugin : public QObject, public PluginInterface {
 	Q_OBJECT
 public:
 
-	VideoWidgetPlugin(QuarkPlayer & quarkPlayer);
+	VideoWidgetPlugin(QuarkPlayer & quarkPlayer, const QUuid & uuid);
 
 	~VideoWidgetPlugin();
 
@@ -110,7 +110,7 @@ class VideoWidgetPluginFactory : public QObject, public PluginFactory {
 	Q_INTERFACES(PluginFactory)
 public:
 
-	PluginInterface * create(QuarkPlayer & quarkPlayer) const;
+	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };
 
 #endif	//VIDEOWIDGETPLUGIN_H

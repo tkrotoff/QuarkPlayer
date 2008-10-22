@@ -20,6 +20,8 @@
 
 #include "FileBrowserTreeView.h"
 #include "FileSearchModel.h"
+#include "SearchToolBar.h"
+#include "UuidActionCollection.h"
 
 #include "config/FileBrowserConfigWidget.h"
 
@@ -27,11 +29,10 @@
 #include <quarkplayer/MainWindow.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config/ConfigWindow.h>
-#include <quarkplayer/PluginManager.h>
+#include <quarkplayer/PluginsManager.h>
 
 #include <filetypes/FileTypes.h>
 
-#include <tkutil/ActionCollection.h>
 #include <tkutil/TkIcon.h>
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
@@ -42,16 +43,20 @@
 
 Q_EXPORT_PLUGIN2(filebrowser, FileBrowserWidgetFactory);
 
-PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer) const {
-	return new FileBrowserWidget(quarkPlayer);
+PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
+	return new FileBrowserWidget(quarkPlayer, uuid);
 }
 
-FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
+FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QWidget(NULL),
-	PluginInterface(quarkPlayer) {
+	PluginInterface(quarkPlayer, uuid) {
 
 	_dirModel = NULL;
 	_fileSearchModel = NULL;
+
+	//Short for UuidActionCollection::setUuid()
+	setUuid(uuid);
+	///
 
 	QVBoxLayout * layout = new QVBoxLayout();
 	setLayout(layout);
@@ -65,12 +70,6 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 	_treeView = new FileBrowserTreeView(quarkPlayer);
 	layout->addWidget(_treeView);
 
-	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
-		SLOT(loadDirModel()), Qt::QueuedConnection);
-
-	connect(&quarkPlayer.mainWindow(), SIGNAL(configWindowCreated(ConfigWindow *)),
-		SLOT(configWindowCreated(ConfigWindow *)));
-
 	//Add to the main window
 	_dockWidget = new QDockWidget();
 	quarkPlayer.mainWindow().addBrowserDockWidget(_dockWidget);
@@ -78,54 +77,61 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer)
 
 	setMaximumSize(1.5 * sizeHint().width(), maximumSize().height());
 
+	if (PluginsManager::instance().allPluginsAlreadyLoaded()) {
+		loadDirModel();
+	} else {
+		connect(&PluginsManager::instance(), SIGNAL(allPluginsLoaded()),
+			SLOT(loadDirModel()), Qt::QueuedConnection);
+	}
+
+	ConfigWindow * configWindow = quarkPlayer.mainWindow().configWindow();
+	if (configWindow) {
+		configWindowCreated(configWindow);
+	} else {
+		connect(&quarkPlayer.mainWindow(), SIGNAL(configWindowCreated(ConfigWindow *)),
+			SLOT(configWindowCreated(ConfigWindow *)));
+	}
+
 	RETRANSLATE(this);
 	retranslate();
-
-	_clearSearchButton->setEnabled(false);
 }
 
 FileBrowserWidget::~FileBrowserWidget() {
+	quarkPlayer().mainWindow().removeDockWidget(_dockWidget);
+	quarkPlayer().mainWindow().resetBrowserDockWidget();
 }
 
 void FileBrowserWidget::createToolBar() {
-	_toolBar = new QToolBar(NULL);
-	_toolBar->setIconSize(QSize(16, 16));
-	layout()->addWidget(_toolBar);
+	//Search toolbar
+	_searchToolBar = new SearchToolBar(NULL);
+	connect(_searchToolBar, SIGNAL(textChanged(const QString &)), SLOT(search()));
+	layout()->addWidget(_searchToolBar);
 
 	//Browse button
 	QToolButton * browseButton = new QToolButton();
 	browseButton->setAutoRaise(true);
-	browseButton->setDefaultAction(ActionCollection::action("fileBrowserBrowse"));
-	_toolBar->addWidget(browseButton);
+	browseButton->setDefaultAction(uuidAction("fileBrowserBrowse"));
+	_searchToolBar->addWidget(browseButton);
 	connect(browseButton, SIGNAL(clicked()), SLOT(configure()));
 
-	//Search toolbar
-	//Copy-paste from PlaylistWidget.cpp
-	_searchLineEdit = new QLineEdit();
-	_toolBar->addWidget(_searchLineEdit);
-	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search()));
-	_clearSearchButton = new QToolButton();
-	_clearSearchButton->setAutoRaise(true);
-	_clearSearchButton->setDefaultAction(ActionCollection::action("fileBrowserClearSearch"));
-	_toolBar->addWidget(_clearSearchButton);
-	connect(_clearSearchButton, SIGNAL(clicked()), _searchLineEdit, SLOT(clear()));
+	//Search widgets
+	_searchToolBar->addSearchWidgets();
+	_searchToolBar->addSeparator();
 
 	//New file browser button
 	QToolButton * newFileBrowserButton = new QToolButton();
 	newFileBrowserButton->setAutoRaise(true);
-	newFileBrowserButton->setDefaultAction(ActionCollection::action("fileBrowserNew"));
-	_toolBar->addWidget(newFileBrowserButton);
+	newFileBrowserButton->setDefaultAction(uuidAction("fileBrowserNew"));
+	_searchToolBar->addWidget(newFileBrowserButton);
 	connect(newFileBrowserButton, SIGNAL(clicked()), SLOT(createNewFileBrowserWidget()));
 }
 
 void FileBrowserWidget::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
-	ActionCollection::addAction("fileBrowserClearSearch", new QAction(app));
+	addUuidAction("fileBrowserBrowse", new QAction(app));
 
-	ActionCollection::addAction("fileBrowserBrowse", new QAction(app));
-
-	ActionCollection::addAction("fileBrowserNew", new QAction(app));
+	addUuidAction("fileBrowserNew", new QAction(app));
 }
 
 QStringList FileBrowserWidget::nameFilters() const {
@@ -162,20 +168,19 @@ void FileBrowserWidget::loadDirModel() {
 
 	connect(&Config::instance(), SIGNAL(valueChanged(const QString &, const QVariant &)),
 		SLOT(musicDirChanged(const QString &, const QVariant &)));
-	_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
-	_dirModel->setRootPath(Config::instance().musicDir());
+	_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir(uuid())));
+	_dirModel->setRootPath(Config::instance().musicDir(uuid()));
 	_treeView->setDragEnabled(true);
 }
 
 void FileBrowserWidget::search() {
-	QString pattern(_searchLineEdit->text().trimmed());
-	_clearSearchButton->setEnabled(!pattern.isEmpty());
+	QString pattern(_searchToolBar->text());
 	if (pattern.isEmpty()) {
 		setWindowTitle(QString());
 		_treeView->setRootIsDecorated(true);
 
 		_treeView->setModel(_dirModel);
-		_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
+		_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir(uuid())));
 
 		if (_fileSearchModel) {
 			_fileSearchModel->stop();
@@ -207,7 +212,7 @@ void FileBrowserWidget::search() {
 		}
 		qDebug() << __FUNCTION__ << tmp;
 
-		_fileSearchModel->search(Config::instance().musicDir(),
+		_fileSearchModel->search(Config::instance().musicDir(uuid()),
 				QRegExp(tmp, Qt::CaseInsensitive, QRegExp::RegExp2),
 				extensions);
 	}
@@ -219,44 +224,37 @@ void FileBrowserWidget::searchFinished(int timeElapsed) {
 }
 
 void FileBrowserWidget::configure() {
-	QString musicDir = TkFileDialog::getExistingDirectory(this, tr("Select a Directory"), Config::instance().musicDir());
+	QString musicDir = TkFileDialog::getExistingDirectory(this, tr("Select a Directory"),
+			Config::instance().musicDir(uuid()));
 	if (!musicDir.isEmpty()) {
-		Config::instance().setValue(Config::MUSIC_DIR_KEY, musicDir);
+		Config::instance().addMusicDir(musicDir, uuid());
 	}
 }
 
 void FileBrowserWidget::musicDirChanged(const QString & key, const QVariant & value) {
-	if (key == Config::MUSIC_DIR_KEY) {
-		_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir()));
+	if (key == Config::MUSIC_DIR_KEY + uuid().toString()) {
+		_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir(uuid())));
+		setWindowTitle(QString());
 	}
 }
 
 void FileBrowserWidget::createNewFileBrowserWidget() {
-	new FileBrowserWidget(quarkPlayer());
+	PluginsManager::instance().loadPlugin("filebrowser");
 }
 
 void FileBrowserWidget::retranslate() {
-	ActionCollection::action("fileBrowserClearSearch")->setText(tr("Clear Search"));
-	ActionCollection::action("fileBrowserClearSearch")->setIcon(TkIcon("edit-delete"));
+	uuidAction("fileBrowserBrowse")->setText(tr("Change Directory"));
+	uuidAction("fileBrowserBrowse")->setIcon(TkIcon("document-open-folder"));
 
-	_searchLineEdit->setToolTip(tr("Search files, use whitespaces to separate words"));
-	QString pattern(_searchLineEdit->text().trimmed());
-	_clearSearchButton->setEnabled(!pattern.isEmpty());
-
-	ActionCollection::action("fileBrowserBrowse")->setText(tr("Change Directory"));
-	ActionCollection::action("fileBrowserBrowse")->setIcon(TkIcon("document-open-folder"));
-
-	ActionCollection::action("fileBrowserNew")->setText(tr("New File Browser Window"));
-	ActionCollection::action("fileBrowserNew")->setIcon(TkIcon("window-new"));
-
-	_toolBar->setMinimumSize(_toolBar->sizeHint());
+	uuidAction("fileBrowserNew")->setText(tr("New File Browser Window"));
+	uuidAction("fileBrowserNew")->setIcon(TkIcon("window-new"));
 
 	setWindowTitle(QString());
 }
 
 void FileBrowserWidget::setWindowTitle(const QString & statusMessage) {
 	if (statusMessage.isEmpty()) {
-		_dockWidget->setWindowTitle(tr("File Browser"));
+		_dockWidget->setWindowTitle(Config::instance().musicDir(uuid()));
 	} else {
 		_dockWidget->setWindowTitle(statusMessage);
 		QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
@@ -268,5 +266,5 @@ void FileBrowserWidget::setWindowTitle(const QString & statusMessage) {
 
 void FileBrowserWidget::configWindowCreated(ConfigWindow * configWindow) {
 	//Add to config window
-	configWindow->addConfigWidget(new FileBrowserConfigWidget());
+	configWindow->addConfigWidget(new FileBrowserConfigWidget(uuid()));
 }

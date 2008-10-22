@@ -42,9 +42,9 @@
 
 #include <cstdio>
 
-MainWindow::MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent)
+MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * parent)
 	: TkMainWindow(parent),
-	PluginInterface(quarkPlayer) {
+	PluginInterface(quarkPlayer, uuid) {
 
 	populateActionCollection();
 
@@ -55,12 +55,9 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, QWidget * parent)
 
 	addRecentFilesToMenu();
 
-	//playToolBar
 	_playToolBar = NULL;
 	_statusBar = NULL;
-	_videoDockWidget = NULL;
-	_browserDockWidget = NULL;
-	_playlistDockWidget = NULL;
+	_configWindow = NULL;
 
 	connect(ActionCollection::action("playFile"), SIGNAL(triggered()), SLOT(playFile()));
 	connect(ActionCollection::action("playDVD"), SIGNAL(triggered()), SLOT(playDVD()));
@@ -99,8 +96,14 @@ QToolBar * MainWindow::playToolBar() const {
 
 void MainWindow::setStatusBar(QStatusBar * statusBar) {
 	_statusBar = statusBar;
-	QMainWindow::setStatusBar(statusBar);
-	emit statusBarAdded(_statusBar);
+	if (_statusBar) {
+		//If statusBar == NULL then QMainWindow::setStatusBar(NULL)
+		//will call statusBar destructor
+		//This can lead to an infinite loop since the statusbar plugin
+		//does a MainWindow::setStatusBar(NULL) inside its destructor
+		QMainWindow::setStatusBar(statusBar);
+		emit statusBarAdded(_statusBar);
+	}
 }
 
 QStatusBar * MainWindow::statusBar() const {
@@ -236,17 +239,18 @@ void MainWindow::updateWindowTitle() {
 }
 
 void MainWindow::showConfigWindow() {
-	static ConfigWindow * configWindow = new ConfigWindow(this);
-
-	static bool firstTime = true;
-	if (firstTime) {
-		firstTime = false;
+	if (!_configWindow) {
+		_configWindow = new ConfigWindow(this);
 
 		//Emits the signal just once, not each time the ConfigWindow is being showed
-		emit configWindowCreated(configWindow);
+		emit configWindowCreated(_configWindow);
 	}
 
-	configWindow->show();
+	_configWindow->show();
+}
+
+ConfigWindow * MainWindow::configWindow() const {
+	return _configWindow;
 }
 
 void MainWindow::about() {
@@ -484,38 +488,43 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 	//exit(EXIT_SUCCESS);
 }
 
-void MainWindow::addBrowserDockWidget(QDockWidget * widget) {
-	static QDockWidget * lastDockWidget = NULL;
-
-	addDockWidget(Qt::LeftDockWidgetArea, widget);
-	if (lastDockWidget) {
-		tabifyDockWidget(lastDockWidget, widget);
+void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget * dockWidget, QDockWidget * lastDockWidget) {
+	if (dockWidget) {
+		QMainWindow::addDockWidget(area, dockWidget);
+		if (lastDockWidget) {
+			tabifyDockWidget(lastDockWidget, dockWidget);
+		}
 	}
-	lastDockWidget = widget;
 }
 
-void MainWindow::removeBrowserDockWidget(QDockWidget * widget) {
-	removeDockWidget(widget);
+void MainWindow::addBrowserDockWidget(QDockWidget * dockWidget) {
+	static QDockWidget * lastDockWidget = NULL;
+	addDockWidget(Qt::LeftDockWidgetArea, dockWidget, lastDockWidget);
+	lastDockWidget = dockWidget;
 }
 
-void MainWindow::addVideoDockWidget(QDockWidget * widget) {
-	static QDockWidget * lastDockWidget = NULL;
-
-	addDockWidget(Qt::RightDockWidgetArea, widget);
-	if (lastDockWidget) {
-		tabifyDockWidget(lastDockWidget, widget);
-	}
-	lastDockWidget = widget;
+void MainWindow::resetBrowserDockWidget() {
+	addBrowserDockWidget(NULL);
 }
 
-void MainWindow::addPlaylistDockWidget(QDockWidget * widget) {
+void MainWindow::addVideoDockWidget(QDockWidget * dockWidget) {
 	static QDockWidget * lastDockWidget = NULL;
+	addDockWidget(Qt::RightDockWidgetArea, dockWidget, lastDockWidget);
+	lastDockWidget = dockWidget;
+}
 
-	addDockWidget(Qt::RightDockWidgetArea, widget);
-	if (lastDockWidget) {
-		tabifyDockWidget(lastDockWidget, widget);
-	}
-	lastDockWidget = widget;
+void MainWindow::resetVideoDockWidget() {
+	addVideoDockWidget(NULL);
+}
+
+void MainWindow::addPlaylistDockWidget(QDockWidget * dockWidget) {
+	static QDockWidget * lastDockWidget = NULL;
+	addDockWidget(Qt::RightDockWidgetArea, dockWidget, lastDockWidget);
+	lastDockWidget = dockWidget;
+}
+
+void MainWindow::resetPlaylistDockWidget() {
+	addPlaylistDockWidget(NULL);
 }
 
 void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {

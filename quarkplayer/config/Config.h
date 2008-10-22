@@ -24,10 +24,18 @@
 #include <tkutil/TkConfig.h>
 #include <tkutil/Singleton.h>
 
+//Yes QUuid is a struct instead of a class inside src/corelib/plugin/quuid.h
+//This is strange...
+struct QUuid;
+
 /**
  * Stores QuarkPlayer configuration.
  *
  * Pattern singleton.
+ * Transform it to CRTP pattern?
+ * So one can inherit from this class
+ * See http://en.wikipedia.org/wiki/Curiously_Recurring_Template_Pattern
+ * See PluginsConfig for an example of how to extend Config
  *
  * <pre>
  * //Example for key PLUGINS_DISABLED_KEY
@@ -82,15 +90,12 @@ public:
 
 	/** Standard music location (i.e C:/blabla/My Music). */
 	static const char * MUSIC_DIR_KEY;
-	QString musicDir() const;
+	QString musicDir(const QUuid & uuid) /*const*/;
+	void addMusicDir(const QString & musicDir, const QUuid & uuid);
 
 	/** Directory where the plugins *.(dll|so|dylib) are located. */
 	static const char * PLUGINS_DIR_KEY;
 	QString pluginsDir() const;
-
-	/** Plugins blacklist (i.e the ones that shouldn't be loaded). */
-	static const char * PLUGINS_DISABLED_KEY;
-	QStringList pluginsDisabled() const;
 
 	/** @see http://doc.trolltech.com/main-snapshot/qwidget.html#restoreGeometry */
 	static const char * MAINWINDOW_GEOMETRY_KEY;

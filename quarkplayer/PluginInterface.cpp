@@ -20,8 +20,15 @@
 
 #include "QuarkPlayer.h"
 
-PluginInterface::PluginInterface(QuarkPlayer & quarkPlayer)
+#include <QtCore/QDebug>
+
+PluginInterface::PluginInterface(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: _quarkPlayer(quarkPlayer) {
+
+	_uuid = uuid;
+	if (_uuid.isNull()) {
+		qCritical() << __FUNCTION__ << "Error: _uuid cannot be NULL";
+	}
 }
 
 PluginInterface::~PluginInterface() {
@@ -29,4 +36,8 @@ PluginInterface::~PluginInterface() {
 
 QuarkPlayer & PluginInterface::quarkPlayer() const {
 	return _quarkPlayer;
+}
+
+QUuid PluginInterface::uuid() const {
+	return _uuid;
 }

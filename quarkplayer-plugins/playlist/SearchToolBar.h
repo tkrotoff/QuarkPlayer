@@ -16,31 +16,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLUGINFACTORY_H
-#define PLUGINFACTORY_H
+#ifndef SEARCHTOOLBAR_H
+#define SEARCHTOOLBAR_H
 
-#include <QtCore/QObject>
+#include <QtGui/QToolBar>
 
-class PluginInterface;
-class QuarkPlayer;
-
-struct QUuid;
+class QLineEdit;
+class QToolButton;
 
 /**
- * Plugin factory.
+ * Search toolbar.
  *
  * @author Tanguy Krotoff
  */
-class PluginFactory {
+class SearchToolBar : public QToolBar {
+	Q_OBJECT
 public:
 
-	virtual PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const = 0;
+	SearchToolBar(QWidget * parent);
 
-	virtual ~PluginFactory() { }
+	~SearchToolBar();
+
+	QString text() const;
+
+	/**
+	 * Adds the search widgets (line edit, clean button) to this toolbar.
+	 *
+	 * This function exists because we cannot implement a function like:
+	 * void prependWidget(QWidget * widget)
+	 *
+	 * @see QToolBar::addWidget()
+	 * @see QToolBar::insertWidget()
+	 */
+	void addSearchWidgets();
+
+signals:
+
+	void textChanged(const QString & text);
+
+private slots:
+
+	void textChanged();
+
+	void retranslate();
 
 private:
+
+	void populateActionCollection();
+
+	void createToolBar();
+
+	QLineEdit * _searchLineEdit;
+
+	QToolButton * _clearSearchButton;
 };
 
-Q_DECLARE_INTERFACE(PluginFactory, "org.quarkplayer.PluginFactory/1.0");
-
-#endif	//PLUGINFACTORY_H
+#endif	//SEARCHTOOLBAR_H

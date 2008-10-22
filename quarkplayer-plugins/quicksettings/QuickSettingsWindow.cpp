@@ -40,16 +40,16 @@
 
 Q_EXPORT_PLUGIN2(quicksettings, QuickSettingsWindowFactory);
 
-PluginInterface * QuickSettingsWindowFactory::create(QuarkPlayer & quarkPlayer) const {
-	return new QuickSettingsWindow(quarkPlayer);
+PluginInterface * QuickSettingsWindowFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
+	return new QuickSettingsWindow(quarkPlayer, uuid);
 }
 
 static const int SLIDER_RANGE = 8;
 static const int TICKINTERVAL = 4;
 
-QuickSettingsWindow::QuickSettingsWindow(QuarkPlayer & quarkPlayer)
+QuickSettingsWindow::QuickSettingsWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QDialog(&(quarkPlayer.mainWindow())),
-	PluginInterface(quarkPlayer) {
+	PluginInterface(quarkPlayer, uuid) {
 
 	_audioOutput = NULL;
 	_mediaObject = NULL;

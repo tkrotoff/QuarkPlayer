@@ -38,19 +38,27 @@
 
 Q_EXPORT_PLUGIN2(videowidget, VideoWidgetPluginFactory);
 
-PluginInterface * VideoWidgetPluginFactory::create(QuarkPlayer & quarkPlayer) const {
-	return new VideoWidgetPlugin(quarkPlayer);
+PluginInterface * VideoWidgetPluginFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
+	return new VideoWidgetPlugin(quarkPlayer, uuid);
 }
 
-VideoWidgetPlugin::VideoWidgetPlugin(QuarkPlayer & quarkPlayer)
+VideoWidgetPlugin::VideoWidgetPlugin(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QObject(NULL),
-	PluginInterface(quarkPlayer) {
+	PluginInterface(quarkPlayer, uuid) {
 
 	connect(&quarkPlayer, SIGNAL(mediaObjectAdded(Phonon::MediaObject *)),
 		SLOT(mediaObjectAdded(Phonon::MediaObject *)));
 }
 
 VideoWidgetPlugin::~VideoWidgetPlugin() {
+	QMapIterator<Phonon::MediaObject *, VideoContainer *> it(_mediaObjectMap);
+	while (it.hasNext()) {
+		it.next();
+
+		VideoContainer * container = it.value();
+		quarkPlayer().mainWindow().removeDockWidget(container->videoDockWidget);
+	}
+	quarkPlayer().mainWindow().resetVideoDockWidget();
 }
 
 void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldState) {
@@ -142,6 +150,7 @@ VideoWidgetPlugin::VideoContainer * VideoWidgetPlugin::findMatchingVideoContaine
 	QMapIterator<Phonon::MediaObject *, VideoContainer *> it(_mediaObjectMap);
 	while (it.hasNext()) {
 		it.next();
+
 		container = it.value();
 		if (container->videoDockWidget == dockWidget) {
 			break;

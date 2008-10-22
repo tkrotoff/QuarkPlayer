@@ -49,7 +49,7 @@ class MediaController : public QWidget, public PluginInterface {
 	Q_OBJECT
 public:
 
-	MediaController(QuarkPlayer & quarkPlayer);
+	MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid);
 
 	~MediaController();
 
@@ -118,7 +118,7 @@ class MediaControllerFactory : public QObject, public PluginFactory {
 	Q_INTERFACES(PluginFactory)
 public:
 
-	PluginInterface * create(QuarkPlayer & quarkPlayer) const;
+	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };
 
 #endif	//MEDIACONTROLLER_H

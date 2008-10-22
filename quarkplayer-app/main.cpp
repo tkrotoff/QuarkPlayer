@@ -17,7 +17,7 @@
  */
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/PluginManager.h>
+#include <quarkplayer/PluginsManager.h>
 #include <quarkplayer/CommandLineParser.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/version.h>
@@ -99,7 +99,7 @@ int main(int argc, char * argv[]) {
 	TkIcon::setIconSize(16);
 
 	QuarkPlayer quarkPlayer(&app);
-	PluginManager::instance().loadAllPlugins(quarkPlayer);
+	PluginsManager::instance().loadAllPlugins(quarkPlayer);
 	if (!parser.fileToPlay().isEmpty()) {
 		quarkPlayer.play(parser.fileToPlay());
 	}

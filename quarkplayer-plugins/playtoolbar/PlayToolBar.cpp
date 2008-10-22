@@ -34,13 +34,13 @@
 
 Q_EXPORT_PLUGIN2(playtoolbar, PlayToolBarFactory);
 
-PluginInterface * PlayToolBarFactory::create(QuarkPlayer & quarkPlayer) const {
-	return new PlayToolBar(quarkPlayer);
+PluginInterface * PlayToolBarFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
+	return new PlayToolBar(quarkPlayer, uuid);
 }
 
-PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer)
+PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QToolBar(NULL),
-	PluginInterface(quarkPlayer) {
+	PluginInterface(quarkPlayer, uuid) {
 
 	_volumeSlider = NULL;
 	_seekSlider = NULL;
@@ -143,21 +143,21 @@ void PlayToolBar::createControlToolBar() {
 	_controlToolBar->addAction(ActionCollection::action("play"));
 	_controlToolBar->addAction(ActionCollection::action("pause"));
 	_controlToolBar->addAction(ActionCollection::action("stop"));
-	_controlToolBar->addSeparator();
 	_controlToolBar->addAction(ActionCollection::action("previousTrack"));
 	_controlToolBar->addAction(ActionCollection::action("nextTrack"));
+
 	_controlToolBar->addSeparator();
 	_controlToolBar->addAction(ActionCollection::action("fullScreen"));
+
 	_controlToolBar->addSeparator();
 	_controlToolBar->addAction(ActionCollection::action("newMediaObject"));
-	_controlToolBar->addSeparator();
 
 	//volumeSlider
+	_controlToolBar->addSeparator();
 	_volumeSlider = new Phonon::VolumeSlider();
 	_volumeSlider->setIconSize(_controlToolBar->iconSize());
 	//volumeSlider only takes the space it needs
 	_volumeSlider->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-
 	_controlToolBar->addWidget(_volumeSlider);
 }
 

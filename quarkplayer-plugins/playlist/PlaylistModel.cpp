@@ -22,7 +22,7 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
-#include <quarkplayer/PluginManager.h>
+#include <quarkplayer/PluginsManager.h>
 
 #include <mediainfowindow/MediaInfoFetcher.h>
 
@@ -51,16 +51,16 @@ const int PlaylistModel::COLUMN_LAST = COLUMN_LENGTH;
 
 static const int COLUMN_COUNT = 5;
 
-static const QString CURRENT_PLAYLIST = "/current_playlist.m3u";
-
 static const int POSITION_INVALID = -1;
 const int PlaylistModel::APPEND_FILES = -1;
 
 static const char * PLAYLIST_TRACK_DISPLAY_MODE_KEY = "playlist_track_display_mode";
 
-PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
+PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QAbstractItemModel(parent),
 	_quarkPlayer(quarkPlayer) {
+
+	_uuid = uuid;
 
 	clearInternal();
 
@@ -72,7 +72,7 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer)
 	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
 
 	//Optimization: loads the playlist only when all plugins have been loaded
-	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
+	connect(&PluginsManager::instance(), SIGNAL(allPluginsLoaded()),
 		SLOT(loadCurrentPlaylist()), Qt::QueuedConnection);
 
 	Config::instance().addKey(PLAYLIST_TRACK_DISPLAY_MODE_KEY, TrackDisplayModeNormal);
@@ -346,10 +346,14 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
 	return success;
 }
 
+QString PlaylistModel::currentPlaylist() const {
+	return "/playlist_" + _uuid.toString() + ".m3u";
+}
+
 void PlaylistModel::loadCurrentPlaylist() {
 	//Restore last current playlist
 	QString path(Config::instance().configDir());
-	PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST, this);
+	PlaylistParser * parser = new PlaylistParser(path + currentPlaylist(), this);
 	connect(parser, SIGNAL(filesFound(const QStringList &)),
 		SLOT(filesFound(const QStringList &)));
 	connect(parser, SIGNAL(finished(int)),
@@ -386,7 +390,7 @@ void PlaylistModel::saveCurrentPlaylist() {
 		if (newPlaylist != lastPlaylistSaved) {
 			lastPlaylistSaved = newPlaylist;
 			QString path(Config::instance().configDir());
-			PlaylistParser * parser = new PlaylistParser(path + CURRENT_PLAYLIST, this);
+			PlaylistParser * parser = new PlaylistParser(path + currentPlaylist(), this);
 			connect(parser, SIGNAL(finished(int)),
 				SIGNAL(playlistSaved(int)));
 			parser->save(newPlaylist);
@@ -531,10 +535,6 @@ void PlaylistModel::setPosition(int position) {
 	//Update graphically the last valid position
 	emit dataChanged(this->index(lastValidPosition, PlaylistModel::COLUMN_FIRST),
 		this->index(lastValidPosition, PlaylistModel::COLUMN_LAST));
-
-	//Update graphically the current position
-	emit dataChanged(this->index(_position, PlaylistModel::COLUMN_FIRST),
-		this->index(_position, PlaylistModel::COLUMN_LAST));
 }
 
 int PlaylistModel::position() const {

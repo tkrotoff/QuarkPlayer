@@ -21,6 +21,7 @@
 #include <QtGui/QDesktopServices>
 
 #include <QtCore/QStringList>
+#include <QtCore/QUuid>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
@@ -41,7 +42,6 @@ const char * Config::VOLUME_MUTED_KEY = "volume_muted";
 const char * Config::MUSIC_DIR_KEY = "music_dir";
 
 const char * Config::PLUGINS_DIR_KEY = "plugins_dir";
-const char * Config::PLUGINS_DISABLED_KEY = "plugins_disabled";
 
 const char * Config::MAINWINDOW_GEOMETRY_KEY = "mainwindow_geometry";
 
@@ -58,7 +58,6 @@ Config::Config()
 	addKey(VOLUME_MUTED_KEY, false);
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
 	addKey(PLUGINS_DIR_KEY, QString(QCoreApplication::applicationDirPath() + "/plugins"));
-	addKey(PLUGINS_DISABLED_KEY, QStringList());
 	addKey(MAINWINDOW_GEOMETRY_KEY, QByteArray());
 }
 
@@ -118,17 +117,30 @@ bool Config::volumeMuted() const {
 	return value(VOLUME_MUTED_KEY).toBool();
 }
 
-QString Config::musicDir() const {
-	return value(MUSIC_DIR_KEY).toString();
+void Config::addMusicDir(const QString & musicDir, const QUuid & uuid) {
+	if (uuid.isNull()) {
+		qCritical() << __FUNCTION__ << "Error: empty UUID";
+	}
+
+	QString key(MUSIC_DIR_KEY + uuid.toString());
+	if (!contains(key)) {
+		//qCritical() << __FUNCTION__ << "Error: unknown UUID:" << uuid;
+		addKey(key, defaultValue(MUSIC_DIR_KEY).toString());
+	}
+	setValue(key, musicDir);
+}
+
+QString Config::musicDir(const QUuid & uuid) /*const*/ {
+	QString key(MUSIC_DIR_KEY + uuid.toString());
+	if (!contains(key)) {
+		//qCritical() << __FUNCTION__ << "Error: unknown UUID:" << uuid;
+		addKey(key, defaultValue(MUSIC_DIR_KEY).toString());
+	}
+	return value(key).toString();
 }
 
 QString Config::pluginsDir() const {
 	return value(PLUGINS_DIR_KEY).toString();
-}
-
-QStringList Config::pluginsDisabled() const {
-	QSet<QString> tmp = value(PLUGINS_DISABLED_KEY).toStringList().toSet();
-	return tmp.toList();
 }
 
 QByteArray Config::mainWindowGeometry() const {

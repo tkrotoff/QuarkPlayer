@@ -41,7 +41,7 @@ class PlayToolBar : public QToolBar, public PluginInterface {
 	Q_OBJECT
 public:
 
-	PlayToolBar(QuarkPlayer & quarkPlayer);
+	PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid);
 
 	~PlayToolBar();
 
@@ -91,7 +91,7 @@ class PlayToolBarFactory : public QObject, public PluginFactory {
 	Q_INTERFACES(PluginFactory)
 public:
 
-	PluginInterface * create(QuarkPlayer & quarkPlayer) const;
+	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };
 
 #endif	//PLAYTOOLBAR_H

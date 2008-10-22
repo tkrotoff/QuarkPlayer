@@ -44,13 +44,13 @@
 
 Q_EXPORT_PLUGIN2(mediacontroller, MediaControllerFactory);
 
-PluginInterface * MediaControllerFactory::create(QuarkPlayer & quarkPlayer) const {
-	return new MediaController(quarkPlayer);
+PluginInterface * MediaControllerFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
+	return new MediaController(quarkPlayer, uuid);
 }
 
-MediaController::MediaController(QuarkPlayer & quarkPlayer)
+MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QWidget(NULL),
-	PluginInterface(quarkPlayer) {
+	PluginInterface(quarkPlayer, uuid) {
 
 	populateActionCollection();
 
@@ -76,6 +76,12 @@ MediaController::MediaController(QuarkPlayer & quarkPlayer)
 }
 
 MediaController::~MediaController() {
+	_mainWindow->removeToolBar(_toolBar);
+
+	QMenuBar * menuBar = _mainWindow->menuBar();
+	menuBar->removeAction(_menuAudio->menuAction());
+	menuBar->removeAction(_menuSubtitle->menuAction());
+	menuBar->removeAction(_menuBrowse->menuAction());
 }
 
 void MediaController::populateActionCollection() {

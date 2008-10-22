@@ -19,6 +19,7 @@
 #include "FileBrowserTreeView.h"
 
 #include "FileSearchModel.h"
+#include "UuidActionCollection.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
@@ -27,7 +28,6 @@
 #include <mediainfowindow/MediaInfoFetcher.h>
 
 #include <tkutil/LanguageChangeEventFilter.h>
-#include <tkutil/ActionCollection.h>
 #include <tkutil/TkIcon.h>
 
 #include <phonon/mediaobject.h>
@@ -51,19 +51,19 @@ FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
 		SLOT(clicked(const QModelIndex &)));
 
 	//Add to playlist
-	connect(ActionCollection::action("fileBrowserAddToPlaylist"), SIGNAL(triggered()),
+	connect(uuidAction("fileBrowserAddToPlaylist"), SIGNAL(triggered()),
 		SLOT(addToPlaylist()));
-	addAction(ActionCollection::action("fileBrowserAddToPlaylist"));
+	addAction(uuidAction("fileBrowserAddToPlaylist"));
 
 	//Play
-	connect(ActionCollection::action("fileBrowserPlay"), SIGNAL(triggered()),
+	connect(uuidAction("fileBrowserPlay"), SIGNAL(triggered()),
 		SLOT(play()));
-	addAction(ActionCollection::action("fileBrowserPlay"));
+	addAction(uuidAction("fileBrowserPlay"));
 
 	//View Media Info...
-	connect(ActionCollection::action("fileBrowserViewMediaInfo"), SIGNAL(triggered()),
+	connect(uuidAction("fileBrowserViewMediaInfo"), SIGNAL(triggered()),
 		SLOT(viewMediaInfo()));
-	addAction(ActionCollection::action("fileBrowserViewMediaInfo"));
+	addAction(uuidAction("fileBrowserViewMediaInfo"));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -75,9 +75,9 @@ FileBrowserTreeView::~FileBrowserTreeView() {
 void FileBrowserTreeView::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
-	ActionCollection::addAction("fileBrowserAddToPlaylist", new QAction(app));
-	ActionCollection::addAction("fileBrowserPlay", new QAction(app));
-	ActionCollection::addAction("fileBrowserViewMediaInfo", new QAction(app));
+	addUuidAction("fileBrowserAddToPlaylist", new QAction(app));
+	addUuidAction("fileBrowserPlay", new QAction(app));
+	addUuidAction("fileBrowserViewMediaInfo", new QAction(app));
 }
 
 void FileBrowserTreeView::mouseDoubleClickEvent(QMouseEvent * event) {
@@ -90,7 +90,7 @@ void FileBrowserTreeView::clicked(const QModelIndex & index) {
 	qDebug() << __FUNCTION__ << fileInfo.fileName() << index.row() << index.column();
 
 	//Cannot play a directory
-	ActionCollection::action("fileBrowserPlay")->setEnabled(!fileInfo.isDir());
+	uuidAction("fileBrowserPlay")->setEnabled(!fileInfo.isDir());
 }
 
 void FileBrowserTreeView::addToPlaylist() {
@@ -122,14 +122,14 @@ void FileBrowserTreeView::play() {
 }
 
 void FileBrowserTreeView::retranslate() {
-	ActionCollection::action("fileBrowserAddToPlaylist")->setText(tr("Add to Playlist"));
-	ActionCollection::action("fileBrowserAddToPlaylist")->setIcon(TkIcon("list-add"));
+	uuidAction("fileBrowserAddToPlaylist")->setText(tr("Add to Playlist"));
+	uuidAction("fileBrowserAddToPlaylist")->setIcon(TkIcon("list-add"));
 
-	ActionCollection::action("fileBrowserPlay")->setText(tr("Play"));
-	ActionCollection::action("fileBrowserPlay")->setIcon(TkIcon("media-playback-start"));
+	uuidAction("fileBrowserPlay")->setText(tr("Play"));
+	uuidAction("fileBrowserPlay")->setIcon(TkIcon("media-playback-start"));
 
-	ActionCollection::action("fileBrowserViewMediaInfo")->setText(tr("View Media Info..."));
-	ActionCollection::action("fileBrowserViewMediaInfo")->setIcon(TkIcon("document-properties"));
+	uuidAction("fileBrowserViewMediaInfo")->setText(tr("View Media Info..."));
+	uuidAction("fileBrowserViewMediaInfo")->setIcon(TkIcon("document-properties"));
 }
 
 QFileInfo FileBrowserTreeView::fileInfo(const QModelIndex & index) const {

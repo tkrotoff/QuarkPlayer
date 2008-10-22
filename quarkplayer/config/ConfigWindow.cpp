@@ -34,7 +34,8 @@
 
 #include <QtCore/QDebug>
 
-static const int COLUMN = 0;
+static const int NAME_COLUMN = 0;
+static const int PRIVATE_POINTER_COLUMN = 1;
 
 ConfigWindow::ConfigWindow(QWidget * parent)
 	: QDialog(parent) {
@@ -67,6 +68,7 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	populateStackedWidget();
 
 	_ui->treeWidget->setHeaderHidden(true);
+	_ui->treeWidget->setColumnHidden(PRIVATE_POINTER_COLUMN, true);
 
 	//saveButton
 	connect(_ui->buttonBox, SIGNAL(accepted()), SLOT(saveConfig()));
@@ -114,8 +116,9 @@ void ConfigWindow::populateStackedWidget() {
 			item = new QTreeWidgetItem(_ui->treeWidget);
 		}
 		item->setExpanded(true);
-		item->setIcon(COLUMN, TkIcon(tmp.configWidget->iconName()));
-		item->setText(COLUMN, tmp.configWidget->name());
+		item->setIcon(NAME_COLUMN, TkIcon(tmp.configWidget->iconName()));
+		item->setText(NAME_COLUMN, tmp.configWidget->name());
+		item->setText(PRIVATE_POINTER_COLUMN, QString::number(quintptr(tmp.configWidget)));
 
 		if (qobject_cast<PluginsConfigWidget *>(tmp.configWidget)) {
 			//Saves the QTreeWidgetItem for plugins
@@ -139,7 +142,9 @@ void ConfigWindow::populateStackedWidget() {
 void ConfigWindow::showConfigWidget(QTreeWidgetItem * item) {
 	IConfigWidget * configWidget = NULL;
 	foreach (ConfigWidget tmp, _configWidgetList) {
-		if (tmp.configWidget->name() == item->text(COLUMN)) {
+
+		//Compare pointers together
+		if (quintptr(tmp.configWidget) == item->text(PRIVATE_POINTER_COLUMN).toULongLong()) {
 			//We found the associated config widget
 			configWidget = tmp.configWidget;
 			break;

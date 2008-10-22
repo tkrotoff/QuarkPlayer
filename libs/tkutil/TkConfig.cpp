@@ -75,6 +75,10 @@ QVariant TkConfig::defaultValue(const QString & key) const {
 	return _defaultValues.value(key);
 }
 
+bool TkConfig::contains(const QString & key) const {
+	return _defaultValues.contains(key);
+}
+
 QVariant TkConfig::value(const QString & key) const {
 	QVariant value = _settings.value(key, _defaultValues.value(key));
 	checkStatus();

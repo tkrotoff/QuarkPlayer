@@ -16,31 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLUGINFACTORY_H
-#define PLUGINFACTORY_H
+#include "UuidActionCollection.h"
 
-#include <QtCore/QObject>
+#include <tkutil/ActionCollection.h>
 
-class PluginInterface;
-class QuarkPlayer;
+#include <QtCore/QUuid>
+#include <QtCore/QDebug>
 
-struct QUuid;
+static QUuid _uuid;
 
-/**
- * Plugin factory.
- *
- * @author Tanguy Krotoff
- */
-class PluginFactory {
-public:
+void setUuid(const QUuid & uuid) {
+	_uuid = uuid;
+}
 
-	virtual PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const = 0;
+QAction * uuidAction(const QString & name) {
+	if (_uuid.isNull()) {
+		qCritical() << __FUNCTION__ << "Error: UUID is null";
+	}
+	return ActionCollection::action(name + "_" + _uuid.toString());
+}
 
-	virtual ~PluginFactory() { }
-
-private:
-};
-
-Q_DECLARE_INTERFACE(PluginFactory, "org.quarkplayer.PluginFactory/1.0");
-
-#endif	//PLUGINFACTORY_H
+void addUuidAction(const QString & name, QAction * action) {
+	if (_uuid.isNull()) {
+		qCritical() << __FUNCTION__ << "Error: UUID is null";
+	}
+	return ActionCollection::addAction(name + "_" + _uuid.toString(), action);
+}
