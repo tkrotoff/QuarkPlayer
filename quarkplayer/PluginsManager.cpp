@@ -183,16 +183,12 @@ bool PluginsManager::deletePlugin(const QString & filename, PluginData & pluginD
 	bool ret = true;
 
 	if (!pluginData.interface()) {
-		qCritical() << __FUNCTION__ << "Error: couldn't delete the plugin:" << filename;
+		//qCritical() << __FUNCTION__ << "Error: couldn't delete the plugin:" << filename;
 		ret = false;
+	} else {
+		//Unloads the plugin
+		pluginData.deleteInterface();
 	}
-
-	//Unloads the plugin
-	//FIXME this does not work, it crashes using MSVC80
-	//pluginData.deleteInterface();
-	delete pluginData.interface();
-	pluginData.setInterface(NULL);
-	///
 
 	changeOrAddPluginData(filename, pluginData);
 
@@ -211,18 +207,12 @@ void PluginsManager::changeOrAddPluginData(const QString & filename, const Plugi
 	_plugins.remove(filename, pluginData);
 	_plugins.insert(filename, pluginData);
 
-	PluginData::PluginListIterator it(_plugins);
-	while (it.hasNext()) {
-		it.next();
-
-		QString filename(it.key());
-		PluginData pluginData(it.value());
-		qDebug() << __FUNCTION__ << "Key:" << it.key() << "value:" << pluginData.toString();
+	if (_allPluginsAlreadyLoaded) {
+		//Optimization: save the plugin list only is loading is finished
+		//this means we save only modifications made by the user
+		//when dealing with the configuration panel
+		PluginsConfig::instance().setPlugins(_plugins);
 	}
-
-	qDebug() << __FUNCTION__ << "Size:" << _plugins.count();
-
-	PluginsConfig::instance().setPlugins(_plugins);
 }
 
 PluginData PluginsManager::pluginData(const QString & filename, const QUuid & uuid) const {

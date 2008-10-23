@@ -25,70 +25,39 @@
 const char * PluginsConfig::PLUGINS_KEY = "plugins";
 
 PluginsConfig::PluginsConfig() {
-	Config::instance().addKey(PLUGINS_KEY, QMultiMap<QString, QVariant>());
+	Config::instance().addKey(PLUGINS_KEY, QString());
 }
 
 PluginsConfig::~PluginsConfig() {
 }
 
 PluginData::PluginList PluginsConfig::plugins() const {
-	//Needs to convert from QMultiMap<QString, QVariant> to
-	//QMultiMap<QString, PluginData>
-	//Yes this is boring :/
+	//Version working with QDataStream
+	/*
+	QVariant tmp = Config::instance().value(PLUGINS_KEY);
+	PluginData::PluginList pluginList = tmp.value<PluginData::PluginList>();
+	return pluginList;
+	*/
 
-	QMultiMap<QString, QVariant> original = Config::instance().value(PLUGINS_KEY).toMap();
-	PluginData::PluginList convert;
-
-	QMapIterator<QString, QVariant> it(original);
-	while (it.hasNext()) {
-		it.next();
-
-		QString filename(it.key());
-		QList<QVariant> values = original.values(filename);
-		for (int i = 0; i < values.size(); i++) {
-			QVariant value(values.at(i));
-			qDebug() << __FUNCTION__ << "Key:" << filename << "value:" << value.toString();
-
-			//FIXME Don't really know why it does not work properly
-			//Let's just remove items before
-			convert.remove(filename, value.toString());
-
-			convert.insert(filename, value.toString());
-		}
-	}
-
-	qDebug() << __FUNCTION__ << "Size:" << convert.count();
-	return convert;
+	//Version working with QTextStream
+	QString tmp(Config::instance().value(PLUGINS_KEY).toString());
+	QTextStream stream(&tmp);
+	PluginData::PluginList pluginList;
+	stream >> pluginList;
+	return pluginList;
 }
 
 void PluginsConfig::setPlugins(const PluginData::PluginList & plugins) {
-	//Needs to convert from QMultiMap<QString, PluginData> to
-	//QMultiMap<QString, QVariant>
-	//Yes this is boring :/
+	//Version working with QDataStream
+	/*
+	QVariant tmp;
+	tmp.setValue(plugins);
+	Config::instance().setValue(PLUGINS_KEY, tmp);
+	*/
 
-	qDebug() << __FUNCTION__ << "Size:" << plugins.count();
-
-	QMultiMap<QString, QVariant> convert;
-	qDebug() << __FUNCTION__ << "Size:" << convert.count();
-
-	PluginData::PluginListIterator it(plugins);
-	while (it.hasNext()) {
-		it.next();
-
-		QString filename(it.key());
-		QList<PluginData> values = plugins.values(filename);
-		for (int i = 0; i < values.size(); i++) {
-			PluginData pluginData = values.at(i);
-			qDebug() << __FUNCTION__ << "Key:" << filename << "value:" << pluginData.toString();
-
-			//FIXME Don't really know why it does not work properly
-			//Let's just remove items before
-			convert.remove(filename, pluginData.toString());
-
-			convert.insert(filename, pluginData.toString());
-		}
-	}
-
-	qDebug() << __FUNCTION__ << "Size:" << convert.count();
-	Config::instance().setValue(PLUGINS_KEY, convert);
+	//Version working with QTextStream
+	QString tmp;
+	QTextStream stream(&tmp);
+	stream << plugins;
+	Config::instance().setValue(PLUGINS_KEY, tmp);
 }

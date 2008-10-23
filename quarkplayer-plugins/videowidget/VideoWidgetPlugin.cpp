@@ -51,7 +51,7 @@ VideoWidgetPlugin::VideoWidgetPlugin(QuarkPlayer & quarkPlayer, const QUuid & uu
 }
 
 VideoWidgetPlugin::~VideoWidgetPlugin() {
-	QMapIterator<Phonon::MediaObject *, VideoContainer *> it(_mediaObjectMap);
+	QHashIterator<Phonon::MediaObject *, VideoContainer *> it(_mediaObjectHash);
 	while (it.hasNext()) {
 		it.next();
 
@@ -62,7 +62,7 @@ VideoWidgetPlugin::~VideoWidgetPlugin() {
 }
 
 void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldState) {
-	VideoContainer * container = _mediaObjectMap.value(quarkPlayer().currentMediaObject());
+	VideoContainer * container = _mediaObjectHash.value(quarkPlayer().currentMediaObject());
 
 	//Remove the background logo, not needed anymore
 	if (container->backgroundLogoWidget) {
@@ -78,7 +78,7 @@ void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldSt
 }
 
 void VideoWidgetPlugin::hasVideoChanged(bool hasVideo) {
-	VideoContainer * container = _mediaObjectMap.value(quarkPlayer().currentMediaObject());
+	VideoContainer * container = _mediaObjectHash.value(quarkPlayer().currentMediaObject());
 
 	//Resize the main window to the size of the video
 	//i.e increase or decrease main window size if needed
@@ -96,7 +96,7 @@ void VideoWidgetPlugin::hasVideoChanged(bool hasVideo) {
 }
 
 void VideoWidgetPlugin::metaDataChanged() {
-	VideoContainer * container = _mediaObjectMap.value(quarkPlayer().currentMediaObject());
+	VideoContainer * container = _mediaObjectHash.value(quarkPlayer().currentMediaObject());
 
 	QString title = quarkPlayer().currentMediaObjectTitle();
 	container->videoDockWidget->setWindowTitle(title);
@@ -133,7 +133,7 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	container->videoWidget = new VideoWidget(container->videoDockWidget, quarkPlayer().mainWindow());
 	Phonon::createPath(mediaObject, container->videoWidget);
 
-	_mediaObjectMap[mediaObject] = container;
+	_mediaObjectHash[mediaObject] = container;
 
 	//Add to the main window
 	quarkPlayer().mainWindow().addVideoDockWidget(container->videoDockWidget);
@@ -147,7 +147,7 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 
 VideoWidgetPlugin::VideoContainer * VideoWidgetPlugin::findMatchingVideoContainer(QDockWidget * dockWidget) {
 	VideoContainer * container = NULL;
-	QMapIterator<Phonon::MediaObject *, VideoContainer *> it(_mediaObjectMap);
+	QHashIterator<Phonon::MediaObject *, VideoContainer *> it(_mediaObjectHash);
 	while (it.hasNext()) {
 		it.next();
 
@@ -165,6 +165,6 @@ void VideoWidgetPlugin::visibilityChanged(bool visible) {
 	}
 
 	VideoContainer * container = findMatchingVideoContainer(qobject_cast<QDockWidget *>(sender()));
-	Phonon::MediaObject * mediaObject = _mediaObjectMap.key(container);
+	Phonon::MediaObject * mediaObject = _mediaObjectHash.key(container);
 	quarkPlayer().setCurrentMediaObject(mediaObject);
 }

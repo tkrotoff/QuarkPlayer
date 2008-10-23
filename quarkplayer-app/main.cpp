@@ -43,6 +43,8 @@ int main(int argc, char * argv[]) {
 	Q_INIT_RESOURCE(quarkplayer_oxygen);
 	Q_INIT_RESOURCE(quarkplayer_silk);
 
+	QuarkPlayer::registerMetaTypes();
+
 #ifdef KDE4_FOUND
 	KAboutData aboutData(
 			//appName

@@ -20,7 +20,8 @@
 #define PLUGINDATA_H
 
 #include <QtCore/QUuid>
-#include <QtCore/QMultiMap>
+#include <QtCore/QMultiHash>
+#include <QtCore/QTextStream>
 
 class PluginInterface;
 
@@ -36,17 +37,15 @@ class QPluginLoader;
 class PluginData {
 public:
 
-	/** QMultiMap<QString, PluginData> with QString == plugin filename. */
-	typedef QMultiMap<QString, PluginData> PluginList;
+	/** QMultiHash<QString, PluginData> with QString == plugin filename. */
+	typedef QMultiHash<QString, PluginData> PluginList;
 
-	typedef QMapIterator<QString, PluginData> PluginListIterator;
+	typedef QHashIterator<QString, PluginData> PluginListIterator;
 
 
 	PluginData(const QUuid & uuid, bool enabled);
 
 	PluginData(const PluginData & pluginData);
-
-	PluginData(const QString & data);
 
 	PluginData();
 
@@ -57,21 +56,26 @@ public:
 	/** Comparison based on UUID. */
 	int operator==(const PluginData & right);
 
-	QString toString() const;
-
 	QUuid uuid() const;
 
+	/** Is the plugin enabled or disabled? */
 	bool isEnabled() const;
 	void setEnabled(bool enabled);
 
 	QPluginLoader * loader() const;
 	void setLoader(QPluginLoader * loader);
+
+	/**
+	 * Unloads the plugin and deletes the QPluginLoader.
+	 *
+	 * This is dangerous: it crashes.
+	 */
 	void deleteLoader();
 
 	PluginInterface * interface() const;
 	void setInterface(PluginInterface * interface);
 
-	//FIXME this does not work, it crashes using MSVC80
+	/** Deletes the PluginInterface. */
 	void deleteInterface();
 
 private:
@@ -86,5 +90,13 @@ private:
 
 	PluginInterface * _interface;
 };
+
+QDataStream & operator<<(QDataStream & stream, const PluginData::PluginList & plugins);
+
+QDataStream & operator>>(QDataStream & stream, PluginData::PluginList & plugins);
+
+QTextStream & operator<<(QTextStream & stream, const PluginData::PluginList & plugins);
+
+QTextStream & operator>>(QTextStream & stream, PluginData::PluginList & plugins);
 
 #endif	//PLUGINDATA_H

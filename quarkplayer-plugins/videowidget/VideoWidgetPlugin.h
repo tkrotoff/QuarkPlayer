@@ -24,7 +24,7 @@
 #include <phonon/phononnamespace.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QMap>
+#include <QtCore/QHash>
 
 class VideoWidget;
 class MediaDataWidget;
@@ -100,7 +100,7 @@ private:
 
 	VideoContainer * findMatchingVideoContainer(QDockWidget * dockWidget);
 
-	QMap<Phonon::MediaObject *, VideoContainer *> _mediaObjectMap;
+	QHash<Phonon::MediaObject *, VideoContainer *> _mediaObjectHash;
 };
 
 #include <quarkplayer/PluginFactory.h>

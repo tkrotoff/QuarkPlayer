@@ -47,6 +47,9 @@ QuarkPlayer::~QuarkPlayer() {
 	Config::instance().deleteInstance();
 }
 
+void QuarkPlayer::registerMetaTypes() {
+}
+
 MainWindow & QuarkPlayer::mainWindow() const {
 	return *_mainWindow;
 }

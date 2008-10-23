@@ -26,7 +26,7 @@
 /**
  * Load and save QuarkPlayer plugins configuration.
  *
- * Cannot inherit from Config since instance() is a static member.
+ * Cannot inherit directly from Config since Config::instance() is a static member.
  *
  * @see Config
  * @author Tanguy Krotoff

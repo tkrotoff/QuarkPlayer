@@ -87,8 +87,6 @@ private:
 
 	/** Path to the translations. */
 	QString _translationsPath;
-
-	QString _lastLoadedLocale;
 };
 
 #endif	//TRANSLATOR_H

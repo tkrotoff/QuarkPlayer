@@ -22,7 +22,7 @@
 #include <tkutil/tkutil_export.h>
 
 #include <QtCore/QString>
-#include <QtCore/QMap>
+#include <QtCore/QHash>
 
 class QAction;
 
@@ -54,7 +54,7 @@ private:
 	~ActionCollection();
 
 	/** Associates a name to a QAction. */
-	static QMap<QString, QAction *> _actionMap;
+	static QHash<QString, QAction *> _actionHash;
 };
 
 #endif	//ACTIONCOLLECTION_H

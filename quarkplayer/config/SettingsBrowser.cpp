@@ -319,7 +319,8 @@ void SettingsBrowser::setItem(const QVariant & defaultValue, const QVariant & va
 		break;
 
 	default:
-		qCritical() << __FUNCTION__ << "Error: cannot convert value:" << defaultValue;
+		//qCritical() << __FUNCTION__ << "Error: cannot convert value:" << defaultValue;
+		break;
 	}
 
 	//FIXME Cannot do that, Qt 4.4.0 does not like it:
@@ -404,7 +405,8 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 		break;
 
 	default:
-		qCritical() << __FUNCTION__ << "Error: cannot convert value:" << defaultValue;
+		//qCritical() << __FUNCTION__ << "Error: cannot convert value:" << defaultValue;
+		break;
 	}
 
 	return ret;

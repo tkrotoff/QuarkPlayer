@@ -18,7 +18,7 @@
 
 #include "FileTypes.h"
 
-#include <QtCore/QMap>
+#include <QtCore/QHash>
 #include <QtCore/QSet>
 #include <QtCore/QDebug>
 
@@ -121,9 +121,9 @@ QList<FileType> FileTypes::fileTypes() {
 }
 
 QStringList FileTypes::extensions(FileType::Category category) {
-	static QMap<FileType::Category, QStringList> map;
+	static QHash<FileType::Category, QStringList> hash;
 
-	if (!map.contains(category)) {
+	if (!hash.contains(category)) {
 		//We use QSet then there is no duplicated element
 		QSet<QString> set;
 		foreach (FileType fileType, fileTypes()) {
@@ -131,74 +131,74 @@ QStringList FileTypes::extensions(FileType::Category category) {
 				set += QSet<QString>::fromList(fileType.extensions.split(",", QString::SkipEmptyParts));
 			}
 		}
-		map[category] = QStringList::fromSet(set);
+		hash[category] = QStringList::fromSet(set);
 	}
 
-	return map.value(category);
+	return hash.value(category);
 }
 
 QStringList FileTypes::extensions(FileType::Category category1, FileType::Category category2) {
 	int superCategory = (int) category1 + (int) category2;
-	static QMap<int, QStringList> map;
+	static QHash<int, QStringList> hash;
 
-	if (!map.contains(superCategory)) {
+	if (!hash.contains(superCategory)) {
 		//We use QSet then there is no duplicated element
 		QSet<QString> set;
 		set += QSet<QString>::fromList(extensions(category1));
 		set += QSet<QString>::fromList(extensions(category2));
-		map[superCategory] = QStringList::fromSet(set);
+		hash[superCategory] = QStringList::fromSet(set);
 	}
 
-	return map.value(superCategory);
+	return hash.value(superCategory);
 }
 
 FileType FileTypes::fileType(const QString & extension) {
-	static QMap<QString, FileType> map;
+	static QHash<QString, FileType> hash;
 
-	if (!map.contains(extension)) {
+	if (!hash.contains(extension)) {
 		foreach (FileType fileType, fileTypes()) {
 			if (fileType.extensions.contains(extension)) {
 				//The first one that we found
-				map[extension] = fileType;
+				hash[extension] = fileType;
 				break;
 			}
 		}
 
 		//The extension string was not found :/
-		if (!map.contains(extension)) {
+		if (!hash.contains(extension)) {
 			FileType unknownFileType;
 			unknownFileType.category = FileType::CategoryUnknown;
 			unknownFileType.name = FileType::NameUnknown;
 			unknownFileType.fullName = extension;
 			unknownFileType.extensions += extension;
-			map[extension] = unknownFileType;
+			hash[extension] = unknownFileType;
 		}
 	}
 
-	return map.value(extension);
+	return hash.value(extension);
 }
 
 FileType FileTypes::fileType(FileType::Name name) {
-	static QMap<FileType::Name, FileType> map;
+	static QHash<FileType::Name, FileType> hash;
 
-	if (!map.contains(name)) {
+	if (!hash.contains(name)) {
 		foreach (FileType fileType, fileTypes()) {
 			if (fileType.name == name) {
-				map[name] = fileType;
+				hash[name] = fileType;
 				break;
 			}
 		}
 
 		//The extension string was not found :/
-		if (!map.contains(name)) {
+		if (!hash.contains(name)) {
 			FileType unknownFileType;
 			unknownFileType.category = FileType::CategoryUnknown;
 			unknownFileType.name = FileType::NameUnknown;
-			map[name] = unknownFileType;
+			hash[name] = unknownFileType;
 		}
 	}
 
-	return map.value(name);
+	return hash.value(name);
 }
 
 QString FileTypes::toFilterFormat(const QStringList & extensions) {

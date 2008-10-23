@@ -104,7 +104,7 @@ private:
 	 * Key = filename extension or empty if a directory
 	 * Value = icon matching the extension
 	 */
-	static QMap<QString, QIcon> _iconsCache;
+	static QHash<QString, QIcon> _iconsCache;
 };
 
 #endif	//FILESEARCHMODEL_H

@@ -39,12 +39,29 @@ class TKUTIL_API TkConfig : public QObject {
 	Q_OBJECT
 public:
 
+	/**
+	 * Creates a configuration file.
+	 *
+	 * Configuration file is
+	 * "C:/Documents and Settings/UserName/Application Data/OrganizationName/ApplicationName.ini"
+	 * For QuarkPlayer it will be QuarkPlayer/QuarkPlayer.ini
+	 * The application name is taken from QCoreApplication::organizationName() and
+	 * QCoreApplication::applicationName()
+	 */
 	TkConfig();
 
 	virtual ~TkConfig();
 
+	/** Gets the configuration filename. */
 	QString fileName() const;
 
+	/**
+	 * Gets the path where the configuration file is saved.
+	 *
+	 * Last character is not a '/', you will have to add it yourself if needed.
+	 *
+	 * @return configuration file path
+	 */
 	QString configDir() const;
 
 	QStringList allKeys() const;

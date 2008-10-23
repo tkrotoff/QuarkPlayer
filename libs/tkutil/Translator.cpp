@@ -55,10 +55,12 @@ void Translator::load(const QString & locale) {
 		install();
 	}
 
-	if (locale == _lastLoadedLocale) {
+	static QString lastLoadedLocale("this string should be unique");
+	if (locale == lastLoadedLocale) {
 		qWarning() << __FUNCTION__ << "Locale already loaded:" << locale;
 		return;
 	}
+	lastLoadedLocale = locale;
 
 	QString myLocale = locale;
 	if (myLocale.isEmpty()) {
@@ -90,7 +92,6 @@ bool Translator::loadLocale(QTranslator & translator, const QString & name, cons
 	if (!ret) {
 		qDebug() << __FUNCTION__ << "Error: couldn't load translation:" << filename << "from:" << translationsPath;
 	} else {
-		_lastLoadedLocale = locale;
 		qDebug() << __FUNCTION__ << "Translation loaded:" << filename << "from:" << translationsPath;
 	}
 	return ret;

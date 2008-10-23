@@ -20,13 +20,13 @@
 
 #include <QtGui/QtGui>
 
-QMap<QString, QAction *> ActionCollection::_actionMap;
+QHash<QString, QAction *> ActionCollection::_actionHash;
 
 ActionCollection::ActionCollection() {
 }
 
 ActionCollection::~ActionCollection() {
-	_actionMap.clear();
+	_actionHash.clear();
 }
 
 void ActionCollection::addAction(const QString & name, QAction * action) {
@@ -34,20 +34,20 @@ void ActionCollection::addAction(const QString & name, QAction * action) {
 		qCritical() << __FUNCTION__ << "Error: QAction is null";
 	}
 
-	if (_actionMap.contains(name)) {
+	if (_actionHash.contains(name)) {
 		qCritical() << __FUNCTION__ << "Error: QAction name:" << name << "already exist";
 	}
 
 	action->setObjectName(name);
-	_actionMap[name] = action;
+	_actionHash[name] = action;
 }
 
 QAction * ActionCollection::action(const QString & name) {
-	if (_actionMap.count(name) != 1) {
+	if (_actionHash.count(name) != 1) {
 		qCritical() << __FUNCTION__ << "Error: invalid QAction name:" << name;
 	}
 
-	QAction * action = _actionMap.value(name);
+	QAction * action = _actionHash.value(name);
 	if (!action) {
 		qCritical() << __FUNCTION__ << "Error: QAction is null";
 	}

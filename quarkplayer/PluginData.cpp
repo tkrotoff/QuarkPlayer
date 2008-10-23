@@ -18,8 +18,15 @@
 
 #include "PluginData.h"
 
+//Important for deleteInstance()
+//otherwise deleteInstance() won't do anything
+//without knowing the type cf compiler warning
+#include "PluginInterface.h"
+///
+
 #include <QtCore/QStringList>
 #include <QtCore/QPluginLoader>
+#include <QtCore/QDebug>
 
 PluginData::PluginData(const QUuid & uuid, bool enabled) {
 	_uuid = uuid;
@@ -31,15 +38,6 @@ PluginData::PluginData(const QUuid & uuid, bool enabled) {
 
 PluginData::PluginData(const PluginData & pluginData) {
 	copy(pluginData);
-}
-
-PluginData::PluginData(const QString & data) {
-	QStringList tmp = data.split(";");
-	_uuid = QUuid(tmp[0]);
-	_enabled = tmp[1].toInt();
-
-	_loader = NULL;
-	_interface = NULL;
 }
 
 PluginData::PluginData() {
@@ -73,13 +71,6 @@ int PluginData::operator==(const PluginData & right) {
 	return _uuid == right._uuid;
 }
 
-QString PluginData::toString() const {
-	QStringList tmp;
-	tmp << _uuid.toString();
-	tmp << QString::number(_enabled);
-	return tmp.join(";");
-}
-
 QUuid PluginData::uuid() const {
 	return _uuid;
 }
@@ -101,11 +92,12 @@ void PluginData::setLoader(QPluginLoader * loader) {
 }
 
 void PluginData::deleteLoader() {
-	//This is too dangerous: it crashes
 	if (_loader) {
 		_loader->unload();
 		delete _loader;
 		_loader = NULL;
+	} else {
+		qCritical() << __FUNCTION__ << "Error: _loader is NULL";
 	}
 }
 
@@ -118,7 +110,147 @@ void PluginData::setInterface(PluginInterface * interface) {
 }
 
 void PluginData::deleteInterface() {
-	//FIXME this does not work, it crashes using MSVC80
-	delete _interface;
-	_interface = NULL;
+	if (_interface) {
+		delete _interface;
+		_interface = NULL;
+	} else {
+		qCritical() << __FUNCTION__ << "Error: _internal is NULL";
+	}
+}
+
+static const quint32 PLUGINLIST_HEADER_MAGIC = 0xA0B0C0D0;
+static const quint32 PLUGINLIST_HEADER_VERSION = 1;
+
+QDataStream & operator<<(QDataStream & stream, const PluginData::PluginList & plugins) {
+	//Write a header with a "magic number" and a version
+	stream << PLUGINLIST_HEADER_MAGIC;
+	stream << PLUGINLIST_HEADER_VERSION;
+
+	PluginData::PluginListIterator it(plugins);
+	while (it.hasNext()) {
+		it.next();
+
+		QString filename(it.key());
+		PluginData pluginData(it.value());
+
+		if (filename.isEmpty()) {
+			//FIXME don't why, stream can contain empty datas
+			//even if we didn't put empty datas in it (!)
+		} else {
+			stream << filename;
+			stream << pluginData.uuid();
+			stream << pluginData.isEnabled();
+		}
+	}
+	return stream;
+}
+
+QDataStream & operator>>(QDataStream & stream, PluginData::PluginList & plugins) {
+	if (stream.atEnd()) {
+		//Empty stream
+		return stream;
+	}
+
+	//Read and check the header
+	quint32 magic;
+	stream >> magic;
+	if (magic != PLUGINLIST_HEADER_MAGIC) {
+		qCritical() << __FUNCTION__ << "Error: wrong magic number:" << magic;
+		return stream;
+	}
+
+	//Read the version
+	quint32 version;
+	stream >> version;
+	if (version != PLUGINLIST_HEADER_VERSION) {
+		qCritical() << __FUNCTION__ << "Error: wrong version number:" << version;
+		return stream;
+	}
+
+	while (!stream.atEnd()) {
+		QString filename;
+		stream >> filename;
+
+		QUuid uuid;
+		bool enabled;
+		stream >> uuid;
+		stream >> enabled;
+
+		if (filename.isEmpty()) {
+			//FIXME don't why, stream can contain empty datas
+			//even if we didn't put empty datas in it (!)
+		} else {
+			PluginData pluginData(uuid, enabled);
+			plugins.remove(filename, pluginData);
+			plugins.insert(filename, pluginData);
+		}
+	}
+	return stream;
+}
+
+QTextStream & operator<<(QTextStream & stream, const PluginData::PluginList & plugins) {
+	//Write a header with a "magic number" and a version
+	stream << PLUGINLIST_HEADER_MAGIC << endl;
+	stream << PLUGINLIST_HEADER_VERSION << endl;
+
+	PluginData::PluginListIterator it(plugins);
+	while (it.hasNext()) {
+		it.next();
+
+		QString filename(it.key());
+		PluginData pluginData(it.value());
+
+		if (filename.isEmpty()) {
+			//FIXME don't why, stream can contain empty datas
+			//even if we didn't put empty datas in it (!)
+		} else {
+			stream << filename << endl;
+			stream << pluginData.uuid() << endl;
+			stream << pluginData.isEnabled() << endl;
+		}
+	}
+	return stream;
+}
+
+QTextStream & operator>>(QTextStream & stream, PluginData::PluginList & plugins) {
+	if (stream.atEnd()) {
+		//Empty stream
+		return stream;
+	}
+
+	//Read and check the header
+	quint32 magic;
+	stream >> magic;
+	if (magic != PLUGINLIST_HEADER_MAGIC) {
+		qCritical() << __FUNCTION__ << "Error: wrong magic number:" << magic;
+		return stream;
+	}
+
+	//Read the version
+	quint32 version;
+	stream >> version;
+	if (version != PLUGINLIST_HEADER_VERSION) {
+		qCritical() << __FUNCTION__ << "Error: wrong version number:" << version;
+		return stream;
+	}
+
+	while (!stream.atEnd()) {
+		QString filename;
+		stream >> filename;
+
+		QString uuid;
+		int enabled;
+		stream >> uuid;
+		stream >> enabled;
+
+		if (filename.isEmpty()) {
+			//FIXME don't why, stream can contain empty datas
+			//even if we didn't put empty datas in it (!)
+		} else {
+			PluginData pluginData(uuid, enabled);
+			plugins.remove(filename, pluginData);
+			plugins.insert(filename, pluginData);
+		}
+	}
+	return stream;
 }

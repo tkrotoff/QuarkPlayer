@@ -36,7 +36,7 @@ const int FileSearchModel::COLUMN_PATH = 1;
 
 static const int COLUMN_COUNT = 2;
 
-QMap<QString, QIcon> FileSearchModel::_iconsCache;
+QHash<QString, QIcon> FileSearchModel::_iconsCache;
 
 FileSearchModel::FileSearchModel(QObject * parent)
 	: QAbstractItemModel(parent) {

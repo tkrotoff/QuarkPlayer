@@ -56,6 +56,15 @@ public:
 
 	~QuarkPlayer();
 
+	/**
+	 * First thing todo inside main.cpp.
+	 *
+	 * Registers all the QMetaType needed by QuarkPlayer.
+	 * @see qRegisterMetaType()
+	 * @see qRegisterMetaTypeStreamOperators()
+	 */
+	static void registerMetaTypes();
+
 	/** Gets the QuarkPlayer main window. */
 	MainWindow & mainWindow() const;
 
