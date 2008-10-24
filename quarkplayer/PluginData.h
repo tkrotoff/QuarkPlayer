@@ -30,6 +30,24 @@ class QPluginLoader;
 /**
  * Informations about a plugin.
  *
+ * Format for storing the plugin informations:
+ * <pre>QMultiHash<QString, PluginData></pre>
+ *
+ * One plugin can be loaded several times.
+ * This is the case for plugins 'filebrowser' and 'playlist'
+ * Example:
+ * <pre>
+ * filebrowser.dll => UUID={fb4ec4ac-5483-4bb2-96ad-807d1ec04f24} | enabled=1
+ * filebrowser.dll => UUID={6d44588d-a374-41f8-b8f7-1d5c3f072384} | enabled=1
+ * filebrowser.dll => UUID={8cd6c48b-3b8e-405c-853e-e25e6ca693c5} | enabled=0
+ * </pre>
+ * We have 2 different filebrowser plugins (with different UUID i.e unique ID) that are enabled (i.e displayed)
+ * and a third filebrowser plugin that is disabled.
+ * That's why each plugin instance matches a unique ID (UUID).
+ *
+ * <pre>PluginInterface *</pre> and <pre>QPluginLoader *</pre> are here for loading/deleting a plugin
+ * at runtime without having the user to restart the application after modifying the plugins configuration.
+ *
  * @see PluginManager
  * @see PluginsConfig
  * @author Tanguy Krotoff

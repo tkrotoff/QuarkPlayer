@@ -104,7 +104,11 @@ public:
 
 public slots:
 
-	/** Creates a new media object. */
+	/**
+	 * Creates a new media object.
+	 *
+	 * This will send mediaObjectAdded() signal.
+	 */
 	Phonon::MediaObject * createNewMediaObject();
 
 signals:

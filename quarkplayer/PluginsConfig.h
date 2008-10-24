@@ -28,7 +28,16 @@
  *
  * Cannot inherit directly from Config since Config::instance() is a static member.
  *
+ * Problem saving (serialization) the list of plugins:
+ * QSettings works with QVariant. QVariant works with QDataStream
+ * QDataStream does not give us human readable datas.
+ * QVariant does not really work with QTextStream.
+ * Still we use QTextStream since it gives us a human readable format.
+ *
+ * Maybe plugin list should be saved in its own XML/ini file?
+ *
  * @see Config
+ * @see PluginData
  * @author Tanguy Krotoff
  */
 class PluginsConfig : public Singleton<PluginsConfig> {

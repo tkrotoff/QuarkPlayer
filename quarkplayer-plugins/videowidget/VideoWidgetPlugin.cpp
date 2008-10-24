@@ -48,6 +48,11 @@ VideoWidgetPlugin::VideoWidgetPlugin(QuarkPlayer & quarkPlayer, const QUuid & uu
 
 	connect(&quarkPlayer, SIGNAL(mediaObjectAdded(Phonon::MediaObject *)),
 		SLOT(mediaObjectAdded(Phonon::MediaObject *)));
+
+	QList<Phonon::MediaObject *> mediaObjectList = quarkPlayer.mediaObjectList();
+	foreach (Phonon::MediaObject * mediaObject, mediaObjectList) {
+		mediaObjectAdded(mediaObject);
+	}
 }
 
 VideoWidgetPlugin::~VideoWidgetPlugin() {
