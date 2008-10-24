@@ -143,11 +143,6 @@ void PlaylistWidget::createToolBar() {
 	addButton->setDefaultAction(uuidAction("playlistAdd"));
 	_searchToolBar->addWidget(addButton);
 
-	QToolButton * removeButton = new QToolButton();
-	removeButton->setPopupMode(QToolButton::InstantPopup);
-	removeButton->setDefaultAction(uuidAction("playlistRemove"));
-	_searchToolBar->addWidget(removeButton);
-
 	QMenu * addMenu = new QMenu();
 	addMenu->addAction(uuidAction("playlistAddFiles"));
 	connect(uuidAction("playlistAddFiles"), SIGNAL(triggered()), SLOT(addFiles()));
@@ -157,15 +152,12 @@ void PlaylistWidget::createToolBar() {
 	connect(uuidAction("playlistAddURL"), SIGNAL(triggered()), SLOT(addURL()));
 	addButton->setMenu(addMenu);
 
-	QMenu * removeMenu = new QMenu();
-	removeMenu->addAction(uuidAction("playlistRemoveSelected"));
-	connect(uuidAction("playlistRemoveSelected"), SIGNAL(triggered()), _treeView, SLOT(clearSelection()));
 	KeyPressEventFilter * deleteKeyFilter = new KeyPressEventFilter(_treeView, SLOT(clearSelection()), Qt::Key_Delete);
 	_treeView->installEventFilter(deleteKeyFilter);
-	removeMenu->addAction(uuidAction("playlistRemoveAll"));
+
+	_searchToolBar->addAction(uuidAction("playlistRemoveAll"));
 	connect(uuidAction("playlistRemoveAll"), SIGNAL(triggered()), _playlistModel, SLOT(clear()));
 	connect(uuidAction("playlistRemoveAll"), SIGNAL(triggered()), SLOT(updateWindowTitle()));
-	removeButton->setMenu(removeMenu);
 
 	_searchToolBar->addSeparator();
 
@@ -184,8 +176,6 @@ void PlaylistWidget::populateActionCollection() {
 	addUuidAction("playlistAddDirectory", new QAction(app));
 	addUuidAction("playlistAddURL", new QAction(app));
 
-	addUuidAction("playlistRemove", new QAction(app));
-	addUuidAction("playlistRemoveSelected", new QAction(app));
 	addUuidAction("playlistRemoveAll", new QAction(app));
 
 	QAction * action = new QAction(app);
@@ -216,11 +206,8 @@ void PlaylistWidget::retranslate() {
 	uuidAction("playlistAddDirectory")->setText(tr("Add Directory"));
 	uuidAction("playlistAddURL")->setText(tr("Add URL"));
 
-	uuidAction("playlistRemove")->setText(tr("Remove..."));
-	uuidAction("playlistRemove")->setIcon(TkIcon("list-remove"));
-
-	uuidAction("playlistRemoveSelected")->setText(tr("Remove Selected"));
 	uuidAction("playlistRemoveAll")->setText(tr("Remove All"));
+	uuidAction("playlistRemoveAll")->setIcon(TkIcon("list-remove"));
 
 	uuidAction("playlistShuffle")->setText(tr("Shuffle"));
 	uuidAction("playlistShuffle")->setIcon(TkIcon("media-playlist-shuffle"));
@@ -326,11 +313,11 @@ void PlaylistWidget::updateWindowTitle(const QString & statusMessage) {
 }
 
 void PlaylistWidget::savePlaylist() {
-	static const QString defaultFileExtension("m3u");
+	static const char * PLAYLIST_DEFAULT_EXTENSION = "m3u";
 
 	QString filename = TkFileDialog::getSaveFileName(
 		this, tr("Save Playlist File"), Config::instance().lastDirectoryUsed(),
-		FileTypes::toSaveFilterFormat(FileTypes::extensions(FileType::Playlist), defaultFileExtension) +
+		FileTypes::toSaveFilterFormat(FileTypes::extensions(FileType::Playlist), PLAYLIST_DEFAULT_EXTENSION) +
 		tr("All Files") + " (*.*)"
 	);
 

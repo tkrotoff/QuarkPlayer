@@ -41,8 +41,8 @@
 //Please don't copy this to another program; keys are free from aws.amazon.com
 static const QString AMAZON_WEB_SERVICE_KEY = "1BPZGMNT4PWSJS6NHG02";
 
-MediaDataWidget::MediaDataWidget()
-	: QWidget(NULL) {
+MediaDataWidget::MediaDataWidget(QWidget * parent)
+	: QWidget(parent) {
 
 	_mediaInfoFetcher = NULL;
 	_coverArtSwitchTimer = NULL;
@@ -50,7 +50,7 @@ MediaDataWidget::MediaDataWidget()
 	_ui = new Ui::MediaDataWidget();
 	_ui->setupUi(this);
 
-	_mediaInfoWindow = new MediaInfoWindow(this);
+	_mediaInfoWindow = new MediaInfoWindow(QApplication::activeWindow());
 	connect(_ui->coverArtButton, SIGNAL(clicked()), _mediaInfoWindow, SLOT(show()));
 
 	RETRANSLATE(this);

@@ -48,7 +48,7 @@ class MediaDataWidget : public QWidget {
 	Q_OBJECT
 public:
 
-	MediaDataWidget();
+	MediaDataWidget(QWidget * parent);
 
 	~MediaDataWidget();
 

@@ -305,7 +305,6 @@ void MainWindow::setupUi() {
 	_menuPlay->addAction(ActionCollection::action("play"));
 	_menuPlay->addAction(ActionCollection::action("pause"));
 	_menuPlay->addAction(ActionCollection::action("stop"));
-	_menuPlay->addSeparator();
 	_menuPlay->addAction(ActionCollection::action("previousTrack"));
 	_menuPlay->addAction(ActionCollection::action("nextTrack"));
 	_menuPlay->addSeparator();
@@ -361,7 +360,7 @@ void MainWindow::retranslate() {
 	ActionCollection::action("playVCD")->setText(tr("Play &VCD"));
 	ActionCollection::action("playVCD")->setIcon(TkIcon("media-optical"));
 
-	ActionCollection::action("newMediaObject")->setText(tr("New Media window"));
+	ActionCollection::action("newMediaObject")->setText(tr("New Media Window"));
 	ActionCollection::action("newMediaObject")->setIcon(TkIcon("window-new"));
 
 	ActionCollection::action("equalizer")->setText(tr("&Equalizer..."));
@@ -484,7 +483,7 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 	//Quits the application
 	QCoreApplication::quit();
 
-	//FIXME we should use only QCoreApplication::quit()
+	//FIXME we should only use QCoreApplication::quit()
 	//exit(EXIT_SUCCESS);
 }
 
