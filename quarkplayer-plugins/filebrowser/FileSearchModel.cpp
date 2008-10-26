@@ -36,11 +36,10 @@
 #include <climits>
 
 const int FileSearchModel::COLUMN_FILENAME = 0;
-const int FileSearchModel::COLUMN_PATH = 1;
 const int FileSearchModel::COLUMN_FIRST = COLUMN_FILENAME;
-const int FileSearchModel::COLUMN_LAST = COLUMN_PATH;
+const int FileSearchModel::COLUMN_LAST = COLUMN_FILENAME;
 
-static const int COLUMN_COUNT = 2;
+static const int COLUMN_COUNT = 1;
 
 static const int POSITION_INVALID = -1;
 
@@ -73,11 +72,6 @@ QVariant FileSearchModel::headerData(int section, Qt::Orientation orientation, i
 		case COLUMN_FILENAME:
 			tmp = tr("Name");
 			break;
-		case COLUMN_PATH:
-			tmp = tr("Path");
-			break;
-		default:
-			qCritical() << __FUNCTION__ << "Error: unknown column:" << section;
 		}
 	}
 
@@ -103,11 +97,6 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 		case COLUMN_FILENAME:
 			tmp = TkFile::fileName(filename);
 			break;
-		case COLUMN_PATH:
-			tmp = TkFile::path(filename);
-			break;
-		default:
-			qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
 		}
 		break;
 	}
@@ -128,10 +117,6 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 				tmp = _iconsCache.value(ext);
 			}
 			break;
-		case COLUMN_PATH:
-			break;
-		default:
-			qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
 		}
 		break;
 	}
@@ -139,27 +124,29 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	case Qt::ToolTipRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			if (track.mediaDataResolved()) {
-				tmp = filename + "<br>" +
-					tr("Title:") + "</b> <b>" + track.title() + "</b><br>" +
-					tr("Artist:") + "</b> <b>" + track.artist() + "</b><br>" +
-					tr("Album:") + "</b> <b>" + track.album() + "</b><br>" +
-					tr("Length:") + "</b> <b>" + track.length() + "</b>";
-			} else {
-				tmp = filename;
+			if (!TkFile::isDir(filename)) {
+				if (track.mediaDataResolved()) {
+					tmp = filename + "<br>" +
+						tr("Title:") + "</b> <b>" + track.title() + "</b><br>" +
+						tr("Artist:") + "</b> <b>" + track.artist() + "</b><br>" +
+						tr("Album:") + "</b> <b>" + track.album() + "</b><br>" +
+						tr("Length:") + "</b> <b>" + track.length() + "</b>";
+				} else {
+					tmp = filename;
 
-				//Resolve meta data file one by one
-				if (_mediaInfoFetcherRow == POSITION_INVALID) {
-					_mediaInfoFetcherRow = row;
-					_mediaInfoFetcher->start(filename);
+					//Resolve meta data file one by one
+					if (_mediaInfoFetcherRow == POSITION_INVALID) {
+						_mediaInfoFetcherRow = row;
+						_mediaInfoFetcher->start(filename);
+					}
 				}
-
+			} else {
+				//If the filename is in fact a directory
+				//then we don't try to resolve the meta data
+				//since obviously there is none
+				tmp = filename;
 			}
 			break;
-		case COLUMN_PATH:
-			break;
-		default:
-			qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
 		}
 		break;
 	}

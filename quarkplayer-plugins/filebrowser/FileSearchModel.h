@@ -58,7 +58,6 @@ class FileSearchModel : public QAbstractItemModel {
 public:
 
 	static const int COLUMN_FILENAME;
-	static const int COLUMN_PATH;
 	static const int COLUMN_FIRST;
 	static const int COLUMN_LAST;
 
