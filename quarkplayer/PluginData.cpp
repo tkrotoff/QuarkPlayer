@@ -17,6 +17,7 @@
  */
 
 #include "PluginData.h"
+#include "config/Config.h"
 
 //Important for deleteInstance()
 //otherwise deleteInstance() won't do anything
@@ -24,11 +25,13 @@
 #include "PluginInterface.h"
 ///
 
+#include <QtCore/QDir>
 #include <QtCore/QStringList>
 #include <QtCore/QPluginLoader>
 #include <QtCore/QDebug>
 
-PluginData::PluginData(const QUuid & uuid, bool enabled) {
+PluginData::PluginData(const QString & fileName, const QUuid & uuid, bool enabled) {
+	_fileName = fileName;
 	_uuid = uuid;
 	_enabled = enabled;
 
@@ -51,6 +54,7 @@ PluginData::~PluginData() {
 }
 
 void PluginData::copy(const PluginData & pluginData) {
+	_fileName = pluginData._fileName;
 	_uuid = pluginData._uuid;
 	_enabled = pluginData._enabled;
 	_loader = pluginData._loader;
@@ -69,6 +73,15 @@ PluginData & PluginData::operator=(const PluginData & right) {
 
 int PluginData::operator==(const PluginData & right) {
 	return _uuid == right._uuid;
+}
+
+QString PluginData::fileName() const {
+	return _fileName;
+}
+
+QString PluginData::absoluteFilePath() const {
+	QDir pluginsDir = QDir(Config::instance().pluginsDir());
+	return pluginsDir.absoluteFilePath(_fileName);
 }
 
 QUuid PluginData::uuid() const {
@@ -126,18 +139,13 @@ QDataStream & operator<<(QDataStream & stream, const PluginData::PluginList & pl
 	stream << PLUGINLIST_HEADER_MAGIC;
 	stream << PLUGINLIST_HEADER_VERSION;
 
-	PluginData::PluginListIterator it(plugins);
-	while (it.hasNext()) {
-		it.next();
-
-		QString filename(it.key());
-		PluginData pluginData(it.value());
-
-		if (filename.isEmpty()) {
+	foreach (PluginData pluginData, plugins) {
+		if (pluginData.fileName().isEmpty()) {
 			//FIXME don't why, stream can contain empty datas
 			//even if we didn't put empty datas in it (!)
+			qCritical() << __FUNCTION__ << "Error: empty pluginData:" << pluginData.uuid();
 		} else {
-			stream << filename;
+			stream << pluginData.fileName();
 			stream << pluginData.uuid();
 			stream << pluginData.isEnabled();
 		}
@@ -180,9 +188,9 @@ QDataStream & operator>>(QDataStream & stream, PluginData::PluginList & plugins)
 			//FIXME don't why, stream can contain empty datas
 			//even if we didn't put empty datas in it (!)
 		} else {
-			PluginData pluginData(uuid, enabled);
-			plugins.remove(filename, pluginData);
-			plugins.insert(filename, pluginData);
+			PluginData pluginData(filename, uuid, enabled);
+			plugins.removeAll(pluginData);
+			plugins += pluginData;
 		}
 	}
 	return stream;
@@ -193,18 +201,13 @@ QTextStream & operator<<(QTextStream & stream, const PluginData::PluginList & pl
 	stream << PLUGINLIST_HEADER_MAGIC << endl;
 	stream << PLUGINLIST_HEADER_VERSION << endl;
 
-	PluginData::PluginListIterator it(plugins);
-	while (it.hasNext()) {
-		it.next();
-
-		QString filename(it.key());
-		PluginData pluginData(it.value());
-
-		if (filename.isEmpty()) {
+	foreach (PluginData pluginData, plugins) {
+		if (pluginData.fileName().isEmpty()) {
 			//FIXME don't why, stream can contain empty datas
 			//even if we didn't put empty datas in it (!)
+			qCritical() << __FUNCTION__ << "Error: empty pluginData:" << pluginData.uuid();
 		} else {
-			stream << filename << endl;
+			stream << pluginData.fileName() << endl;
 			stream << pluginData.uuid() << endl;
 			stream << pluginData.isEnabled() << endl;
 		}
@@ -235,8 +238,13 @@ QTextStream & operator>>(QTextStream & stream, PluginData::PluginList & plugins)
 	}
 
 	while (!stream.atEnd()) {
+		//FIXME this is buggy if the filename contains whitespaces
+		//I don't know how to make QTextStream aware about string spaces :/
+		//See http://doc.trolltech.com/main-snapshot/qtextstream.html#operator-gt-gt-4
+		//Anyway, plugin filenames should not contain whitespaces anyway
 		QString filename;
 		stream >> filename;
+		///
 
 		QString uuid;
 		int enabled;
@@ -247,9 +255,9 @@ QTextStream & operator>>(QTextStream & stream, PluginData::PluginList & plugins)
 			//FIXME don't why, stream can contain empty datas
 			//even if we didn't put empty datas in it (!)
 		} else {
-			PluginData pluginData(uuid, enabled);
-			plugins.remove(filename, pluginData);
-			plugins.insert(filename, pluginData);
+			PluginData pluginData(filename, uuid, enabled);
+			plugins.removeAll(pluginData);
+			plugins += pluginData;
 		}
 	}
 	return stream;

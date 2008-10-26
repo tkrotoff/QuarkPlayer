@@ -48,7 +48,7 @@ static const int SLIDER_RANGE = 8;
 static const int TICKINTERVAL = 4;
 
 QuickSettingsWindow::QuickSettingsWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QDialog(&(quarkPlayer.mainWindow())),
+	: QDialog(quarkPlayer.mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_audioOutput = NULL;

@@ -38,8 +38,13 @@ namespace Phonon {
 class QDockWidget;
 
 /**
- * Main interface, the main window: QMainWindow.
+ * QuarkPlayer main window.
  *
+ * Facade pattern.
+ *
+ * @see QMainWindow
+ * @see QuarkPlayer
+ * @see http://en.wikipedia.org/wiki/Facade_pattern
  * @author Tanguy Krotoff
  */
 class QUARKPLAYER_API MainWindow : public TkMainWindow, public PluginInterface {
@@ -87,8 +92,23 @@ signals:
 
 	void subtitleFileDropped(const QString & subtitle);
 
+	/**
+	 * The play toolbar has been added to the main window.
+	 *
+	 * Specific to the PlayToolBar plugin.
+	 *
+	 * @see setPlayToolBar()
+	 * @see PlayToolBar
+	 * @param main window play toolbar
+	 */
 	void playToolBarAdded(QToolBar * playToolBar);
 
+	/**
+	 * The status bar has been added to the main window.
+	 *
+	 * @param main window status bar (cannot be NULL or there is a bug...)
+	 * @see setStatusBar()
+	 */
 	void statusBarAdded(QStatusBar * statusBar);
 
 	/**

@@ -72,7 +72,7 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 
 	//Add to the main window
 	_dockWidget = new QDockWidget();
-	quarkPlayer.mainWindow().addBrowserDockWidget(_dockWidget);
+	quarkPlayer.mainWindow()->addBrowserDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
 
 	setMaximumSize(1.5 * sizeHint().width(), maximumSize().height());
@@ -84,11 +84,11 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 			SLOT(loadDirModel()), Qt::QueuedConnection);
 	}
 
-	ConfigWindow * configWindow = quarkPlayer.mainWindow().configWindow();
+	ConfigWindow * configWindow = quarkPlayer.mainWindow()->configWindow();
 	if (configWindow) {
 		configWindowCreated(configWindow);
 	} else {
-		connect(&quarkPlayer.mainWindow(), SIGNAL(configWindowCreated(ConfigWindow *)),
+		connect(quarkPlayer.mainWindow(), SIGNAL(configWindowCreated(ConfigWindow *)),
 			SLOT(configWindowCreated(ConfigWindow *)));
 	}
 
@@ -97,8 +97,8 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 }
 
 FileBrowserWidget::~FileBrowserWidget() {
-	quarkPlayer().mainWindow().removeDockWidget(_dockWidget);
-	quarkPlayer().mainWindow().resetBrowserDockWidget();
+	quarkPlayer().mainWindow()->removeDockWidget(_dockWidget);
+	quarkPlayer().mainWindow()->resetBrowserDockWidget();
 }
 
 void FileBrowserWidget::createToolBar() {
@@ -239,7 +239,8 @@ void FileBrowserWidget::musicDirChanged(const QString & key, const QVariant & va
 }
 
 void FileBrowserWidget::createNewFileBrowserWidget() {
-	PluginsManager::instance().loadPlugin("filebrowser");
+	PluginData pluginData = PluginsManager::instance().pluginData(uuid());
+	PluginsManager::instance().loadDisabledPlugin(pluginData);
 }
 
 void FileBrowserWidget::retranslate() {
@@ -257,7 +258,7 @@ void FileBrowserWidget::setWindowTitle(const QString & statusMessage) {
 		_dockWidget->setWindowTitle(Config::instance().musicDir(uuid()));
 	} else {
 		_dockWidget->setWindowTitle(statusMessage);
-		QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
+		QStatusBar * statusBar = quarkPlayer().mainWindow()->statusBar();
 		if (statusBar) {
 			statusBar->showMessage(statusMessage);
 		}

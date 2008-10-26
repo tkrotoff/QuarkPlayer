@@ -60,12 +60,12 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/config/BackendCapabilitiesWidget.cpp" line="88"/>
+        <location filename="../../quarkplayer/config/BackendCapabilitiesWidget.cpp" line="94"/>
         <source>Effect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/config/BackendCapabilitiesWidget.cpp" line="105"/>
+        <location filename="../../quarkplayer/config/BackendCapabilitiesWidget.cpp" line="111"/>
         <source>Parameter</source>
         <translation type="unfinished"></translation>
     </message>
@@ -105,6 +105,16 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
         <source>QuarkPlayer - Preferences</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../build/quarkplayer/ui_ConfigWindow.h" line="68"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../build/quarkplayer/ui_ConfigWindow.h" line="69"/>
+        <source>Private</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DragAndDropTreeView</name>
@@ -142,12 +152,12 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/config/FileBrowserConfigWidget.cpp" line="49"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/config/FileBrowserConfigWidget.cpp" line="51"/>
         <source>File Browser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/config/FileBrowserConfigWidget.cpp" line="76"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/config/FileBrowserConfigWidget.cpp" line="74"/>
         <source>Select a Directory</source>
         <translation type="unfinished"></translation>
     </message>
@@ -173,52 +183,37 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>FileBrowserWidget</name>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="196"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="190"/>
         <source>Searching...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="227"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="222"/>
         <source>Search finished:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="228"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="223"/>
         <source>seconds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="233"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="227"/>
         <source>Select a Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="250"/>
-        <source>Clear Search</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="253"/>
-        <source>Search files, use whitespaces to separate words</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="257"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="247"/>
         <source>Change Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="260"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="250"/>
         <source>New File Browser Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="265"/>
-        <source>File Browser</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="228"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileBrowserWidget.cpp" line="223"/>
         <source>medias</source>
         <translation type="unfinished"></translation>
     </message>
@@ -226,12 +221,12 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>FileSearchModel</name>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileSearchModel.cpp" line="64"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileSearchModel.cpp" line="60"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileSearchModel.cpp" line="67"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileSearchModel.cpp" line="63"/>
         <source>Path</source>
         <translation type="unfinished"></translation>
     </message>
@@ -239,37 +234,37 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>GeneralConfigWidget</name>
     <message>
-        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="134"/>
+        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="155"/>
         <source>Backend Selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="135"/>
+        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="156"/>
         <source>Backend:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="136"/>
+        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="157"/>
         <source>(Restart required)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="137"/>
+        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="158"/>
         <source>Interface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="138"/>
+        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="159"/>
         <source>Language:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="139"/>
+        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="160"/>
         <source>Style:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="140"/>
+        <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="161"/>
         <source>Icon Theme:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -297,230 +292,230 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="161"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="164"/>
         <source>Select Audio/Video File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="162"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="165"/>
         <source>Multimedia</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="163"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="166"/>
         <source>Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="164"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="167"/>
         <source>Audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="165"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="168"/>
         <source>Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="166"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="169"/>
         <source>All Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="177"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="180"/>
         <source>Select DVD folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="186"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="189"/>
         <source>Open Location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="186"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="189"/>
         <source>Please enter a valid address here:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="339"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="342"/>
         <source>Play &amp;File...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="342"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="345"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="345"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="348"/>
         <source>&amp;About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="348"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="351"/>
         <source>About &amp;Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="351"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="354"/>
         <source>Play &amp;DVD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="354"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="357"/>
         <source>Play &amp;URL...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="357"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="360"/>
         <source>Play &amp;VCD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="360"/>
-        <source>New Media window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="363"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="366"/>
         <source>&amp;Equalizer...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="366"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="369"/>
         <source>&amp;Configure QuarkPlayer...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="369"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="372"/>
         <source>&amp;Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="372"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="375"/>
         <source>&lt;empty&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="375"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="378"/>
         <source>Main ToolBar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="378"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="381"/>
         <source>&amp;Recent Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="381"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="384"/>
         <source>&amp;File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="382"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="385"/>
         <source>&amp;Play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="383"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="386"/>
         <source>&amp;Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="384"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="387"/>
         <source>&amp;Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="386"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="389"/>
         <source>P&amp;lay</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="389"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="392"/>
         <source>&amp;Pause</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="392"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="395"/>
         <source>&amp;Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="395"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="398"/>
         <source>P&amp;revious Track</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="398"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="401"/>
         <source>&amp;Next Track</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="401"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="404"/>
         <source>&amp;FullScreen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="363"/>
+        <source>New Media Window</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MediaController</name>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="125"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="131"/>
         <source>&amp;Open Subtitle...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="128"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="134"/>
         <source>&amp;Audio Channels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="131"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="137"/>
         <source>&amp;Subtitles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="134"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="140"/>
         <source>&amp;Title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="137"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="143"/>
         <source>&amp;Chapter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="140"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="146"/>
         <source>&amp;Angle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="141"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="147"/>
         <source>&amp;Audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="142"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="148"/>
         <source>&amp;Subtitle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="143"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="149"/>
         <source>&amp;Browse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="148"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="154"/>
         <source>Select Subtitle File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="149"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="155"/>
         <source>Subtitle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="150"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="156"/>
         <source>All Files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -765,27 +760,27 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>PlaylistModel</name>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="89"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="94"/>
         <source>#</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="92"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="97"/>
         <source>Title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="95"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="100"/>
         <source>Artist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="98"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="103"/>
         <source>Album</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="101"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistModel.cpp" line="106"/>
         <source>Length</source>
         <translation type="unfinished"></translation>
     </message>
@@ -793,167 +788,142 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>PlaylistWidget</name>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="205"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="196"/>
         <source>Open Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="208"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="199"/>
         <source>Save Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="211"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="202"/>
         <source>Add...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="214"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="205"/>
         <source>Add Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="215"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="206"/>
         <source>Add Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="216"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="207"/>
         <source>Add URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="218"/>
-        <source>Remove...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="221"/>
-        <source>Remove Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="222"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="209"/>
         <source>Remove All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="224"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="212"/>
         <source>Shuffle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="227"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="215"/>
         <source>Repeat</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="230"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="218"/>
         <source>Jump to Current Playing Media</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="233"/>
-        <source>Clear Search</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="236"/>
-        <source>Search files, use whitespaces to separate words</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="240"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="221"/>
         <source>New Playlist Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="295"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="270"/>
         <source>Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="249"/>
-        <source>items</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="254"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="229"/>
         <source>Select Audio/Video Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="255"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="230"/>
         <source>Multimedia</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="256"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="231"/>
         <source>Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="257"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="232"/>
         <source>Audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="339"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="321"/>
         <source>All Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="273"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="248"/>
         <source>Select Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="283"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="258"/>
         <source>Open Location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="283"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="258"/>
         <source>Please enter a valid address here:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="294"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="269"/>
         <source>Select Playlist File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="320"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="293"/>
         <source>Playlist loaded:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="458"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="439"/>
         <source>seconds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="328"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="298"/>
         <source>Playlist saved:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="337"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="319"/>
         <source>Save Playlist File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="440"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="415"/>
         <source>Searching...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="458"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="439"/>
         <source>medias</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="457"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="438"/>
         <source>Search finished:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -961,52 +931,47 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>PluginsConfigWidget</name>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="151"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="164"/>
         <source>Plugin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="152"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="165"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="153"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="166"/>
         <source>Version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="154"/>
+        <location filename="../../quarkplayer/config/PluginsConfigWidget.cpp" line="92"/>
         <source>Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="156"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="169"/>
         <source>Description:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="157"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="170"/>
         <source>Author(s):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="158"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="172"/>
         <source>E-mail:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="159"/>
-        <source>Homepage:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="160"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="174"/>
         <source>Copyright:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="161"/>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="173"/>
         <source>License:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1015,116 +980,146 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
         <source>Plugins</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="167"/>
+        <source>State</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/config/PluginsConfigWidget.cpp" line="88"/>
+        <source>Disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/config/PluginsConfigWidget.cpp" line="95"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="171"/>
+        <source>Web page:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/config/PluginsConfigWidget.cpp" line="159"/>
+        <source>: plugin not loaded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../build/quarkplayer/ui_PluginsConfigWidget.h" line="168"/>
+        <source>UUID</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QuickSettingsWindow</name>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="311"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="290"/>
         <source>Quick Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="312"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="291"/>
         <source>Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="313"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="292"/>
         <source>Contrast:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="314"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="293"/>
         <source>Brightness:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="315"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="294"/>
         <source>Saturation:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="316"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="295"/>
         <source>Hue:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="317"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="296"/>
         <source>Aspect Ratio:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="321"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="300"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="322"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="301"/>
         <source>Stretch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="323"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="302"/>
         <source>4/3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="324"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="303"/>
         <source>16/9</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="325"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="304"/>
         <source>Scale Mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="329"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="308"/>
         <source>Fit in view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="330"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="309"/>
         <source>Scale and crop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="331"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="310"/>
         <source>Audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="332"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="311"/>
         <source>Audio Device:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="333"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="312"/>
         <source>Audio Effect:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="334"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="313"/>
         <source>Setup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="335"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="314"/>
         <source>Cross Fade:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="336"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="315"/>
         <source>-10 Sec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="337"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="316"/>
         <source>0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="338"/>
+        <location filename="../../build/quarkplayer-plugins/quicksettings/ui_QuickSettingsWindow.h" line="317"/>
         <source>10 Sec</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1136,6 +1131,19 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer-plugins/quicksettings/QuickSettingsWindow.cpp" line="250"/>
         <source>Configure effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SearchToolBar</name>
+    <message>
+        <location filename="../../quarkplayer-plugins/playlist/SearchToolBar.cpp" line="74"/>
+        <source>Clear Search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/playlist/SearchToolBar.cpp" line="77"/>
+        <source>Search files, use whitespaces to separate words</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1167,22 +1175,22 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="158"/>
+        <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="165"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="53"/>
+        <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="55"/>
         <source>Settings Browser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="340"/>
+        <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="350"/>
         <source>True</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="260"/>
+        <location filename="../../quarkplayer/config/SettingsBrowser.cpp" line="267"/>
         <source>False</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1190,37 +1198,37 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>StatusBar</name>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="120"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="122"/>
         <source>Playing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="124"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="126"/>
         <source>Stopped</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="128"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="130"/>
         <source>Paused</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="132"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="134"/>
         <source>Loading...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="136"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="138"/>
         <source>Buffering...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="151"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="153"/>
         <source>Media finishing...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="156"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="158"/>
         <source>%1 seconds left...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1264,29 +1272,42 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     </message>
 </context>
 <context>
+    <name>WelcomeWindow</name>
+    <message>
+        <location filename="../../quarkplayer-plugins/welcome/WelcomeWindow.cpp" line="44"/>
+        <source>Welcome!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/welcome/WelcomeWindow.cpp" line="53"/>
+        <source>Welcome to QuarkPlayer-%1!&lt;br&gt;&lt;br&gt;QuarkPlayer is a multimedia application that play your music and videos.&lt;br&gt;&lt;br&gt;This is free software and everything is licensed under GNU GPLv3+ terms.&lt;br&gt;&lt;br&gt;QuarkPlayer uses different backends (DirectShow, GStreamer, VLC, MPlayer...) thanks to the Phonon library. It also relies on an advanced plugin system and is available under Windows, Linux and soon Mac OS X.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>WinFileAssociationsConfigWidget</name>
     <message>
-        <location filename="../../quarkplayer/config/WinFileAssociationsConfigWidget.cpp" line="54"/>
+        <location filename="../../quarkplayer/config/WinFileAssociationsConfigWidget.cpp" line="52"/>
         <source>File Associations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/config/WinFileAssociationsConfigWidget.cpp" line="84"/>
+        <location filename="../../quarkplayer/config/WinFileAssociationsConfigWidget.cpp" line="82"/>
         <source>Video Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/config/WinFileAssociationsConfigWidget.cpp" line="88"/>
+        <location filename="../../quarkplayer/config/WinFileAssociationsConfigWidget.cpp" line="86"/>
         <source>Audio Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/config/WinFileAssociationsConfigWidget.cpp" line="92"/>
+        <location filename="../../quarkplayer/config/WinFileAssociationsConfigWidget.cpp" line="90"/>
         <source>Subtitle Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/config/WinFileAssociationsConfigWidget.cpp" line="96"/>
+        <location filename="../../quarkplayer/config/WinFileAssociationsConfigWidget.cpp" line="94"/>
         <source>Playlist Files</source>
         <translation type="unfinished"></translation>
     </message>

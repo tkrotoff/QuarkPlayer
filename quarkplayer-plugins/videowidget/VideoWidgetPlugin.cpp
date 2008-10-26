@@ -43,7 +43,7 @@ PluginInterface * VideoWidgetPluginFactory::create(QuarkPlayer & quarkPlayer, co
 }
 
 VideoWidgetPlugin::VideoWidgetPlugin(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QObject(NULL),
+	: QObject(quarkPlayer.mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	connect(&quarkPlayer, SIGNAL(mediaObjectAdded(Phonon::MediaObject *)),
@@ -61,9 +61,9 @@ VideoWidgetPlugin::~VideoWidgetPlugin() {
 		it.next();
 
 		VideoContainer * container = it.value();
-		quarkPlayer().mainWindow().removeDockWidget(container->videoDockWidget);
+		quarkPlayer().mainWindow()->removeDockWidget(container->videoDockWidget);
 	}
-	quarkPlayer().mainWindow().resetVideoDockWidget();
+	quarkPlayer().mainWindow()->resetVideoDockWidget();
 }
 
 void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldState) {
@@ -141,7 +141,7 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	_mediaObjectHash[mediaObject] = container;
 
 	//Add to the main window
-	quarkPlayer().mainWindow().addVideoDockWidget(container->videoDockWidget);
+	quarkPlayer().mainWindow()->addVideoDockWidget(container->videoDockWidget);
 
 	//Stop the current media object
 	container->videoDockWidget->installEventFilter(new CloseEventFilter(mediaObject, SLOT(stop())));

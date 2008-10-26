@@ -29,6 +29,13 @@ struct QUuid;
 /**
  * Plugin factory.
  *
+ * Creates a new Plugin using Qt way to deal with plugins.
+ *
+ * For an simple example of how to use this class, check WelcomePlugin.
+ *
+ * @see PluginInterface
+ * @see WelcomePlugin
+ * @see http://doc.trolltech.com/main-snapshot/plugins-howto.html
  * @author Tanguy Krotoff
  */
 class PluginFactory {

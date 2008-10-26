@@ -55,7 +55,7 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	setStyleSheet("background-color: rgb(0, 0, 0);color: rgb(255, 255, 255);");
 
 	//Add the statusbar to the main window
-	quarkPlayer.mainWindow().setStatusBar(this);
+	quarkPlayer.mainWindow()->setStatusBar(this);
 
 	Config::instance().addKey(STATUSBAR_TIME_DIPLAY_MODE_KEY, TimeDisplayModeElapsed);
 
@@ -65,7 +65,7 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 StatusBar::~StatusBar() {
 	//Remove the statusbar from the main window
-	quarkPlayer().mainWindow().setStatusBar(NULL);
+	quarkPlayer().mainWindow()->setStatusBar(NULL);
 }
 
 void StatusBar::tick(qint64 time) {

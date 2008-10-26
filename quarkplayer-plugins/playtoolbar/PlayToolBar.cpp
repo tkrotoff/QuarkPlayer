@@ -64,7 +64,7 @@ PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	setToolBarEnabled(false);
 
 	//Add to the main window
-	quarkPlayer.mainWindow().setPlayToolBar(this);
+	quarkPlayer.mainWindow()->setPlayToolBar(this);
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));

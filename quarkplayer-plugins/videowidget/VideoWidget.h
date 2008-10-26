@@ -47,7 +47,7 @@ class VideoWidget : public Phonon::VideoWidget {
 	Q_OBJECT
 public:
 
-	VideoWidget(QDockWidget * dockWidget, MainWindow & mainWindow);
+	VideoWidget(QDockWidget * dockWidget, MainWindow * mainWindow);
 
 	~VideoWidget();
 

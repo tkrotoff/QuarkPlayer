@@ -38,47 +38,87 @@ namespace Phonon {
 }
 
 /**
+ * QuarkPlayer main API.
+ *
+ * API stands for Application programming interface.
+ *
  * Gives access to all important objects of the application.
+ * This is the main class for writing plugins.
  *
- * Pattern proxy.
+ * Facade pattern.
  *
- * Main class for writing plugins.
- *
- * How to make dynamic plugins? i.e possibility to load/reload them at runtime?
- *
+ * @see http://en.wikipedia.org/wiki/Facade_pattern
+ * @see http://en.wikipedia.org/wiki/API
  * @author Tanguy Krotoff
  */
 class QUARKPLAYER_API QuarkPlayer : public QObject {
 	Q_OBJECT
 public:
 
+	/**
+	 * Creates a QuarkPlayer instance.
+	 *
+	 * This is called only once inside main.cpp
+	 *
+	 * @param parent QuarkPlayer QObject parent, should be QCoreApplication
+	 * @see main.cpp
+	 */
 	QuarkPlayer(QObject * parent);
 
 	~QuarkPlayer();
 
 	/**
-	 * First thing todo inside main.cpp.
-	 *
 	 * Registers all the QMetaType needed by QuarkPlayer.
+	 *
+	 * First thing to do inside main.cpp.
+	 *
 	 * @see qRegisterMetaType()
 	 * @see qRegisterMetaTypeStreamOperators()
 	 */
 	static void registerMetaTypes();
 
-	/** Gets the QuarkPlayer main window. */
-	MainWindow & mainWindow() const;
+	/**
+	 * Gets QuarkPlayer main window.
+	 *
+	 * MainWindow always exist and thus this method cannot return NULL.
+	 * One could think about returning a reference (&) but I prefer to return
+	 * a pointer since Qt works this way regarding widgets.
+	 *
+	 * @return QuarkPlayer main window (cannot be NULL or there is a bug somewhere...)
+	 * @see MainWindow
+	 * @see QMainWindow
+	 */
+	MainWindow * mainWindow() const;
 
-	/** Changes the current media object to be used. */
+	/**
+	 * Changes the current media object to be used when playing a media.
+	 *
+	 * @param mediaObject new media object to be used
+	 * @see currentMediaObject()
+	 */
 	void setCurrentMediaObject(Phonon::MediaObject * mediaObject);
 
 	/**
 	 * Gets the current media object used.
 	 *
+	 * There can be no media object (will return NULL) if the user
+	 * has not played any media yet.
+	 *
 	 * @return current media object or NULL
+	 * @see setCurrentMediaObject()
+	 * @see mediaObjectList()
 	 */
 	Phonon::MediaObject * currentMediaObject() const;
 
-	/** Gets the list of all available media object. */
+	/**
+	 * Gets the list of all available media objects.
+	 *
+	 * Most of the time there is only one media object
+	 * since the user will play only one media at a time.
+	 *
+	 * @return the list of available media objects
+	 * @see currentMediaObject()
+	 */
 	QList<Phonon::MediaObject *> mediaObjectList() const;
 
 	/**
@@ -88,18 +128,50 @@ public:
 	 */
 	QString currentMediaObjectTitle() const;
 
-	/** Play a file, an url, whatever... using the current media object available. */
+	/**
+	 * Plays a file, an url, whatever... using the current media object available.
+	 *
+	 * Passing a QString is OK since Phonon::MediaSource constructor takes it.
+	 *
+	 * @param mediaSource media to play
+	 */
 	void play(const Phonon::MediaSource & mediaSource);
 
-	/** Add a list of files to current playlist. */
+	/**
+	 * Adds a list of files to the current playlist.
+	 *
+	 * This is a function that will send a signal to the
+	 * playlist plugin if any exist.
+	 *
+	 * @param files files to add to the current playlist
+	 * @see addFilesToCurrentPlaylist()
+	 */
 	void addFilesToPlaylist(const QStringList & files);
 
-	/** Returns the current audio output associated with the current media object. */
+	/**
+	 * Returns the current audio output associated with the current media object.
+	 *
+	 * @see currentMediaObject()
+	 */
 	Phonon::AudioOutput * currentAudioOutput() const;
 
+	/**
+	 * Returns the current audio output path associated with the current media object.
+	 *
+	 * @see currentMediaObject()
+	 */
 	Phonon::Path currentAudioOutputPath() const;
 
-	/** Returns the current video widget associated with the current media object. */
+	/**
+	 * Returns the current video widget associated with the current media object.
+	 *
+	 * A video widget shows the video of a DVD playing for example.
+	 * This should be taking care of by a plugin since by default QuarkPlayer does not show
+	 * any video. VideoWidgetPlugin does the job.
+	 *
+	 * @see currentMediaObject()
+	 * @see VideoWidgetPlugin
+	 */
 	Phonon::VideoWidget * currentVideoWidget() const;
 
 public slots:
@@ -132,7 +204,10 @@ signals:
 	/**
 	 * Signal emitted when files should be added to the current playlist.
 	 *
+	 * This signal should be catched by a playlist plugin if any exist.
+	 *
 	 * @param files list of files to be added
+	 * @see addFilesToPlaylist()
 	 */
 	void addFilesToCurrentPlaylist(const QStringList & files);
 
@@ -155,9 +230,18 @@ private slots:
 
 private:
 
+	/**
+	 * QuarkPlayer main window.
+	 *
+	 * @see MainWindow
+	 * @see QMainWindow
+	 */
 	MainWindow * _mainWindow;
 
+	/** Current media object, can be NULL if none. */
 	Phonon::MediaObject * _currentMediaObject;
+
+	/** List of available media objects. */
 	QList<Phonon::MediaObject *> _mediaObjectList;
 };
 

@@ -26,11 +26,11 @@
 
 #include <QtCore/QTimerEvent>
 
-VideoWidget::VideoWidget(QDockWidget * dockWidget, MainWindow & mainWindow)
+VideoWidget::VideoWidget(QDockWidget * dockWidget, MainWindow * mainWindow)
 	: Phonon::VideoWidget(NULL) {
 
 	_dockWidget = dockWidget;
-	_mainWindow = &mainWindow;
+	_mainWindow = mainWindow;
 
 	_playToolBar = _mainWindow->playToolBar();
 	_statusBar = _mainWindow->statusBar();

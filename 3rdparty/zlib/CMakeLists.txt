@@ -12,7 +12,7 @@ set(zlib_SRCS
 	inflate.c
 	infback.c
 	inftrees.c
-	minigzip.c
+	#minigzip.c
 	trees.c
 	uncompr.c
 	zutil.c
@@ -22,7 +22,6 @@ if (WIN32)
 	#Taken from win32/Makefile.msc
 	list(APPEND quarkplayer_SRCS
 		win32/zlib1.rc
-		#win32/zlib.def
 	)
 
 	#Avoid stupid warnings from Visual C++
@@ -32,8 +31,8 @@ if (WIN32)
 	)
 
 	add_definitions(
-		#-DZLIB_WINAPI
 		-DZLIB_DLL
+		-DHAVE_VSNPRINTF
 	)
 endif (WIN32)
 

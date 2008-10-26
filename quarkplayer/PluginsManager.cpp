@@ -40,31 +40,56 @@ PluginsManager::~PluginsManager() {
 	deleteAllPlugins();
 }
 
-void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
-	_quarkPlayer = &quarkPlayer;
+PluginData::PluginList PluginsManager::pluginDataList(const QString & fileName) const {
+	PluginData::PluginList pluginDataList;
+	foreach(PluginData pluginData, _plugins) {
+		if (pluginData.fileName() == fileName) {
+			pluginDataList += pluginData;
+		}
+	}
+	return pluginDataList;
+}
 
-	QList<int> randomList;
+void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
+	//Stupid hack
+	//See loadPlugin()
+	_quarkPlayer = &quarkPlayer;
+	///
 
 	QDir pluginsDir = QDir(Config::instance().pluginsDir());
-	QStringList before = pluginsDir.entryList(QDir::Files);
-	QStringList pluginList = Random::randomize(before);
+	QStringList fileNameListTmp = pluginsDir.entryList(QDir::Files);
 
-	foreach (QString filename, pluginList) {
-		if (_plugins.contains(filename)) {
-			QList<PluginData> values = _plugins.values(filename);
-			for (int i = 0; i < values.size(); i++) {
-				PluginData pluginData(values.at(i));
+	//Removes duplicated items from the list of plugins
+	PluginData::PluginList newPluginList;
+	foreach(PluginData pluginData, _plugins) {
+		if (fileNameListTmp.contains(pluginData.fileName())) {
+			//Let's keep it
+			newPluginList += pluginData;
+		}
+	}
+	_plugins = newPluginList;
+	///
+
+	//Randomizes the list of plugins, this allows
+	//to easily detect crashes/bugs
+	QStringList fileNameList = Random::randomize(fileNameListTmp);
+
+	foreach (QString fileName, fileNameList) {
+		PluginData::PluginList list = pluginDataList(fileName);
+		if (!list.isEmpty()) {
+			foreach (PluginData pluginData, list) {
 				if (pluginData.isEnabled()) {
-					//Plugin already exist in database
-					//This plugin was already created before and should be enabled
-					loadPlugin(filename, pluginData);
+					//This plugin is enabled => let's load it
+					loadPlugin(pluginData);
+				} else {
+					//This plugin is disabled => don't load it
 				}
 			}
 		} else {
-			//Plugin does not already exist in database
+			//No plugin matching the given filename already in database
 			//Let's create it for the first time
-			PluginData pluginData(QUuid::createUuid(), true);
-			loadPlugin(filename, pluginData);
+			PluginData pluginData(fileName, QUuid::createUuid(), true);
+			loadPlugin(pluginData);
 		}
 	}
 
@@ -72,70 +97,40 @@ void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	emit allPluginsLoaded();
 }
 
-bool PluginsManager::loadPlugin(const QString & filename) {
-	QString pluginFilename(filename);
-
-	if (!_plugins.contains(pluginFilename)) {
-		//Check if the list does not already contain a similar name
-		//which will mean that we know already this plugin
-		//Example: filebrowser plugin can be named
-		//libfilebrowser.dll if compiled with MinGW
-		//or filebrowser.dll if compiled with MSVC
-		//in this case filename should be the string "filebrowser"
-		PluginData::PluginListIterator it(_plugins);
-		while (it.hasNext()) {
-			it.next();
-
-			QString tmp(it.key());
-			if (tmp.contains(pluginFilename, Qt::CaseInsensitive)) {
-				//Ok we found a similar filename
-				//Should be the plugin we are looking for
-				pluginFilename = tmp;
+bool PluginsManager::loadDisabledPlugin(const PluginData & pluginData) {
+	bool loaded = false;
+	PluginData::PluginList list = pluginDataList(pluginData.fileName());
+	if (!list.isEmpty()) {
+		foreach (PluginData data, list) {
+			if (!data.isEnabled()) {
+				//Loads a plugin that already exist in the past
+				//instead of creating a new one
+				loadPlugin(data);
+				loaded = true;
 				break;
 			}
 		}
 	}
 
-	bool loaded = false;
-	if (_plugins.contains(pluginFilename)) {
-		QList<PluginData> values = _plugins.values(pluginFilename);
-		for (int i = 0; i < values.size(); i++) {
-			PluginData pluginData(values.at(i));
-			if (!pluginData.interface()) {
-				//Take the next not loaded plugin which filename matches
-				//In a way, it loads a plugin that already exist in the past
-				//instead of creating a new one
-				loadPlugin(pluginFilename, pluginData);
-				loaded = true;
-				break;
-			}
-		}
-		if (!loaded) {
-			//Plugin does not already exist in database
-			//Let's create it for the first time
-			PluginData pluginData(QUuid::createUuid(), true);
-			loadPlugin(pluginFilename, pluginData);
-
-			loaded = true;
-		}
-	} else {
-		qCritical() << __FUNCTION__ << "Error: unknown plugin:" << pluginFilename;
+	if (!loaded) {
+		//Plugin does not already exist in database
+		//Let's create it for the first time
+		PluginData newPluginData(pluginData.fileName(), QUuid::createUuid(), true);
+		loadPlugin(newPluginData);
+		loaded = true;
 	}
 
 	return loaded;
 }
 
-bool PluginsManager::loadPlugin(const QString & filename, PluginData & pluginData) {
+bool PluginsManager::loadPlugin(PluginData & pluginData) {
 	bool loaded = false;
 
-	QString pluginFilename(filename);
+	pluginData.setEnabled(true);
 
 	if (!pluginData.loader()) {
 		//Not already loaded
-		QDir pluginsDir = QDir(Config::instance().pluginsDir());
-		QString filePath(pluginsDir.absoluteFilePath(pluginFilename));
-
-		pluginData.setLoader(new QPluginLoader(filePath));
+		pluginData.setLoader(new QPluginLoader(pluginData.absoluteFilePath()));
 	}
 
 	QObject * plugin = pluginData.loader()->instance();
@@ -144,20 +139,20 @@ bool PluginsManager::loadPlugin(const QString & filename, PluginData & pluginDat
 		if (factory) {
 			pluginData.setInterface(factory->create(*_quarkPlayer, pluginData.uuid()));
 
-			qDebug() << __FUNCTION__ << "Plugin loaded:" << pluginFilename;
+			qDebug() << __FUNCTION__ << "Plugin loaded:" << pluginData.fileName();
 			loaded = true;
 		} else {
-			qCritical() << __FUNCTION__ << "Error: this is not a QuarkPlayer plugin:" << pluginFilename;
+			qCritical() << __FUNCTION__ << "Error: this is not a QuarkPlayer plugin:" << pluginData.fileName();
 		}
 	} else {
-		qCritical() << __FUNCTION__ << "Error: plugin couldn't be loaded:" << pluginFilename << pluginData.loader()->errorString();
+		qCritical() << __FUNCTION__ << "Error: plugin couldn't be loaded:" << pluginData.fileName() << pluginData.loader()->errorString();
 	}
 
 	if (!loaded) {
 		pluginData.deleteLoader();
 	}
 
-	changeOrAddPluginData(pluginFilename, pluginData);
+	updatePluginData(pluginData);
 
 	QCoreApplication::processEvents();
 
@@ -165,13 +160,8 @@ bool PluginsManager::loadPlugin(const QString & filename, PluginData & pluginDat
 }
 
 void PluginsManager::deleteAllPlugins() {
-	PluginData::PluginListIterator it(_plugins);
-	while (it.hasNext()) {
-		it.next();
-
-		QString filename(it.key());
-		PluginData pluginData(it.value());
-		deletePlugin(filename, pluginData);
+	foreach (PluginData pluginData, _plugins) {
+		deletePlugin(pluginData);
 	}
 }
 
@@ -179,7 +169,7 @@ bool PluginsManager::allPluginsAlreadyLoaded() const {
 	return _allPluginsAlreadyLoaded;
 }
 
-bool PluginsManager::deletePlugin(const QString & filename, PluginData & pluginData) {
+bool PluginsManager::deletePlugin(PluginData & pluginData) {
 	bool ret = true;
 
 	if (!pluginData.interface()) {
@@ -190,7 +180,7 @@ bool PluginsManager::deletePlugin(const QString & filename, PluginData & pluginD
 		pluginData.deleteInterface();
 	}
 
-	changeOrAddPluginData(filename, pluginData);
+	updatePluginData(pluginData);
 
 	//FIXME Sometimes QuarkPlayer does not quit
 	//some threads are still running
@@ -203,9 +193,9 @@ bool PluginsManager::deletePlugin(const QString & filename, PluginData & pluginD
 	return ret;
 }
 
-void PluginsManager::changeOrAddPluginData(const QString & filename, const PluginData & pluginData) {
-	_plugins.remove(filename, pluginData);
-	_plugins.insert(filename, pluginData);
+void PluginsManager::updatePluginData(const PluginData & pluginData) {
+	_plugins.removeAll(pluginData);
+	_plugins += pluginData;
 
 	if (_allPluginsAlreadyLoaded) {
 		//Optimization: save the plugin list only is loading is finished
@@ -215,20 +205,24 @@ void PluginsManager::changeOrAddPluginData(const QString & filename, const Plugi
 	}
 }
 
-PluginData PluginsManager::pluginData(const QString & filename, const QUuid & uuid) const {
+PluginData PluginsManager::pluginData(const QUuid & uuid) const {
 	PluginData data;
 
-	PluginData::PluginListIterator it(_plugins);
-	while (it.hasNext()) {
-		it.next();
-
-		PluginData pluginData(it.value());
-
+	foreach (PluginData pluginData, _plugins) {
 		if (pluginData.uuid() == uuid) {
 			data = pluginData;
 			break;
 		}
 	}
+
+	if (data.uuid().isNull()) {
+		qCritical() << "Error: wrong uuid:" << uuid;
+	}
+
+	//FIXME test if several identical uuid exist.
+	//In this case make an assert since
+	//there can't be several identical uuid
+	//inside the list of plugins
 
 	return data;
 }

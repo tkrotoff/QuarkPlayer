@@ -54,7 +54,7 @@ MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	populateActionCollection();
 
-	_mainWindow = &(quarkPlayer.mainWindow());
+	_mainWindow = quarkPlayer.mainWindow();
 	connect(_mainWindow, SIGNAL(subtitleFileDropped(const QString &)),
 		SLOT(openSubtitleFile(const QString &)));
 

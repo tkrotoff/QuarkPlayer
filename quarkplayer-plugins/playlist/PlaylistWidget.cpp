@@ -53,7 +53,7 @@ PluginInterface * PlaylistWidgetFactory::create(QuarkPlayer & quarkPlayer, const
 }
 
 PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QWidget(NULL),
+	: QWidget(quarkPlayer.mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	//Short for UuidActionCollection::setUuid()
@@ -98,7 +98,7 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	//Add to the main window
 	_dockWidget = new QDockWidget();
-	quarkPlayer.mainWindow().addPlaylistDockWidget(_dockWidget);
+	quarkPlayer.mainWindow()->addPlaylistDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
@@ -109,8 +109,8 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 }
 
 PlaylistWidget::~PlaylistWidget() {
-	quarkPlayer().mainWindow().removeDockWidget(_dockWidget);
-	quarkPlayer().mainWindow().resetPlaylistDockWidget();
+	quarkPlayer().mainWindow()->removeDockWidget(_dockWidget);
+	quarkPlayer().mainWindow()->resetPlaylistDockWidget();
 }
 
 void PlaylistWidget::createToolBar() {
@@ -306,7 +306,7 @@ void PlaylistWidget::updateWindowTitle(const QString & statusMessage) {
 		windowTitle += " - " + statusMessage;
 	}
 	_dockWidget->setWindowTitle(windowTitle);
-	QStatusBar * statusBar = quarkPlayer().mainWindow().statusBar();
+	QStatusBar * statusBar = quarkPlayer().mainWindow()->statusBar();
 	if (statusBar) {
 		statusBar->showMessage(statusMessage);
 	}
@@ -393,7 +393,8 @@ void PlaylistWidget::stateChanged(Phonon::State newState) {
 }
 
 void PlaylistWidget::createNewPlaylistWidget() {
-	PluginsManager::instance().loadPlugin("playlist");
+	PluginData pluginData = PluginsManager::instance().pluginData(uuid());
+	PluginsManager::instance().loadDisabledPlugin(pluginData);
 }
 
 void PlaylistWidget::jumpToCurrent() {

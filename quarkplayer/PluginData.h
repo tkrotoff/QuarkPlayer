@@ -19,6 +19,8 @@
 #ifndef PLUGINDATA_H
 #define PLUGINDATA_H
 
+#include <quarkplayer/quarkplayer_export.h>
+
 #include <QtCore/QUuid>
 #include <QtCore/QMultiHash>
 #include <QtCore/QTextStream>
@@ -29,9 +31,6 @@ class QPluginLoader;
 
 /**
  * Informations about a plugin.
- *
- * Format for storing the plugin informations:
- * <pre>QMultiHash<QString, PluginData></pre>
  *
  * One plugin can be loaded several times.
  * This is the case for plugins 'filebrowser' and 'playlist'
@@ -52,16 +51,13 @@ class QPluginLoader;
  * @see PluginsConfig
  * @author Tanguy Krotoff
  */
-class PluginData {
+class QUARKPLAYER_API PluginData {
 public:
 
-	/** QMultiHash<QString, PluginData> with QString == plugin filename. */
-	typedef QMultiHash<QString, PluginData> PluginList;
-
-	typedef QHashIterator<QString, PluginData> PluginListIterator;
+	typedef QList<PluginData> PluginList;
 
 
-	PluginData(const QUuid & uuid, bool enabled);
+	PluginData(const QString & fileName, const QUuid & uuid, bool enabled);
 
 	PluginData(const PluginData & pluginData);
 
@@ -73,6 +69,10 @@ public:
 
 	/** Comparison based on UUID. */
 	int operator==(const PluginData & right);
+
+	QString fileName() const;
+
+	QString absoluteFilePath() const;
 
 	QUuid uuid() const;
 
@@ -99,6 +99,8 @@ public:
 private:
 
 	void copy(const PluginData & pluginData);
+
+	QString _fileName;
 
 	QUuid _uuid;
 

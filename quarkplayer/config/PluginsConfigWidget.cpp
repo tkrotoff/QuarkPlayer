@@ -61,49 +61,42 @@ QString PluginsConfigWidget::iconName() const {
 void PluginsConfigWidget::readConfig() {
 	PluginData::PluginList plugins = PluginsManager::instance().plugins();
 
-	int row = 0;
-	PluginData::PluginListIterator it(plugins);
-	while (it.hasNext()) {
-		it.next();
+	for (int i = 0; i < plugins.size(); i++) {
+		PluginData pluginData(plugins[i]);
 
-		QString filename(it.key());
-		PluginData pluginData(it.value());
-
-		if (row >= _ui->tableWidget->rowCount()) {
-			_ui->tableWidget->insertRow(row);
+		if (i >= _ui->tableWidget->rowCount()) {
+			_ui->tableWidget->insertRow(i);
 		}
 
-		_ui->tableWidget->setItem(row, FILENAME_COLUMN, new QTableWidgetItem(filename));
+		_ui->tableWidget->setItem(i, FILENAME_COLUMN, new QTableWidgetItem(pluginData.fileName()));
 
 		PluginInterface * interface = pluginData.interface();
 		if (interface) {
-			_ui->tableWidget->setItem(row, NAME_COLUMN, new QTableWidgetItem(interface->name()));
-			_ui->tableWidget->setItem(row, VERSION_COLUMN, new QTableWidgetItem(interface->version()));
+			_ui->tableWidget->setItem(i, NAME_COLUMN, new QTableWidgetItem(interface->name()));
+			_ui->tableWidget->setItem(i, VERSION_COLUMN, new QTableWidgetItem(interface->version()));
 		} else {
-			_ui->tableWidget->setItem(row, NAME_COLUMN, new QTableWidgetItem(""));
-			_ui->tableWidget->setItem(row, VERSION_COLUMN, new QTableWidgetItem(""));
+			_ui->tableWidget->setItem(i, NAME_COLUMN, new QTableWidgetItem(""));
+			_ui->tableWidget->setItem(i, VERSION_COLUMN, new QTableWidgetItem(""));
 		}
 
 		QCheckBox * checkBox = new QCheckBox();
-		_ui->tableWidget->setCellWidget(row, CHECKBOX_COLUMN, checkBox);
+		_ui->tableWidget->setCellWidget(i, CHECKBOX_COLUMN, checkBox);
 
 		if (!pluginData.isEnabled()) {
 			//Don't proceed plugins that are blacklisted
 			checkBox->setChecked(false);
-			_ui->tableWidget->setItem(row, STATE_COLUMN, new QTableWidgetItem(tr("Disabled")));
+			_ui->tableWidget->setItem(i, STATE_COLUMN, new QTableWidgetItem(tr("Disabled")));
 		} else {
 			if (interface) {
 				checkBox->setChecked(true);
-				_ui->tableWidget->setItem(row, STATE_COLUMN, new QTableWidgetItem(tr("Enabled")));
+				_ui->tableWidget->setItem(i, STATE_COLUMN, new QTableWidgetItem(tr("Enabled")));
 			} else {
 				checkBox->setChecked(false);
-				_ui->tableWidget->setItem(row, STATE_COLUMN, new QTableWidgetItem(tr("Error")));
+				_ui->tableWidget->setItem(i, STATE_COLUMN, new QTableWidgetItem(tr("Error")));
 			}
 		}
 
-		_ui->tableWidget->setItem(row, UUID_COLUMN, new QTableWidgetItem(pluginData.uuid().toString()));
-
-		row++;
+		_ui->tableWidget->setItem(i, UUID_COLUMN, new QTableWidgetItem(pluginData.uuid().toString()));
 	}
 
 	_ui->tableWidget->resizeColumnToContents(CHECKBOX_COLUMN);
@@ -124,23 +117,20 @@ void PluginsConfigWidget::saveConfig() {
 			return;
 		}
 
-		QTableWidgetItem * item = _ui->tableWidget->item(row, FILENAME_COLUMN);
-		QString filename(item->text());
-
-		item = _ui->tableWidget->item(row, UUID_COLUMN);
+		QTableWidgetItem * item = _ui->tableWidget->item(row, UUID_COLUMN);
 		QString uuid(item->text());
 
-		PluginData pluginData = PluginsManager::instance().pluginData(filename, uuid);
+		PluginData pluginData = PluginsManager::instance().pluginData(uuid);
 
 		bool loaded = pluginData.interface();
 		if (checkBox->isChecked() && !loaded) {
 			//Loads the plugin
 			pluginData.setEnabled(true);
-			PluginsManager::instance().loadPlugin(filename, pluginData);
+			PluginsManager::instance().loadPlugin(pluginData);
 		} else if (!checkBox->isChecked() && loaded) {
 			//Unloads the plugin
 			pluginData.setEnabled(false);
-			PluginsManager::instance().deletePlugin(filename, pluginData);
+			PluginsManager::instance().deletePlugin(pluginData);
 		}
 	}
 }
@@ -150,13 +140,10 @@ void PluginsConfigWidget::retranslate() {
 }
 
 void PluginsConfigWidget::currentCellChanged(int row, int column) {
-	QTableWidgetItem * item = _ui->tableWidget->item(row, FILENAME_COLUMN);
-	QString filename(item->text());
-
-	item = _ui->tableWidget->item(row, UUID_COLUMN);
+	QTableWidgetItem * item = _ui->tableWidget->item(row, UUID_COLUMN);
 	QString uuid(item->text());
 
-	PluginData pluginData = PluginsManager::instance().pluginData(filename, uuid);
+	PluginData pluginData = PluginsManager::instance().pluginData(uuid);
 	PluginInterface * interface = pluginData.interface();
 
 	if (interface) {
@@ -164,12 +151,12 @@ void PluginsConfigWidget::currentCellChanged(int row, int column) {
 		_ui->descriptionLabel->setText(interface->description());
 		_ui->webpageLabel->setText("<a href=\"" + interface->webpage() + "\">" + interface->webpage() + "</a>");
 		_ui->emailLabel->setText("<a href=\"mailto:" + interface->email() +
-				"?subject=[QuarkPlayer plugin] " + filename + "\">" + interface->email() + "</a>");
+				"?subject=[QuarkPlayer plugin] " + pluginData.fileName() + "\">" + interface->email() + "</a>");
 		_ui->authorsLabel->setText(interface->authors());
 		_ui->licenseLabel->setText(interface->license());
 		_ui->copyrightLabel->setText(interface->copyright());
 	} else {
-		_ui->descriptionGroupBox->setTitle(filename + tr(": plugin not loaded"));
+		_ui->descriptionGroupBox->setTitle(pluginData.fileName() + tr(": plugin not loaded"));
 		_ui->descriptionLabel->setText("");
 		_ui->webpageLabel->setText("");
 		_ui->emailLabel->setText("");

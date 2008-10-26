@@ -41,18 +41,38 @@ class QUARKPLAYER_API PluginsManager : public QObject, public Singleton<PluginsM
 	Q_OBJECT
 public:
 
+	/** Loads all the available plugins. */
 	void loadAllPlugins(QuarkPlayer & quarkPlayer);
 
-	void deleteAllPlugins();
+	/**
+	 * Loads/reloads a previously disabled plugin that matches the given PluginData filename.
+	 *
+	 * If no previously disabled PluginData exists then a new one will be created.
+	 * Matches the given PluginData means a plugin with the same name.
+	 *
+	 * Way it should be used:
+	 * <pre>
+	 * PluginData pluginData = PluginsManager::instance().pluginData(uuid());
+	 * PluginsManager::instance().loadDisabledPlugin(pluginData);
+	 * </pre>
+	 *
+	 * FIXME one could think about just giving a QString filename
+	 * as a parameter but I think it can lead to misuse.
+	 *
+	 * @param pluginData plugin to reload
+	 */
+	bool loadDisabledPlugin(const PluginData & pluginData);
 
-	bool loadPlugin(const QString & filename);
+	/** Loads a given plugin. */
+	bool loadPlugin(PluginData & pluginData);
 
-	bool loadPlugin(const QString & filename, PluginData & pluginData);
+	/** Deletes/unloads a given plugin. */
+	bool deletePlugin(PluginData & pluginData);
 
-	bool deletePlugin(const QString & filename, PluginData & pluginData);
+	/** Gets a plugin given a unique ID. */
+	PluginData pluginData(const QUuid & uuid) const;
 
-	PluginData pluginData(const QString & filename, const QUuid & uuid) const;
-
+	/** Gets the list of available plugins. */
 	PluginData::PluginList plugins() const;
 
 	bool allPluginsAlreadyLoaded() const;
@@ -91,7 +111,17 @@ private:
 
 	~PluginsManager();
 
-	void changeOrAddPluginData(const QString & filename, const PluginData & pluginData);
+	/**
+	 * Deletes all the available plugins.
+	 *
+	 * Call by PluginsManager destructor.
+	 */
+	void deleteAllPlugins();
+
+	PluginData::PluginList pluginDataList(const QString & fileName) const;
+
+	/** Updates and synchronizes the given plugin with the list of plugins. */
+	void updatePluginData(const PluginData & pluginData);
 
 	QuarkPlayer * _quarkPlayer;
 
