@@ -45,7 +45,7 @@ PluginInterface * QuickSettingsWindowFactory::create(QuarkPlayer & quarkPlayer, 
 }
 
 static const int SLIDER_RANGE = 8;
-static const int TICKINTERVAL = 4;
+static const int TICK_INTERVAL = 4;
 
 QuickSettingsWindow::QuickSettingsWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QDialog(quarkPlayer.mainWindow()),
@@ -291,7 +291,7 @@ void QuickSettingsWindow::configureEffect() {
 						slider->setProperty("oldValue", currentValue.toDouble());
 						slider->setValue((int) (SLIDER_RANGE * currentValue.toDouble()));
 						slider->setTickPosition(QSlider::TicksBelow);
-						slider->setTickInterval(4);
+						slider->setTickInterval(TICK_INTERVAL);
 						hlayout->addWidget(slider);
 						connect(slider, SIGNAL(valueChanged(int)), SLOT(updateEffect()));
 						_propertyControllers.insert(param.name(), slider);

@@ -38,7 +38,7 @@ PluginInterface * StatusBarFactory::create(QuarkPlayer & quarkPlayer, const QUui
 }
 
 StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QStatusBar(NULL),
+	: QStatusBar(quarkPlayer.mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_timeLabel = new QLabel(this);

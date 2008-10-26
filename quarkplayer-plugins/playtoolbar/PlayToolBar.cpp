@@ -39,7 +39,7 @@ PluginInterface * PlayToolBarFactory::create(QuarkPlayer & quarkPlayer, const QU
 }
 
 PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QToolBar(NULL),
+	: QToolBar(quarkPlayer.mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_volumeSlider = NULL;

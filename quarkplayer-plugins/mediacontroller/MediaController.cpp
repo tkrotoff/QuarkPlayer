@@ -49,7 +49,7 @@ PluginInterface * MediaControllerFactory::create(QuarkPlayer & quarkPlayer, cons
 }
 
 MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QWidget(NULL),
+	: QWidget(quarkPlayer.mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	populateActionCollection();
