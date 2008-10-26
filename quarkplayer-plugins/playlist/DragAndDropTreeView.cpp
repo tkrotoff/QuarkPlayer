@@ -189,25 +189,34 @@ void DragAndDropTreeView::clearSelection() {
 	//but from the last to the first
 	//This simplifies the algorithm
 
-	QModelIndexList indexList = selectionModel()->selectedRows();
-	int currentRow = -1;
+	QList<int> indexList;
+	QModelIndexList indexes = selectionModel()->selectedRows();
+	foreach (QModelIndex index, indexes) {
+		QModelIndex sourceIndex(_playlistFilter->mapToSource(index));
+		int row = sourceIndex.row();
+		indexList += row;
+		qDebug() << __FUNCTION__ << "Row:" << row;
+	}
+
+	//Let's go from the last item to the first one (descending order)
+	//this way the algorithm is simplified
+	qSort(indexList.begin(), indexList.end(), qGreater<int>());
+
 	int previousRow = -1;
 	QList<int> contiguousRows;
-	for (int i = indexList.size() - 1; i >= 0; i--) {
-		QModelIndex index = indexList[i];
-		QModelIndex sourceIndex(_playlistFilter->mapToSource(index));
-		currentRow = sourceIndex.row();
-
+	foreach (int currentRow, indexList) {
+		qDebug() << __FUNCTION__ << "Current row:" << currentRow;
 		if (contiguousRows.isEmpty()) {
 			contiguousRows.prepend(currentRow);
 		} else {
 			if (currentRow == previousRow - 1) {
 				contiguousRows.prepend(currentRow);
 			} else {
-				qDebug() << "removeRows:" << contiguousRows.first() << contiguousRows.last();
+				qDebug() << __FUNCTION__ << "Remove rows:" << contiguousRows.first() << contiguousRows.last();
 				_playlistModel->removeRows(contiguousRows.first(), contiguousRows.size());
 				contiguousRows.clear();
-				qDebug() << "removeRow:" << currentRow;
+
+				qDebug() << __FUNCTION__ << "Remove row:" << currentRow;
 				_playlistModel->removeRow(currentRow);
 			}
 		}
@@ -216,7 +225,7 @@ void DragAndDropTreeView::clearSelection() {
 	}
 
 	if (!contiguousRows.isEmpty()) {
-		qDebug() << "removeRows:" << contiguousRows.first() << contiguousRows.last();
+		qDebug() << __FUNCTION__ << "Remove rows:" << contiguousRows.first() << contiguousRows.last();
 		_playlistModel->removeRows(contiguousRows.first(), contiguousRows.size());
 		contiguousRows.clear();
 	}
