@@ -18,6 +18,10 @@
 
 #include "FileSearchModel.h"
 
+#include "Track.h"
+
+#include <mediainfowindow/MediaInfoFetcher.h>
+
 #include <filetypes/FileTypes.h>
 
 #include <tkutil/FindFiles.h>
@@ -33,8 +37,12 @@
 
 const int FileSearchModel::COLUMN_FILENAME = 0;
 const int FileSearchModel::COLUMN_PATH = 1;
+const int FileSearchModel::COLUMN_FIRST = COLUMN_FILENAME;
+const int FileSearchModel::COLUMN_LAST = COLUMN_PATH;
 
 static const int COLUMN_COUNT = 2;
+
+static const int POSITION_INVALID = -1;
 
 QHash<QString, QIcon> FileSearchModel::_iconsCache;
 
@@ -42,6 +50,12 @@ FileSearchModel::FileSearchModel(QObject * parent)
 	: QAbstractItemModel(parent) {
 
 	_findFiles = NULL;
+
+	clearInternal();
+
+	//Info fetcher
+	_mediaInfoFetcher = new MediaInfoFetcher(this);
+	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
 }
 
 FileSearchModel::~FileSearchModel() {
@@ -80,7 +94,8 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	int row = index.row();
 	int column = index.column();
 
-	QString filename(_filenames[row]);
+	Track track = _filenames[row];
+	QString filename(track.fileName());
 
 	switch (role) {
 	case Qt::DisplayRole: {
@@ -111,6 +126,34 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 					_iconsCache[ext] = _iconProvider->icon(QFileInfo(filename));
 				}
 				tmp = _iconsCache.value(ext);
+			}
+			break;
+		case COLUMN_PATH:
+			break;
+		default:
+			qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
+		}
+		break;
+	}
+
+	case Qt::ToolTipRole: {
+		switch (column) {
+		case COLUMN_FILENAME:
+			if (track.mediaDataResolved()) {
+				tmp = filename + "<br>" +
+					tr("Title:") + "</b> <b>" + track.title() + "</b><br>" +
+					tr("Artist:") + "</b> <b>" + track.artist() + "</b><br>" +
+					tr("Album:") + "</b> <b>" + track.album() + "</b><br>" +
+					tr("Length:") + "</b> <b>" + track.length() + "</b>";
+			} else {
+				tmp = filename;
+
+				//Resolve meta data file one by one
+				if (_mediaInfoFetcherRow == POSITION_INVALID) {
+					_mediaInfoFetcherRow = row;
+					_mediaInfoFetcher->start(filename);
+				}
+
 			}
 			break;
 		case COLUMN_PATH:
@@ -164,7 +207,8 @@ QMimeData * FileSearchModel::mimeData(const QModelIndexList & indexes) const {
 		//Number of index is the number of columns
 		//Here we have 5 columns, we only want to select 1 column per row
 		if (index.column() == COLUMN_FILENAME) {
-			QString filename(_filenames[index.row()]);
+			int dragAndDropRow = index.row();
+			QString filename(_filenames[dragAndDropRow].fileName());
 			if (!filename.isEmpty()) {
 				files << filename;
 			}
@@ -188,16 +232,20 @@ Qt::DropActions FileSearchModel::supportedDropActions() const {
 
 QFileInfo FileSearchModel::fileInfo(const QModelIndex & index) const {
 	QFileInfo tmp;
-
 	if (index.isValid()) {
-		tmp = QFileInfo(_filenames[index.row()]);
+		int row = index.row();
+		tmp = QFileInfo(_filenames[row].fileName());
 	}
-
 	return tmp;
 }
 
 void FileSearchModel::setIconProvider(QFileIconProvider * provider) {
 	_iconProvider = provider;
+}
+
+void FileSearchModel::clearInternal() {
+	_filenames.clear();
+	_mediaInfoFetcherRow = POSITION_INVALID;
 }
 
 void FileSearchModel::search(const QString & path, const QRegExp & pattern, const QStringList & extensions) {
@@ -215,7 +263,7 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, cons
 	stop();
 
 	//Clears the model before starting a new search
-	_filenames.clear();
+	clearInternal();
 	reset();
 
 	//Starts a new search
@@ -258,8 +306,35 @@ void FileSearchModel::filesFound(const QStringList & files) {
 
 	beginInsertRows(QModelIndex(), first, last);
 	foreach (QString filename, files) {
-		_filenames.insert(currentRow, filename);
+		_filenames.insert(currentRow, Track(filename));
 		currentRow++;
 	}
 	endInsertRows();
+}
+
+void FileSearchModel::updateMediaInfo() {
+	if (_mediaInfoFetcherRow == POSITION_INVALID) {
+		qCritical() << __FUNCTION__ << "Error: _mediaInfoFetcherRow invalid";
+	} else {
+		if (_mediaInfoFetcherRow < _filenames.size()) {
+			Track track = _filenames[_mediaInfoFetcherRow];
+
+			if (track.fileName() == _mediaInfoFetcher->fileName() &&
+				!track.mediaDataResolved()) {
+
+				track.setTrackNumber(_mediaInfoFetcher->trackNumber());
+				track.setTitle(_mediaInfoFetcher->title());
+				track.setArtist(_mediaInfoFetcher->artist());
+				track.setAlbum(_mediaInfoFetcher->album());
+				track.setLength(_mediaInfoFetcher->length());
+				track.setMediaDataResolved(true);
+
+				_filenames[_mediaInfoFetcherRow] = track;
+
+				//Update the row since the matching MediaSource has been modified
+				emit dataChanged(index(_mediaInfoFetcherRow, COLUMN_FIRST), index(_mediaInfoFetcherRow, COLUMN_LAST));
+			}
+		}
+	}
+	_mediaInfoFetcherRow = POSITION_INVALID;
 }

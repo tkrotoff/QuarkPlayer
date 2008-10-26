@@ -24,7 +24,10 @@
 
 #include <QtGui/QIcon>
 
+class Track;
+
 class FindFiles;
+class MediaInfoFetcher;
 
 class QFileIconProvider;
 class QFileInfo;
@@ -36,9 +39,18 @@ class QRegExp;
  *
  * Based on FindFiles
  *
+ * FIXME a lot can be factorized with PlaylistModel
+ * Specially _mediaInfoFetcherRow, Track class, MediaInfoFetcher * _mediaInfoFetcher;
+ * QList<Track> _filenames, updateMediaInfo()...
+ * All this is a clean copy-paste from PlaylistModel
+ * but still code factorization is GOOD :)
+ *
+ * FIXME due to a Qt bug, tooltip refresh is not perfect :/
+ *
  * @see QDirModel
  * @see QFileSystemModel
  * @see FindFiles
+ * @see PlaylistModel
  * @author Tanguy Krotoff
  */
 class FileSearchModel : public QAbstractItemModel {
@@ -47,6 +59,8 @@ public:
 
 	static const int COLUMN_FILENAME;
 	static const int COLUMN_PATH;
+	static const int COLUMN_FIRST;
+	static const int COLUMN_LAST;
 
 	FileSearchModel(QObject * parent);
 
@@ -87,11 +101,27 @@ private slots:
 
 	void filesFound(const QStringList & files);
 
+	void updateMediaInfo();
+
 private:
+
+	void clearInternal();
 
 	FindFiles * _findFiles;
 
-	QStringList _filenames;
+	/** Resolves the list of pending files for metadata/info. */
+	MediaInfoFetcher * _mediaInfoFetcher;
+
+	/**
+	 * List of all the media (filenames) available in this QAbstractItemModel.
+	 */
+	QList<Track> _filenames;
+
+	/**
+	 * _mediaInfoFetcher is working or not (already resolving some metadatas or not).
+	 * Pending row for meta data/info to be resolved.
+	 */
+	mutable int _mediaInfoFetcherRow;
 
 	QFileIconProvider * _iconProvider;
 

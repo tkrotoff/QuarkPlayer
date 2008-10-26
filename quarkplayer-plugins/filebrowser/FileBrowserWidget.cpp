@@ -48,7 +48,7 @@ PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer, co
 }
 
 FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QWidget(NULL),
+	: QWidget(quarkPlayer.mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_dirModel = NULL;
