@@ -37,6 +37,9 @@
  *
  * Check the MPlayer slave mode documentation: http://www.mplayerhq.hu/DOCS/tech/slave.txt
  *
+ * This code is from SMPlayer http://smplayer.sourceforge.net/
+ * Ricardo Villalba did the hard work, I came later on to clean/refactor it.
+ *
  * @see mplayer-input-cmdlist.txt
  * @see http://www.mplayerhq.hu/DOCS/tech/slave.txt
  * @author Ricardo Villalba

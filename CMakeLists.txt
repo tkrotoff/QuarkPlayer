@@ -10,10 +10,47 @@ set(QUARKPLAYER_PATCH_VERSION 3)
 #Add options values
 include(Options.cmake)
 
+#OWBuild
 include(CMakeLists-owbuild.txt)
 
+
+#CMake declarations order matters!
+
+
+#Default installation path
+#and other platform specific installation instructions
+set(CMAKE_INSTALL_PREFIX ${BUILD_DIR})
+if (WIN32)
+	include(CMakeLists-win32.txt)
+endif (WIN32)
+if (LINUX)
+	include(CMakeLists-linux.txt)
+endif (LINUX)
+if (APPLE)
+	include(CMakeLists-macos.txt)
+endif (APPLE)
+##
+
+
+#3rdparty libraries with no Qt dependency
+if (ZLIB)
+	add_subdirectory(3rdparty/zlib)
+	set(ZLIB_FOUND 1)
+	set(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib)
+	set(ZLIB_LIBRARY zlib)
+
+	add_subdirectory(3rdparty/zlib/contrib/minizip)
+endif (ZLIB)
+
+if (TAGLIB)
+	add_subdirectory(3rdparty/taglib)
+endif (TAGLIB)
+##
+
+
+#Qt/KDE libraries detection and initialization
 if (NOT ENV{KDEDIRS})
-	#Ubuntu 8.04, if GNOME is run instead of KDE, KDEDIRS variable is not defined
+	#Ubuntu 8.04, if GNOME is runnng instead of KDE, KDEDIRS variable is not defined
 	#so let's define it
 	set(ENV{KDEDIRS} /usr/lib/kde4)
 endif (NOT ENV{KDEDIRS})
@@ -43,35 +80,28 @@ else (KDE4_FOUND)
 endif (KDE4_FOUND)
 
 #Optimization: remove all Qt modules from include path
-#This will reduce compilation time (less include directories == compilation time reduced)
 reduce_qt_include_dirs()
+##
 
-#Does not use Phonon from Qt or KDE4
-#Uses Phonon from this repository instead
-#CMake declarations order matters!!!
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)
+
+#3rdparty libraries with Qt and Phonon dependency
+add_subdirectory(3rdparty/phonon)
+
+#Do not use Phonon from Qt or KDE4
+#Use Phonon from this repository instead (patched version)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
 set(QT_PHONON_LIBRARY phonon)
 
-#Default installation path
-set(CMAKE_INSTALL_PREFIX ${BUILD_DIR})
+add_subdirectory(3rdparty/ds9)
+add_subdirectory(vlc-mplayer)
+##
 
-if (WIN32)
-	include(CMakeLists-win32.txt)
-endif (WIN32)
-if (LINUX)
-	include(CMakeLists-linux.txt)
-endif (LINUX)
-if (APPLE)
-	include(CMakeLists-macos.txt)
-endif (APPLE)
+
+#QuarkPlayer
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)
 
 clear_qt_translations()
-
-add_subdirectory(3rdparty)
-
-add_subdirectory(vlc-mplayer)
 
 add_subdirectory(libs)
 
@@ -79,5 +109,8 @@ add_subdirectory(quarkplayer)
 add_subdirectory(quarkplayer/style)
 add_subdirectory(quarkplayer-plugins)
 add_subdirectory(quarkplayer-app)
+##
 
+
+#CPack instructions
 include(CPackConfig.txt)

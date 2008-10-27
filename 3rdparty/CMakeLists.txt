@@ -1,7 +1,0 @@
-add_subdirectory(ds9)
-add_subdirectory(phonon)
-add_subdirectory(zlib)
-add_subdirectory(zlib/contrib/minizip)
-if (TAGLIB)
-	add_subdirectory(taglib)
-endif (TAGLIB)

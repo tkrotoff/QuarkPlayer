@@ -19,6 +19,8 @@
 	#include <dirent.h>
 #endif	//WIN32
 
+#include <cstdlib>
+
 typedef std::list<std::string> StringList;
 
 StringList sourceCodeExtensions() {
