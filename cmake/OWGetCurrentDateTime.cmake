@@ -34,4 +34,9 @@ macro (ow_get_current_date_time time)
 	)
 	string(REGEX MATCH "[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]" ${time} ${${time}})
 
+	#message("compileOutput="${compileOutput})
+	#message("compileResult="${compileResult})
+	#message("runResult="${runResult})
+	#message("runOutput="${${time}})
+
 endmacro (ow_get_current_date_time)

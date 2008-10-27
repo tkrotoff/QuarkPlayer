@@ -11,6 +11,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <cstdlib>
+
 /**
  * Transforms an integer to a std::string.
  */
