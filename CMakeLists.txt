@@ -98,13 +98,12 @@ add_subdirectory(vlc-mplayer)
 
 
 #QuarkPlayer
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)
-
 clear_qt_translations()
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)
 add_subdirectory(libs)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(quarkplayer)
 add_subdirectory(quarkplayer/style)
 add_subdirectory(quarkplayer-plugins)
