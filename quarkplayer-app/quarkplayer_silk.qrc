@@ -14,7 +14,7 @@
 	<file alias="16x16/player-volume-low">icons/silk/sound_low.png</file>
 	<file alias="16x16/player-volume-medium">icons/silk/sound.png</file>
 	<file alias="16x16/player-time">icons/silk/clock.png</file>
-	<file alias="16x16/view-media-equalizer">icons/silk/control_equalizer.png</file>
+	<file alias="16x16/view-media-equalizer">icons/silk/control_equalizer_blue.png</file>
 	<file alias="16x16/go-next">icons/silk/resultset_next.png</file>
 	<file alias="16x16/go-previous">icons/silk/resultset_previous.png</file>
 	<file alias="16x16/process-stop">icons/silk/cancel.png</file>
@@ -28,11 +28,11 @@
 	<file alias="16x16/window-duplicate">icons/silk/application_double.png</file>
 
 	<file alias="16x16/format-text-underline">icons/silk/text_underline.png</file>
-	<file alias="16x16/media-playback-pause">icons/silk/control_pause.png</file>
-	<file alias="16x16/media-playback-start">icons/silk/control_play.png</file>
-	<file alias="16x16/media-playback-stop">icons/silk/control_stop.png</file>
-	<file alias="16x16/media-skip-backward">icons/silk/control_start.png</file>
-	<file alias="16x16/media-skip-forward">icons/silk/control_end.png</file>
+	<file alias="16x16/media-playback-pause">icons/silk/control_pause_blue.png</file>
+	<file alias="16x16/media-playback-start">icons/silk/control_play_blue.png</file>
+	<file alias="16x16/media-playback-stop">icons/silk/control_stop_blue.png</file>
+	<file alias="16x16/media-skip-backward">icons/silk/control_start_blue.png</file>
+	<file alias="16x16/media-skip-forward">icons/silk/control_end_blue.png</file>
 	<file alias="16x16/view-fullscreen">icons/silk/arrow_out.png</file>
 	<file alias="16x16/help-about">icons/silk/information.png</file>
 	<file alias="16x16/list-add">icons/silk/page_add.png</file>
@@ -47,14 +47,14 @@
 	<file alias="16x16/preferences-desktop">icons/silk/monitor.png</file>
 	<file alias="16x16/system-help">icons/silk/information.png</file>
 
-	<file alias="16x16/media-optical">icons/silk/cd.png</file>
+	<file alias="16x16/media-optical">icons/silk/dvd.png</file>
 
 	<file alias="16x16/audio-x-generic">icons/silk/music.png</file>
 	<file alias="16x16/video-x-generic">icons/silk/film.png</file>
 	<file alias="16x16/x-office-address-book">icons/silk/book.png</file>
 	<file alias="16x16/text-x-script">icons/silk/script_code.png</file>
 
-	<file alias="16x16/media-playlist-repeat">icons/silk/arrow_refresh.png</file>
+	<file alias="16x16/media-playlist-repeat">icons/silk/control_repeat_blue.png</file>
 	<file alias="16x16/media-playlist-shuffle">icons/silk/arrow_switch.png</file>
 
 </qresource>
