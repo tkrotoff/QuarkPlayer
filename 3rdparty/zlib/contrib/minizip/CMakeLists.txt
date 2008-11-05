@@ -1,6 +1,6 @@
 project(minizip)
 
-include_directories(../..)
+include_directories(${ZLIB_INCLUDE_DIR})
 
 #Taken from quazip/quazip.pro
 #http://quazip.svn.sourceforge.net/viewvc/quazip/trunk/quazip/quazip/quazip.pro?view=markup
@@ -24,6 +24,8 @@ endif (WIN32)
 
 add_library(minizip SHARED ${minizip_SRCS})
 
-target_link_libraries(minizip zlib)
+target_link_libraries(minizip
+	${ZLIB_LIBRARY}
+)
 
 install(TARGETS minizip DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
