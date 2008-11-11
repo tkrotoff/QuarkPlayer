@@ -24,6 +24,7 @@ set(tkutil_SRCS
 	TkTextBrowser.cpp
 	SyncHttp.cpp
 	TkTime.cpp
+	FileChooserWidget.cpp
 )
 
 qt4_wrap_cpp(tkutil_SRCS
@@ -32,6 +33,7 @@ qt4_wrap_cpp(tkutil_SRCS
 	FindFiles.h
 	TkTextBrowser.h
 	SyncHttp.h
+	FileChooserWidget.h
 )
 
 add_library(tkutil SHARED ${tkutil_SRCS})
