@@ -1,12 +1,14 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="silk">
 	<file alias="16x16/application-exit">icons/silk/stop.png</file>
-	<file alias="16x16/document-open">icons/silk/page.png</file>
+	<file alias="16x16/document-open">icons/silk/folder_page.png</file>
 	<file alias="16x16/document-save">icons/silk/disk.png</file>
 	<file alias="16x16/document-open-folder">icons/silk/folder.png</file>
 	<file alias="16x16/document-open-recent">icons/silk/clock.png</file>
 	<file alias="16x16/document-open-remote">icons/silk/page_link.png</file>
 	<file alias="16x16/edit-delete">icons/silk/delete.png</file>
+	<file alias="16x16/edit-find">icons/silk/find.png</file>
+	<file alias="16x16/edit-copy">icons/silk/page_copy.png</file>
 	<file alias="16x16/format-list-ordered">icons/silk/text_list_numbers.png</file>
 	<file alias="16x16/speaker">icons/silk/sound.png</file>
 	<file alias="16x16/player-volume">icons/silk/sound.png</file>
@@ -22,10 +24,13 @@
 	<file alias="16x16/go-home">icons/silk/house.png</file>
 	<file alias="16x16/go-jump-locationbar">icons/silk/tick.png</file>
 	<file alias="16x16/go-jump">icons/silk/bullet_go.png</file>
+	<file alias="16x16/go-down">icons/silk/arrow_down.png</file>
 	<file alias="16x16/rating">icons/silk/star.png</file>
 	<file alias="16x16/document-properties">icons/silk/page_edit.png</file>
 	<file alias="16x16/window-new">icons/silk/application_add.png</file>
 	<file alias="16x16/window-duplicate">icons/silk/application_double.png</file>
+
+	<file alias="16x16/tools-report-bug">icons/silk/bug.png</file>
 
 	<file alias="16x16/format-text-underline">icons/silk/text_underline.png</file>
 	<file alias="16x16/media-playback-pause">icons/silk/control_pause_blue.png</file>
