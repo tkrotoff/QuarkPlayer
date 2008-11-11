@@ -9,14 +9,11 @@
     <height>329</height>
    </rect>
   </property>
-  <property name="windowTitle" >
-   <string>Files to Extract</string>
-  </property>
   <layout class="QVBoxLayout" >
    <item>
-    <widget class="QLabel" name="textLabel" >
+    <widget class="QLabel" name="informationLabel" >
      <property name="text" >
-      <string>This archive contains several files. Please choose the ones you want to extract.</string>
+      <string/>
      </property>
      <property name="alignment" >
       <set>Qt::AlignVCenter</set>

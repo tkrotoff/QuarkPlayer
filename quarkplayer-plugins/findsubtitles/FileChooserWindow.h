@@ -36,11 +36,13 @@ public:
 
 	void addFiles(const QStringList & files);
 
+	void setInformationText(const QString & text);
+
+	void setOkButtonText(const QString & text);
+
 	QStringList selectedFiles();
 
 private slots:
-
-	void retranslate();
 
 	void selectAll();
 
@@ -51,6 +53,10 @@ private slots:
 	void itemPressed(QListWidgetItem * item);
 
 private:
+
+	void allItemsChecked();
+
+	void allItemsUnchecked();
 
 	Ui::FileChooserWindow * _ui;
 

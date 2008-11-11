@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>594</width>
-    <height>369</height>
+    <width>591</width>
+    <height>379</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -16,7 +16,7 @@
    <item row="0" column="0" >
     <widget class="QLabel" name="fileNameLabel" >
      <property name="text" >
-      <string>&amp;Movie File:</string>
+      <string>&amp;Movie:</string>
      </property>
     </widget>
    </item>
@@ -36,6 +36,29 @@
    <item row="2" column="0" colspan="2" >
     <layout class="QHBoxLayout" name="horizontalLayout_2" >
      <item>
+      <widget class="QLabel" name="openSubtitlesLabel" >
+       <property name="text" >
+        <string>Subtitles from &lt;a href="http://opensubtitles.org">OpenSubtitles.org&lt;/a></string>
+       </property>
+       <property name="openExternalLinks" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="spacer" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>158</width>
+         <height>23</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QLabel" name="languageLabel" >
        <property name="text" >
         <string>&amp;Language:</string>
@@ -47,19 +70,6 @@
      </item>
      <item>
       <widget class="QComboBox" name="languageComboBox" />
-     </item>
-     <item>
-      <spacer name="spacer" >
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0" >
-        <size>
-         <width>384</width>
-         <height>23</height>
-        </size>
-       </property>
-      </spacer>
      </item>
      <item>
       <widget class="QPushButton" name="downloadButton" >

@@ -21,14 +21,12 @@
 
 #include "ui_FileChooserWindow.h"
 
-#include <tkutil/LanguageChangeEventFilter.h>
-
 #include <QtGui/QtGui>
 
 FileChooserWindow::FileChooserWindow(QWidget * parent)
 	: QDialog(parent) {
 
-	_currentItemCheckState = Qt::Unchecked;
+	_currentItemCheckState = Qt::Checked;
 
 	_ui = new Ui::FileChooserWindow();
 	_ui->setupUi(this);
@@ -41,9 +39,6 @@ FileChooserWindow::FileChooserWindow(QWidget * parent)
 		SLOT(itemClicked(QListWidgetItem *)));
 	connect(_ui->listWidget, SIGNAL(itemPressed(QListWidgetItem *)),
 		SLOT(itemPressed(QListWidgetItem *)));
-
-	RETRANSLATE(this);
-	retranslate();
 }
 
 FileChooserWindow::~FileChooserWindow() {
@@ -54,6 +49,8 @@ void FileChooserWindow::selectAll() {
 		_ui->listWidget->item(i)->setCheckState(Qt::Checked);
 	}
 	_ui->listWidget->setFocus();
+
+	allItemsChecked();
 }
 
 void FileChooserWindow::selectNone() {
@@ -61,6 +58,22 @@ void FileChooserWindow::selectNone() {
 		_ui->listWidget->item(i)->setCheckState(Qt::Unchecked);
 	}
 	_ui->listWidget->setFocus();
+
+	allItemsUnchecked();
+}
+
+void FileChooserWindow::allItemsChecked() {
+	QPushButton * okButton = _ui->buttonBox->button(QDialogButtonBox::Ok);
+	okButton->setEnabled(true);
+	_ui->selectAllButton->setEnabled(false);
+	_ui->selectNoneButton->setEnabled(true);
+}
+
+void FileChooserWindow::allItemsUnchecked() {
+	QPushButton * okButton = _ui->buttonBox->button(QDialogButtonBox::Ok);
+	okButton->setEnabled(false);
+	_ui->selectAllButton->setEnabled(true);
+	_ui->selectNoneButton->setEnabled(false);
 }
 
 void FileChooserWindow::itemClicked(QListWidgetItem * item) {
@@ -72,8 +85,34 @@ void FileChooserWindow::itemClicked(QListWidgetItem * item) {
 			item->setCheckState(Qt::Checked);
 		}
 	}
-
 	//else - clicked on the checkbox itself, do nothing
+
+	int nbItemsChecked = 0;
+	int nbItemsUnchecked = 0;
+
+	for (int i = 0; i < _ui->listWidget->count(); i++) {
+		QListWidgetItem * item = _ui->listWidget->item(i);
+		if (item) {
+			if (item->checkState() == Qt::Checked) {
+				nbItemsChecked++;
+			} else {
+				nbItemsUnchecked++;
+			}
+		}
+	}
+
+	int nbItems = _ui->listWidget->count();
+	if (nbItemsChecked == nbItems) {
+		allItemsChecked();
+	} else if (nbItemsUnchecked == nbItems) {
+		allItemsUnchecked();
+	} else {
+		//Back to normal
+		QPushButton * okButton = _ui->buttonBox->button(QDialogButtonBox::Ok);
+		okButton->setEnabled(true);
+		_ui->selectAllButton->setEnabled(true);
+		_ui->selectNoneButton->setEnabled(true);
+	}
 }
 
 void FileChooserWindow::itemPressed(QListWidgetItem * item) {
@@ -87,8 +126,10 @@ void FileChooserWindow::addFiles(const QStringList & files) {
 		QListWidgetItem * item = new QListWidgetItem(_ui->listWidget);
 		item->setText(fileName);
 		item->setIcon(fileIcon);
-		item->setCheckState(Qt::Unchecked);
+		item->setCheckState(Qt::Checked);
 	}
+
+	allItemsChecked();
 }
 
 QStringList FileChooserWindow::selectedFiles() {
@@ -104,8 +145,11 @@ QStringList FileChooserWindow::selectedFiles() {
 	return files;
 }
 
-void FileChooserWindow::retranslate() {
-	_ui->retranslateUi(this);
-	QPushButton * extractButton = _ui->buttonBox->button(QDialogButtonBox::Ok);
-	extractButton->setText(tr("Extract"));
+void FileChooserWindow::setInformationText(const QString & text) {
+	_ui->informationLabel->setText(text);
+}
+
+void FileChooserWindow::setOkButtonText(const QString & text) {
+	QPushButton * okButton = _ui->buttonBox->button(QDialogButtonBox::Ok);
+	okButton->setText(text);
 }

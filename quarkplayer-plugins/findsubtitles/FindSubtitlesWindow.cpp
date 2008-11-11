@@ -401,30 +401,21 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 		}
 		qDebug() << __FUNCTION__ << "File:" << info.name;
 
-		//Ignore .nfo files
+		//Ignore files that are not from the list of extensions
 		if (filter.contains(QFileInfo(info.name).suffix())) {
 			filesToExtract.append(info.name);
 		}
 	}
 
-	foreach (QString fileToExtract, filesToExtract) {
-		qDebug() << __FUNCTION__ << "File to extract:" << fileToExtract;
-	}
-
-	if (filesToExtract.count() == 1) {
-		//If only one file, just extract it
-		QString outputFileName(outputDir + '/' + filesToExtract[0]);
-		if (extractFile(zipFile, filesToExtract[0], outputFileName)) {
-			_ui->statusLabel->setText(tr("File saved: %1").arg(filesToExtract[0]));
-			emit subtitleDownloaded(outputFileName);
-		} else {
-			zipFile.close();
-			return false;
-		}
-	} else {
-		//More than one file
+	if (filesToExtract.count() > 0) {
 		FileChooserWindow fileChooserWindow(this);
 		fileChooserWindow.addFiles(filesToExtract);
+		fileChooserWindow.setInformationText(
+			tr("Please choose the subtitles to extract."
+			" Subtitles will be extracted inside the movie directory:\n%1").arg(outputDir)
+		);
+		fileChooserWindow.setOkButtonText(tr("Extract"));
+		fileChooserWindow.setWindowTitle(tr("Subtitles to Extract"));
 
 		if (fileChooserWindow.exec() == QDialog::Rejected) {
 			zipFile.close();
@@ -455,7 +446,7 @@ bool FindSubtitlesWindow::extractFile(QuaZip & zipFile, const QString & fileName
 
 	if (QFile::exists(outputFileName)) {
 		if (QMessageBox::question(this, tr("Overwrite?"),
-			tr("The file %1 already exits, overwrite?").arg(outputFileName), QMessageBox::Yes, QMessageBox::No)
+			tr("The file '%1' already exits, overwrite?").arg(outputFileName), QMessageBox::Yes, QMessageBox::No)
 			== QMessageBox::No) {
 			return false;
 		}
