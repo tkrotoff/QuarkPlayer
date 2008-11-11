@@ -33,8 +33,8 @@ case. If you are Qt commercial license owner, then you are free to use
 QuaZIP as long as you respect either GPL or LGPL for QuaZIP code.
  **/
 
-#include <QString>
-#include <QTextCodec>
+#include <QtCore/QString>
+#include <QtCore/QTextCodec>
 
 #include "zip.h"
 #include "unzip.h"

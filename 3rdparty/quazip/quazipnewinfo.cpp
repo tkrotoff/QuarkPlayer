@@ -29,7 +29,7 @@ case. If you are Qt commercial license owner, then you are free to use
 QuaZIP as long as you respect either GPL or LGPL for QuaZIP code.
 */
 
-#include <QFileInfo>
+#include <QtCore/QFileInfo>
 
 #include "quazipnewinfo.h"
 
