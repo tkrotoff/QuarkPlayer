@@ -26,6 +26,15 @@ namespace Ui { class FileChooserWindow; }
 
 class QListWidgetItem;
 
+/**
+ * Provides a window with items to check/uncheck.
+ *
+ * In this case items are files.
+ * I tried to make this class as generic as possible.
+ * I don't know if it will be re-used one day...
+ *
+ * @author Tanguy Krotoff
+ */
 class FileChooserWindow : public QDialog {
 	Q_OBJECT
 public:

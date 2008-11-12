@@ -35,16 +35,11 @@ FileBrowserConfigWidget::FileBrowserConfigWidget(const QUuid & uuid) {
 	_ui = new Ui::FileBrowserConfigWidget();
 	_ui->setupUi(this);
 
-	QCompleter * completer = new QCompleter(this);
-	completer->setModel(new QDirModel(completer));
-	_ui->musicDirLineEdit->setCompleter(completer);
-	_ui->browseButton->setIcon(TkIcon("document-open-folder"));
-	connect(_ui->browseButton, SIGNAL(clicked()),
-		SLOT(browseDir()));
+	_ui->fileChooserWidget->setDialogType(FileChooserWidget::DialogTypeDir);
+	_ui->fileChooserWidget->setSearchButtonIcon(TkIcon("document-open-folder"));
 }
 
 FileBrowserConfigWidget::~FileBrowserConfigWidget() {
-	delete _ui;
 }
 
 QString FileBrowserConfigWidget::name() const {
@@ -57,21 +52,15 @@ QString FileBrowserConfigWidget::iconName() const {
 
 void FileBrowserConfigWidget::saveConfig() {
 	//musicDir
-	QString musicDir = _ui->musicDirLineEdit->text();
+	QString musicDir = _ui->fileChooserWidget->path();
 	Config::instance().addMusicDir(musicDir, _uuid);
 }
 
 void FileBrowserConfigWidget::readConfig() {
 	//musicDir
-	_ui->musicDirLineEdit->setText(Config::instance().musicDir(_uuid));
+	_ui->fileChooserWidget->setPath(Config::instance().musicDir(_uuid));
 }
 
 void FileBrowserConfigWidget::retranslate() {
 	_ui->retranslateUi(this);
-}
-
-void FileBrowserConfigWidget::browseDir() {
-	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select a Directory"),
-			Config::instance().musicDir(_uuid));
-	_ui->musicDirLineEdit->setText(dir);
 }

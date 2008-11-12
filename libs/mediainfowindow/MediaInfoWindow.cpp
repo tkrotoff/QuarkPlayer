@@ -25,8 +25,6 @@
 
 #include <webbrowser/WebBrowser.h>
 
-#include <thumbnailview/ThumbnailView.h>
-
 #include <tkutil/TkIcon.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
@@ -51,10 +49,8 @@ MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 	_ui->artistTab->layout()->addWidget(_webBrowser);
 
 	//Thumbnail view
-	_thumbnailView = new ThumbnailView(_ui->coverArtTab);
 	_ui->coverArtTab->layout()->setMargin(0);
 	_ui->coverArtTab->layout()->setSpacing(0);
-	_ui->coverArtTab->layout()->addWidget(_thumbnailView);
 
 	//Refresh button
 	_refreshButton = new QToolButton(this);
@@ -89,8 +85,8 @@ void MediaInfoWindow::setMediaInfoFetcher(MediaInfoFetcher * mediaInfoFetcher) {
 	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
 }
 
-void MediaInfoWindow::setLocale(const QString & locale) {
-	_locale = locale;
+void MediaInfoWindow::setLanguage(const QString & language) {
+	_language = language;
 }
 
 void MediaInfoWindow::show() {
@@ -119,7 +115,7 @@ void MediaInfoWindow::retranslate() {
 }
 
 void MediaInfoWindow::openDirectory() {
-	QUrl url = QUrl::fromLocalFile(_thumbnailView->lastRefreshedDirectory());
+	QUrl url = QUrl::fromLocalFile(_ui->thumbnailView->lastRefreshedDirectory());
 	QDesktopServices::openUrl(url);
 
 	qDebug() << __FUNCTION__ << url;
@@ -152,7 +148,7 @@ void MediaInfoWindow::updateMediaInfo() {
 		fileType += tr("Type:") + " ";
 		QString fileTypeWikipedia(_mediaInfoFetcher->fileType().wikipediaArticle);
 		if (!fileTypeWikipedia.isEmpty()) {
-			fileType += "<a href=\"http://" + _locale + ".wikipedia.org/wiki/" + fileTypeWikipedia + "\">" + fileTypeName + "</a>";
+			fileType += "<a href=\"http://" + _language + ".wikipedia.org/wiki/" + fileTypeWikipedia + "\">" + fileTypeName + "</a>";
 		} else {
 			fileType += fileTypeName;
 		}
@@ -196,11 +192,11 @@ void MediaInfoWindow::updateMediaInfo() {
 	//Refresh ThumbnailView
 	QFileInfo filenameInfo(_mediaInfoFetcher->fileName());
 	if (filenameInfo.isDir()) {
-		_thumbnailView->setDir(filenameInfo.absoluteFilePath());
+		_ui->thumbnailView->setDir(filenameInfo.absoluteFilePath());
 	} else {
-		_thumbnailView->setDir(filenameInfo.absolutePath());
+		_ui->thumbnailView->setDir(filenameInfo.absolutePath());
 	}
-	_thumbnailView->refresh();
+	_ui->thumbnailView->refresh();
 
 	ContentFetcher::Track track;
 	track.artist = _mediaInfoFetcher->artist();
@@ -211,11 +207,11 @@ void MediaInfoWindow::updateMediaInfo() {
 	tmp.replace(" ", "_");
 	tmp = QUrl::toPercentEncoding(tmp);
 	if (!tmp.isEmpty()) {
-		if (_locale.isEmpty()) {
+		if (_language.isEmpty()) {
 			//Back to english
-			_locale = "en";
+			_language = "en";
 		}
-		_webBrowser->setSource("http://" + _locale + ".wikipedia.org/wiki/" + tmp);
+		_webBrowser->setSource("http://" + _language + ".wikipedia.org/wiki/" + tmp);
 	}
 
 	//Download the lyrics

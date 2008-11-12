@@ -35,6 +35,7 @@ namespace Phonon {
 	class AudioOutput;
 	class MediaSource;
 	class VideoWidget;
+	class MediaController;
 }
 
 /**
@@ -80,7 +81,7 @@ public:
 	/**
 	 * Gets QuarkPlayer main window.
 	 *
-	 * MainWindow always exist and thus this method cannot return NULL.
+	 * MainWindow always exists and thus this method cannot return NULL.
 	 * One could think about returning a reference (&) but I prefer to return
 	 * a pointer since Qt works this way regarding widgets.
 	 *
@@ -174,6 +175,15 @@ public:
 	 */
 	Phonon::VideoWidget * currentVideoWidget() const;
 
+	/**
+	 * FIXME See MediaController.h
+	 * Need to implement a full plugin system like Qt Creator has
+	 * Let's wait for Qt Creator source code to be released...
+	 * This way MainWindow would be also a real plugin!
+	 */
+	void setMediaController(Phonon::MediaController * mediaController);
+	Phonon::MediaController * mediaController() const;
+
 public slots:
 
 	/**
@@ -243,6 +253,8 @@ private:
 
 	/** List of available media objects. */
 	QList<Phonon::MediaObject *> _mediaObjectList;
+
+	Phonon::MediaController * _mediaController;
 };
 
 #endif	//QUARKPLAYER_H

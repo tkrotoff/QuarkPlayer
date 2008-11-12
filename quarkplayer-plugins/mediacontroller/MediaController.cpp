@@ -61,7 +61,7 @@ MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	addMenusToMainWindow();
 
 	//Media controller toolbar
-	_toolBar = new MediaControllerToolBar();
+	_toolBar = new MediaControllerToolBar(this);
 	_mainWindow->addToolBar(_toolBar);
 
 	_mediaController = NULL;
@@ -88,6 +88,12 @@ void MediaController::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
 	ActionCollection::addAction("openSubtitleFile", new QAction(app));
+
+	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
+	//Need to implement a full plugin system like Qt Creator has
+	//Let's wait for Qt Creator source code to be released...
+	//This way MainWindow would be also a real plugin!
+	//ActionCollection::addAction("findSubtitles", new QAction(app));
 }
 
 void MediaController::addMenusToMainWindow() {
@@ -112,6 +118,14 @@ void MediaController::addMenusToMainWindow() {
 	_menuSubtitles->addAction(ActionCollection::action("emptyMenu"));
 	_menuSubtitle->addAction(_menuSubtitles->menuAction());
 
+	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
+	//Need to implement a full plugin system like Qt Creator has
+	//Let's wait for Qt Creator source code to be released...
+	//This way MainWindow would be also a real plugin!
+	_menuSubtitle->addAction(ActionCollection::action("findSubtitles"));
+	_menuSubtitle->addAction(ActionCollection::action("uploadSubtitles"));
+	///
+
 	_menuBrowse = new QMenu();
 	menuBar->insertAction(insertBeforeMenuSettings, _menuBrowse->menuAction());
 	_menuTitles = new QMenu();
@@ -130,6 +144,15 @@ void MediaController::retranslate() {
 
 	ActionCollection::action("openSubtitleFile")->setText(tr("&Open Subtitle..."));
 	ActionCollection::action("openSubtitleFile")->setIcon(TkIcon("document-open"));
+
+	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
+	//Need to implement a full plugin system like Qt Creator has
+	//Let's wait for Qt Creator source code to be released...
+	//This way MainWindow would be also a real plugin!
+	ActionCollection::action("findSubtitles")->setText(tr("&Find Subtitles..."));
+	ActionCollection::action("findSubtitles")->setIcon(TkIcon("edit-find"));
+	ActionCollection::action("uploadSubtitles")->setText(tr("&Upload Subtitles..."));
+	///
 
 	_menuAudioChannels->setTitle(tr("&Audio Channels"));
 	_menuAudioChannels->setIcon(TkIcon("audio-x-generic"));
@@ -460,6 +483,8 @@ void MediaController::actionAngleTriggered(int id) {
 
 void MediaController::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	_mediaController = new Phonon::MediaController(mediaObject);
+	quarkPlayer().setMediaController(_mediaController);
+
 	connect(_mediaController, SIGNAL(availableAudioChannelsChanged()),
 		SLOT(availableAudioChannelsChanged()));
 	connect(_mediaController, SIGNAL(availableSubtitlesChanged()),

@@ -40,18 +40,18 @@ WikipediaArticle::WikipediaArticle(QObject * parent)
 WikipediaArticle::~WikipediaArticle() {
 }
 
-bool WikipediaArticle::start(const Track & track, const QString & locale) {
-	if (!ContentFetcher::start(track, locale)) {
+bool WikipediaArticle::start(const Track & track, const QString & language) {
+	if (!ContentFetcher::start(track, language)) {
 		return false;
 	}
 
 	qDebug() << __FUNCTION__ << "Looking up for the Wikipedia article";
 
-	if (locale.isEmpty()) {
-		//Default locale
+	if (language.isEmpty()) {
+		//Default language
 		_wikipediaHostName = "en.wikipedia.org";
 	} else {
-		_wikipediaHostName = QString("%1.wikipedia.org").arg(locale);
+		_wikipediaHostName = QString("%1.wikipedia.org").arg(language);
 	}
 	_wikipediaDownloader->setHost(_wikipediaHostName);
 	QString tmp("/wiki/" + track.artist);
@@ -67,7 +67,7 @@ bool WikipediaArticle::start(const Track & track, const QString & locale) {
 
 	qDebug() << __FUNCTION__ << _wikipediaHostName << QString(path);
 
-	//_wikipediaDownloader->get(QNetworkRequest(wikipediaUrl(track.artist, locale)));
+	//_wikipediaDownloader->get(QNetworkRequest(wikipediaUrl(track.artist, language)));
 
 	return true;
 }

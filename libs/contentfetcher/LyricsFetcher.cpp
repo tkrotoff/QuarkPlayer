@@ -47,8 +47,8 @@ QUrl LyricsFetcher::lyricWikiUrl(const QString & artist, const QString & title) 
 	return url;
 }
 
-bool LyricsFetcher::start(const Track & track, const QString & locale) {
-	if (!ContentFetcher::start(track, locale)) {
+bool LyricsFetcher::start(const Track & track, const QString & language) {
+	if (!ContentFetcher::start(track, language)) {
 		return false;
 	}
 

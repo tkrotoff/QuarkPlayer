@@ -36,5 +36,5 @@ target_link_libraries(findsubtitles
 #Translations
 add_qt_translations(${findsubtitles_SRCS})
 
-install(TARGETS findsubtitles DESTINATION ${PLUGINS_INSTALL_DIR})
-install(FILES findsubtitles.pluginspec DESTINATION ${PLUGINS_INSTALL_DIR})
+install(TARGETS findsubtitles DESTINATION ${PLUGIN_INSTALL_DIR})
+install(FILES findsubtitles.pluginspec DESTINATION ${PLUGIN_INSTALL_DIR})

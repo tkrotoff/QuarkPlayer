@@ -38,9 +38,14 @@ if (ZLIB)
 	set(ZLIB_FOUND 1)
 	set(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib)
 	set(ZLIB_LIBRARY zlib)
-
-	add_subdirectory(3rdparty/zlib/contrib/minizip)
 endif (ZLIB)
+
+#minizip
+add_subdirectory(3rdparty/zlib/contrib/minizip)
+set(MINIZIP_FOUND 1)
+set(MINIZIP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib/contrib/minizip)
+set(MINIZIP_LIBRARY minizip)
+##
 
 if (TAGLIB)
 	add_subdirectory(3rdparty/taglib)
@@ -81,6 +86,11 @@ endif (KDE4_FOUND)
 
 #Optimization: remove all Qt modules from include path
 reduce_qt_include_dirs()
+##
+
+
+#3rdparty libraries with Qt dependency
+add_subdirectory(3rdparty/quazip)
 ##
 
 

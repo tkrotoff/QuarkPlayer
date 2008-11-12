@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>QuarkPlayer - Preferences</string>
+   <string>Preferences</string>
   </property>
   <layout class="QGridLayout" name="gridLayout" >
    <item rowspan="2" row="0" column="0" >

@@ -51,8 +51,7 @@ PluginData::PluginList PluginsManager::pluginDataList(const QString & fileName) 
 }
 
 void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
-	//Stupid hack
-	//See loadPlugin()
+	//Stupid hack, see loadPlugin()
 	_quarkPlayer = &quarkPlayer;
 	///
 

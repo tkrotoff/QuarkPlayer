@@ -65,7 +65,7 @@ void MediaDataWidget::startMediaInfoFetcher(const Phonon::MediaSource & mediaSou
 	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
 	_mediaInfoFetcher->start(mediaSource);
 	_mediaInfoWindow->setMediaInfoFetcher(_mediaInfoFetcher);
-	_mediaInfoWindow->setLocale(Config::instance().language());
+	_mediaInfoWindow->setLanguage(Config::instance().language());
 	if (_mediaInfoFetcher->hasBeenFetched()) {
 		updateMediaInfo();
 	}
@@ -150,7 +150,7 @@ void MediaDataWidget::retranslate() {
 	_ui->retranslateUi(this);
 
 	if (_mediaInfoWindow) {
-		_mediaInfoWindow->setLocale(Config::instance().language());
+		_mediaInfoWindow->setLanguage(Config::instance().language());
 	}
 }
 

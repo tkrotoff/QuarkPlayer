@@ -16,41 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GENERALCONFIGWIDGET_H
-#define GENERALCONFIGWIDGET_H
+#include "PluginSpec.h"
 
-#include "IConfigWidget.h"
+const char * PluginSpec::FILE_EXTENSION = "pluginspec";
 
-#include <QtCore/QString>
-
-namespace Ui { class GeneralConfigWidget; }
-
-/**
- * General QuarkPlayer configuration widget.
- *
- * @author Tanguy Krotoff
- */
-class GeneralConfigWidget : public IConfigWidget {
-	Q_OBJECT
-public:
-
-	GeneralConfigWidget();
-
-	~GeneralConfigWidget();
-
-	QString name() const;
-
-	QString iconName() const;
-
-	void readConfig();
-
-	void saveConfig();
-
-	void retranslate();
-
-private:
-
-	Ui::GeneralConfigWidget * _ui;
-};
-
-#endif	//GENERALCONFIGWIDGET_H

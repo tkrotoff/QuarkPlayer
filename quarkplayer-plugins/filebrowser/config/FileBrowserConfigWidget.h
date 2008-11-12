@@ -48,10 +48,6 @@ public:
 
 	void retranslate();
 
-private slots:
-
-	void browseDir();
-
 private:
 
 	Ui::FileBrowserConfigWidget * _ui;

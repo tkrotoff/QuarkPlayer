@@ -22,10 +22,10 @@ if (WIN32)
 	)
 endif (WIN32)
 
-add_library(minizip SHARED ${minizip_SRCS})
+add_library(minizip STATIC ${minizip_SRCS})
 
 target_link_libraries(minizip
 	${ZLIB_LIBRARY}
 )
 
-install(TARGETS minizip DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+#install(TARGETS minizip DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

@@ -167,7 +167,7 @@ void DragAndDropTreeView::retranslate() {
 	uuidAction("playlistViewMediaInfo")->setIcon(TkIcon("document-properties"));
 
 	if (_mediaInfoWindow) {
-		_mediaInfoWindow->setLocale(Config::instance().language());
+		_mediaInfoWindow->setLanguage(Config::instance().language());
 	}
 }
 
@@ -245,6 +245,6 @@ void DragAndDropTreeView::viewMediaInfo() {
 		mediaInfoFetcher->start(_playlistModel->fileName(sourceIndex));
 	}
 	_mediaInfoWindow->setMediaInfoFetcher(mediaInfoFetcher);
-	_mediaInfoWindow->setLocale(Config::instance().language());
+	_mediaInfoWindow->setLanguage(Config::instance().language());
 	_mediaInfoWindow->show();
 }

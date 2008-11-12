@@ -51,5 +51,5 @@ if (DIRECTX9_FOUND AND MSVC)
                 phonon ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTOPENGL_LIBRARY} ${OPENGL_gl_LIBRARY}
                 ${DIRECTX9_LIBRARIES}
     )
-    install(TARGETS phonon_ds9 DESTINATION ${PLUGIN_INSTALL_DIR})
+    install(TARGETS phonon_ds9 DESTINATION ${BIN_INSTALL_DIR}/phonon_backend)
 endif (DIRECTX9_FOUND AND MSVC)

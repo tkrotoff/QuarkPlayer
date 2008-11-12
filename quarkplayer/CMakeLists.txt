@@ -24,6 +24,7 @@ set(quarkplayercore_SRCS
 	AboutWindow.cpp
 	CommandLineHelp.cpp
 	CommandLineParser.cpp
+	Languages.cpp
 	config/Config.cpp
 	config/ConfigWindow.cpp
 	config/GeneralConfigWidget.cpp
@@ -31,6 +32,7 @@ set(quarkplayercore_SRCS
 	config/BackendCapabilitiesWidget.cpp
 	config/PluginsConfigWidget.cpp
 	config/WinFileAssociationsConfigWidget.cpp
+	config/PlaylistConfig.cpp
 )
 
 qt4_wrap_cpp(quarkplayercore_SRCS
@@ -46,6 +48,7 @@ qt4_wrap_cpp(quarkplayercore_SRCS
 	config/BackendCapabilitiesWidget.h
 	config/PluginsConfigWidget.h
 	config/WinFileAssociationsConfigWidget.h
+	config/PlaylistConfig.h
 )
 
 qt4_wrap_ui(quarkplayercore_SRCS

@@ -21,7 +21,9 @@
 #include "ui_GeneralConfigWidget.h"
 
 #include "Config.h"
+
 #include <quarkplayer/config.h>
+#include <quarkplayer/Languages.h>
 
 #include <tkutil/Translator.h>
 #include <tkutil/TkComboBox.h>
@@ -71,10 +73,9 @@ void GeneralConfigWidget::saveConfig() {
 	TkIcon::setIconTheme(config.iconTheme());
 
 	//Language
-	QString language = _ui->languageComboBox->currentText();
-	QString locale = languageList().key(language);
-	config.setValue(Config::LANGUAGE_KEY, locale);
-	Translator::instance().load(locale);
+	QString language = Languages::availableTranslations().key(_ui->languageComboBox->currentText());
+	config.setValue(Config::LANGUAGE_KEY, language);
+	Translator::instance().load(language);
 }
 
 void GeneralConfigWidget::readConfig() {
@@ -97,7 +98,7 @@ void GeneralConfigWidget::readConfig() {
 
 	//Language
 	_ui->languageComboBox->clear();
-	QMapIterator<QString, QString> it(languageList());
+	QMapIterator<QString, QString> it(Languages::availableTranslations());
 	while (it.hasNext()) {
 		it.next();
 		//Add each language to the combobox
@@ -108,15 +109,7 @@ void GeneralConfigWidget::readConfig() {
 		//Default language is English
 		language = "en";
 	}
-	TkComboBox::setCurrentText(_ui->languageComboBox, languageList().value(language));
-}
-
-QMap<QString, QString> GeneralConfigWidget::languageList() {
-	QMap<QString, QString> list;
-	list["en"] = tr("English") + " (English)";
-	list["fr"] = tr("French") + " (French)";
-	list["de"] = tr("German") + " (German)";
-	return list;
+	TkComboBox::setCurrentText(_ui->languageComboBox, Languages::availableTranslations().value(language));
 }
 
 void GeneralConfigWidget::retranslate() {

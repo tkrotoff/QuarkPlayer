@@ -16,41 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GENERALCONFIGWIDGET_H
-#define GENERALCONFIGWIDGET_H
+#include "PlaylistConfig.h"
 
-#include "IConfigWidget.h"
+#include <QtCore/QDebug>
 
-#include <QtCore/QString>
+PlaylistConfig::PlaylistConfig() {
+}
 
-namespace Ui { class GeneralConfigWidget; }
+PlaylistConfig::~PlaylistConfig() {
+}
 
-/**
- * General QuarkPlayer configuration widget.
- *
- * @author Tanguy Krotoff
- */
-class GeneralConfigWidget : public IConfigWidget {
-	Q_OBJECT
-public:
+void PlaylistConfig::setActivePlaylist(const QUuid & uuid) {
+	_uuid = uuid;
+	emit activePlaylistChanged(_uuid);
+}
 
-	GeneralConfigWidget();
-
-	~GeneralConfigWidget();
-
-	QString name() const;
-
-	QString iconName() const;
-
-	void readConfig();
-
-	void saveConfig();
-
-	void retranslate();
-
-private:
-
-	Ui::GeneralConfigWidget * _ui;
-};
-
-#endif	//GENERALCONFIGWIDGET_H
+QUuid PlaylistConfig::activePlaylist() const {
+	return _uuid;
+}

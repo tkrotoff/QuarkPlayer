@@ -33,7 +33,7 @@ class MediaControllerToolBar : public TkToolBar {
 	Q_OBJECT
 public:
 
-	MediaControllerToolBar();
+	MediaControllerToolBar(QWidget * parent);
 
 	~MediaControllerToolBar();
 

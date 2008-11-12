@@ -25,8 +25,8 @@
 
 #include <QtCore/QDebug>
 
-MediaControllerToolBar::MediaControllerToolBar()
-	: TkToolBar(NULL) {
+MediaControllerToolBar::MediaControllerToolBar(QWidget * parent)
+	: TkToolBar(parent) {
 
 	_audioChannelsButton = new QPushButton();
 	_menuAudioChannels = new QMenu();

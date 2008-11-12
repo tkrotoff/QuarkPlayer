@@ -31,7 +31,6 @@ namespace Ui {
 class MediaInfoFetcher;
 
 class WebBrowser;
-class ThumbnailView;
 
 class QUrl;
 class QLabel;
@@ -58,14 +57,14 @@ public:
 	void setMediaInfoFetcher(MediaInfoFetcher * mediaInfoFetcher);
 
 	/**
-	 * Sets the locale.
+	 * Sets the language.
 	 *
-	 * A locale is 'en', 'fr', 'sp'...
-	 * It should follow Wikipedia locale naming
+	 * A language/locale is 'en', 'fr', 'sp'...
+	 * It should follow ISO 639-1 naming
 	 *
-	 * @param locale locale of the MediaInfoWindow
+	 * @param language language of the MediaInfoWindow
 	 */
-	void setLocale(const QString & locale);
+	void setLanguage(const QString & language);
 
 public slots:
 
@@ -92,15 +91,13 @@ private:
 
 	WebBrowser * _webBrowser;
 
-	ThumbnailView * _thumbnailView;
-
 	QToolButton * _refreshButton;
 
 	QToolButton * _openDirectoryButton;
 
 	QString _coverArtDir;
 
-	QString _locale;
+	QString _language;
 };
 
 #endif	//MEDIAINFOWINDOW_H

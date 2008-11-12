@@ -60,8 +60,8 @@ QUrl AmazonCoverArt::amazonUrl(const QString & artist, const QString & album) co
 	return url;
 }
 
-bool AmazonCoverArt::start(const Track & track, const QString & locale) {
-	if (!ContentFetcher::start(track, locale)) {
+bool AmazonCoverArt::start(const Track & track, const QString & language) {
+	if (!ContentFetcher::start(track, language)) {
 		return false;
 	}
 

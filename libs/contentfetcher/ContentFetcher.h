@@ -50,10 +50,10 @@ public:
 	 * and check the returned value.
 	 *
 	 * @param track track informations
-	 * @param locale locale (en, fr, de...)
+	 * @param language language/locale (en, fr, de...)
 	 * @return true if everything is OK; false otherwise
 	 */
-	virtual bool start(const Track & track, const QString & locale = QString()) = 0;
+	virtual bool start(const Track & track, const QString & language = QString()) = 0;
 
 signals:
 

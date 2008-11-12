@@ -151,6 +151,8 @@ public slots:
 
 private slots:
 
+	void reportBug();
+
 	void about();
 
 	void showConfigWindow();

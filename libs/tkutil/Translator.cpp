@@ -50,35 +50,39 @@ void Translator::remove() {
 	_translatorInstalled = false;
 }
 
-void Translator::load(const QString & locale) {
+void Translator::load(const QString & language) {
 	if (!_translatorInstalled) {
 		install();
 	}
 
-	static QString lastLoadedLocale("this string should be unique");
-	if (locale == lastLoadedLocale) {
-		qWarning() << __FUNCTION__ << "Locale already loaded:" << locale;
+	static QString lastLoadedLanguage("this string should be unique");
+	if (language == lastLoadedLanguage) {
+		qWarning() << __FUNCTION__ << "Language already loaded:" << language;
 		return;
 	}
-	lastLoadedLocale = locale;
+	lastLoadedLanguage = language;
 
-	QString myLocale = locale;
-	if (myLocale.isEmpty()) {
-		myLocale = QLocale::system().name();
+	QString myLanguage = language;
+	if (myLanguage.isEmpty()) {
+		//Takes the default ISO 639-1 language name from QLocale
+		//We need to truncate the string givent by QLocale since
+		//it includes also the country code.
+		myLanguage = QLocale::system().name();
+		myLanguage.resize(2);
 	}
 
 	//Qt translation
-	bool qtRet = loadLocale(_qtTranslator, "qt", myLocale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+	bool qtRet = loadLanguage(_qtTranslator, "qt", myLanguage, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
 	if (!qtRet) {
 		//No Qt framework installed
 		//Try with the application path
-		qtRet = loadLocale(_qtTranslator, "qt", myLocale, _translationsPath);
+		qtRet = loadLanguage(_qtTranslator, "qt", myLanguage, _translationsPath);
 	}
 
 	//Application translation
-	bool appRet = loadLocale(_appTranslator, QCoreApplication::applicationName().toLower(), myLocale, _translationsPath);
+	bool appRet = loadLanguage(_appTranslator, QCoreApplication::applicationName().toLower(), myLanguage, _translationsPath);
 
-	//Both Qt and app locale loading failed
+	//Both Qt and app language loading failed
 	//Let's go back to english builtin
 	if (!qtRet && !appRet) {
 		qDebug() << __FUNCTION__ << "Back to builtin english";
@@ -86,8 +90,8 @@ void Translator::load(const QString & locale) {
 	}
 }
 
-bool Translator::loadLocale(QTranslator & translator, const QString & name, const QString & locale, const QString & translationsPath) {
-	QString filename = name + "_" + locale;
+bool Translator::loadLanguage(QTranslator & translator, const QString & name, const QString & language, const QString & translationsPath) {
+	QString filename = name + "_" + language;
 	bool ret = translator.load(filename, translationsPath);
 	if (!ret) {
 		qDebug() << __FUNCTION__ << "Error: couldn't load translation:" << filename << "from:" << translationsPath;

@@ -65,6 +65,7 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * 
 	connect(ActionCollection::action("newMediaObject"), SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
 	connect(ActionCollection::action("configure"), SIGNAL(triggered()), SLOT(showConfigWindow()));
 	connect(ActionCollection::action("quit"), SIGNAL(triggered()), SLOT(close()));
+	connect(ActionCollection::action("reportBug"), SIGNAL(triggered()), SLOT(reportBug()));
 	connect(ActionCollection::action("about"), SIGNAL(triggered()), SLOT(about()));
 	connect(ActionCollection::action("aboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
@@ -253,6 +254,10 @@ ConfigWindow * MainWindow::configWindow() const {
 	return _configWindow;
 }
 
+void MainWindow::reportBug() {
+	QDesktopServices::openUrl(QUrl("http://code.google.com/p/phonon-vlc-mplayer/issues/list"));
+}
+
 void MainWindow::about() {
 	static AboutWindow * aboutWindow = new AboutWindow(this);
 	aboutWindow->show();
@@ -263,6 +268,7 @@ void MainWindow::populateActionCollection() {
 
 	ActionCollection::addAction("playFile", new QAction(app));
 	ActionCollection::addAction("quit", new QAction(app));
+	ActionCollection::addAction("reportBug", new QAction(app));
 	ActionCollection::addAction("about", new QAction(app));
 	ActionCollection::addAction("aboutQt", new QAction(app));
 	ActionCollection::addAction("playDVD", new QAction(app));
@@ -279,6 +285,14 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("stop", new QAction(app));
 	ActionCollection::addAction("previousTrack", new QAction(app));
 	ActionCollection::addAction("nextTrack", new QAction(app));
+
+	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
+	//Need to implement a full plugin system like Qt Creator has
+	//Let's wait for Qt Creator source code to be released...
+	//This way MainWindow would be also a real plugin!
+	ActionCollection::addAction("findSubtitles", new QAction(app));
+	ActionCollection::addAction("uploadSubtitles", new QAction(app));
+	///
 
 	QAction * action = new QAction(app);
 	action->setCheckable(true);
@@ -319,6 +333,7 @@ void MainWindow::setupUi() {
 
 	_menuHelp = new QMenu();
 	menuBar()->addAction(_menuHelp->menuAction());
+	_menuHelp->addAction(ActionCollection::action("reportBug"));
 	_menuHelp->addAction(ActionCollection::action("about"));
 	_menuHelp->addAction(ActionCollection::action("aboutQt"));
 
@@ -345,6 +360,9 @@ void MainWindow::retranslate() {
 	ActionCollection::action("quit")->setText(tr("&Quit"));
 	ActionCollection::action("quit")->setIcon(TkIcon("application-exit"));
 
+	ActionCollection::action("reportBug")->setText(tr("&Report a bug..."));
+	ActionCollection::action("reportBug")->setIcon(TkIcon("tools-report-bug"));
+
 	ActionCollection::action("about")->setText(tr("&About"));
 	ActionCollection::action("about")->setIcon(TkIcon("help-about"));
 
@@ -358,7 +376,7 @@ void MainWindow::retranslate() {
 	ActionCollection::action("playURL")->setIcon(TkIcon("document-open-remote"));
 
 	ActionCollection::action("playVCD")->setText(tr("Play &VCD"));
-	ActionCollection::action("playVCD")->setIcon(TkIcon("media-optical"));
+	//ActionCollection::action("playVCD")->setIcon(TkIcon("media-optical"));
 
 	ActionCollection::action("newMediaObject")->setText(tr("New Media Window"));
 	ActionCollection::action("newMediaObject")->setIcon(TkIcon("window-new"));

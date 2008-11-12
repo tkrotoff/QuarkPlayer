@@ -27,7 +27,7 @@ ContentFetcher::ContentFetcher(QObject * parent)
 ContentFetcher::~ContentFetcher() {
 }
 
-bool ContentFetcher::start(const Track & track, const QString & locale) {
+bool ContentFetcher::start(const Track & track, const QString & language) {
 	if (track.title.isEmpty() && track.artist.isEmpty() && track.album.isEmpty()) {
 		qCritical() << __FUNCTION__ << "Error: Track informations are empty";
 		return false;

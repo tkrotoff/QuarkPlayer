@@ -31,14 +31,6 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="mediaInfoTab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>536</width>
-        <height>280</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Media Info</string>
       </attribute>
@@ -262,14 +254,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="coverArtTab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>536</width>
-        <height>280</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Cover Art</string>
       </attribute>
@@ -280,31 +264,34 @@
        <property name="spacing" >
         <number>0</number>
        </property>
+       <item row="0" column="0" >
+        <widget class="ThumbnailView" native="1" name="thumbnailView" />
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="amazonLabel" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text" >
+          <string>Covert Art from &lt;a href="http://amazon.com">Amazon&lt;/a></string>
+         </property>
+         <property name="openExternalLinks" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="artistTab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>536</width>
-        <height>280</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Artist</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9" />
      </widget>
      <widget class="QWidget" name="lyricsTab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>536</width>
-        <height>280</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Lyrics</string>
       </attribute>
@@ -347,6 +334,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ThumbnailView</class>
+   <extends>QWidget</extends>
+   <header location="global" >thumbnailview/ThumbnailView.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

@@ -55,17 +55,17 @@ public:
 	void setTranslationsPath(const QString & translationsPath);
 
 	/**
-	 * Loads a locale (i.e en, fr...).
+	 * Loads a language (i.e en, fr...).
 	 *
-	 * Checks if the given locale has not been already loaded.
-	 * In this case, it will not load the same locale several times.
+	 * Checks if the given language has not been already loaded.
+	 * In this case, it will not load the same language several times.
 	 *
 	 * Example:
 	 * <pre>
 	 * Translator::instance().load("fr");
 	 * </pre>
 	 */
-	void load(const QString & locale);
+	void load(const QString & language);
 
 private:
 
@@ -73,7 +73,7 @@ private:
 
 	~Translator();
 
-	bool loadLocale(QTranslator & translator, const QString & name, const QString & locale, const QString & translationsPath);
+	bool loadLanguage(QTranslator & translator, const QString & name, const QString & language, const QString & translationsPath);
 
 	void install();
 

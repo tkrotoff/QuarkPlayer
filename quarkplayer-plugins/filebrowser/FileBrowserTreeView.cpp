@@ -155,6 +155,6 @@ void FileBrowserTreeView::viewMediaInfo() {
 		mediaInfoFetcher->start(fileInfo(index).absoluteFilePath());
 	}
 	mediaInfoWindow->setMediaInfoFetcher(mediaInfoFetcher);
-	mediaInfoWindow->setLocale(Config::instance().language());
+	mediaInfoWindow->setLanguage(Config::instance().language());
 	mediaInfoWindow->show();
 }

@@ -29,11 +29,13 @@
 #include <phonon/audiooutput.h>
 #include <phonon/mediasource.h>
 #include <phonon/videowidget.h>
+#include <phonon/mediacontroller.h>
 
 QuarkPlayer::QuarkPlayer(QObject * parent)
 	: QObject(parent) {
 
 	_currentMediaObject = NULL;
+	_mediaController = NULL;
 
 	//mainWindow is an internal plugin in fact...
 	//FIXME I cannot manage to make it a real external plugin
@@ -204,4 +206,16 @@ Phonon::MediaObject * QuarkPlayer::createNewMediaObject() {
 
 void QuarkPlayer::allPluginsLoaded() {
 	createNewMediaObject();
+}
+
+void QuarkPlayer::setMediaController(Phonon::MediaController * mediaController) {
+	if (_mediaController) {
+		qCritical() << __FUNCTION__ << "Error: _mediaController is not NULL";
+	}
+
+	_mediaController = mediaController;
+}
+
+Phonon::MediaController * QuarkPlayer::mediaController() const {
+	return _mediaController;
 }

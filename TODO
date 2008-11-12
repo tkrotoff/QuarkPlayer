@@ -33,7 +33,10 @@
 == GUI ==
 
 == TagLib ==
-- allow tag editing/writing
+- allow tag editing/writing? or not, see Picard from MusicBrainz
+
+== Plugin system ==
+- Check Qt Creator plugin system and adapt it to QuarkPlayer
 
 == General ==
 - fix quit problems
