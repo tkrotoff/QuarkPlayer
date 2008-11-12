@@ -25,6 +25,7 @@ set(tkutil_SRCS
 	SyncHttp.cpp
 	TkTime.cpp
 	FileChooserWidget.cpp
+	ScreenSaver.cpp
 )
 
 qt4_wrap_cpp(tkutil_SRCS
