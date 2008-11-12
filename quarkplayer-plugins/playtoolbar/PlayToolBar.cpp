@@ -66,6 +66,11 @@ PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	//Add to the main window
 	quarkPlayer.mainWindow()->setPlayToolBar(this);
 
+	if (quarkPlayer.currentMediaObject()) {
+		//The current MediaObject has been already created
+		//So to wait for the signal is useless: it was already sent long before
+		currentMediaObjectChanged(quarkPlayer.currentMediaObject());
+	}
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 

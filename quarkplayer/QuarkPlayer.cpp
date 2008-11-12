@@ -58,8 +58,10 @@ MainWindow * QuarkPlayer::mainWindow() const {
 }
 
 void QuarkPlayer::setCurrentMediaObject(Phonon::MediaObject * mediaObject) {
-	_currentMediaObject = mediaObject;
-	emit currentMediaObjectChanged(_currentMediaObject);
+	if (_currentMediaObject != mediaObject) {
+		_currentMediaObject = mediaObject;
+		emit currentMediaObjectChanged(_currentMediaObject);
+	}
 }
 
 Phonon::MediaObject * QuarkPlayer::currentMediaObject() const {
@@ -183,9 +185,6 @@ Phonon::MediaObject * QuarkPlayer::createNewMediaObject() {
 	//mediaObject
 	_currentMediaObject = new Phonon::MediaObject(this);
 	_currentMediaObject->setTickInterval(1000);
-	_mediaObjectList.append(_currentMediaObject);
-	emit mediaObjectAdded(_currentMediaObject);
-	//emit currentMediaObjectChanged(_currentMediaObject);
 
 #ifndef KDE4_FOUND
 	//QCoreApplication::setLibraryPaths(originalPaths);
@@ -201,10 +200,22 @@ Phonon::MediaObject * QuarkPlayer::createNewMediaObject() {
 	//Associates the mediaObject with an audioOutput
 	Phonon::createPath(_currentMediaObject, audioOutput);
 
+	//Do it only now since we need the audioOutput to be created too
+	_mediaObjectList.append(_currentMediaObject);
+	emit mediaObjectAdded(_currentMediaObject);
+	emit currentMediaObjectChanged(_currentMediaObject);
+
 	return _currentMediaObject;
 }
 
 void QuarkPlayer::allPluginsLoaded() {
+	//Let's create the Phonon MediaObject
+	//since all plugins have been loaded
+	//Create the Phonon MediaObject can be pretty slow:
+	//it initializes the backend
+	//So let's do it only when all the backends are loaded
+	//Other advantage: plugins just have to connect to the signal
+	//since they are already created
 	createNewMediaObject();
 }
 

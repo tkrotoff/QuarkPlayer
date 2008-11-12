@@ -33,7 +33,6 @@
 #include <tkutil/TkIcon.h>
 
 #include <phonon/audiooutput.h>
-#include <phonon/volumeslider.h>
 #include <phonon/mediaobject.h>
 #include <phonon/mediacontroller.h>
 
