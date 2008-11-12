@@ -21,6 +21,7 @@
 #include <quarkplayer/MainWindow.h>
 
 #include <tkutil/ActionCollection.h>
+#include <tkutil/ScreenSaver.h>
 
 #include <QtGui/QtGui>
 
@@ -55,6 +56,9 @@ void VideoWidget::setFullScreenSlot(bool fullScreen) {
 	if (fullScreen) {
 		//Going fullscreen
 
+		//Disable screensaver
+		ScreenSaver::disable();
+
 		//Bugfix: when going fullscreen, dockWidget does not have any child widget
 		//and thus get closed. In order to avoid this, we set a fake child widget to dockWidget
 		_dockWidget->setWidget(new QLabel("Fullscreen bugfix"));
@@ -75,6 +79,9 @@ void VideoWidget::setFullScreenSlot(bool fullScreen) {
 		}
 	} else {
 		//Leaving fullscreen
+
+		//Restore screensaver
+		ScreenSaver::restore();
 
 		setFullScreen(fullScreen);
 		_dockWidget->setWidget(this);
