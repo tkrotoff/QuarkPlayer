@@ -7,9 +7,10 @@ project(phonon-mplayer)
 #If it needed, this can be changed
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 
+#Includes current source directory
+#This allows us to write #include <libmplayer/..>
+#instead of #include "libmplayer/.."
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-add_definitions(-DPHONON_MPLAYER)
 
 set(phonon_mplayer_SRCS
 	Backend.cpp
