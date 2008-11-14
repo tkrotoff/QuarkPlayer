@@ -90,7 +90,7 @@ bool AmazonCoverArt::start(const Track & track, const QString & language) {
 }
 
 void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
-	qDebug() << __FUNCTION__ << reply->url();
+	//qDebug() << __FUNCTION__ << reply->url();
 	if (reply->error() != QNetworkReply::NoError) {
 		qWarning() << __FUNCTION__ << "Error: couldn't find cover art";
 		return;
@@ -111,7 +111,7 @@ void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
 			qWarning() << __FUNCTION__ << "Error: couldn't find cover art with artist";
 		}
 	} else {
-		qDebug() << __FUNCTION__ << "Downloading cover art";
+		//qDebug() << __FUNCTION__ << "Downloading cover art";
 
 		disconnect(_coverArtDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
 		connect(_coverArtDownloader, SIGNAL(finished(QNetworkReply *)),
@@ -129,7 +129,7 @@ void AmazonCoverArt::gotCoverArt(QNetworkReply * reply) {
 		return;
 	}
 
-	qDebug() << __FUNCTION__ << "URL:" << reply->url();
+	//qDebug() << __FUNCTION__ << "URL:" << reply->url();
 
 	//We've got the cover art
 	emit found(reply->readAll(), _accurate);

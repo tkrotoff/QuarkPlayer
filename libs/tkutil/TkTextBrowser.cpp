@@ -62,17 +62,17 @@ QVariant TkTextBrowser::loadResource(int type, const QUrl & name) {
 		mode = QHttp::ConnectionModeHttps;
 	} else if (name.scheme().isEmpty()) {
 		//Means the URL is relative
-		qDebug() << __FUNCTION__ << "Relative:" << name.toString();
+		//qDebug() << __FUNCTION__ << "Relative:" << name.toString();
 	}
 
-	qDebug() << __FUNCTION__ << name.toString();
+	//qDebug() << __FUNCTION__ << name.toString();
 
 	if (isHttpRequest) {
 		//HTTP link
 		if (_cacheMap.contains(name)) {
 			//Already in cache
 			resource = _cacheMap.value(name);
-			qDebug() << __FUNCTION__ << "Cache:" << name.toString();
+			//qDebug() << __FUNCTION__ << "Cache:" << name.toString();
 		} else {
 			if (!requestAlreadyLaunched(name)) {
 				//Request not already launched
@@ -97,15 +97,15 @@ QVariant TkTextBrowser::loadResource(int type, const QUrl & name) {
 					res.type = type;
 					res.name = name;
 					_resourceMap[requestId] = res;
-					qDebug() << __FUNCTION__ << "Download:" << name.toString();
+					//qDebug() << __FUNCTION__ << "Download:" << name.toString();
 				} else {
 					if (!path.contains(".css") || _cssEnabled) {
 						//FIXME Download html resources synchronously
 						//otherwise the main html resource is never showed
-						qDebug() << "Sync 0:" << path;
+						//qDebug() << "Sync 0:" << path;
 						_httpSyncDownloader->syncRequest(header);
 						resource = _cacheMap[name] = QString::fromUtf8(_httpSyncDownloader->readAll());
-						qDebug() << "Sync 1:" << name.toString();
+						//qDebug() << "Sync 1:" << name.toString();
 					}
 				}
 			}
@@ -126,7 +126,7 @@ void TkTextBrowser::requestFinished(int id, bool error) {
 	if (_resourceMap.contains(id)) {
 		QByteArray data = _httpDownloader->readAll();
 		Resource resource = _resourceMap.value(id);
-		qDebug() << __FUNCTION__ << "Finished:" << resource.name.toString();
+		//qDebug() << __FUNCTION__ << "Finished:" << resource.name.toString();
 
 		switch (resource.type) {
 		case QTextDocument::HtmlResource:
@@ -149,7 +149,7 @@ void TkTextBrowser::requestFinished(int id, bool error) {
 }
 
 void TkTextBrowser::responseHeaderReceived(const QHttpResponseHeader & resp) {
-	qDebug() << __FUNCTION__ << "Status code:" << resp.statusCode();
+	//qDebug() << __FUNCTION__ << "Status code:" << resp.statusCode();
 
 	if (resp.statusCode() == 301) {
 		//301 means "Moved Permanently"

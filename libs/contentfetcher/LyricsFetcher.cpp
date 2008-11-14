@@ -60,7 +60,7 @@ bool LyricsFetcher::start(const Track & track, const QString & language) {
 }
 
 void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
-	qDebug() << __FUNCTION__ << "URL:" << reply->url();
+	//qDebug() << __FUNCTION__ << "URL:" << reply->url();
 
 	bool error = reply->error() != QNetworkReply::NoError;
 	QByteArray data(reply->readAll());

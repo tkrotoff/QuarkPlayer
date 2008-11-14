@@ -517,7 +517,10 @@ void PlaylistModel::enqueue(int position) {
 		//One never knows what is inside the queue of the backend,
 		//better to erase it and be sure
 		_quarkPlayer.currentMediaObject()->clearQueue();
-		_quarkPlayer.currentMediaObject()->enqueue(Phonon::MediaSource(_filenames[position].fileName()));
+
+		QString enqueueFileName(_filenames[position].fileName());
+		qDebug() << __FUNCTION__ << "Enqueue file:" << enqueueFileName;
+		_quarkPlayer.currentMediaObject()->enqueue(enqueueFileName);
 	} else {
 		qCritical() << __FUNCTION__ << "Error: the position is invalid";
 	}

@@ -117,8 +117,6 @@ void MediaInfoWindow::retranslate() {
 void MediaInfoWindow::openDirectory() {
 	QUrl url = QUrl::fromLocalFile(_ui->thumbnailView->lastRefreshedDirectory());
 	QDesktopServices::openUrl(url);
-
-	qDebug() << __FUNCTION__ << url;
 }
 
 void MediaInfoWindow::refresh() {

@@ -65,7 +65,7 @@ bool WikipediaArticle::start(const Track & track, const QString & language) {
 	header.setContentType("application/x-www-form-urlencoded");
 	_wikipediaDownloader->request(header);
 
-	qDebug() << __FUNCTION__ << _wikipediaHostName << QString(path);
+	//qDebug() << __FUNCTION__ << _wikipediaHostName << QString(path);
 
 	//_wikipediaDownloader->get(QNetworkRequest(wikipediaUrl(track.artist, language)));
 
