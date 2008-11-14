@@ -1,5 +1,5 @@
 /*
- * VLC and MPlayer backends for the Phonon library
+ * MPlayer backend for the Phonon library
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *

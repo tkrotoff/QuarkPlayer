@@ -1,5 +1,5 @@
 /*
- * VLC and MPlayer backends for the Phonon library
+ * MPlayer backend for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -36,10 +36,10 @@ namespace MPlayer
 Effect::Effect(EffectManager * effectManager, int effectId, QObject * parent)
 	: SinkNode(parent) {
 
-	QList<EffectInfo *> effects = effectManager->getEffectList();
+	QList<EffectInfo *> effects = effectManager->effectList();
 	if (effectId >= 0 && effectId < effects.size()) {
-		_effectCommand = effects[effectId]->getCommand();
-		_effectType = effects[effectId]->getType();
+		_effectCommand = effects[effectId]->command();
+		_effectType = effects[effectId]->type();
 	} else {
 		//Effect ID out of range
 		Q_ASSERT(0);

@@ -1,5 +1,5 @@
 /*
- * VLC and MPlayer backends for the Phonon library
+ * MPlayer backend for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,28 @@ namespace Phonon
 {
 namespace MPlayer
 {
+
+EffectInfo::EffectInfo(const QString & name, const QString & command, Type type) {
+	_name = name;
+	_command = command;
+	_type = type;
+}
+
+EffectInfo::~EffectInfo() {
+}
+
+QString EffectInfo::name() const {
+	return _name;
+}
+
+QString EffectInfo::command() const {
+	return _command;
+}
+
+EffectInfo::Type EffectInfo::type() const {
+	return _type;
+}
+
 
 EffectManager::EffectManager(QObject * parent)
 	: QObject(parent) {
@@ -66,7 +88,7 @@ EffectManager::~EffectManager() {
 	_effectList.clear();
 }
 
-QList<EffectInfo *> EffectManager::getEffectList() const {
+QList<EffectInfo *> EffectManager::effectList() const {
 	return _effectList;
 }
 

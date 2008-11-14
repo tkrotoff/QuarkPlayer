@@ -1,5 +1,5 @@
 /*
- * VLC and MPlayer backends for the Phonon library
+ * MPlayer backend for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -213,7 +213,7 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
 		break;*/
 
 	case Phonon::EffectType:
-		QList<EffectInfo *> effectList = _effectManager->getEffectList();
+		QList<EffectInfo *> effectList = _effectManager->effectList();
 		for (int effect = 0; effect < effectList.size(); ++effect) {
 			list.append(effect);
 		}
@@ -260,11 +260,11 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 	*/
 
 	case Phonon::EffectType: {
-		QList<EffectInfo *> effectList = _effectManager->getEffectList();
+		QList<EffectInfo *> effectList = _effectManager->effectList();
 		if (index >= 0 && index <= effectList.size()) {
 			const EffectInfo * effect = effectList[index];
-			ret.insert("name", effect->getName());
-			ret.insert("command", effect->getCommand());
+			ret.insert("name", effect->name());
+			ret.insert("command", effect->command());
 		} else
 			Q_ASSERT(1); // Since we use list position as ID, this should not happen
 

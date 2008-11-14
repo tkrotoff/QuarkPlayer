@@ -1,5 +1,5 @@
 /*
- * VLC and MPlayer backends for the Phonon library
+ * MPlayer backend for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,23 +37,15 @@ public:
 		VideoEffect
 	};
 
-	EffectInfo(const QString & name, const QString & command, Type type) {
-		_name = name;
-		_command = command;
-		_type = type;
-	}
+	EffectInfo(const QString & name, const QString & command, Type type);
 
-	QString getName() const {
-		return _name;
-	}
+	~EffectInfo();
 
-	QString getCommand() const {
-		return _command;
-	}
+	QString name() const;
 
-	Type getType() const {
-		return _type;
-	}
+	QString command() const;
+
+	Type type() const;
 
 private:
 
@@ -76,7 +68,7 @@ public:
 	EffectManager(QObject * parent);
 	~EffectManager();
 
-	QList<EffectInfo *> getEffectList() const;
+	QList<EffectInfo *> effectList() const;
 
 private:
 
