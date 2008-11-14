@@ -20,15 +20,13 @@
 
 #include "MediaObject.h"
 
-#ifdef PHONON_MPLAYER
-	#include "MPlayerMediaObject.h"
+#include "MPlayerMediaObject.h"
 
-	#include <libmplayer/MPlayerProcess.h>
-#endif	//PHONON_MPLAYER
+#include <libmplayer/MPlayerProcess.h>
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 SinkNode::SinkNode(QObject * parent)
@@ -55,12 +53,10 @@ void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject) {
 }
 
 void SinkNode::sendMPlayerCommand(const QString & command) const {
-#ifdef PHONON_MPLAYER
 	if (_mediaObject) {
 		MPlayerProcess * process = _mediaObject->getMPlayerProcess();
 		process->sendCommand(command);
 	}
-#endif	//PHONON_MPLAYER
 }
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer

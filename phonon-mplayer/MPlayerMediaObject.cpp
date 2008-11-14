@@ -25,7 +25,7 @@
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 MPlayerMediaObject::MPlayerMediaObject(QObject * parent)
@@ -299,4 +299,4 @@ void MPlayerMediaObject::angleAdded(int titleId, int angles) {
 	MPlayerMediaController::angleAdded(titleId, angles);
 }
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer

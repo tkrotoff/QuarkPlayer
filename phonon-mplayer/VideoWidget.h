@@ -16,26 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_MPLAYER_VIDEOWIDGET_H
-#define PHONON_VLC_MPLAYER_VIDEOWIDGET_H
+#ifndef PHONON_MPLAYER_VIDEOWIDGET_H
+#define PHONON_MPLAYER_VIDEOWIDGET_H
 
 #include "SinkNode.h"
 
 #include <phonon/videowidgetinterface.h>
 
-#ifdef PHONON_VLC
-	#include "VLCVideoWidget.h"
-	typedef Phonon::VLC_MPlayer::VLCVideoWidget Widget;
-#endif	//PHONON_VLC
-
-#ifdef PHONON_MPLAYER
-	#include "MPlayerVideoWidget.h"
-	typedef Phonon::VLC_MPlayer::MPlayerVideoWidget Widget;
-#endif	//PHONON_MPLAYER
+#include "MPlayerVideoWidget.h"
+typedef Phonon::MPlayer::MPlayerVideoWidget Widget;
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 /**
@@ -97,6 +90,6 @@ private:
 	qreal _saturation;
 };
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer
 
-#endif	//PHONON_VLC_MPLAYER_VIDEOWIDGET_H
+#endif	//PHONON_MPLAYER_VIDEOWIDGET_H

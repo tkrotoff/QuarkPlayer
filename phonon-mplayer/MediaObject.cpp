@@ -30,7 +30,7 @@ static const int ABOUT_TO_FINISH_TIME = 2000;
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 MediaObject::MediaObject(QObject * parent)
@@ -202,15 +202,7 @@ void MediaObject::setSource(const MediaSource & source) {
 			loadMedia(_mediaSource.deviceName());
 			break;
 		case Phonon::Dvd:
-
-#ifdef PHONON_VLC
-			loadMedia("dvd://" + _mediaSource.deviceName());
-#endif	//PHONON_VLC
-
-#ifdef PHONON_MPLAYER
 			loadMedia("dvd://" + QString::number(MPLAYER_DEFAULT_DVD_TITLE));
-#endif	//PHONON_MPLAYER
-
 			break;
 		case Phonon::Vcd:
 			loadMedia(_mediaSource.deviceName());
@@ -271,4 +263,4 @@ void MediaObject::stateChangedInternal(Phonon::State newState) {
 	emit stateChanged(_currentState, previousState);
 }
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer

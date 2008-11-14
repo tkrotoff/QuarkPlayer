@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_MPLAYER_MEDIACONTROLLER_H
-#define PHONON_VLC_MPLAYER_MEDIACONTROLLER_H
+#ifndef PHONON_MPLAYER_MEDIACONTROLLER_H
+#define PHONON_MPLAYER_MEDIACONTROLLER_H
 
 #include "config.h"
 
@@ -26,7 +26,7 @@
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 /**
@@ -156,6 +156,6 @@ protected:
 private:
 };
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer
 
-#endif	//PHONON_VLC_MPLAYER_MEDIACONTROLLER_H
+#endif	//PHONON_MPLAYER_MEDIACONTROLLER_H

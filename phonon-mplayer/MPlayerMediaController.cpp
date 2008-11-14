@@ -25,7 +25,7 @@
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 MPlayerMediaController::MPlayerMediaController()
@@ -371,4 +371,4 @@ int MPlayerMediaController::currentAngle() const {
 	return _currentAngle;
 }
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer

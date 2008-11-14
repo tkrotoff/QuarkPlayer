@@ -24,7 +24,7 @@
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 MPlayerVideoWidget::MPlayerVideoWidget(QWidget * parent)
@@ -113,4 +113,4 @@ QSize MPlayerVideoWidget::sizeHint() const {
 	return _videoSize;
 }
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer

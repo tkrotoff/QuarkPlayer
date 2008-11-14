@@ -22,17 +22,15 @@
 
 #include "MediaObject.h"
 
-#ifdef PHONON_MPLAYER
-	#include "MPlayerMediaObject.h"
+#include "MPlayerMediaObject.h"
 
-	#include <libmplayer/MPlayerLoader.h>
-	#include <libmplayer/MediaSettings.h>
-	#include <libmplayer/MPlayerProcess.h>
-#endif	//PHONON_MPLAYER
+#include <libmplayer/MPlayerLoader.h>
+#include <libmplayer/MediaSettings.h>
+#include <libmplayer/MPlayerProcess.h>
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 Effect::Effect(EffectManager * effectManager, int effectId, QObject * parent)
@@ -54,7 +52,6 @@ Effect::~Effect() {
 void Effect::connectToMediaObject(PrivateMediaObject * mediaObject) {
 	SinkNode::connectToMediaObject(mediaObject);
 
-#ifdef PHONON_MPLAYER
 	switch (_effectType) {
 	case EffectInfo::AudioEffect:
 		MPlayerLoader::settings.audioFilters.append(_effectCommand);
@@ -66,13 +63,11 @@ void Effect::connectToMediaObject(PrivateMediaObject * mediaObject) {
 
 	MPlayerProcess * process = _mediaObject->getMPlayerProcess();
 	MPlayerLoader::restart(process);
-#endif	//PHONON_MPLAYER
 }
 
 void Effect::disconnectFromMediaObject(PrivateMediaObject * mediaObject) {
 	SinkNode::disconnectFromMediaObject(mediaObject);
 
-#ifdef PHONON_MPLAYER
 	switch (_effectType) {
 	case EffectInfo::AudioEffect:
 		MPlayerLoader::settings.audioFilters.removeAll(_effectCommand);
@@ -84,7 +79,6 @@ void Effect::disconnectFromMediaObject(PrivateMediaObject * mediaObject) {
 
 	MPlayerProcess * process = _mediaObject->getMPlayerProcess();
 	MPlayerLoader::restart(process);
-#endif	//PHONON_MPLAYER
 }
 
 QList<EffectParameter> Effect::parameters() const {
@@ -99,4 +93,4 @@ QVariant Effect::parameterValue(const EffectParameter & param) const {
 void Effect::setParameterValue(const EffectParameter & param, const QVariant & newValue) {
 }
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer

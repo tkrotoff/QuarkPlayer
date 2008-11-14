@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_MPLAYER_MPLAYERMEDIACONTROLLER_H
-#define PHONON_VLC_MPLAYER_MPLAYERMEDIACONTROLLER_H
+#ifndef PHONON_MPLAYER_MPLAYERMEDIACONTROLLER_H
+#define PHONON_MPLAYER_MPLAYERMEDIACONTROLLER_H
 
 #include "MediaController.h"
 
@@ -25,7 +25,7 @@
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 /**
@@ -100,6 +100,6 @@ private:
 	void loadSubtitleFile(const QString & filename);
 };
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer
 
-#endif	//PHONON_VLC_MPLAYER_MPLAYERMEDIACONTROLLER_H
+#endif	//PHONON_MPLAYER_MPLAYERMEDIACONTROLLER_H

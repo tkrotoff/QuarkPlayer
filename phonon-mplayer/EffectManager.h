@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_MPLAYER_EFFECTMANAGER_H
-#define PHONON_VLC_MPLAYER_EFFECTMANAGER_H
+#ifndef PHONON_MPLAYER_EFFECTMANAGER_H
+#define PHONON_MPLAYER_EFFECTMANAGER_H
 
 #include <phonon/effectinterface.h>
 #include <phonon/effectparameter.h>
@@ -26,7 +26,7 @@
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 class EffectInfo {
@@ -83,6 +83,6 @@ private:
 	QList<EffectInfo *> _effectList;
 };
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer
 
-#endif	//PHONON_VLC_MPLAYER_EFFECTMANAGER_H
+#endif	//PHONON_MPLAYER_EFFECTMANAGER_H

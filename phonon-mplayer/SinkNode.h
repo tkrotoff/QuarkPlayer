@@ -16,28 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_MPLAYER_SINKNODE_H
-#define PHONON_VLC_MPLAYER_SINKNODE_H
+#ifndef PHONON_MPLAYER_SINKNODE_H
+#define PHONON_MPLAYER_SINKNODE_H
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
-#ifdef PHONON_VLC
-	//#include "VLCMediaObject.h"
-	class VLCMediaObject;
-	typedef VLCMediaObject PrivateMediaObject;
-#endif	//PHONON_VLC
-
-#ifdef PHONON_MPLAYER
-	//#include "MPlayerMediaObject.h"
-	class MPlayerMediaObject;
-	typedef MPlayerMediaObject PrivateMediaObject;
-#endif	//PHONON_MPLAYER
+//#include "MPlayerMediaObject.h"
+class MPlayerMediaObject;
+typedef MPlayerMediaObject PrivateMediaObject;
 
 /**
  *
@@ -65,6 +57,6 @@ private:
 
 };
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer
 
-#endif	//PHONON_VLC_MPLAYER_SINKNODE_H
+#endif	//PHONON_MPLAYER_SINKNODE_H

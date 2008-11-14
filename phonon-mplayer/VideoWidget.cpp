@@ -20,18 +20,9 @@
 
 #include "MediaObject.h"
 
-#ifdef PHONON_VLC
-	#include "VLCMediaObject.h"
+#include "MPlayerMediaObject.h"
 
-	#include "vlc_loader.h"
-	#include "vlc_symbols.h"
-#endif	//PHONON_VLC
-
-#ifdef PHONON_MPLAYER
-	#include "MPlayerMediaObject.h"
-
-	#include <libmplayer/MPlayerProcess.h>
-#endif	//PHONON_MPLAYER
+#include <libmplayer/MPlayerProcess.h>
 
 #include <QtGui/QWidget>
 #include <QtGui/QApplication>
@@ -40,7 +31,7 @@
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 VideoWidget::VideoWidget(QWidget * parent)
@@ -63,36 +54,19 @@ VideoWidget::~VideoWidget() {
 void VideoWidget::connectToMediaObject(PrivateMediaObject * mediaObject) {
 	SinkNode::connectToMediaObject(mediaObject);
 
-#ifdef PHONON_MPLAYER
 	MPlayerProcess * process = _mediaObject->getMPlayerProcess();
 	connect(process, SIGNAL(videoWidgetSizeChanged(int, int)),
 		SLOT(videoWidgetSizeChanged(int, int)));
-#endif	//PHONON_MPLAYER
-
-#ifdef PHONON_VLC
-	connect(_mediaObject, SIGNAL(videoWidgetSizeChanged(int, int)),
-		SLOT(videoWidgetSizeChanged(int, int)));
-#endif	//PHONON_VLC
 
 	_mediaObject->setVideoWidgetId((int) _videoWidget->winId());
 }
 
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const {
-#ifdef PHONON_VLC
-	if (_vlcCurrentMediaPlayer) {
-		const char * aspectRatio = p_libvlc_video_get_aspect_ratio(_vlcCurrentMediaPlayer, _vlcException);
-		qDebug() << "VideoWidget::aspectRatio():" << aspectRatio;
-	}
-#endif	//PHONON_VLC
-
 	return _aspectRatio;
 }
 
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 	qDebug() << __FUNCTION__ << "aspectRatio:" << aspectRatio;
-
-	//For VLC:
-	//Accepted formats are x:y (4:3, 16:9, etc.) expressing the global image aspect.
 
 	_aspectRatio = aspectRatio;
 	double ratio = (double) 4 / 3;
@@ -105,12 +79,10 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 	//Fits the video into the widget making the aspect ratio depend solely on the size of the widget.
 	//This way the aspect ratio is freely resizeable by the user.
 	case Phonon::VideoWidget::AspectRatioWidget:
-#ifdef PHONON_MPLAYER
 		if (_mediaObject) {
 			MPlayerProcess * process = _mediaObject->getMPlayerProcess();
 			ratio = process->mediaData().videoAspectRatio;
 		}
-#endif	//PHONON_MPLAYER
 		break;
 
 	case Phonon::VideoWidget::AspectRatio4_3:
@@ -125,9 +97,7 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 		qCritical() << __FUNCTION__ << "error: unsupported AspectRatio:" << aspectRatio;
 	}
 
-#ifdef PHONON_MPLAYER
 	_videoWidget->setAspectRatio(ratio);
-#endif	//PHONON_MPLAYER
 }
 
 qreal VideoWidget::brightness() const {
@@ -153,16 +123,12 @@ void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scaleMode) {
 
 	//The video will be fitted to fill the view keeping aspect ratio
 	case Phonon::VideoWidget::FitInView:
-#ifdef PHONON_MPLAYER
 		_videoWidget->setScaleAndCropMode(false);
-#endif	//PHONON_MPLAYER
 		break;
 
 	//The video is scaled
 	case Phonon::VideoWidget::ScaleAndCrop:
-#ifdef PHONON_MPLAYER
 		_videoWidget->setScaleAndCropMode(true);
-#endif	//PHONON_MPLAYER
 		break;
 
 	default:
@@ -186,12 +152,6 @@ qreal VideoWidget::hue() const {
 
 void VideoWidget::setHue(qreal hue) {
 	_hue = hue;
-
-#ifdef PHONON_VLC
-	if (_vlcCurrentMediaPlayer) {
-		p_libvlc_video_filter_set_hue(_vlcCurrentMediaPlayer, hue, _vlcException);
-	}
-#endif	//PHONON_VLC
 
 	sendMPlayerCommand("hue " + QString::number(_hue * 100) + " 1");
 }
@@ -217,7 +177,7 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height) {
 	//It resizes dynamically the widget + the main window
 	//I didn't find another way
 	//Each line is very important!
-	//If someone finds a better, please tell me!
+	//If someone finds a better solution, please tell me!
 	QWidget * parent = qobject_cast<QWidget *>(this->parent());
 
 	QSize videoSize(width, height);
@@ -236,4 +196,4 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height) {
 	///
 }
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer

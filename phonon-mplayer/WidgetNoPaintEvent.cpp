@@ -22,7 +22,7 @@
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 WidgetNoPaintEvent::WidgetNoPaintEvent(QWidget * parent)
@@ -55,4 +55,4 @@ void WidgetNoPaintEvent::setBackgroundColor(const QColor & color) {
 	setPalette(p);
 }
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer

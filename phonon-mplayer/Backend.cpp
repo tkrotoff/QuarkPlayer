@@ -25,16 +25,7 @@
 #include "Effect.h"
 #include "config.h"
 
-#ifdef PHONON_VLC
-	#include "vlc_loader.h"
-	#include "vlc_symbols.h"
-
-	#include "VLCMediaObject.h"
-#endif	//PHONON_VLC
-
-#ifdef PHONON_MPLAYER
-	#include "MPlayerMediaObject.h"
-#endif	//PHONON_MPLAYER
+#include "MPlayerMediaObject.h"
 
 #include <QtCore/QByteArray>
 #include <QtCore/QSet>
@@ -48,51 +39,21 @@
 	#include <kpluginloader.h>
 #endif	//KDE4_FOUND
 
-#ifdef PHONON_VLC
 #ifdef KDE4_FOUND
-	K_PLUGIN_FACTORY(VLCBackendFactory, registerPlugin<Phonon::VLC_MPlayer::Backend>();)
-	K_EXPORT_PLUGIN(VLCBackendFactory("vlcbackend"))
-#else
-	Q_EXPORT_PLUGIN2(phonon_vlc, Phonon::VLC_MPlayer::Backend);
-#endif	//KDE4_FOUND
-#endif	//PHONON_VLC
-
-#ifdef PHONON_MPLAYER
-#ifdef KDE4_FOUND
-	K_PLUGIN_FACTORY(MPlayerBackendFactory, registerPlugin<Phonon::VLC_MPlayer::Backend>();)
+	K_PLUGIN_FACTORY(MPlayerBackendFactory, registerPlugin<Phonon::MPlayer::Backend>();)
 	K_EXPORT_PLUGIN(MPlayerBackendFactory("mplayerbackend"))
 #else
-	Q_EXPORT_PLUGIN2(phonon_mplayer, Phonon::VLC_MPlayer::Backend);
+	Q_EXPORT_PLUGIN2(phonon_mplayer, Phonon::MPlayer::Backend);
 #endif	//KDE4_FOUND
-#endif	//PHONON_MPLAYER
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 Backend::Backend(QObject * parent, const QVariantList & args)
 	: QObject(parent) {
 
-	qDebug() << "Phonon version:" << Phonon::phononVersion();
-
-#ifdef PHONON_VLC
-	setProperty("identifier", QLatin1String("phonon_vlc"));
-	setProperty("backendName", QLatin1String("VLC"));
-	setProperty("backendComment", QLatin1String("VLC plugin for Phonon"));
-	setProperty("backendVersion", QLatin1String("0.1"));
-	setProperty("backendWebsite", QLatin1String("http://multimedia.kde.org/"));
-
-	qDebug() << "Loading VLC...";
-
-	//Before everything else
-	//QtConcurrent runs initLibVLC() in another thread
-	//Otherwise it takes too long to load all the VLC plugins
-	_initLibVLCFuture = QtConcurrent::run(initLibVLC);
-
-#endif	//PHONON_VLC
-
-#ifdef PHONON_MPLAYER
 	setProperty("identifier", QLatin1String("phonon_mplayer"));
 	setProperty("backendName", QLatin1String("MPlayer"));
 	setProperty("backendComment", QLatin1String("MPlayer plugin for Phonon"));
@@ -100,27 +61,18 @@ Backend::Backend(QObject * parent, const QVariantList & args)
 	setProperty("backendWebsite", QLatin1String("http://multimedia.kde.org/"));
 
 	qDebug() << "Using MPlayer version:" << "not yet implemented";
-#endif	//PHONON_MPLAYER
 
 	_effectManager = new EffectManager(this);
 }
 
 Backend::~Backend() {
-	//releaseLibVLC();
 	delete _effectManager;
 }
 
 QObject * Backend::createObject(BackendInterface::Class c, QObject * parent, const QList<QVariant> & args) {
 	switch (c) {
 	case MediaObjectClass:
-
-#ifdef PHONON_MPLAYER
 		return new MPlayerMediaObject(parent);
-#endif	//PHONON_MPLAYER
-
-#ifdef PHONON_VLC
-		return new VLCMediaObject(parent);
-#endif	//PHONON_VLC
 
 	/*case VolumeFaderEffectClass:
 		return new VolumeFaderEffect(parent);
@@ -342,20 +294,20 @@ bool Backend::connectNodes(QObject * source, QObject * sink) {
 	qDebug() << __FUNCTION__ << source->metaObject()->className() << sink->metaObject()->className();
 
 	//Example:
-	//source = Phonon::VLC_MPlayer::MediaObject
-	//sink = Phonon::VLC_MPlayer::VideoWidget
+	//source = Phonon::MPlayer::MediaObject
+	//sink = Phonon::MPlayer::VideoWidget
 
 	//Example:
-	//source = Phonon::VLC_MPlayer::MediaObject
-	//sink = Phonon::VLC_MPlayer::AudioOutput
+	//source = Phonon::MPlayer::MediaObject
+	//sink = Phonon::MPlayer::AudioOutput
 
 	//Example:
-	//source = Phonon::VLC_MPlayer::MediaObject
-	//sink = Phonon::VLC_MPlayer::Effect
+	//source = Phonon::MPlayer::MediaObject
+	//sink = Phonon::MPlayer::Effect
 
 	//Example:
-	//source = Phonon::VLC_MPlayer::Effect
-	//sink = Phonon::VLC_MPlayer::AudioOutput
+	//source = Phonon::MPlayer::Effect
+	//sink = Phonon::MPlayer::AudioOutput
 
 	SinkNode * sinkNode = qobject_cast<SinkNode *>(sink);
 	if (sinkNode) {
@@ -412,16 +364,7 @@ void Backend::freeSoundcardDevices() {
 }
 
 QString Backend::toString() const {
-#ifdef PHONON_VLC
-	return "VLC Phonon Backend by Tanguy Krotoff <tkrotoff@gmail.com>\n";
-		/*"libvlc version=" + QString(p_libvlc_get_version()) + "\n"
-		"libvlc changeset=" + QString(p_libvlc_get_changeset()) + "\n"
-		"libvlc compiler=" + QString(p_libvlc_get_compiler());*/
-#endif	//PHONON_VLC
-
-#ifdef PHONON_MPLAYER
 	return "MPlayer Phonon Backend by Tanguy Krotoff <tkrotoff@gmail.com>";
-#endif	//PHONON_MPLAYER
 }
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer

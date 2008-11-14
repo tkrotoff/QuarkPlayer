@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PHONON_VLC_MPLAYER_SEEKSTACK_H
-#define PHONON_VLC_MPLAYER_SEEKSTACK_H
+#ifndef PHONON_MPLAYER_SEEKSTACK_H
+#define PHONON_MPLAYER_SEEKSTACK_H
 
 #include "MediaObject.h"
 
@@ -28,7 +28,7 @@ class QTimer;
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 /**
@@ -62,6 +62,6 @@ private:
 	QStack<qint64> _stack;
 };
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer
 
-#endif	//PHONON_VLC_MPLAYER_SEEKSTACK_H
+#endif	//PHONON_MPLAYER_SEEKSTACK_H

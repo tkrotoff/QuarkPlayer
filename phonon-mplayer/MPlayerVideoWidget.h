@@ -28,7 +28,7 @@ class QResizeEvent;
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 /**
@@ -68,6 +68,6 @@ private:
 	QSize _videoSize;
 };
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer
 
 #endif	//MPLAYERVIDEOWIDGET_H

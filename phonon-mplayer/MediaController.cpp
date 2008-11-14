@@ -20,7 +20,7 @@
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 MediaController::MediaController() {
@@ -243,4 +243,4 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 	return new QVariant();
 }
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer

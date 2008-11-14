@@ -20,16 +20,9 @@
 
 #include "MediaObject.h"
 
-#ifdef PHONON_VLC
-	#include "VLCMediaObject.h"
-
-	#include "vlc_loader.h"
-	#include "vlc_symbols.h"
-#endif	//PHONON_VLC
-
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 AudioOutput::AudioOutput(QObject * parent)
@@ -43,25 +36,10 @@ AudioOutput::~AudioOutput() {
 
 qreal AudioOutput::volume() const {
 	qreal volume = 1;
-
-#ifdef PHONON_VLC
-	if (_vlcCurrentMediaPlayer) {
-		volume = p_libvlc_audio_get_volume(_vlcInstance, _vlcException) / 100;
-		checkException();
-	}
-#endif	//PHONON_VLC
-
 	return volume;
 }
 
 void AudioOutput::setVolume(qreal volume) {
-#ifdef PHONON_VLC
-	if (_vlcInstance) {
-		p_libvlc_audio_set_volume(_vlcInstance, (int) (volume * 100), _vlcException);
-		checkException();
-	}
-#endif	//PHONON_VLC
-
 	sendMPlayerCommand("volume " + QString::number(volume * 100) + " 1");
 }
 
@@ -77,4 +55,4 @@ bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice & device) {
 	return true;
 }
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer

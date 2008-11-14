@@ -23,7 +23,7 @@
 
 namespace Phonon
 {
-namespace VLC_MPlayer
+namespace MPlayer
 {
 
 /**
@@ -53,6 +53,6 @@ private:
 	void paintEvent(QPaintEvent * event);
 };
 
-}}	//Namespace Phonon::VLC_MPlayer
+}}	//Namespace Phonon::MPlayer
 
 #endif	//WIDGETNOPAINTEVENT_H
