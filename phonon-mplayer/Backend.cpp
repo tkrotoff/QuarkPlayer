@@ -25,8 +25,6 @@
 #include "Effect.h"
 #include "config.h"
 
-#include "MPlayerMediaObject.h"
-
 #include <QtCore/QByteArray>
 #include <QtCore/QSet>
 #include <QtCore/QVariant>
@@ -72,7 +70,7 @@ Backend::~Backend() {
 QObject * Backend::createObject(BackendInterface::Class c, QObject * parent, const QList<QVariant> & args) {
 	switch (c) {
 	case MediaObjectClass:
-		return new MPlayerMediaObject(parent);
+		return new MediaObject(parent);
 
 	/*case VolumeFaderEffectClass:
 		return new VolumeFaderEffect(parent);
@@ -311,7 +309,7 @@ bool Backend::connectNodes(QObject * source, QObject * sink) {
 
 	SinkNode * sinkNode = qobject_cast<SinkNode *>(sink);
 	if (sinkNode) {
-		PrivateMediaObject * mediaObject = qobject_cast<PrivateMediaObject *>(source);
+		MediaObject * mediaObject = qobject_cast<MediaObject *>(source);
 		if (mediaObject) {
 			//Connects the SinkNode to a MediaObject
 			sinkNode->connectToMediaObject(mediaObject);
@@ -333,7 +331,7 @@ bool Backend::disconnectNodes(QObject * source, QObject * sink) {
 
 	SinkNode * sinkNode = qobject_cast<SinkNode *>(sink);
 	if (sinkNode) {
-		PrivateMediaObject * mediaObject = qobject_cast<PrivateMediaObject *>(source);
+		MediaObject * mediaObject = qobject_cast<MediaObject *>(source);
 		if (mediaObject) {
 			//Disconnects the SinkNode from a MediaObject
 			sinkNode->disconnectFromMediaObject(mediaObject);

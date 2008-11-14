@@ -20,8 +20,6 @@
 
 #include "MediaObject.h"
 
-#include "MPlayerMediaObject.h"
-
 #include <libmplayer/MPlayerProcess.h>
 
 namespace Phonon
@@ -38,7 +36,7 @@ SinkNode::SinkNode(QObject * parent)
 SinkNode::~SinkNode() {
 }
 
-void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject) {
+void SinkNode::connectToMediaObject(MediaObject * mediaObject) {
 	if (_mediaObject) {
 		qCritical() << __FUNCTION__ << "_mediaObject already connected";
 	}
@@ -46,7 +44,7 @@ void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject) {
 	_mediaObject = mediaObject;
 }
 
-void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject) {
+void SinkNode::disconnectFromMediaObject(MediaObject * mediaObject) {
 	if (_mediaObject != mediaObject) {
 		qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
 	}

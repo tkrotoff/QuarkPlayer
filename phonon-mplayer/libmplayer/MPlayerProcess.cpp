@@ -666,7 +666,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		else if (rx_play.indexIn(line) > -1) {
 			//OK, now all the media datas should be in clean state
 			//Second time we emit mediaLoaded(), this one is usefull for DVD with angles/chapters/subtitles...
-			//This must be changed, see MPlayerMediaObject::mediaLoaded()
+			//This must be changed, see MediaObject::mediaLoaded()
 			emit mediaLoaded();
 			emit mediaDataChanged(_mediaData);
 

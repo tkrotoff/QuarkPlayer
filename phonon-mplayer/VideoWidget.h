@@ -23,13 +23,12 @@
 
 #include <phonon/videowidgetinterface.h>
 
-#include "MPlayerVideoWidget.h"
-typedef Phonon::MPlayer::MPlayerVideoWidget Widget;
-
 namespace Phonon
 {
 namespace MPlayer
 {
+
+class MPlayerVideoWidget;
 
 /**
  *
@@ -44,7 +43,7 @@ public:
 	VideoWidget(QWidget * parent);
 	~VideoWidget();
 
-	void connectToMediaObject(PrivateMediaObject * mediaObject);
+	void connectToMediaObject(MediaObject * mediaObject);
 
 	Phonon::VideoWidget::AspectRatio aspectRatio() const;
 	void setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio);
@@ -64,7 +63,7 @@ public:
 	qreal saturation() const;
 	void setSaturation(qreal saturation);
 
-	Widget * widget();
+	QWidget * widget();
 
 private slots:
 
@@ -75,7 +74,7 @@ private slots:
 
 private:
 
-	Widget * _videoWidget;
+	MPlayerVideoWidget * _videoWidget;
 
 	Phonon::VideoWidget::AspectRatio _aspectRatio;
 

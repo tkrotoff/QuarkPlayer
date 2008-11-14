@@ -22,8 +22,6 @@
 
 #include "MediaObject.h"
 
-#include "MPlayerMediaObject.h"
-
 #include <libmplayer/MPlayerLoader.h>
 #include <libmplayer/MediaSettings.h>
 #include <libmplayer/MPlayerProcess.h>
@@ -49,7 +47,7 @@ Effect::Effect(EffectManager * effectManager, int effectId, QObject * parent)
 Effect::~Effect() {
 }
 
-void Effect::connectToMediaObject(PrivateMediaObject * mediaObject) {
+void Effect::connectToMediaObject(MediaObject * mediaObject) {
 	SinkNode::connectToMediaObject(mediaObject);
 
 	switch (_effectType) {
@@ -65,7 +63,7 @@ void Effect::connectToMediaObject(PrivateMediaObject * mediaObject) {
 	MPlayerLoader::restart(process);
 }
 
-void Effect::disconnectFromMediaObject(PrivateMediaObject * mediaObject) {
+void Effect::disconnectFromMediaObject(MediaObject * mediaObject) {
 	SinkNode::disconnectFromMediaObject(mediaObject);
 
 	switch (_effectType) {

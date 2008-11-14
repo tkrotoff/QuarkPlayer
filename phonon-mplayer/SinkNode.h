@@ -27,9 +27,7 @@ namespace Phonon
 namespace MPlayer
 {
 
-//#include "MPlayerMediaObject.h"
-class MPlayerMediaObject;
-typedef MPlayerMediaObject PrivateMediaObject;
+class MediaObject;
 
 /**
  *
@@ -43,15 +41,15 @@ public:
 	SinkNode(QObject * parent);
 	virtual ~SinkNode();
 
-	virtual void connectToMediaObject(PrivateMediaObject * mediaObject);
+	virtual void connectToMediaObject(MediaObject * mediaObject);
 
-	virtual void disconnectFromMediaObject(PrivateMediaObject * mediaObject);
+	virtual void disconnectFromMediaObject(MediaObject * mediaObject);
 
 protected:
 
 	void sendMPlayerCommand(const QString & command) const;
 
-	PrivateMediaObject * _mediaObject;
+	MediaObject * _mediaObject;
 
 private:
 

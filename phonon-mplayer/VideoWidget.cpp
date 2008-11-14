@@ -19,8 +19,7 @@
 #include "VideoWidget.h"
 
 #include "MediaObject.h"
-
-#include "MPlayerMediaObject.h"
+#include "MPlayerVideoWidget.h"
 
 #include <libmplayer/MPlayerProcess.h>
 
@@ -37,7 +36,7 @@ namespace MPlayer
 VideoWidget::VideoWidget(QWidget * parent)
 	: SinkNode(parent) {
 
-	_videoWidget = new Widget(parent);
+	_videoWidget = new MPlayerVideoWidget(parent);
 
 	_aspectRatio = Phonon::VideoWidget::AspectRatioAuto;
 	_scaleMode = Phonon::VideoWidget::FitInView;
@@ -51,7 +50,7 @@ VideoWidget::VideoWidget(QWidget * parent)
 VideoWidget::~VideoWidget() {
 }
 
-void VideoWidget::connectToMediaObject(PrivateMediaObject * mediaObject) {
+void VideoWidget::connectToMediaObject(MediaObject * mediaObject) {
 	SinkNode::connectToMediaObject(mediaObject);
 
 	MPlayerProcess * process = _mediaObject->getMPlayerProcess();
@@ -166,7 +165,7 @@ void VideoWidget::setSaturation(qreal saturation) {
 	sendMPlayerCommand("saturation " + QString::number(_saturation * 100) + " 1");
 }
 
-Widget * VideoWidget::widget() {
+QWidget * VideoWidget::widget() {
 	return _videoWidget;
 }
 

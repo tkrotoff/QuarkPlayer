@@ -20,6 +20,8 @@
 
 #include "SeekStack.h"
 
+#include <libmplayer/MPlayerLoader.h>
+
 #include <QtCore/QUrl>
 #include <QtCore/QMetaType>
 #include <QtCore/QTimer>
@@ -34,7 +36,7 @@ namespace MPlayer
 {
 
 MediaObject::MediaObject(QObject * parent)
-	: QObject(parent) {
+	: MediaController(parent) {
 
 	_currentState = Phonon::LoadingState;
 	_videoWidgetId = 0;
@@ -47,12 +49,37 @@ MediaObject::MediaObject(QObject * parent)
 
 	qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 
-	connect(this, SIGNAL(stateChanged(Phonon::State)), SLOT(stateChangedInternal(Phonon::State)));
 
-	connect(this, SIGNAL(tickInternal(qint64)), SLOT(tickInternalSlot(qint64)));
+	connect(_process, SIGNAL(stateChanged(MPlayerProcess::State)),
+		SLOT(stateChangedInternal(MPlayerProcess::State)));
+
+	connect(_process, SIGNAL(tick(qint64)),
+		SLOT(tickInternal(qint64)));
+
+	connect(_process, SIGNAL(totalTimeChanged(qint64)),
+		SIGNAL(totalTimeChanged(qint64)));
+
+	connect(_process, SIGNAL(hasVideoChanged(bool)),
+		SIGNAL(hasVideoChanged(bool)));
+
+	connect(_process, SIGNAL(seekableChanged(bool)),
+		SIGNAL(seekableChanged(bool)));
+
+	connect(_process, SIGNAL(mediaLoaded()),
+		SLOT(mediaLoaded()));
+
+	connect(_process, SIGNAL(mediaDataChanged(const MediaData &)),
+		SLOT(mediaDataChanged(const MediaData &)));
+
+	connect(_process, SIGNAL(finished(int, QProcess::ExitStatus)),
+		SLOT(finished(int, QProcess::ExitStatus)));
 }
 
 MediaObject::~MediaObject() {
+}
+
+MPlayerProcess * MediaObject::getMPlayerProcess() const {
+	return _process;
 }
 
 void MediaObject::setVideoWidgetId(int videoWidgetId) {
@@ -63,11 +90,26 @@ void MediaObject::play() {
 	qDebug() << __FUNCTION__;
 
 	if (_currentState == Phonon::PausedState) {
-		resume();
+		//Pause is like resume inside MPlayer
+		pause();
 	} else {
 		//Play the file
-		playInternal();
+		_playRequestReached = true;
+
+		//Clear subtitles/chapters...
+		clearMediaController();
+
+		MPlayerLoader::start(_process, _fileName, _videoWidgetId);
 	}
+}
+
+void MediaObject::pause() {
+	//Pause is like resume inside MPlayer
+	_process->sendCommand("pause");
+}
+
+void MediaObject::stop() {
+	_process->stop();
 }
 
 void MediaObject::seek(qint64 milliseconds) {
@@ -86,7 +128,11 @@ void MediaObject::seek(qint64 milliseconds) {
 	}
 }
 
-void MediaObject::tickInternalSlot(qint64 currentTime) {
+void MediaObject::seekInternal(qint64 milliseconds) {
+	_process->sendCommand("seek " + QString::number(milliseconds / 1000.0) + " 2");
+}
+
+void MediaObject::tickInternal(qint64 currentTime) {
 	qint64 totalTime = this->totalTime();
 
 	if (_tickInterval > 0) {
@@ -112,16 +158,37 @@ void MediaObject::tickInternalSlot(qint64 currentTime) {
 	}
 }
 
-void MediaObject::loadMedia(const QString & filename) {
+void MediaObject::loadMedia(const QString & fileName) {
 	//Default MediaObject state is Phonon::LoadingState
 	_currentState = Phonon::LoadingState;
 
 	//Loads the media
-	loadMediaInternal(filename);
+	_playRequestReached = false;
+
+	_fileName = fileName;
+
+	qDebug() << __FUNCTION__ << _fileName;
+
+	//Optimization:
+	//wait to see if play() is run just after loadMedia()
+	//100 milliseconds should be OK
+	QTimer::singleShot(100, this, SLOT(loadMediaInternal()));
 }
 
-void MediaObject::resume() {
-	pause();
+void MediaObject::loadMediaInternal() {
+	if (_playRequestReached) {
+		//We are already playing the media,
+		//so there no need to load it
+		return;
+	}
+
+	//See http://www.mplayerhq.hu/DOCS/tech/slave.txt
+	//loadfile <file|url> <append>
+	//Load the given file/URL, stopping playback of the current file/URL.
+	//If <append> is nonzero playback continues and the file/URL is
+	//appended to the current playlist instead.
+
+	MPlayerLoader::loadMedia(_process, _fileName);
 }
 
 qint32 MediaObject::tickInterval() const {
@@ -137,19 +204,27 @@ void MediaObject::setTickInterval(qint32 tickInterval) {
 	}*/
 }
 
+bool MediaObject::hasVideo() const {
+	return _process->hasVideo();
+}
+
+bool MediaObject::isSeekable() const {
+	return _process->isSeekable();
+}
+
 qint64 MediaObject::currentTime() const {
 	qint64 time = -1;
 	Phonon::State st = state();
 
 	switch(st) {
 	case Phonon::PausedState:
-		time = currentTimeInternal();
+		time = _process->currentTime();
 		break;
 	case Phonon::BufferingState:
-		time = currentTimeInternal();
+		time = _process->currentTime();
 		break;
 	case Phonon::PlayingState:
-		time = currentTimeInternal();
+		time = _process->currentTime();
 		break;
 	case Phonon::StoppedState:
 		time = 0;
@@ -171,8 +246,16 @@ Phonon::State MediaObject::state() const {
 	return _currentState;
 }
 
+QString MediaObject::errorString() const {
+	return "";
+}
+
 Phonon::ErrorType MediaObject::errorType() const {
 	return Phonon::NormalError;
+}
+
+qint64 MediaObject::totalTime() const {
+	return _process->totalTime();
 }
 
 MediaSource MediaObject::source() const {
@@ -223,12 +306,13 @@ void MediaObject::setSource(const MediaSource & source) {
 	emit currentSourceChanged(source);
 }
 
-/**
 void MediaObject::setNextSource(const MediaSource & source) {
-	qDebug() << __FUNCTION__ << "Source:" << source.fileName();
-	setSource(source);
+	qDebug() << __FUNCTION__ << source.fileName();
+	QString quote("\"");
+	_process->sendCommand("loadfile " + quote + source.fileName() + quote + " " + QString::number(1));
+
+	emit currentSourceChanged(source);
 }
-**/
 
 qint32 MediaObject::prefinishMark() const {
 	return _prefinishMark;
@@ -249,17 +333,132 @@ qint32 MediaObject::transitionTime() const {
 void MediaObject::setTransitionTime(qint32) {
 }
 
-void MediaObject::stateChangedInternal(Phonon::State newState) {
-	qDebug() << __FUNCTION__ << "newState:" << newState << "previousState:" << _currentState ;
+void MediaObject::mediaDataChanged(const MediaData & mediaData) {
+	QMultiMap<QString, QString> metaDataMap;
+	metaDataMap.insert(QLatin1String("ARTIST"), mediaData.artist);
+	metaDataMap.insert(QLatin1String("ALBUM"), mediaData.album);
+	metaDataMap.insert(QLatin1String("TITLE"), mediaData.title);
+	metaDataMap.insert(QLatin1String("DATE"), mediaData.date);
+	metaDataMap.insert(QLatin1String("GENRE"), mediaData.genre);
+	metaDataMap.insert(QLatin1String("TRACKNUMBER"), mediaData.track);
+	metaDataMap.insert(QLatin1String("DESCRIPTION"), mediaData.comment);
+	metaDataMap.insert(QLatin1String("COPYRIGHT"), mediaData.copyright);
+	metaDataMap.insert(QLatin1String("ENCODEDBY"), mediaData.software);
+	metaDataMap.insert(QLatin1String("LENGTH"), QString::number(mediaData.totalTime));
 
+	metaDataMap.insert(QLatin1String("STREAM_URL"), mediaData.streamUrl);
+	metaDataMap.insert(QLatin1String("STREAM_NAME"), mediaData.streamName);
+	metaDataMap.insert(QLatin1String("STREAM_GENRE"), mediaData.streamGenre);
+	metaDataMap.insert(QLatin1String("STREAM_WEBSITE"), mediaData.streamWebsite);
+
+	//Other infos
+	metaDataMap.insert(QLatin1String("DEMUXER"), mediaData.demuxer);
+	if (mediaData.hasVideo) {
+		metaDataMap.insert(QLatin1String("VIDEO_FORMAT"), mediaData.videoFormat);
+		metaDataMap.insert(QLatin1String("VIDEO_BITRATE"), QString::number(mediaData.videoBitrate));
+		metaDataMap.insert(QLatin1String("VIDEO_WIDTH"), QString::number(mediaData.videoWidth));
+		metaDataMap.insert(QLatin1String("VIDEO_HEIGHT"), QString::number(mediaData.videoHeight));
+		metaDataMap.insert(QLatin1String("VIDEO_FPS"), QString::number(mediaData.videoFPS));
+		metaDataMap.insert(QLatin1String("VIDEO_ASPECT_RATIO"), QString::number(mediaData.videoAspectRatio));
+		metaDataMap.insert(QLatin1String("AUDIO_FORMAT"), mediaData.audioFormat);
+		metaDataMap.insert(QLatin1String("AUDIO_BITRATE"), QString::number(mediaData.audioBitrate));
+		metaDataMap.insert(QLatin1String("AUDIO_RATE"), QString::number(mediaData.audioRate));
+		metaDataMap.insert(QLatin1String("AUDIO_NCH"), QString::number(mediaData.audioNbChannels));
+		metaDataMap.insert(QLatin1String("VIDEO_CODEC"), mediaData.videoCodec);
+		metaDataMap.insert(QLatin1String("AUDIO_CODEC"), mediaData.audioCodec);
+	} else {
+		//Because of the mediaplayer example, see MediaPlayer::updateInfo()
+		metaDataMap.insert(QLatin1String("BITRATE"), QString::number(mediaData.audioBitrate));
+	}
+
+	emit metaDataChanged(metaDataMap);
+}
+
+void MediaObject::mediaLoaded() {
+	emit availableAudioChannelsChanged();
+	emit availableSubtitlesChanged();
+
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+	emit availableChaptersChanged();
+	emit availableTitlesChanged();
+#else
+	emit availableChaptersChanged(availableChapters());
+	emit availableTitlesChanged(availableTitles());
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
+	emit availableAnglesChanged(availableAngles());
+
+	//angleChanged(int angleNumber);
+	//chapterChanged(int chapterNumber);
+	//titleChanged(int titleNumber);
+}
+
+void MediaObject::stateChangedInternal(MPlayerProcess::State newState) {
 	if (newState == _currentState) {
 		//No state changed
 		return;
 	}
-
-	//State changed
 	Phonon::State previousState = _currentState;
-	_currentState = newState;
+
+	switch (newState) {
+	case MPlayerProcess::LoadingState:
+		qDebug() << __FUNCTION__ << "LoadingState";
+		_currentState = Phonon::LoadingState;
+		break;
+	case MPlayerProcess::PlayingState:
+		qDebug() << __FUNCTION__ << "PlayingState";
+		_currentState = Phonon::PlayingState;
+		break;
+	case MPlayerProcess::BufferingState:
+		qDebug() << __FUNCTION__ << "BufferingState";
+		_currentState = Phonon::BufferingState;
+		break;
+	case MPlayerProcess::PausedState:
+		qDebug() << __FUNCTION__ << "PausedState";
+		_currentState = Phonon::PausedState;
+		break;
+	case MPlayerProcess::EndOfFileState:
+		qDebug() << __FUNCTION__ << "EndOfFileState";
+		//FIXME duplicate Phonon::StoppedState?
+		//Since MPlayer process will end and send a Phonon::StoppedState
+		//via MediaObject::finished(), not necessary to send this one.
+		//_currentState = Phonon::LoadingState;
+		//emit finished();
+		break;
+	case MPlayerProcess::ErrorState:
+		qDebug() << __FUNCTION__ << "ErrorState";
+		//_errorMessage = "MPlayer process crashed";
+		//_errorType = Phonon::FatalError;
+		_currentState = Phonon::ErrorState;
+		break;
+	default:
+		qCritical() << __FUNCTION__ << "Error: unknown state:" << newState;
+		return;
+	}
+
+	emit stateChanged(_currentState, previousState);
+}
+
+
+void MediaObject::finished(int exitCode, QProcess::ExitStatus exitStatus) {
+	Phonon::State previousState = _currentState;
+
+	switch (exitStatus) {
+	case QProcess::NormalExit:
+		qDebug() << __FUNCTION__ << "MPlayer process exited normally";
+		_currentState = Phonon::StoppedState;
+		break;
+	case QProcess::CrashExit:
+		qCritical() << __FUNCTION__ << "Error: MPlayer process crashed";
+		//_errorMessage = "MPlayer process crashed";
+		//_errorType = Phonon::FatalError;
+		_currentState = Phonon::ErrorState;
+		break;
+	default:
+		qCritical() << __FUNCTION__ << "Error: unknown state:" << exitStatus;
+		return;
+	}
+
 	emit stateChanged(_currentState, previousState);
 }
 

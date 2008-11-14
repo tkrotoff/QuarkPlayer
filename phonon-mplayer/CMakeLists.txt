@@ -23,14 +23,13 @@ set(phonon_mplayer_SRCS
 	SinkNode.cpp
 	SeekStack.cpp
 	WidgetNoPaintEvent.cpp
-	MPlayerMediaObject.cpp
-	MPlayerMediaController.cpp
 	MPlayerVideoWidget.cpp
 )
 
 qt4_wrap_cpp(phonon_mplayer_SRCS
 	Backend.h
 	MediaObject.h
+	MediaController.h
 	VideoWidget.h
 	AudioOutput.h
 	EffectManager.h
@@ -38,7 +37,6 @@ qt4_wrap_cpp(phonon_mplayer_SRCS
 	SinkNode.h
 	SeekStack.h
 	WidgetNoPaintEvent.h
-	MPlayerMediaObject.h
 	MPlayerVideoWidget.h
 )
 

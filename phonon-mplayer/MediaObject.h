@@ -19,6 +19,10 @@
 #ifndef PHONON_MPLAYER_MEDIAOBJECT_H
 #define PHONON_MPLAYER_MEDIAOBJECT_H
 
+#include "MediaController.h"
+
+#include <libmplayer/MPlayerProcess.h>
+
 #include <phonon/mediaobjectinterface.h>
 
 #include <QtCore/QObject>
@@ -28,40 +32,64 @@ namespace Phonon
 namespace MPlayer
 {
 
-static const int MPLAYER_DEFAULT_DVD_TITLE = 1;
-
-class SeekStack;
-
 /**
  *
  *
  * @author Tanguy Krotoff
  */
-class MediaObject : public QObject, public MediaObjectInterface {
+class MediaObject : public MediaController, public MediaObjectInterface {
 	Q_OBJECT
-	friend class SeekStack;
 public:
 
 	MediaObject(QObject * parent);
-	virtual ~MediaObject();
+
+	~MediaObject();
 
 	/**
+	 * Needed by VideoWidget
+	 * Gets the MPlayerProcess used by this class.
+	 *
+	 * Cannot be NULL.
+	 *
+	 * @return the MPlayerProcess
+	 */
+	MPlayerProcess * getMPlayerProcess() const;
+
+	/**
+	 * Needed by VideoWidget
 	 * Widget Id where VLC or MPlayer will show the videos.
 	 */
 	void setVideoWidgetId(int videoWidgetId);
 
+	//Needed by SeekStack
+	void seekInternal(qint64 milliseconds);
+
+
 	void play();
+	void pause();
+	void stop();
+
 	void seek(qint64 milliseconds);
 
 	qint32 tickInterval() const;
 	void setTickInterval(qint32 tickInterval);
 
+	bool hasVideo() const;
+	bool isSeekable() const;
+
 	qint64 currentTime() const;
+
 	Phonon::State state() const;
+
+	QString errorString() const;
+
 	Phonon::ErrorType errorType() const;
+
+	qint64 totalTime() const;
+
 	MediaSource source() const;
 	void setSource(const MediaSource & source);
-	//void setNextSource(const MediaSource & source);
+	void setNextSource(const MediaSource & source);
 
 	qint32 prefinishMark() const;
 	void setPrefinishMark(qint32 msecToEnd);
@@ -83,32 +111,27 @@ signals:
 	void tick(qint64 time);
 	void totalTimeChanged(qint64 newTotalTime);
 
-	//Signal from MPlayerMediaObject and VLCMediaObject
-	void stateChanged(Phonon::State newState);
-
-	void tickInternal(qint64 time);
-
-protected:
-
-	virtual void loadMediaInternal(const QString & filename) = 0;
-	virtual void playInternal() = 0;
-	virtual void seekInternal(qint64 milliseconds) = 0;
-
-	virtual qint64 currentTimeInternal() const = 0;
+private:
 
 	int _videoWidgetId;
 
 private slots:
 
-	void stateChangedInternal(Phonon::State newState);
+	void mediaLoaded();
 
-	void tickInternalSlot(qint64 time);
+	void mediaDataChanged(const MediaData & mediaData);
+
+	void stateChangedInternal(MPlayerProcess::State newState);
+
+	void finished(int exitCode, QProcess::ExitStatus exitStatus);
+
+	void tickInternal(qint64 currentTime);
 
 private:
 
-	void loadMedia(const QString & filename);
+	void loadMedia(const QString & fileName);
 
-	void resume();
+	void loadMediaInternal();
 
 	MediaSource _mediaSource;
 
@@ -120,6 +143,10 @@ private:
 	bool _aboutToFinishEmitted;
 
 	qint32 _tickInterval;
+
+	bool _playRequestReached;
+
+	QString _fileName;
 };
 
 }}	//Namespace Phonon::MPlayer
