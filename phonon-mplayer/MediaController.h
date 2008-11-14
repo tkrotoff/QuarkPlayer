@@ -24,6 +24,8 @@
 #include <phonon/addoninterface.h>
 #include <phonon/objectdescription.h>
 
+#include <QtCore/QObject>
+
 class MPlayerProcess;
 
 namespace Phonon

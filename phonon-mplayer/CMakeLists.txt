@@ -1,6 +1,6 @@
 add_subdirectory(libmplayer)
 
-project(phonon-mplayer)
+project(phonon_mplayer)
 
 #Copy config.h to the current source directory
 #since build dir in not inside the include path

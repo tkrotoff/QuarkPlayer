@@ -39,6 +39,7 @@ namespace MPlayer
  */
 class MediaObject : public MediaController, public MediaObjectInterface {
 	Q_OBJECT
+	Q_INTERFACES(Phonon::MediaObjectInterface Phonon::AddonInterface)
 public:
 
 	MediaObject(QObject * parent);
