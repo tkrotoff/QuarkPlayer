@@ -19,9 +19,9 @@
 #ifndef PHONON_VLC_MPLAYER_MPLAYERMEDIACONTROLLER_H
 #define PHONON_VLC_MPLAYER_MPLAYERMEDIACONTROLLER_H
 
-#include "../MediaController.h"
+#include "MediaController.h"
 
-#include <mplayer/MPlayerProcess.h>
+#include <libmplayer/MPlayerProcess.h>
 
 namespace Phonon
 {

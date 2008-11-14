@@ -30,7 +30,7 @@
 #ifdef PHONON_MPLAYER
 	#include "MPlayerMediaObject.h"
 
-	#include <mplayer/MPlayerProcess.h>
+	#include <libmplayer/MPlayerProcess.h>
 #endif	//PHONON_MPLAYER
 
 #include <QtGui/QWidget>

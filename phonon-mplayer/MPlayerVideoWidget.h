@@ -20,7 +20,7 @@
 #ifndef MPLAYERVIDEOWIDGET_H
 #define MPLAYERVIDEOWIDGET_H
 
-#include "../WidgetNoPaintEvent.h"
+#include "WidgetNoPaintEvent.h"
 
 #include <QtGui/QWidget>
 

@@ -21,7 +21,7 @@
 
 #include "MPlayerMediaController.h"
 
-#include "../MediaObject.h"
+#include "MediaObject.h"
 
 #include <QtCore/QProcess>
 

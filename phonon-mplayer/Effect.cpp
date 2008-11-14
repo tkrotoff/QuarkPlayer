@@ -25,9 +25,9 @@
 #ifdef PHONON_MPLAYER
 	#include "MPlayerMediaObject.h"
 
-	#include <mplayer/MPlayerLoader.h>
-	#include <mplayer/MediaSettings.h>
-	#include <mplayer/MPlayerProcess.h>
+	#include <libmplayer/MPlayerLoader.h>
+	#include <libmplayer/MediaSettings.h>
+	#include <libmplayer/MPlayerProcess.h>
 #endif	//PHONON_MPLAYER
 
 namespace Phonon

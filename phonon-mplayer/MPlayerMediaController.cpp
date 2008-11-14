@@ -19,9 +19,9 @@
 #include "MPlayerMediaController.h"
 
 //Because of MPLAYER_DEFAULT_DVD_TITLE
-#include "../MediaObject.h"
+#include "MediaObject.h"
 
-#include <mplayer/MPlayerLoader.h>
+#include <libmplayer/MPlayerLoader.h>
 
 namespace Phonon
 {

@@ -18,8 +18,8 @@
 
 #include "MPlayerMediaObject.h"
 
-#include <mplayer/MPlayerProcess.h>
-#include <mplayer/MPlayerLoader.h>
+#include <libmplayer/MPlayerProcess.h>
+#include <libmplayer/MPlayerLoader.h>
 
 #include <QtCore/QTimer>
 
