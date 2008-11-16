@@ -102,8 +102,8 @@ add_subdirectory(3rdparty/phonon)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
 set(QT_PHONON_LIBRARY phonon)
 
-add_subdirectory(3rdparty/ds9)
-add_subdirectory(vlc-mplayer)
+#add_subdirectory(3rdparty/ds9)
+add_subdirectory(phonon-mplayer)
 ##
 
 

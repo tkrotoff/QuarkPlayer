@@ -23,6 +23,8 @@
 #include <quarkplayer/version.h>
 #include <quarkplayer/PluginsManager.h>
 
+#include <phonon/mediasource.h>
+
 #include <QtGui/QtGui>
 
 #include <QtCore/QDebug>
@@ -38,6 +40,10 @@ WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	PluginInterface(quarkPlayer, uuid) {
 
 	qDebug() << __FUNCTION__ << "Welcome plugin created";
+
+	//Play a default webradio Live9
+	//Same one as in SMPlayer, see http://www.live9.fr/
+	quarkPlayer.play(Phonon::MediaSource("http://acdc2.live9.fr:8050"));
 
 	QMessageBox * msgBox = new QMessageBox(quarkPlayer.mainWindow());
 	connect(msgBox, SIGNAL(finished(int)), SLOT(finished(int)));
@@ -61,6 +67,8 @@ WelcomeWindow::~WelcomeWindow() {
 
 void WelcomeWindow::finished(int result) {
 	//Unloads and disables the plugin
+	//We don't want the welcome plugin at every QuarkPlayer start
+	//just at the very first start
 	PluginData pluginData = PluginsManager::instance().pluginData(uuid());
 	pluginData.setEnabled(false);
 	PluginsManager::instance().deletePlugin(pluginData);

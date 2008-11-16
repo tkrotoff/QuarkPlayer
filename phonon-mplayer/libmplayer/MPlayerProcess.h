@@ -163,6 +163,10 @@ signals:
 	void tick(qint64 time);
 
 	/**
+	 *
+	void currentPositionPourcentChanged(int pourcent);
+
+	/**
 	 * Gives the media/stream/file duration in milliseconds.
 	 *
 	 * @param totalTime media duration in milliseconds

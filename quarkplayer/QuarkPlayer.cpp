@@ -72,12 +72,13 @@ QString QuarkPlayer::currentMediaObjectTitle() const {
 	QString fullTitle;
 
 	if (_currentMediaObject) {
+		QString fileName = _currentMediaObject->currentSource().fileName();
 		QMultiMap<QString, QString> metaData = _currentMediaObject->metaData();
 
 		QString artist = metaData.value("ARTIST");
 		QString title = metaData.value("TITLE");
 		if (artist.isEmpty() && title.isEmpty()) {
-			fullTitle = TkFile::removeFileExtension(TkFile::fileName(_currentMediaObject->currentSource().fileName()));
+			fullTitle = TkFile::removeFileExtension(TkFile::fileName(fileName));
 		} else {
 			if (!title.isEmpty()) {
 				fullTitle = title;

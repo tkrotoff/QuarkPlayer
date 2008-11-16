@@ -110,7 +110,9 @@ void VideoWidgetPlugin::metaDataChanged() {
 	//instead of waiting for currentSourceChanged(const Phonon::MediaSource &) signal
 	//TagLib open files in read/write, opening a file in read/write prevents the backend to open the file too :/
 	//See http://article.gmane.org/gmane.comp.kde.devel.taglib/918
-	container->mediaDataWidget->startMediaInfoFetcher(quarkPlayer().currentMediaObject()->currentSource());
+
+	Phonon::MediaSource mediaSource(quarkPlayer().currentMediaObject()->currentSource());
+	container->mediaDataWidget->startMediaInfoFetcher(mediaSource, quarkPlayer().currentMediaObject());
 }
 
 void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {

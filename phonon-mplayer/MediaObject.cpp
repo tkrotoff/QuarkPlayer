@@ -116,45 +116,42 @@ void MediaObject::seek(qint64 milliseconds) {
 	static SeekStack * stack = new SeekStack(this);
 
 	stack->pushSeek(milliseconds);
-
-	qint64 currentTime = this->currentTime();
-	qint64 totalTime = this->totalTime();
-
-	if (currentTime < totalTime - _prefinishMark) {
-		_prefinishMarkReachedEmitted = false;
-	}
-	if (currentTime < totalTime - ABOUT_TO_FINISH_TIME) {
-		_aboutToFinishEmitted = false;
-	}
 }
 
 void MediaObject::seekInternal(qint64 milliseconds) {
 	_process->sendCommand("seek " + QString::number(milliseconds / 1000.0) + " 2");
+	_process->sendCommand("get_percent_pos");
 }
 
 void MediaObject::tickInternal(qint64 currentTime) {
 	qint64 totalTime = this->totalTime();
 
-	if (_tickInterval > 0) {
-		//If _tickInternal == 0 means tick() signal is disabled
-		//Default is _tickInternal = 0
-		emit tick(currentTime);
-	}
-
-	if (_currentState == Phonon::PlayingState) {
-		if (currentTime >= totalTime - _prefinishMark) {
+	//totalTime is < 0 means the media is a stream, thus no end
+	if (totalTime > 0) {
+		if (currentTime < totalTime - _prefinishMark) {
+			_prefinishMarkReachedEmitted = false;
+		} else {
 			if (!_prefinishMarkReachedEmitted) {
 				_prefinishMarkReachedEmitted = true;
 				emit prefinishMarkReached(totalTime - currentTime);
 			}
 		}
-		if (currentTime >= totalTime - ABOUT_TO_FINISH_TIME) {
+
+		if (currentTime < totalTime - ABOUT_TO_FINISH_TIME) {
+			_aboutToFinishEmitted = false;
+		} else {
 			if (!_aboutToFinishEmitted) {
 				//Track is about to finish
 				_aboutToFinishEmitted = true;
 				emit aboutToFinish();
 			}
 		}
+	}
+
+	if (_tickInterval > 0) {
+		//If _tickInternal == 0 means tick() signal is disabled
+		//Default is _tickInternal = 0
+		emit tick(currentTime);
 	}
 }
 
@@ -259,36 +256,35 @@ qint64 MediaObject::totalTime() const {
 }
 
 MediaSource MediaObject::source() const {
-	return _mediaSource;
+	return _source;
 }
 
-void MediaObject::setSource(const MediaSource & source) {
-	qDebug() << __FUNCTION__ << "Source:" << source.fileName();
-
-	_mediaSource = source;
+QString MediaObject::sourceFileName(const MediaSource & source) {
+	QString fileName;
 
 	switch (source.type()) {
 	case MediaSource::Invalid:
+		qCritical() << __FUNCTION__ << "Error: invalid/empty MediaSource";
 		break;
 	case MediaSource::LocalFile:
-		loadMedia(_mediaSource.fileName());
+		fileName = source.fileName();
 		break;
 	case MediaSource::Url:
-		loadMedia(_mediaSource.url().toString());
+		fileName = source.url().toString();
 		break;
 	case MediaSource::Disc: {
 		switch (source.discType()) {
 		case Phonon::NoDisc:
 			qCritical() << __FUNCTION__ << "Error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
-			return;
+			break;
 		case Phonon::Cd:
-			loadMedia(_mediaSource.deviceName());
+			fileName = source.deviceName();
 			break;
 		case Phonon::Dvd:
-			loadMedia("dvd://" + QString::number(MPLAYER_DEFAULT_DVD_TITLE));
+			fileName = "dvd://" + QString::number(MPLAYER_DEFAULT_DVD_TITLE);
 			break;
 		case Phonon::Vcd:
-			loadMedia(_mediaSource.deviceName());
+			fileName = source.deviceName();
 			break;
 		default:
 			qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::Disc:" << source.discType();
@@ -303,15 +299,28 @@ void MediaObject::setSource(const MediaSource & source) {
 		break;
 	}
 
+	return fileName;
+}
+
+void MediaObject::setSource(const MediaSource & source) {
+	_source = source;
+	QString fileName(sourceFileName(_source));
+
+	qDebug() << __FUNCTION__ << "Source:" << fileName;
+
+	loadMedia(fileName);
+
 	emit currentSourceChanged(source);
 }
 
 void MediaObject::setNextSource(const MediaSource & source) {
-	qDebug() << __FUNCTION__ << source.fileName();
-	QString quote("\"");
-	_process->sendCommand("loadfile " + quote + source.fileName() + quote + " " + QString::number(1));
+	_nextSource = source;
+	QString fileName(sourceFileName(_nextSource));
 
-	emit currentSourceChanged(source);
+	qDebug() << __FUNCTION__ << "Next source:" << fileName;
+
+	QString quote("\"");
+	_process->sendCommand("loadfile " + quote + fileName + quote + " " + QString::number(1));
 }
 
 qint32 MediaObject::prefinishMark() const {
@@ -404,6 +413,15 @@ void MediaObject::stateChangedInternal(MPlayerProcess::State newState) {
 	case MPlayerProcess::LoadingState:
 		qDebug() << __FUNCTION__ << "LoadingState";
 		_currentState = Phonon::LoadingState;
+		if (_nextSource.type() != MediaSource::Invalid) {
+			//Means that we are playing the next MediaSource
+
+			_source = _nextSource;
+
+			//Make the next MediaSource invalid again
+			_nextSource = MediaSource();
+			emit currentSourceChanged(_source);
+		}
 		break;
 	case MPlayerProcess::PlayingState:
 		qDebug() << __FUNCTION__ << "PlayingState";
@@ -439,7 +457,6 @@ void MediaObject::stateChangedInternal(MPlayerProcess::State newState) {
 	emit stateChanged(_currentState, previousState);
 }
 
-
 void MediaObject::finished(int exitCode, QProcess::ExitStatus exitStatus) {
 	Phonon::State previousState = _currentState;
 
@@ -447,6 +464,25 @@ void MediaObject::finished(int exitCode, QProcess::ExitStatus exitStatus) {
 	case QProcess::NormalExit:
 		qDebug() << __FUNCTION__ << "MPlayer process exited normally";
 		_currentState = Phonon::StoppedState;
+
+		/*
+		//HACK: MPlayer cannot detect end of VBR MP3s!
+		//If the MPlayer detects a length > to the real length
+		//aboutToFinish() signal will never be emitted :/
+		//Yes MPlayer devs have to fix this
+		//Inside Yourself
+		if (_nextSource.type() != MediaSource::Invalid) {
+			//Means that we are playing the next MediaSource
+
+			_source = _nextSource;
+
+			//Make the next MediaSource invalid again
+			_nextSource = MediaSource();
+			loadMedia(_source);
+			emit currentSourceChanged(_source);
+		}
+		*/
+
 		break;
 	case QProcess::CrashExit:
 		qCritical() << __FUNCTION__ << "Error: MPlayer process crashed";

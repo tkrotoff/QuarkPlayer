@@ -112,11 +112,9 @@ signals:
 	void tick(qint64 time);
 	void totalTimeChanged(qint64 newTotalTime);
 
-private:
-
-	int _videoWidgetId;
-
 private slots:
+
+	void loadMediaInternal();
 
 	void mediaLoaded();
 
@@ -132,9 +130,10 @@ private:
 
 	void loadMedia(const QString & fileName);
 
-	void loadMediaInternal();
+	QString sourceFileName(const MediaSource & source);
 
-	MediaSource _mediaSource;
+	MediaSource _source;
+	MediaSource _nextSource;
 
 	Phonon::State _currentState;
 
@@ -148,6 +147,8 @@ private:
 	bool _playRequestReached;
 
 	QString _fileName;
+
+	int _videoWidgetId;
 };
 
 }}	//Namespace Phonon::MPlayer

@@ -152,10 +152,15 @@ static QRegExp rx_create_index("^Generating Index:.*");
 static QRegExp rx_play("^Starting playback...");
 static QRegExp rx_playing("^Playing");	//"Playing" does not mean the file is actually playing but only loading
 static QRegExp rx_connecting("^Connecting to .*");
+
 //Future messages to add:
 //Connection timeout
+static QRegExp rx_connection_timeout("connection timeout");
 //Failed, exiting
+static QRegExp rx_read_failed("Read failed.");
 //No stream found to handle url
+
+
 static QRegExp rx_resolving("^Resolving .*");
 static QRegExp rx_screenshot("^\\*\\*\\* screenshot '(.*)'");
 static QRegExp rx_endoffile("^Exiting... \\(End of file\\)");
@@ -192,9 +197,12 @@ static QRegExp rx_stream_name("Name   : (.*)");
 static QRegExp rx_stream_genre("Genre  : (.*)");
 static QRegExp rx_stream_website("Website: (.*)");
 
-void MPlayerProcess::parseLine(const QString & tmp) {
-	//qDebug() << __FUNCTION__ << tmp;
+//Percent position: gives the current media position in pourcentage
+//This a hack since MPlayer does not read properly the length of VBR MP3s
+//Thus we cannot rely on the media length for the aboutToFinish() signal
+static QRegExp rx_percent_position("Position: (.*) %");
 
+void MPlayerProcess::parseLine(const QString & tmp) {
 	QString line = tmp;
 
 	//Skip empty lines
@@ -300,7 +308,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			qDebug() << __FUNCTION__ << "Stream title:" << title;
 			qDebug() << __FUNCTION__ << "Stream url:" << url;
 			_mediaData.title = title;
-			if (url.at(url.size() - 1) == '/') {
+			if (!url.isEmpty() && url.at(url.size() - 1) == '/') {
 				url.remove(url.size() - 1, 1);
 			}
 			_mediaData.streamUrl = url;
@@ -352,7 +360,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		else if (rx_stream_website.indexIn(line) > -1) {
 			QString website = rx_stream_website.cap(1);
 			qDebug() << __FUNCTION__ << "Stream website:" << website;
-			if (website.at(website.size() - 1) == '/') {
+			if (!website.isEmpty() && website.at(website.size() - 1) == '/') {
 				website.remove(website.size() - 1, 1);
 			}
 			_mediaData.streamWebsite = website;

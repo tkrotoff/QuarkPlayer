@@ -60,10 +60,16 @@ MediaDataWidget::MediaDataWidget(QWidget * parent)
 MediaDataWidget::~MediaDataWidget() {
 }
 
-void MediaDataWidget::startMediaInfoFetcher(const Phonon::MediaSource & mediaSource) {
+void MediaDataWidget::startMediaInfoFetcher(const Phonon::MediaSource & mediaSource, Phonon::MediaObject * mediaObject) {
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
 	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
-	_mediaInfoFetcher->start(mediaSource);
+	if (mediaSource.type() == Phonon::MediaSource::Url) {
+		//Cannot solve meta data from a stream/remote media
+		//Use the given mediaObject to get the meta data
+		_mediaInfoFetcher->start(mediaSource, mediaObject);
+	} else {
+		_mediaInfoFetcher->start(mediaSource);
+	}
 	_mediaInfoWindow->setMediaInfoFetcher(_mediaInfoFetcher);
 	_mediaInfoWindow->setLanguage(Config::instance().language());
 	if (_mediaInfoFetcher->hasBeenFetched()) {

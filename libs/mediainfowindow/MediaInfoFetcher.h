@@ -54,8 +54,9 @@ public:
 	 * Starts info fetching given a media source.
 	 *
 	 * @param mediaSource Phonon media source
+	 * @param mediaObject you must provide the current MediaObject if mediaSource is a URL
 	 */
-	void start(const Phonon::MediaSource & mediaSource);
+	void start(const Phonon::MediaSource & mediaSource, Phonon::MediaObject * mediaObject = NULL);
 
 	/** Tells if the metadata were fetched or not. */
 	bool hasBeenFetched() const;

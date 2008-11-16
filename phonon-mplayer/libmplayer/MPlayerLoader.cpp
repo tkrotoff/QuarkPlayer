@@ -174,6 +174,11 @@ QStringList MPlayerLoader::readMediaSettings() {
 	args << "-saturation";
 	args << QString::number(settings.saturation);
 
+	//Speedup internet media by using IPv4
+	//otherwise it uses IPv6 which makes the system slow
+	//due to names resolving
+	args << "-prefer-ipv4";
+
 	//Loads all the video filters
 	QStringList videoFilters = settings.videoFilters;
 	if (!videoFilters.isEmpty()) {

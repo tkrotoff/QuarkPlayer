@@ -46,25 +46,27 @@ public slots:
 
 	void enqueueNextTrack();
 
+	void setPositionAsNextTrack();
+
 	void setShuffle(bool shuffle);
 
 	void setRepeat(bool repeat);
 
 private:
 
-	QModelIndex nextTrack();
+	QModelIndex nextTrack(bool enqueueMode = false) const;
 
-	QModelIndex previousTrack();
+	QModelIndex previousTrack() const;
 
-	int convertCurrentModelToFilterPosition();
+	int convertCurrentModelToFilterPosition() const;
 
-	int convertToModelPosition(const QModelIndex & index);
+	int convertToModelPosition(const QModelIndex & index) const;
 
 	bool filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const;
 
 	PlaylistModel * _playlistModel;
 
-	int _previousPosition;
+	int _nextPosition;
 
 	bool _shuffle;
 

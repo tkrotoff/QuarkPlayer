@@ -32,6 +32,7 @@ class MediaInfoFetcher;
 
 namespace Phonon {
 	class MediaSource;
+	class MediaObject;
 }
 
 class QLabel;
@@ -52,7 +53,7 @@ public:
 
 	~MediaDataWidget();
 
-	void startMediaInfoFetcher(const Phonon::MediaSource & mediaSource);
+	void startMediaInfoFetcher(const Phonon::MediaSource & mediaSource, Phonon::MediaObject * mediaObject);
 
 private slots:
 

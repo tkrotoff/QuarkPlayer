@@ -361,8 +361,7 @@ void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject
 void PlaylistWidget::currentSourceChanged(const Phonon::MediaSource & source) {
 	//Each time the track changes, we enqueue the next track
 	//currentSourceChanged() is the only signal that we get when we queue tracks
-	qDebug() << __FUNCTION__ << "source:" << source.fileName();
-	//_playlistFilter->enqueueNextTrack();
+	_playlistFilter->setPositionAsNextTrack();
 }
 
 void PlaylistWidget::stateChanged(Phonon::State newState) {

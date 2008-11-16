@@ -42,8 +42,8 @@ SeekStack::~SeekStack() {
 void SeekStack::pushSeek(qint64 milliseconds) {
 	qDebug() << __FUNCTION__ << "seek:" << milliseconds;
 
-	disconnect(_mediaObject, SIGNAL(tickInternal(qint64)),
-		_mediaObject, SLOT(tickInternalSlot(qint64)));
+	disconnect(_mediaObject->getMPlayerProcess(), SIGNAL(tick(qint64)),
+		_mediaObject, SLOT(tickInternal(qint64)));
 
 	_stack.push(milliseconds);
 
@@ -72,8 +72,8 @@ void SeekStack::popSeek() {
 }
 
 void SeekStack::reconnectTickSignal() {
-	connect(_mediaObject, SIGNAL(tickInternal(qint64)),
-		_mediaObject, SLOT(tickInternalSlot(qint64)));
+	connect(_mediaObject->getMPlayerProcess(), SIGNAL(tick(qint64)),
+		_mediaObject, SLOT(tickInternal(qint64)));
 }
 
 }}	//Namespace Phonon::MPlayer
