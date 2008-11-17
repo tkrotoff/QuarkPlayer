@@ -90,12 +90,10 @@ void ThumbnailView::refresh() {
 	QFileInfo fileInfo(_dir);
 	if (!fileInfo.exists()) {
 		qCritical() << __FUNCTION__ << "Error: this directory does not exist:" << _dir;
-		return;
 	}
 
 	if (!fileInfo.isDir()) {
 		qCritical() << __FUNCTION__ << "Error: this is not a directory:" << _dir;
-		return;
 	}
 
 	_model->setDir(_dir);

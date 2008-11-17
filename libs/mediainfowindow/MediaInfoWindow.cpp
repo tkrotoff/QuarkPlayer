@@ -128,6 +128,8 @@ void MediaInfoWindow::refresh() {
 }
 
 void MediaInfoWindow::updateMediaInfo() {
+	_openDirectoryButton->setEnabled(!_mediaInfoFetcher->isUrl());
+
 	_ui->filenameLineEdit->setText(_mediaInfoFetcher->fileName());
 
 	_ui->trackLineEdit->setText(_mediaInfoFetcher->trackNumber());
@@ -210,13 +212,19 @@ void MediaInfoWindow::updateMediaInfo() {
 			_language = "en";
 		}
 		_webBrowser->setSource("http://" + _language + ".wikipedia.org/wiki/" + tmp);
+	} else {
+		//Clears the webBrowser content
+		_webBrowser->clear();
 	}
 
 	//Download the lyrics
 	LyricsFetcher * lyricsFetcher = new LyricsFetcher(this);
 	connect(lyricsFetcher, SIGNAL(found(const QByteArray &, bool)),
 		SLOT(lyricsFound(const QByteArray &, bool)));
+
+	//Clear lyrics tab
 	lyricsFound(QByteArray(), true);
+
 	lyricsFetcher->start(track);
 }
 

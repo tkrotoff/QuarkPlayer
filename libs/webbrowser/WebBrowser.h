@@ -70,6 +70,8 @@ public:
 
 	void setSource(const QUrl & name);
 
+	void clear();
+
 private slots:
 
 	void go();

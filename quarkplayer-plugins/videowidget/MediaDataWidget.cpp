@@ -270,5 +270,7 @@ void MediaDataWidget::updateCoverArtPixmap() {
 		}
 
 		_currentCoverArtIndex++;
+	} else {
+		_ui->coverArtButton->setIcon(QIcon(":/icons/hi128-app-quarkplayer.png"));
 	}
 }

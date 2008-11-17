@@ -113,6 +113,11 @@ void WebBrowser::setSource(const QUrl & name) {
 	_textBrowser->setSource(name);
 }
 
+void WebBrowser::clear() {
+	setSource(QString());
+	setHtml(QString());
+}
+
 void WebBrowser::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
