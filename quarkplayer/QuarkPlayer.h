@@ -126,6 +126,8 @@ public:
 	 * Gets the music/video title of the current media object.
 	 *
 	 * This is a utility function.
+	 *
+	 * @return current media title or empty string
 	 */
 	QString currentMediaObjectTitle() const;
 

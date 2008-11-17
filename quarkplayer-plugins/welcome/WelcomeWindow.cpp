@@ -41,12 +41,19 @@ WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	qDebug() << __FUNCTION__ << "Welcome plugin created";
 
-	//Play a default webradio Live9
-	//Same one as in SMPlayer, see http://www.live9.fr/
-	quarkPlayer.play(Phonon::MediaSource("http://acdc2.live9.fr:8050"));
+	if (quarkPlayer.currentMediaObject()) {
+		//There is already a Phonon::MediaObject
+		//so we can start playing the webradio
+		//If there is no Phonon::MediaObject, no media can be played
+		playWebRadio();
+	} else {
+		//There is no Phonon::MediaObject, let's connect
+		//to the signal that tells us when a Phonon::MediaObject is created
+		connect(&quarkPlayer, SIGNAL(mediaObjectAdded(Phonon::MediaObject *)), SLOT(playWebRadio()));
+	}
 
 	QMessageBox * msgBox = new QMessageBox(quarkPlayer.mainWindow());
-	connect(msgBox, SIGNAL(finished(int)), SLOT(finished(int)));
+	connect(msgBox, SIGNAL(finished(int)), SLOT(quitPlugin()));
 	msgBox->setWindowTitle(tr("Welcome!"));
 	msgBox->setIcon(QMessageBox::Information);
 	msgBox->setText(
@@ -65,11 +72,21 @@ WelcomeWindow::~WelcomeWindow() {
 	qDebug() << __FUNCTION__ << "Welcome plugin destroyed";
 }
 
-void WelcomeWindow::finished(int result) {
+void WelcomeWindow::quitPlugin() {
 	//Unloads and disables the plugin
 	//We don't want the welcome plugin at every QuarkPlayer start
 	//just at the very first start
 	PluginData pluginData = PluginsManager::instance().pluginData(uuid());
 	pluginData.setEnabled(false);
 	PluginsManager::instance().deletePlugin(pluginData);
+}
+
+void WelcomeWindow::playWebRadio() {
+	//Disconnect from the signal: we want to play the webradio only when the first Phonon::MediaObject is created
+	//Warning: several Phonon::MediaObject can be created inside QuarkPlayer
+	quarkPlayer().disconnect(this, SLOT(playWebRadio()));
+
+	//Play a default webradio Live9
+	//Same one as in SMPlayer, see http://www.live9.fr/
+	quarkPlayer().play(Phonon::MediaSource("http://acdc2.live9.fr:8050"));
 }

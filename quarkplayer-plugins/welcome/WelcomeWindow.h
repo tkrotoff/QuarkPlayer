@@ -55,7 +55,17 @@ public:
 
 private slots:
 
-	void finished(int result);
+	/**
+	 * Finishes/quit the welcome plugin.
+	 */
+	void quitPlugin();
+
+	/**
+	 * Plays a web radio (Live 9).
+	 *
+	 * Same web radio as in SMPlayer.
+	 */
+	void playWebRadio();
 
 private:
 };

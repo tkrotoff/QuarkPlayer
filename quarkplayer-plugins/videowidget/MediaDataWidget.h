@@ -31,7 +31,6 @@ class MediaInfoWindow;
 class MediaInfoFetcher;
 
 namespace Phonon {
-	class MediaSource;
 	class MediaObject;
 }
 
@@ -53,7 +52,7 @@ public:
 
 	~MediaDataWidget();
 
-	void startMediaInfoFetcher(const Phonon::MediaSource & mediaSource, Phonon::MediaObject * mediaObject);
+	void startMediaInfoFetcher(Phonon::MediaObject * mediaObject);
 
 private slots:
 

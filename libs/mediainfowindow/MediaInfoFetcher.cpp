@@ -95,7 +95,7 @@ void MediaInfoFetcher::clear() {
 	_streamUrl.clear();
 }
 
-void MediaInfoFetcher::start(const Phonon::MediaSource & mediaSource, Phonon::MediaObject * mediaObject) {
+void MediaInfoFetcher::start(const Phonon::MediaSource & mediaSource) {
 	clear();
 
 	_mediaSource = mediaSource;
@@ -105,24 +105,7 @@ void MediaInfoFetcher::start(const Phonon::MediaSource & mediaSource, Phonon::Me
 		_isUrl = true;
 
 		//Cannot solve meta data from a stream/remote media
-		//Use the given mediaObject to get the meta data
-		//So when using MediaInfoFetcher you must check if the source is a url
-		//and in this case provide a mediaObject
-		//Couldn't find a better solution, so this looks like a hack :/
-		if (mediaObject) {
-			//Save _metaObjectInfoResolver
-			Phonon::MediaObject * saveMetaObjectInfoResolver = _metaObjectInfoResolver;
-
-			//Use the given mediaObject
-			_metaObjectInfoResolver = mediaObject;
-
-			metaStateChanged(Phonon::StoppedState, Phonon::StoppedState);
-
-			//Back to normal
-			_metaObjectInfoResolver = saveMetaObjectInfoResolver;
-		} else {
-			qCritical() << __FUNCTION__ << "Error: mediaSource is a url and mediaObject is NULL";
-		}
+		qCritical() << __FUNCTION__ << "Error: mediaSource is a url";
 	} else {
 		_filename = _mediaSource.fileName();
 		_isUrl = false;
@@ -137,6 +120,38 @@ void MediaInfoFetcher::start(const Phonon::MediaSource & mediaSource, Phonon::Me
 		startPhononResolver();
 #endif	//TAGLIB
 	}
+}
+
+void MediaInfoFetcher::start(Phonon::MediaObject * mediaObject) {
+	clear();
+
+	_mediaSource = mediaObject->currentSource();
+
+	if (_mediaSource.type() == Phonon::MediaSource::Url) {
+		_filename = _mediaSource.url().toString();
+		_isUrl = true;
+	} else {
+		_filename = _mediaSource.fileName();
+		_isUrl = false;
+	}
+
+	//Cannot solve meta data from a stream/remote media if we have only the MediaSource
+	//We need the MediaObject
+	//Use the given mediaObject to get the meta data
+	//So when using MediaInfoFetcher you must check if the source is a url
+	//and in this case provide a mediaObject
+	//Couldn't find a better solution :/
+
+	//Save _metaObjectInfoResolver
+	Phonon::MediaObject * saveMetaObjectInfoResolver = _metaObjectInfoResolver;
+
+	//Use the given mediaObject
+	_metaObjectInfoResolver = mediaObject;
+
+	metaStateChanged(Phonon::StoppedState, Phonon::StoppedState);
+
+	//Back to normal
+	_metaObjectInfoResolver = saveMetaObjectInfoResolver;
 }
 
 void MediaInfoFetcher::startPhononResolver() {

@@ -104,15 +104,20 @@ void VideoWidgetPlugin::metaDataChanged() {
 	VideoContainer * container = _mediaObjectHash.value(quarkPlayer().currentMediaObject());
 
 	QString title = quarkPlayer().currentMediaObjectTitle();
-	container->videoDockWidget->setWindowTitle(title);
+	if (title.isEmpty()) {
+		container->videoDockWidget->setWindowTitle(QCoreApplication::applicationName());
+	} else {
+		container->videoDockWidget->setWindowTitle(title);
+	}
 
 	//FIXME Do it only when we are sure the media start to be played
 	//instead of waiting for currentSourceChanged(const Phonon::MediaSource &) signal
 	//TagLib open files in read/write, opening a file in read/write prevents the backend to open the file too :/
 	//See http://article.gmane.org/gmane.comp.kde.devel.taglib/918
 
-	Phonon::MediaSource mediaSource(quarkPlayer().currentMediaObject()->currentSource());
-	container->mediaDataWidget->startMediaInfoFetcher(mediaSource, quarkPlayer().currentMediaObject());
+	//By default Phonon gives us meta data.
+	//Still it's better to use TagLib to do that
+	container->mediaDataWidget->startMediaInfoFetcher(quarkPlayer().currentMediaObject());
 }
 
 void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {

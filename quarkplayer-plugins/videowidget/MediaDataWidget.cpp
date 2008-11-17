@@ -31,6 +31,8 @@
 
 #include <contentfetcher/AmazonCoverArt.h>
 
+#include <phonon/mediaobject.h>
+
 #include <QtGui/QtGui>
 
 #include <QtCore/QDebug>
@@ -49,6 +51,7 @@ MediaDataWidget::MediaDataWidget(QWidget * parent)
 
 	_ui = new Ui::MediaDataWidget();
 	_ui->setupUi(this);
+	_ui->coverArtButton->setIcon(QIcon(":/icons/hi128-app-quarkplayer.png"));
 
 	_mediaInfoWindow = new MediaInfoWindow(QApplication::activeWindow());
 	connect(_ui->coverArtButton, SIGNAL(clicked()), _mediaInfoWindow, SLOT(show()));
@@ -60,14 +63,18 @@ MediaDataWidget::MediaDataWidget(QWidget * parent)
 MediaDataWidget::~MediaDataWidget() {
 }
 
-void MediaDataWidget::startMediaInfoFetcher(const Phonon::MediaSource & mediaSource, Phonon::MediaObject * mediaObject) {
+void MediaDataWidget::startMediaInfoFetcher(Phonon::MediaObject * mediaObject) {
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
 	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
+	Phonon::MediaSource mediaSource(mediaObject->currentSource());
 	if (mediaSource.type() == Phonon::MediaSource::Url) {
 		//Cannot solve meta data from a stream/remote media
+		//if we are using a MediaSource
 		//Use the given mediaObject to get the meta data
-		_mediaInfoFetcher->start(mediaSource, mediaObject);
+		_mediaInfoFetcher->start(mediaObject);
 	} else {
+		//MediaSource is not a URL
+		//so everything is fine
 		_mediaInfoFetcher->start(mediaSource);
 	}
 	_mediaInfoWindow->setMediaInfoFetcher(_mediaInfoFetcher);
@@ -101,7 +108,6 @@ void MediaDataWidget::updateMediaInfo() {
 
 	_currentCoverArtIndex = 0;
 	_coverArtList.clear();
-	_ui->coverArtButton->setIcon(QIcon(":/icons/hi128-app-quarkplayer.png"));
 	loadCoverArt(album, artist, title);
 
 	if (!title.isEmpty()) {

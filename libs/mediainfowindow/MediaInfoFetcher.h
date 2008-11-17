@@ -53,10 +53,22 @@ public:
 	/**
 	 * Starts info fetching given a media source.
 	 *
+	 * mediaSource cannot be a URL, only a file.
+	 * If mediaSource is a URL then use start(Phonon::MediaObject * mediaObject)
+	 *
 	 * @param mediaSource Phonon media source
-	 * @param mediaObject you must provide the current MediaObject if mediaSource is a URL
 	 */
-	void start(const Phonon::MediaSource & mediaSource, Phonon::MediaObject * mediaObject = NULL);
+	void start(const Phonon::MediaSource & mediaSource);
+
+	/**
+	 * Starts info fetching given a media object.
+	 *
+	 * If mediaSource is not a URL, use start(const Phonon::MediaSource & mediaSource)
+	 * If mediaSource is a URL then use this method.
+	 *
+	 * @param mediaObject media object, use MediaObject::currentMediaSource() internally
+	 */
+	void start(Phonon::MediaObject * mediaObject);
 
 	/** Tells if the metadata were fetched or not. */
 	bool hasBeenFetched() const;
