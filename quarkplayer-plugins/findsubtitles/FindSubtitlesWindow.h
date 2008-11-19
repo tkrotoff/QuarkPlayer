@@ -69,6 +69,8 @@ private slots:
 
 	void downloadButtonClicked();
 
+	void refreshButtonClicked();
+
 	void copyClipboard();
 
 	void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);

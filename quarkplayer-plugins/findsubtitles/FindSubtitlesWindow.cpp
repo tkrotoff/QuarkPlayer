@@ -25,7 +25,6 @@
 #include "FileChooserWindow.h"
 
 #include <quarkplayer/Languages.h>
-#include <quarkplayer/config/Config.h>
 
 #include <filetypes/FileTypes.h>
 
@@ -73,11 +72,11 @@ FindSubtitlesWindow::FindSubtitlesWindow(QWidget * parent)
 	_ui->fileChooserWidget->setFilter(tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video))
 				+ ";;" + tr("All Files") + " (*.*)");
 	_ui->fileChooserWidget->setSearchButtonIcon(TkIcon("document-open"));
-	_ui->fileChooserWidget->setPath(Config::instance().lastDirectoryUsed());
 	connect(_ui->fileChooserWidget, SIGNAL(pathChanged(const QString &)),
 		SLOT(setMovieFileName(const QString &)));
 
 	connect(_ui->downloadButton, SIGNAL(clicked()), SLOT(downloadButtonClicked()));
+	connect(_ui->refreshButton, SIGNAL(clicked()), SLOT(refreshButtonClicked()));
 	connect(_ui->languageComboBox, SIGNAL(activated(int)),
 		SLOT(applyCurrentFilter()));
 
@@ -157,11 +156,18 @@ void FindSubtitlesWindow::retranslate() {
 
 	_ui->downloadButton->setIcon(TkIcon("go-down"));
 
+	_ui->refreshButton->setIcon(TkIcon("view-refresh"));
+
 	ActionCollection::action("download")->setText(tr("&Download"));
 	ActionCollection::action("download")->setIcon(TkIcon("go-down"));
 
 	ActionCollection::action("copyClipboard")->setText(tr("&Copy link to clipboard"));
 	ActionCollection::action("copyClipboard")->setIcon(TkIcon("edit-copy"));
+}
+
+void FindSubtitlesWindow::refreshButtonClicked() {
+	_lastFileName = QString();
+	setMovieFileName(_ui->fileChooserWidget->path());
 }
 
 void FindSubtitlesWindow::setMovieFileName(const QString & fileName) {
@@ -175,7 +181,7 @@ void FindSubtitlesWindow::setMovieFileName(const QString & fileName) {
 		return;
 	}
 
-	Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(_ui->fileChooserWidget->path()).absolutePath());
+	_ui->fileChooserWidget->setPath(fileName);
 
 	_model->setRowCount(0);
 

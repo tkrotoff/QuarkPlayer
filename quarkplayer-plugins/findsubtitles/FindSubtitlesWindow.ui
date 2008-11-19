@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>591</width>
-    <height>379</height>
+    <width>551</width>
+    <height>332</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -70,6 +70,13 @@
      </item>
      <item>
       <widget class="QComboBox" name="languageComboBox" />
+     </item>
+     <item>
+      <widget class="QPushButton" name="refreshButton" >
+       <property name="text" >
+        <string>&amp;Refresh</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="downloadButton" >
