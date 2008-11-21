@@ -143,6 +143,8 @@ public:
 	qint64 currentTime() const;
 	qint64 totalTime() const;
 
+	bool isRunning() const;
+
 signals:
 
 	/**

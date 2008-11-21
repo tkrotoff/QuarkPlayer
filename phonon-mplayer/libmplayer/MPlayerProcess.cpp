@@ -136,6 +136,11 @@ qint64 MPlayerProcess::totalTime() const {
 	return _mediaData.totalTime;
 }
 
+bool MPlayerProcess::isRunning() const {
+	//Use QProcess state
+	return state() == QProcess::Running;
+}
+
 
 static QRegExp rx_av("^[AV]: *([0-9,:.-]+)");
 static QRegExp rx_frame("^[AV]:.* (\\d+)\\/.\\d+");// [0-9,.]+");
