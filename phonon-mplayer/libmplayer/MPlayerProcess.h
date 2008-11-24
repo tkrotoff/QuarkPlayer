@@ -133,7 +133,7 @@ public:
 	 *
 	 * @see http://www.mplayerhq.hu/DOCS/tech/slave.txt
 	 */
-	void sendCommand(const QString & command);
+	bool sendCommand(const QString & command);
 
 	const MediaData & mediaData() const;
 

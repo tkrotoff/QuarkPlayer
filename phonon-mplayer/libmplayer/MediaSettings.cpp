@@ -27,11 +27,25 @@ MediaSettings::~MediaSettings() {
 }
 
 void MediaSettings::clear() {
+	//From MPlayer manpage: a value of -1 (the default) will not change the volume
+	volume = -1;
+
+	brightness = 0;
+	contrast = 0;
+	hue = 0;
+	saturation = 0;
+
+	audioFilters.clear();
+	videoFilters.clear();
+
+//FIXME Everything after this point is not clean!
+
+	gamma = 0;
+
 	aspect_ratio_id = AspectAuto;
 
 	//fullscreen = FALSE;
-	volume = 40;
-	mute = false;
+
 	external_subtitles.clear();
 	external_audio.clear();
 	sub_delay = 0;
@@ -40,12 +54,6 @@ void MediaSettings::clear() {
 	sub_scale = 5;
 
 	sub_scale_ass = 1;
-
-	brightness = 0;
-	contrast = 0;
-	gamma = 0;
-	hue = 0;
-	saturation = 0;
 
 	speed = 1.0;
 

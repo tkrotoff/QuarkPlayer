@@ -102,18 +102,27 @@ void MPlayerProcess::stop() {
 	qDebug() << __FUNCTION__ << "MPlayer finished";
 }
 
-void MPlayerProcess::sendCommand(const QString & command) {
+bool MPlayerProcess::sendCommand(const QString & command) {
+	bool result = false;
+
 	qDebug() << __FUNCTION__ << "Command:" << command;
 
-	if (command.isEmpty()) {
-		return;
+	if (!command.isEmpty()) {
+		if (isRunning()) {
+			qint64 nbBytes = write(command.toLocal8Bit() + "\n");
+			if (nbBytes != -1) {
+				result = true;
+			} else {
+				qWarning() << __FUNCTION__ << "Error: couldn't write inside MPlayer process";
+			}
+		} else {
+			qWarning() << __FUNCTION__ << "Error: MPlayer process not running";
+		}
+	} else {
+		qWarning() << __FUNCTION__ << "Error: empty MPlayer command";
 	}
 
-	if (isRunning()) {
-		write(command.toLocal8Bit() + "\n");
-	} else {
-		qWarning() << __FUNCTION__ << "Error: MPlayer process not running";
-	}
+	return result;
 }
 
 const MediaData & MPlayerProcess::mediaData() const {

@@ -25,12 +25,21 @@
 #include <QtCore/QSize>
 
 /**
- * Settings the user has set for this file, and that we need to
- * restore the video after a restart.
+ * Settings for the MPlayer process.
+ *
+ * MPlayer uses command line arguments.
+ * Here are all the arguments that we be given to MPlayer command line.
+ *
+ * FIXME This class is still dirty and some code needs to be removed.
+ * All javadoc commented variables are clean and tested, others are not.
+ *
+ * @see MPlayerLoader
+ * @author Tanguy Krotoff
  */
 class MediaSettings {
 public:
 
+//Not clean
 	enum Aspect { AspectAuto = 1, Aspect43 = 2, Aspect169 = 3, Aspect235 = 4,
 		Aspect149 = 8, Aspect1610 = 9, Aspect54 = 10 };
 
@@ -40,11 +49,51 @@ public:
 	enum StereoMode { Stereo = 0, Left = 1, Right = 2 };
 
 	enum IDs { NoneSelected = -1000, SubNone = 90000 };
+//!Not clean
 
 	MediaSettings();
 	~MediaSettings();
 
 	void clear();
+
+	/**
+	 * MPlayer volume, see MPlayer manpage.
+	 *
+	 * -volume <-1-100> (also see -af volume)
+	 * Sets the startup volume in the mixer, either hardware or software (if used with -softvol).
+	 * A value of -1 (the default) will not change the volume.
+	 */
+	int volume;
+
+	/** Video contrast. */
+	int contrast;
+
+	/** Video brightness. */
+	int brightness;
+
+	/** Video hue. */
+	int hue;
+
+	/** Video saturation. */
+	int saturation;
+
+	/**
+	 * Audio filters.
+	 *
+	 * - "karaoke"
+	 * - "extrastereo"
+	 * - "volnorm=2"
+	 */
+	QStringList audioFilters;
+
+	/**
+	 * Video filters.
+	 */
+	QStringList videoFilters;
+
+//FIXME Everything after this point is not clean!
+
+	int gamma;
 
 	double current_sec;
 	int current_sub_id;
@@ -58,11 +107,6 @@ public:
 	int aspect_ratio_id;
 
 	//bool fullscreen;
-
-	int volume;
-	bool mute;
-
-	int brightness, contrast, gamma, hue, saturation;
 
 	QString external_subtitles;
 	QString external_audio; // external audio file
@@ -82,20 +126,6 @@ public:
 	int current_deinterlacer;
 
 	bool add_letterbox;
-
-	/**
-	 * Audio filters.
-	 *
-	 * - "karaoke"
-	 * - "extrastereo"
-	 * - "volnorm=2"
-	 */
-	QStringList audioFilters;
-
-	/**
-	 * Video filters.
-	 */
-	QStringList videoFilters;
 
 	int audio_use_channels;
 	int stereo_mode;

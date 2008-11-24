@@ -50,11 +50,20 @@ void SinkNode::disconnectFromMediaObject(MediaObject * mediaObject) {
 	}
 }
 
-void SinkNode::sendMPlayerCommand(const QString & command) const {
+bool SinkNode::sendMPlayerCommand(const QString & command) const {
+	bool result = false;
+
 	if (_mediaObject) {
 		MPlayerProcess * process = _mediaObject->getMPlayerProcess();
-		process->sendCommand(command);
+		if (process->isRunning()) {
+			result = process->sendCommand(command);
+		} else {
+			//FIXME Let's be silent?
+			qWarning() << __FUNCTION__ << "Error: MPlayer process not running";
+		}
 	}
+
+	return result;
 }
 
 }}	//Namespace Phonon::MPlayer

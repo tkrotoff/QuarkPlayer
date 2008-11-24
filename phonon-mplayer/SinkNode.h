@@ -47,7 +47,15 @@ public:
 
 protected:
 
-	void sendMPlayerCommand(const QString & command) const;
+	/**
+	 * Sends a command to the MPlayer process.
+	 *
+	 * This is factorization code, simplify MPlayer command writing.
+	 *
+	 * @return true if the command was sent; false if the MPlayer process is not running
+	 * @see MPlayerProcess
+	 */
+	bool sendMPlayerCommand(const QString & command) const;
 
 	MediaObject * _mediaObject;
 

@@ -20,6 +20,9 @@
 
 #include "MediaObject.h"
 
+#include <libmplayer/MPlayerLoader.h>
+#include <libmplayer/MediaSettings.h>
+
 namespace Phonon
 {
 namespace MPlayer
@@ -35,12 +38,24 @@ AudioOutput::~AudioOutput() {
 }
 
 qreal AudioOutput::volume() const {
-	qreal volume = 1;
-	return volume;
+	if (MPlayerLoader::settings.volume == -1) {
+		//-1 is the default value
+		//MPlayer manpage: a value of -1 (the default) will not change the volume.
+		return 1;
+	} else {
+		qreal vol = MPlayerLoader::settings.volume / 100.;
+		return vol;
+	}
 }
 
 void AudioOutput::setVolume(qreal volume) {
-	sendMPlayerCommand("volume " + QString::number(volume * 100) + " 1");
+	//Saves the volume for the next running MPlayer process
+	MPlayerLoader::settings.volume = volume * 100;
+
+	//Sets the volume for the current running MPlayer process if any
+	sendMPlayerCommand("volume " + QString::number(MPlayerLoader::settings.volume) + " 1");
+
+	emit volumeChanged(volume);
 }
 
 int AudioOutput::outputDevice() const {
