@@ -1,6 +1,6 @@
 Index: videorenderer_soft.cpp
 ===================================================================
---- videorenderer_soft.cpp	(revision 418)
+--- videorenderer_soft.cpp	(revision 584)
 +++ videorenderer_soft.cpp	(working copy)
 @@ -29,7 +29,7 @@
  #include <QtCore/QTime>
@@ -9,5 +9,5 @@ Index: videorenderer_soft.cpp
 -#include <qmath.h> //for sin and cos
 +#include <QtCore/qmath.h> //for sin and cos
  /* M_PI is a #define that may or may not be handled in <cmath> */
- #ifndef M_PI 
+ #ifndef M_PI
  #define M_PI 3.14159265358979323846264338327950288419717
