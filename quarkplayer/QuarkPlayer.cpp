@@ -116,7 +116,7 @@ Phonon::AudioOutput * QuarkPlayer::currentAudioOutput() const {
 	QList<Phonon::Path> outputPaths = _currentMediaObject->outputPaths();
 	foreach (Phonon::Path outputPath, outputPaths) {
 		//Cannot use qobject_cast<> since MediaNode is not a QObject
-		audioOutput = dynamic_cast<Phonon::AudioOutput *>(outputPath.sinkNode());
+		audioOutput = dynamic_cast<Phonon::AudioOutput *>(outputPath.sink());
 		if (audioOutput) {
 			//We found the right audio output
 			//FIXME There can be several audio output?
@@ -134,7 +134,7 @@ Phonon::Path QuarkPlayer::currentAudioOutputPath() const {
 	QList<Phonon::Path> outputPaths = _currentMediaObject->outputPaths();
 	foreach (Phonon::Path outputPath, outputPaths) {
 		//Cannot use qobject_cast<> since MediaNode is not a QObject
-		audioOutput = dynamic_cast<Phonon::AudioOutput *>(outputPath.sinkNode());
+		audioOutput = dynamic_cast<Phonon::AudioOutput *>(outputPath.sink());
 		if (audioOutput) {
 			//We found the right audio output
 			//FIXME There can be several audio output?
@@ -152,7 +152,7 @@ Phonon::VideoWidget * QuarkPlayer::currentVideoWidget() const {
 	QList<Phonon::Path> outputPaths = _currentMediaObject->outputPaths();
 	foreach (Phonon::Path outputPath, outputPaths) {
 		//Cannot use qobject_cast<> since MediaNode is not a QObject
-		videoWidget = dynamic_cast<Phonon::VideoWidget *>(outputPath.sinkNode());
+		videoWidget = dynamic_cast<Phonon::VideoWidget *>(outputPath.sink());
 		if (videoWidget) {
 			//We found the right video widget
 			//FIXME There can be several video widget?

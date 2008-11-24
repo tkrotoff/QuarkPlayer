@@ -96,13 +96,14 @@ add_subdirectory(3rdparty/quazip)
 
 #3rdparty libraries with Qt and Phonon dependency
 add_subdirectory(3rdparty/phonon)
+set(PHONON_LIBS phonon)
 
 #Do not use Phonon from Qt or KDE4
 #Use Phonon from this repository instead (patched version)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
 set(QT_PHONON_LIBRARY phonon)
 
-#add_subdirectory(3rdparty/ds9)
+add_subdirectory(3rdparty/ds9)
 add_subdirectory(phonon-mplayer)
 ##
 
