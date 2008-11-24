@@ -1,4 +1,4 @@
-# Copyright (C) 2007 Trolltech ASA. All rights reserved.
+# Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies).
 #
 # This library is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -11,17 +11,13 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library.  If not, see <http://www.gnu.org/licenses/>.
-
 project(phonon-ds9)
+include(ConfigureChecks.cmake)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
-find_package(DirectX)
-
-if (DIRECTX9_FOUND AND MSVC)
+if (BUILD_PHONON_DS9)
     find_package(OPENGL REQUIRED)
 
-    include_directories(${DIRECTX_INCLUDE_DIRS})
+    include_directories($ENV{DXDSDK_DIR}/include $ENV{DXSDK_DIR})
     set(phonon_ds9_SRCS
             abstractvideorenderer.cpp
             audiooutput.cpp
@@ -41,15 +37,17 @@ if (DIRECTX9_FOUND AND MSVC)
             qasyncreader.cpp
             qaudiocdreader.cpp
             qmeminputpin.cpp
-    )
+	)
 
     add_definitions(-DPHONON_MAKE_QT_ONLY_BACKEND -DUNICODE)
-    qt4_automoc(${phonon_ds9_SRCS})
-    add_library(phonon_ds9 MODULE ${phonon_ds9_SRCS})
+    automoc4_add_library(phonon_ds9 SHARED ${phonon_ds9_SRCS})
     set_target_properties(phonon_ds9 PROPERTIES PREFIX "")
     target_link_libraries(phonon_ds9
-                phonon ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTOPENGL_LIBRARY} ${OPENGL_gl_LIBRARY}
-                ${DIRECTX9_LIBRARIES}
-    )
-    install(TARGETS phonon_ds9 DESTINATION ${BIN_INSTALL_DIR}/phonon_backend)
-endif (DIRECTX9_FOUND AND MSVC)
+                ${PHONON_LIBS}  ${QT_QTOPENGL_LIBRARY} ${OPENGL_gl_LIBRARY}
+                dxguid strmiids dmoguids msdmo ole32 oleaut32 uuid gdi32)
+    install(TARGETS phonon_ds9
+	    RUNTIME DESTINATION ${BIN_INSTALL_DIR}/phonon_backend
+	    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+	    ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
+    install(FILES ds9.desktop DESTINATION ${SERVICES_INSTALL_DIR}/phononbackends)
+endif (BUILD_PHONON_DS9)

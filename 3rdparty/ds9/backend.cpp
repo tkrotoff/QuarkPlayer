@@ -1,6 +1,6 @@
 /*  This file is part of the KDE project.
 
-Copyright (C) 2007 Trolltech ASA. All rights reserved.
+Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies).
 
 This library is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -296,7 +296,7 @@ namespace Phonon
                 mo->ensureStopped(); //we have to stop the graph..
             }
 
-            return !mediaObjects.isEmpty();
+            return objects.isEmpty() || !mediaObjects.isEmpty();
         }
 
         bool Backend::connectNodes(QObject *_source, QObject *_sink)
