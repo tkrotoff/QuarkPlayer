@@ -2,7 +2,7 @@ project(phonon)
 
 set(PHONON_LIB_MAJOR_VERSION "4")
 set(PHONON_LIB_MINOR_VERSION "2")
-set(PHONON_LIB_PATCH_VERSION "70")
+set(PHONON_LIB_PATCH_VERSION "80")
 set(PHONON_LIB_VERSION "${PHONON_LIB_MAJOR_VERSION}.3.0")
 set(PHONON_LIB_SOVERSION ${PHONON_LIB_MAJOR_VERSION})
 
@@ -14,7 +14,6 @@ set(phonon_LIB_SRCS
    phononnamespace.cpp
    mediasource.cpp
    abstractmediastream.cpp
-   #abstractmediastream2.cpp
    streaminterface.cpp
    mediaobject.cpp
    medianode.cpp
@@ -25,6 +24,7 @@ set(phonon_LIB_SRCS
    abstractaudiooutput.cpp
    abstractaudiooutput_p.cpp
    audiooutput.cpp
+   audiooutputinterface.cpp
    abstractvideooutput.cpp
    abstractvideooutput_p.cpp
    backendcapabilities.cpp
@@ -38,14 +38,7 @@ set(phonon_LIB_SRCS
    volumeslider.cpp
    effectwidget.cpp
    iodevicestream.cpp
-   lockfreequeue.cpp
-   streameventqueue.cpp
    )
-if (WIN32)
-    list(APPEND phonon_LIB_SRCS
-        abstractmediastream2.cpp
-    )
-endif(WIN32)
 
 if (QT_QTDBUS_FOUND)
    list(APPEND phonon_LIB_SRCS
@@ -54,6 +47,7 @@ if (QT_QTDBUS_FOUND)
 endif (QT_QTDBUS_FOUND)
 
 
+add_definitions(-DPHONON_LIBRARY_PATH="${PLUGIN_INSTALL_DIR}/plugins")
 qt4_automoc(${phonon_LIB_SRCS})
 add_library(phonon SHARED ${phonon_LIB_SRCS})
 target_link_libraries(phonon ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})

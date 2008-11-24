@@ -223,16 +223,6 @@ bool Path::reconnect(MediaNode *source, MediaNode *sink)
     }
 }
 
-MediaNode *Path::sourceNode() const
-{
-    return d->sourceNode;
-}
-
-MediaNode *Path::sinkNode() const
-{
-    return d->sinkNode;
-}
-
 bool Path::disconnect()
 {
     if (!isValid()) {
@@ -286,6 +276,18 @@ bool Path::disconnect()
         return false;
     }
 }
+
+MediaNode *Path::source() const
+{
+    return d->sourceNode;
+}
+
+MediaNode *Path::sink() const
+{
+    return d->sinkNode;
+}
+
+
 
 bool PathPrivate::executeTransaction( const QList<QObjectPair> &disconnections, const QList<QObjectPair> &connections)
 {
@@ -428,8 +430,16 @@ Path createPath(MediaNode *source, MediaNode *sink)
 {
     Path p;
     if (!p.reconnect(source, sink)) {
-        const QObject *const src = source ? (source->k_ptr->qObject() ? source->k_ptr->qObject() : dynamic_cast<QObject *>(source)) : 0;
-        const QObject *const snk = sink ? (sink->k_ptr->qObject() ? sink->k_ptr->qObject() : dynamic_cast<QObject *>(sink)) : 0;
+        const QObject *const src = source ? (source->k_ptr->qObject()
+#ifndef QT_NO_DYNAMIC_CAST
+                ? source->k_ptr->qObject() : dynamic_cast<QObject *>(source)
+#endif
+                ) : 0;
+        const QObject *const snk = sink ? (sink->k_ptr->qObject()
+#ifndef QT_NO_DYNAMIC_CAST
+                ? sink->k_ptr->qObject() : dynamic_cast<QObject *>(sink)
+#endif
+                ) : 0;
         pWarning() << "Phonon::createPath: Cannot connect "
             << (src ? src->metaObject()->className() : "")
             << '(' << (src ? (src->objectName().isEmpty() ? "no objectName" : qPrintable(src->objectName())) : "null") << ") to "

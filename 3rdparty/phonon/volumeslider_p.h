@@ -76,8 +76,6 @@ class VolumeSliderPrivate
 
         VolumeSlider *q_ptr;
 
-        void updateIcon();
-
         void _k_sliderChanged(int);
         void _k_volumeChanged(qreal);
         void _k_mutedChanged(bool);

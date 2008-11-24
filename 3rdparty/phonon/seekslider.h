@@ -95,18 +95,11 @@ class PHONON_EXPORT SeekSlider : public QWidget
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
 
     /**
-     * The icon size used for the mute button/icon.
+     * \brief the icon size used for the mute button/icon.
      *
      * The default size is defined by the GUI style.
      */
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
-
-    /**
-     * The icon to be used instead of the default one for the mute button/icon.
-     *
-     * Default icon is "player-time".
-     */
-    Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
 
     public:
         /**
@@ -129,14 +122,12 @@ class PHONON_EXPORT SeekSlider : public QWidget
         Qt::Orientation orientation() const;
         bool isIconVisible() const;
         QSize iconSize() const;
-        QIcon icon() const;
         MediaObject *mediaObject() const;
 
     public Q_SLOTS:
         void setOrientation(Qt::Orientation);
         void setIconVisible(bool);
         void setIconSize(const QSize &size);
-        void setIcon(const QIcon &icon);
 
         /**
          * Sets the media object to be controlled by this slider.
