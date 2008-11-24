@@ -1,5 +1,8 @@
 # Warning!!! order matters
 
+# Needed for the Phonon DS9 backend
+include(MacroPushRequiredVars)
+
 include(OWDefaultConfig)
 
 include(OWGetGCCVersion)
