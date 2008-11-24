@@ -232,7 +232,9 @@ void MediaInfoFetcher::startTagLibResolver() {
 			//Let's ASF be WMA, more consistent for the users
 			_fileType = FileTypes::fileType(FileType::WMA);
 		} else if (TagLib::MP4::File * file = dynamic_cast<TagLib::MP4::File *>(fileRef.file())) {
-			_fileType = FileTypes::fileType(FileType::MP4);
+			//MP4 is in fact AAC (.m4a), see http://en.wikipedia.org/wiki/Advanced_Audio_Coding
+			//and http://en.wikipedia.org/wiki/MPEG-4_Part_14
+			_fileType = FileTypes::fileType(FileType::AAC);
 		}
 
 		TagLib::Tag * tag = fileRef.tag();

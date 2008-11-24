@@ -1,5 +1,8 @@
 project(quarkplayercore)
 
+#Cannot put it inside ${CMAKE_CURRENT_BINARY_DIR} this it
+#is used by external components (i.e plugins) and the API must
+#be coherent
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 configure_file(version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/version.h)
 
@@ -9,9 +12,11 @@ add_definitions(-DBUILD_QUARKPLAYER)
 set(QUARKPLAYER_CORE_LOC 0)
 set(QUARKPLAYER_PLUGINS_LOC 0)
 set(QUARKPLAYER_LIBS_LOC 0)
+set(QUARKPLAYER_3RDPARTY_LOC 0)
 loc_counter(${CMAKE_SOURCE_DIR}/quarkplayer QUARKPLAYER_CORE_LOC 1)
 loc_counter(${CMAKE_SOURCE_DIR}/quarkplayer-plugins QUARKPLAYER_PLUGINS_LOC 1)
 loc_counter(${CMAKE_SOURCE_DIR}/libs QUARKPLAYER_LIBS_LOC 1)
+loc_counter(${CMAKE_SOURCE_DIR}/3rdparty QUARKPLAYER_3RDPARTY_LOC 1)
 configure_file(metrics.h.in ${CMAKE_CURRENT_BINARY_DIR}/metrics.h)
 
 set(quarkplayercore_SRCS

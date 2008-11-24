@@ -145,10 +145,10 @@ void PlayToolBar::createControlToolBar() {
 	_controlToolBar = new QToolBar(NULL);
 	//_controlToolBar->setIconSize(QSize(16, 16));
 
+	_controlToolBar->addAction(ActionCollection::action("previousTrack"));
 	_controlToolBar->addAction(ActionCollection::action("play"));
 	_controlToolBar->addAction(ActionCollection::action("pause"));
 	_controlToolBar->addAction(ActionCollection::action("stop"));
-	_controlToolBar->addAction(ActionCollection::action("previousTrack"));
 	_controlToolBar->addAction(ActionCollection::action("nextTrack"));
 
 	_controlToolBar->addSeparator();
