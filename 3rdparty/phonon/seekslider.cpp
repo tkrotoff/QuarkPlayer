@@ -252,6 +252,18 @@ void SeekSlider::setIconSize(const QSize &iconSize)
     d->iconLabel.setPixmap(d->icon.pixmap(d->iconSize, d->slider.isEnabled() ? QIcon::Normal : QIcon::Disabled));
 }
 
+QIcon SeekSlider::icon() const
+{
+    return k_ptr->icon;
+}
+
+void SeekSlider::setIcon(const QIcon &icon)
+{
+    K_D(SeekSlider);
+    d->icon = icon;
+    d->iconLabel.setPixmap(d->icon.pixmap(d->iconSize, d->slider.isEnabled() ? QIcon::Normal : QIcon::Disabled));
+}
+
 } // namespace Phonon
 
 #endif //QT_NO_PHONON_SEEKSLIDER

@@ -65,7 +65,7 @@ Index: volumeslider.cpp
 ===================================================================
 --- volumeslider.cpp	(revision 859154)
 +++ volumeslider.cpp	(working copy)
-@@ -100,6 +100,41 @@
+@@ -104,6 +104,41 @@
      k_ptr->muteButton.setIconSize(iconSize);
  }
  
