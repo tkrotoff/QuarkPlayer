@@ -39,6 +39,9 @@ class QToolButton;
 /**
  * Shows the album cover art and other infos about the media playing.
  *
+ * FIXME This should be moved to a quarkplayer plugin. Needs a better
+ * plugin support for that (see QtCreator)
+ *
  * @author Tanguy Krotoff
  */
 class MEDIAINFOWINDOW_API MediaInfoWindow : public QDialog {

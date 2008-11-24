@@ -43,6 +43,8 @@
 	#include <taglib/wavpackfile.h>
 	#include <taglib/trueaudiofile.h>
 	#include <taglib/flacfile.h>
+	#include <taglib/asffile.h>
+	#include <taglib/mp4file.h>
 
 	#include <taglib/apetag.h>
 	#include <taglib/id3v2tag.h>
@@ -205,29 +207,34 @@ void MediaInfoFetcher::startTagLibResolver() {
 	TagLib::String str(Qt4QStringToTString(_filename));
 	TagLib::FileRef fileRef(str.toCString());
 
-	bool fileIsNull = fileRef.isNull();
-
-	//File type
-	if (TagLib::MPEG::File * file = dynamic_cast<TagLib::MPEG::File *>(fileRef.file())) {
-		_fileType = FileTypes::fileType(FileType::MP3);
-	} else if (TagLib::Ogg::Vorbis::File * file = dynamic_cast<TagLib::Ogg::Vorbis::File *>(fileRef.file())) {
-		_fileType = FileTypes::fileType(FileType::Vorbis);
-	} else if (TagLib::Ogg::FLAC::File * file = dynamic_cast<TagLib::Ogg::FLAC::File *>(fileRef.file())) {
-		_fileType = FileTypes::fileType(FileType::FLAC);
-	} else if (TagLib::Ogg::Speex::File * file = dynamic_cast<TagLib::Ogg::Speex::File *>(fileRef.file())) {
-		_fileType = FileTypes::fileType(FileType::Speex);
-	} else if (TagLib::MPC::File * file = dynamic_cast<TagLib::MPC::File *>(fileRef.file())) {
-		_fileType = FileTypes::fileType(FileType::MPC);
-	} else if (TagLib::WavPack::File * file = dynamic_cast<TagLib::WavPack::File *>(fileRef.file())) {
-		_fileType = FileTypes::fileType(FileType::WavPack);
-	} else if (TagLib::TrueAudio::File * file = dynamic_cast<TagLib::TrueAudio::File *>(fileRef.file())) {
-		_fileType = FileTypes::fileType(FileType::TTA);
-	}
-	//Missing: MP4, WMA...
-
-	if (fileIsNull) {
+	if (fileRef.isNull()) {
 		qCritical() << __FUNCTION__ << "Error: the FileRef is null:" << _filename;
 	} else {
+
+		//File type
+		if (TagLib::MPEG::File * file = dynamic_cast<TagLib::MPEG::File *>(fileRef.file())) {
+			_fileType = FileTypes::fileType(FileType::MP3);
+		} else if (TagLib::Ogg::Vorbis::File * file = dynamic_cast<TagLib::Ogg::Vorbis::File *>(fileRef.file())) {
+			_fileType = FileTypes::fileType(FileType::Vorbis);
+		} else if (TagLib::Ogg::FLAC::File * file = dynamic_cast<TagLib::Ogg::FLAC::File *>(fileRef.file())) {
+			_fileType = FileTypes::fileType(FileType::FLAC);
+		} else if (TagLib::Ogg::Speex::File * file = dynamic_cast<TagLib::Ogg::Speex::File *>(fileRef.file())) {
+			_fileType = FileTypes::fileType(FileType::Speex);
+		} else if (TagLib::MPC::File * file = dynamic_cast<TagLib::MPC::File *>(fileRef.file())) {
+			_fileType = FileTypes::fileType(FileType::MPC);
+		} else if (TagLib::WavPack::File * file = dynamic_cast<TagLib::WavPack::File *>(fileRef.file())) {
+			_fileType = FileTypes::fileType(FileType::WavPack);
+		} else if (TagLib::TrueAudio::File * file = dynamic_cast<TagLib::TrueAudio::File *>(fileRef.file())) {
+			_fileType = FileTypes::fileType(FileType::TTA);
+		} else if (TagLib::ASF::File * file = dynamic_cast<TagLib::ASF::File *>(fileRef.file())) {
+			//ASF is a container, WMA is the real codec, see http://en.wikipedia.org/wiki/Advanced_Systems_Format
+			//and http://en.wikipedia.org/wiki/Windows_Media_Audio
+			//Let's ASF be WMA, more consistent for the users
+			_fileType = FileTypes::fileType(FileType::WMA);
+		} else if (TagLib::MP4::File * file = dynamic_cast<TagLib::MP4::File *>(fileRef.file())) {
+			_fileType = FileTypes::fileType(FileType::MP4);
+		}
+
 		TagLib::Tag * tag = fileRef.tag();
 		if (tag) {
 			if (!tag->isEmpty()) {

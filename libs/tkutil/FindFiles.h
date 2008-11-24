@@ -29,6 +29,8 @@
  * Find files for a directory recursively.
  *
  * Optimized and threaded version that works fine with thousands of files.
+ * There are UNIX and Win32 specific implementations, cannot be faster than that :)
+ * A Qt implementation is available aswell but is way slower.
  *
  * Follows the same API as PlaylistParser class.
  *

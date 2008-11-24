@@ -130,6 +130,10 @@ void MediaInfoWindow::refresh() {
 void MediaInfoWindow::updateMediaInfo() {
 	_openDirectoryButton->setEnabled(!_mediaInfoFetcher->isUrl());
 
+	static QFileIconProvider iconProvider;
+	QIcon icon = iconProvider.icon(QFileInfo(_mediaInfoFetcher->fileName()));
+	_ui->fileTypeLabel->setPixmap(icon.pixmap(QSize(16, 16)));
+
 	_ui->filenameLineEdit->setText(_mediaInfoFetcher->fileName());
 
 	_ui->trackLineEdit->setText(_mediaInfoFetcher->trackNumber());
