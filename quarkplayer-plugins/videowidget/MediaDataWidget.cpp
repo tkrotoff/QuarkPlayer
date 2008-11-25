@@ -51,7 +51,6 @@ MediaDataWidget::MediaDataWidget(QWidget * parent)
 
 	_ui = new Ui::MediaDataWidget();
 	_ui->setupUi(this);
-	_ui->coverArtButton->setIcon(QIcon(":/icons/hi128-app-quarkplayer.png"));
 
 	_mediaInfoWindow = new MediaInfoWindow(QApplication::activeWindow());
 	connect(_ui->coverArtButton, SIGNAL(clicked()), _mediaInfoWindow, SLOT(show()));

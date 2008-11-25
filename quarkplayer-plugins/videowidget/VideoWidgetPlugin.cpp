@@ -132,14 +132,14 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	container->videoDockWidget->setWindowTitle(QCoreApplication::applicationName());
 
 	//Logo widget
-	container->backgroundLogoWidget = new QWidget(container->videoDockWidget);
+	container->backgroundLogoWidget = new QWidget(NULL);
 	Ui::BackgroundLogoWidget * logo = new Ui::BackgroundLogoWidget();
 	logo->setupUi(container->backgroundLogoWidget);
 	container->backgroundLogoWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 	container->videoDockWidget->setWidget(container->backgroundLogoWidget);
 
 	//mediaDataWidget
-	container->mediaDataWidget = new MediaDataWidget(container->videoDockWidget);
+	container->mediaDataWidget = new MediaDataWidget(NULL);
 
 	//videoWidget
 	container->videoWidget = new VideoWidget(container->videoDockWidget, quarkPlayer().mainWindow());

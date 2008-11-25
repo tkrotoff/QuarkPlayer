@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>218</width>
+    <width>266</width>
     <height>100</height>
    </rect>
   </property>
@@ -15,6 +15,10 @@
    </property>
    <item row="0" column="0" >
     <widget class="QToolButton" name="coverArtButton" >
+     <property name="icon" >
+      <iconset resource="../../quarkplayer-app/quarkplayer.qrc" >
+       <normaloff>:/icons/hi128-app-quarkplayer.png</normaloff>:/icons/hi128-app-quarkplayer.png</iconset>
+     </property>
      <property name="iconSize" >
       <size>
        <width>90</width>
@@ -38,6 +42,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../quarkplayer-app/quarkplayer.qrc" />
+ </resources>
  <connections/>
 </ui>
