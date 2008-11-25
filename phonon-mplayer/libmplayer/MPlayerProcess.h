@@ -145,6 +145,19 @@ public:
 
 	bool isRunning() const;
 
+
+	static const int MPLAYER_VERSION_NOTFOUND = -1;
+	static const int MPLAYER_VERSION_FAILED = 0;
+	static const int MPLAYER_1_0_RC1_SVN = 20372;
+	static const int MPLAYER_1_0_RC2_SVN = 24722;
+
+	/**
+	 * Gets the MPlayer SVN revision number.
+	 *
+	 * @return SVN revision number; or 0 if fail to parse; or -1 if not read yet
+	 */
+	static int getMPlayerVersion();
+
 signals:
 
 	/**
@@ -303,8 +316,6 @@ signals:
 
 
 
-
-	void failedToParseMplayerVersion(QString line_with_mplayer_version);
 	void receivedCacheMessage(QString);
 	void receivedCreatingIndex(QString);
 
@@ -327,7 +338,8 @@ private:
 
 	MediaData _mediaData;
 
-	int _mplayerSvnRevision;
+	/** MPlayer SVN revision number. */
+	static int _mplayerVersion;
 
 	/** Current state. */
 	State _state;

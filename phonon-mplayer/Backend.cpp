@@ -58,8 +58,6 @@ Backend::Backend(QObject * parent, const QVariantList & args)
 	setProperty("backendVersion", QLatin1String("0.1"));
 	setProperty("backendWebsite", QLatin1String("http://multimedia.kde.org/"));
 
-	qDebug() << "Using MPlayer version:" << "not yet implemented";
-
 	_effectManager = new EffectManager(this);
 }
 

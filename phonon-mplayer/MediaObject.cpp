@@ -49,6 +49,13 @@ MediaObject::MediaObject(QObject * parent)
 
 	qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 
+	//Run an empty MPlayerProcess in order to get the MPlayer version number
+	//Using the MPlayer version number, we performs some tests (see MPlayerLoader.cpp)
+	//and thus we need to know the MPlayer version number as soon as possible
+	if (_process->getMPlayerVersion() == MPlayerProcess::MPLAYER_VERSION_NOTFOUND) {
+		MPlayerLoader::startMPlayerVersion(_process);
+	}
+	///
 
 	connect(_process, SIGNAL(stateChanged(MPlayerProcess::State)),
 		SLOT(stateChangedInternal(MPlayerProcess::State)));

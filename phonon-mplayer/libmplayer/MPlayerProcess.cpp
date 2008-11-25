@@ -19,11 +19,11 @@
 
 #include "MPlayerProcess.h"
 
+#include "MPlayerVersion.h"
+
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
 #include <QtCore/QtDebug>
-
-#include "MPlayerVersion.h"
 
 #ifdef Q_OS_WIN
 	//Under Windows, mplayer.exe should be inside a subdirectory named mplayer
@@ -34,6 +34,9 @@
 
 /** MPlayer works using seconds, we prefer to work using milliseconds. */
 static const double SECONDS_CONVERTION = 1000.0;
+
+/** MPlayer SVN revision number not found yet. */
+int MPlayerProcess::_mplayerVersion = MPlayerProcess::MPLAYER_VERSION_NOTFOUND;
 
 MPlayerProcess::MPlayerProcess(QObject * parent)
 	: MyProcess(parent) {
@@ -55,9 +58,6 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 	}
 
 	_mediaData.clear();
-
-	//Not found yet
-	_mplayerSvnRevision = -1;
 
 	_endOfFileReached = false;
 
@@ -150,6 +150,10 @@ bool MPlayerProcess::isRunning() const {
 	return state() == QProcess::Running;
 }
 
+int MPlayerProcess::getMPlayerVersion() {
+	return _mplayerVersion;
+}
+
 
 static QRegExp rx_av("^[AV]: *([0-9,:.-]+)");
 static QRegExp rx_frame("^[AV]:.* (\\d+)\\/.\\d+");// [0-9,.]+");
@@ -173,6 +177,10 @@ static QRegExp rx_connection_timeout("connection timeout");
 //Failed, exiting
 static QRegExp rx_read_failed("Read failed.");
 //No stream found to handle url
+//File not found:
+static QRegExp rx_file_not_found("^File not found:");
+//Failed to open
+static QRegExp rx_failed_to_open("^Failed to open");
 
 
 static QRegExp rx_resolving("^Resolving .*");
@@ -349,11 +357,9 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		///
 
 
-		else if ((_mplayerSvnRevision == -1) && (line.startsWith("MPlayer "))) {
-			_mplayerSvnRevision = MPlayerVersion::parse(line);
-			if (_mplayerSvnRevision <= 0) {
-				emit failedToParseMplayerVersion(line);
-			}
+		else if ((_mplayerVersion == MPlayerProcess::MPLAYER_VERSION_NOTFOUND) &&
+				(line.startsWith("MPlayer "))) {
+			_mplayerVersion = MPlayerVersion::parse(line);
 		}
 
 		//Stream name
@@ -623,65 +629,65 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 
 		//Artist
 		else if (rx_clip_artist.indexIn(line) > -1) {
-			QString s = rx_clip_artist.cap(1);
-			qDebug("MPlayerProcess::parseLine: clip_artist: '%s'", s.toUtf8().data());
-			_mediaData.artist = s;
+			QString artist = rx_clip_artist.cap(1);
+			qDebug() << __FUNCTION__ << "Clip artist:" << artist;
+			_mediaData.artist = artist;
 		}
 
 		//Author
 		else if (rx_clip_author.indexIn(line) > -1) {
-			QString s = rx_clip_author.cap(1);
-			qDebug("MPlayerProcess::parseLine: clip_author: '%s'", s.toUtf8().data());
-			_mediaData.author = s;
+			QString author = rx_clip_author.cap(1);
+			qDebug() << __FUNCTION__ << "Clip author:" << author;
+			_mediaData.author = author;
 		}
 
 		//Album
 		else if (rx_clip_album.indexIn(line) > -1) {
-			QString s = rx_clip_album.cap(1);
-			qDebug("MPlayerProcess::parseLine: clip_album: '%s'", s.toUtf8().data());
-			_mediaData.album = s;
+			QString album = rx_clip_album.cap(1);
+			qDebug() << __FUNCTION__ << "Clip album:" << album;
+			_mediaData.album = album;
 		}
 
 		//Genre
 		else if (rx_clip_genre.indexIn(line) > -1) {
-			QString s = rx_clip_genre.cap(1);
-			qDebug("MPlayerProcess::parseLine: clip_genre: '%s'", s.toUtf8().data());
-			_mediaData.genre = s;
+			QString genre = rx_clip_genre.cap(1);
+			qDebug() << __FUNCTION__ << "Clip genre:" << genre;
+			_mediaData.genre = genre;
 		}
 
 		//Date
 		else if (rx_clip_date.indexIn(line) > -1) {
-			QString s = rx_clip_date.cap(2);
-			qDebug("MPlayerProcess::parseLine: clip_date: '%s'", s.toUtf8().data());
-			_mediaData.date = s;
+			QString date = rx_clip_date.cap(2);
+			qDebug() << __FUNCTION__ << "Clip date:" << date;
+			_mediaData.date = date;
 		}
 
 		//Track
 		else if (rx_clip_track.indexIn(line) > -1) {
-			QString s = rx_clip_track.cap(1);
-			qDebug("MPlayerProcess::parseLine: clip_track: '%s'", s.toUtf8().data());
-			_mediaData.track = s;
+			QString track = rx_clip_track.cap(1);
+			qDebug() << __FUNCTION__ << "Clip track:" << track;
+			_mediaData.track = track;
 		}
 
 		//Copyright
 		else if (rx_clip_copyright.indexIn(line) > -1) {
-			QString s = rx_clip_copyright.cap(1);
-			qDebug("MPlayerProcess::parseLine: clip_copyright: '%s'", s.toUtf8().data());
-			_mediaData.copyright = s;
+			QString copyright = rx_clip_copyright.cap(1);
+			qDebug() << __FUNCTION__ << "Clip copyright:" << copyright;
+			_mediaData.copyright = copyright;
 		}
 
 		//Comment
 		else if (rx_clip_comment.indexIn(line) > -1) {
-			QString s = rx_clip_comment.cap(1);
-			qDebug("MPlayerProcess::parseLine: clip_comment: '%s'", s.toUtf8().data());
-			_mediaData.comment = s;
+			QString comment = rx_clip_comment.cap(1);
+			qDebug() << __FUNCTION__ << "Clip comment:" << comment;
+			_mediaData.comment = comment;
 		}
 
 		//Software
 		else if (rx_clip_software.indexIn(line) > -1) {
-			QString s = rx_clip_software.cap(1);
-			qDebug("MPlayerProcess::parseLine: clip_software: '%s'", s.toUtf8().data());
-			_mediaData.software = s;
+			QString software = rx_clip_software.cap(1);
+			qDebug() << __FUNCTION__ << "Clip software:" << software;
+			_mediaData.software = software;
 		}
 
 		//Catch "Starting playback..." message
@@ -716,9 +722,9 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 
 			else if (tag == "ID_AUDIO_ID") {
 				//First string to tell us that the media contains an audio track
-				/*int ID = value.toInt();
-				qDebug("MplayerProcess::parseLine: ID_AUDIO_ID: %d", ID);
-				md.audios.addID( ID );*/
+				/*int audioId = value.toInt();
+				qDebug() << __FUNCTION__ << "ID_AUDIO_ID:" << audioId;
+				md.audios.addID(audioId);*/
 			}
 
 			else if (tag == "ID_LENGTH") {

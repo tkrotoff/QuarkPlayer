@@ -19,39 +19,31 @@
 
 #include "MPlayerVersion.h"
 
+//For MPLAYER_1_0_RC2_SVN, MPLAYER_1_0_RC1_SVN and other defines
+#include "MPlayerProcess.h"
+
 #include <QtCore/QRegExp>
-#include <QtCore/QtDebug>
+#include <QtCore/QDebug>
+
+MPlayerVersion::MPlayerVersion() {
+}
+
+MPlayerVersion::~MPlayerVersion() {
+}
 
 int MPlayerVersion::parse(const QString & line) {
-	//static QRegExp rx_mplayer_revision("^MPlayer (\\S+)-SVN-r(\\d+)-(.*)");
+	//Examples:
+	//From older to most recent
+	//MPlayer 1.0pre4-3.3.3 (C) 2000-2004 MPlayer Team
+	//MPlayer 1.0rc2-4.2.3 (C) 2000-2007 MPlayer Team
+	//Ubuntu 8.10: MPlayer 1.0rc2-4.3.2 (C) 2000-2007 MPlayer Team
+	//Windows, rvm build: MPlayer dev-SVN-r27130-3.4.5 (with -volume) (C) 2000-2008 MPlayer Team
+	//Ubuntu 8.10, rvm build: MPlayer dev-SVN-r27900-4.3.2 (C) 2000-2008 MPlayer Team
 	static QRegExp rx_mplayer_revision("^MPlayer (.*)-r(\\d+)(.*)");
 	static QRegExp rx_mplayer_version("^MPlayer ([a-z,0-9,.]+)-(.*)");
 
-#ifndef Q_OS_WIN
-	static QRegExp rx_mplayer_version_ubuntu("^MPlayer (\\d):(\\d)\\.(\\d)~(.*)");
-#endif	//!Q_OS_WIN
-
 	QString version(line);
-	int revision = 0;
-
-#ifdef Q_OS_WIN
-	//Hack to recognize MPlayer 1.0rc2 from CCCP
-	//See http://en.wikipedia.org/wiki/Combined_Community_Codec_Pack
-	//for more informations about CCCP
-	if (version.startsWith("MPlayer CCCP ")) {
-		version.remove("CCCP ");
-		qDebug() << __FUNCTION__ << "Removing CCCP from MPlayer version:" << version;
-	}
-#else
-	//Hack to recognize MPlayer 1.0rc1 from Ubuntu
-	if (rx_mplayer_version_ubuntu.indexIn(version) > -1) {
-		int v1 = rx_mplayer_version_ubuntu.cap(2).toInt();
-		int v2 = rx_mplayer_version_ubuntu.cap(3).toInt();
-		QString rest = rx_mplayer_version_ubuntu.cap(4);
-		version = QString("MPlayer %1.%2%3").arg(v1).arg(v2).arg(rest);
-		qDebug() << __FUNCTION__ << "line converted to:" << version;
-	}
-#endif	//Q_OS_WIN
+	int revision = MPlayerProcess::MPLAYER_VERSION_FAILED;
 
 	if (rx_mplayer_revision.indexIn(version) > -1) {
 		revision = rx_mplayer_revision.cap(2).toInt();
@@ -62,14 +54,17 @@ int MPlayerVersion::parse(const QString & line) {
 		version = rx_mplayer_version.cap(1);
 		qDebug() << __FUNCTION__ << "MPlayer version:" << version;
 		if (version == "1.0rc2") {
-			revision = MPLAYER_1_0_RC2_SVN;
+			revision = MPlayerProcess::MPLAYER_1_0_RC2_SVN;
 		}
 		else if (version == "1.0rc1") {
-			revision = MPLAYER_1_0_RC1_SVN;
-		}
-		else {
+			revision = MPlayerProcess::MPLAYER_1_0_RC1_SVN;
+		} else {
 			qCritical() << "Error: unknown MPlayer version";
 		}
+	}
+
+	if (revision == MPlayerProcess::MPLAYER_VERSION_FAILED) {
+		qCritical() << "Error: couldn't parse MPlayer revision:" << version;
 	}
 
 	return revision;

@@ -78,6 +78,21 @@ void MPlayerLoader::start(MPlayerProcess * process, const QString & filename, in
 	}
 }
 
+void MPlayerLoader::startMPlayerVersion(MPlayerProcess * process) {
+	if (!process) {
+		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
+		return;
+	}
+
+	QStringList args;
+	QString filename("--help");
+
+	if (!process->start(args, filename, 0, 0)) {
+		//Error handling
+		qCritical() << __FUNCTION__ << "error: MPlayer process couldn't start";
+	}
+}
+
 void MPlayerLoader::loadMedia(MPlayerProcess * process, const QString & filename) {
 	if (!process) {
 		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
@@ -174,9 +189,11 @@ QStringList MPlayerLoader::readMediaSettings() {
 	args << "-saturation";
 	args << QString::number(settings.saturation);
 
-	//Volume
-	args << "-volume";
-	args << QString::number(settings.volume);
+	if (MPlayerProcess::getMPlayerVersion() > MPlayerProcess::MPLAYER_1_0_RC2_SVN) {
+		//Volume, this option only appeared after 1.0rc2
+		args << "-volume";
+		args << QString::number(settings.volume);
+	}
 
 	//Speedup internet media by using IPv4
 	//otherwise it uses IPv6 which makes the system slow

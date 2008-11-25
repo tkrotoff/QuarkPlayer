@@ -22,11 +22,12 @@
 
 #include <QtCore/QString>
 
-#define MPLAYER_1_0_RC1_SVN 20372
-#define MPLAYER_1_0_RC2_SVN 24722
-
 /**
  * Gets MPlayer SVN revision number.
+ *
+ * This code could be moved inside MPlayerProcess
+ *
+ * @author Tanguy Krotoff
  */
 class MPlayerVersion {
 public:
