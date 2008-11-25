@@ -101,21 +101,33 @@ void PlayToolBar::stateChanged(Phonon::State newState) {
 		break;
 
 	case Phonon::PlayingState:
-		ActionCollection::action("play")->setEnabled(false);
-		ActionCollection::action("pause")->setEnabled(true);
+		ActionCollection::action("playPause")->setText(tr("&Pause"));
+		ActionCollection::action("playPause")->setIcon(TkIcon("media-playback-pause"));
+		disconnect(ActionCollection::action("playPause"), 0, 0, 0);
+		connect(ActionCollection::action("playPause"), SIGNAL(triggered()),
+			quarkPlayer().currentMediaObject(), SLOT(pause()));
+
 		ActionCollection::action("stop")->setEnabled(true);
 		break;
 
 	case Phonon::StoppedState:
+		ActionCollection::action("playPause")->setText(tr("P&lay"));
+		ActionCollection::action("playPause")->setIcon(TkIcon("media-playback-start"));
+		disconnect(ActionCollection::action("playPause"), 0, 0, 0);
+		connect(ActionCollection::action("playPause"), SIGNAL(triggered()),
+			quarkPlayer().currentMediaObject(), SLOT(play()));
+
 		ActionCollection::action("stop")->setEnabled(false);
-		ActionCollection::action("play")->setEnabled(true);
-		ActionCollection::action("pause")->setEnabled(false);
 		break;
 
 	case Phonon::PausedState:
-		ActionCollection::action("pause")->setEnabled(false);
+		ActionCollection::action("playPause")->setText(tr("P&lay"));
+		ActionCollection::action("playPause")->setIcon(TkIcon("media-playback-start"));
+		disconnect(ActionCollection::action("playPause"), 0, 0, 0);
+		connect(ActionCollection::action("playPause"), SIGNAL(triggered()),
+			quarkPlayer().currentMediaObject(), SLOT(play()));
+
 		ActionCollection::action("stop")->setEnabled(true);
-		ActionCollection::action("play")->setEnabled(true);
 		break;
 
 	case Phonon::LoadingState:
@@ -146,8 +158,7 @@ void PlayToolBar::createControlToolBar() {
 	//_controlToolBar->setIconSize(QSize(16, 16));
 
 	_controlToolBar->addAction(ActionCollection::action("previousTrack"));
-	_controlToolBar->addAction(ActionCollection::action("play"));
-	_controlToolBar->addAction(ActionCollection::action("pause"));
+	_controlToolBar->addAction(ActionCollection::action("playPause"));
 	_controlToolBar->addAction(ActionCollection::action("stop"));
 	_controlToolBar->addAction(ActionCollection::action("nextTrack"));
 
@@ -181,11 +192,10 @@ void PlayToolBar::setToolBarEnabled(bool enabled) {
 	//FIXME don't why, seekToolBar does not get enabled afterwards
 	//_seekToolBar->setEnabled(enabled);
 
-	ActionCollection::action("play")->setEnabled(enabled);
-	ActionCollection::action("pause")->setEnabled(enabled);
+	ActionCollection::action("previousTrack")->setEnabled(enabled);
+	ActionCollection::action("playPause")->setEnabled(enabled);
 	ActionCollection::action("stop")->setEnabled(enabled);
 	ActionCollection::action("nextTrack")->setEnabled(enabled);
-	ActionCollection::action("previousTrack")->setEnabled(enabled);
 	ActionCollection::action("fullScreen")->setEnabled(enabled);
 }
 
@@ -201,14 +211,6 @@ void PlayToolBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	stateChanged(mediaObject->state());
 
 	//Actions connect
-	disconnect(ActionCollection::action("play"), 0, 0, 0);
-	connect(ActionCollection::action("play"), SIGNAL(triggered()),
-		mediaObject, SLOT(play()));
-
-	disconnect(ActionCollection::action("pause"), 0, 0, 0);
-	connect(ActionCollection::action("pause"), SIGNAL(triggered()),
-		mediaObject, SLOT(pause()));
-
 	disconnect(ActionCollection::action("stop"), 0, 0, 0);
 	connect(ActionCollection::action("stop"), SIGNAL(triggered()),
 		mediaObject, SLOT(stop()));

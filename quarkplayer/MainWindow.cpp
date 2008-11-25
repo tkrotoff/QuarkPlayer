@@ -281,8 +281,7 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("emptyMenu", new QAction(app));
 
 	ActionCollection::addAction("previousTrack", new QAction(app));
-	ActionCollection::addAction("play", new QAction(app));
-	ActionCollection::addAction("pause", new QAction(app));
+	ActionCollection::addAction("playPause", new QAction(app));
 	ActionCollection::addAction("stop", new QAction(app));
 	ActionCollection::addAction("nextTrack", new QAction(app));
 
@@ -317,8 +316,7 @@ void MainWindow::setupUi() {
 	_menuPlay = new QMenu();
 	menuBar()->addAction(_menuPlay->menuAction());
 	_menuPlay->addAction(ActionCollection::action("previousTrack"));
-	_menuPlay->addAction(ActionCollection::action("play"));
-	_menuPlay->addAction(ActionCollection::action("pause"));
+	_menuPlay->addAction(ActionCollection::action("playPause"));
 	_menuPlay->addAction(ActionCollection::action("stop"));
 	_menuPlay->addAction(ActionCollection::action("nextTrack"));
 	_menuPlay->addSeparator();
@@ -407,11 +405,8 @@ void MainWindow::retranslate() {
 	ActionCollection::action("previousTrack")->setText(tr("P&revious Track"));
 	ActionCollection::action("previousTrack")->setIcon(TkIcon("media-skip-backward"));
 
-	ActionCollection::action("play")->setText(tr("P&lay"));
-	ActionCollection::action("play")->setIcon(TkIcon("media-playback-start"));
-
-	ActionCollection::action("pause")->setText(tr("&Pause"));
-	ActionCollection::action("pause")->setIcon(TkIcon("media-playback-pause"));
+	ActionCollection::action("playPause")->setText(tr("P&lay"));
+	ActionCollection::action("playPause")->setIcon(TkIcon("media-playback-start"));
 
 	ActionCollection::action("stop")->setText(tr("&Stop"));
 	ActionCollection::action("stop")->setIcon(TkIcon("media-playback-stop"));
