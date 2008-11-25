@@ -22,6 +22,9 @@
 
 #include <libmplayer/MPlayerLoader.h>
 
+//HACK for loadfile and volume commands
+#include <libmplayer/MediaSettings.h>
+
 #include <QtCore/QUrl>
 #include <QtCore/QMetaType>
 #include <QtCore/QTimer>
@@ -451,6 +454,10 @@ void MediaObject::stateChangedInternal(MPlayerProcess::State newState) {
 	case MPlayerProcess::PlayingState:
 		qDebug() << __FUNCTION__ << "PlayingState";
 		_currentState = Phonon::PlayingState;
+
+		//HACK Bug inside MPlayer, the previous volume is not set again after the "loadfile" command
+		_process->sendCommand("volume " + QString::number(MPlayerLoader::settings.volume) + " 1");
+
 		break;
 	case MPlayerProcess::BufferingState:
 		qDebug() << __FUNCTION__ << "BufferingState";
