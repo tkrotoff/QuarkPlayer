@@ -316,27 +316,35 @@ void MediaObject::setSource(const MediaSource & source) {
 	_source = source;
 	QString fileName(sourceFileName(_source));
 
-	qDebug() << __FUNCTION__ << "Source:" << fileName;
+	if (!fileName.isEmpty()) {
+		qDebug() << __FUNCTION__ << "Source:" << fileName;
 
-	loadMedia(fileName);
+		loadMedia(fileName);
 
-	emit currentSourceChanged(source);
+		emit currentSourceChanged(source);
+	} else {
+		//FIXME Possible to get into this case?
+	}
 }
 
 void MediaObject::setNextSource(const MediaSource & source) {
 	_nextSource = source;
 	QString fileName(sourceFileName(_nextSource));
 
-	qDebug() << __FUNCTION__ << "Next source:" << fileName;
+	if (!fileName.isEmpty()) {
+		qDebug() << __FUNCTION__ << "Next source:" << fileName;
 
-	QString quote("\"");
-	if (_process->isRunning()) {
-		//If MPlayerProcess is already running then use loadfile slave command
-		_process->sendCommand("loadfile " + quote + fileName + quote + " " + QString::number(1));
+		QString quote("\"");
+		if (_process->isRunning()) {
+			//If MPlayerProcess is already running then use loadfile slave command
+			_process->sendCommand("loadfile " + quote + fileName + quote + " " + QString::number(1));
+		} else {
+			//Otherwise back to create a new MPlayerProcess with the given media source
+			setSource(source);
+			play();
+		}
 	} else {
-		//Otherwise back to create a new MPlayerProcess with the given media source
-		setSource(source);
-		play();
+		//FIXME Possible to get into this case?
 	}
 }
 
