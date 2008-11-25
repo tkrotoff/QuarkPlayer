@@ -91,12 +91,14 @@ bool AmazonCoverArt::start(const Track & track, const QString & language) {
 
 void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
 	//qDebug() << __FUNCTION__ << reply->url();
-	if (reply->error() != QNetworkReply::NoError) {
-		qWarning() << __FUNCTION__ << "Error: couldn't find cover art";
+
+	QNetworkReply::NetworkError error = reply->error();
+	QByteArray data(reply->readAll());
+
+	if (error != QNetworkReply::NoError) {
+		emit networkError(error);
 		return;
 	}
-
-	QByteArray data(reply->readAll());
 
 	QString url = QUrl(QString(data).replace(QRegExp(".+<LargeImage><URL>([^<]+)<.+"), "\\1")).toString();
 
@@ -121,16 +123,16 @@ void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
 }
 
 void AmazonCoverArt::gotCoverArt(QNetworkReply * reply) {
-	if (reply->error() != QNetworkReply::NoError) {
-		qDebug() << __FUNCTION__ << "Error:" << reply->error();
-		qDebug() << __FUNCTION__ << "Content:" << reply->readAll();
-		qDebug() << __FUNCTION__ << "URL:" << reply->url() << "- Encoded:" << reply->url().toEncoded();
-		qWarning() << __FUNCTION__ << "Error: couldn't download cover art";
+	QNetworkReply::NetworkError error = reply->error();
+	QByteArray data(reply->readAll());
+
+	if (error != QNetworkReply::NoError) {
+		emit networkError(error);
 		return;
 	}
 
 	//qDebug() << __FUNCTION__ << "URL:" << reply->url();
 
 	//We've got the cover art
-	emit found(reply->readAll(), _accurate);
+	emit found(data, _accurate);
 }

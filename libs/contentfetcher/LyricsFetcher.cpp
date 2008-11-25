@@ -62,11 +62,16 @@ bool LyricsFetcher::start(const Track & track, const QString & language) {
 void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 	//qDebug() << __FUNCTION__ << "URL:" << reply->url();
 
-	bool error = reply->error() != QNetworkReply::NoError;
+	QNetworkReply::NetworkError error = reply->error();
 	QByteArray data(reply->readAll());
 
-	if (error || data == "Not found") {
-		qDebug() << __FUNCTION__ << "Error: could not find lyrics";
+	if (error != QNetworkReply::NoError) {
+		emit networkError(error);
+		return;
+	}
+
+	if (data == "Not found") {
+		emit found(QByteArray(), true);
 		return;
 	}
 

@@ -25,6 +25,10 @@
 
 #include <QtCore/QString>
 
+//Included only for the enum QNetworkReply::NetworkError
+//Maybe duplicate this enum to avoid this include?
+#include <QtNetwork/QNetworkReply>
+
 namespace Ui {
 	class MediaInfoWindow;
 }
@@ -74,6 +78,8 @@ public slots:
 	void show();
 
 private slots:
+
+	void networkError(QNetworkReply::NetworkError errorCode);
 
 	void lyricsFound(const QByteArray & lyrics, bool accurate);
 

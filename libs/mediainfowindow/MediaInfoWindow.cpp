@@ -222,9 +222,12 @@ void MediaInfoWindow::updateMediaInfo() {
 	}
 
 	//Download the lyrics
+	_ui->lyricsTextEdit->setHtml(tr("Looking for the lyrics..."));
 	LyricsFetcher * lyricsFetcher = new LyricsFetcher(this);
 	connect(lyricsFetcher, SIGNAL(found(const QByteArray &, bool)),
 		SLOT(lyricsFound(const QByteArray &, bool)));
+	connect(lyricsFetcher, SIGNAL(networkError(QNetworkReply::NetworkError)),
+		SLOT(networkError(QNetworkReply::NetworkError)));
 
 	//Clear lyrics tab
 	lyricsFound(QByteArray(), true);
@@ -232,6 +235,15 @@ void MediaInfoWindow::updateMediaInfo() {
 	lyricsFetcher->start(track);
 }
 
+void MediaInfoWindow::networkError(QNetworkReply::NetworkError errorCode) {
+	_ui->lyricsTextEdit->setHtml("Network error: " + QString::number(errorCode));
+}
+
 void MediaInfoWindow::lyricsFound(const QByteArray & lyrics, bool accurate) {
-	_ui->lyricsTextEdit->setHtml(QString::fromUtf8(lyrics));
+	QString text = QString::fromUtf8(lyrics);
+	if (!text.isEmpty()) {
+		_ui->lyricsTextEdit->setHtml(text);
+	} else {
+		_ui->lyricsTextEdit->setHtml(tr("Error: no lyrics found"));
+	}
 }

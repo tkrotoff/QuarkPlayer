@@ -24,6 +24,10 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
+//Included only for the enum QNetworkReply::NetworkError
+//Maybe duplicate this enum to avoid this include?
+#include <QtNetwork/QNetworkReply>
+
 /**
  * Interface for getting content relative to a track.
  *
@@ -56,6 +60,13 @@ public:
 	virtual bool start(const Track & track, const QString & language = QString()) = 0;
 
 signals:
+
+	/**
+	 * A network error occured.
+	 *
+	 * @param errorCode the code of the error that was detected
+	 */
+	void networkError(QNetworkReply::NetworkError errorCode);
 
 	/** The content have been retrieved. */
 	void found(const QByteArray & content, bool accurate);
