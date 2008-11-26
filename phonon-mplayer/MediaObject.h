@@ -101,7 +101,7 @@ public:
 signals:
 
 	void aboutToFinish();
-	//void bufferStatus(int percentFilled);
+	void bufferStatus(int percentFilled);
 	void currentSourceChanged(const MediaSource & newSource);
 	void finished();
 	void hasVideoChanged(bool hasVideo);
@@ -122,24 +122,28 @@ private slots:
 
 	void stateChangedInternal(MPlayerProcess::State newState);
 
-	void finished(int exitCode, QProcess::ExitStatus exitStatus);
-
 	void tickInternal(qint64 currentTime);
 
 private:
 
 	void loadMedia(const QString & fileName);
 
+	/** Internal code factorization. */
 	QString sourceFileName(const MediaSource & source);
 
+	/** Current MediaSource playing. */
 	MediaSource _source;
+
+	/** Next MediaSource to play. */
 	MediaSource _nextSource;
 
+	/** Current state. */
 	Phonon::State _currentState;
 
 	qint32 _prefinishMark;
 	bool _prefinishMarkReachedEmitted;
 
+	/** If the signal aboutToFinish() has been emitted or not. */
 	bool _aboutToFinishEmitted;
 
 	qint32 _tickInterval;

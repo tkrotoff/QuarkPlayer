@@ -70,9 +70,7 @@ public:
 		 * The Player has a valid media file loaded and is ready for
 		 * playing.
 		 */
-		//StoppedState,
-		//Replaced by signal QProcess::finished(int, QProcess::ExitStatus)
-		//So one can check if there is an error message
+		StoppedState,
 
 		/**
 		 * The Player reached the end of the stream/media/file.
@@ -157,6 +155,15 @@ public:
 	 * @return SVN revision number; or 0 if fail to parse; or -1 if not read yet
 	 */
 	static int getMPlayerVersion();
+
+	/**
+	 * Last MPlayer error message.
+	 *
+	 * Call this method when in ErrorState.
+	 *
+	 * @return MPlayer error message
+	 */
+	QString errorString() const;
 
 signals:
 
@@ -314,9 +321,17 @@ signals:
 	 */
 	void angleAdded(int titleId, int angles);
 
+	/**
+	 * Percentage of MPlayer cache that has been filled.
+	 *
+	 * This is bufferization of a media over a network.
+	 *
+	 * @param percentFilled cache filled
+	 */
+	void bufferStatus(int percentFilled);
 
 
-	void receivedCacheMessage(QString);
+
 	void receivedCreatingIndex(QString);
 
 private slots:
@@ -343,6 +358,9 @@ private:
 
 	/** Current state. */
 	State _state;
+
+	/** Last MPlayer error message. */
+	QString _errorString;
 };
 
 #endif	//MPLAYERPROCESS_H

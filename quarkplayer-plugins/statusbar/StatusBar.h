@@ -63,6 +63,10 @@ private slots:
 
 	void stateChanged(Phonon::State newState);
 
+	void bufferStatus(int percentFilled);
+
+	void finished();
+
 	void showTitle();
 
 	void aboutToFinish();

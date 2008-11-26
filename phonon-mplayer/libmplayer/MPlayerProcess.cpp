@@ -154,40 +154,42 @@ int MPlayerProcess::getMPlayerVersion() {
 	return _mplayerVersion;
 }
 
+QString MPlayerProcess::errorString() const {
+	return _errorString;
+}
 
+
+//General
 static QRegExp rx_av("^[AV]: *([0-9,:.-]+)");
-static QRegExp rx_frame("^[AV]:.* (\\d+)\\/.\\d+");// [0-9,.]+");
-static QRegExp rx("^(.*)=(.*)");
+static QRegExp rx_frame("^[AV]:.* (\\d+)\\/.\\d+");
+static QRegExp rx_generic("^(.*)=(.*)");
 static QRegExp rx_audio_mat("^ID_AID_(\\d+)_(LANG|NAME)=(.*)");
-static QRegExp rx_titles("^ID_DVD_TITLES=(\\d+)");
-static QRegExp rx_title("^ID_DVD_TITLE_(\\d+)_(LENGTH|CHAPTERS|ANGLES)=(.*)");
 static QRegExp rx_winresolution("^VO: \\[(.*)\\] (\\d+)x(\\d+) => (\\d+)x(\\d+)");
 static QRegExp rx_ao("^AO: \\[(.*)\\]");
 static QRegExp rx_paused("^ID_PAUSED");
 static QRegExp rx_novideo("^Video: no video");
-static QRegExp rx_cache("^Cache fill:.*");
-static QRegExp rx_create_index("^Generating Index:.*");
 static QRegExp rx_play("^Starting playback...");
 static QRegExp rx_playing("^Playing");	//"Playing" does not mean the file is actually playing but only loading
-static QRegExp rx_connecting("^Connecting to .*");
-
-//Future messages to add:
-//Connection timeout
-static QRegExp rx_connection_timeout("connection timeout");
-//Failed, exiting
-static QRegExp rx_read_failed("Read failed.");
-//No stream found to handle url
-//File not found:
 static QRegExp rx_file_not_found("^File not found:");
-//Failed to open
 static QRegExp rx_failed_to_open("^Failed to open");
-
-
-static QRegExp rx_resolving("^Resolving .*");
-static QRegExp rx_screenshot("^\\*\\*\\* screenshot '(.*)'");
 static QRegExp rx_endoffile("^Exiting... \\(End of file\\)");
+
+//Streaming
+static QRegExp rx_connecting("^Connecting to server (.*)...");
+static QRegExp rx_resolving("^Resolving (.*)...");
+static QRegExp rx_resolving_failed("^Couldn't resolve name for ");
+static QRegExp rx_cache_fill("^Cache fill: (.*)%");
+static QRegExp rx_read_failed("^Read failed.");	//"Read failed" for a streaming media
+
+//Screenshot
+static QRegExp rx_screenshot("^\\*\\*\\* screenshot '(.*)'");
+
+//DVD/Mkv titles/chapters/angles
+static QRegExp rx_titles("^ID_DVD_TITLES=(\\d+)");
+static QRegExp rx_title("^ID_DVD_TITLE_(\\d+)_(LENGTH|CHAPTERS|ANGLES)=(.*)");
 //[mkv] Chapter 1 from 00:15:02.080 to 00:00:00.000, Plus l'on Approche de César
 static QRegExp rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from (.*) to (.*), (.*)");
+static QRegExp rx_create_index("^Generating Index:.*");
 
 //VCD
 static QRegExp rx_vcd("^ID_VCD_TRACK_(\\d+)_MSF=(.*)");
@@ -215,14 +217,9 @@ static QRegExp rx_clip_software("^software: (.*)", Qt::CaseInsensitive);
 //Radio streaming infos
 static QRegExp rx_stream_title("^.* StreamTitle='(.*)';StreamUrl='(.*)';");
 static QRegExp rx_stream_title_only("^.* StreamTitle='(.*)';");
-static QRegExp rx_stream_name("Name   : (.*)");
-static QRegExp rx_stream_genre("Genre  : (.*)");
-static QRegExp rx_stream_website("Website: (.*)");
-
-//Percent position: gives the current media position in pourcentage
-//This a hack since MPlayer does not read properly the length of VBR MP3s
-//Thus we cannot rely on the media length for the aboutToFinish() signal
-static QRegExp rx_percent_position("Position: (.*) %");
+static QRegExp rx_stream_name("^Name   : (.*)");
+static QRegExp rx_stream_genre("^Genre  : (.*)");
+static QRegExp rx_stream_website("^Website: (.*)");
 
 void MPlayerProcess::parseLine(const QString & tmp) {
 	QString line = tmp;
@@ -267,6 +264,18 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		//Becarefull! "Playing" does not mean the file is playing but only loading
 		if (rx_playing.indexIn(line) > -1) {
 			setState(LoadingState);
+		}
+
+		//File not found
+		else if (rx_file_not_found.indexIn(line) > -1) {
+			_errorString = "File not found";
+			setState(ErrorState);
+		}
+
+		//Failed to open
+		else if (rx_failed_to_open.indexIn(line) > -1) {
+			_errorString = "Failed to open file";
+			setState(ErrorState);
 		}
 
 		//Screenshot
@@ -595,27 +604,44 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			}
 		}
 
-		//Catch cache messages
-		else if (rx_cache.indexIn(line) > -1) {
-			emit receivedCacheMessage(line);
-		}
-
 		//Creating index
 		else if (rx_create_index.indexIn(line) > -1) {
 			emit receivedCreatingIndex(line);
 		}
 
+		//Catch resolving message
+		else if (rx_resolving.indexIn(line) > -1) {
+			QString msg = rx_resolving.cap(1);
+			qDebug() << __FUNCTION__ << "Resolving:" << msg;
+			emit resolvingMessageReceived(msg);
+		}
+
+		//Catch resolving failed
+		else if (rx_resolving_failed.indexIn(line) > -1) {
+			_errorString = line;
+			setState(ErrorState);
+		}
+
 		//Catch connecting message
 		else if (rx_connecting.indexIn(line) > -1) {
-			qDebug() << __FUNCTION__ << "Connecting message:" << line;
-			emit connectingMessageReceived(line);
+			QString msg = rx_connecting.cap(1);
+			qDebug() << __FUNCTION__ << "Connecting:" << msg;
+			emit connectingMessageReceived(msg);
 			setState(BufferingState);
 		}
 
-		//Catch resolving message
-		else if (rx_resolving.indexIn(line) > -1) {
-			qDebug() << __FUNCTION__ << "Resolving message:" << line;
-			emit resolvingMessageReceived(line);
+		else if (rx_read_failed.indexIn(line) > -1) {
+			_errorString = "Cannot read the network stream";
+			setState(ErrorState);
+		}
+
+		//Catch cache messages
+		else if (rx_cache_fill.indexIn(line) > -1) {
+			QString tmp = rx_cache_fill.cap(1);
+			tmp = tmp.trimmed();
+			float percentFilled = tmp.toFloat();
+			qDebug() << __FUNCTION__ << "Cache %:" << percentFilled << tmp;
+			emit bufferStatus(percentFilled);
 		}
 
 		//Meta data infos
@@ -709,9 +735,9 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		}
 
 		//Generic things
-		if (rx.indexIn(line) > -1) {
-			const QString tag = rx.cap(1);
-			const QString value = rx.cap(2);
+		if (rx_generic.indexIn(line) > -1) {
+			const QString tag = rx_generic.cap(1);
+			const QString value = rx_generic.cap(2);
 
 			if (tag == "ID_VIDEO_ID") {
 				//First string to tell us that the media contains a video track
@@ -807,12 +833,28 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 	}
 }
 
-void MPlayerProcess::finished(int, QProcess::ExitStatus) {
-	//Send the finished() signal before the EndOfFileState one, otherwise
-	//the playlist will start to play next file before all
-	//objects are notified that the process has exited
-	if (_endOfFileReached) {
-		setState(EndOfFileState);
+void MPlayerProcess::finished(int /*exitCode*/, QProcess::ExitStatus exitStatus) {
+	switch (exitStatus) {
+	case QProcess::NormalExit:
+		qDebug() << __FUNCTION__ << "MPlayer process exited normally";
+
+		//Send the finished() signal before the EndOfFileState one, otherwise
+		//the playlist will start to play next file before all
+		//objects are notified that the process has exited
+		if (_endOfFileReached) {
+			setState(EndOfFileState);
+		} else {
+			setState(StoppedState);
+		}
+		break;
+	case QProcess::CrashExit:
+		qCritical() << __FUNCTION__ << "Error: MPlayer process crashed";
+		_errorString = "MPlayer process crashed";
+		setState(ErrorState);
+		break;
+	default:
+		qCritical() << __FUNCTION__ << "Error: unknown state:" << exitStatus;
+		return;
 	}
 }
 

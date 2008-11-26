@@ -110,13 +110,25 @@ void StatusBar::changeTimeDisplayMode() {
 
 void StatusBar::stateChanged(Phonon::State newState) {
 	switch (newState) {
-	case Phonon::ErrorState:
-		if (quarkPlayer().currentMediaObject()->errorType() == Phonon::FatalError) {
-			showMessage("Fatal error: " + quarkPlayer().currentMediaObject()->errorString());
-		} else {
-			showMessage("Error: " + quarkPlayer().currentMediaObject()->errorString());
+
+	case Phonon::ErrorState: {
+		Phonon::ErrorType errorType = quarkPlayer().currentMediaObject()->errorType();
+		QString errorString = quarkPlayer().currentMediaObject()->errorString();
+		switch (errorType) {
+		case Phonon::NoError:
+			//Cannot be in this state
+			qCritical() << __FUNCTION__ << "Error: wrong state and error type:" << newState
+						<< errorType << errorString;
+			break;
+		case Phonon::NormalError:
+			showMessage("Error: " + errorString);
+			break;
+		case Phonon::FatalError:
+			showMessage("Fatal error: " + errorString);
+			break;
 		}
 		break;
+	}
 
 	case Phonon::PlayingState:
 		showMessage(tr("Playing"));
@@ -141,6 +153,14 @@ void StatusBar::stateChanged(Phonon::State newState) {
 	default:
 		qCritical() << "Error: unknown newState:" << newState;
 	}
+}
+
+void StatusBar::bufferStatus(int percentFilled) {
+	showMessage(tr("Buffering... %1%").arg(percentFilled));
+}
+
+void StatusBar::finished() {
+	showMessage(tr("End of Media"));
 }
 
 void StatusBar::showTitle() {
@@ -175,8 +195,10 @@ void StatusBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	connect(mediaObject, SIGNAL(tick(qint64)), SLOT(tick(qint64)));
 	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(stateChanged(Phonon::State)));
+	connect(mediaObject, SIGNAL(finished()), SLOT(finished()));
 	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(showTitle()));
 	connect(mediaObject, SIGNAL(aboutToFinish()), SLOT(aboutToFinish()));
+	connect(mediaObject, SIGNAL(bufferStatus(int)), SLOT(bufferStatus(int)));
 
 	//10 seconds before the end
 	mediaObject->setPrefinishMark(10000);

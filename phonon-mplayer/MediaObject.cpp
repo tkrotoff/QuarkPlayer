@@ -75,14 +75,14 @@ MediaObject::MediaObject(QObject * parent)
 	connect(_process, SIGNAL(seekableChanged(bool)),
 		SIGNAL(seekableChanged(bool)));
 
+	connect(_process, SIGNAL(bufferStatus(int)),
+		SIGNAL(bufferStatus(int)));
+
 	connect(_process, SIGNAL(mediaLoaded()),
 		SLOT(mediaLoaded()));
 
 	connect(_process, SIGNAL(mediaDataChanged(const MediaData &)),
 		SLOT(mediaDataChanged(const MediaData &)));
-
-	connect(_process, SIGNAL(finished(int, QProcess::ExitStatus)),
-		SLOT(finished(int, QProcess::ExitStatus)));
 }
 
 MediaObject::~MediaObject() {
@@ -254,7 +254,7 @@ Phonon::State MediaObject::state() const {
 }
 
 QString MediaObject::errorString() const {
-	return "";
+	return _process->errorString();
 }
 
 Phonon::ErrorType MediaObject::errorType() const {
@@ -431,10 +431,6 @@ void MediaObject::mediaLoaded() {
 }
 
 void MediaObject::stateChangedInternal(MPlayerProcess::State newState) {
-	if (newState == _currentState) {
-		//No state changed
-		return;
-	}
 	Phonon::State previousState = _currentState;
 
 	switch (newState) {
@@ -450,6 +446,10 @@ void MediaObject::stateChangedInternal(MPlayerProcess::State newState) {
 			_nextSource = MediaSource();
 			emit currentSourceChanged(_source);
 		}
+		break;
+	case MPlayerProcess::StoppedState:
+		qDebug() << __FUNCTION__ << "StoppedState";
+		_currentState = Phonon::StoppedState;
 		break;
 	case MPlayerProcess::PlayingState:
 		qDebug() << __FUNCTION__ << "PlayingState";
@@ -469,12 +469,8 @@ void MediaObject::stateChangedInternal(MPlayerProcess::State newState) {
 		break;
 	case MPlayerProcess::EndOfFileState:
 		qDebug() << __FUNCTION__ << "EndOfFileState";
-
-		//FIXME duplicate Phonon::StoppedState?
-		//Since MPlayer process will end and send a Phonon::StoppedState
-		//via MediaObject::finished(), not necessary to send this one.
-		//_currentState = Phonon::LoadingState;
-		//emit finished();
+		_currentState = Phonon::StoppedState;
+		emit finished();
 
 		//HACK: MPlayer cannot detect end of VBR MP3s!
 		//If the MPlayer detects a length > to the real length
@@ -490,8 +486,6 @@ void MediaObject::stateChangedInternal(MPlayerProcess::State newState) {
 		break;
 	case MPlayerProcess::ErrorState:
 		qDebug() << __FUNCTION__ << "ErrorState";
-		//_errorMessage = "MPlayer process crashed";
-		//_errorType = Phonon::FatalError;
 		_currentState = Phonon::ErrorState;
 		break;
 	default:
@@ -499,26 +493,8 @@ void MediaObject::stateChangedInternal(MPlayerProcess::State newState) {
 		return;
 	}
 
-	emit stateChanged(_currentState, previousState);
-}
-
-void MediaObject::finished(int exitCode, QProcess::ExitStatus exitStatus) {
-	Phonon::State previousState = _currentState;
-
-	switch (exitStatus) {
-	case QProcess::NormalExit:
-		qDebug() << __FUNCTION__ << "MPlayer process exited normally";
-		_currentState = Phonon::StoppedState;
-		break;
-	case QProcess::CrashExit:
-		qCritical() << __FUNCTION__ << "Error: MPlayer process crashed";
-		//_errorMessage = "MPlayer process crashed";
-		//_errorType = Phonon::FatalError;
-		_currentState = Phonon::ErrorState;
-		break;
-	default:
-		qCritical() << __FUNCTION__ << "Error: unknown state:" << exitStatus;
-		return;
+	if (_currentState == previousState) {
+		qCritical() << __FUNCTION__ << "Error: 2 times the same state";
 	}
 
 	emit stateChanged(_currentState, previousState);
