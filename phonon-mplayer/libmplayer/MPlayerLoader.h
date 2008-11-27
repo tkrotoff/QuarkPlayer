@@ -48,7 +48,7 @@ public:
 	 * Using the MPlayer version number, we performs some tests (see MPlayerLoader.cpp)
 	 * and thus we need to know the MPlayer version number as soon as possible.
 	 */
-	static void startMPlayerVersion(MPlayerProcess * process);
+	static void startMPlayerVersion(QObject * parent);
 
 	static void loadMedia(MPlayerProcess * process, const QString & filename);
 

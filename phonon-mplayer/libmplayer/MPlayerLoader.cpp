@@ -78,11 +78,8 @@ void MPlayerLoader::start(MPlayerProcess * process, const QString & filename, in
 	}
 }
 
-void MPlayerLoader::startMPlayerVersion(MPlayerProcess * process) {
-	if (!process) {
-		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
-		return;
-	}
+void MPlayerLoader::startMPlayerVersion(QObject * parent) {
+	MPlayerProcess * process = createNewMPlayerProcess(parent);
 
 	QStringList args;
 	QString filename("--help");
