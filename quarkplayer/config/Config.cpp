@@ -58,10 +58,10 @@ Config::Config()
 	QString dvdDir;
 #ifdef Q_OS_WIN
 	dvdDir = "D:/";
-#elif Q_OS_LINUX
+#elif Q_OS_UNIX
 	dvdDir = "/mnt/cdrom";
 #elif Q_OS_MAC
-	dvdDir = "/";	//?? don't know yet
+	dvdDir = "/";	//FIXME don't know yet
 #endif
 	addKey(DVD_DIR_KEY, dvdDir);
 
