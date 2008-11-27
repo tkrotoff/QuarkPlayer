@@ -173,13 +173,13 @@ void MediaController::retranslate() {
 
 void MediaController::openSubtitleFile() {
 	QString filename = TkFileDialog::getOpenFileName(
-		_mainWindow, tr("Select Subtitle File"), Config::instance().lastDirectoryUsed(),
+		_mainWindow, tr("Select Subtitle File"), Config::instance().lastDirUsed(),
 		tr("Subtitle") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Subtitle)) + ";;" +
 		tr("All Files") + " (*.*)"
 	);
 
 	if (!filename.isEmpty()) {
-		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
+		Config::instance().setValue(Config::LAST_DIR_USED_KEY, QFileInfo(filename).absolutePath());
 
 		openSubtitleFile(filename);
 	}

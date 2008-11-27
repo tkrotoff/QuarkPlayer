@@ -226,7 +226,7 @@ void PlaylistWidget::retranslate() {
 
 void PlaylistWidget::addFiles() {
 	QStringList files = TkFileDialog::getOpenFileNames(
-		this, tr("Select Audio/Video Files"), Config::instance().lastDirectoryUsed(),
+		this, tr("Select Audio/Video Files"), Config::instance().lastDirUsed(),
 		tr("Multimedia") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video, FileType::Audio)) + ";;" +
 		tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video)) +";;" +
 		tr("Audio") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Audio)) +";;" +
@@ -235,7 +235,7 @@ void PlaylistWidget::addFiles() {
 	);
 
 	if (!files.isEmpty()) {
-		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(files[0]).absolutePath());
+		Config::instance().setValue(Config::LAST_DIR_USED_KEY, QFileInfo(files[0]).absolutePath());
 
 		_playlistModel->addFiles(files);
 		_playlistModel->saveCurrentPlaylist();
@@ -246,7 +246,7 @@ void PlaylistWidget::addDir() {
 	QStringList files;
 
 	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select Directory"),
-			Config::instance().lastDirectoryUsed());
+			Config::instance().lastDirUsed());
 	if (!dir.isEmpty()) {
 		QStringList tmp;
 		tmp << dir;
@@ -266,13 +266,13 @@ void PlaylistWidget::addURL() {
 
 void PlaylistWidget::openPlaylist() {
 	QString filename = TkFileDialog::getOpenFileName(
-		this, tr("Select Playlist File"), Config::instance().lastDirectoryUsed(),
+		this, tr("Select Playlist File"), Config::instance().lastDirUsed(),
 		tr("Playlist") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Playlist)) + ";;" +
 		tr("All Files") + " (*.*)"
 	);
 
 	if (!filename.isEmpty()) {
-		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
+		Config::instance().setValue(Config::LAST_DIR_USED_KEY, QFileInfo(filename).absolutePath());
 
 		PlaylistParser * parser = new PlaylistParser(filename, this);
 		connect(parser, SIGNAL(filesFound(const QStringList &)),
@@ -316,13 +316,13 @@ void PlaylistWidget::savePlaylist() {
 	static const char * PLAYLIST_DEFAULT_EXTENSION = "m3u";
 
 	QString filename = TkFileDialog::getSaveFileName(
-		this, tr("Save Playlist File"), Config::instance().lastDirectoryUsed(),
+		this, tr("Save Playlist File"), Config::instance().lastDirUsed(),
 		FileTypes::toSaveFilterFormat(FileTypes::extensions(FileType::Playlist), PLAYLIST_DEFAULT_EXTENSION) +
 		tr("All Files") + " (*.*)"
 	);
 
 	if (!filename.isEmpty()) {
-		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
+		Config::instance().setValue(Config::LAST_DIR_USED_KEY, QFileInfo(filename).absolutePath());
 
 		PlaylistParser * parser = new PlaylistParser(filename, this);
 		connect(parser, SIGNAL(finished(int)),

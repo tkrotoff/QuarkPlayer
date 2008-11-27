@@ -77,16 +77,12 @@ public:
 	QStringList recentFiles() const;
 
 	/** Last directory used to open a media. */
-	static const char * LAST_DIRECTORY_USED_KEY;
-	QString lastDirectoryUsed() const;
+	static const char * LAST_DIR_USED_KEY;
+	QString lastDirUsed() const;
 
-	/** Last media volume used. */
-	static const char * LAST_VOLUME_USED_KEY;
-	qreal lastVolumeUsed() const;
-
-	/** Volume muted?. */
-	static const char * VOLUME_MUTED_KEY;
-	bool volumeMuted() const;
+	/** DVD directory: user DVD drive. */
+	static const char * DVD_DIR_KEY;
+	QString dvdDir() const;
 
 	/** Standard music location (i.e C:/blabla/My Music). */
 	static const char * MUSIC_DIR_KEY;
@@ -96,6 +92,14 @@ public:
 	/** Directory where the plugins *.(dll|so|dylib) are located. */
 	static const char * PLUGINS_DIR_KEY;
 	QString pluginsDir() const;
+
+	/** Last media volume used. */
+	static const char * LAST_VOLUME_USED_KEY;
+	qreal lastVolumeUsed() const;
+
+	/** Volume muted?. */
+	static const char * VOLUME_MUTED_KEY;
+	bool volumeMuted() const;
 
 	/** @see http://doc.trolltech.com/main-snapshot/qwidget.html#restoreGeometry */
 	static const char * MAINWINDOW_GEOMETRY_KEY;

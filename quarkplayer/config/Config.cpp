@@ -34,14 +34,13 @@ const char * Config::ICON_THEME_KEY = "icon_theme";
 
 const char * Config::RECENT_FILES_KEY = "recent_files";
 
-const char * Config::LAST_DIRECTORY_USED_KEY = "last_directory_used";
+const char * Config::LAST_DIR_USED_KEY = "last_dir_used";
+const char * Config::DVD_DIR_KEY = "dvd_dir";
+const char * Config::MUSIC_DIR_KEY = "music_dir";
+const char * Config::PLUGINS_DIR_KEY = "plugins_dir";
 
 const char * Config::LAST_VOLUME_USED_KEY = "last_volume_used";
 const char * Config::VOLUME_MUTED_KEY = "volume_muted";
-
-const char * Config::MUSIC_DIR_KEY = "music_dir";
-
-const char * Config::PLUGINS_DIR_KEY = "plugins_dir";
 
 const char * Config::MAINWINDOW_GEOMETRY_KEY = "mainwindow_geometry";
 
@@ -53,11 +52,24 @@ Config::Config()
 	addKey(STYLE_KEY, "QuarkPlayerStyle");
 	addKey(ICON_THEME_KEY, "silk");
 	addKey(RECENT_FILES_KEY, QStringList());
-	addKey(LAST_DIRECTORY_USED_KEY, QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
-	addKey(LAST_VOLUME_USED_KEY, 1.0f);
-	addKey(VOLUME_MUTED_KEY, false);
+	addKey(LAST_DIR_USED_KEY, QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
+
+	//Default DVD drive directory depending on the OS
+	QString dvdDir;
+#ifdef Q_OS_WIN
+	dvdDir = "D:/";
+#elif Q_OS_LINUX
+	dvdDir = "/mnt/cdrom";
+#elif Q_OS_MAC
+	dvdDir = "/";	//?? don't know yet
+#endif
+	addKey(DVD_DIR_KEY, dvdDir);
+
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
 	addKey(PLUGINS_DIR_KEY, QString(QCoreApplication::applicationDirPath() + "/plugins"));
+
+	addKey(LAST_VOLUME_USED_KEY, 1.0f);
+	addKey(VOLUME_MUTED_KEY, false);
 	addKey(MAINWINDOW_GEOMETRY_KEY, QByteArray());
 }
 
@@ -104,17 +116,12 @@ QStringList Config::recentFiles() const {
 	return tmp.toList();
 }
 
-QString Config::lastDirectoryUsed() const {
-	return value(LAST_DIRECTORY_USED_KEY).toString();
+QString Config::lastDirUsed() const {
+	return value(LAST_DIR_USED_KEY).toString();
 }
 
-qreal Config::lastVolumeUsed() const {
-	//Between 0.0 and 1.0
-	return value(LAST_VOLUME_USED_KEY).toDouble();
-}
-
-bool Config::volumeMuted() const {
-	return value(VOLUME_MUTED_KEY).toBool();
+QString Config::dvdDir() const {
+	return value(DVD_DIR_KEY).toString();
 }
 
 void Config::addMusicDir(const QString & musicDir, const QUuid & uuid) {
@@ -141,6 +148,15 @@ QString Config::musicDir(const QUuid & uuid) /*const*/ {
 
 QString Config::pluginsDir() const {
 	return value(PLUGINS_DIR_KEY).toString();
+}
+
+qreal Config::lastVolumeUsed() const {
+	//Between 0.0 and 1.0
+	return value(LAST_VOLUME_USED_KEY).toDouble();
+}
+
+bool Config::volumeMuted() const {
+	return value(VOLUME_MUTED_KEY).toBool();
 }
 
 QByteArray Config::mainWindowGeometry() const {

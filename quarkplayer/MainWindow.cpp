@@ -162,7 +162,7 @@ void MainWindow::clearRecentFiles() {
 
 void MainWindow::playFile() {
 	QString filename = TkFileDialog::getOpenFileName(
-		this, tr("Select Audio/Video File"), Config::instance().lastDirectoryUsed(),
+		this, tr("Select Audio/Video File"), Config::instance().lastDirUsed(),
 		tr("Multimedia") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video, FileType::Audio)) + ";;" +
 		tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video)) +";;" +
 		tr("Audio") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Audio)) +";;" +
@@ -171,7 +171,7 @@ void MainWindow::playFile() {
 	);
 
 	if (!filename.isEmpty()) {
-		Config::instance().setValue(Config::LAST_DIRECTORY_USED_KEY, QFileInfo(filename).absolutePath());
+		Config::instance().setValue(Config::LAST_DIR_USED_KEY, QFileInfo(filename).absolutePath());
 
 		play(filename);
 	}
@@ -179,9 +179,10 @@ void MainWindow::playFile() {
 
 void MainWindow::playDVD() {
 	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select DVD folder"),
-			Config::instance().lastDirectoryUsed());
+			Config::instance().dvdDir());
 
 	if (!dir.isEmpty()) {
+		Config::instance().setValue(Config::DVD_DIR_KEY, dir);
 		play(Phonon::MediaSource(Phonon::Dvd, dir));
 	}
 }
