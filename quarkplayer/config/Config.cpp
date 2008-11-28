@@ -61,11 +61,11 @@ Config::Config()
 #ifdef Q_OS_WIN
 	dvdDir = "D:/";
 	cdromDir = "D:/";
-#elif Q_OS_MAC
+#elif defined(Q_OS_MAC)
 	//FIXME don't know yet
 	dvdDir = "/";
 	cdromDir = "/";
-#elif Q_OS_UNIX
+#elif defined(Q_OS_UNIX)
 	dvdDir = "/dev/dvd";
 	cdromDir = "/dev/cdrom";
 #endif
