@@ -62,6 +62,7 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * 
 	connect(ActionCollection::action("playFile"), SIGNAL(triggered()), SLOT(playFile()));
 	connect(ActionCollection::action("playDVD"), SIGNAL(triggered()), SLOT(playDVD()));
 	connect(ActionCollection::action("playURL"), SIGNAL(triggered()), SLOT(playURL()));
+	connect(ActionCollection::action("playVCD"), SIGNAL(triggered()), SLOT(playVCD()));
 	connect(ActionCollection::action("newMediaObject"), SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
 	connect(ActionCollection::action("configure"), SIGNAL(triggered()), SLOT(showConfigWindow()));
 	connect(ActionCollection::action("quit"), SIGNAL(triggered()), SLOT(close()));
@@ -192,6 +193,16 @@ void MainWindow::playURL() {
 
 	if (!url.isEmpty()) {
 		play(url);
+	}
+}
+
+void MainWindow::playVCD() {
+	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select VCD folder"),
+			Config::instance().cdromDir());
+
+	if (!dir.isEmpty()) {
+		Config::instance().setValue(Config::CDROM_DIR_KEY, dir);
+		play(Phonon::MediaSource(Phonon::Vcd, dir));
 	}
 }
 
@@ -368,13 +379,13 @@ void MainWindow::retranslate() {
 	ActionCollection::action("aboutQt")->setText(tr("About &Qt"));
 	ActionCollection::action("aboutQt")->setIcon(TkIcon("help-about"));
 
-	ActionCollection::action("playDVD")->setText(tr("Play &DVD"));
+	ActionCollection::action("playDVD")->setText(tr("Play &DVD..."));
 	ActionCollection::action("playDVD")->setIcon(TkIcon("media-optical"));
 
 	ActionCollection::action("playURL")->setText(tr("Play &URL..."));
 	ActionCollection::action("playURL")->setIcon(TkIcon("document-open-remote"));
 
-	ActionCollection::action("playVCD")->setText(tr("Play &VCD"));
+	ActionCollection::action("playVCD")->setText(tr("Play &VCD..."));
 	//ActionCollection::action("playVCD")->setIcon(TkIcon("media-optical"));
 
 	ActionCollection::action("newMediaObject")->setText(tr("New Media Window"));

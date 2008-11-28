@@ -38,7 +38,10 @@ void MediaSettings::clear() {
 	audioFilters.clear();
 	videoFilters.clear();
 
-//FIXME Everything after this point is not clean!
+	opticalDeviceName.clear();
+
+
+//FIXME Everything after this point is not clean and not used!
 
 	gamma = 0;
 

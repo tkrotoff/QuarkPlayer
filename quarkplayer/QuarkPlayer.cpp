@@ -31,6 +31,8 @@
 #include <phonon/videowidget.h>
 #include <phonon/mediacontroller.h>
 
+#include <QtCore/QRegExp>
+
 QuarkPlayer::QuarkPlayer(QObject * parent)
 	: QObject(parent) {
 
@@ -100,8 +102,26 @@ QList<Phonon::MediaObject *> QuarkPlayer::mediaObjectList() const {
 }
 
 void QuarkPlayer::play(const Phonon::MediaSource & mediaSource) {
+	Phonon::MediaSource tmp(mediaSource);
+
 	if (_currentMediaObject) {
-		_currentMediaObject->setCurrentSource(mediaSource);
+
+#ifdef Q_OS_WIN
+		//Detects audio CD tracks under Windows
+		//They have a special name: "D:/Track01.cda" means track 1 of the audio CD
+		//from device D:/
+		//Let's use a regexp to detect this case
+		static QRegExp rx_windows_cdda("^(\\D+)Track(\\d+).cda$");
+		QString fileName = tmp.fileName();
+		if (!fileName.isEmpty() && rx_windows_cdda.indexIn(fileName) > -1) {
+			QString deviceName = rx_windows_cdda.cap(1);
+			int track = rx_windows_cdda.cap(2).toInt();	//FIXME Unused for the moment
+			tmp = Phonon::MediaSource(Phonon::Cd, deviceName/*, track*/);
+		}
+		///
+#endif	//Q_OS_WIN
+
+		_currentMediaObject->setCurrentSource(tmp);
 		_currentMediaObject->play();
 	}
 }

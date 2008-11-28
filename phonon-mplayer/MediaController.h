@@ -34,6 +34,8 @@ namespace MPlayer
 {
 
 static const int MPLAYER_DEFAULT_DVD_TITLE = 1;
+static const int MPLAYER_DEFAULT_VCD_TITLE = MPLAYER_DEFAULT_DVD_TITLE;
+static const int MPLAYER_DEFAULT_CDAUDIO_TITLE = MPLAYER_DEFAULT_DVD_TITLE;
 
 /**
  * Interface for AddonInterface.

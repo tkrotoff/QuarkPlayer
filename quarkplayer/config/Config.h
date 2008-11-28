@@ -80,9 +80,13 @@ public:
 	static const char * LAST_DIR_USED_KEY;
 	QString lastDirUsed() const;
 
-	/** DVD directory: user DVD drive. */
+	/** DVD directory: DVD device. */
 	static const char * DVD_DIR_KEY;
 	QString dvdDir() const;
+
+	/** CDROM directory: CDROM device. */
+	static const char * CDROM_DIR_KEY;
+	QString cdromDir() const;
 
 	/** Standard music location (i.e C:/blabla/My Music). */
 	static const char * MUSIC_DIR_KEY;

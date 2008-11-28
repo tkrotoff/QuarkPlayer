@@ -36,6 +36,7 @@ const char * Config::RECENT_FILES_KEY = "recent_files";
 
 const char * Config::LAST_DIR_USED_KEY = "last_dir_used";
 const char * Config::DVD_DIR_KEY = "dvd_dir";
+const char * Config::CDROM_DIR_KEY = "cdrom_dir";
 const char * Config::MUSIC_DIR_KEY = "music_dir";
 const char * Config::PLUGINS_DIR_KEY = "plugins_dir";
 
@@ -54,16 +55,22 @@ Config::Config()
 	addKey(RECENT_FILES_KEY, QStringList());
 	addKey(LAST_DIR_USED_KEY, QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
 
-	//Default DVD drive directory depending on the OS
+	//Default DVD and CDROM device
 	QString dvdDir;
+	QString cdromDir;
 #ifdef Q_OS_WIN
 	dvdDir = "D:/";
-#elif Q_OS_UNIX
-	dvdDir = "/mnt/cdrom";
+	cdromDir = "D:/";
 #elif Q_OS_MAC
-	dvdDir = "/";	//FIXME don't know yet
+	//FIXME don't know yet
+	dvdDir = "/";
+	cdromDir = "/";
+#elif Q_OS_UNIX
+	dvdDir = "/dev/dvd";
+	cdromDir = "/dev/cdrom";
 #endif
 	addKey(DVD_DIR_KEY, dvdDir);
+	addKey(CDROM_DIR_KEY, cdromDir);
 
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
 	addKey(PLUGINS_DIR_KEY, QString(QCoreApplication::applicationDirPath() + "/plugins"));
@@ -122,6 +129,10 @@ QString Config::lastDirUsed() const {
 
 QString Config::dvdDir() const {
 	return value(DVD_DIR_KEY).toString();
+}
+
+QString Config::cdromDir() const {
+	return value(CDROM_DIR_KEY).toString();
 }
 
 void Config::addMusicDir(const QString & musicDir, const QUuid & uuid) {

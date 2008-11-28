@@ -160,6 +160,7 @@ private slots:
 	void playFile();
 	void playDVD();
 	void playURL();
+	void playVCD();
 
 	void addRecentFilesToMenu();
 	void playRecentFile(int id);

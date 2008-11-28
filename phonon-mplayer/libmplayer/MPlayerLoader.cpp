@@ -66,11 +66,22 @@ void MPlayerLoader::start(MPlayerProcess * process, const QString & filename, in
 	QStringList args;
 	args << readMediaSettings();
 
-	//Optimisation: no -identify if we are reading a dvd
+	//Check for the optical device and add new arguments if possible
 	if (filename.contains("dvd://")) {
 		qDebug() << __FUNCTION__ << "DVD detected";
-		//args.removeAll("-identify");
+		if (!settings.opticalDeviceName.isEmpty()) {
+			args << "-dvd-device";
+			args << settings.opticalDeviceName;
+		}
 	}
+	if (filename.contains("cdda://") || filename.contains("vcd://")) {
+		qDebug() << __FUNCTION__ << "CD Audio/VCD detected";
+		if (!settings.opticalDeviceName.isEmpty()) {
+			args << "-cdrom-device";
+			args << settings.opticalDeviceName;
+		}
+	}
+	///
 
 	if (!process->start(args, filename, videoWidgetId, seek)) {
 		//Error handling

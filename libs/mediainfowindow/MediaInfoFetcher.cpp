@@ -51,9 +51,7 @@
 	#include <taglib/id3v1tag.h>
 	#include <taglib/xiphcomment.h>
 
-	/**
-	 * Converts a Qt4 QString to a TagLib::String.
-	 */
+	/** Converts a Qt4 QString to a TagLib::String. */
 	#define Qt4QStringToTString(s) TagLib::String(s.toUtf8().data(), TagLib::String::UTF8)
 #endif	//TAGLIB
 

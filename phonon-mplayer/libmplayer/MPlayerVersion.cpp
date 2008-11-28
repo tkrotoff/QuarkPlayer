@@ -25,16 +25,11 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
 
-MPlayerVersion::MPlayerVersion() {
-}
-
-MPlayerVersion::~MPlayerVersion() {
-}
-
 int MPlayerVersion::parse(const QString & line) {
 	//Examples:
 	//From older to most recent
 	//MPlayer 1.0pre4-3.3.3 (C) 2000-2004 MPlayer Team
+	//Windows, official 1.0rc2 binary: MPlayer 1.0rc2-4.2.1 (C) 2000-2007 MPlayer Team
 	//MPlayer 1.0rc2-4.2.3 (C) 2000-2007 MPlayer Team
 	//Ubuntu 8.10: MPlayer 1.0rc2-4.3.2 (C) 2000-2007 MPlayer Team
 	//Windows, rvm build: MPlayer dev-SVN-r27130-3.4.5 (with -volume) (C) 2000-2008 MPlayer Team

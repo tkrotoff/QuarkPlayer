@@ -39,7 +39,7 @@
 class MediaSettings {
 public:
 
-//Not clean
+//Not clean and not used
 	enum Aspect { AspectAuto = 1, Aspect43 = 2, Aspect169 = 3, Aspect235 = 4,
 		Aspect149 = 8, Aspect1610 = 9, Aspect54 = 10 };
 
@@ -49,7 +49,7 @@ public:
 	enum StereoMode { Stereo = 0, Left = 1, Right = 2 };
 
 	enum IDs { NoneSelected = -1000, SubNone = 90000 };
-//!Not clean
+//!Not clean and not used
 
 	MediaSettings();
 	~MediaSettings();
@@ -91,7 +91,22 @@ public:
 	 */
 	QStringList videoFilters;
 
-//FIXME Everything after this point is not clean!
+	/**
+	 * Optial device name for MPlayer.
+	 *
+	 * -dvd-device argument for MPlayer
+	 * <pre>mplayer dvd://<title> -dvd-device d:</pre>
+	 * <pre>mplayer dvd://1 -dvd-device /dev/dvd</pre>
+	 *
+	 * -cdrom-device argument for MPlayer
+	 * <pre>mplayer vcd://<track> -cdrom-device d:</pre>
+	 * <pre>mplayer vcd://1 -cdrom-device /dev/cdrom</pre>
+	 * <pre>mplayer cdda://1 -cdrom-device /dev/cdrom</pre>
+	 */
+	QString opticalDeviceName;
+
+
+//FIXME Everything after this point is not clean and is not used!
 
 	int gamma;
 
