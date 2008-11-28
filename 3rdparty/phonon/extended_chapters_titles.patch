@@ -1,6 +1,6 @@
 Index: addoninterface.h
 ===================================================================
---- addoninterface.h	(revision 802049)
+--- addoninterface.h	(revision 134)
 +++ addoninterface.h	(working copy)
 @@ -54,8 +54,12 @@
          };
@@ -31,7 +31,7 @@ Index: addoninterface.h
          };
 Index: mediacontroller.cpp
 ===================================================================
---- mediacontroller.cpp	(revision 802049)
+--- mediacontroller.cpp	(revision 134)
 +++ mediacontroller.cpp	(working copy)
 @@ -51,10 +51,16 @@
  {
@@ -53,7 +53,7 @@ Index: mediacontroller.cpp
 @@ -87,6 +93,7 @@
      return ret;
  }
- 
+
 +//Deprecated
  int MediaController::availableTitles() const
  {
@@ -61,7 +61,7 @@ Index: mediacontroller.cpp
 @@ -94,6 +101,7 @@
              AddonInterface::availableTitles).toInt();
  }
- 
+
 +//Deprecated
  int MediaController::currentTitle() const
  {
@@ -69,13 +69,13 @@ Index: mediacontroller.cpp
 @@ -101,6 +109,7 @@
              AddonInterface::title).toInt();
  }
- 
+
 +//Deprecated
  void MediaController::setCurrentTitle(int titleNumber)
  {
      IFACE;
 @@ -124,14 +133,21 @@
- 
+
  void MediaController::nextTitle()
  {
 +    //Deprecated
@@ -83,7 +83,7 @@ Index: mediacontroller.cpp
 +
 +    //TODO
  }
- 
+
  void MediaController::previousTitle()
  {
 +    //Deprecated
@@ -91,7 +91,7 @@ Index: mediacontroller.cpp
 +
 +    //TODO
  }
- 
+
 +//Deprecated
  int MediaController::availableChapters() const
  {
@@ -99,7 +99,7 @@ Index: mediacontroller.cpp
 @@ -139,6 +155,7 @@
              AddonInterface::availableChapters).toInt();
  }
- 
+
 +//Deprecated
  int MediaController::currentChapter() const
  {
@@ -107,7 +107,7 @@ Index: mediacontroller.cpp
 @@ -146,6 +163,7 @@
              AddonInterface::chapter).toInt();
  }
- 
+
 +//Deprecated
  void MediaController::setCurrentChapter(int titleNumber)
  {
@@ -115,7 +115,7 @@ Index: mediacontroller.cpp
 @@ -188,6 +206,20 @@
          AddonInterface::currentSubtitle).value<SubtitleDescription>();
  }
- 
+
 +ChapterDescription MediaController::currentChapter2() const
 +{
 +    IFACE ChapterDescription();
@@ -136,7 +136,7 @@ Index: mediacontroller.cpp
 @@ -207,6 +239,26 @@
      return retList;
  }
- 
+
 +QList<ChapterDescription> MediaController::availableChapters2() const
 +{
 +    QList<ChapterDescription> retList;
@@ -163,7 +163,7 @@ Index: mediacontroller.cpp
 @@ -221,6 +273,20 @@
          AddonInterface::setCurrentSubtitle, QList<QVariant>() << qVariantFromValue(stream));
  }
- 
+
 +void MediaController::setCurrentChapter(const Phonon::ChapterDescription &chapter)
 +{
 +    IFACE;
@@ -179,16 +179,16 @@ Index: mediacontroller.cpp
 +}
 +
  #undef IFACE
- 
+
  } // namespace Phonon
 Index: mediacontroller.h
 ===================================================================
---- mediacontroller.h	(revision 802049)
+--- mediacontroller.h	(revision 134)
 +++ mediacontroller.h	(working copy)
 @@ -60,10 +60,24 @@
          int availableAngles() const;
          int currentAngle() const;
- 
+
 +        /**
 +         * \deprecated
 +         */
@@ -198,7 +198,7 @@ Index: mediacontroller.h
 +         * \deprecated
 +         */
          int currentChapter() const;
- 
+
 +        /**
 +         * \deprecated
 +         */
@@ -208,11 +208,11 @@ Index: mediacontroller.h
 +         * \deprecated
 +         */
          int currentTitle() const;
- 
+
          bool autoplayTitles() const;
 @@ -85,6 +99,22 @@
          SubtitleDescription currentSubtitle() const;
- 
+
          /**
 +         * Returns the selected chapter.
 +         *
@@ -235,7 +235,7 @@ Index: mediacontroller.h
           *
 @@ -103,6 +133,24 @@
          QList<SubtitleDescription> availableSubtitles() const;
- 
+
          /**
 +         * Returns the chapter that can be selected by the user. The
 +         * strings can directly be used in the user interface.
@@ -261,7 +261,7 @@ Index: mediacontroller.h
 @@ -128,11 +176,37 @@
           */
          void setCurrentSubtitle(const Phonon::SubtitleDescription &stream);
- 
+
 +        /**
 +         * Selects a chapter from the media.
 +         *
@@ -289,7 +289,7 @@ Index: mediacontroller.h
 +         * \deprecated
 +         */
          void setCurrentChapter(int chapterNumber);
- 
+
          /**
 +         * \deprecated
 +         *
@@ -325,11 +325,11 @@ Index: mediacontroller.h
 +         * \deprecated
 +         */
          void titleChanged(int titleNumber);
- 
+
      protected:
 Index: objectdescription.h
 ===================================================================
---- objectdescription.h	(revision 802049)
+--- objectdescription.h	(revision 134)
 +++ objectdescription.h	(working copy)
 @@ -60,8 +60,11 @@
           * Lists all processing effects the backend supports.
@@ -340,7 +340,7 @@ Index: objectdescription.h
          SubtitleType,
 +        ChapterType,
 +        TitleType,
- 
+
          /**
           * Audio capture devices. This can be soundcards (with different drivers), soundservers or
 @@ -301,16 +304,22 @@
@@ -349,9 +349,9 @@ Index: objectdescription.h
  typedef ObjectDescription<SubtitleType> SubtitleDescription;
 +typedef ObjectDescription<ChapterType> ChapterDescription;
 +typedef ObjectDescription<TitleType> TitleDescription;
- 
+
  } //namespace Phonon
- 
+
  Q_DECLARE_METATYPE(Phonon::AudioChannelDescription)
  Q_DECLARE_METATYPE(Phonon::SubtitleDescription)
 +Q_DECLARE_METATYPE(Phonon::ChapterDescription)
