@@ -50,10 +50,39 @@ public:
 	 */
 	static void startMPlayerVersion(QObject * parent);
 
+	/**
+	 * Loads a media without playing it.
+	 *
+	 * Only tries to detect meta-data informations for a media.
+	 *
+	 * @param process the MPlayerProcess to load
+	 * @param filename media to load
+	 */
 	static void loadMedia(MPlayerProcess * process, const QString & filename);
 
-	static void start(MPlayerProcess * process, const QString & filename, int videoWidgetId, qint64 seek = 0);
+	/**
+	 * Starts/plays a media given its MPlayerProcess.
+	 *
+	 * Starts a new MPlayer instance.
+	 *
+	 * @param process the MPlayerProcess to start
+	 * @param filename media to play
+	 * @param videoWidgetId QWidget ID where the video (if any) will be played
+	 */
+	static void start(MPlayerProcess * process, const QString & filename, int videoWidgetId);
 
+	/**
+	 * Restarts/replays a media given its MPlayerProcess.
+	 *
+	 * Restarts a the latest known MPlayer instance.
+	 *
+	 * This will use the previously known arguments and other infos.
+	 *
+	 * @param process the MPlayerProcess to start
+	 * @param arguments MPlayerProcess arguments (options for MPlayer); if empty then previous arguments are used
+	 * @param filename media to play; if empty then previous filename is used
+	 * @param seek position inside the media in milliseconds; if -1 then previous media position is used
+	 */
 	static void restart(MPlayerProcess * process, const QStringList & arguments = QStringList(), const QString & filename = QString(), qint64 seek = -1);
 
 private:
@@ -68,6 +97,9 @@ private:
 	 * @return list of arguments for the MPlayer process
 	 */
 	static QStringList readMediaSettings();
+
+	/** Code factorization. */
+	static void start(MPlayerProcess * process, const QStringList & arguments, const QString & filename, int videoWidgetId, qint64 seek);
 };
 
 #endif	//MPLAYERLOADER_H

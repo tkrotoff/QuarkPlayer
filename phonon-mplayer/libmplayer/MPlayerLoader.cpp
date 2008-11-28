@@ -31,33 +31,7 @@ MPlayerProcess * MPlayerLoader::createNewMPlayerProcess(QObject * parent) {
 	return process;
 }
 
-void MPlayerLoader::restart(MPlayerProcess * process, const QStringList & arguments, const QString & filename, qint64 seek) {
-	if (!process) {
-		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
-		return;
-	}
-
-	QStringList args;
-	args << readMediaSettings();
-	if (!arguments.isEmpty()) {
-		args << arguments;
-	}
-
-	MediaData mediaData = process->mediaData();
-	if (!filename.isEmpty()) {
-		mediaData.filename = filename;
-	}
-	if (seek != -1) {
-		mediaData.currentTime = seek;
-	}
-
-	if (!process->start(args, mediaData.filename, mediaData.videoWidgetId, mediaData.currentTime)) {
-		//Error handling
-		qCritical() << __FUNCTION__ << "error: MPlayer process couldn't start";
-	}
-}
-
-void MPlayerLoader::start(MPlayerProcess * process, const QString & filename, int videoWidgetId, qint64 seek) {
+void MPlayerLoader::start(MPlayerProcess * process, const QStringList & arguments, const QString & filename, int videoWidgetId, qint64 seek) {
 	if (!process) {
 		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
 		return;
@@ -87,6 +61,32 @@ void MPlayerLoader::start(MPlayerProcess * process, const QString & filename, in
 		//Error handling
 		qCritical() << __FUNCTION__ << "error: MPlayer process couldn't start";
 	}
+}
+
+void MPlayerLoader::restart(MPlayerProcess * process, const QStringList & arguments, const QString & filename, qint64 seek) {
+	if (!process) {
+		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
+		return;
+	}
+
+	QStringList args;
+	if (!arguments.isEmpty()) {
+		args << arguments;
+	}
+
+	MediaData mediaData = process->mediaData();
+	if (!filename.isEmpty()) {
+		mediaData.filename = filename;
+	}
+	if (seek != -1) {
+		mediaData.currentTime = seek;
+	}
+
+	start(process, args, mediaData.filename, mediaData.videoWidgetId, mediaData.currentTime);
+}
+
+void MPlayerLoader::start(MPlayerProcess * process, const QString & filename, int videoWidgetId) {
+	start(process, QStringList(), filename, videoWidgetId, 0);
 }
 
 void MPlayerLoader::startMPlayerVersion(QObject * parent) {
