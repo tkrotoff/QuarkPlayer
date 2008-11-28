@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H_IN
-#define CONFIG_H_IN
+#ifndef QUARKPLAYER_CONFIG_H_IN
+#define QUARKPLAYER_CONFIG_H_IN
 
 /**
  * KDE4 libs found or not?
@@ -38,4 +38,4 @@
  */
 #cmakedefine TAGLIB
 
-#endif	//CONFIG_H_IN
+#endif	//QUARKPLAYER_CONFIG_H_IN

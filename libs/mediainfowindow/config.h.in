@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H_IN
-#define CONFIG_H_IN
+#ifndef MEDIAINFOWINDOW_CONFIG_H_IN
+#define MEDIAINFOWINDOW_CONFIG_H_IN
 
 /**
  * TagLib support enabled or not?
@@ -26,4 +26,4 @@
  */
 #cmakedefine TAGLIB
 
-#endif	//CONFIG_H_IN
+#endif	//MEDIAINFOWINDOW_CONFIG_H_IN

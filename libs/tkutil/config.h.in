@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H_IN
-#define CONFIG_H_IN
+#ifndef TKUTIL_CONFIG_H_IN
+#define TKUTIL_CONFIG_H_IN
 
 /**
  * KDE4 libs found or not?
  */
 #cmakedefine KDE4_FOUND
 
-#endif	//CONFIG_H_IN
+#endif	//TKUTIL_CONFIG_H_IN

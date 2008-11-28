@@ -1,5 +1,5 @@
 /*
- * VLC and MPlayer backends for the Phonon library
+ * MPlayer backend for the Phonon library
  * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H_IN
-#define CONFIG_H_IN
+#ifndef PHONON_MPLAYER_CONFIG_H_IN
+#define PHONON_MPLAYER_CONFIG_H_IN
 
 /**
  * KDE4 libs found or not?
@@ -31,4 +31,4 @@
  */
 #cmakedefine NEW_TITLE_CHAPTER_HANDLING
 
-#endif	//CONFIG_H_IN
+#endif	//PHONON_MPLAYER_CONFIG_H_IN

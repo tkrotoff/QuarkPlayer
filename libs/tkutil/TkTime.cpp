@@ -20,10 +20,13 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QTime>
-#include <QtCore/QDateTime>
 
 QString TkTime::convertMilliseconds(qint64 milliseconds) {
-	QTime displayTime((milliseconds / 3600000) % 60, (milliseconds / 60000) % 60, (milliseconds / 1000) % 60);
+	QTime displayTime(
+			(milliseconds / 3600000) % 60,
+			(milliseconds / 60000) % 60,
+			(milliseconds / 1000) % 60
+	);
 
 	QString timeFormat;
 
@@ -46,8 +49,16 @@ QString TkTime::convertSeconds(int seconds) {
 }
 
 QString TkTime::convertMilliseconds(qint64 currentTime, qint64 totalTime) {
-	QTime displayCurrentTime((currentTime / 3600000) % 60, (currentTime / 60000) % 60, (currentTime / 1000) % 60);
-	QTime displayTotalTime((totalTime / 3600000) % 60, (totalTime / 60000) % 60, (totalTime / 1000) % 60);
+	QTime displayCurrentTime(
+			(currentTime / 3600000) % 60,
+			(currentTime / 60000) % 60,
+			(currentTime / 1000) % 60
+	);
+	QTime displayTotalTime(
+			(totalTime / 3600000) % 60,
+			(totalTime / 60000) % 60,
+			(totalTime / 1000) % 60
+	);
 
 	QString timeFormat;
 
