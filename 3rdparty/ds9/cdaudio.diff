@@ -1,0 +1,49 @@
+Index: mediagraph.cpp
+===================================================================
+--- mediagraph.cpp	(revision 599)
++++ mediagraph.cpp	(working copy)
+@@ -691,7 +691,7 @@
+ 
+  #ifndef QT_NO_PHONON_MEDIACONTROLLER
+                } else if (source.discType() == Phonon::Cd) {
+-                    m_realSource = Filter(new QAudioCDPlayer);
++                    m_realSource = Filter(new QAudioCDPlayer(source.deviceName()));
+                     m_result = m_graph->AddFilter(m_realSource, L"Audio CD Reader");
+ 
+ #endif //QT_NO_PHONON_MEDIACONTROLLER
+Index: qaudiocdreader.cpp
+===================================================================
+--- qaudiocdreader.cpp	(revision 599)
++++ qaudiocdreader.cpp	(working copy)
+@@ -306,9 +306,16 @@
+         }
+ 
+ 
+-        QAudioCDPlayer::QAudioCDPlayer() : QBaseFilter(CLSID_NULL)
++        QAudioCDPlayer::QAudioCDPlayer(const QString & deviceName) : QBaseFilter(CLSID_NULL)
+         {
+-            new QAudioCDReader(this);
++            if (deviceName.isEmpty()) {
++                new QAudioCDReader(this);
++            } else {
++                //User might give us a string containing: "D:/" or "D:"
++                //Let's keep only the drive letter which is the first character
++                QChar drive = deviceName[0];
++                new QAudioCDReader(this, drive);
++            }
+         }
+ 
+         QAudioCDPlayer::~QAudioCDPlayer()
+Index: qaudiocdreader.h
+===================================================================
+--- qaudiocdreader.h	(revision 599)
++++ qaudiocdreader.h	(working copy)
+@@ -43,7 +43,7 @@
+         class QAudioCDPlayer : public QBaseFilter
+         {
+         public:
+-            QAudioCDPlayer();
++            QAudioCDPlayer(const QString & deviceName);
+             ~QAudioCDPlayer();
+             STDMETHODIMP QueryInterface(REFIID iid, void** out);
+         };
