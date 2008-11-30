@@ -46,6 +46,9 @@ MPlayerProcess::MPlayerProcess(QObject * parent)
 
 	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
 		SLOT(finished(int, QProcess::ExitStatus)));
+
+	connect(this, SIGNAL(error(QProcess::ProcessError)),
+		SLOT(error(QProcess::ProcessError)));
 }
 
 MPlayerProcess::~MPlayerProcess() {
@@ -171,7 +174,6 @@ static QRegExp rx_novideo("^Video: no video");
 static QRegExp rx_play("^Starting playback...");
 static QRegExp rx_playing("^Playing");	//"Playing" does not mean the file is actually playing but only loading
 static QRegExp rx_file_not_found("^File not found:");
-static QRegExp rx_failed_to_open("^Failed to open");
 static QRegExp rx_endoffile("^Exiting... \\(End of file\\)");
 
 //Streaming
@@ -269,12 +271,6 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		//File not found
 		else if (rx_file_not_found.indexIn(line) > -1) {
 			_errorString = "File not found";
-			setState(ErrorState);
-		}
-
-		//Failed to open
-		else if (rx_failed_to_open.indexIn(line) > -1) {
-			_errorString = "Failed to open file";
 			setState(ErrorState);
 		}
 
@@ -861,4 +857,37 @@ void MPlayerProcess::finished(int /*exitCode*/, QProcess::ExitStatus exitStatus)
 void MPlayerProcess::setState(State state) {
 	_state = state;
 	emit stateChanged(state);
+}
+
+void MPlayerProcess::error(QProcess::ProcessError error) {
+	switch (error) {
+	case QProcess::FailedToStart:
+		_errorString = "MPlayer failed to start: either MPlayer is missing, or you may have insufficient permissions";
+		setState(ErrorState);
+		break;
+	case QProcess::Crashed:
+		_errorString = "MPlayer crashed some time after starting successfully";
+		setState(ErrorState);
+		break;
+	case QProcess::Timedout:
+		_errorString = "MPlayer: QProcess::waitFor() function timed out";
+		setState(ErrorState);
+		break;
+	case QProcess::WriteError:
+		_errorString = "An error occurred when attempting to write to MPlayer."
+					"For example, MPlayer may not be running, or it may have closed its input channel";
+		setState(ErrorState);
+		break;
+	case QProcess::ReadError:
+		_errorString = "An error occurred when attempting to read from MPlayer."
+					"For example, the process may not be running";
+		setState(ErrorState);
+		break;
+	case QProcess::UnknownError:
+		_errorString = "An unknown error occurred";
+		setState(ErrorState);
+		break;
+	default:
+		qCritical() << __FUNCTION__ << "Error: unknown error number:" << error;
+	}
 }

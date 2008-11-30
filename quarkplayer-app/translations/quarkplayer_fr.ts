@@ -44,7 +44,7 @@ This program is free software: you can redistribute it and/or modify&lt;br&gt;
 it under the terms of the GNU General Public License as published by&lt;br&gt;
 the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 (at your option) any later version.&lt;br&gt;</source>
-        <translation>&lt;b&gt;QuarkPlayer, un visionneur Phonon&lt;/b&gt;&lt;br&gt;
+        <translation type="obsolete">&lt;b&gt;QuarkPlayer, un visionneur Phonon&lt;/b&gt;&lt;br&gt;
 &lt;br&gt;
 &lt;a href=&quot;http://phonon-vlc-mplayer.googlecode.com&quot;&gt;http://phonon-vlc-mplayer.googlecode.com&lt;/a&gt;&lt;br&gt;
 &lt;br&gt;
@@ -55,6 +55,19 @@ it under the terms of the GNU General Public License as published by&lt;br&gt;
 the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 (at your option) any later version.&lt;br&gt;
 </translation>
+    </message>
+    <message>
+        <location filename="../../build/quarkplayer/ui_AboutWindow.h" line="110"/>
+        <source>&lt;b&gt;QuarkPlayer, a Phonon media player&lt;/b&gt;&lt;br&gt;
+&lt;br&gt;
+&lt;a href=&quot;http://phonon-vlc-mplayer.googlecode.com&quot;&gt;http://phonon-vlc-mplayer.googlecode.com&lt;/a&gt;&lt;br&gt;
+&lt;br&gt;
+Copyright (C) 2008  Tanguy Krotoff&lt;br&gt;
+This program is free software: you can redistribute it and/or modify&lt;br&gt;
+it under the terms of the GNU General Public License as published by&lt;br&gt;
+the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
+(at your option) any later version.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -138,7 +151,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../build/quarkplayer/ui_ConfigWindow.h" line="67"/>
         <source>QuarkPlayer - Preferences</source>
-        <translation>QuarkPlayer - Préférences</translation>
+        <translation type="obsolete">QuarkPlayer - Préférences</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_ConfigWindow.h" line="68"/>
@@ -148,6 +161,11 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../build/quarkplayer/ui_ConfigWindow.h" line="69"/>
         <source>Private</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../build/quarkplayer/ui_ConfigWindow.h" line="67"/>
+        <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -182,17 +200,17 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>FileBrowserConfigWidget</name>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/config/FileBrowserConfigWidget.cpp" line="51"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/config/FileBrowserConfigWidget.cpp" line="46"/>
         <source>File Browser</source>
         <translation>Fichiers</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/filebrowser/config/FileBrowserConfigWidget.cpp" line="74"/>
         <source>Select a Directory</source>
-        <translation>Sélectionner un répertoire</translation>
+        <translation type="obsolete">Sélectionner un répertoire</translation>
     </message>
     <message>
-        <location filename="../../build/quarkplayer-plugins/filebrowser/ui_FileBrowserConfigWidget.h" line="69"/>
+        <location filename="../../build/quarkplayer-plugins/filebrowser/ui_FileBrowserConfigWidget.h" line="62"/>
         <source>Your Music Directory:</source>
         <translation>Répertoire de musique :</translation>
     </message>
@@ -279,22 +297,214 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     </message>
 </context>
 <context>
+    <name>FileChooserWindow</name>
+    <message>
+        <location filename="../../build/quarkplayer-plugins/findsubtitles/ui_FileChooserWindow.h" line="113"/>
+        <source>Select All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../build/quarkplayer-plugins/findsubtitles/ui_FileChooserWindow.h" line="114"/>
+        <source>Select None</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FileSearchModel</name>
     <message>
-        <location filename="../../quarkplayer-plugins/filebrowser/FileSearchModel.cpp" line="60"/>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileSearchModel.cpp" line="73"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
         <location filename="../../quarkplayer-plugins/filebrowser/FileSearchModel.cpp" line="63"/>
         <source>Path</source>
-        <translation>Chemin</translation>
+        <translation type="obsolete">Chemin</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileSearchModel.cpp" line="130"/>
+        <source>Title:</source>
+        <translation type="unfinished">Titre :</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileSearchModel.cpp" line="131"/>
+        <source>Artist:</source>
+        <translation type="unfinished">Artiste :</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileSearchModel.cpp" line="132"/>
+        <source>Album:</source>
+        <translation type="unfinished">Album :</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/filebrowser/FileSearchModel.cpp" line="133"/>
+        <source>Length:</source>
+        <translation type="unfinished">Longueur :</translation>
+    </message>
+</context>
+<context>
+    <name>FindSubtitlesWindow</name>
+    <message>
+        <location filename="../../build/quarkplayer-plugins/findsubtitles/ui_FindSubtitlesWindow.h" line="158"/>
+        <source>Find Subtitles using OpenSubtitles.org</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../build/quarkplayer-plugins/findsubtitles/ui_FindSubtitlesWindow.h" line="159"/>
+        <source>&amp;Movie:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../build/quarkplayer-plugins/findsubtitles/ui_FindSubtitlesWindow.h" line="160"/>
+        <source>Subtitles from &lt;a href=&quot;http://opensubtitles.org&quot;&gt;OpenSubtitles.org&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../build/quarkplayer-plugins/findsubtitles/ui_FindSubtitlesWindow.h" line="161"/>
+        <source>&amp;Language:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../build/quarkplayer-plugins/findsubtitles/ui_FindSubtitlesWindow.h" line="162"/>
+        <source>&amp;Refresh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="161"/>
+        <source>&amp;Download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="72"/>
+        <source>Video</source>
+        <translation type="unfinished">Vidéo</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="73"/>
+        <source>All Files</source>
+        <translation type="unfinished">Tous les fichiers</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="139"/>
+        <source>Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="139"/>
+        <source>Name</source>
+        <translation type="unfinished">Nom</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="140"/>
+        <source>Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="140"/>
+        <source>Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="140"/>
+        <source>Date</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="140"/>
+        <source>Uploaded by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="154"/>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="164"/>
+        <source>&amp;Copy link to clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="201"/>
+        <source>Connecting to %1...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="238"/>
+        <source>Downloading...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="254"/>
+        <source>Done.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="274"/>
+        <source>Error: download failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="317"/>
+        <source>%1 files available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="323"/>
+        <source>Failed to parse the received data.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="373"/>
+        <source>Temporary file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="378"/>
+        <source>Download failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="384"/>
+        <source>Error: couldn&apos;t save the file, check your folder permissions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="421"/>
+        <source>Please choose the subtitles to extract. Subtitles will be extracted inside the movie directory:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="423"/>
+        <source>Extract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="424"/>
+        <source>Subtitles to Extract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="440"/>
+        <source>%1 subtitle(s) extracted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="454"/>
+        <source>Overwrite?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.cpp" line="455"/>
+        <source>The file &apos;%1&apos; already exits, overwrite?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>GeneralConfigWidget</name>
     <message>
-        <location filename="../../quarkplayer/config/GeneralConfigWidget.cpp" line="50"/>
+        <location filename="../../quarkplayer/config/GeneralConfigWidget.cpp" line="52"/>
         <source>General</source>
         <translation>Général</translation>
     </message>
@@ -316,17 +526,17 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     <message>
         <location filename="../../quarkplayer/config/GeneralConfigWidget.cpp" line="116"/>
         <source>English</source>
-        <translation>Anglais</translation>
+        <translation type="obsolete">Anglais</translation>
     </message>
     <message>
         <location filename="../../quarkplayer/config/GeneralConfigWidget.cpp" line="117"/>
         <source>French</source>
-        <translation>Français</translation>
+        <translation type="obsolete">Français</translation>
     </message>
     <message>
         <location filename="../../quarkplayer/config/GeneralConfigWidget.cpp" line="118"/>
         <source>German</source>
-        <translation>Allemand</translation>
+        <translation type="obsolete">Allemand</translation>
     </message>
     <message>
         <location filename="../../build/quarkplayer/ui_GeneralConfigWidget.h" line="156"/>
@@ -350,129 +560,822 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
     </message>
 </context>
 <context>
+    <name>Languages</name>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="33"/>
+        <source>Afar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="34"/>
+        <source>Abkhazian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="35"/>
+        <source>Afrikaans</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="36"/>
+        <source>Amharic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="37"/>
+        <source>Arabic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="38"/>
+        <source>Assamese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="39"/>
+        <source>Aymara</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="40"/>
+        <source>Azerbaijani</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="41"/>
+        <source>Bashkir</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="42"/>
+        <source>Byelorussian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="43"/>
+        <source>Bulgarian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="44"/>
+        <source>Bihari</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="45"/>
+        <source>Bislama</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="46"/>
+        <source>Bengali</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="47"/>
+        <source>Tibetan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="48"/>
+        <source>Breton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="49"/>
+        <source>Catalan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="50"/>
+        <source>Corsican</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="51"/>
+        <source>Czech</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="52"/>
+        <source>Welsh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="53"/>
+        <source>Danish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="54"/>
+        <source>German</source>
+        <translation type="unfinished">Allemand</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="55"/>
+        <source>Bhutani</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="56"/>
+        <source>Greek</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="57"/>
+        <source>English</source>
+        <translation type="unfinished">Anglais</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="58"/>
+        <source>Esperanto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="59"/>
+        <source>Spanish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="60"/>
+        <source>Estonian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="61"/>
+        <source>Basque</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="62"/>
+        <source>Persian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="63"/>
+        <source>Finnish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="64"/>
+        <source>Fiji</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="65"/>
+        <source>Faroese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="66"/>
+        <source>French</source>
+        <translation type="unfinished">Français</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="67"/>
+        <source>Frisian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="68"/>
+        <source>Irish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="69"/>
+        <source>Scots</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="70"/>
+        <source>Galician</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="71"/>
+        <source>Guarani</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="72"/>
+        <source>Gujarati</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="73"/>
+        <source>Hausa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="74"/>
+        <source>Hebrew</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="75"/>
+        <source>Hindi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="76"/>
+        <source>Croatian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="77"/>
+        <source>Hungarian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="78"/>
+        <source>Armenian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="79"/>
+        <source>Interlingua</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="80"/>
+        <source>Indonesian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="81"/>
+        <source>Interlingue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="82"/>
+        <source>Inupiak</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="83"/>
+        <source>Icelandic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="84"/>
+        <source>Italian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="85"/>
+        <source>Inuktitut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="86"/>
+        <source>Japanese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="87"/>
+        <source>Javanese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="88"/>
+        <source>Georgian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="89"/>
+        <source>Kazakh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="90"/>
+        <source>Greenlandic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="91"/>
+        <source>Cambodian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="92"/>
+        <source>Kannada</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="93"/>
+        <source>Korean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="94"/>
+        <source>Kashmiri</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="95"/>
+        <source>Kurdish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="96"/>
+        <source>Kirghiz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="97"/>
+        <source>Latin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="98"/>
+        <source>Lingala</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="99"/>
+        <source>Laothian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="100"/>
+        <source>Lithuanian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="101"/>
+        <source>Latvian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="102"/>
+        <source>Malagasy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="103"/>
+        <source>Maori</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="104"/>
+        <source>Macedonian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="105"/>
+        <source>Malayalam</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="106"/>
+        <source>Mongolian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="107"/>
+        <source>Moldavian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="108"/>
+        <source>Marathi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="109"/>
+        <source>Malay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="110"/>
+        <source>Maltese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="111"/>
+        <source>Burmese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="112"/>
+        <source>Nauru</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="113"/>
+        <source>Nepali</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="114"/>
+        <source>Dutch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="115"/>
+        <source>Norwegian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="116"/>
+        <source>Occitan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="117"/>
+        <source>Oriya</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="118"/>
+        <source>Punjabi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="119"/>
+        <source>Polish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="120"/>
+        <source>Pashto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="121"/>
+        <source>Portuguese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="122"/>
+        <source>Quechua</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="123"/>
+        <source>Rhaeto-Romance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="124"/>
+        <source>Kirundi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="125"/>
+        <source>Romanian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="126"/>
+        <source>Russian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="127"/>
+        <source>Kinyarwanda</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="128"/>
+        <source>Sanskrit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="129"/>
+        <source>Sindhi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="130"/>
+        <source>Sangho</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="131"/>
+        <source>Serbo-Croatian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="132"/>
+        <source>Sinhalese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="133"/>
+        <source>Slovak</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="134"/>
+        <source>Slovenian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="135"/>
+        <source>Samoan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="136"/>
+        <source>Shona</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="137"/>
+        <source>Somali</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="138"/>
+        <source>Albanian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="139"/>
+        <source>Serbian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="140"/>
+        <source>Siswati</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="141"/>
+        <source>Sesotho</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="142"/>
+        <source>Sundanese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="143"/>
+        <source>Swedish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="144"/>
+        <source>Swahili</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="145"/>
+        <source>Tamil</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="146"/>
+        <source>Telugu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="147"/>
+        <source>Tajik</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="148"/>
+        <source>Thai</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="149"/>
+        <source>Tigrinya</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="150"/>
+        <source>Turkmen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="151"/>
+        <source>Tagalog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="152"/>
+        <source>Setswana</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="153"/>
+        <source>Tonga</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="154"/>
+        <source>Turkish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="155"/>
+        <source>Tsonga</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="156"/>
+        <source>Tatar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="157"/>
+        <source>Twi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="158"/>
+        <source>Uighur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="159"/>
+        <source>Ukrainian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="160"/>
+        <source>Urdu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="161"/>
+        <source>Uzbek</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="162"/>
+        <source>Vietnamese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="163"/>
+        <source>Volap&#xfc;k</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="164"/>
+        <source>Wolof</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="165"/>
+        <source>Xhosa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="166"/>
+        <source>Yiddish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="167"/>
+        <source>Yoruba</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="168"/>
+        <source>Zhuang</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="169"/>
+        <source>Chinese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/Languages.cpp" line="170"/>
+        <source>Zulu</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="164"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="166"/>
         <source>Select Audio/Video File</source>
         <translation>Sélectionner un fichier audio ou vidéo</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="189"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="192"/>
         <source>Open Location</source>
         <translation>Ouvrir une adresse Internet</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="189"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="192"/>
         <source>Please enter a valid address here:</source>
         <translation>Insérer une adresse Internet valide ici :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="375"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="403"/>
         <source>&lt;empty&gt;</source>
         <translation>&lt;vide&gt;</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="166"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="168"/>
         <source>Video</source>
         <translation>Vidéo</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="167"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="169"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="378"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="406"/>
         <source>Main ToolBar</source>
         <translation>Barre principale</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="386"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="414"/>
         <source>&amp;Settings</source>
         <translation>&amp;Options</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="342"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="367"/>
         <source>Play &amp;File...</source>
         <translation>Jouer &amp;fichier</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="345"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="370"/>
         <source>&amp;Quit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="348"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="376"/>
         <source>&amp;About</source>
         <translation>&amp;A propos</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="351"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="379"/>
         <source>About &amp;Qt</source>
         <translation>A propos de &amp;Qt</translation>
     </message>
     <message>
         <location filename="../../quarkplayer/MainWindow.cpp" line="354"/>
         <source>Play &amp;DVD</source>
-        <translation>Jouer &amp;DVD</translation>
+        <translation type="obsolete">Jouer &amp;DVD</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="357"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="385"/>
         <source>Play &amp;URL...</source>
         <translation>Jouer &amp;URL...</translation>
     </message>
     <message>
         <location filename="../../quarkplayer/MainWindow.cpp" line="360"/>
         <source>Play &amp;VCD</source>
-        <translation>Jouer &amp;VCD</translation>
+        <translation type="obsolete">Jouer &amp;VCD</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="366"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="394"/>
         <source>&amp;Equalizer...</source>
         <translation>&amp;Equalizer...</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="369"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="397"/>
         <source>&amp;Configure QuarkPlayer...</source>
         <translation>&amp;Configurer QuarkPlayer...</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="372"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="400"/>
         <source>&amp;Clear</source>
         <translation>&amp;Effacer</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="381"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="409"/>
         <source>&amp;Recent Files</source>
         <translation>Fichiers &amp;récents</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="384"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="412"/>
         <source>&amp;File</source>
         <translation>&amp;Fichier</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="387"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="415"/>
         <source>&amp;Help</source>
         <translation>&amp;Aide</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="165"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="167"/>
         <source>Multimedia</source>
         <translation>Multimédia</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="168"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="170"/>
         <source>Playlist</source>
         <translation>Liste de lecture</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="169"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="171"/>
         <source>All Files</source>
         <translation>Tous les fichiers</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="180"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="182"/>
         <source>Select DVD folder</source>
         <translation>Sélectionner un répertoire DVD</translation>
     </message>
@@ -482,107 +1385,137 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
         <translation type="obsolete">Nouveau média</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="385"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="413"/>
         <source>&amp;Play</source>
         <translation>&amp;Jouer</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="389"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="420"/>
         <source>P&amp;lay</source>
         <translation>Jo&amp;uer</translation>
     </message>
     <message>
         <location filename="../../quarkplayer/MainWindow.cpp" line="392"/>
         <source>&amp;Pause</source>
-        <translation>&amp;Pause</translation>
+        <translation type="obsolete">&amp;Pause</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="395"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="423"/>
         <source>&amp;Stop</source>
         <translation>&amp;Stop</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="398"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="417"/>
         <source>P&amp;revious Track</source>
         <translation>Piste p&amp;récédente</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="401"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="426"/>
         <source>&amp;Next Track</source>
         <translation>Piste &amp;suivante</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="404"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="429"/>
         <source>&amp;FullScreen</source>
         <translation>&amp;Plein écran</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer/MainWindow.cpp" line="363"/>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="391"/>
         <source>New Media Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="200"/>
+        <source>Select VCD folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="373"/>
+        <source>&amp;Report a bug...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="382"/>
+        <source>Play &amp;DVD...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer/MainWindow.cpp" line="388"/>
+        <source>Play &amp;VCD...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MediaController</name>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="154"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="176"/>
         <source>Select Subtitle File</source>
         <translation>Sélectionner un fichier de sous-titre</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="155"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="177"/>
         <source>Subtitle</source>
         <translation>Sous-titre</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="156"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="178"/>
         <source>All Files</source>
         <translation>Tous les fichiers</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="131"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="144"/>
         <source>&amp;Open Subtitle...</source>
         <translation>&amp;Ouvrir sous-titre...</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="134"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="156"/>
         <source>&amp;Audio Channels</source>
         <translation>Pistes &amp;audio</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="137"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="159"/>
         <source>&amp;Subtitles</source>
         <translation>&amp;Sous-titres</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="140"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="162"/>
         <source>&amp;Title</source>
         <translation>&amp;Titre</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="143"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="165"/>
         <source>&amp;Chapter</source>
         <translation>&amp;Chapitre</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="146"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="168"/>
         <source>&amp;Angle</source>
         <translation>&amp;Angle</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="147"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="169"/>
         <source>&amp;Audio</source>
         <translation>&amp;Audio</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="148"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="170"/>
         <source>&amp;Subtitle</source>
         <translation>&amp;Sous-titre</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="149"/>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="171"/>
         <source>&amp;Browse</source>
         <translation>&amp;Parcourir</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="151"/>
+        <source>&amp;Find Subtitles...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/mediacontroller/MediaController.cpp" line="153"/>
+        <source>&amp;Upload Subtitles...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -606,52 +1539,52 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>MediaDataWidget</name>
     <message>
-        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="102"/>
+        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="113"/>
         <source>Title:</source>
         <translation>Titre :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="136"/>
+        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="147"/>
         <source>Url:</source>
         <translation>Lien :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="110"/>
+        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="121"/>
         <source>File:</source>
         <translation>Fichier :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="115"/>
+        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="126"/>
         <source>Artist:</source>
         <translation>Artiste :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="119"/>
+        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="130"/>
         <source>Album:</source>
         <translation>Album :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="123"/>
+        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="134"/>
         <source>Stream Name:</source>
         <translation>Nom du flux :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="127"/>
+        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="138"/>
         <source>Stream Genre:</source>
         <translation>Genre du flux :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="131"/>
+        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="142"/>
         <source>Stream Website:</source>
         <translation>Site web du flux :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="142"/>
+        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="153"/>
         <source>Bitrate:</source>
         <translation>Débit :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="142"/>
+        <location filename="../../quarkplayer-plugins/videowidget/MediaDataWidget.cpp" line="153"/>
         <source>kbps</source>
         <translation>kbps</translation>
     </message>
@@ -659,152 +1592,152 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>MediaInfoWindow</name>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="303"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="327"/>
         <source>Media Info</source>
         <translation>Informations média</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="292"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="316"/>
         <source>Metadata</source>
         <translation>Métadonnées</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="293"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="317"/>
         <source># Track:</source>
         <translation># Piste :</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="294"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="318"/>
         <source>Title:</source>
         <translation>Titre :</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="295"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="319"/>
         <source>Artist:</source>
         <translation>Artiste :</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="296"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="320"/>
         <source>Album:</source>
         <translation>Album :</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="297"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="321"/>
         <source>Year:</source>
         <translation>Année :</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="298"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="323"/>
         <source>Comment:</source>
         <translation>Commentaire :</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="299"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="322"/>
         <source>Genre:</source>
         <translation>Genre :</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="300"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="324"/>
         <source>Format Info</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="304"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="329"/>
         <source>Cover Art</source>
         <translation>Couverture</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="305"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="330"/>
         <source>Artist</source>
         <translation>Artiste</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="306"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="331"/>
         <source>Lyrics from &lt;a href=&quot;http://lyricwiki.org&quot;&gt;LyricWiki&lt;/a&gt;</source>
         <translation>Paroles provenant de &lt;a href=&quot;http://lyricwiki.org&quot;&gt;LyricWiki&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="307"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="332"/>
         <source>Lyrics</source>
         <translation>Paroles</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="111"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="107"/>
         <source>Refresh Informations</source>
         <translation>Rafraichir les informations</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="152"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="157"/>
         <source>Type:</source>
         <translation>Type :</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="162"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="167"/>
         <source>Length:</source>
         <translation>Longueur :</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="166"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="171"/>
         <source>Bitrate:</source>
         <translation>Débit :</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="166"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="171"/>
         <source>kbps</source>
         <translation>kbps</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="170"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="175"/>
         <source>File size:</source>
         <translation>Taille du fichier :</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="170"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="175"/>
         <source>MB</source>
         <translation>Mo</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="174"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="179"/>
         <source>Channels:</source>
         <translation>Canaux :</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="178"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="183"/>
         <source>Sample rate:</source>
         <translation>Echantillonnage :</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="178"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="183"/>
         <source>Hz</source>
         <translation>Hz</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="114"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="110"/>
         <source>Open Directory</source>
         <translation>Ouvrir le répertoire</translation>
     </message>
     <message>
-        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="302"/>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="326"/>
         <source>&lt;a href=&quot;http://musicbrainz.org/doc/PicardDownload&quot;&gt;MusicBrainz Picard Tagger&lt;/a&gt; is recommended for tagging your music files</source>
         <translation>&lt;a href=&quot;http://musicbrainz.org/doc/PicardDownload&quot;&gt;MusicBrainz Picard Tagger&lt;/a&gt; est recommandé pour &quot;tagger&quot; vos fichiers musicaux</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="190"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="195"/>
         <source>Warning:</source>
         <translation>Attention :</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="186"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="191"/>
         <source>WMA is a proprietary, Windows specific audio codec that includes DRM and thus is not recommended</source>
         <translation>WMA est un codec audio propriétaire, spécifique à Windows, qui inclu des DRM et donc n&apos;est pas recommandé</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="187"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="192"/>
         <source>Use instead a well supported standard audio codec like MP3 or Ogg/Vorbis</source>
         <translation>Utilisez un codec audio standard mieux supporté comme MP3 ou Ogg/Vorbis</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="191"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="196"/>
         <source>WMV is a proprietary, Windows specific video codec that includes DRM and thus is not recommended</source>
         <translation>WMV est un codec vidéo propriétaire, spécifique à Windows, qui inclu des DRM et donc n&apos;est pas recommandé</translation>
     </message>
@@ -814,17 +1747,42 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
         <translation type="obsolete">Utilisez un codec vidéo standard mieux supporté comme XVid ou Ogg/Theora</translation>
     </message>
     <message>
-        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="192"/>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="197"/>
         <source>Use instead a well supported standard video codec like Xvid or Ogg/Theora</source>
         <translation>Utilisez un codec vidéo standard mieux supporté comme Xvid ou Ogg/Theora</translation>
+    </message>
+    <message>
+        <location filename="../../build/libs/mediainfowindow/ui_MediaInfoWindow.h" line="328"/>
+        <source>Covert Art from &lt;a href=&quot;http://amazon.com&quot;&gt;Amazon&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="230"/>
+        <source>Looking for the lyrics...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../libs/mediainfowindow/MediaInfoWindow.cpp" line="252"/>
+        <source>Error: no lyrics found</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>PlayToolBar</name>
     <message>
-        <location filename="../../quarkplayer-plugins/playtoolbar/PlayToolBar.cpp" line="165"/>
+        <location filename="../../quarkplayer-plugins/playtoolbar/PlayToolBar.cpp" line="181"/>
         <source>Play ToolBar</source>
         <translation>Barre de contrôle</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/playtoolbar/PlayToolBar.cpp" line="104"/>
+        <source>&amp;Pause</source>
+        <translation type="unfinished">&amp;Pause</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/playtoolbar/PlayToolBar.cpp" line="124"/>
+        <source>P&amp;lay</source>
+        <translation type="unfinished">Jo&amp;uer</translation>
     </message>
 </context>
 <context>
@@ -1003,7 +1961,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
         <translation>Liste de lecture chargée :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="439"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="438"/>
         <source>seconds</source>
         <translation>secondes</translation>
     </message>
@@ -1013,7 +1971,7 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
         <translation>Liste de lecture sauvegardée :</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="415"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="414"/>
         <source>Searching...</source>
         <translation>Recherche en cours...</translation>
     </message>
@@ -1023,12 +1981,12 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
         <translation type="obsolete">Recherche terminée</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="439"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="438"/>
         <source>medias</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="438"/>
+        <location filename="../../quarkplayer-plugins/playlist/PlaylistWidget.cpp" line="437"/>
         <source>Search finished:</source>
         <translation>Recherche terminée :</translation>
     </message>
@@ -1308,39 +2266,49 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>StatusBar</name>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="153"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="173"/>
         <source>Media finishing...</source>
         <translation>Lecture bientôt finie...</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="158"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="178"/>
         <source>%1 seconds left...</source>
         <translation>%1 secondes avant la fin de la lecture...</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="122"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="134"/>
         <source>Playing</source>
         <translation>Lecture</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="126"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="138"/>
         <source>Stopped</source>
         <translation>Arrêt</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="130"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="142"/>
         <source>Paused</source>
         <translation>Pause</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="134"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="146"/>
         <source>Loading...</source>
         <translation>Chargement...</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="138"/>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="150"/>
         <source>Buffering...</source>
         <translation>Mise en tampon...</translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="159"/>
+        <source>Buffering... %1%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../quarkplayer-plugins/statusbar/StatusBar.cpp" line="163"/>
+        <source>End of Media</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1384,12 +2352,12 @@ the Free Software Foundation, either version 3 of the License, or&lt;br&gt;
 <context>
     <name>WelcomeWindow</name>
     <message>
-        <location filename="../../quarkplayer-plugins/welcome/WelcomeWindow.cpp" line="44"/>
+        <location filename="../../quarkplayer-plugins/welcome/WelcomeWindow.cpp" line="57"/>
         <source>Welcome!</source>
         <translation>Bienvenue !</translation>
     </message>
     <message>
-        <location filename="../../quarkplayer-plugins/welcome/WelcomeWindow.cpp" line="53"/>
+        <location filename="../../quarkplayer-plugins/welcome/WelcomeWindow.cpp" line="66"/>
         <source>Welcome to QuarkPlayer-%1!&lt;br&gt;&lt;br&gt;QuarkPlayer is a multimedia application that play your music and videos.&lt;br&gt;&lt;br&gt;This is free software and everything is licensed under GNU GPLv3+ terms.&lt;br&gt;&lt;br&gt;QuarkPlayer uses different backends (DirectShow, GStreamer, VLC, MPlayer...) thanks to the Phonon library. It also relies on an advanced plugin system and is available under Windows, Linux and soon Mac OS X.</source>
         <translation type="unfinished"></translation>
     </message>

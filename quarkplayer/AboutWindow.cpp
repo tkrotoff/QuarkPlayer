@@ -44,13 +44,8 @@ AboutWindow::AboutWindow(QWidget * parent)
 #ifdef TAGLIB
 		"TagLib: " + QString::number(TAGLIB_MAJOR_VERSION) + "." +
 			QString::number(TAGLIB_MINOR_VERSION) + "." +
-			QString::number(TAGLIB_PATCH_VERSION) + "<br>"
+			QString::number(TAGLIB_PATCH_VERSION)
 #endif	//TAGLIB
-		"Silk Icon Theme: <a href=\"http://www.famfamfam.com/lab/icons/silk/\">http://www.famfamfam.com/lab/icons/silk/</a><br>"
-		"Oxygen Icon Theme: <a href=\"http://www.oxygen-icons.org/\">http://www.oxygen-icons.org/</a><br>"
-		"Tango Icon Theme: <a href=\"http://tango.freedesktop.org/\">http://tango.freedesktop.org/</a><br>"
-		"Crystal Icon Theme: <a href=\"http://www.everaldo.com/crystal/\">http://www.everaldo.com/crystal/</a><br>"
-		"GartoonRedux Icon Theme: <a href=\"http://www.gnome-look.org/content/show.php?content=74841\">http://www.gnome-look.org/</a><br>"
 	);
 
 	_ui->metricsLabel->setText(

@@ -185,10 +185,6 @@ signals:
 	void tick(qint64 time);
 
 	/**
-	 *
-	void currentPositionPourcentChanged(int pourcent);
-
-	/**
 	 * Gives the media/stream/file duration in milliseconds.
 	 *
 	 * @param totalTime media duration in milliseconds
@@ -344,6 +340,8 @@ private slots:
 	void parseLine(const QString & line);
 
 	void finished(int exitCode, QProcess::ExitStatus exitStatus);
+
+	void error(QProcess::ProcessError error);
 
 private:
 
