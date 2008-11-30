@@ -102,7 +102,6 @@ add_subdirectory(3rdparty/phonon)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
 set(QT_PHONON_LIBRARY phonon)
 
-set(BUILD_PHONON_DS9 1)
 set(PHONON_LIBS phonon)
 add_subdirectory(3rdparty/ds9)
 
