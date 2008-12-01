@@ -27,6 +27,7 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
 #include <quarkplayer/config/Config.h>
+#include <quarkplayer/config/PlaylistConfig.h>
 #include <quarkplayer/PluginsManager.h>
 
 #include <tkutil/TkIcon.h>
@@ -75,7 +76,7 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	_playlistFilter = new PlaylistFilter(this, _playlistModel);
 
 	//TreeView
-	_treeView = new DragAndDropTreeView(_playlistModel, _playlistFilter);
+	_treeView = new DragAndDropTreeView(_playlistModel, _playlistFilter, uuid);
 	connect(_treeView, SIGNAL(activated(const QModelIndex &)),
 		_playlistFilter, SLOT(play(const QModelIndex &)));
 	_treeView->setModel(_playlistFilter);
@@ -98,11 +99,17 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	//Add to the main window
 	_dockWidget = new QDockWidget();
+	connect(_dockWidget, SIGNAL(visibilityChanged(bool)),
+		SLOT(dockWidgetVisibilityChanged(bool)));
 	quarkPlayer.mainWindow()->addPlaylistDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
+
+	//Determine if this playlist is the active one or not
+	connect(&PlaylistConfig::instance(), SIGNAL(activePlaylistChanged(const QUuid &)),
+		SLOT(activePlaylistChanged(const QUuid &)));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -332,21 +339,26 @@ void PlaylistWidget::savePlaylist() {
 }
 
 void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
-	foreach (Phonon::MediaObject * tmp, quarkPlayer().mediaObjectList()) {
-		tmp->disconnect(this);
+	disconnectFromMediaObjectList();
+	if (PlaylistConfig::instance().activePlaylist() == uuid()) {
+		connectToMediaObject(mediaObject);
+	}
+}
+
+void PlaylistWidget::connectToMediaObject(Phonon::MediaObject * mediaObject) {
+	if (!mediaObject) {
+		return;
 	}
 
 	//Next track
-	disconnect(ActionCollection::action("nextTrack"), 0, 0, 0);
 	connect(ActionCollection::action("nextTrack"), SIGNAL(triggered()),
 		_playlistFilter, SLOT(playNextTrack()));
 
 	//Previous track
-	disconnect(ActionCollection::action("previousTrack"), 0, 0, 0);
 	connect(ActionCollection::action("previousTrack"), SIGNAL(triggered()),
 		_playlistFilter, SLOT(playPreviousTrack()));
 
-	//FIXME aboutToFinish does not work properly with DS9 backend :/
+	//FIXME aboutToFinish does not work properly with DS9 backend???
 	//aboutToFinish -> let's queue/play the next track
 	connect(mediaObject, SIGNAL(aboutToFinish()),
 		_playlistFilter, SLOT(enqueueNextTrack()));
@@ -358,10 +370,25 @@ void PlaylistWidget::currentMediaObjectChanged(Phonon::MediaObject * mediaObject
 		SLOT(stateChanged(Phonon::State)));
 }
 
+void PlaylistWidget::disconnectFromMediaObjectList() {
+	foreach (Phonon::MediaObject * tmp, quarkPlayer().mediaObjectList()) {
+		tmp->disconnect(this);
+		tmp->disconnect(_playlistFilter);
+	}
+
+	//Next track
+	ActionCollection::action("nextTrack")->disconnect(_playlistFilter);
+
+	//Previous track
+	ActionCollection::action("previousTrack")->disconnect(_playlistFilter);
+}
+
 void PlaylistWidget::currentSourceChanged(const Phonon::MediaSource & source) {
-	//Each time the track changes, we enqueue the next track
-	//currentSourceChanged() is the only signal that we get when we queue tracks
-	_playlistFilter->setPositionAsNextTrack();
+	if (PlaylistConfig::instance().activePlaylist() == uuid()) {
+		//Each time the track changes, we enqueue the next track
+		//currentSourceChanged() is the only signal that we get when we queue tracks
+		_playlistFilter->setPositionAsNextTrack();
+	}
 }
 
 void PlaylistWidget::stateChanged(Phonon::State newState) {
@@ -438,5 +465,47 @@ void PlaylistWidget::search() {
 			" (" + QString::number(_playlistFilter->rowCount()) + " " + tr("medias") + ")");
 	} else {
 		updateWindowTitle();
+	}
+}
+
+bool PlaylistWidget::event(QEvent * event) {
+	switch (event->type()) {
+	case QEvent::WindowActivate:
+		//When this window is active, this playlist becomes the only active one
+		PlaylistConfig::instance().setActivePlaylist(uuid());
+		break;
+	}
+	return QWidget::event(event);
+}
+
+void PlaylistWidget::dockWidgetVisibilityChanged(bool visible) {
+	if (visible) {
+		//When this dockwidget is visible, this playlist becomes the only active one
+		PlaylistConfig::instance().setActivePlaylist(uuid());
+	}
+}
+
+void PlaylistWidget::activePlaylistChanged(const QUuid & _uuid) {
+	if (uuid() == _uuid) {
+		//This playlist is the active one
+
+		disconnectFromMediaObjectList();
+		connectToMediaObject(quarkPlayer().currentMediaObject());
+
+		QString title = _dockWidget->windowTitle();
+		if (title[0] != '!') {
+			_dockWidget->setWindowTitle('!' + title);
+		}
+	} else {
+		//This playlist is not the active one
+
+		disconnectFromMediaObjectList();
+
+		//updateWindowTitle();
+		QString title = _dockWidget->windowTitle();
+		if (title[0] == '!') {
+			title.remove(0, 1);
+			_dockWidget->setWindowTitle(title);
+		}
 	}
 }

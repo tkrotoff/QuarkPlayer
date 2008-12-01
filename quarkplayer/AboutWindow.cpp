@@ -49,7 +49,7 @@ AboutWindow::AboutWindow(QWidget * parent)
 	);
 
 	_ui->metricsLabel->setText(
-		"Pushing intelligence to the edge; KISS Keep It Simple, Stupid; Small is Beautiful!<br><br>"
+		"Pushing intelligence to the edge; KISS Keep It Simple, Stupid; Small is Beautiful!<br>"
 		"QuarkPlayer Core: " + QString::number(QUARKPLAYER_CORE_LOC) + " LOC<br>"
 		"QuarkPlayer Libraries: " + QString::number(QUARKPLAYER_LIBS_LOC) + " LOC<br>"
 		"QuarkPlayer Plugins: " + QString::number(QUARKPLAYER_PLUGINS_LOC) + " LOC<br>"

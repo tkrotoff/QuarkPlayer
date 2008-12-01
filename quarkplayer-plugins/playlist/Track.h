@@ -27,6 +27,9 @@
  * Each item inside the playlist is a Track object.
  * Thus Track should be a simple and lightweight class.
  *
+ * FIXME Should be renamed TrackData and moved to QuarkPlayer
+ * and used everywhere
+ *
  * @author Tanguy Krotoff
  */
 class Track {

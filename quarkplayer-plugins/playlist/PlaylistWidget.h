@@ -102,11 +102,21 @@ private slots:
 
 	void stateChanged(Phonon::State newState);
 
+	void dockWidgetVisibilityChanged(bool visible);
+
+	void activePlaylistChanged(const QUuid & uuid);
+
 private:
 
 	void populateActionCollection();
 
 	void createToolBar();
+
+	void connectToMediaObject(Phonon::MediaObject * mediaObject);
+
+	void disconnectFromMediaObjectList();
+
+	bool event(QEvent * event);
 
 	PlaylistModel * _playlistModel;
 

@@ -21,6 +21,8 @@
 
 #include <QtGui/QTreeView>
 
+#include <QtCore/QUuid>
+
 class PlaylistModel;
 class PlaylistFilter;
 
@@ -37,7 +39,7 @@ class DragAndDropTreeView : public QTreeView {
 	Q_OBJECT
 public:
 
-	DragAndDropTreeView(PlaylistModel * playlistModel, PlaylistFilter * playlistFilter);
+	DragAndDropTreeView(PlaylistModel * playlistModel, PlaylistFilter * playlistFilter, const QUuid & uuid);
 
 	~DragAndDropTreeView();
 
@@ -79,6 +81,8 @@ private:
 	PlaylistFilter * _playlistFilter;
 
 	MediaInfoWindow * _mediaInfoWindow;
+
+	QUuid _uuid;
 };
 
 #endif	//DRAGANDDROPTREEVIEW_H

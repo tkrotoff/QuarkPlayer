@@ -81,6 +81,7 @@ void PlaylistFilter::play(const QModelIndex & index) {
 }
 
 void PlaylistFilter::playNextTrack() {
+	qDebug() << __FUNCTION__;
 	play(nextTrack());
 }
 

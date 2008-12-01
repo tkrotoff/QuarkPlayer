@@ -22,6 +22,7 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
+#include <quarkplayer/config/PlaylistConfig.h>
 #include <quarkplayer/PluginsManager.h>
 
 #include <mediainfowindow/MediaInfoFetcher.h>
@@ -49,7 +50,7 @@ const int PlaylistModel::COLUMN_LENGTH = 4;
 const int PlaylistModel::COLUMN_FIRST = COLUMN_TRACK;
 const int PlaylistModel::COLUMN_LAST = COLUMN_LENGTH;
 
-static const int COLUMN_COUNT = 5;
+static const int COLUMN_COUNT = PlaylistModel::COLUMN_LAST + 1;
 
 static const int POSITION_INVALID = -1;
 const int PlaylistModel::APPEND_FILES = -1;
@@ -71,9 +72,14 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const 
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
 	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
 
-	//Optimization: loads the playlist only when all plugins have been loaded
-	connect(&PluginsManager::instance(), SIGNAL(allPluginsLoaded()),
-		SLOT(loadCurrentPlaylist()), Qt::QueuedConnection);
+	if (PluginsManager::instance().allPluginsAlreadyLoaded()) {
+		//If all the plugins are already loaded...
+		loadCurrentPlaylist();
+	} else {
+		//Optimization: loads the playlist only when all plugins have been loaded
+		connect(&PluginsManager::instance(), SIGNAL(allPluginsLoaded()),
+			SLOT(loadCurrentPlaylist()), Qt::QueuedConnection);
+	}
 
 	Config::instance().addKey(PLAYLIST_TRACK_DISPLAY_MODE_KEY, TrackDisplayModeNormal);
 }
@@ -150,15 +156,22 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 		else {
 			switch (column) {
 			case COLUMN_TITLE:
-				tmp = TkFile::dir(filename) + "/" +
+				if (!QUrl(filename).host().isEmpty()) {
+					//A filename that contains a host/server name is a remote/network media
+					//So let's keep the complete filename
+					tmp = filename;
+				} else {
+					tmp = TkFile::dir(filename) + "/" +
 						TkFile::removeFileExtension(TkFile::fileName(filename));
-				break;
-			}
 
-			//Resolve meta data file one by one
-			if (_mediaInfoFetcherRow == POSITION_INVALID) {
-				_mediaInfoFetcherRow = row;
-				_mediaInfoFetcher->start(filename);
+					//Resolve meta data file one by one
+					//Cannot do that for remote/network media, i.e URLs
+					if (_mediaInfoFetcherRow == POSITION_INVALID) {
+						_mediaInfoFetcherRow = row;
+						_mediaInfoFetcher->start(filename);
+					}
+				}
+				break;
 			}
 		}
 	}
@@ -263,6 +276,10 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 			findFiles->setFilesFoundLimit(500);
 			findFiles->setFindDirs(false);
 			findFiles->start();
+		} else if (!QUrl(filename).host().isEmpty()) {
+			//A filename that contains a host/server name is a remote/network media
+			//So it should be added to the playlist
+			filenameList << filename;
 		}
 	}
 
@@ -310,8 +327,10 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 }
 
 void PlaylistModel::addFilesToCurrentPlaylist(const QStringList & files) {
-	addFiles(files);
-	saveCurrentPlaylist();
+	if (_uuid == PlaylistConfig::instance().activePlaylist()) {
+		addFiles(files);
+		saveCurrentPlaylist();
+	}
 }
 
 void PlaylistModel::searchfinished(int timeElapsed) {
@@ -505,9 +524,11 @@ void PlaylistModel::clear() {
 void PlaylistModel::play(int position) {
 	setPosition(position);
 	if (_position != POSITION_INVALID) {
-		_quarkPlayer.play(Phonon::MediaSource(_filenames[_position].fileName()));
+		QString fileName(_filenames[position].fileName());
+		qDebug() << __FUNCTION__ << "Play file:" << fileName;
+		_quarkPlayer.play(fileName);
 	} else {
-		qCritical() << __FUNCTION__ << "Error: the position is invalid";
+		qCritical() << __FUNCTION__ << "Error: invalid position";
 	}
 }
 
@@ -518,11 +539,11 @@ void PlaylistModel::enqueue(int position) {
 		//better to erase it and be sure
 		_quarkPlayer.currentMediaObject()->clearQueue();
 
-		QString enqueueFileName(_filenames[position].fileName());
-		qDebug() << __FUNCTION__ << "Enqueue file:" << enqueueFileName;
-		_quarkPlayer.currentMediaObject()->enqueue(enqueueFileName);
+		QString fileName(_filenames[position].fileName());
+		qDebug() << __FUNCTION__ << "Enqueue file:" << fileName;
+		_quarkPlayer.currentMediaObject()->enqueue(fileName);
 	} else {
-		qCritical() << __FUNCTION__ << "Error: the position is invalid";
+		qCritical() << __FUNCTION__ << "Error: invalid position";
 	}
 }
 

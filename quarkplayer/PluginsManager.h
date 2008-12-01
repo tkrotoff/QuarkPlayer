@@ -44,6 +44,9 @@ public:
 	/** Loads all the available plugins. */
 	void loadAllPlugins(QuarkPlayer & quarkPlayer);
 
+	/** Loads a given plugin. */
+	bool loadPlugin(PluginData & pluginData);
+
 	/**
 	 * Loads/reloads a previously disabled plugin that matches the given PluginData filename.
 	 *
@@ -63,9 +66,6 @@ public:
 	 */
 	bool loadDisabledPlugin(const PluginData & pluginData);
 
-	/** Loads a given plugin. */
-	bool loadPlugin(PluginData & pluginData);
-
 	/** Deletes/unloads a given plugin. */
 	bool deletePlugin(PluginData & pluginData);
 
@@ -74,6 +74,9 @@ public:
 
 	/** Gets the list of available plugins. */
 	PluginData::PluginList plugins() const;
+
+	/** Gets the list of plugins that matches the given filename. */
+	PluginData::PluginList pluginDataList(const QString & fileName) const;
 
 	bool allPluginsAlreadyLoaded() const;
 
@@ -117,8 +120,6 @@ private:
 	 * Call by PluginsManager destructor.
 	 */
 	void deleteAllPlugins();
-
-	PluginData::PluginList pluginDataList(const QString & fileName) const;
 
 	/** Updates and synchronizes the given plugin with the list of plugins. */
 	void updatePluginData(const PluginData & pluginData);

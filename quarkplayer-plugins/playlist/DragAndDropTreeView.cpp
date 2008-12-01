@@ -23,6 +23,7 @@
 #include "UuidActionCollection.h"
 
 #include <quarkplayer/config/Config.h>
+#include <quarkplayer/config/PlaylistConfig.h>
 
 #include <mediainfowindow/MediaInfoWindow.h>
 #include <mediainfowindow/MediaInfoFetcher.h>
@@ -35,11 +36,12 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
-DragAndDropTreeView::DragAndDropTreeView(PlaylistModel * playlistModel, PlaylistFilter * playlistFilter) {
+DragAndDropTreeView::DragAndDropTreeView(PlaylistModel * playlistModel, PlaylistFilter * playlistFilter, const QUuid & uuid) {
 	_playlistModel = playlistModel;
 	_playlistFilter = playlistFilter;
 
 	_mediaInfoWindow = NULL;
+	_uuid = uuid;
 
 	setUniformRowHeights(true);
 	setDragEnabled(true);
@@ -69,6 +71,9 @@ DragAndDropTreeView::~DragAndDropTreeView() {
 }
 
 void DragAndDropTreeView::mousePressEvent(QMouseEvent * event) {
+	//When the user clicks on this playlist, it becomes the only active one
+	PlaylistConfig::instance().setActivePlaylist(_uuid);
+
 	if (event->button() == Qt::RightButton) {
 		showMenu(event->pos());
 	}
