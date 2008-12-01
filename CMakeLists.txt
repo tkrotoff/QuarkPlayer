@@ -33,6 +33,8 @@ endif (APPLE)
 
 
 #3rdparty libraries with no Qt dependency
+add_subdirectory(3rdparty/ZenLib)
+
 if (ZLIB)
 	add_subdirectory(3rdparty/zlib)
 	set(ZLIB_FOUND 1)
@@ -46,6 +48,8 @@ set(MINIZIP_FOUND 1)
 set(MINIZIP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib/contrib/minizip)
 set(MINIZIP_LIBRARY minizip)
 ##
+
+add_subdirectory(3rdparty/MediaInfo)
 
 if (TAGLIB)
 	add_subdirectory(3rdparty/taglib)
@@ -79,7 +83,7 @@ else (KDE4_FOUND)
 	include(${QT_USE_FILE})
 
 	#Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
-	#set(NEW_TITLE_CHAPTER_HANDLING 1)
+	set(NEW_TITLE_CHAPTER_HANDLING 1)
 
 	message(STATUS "KDE4 support disabled")
 endif (KDE4_FOUND)
