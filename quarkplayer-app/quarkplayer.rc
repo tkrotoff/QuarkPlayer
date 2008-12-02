@@ -23,12 +23,12 @@ VS_VERSION_INFO VERSIONINFO
 			BEGIN
 				VALUE "CompanyName", "Tanguy Krotoff"
 				VALUE "FileDescription", "QuarkPlayer"
-				VALUE "FileVersion", "@QUARKPLAYER_MAJOR_VERSION@.@QUARKPLAYER_MINOR_VERSION@.@QUARKPLAYER_PATCH_VERSION@"
+				VALUE "FileVersion", "@QUARKPLAYER_VERSION@"
 				VALUE "InternalName", "QuarkPlayer"
 				VALUE "LegalCopyright", "Copyright (C) 2008  Tanguy Krotoff"
 				VALUE "OriginalFilename", "quarkplayer.exe"
 				VALUE "ProductName", "QuarkPlayer"
-				VALUE "ProductVersion", "@QUARKPLAYER_MAJOR_VERSION@.@QUARKPLAYER_MINOR_VERSION@.@QUARKPLAYER_PATCH_VERSION@"
+				VALUE "ProductVersion", "@QUARKPLAYER_VERSION@"
 			END
 		END
 

@@ -1,6 +1,12 @@
 project(mediainfo)
 
+set(MEDIAINFO_MAJOR_VERSION 0)
+set(MEDIAINFO_MINOR_VERSION 7)
+set(MEDIAINFO_PATCH_VERSION 79)
+set(MEDIAINFO_VERSION ${MEDIAINFO_MAJOR_VERSION}.${MEDIAINFO_MINOR_VERSION}.${MEDIAINFO_PATCH_VERSION})
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
+
 include_directories(${ZLIB_INCLUDE_DIR})
 
 add_definitions(-DUNICODE -DMEDIAINFO_MINIMIZESIZE)
@@ -116,6 +122,7 @@ set(mediainfo_SRCS
 )
 
 if (WIN32)
+	#FIXME MediaInfo.rc should use ${MEDIAINFO_MAJOR_VERSION} and friends
 	list(APPEND mediainfo_SRCS
 		MediaInfo.rc
 	)
@@ -126,6 +133,11 @@ add_library(mediainfo SHARED ${mediainfo_SRCS})
 target_link_libraries(mediainfo
 	zenlib
 	${ZLIB_LIBRARY}
+)
+
+set_target_properties(mediainfo PROPERTIES
+	VERSION ${MEDIAINFO_VERSION}
+	SOVERSION ${MEDIAINFO_MAJOR_VERSION}
 )
 
 install(TARGETS mediainfo DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
