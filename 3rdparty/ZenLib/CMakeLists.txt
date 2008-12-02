@@ -2,6 +2,8 @@ project(zenlib)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 
+add_definitions(-DUNICODE)
+
 set(zenlib_SRCS
 	Conf.cpp
 	ConvertUTF.c

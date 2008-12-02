@@ -42,6 +42,10 @@ if (TAGLIB)
 	target_link_libraries(mediainfowindow tag)
 endif (TAGLIB)
 
+if (MEDIAINFO)
+	target_link_libraries(mediainfowindow mediainfo)
+endif (MEDIAINFO)
+
 #Translations
 add_qt_translations(${mediainfowindow_SRCS})
 

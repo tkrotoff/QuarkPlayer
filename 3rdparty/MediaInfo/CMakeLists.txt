@@ -1,9 +1,11 @@
-project(mediainfolib)
+project(mediainfo)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 include_directories(${ZLIB_INCLUDE_DIR})
 
-set(mediainfolib_SRCS
+add_definitions(-DUNICODE -DMEDIAINFO_MINIMIZESIZE)
+
+set(mediainfo_SRCS
 	File__Analyze.cpp
 	File__Analyze_Buffer.cpp
 	File__Analyze_Buffer_MinimizeSize.cpp
@@ -110,11 +112,20 @@ set(mediainfolib_SRCS
 	Video/File_Mpegv.cpp
 	Video/File_Vc1.cpp
 	MediaInfoDLL.cpp
+	MediaInfoDLL.def
 )
 
-add_library(mediainfolib SHARED ${mediainfolib_SRCS})
+if (WIN32)
+	list(APPEND mediainfo_SRCS
+		MediaInfo.rc
+	)
+endif (WIN32)
 
-target_link_libraries(mediainfolib
+add_library(mediainfo SHARED ${mediainfo_SRCS})
+
+target_link_libraries(mediainfo
 	zenlib
 	${ZLIB_LIBRARY}
 )
+
+install(TARGETS mediainfo DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})

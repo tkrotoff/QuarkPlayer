@@ -33,8 +33,6 @@ endif (APPLE)
 
 
 #3rdparty libraries with no Qt dependency
-add_subdirectory(3rdparty/ZenLib)
-
 if (ZLIB)
 	add_subdirectory(3rdparty/zlib)
 	set(ZLIB_FOUND 1)
@@ -49,7 +47,10 @@ set(MINIZIP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib/contrib/minizi
 set(MINIZIP_LIBRARY minizip)
 ##
 
-add_subdirectory(3rdparty/MediaInfo)
+if (MEDIAINFO)
+	add_subdirectory(3rdparty/ZenLib)
+	add_subdirectory(3rdparty/MediaInfo)
+endif (MEDIAINFO)
 
 if (TAGLIB)
 	add_subdirectory(3rdparty/taglib)

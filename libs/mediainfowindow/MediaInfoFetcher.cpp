@@ -55,10 +55,25 @@
 	#define Qt4QStringToTString(s) TagLib::String(s.toUtf8().data(), TagLib::String::UTF8)
 #endif	//TAGLIB
 
+#ifdef MEDIAINFO
+	#include <MediaInfo/MediaInfoDLL.h>
+#endif	//MEDIAINFO
+
 #include <QtCore/QUrl>
 #include <QtCore/QFile>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QDebug>
+
+#include <iostream>
+#include <iomanip>
+
+#ifdef __MINGW32__
+	#ifdef _UNICODE
+		#define itot _itow
+	#else	//_UNICODE
+		#define itot itoa
+	#endif	//_UNICODE
+#endif	//__MINGW32__
 
 MediaInfoFetcher::MediaInfoFetcher(QObject * parent)
 	: QObject(parent) {
@@ -119,6 +134,71 @@ void MediaInfoFetcher::start(const Phonon::MediaSource & mediaSource) {
 #else
 		startPhononResolver();
 #endif	//TAGLIB
+
+#ifdef MEDIAINFO
+		MediaInfoLib::MediaInfo mediaInfo;
+
+		MediaInfoLib::String display = mediaInfo.Option(_T("Info_Version"), _T("0.7.0.0;MediaInfoDLL_Example_MSVC;0.7.0.0")).c_str();
+
+		display += _T("\r\n\r\nInfo_Parameters\r\n");
+		display += mediaInfo.Option(_T("Info_Parameters")).c_str();
+
+		display += _T("\r\n\r\nInfo_Codecs\r\n");
+		display += mediaInfo.Option(_T("Info_Codecs")).c_str();
+
+		//An example of how to use the library
+		display += _T("\r\n\r\nOpen\r\n");
+		mediaInfo.Open(_T("Example.ogg"));
+
+		display += _T("\r\n\r\nInform with Complete=false\r\n");
+		mediaInfo.Option(_T("Complete"));
+		display += mediaInfo.Inform().c_str();
+
+		display += _T("\r\n\r\nInform with Complete=true\r\n");
+		mediaInfo.Option(_T("Complete"), _T("1"));
+		display += mediaInfo.Inform().c_str();
+
+		display += _T("\r\n\r\nCustom Inform\r\n");
+		mediaInfo.Option(_T("Inform"), _T("General;Example : FileSize=%FileSize%"));
+		display += mediaInfo.Inform().c_str();
+
+		display += _T("\r\n\r\nGet with Stream=General and Parameter=\"FileSize\"\r\n");
+		display += mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("FileSize"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name).c_str();
+
+		display += _T("\r\n\r\nGetI with Stream=General and Parameter=46\r\n");
+		display += mediaInfo.Get(MediaInfoLib::Stream_General, 0, 46, MediaInfoLib::Info_Text).c_str();
+
+		display += _T("\r\n\r\nCount_Get with StreamKind=Stream_Audio\r\n");
+
+#ifdef __MINGW32__
+		Char * C1 = new MediaInfoLib::Char[33];
+		_itot(mediaInfo.Count_Get(MediaInfoLib::Stream_Audio), C1, 10);
+		display +=C1;
+		delete[] C1;
+#else
+		MediaInfoLib::toStringStream stream;
+		stream << std::setbase(10) << mediaInfo.Count_Get(MediaInfoLib::Stream_Audio);
+		display += stream.str();
+#endif	//__MINGW32__
+
+		display += _T("\r\n\r\nGet with Stream=General and Parameter=\"AudioCount\"\r\n");
+		display += mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("AudioCount"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name).c_str();
+
+		display += _T("\r\n\r\nGet with Stream=Audio and Parameter=\"StreamCount\"\r\n");
+		display += mediaInfo.Get(MediaInfoLib::Stream_Audio, 0, _T("StreamCount"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name).c_str();
+
+		display += _T("\r\n\r\nClose\r\n");
+		mediaInfo.Close();
+
+#ifdef _UNICODE
+		qDebug() << __FUNCTION__ << display;
+		std::wcout << display;
+#else
+		qDebug() << __FUNCTION__ << display.c_str();
+		std::cout  << display;
+#endif	//_UNICODE
+
+#endif	//MEDIAINFO
 	}
 }
 
