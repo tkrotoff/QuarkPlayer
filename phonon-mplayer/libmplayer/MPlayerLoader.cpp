@@ -39,6 +39,9 @@ void MPlayerLoader::start(MPlayerProcess * process, const QStringList & argument
 
 	QStringList args;
 	args << readMediaSettings();
+	if (!arguments.isEmpty()) {
+		args << arguments;
+	}
 
 	//Check for the optical device and add new arguments if possible
 	if (filename.contains("dvd://")) {

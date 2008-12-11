@@ -53,6 +53,9 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * 
 	//Accepts Drag&Drop
 	setAcceptDrops(true);
 
+	//DockWidgets tabs are vertical like in Amarok
+	setDockOptions(QMainWindow::VerticalTabs);
+
 	addRecentFilesToMenu();
 
 	_playToolBar = NULL;
