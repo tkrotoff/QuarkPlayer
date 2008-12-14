@@ -420,7 +420,7 @@ void MainWindow::retranslate() {
 	ActionCollection::action("previousTrack")->setText(tr("P&revious Track"));
 	ActionCollection::action("previousTrack")->setIcon(TkIcon("media-skip-backward"));
 
-	ActionCollection::action("playPause")->setText(tr("P&lay"));
+	ActionCollection::action("playPause")->setText(tr("&Play/Pause"));
 	ActionCollection::action("playPause")->setIcon(TkIcon("media-playback-start"));
 
 	ActionCollection::action("stop")->setText(tr("&Stop"));

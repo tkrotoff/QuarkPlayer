@@ -309,10 +309,10 @@ void FileSearchModel::updateMediaInfo() {
 			if (track.fileName() == _mediaInfoFetcher->fileName() &&
 				!track.mediaDataResolved()) {
 
-				track.setTrackNumber(_mediaInfoFetcher->trackNumber());
-				track.setTitle(_mediaInfoFetcher->title());
-				track.setArtist(_mediaInfoFetcher->artist());
-				track.setAlbum(_mediaInfoFetcher->album());
+				track.setTrackNumber(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::TrackNumber));
+				track.setTitle(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title));
+				track.setArtist(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist));
+				track.setAlbum(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::Album));
 				track.setLength(_mediaInfoFetcher->length());
 				track.setMediaDataResolved(true);
 

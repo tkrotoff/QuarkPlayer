@@ -74,7 +74,7 @@ void MediaDataWidget::startMediaInfoFetcher(Phonon::MediaObject * mediaObject) {
 	} else {
 		//MediaSource is not a URL
 		//so everything is fine
-		_mediaInfoFetcher->start(mediaSource);
+		_mediaInfoFetcher->start(mediaSource, MediaInfoFetcher::ReadStyleAccurate);
 	}
 	_mediaInfoWindow->setMediaInfoFetcher(_mediaInfoFetcher);
 	_mediaInfoWindow->setLanguage(Config::instance().language());
@@ -96,14 +96,14 @@ void MediaDataWidget::updateMediaInfo() {
 	static const QString br("<br>");
 
 	QString filename = _mediaInfoFetcher->fileName();
-	QString title = _mediaInfoFetcher->title();
-	QString artist = _mediaInfoFetcher->artist();
-	QString album = _mediaInfoFetcher->album();
-	QString streamName = _mediaInfoFetcher->streamName();
-	QString streamGenre = _mediaInfoFetcher->streamGenre();
-	QString streamWebsite = _mediaInfoFetcher->streamWebsite();
-	QString streamUrl = _mediaInfoFetcher->streamUrl();
-	QString bitrate = _mediaInfoFetcher->bitrate();
+	QString title = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title);
+	QString artist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
+	QString album = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Album);
+	QString streamName = _mediaInfoFetcher->networkStreamValue(MediaInfoFetcher::StreamName);
+	QString streamGenre = _mediaInfoFetcher->networkStreamValue(MediaInfoFetcher::StreamGenre);
+	QString streamWebsite = _mediaInfoFetcher->networkStreamValue(MediaInfoFetcher::StreamWebsite);
+	QString streamUrl = _mediaInfoFetcher->networkStreamValue(MediaInfoFetcher::StreamURL);
+	QString bitrate = _mediaInfoFetcher->audioStreamValue(0, MediaInfoFetcher::AudioBitrate);
 
 	_currentCoverArtIndex = 0;
 	_coverArtList.clear();

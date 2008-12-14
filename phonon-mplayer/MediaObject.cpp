@@ -284,21 +284,37 @@ QString MediaObject::sourceFileName(const MediaSource & source) {
 	case MediaSource::Url:
 		fileName = source.url().toString();
 		break;
+
 	case MediaSource::Disc: {
 		Phonon::DiscType discType = source.discType();
 		MPlayerLoader::settings.opticalDeviceName = source.deviceName();
+#ifdef NEW_TITLE_CHAPTER_HANDLING
+		int title = currentTitle().index();
+#else
+		int title = currentTitle();
+#endif	//NEW_TITLE_CHAPTER_HANDLING
+
 		switch (discType) {
 		case Phonon::NoDisc:
 			qCritical() << __FUNCTION__ << "Error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
 			break;
 		case Phonon::Cd:
-			fileName = "cdda://" + QString::number(MPLAYER_DEFAULT_CDAUDIO_TITLE);
+			if (title == 0) {
+				title = MPLAYER_DEFAULT_CDAUDIO_TITLE;
+			}
+			fileName = "cdda://" + QString::number(title);
 			break;
 		case Phonon::Dvd:
-			fileName = "dvd://" + QString::number(MPLAYER_DEFAULT_DVD_TITLE);
+			if (title == 0) {
+				title = MPLAYER_DEFAULT_DVD_TITLE;
+			}
+			fileName = "dvd://" + QString::number(title);
 			break;
 		case Phonon::Vcd:
-			fileName = "vcd://" + QString::number(MPLAYER_DEFAULT_VCD_TITLE);
+			if (title == 0) {
+				title = MPLAYER_DEFAULT_VCD_TITLE;
+			}
+			fileName = "vcd://" + QString::number(title);
 			break;
 		default:
 			qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::Disc:" << discType;
@@ -306,6 +322,7 @@ QString MediaObject::sourceFileName(const MediaSource & source) {
 		}
 		}
 		break;
+
 	case MediaSource::Stream:
 		break;
 	default:

@@ -152,7 +152,7 @@ void FileBrowserTreeView::viewMediaInfo() {
 	QModelIndexList indexList = selectionModel()->selectedRows();
 	if (!indexList.isEmpty()) {
 		QModelIndex index(indexList.at(0));
-		mediaInfoFetcher->start(fileInfo(index).absoluteFilePath());
+		mediaInfoFetcher->start(fileInfo(index).absoluteFilePath(), MediaInfoFetcher::ReadStyleAccurate);
 	}
 	mediaInfoWindow->setMediaInfoFetcher(mediaInfoFetcher);
 	mediaInfoWindow->setLanguage(Config::instance().language());

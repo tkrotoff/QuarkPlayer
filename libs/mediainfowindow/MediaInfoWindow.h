@@ -41,7 +41,7 @@ class QLabel;
 class QToolButton;
 
 /**
- * Shows the album cover art and other infos about the media playing.
+ * Shows the album artwork and other infos about the media playing.
  *
  * FIXME This should be moved to a quarkplayer plugin. Needs a better
  * plugin support for that (see QtCreator)
@@ -103,8 +103,6 @@ private:
 	QToolButton * _refreshButton;
 
 	QToolButton * _openDirectoryButton;
-
-	QString _coverArtDir;
 
 	QString _language;
 };

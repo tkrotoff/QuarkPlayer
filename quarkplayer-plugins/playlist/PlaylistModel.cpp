@@ -470,7 +470,7 @@ void PlaylistModel::updateMediaInfo() {
 				TrackDisplayMode trackDisplayMode = static_cast<TrackDisplayMode>(Config::instance().value(PLAYLIST_TRACK_DISPLAY_MODE_KEY).toInt());
 				switch (trackDisplayMode) {
 				case TrackDisplayModeNormal:
-					track.setTrackNumber(_mediaInfoFetcher->trackNumber());
+					track.setTrackNumber(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::TrackNumber));
 					break;
 				case TrackDisplayModeWinamp:
 					//Display track numbers like Winamp
@@ -480,9 +480,9 @@ void PlaylistModel::updateMediaInfo() {
 					qCritical() << __FUNCTION__ << "Error: unknown TrackDisplayMode:" << trackDisplayMode;
 				}
 
-				track.setTitle(_mediaInfoFetcher->title());
-				track.setArtist(_mediaInfoFetcher->artist());
-				track.setAlbum(_mediaInfoFetcher->album());
+				track.setTitle(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title));
+				track.setArtist(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist));
+				track.setAlbum(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::Album));
 				track.setLength(_mediaInfoFetcher->length());
 				track.setMediaDataResolved(true);
 

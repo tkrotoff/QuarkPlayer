@@ -66,14 +66,7 @@
 
 #include <iostream>
 #include <iomanip>
-
-#ifdef __MINGW32__
-	#ifdef _UNICODE
-		#define itot _itow
-	#else	//_UNICODE
-		#define itot itoa
-	#endif	//_UNICODE
-#endif	//__MINGW32__
+#include <string>
 
 MediaInfoFetcher::MediaInfoFetcher(QObject * parent)
 	: QObject(parent) {
@@ -89,31 +82,37 @@ MediaInfoFetcher::~MediaInfoFetcher() {
 void MediaInfoFetcher::clear() {
 	_fetched = false;
 
+	//General
+	_filename.clear();
 	_isUrl = false;
-
-	_trackNumber = -1;
-	_title.clear();
-	_artist.clear();
-	_album.clear();
-	_year = -1;
-	_genre.clear();
-	_comment.clear();
-
+	_fileSize = -1;
 	_length = -1;
-	_bitrate = -1;
-	_sampleRate = -1;
-	_channels = -1;
+	_encodedApplication.clear();
 
-	_streamName.clear();
-	_streamGenre.clear();
-	_streamWebsite.clear();
-	_streamUrl.clear();
+	//metaData
+	_metadataHash.clear();
+
+	//Audio
+	_audioStreamCount = 0;
+	_audioStreamHash.clear();
+
+	//Video
+	_videoStreamCount = 0;
+	_videoStreamHash.clear();
+
+	//Text
+	_textStreamCount = 0;
+	_textStreamHash.clear();
+
+	//Stream
+	_networkStreamHash.clear();
 }
 
-void MediaInfoFetcher::start(const Phonon::MediaSource & mediaSource) {
+void MediaInfoFetcher::start(const Phonon::MediaSource & mediaSource, ReadStyle readStyle) {
 	clear();
 
 	_mediaSource = mediaSource;
+	_readStyle = readStyle;
 
 	if (_mediaSource.type() == Phonon::MediaSource::Url) {
 		_filename = _mediaSource.url().toString();
@@ -136,68 +135,7 @@ void MediaInfoFetcher::start(const Phonon::MediaSource & mediaSource) {
 #endif	//TAGLIB
 
 #ifdef MEDIAINFO
-		MediaInfoLib::MediaInfo mediaInfo;
-
-		MediaInfoLib::String display = mediaInfo.Option(_T("Info_Version"), _T("0.7.0.0;MediaInfoDLL_Example_MSVC;0.7.0.0")).c_str();
-
-		display += _T("\r\n\r\nInfo_Parameters\r\n");
-		display += mediaInfo.Option(_T("Info_Parameters")).c_str();
-
-		display += _T("\r\n\r\nInfo_Codecs\r\n");
-		display += mediaInfo.Option(_T("Info_Codecs")).c_str();
-
-		//An example of how to use the library
-		display += _T("\r\n\r\nOpen\r\n");
-		mediaInfo.Open(_T("Example.ogg"));
-
-		display += _T("\r\n\r\nInform with Complete=false\r\n");
-		mediaInfo.Option(_T("Complete"));
-		display += mediaInfo.Inform().c_str();
-
-		display += _T("\r\n\r\nInform with Complete=true\r\n");
-		mediaInfo.Option(_T("Complete"), _T("1"));
-		display += mediaInfo.Inform().c_str();
-
-		display += _T("\r\n\r\nCustom Inform\r\n");
-		mediaInfo.Option(_T("Inform"), _T("General;Example : FileSize=%FileSize%"));
-		display += mediaInfo.Inform().c_str();
-
-		display += _T("\r\n\r\nGet with Stream=General and Parameter=\"FileSize\"\r\n");
-		display += mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("FileSize"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name).c_str();
-
-		display += _T("\r\n\r\nGetI with Stream=General and Parameter=46\r\n");
-		display += mediaInfo.Get(MediaInfoLib::Stream_General, 0, 46, MediaInfoLib::Info_Text).c_str();
-
-		display += _T("\r\n\r\nCount_Get with StreamKind=Stream_Audio\r\n");
-
-#ifdef __MINGW32__
-		Char * C1 = new MediaInfoLib::Char[33];
-		_itot(mediaInfo.Count_Get(MediaInfoLib::Stream_Audio), C1, 10);
-		display +=C1;
-		delete[] C1;
-#else
-		MediaInfoLib::toStringStream stream;
-		stream << std::setbase(10) << mediaInfo.Count_Get(MediaInfoLib::Stream_Audio);
-		display += stream.str();
-#endif	//__MINGW32__
-
-		display += _T("\r\n\r\nGet with Stream=General and Parameter=\"AudioCount\"\r\n");
-		display += mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("AudioCount"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name).c_str();
-
-		display += _T("\r\n\r\nGet with Stream=Audio and Parameter=\"StreamCount\"\r\n");
-		display += mediaInfo.Get(MediaInfoLib::Stream_Audio, 0, _T("StreamCount"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name).c_str();
-
-		display += _T("\r\n\r\nClose\r\n");
-		mediaInfo.Close();
-
-#ifdef _UNICODE
-		qDebug() << __FUNCTION__ << display;
-		std::wcout << display;
-#else
-		qDebug() << __FUNCTION__ << display.c_str();
-		std::cout  << display;
-#endif	//_UNICODE
-
+		QtConcurrent::run(this, &MediaInfoFetcher::startMediaInfoLibResolver);
 #endif	//MEDIAINFO
 	}
 }
@@ -255,25 +193,25 @@ void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State ol
 	}
 
 	if (newState == Phonon::StoppedState) {
-		_trackNumber = metaData.value("TRACKNUMBER").toInt();
-		_title = metaData.value("TITLE");
-		_artist = metaData.value("ARTIST");
-		_album = metaData.value("ALBUM");
-		_year = metaData.value("DATE").toInt();
-		_genre = metaData.value("GENRE");
-		_comment = metaData.value("COMMENT");
+		insertMetadata(TrackNumber, metaData.value("TRACKNUMBER").trimmed());
+		insertMetadata(Title, metaData.value("TITLE").trimmed());
+		insertMetadata(Artist, metaData.value("ARTIST").trimmed());
+		insertMetadata(Album, metaData.value("ALBUM").trimmed());
+		insertMetadata(Year, metaData.value("DATE").trimmed());
+		insertMetadata(Genre, metaData.value("GENRE").trimmed());
+		insertMetadata(Comment, metaData.value("COMMENT").trimmed());
 
 		//Converts from milliseconds to seconds
 		_length = metaData.value("LENGTH").toInt() / 1000.0;
 		//Converts from bps to kbps
-		_bitrate = metaData.value("BITRATE").toInt() / 1000;
-		_sampleRate = metaData.value("SAMPLERATE").toInt();
-		_channels = metaData.value("CHANNELS").toInt();
+		insertAudioStream(0, AudioBitrate, QString::number(metaData.value("BITRATE").trimmed().toInt() / 1000));
+		insertAudioStream(0, AudioSampleRate, metaData.value("SAMPLERATE").trimmed());
+		insertAudioStream(0, AudioChannelCount, metaData.value("CHANNELS").trimmed());
 
-		_streamName = metaData.value("STREAM_NAME");
-		_streamGenre = metaData.value("STREAM_GENRE");
-		_streamWebsite = metaData.value("STREAM_WEBSITE");
-		_streamUrl = metaData.value("STREAM_URL");
+		insertNetworkStream(StreamName, metaData.value("STREAM_NAME").trimmed());
+		insertNetworkStream(StreamGenre, metaData.value("STREAM_GENRE").trimmed());
+		insertNetworkStream(StreamWebsite, metaData.value("STREAM_WEBSITE").trimmed());
+		insertNetworkStream(StreamURL, metaData.value("STREAM_URL").trimmed());
 
 		_fetched = true;
 		emit fetched();
@@ -282,8 +220,20 @@ void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State ol
 
 void MediaInfoFetcher::startTagLibResolver() {
 #ifdef TAGLIB
+	TagLib::AudioProperties::ReadStyle readStyle = TagLib::AudioProperties::Average;
+	switch (_readStyle) {
+	case ReadStyleFast:
+		readStyle = TagLib::AudioProperties::Average;
+		break;
+	case ReadStyleAccurate:
+		readStyle = TagLib::AudioProperties::Accurate;
+		break;
+	default:
+		qCritical() << "Error: unknown ReadStyle:" << _readStyle;
+	}
+
 	TagLib::String str(Qt4QStringToTString(_filename));
-	TagLib::FileRef fileRef(str.toCString());
+	TagLib::FileRef fileRef(str.toCString(), true, readStyle);
 
 	if (fileRef.isNull()) {
 		qCritical() << __FUNCTION__ << "Error: the FileRef is null:" << _filename;
@@ -318,13 +268,13 @@ void MediaInfoFetcher::startTagLibResolver() {
 		TagLib::Tag * tag = fileRef.tag();
 		if (tag) {
 			if (!tag->isEmpty()) {
-				_trackNumber = tag->track();
-				_title = TStringToQString(tag->title()).trimmed();
-				_artist = TStringToQString(tag->artist()).trimmed();
-				_album = TStringToQString(tag->album()).trimmed();
-				_year = tag->year();
-				_genre = TStringToQString(tag->genre()).trimmed();
-				_comment = TStringToQString(tag->comment()).trimmed();
+				insertMetadata(TrackNumber, QString::number(tag->track()));
+				insertMetadata(Title, TStringToQString(tag->title()).trimmed());
+				insertMetadata(Artist, TStringToQString(tag->artist()).trimmed());
+				insertMetadata(Album, TStringToQString(tag->album()).trimmed());
+				insertMetadata(Year, QString::number(tag->year()));
+				insertMetadata(Genre, TStringToQString(tag->genre()).trimmed());
+				insertMetadata(Comment, TStringToQString(tag->comment()).trimmed());
 			}
 		}
 
@@ -332,15 +282,91 @@ void MediaInfoFetcher::startTagLibResolver() {
 		if (audioProperties) {
 			//Converts to seconds since Phonon gives us milliseconds
 			_length = audioProperties->length();
-			_bitrate = audioProperties->bitrate();
-			_sampleRate = audioProperties->sampleRate();
-			_channels = audioProperties->channels();
+			insertAudioStream(0, AudioBitrate, QString::number(audioProperties->bitrate()));
+			insertAudioStream(0, AudioSampleRate, QString::number(audioProperties->sampleRate()));
+			insertAudioStream(0, AudioChannelCount, QString::number(audioProperties->channels()));
 		}
 	}
 
 	_fetched = true;
 	emit fetched();
 #endif	//TAGLIB
+}
+
+void MediaInfoFetcher::startMediaInfoLibResolver() {
+#ifdef MEDIAINFO
+	if (_readStyle == ReadStyleAccurate) {
+		MediaInfoLib::MediaInfo mediaInfo;
+		mediaInfo.Open(_filename.toStdWString());
+
+		//Info_Parameters: gets all usefull MediaInfoLib parameters names
+		//mediaInfo.Option(_T("Info_Parameters"));
+		//mediaInfo.Option(_T("Complete"), _T("1"));
+		//qDebug() << QString::fromStdWString(mediaInfo.Inform());
+
+		//General
+		_fileSize = QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("FileSize"))).toInt();
+		_length = QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Duration"))).toInt() / 1000;
+		_bitrate = QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("OverallBitRate"))).toInt() / 1000;
+		_encodedApplication = QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Encoded_Application")));
+
+		//Metadata
+		insertMetadata(Title, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Title"))).trimmed());
+		insertMetadata(Artist, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Performer"))).trimmed());
+		insertMetadata(Album, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Album"))).trimmed());
+		insertMetadata(AlbumArtist, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Accompaniment"))).trimmed());
+		insertMetadata(TrackNumber, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Track/Position"))).trimmed());
+		insertMetadata(TrackCount, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Track/Position_Total"))).trimmed());
+		insertMetadata(OriginalArtist, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Original/Performer"))).trimmed());
+		insertMetadata(Composer, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Composer"))).trimmed());
+		insertMetadata(Publisher, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Publisher"))).trimmed());
+		insertMetadata(Genre, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Genre"))).trimmed());
+		insertMetadata(Year, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Recorded_Date"))).trimmed());
+		insertMetadata(BPM, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("BPM"))).trimmed());
+		insertMetadata(Copyright, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Copyright"))).trimmed());
+		insertMetadata(Comment, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Comment"))).trimmed());
+		insertMetadata(URL, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("URL"))).trimmed());
+		insertMetadata(MusicBrainzArtistId, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Artist Id"))).trimmed());
+		insertMetadata(MusicBrainzAlbumId, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Album Id"))).trimmed());
+
+		//Audio
+		_audioStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Audio);
+		for (int audioStreamId = 0; audioStreamId < _audioStreamCount; audioStreamId++) {
+			insertAudioStream(audioStreamId, AudioBitrate, QString::number(QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("BitRate"))).trimmed().toInt() / 1000));
+			insertAudioStream(audioStreamId, AudioBitrateMode, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("BitRate_Mode"))).trimmed());
+			insertAudioStream(audioStreamId, AudioSampleRate, QString::number(QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("SamplingRate"))).trimmed().toFloat() / 1000.0));
+			insertAudioStream(audioStreamId, AudioSampleBits, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("Resolution"))).trimmed());
+			insertAudioStream(audioStreamId, AudioChannelCount, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("Channel(s)"))).trimmed());
+			insertAudioStream(audioStreamId, AudioCodec, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("Codec/String"))).trimmed());
+			insertAudioStream(audioStreamId, AudioCodecProfile, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("Codec_Profile"))).trimmed());
+			insertAudioStream(audioStreamId, AudioLanguage, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("Language/String"))).trimmed());
+			insertAudioStream(audioStreamId, AudioEncodedLibrary, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("Encoded_Library/String"))).trimmed());
+		}
+
+		//Video
+		_videoStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Video);
+		for (int videoStreamId = 0; videoStreamId < _videoStreamCount; videoStreamId++) {
+			insertVideoStream(videoStreamId, VideoBitrate, QString::number(QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Video, videoStreamId, _T("BitRate"))).trimmed().toInt() / 1000));
+			insertVideoStream(videoStreamId, VideoWidth, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Video, videoStreamId, _T("Width"))).trimmed());
+			insertVideoStream(videoStreamId, VideoHeight, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Video, videoStreamId, _T("Height"))).trimmed());
+			insertVideoStream(videoStreamId, VideoFrameRate, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Video, videoStreamId, _T("FrameRate"))).trimmed());
+			insertVideoStream(videoStreamId, VideoFormat, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Video, videoStreamId, _T("Format"))).trimmed());
+			insertVideoStream(videoStreamId, VideoCodec, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Video, videoStreamId, _T("Codec/String"))).trimmed());
+			insertVideoStream(videoStreamId, VideoEncodedLibrary, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Video, videoStreamId, _T("Encoded_Library/String"))).trimmed());
+		}
+
+		//Text
+		_textStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Text);
+		for (int textStreamId = 0; textStreamId < _textStreamCount; textStreamId++) {
+			insertTextStream(textStreamId, TextFormat, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Text, textStreamId, _T("Format"))).trimmed());
+			insertTextStream(textStreamId, TextLanguage, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Text, textStreamId, _T("Language/String"))).trimmed());
+		}
+
+		//Yes: several fetched signal can be sent
+		_fetched = true;
+		emit fetched();
+	}
+#endif	//MEDIAINFO
 }
 
 void MediaInfoFetcher::determineFileTypeFromExtension() {
@@ -365,40 +391,12 @@ FileType MediaInfoFetcher::fileType() const {
 	return _fileType;
 }
 
-QString MediaInfoFetcher::trackNumber() const {
-	if (_trackNumber > 0) {
-		return QString::number(_trackNumber);
+QString MediaInfoFetcher::fileSize() const {
+	if (_fileSize > 0) {
+		return QString::number(_fileSize / 1024 / 1024.0);
 	} else {
 		return QString();
 	}
-}
-
-QString MediaInfoFetcher::title() const {
-	return _title;
-}
-
-QString MediaInfoFetcher::artist() const {
-	return _artist;
-}
-
-QString MediaInfoFetcher::album() const {
-	return _album;
-}
-
-QString MediaInfoFetcher::year() const {
-	if (_year > 0) {
-		return QString::number(_year);
-	} else {
-		return QString();
-	}
-}
-
-QString MediaInfoFetcher::genre() const {
-	return _genre;
-}
-
-QString MediaInfoFetcher::comment() const {
-	return _comment;
 }
 
 QString MediaInfoFetcher::length() const {
@@ -417,50 +415,113 @@ QString MediaInfoFetcher::bitrate() const {
 	}
 }
 
-QString MediaInfoFetcher::sampleRate() const {
-	if (_sampleRate > 0) {
-		return QString::number(_sampleRate);
+QString MediaInfoFetcher::encodedApplication() const {
+	return _encodedApplication;
+}
+
+//Metadata
+QString MediaInfoFetcher::metadataValue(Metadata metadata) const {
+	return _metadataHash.value(metadata);
+}
+
+void MediaInfoFetcher::insertMetadata(Metadata metadata, const QString & value) {
+	if (!_metadataHash.contains(metadata)) {
+		_metadataHash.insert(metadata, value);
 	} else {
-		return QString();
+		qCritical() << __FUNCTION__ << "Error: key already inserted:" << metadata;
 	}
 }
 
-QString MediaInfoFetcher::channels() const {
-	if (_channels > 0) {
-		return QString::number(_channels);
+//Audio
+int MediaInfoFetcher::audioStreamCount() const {
+	return _audioStreamCount;
+}
+
+QString MediaInfoFetcher::audioStreamValue(int audioStreamId, AudioStream audioStream) const {
+	//Constructs the key
+	//Example: audioStreamId = 1, audioStream = 9
+	//key = 19, not 1 + 9 = 10!
+	int key = QString(QString::number(audioStreamId) + QString::number(audioStream)).toInt();
+
+	return _audioStreamHash.value(key);
+}
+
+void MediaInfoFetcher::insertAudioStream(int audioStreamId, AudioStream audioStream, const QString & value) {
+	//Constructs the key
+	//Example: audioStreamId = 1, audioStream = 9
+	//key = 19, not 1 + 9 = 10!
+	int key = QString(QString::number(audioStreamId) + QString::number(audioStream)).toInt();
+
+	if (!_audioStreamHash.contains(key)) {
+		_audioStreamHash.insert(key, value);
 	} else {
-		return QString();
+		qCritical() << __FUNCTION__ << "Error: key already inserted:" << key;
 	}
 }
 
-QString MediaInfoFetcher::fileSize() {
-	QString tmp;
+//Video
+int MediaInfoFetcher::videoStreamCount() const {
+	return _videoStreamCount;
+}
 
-	if (!_isUrl) {
-		//Switch from bytes to megabytes
-		QFile file(_filename);
-		qint64 fileSize = file.size();
-		if (fileSize > 0) {
-			tmp.sprintf("%.3f", fileSize / 1000000.0);
-			tmp.replace(".", ",");
-		}
+QString MediaInfoFetcher::videoStreamValue(int videoStreamId, VideoStream videoStream) const {
+	//Constructs the key
+	//Example: videoStreamId = 1, videoStream = 9
+	//key = 19, not 1 + 9 = 10!
+	int key = QString(QString::number(videoStreamId) + QString::number(videoStream)).toInt();
+
+	return _videoStreamHash.value(key);
+}
+
+void MediaInfoFetcher::insertVideoStream(int videoStreamId, VideoStream videoStream, const QString & value) {
+	//Constructs the key
+	//Example: videoStreamId = 1, videoStream = 9
+	//key = 19, not 1 + 9 = 10!
+	int key = QString(QString::number(videoStreamId) + QString::number(videoStream)).toInt();
+
+	if (!_videoStreamHash.contains(key)) {
+		_videoStreamHash.insert(key, value);
+	} else {
+		qCritical() << __FUNCTION__ << "Error: key already inserted:" << key;
 	}
-
-	return tmp;
 }
 
-QString MediaInfoFetcher::streamName() const {
-	return _streamName;
+//Text
+int MediaInfoFetcher::textStreamCount() const {
+	return _textStreamCount;
 }
 
-QString MediaInfoFetcher::streamGenre() const {
-	return _streamGenre;
+QString MediaInfoFetcher::textStreamValue(int textStreamId, TextStream textStream) const {
+	//Constructs the key
+	//Example: textStreamId = 1, textStream = 9
+	//key = 19, not 1 + 9 = 10!
+	int key = QString(QString::number(textStreamId) + QString::number(textStream)).toInt();
+
+	return _textStreamHash.value(key);
 }
 
-QString MediaInfoFetcher::streamWebsite() const {
-	return _streamWebsite;
+void MediaInfoFetcher::insertTextStream(int textStreamId, TextStream textStream, const QString & value) {
+	//Constructs the key
+	//Example: textStreamId = 1, textStream = 9
+	//key = 19, not 1 + 9 = 10!
+	int key = QString(QString::number(textStreamId) + QString::number(textStream)).toInt();
+
+	if (!_textStreamHash.contains(key)) {
+		_textStreamHash.insert(key, value);
+	} else {
+		qCritical() << __FUNCTION__ << "Error: key already inserted:" << key;
+	}
 }
 
-QString MediaInfoFetcher::streamUrl() const {
-	return _streamUrl;
+//Network stream
+QString MediaInfoFetcher::networkStreamValue(NetworkStream networkStream) const {
+	return _networkStreamHash.value(networkStream);
+}
+
+void MediaInfoFetcher::insertNetworkStream(NetworkStream networkStream, const QString & value) {
+	if (!_networkStreamHash.contains(networkStream)) {
+		_networkStreamHash.insert(networkStream, value);
+	} else {
+		qCritical() << __FUNCTION__ << "Error: key already inserted:" << networkStream;
+	}
 }

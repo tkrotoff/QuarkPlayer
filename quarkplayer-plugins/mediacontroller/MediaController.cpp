@@ -63,7 +63,7 @@ MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	_toolBar = new MediaControllerToolBar(this);
 	_mainWindow->addToolBar(_toolBar);
 
-	_mediaController = NULL;
+	_currentMediaController = NULL;
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 
@@ -197,7 +197,7 @@ void MediaController::openSubtitleFile(const QString & subtitleFile) {
 	int id = 0;
 	Phonon::SubtitleDescription subtitle(id, properties);
 
-	_mediaController->setCurrentSubtitle(subtitle);
+	_currentMediaController->setCurrentSubtitle(subtitle);
 }
 
 void MediaController::removeAllAction(QObject * object) {
@@ -226,7 +226,7 @@ void MediaController::availableAudioChannelsChanged() {
 
 	QSignalMapper * signalMapper = new QSignalMapper(this);
 
-	QList<Phonon::AudioChannelDescription> audios = _mediaController->availableAudioChannels();
+	QList<Phonon::AudioChannelDescription> audios = _currentMediaController->availableAudioChannels();
 	removeAllAction(_menuAudioChannels);
 	removeAllAction(_toolBar->menuAudioChannels());
 	if (audios.isEmpty()) {
@@ -263,8 +263,8 @@ void MediaController::availableAudioChannelsChanged() {
 }
 
 void MediaController::actionAudioChannelTriggered(int id) {
-	QList<Phonon::AudioChannelDescription> audios = _mediaController->availableAudioChannels();
-	_mediaController->setCurrentAudioChannel(audios[id]);
+	QList<Phonon::AudioChannelDescription> audios = _currentMediaController->availableAudioChannels();
+	_currentMediaController->setCurrentAudioChannel(audios[id]);
 }
 
 void MediaController::availableSubtitlesChanged() {
@@ -277,7 +277,7 @@ void MediaController::availableSubtitlesChanged() {
 
 	QSignalMapper * signalMapper = new QSignalMapper(this);
 
-	QList<Phonon::SubtitleDescription> subtitles = _mediaController->availableSubtitles();
+	QList<Phonon::SubtitleDescription> subtitles = _currentMediaController->availableSubtitles();
 	removeAllAction(_menuSubtitles);
 	removeAllAction(_toolBar->menuSubtitles());
 	if (subtitles.isEmpty()) {
@@ -314,8 +314,8 @@ void MediaController::availableSubtitlesChanged() {
 }
 
 void MediaController::actionSubtitleTriggered(int id) {
-	QList<Phonon::SubtitleDescription> subtitles = _mediaController->availableSubtitles();
-	_mediaController->setCurrentSubtitle(subtitles[id]);
+	QList<Phonon::SubtitleDescription> subtitles = _currentMediaController->availableSubtitles();
+	_currentMediaController->setCurrentSubtitle(subtitles[id]);
 }
 
 void MediaController::availableTitlesChanged() {
@@ -327,7 +327,7 @@ void MediaController::availableTitlesChanged() {
 	QSignalMapper * signalMapper = new QSignalMapper(this);
 
 #ifdef NEW_TITLE_CHAPTER_HANDLING
-	QList<Phonon::TitleDescription> titles = _mediaController->availableTitles2();
+	QList<Phonon::TitleDescription> titles = _currentMediaController->availableTitles2();
 	removeAllAction(_menuTitles);
 	if (titles.isEmpty()) {
 		_menuTitles->addAction(ActionCollection::action("emptyMenu"));
@@ -341,7 +341,7 @@ void MediaController::availableTitlesChanged() {
 		signalMapper->setMapping(action, i);
 	}
 #else
-	int titles = _mediaController->availableTitles();
+	int titles = _currentMediaController->availableTitles();
 	removeAllAction(_menuTitles);
 	if (titles == 0) {
 		_menuTitles->addAction(ActionCollection::action("emptyMenu"));
@@ -373,10 +373,10 @@ void MediaController::availableTitlesChanged() {
 
 void MediaController::actionTitleTriggered(int id) {
 #ifdef NEW_TITLE_CHAPTER_HANDLING
-	QList<Phonon::TitleDescription> titles = _mediaController->availableTitles2();
-	_mediaController->setCurrentTitle(titles[id]);
+	QList<Phonon::TitleDescription> titles = _currentMediaController->availableTitles2();
+	_currentMediaController->setCurrentTitle(titles[id]);
 #else
-	_mediaController->setCurrentTitle(id);
+	_currentMediaController->setCurrentTitle(id);
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 }
 
@@ -389,7 +389,7 @@ void MediaController::availableChaptersChanged() {
 	QSignalMapper * signalMapper = new QSignalMapper(this);
 
 #ifdef NEW_TITLE_CHAPTER_HANDLING
-	QList<Phonon::ChapterDescription> chapters = _mediaController->availableChapters2();
+	QList<Phonon::ChapterDescription> chapters = _currentMediaController->availableChapters2();
 	removeAllAction(_menuChapters);
 	if (chapters.isEmpty()) {
 		_menuChapters->addAction(ActionCollection::action("emptyMenu"));
@@ -403,7 +403,7 @@ void MediaController::availableChaptersChanged() {
 		signalMapper->setMapping(action, i);
 	}
 #else
-	int chapters = _mediaController->availableChapters();
+	int chapters = _currentMediaController->availableChapters();
 	removeAllAction(_menuChapters);
 	if (chapters == 0) {
 		_menuChapters->addAction(ActionCollection::action("emptyMenu"));
@@ -437,10 +437,10 @@ void MediaController::actionChapterTriggered(int id) {
 	qDebug() << __FUNCTION__;
 
 #ifdef NEW_TITLE_CHAPTER_HANDLING
-	QList<Phonon::ChapterDescription> chapters = _mediaController->availableChapters2();
-	_mediaController->setCurrentChapter(chapters[id]);
+	QList<Phonon::ChapterDescription> chapters = _currentMediaController->availableChapters2();
+	_currentMediaController->setCurrentChapter(chapters[id]);
 #else
-	_mediaController->setCurrentChapter(id);
+	_currentMediaController->setCurrentChapter(id);
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 }
 
@@ -452,7 +452,7 @@ void MediaController::availableAnglesChanged() {
 
 	QSignalMapper * signalMapper = new QSignalMapper(this);
 
-	int angles = _mediaController->availableAngles();
+	int angles = _currentMediaController->availableAngles();
 	removeAllAction(_menuAngles);
 	if (angles == 0) {
 		_menuAngles->addAction(ActionCollection::action("emptyMenu"));
@@ -471,35 +471,34 @@ void MediaController::availableAnglesChanged() {
 
 	//Sets the current angle
 	if (angles > 0) {
-		qDebug() << _mediaController->currentAngle();
+		qDebug() << _currentMediaController->currentAngle();
 		_menuAngles->actions()[0]->setChecked(true);
 	}
 }
 
 void MediaController::actionAngleTriggered(int id) {
-	_mediaController->setCurrentAngle(id);
+	_currentMediaController->setCurrentAngle(id);
 }
 
 void MediaController::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
-	_mediaController = new Phonon::MediaController(mediaObject);
-	quarkPlayer().setMediaController(_mediaController);
+	_currentMediaController = quarkPlayer().currentMediaController();
 
-	connect(_mediaController, SIGNAL(availableAudioChannelsChanged()),
+	connect(_currentMediaController, SIGNAL(availableAudioChannelsChanged()),
 		SLOT(availableAudioChannelsChanged()));
-	connect(_mediaController, SIGNAL(availableSubtitlesChanged()),
+	connect(_currentMediaController, SIGNAL(availableSubtitlesChanged()),
 		SLOT(availableSubtitlesChanged()));
 
 #ifdef NEW_TITLE_CHAPTER_HANDLING
-	connect(_mediaController, SIGNAL(availableTitlesChanged()),
+	connect(_currentMediaController, SIGNAL(availableTitlesChanged()),
 		SLOT(availableTitlesChanged()));
-	connect(_mediaController, SIGNAL(availableChaptersChanged()),
+	connect(_currentMediaController, SIGNAL(availableChaptersChanged()),
 		SLOT(availableChaptersChanged()));
 #else
-	connect(_mediaController, SIGNAL(availableTitlesChanged(int)),
+	connect(_currentMediaController, SIGNAL(availableTitlesChanged(int)),
 		SLOT(availableTitlesChanged()));
-	connect(_mediaController, SIGNAL(availableChaptersChanged(int)),
+	connect(_currentMediaController, SIGNAL(availableChaptersChanged(int)),
 		SLOT(availableChaptersChanged()));
 #endif	//NEW_TITLE_CHAPTER_HANDLING
-	connect(_mediaController, SIGNAL(availableAnglesChanged(int)),
+	connect(_currentMediaController, SIGNAL(availableAnglesChanged(int)),
 		SLOT(availableAnglesChanged()));
 }

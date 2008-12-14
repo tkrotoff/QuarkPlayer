@@ -85,9 +85,9 @@ void FindSubtitles::loadSubtitle(const QString & fileName) {
 	int id = 0;
 	Phonon::SubtitleDescription subtitle(id, properties);
 
-	Phonon::MediaController * mediaController = quarkPlayer().mediaController();
-	if (mediaController) {
-		mediaController->setCurrentSubtitle(subtitle);
+	Phonon::MediaController * currentMediaController = quarkPlayer().currentMediaController();
+	if (currentMediaController) {
+		currentMediaController->setCurrentSubtitle(subtitle);
 	}
 }
 

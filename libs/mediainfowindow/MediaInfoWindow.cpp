@@ -49,8 +49,8 @@ MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 	_ui->artistTab->layout()->addWidget(_webBrowser);
 
 	//Thumbnail view
-	_ui->coverArtTab->layout()->setMargin(0);
-	_ui->coverArtTab->layout()->setSpacing(0);
+	_ui->artworkTab->layout()->setMargin(0);
+	_ui->artworkTab->layout()->setSpacing(0);
 
 	//Refresh button
 	_refreshButton = new QToolButton(this);
@@ -139,51 +139,221 @@ void MediaInfoWindow::updateMediaInfo() {
 	}
 	_ui->fileTypeLabel->setPixmap(icon.pixmap(QSize(16, 16)));
 
+	//General
 	_ui->filenameLineEdit->setText(_mediaInfoFetcher->fileName());
 
-	_ui->trackLineEdit->setText(_mediaInfoFetcher->trackNumber());
-	_ui->titleLineEdit->setText(_mediaInfoFetcher->title());
-	_ui->artistLineEdit->setText(_mediaInfoFetcher->artist());
-	_ui->albumLineEdit->setText(_mediaInfoFetcher->album());
-	_ui->yearLineEdit->setText(_mediaInfoFetcher->year());
-	_ui->genreLineEdit->setText(_mediaInfoFetcher->genre());
-	_ui->commentLineEdit->setText(_mediaInfoFetcher->comment());
+	//Metadata
+	QString metaData;
+
+	QString trackNumber = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::TrackNumber);
+	metaData += trackNumber;
+	QString trackCount = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::TrackCount);
+	metaData += trackCount;
+	if (!trackCount.isEmpty()) {
+		_ui->trackLineEdit->setText(trackNumber + "/" + trackCount);
+	} else {
+		_ui->trackLineEdit->setText(trackNumber);
+	}
+	QString tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title);
+	_ui->titleLineEdit->setText(tmp);
+	metaData += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
+	_ui->artistLineEdit->setText(tmp);
+	metaData += tmp;
+	//originalArtist
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Album);
+	_ui->albumLineEdit->setText(tmp);
+	metaData += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::AlbumArtist);
+	_ui->albumArtistLineEdit->setText(tmp);
+	metaData += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Year);
+	_ui->yearLineEdit->setText(tmp);
+	metaData += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Genre);
+	_ui->genreLineEdit->setText(tmp);
+	metaData += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Comment);
+	_ui->commentLineEdit->setText(tmp);
+	metaData += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Composer);
+	_ui->composerLineEdit->setText(tmp);
+	metaData += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Publisher);
+	_ui->publisherLineEdit->setText(tmp);
+	metaData += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Copyright);
+	_ui->copyrightLineEdit->setText(tmp);
+	metaData += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::URL);
+	_ui->urlLineEdit->setText(tmp);
+	metaData += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::BPM);
+	_ui->bpmLineEdit->setText(tmp);
+	metaData += tmp;
+	//musicBrainzArtistId;
+	//musicBrainzAlbumId;
+	//musicBrainzTrackId;
+
+	if (metaData.isEmpty()) {
+		//There is no metadata, let's hide it
+		//_ui->metadataGroupBox->hide();
+	}
 
 	static const QString br("<br>");
 
-	QString fileType;
-	QString fileTypeName(_mediaInfoFetcher->fileType().fullName);
-	if (!fileTypeName.isEmpty()) {
-		fileType += tr("Type:") + " ";
+	//General
+	QString fileInfo;
+	QString fileSize = _mediaInfoFetcher->fileSize();
+	QString length = _mediaInfoFetcher->length();
+	QString bitrate = _mediaInfoFetcher->bitrate();
+	if (!fileSize.isEmpty() || !length.isEmpty() || !bitrate.isEmpty()) {
 		QString fileTypeWikipedia(_mediaInfoFetcher->fileType().wikipediaArticle);
+		QString fileTypeName = _mediaInfoFetcher->fileType().fullName;
 		if (!fileTypeWikipedia.isEmpty()) {
-			fileType += "<a href=\"http://" + _language + ".wikipedia.org/wiki/" + fileTypeWikipedia + "\">" + fileTypeName + "</a>";
+			fileInfo += "<a href=\"http://" + _language + ".wikipedia.org/wiki/" + fileTypeWikipedia + "\">" + fileTypeName + "</a>";
 		} else {
-			fileType += fileTypeName;
+			fileInfo += fileTypeName;
+		}
+		if (!fileSize.isEmpty()) {
+			fileInfo += ", " + fileSize + " " + tr("MB");
+		}
+		if (!length.isEmpty()) {
+			fileInfo += ", " + length;
+		}
+		if (!bitrate.isEmpty()) {
+			fileInfo += ", " + bitrate + " " + tr("kbps");
 		}
 	}
-	QString length;
-	if (!_mediaInfoFetcher->length().isEmpty()) {
-		length = br + tr("Length:") + " " + _mediaInfoFetcher->length();
-	}
-	QString bitrate;
-	if (!_mediaInfoFetcher->bitrate().isEmpty()) {
-		bitrate = br + tr("Bitrate:") + " " + _mediaInfoFetcher->bitrate() + " " + tr("kbps");
-	}
-	QString fileSize;
-	if (!_mediaInfoFetcher->fileSize().isEmpty()) {
-		fileSize = br + tr("File size:") + " " + _mediaInfoFetcher->fileSize() + " " + tr("MB");
-	}
-	QString channels;
-	if (!_mediaInfoFetcher->length().isEmpty()) {
-		channels = br + tr("Channels:") + " " + _mediaInfoFetcher->channels();
-	}
-	QString sampleRate;
-	if (!_mediaInfoFetcher->sampleRate().isEmpty()) {
-		sampleRate = br + tr("Sample rate:") + " " + _mediaInfoFetcher->sampleRate() + " " + tr("Hz");
+	QString encodedApplication;
+	if (!_mediaInfoFetcher->encodedApplication().isEmpty()) {
+		encodedApplication = br + tr("Encoded Application:") + " " + _mediaInfoFetcher->encodedApplication();
 	}
 
-	_ui->formatInfoLabel->setText(fileType + length + bitrate + fileSize + channels + sampleRate);
+	//Audio
+	QString audioStream;
+	int audioStreamCount = _mediaInfoFetcher->audioStreamCount();
+	for (int audioStreamId = 0; audioStreamId < audioStreamCount; audioStreamId++) {
+		QString audioBitrate = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioBitrate);
+		QString audioBitrateMode = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioBitrateMode);
+		QString audioSampleRate = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioSampleRate);
+		QString audioSampleBits = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioSampleBits);
+		QString audioChannelCount = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioChannelCount);
+		QString audioCodecProfile = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioCodecProfile);
+		QString audioCodec = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioCodec);
+		QString audioLanguage = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioLanguage);
+		QString audioEncodedLibrary = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioEncodedLibrary);
+
+		if (!audioBitrate.isEmpty() || !audioBitrateMode.isEmpty() || !audioSampleRate.isEmpty() ||
+			!audioSampleBits.isEmpty() || !audioChannelCount.isEmpty() ||
+			!audioCodecProfile.isEmpty() || !audioCodec.isEmpty() ||
+			!audioLanguage.isEmpty() || !audioEncodedLibrary.isEmpty()) {
+
+			if (audioStreamCount > 1) {
+				audioStream += br + tr("Audio Stream #%1:").arg(audioStreamId + 1);
+			} else {
+				audioStream += br + tr("Audio Stream:");
+			}
+			if (!audioLanguage.isEmpty()) {
+				audioStream += " " + audioLanguage + ",";
+			}
+			if (!audioBitrate.isEmpty()) {
+				audioStream += " " + audioBitrate + " " + tr("kbps");
+			}
+			if (!audioBitrateMode.isEmpty()) {
+				audioStream += " " + audioBitrateMode;
+			}
+			if (!audioSampleRate.isEmpty()) {
+				audioStream += ", " + audioSampleRate + " " + tr("kHz");
+			}
+			if (!audioSampleBits.isEmpty()) {
+				audioStream += ", " + audioSampleBits + " " + tr("bits");
+			}
+			if (!audioChannelCount.isEmpty()) {
+				audioStream += ", " + audioChannelCount + " " + tr("channels");
+			}
+			if (!audioCodec.isEmpty()) {
+				audioStream += ", " + audioCodec;
+			}
+			if (!audioCodecProfile.isEmpty()) {
+				audioStream += ", " + audioCodecProfile;
+			}
+			if (!audioEncodedLibrary.isEmpty()) {
+				audioStream += ", " + audioEncodedLibrary;
+			}
+		}
+	}
+
+	//Video
+	QString videoStream;
+	int videoStreamCount = _mediaInfoFetcher->videoStreamCount();
+	for (int videoStreamId = 0; videoStreamId < videoStreamCount; videoStreamId++) {
+		QString videoBitrate = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoBitrate);
+		QString videoWidth = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoWidth);
+		QString videoHeight = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoHeight);
+		QString videoFrameRate = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoFrameRate);
+		QString videoFormat = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoFormat);
+		QString videoCodec = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoCodec);
+		QString videoEncodedLibrary = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoEncodedLibrary);
+
+		if (!videoBitrate.isEmpty() || !videoWidth.isEmpty() || !videoHeight.isEmpty() ||
+			!videoFrameRate.isEmpty() || !videoCodec.isEmpty() ||
+			!videoEncodedLibrary.isEmpty()) {
+
+			if (videoStreamCount > 1) {
+				videoStream += br + tr("Video Stream #%1:").arg(videoStreamId + 1);
+			} else {
+				videoStream += br + tr("Video Stream:");
+			}
+			if (!videoBitrate.isEmpty()) {
+				videoStream += " " + videoBitrate + " " + tr("kbps");
+			}
+			if (!videoWidth.isEmpty() && !videoHeight.isEmpty()) {
+				videoStream += ", " + videoWidth + "*" + videoHeight;
+			}
+			if (!videoFrameRate.isEmpty()) {
+				videoStream += ", " + videoFrameRate + " " + tr("FPS");
+			}
+			if (!videoFormat.isEmpty()) {
+				videoStream += ", " + videoFormat;
+			}
+			if (!videoCodec.isEmpty()) {
+				videoStream += " (" + videoCodec + ")";
+			}
+			if (!videoEncodedLibrary.isEmpty()) {
+				videoStream += ", " + videoEncodedLibrary;
+			}
+		}
+	}
+
+	//Text
+	QString textStream;
+	int textStreamCount = _mediaInfoFetcher->textStreamCount();
+	for (int textStreamId = 0; textStreamId < textStreamCount; textStreamId++) {
+		QString textLanguage = _mediaInfoFetcher->textStreamValue(textStreamId, MediaInfoFetcher::TextLanguage);
+		QString textFormat = _mediaInfoFetcher->textStreamValue(textStreamId, MediaInfoFetcher::TextFormat);
+
+		if (!textFormat.isEmpty() || !textLanguage.isEmpty()) {
+
+			if (textStreamCount > 1) {
+				textStream += br + tr("Text Stream #%1:").arg(textStreamId + 1);
+			} else {
+				textStream += br + tr("Text Stream:");
+			}
+			if (!textLanguage.isEmpty()) {
+				textStream += " " + textLanguage;
+			}
+			if (!textFormat.isEmpty()) {
+				textStream += ", " + textFormat;
+			}
+		}
+	}
+
+	//Sets the label
+	_ui->formatInfoLabel->setText(
+		fileInfo + encodedApplication +
+		videoStream + audioStream + textStream
+	);
 
 	QString moreInfo;
 	if (_mediaInfoFetcher->fileType().name == FileType::WMA) {
@@ -208,11 +378,11 @@ void MediaInfoWindow::updateMediaInfo() {
 	_ui->thumbnailView->refresh();
 
 	ContentFetcher::Track track;
-	track.artist = _mediaInfoFetcher->artist();
-	track.title = _mediaInfoFetcher->title();
+	track.artist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
+	track.title = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title);
 
 	//Download the Wikipedia article
-	QString tmp(track.artist);
+	tmp = track.artist;
 	tmp.replace(" ", "_");
 	tmp = QUrl::toPercentEncoding(tmp);
 	if (!tmp.isEmpty()) {

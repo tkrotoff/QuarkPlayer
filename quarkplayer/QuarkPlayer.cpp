@@ -37,7 +37,7 @@ QuarkPlayer::QuarkPlayer(QObject * parent)
 	: QObject(parent) {
 
 	_currentMediaObject = NULL;
-	_mediaController = NULL;
+	_currentMediaController = NULL;
 
 	//mainWindow is an internal plugin in fact...
 	//FIXME I cannot manage to make it a real external plugin
@@ -115,8 +115,9 @@ void QuarkPlayer::play(const Phonon::MediaSource & mediaSource) {
 		QString fileName = tmp.fileName();
 		if (!fileName.isEmpty() && rx_windows_cdda.indexIn(fileName) > -1) {
 			QString deviceName = rx_windows_cdda.cap(1);
-			int track = rx_windows_cdda.cap(2).toInt();	//FIXME Unused for the moment
-			tmp = Phonon::MediaSource(Phonon::Cd, deviceName/*, track*/);
+			int track = rx_windows_cdda.cap(2).toInt();
+			_currentMediaController->setCurrentTitle(track);
+			tmp = Phonon::MediaSource(Phonon::Cd, deviceName);
 		}
 		///
 #endif	//Q_OS_WIN
@@ -207,6 +208,9 @@ Phonon::MediaObject * QuarkPlayer::createNewMediaObject() {
 	_currentMediaObject = new Phonon::MediaObject(this);
 	_currentMediaObject->setTickInterval(1000);
 
+	//mediaController
+	_currentMediaController = new Phonon::MediaController(_currentMediaObject);
+
 #ifndef KDE4_FOUND
 	//QCoreApplication::setLibraryPaths(originalPaths);
 #endif	//KDE4_FOUND
@@ -240,14 +244,6 @@ void QuarkPlayer::allPluginsLoaded() {
 	createNewMediaObject();
 }
 
-void QuarkPlayer::setMediaController(Phonon::MediaController * mediaController) {
-	if (_mediaController) {
-		qCritical() << __FUNCTION__ << "Error: _mediaController is not NULL";
-	}
-
-	_mediaController = mediaController;
-}
-
-Phonon::MediaController * QuarkPlayer::mediaController() const {
-	return _mediaController;
+Phonon::MediaController * QuarkPlayer::currentMediaController() const {
+	return _currentMediaController;
 }

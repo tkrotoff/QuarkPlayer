@@ -99,7 +99,7 @@ private:
 
 	MediaControllerToolBar * _toolBar;
 
-	Phonon::MediaController * _mediaController;
+	Phonon::MediaController * _currentMediaController;
 
 	QMenu * _menuAudioChannels;
 	QMenu * _menuSubtitles;

@@ -9,6 +9,16 @@ configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 add_definitions(-DBUILD_MEDIAINFOWINDOW)
 
+if (MEDIAINFO)
+	#MediaInfo is compiled with Unicode support on
+	#Do not treat wchar_t as built-in type otherwise QString::fromStdWString()
+	#and QString::toStdWString() get unresolved
+	add_definitions(
+		-DUNICODE
+		/Zc:wchar_t-
+	)
+endif (MEDIAINFO)
+
 set(mediainfowindow_SRCS
 	MediaInfoWindow.cpp
 	MediaInfoFetcher.cpp

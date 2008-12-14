@@ -50,6 +50,14 @@ public:
 
 	~MediaInfoFetcher();
 
+	enum ReadStyle {
+		/** Read as little of the file as possible. */
+		ReadStyleFast,
+
+		/** Read as much of the file as needed to report accurate values. */
+		ReadStyleAccurate
+	};
+
 	/**
 	 * Starts info fetching given a media source.
 	 *
@@ -58,7 +66,7 @@ public:
 	 *
 	 * @param mediaSource Phonon media source
 	 */
-	void start(const Phonon::MediaSource & mediaSource);
+	void start(const Phonon::MediaSource & mediaSource, ReadStyle readStyle = ReadStyleFast);
 
 	/**
 	 * Starts info fetching given a media object.
@@ -73,48 +81,133 @@ public:
 	/** Tells if the metadata were fetched or not. */
 	bool hasBeenFetched() const;
 
+	//General
 	QString fileName() const;
-
 	bool isUrl() const;
-
 	FileType fileType() const;
-
-	/** Returns the track number; if there is no track number set, this will return 0. */
-	QString trackNumber() const;
-
-	QString title() const;
-	QString artist() const;
-	QString album() const;
-	QString year() const;
-	QString genre() const;
-	QString comment() const;
-
+	/** Returns the size of the file in kbytes. */
+	QString fileSize() const;
 	/** Returns the length of the file in seconds. */
 	QString length() const;
-
-	/**
-	 * Returns the most appropriate bit rate for the file in kbit/s.
-	 *
-	 * For constant bitrate formats this is simply the bitrate of the file.
-	 * For variable bitrate formats this is either the average or nominal bitrate.
-	 *
-	 * @return bitrate or -1
-	 */
 	QString bitrate() const;
+	QString encodedApplication() const;
 
-	/** Returns the sample rate in Hz. */
-	QString sampleRate() const;
+	//Metadata
+	enum Metadata {
+		/** int */
+		TrackNumber,
+		/** int */
+		TrackCount,
+		/** QString */
+		Title,
+		/** QString */
+		Artist,
+		/** QString */
+		OriginalArtist,
+		/** QString */
+		Album,
+		/** QString */
+		AlbumArtist,
+		/** QString */
+		Year,
+		/** QString */
+		Genre,
+		/** QString */
+		Comment,
+		/** QString */
+		Composer,
+		/** QString */
+		Publisher,
+		/** QString */
+		Copyright,
+		/** QString */
+		URL,
+		/** QString */
+		MusicBrainzArtistId,
+		/** QString */
+		MusicBrainzAlbumId,
+		/** QString */
+		MusicBrainzTrackId,
+		//MusicBrainzDiscId
+		/** int */
+		BPM
+	};
 
-	/** Returns the number of audio channels. */
-	QString channels() const;
+	QString metadataValue(Metadata metadata) const;
 
-	/** Returns the size of the file in kbytes. */
-	QString fileSize();
+	//Audio
+	enum AudioStream {
+		/** int */
+		AudioBitrate,
+		/** QString */
+		AudioBitrateMode,
+		/** int */
+		AudioSampleRate,
+		/** int */
+		AudioSampleBits,
+		/** int */
+		AudioChannelCount,
+		/** QString */
+		AudioCodec,
+		/** QString */
+		AudioCodecProfile,
+		/** QString */
+		AudioLanguage,
+		/** QString */
+		AudioEncodedLibrary
+	};
 
-	QString streamName() const;
-	QString streamGenre() const;
-	QString streamWebsite() const;
-	QString streamUrl() const;
+	int audioStreamCount() const;
+
+	QString audioStreamValue(int audioStreamId, AudioStream audioStream) const;
+
+	//Video
+	enum VideoStream {
+		/** int */
+		VideoBitrate,
+		/** int */
+		VideoWidth,
+		/** int */
+		VideoHeight,
+		/** int */
+		VideoFrameRate,
+		/** QString */
+		VideoFormat,
+		/** QString */
+		VideoCodec,
+		/** QString */
+		VideoEncodedLibrary
+	};
+
+	int videoStreamCount() const;
+
+	QString videoStreamValue(int videoStreamId, VideoStream videoStream) const;
+
+	//Text
+	enum TextStream {
+		/** QString */
+		TextFormat,
+		/** QString */
+		TextLanguage
+	};
+
+	int textStreamCount() const;
+
+	QString textStreamValue(int textStreamId, TextStream textStream) const;
+
+	//Stream
+	enum NetworkStream {
+		/** QString */
+		StreamName,
+		/** QString */
+		StreamGenre,
+		/** QString */
+		StreamWebsite,
+		/** QString */
+		StreamURL
+	};
+
+	QString networkStreamValue(NetworkStream networkStream) const;
 
 signals:
 
@@ -145,8 +238,15 @@ private:
 	 */
 	void startTagLibResolver();
 
+	/**
+	 * Use MediaInfoLib to find metadata and other informations.
+	 */
+	void startMediaInfoLibResolver();
+
 	/** Determines file type from the file extension. */
 	void determineFileTypeFromExtension();
+
+	ReadStyle _readStyle;
 
 	Phonon::MediaSource _mediaSource;
 
@@ -155,28 +255,37 @@ private:
 	/** Resolves media metadata/info. */
 	Phonon::MediaObject * _metaObjectInfoResolver;
 
+	//General
 	QString _filename;
 	bool _isUrl;
-
 	FileType _fileType;
-
-	int _trackNumber;
-	QString _title;
-	QString _artist;
-	QString _album;
-	int _year;
-	QString _genre;
-	QString _comment;
-
+	int _fileSize;
 	int _length;
 	int _bitrate;
-	int _sampleRate;
-	int _channels;
+	QString _encodedApplication;
 
-	QString _streamName;
-	QString _streamGenre;
-	QString _streamWebsite;
-	QString _streamUrl;
+	//Metadata
+	QHash<Metadata, QString> _metadataHash;
+	void insertMetadata(Metadata metadata, const QString & value);
+
+	//Audio
+	int _audioStreamCount;
+	QHash<int, QString> _audioStreamHash;
+	void insertAudioStream(int audioStreamId, AudioStream audioStream, const QString & value);
+
+	//Video
+	int _videoStreamCount;
+	QHash<int, QString> _videoStreamHash;
+	void insertVideoStream(int videoStreamId, VideoStream videoStream, const QString & value);
+
+	//Text
+	int _textStreamCount;
+	QHash<int, QString> _textStreamHash;
+	void insertTextStream(int textStreamId, TextStream textStream, const QString & value);
+
+	//Network stream metadata
+	QHash<NetworkStream, QString> _networkStreamHash;
+	void insertNetworkStream(NetworkStream networkStream, const QString & value);
 };
 
 #endif	//MEDIAINFOFETCHER_H
