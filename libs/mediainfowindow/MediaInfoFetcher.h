@@ -50,9 +50,22 @@ public:
 
 	~MediaInfoFetcher();
 
+	/**
+	 * Taken from TagLib::FileRef()
+	 *
+	 * Reading audio properties from a file can sometimes be very time consuming
+	 * and for the most accurate results can often involve reading the entire file.
+	 * Because in many situations speed is critical or the accuracy of the values is
+	 * not particularly important this allows the level of desired accuracy to be set.
+	 *
+	 * @see TagLib::FileRef()
+	 */
 	enum ReadStyle {
 		/** Read as little of the file as possible. */
 		ReadStyleFast,
+
+		/** Read more of the file and make better values guesses. */
+		ReadStyleAverage,
 
 		/** Read as much of the file as needed to report accurate values. */
 		ReadStyleAccurate
@@ -66,7 +79,7 @@ public:
 	 *
 	 * @param mediaSource Phonon media source
 	 */
-	void start(const Phonon::MediaSource & mediaSource, ReadStyle readStyle = ReadStyleFast);
+	void start(const Phonon::MediaSource & mediaSource, ReadStyle readStyle = ReadStyleAverage);
 
 	/**
 	 * Starts info fetching given a media object.
@@ -91,6 +104,18 @@ public:
 	QString length() const;
 	QString bitrate() const;
 	QString encodedApplication() const;
+
+	//General
+	enum General {
+		/** int */
+		GeneralFileSize,
+		/** int */
+		GeneralLength,
+		/** int */
+		GeneralBitrate,
+		/** QString */
+		GenerateEncodedApplication
+	};
 
 	//Metadata
 	enum Metadata {

@@ -27,10 +27,10 @@
 #cmakedefine TAGLIB
 
 /**
- * MediaInfo support enabled or not?
+ * MediaInfoLib support enabled or not?
  *
  * @see http://mediainfo.sourceforge.net/
  */
-#cmakedefine MEDIAINFO
+#cmakedefine MEDIAINFOLIB
 
 #endif	//MEDIAINFOWINDOW_CONFIG_H_IN

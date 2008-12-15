@@ -48,10 +48,10 @@ set(MINIZIP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib/contrib/minizi
 set(MINIZIP_LIBRARY minizip)
 ##
 
-if (MEDIAINFO)
+if (MEDIAINFOLIB)
 	add_subdirectory(3rdparty/ZenLib)
 	add_subdirectory(3rdparty/MediaInfo)
-endif (MEDIAINFO)
+endif (MEDIAINFOLIB)
 
 if (TAGLIB)
 	add_subdirectory(3rdparty/taglib)

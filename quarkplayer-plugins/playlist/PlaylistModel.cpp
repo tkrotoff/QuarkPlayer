@@ -241,6 +241,7 @@ bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, 
 					filename = url.toString();
 				}
 				files << filename;
+				qDebug() << __FUNCTION__ << "Filename:" << filename;
 			}
 		}
 	} else {
