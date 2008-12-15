@@ -105,18 +105,6 @@ public:
 	QString bitrate() const;
 	QString encodedApplication() const;
 
-	//General
-	enum General {
-		/** int */
-		GeneralFileSize,
-		/** int */
-		GeneralLength,
-		/** int */
-		GeneralBitrate,
-		/** QString */
-		GenerateEncodedApplication
-	};
-
 	//Metadata
 	enum Metadata {
 		/** int */
