@@ -110,7 +110,7 @@ public:
 		/** int */
 		TrackNumber,
 		/** int */
-		TrackCount,
+		DiscNumber,
 		/** QString */
 		Title,
 		/** QString */
@@ -136,6 +136,8 @@ public:
 		/** QString */
 		URL,
 		/** QString */
+		EncodedBy,
+		/** QString */
 		MusicBrainzArtistId,
 		/** QString */
 		MusicBrainzAlbumId,
@@ -157,7 +159,7 @@ public:
 		/** int */
 		AudioSampleRate,
 		/** int */
-		AudioSampleBits,
+		AudioBitsPerSample,
 		/** int */
 		AudioChannelCount,
 		/** QString */

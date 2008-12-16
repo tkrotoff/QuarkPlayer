@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>545</width>
-    <height>446</height>
+    <width>511</width>
+    <height>476</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -52,6 +52,9 @@
          <layout class="QGridLayout" name="gridLayout" >
           <item row="0" column="0" >
            <layout class="QFormLayout" name="formLayout" >
+            <property name="fieldGrowthPolicy" >
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
             <property name="labelAlignment" >
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
@@ -111,6 +114,62 @@
               </property>
              </widget>
             </item>
+            <item row="5" column="0" >
+             <widget class="QLabel" name="originalArtistLabel" >
+              <property name="text" >
+               <string>Orig. Artist:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1" >
+             <widget class="QLineEdit" name="originalArtistLineEdit" >
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0" >
+             <widget class="QLabel" name="yearLabel" >
+              <property name="text" >
+               <string>Year:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1" >
+             <widget class="QLineEdit" name="yearLineEdit" >
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0" >
+             <widget class="QLabel" name="genreLabel" >
+              <property name="text" >
+               <string>Genre:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="1" >
+             <widget class="QLineEdit" name="genreLineEdit" >
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0" >
+             <widget class="QLabel" name="commentLabel" >
+              <property name="text" >
+               <string>Comment:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="1" >
+             <widget class="QLineEdit" name="commentLineEdit" >
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="0" >
              <widget class="QLabel" name="trackLabel" >
               <property name="text" >
@@ -119,64 +178,65 @@
              </widget>
             </item>
             <item row="0" column="1" >
-             <widget class="QLineEdit" name="trackLineEdit" >
-              <property name="maximumSize" >
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
+             <layout class="QFormLayout" name="formLayout_5" >
+              <property name="labelAlignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
-              <property name="readOnly" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0" >
-             <widget class="QLabel" name="yearLabel" >
-              <property name="text" >
-               <string>Year:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1" >
-             <widget class="QLineEdit" name="yearLineEdit" >
-              <property name="readOnly" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0" >
-             <widget class="QLabel" name="genreLabel" >
-              <property name="text" >
-               <string>Genre:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="1" >
-             <widget class="QLineEdit" name="genreLineEdit" >
-              <property name="readOnly" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="0" >
-             <widget class="QLabel" name="commentLabel" >
-              <property name="text" >
-               <string>Comment:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1" >
-             <widget class="QLineEdit" name="commentLineEdit" >
-              <property name="readOnly" >
-               <bool>true</bool>
-              </property>
-             </widget>
+              <item row="0" column="0" >
+               <widget class="QLineEdit" name="trackLineEdit" >
+                <property name="maximumSize" >
+                 <size>
+                  <width>50</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="readOnly" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" >
+               <layout class="QFormLayout" name="formLayout_6" >
+                <property name="fieldGrowthPolicy" >
+                 <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                </property>
+                <property name="labelAlignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+                <item row="0" column="0" >
+                 <widget class="QLabel" name="discLabel" >
+                  <property name="text" >
+                   <string># Disc:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1" >
+                 <widget class="QLineEdit" name="discLineEdit" >
+                  <property name="maximumSize" >
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                  <property name="readOnly" >
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>
           <item row="0" column="1" >
            <layout class="QFormLayout" name="formLayout_2" >
+            <property name="fieldGrowthPolicy" >
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
             <property name="labelAlignment" >
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
@@ -255,6 +315,83 @@
                <bool>true</bool>
               </property>
              </widget>
+            </item>
+            <item row="5" column="0" >
+             <widget class="QLabel" name="encodedByArtistLabel" >
+              <property name="text" >
+               <string>Encoded By:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1" >
+             <widget class="QLineEdit" name="encodedByLineEdit" >
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0" >
+             <widget class="QLabel" name="trackGainLabel" >
+              <property name="text" >
+               <string>Track Gain:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1" >
+             <layout class="QFormLayout" name="formLayout_3" >
+              <property name="fieldGrowthPolicy" >
+               <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+              </property>
+              <property name="labelAlignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <item row="0" column="0" >
+               <widget class="QLineEdit" name="trackGainLineEdit" >
+                <property name="maximumSize" >
+                 <size>
+                  <width>50</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text" >
+                 <string/>
+                </property>
+                <property name="readOnly" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" >
+               <layout class="QFormLayout" name="formLayout_4" >
+                <property name="labelAlignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+                <item row="0" column="0" >
+                 <widget class="QLabel" name="albumGainLabel" >
+                  <property name="text" >
+                   <string>Album Gain:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1" >
+                 <widget class="QLineEdit" name="albumGainLineEdit" >
+                  <property name="maximumSize" >
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                  <property name="readOnly" >
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>

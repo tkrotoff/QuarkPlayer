@@ -143,59 +143,61 @@ void MediaInfoWindow::updateMediaInfo() {
 	_ui->filenameLineEdit->setText(_mediaInfoFetcher->fileName());
 
 	//Metadata
-	QString metaData;
+	QString metadata;
 
-	QString trackNumber = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::TrackNumber);
-	metaData += trackNumber;
-	QString trackCount = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::TrackCount);
-	metaData += trackCount;
-	if (!trackCount.isEmpty()) {
-		_ui->trackLineEdit->setText(trackNumber + "/" + trackCount);
-	} else {
-		_ui->trackLineEdit->setText(trackNumber);
-	}
-	QString tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title);
+	QString tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::TrackNumber);
+	_ui->trackLineEdit->setText(tmp);
+	metadata += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::DiscNumber);
+	_ui->discLineEdit->setText(tmp);
+	metadata += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title);
 	_ui->titleLineEdit->setText(tmp);
-	metaData += tmp;
+	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
 	_ui->artistLineEdit->setText(tmp);
-	metaData += tmp;
-	//originalArtist
+	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Album);
 	_ui->albumLineEdit->setText(tmp);
-	metaData += tmp;
+	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::AlbumArtist);
 	_ui->albumArtistLineEdit->setText(tmp);
-	metaData += tmp;
+	metadata += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::OriginalArtist);
+	_ui->originalArtistLineEdit->setText(tmp);
+	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Year);
 	_ui->yearLineEdit->setText(tmp);
-	metaData += tmp;
+	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Genre);
 	_ui->genreLineEdit->setText(tmp);
-	metaData += tmp;
+	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Comment);
 	_ui->commentLineEdit->setText(tmp);
-	metaData += tmp;
+	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Composer);
 	_ui->composerLineEdit->setText(tmp);
-	metaData += tmp;
+	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Publisher);
 	_ui->publisherLineEdit->setText(tmp);
-	metaData += tmp;
+	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Copyright);
 	_ui->copyrightLineEdit->setText(tmp);
-	metaData += tmp;
+	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::URL);
 	_ui->urlLineEdit->setText(tmp);
-	metaData += tmp;
+	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::BPM);
 	_ui->bpmLineEdit->setText(tmp);
-	metaData += tmp;
+	metadata += tmp;
+	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::EncodedBy);
+	_ui->encodedByLineEdit->setText(tmp);
+	metadata += tmp;
 	//musicBrainzArtistId;
 	//musicBrainzAlbumId;
 	//musicBrainzTrackId;
 
-	if (metaData.isEmpty()) {
+	if (metadata.isEmpty()) {
 		//There is no metadata, let's hide it
 		//_ui->metadataGroupBox->hide();
 	}
@@ -237,7 +239,7 @@ void MediaInfoWindow::updateMediaInfo() {
 		QString audioBitrate = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioBitrate);
 		QString audioBitrateMode = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioBitrateMode);
 		QString audioSampleRate = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioSampleRate);
-		QString audioSampleBits = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioSampleBits);
+		QString audioBitsPerSample = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioBitsPerSample);
 		QString audioChannelCount = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioChannelCount);
 		QString audioCodecProfile = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioCodecProfile);
 		QString audioCodec = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioCodec);
@@ -245,7 +247,7 @@ void MediaInfoWindow::updateMediaInfo() {
 		QString audioEncodedLibrary = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioEncodedLibrary);
 
 		if (!audioBitrate.isEmpty() || !audioBitrateMode.isEmpty() || !audioSampleRate.isEmpty() ||
-			!audioSampleBits.isEmpty() || !audioChannelCount.isEmpty() ||
+			!audioBitsPerSample.isEmpty() || !audioChannelCount.isEmpty() ||
 			!audioCodecProfile.isEmpty() || !audioCodec.isEmpty() ||
 			!audioLanguage.isEmpty() || !audioEncodedLibrary.isEmpty()) {
 
@@ -266,8 +268,8 @@ void MediaInfoWindow::updateMediaInfo() {
 			if (!audioSampleRate.isEmpty()) {
 				audioStream += ", " + audioSampleRate + " " + tr("kHz");
 			}
-			if (!audioSampleBits.isEmpty()) {
-				audioStream += ", " + audioSampleBits + " " + tr("bits");
+			if (!audioBitsPerSample.isEmpty()) {
+				audioStream += ", " + audioBitsPerSample + " " + tr("bits");
 			}
 			if (!audioChannelCount.isEmpty()) {
 				audioStream += ", " + audioChannelCount + " " + tr("channels");
