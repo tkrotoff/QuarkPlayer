@@ -22,6 +22,7 @@
 
 #include "version.h"
 #include "metrics.h"
+#include "config.h"
 
 #include <phonon/phononnamespace.h>
 
@@ -31,21 +32,36 @@
 	#include <taglib/taglib.h>
 #endif	//TAGLIB
 
+#ifdef MEDIAINFOLIB
+	#include <MediaInfo/MediaInfoDLL.h>
+#endif	//MEDIAINFOLIB
+
 AboutWindow::AboutWindow(QWidget * parent)
 	: QDialog(parent) {
 
 	_ui = new Ui::AboutWindow();
 	_ui->setupUi(this);
 
+	QString mediaInfoLibVersion;
+#ifdef MEDIAINFOLIB
+	MediaInfoLib::MediaInfo mediaInfo;
+	mediaInfoLibVersion = mediaInfo.Option(_T("Info_Version"), _T("")).c_str();
+	mediaInfoLibVersion.remove("MediaInfoLib - ");
+#endif	//MEDIAINFOLIB
+
 	_ui->versionLabel->setText(
-		"Version: " + quarkPlayerFullVersion() + "<br>" +
-		"Qt: " + QString(qVersion()) + "<br>" +
+		"Version: " + quarkPlayerFullVersion() + "<br>"
+		"Qt: " + QString(qVersion()) + "<br>"
 		"Phonon: " + QString(Phonon::phononVersion()) + "<br>"
 #ifdef TAGLIB
 		"TagLib: " + QString::number(TAGLIB_MAJOR_VERSION) + "." +
 			QString::number(TAGLIB_MINOR_VERSION) + "." +
-			QString::number(TAGLIB_PATCH_VERSION)
+			QString::number(TAGLIB_PATCH_VERSION) + "<br>"
 #endif	//TAGLIB
+
+#ifdef MEDIAINFOLIB
+		"MediaInfoLib: " + mediaInfoLibVersion
+#endif	//MEDIAINFOLIB
 	);
 
 	_ui->metricsLabel->setText(

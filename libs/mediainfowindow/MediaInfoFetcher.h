@@ -94,15 +94,25 @@ public:
 	/** Tells if the metadata were fetched or not. */
 	bool hasBeenFetched() const;
 
-	//General
+	/** FileName. */
 	QString fileName() const;
+
+	/** If the fileName is a URL or not. */
 	bool isUrl() const;
+
+	/** Gets the file type. */
 	FileType fileType() const;
-	/** Returns the size of the file in kbytes. */
+
+	/** Gets the size of the file in kbytes. */
 	QString fileSize() const;
+
 	/** Returns the length of the file in seconds. */
 	QString length() const;
+
+	/** Gets the Overall bitrate = audio bitrate + video bitrate if any. */
 	QString bitrate() const;
+
+	/** Gets the application used to encode the file. */
 	QString encodedApplication() const;
 
 	//Metadata

@@ -38,4 +38,11 @@
  */
 #cmakedefine TAGLIB
 
+/**
+ * MediaInfoLib support enabled or not?
+ *
+ * @see http://mediainfo.sourceforge.net/
+ */
+#cmakedefine MEDIAINFOLIB
+
 #endif	//QUARKPLAYER_CONFIG_H_IN

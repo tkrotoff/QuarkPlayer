@@ -429,6 +429,16 @@ void MediaInfoFetcher::startTagLibResolver() {
 void MediaInfoFetcher::startMediaInfoLibResolver() {
 #ifdef MEDIAINFOLIB
 	MediaInfoLib::MediaInfo mediaInfo;
+	QString mediaInfoLibVersion = QString::fromStdWString(mediaInfo.Option(_T("Info_Version"), _T("")));
+
+	//Test if MediaInfoLib is OK
+	if (mediaInfoLibVersion.contains("Unable to load")) {
+		//Unable to load mediainfo.dll
+		//Let's go back to TagLib
+		startTagLibResolver();
+		return;
+	}
+
 	mediaInfo.Open(_filename.toStdWString());
 
 	//Info_Parameters: gets all usefull MediaInfoLib parameters names
@@ -441,15 +451,6 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 	_length = QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Duration"))).toInt() / 1000;
 	_bitrate = QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("OverallBitRate"))).toInt() / 1000;
 	_encodedApplication = QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Encoded_Application")));
-
-	//Test if MediaInfoLib is OK
-	if (_encodedApplication.contains("Unable to load")) {
-		_encodedApplication.clear();
-		//Unable to load mediainfo.dll
-		//Let's go back to TagLib
-		startTagLibResolver();
-		return;
-	}
 
 	//Metadata
 	insertMetadata(Title, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Title"))).trimmed());
