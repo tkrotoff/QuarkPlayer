@@ -162,11 +162,15 @@ void MediaDataWidget::updateMediaInfo() {
 	}
 
 	if (!streamWebsite.isEmpty()) {
-		_ui->formLayout->addRow(tr("Stream Website:"), new QLabel(href + streamWebsite + endhref1 + font + streamWebsite + endfont + endhref2));
+		QLabel * label = new QLabel(href + streamWebsite + endhref1 + font + streamWebsite + endfont + endhref2);
+		label->setOpenExternalLinks(true);
+		_ui->formLayout->addRow(tr("Stream Website:"), label);
 	}
 
 	if (!streamUrl.isEmpty()) {
-		_ui->formLayout->addRow(tr("URL:"), new QLabel(href + streamUrl + endhref1 + font + streamUrl + endfont + endhref2));
+		QLabel * label = new QLabel(href + streamUrl + endhref1 + font + streamUrl + endfont + endhref2);
+		label->setOpenExternalLinks(true);
+		_ui->formLayout->addRow(tr("URL:"), label);
 	}
 
 	if (bitrate != 0) {
