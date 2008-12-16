@@ -43,12 +43,10 @@ set(CPACK_PACKAGE_EXECUTABLES "quarkplayer" "QuarkPlayer")
 set(CPACK_NSIS_CREATE_ICONS "
 	CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${CPACK_PACKAGE_NAME}.lnk\\\" \\\"$INSTDIR\\\\quarkplayer.exe\\\"
 	CreateShortCut \\\"$DESKTOP\\\\${CPACK_PACKAGE_NAME}.lnk\\\" \\\"$INSTDIR\\\\quarkplayer.exe\\\"
-	CreateShortCut \\\"$QUICKLAUNCH\\\\${CPACK_PACKAGE_NAME}.lnk\\\" \\\"$INSTDIR\\\\quarkplayer.exe\\\"
 ")
 set(CPACK_NSIS_DELETE_ICONS "
 	Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\${CPACK_PACKAGE_NAME}.lnk\\\"
 	Delete \\\"$DESKTOP\\\\${CPACK_PACKAGE_NAME}.lnk\\\"
-	Delete \\\"$QUICKLAUNCH\\\\${CPACK_PACKAGE_NAME}.lnk\\\"
 ")
 
 
