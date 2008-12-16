@@ -48,6 +48,8 @@
 
 	#include <taglib/apetag.h>
 	#include <taglib/id3v2tag.h>
+	#include <taglib/textidentificationframe.h>
+	#include <taglib/urllinkframe.h>
 	#include <taglib/id3v1tag.h>
 	#include <taglib/xiphcomment.h>
 #endif	//TAGLIB
@@ -235,6 +237,33 @@ void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State ol
 	}
 }
 
+QString parseID3v2_TXXX(const TagLib::ID3v2::FrameListMap & metadata, const QString & tagName) {
+	QString tmp;
+	TagLib::ID3v2::FrameList frameList = metadata["TXXX"];
+	for (TagLib::ID3v2::FrameList::Iterator it = frameList.begin(); it != frameList.end(); it++) {
+		TagLib::ID3v2::TextIdentificationFrame * textFrame = dynamic_cast<TagLib::ID3v2::TextIdentificationFrame *>(*it);
+		TagLib::StringList fieldList = textFrame->fieldList();
+		if (TStringToQString(fieldList.front()) == tagName) {
+			tmp = TStringToQString(fieldList.back()).trimmed();
+			break;
+		}
+	}
+	return tmp;
+}
+
+QString parseID3v2_WXXX(const TagLib::ID3v2::FrameListMap & metadata) {
+	QString tmp;
+	TagLib::ID3v2::FrameList frameList = metadata["WXXX"];
+	for (TagLib::ID3v2::FrameList::Iterator it = frameList.begin(); it != frameList.end(); it++) {
+		TagLib::ID3v2::UrlLinkFrame * urlFrame = dynamic_cast<TagLib::ID3v2::UrlLinkFrame *>(*it);
+		tmp = TStringToQString(urlFrame->url()).trimmed();
+		if (!tmp.isEmpty()) {
+			break;
+		}
+	}
+	return tmp;
+}
+
 void MediaInfoFetcher::startTagLibResolver() {
 #ifdef TAGLIB
 	TagLib::AudioProperties::ReadStyle readStyle = TagLib::AudioProperties::Average;
@@ -314,30 +343,20 @@ void MediaInfoFetcher::startTagLibResolver() {
 				if (!metadata["TENC"].isEmpty()) {
 					insertMetadata(EncodedBy, TStringToQString(metadata["TENC"].front()->toString()).trimmed());
 				}
-				if (!metadata["WXX"].isEmpty()) {
-					insertMetadata(URL, TStringToQString(metadata["WXX"].front()->toString()).trimmed());
-				}
-				if (!metadata["WXXX"].isEmpty()) {
-					insertMetadata(URL, TStringToQString(metadata["WXXX"].front()->toString()).trimmed());
-				}
 				if (!metadata["TOA"].isEmpty()) {
 					insertMetadata(OriginalArtist, TStringToQString(metadata["TOA"].front()->toString()).trimmed());
 				}
 				if (!metadata["TOPE"].isEmpty()) {
 					insertMetadata(OriginalArtist, TStringToQString(metadata["TOPE"].front()->toString()).trimmed());
 				}
-				if (!metadata["ALBUMARTISTSORT"].isEmpty()) {
-					//TODO
-					qDebug() << "Album artist sort:" << TStringToQString(metadata["ALBUMARTISTSORT"].front()->toString()).trimmed();
-				}
 
-				/*
-				MusicBrainz Album Type
-				MusicBrainz Album Artist Id
-				MusicBrainz Album Id
-				MusicBrainz Album Release Country
-				MusicBrainz Album Status
-				*/
+				insertMetadata(URL, parseID3v2_WXXX(metadata));
+
+				insertMetadata(AlbumArtistSort, parseID3v2_TXXX(metadata, "ALBUMARTISTSORT"));
+
+				insertMetadata(MusicBrainzArtistId, parseID3v2_TXXX(metadata, "MusicBrainz Artist Id"));
+				insertMetadata(MusicBrainzReleaseId, parseID3v2_TXXX(metadata, "MusicBrainz Album Id"));
+				insertMetadata(MusicBrainzTrackId, parseID3v2_TXXX(metadata, "MusicBrainz Track Id"));
 			}
 
 		} else if (TagLib::Ogg::Vorbis::File * file = dynamic_cast<TagLib::Ogg::Vorbis::File *>(fileRef.file())) {
@@ -470,7 +489,8 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 	insertMetadata(URL, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("URL"))).trimmed());
 	insertMetadata(EncodedBy, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Encoded_Library/String"))).trimmed());
 	insertMetadata(MusicBrainzArtistId, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Artist Id"))).trimmed());
-	insertMetadata(MusicBrainzAlbumId, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Album Id"))).trimmed());
+	insertMetadata(MusicBrainzReleaseId, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Album Id"))).trimmed());
+	insertMetadata(MusicBrainzTrackId, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Track Id"))).trimmed());
 
 	//Audio
 	_audioStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Audio);

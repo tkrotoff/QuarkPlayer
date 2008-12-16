@@ -193,9 +193,18 @@ void MediaInfoWindow::updateMediaInfo() {
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::EncodedBy);
 	_ui->encodedByLineEdit->setText(tmp);
 	metadata += tmp;
-	//musicBrainzArtistId;
-	//musicBrainzAlbumId;
-	//musicBrainzTrackId;
+
+	//MusicBrainz tags
+	QString musicBrainzReleaseId = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::MusicBrainzReleaseId);
+	QString musicBrainzArtistId = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::MusicBrainzArtistId);
+	if (!musicBrainzReleaseId.isEmpty() && !musicBrainzArtistId.isEmpty()) {
+		QString musicBrainz;
+		musicBrainz += "<a href=\"http://musicbrainz.org/release/" + musicBrainzReleaseId + ".html\">Release Id</a>";
+		musicBrainz += " / ";
+		musicBrainz += "<a href=\"http://musicbrainz.org/artist/" + musicBrainzArtistId + ".html\">Artist Id</a>";
+		_ui->musicBrainzLinkLabel->setText(musicBrainz);
+	}
+	///
 
 	if (metadata.isEmpty()) {
 		//There is no metadata, let's hide it

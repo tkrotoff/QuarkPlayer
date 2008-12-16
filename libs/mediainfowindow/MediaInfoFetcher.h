@@ -109,7 +109,7 @@ public:
 	/** Returns the length of the file in seconds. */
 	QString length() const;
 
-	/** Gets the Overall bitrate = audio bitrate + video bitrate if any. */
+	/** Gets the overall bitrate = audio bitrate + video bitrate if any. */
 	QString bitrate() const;
 
 	/** Gets the application used to encode the file. */
@@ -148,12 +148,13 @@ public:
 		/** QString */
 		EncodedBy,
 		/** QString */
-		MusicBrainzArtistId,
+		AlbumArtistSort,
 		/** QString */
-		MusicBrainzAlbumId,
+		MusicBrainzArtistId,
+		/** For MusicBrainz, release = album. */
+		MusicBrainzReleaseId,
 		/** QString */
 		MusicBrainzTrackId,
-		//MusicBrainzDiscId
 		/** int */
 		BPM
 	};

@@ -49,6 +49,8 @@ FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
 
 	connect(this, SIGNAL(clicked(const QModelIndex &)),
 		SLOT(clicked(const QModelIndex &)));
+	connect(this, SIGNAL(doubleClicked(const QModelIndex &)),
+		SLOT(doubleClicked(const QModelIndex &)));
 
 	//Add to playlist
 	connect(uuidAction("fileBrowserAddToPlaylist"), SIGNAL(triggered()),
@@ -80,9 +82,14 @@ void FileBrowserTreeView::populateActionCollection() {
 	addUuidAction("fileBrowserViewMediaInfo", new QAction(app));
 }
 
-void FileBrowserTreeView::mouseDoubleClickEvent(QMouseEvent * event) {
-	QTreeView::mouseDoubleClickEvent(event);
-	addToPlaylist();
+void FileBrowserTreeView::doubleClicked(const QModelIndex & index) {
+	QFileInfo fileInfo = this->fileInfo(index);
+	qDebug() << __FUNCTION__ << fileInfo.fileName() << index.row() << index.column();
+
+	//Do not add directories to the playlist
+	if (!fileInfo.isDir()) {
+		addToPlaylist();
+	}
 }
 
 void FileBrowserTreeView::clicked(const QModelIndex & index) {

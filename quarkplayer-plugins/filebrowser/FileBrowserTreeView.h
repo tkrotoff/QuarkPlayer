@@ -47,6 +47,8 @@ private slots:
 
 	void retranslate();
 
+	void doubleClicked(const QModelIndex & index);
+
 	void clicked(const QModelIndex & index);
 
 	void viewMediaInfo();
@@ -54,8 +56,6 @@ private slots:
 private:
 
 	void populateActionCollection();
-
-	void mouseDoubleClickEvent(QMouseEvent * event);
 
 	QFileInfo fileInfo(const QModelIndex & index) const;
 
