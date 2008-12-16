@@ -21,7 +21,8 @@
 
 #include <QtGui/QToolBar>
 
-class QLineEdit;
+class ClickMessageLineEdit;
+
 class QToolButton;
 
 /**
@@ -66,7 +67,7 @@ private:
 
 	void createToolBar();
 
-	QLineEdit * _searchLineEdit;
+	ClickMessageLineEdit * _searchLineEdit;
 
 	QToolButton * _clearSearchButton;
 };

@@ -21,6 +21,7 @@
 #include "UuidActionCollection.h"
 
 #include <tkutil/TkIcon.h>
+#include <tkutil/ClickMessageLineEdit.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
@@ -34,7 +35,7 @@ SearchToolBar::SearchToolBar(QWidget * parent)
 
 	setIconSize(QSize(16, 16));
 
-	_searchLineEdit = new QLineEdit();
+	_searchLineEdit = new ClickMessageLineEdit();
 	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(textChanged()));
 
 	_clearSearchButton = new QToolButton();
@@ -75,6 +76,7 @@ void SearchToolBar::retranslate() {
 	uuidAction("searchToolBarClearSearch")->setIcon(TkIcon("edit-delete"));
 
 	_searchLineEdit->setToolTip(tr("Search files, use whitespaces to separate words"));
+	_searchLineEdit->setClickMessage(tr("Enter search terms here"));
 	QString pattern(_searchLineEdit->text().trimmed());
 	_clearSearchButton->setEnabled(!pattern.isEmpty());
 
