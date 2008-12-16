@@ -6,7 +6,7 @@ project(quarkplayer)
 set(QUARKPLAYER_MAJOR_VERSION 0)
 set(QUARKPLAYER_MINOR_VERSION 2)
 set(QUARKPLAYER_PATCH_VERSION 4)
-set(QUARKPLAYER_VERSION ${QUARKPLAYER_VERSION_MAJOR}.${QUARKPLAYER_VERSION_MINOR}.${QUARKPLAYER_VERSION_PATCH})
+set(QUARKPLAYER_VERSION ${QUARKPLAYER_MAJOR_VERSION}.${QUARKPLAYER_MINOR_VERSION}.${QUARKPLAYER_PATCH_VERSION})
 
 #Add options values
 include(Options.cmake)
@@ -108,8 +108,8 @@ add_subdirectory(3rdparty/phonon)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
 set(QT_PHONON_LIBRARY phonon)
 
-set(PHONON_LIBS phonon)
-add_subdirectory(3rdparty/ds9)
+#set(PHONON_LIBS phonon)
+#add_subdirectory(3rdparty/ds9)
 
 add_subdirectory(phonon-mplayer)
 ##
