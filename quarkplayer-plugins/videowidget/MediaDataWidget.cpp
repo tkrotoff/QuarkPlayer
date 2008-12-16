@@ -109,51 +109,69 @@ void MediaDataWidget::updateMediaInfo() {
 	_coverArtList.clear();
 	loadCoverArt(album, artist, title);
 
+	//Clean previous _ui->formLayout, remove all the rows previously added
+	for (int i = 0; i < _ui->formLayout->rowCount(); i++) {
+		QLayoutItem * item = _ui->formLayout->itemAt(i, QFormLayout::LabelRole);
+		if (item) {
+			_ui->formLayout->removeItem(item);
+			QWidget * widget = item->widget();
+			if (widget) {
+				delete widget;
+			}
+			delete item;
+		}
+
+		item = _ui->formLayout->itemAt(i, QFormLayout::FieldRole);
+		if (item) {
+			_ui->formLayout->removeItem(item);
+			QWidget * widget = item->widget();
+			if (widget) {
+				delete widget;
+			}
+			delete item;
+		}
+	}
+
 	if (!title.isEmpty()) {
-		title = tr("Title:") + "  " + font + title + endfont;
+		_ui->formLayout->addRow(tr("Title:"), new QLabel(font + title + endfont));
 	} else if (!filename.isEmpty()) {
 		if (_mediaInfoFetcher->isUrl()) {
-			title = tr("Url:") + "  " + font + filename + endfont;
+			_ui->formLayout->addRow(tr("URL:"), new QLabel(font + filename + endfont));
 		} else {
 			//Not the fullpath, only the filename + parent directory name
 			QString tmp(TkFile::dir(filename) + "/");
 			tmp += TkFile::removeFileExtension(TkFile::fileName(filename));
-			title = tr("File:") + "  " + font + tmp + endfont;
+			_ui->formLayout->addRow(tr("File:"), new QLabel(font + tmp + endfont));
 		}
 	}
 
 	if (!artist.isEmpty()) {
-		artist = br + tr("Artist:") + "  " + font + artist + endfont;
+		_ui->formLayout->addRow(tr("Artist:"), new QLabel(font + artist + endfont));
 	}
 
 	if (!album.isEmpty()) {
-		album = br + tr("Album:") + "  " + font + album + endfont;
+		_ui->formLayout->addRow(tr("Album:"), new QLabel(font + album + endfont));
 	}
 
 	if (!streamName.isEmpty()) {
-		streamName = br + tr("Stream Name:") + "  " + font + streamName + endfont;
+		_ui->formLayout->addRow(tr("Stream Name:"), new QLabel(font + streamName + endfont));
 	}
 
 	if (!streamGenre.isEmpty()) {
-		streamGenre = br + tr("Stream Genre:") + "  " + font + streamGenre + endfont;
+		_ui->formLayout->addRow(tr("Stream Genre:"), new QLabel(font + streamGenre + endfont));
 	}
 
 	if (!streamWebsite.isEmpty()) {
-		streamWebsite = br + tr("Stream Website:") + "  " + href + streamWebsite + endhref1 +
-				font + streamWebsite + endfont + endhref2;
+		_ui->formLayout->addRow(tr("Stream Website:"), new QLabel(href + streamWebsite + endhref1 + font + streamWebsite + endfont + endhref2));
 	}
 
 	if (!streamUrl.isEmpty()) {
-		streamUrl = br + tr("Url:") + "  " + href + streamUrl + endhref1 +
-			font + streamUrl + endfont + endhref2;
+		_ui->formLayout->addRow(tr("URL:"), new QLabel(href + streamUrl + endhref1 + font + streamUrl + endfont + endhref2));
 	}
 
-	QString trackBitrate;
 	if (bitrate != 0) {
-		trackBitrate = br + tr("Bitrate:") + "  " + font + bitrate + " " + tr("kbps") + endfont;
+		_ui->formLayout->addRow(tr("Bitrate:"), new QLabel(font + bitrate + " " + tr("kbps") + endfont));
 	}
-
-	_ui->dataLabel->setText(title + artist + album + trackBitrate + streamName + streamGenre + streamWebsite /*+ streamUrl*/);
 }
 
 void MediaDataWidget::retranslate() {
