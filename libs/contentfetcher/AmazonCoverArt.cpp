@@ -33,29 +33,40 @@ AmazonCoverArt::AmazonCoverArt(const QString & amazonWebServiceKey, QObject * pa
 
 	_amazonWebServiceKey = amazonWebServiceKey;
 	_coverArtDownloader = new QNetworkAccessManager(this);
-	_coverArtFirstTry = true;
 	_accurate = true;
 }
 
 AmazonCoverArt::~AmazonCoverArt() {
 }
 
-QUrl AmazonCoverArt::amazonUrl(const QString & artist, const QString & album) const {
-	QUrl url("http://webservices.amazon.com/onca/xml/");
-	url.addQueryItem("Service", "AWSECommerceService");
-	url.addQueryItem("Operation", "ItemSearch");
-	url.addQueryItem("ResponseGroup", "Images");
-	url.addQueryItem("SearchIndex", "Music");
-	url.addQueryItem("AWSAccessKeyId", _amazonWebServiceKey);
-	if (!artist.isEmpty()) {
-		url.addQueryItem("Artist", artist);
+QUrl AmazonCoverArt::amazonUrl(const Track & track) const {
+	QUrl url;
+	if (track.amazonId.isEmpty()) {
+		url = QUrl("http://webservices.amazon.com/onca/xml/");
+		url.addQueryItem("Service", "AWSECommerceService");
+		url.addQueryItem("Operation", "ItemSearch");
+		url.addQueryItem("ResponseGroup", "Images");
+		url.addQueryItem("SearchIndex", "Music");
+		url.addQueryItem("AWSAccessKeyId", _amazonWebServiceKey);
+		if (!track.artist.isEmpty()) {
+			url.addQueryItem("Artist", track.artist);
+		} else {
+			_accurate = false;
+		}
+		if (!track.album.isEmpty()) {
+			url.addQueryItem("Title", track.album);
+		} else {
+			_accurate = false;
+		}
 	} else {
-		_accurate = false;
-	}
-	if (!album.isEmpty()) {
-		url.addQueryItem("Title", album);
-	} else {
-		_accurate = false;
+		//We have the amazon id (ASIN) so for sure we will find the images!
+		url = QUrl("http://webservices.amazon.com/onca/xml/");
+		url.addQueryItem("Service", "AWSECommerceService");
+		url.addQueryItem("Operation", "ItemLookup");
+		url.addQueryItem("ResponseGroup", "Images");
+		url.addQueryItem("AWSAccessKeyId", _amazonWebServiceKey);
+		url.addQueryItem("IdType", "ASIN");
+		url.addQueryItem("ItemId", track.amazonId);
 	}
 	return url;
 }
@@ -65,16 +76,14 @@ bool AmazonCoverArt::start(const Track & track, const QString & language) {
 		return false;
 	}
 
-	_album = track.album;
-	_album.replace(QRegExp("[[(<{].+"), QString());
-	_album = _album.trimmed();
-	_album.replace("-", QString());
-	_album = _album.trimmed();
-	_artist = track.artist;
-	_artist.replace(QRegExp("[[(<{].+"), QString());
-	_artist = _artist.trimmed();
-	_artist.replace("-", QString());
-	_album = _album.trimmed();
+	_track = track;
+	_track.album.replace(QRegExp("[[(<{].+"), QString());
+	_track.album.replace("-", QString());
+	_track.album = _track.album.trimmed();
+	_track.artist.replace(QRegExp("[[(<{].+"), QString());
+	_track.artist.replace("-", QString());
+	_track.artist = _track.artist.trimmed();
+	_track.amazonId = _track.amazonId.trimmed();
 
 	qDebug() << __FUNCTION__ << "Looking up for the album cover art";
 
@@ -83,8 +92,7 @@ bool AmazonCoverArt::start(const Track & track, const QString & language) {
 		SLOT(gotCoverArtAmazonXML(QNetworkReply *)));
 
 	//Try with both artist and album name
-	_coverArtFirstTry = true;
-	_coverArtDownloader->get(QNetworkRequest(amazonUrl(_artist, _album)));
+	_coverArtDownloader->get(QNetworkRequest(amazonUrl(_track)));
 
 	return true;
 }
@@ -100,18 +108,14 @@ void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
 		return;
 	}
 
+	//Retrieve the link to the large image
 	QString url = QUrl(QString(data).replace(QRegExp(".+<LargeImage><URL>([^<]+)<.+"), "\\1")).toString();
 
 	if (!url.contains(QRegExp("^http://"))) {
-		if (_coverArtFirstTry) {
-			qWarning() << __FUNCTION__ << "Error: couldn't find cover art with artist+album";
-			//Try again but only with the artist name since artist + album failed
-			_coverArtFirstTry = false;
-			_accurate = false;
-			_coverArtDownloader->get(QNetworkRequest(amazonUrl(_artist, QString())));
-		} else {
-			qWarning() << __FUNCTION__ << "Error: couldn't find cover art with artist";
-		}
+		qWarning() << __FUNCTION__ << "Error: couldn't find cover art with artist+album";
+		qDebug() << __FUNCTION__ << "Artist:" << _track.artist;
+		qDebug() << __FUNCTION__ << "Album:" << _track.album;
+		qDebug() << __FUNCTION__ << "Amazon Id:" << _track.amazonId;
 	} else {
 		//qDebug() << __FUNCTION__ << "Downloading cover art";
 

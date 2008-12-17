@@ -143,60 +143,43 @@ void MediaInfoWindow::updateMediaInfo() {
 	_ui->filenameLineEdit->setText(_mediaInfoFetcher->fileName());
 
 	//Metadata
-	QString metadata;
-
 	QString tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::TrackNumber);
 	_ui->trackLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::DiscNumber);
 	_ui->discLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title);
 	_ui->titleLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
 	_ui->artistLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Album);
 	_ui->albumLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::AlbumArtist);
 	_ui->albumArtistLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::OriginalArtist);
 	_ui->originalArtistLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Year);
 	_ui->yearLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Genre);
 	_ui->genreLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Comment);
 	_ui->commentLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Composer);
 	_ui->composerLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Publisher);
 	_ui->publisherLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Copyright);
 	_ui->copyrightLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::URL);
 	_ui->urlLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::BPM);
 	_ui->bpmLineEdit->setText(tmp);
-	metadata += tmp;
 	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::EncodedBy);
 	_ui->encodedByLineEdit->setText(tmp);
-	metadata += tmp;
 
 	//MusicBrainz tags
 	QString musicBrainzReleaseId = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::MusicBrainzReleaseId);
 	QString musicBrainzArtistId = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::MusicBrainzArtistId);
+	_ui->musicBrainzLinkLabel->clear();
 	if (!musicBrainzReleaseId.isEmpty() && !musicBrainzArtistId.isEmpty()) {
 		QString musicBrainz;
 		musicBrainz += "<a href=\"http://musicbrainz.org/release/" + musicBrainzReleaseId + ".html\">Release Id</a>";
@@ -205,11 +188,6 @@ void MediaInfoWindow::updateMediaInfo() {
 		_ui->musicBrainzLinkLabel->setText(musicBrainz);
 	}
 	///
-
-	if (metadata.isEmpty()) {
-		//There is no metadata, let's hide it
-		//_ui->metadataGroupBox->hide();
-	}
 
 	static const QString br("<br>");
 
@@ -232,7 +210,9 @@ void MediaInfoWindow::updateMediaInfo() {
 		if (!length.isEmpty()) {
 			fileInfo += ", " + length;
 		}
-		if (!bitrate.isEmpty()) {
+		if (!bitrate.isEmpty() && _mediaInfoFetcher->videoStreamCount() > 0) {
+			//Don't show the overall bitrate if there is no video stream
+			//in this case the overall bitrate has no interest
 			fileInfo += ", " + bitrate + " " + tr("kbps");
 		}
 	}
@@ -389,7 +369,12 @@ void MediaInfoWindow::updateMediaInfo() {
 	_ui->thumbnailView->refresh();
 
 	ContentFetcher::Track track;
-	track.artist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
+	//It's better to try with the album artist first instead of the artist only,
+	//more accurate, more chances to get a result
+	track.artist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::AlbumArtist);
+	if (track.artist.isEmpty()) {
+		track.artist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
+	}
 	track.title = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title);
 
 	//Download the Wikipedia article

@@ -357,6 +357,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 				insertMetadata(MusicBrainzArtistId, parseID3v2_TXXX(metadata, "MusicBrainz Artist Id"));
 				insertMetadata(MusicBrainzReleaseId, parseID3v2_TXXX(metadata, "MusicBrainz Album Id"));
 				insertMetadata(MusicBrainzTrackId, parseID3v2_TXXX(metadata, "MusicBrainz Track Id"));
+				insertMetadata(AmazonId, parseID3v2_TXXX(metadata, "ASIN"));
 			}
 
 		} else if (TagLib::Ogg::Vorbis::File * file = dynamic_cast<TagLib::Ogg::Vorbis::File *>(fileRef.file())) {
@@ -491,6 +492,7 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 	insertMetadata(MusicBrainzArtistId, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Artist Id"))).trimmed());
 	insertMetadata(MusicBrainzReleaseId, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Album Id"))).trimmed());
 	insertMetadata(MusicBrainzTrackId, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Track Id"))).trimmed());
+	insertMetadata(AmazonId, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("ASIN"))).trimmed());
 
 	//Audio
 	_audioStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Audio);

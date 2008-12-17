@@ -55,15 +55,13 @@ private slots:
 
 private:
 
-	QUrl amazonUrl(const QString & artist, const QString & album) const;
+	QUrl amazonUrl(const Track & track) const;
 
 	QString _amazonWebServiceKey;
 
-	QString _artist;
-	QString _album;
+	Track _track;
 
 	QNetworkAccessManager * _coverArtDownloader;
-	bool _coverArtFirstTry;
 	mutable bool _accurate;
 };
 

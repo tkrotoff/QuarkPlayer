@@ -99,6 +99,8 @@ void MediaDataWidget::updateMediaInfo() {
 	QString title = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title);
 	QString artist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
 	QString album = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Album);
+	QString albumArtist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::AlbumArtist);
+	QString amazonId = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::AmazonId);
 	QString streamName = _mediaInfoFetcher->networkStreamValue(MediaInfoFetcher::StreamName);
 	QString streamGenre = _mediaInfoFetcher->networkStreamValue(MediaInfoFetcher::StreamGenre);
 	QString streamWebsite = _mediaInfoFetcher->networkStreamValue(MediaInfoFetcher::StreamWebsite);
@@ -107,7 +109,14 @@ void MediaDataWidget::updateMediaInfo() {
 
 	_currentCoverArtIndex = 0;
 	_coverArtList.clear();
-	loadCoverArt(album, artist, title);
+
+	//It's better to try with the album artist first instead of the artist only,
+	//more accurate, more chances to get a result
+	if (albumArtist.isEmpty()) {
+		loadCoverArt(album, artist, amazonId);
+	} else {
+		loadCoverArt(album, albumArtist, amazonId);
+	}
 
 	//Clean previous _ui->formLayout, remove all the rows previously added
 	for (int i = 0; i < _ui->formLayout->rowCount(); i++) {
@@ -187,7 +196,7 @@ void MediaDataWidget::retranslate() {
 	}
 }
 
-void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist, const QString & title) {
+void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist, const QString & amazonId) {
 	QString coverArtDir(TkFile::path(_mediaInfoFetcher->fileName()));
 
 	QStringList imageSuffixList;
@@ -234,6 +243,7 @@ void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist
 			ContentFetcher::Track track;
 			track.artist = artist;
 			track.album = album;
+			track.amazonId = amazonId;
 			coverArtFetcher->start(track);
 		}
 	}
