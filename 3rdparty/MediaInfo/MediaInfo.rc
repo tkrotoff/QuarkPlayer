@@ -1,6 +1,5 @@
 // Microsoft Visual C++ generated resource script.
 //
-//#include "resource.h"
 #include <winresrc.h>
 
 #define APSTUDIO_READONLY_SYMBOLS
@@ -8,7 +7,6 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-//#include "afxres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -28,8 +26,8 @@ LANGUAGE LANG_FRENCH, SUBLANG_FRENCH
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,7,7,9
- PRODUCTVERSION 0,7,7,9
+ FILEVERSION 0,7,8,0
+ PRODUCTVERSION 0,7,8,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -46,12 +44,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "http://mediainfo.sourceforge.net"
             VALUE "FileDescription", "Library for read info about media files"
-            VALUE "FileVersion", "0, 7, 7, 9"
+            VALUE "FileVersion", "0, 7, 8, 0"
             VALUE "InternalName", "MediaInfoLib - Dll - MSVC 2005"
             VALUE "LegalCopyright", "LGPL"
             VALUE "OriginalFilename", "MediaInfo.dll"
             VALUE "ProductName", "MediaInfoLib"
-            VALUE "ProductVersion", "0, 7, 7, 9"
+            VALUE "ProductVersion", "0, 7, 8, 0"
         END
     END
     BLOCK "VarFileInfo"
@@ -67,18 +65,18 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "\r\n"
     "\0"

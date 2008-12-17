@@ -110,7 +110,7 @@ File__Analyze::File__Analyze ()
 
     //Temp
     NewFinnishMethod=false;
-    IsFinnished=false;
+    IsFinished=false;
     ShouldContinueParsing=false;
 }
 
@@ -160,7 +160,7 @@ void File__Analyze::Open_Buffer_Init (int64u File_Size_, int64u File_Offset_)
     if (File_Offset>=File_Size)
     {
         Buffer_Clear();
-        Finnished();
+        Finished();
         return; //There is a problem
     }
 
@@ -252,7 +252,7 @@ void File__Analyze::Open_Buffer_Continue (const int8u* ToAdd, size_t ToAdd_Size)
     if (File_Offset_FirstSynched==(int64u)-1 && Synched)
         File_Offset_FirstSynched=File_Offset; //This is ~this offset, we don't know precisely the offset synched in the buffer
 
-    //Finnished?
+    //Finished?
     if ((File_GoTo==File_Size && File_Size!=(int64u)-1)|| File_Offset+Buffer_Offset>=File_Size)
     {
         if (!BookMark_Code.empty())
@@ -265,7 +265,7 @@ void File__Analyze::Open_Buffer_Continue (const int8u* ToAdd, size_t ToAdd_Size)
             Buffer_Clear();
             Element_Show(); //If Element_Level is >0, we must show what is in the details buffer
             while (Element_Level>0)
-                Element_End(); //This is finnished, must flush
+                Element_End(); //This is Finished, must flush
             return;
         }
     }
@@ -397,7 +397,7 @@ void File__Analyze::Open_Buffer_Continue_Loop ()
     Frame_Count_InThisBlock=0; //Out
     Read_Buffer_Continue();
     if (File_GoTo!=(int64u)-1)
-        return; //Finnished
+        return; //Finished
 
     //Header
     if (MustParseTheHeaderFile)
@@ -405,7 +405,7 @@ void File__Analyze::Open_Buffer_Continue_Loop ()
         if (!FileHeader_Manage())
             return; //Wait for more data
         if (File_GoTo!=(int64u)-1)
-            return; //Finnished
+            return; //Finished
     }
 
     //Parsing;
@@ -416,7 +416,7 @@ void File__Analyze::Open_Buffer_Continue_Loop ()
     {
         Element[Element_Level].WaitForMoreData=false;
         Detect_EOF();
-        if ((File_GoTo!=(int64u)-1 && File_GoTo>File_Offset+Buffer_Offset) || File_Offset==File_Size || File_Offset==(int64u)-1 || (IsFinnished && !ShouldContinueParsing))
+        if ((File_GoTo!=(int64u)-1 && File_GoTo>File_Offset+Buffer_Offset) || File_Offset==File_Size || File_Offset==(int64u)-1 || (IsFinished && !ShouldContinueParsing))
         {
             EOF_AlreadyDetected=true;
             return;
@@ -437,13 +437,13 @@ void File__Analyze::Open_Buffer_Finalize (bool NoBufferModification)
     //Format
     Read_Buffer_Finalize();
 
-    //Element must be finnished
+    //Element must be Finished
     while (Element_Level>0)
         Element_End();
 
     //Parsing
     if (!NoBufferModification)
-        Finnished();
+        Finished();
     #ifndef MEDIAINFO_MINIMIZESIZE
     if (Details)
         Details->assign(Element[0].ToShow.Details);
@@ -578,7 +578,7 @@ bool File__Analyze::Header_Manage()
         {
             Element[Element_Level].WaitForMoreData=false;
             Detect_EOF();
-            if ((File_GoTo!=(int64u)-1 && File_GoTo>File_Offset+Buffer_Offset) || File_Offset==File_Size || File_Offset==(int64u)-1 || (IsFinnished && !ShouldContinueParsing))
+            if ((File_GoTo!=(int64u)-1 && File_GoTo>File_Offset+Buffer_Offset) || File_Offset==File_Size || File_Offset==(int64u)-1 || (IsFinished && !ShouldContinueParsing))
                 EOF_AlreadyDetected=true;
         }
         return false; //Wait for more data
@@ -737,7 +737,7 @@ bool File__Analyze::Data_Manage()
     Element[Element_Level].IsComplete=true;
 
     //If no need of more
-    if ((File_GoTo!=(int64u)-1 && File_GoTo>File_Offset+Buffer_Offset) || File_Offset==File_Size || File_Offset==(int64u)-1 || (IsFinnished && !ShouldContinueParsing))
+    if ((File_GoTo!=(int64u)-1 && File_GoTo>File_Offset+Buffer_Offset) || File_Offset==File_Size || File_Offset==(int64u)-1 || (IsFinished && !ShouldContinueParsing))
     {
         Element_Offset=0;
         return false;
@@ -777,7 +777,7 @@ bool File__Analyze::Data_Manage()
     {
         Element[Element_Level].WaitForMoreData=false;
         Detect_EOF();
-        if ((File_GoTo!=(int64u)-1 && File_GoTo>File_Offset+Buffer_Offset) || File_Offset==File_Size || File_Offset==(int64u)-1 || (IsFinnished && !ShouldContinueParsing))
+        if ((File_GoTo!=(int64u)-1 && File_GoTo>File_Offset+Buffer_Offset) || File_Offset==File_Size || File_Offset==(int64u)-1 || (IsFinished && !ShouldContinueParsing))
         {
             EOF_AlreadyDetected=true;
             return false;
@@ -806,8 +806,8 @@ void File__Analyze::Data_GoTo (int64u GoTo, const char* ParserName)
 
     if (IsSub)
     {
-        Info(Ztring(ParserName)+(ShouldContinueParsing?_T(" detected"):_T(", parsing finnished")), 1);
-        Finnished();
+        Info(Ztring(ParserName)+(ShouldContinueParsing?_T(" detected"):_T(", parsing Finished")), 1);
+        Finished();
         return;
     }
 
@@ -816,8 +816,8 @@ void File__Analyze::Data_GoTo (int64u GoTo, const char* ParserName)
 
     if (GoTo==File_Size)
     {
-        Info(Ztring(ParserName)+_T(", parsing finnished"));
-        Finnished();
+        Info(Ztring(ParserName)+_T(", parsing Finished"));
+        Finished();
     }
     else
     {
@@ -830,7 +830,7 @@ void File__Analyze::Data_GoTo (int64u GoTo)
 {
     if (IsSub)
     {
-        Finnished();
+        Finished();
         return;
     }
 
@@ -838,7 +838,7 @@ void File__Analyze::Data_GoTo (int64u GoTo)
         Element_End(); //Element
 
     if (GoTo==File_Size)
-        Finnished();
+        Finished();
     else
         File_GoTo=GoTo;
 }
@@ -899,7 +899,6 @@ void File__Analyze::Element_Begin(const Ztring &Name, int64u Size)
 {
     //Level
     Element_Level++;
-    Header_Size=0;
 
     //Element
     Element[Element_Level].Code=0;
@@ -934,7 +933,6 @@ void File__Analyze::Element_Begin(int64u Size)
 {
     //Level
     Element_Level++;
-    Header_Size=0;
 
     //Element
     Element[Element_Level].Code=0;
@@ -1320,7 +1318,7 @@ void File__Analyze::Trusted_IsNot (const char* Reason)
     if (Trusted==0)
     {
         Clear();
-        Finnished();
+        Finished();
     }
 }
 
@@ -1329,11 +1327,11 @@ void File__Analyze::Trusted_IsNot (const char* Reason)
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File__Analyze::Finnished ()
+void File__Analyze::Finished ()
 {
     if (NewFinnishMethod)
     {
-        IsFinnished=true;
+        IsFinished=true;
         return;
     }
 
@@ -1431,7 +1429,7 @@ bool File__Analyze::Element_IsOK ()
 }
 
 //---------------------------------------------------------------------------
-bool File__Analyze::Element_IsNotFinnished ()
+bool File__Analyze::Element_IsNotFinished ()
 {
     if (BS->Remain()>0 || Element_Offset+BS->Offset_Get()<Element_Size)
         return true;
@@ -1470,7 +1468,7 @@ void File__Analyze::BookMark_Get ()
     File_GoTo=(int64u)-1;
     if (!BookMark_Needed())
     {
-        Finnished();
+        Finished();
         return;
     }
 

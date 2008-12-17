@@ -269,9 +269,27 @@ bool File__Duplicate_MpegTs::Manage_PMT (const int8u* ToAdd, size_t ToAdd_Size)
 
 bool File__Duplicate_MpegTs::Parsing_Begin (const int8u* ToAdd, size_t ToAdd_Size, std::map<int16u, buffer> &ToModify_)
 {
-    FromTS.Buffer=ToAdd;
-    FromTS.Size=ToAdd_Size;
-    FromTS.Offset=0;
+    //Managing big chunks
+    int16u PID=BigEndian2int16u(ToAdd+1)&0x1FFF;
+    if (ToAdd[1]&0x40) //payload_unit_start_indicator
+    {
+        FromTS.Buffer=ToAdd;
+        FromTS.Size=ToAdd_Size;
+        FromTS.Offset=0;
+    }
+    else
+    {
+        if (BigBuffers.find(PID)==BigBuffers.end())
+            return false; //Start is missing
+        if (ToAdd_Size<4 || BigBuffers[PID].Buffer_Size+ToAdd_Size-4>BigBuffers[PID].Buffer_Size_Max)
+            return false; //Problem
+        std::memcpy(BigBuffers[PID].Buffer+BigBuffers[PID].Buffer_Size, ToAdd+4, ToAdd_Size-4);
+        BigBuffers[PID].Buffer_Size+=ToAdd_Size-4;
+
+        FromTS.Buffer=BigBuffers[PID].Buffer;
+        FromTS.Size=BigBuffers[PID].Buffer_Size;
+        FromTS.Offset=0;
+    }
 
     //adaptation_field_length
     int8u adaptation_field_length=0;
@@ -287,8 +305,6 @@ bool File__Duplicate_MpegTs::Parsing_Begin (const int8u* ToAdd, size_t ToAdd_Siz
     FromTS.Begin=FromTS.Offset-1;
     int16u section_length=CC2(FromTS.Buffer+FromTS.Offset)&0x0FFF;
     FromTS.End=4+adaptation_field_length+section_length;
-    if (FromTS.End>FromTS.Size-4)
-        return false; //Problem
 
     //Positionning just after section_length
     FromTS.Offset+=2;
@@ -299,15 +315,20 @@ bool File__Duplicate_MpegTs::Parsing_Begin (const int8u* ToAdd, size_t ToAdd_Siz
 
     //version_number
     int8u FromTS_version_number=(CC1(FromTS.Buffer+FromTS.Offset+2)>>1)&0x1F;
-    if (ToModify.version_number==0xFF)
+    if (ToModify.version_number==0xFF && FromTS.End<=FromTS.Size-4) //Only if we have enough data
         ToModify.version_number=FromTS_version_number;
+    if (ToModify.continuity_counter==0xFF && FromTS.End<=FromTS.Size-4) //Only if we have enough data
+        ToModify.continuity_counter=FromTS.Buffer[3]&0xF;
     if (FromTS_version_number!=ToModify.FromTS_version_number_Last || ToModify.ConfigurationHasChanged)
     {
-        ToModify.version_number++;
-        if (ToModify.version_number>32)
-            ToModify.version_number=0;
-        ToModify.FromTS_version_number_Last=FromTS_version_number;
-        ToModify.ConfigurationHasChanged=false;
+        if (FromTS.End<=FromTS.Size-4) //Only if we have enough data
+        {
+            ToModify.version_number++;
+            if (ToModify.version_number>0x1F)
+                ToModify.version_number=0;
+            ToModify.FromTS_version_number_Last=FromTS_version_number;
+            ToModify.ConfigurationHasChanged=false;
+        }
     }
     else
     {
@@ -315,13 +336,35 @@ bool File__Duplicate_MpegTs::Parsing_Begin (const int8u* ToAdd, size_t ToAdd_Siz
             return false;
 
         //This is the same as before --> Copying the last version, except continuity_counter (incremented)
-        int8u continuity_counter=ToModify.Buffer[3]&0xF; //Only the 4 bits of continuity_counter
-        continuity_counter++;
-        if (continuity_counter>0x0F)
-            continuity_counter=0x00;
-        ToModify.Buffer[3]&=0xF0;
-        ToModify.Buffer[3]|=continuity_counter;
+        for (size_t Pos=0; Pos<ToModify.Size; Pos+=188)
+        {
+            ToModify.continuity_counter++;
+            if (ToModify.continuity_counter>0x0F)
+                ToModify.continuity_counter=0x00;
+            ToModify.Buffer[Pos+3]&=0xF0;
+            ToModify.Buffer[Pos+3]|=ToModify.continuity_counter;
+        }
+
+        //Managing big chunks
+        if (BigBuffers.find(PID)!=BigBuffers.end())
+            BigBuffers.erase(BigBuffers.find(PID));
+
         Writer.Write(ToModify.Buffer, ToModify.Size);
+        return false;
+    }
+
+    //Test if we have enough data
+    if (FromTS.End>FromTS.Size-4)
+    {
+        //Waiting for more data
+        if (BigBuffers[PID].Buffer==NULL)
+        {
+            //Saving the data (not done at the beginning)
+            BigBuffers[PID].Buffer_Size=FromTS.Size;
+            BigBuffers[PID].Buffer_Size_Max=FromTS.End+188;
+            BigBuffers[PID].Buffer=new int8u[BigBuffers[PID].Buffer_Size_Max];
+            std::memcpy(BigBuffers[PID].Buffer, ToAdd, ToAdd_Size);
+        }
         return false;
     }
 
@@ -336,7 +379,7 @@ bool File__Duplicate_MpegTs::Parsing_Begin (const int8u* ToAdd, size_t ToAdd_Siz
     if (ToModify.Buffer!=NULL && ToModify.Size<FromTS.Size)
         {delete ToModify.Buffer; ToModify.Buffer=NULL;}
     if (ToModify.Buffer==NULL)
-        ToModify.Buffer=new int8u[FromTS.Size];
+        ToModify.Buffer=new int8u[FromTS.Size+(FromTS.Size/188)*4];
     std::memcpy(ToModify.Buffer, FromTS.Buffer, FromTS.Begin+8); //Only up to last_section_number included
     ToModify.Offset=FromTS.Offset;
     ToModify.Begin=FromTS.Begin;
@@ -353,6 +396,10 @@ bool File__Duplicate_MpegTs::Parsing_Begin (const int8u* ToAdd, size_t ToAdd_Siz
     ToModify.Offset+=5;
     FromTS.Offset+=5;
 
+    //Managing big chunks
+    if (BigBuffers.find(PID)!=BigBuffers.end())
+        BigBuffers.erase(BigBuffers.find(PID));
+
     return true;
 }
 
@@ -361,7 +408,7 @@ void File__Duplicate_MpegTs::Parsing_End (std::map<int16u, buffer> &ToModify_)
     buffer &ToModify=ToModify_[StreamID];
 
     ToModify.End=ToModify.Offset;
-    if (ToModify.End>ToModify.Size)
+    if (ToModify.End+4>ToModify.Size)
         return; //There was an error somewhere!
 
     //section_length
@@ -380,6 +427,24 @@ void File__Duplicate_MpegTs::Parsing_End (std::map<int16u, buffer> &ToModify_)
     ToModify.Buffer[ToModify.Offset+1]=(CRC_32>>16)&0xFF;
     ToModify.Buffer[ToModify.Offset+2]=(CRC_32>> 8)&0xFF;
     ToModify.Buffer[ToModify.Offset+3]= CRC_32     &0xFF;
+
+    //Managing big chunks
+    for (size_t Pos=188; Pos<ToModify.Size; Pos+=188)
+    {
+        std::memmove(ToModify.Buffer+Pos+4, ToModify.Buffer+Pos, ToModify.Size-Pos);
+        std::memcpy(ToModify.Buffer+Pos, ToModify.Buffer, 4);
+        ToModify.Buffer[Pos+1]&=0xBF; //Removing payload_unit_start_indicator
+        ToModify.Offset+=4;
+        ToModify.Size+=4;
+
+        ToModify.continuity_counter++;
+        if (ToModify.continuity_counter>0x0F)
+            ToModify.continuity_counter=0x00;
+        ToModify.Buffer[Pos+3]&=0xF0;
+        ToModify.Buffer[Pos+3]|=ToModify.continuity_counter;
+    }
+    while (ToModify.Size-(ToModify.Offset+4)>188)
+        ToModify.Size-=188;
 
     //Padding
     for (size_t Buffer_CRC_Pos=ToModify.End+4; Buffer_CRC_Pos<ToModify.Size; Buffer_CRC_Pos++)

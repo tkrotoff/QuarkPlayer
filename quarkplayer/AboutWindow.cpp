@@ -46,7 +46,7 @@ AboutWindow::AboutWindow(QWidget * parent)
 #ifdef MEDIAINFOLIB
 	MediaInfoLib::MediaInfo mediaInfo;
 	mediaInfoLibVersion = mediaInfo.Option(_T("Info_Version"), _T("")).c_str();
-	mediaInfoLibVersion.remove("MediaInfoLib - ");
+	mediaInfoLibVersion.remove("MediaInfoLib - v");
 #endif	//MEDIAINFOLIB
 
 	_ui->versionLabel->setText(

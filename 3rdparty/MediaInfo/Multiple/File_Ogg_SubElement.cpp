@@ -63,7 +63,8 @@ File_Ogg_SubElement::File_Ogg_SubElement()
 
     //In
     StreamKind=Stream_General;
-    IsStandAlone=true;
+    MultipleStreams=false;
+    InAnotherContainer=false;
     absolute_granule_position_Resolution=0;
 }
 
@@ -220,7 +221,7 @@ void File_Ogg_SubElement::Data_Parse()
         case 0x82 : Setup(); break;
         case (int64u)-1 : OutOfSpecs(); break;
         default   : Skip_XX(Element_Size,                       "Data");
-                    Finnished();
+                    Finished();
     }
 }
 
@@ -257,7 +258,7 @@ void File_Ogg_SubElement::Identification()
     ELEMENT_CASE(FLAC1)
     else
     {
-        Finnished();
+        Finished();
         return;
     }
 
@@ -297,6 +298,10 @@ void File_Ogg_SubElement::Identification_vorbis()
         Fill(Stream_Audio, StreamPos_Last, Audio_BitRate, BitRate_Nominal);
     if (BitRate_Minimum!=0 && BitRate_Minimum<0x80000000) //This is a signed value, and negative values are not OK
         Fill(Stream_Audio, StreamPos_Last, Audio_BitRate_Minimum, BitRate_Minimum);
+    if (BitRate_Maximum==0 && BitRate_Nominal!=0 && BitRate_Minimum==0)
+        Fill(Stream_Audio, StreamPos_Last, Audio_BitRate_Mode, "CBR");
+    else if (BitRate_Maximum>BitRate_Nominal*1.1 && BitRate_Minimum<BitRate_Nominal*0.9)
+        Fill(Stream_Audio, StreamPos_Last, Audio_BitRate_Mode, "VBR");
     Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, Channels);
     Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, SamplingRate);
     absolute_granule_position_Resolution=SamplingRate;
@@ -310,7 +315,7 @@ void File_Ogg_SubElement::Identification_theora()
     //Parsing
     int32u Version, PICW=0, PICH=0, FRN=0, FRD=0, PARN=0, PARD=0, NOMBR=0;
     Get_B3 (Version,                                        "Version");
-    if (Version==0x030200) //Version 3.2.x
+    if ((Version&0x030200)==0x030200) //Version 3.2.x
     {
         Skip_B2(                                            "FMBW");
         Skip_B2(                                            "FMBH");
@@ -336,7 +341,7 @@ void File_Ogg_SubElement::Identification_theora()
     Stream_Prepare(Stream_Video);
     Fill(Stream_Video, StreamPos_Last, Video_Format, "Theora");
     Fill(Stream_Video, StreamPos_Last, Video_Codec, "Theora");
-    if (Version!=0x030200) //Version 3.2.x
+    if ((Version&0x030200)!=0x030200) //Version 3.2.x                           e
         return;
     Fill(Stream_Video, StreamPos_Last, Video_FrameRate, ((float)FRN)/FRD, 3);
     float PixelRatio=1;
@@ -484,17 +489,17 @@ void File_Ogg_SubElement::Comment()
     ELEMENT_CASE(audio)
     ELEMENT_CASE(text)
     else
-        Finnished();
+        Finished();
 
     //Must finnish?
     #undef ELEMENT_CASE
     #ifdef __BORLANDC__ //Borland converts int64u to int32u
         #define ELEMENT_CASE(_NAME) \
-            else if (ID_Identification==Ogg::_NAME##1*0x100000000LL+Ogg::_NAME##2) Finnished();
+            else if (ID_Identification==Ogg::_NAME##1*0x100000000LL+Ogg::_NAME##2) Finished();
 
     #else //__BORLANDC__
         #define ELEMENT_CASE(_NAME) \
-            else if (ID_Identification==Ogg::_NAME) Finnished();
+            else if (ID_Identification==Ogg::_NAME) Finished();
 
     #endif //__BORLANDC__
 
@@ -513,8 +518,9 @@ void File_Ogg_SubElement::Comment_vorbis()
         return;
 
     File_VorbisCom Vorbis;
-    Vorbis.StreamKind=StreamKind;
-    Vorbis.StreamGoal=IsStandAlone?Stream_General:StreamKind;
+    Vorbis.StreamKind_Specific=StreamKind;
+    Vorbis.StreamKind_Multiple=MultipleStreams?StreamKind:Stream_General;
+    Vorbis.StreamKind_Common=InAnotherContainer?StreamKind:Stream_General;
 
     //Open
     Open_Buffer_Init(&Vorbis, File_Size, File_Offset+Buffer_Offset+6);
@@ -529,7 +535,7 @@ void File_Ogg_SubElement::Comment_vorbis()
         Element_Offset++;
 
     if (Element_Offset==Element_Size)
-        Finnished();
+        Finished();
 
     //Parsing Setup
     while (CC1(Buffer+Buffer_Offset+(size_t)Element_Offset)==0x00)
@@ -591,7 +597,7 @@ void File_Ogg_SubElement::Setup()
     //ELEMENT_CASE(video)
     //ELEMENT_CASE(audio)
     //ELEMENT_CASE(text)
-    Finnished();
+    Finished();
 }
 
 //---------------------------------------------------------------------------
@@ -619,7 +625,7 @@ void File_Ogg_SubElement::FLAC1()
     #if defined(MEDIAINFO_FLAC_YES)
         if (Flac==NULL)
         {
-            Finnished();
+            Finished();
             return;
         }
         Open_Buffer_Init(Flac, File_Size, File_Offset+Buffer_Offset+Element_Offset);
@@ -627,12 +633,12 @@ void File_Ogg_SubElement::FLAC1()
         if (Flac->File_Offset==Flac->File_Size)
         {
             Merge(*Flac, Stream_Audio, 0, 0);
-            Finnished();
+            Finished();
         }
 
     #else
         Skip_XX(Element_Size,                                   "Flac data");
-        Finnished();
+        Finished();
     #endif
 }
 

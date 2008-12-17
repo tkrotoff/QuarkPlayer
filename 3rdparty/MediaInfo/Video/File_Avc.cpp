@@ -392,7 +392,13 @@ bool File_Avc::Header_Parse_Fill_Size()
         Buffer_Offset_Temp=Buffer_Offset+4;
     while (Buffer_Offset_Temp+4<=Buffer_Size
         && CC3(Buffer+Buffer_Offset_Temp)!=0x000001)
-        Buffer_Offset_Temp++;
+    {
+        Buffer_Offset_Temp+=2;
+        while(Buffer_Offset_Temp<Buffer_Size && Buffer[Buffer_Offset_Temp]!=0x00)
+            Buffer_Offset_Temp+=2;
+        if (Buffer_Offset_Temp<Buffer_Size && Buffer[Buffer_Offset_Temp-1]==0x00 || Buffer_Offset_Temp>=Buffer_Size)
+            Buffer_Offset_Temp--;
+    }
 
     //Must wait more data?
     if (Buffer_Offset_Temp+4>Buffer_Size)
@@ -485,10 +491,7 @@ void File_Avc::Data_Parse()
     {
         Block_Count++; //We can trust this stream a bit more
         if (Block_Count>=8 && Count_Get(Stream_General)==0)
-        {
             Stream_Prepare(Stream_General); //We trust it
-            Stream_Prepare(Stream_Video); //We trust it
-        }
     }
 
     if (!ThreeByte_List.empty())
@@ -759,7 +762,7 @@ void File_Avc::slice_header_Fill()
         NextCode_Clear();
 
         Info("AVC, Jumping to end of file");
-        Finnished();
+        Finished();
     }
 }
 
@@ -1240,7 +1243,11 @@ void File_Avc::pic_parameter_set()
                 Trusted_IsNot("pic_size_in_map_units_minus1 too high");
                 pic_size_in_map_units_minus1=0;
             }
-            int32u slice_group_id_Size=(int32u)(std::ceil(std::log((float32)(num_slice_groups_minus1+1))/std::log((float32)2))); //this is log2
+            #if defined (__mips__)       || defined (__mipsel__)
+                int32u slice_group_id_Size=(int32u)(std::ceil(std::log((double)(num_slice_groups_minus1+1))/std::log((double)2))); //this is log2
+            #else
+                int32u slice_group_id_Size=(int32u)(std::ceil(std::log((float32)(num_slice_groups_minus1+1))/std::log((float32)2))); //this is log2
+            #endif
             for (int32u Pos=0; Pos<=pic_size_in_map_units_minus1; Pos++)
                 Skip_S4(slice_group_id_Size,                    "slice_group_id");
         }
@@ -1521,7 +1528,7 @@ void File_Avc::SPS_PPS()
     if (MustParse_SPS_PPS_Only)
     {
         slice_header_Fill();
-        Finnished();
+        Finished();
     }
 }
 
@@ -1598,7 +1605,13 @@ bool File_Avc::Header_Parser_QuickSearch()
         //Getting size
         Buffer_Offset+=4;
         while(Buffer_Offset+4<=Buffer_Size && CC3(Buffer+Buffer_Offset)!=0x000001)
-            Buffer_Offset++;
+        {
+            Buffer_Offset+=2;
+            while(Buffer_Offset<Buffer_Size && Buffer[Buffer_Offset]!=0x00)
+                Buffer_Offset+=2;
+            if (Buffer_Offset<Buffer_Size && Buffer[Buffer_Offset-1]==0x00 || Buffer_Offset>=Buffer_Size)
+                Buffer_Offset--;
+        }
     }
 
     if (Buffer_Offset+4<=Buffer_Size)
@@ -1621,7 +1634,7 @@ bool File_Avc::Detect_NonAVC ()
     //Detect mainly DAT files, and the parser is not enough precise to detect them later
     if (CC4(Buffer)==CC4("RIFF"))
     {
-        Finnished();
+        Finished();
         return true;
     }
 
@@ -1630,7 +1643,7 @@ bool File_Avc::Detect_NonAVC ()
         Buffer_Offset++;
     if (Buffer_Offset<188 && CC1(Buffer+Buffer_Offset+188)==0x47 && CC1(Buffer+Buffer_Offset+188*2)==0x47 && CC1(Buffer+Buffer_Offset+188*3)==0x47)
     {
-        Finnished();
+        Finished();
         return true;
     }
     Buffer_Offset=0;

@@ -1008,7 +1008,7 @@ void File__Base_Container (InfoMap &Info)
     "MPEG Video;;;V;Mpegv;;mpgv mpv mp1v m1v mp2v m2v\n"
     "MPEG-4 Visual;;;V;Mpeg4;;mp4v\n"
     "VC-1;;;V;Vc1;;vc1\n"
-    "Theroa;;;V\n"
+    "Theora;;;V\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
 }
@@ -1090,7 +1090,7 @@ void File__Base_Format (InfoMap &Info)
     "MPEG Video;;;V;Mpegv;;mpgv mpv mp1v m1v mp2v m2v\n"
     "MPEG-4 Visual;;;V;Mpeg4;;mp4v\n"
     "VC-1;;;V;Vc1;;vc1\n"
-    "Theroa;;;V\n"
+    "Theora;;;V\n"
     "AVS Video;;;V;AvsV;Audio Video Standart, Video part;;http://www.avs.org.cn/\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
@@ -1166,6 +1166,7 @@ void File__Base_CodecID_Video_Matroska (InfoMap &Info)
     Info.Separator_Set(0, _T("\n"));
     Info.Write(Ztring().From_Local(
     "V_UNCOMPRESSED;RGB;;Raw uncompressed video frames\n"
+    "V_DIRAC;Dirac;;;http://diracvideo.org/\n"
     "V_MPEG4/IS0/SP;MPEG-4 Visual;;There is a zero instead of a O, may be a problem;http://www.divx.com\n"
     "V_MPEG4/IS0/ASP;MPEG-4 Visual;;There is a zero instead of a O, may be a problem;http://www.xvid.org/Downloads.15.0.html\n"
     "V_MPEG4/IS0/AP;MPEG-4 Visual;;There is a zero instead of a O, may be a problem;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
@@ -1178,10 +1179,10 @@ void File__Base_CodecID_Video_Matroska (InfoMap &Info)
     "V_MPEG4/MS/V3;MPEG-4 Visual;MS MPEG-4 v3;MS MPEG-4 v3;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
     "V_MPEG1;MPEG Video;;MPEG 1 or 2 Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
     "V_MPEG2;MPEG Video;;MPEG 1 or 2 Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "V_REAL/RV10;Real 1;;RealVideo 1.0 aka RealVideo 5;http://www.real.com\n"
-    "V_REAL/RV20;Real 2;;RealVideo 2.0 aka G2 and RealVideo G2+SVT;http://www.real.com\n"
-    "V_REAL/RV30;Real 3;;RealVideo 3.0 aka RealVideo 8;http://www.real.com\n"
-    "V_REAL/RV40;Real 4;;RealVideo 4.0 aka RealVideo 9;http://www.real.com\n"
+    "V_REAL/RV10;RealVideo 1;;RealVideo 1.0 aka RealVideo 5;http://www.real.com\n"
+    "V_REAL/RV20;RealVideo 2;;RealVideo 2.0 aka G2 and RealVideo G2+SVT;http://www.real.com\n"
+    "V_REAL/RV30;RealVideo 3;;RealVideo 3.0 aka RealVideo 8;http://www.real.com\n"
+    "V_REAL/RV40;RealVideo 4;;RealVideo 4.0 aka RealVideo 9;http://www.real.com\n"
     "V_THEORA;Theora;;;http://www.theora.org\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
@@ -1950,8 +1951,11 @@ void File__Base_CodecID_Audio_Matroska (InfoMap &Info)
     "A_AC3/BSID9;AC-3\n"
     "A_AC3/BSID10;AC-3\n"
     "A_DTS;DTS\n"
+    "A_EAC3;E-AC-3\n"
+    "A_FLAC;Flac;;;http://flac.sourceforge.net\n"
+    "A_TTA1;TTA;;The True Audio Lossless Codec;http://true-audio.com\n"
     "A_VORBIS;Vorbis;;;http://www.vorbis.com\n"
-    "A_WAVPACK4;WavPack;;;http://www.wavepack.com\n"
+    "A_WAVPACK4;WavPack;;;http://www.wavpack.com\n"
     "A_REAL/14_4;VSELP;;Real Audio 1 (14.4);http://www.real.com\n"
     "A_REAL/28_8;G.728;;Real Audio 2 (28.8);http://www.real.com\n"
     "A_REAL/COOK;Cooker;;Real Audio Cook Codec (codename: Gecko);http://www.real.com\n"
@@ -3034,6 +3038,7 @@ void File__Base_Codec (InfoMap &Info)
     "ZPEG;Video Zipper;4CC;V;RGB;;Metheus Video Zipper\n"
     "ZYGO;ZyGo;4CC;V;;;ZyGo Video\n"
     "V_UNCOMPRESSED;Raw;Mk;V;;;Raw uncompressed video frames\n"
+    "V_DIRAC;Dirac;Mk;V;;;;http://diracvideo.org/\n"
     "V_MPEG4/ISO/SP;MPEG-4 Visual SP;Mk;V;MPEG-4V;;Simple Profile;http://www.divx.com\n"
     "V_MPEG4/ISO/ASP;MPEG-4 Visual ASP;Mk;V;MPEG-4V;;Advanced Simple Profile;http://www.xvid.org/Downloads.15.0.html\n"
     "V_MPEG4/ISO/AP;MPEG-4 Visual AP;Mk;V;MPEG-4V;;Advanced Profile;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
@@ -3057,8 +3062,11 @@ void File__Base_Codec (InfoMap &Info)
     "A_AC3/BSID9;AC3;Mk;A;AC3;;Dolby AC3\n"
     "A_AC3/BSID10;AC3;Mk;A;AC3;;Dolby AC3\n"
     "A_DTS;DTS;Mk;A;DTS\n"
+    "A_EAC3;EAC3;Mk;A;EAC3;;Dolby Enhanced AC3\n"
+    "A_FLAC;Flac;Mk;A;Flac;;;http://flac.sourceforge.net\n"
+    "A_TTA1;TTA;Mk;A;TTA;;The True Audio Lossless Codec;http://true-audio.com\n"
     "A_VORBIS;Vorbis;Mk;A;Vorbis;VBR;;http://www.vorbis.com\n"
-    "A_WAVPACK4;WavePack;Mk;A;Real;VBR;;http://www.wavepack.com\n"
+    "A_WAVPACK4;WavPack;Mk;A;Real;VBR;;http://www.wavpack.com\n"
     "A_REAL/14_4;RealAudio 1;Mk;A;Real;;Real Audio 1 (14.4);http://www.real.com\n"
     "A_REAL/28_8;RealAudio 2;Mk;A;Real;;Real Audio 2 (28.8);http://www.real.com\n"
     "A_REAL/COOK;RealAudio 7;Mk;A;Real;;Real Audio Cook Codec (codename: Gecko);http://www.real.com\n"
@@ -4484,6 +4492,9 @@ void File__Base_Library_XviD (InfoMap &Info)
     "45;1.2.0.dev45;UTC 2006-07-10\n"
     "46;1.1.2;UTC 2006-11-01\n"
     "47;1.2.0.dev47;UTC 2006-11-01\n"
+    "48;1.2.0.dev48\n"
+    "49;1.2.0.dev49\n"
+    "50;1.2.1;UTC 2008-12-04\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
 }

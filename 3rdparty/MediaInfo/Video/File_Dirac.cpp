@@ -57,6 +57,10 @@ const char* Dirac_base_video_format(intu base_video_format)
         case  14 : return "1080p60";
         case  15 : return "2K-24";
         case  16 : return "4K-24";
+        case  17 : return "4K-60";
+        case  18 : return "4K-50";
+        case  19 : return "8K-60";
+        case  20 : return "8K-50";
         default  : return "";
     }
 }
@@ -331,6 +335,50 @@ void Dirac_base_video_format(int32u   base_video_format,
                     clean_left_offset=0;
                     clean_top_offset=0;
                     frame_rate=Dirac_frame_rate(2);
+                    pixel_aspect_ratio=Dirac_pixel_aspect_ratio(1);
+                    return;
+        case  17 :  frame_width=3840;
+                    frame_height=2160;
+                    chroma_format=0;
+                    source_sampling=0;
+                    clean_width=3840;
+                    clean_height=2160;
+                    clean_left_offset=0;
+                    clean_top_offset=0;
+                    frame_rate=Dirac_frame_rate(7);
+                    pixel_aspect_ratio=Dirac_pixel_aspect_ratio(1);
+                    return;
+        case  18 :  frame_width=3840;
+                    frame_height=2160;
+                    chroma_format=0;
+                    source_sampling=0;
+                    clean_width=3840;
+                    clean_height=2160;
+                    clean_left_offset=0;
+                    clean_top_offset=0;
+                    frame_rate=Dirac_frame_rate(6);
+                    pixel_aspect_ratio=Dirac_pixel_aspect_ratio(1);
+                    return;
+        case  19 :  frame_width=7680;
+                    frame_height=4320;
+                    chroma_format=0;
+                    source_sampling=0;
+                    clean_width=7680;
+                    clean_height=4320;
+                    clean_left_offset=0;
+                    clean_top_offset=0;
+                    frame_rate=Dirac_frame_rate(7);
+                    pixel_aspect_ratio=Dirac_pixel_aspect_ratio(1);
+                    return;
+        case  20 :  frame_width=7680;
+                    frame_height=4320;
+                    chroma_format=0;
+                    source_sampling=0;
+                    clean_width=7680;
+                    clean_height=4320;
+                    clean_left_offset=0;
+                    clean_top_offset=0;
+                    frame_rate=Dirac_frame_rate(6);
                     pixel_aspect_ratio=Dirac_pixel_aspect_ratio(1);
                     return;
         default  :  frame_width=0;
@@ -767,7 +815,7 @@ void File_Dirac::picture_Fill()
         NextCode_Clear();
 
         Info("Dirac, Jumping to end of file");
-        Finnished();
+        Finished();
     }
 }
 
@@ -862,7 +910,7 @@ bool File_Dirac::Detect_NonDirac ()
     //Detect mainly DAT files, and the parser is not enough precise to detect them later
     if (CC4(Buffer)==CC4("RIFF"))
     {
-        Finnished();
+        Finished();
         return true;
     }
 
@@ -871,7 +919,7 @@ bool File_Dirac::Detect_NonDirac ()
         Buffer_Offset++;
     if (Buffer_Offset<188 && CC1(Buffer+Buffer_Offset+188)==0x47 && CC1(Buffer+Buffer_Offset+188*2)==0x47 && CC1(Buffer+Buffer_Offset+188*3)==0x47)
     {
-        Finnished();
+        Finished();
         return true;
     }
     Buffer_Offset=0;

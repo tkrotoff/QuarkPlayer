@@ -41,7 +41,7 @@ namespace MediaInfoLib
 {
 
 //---------------------------------------------------------------------------
-const Char*  MediaInfo_Version=_T("MediaInfoLib - v0.7.7.9BETA");
+const Char*  MediaInfo_Version=_T("MediaInfoLib - v0.7.8");
 const Char*  MediaInfo_Url=_T("http://mediainfo.sourceforge.net");
       Ztring EmptyZtring;       //Use it when we can't return a reference to a true Ztring
 const Ztring EmptyZtring_Const; //Use it when we can't return a reference to a true Ztring, const version
@@ -732,6 +732,8 @@ void MediaInfo_Config::Language_Set (const ZtringListList &NewValue)
         for (size_t Pos=0; Pos<NewValue.size(); Pos++)
             if (NewValue[Pos].size()>=2)
                 Language.Write(NewValue[Pos][0], NewValue[Pos][1]);
+            else if (NewValue[Pos].size()==1)
+                Language.Write(NewValue[Pos][0], _T(""));
     }
 
     //Fill Info

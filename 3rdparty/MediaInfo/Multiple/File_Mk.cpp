@@ -31,11 +31,26 @@
 
 //---------------------------------------------------------------------------
 #include "MediaInfo/Multiple/File_Mk.h"
+#if defined(MEDIAINFO_OGG_YES)
+    #include "MediaInfo/Multiple/File_Ogg.h"
+#endif
+#if defined(MEDIAINFO_RM_YES)
+    #include "MediaInfo/Multiple/File_Rm.h"
+#endif
 #if defined(MEDIAINFO_MPEG4V_YES)
     #include "MediaInfo/Video/File_Mpeg4v.h"
 #endif
 #if defined(MEDIAINFO_AVC_YES)
     #include "MediaInfo/Video/File_Avc.h"
+#endif
+#if defined(MEDIAINFO_VC1_YES)
+    #include "MediaInfo/Video/File_Vc1.h"
+#endif
+#if defined(MEDIAINFO_DIRAC_YES)
+    #include "MediaInfo/Video/File_Dirac.h"
+#endif
+#if defined(MEDIAINFO_MPEGV_YES)
+    #include "MediaInfo/Video/File_Mpegv.h"
 #endif
 #if defined(MEDIAINFO_AC3_YES)
     #include "MediaInfo/Audio/File_Ac3.h"
@@ -51,6 +66,15 @@
 #endif
 #if defined(MEDIAINFO_AAC_YES)
     #include "MediaInfo/Audio/File_Aac.h"
+#endif
+#if defined(MEDIAINFO_FLAC_YES)
+    #include "MediaInfo/Audio/File_Flac.h"
+#endif
+#if defined(MEDIAINFO_WVPK_YES)
+    #include "MediaInfo/Audio/File_Wvpk.h"
+#endif
+#if defined(MEDIAINFO_TTA_YES)
+    #include "MediaInfo/Audio/File_Tta.h"
 #endif
 #if defined(MEDIAINFO_PCM_YES)
     #include "MediaInfo/Audio/File_Pcm.h"
@@ -892,7 +916,7 @@ void File_Mk::Segment_Chapters_EditionEntry_ChapterAtom_ChapterDisplay_ChapStrin
 
     FILLING_BEGIN();
         if (TimecodeScale!=0 && ChapterTimeStart!=(int64u)-1)
-            Fill(StreamKind_Last, StreamPos_Last, Ztring::ToZtring(Chapter_Pos).To_Local().c_str(), Ztring().Duration_From_Milliseconds(ChapterTimeStart/TimecodeScale)+_T(" ")+ChapterString, true);
+            Fill(StreamKind_Last, StreamPos_Last, Ztring::ToZtring(Chapter_Pos).To_Local().c_str(), Ztring().Duration_From_Milliseconds(ChapterTimeStart/TimecodeScale)+_T(" - ")+ChapterString, true);
     FILLING_END();
 }
 
@@ -1047,7 +1071,7 @@ void File_Mk::Segment_Cluster()
         if (Stream_Count==0)
         {
             //Jumping
-            Finnished();//Skip_XX(Element_TotalSize_Get(),                        "Data");
+            Finished();//Skip_XX(Element_TotalSize_Get(),                        "Data");
             return;
         }
     }
@@ -1159,7 +1183,7 @@ void File_Mk::Segment_Cluster_BlockGroup_Block()
             Element_End(); //Block
             Element_End(); //BlockGroup
             Info("BlockGroup, Jumping to end of cluster");
-            Finnished(); //File_GoTo=File_Offset+Buffer_Offset+Element_TotalSize_Get();
+            Finished(); //File_GoTo=File_Offset+Buffer_Offset+Element_TotalSize_Get();
         }
 
         //Demux
@@ -1873,8 +1897,6 @@ void File_Mk::Segment_Tracks_TrackEntry_CodecPrivate_vids()
     Skip_L4(                                                    "YPelsPerMeter");
     Skip_L4(                                                    "ClrUsed");
     Skip_L4(                                                    "ClrImportant");
-    if (Data_Remain())
-        Skip_XX(Data_Remain(),                                  "Unknown");
 
     FILLING_BEGIN()
         Ztring Codec;
@@ -1908,6 +1930,16 @@ void File_Mk::Segment_Tracks_TrackEntry_CodecPrivate_vids()
         CodecID_Manage();
 
     FILLING_END()
+
+    if (Data_Remain())
+    {
+        Element_Begin("Private data");
+        if (Stream[TrackNumber].Parser)
+            Open_Buffer_Continue(Stream[TrackNumber].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+        else
+            Skip_XX(Data_Remain(),                                  "Unknown");
+        Element_End();
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -2520,18 +2552,53 @@ void File_Mk::CodecID_Manage()
         }
     }
     #endif
+    #if defined(MEDIAINFO_VC1_YES)
+    else if (Format==_T("VC-1"))
+    {
+        Stream[TrackNumber].Parser=new File_Vc1;
+        ((File_Vc1*)Stream[TrackNumber].Parser)->FrameIsAlwaysComplete=true;
+        ((File_Vc1*)Stream[TrackNumber].Parser)->Frame_Count_Valid=1;
+    }
+    #endif
+    #if defined(MEDIAINFO_DIRAC_YES)
+    else if (Format==_T("Dirac"))
+    {
+        Stream[TrackNumber].Parser=new File_Dirac;
+        ((File_Dirac*)Stream[TrackNumber].Parser)->Frame_Count_Valid=1;
+    }
+    #endif
+    #if defined(MEDIAINFO_MPEGV_YES)
+    else if (Format==_T("MPEG Video"))
+    {
+        Stream[TrackNumber].Parser=new File_Mpegv;
+        ((File_Mpegv*)Stream[TrackNumber].Parser)->FrameIsAlwaysComplete=true;
+        ((File_Mpegv*)Stream[TrackNumber].Parser)->Frame_Count_Valid=1;
+    }
+    #endif
+    #if defined(MEDIAINFO_OGG_YES)
+    else if (Format==_T("Theora")  || Format==_T("Vorbis"))
+    {
+        Stream[TrackNumber].Parser=new File_Ogg;
+        ((File_Ogg*)Stream[TrackNumber].Parser)->XiphLacing=true;
+    }
+    #endif
+    #if defined(MEDIAINFO_RM_YES)
+    else if (CodecID.find(_T("V_REAL/"))==0)
+    {
+        Stream[TrackNumber].Parser=new File_Rm;
+        ((File_Rm*)Stream[TrackNumber].Parser)->FromMKV_StreamType=Stream_Video;
+    }
+    #endif
     #if defined(MEDIAINFO_AC3_YES)
-    else if (Format==_T("AC-3"))
+    else if (Format==_T("AC-3") || Format==_T("E-AC-3"))
     {
         Stream[TrackNumber].Parser=new File_Ac3;
-        //((File_Ac3*)Stream[TrackNumber].Parser)->FrameIsAlwaysComplete=true;
     }
     #endif
     #if defined(MEDIAINFO_DTS_YES)
     else if (Format==_T("DTS"))
     {
         Stream[TrackNumber].Parser=new File_Dts;
-        //((File_Dts*)Stream[TrackNumber].Parser)->FrameIsAlwaysComplete=true;
     }
     #endif
     #if defined(MEDIAINFO_MPEG4_YES)
@@ -2551,7 +2618,25 @@ void File_Mk::CodecID_Manage()
     else if (Format==_T("MPEG Audio"))
     {
         Stream[TrackNumber].Parser=new File_Mpega;
-        //((File_Mpega*)Stream[TrackNumber].Parser)->FrameIsAlwaysComplete=true;
+    }
+    #endif
+    #if defined(MEDIAINFO_FLAC_YES)
+    else if (Format==_T("Flac"))
+    {
+        Stream[TrackNumber].Parser=new File_Flac;
+    }
+    #endif
+    #if defined(MEDIAINFO_WVPK_YES)
+    else if (Format==_T("WavPack"))
+    {
+        Stream[TrackNumber].Parser=new File_Wvpk;
+        ((File_Wvpk*)Stream[TrackNumber].Parser)->FromMKV=true;
+    }
+    #endif
+    #if defined(MEDIAINFO_TTA_YES)
+    else if (Format==_T("TTA"))
+    {
+        //Stream[TrackNumber].Parser=new File_Tta; //Parser is not needed, because header is useless and dropped (the parser analyses only the header)
     }
     #endif
     #if defined(MEDIAINFO_PCM_YES)
@@ -2559,6 +2644,13 @@ void File_Mk::CodecID_Manage()
     {
         Stream[TrackNumber].Parser=new File_Pcm;
         ((File_Pcm*)Stream[TrackNumber].Parser)->Codec=CodecID;
+    }
+    #endif
+    #if defined(MEDIAINFO_RM_YES)
+    else if (CodecID.find(_T("A_REAL/"))==0)
+    {
+        Stream[TrackNumber].Parser=new File_Rm;
+        ((File_Rm*)Stream[TrackNumber].Parser)->FromMKV_StreamType=Stream_Audio;
     }
     #endif
 

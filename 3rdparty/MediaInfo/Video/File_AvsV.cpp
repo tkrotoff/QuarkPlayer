@@ -253,7 +253,13 @@ bool File_AvsV::Header_Parse_Fill_Size()
         Buffer_Offset_Temp=Buffer_Offset+4;
     while (Buffer_Offset_Temp+4<=Buffer_Size
         && CC3(Buffer+Buffer_Offset_Temp)!=0x000001)
-        Buffer_Offset_Temp++;
+    {
+        Buffer_Offset_Temp+=2;
+        while(Buffer_Offset_Temp<Buffer_Size && Buffer[Buffer_Offset_Temp]!=0x00)
+            Buffer_Offset_Temp+=2;
+        if (Buffer_Offset_Temp<Buffer_Size && Buffer[Buffer_Offset_Temp-1]==0x00 || Buffer_Offset_Temp>=Buffer_Size)
+            Buffer_Offset_Temp--;
+    }
 
     //Must wait more data?
     if (Buffer_Offset_Temp+4>Buffer_Size)
@@ -737,7 +743,7 @@ void File_AvsV::picture_start_Fill()
     {
         Element_End();
         Info("AVS Video, Jumping to end of file");
-        Finnished();
+        Finished();
     }
 }
 
@@ -812,7 +818,13 @@ bool File_AvsV::Header_Parser_QuickSearch()
         //Getting size
         Buffer_Offset+=4;
         while(Buffer_Offset+4<=Buffer_Size && CC3(Buffer+Buffer_Offset)!=0x000001)
-            Buffer_Offset++;
+        {
+            Buffer_Offset+=2;
+            while(Buffer_Offset<Buffer_Size && Buffer[Buffer_Offset]!=0x00)
+                Buffer_Offset+=2;
+            if (Buffer_Offset<Buffer_Size && Buffer[Buffer_Offset-1]==0x00 || Buffer_Offset>=Buffer_Size)
+                Buffer_Offset--;
+        }
     }
 
     if (Buffer_Offset+4<=Buffer_Size)
@@ -835,7 +847,7 @@ bool File_AvsV::Detect_NonAvsV ()
     //Detect mainly DAT files, and the parser is not enough precise to detect them later
     if (CC4(Buffer)==CC4("RIFF"))
     {
-        Finnished();
+        Finished();
         return true;
     }
 
@@ -844,7 +856,7 @@ bool File_AvsV::Detect_NonAvsV ()
         Buffer_Offset++;
     if (Buffer_Offset<188 && CC1(Buffer+Buffer_Offset+188)==0x47 && CC1(Buffer+Buffer_Offset+188*2)==0x47 && CC1(Buffer+Buffer_Offset+188*3)==0x47)
     {
-        Finnished();
+        Finished();
         return true;
     }
     Buffer_Offset=0;

@@ -45,12 +45,16 @@ namespace MediaInfoLib
 File_Ogg::File_Ogg()
 :File__Analyze()
 {
+    //In
+    SizedBlocks=false;
+    XiphLacing=false;
+
     //Temp - Global
     StreamsToDo=0;
     Parsing_End=false;
     
     //Temp - Stream
-    Chunk_Sizes_Finnished=true;
+    Chunk_Sizes_Finished=true;
     packet_type=0;
 }
 
@@ -84,6 +88,10 @@ void File_Ogg::Read_Buffer_Finalize()
 //---------------------------------------------------------------------------
 bool File_Ogg::Header_Begin()
 {
+    //Specific case
+    if (SizedBlocks || XiphLacing)
+        return true;
+
     //Synchro
     if (!Synched && !Synchronize())
         return false;
@@ -99,6 +107,48 @@ bool File_Ogg::Header_Begin()
 //---------------------------------------------------------------------------
 void File_Ogg::Header_Parse()
 {
+    //Specific case
+    if (SizedBlocks)
+    {
+        int16u Size;
+        Get_B2 (Size,                                           "Size");
+
+        Chunk_Sizes.clear();
+        Chunk_Sizes.push_back(Size);
+        Header_Fill_Size(2+Size);
+        Header_Fill_Code(0, Ztring::ToZtring(0, 16));
+        return;
+    }
+    if (XiphLacing)
+    {
+        if (Chunk_Sizes.empty())
+        {
+            int8u CountMinus1;
+            Get_B1 (CountMinus1,                                    "Number of frames minus one");
+
+            int64u UsedSize=0;
+            for (size_t Pos=0; Pos<CountMinus1; Pos++)
+            {
+                int32u Size=0;
+                int8u Size8;
+                do
+                {
+                    Get_B1 (Size8,              "Size");
+                    Size+=Size8;
+                }
+                while (Size8==0xFF);
+                Param_Info(Size);
+                Chunk_Sizes.push_back(Size);
+                UsedSize+=Size;
+            }
+            Chunk_Sizes.push_back((size_t)(Element_Size-UsedSize-1));
+        }
+
+        Header_Fill_Size(Element_Size);
+        Header_Fill_Code(0, Ztring::ToZtring(0, 16));
+        return;
+    }
+
     //Parsing
     int64u absolute_granule_position;
     int32u stream_serial_number, page_sequence_no;
@@ -126,12 +176,12 @@ void File_Ogg::Header_Parse()
         if (packet_lacing_value!=0xFF)
         {
             Chunk_Sizes.push_back(0);
-            Chunk_Sizes_Finnished=true;
+            Chunk_Sizes_Finished=true;
         }
         else
-            Chunk_Sizes_Finnished=false;
+            Chunk_Sizes_Finished=false;
     }
-    if (Chunk_Sizes_Finnished)
+    if (Chunk_Sizes_Finished)
         Chunk_Sizes.resize(Chunk_Sizes.size()-1); //Keep out the last value
 
     //Filling
@@ -147,10 +197,11 @@ void File_Ogg::Data_Parse()
     if (Stream[Element_Code].Parser==NULL)
     {
         Stream[Element_Code].Parser=new File_Ogg_SubElement;
-        ((File_Ogg_SubElement*)Stream[Element_Code].Parser)->IsStandAlone=Stream.size()==1;
+        ((File_Ogg_SubElement*)Stream[Element_Code].Parser)->InAnotherContainer=SizedBlocks|SizedBlocks;
         Open_Buffer_Init(Stream[Element_Code].Parser);
         StreamsToDo++;
     }
+    ((File_Ogg_SubElement*)Stream[Element_Code].Parser)->MultipleStreams=Stream.size()>1; //has no sens for the first init, must check allways
 
     //Parsing
     File_Ogg_SubElement* Parser=(File_Ogg_SubElement*)Stream[Element_Code].Parser;
@@ -170,7 +221,7 @@ void File_Ogg::Data_Parse()
             if (continued || Parser->File_Offset!=Parser->File_Size)
                 Open_Buffer_Continue(Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, Chunk_Sizes[Chunk_Sizes_Pos]);
             if (Chunk_Sizes_Pos<Chunk_Sizes.size()-1
-             || (Chunk_Sizes_Pos==Chunk_Sizes.size()-1 && Chunk_Sizes_Finnished))
+             || (Chunk_Sizes_Pos==Chunk_Sizes.size()-1 && Chunk_Sizes_Finished))
                 Open_Buffer_Continue(Parser, Buffer+Buffer_Offset, 0); //Purge old datas
 
             if (Parser->File_GoTo!=(int64u)-1)
@@ -180,7 +231,8 @@ void File_Ogg::Data_Parse()
                 Merge(*Parser, Stream_General, 0, 0);
                 Stream[Element_Code].StreamKind=((File_Ogg_SubElement*)Parser)->StreamKind;
                 Stream[Element_Code].StreamPos=Count_Get(Stream[Element_Code].StreamKind)-1;
-                Stream[Element_Code].absolute_granule_position_Resolution=((File_Ogg_SubElement*)Stream[Element_Code].Parser)->absolute_granule_position_Resolution;
+                if (!SizedBlocks && !XiphLacing)
+                    Stream[Element_Code].absolute_granule_position_Resolution=((File_Ogg_SubElement*)Stream[Element_Code].Parser)->absolute_granule_position_Resolution;
                 StreamsToDo--;
             }
 
@@ -204,6 +256,8 @@ void File_Ogg::Data_Parse()
         }
         Parsing_End=true;
     }
+
+    Element_Show();
 }
 
 
@@ -215,7 +269,7 @@ void File_Ogg::Read_Buffer_Continue()
     //Integrity test
     if (Buffer_Size<4 || CC4(Buffer)!=CC4("OggS"))
     {
-        Finnished();
+        Finished();
         return;
     }
 
@@ -257,7 +311,7 @@ void File_Ogg::Read_Buffer_Continue()
 
 
     //No need of more
-    Finnished();
+    Finished();
 }
 */
 

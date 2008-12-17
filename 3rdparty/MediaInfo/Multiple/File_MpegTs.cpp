@@ -567,7 +567,7 @@ void File_MpegTs::PSI()
     //Filling
     if (Streams[pid].Parser->File_Offset==Streams[pid].Parser->File_Size)
     {
-        //Finnished, we can fill data
+        //Finished, we can fill data
         switch (Streams[pid].TS_Kind)
         {
             case File_Mpeg_Psi::program_association_table : PSI_program_association_table(); break;
@@ -799,7 +799,7 @@ void File_MpegTs::PSI_program_map_table()
         if (Pos!=PID_PMTs[pid].List.end())
             PID_PMTs[pid].List.erase(Pos);
         if (!PID_PMTs[pid].List.empty())
-            ((File_Mpeg_Psi*)Streams[pid].Parser)->WantItAgain=true; //Disabling the tag "finnished", we want it again!
+            ((File_Mpeg_Psi*)Streams[pid].Parser)->WantItAgain=true; //Disabling the tag "Finished", we want it again!
     }
 }
 
@@ -834,11 +834,11 @@ void File_MpegTs::PSI_atsc_psip()
             Streams[Stream->first].Searching_Payload_Start_Set(true);
         }
         if (Streams[Stream->first].Parser)
-            ((File_Mpeg_Psi*)Streams[pid].Parser)->WantItAgain=true; //Disabling the tag "finnished", we want it again!
+            ((File_Mpeg_Psi*)Streams[pid].Parser)->WantItAgain=true; //Disabling the tag "Finished", we want it again!
     }
 
     if (Streams[0x1FFB].Parser)
-        ((File_Mpeg_Psi*)Streams[0x1FFB].Parser)->WantItAgain=true; //Disabling the tag "finnished", we want it again!
+        ((File_Mpeg_Psi*)Streams[0x1FFB].Parser)->WantItAgain=true; //Disabling the tag "Finished", we want it again!
 
     for (std::map<int16u, File_Mpeg_Descriptors::program>::iterator Psi_Program=Parser->Programs.begin(); Psi_Program!=Parser->Programs.end(); Psi_Program++)
     {
@@ -994,7 +994,7 @@ bool File_MpegTs::Synchronize()
         }
         //Managing first Synch attempt
         else if (!File_Name.empty() && File_Offset+Buffer_Size>=188*4+BDAV_Size*5 && Count_Get(Stream_General)==0)
-            Finnished(); //This is not a TS file, ending
+            Finished(); //This is not a TS file, ending
 
         return false;
     }
@@ -1160,14 +1160,14 @@ bool File_MpegTs::Detect_NonMPEGTS ()
     //Detect mainly DAT files, and the parser is not enough precise to detect them later
     if (CC4(Buffer)==CC4("RIFF"))
     {
-        Finnished();
+        Finished();
         return true;
     }
 
     //Detect MPEG-4 files, and the parser is not enough precise to detect them later if there is a lot of 0x47 in the size chunks
     if (CC4(Buffer+4)==CC4("ftyp") || CC4(Buffer+4)==CC4("moov") || CC4(Buffer+4)==CC4("mdat"))
     {
-        Finnished();
+        Finished();
         return true;
     }
 
@@ -1200,6 +1200,51 @@ void File_MpegTs::Option_Manage()
             Streams[0x00].Searching_Payload_Start_Set(true); //Re-enabling program_map_table
         }
     }
+}
+
+//***************************************************************************
+// Output_Buffer
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+size_t File_MpegTs::Output_Buffer_Get (const String &Code)
+{
+    if (size_t Size=File__Duplicate::Output_Buffer_Get(Code))
+        return Size;
+
+    //Parsing Parsers
+    for (size_t Pos=0; Pos<Streams.size(); Pos++)
+        if (Streams[Pos].Parser)
+            if (size_t Size=Streams[Pos].Parser->Output_Buffer_Get(Code))
+                return Size;
+
+    return 0;
+}
+
+//---------------------------------------------------------------------------
+size_t File_MpegTs::Output_Buffer_Get (size_t Pos_)
+{
+    //Optimization
+    //if (Output_Buffer_Get_Pos.size()>Pos_ && Output_Buffer_Get_Pos[Pos_]!=(int16u)-1)
+    //    return Streams[Output_Buffer_Get_Pos[Pos_]].Parser->Output_Buffer_Get(Pos_);
+
+    if (size_t Size=File__Duplicate::Output_Buffer_Get(Pos_))
+        return Size;
+
+    //Parsing Parsers
+    for (size_t Pos=0; Pos<Streams.size(); Pos++)
+        if (Streams[Pos].Parser)
+            if (size_t Size=Streams[Pos].Parser->Output_Buffer_Get(Pos_))
+            {
+                //Optimization
+                //if (Output_Buffer_Get_Pos.size()<=Pos_)
+                //    Output_Buffer_Get_Pos.resize(Pos_+1, (int16u)-1);
+                //Output_Buffer_Get_Pos[Pos_]=Pos;
+
+                return Size;
+            }
+
+    return 0;
 }
 
 } //NameSpace
