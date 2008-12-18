@@ -41,7 +41,7 @@ AmazonCoverArt::~AmazonCoverArt() {
 
 QUrl AmazonCoverArt::amazonUrl(const Track & track) const {
 	QUrl url;
-	if (track.amazonId.isEmpty()) {
+	if (track.amazonASIN.isEmpty()) {
 		url = QUrl("http://webservices.amazon.com/onca/xml/");
 		url.addQueryItem("Service", "AWSECommerceService");
 		url.addQueryItem("Operation", "ItemSearch");
@@ -66,7 +66,7 @@ QUrl AmazonCoverArt::amazonUrl(const Track & track) const {
 		url.addQueryItem("ResponseGroup", "Images");
 		url.addQueryItem("AWSAccessKeyId", _amazonWebServiceKey);
 		url.addQueryItem("IdType", "ASIN");
-		url.addQueryItem("ItemId", track.amazonId);
+		url.addQueryItem("ItemId", track.amazonASIN);
 	}
 	return url;
 }
@@ -83,7 +83,7 @@ bool AmazonCoverArt::start(const Track & track, const QString & language) {
 	_track.artist.replace(QRegExp("[[(<{].+"), QString());
 	_track.artist.replace("-", QString());
 	_track.artist = _track.artist.trimmed();
-	_track.amazonId = _track.amazonId.trimmed();
+	_track.amazonASIN = _track.amazonASIN.trimmed();
 
 	qDebug() << __FUNCTION__ << "Looking up for the album cover art";
 
@@ -115,7 +115,7 @@ void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
 		qWarning() << __FUNCTION__ << "Error: couldn't find cover art with artist+album";
 		qDebug() << __FUNCTION__ << "Artist:" << _track.artist;
 		qDebug() << __FUNCTION__ << "Album:" << _track.album;
-		qDebug() << __FUNCTION__ << "Amazon Id:" << _track.amazonId;
+		qDebug() << __FUNCTION__ << "Amazon ASIN:" << _track.amazonASIN;
 	} else {
 		//qDebug() << __FUNCTION__ << "Downloading cover art";
 

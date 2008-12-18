@@ -6,7 +6,6 @@ set(playlist_SRCS
 	PlaylistFilter.cpp
 	Track.cpp
 	DragAndDropTreeView.cpp
-	SearchToolBar.cpp
 	UuidActionCollection.cpp
 )
 
@@ -15,7 +14,6 @@ qt4_wrap_cpp(playlist_SRCS
 	PlaylistModel.h
 	PlaylistFilter.h
 	DragAndDropTreeView.h
-	SearchToolBar.h
 )
 
 add_library(playlist MODULE ${playlist_SRCS})

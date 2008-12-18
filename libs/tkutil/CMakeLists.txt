@@ -26,7 +26,8 @@ set(tkutil_SRCS
 	TkTime.cpp
 	FileChooserWidget.cpp
 	ScreenSaver.cpp
-	ClickMessageLineEdit.cpp
+	SearchLineEdit.cpp
+	LineEdit.cpp
 )
 
 qt4_wrap_cpp(tkutil_SRCS
@@ -36,7 +37,10 @@ qt4_wrap_cpp(tkutil_SRCS
 	TkTextBrowser.h
 	SyncHttp.h
 	FileChooserWidget.h
-	ClickMessageLineEdit.h
+	SearchLineEdit.h
+	LineEdit.h
+	LineEdit_p.h
+	ProxyStyle.h
 )
 
 add_library(tkutil SHARED ${tkutil_SRCS})

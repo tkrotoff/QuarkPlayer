@@ -7,6 +7,7 @@
 	<file alias="16x16/document-open-recent">icons/oxygen/16x16/actions/document-open-recent.png</file>
 	<file alias="16x16/document-open-remote">icons/oxygen/16x16/actions/document-open-remote.png</file>
 	<file alias="16x16/edit-delete">icons/oxygen/16x16/actions/edit-delete.png</file>
+	<file alias="16x16/edit-clear-locationbar-rtl">icons/oxygen/16x16/actions/edit-clear-locationbar-rtl.png</file>
 	<file alias="16x16/edit-find">icons/oxygen/16x16/actions/edit-find.png</file>
 	<file alias="16x16/edit-copy">icons/oxygen/16x16/actions/edit-copy.png</file>
 	<file alias="16x16/format-list-ordered">icons/oxygen/16x16/actions/format-list-ordered.png</file>
@@ -25,6 +26,7 @@
 	<file alias="16x16/go-jump-locationbar">icons/oxygen/16x16/actions/go-jump-locationbar.png</file>
 	<file alias="16x16/go-jump">icons/oxygen/16x16/actions/go-jump.png</file>
 	<file alias="16x16/go-down">icons/oxygen/16x16/actions/go-down.png</file>
+	<file alias="16x16/go-down-search">icons/oxygen/16x16/actions/go-down-search.png</file>
 	<file alias="16x16/rating">icons/oxygen/16x16/actions/rating.png</file>
 	<file alias="16x16/document-properties">icons/oxygen/16x16/actions/document-properties.png</file>
 	<file alias="16x16/window-new">icons/oxygen/16x16/actions/window-new.png</file>

@@ -55,12 +55,15 @@ void Translator::load(const QString & language) {
 		install();
 	}
 
-	static QString lastLoadedLanguage("this string should be unique");
-	if (language == lastLoadedLanguage) {
-		qWarning() << __FUNCTION__ << "Language already loaded:" << language;
-		return;
-	}
-	lastLoadedLanguage = language;
+	//Don't do that, retranslate() is also used for changing icons without
+	//restarting the application
+	//static QString lastLoadedLanguage("this string should be unique");
+	//if (language == lastLoadedLanguage) {
+	//	qWarning() << __FUNCTION__ << "Language already loaded:" << language;
+	//	return;
+	//}
+	//lastLoadedLanguage = language;
+	///
 
 	QString myLanguage = language;
 	if (myLanguage.isEmpty()) {

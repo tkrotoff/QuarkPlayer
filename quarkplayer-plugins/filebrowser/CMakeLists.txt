@@ -5,7 +5,6 @@ set(filebrowser_SRCS
 	FileBrowserTreeView.cpp
 	FileSearchModel.cpp
 	Track.cpp
-	SearchToolBar.cpp
 	UuidActionCollection.cpp
 	config/FileBrowserConfigWidget.cpp
 )
@@ -14,7 +13,6 @@ qt4_wrap_cpp(filebrowser_SRCS
 	FileBrowserWidget.h
 	FileBrowserTreeView.h
 	FileSearchModel.h
-	SearchToolBar.h
 	config/FileBrowserConfigWidget.h
 )
 

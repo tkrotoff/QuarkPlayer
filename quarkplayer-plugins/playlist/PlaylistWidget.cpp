@@ -22,7 +22,6 @@
 #include "PlaylistModel.h"
 #include "PlaylistFilter.h"
 #include "UuidActionCollection.h"
-#include "SearchToolBar.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
@@ -35,6 +34,7 @@
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 #include <tkutil/KeyEventFilter.h>
+#include <tkutil/SearchLineEdit.h>
 
 #include <filetypes/FileTypes.h>
 
@@ -46,6 +46,8 @@
 #include <QtGui/QtGui>
 
 #include <QtCore/QDebug>
+
+static const char * PLAYLIST_SEARCH_HISTORY_KEY = "playlist_search_history";
 
 Q_EXPORT_PLUGIN2(PlaylistWidget, PlaylistWidgetFactory);
 
@@ -111,6 +113,8 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	connect(&PlaylistConfig::instance(), SIGNAL(activePlaylistChanged(const QUuid &)),
 		SLOT(activePlaylistChanged(const QUuid &)));
 
+	Config::instance().addKey(PLAYLIST_SEARCH_HISTORY_KEY, QStringList());
+
 	RETRANSLATE(this);
 	retranslate();
 }
@@ -121,26 +125,33 @@ PlaylistWidget::~PlaylistWidget() {
 }
 
 void PlaylistWidget::createToolBar() {
-	//Search toolbar
-	_searchToolBar = new SearchToolBar(NULL);
-	connect(_searchToolBar, SIGNAL(textChanged(const QString &)), SLOT(search()));
-	layout()->addWidget(_searchToolBar);
+	QToolBar * toolBar = new QToolBar(NULL);
+	toolBar->setIconSize(QSize(16, 16));
+	layout()->addWidget(toolBar);
 
-	_searchToolBar->addAction(uuidAction("playlistShuffle"));
+	//Needed by addWordToWordList()
+	_searchTimer = new QTimer(this);
+	_searchTimer->setSingleShot(true);
+	_searchTimer->setInterval(1500);
+	connect(_searchTimer, SIGNAL(timeout()), SLOT(addWordToWordList()));
+
+	toolBar->addAction(uuidAction("playlistShuffle"));
 	connect(uuidAction("playlistShuffle"), SIGNAL(toggled(bool)), _playlistFilter, SLOT(setShuffle(bool)));
-	_searchToolBar->addAction(uuidAction("playlistRepeat"));
+	toolBar->addAction(uuidAction("playlistRepeat"));
 	connect(uuidAction("playlistRepeat"), SIGNAL(toggled(bool)), _playlistFilter, SLOT(setRepeat(bool)));
 
-	_searchToolBar->addAction(uuidAction("playlistJumpToCurrent"));
+	toolBar->addAction(uuidAction("playlistJumpToCurrent"));
 	connect(uuidAction("playlistJumpToCurrent"), SIGNAL(triggered()), SLOT(jumpToCurrent()));
 
-	//Search widgets
-	_searchToolBar->addSearchWidgets();
-	_searchToolBar->addSeparator();
+	//Search line edit
+	QStringList history = Config::instance().value(PLAYLIST_SEARCH_HISTORY_KEY).toStringList();
+	_searchLineEdit = new SearchLineEdit(history, toolBar);
+	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search()));
+	toolBar->addWidget(_searchLineEdit);
 
-	_searchToolBar->addAction(uuidAction("playlistOpen"));
+	toolBar->addAction(uuidAction("playlistOpen"));
 	connect(uuidAction("playlistOpen"), SIGNAL(triggered()), SLOT(openPlaylist()));
-	_searchToolBar->addAction(uuidAction("playlistSave"));
+	toolBar->addAction(uuidAction("playlistSave"));
 	connect(uuidAction("playlistSave"), SIGNAL(triggered()), SLOT(savePlaylist()));
 
 	//We have to use a QToolButton instead of a QAction,
@@ -148,7 +159,7 @@ void PlaylistWidget::createToolBar() {
 	QToolButton * addButton = new QToolButton();
 	addButton->setPopupMode(QToolButton::InstantPopup);
 	addButton->setDefaultAction(uuidAction("playlistAdd"));
-	_searchToolBar->addWidget(addButton);
+	toolBar->addWidget(addButton);
 
 	QMenu * addMenu = new QMenu();
 	addMenu->addAction(uuidAction("playlistAddFiles"));
@@ -162,13 +173,13 @@ void PlaylistWidget::createToolBar() {
 	KeyPressEventFilter * deleteKeyFilter = new KeyPressEventFilter(_treeView, SLOT(clearSelection()), Qt::Key_Delete);
 	_treeView->installEventFilter(deleteKeyFilter);
 
-	_searchToolBar->addAction(uuidAction("playlistRemoveAll"));
+	toolBar->addAction(uuidAction("playlistRemoveAll"));
 	connect(uuidAction("playlistRemoveAll"), SIGNAL(triggered()), _playlistModel, SLOT(clear()));
 	connect(uuidAction("playlistRemoveAll"), SIGNAL(triggered()), SLOT(updateWindowTitle()));
 
-	_searchToolBar->addSeparator();
+	toolBar->addSeparator();
 
-	_searchToolBar->addAction(uuidAction("playlistNew"));
+	toolBar->addAction(uuidAction("playlistNew"));
 	connect(uuidAction("playlistNew"), SIGNAL(triggered()), SLOT(createNewPlaylistWidget()));
 }
 
@@ -200,6 +211,15 @@ void PlaylistWidget::populateActionCollection() {
 }
 
 void PlaylistWidget::retranslate() {
+	_searchLineEdit->clearButton()->setToolTip(tr("Clear Search"));
+	_searchLineEdit->clearButton()->setIcon(TkIcon("edit-clear-locationbar-rtl"));
+
+	_searchLineEdit->showWordListButton()->setToolTip(tr("Previous Searches"));
+	_searchLineEdit->showWordListButton()->setIcon(TkIcon("go-down-search"));
+
+	_searchLineEdit->setToolTip(tr("Search the playlist, use whitespaces to separate words"));
+	_searchLineEdit->setClickMessage(tr("Enter search terms here"));
+
 	uuidAction("playlistOpen")->setText(tr("Open Playlist"));
 	uuidAction("playlistOpen")->setIcon(TkIcon("document-open"));
 
@@ -436,7 +456,7 @@ void PlaylistWidget::search() {
 	QTime timeElapsed;
 	timeElapsed.start();
 
-	QString pattern(_searchToolBar->text());
+	QString pattern(_searchLineEdit->text());
 	if (!pattern.isEmpty()) {
 		updateWindowTitle(tr("Searching..."));
 	} else {
@@ -465,6 +485,28 @@ void PlaylistWidget::search() {
 			" (" + QString::number(_playlistFilter->rowCount()) + " " + tr("medias") + ")");
 	} else {
 		updateWindowTitle();
+	}
+
+	//Needed by addWordToWordList()
+	_searchTimer->stop();
+	_searchTimer->start();
+}
+
+void PlaylistWidget::addWordToWordList() {
+	_searchTimer->stop();
+
+	//Add the word searched inside the SearchLineEdit
+	QString word = _searchLineEdit->text();
+	qDebug() << __FUNCTION__ << "Word:" << word;
+	if (word.size() > 2) {
+		_searchLineEdit->addWord(word);
+		QStringList wordList = _searchLineEdit->wordList();
+		QStringList tmp;
+		//Only takes the first 100 words from the list and save them
+		for (int i = 0; i < wordList.size() && i < 100; i++) {
+			tmp += wordList[i];
+		}
+		Config::instance().setValue(PLAYLIST_SEARCH_HISTORY_KEY, tmp);
 	}
 }
 

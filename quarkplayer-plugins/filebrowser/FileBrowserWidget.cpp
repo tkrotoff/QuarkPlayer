@@ -20,7 +20,6 @@
 
 #include "FileBrowserTreeView.h"
 #include "FileSearchModel.h"
-#include "SearchToolBar.h"
 #include "UuidActionCollection.h"
 
 #include "config/FileBrowserConfigWidget.h"
@@ -34,12 +33,15 @@
 #include <filetypes/FileTypes.h>
 
 #include <tkutil/TkIcon.h>
+#include <tkutil/SearchLineEdit.h>
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
 
 #include <QtCore/QDebug>
+
+static const char * FILEBROWSER_SEARCH_HISTORY_KEY = "filebrowser_search_history";
 
 Q_EXPORT_PLUGIN2(filebrowser, FileBrowserWidgetFactory);
 
@@ -92,6 +94,8 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 			SLOT(configWindowCreated(ConfigWindow *)));
 	}
 
+	Config::instance().addKey(FILEBROWSER_SEARCH_HISTORY_KEY, QStringList());
+
 	RETRANSLATE(this);
 	retranslate();
 }
@@ -102,27 +106,28 @@ FileBrowserWidget::~FileBrowserWidget() {
 }
 
 void FileBrowserWidget::createToolBar() {
-	//Search toolbar
-	_searchToolBar = new SearchToolBar(NULL);
-	connect(_searchToolBar, SIGNAL(textChanged(const QString &)), SLOT(search()));
-	layout()->addWidget(_searchToolBar);
+	QToolBar * toolBar = new QToolBar(NULL);
+	toolBar->setIconSize(QSize(16, 16));
+	layout()->addWidget(toolBar);
 
 	//Browse button
 	QToolButton * browseButton = new QToolButton();
 	browseButton->setAutoRaise(true);
 	browseButton->setDefaultAction(uuidAction("fileBrowserBrowse"));
-	_searchToolBar->addWidget(browseButton);
+	toolBar->addWidget(browseButton);
 	connect(browseButton, SIGNAL(clicked()), SLOT(configure()));
 
-	//Search widgets
-	_searchToolBar->addSearchWidgets();
-	_searchToolBar->addSeparator();
+	//Search line edit
+	QStringList history = Config::instance().value(FILEBROWSER_SEARCH_HISTORY_KEY).toStringList();
+	_searchLineEdit = new SearchLineEdit(history, toolBar);
+	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search()));
+	toolBar->addWidget(_searchLineEdit);
 
 	//New file browser button
 	QToolButton * newFileBrowserButton = new QToolButton();
 	newFileBrowserButton->setAutoRaise(true);
 	newFileBrowserButton->setDefaultAction(uuidAction("fileBrowserNew"));
-	_searchToolBar->addWidget(newFileBrowserButton);
+	toolBar->addWidget(newFileBrowserButton);
 	connect(newFileBrowserButton, SIGNAL(clicked()), SLOT(createNewFileBrowserWidget()));
 }
 
@@ -174,7 +179,7 @@ void FileBrowserWidget::loadDirModel() {
 }
 
 void FileBrowserWidget::search() {
-	QString pattern(_searchToolBar->text());
+	QString pattern(_searchLineEdit->text());
 	if (pattern.isEmpty()) {
 		setWindowTitle(QString());
 		_treeView->setRootIsDecorated(true);
@@ -221,6 +226,19 @@ void FileBrowserWidget::search() {
 void FileBrowserWidget::searchFinished(int timeElapsed) {
 	setWindowTitle(tr("Search finished:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
 			" (" + QString::number(_fileSearchModel->rowCount()) + " " + tr("medias") + ")");
+
+	//Add the word searched inside the SearchToolBar
+	QString word = _searchLineEdit->text();
+	if (word.size() > 2) {
+		_searchLineEdit->addWord(word);
+		QStringList wordList = _searchLineEdit->wordList();
+		QStringList tmp;
+		//Only takes the first 100 words from the list and save them
+		for (int i = 0; i < wordList.size() && i < 100; i++) {
+			tmp += wordList[i];
+		}
+		Config::instance().setValue(FILEBROWSER_SEARCH_HISTORY_KEY, tmp);
+	}
 }
 
 void FileBrowserWidget::configure() {
@@ -244,6 +262,15 @@ void FileBrowserWidget::createNewFileBrowserWidget() {
 }
 
 void FileBrowserWidget::retranslate() {
+	_searchLineEdit->clearButton()->setToolTip(tr("Clear Search"));
+	_searchLineEdit->clearButton()->setIcon(TkIcon("edit-clear-locationbar-rtl"));
+
+	_searchLineEdit->showWordListButton()->setToolTip(tr("Previous Searches"));
+	_searchLineEdit->showWordListButton()->setIcon(TkIcon("go-down-search"));
+
+	_searchLineEdit->setToolTip(tr("Search files, use whitespaces to separate words"));
+	_searchLineEdit->setClickMessage(tr("Enter search terms here"));
+
 	uuidAction("fileBrowserBrowse")->setText(tr("Change Directory"));
 	uuidAction("fileBrowserBrowse")->setIcon(TkIcon("document-open-folder"));
 

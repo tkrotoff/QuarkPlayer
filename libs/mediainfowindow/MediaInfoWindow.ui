@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>511</width>
-    <height>461</height>
+    <height>458</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -404,16 +404,24 @@
               <property name="text" >
                <string>MusicBrainz:</string>
               </property>
+             </widget>
+            </item>
+            <item row="7" column="1" >
+             <widget class="QLabel" name="musicBrainzLinkLabel" >
               <property name="openExternalLinks" >
                <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="7" column="1" >
-             <widget class="QLabel" name="musicBrainzLinkLabel" >
+            <item row="8" column="0" >
+             <widget class="QLabel" name="amazonLabel" >
               <property name="text" >
-               <string/>
+               <string>Amazon:</string>
               </property>
+             </widget>
+            </item>
+            <item row="8" column="1" >
+             <widget class="QLabel" name="amazonLinkLabel" >
               <property name="openExternalLinks" >
                <bool>true</bool>
               </property>
@@ -466,7 +474,7 @@
         <widget class="ThumbnailView" native="1" name="thumbnailView" />
        </item>
        <item row="1" column="0" >
-        <widget class="QLabel" name="amazonLabel" >
+        <widget class="QLabel" name="amazonCoverArtLabel" >
          <property name="sizePolicy" >
           <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
            <horstretch>0</horstretch>

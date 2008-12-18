@@ -156,7 +156,7 @@ public:
 		/** QString */
 		MusicBrainzTrackId,
 		/** QString */
-		AmazonId,
+		AmazonASIN,
 		/** int */
 		BPM
 	};

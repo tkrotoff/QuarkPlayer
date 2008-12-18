@@ -24,7 +24,7 @@
 #include <QtGui/QWidget>
 
 class FileBrowserTreeView;
-class SearchToolBar;
+class SearchLineEdit;
 
 class QuarkPlayer;
 class ConfigWindow;
@@ -93,7 +93,7 @@ private:
 
 	FileBrowserTreeView * _treeView;
 
-	SearchToolBar * _searchToolBar;
+	SearchLineEdit * _searchLineEdit;
 
 	QDockWidget * _dockWidget;
 };

@@ -189,6 +189,22 @@ void MediaInfoWindow::updateMediaInfo() {
 	}
 	///
 
+	//Amazon ASIN
+	QString amazonASIN = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::AmazonASIN);
+	_ui->amazonLinkLabel->clear();
+	if (!amazonASIN.isEmpty()) {
+		QString websiteDomain = "com";
+		if (_language == "en") { websiteDomain = "com"; }
+		if (_language == "fr") { websiteDomain = "fr"; }
+		if (_language == "de") { websiteDomain = "de"; }
+		if (_language == "ja") { websiteDomain = "jp"; }
+		if (_language == "zh") { websiteDomain = "cn"; }
+		QString amazon;
+		amazon += "<a href=\"http://www.amazon." + websiteDomain + "/gp/product/" + amazonASIN + "\">Amazon ASIN</a>";
+		_ui->amazonLinkLabel->setText(amazon);
+	}
+	///
+
 	static const QString br("<br>");
 
 	//General
@@ -369,12 +385,7 @@ void MediaInfoWindow::updateMediaInfo() {
 	_ui->thumbnailView->refresh();
 
 	ContentFetcher::Track track;
-	//It's better to try with the album artist first instead of the artist only,
-	//more accurate, more chances to get a result
-	track.artist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::AlbumArtist);
-	if (track.artist.isEmpty()) {
-		track.artist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
-	}
+	track.artist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
 	track.title = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title);
 
 	//Download the Wikipedia article

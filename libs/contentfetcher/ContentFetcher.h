@@ -45,7 +45,7 @@ public:
 		QString title;
 		QString artist;
 		QString album;
-		QString amazonId;
+		QString amazonASIN;
 	};
 
 	/**

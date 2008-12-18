@@ -30,7 +30,7 @@
 class PlaylistModel;
 class PlaylistFilter;
 class DragAndDropTreeView;
-class SearchToolBar;
+class SearchLineEdit;
 
 class QuarkPlayer;
 
@@ -98,6 +98,8 @@ private slots:
 
 	void search();
 
+	void addWordToWordList();
+
 	void currentSourceChanged(const Phonon::MediaSource & source);
 
 	void stateChanged(Phonon::State newState);
@@ -124,9 +126,12 @@ private:
 
 	DragAndDropTreeView * _treeView;
 
-	SearchToolBar * _searchToolBar;
+	SearchLineEdit * _searchLineEdit;
 
 	QDockWidget * _dockWidget;
+
+	/** Needed by addWordToWordList(). */
+	QTimer * _searchTimer;
 };
 
 #include <quarkplayer/PluginFactory.h>

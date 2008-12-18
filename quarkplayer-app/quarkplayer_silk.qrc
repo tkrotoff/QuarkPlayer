@@ -7,6 +7,7 @@
 	<file alias="16x16/document-open-recent">icons/silk/clock.png</file>
 	<file alias="16x16/document-open-remote">icons/silk/page_link.png</file>
 	<file alias="16x16/edit-delete">icons/silk/delete.png</file>
+	<file alias="16x16/edit-clear-locationbar-rtl">icons/silk/delete.png</file>
 	<file alias="16x16/edit-find">icons/silk/find.png</file>
 	<file alias="16x16/edit-copy">icons/silk/page_copy.png</file>
 	<file alias="16x16/format-list-ordered">icons/silk/text_list_numbers.png</file>
@@ -25,6 +26,7 @@
 	<file alias="16x16/go-jump-locationbar">icons/silk/tick.png</file>
 	<file alias="16x16/go-jump">icons/silk/bullet_go.png</file>
 	<file alias="16x16/go-down">icons/silk/arrow_down.png</file>
+	<file alias="16x16/go-down-search">icons/silk/bullet_arrow_down.png</file>
 	<file alias="16x16/rating">icons/silk/star.png</file>
 	<file alias="16x16/document-properties">icons/silk/page_edit.png</file>
 	<file alias="16x16/window-new">icons/silk/application_add.png</file>

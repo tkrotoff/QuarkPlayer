@@ -16,22 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLICKMESSAGELINEEDIT_H
-#define CLICKMESSAGELINEEDIT_H
+#ifndef SEARCHLINEEDIT_H
+#define SEARCHLINEEDIT_H
 
 #include <tkutil/tkutil_export.h>
 
-#include <QtGui/QLineEdit>
+#include <tkutil/LineEdit.h>
+
 #include <QtGui/QPalette>
 
 #include <QtCore/QString>
 
-class QMouseEvent;
-class QKeyEvent;
-class QFocusEvent;
+class QToolButton;
+class QStringListModel;
 
 /**
+ * Special QLineEdit for searches.
+ *
  * QLineEdit with a tooltip that disappears when the user clicks on it.
+ * Contains 2 buttons: one to clear the search and one to list the previous searches.
  *
  * Inspired by KLineEdit, most of the code is from klineedit.cpp.
  *
@@ -39,11 +42,19 @@ class QFocusEvent;
  * @see KLineEdit
  * @author Tanguy Krotoff
  */
-class TKUTIL_API ClickMessageLineEdit : public QLineEdit {
+class TKUTIL_API SearchLineEdit : public LineEdit {
 	Q_OBJECT
 public:
 
-	ClickMessageLineEdit(QWidget * parent = 0);
+	SearchLineEdit(const QStringList & wordList, QWidget * parent = 0);
+
+	~SearchLineEdit();
+
+	QStringList wordList() const;
+
+	QToolButton * clearButton() const;
+
+	QToolButton * showWordListButton() const;
 
 public slots:
 
@@ -55,6 +66,14 @@ public slots:
 
 	void setText(const QString & text);
 
+	void addWord(const QString & word);
+
+private slots:
+
+	void updateClearButton(const QString & text);
+
+	void showWordList();
+
 private:
 
 	void paintEvent(QPaintEvent * event);
@@ -63,12 +82,17 @@ private:
 
 	void focusOutEvent(QFocusEvent * event);
 
+	QToolButton * _clearButton;
+
+	QToolButton * _showWordListButton;
 
 	bool _enableClickMessage;
 
 	QString _clickMessage;
 
 	bool _drawClickMessage;
+
+	QStringListModel * _stringListModel;
 };
 
-#endif	//CLICKMESSAGELINEEDIT_H
+#endif	//SEARCHLINEEDIT_H

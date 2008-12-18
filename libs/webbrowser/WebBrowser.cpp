@@ -45,6 +45,7 @@ WebBrowser::WebBrowser(QWidget * parent)
 	connect(_textBrowser, SIGNAL(sourceChanged(const QUrl &)), SLOT(sourceChanged(const QUrl &)));
 
 	_toolBar = new QToolBar();
+	_toolBar->setIconSize(QSize(16, 16));
 	_toolBar->addAction(ActionCollection::action("webBrowserBackward"));
 	connect(ActionCollection::action("webBrowserBackward"), SIGNAL(triggered()), _textBrowser, SLOT(backward()));
 	_toolBar->addAction(ActionCollection::action("webBrowserForward"));

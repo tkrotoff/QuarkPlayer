@@ -66,7 +66,7 @@ private slots:
 
 private:
 
-	void loadCoverArt(const QString & album, const QString & artist, const QString & amazonId);
+	void loadCoverArt(const QString & album, const QString & artist, const QString & amazonASIN);
 
 	void setCoverArtPixmap(const QFile & coverArtFile);
 
