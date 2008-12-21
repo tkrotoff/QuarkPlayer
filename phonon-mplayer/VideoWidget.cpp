@@ -65,7 +65,7 @@ Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const {
 }
 
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
-	qDebug() << __FUNCTION__ << "aspectRatio:" << aspectRatio;
+	qDebug() << __FUNCTION__ << "Aspect ratio:" << aspectRatio;
 
 	_aspectRatio = aspectRatio;
 	double ratio = (double) 4 / 3;
@@ -93,7 +93,7 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 		break;
 
 	default:
-		qCritical() << __FUNCTION__ << "error: unsupported AspectRatio:" << aspectRatio;
+		qCritical() << __FUNCTION__ << "Error: unsupported AspectRatio:" << aspectRatio;
 	}
 
 	_videoWidget->setAspectRatio(ratio);
@@ -131,7 +131,7 @@ void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scaleMode) {
 		break;
 
 	default:
-		qWarning() << __FUNCTION__ << "unknow Phonon::VideoWidget::ScaleMode:" << _scaleMode;
+		qCritical() << __FUNCTION__ << "Error: unknown Phonon::VideoWidget::ScaleMode:" << _scaleMode;
 	}
 }
 
@@ -170,7 +170,7 @@ QWidget * VideoWidget::widget() {
 }
 
 void VideoWidget::videoWidgetSizeChanged(int width, int height) {
-	qDebug() << __FUNCTION__ << "video width" << width << "height:" << height;
+	qDebug() << __FUNCTION__ << "Video width:" << width << "height:" << height;
 
 	//I spent 2 full days for these few fucking lines of code!
 	//It resizes dynamically the widget + the main window
@@ -182,15 +182,15 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height) {
 	QSize videoSize(width, height);
 	videoSize.boundedTo(QApplication::desktop()->availableGeometry().size());
 
-	_videoWidget->hide();
+//	_videoWidget->hide();
 	_videoWidget->setVideoSize(videoSize);
 #ifdef Q_OS_WIN
-	QSize previousSize = parent->minimumSize();
-	parent->setMinimumSize(videoSize);
+//	QSize previousSize = parent->minimumSize();
+//	parent->setMinimumSize(videoSize);
 #endif	//Q_OS_WIN
-	_videoWidget->show();
+//	_videoWidget->show();
 #ifdef Q_OS_WIN
-	parent->setMinimumSize(previousSize);
+//	parent->setMinimumSize(previousSize);
 #endif	//Q_OS_WIN
 	///
 }

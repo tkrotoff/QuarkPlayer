@@ -41,6 +41,8 @@ int MPlayerProcess::_mplayerVersion = MPlayerProcess::MPLAYER_VERSION_NOTFOUND;
 MPlayerProcess::MPlayerProcess(QObject * parent)
 	: MyProcess(parent) {
 
+	init();
+
 	connect(this, SIGNAL(lineAvailable(const QString &)),
 		SLOT(parseLine(const QString &)));
 
@@ -54,24 +56,33 @@ MPlayerProcess::MPlayerProcess(QObject * parent)
 MPlayerProcess::~MPlayerProcess() {
 }
 
+void MPlayerProcess::init() {
+	_endOfFileReached = false;
+	_mediaData.clear();
+	_previousState = Phonon::LoadingState;
+	_currentState = Phonon::LoadingState;
+	_errorString.clear();
+	_errorType = Phonon::NoError;
+	_currentTitleNumber = 0;
+}
+
 bool MPlayerProcess::start(const QStringList & arguments, const QString & filename, int videoWidgetId, qint64 seek) {
 	//Stop MPlayerProcess if it is already running
 	if (isRunning()) {
 		stop();
 	}
 
-	_mediaData.clear();
-
-	_endOfFileReached = false;
-
+	init();
 
 	QStringList args;
 	args << arguments;
 
-	//Attach MPlayer video output to our widget
-	_mediaData.videoWidgetId = videoWidgetId;
-	args << "-wid";
-	args << QString::number(_mediaData.videoWidgetId);
+	if (videoWidgetId > 0) {
+		//Attach MPlayer video output to our widget
+		_mediaData.videoWidgetId = videoWidgetId;
+		args << "-wid";
+		args << QString::number(_mediaData.videoWidgetId);
+	}
 
 	//If seek < 5 it's better to allow the video to start from the beginning
 	if (seek > 5) {
@@ -83,7 +94,6 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 	//File to play
 	_mediaData.filename = filename;
 	args << filename;
-
 
 	MyProcess::start(MPLAYER_EXE, args);
 	return waitForStarted();
@@ -161,6 +171,9 @@ QString MPlayerProcess::errorString() const {
 	return _errorString;
 }
 
+Phonon::ErrorType MPlayerProcess::errorType() const {
+	return _errorType;
+}
 
 //General
 static QRegExp rx_av("^[AV]: *([0-9,:.-]+)");
@@ -240,9 +253,9 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 	if (rx_av.indexIn(line) > -1) {
 		_mediaData.currentTime = (qint64) (rx_av.cap(1).toDouble() * SECONDS_CONVERTION);
 
-		if (_state != PlayingState) {
+		if (_currentState != Phonon::PlayingState) {
 			qDebug() << __FUNCTION__ << "Starting time:" << _mediaData.currentTime;
-			setState(PlayingState);
+			changeState(Phonon::PlayingState);
 
 			//OK, now all the media datas should be in clean state
 			emit mediaLoaded();
@@ -265,13 +278,14 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		//Loading the file/stream/media
 		//Becarefull! "Playing" does not mean the file is playing but only loading
 		if (rx_playing.indexIn(line) > -1) {
-			setState(LoadingState);
+			changeState(Phonon::LoadingState);
 		}
 
 		//File not found
 		else if (rx_file_not_found.indexIn(line) > -1) {
 			_errorString = "File not found";
-			setState(ErrorState);
+			_errorType = Phonon::NormalError;
+			changeState(Phonon::ErrorState);
 		}
 
 		//Screenshot
@@ -283,18 +297,18 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 
 		//End of file
 		else if (rx_endoffile.indexIn(line) > -1) {
-			qDebug() << __FUNCTION__ << "End of line detected";
+			qDebug() << __FUNCTION__ << "End of file detected";
 
 			//In case of playing VCDs or DVDs, maybe the first title
 			//is not playable, so the GUI doesn't get the info about
 			//available titles. So if we received the end of file
 			//first let's pretend the file has started so the GUI can have
 			//the data.
-			if (_state != PlayingState) {
-				setState(PlayingState);
+			if (_currentState != Phonon::PlayingState) {
+				changeState(Phonon::PlayingState);
 			}
 
-			//Sends the stateChanged(EndOfFileState) signal once the process is finished, not now!
+			//Sends the endOfFileReached() signal once the process is finished, not now!
 			_endOfFileReached = true;
 		}
 
@@ -310,7 +324,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 
 			//Ok, now we can be in PlayingState if we have a video stream
 			//If we have only an audio stream, we are already in PlayingState
-			setState(PlayingState);
+			changeState(Phonon::PlayingState);
 
 			//emit mplayerFullyLoaded();
 		}
@@ -325,7 +339,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 
 		//Pause
 		else if (rx_paused.indexIn(line) > -1) {
-			setState(PausedState);
+			changeState(Phonon::PausedState);
 		}
 
 		//Stream title and url
@@ -356,7 +370,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		//The following things are not sent when the file has started to play
 		//(or if sent, GUI will ignore anyway...)
 		//So not process anymore, if video is playing to save some time
-		if (_state == PlayingState) {
+		if (_currentState == Phonon::PlayingState) {
 			return;
 		}
 		///
@@ -615,7 +629,8 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		//Catch resolving failed
 		else if (rx_resolving_failed.indexIn(line) > -1) {
 			_errorString = line;
-			setState(ErrorState);
+			_errorType = Phonon::NormalError;
+			changeState(Phonon::ErrorState);
 		}
 
 		//Catch connecting message
@@ -623,12 +638,13 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			QString msg = rx_connecting.cap(1);
 			qDebug() << __FUNCTION__ << "Connecting:" << msg;
 			emit connectingMessageReceived(msg);
-			setState(BufferingState);
+			changeState(Phonon::BufferingState);
 		}
 
 		else if (rx_read_failed.indexIn(line) > -1) {
 			_errorString = "Cannot read the network stream";
-			setState(ErrorState);
+			_errorType = Phonon::NormalError;
+			changeState(Phonon::ErrorState);
 		}
 
 		//Catch cache messages
@@ -726,7 +742,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 				//This is a bugfix for mediaplayer example from Trolltech
 			} else {
 				//For audio streams, it's ok we are in PlayingState
-				setState(PlayingState);
+				changeState(Phonon::PlayingState);
 			}
 		}
 
@@ -825,69 +841,92 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			else if (tag == "ID_AUDIO_CODEC") {
 				_mediaData.audioCodec = value;
 			}
+
+			else if (tag == "ID_DVD_CURRENT_TITLE") {
+				int titleNumber = value.toInt();
+				if (_currentTitleNumber != titleNumber) {
+					_currentTitleNumber = titleNumber;
+					emit titleChanged(_currentTitleNumber);
+				}
+			}
 		}
 	}
 }
 
-void MPlayerProcess::finished(int /*exitCode*/, QProcess::ExitStatus exitStatus) {
-	switch (exitStatus) {
-	case QProcess::NormalExit:
-		qDebug() << __FUNCTION__ << "MPlayer process exited normally";
+void MPlayerProcess::finished(int exitCode, QProcess::ExitStatus exitStatus) {
+	if (exitCode != 0) {
+		qCritical() << __FUNCTION__ << "Error: MPlayer crashed";
+		_errorString = "MPlayer crashed";
+		_errorType = Phonon::FatalError;
+		changeState(Phonon::ErrorState);
+	} else {
+		//exitCode == 0 means everything is OK
 
-		//Send the finished() signal before the EndOfFileState one, otherwise
-		//the playlist will start to play next file before all
-		//objects are notified that the process has exited
-		if (_endOfFileReached) {
-			setState(EndOfFileState);
-		} else {
-			setState(StoppedState);
+		switch (exitStatus) {
+		case QProcess::NormalExit:
+			qDebug() << __FUNCTION__ << "MPlayer process exited normally";
+			changeState(Phonon::StoppedState);
+			if (_endOfFileReached) {
+				emit endOfFileReached();
+			}
+			break;
+		case QProcess::CrashExit:
+			qCritical() << __FUNCTION__ << "Error: MPlayer process crashed";
+			_errorString = "MPlayer process crashed";
+			_errorType = Phonon::FatalError;
+			changeState(Phonon::ErrorState);
+			break;
+		default:
+			qCritical() << __FUNCTION__ << "Error: unknown state:" << exitStatus;
+			return;
 		}
-		break;
-	case QProcess::CrashExit:
-		qCritical() << __FUNCTION__ << "Error: MPlayer process crashed";
-		_errorString = "MPlayer process crashed";
-		setState(ErrorState);
-		break;
-	default:
-		qCritical() << __FUNCTION__ << "Error: unknown state:" << exitStatus;
-		return;
 	}
 }
 
-void MPlayerProcess::setState(State state) {
-	_state = state;
-	emit stateChanged(state);
+void MPlayerProcess::changeState(Phonon::State newState) {
+	_previousState = _currentState;
+	_currentState = newState;
+
+	if (_currentState != _previousState) {
+		emit stateChanged(_currentState, _previousState);
+	}
+}
+
+Phonon::State MPlayerProcess::currentState() const {
+	return _currentState;
+}
+
+Phonon::State MPlayerProcess::previousState() const {
+	return _previousState;
 }
 
 void MPlayerProcess::error(QProcess::ProcessError error) {
+	_errorType = Phonon::FatalError;
+
 	switch (error) {
 	case QProcess::FailedToStart:
 		_errorString = "MPlayer failed to start: either MPlayer is missing, or you may have insufficient permissions";
-		setState(ErrorState);
 		break;
 	case QProcess::Crashed:
 		_errorString = "MPlayer crashed some time after starting successfully";
-		setState(ErrorState);
 		break;
 	case QProcess::Timedout:
 		_errorString = "MPlayer: QProcess::waitFor() function timed out";
-		setState(ErrorState);
 		break;
 	case QProcess::WriteError:
 		_errorString = "An error occurred when attempting to write to MPlayer."
 					"For example, MPlayer may not be running, or it may have closed its input channel";
-		setState(ErrorState);
 		break;
 	case QProcess::ReadError:
 		_errorString = "An error occurred when attempting to read from MPlayer."
 					"For example, the process may not be running";
-		setState(ErrorState);
 		break;
 	case QProcess::UnknownError:
 		_errorString = "An unknown error occurred";
-		setState(ErrorState);
 		break;
 	default:
 		qCritical() << __FUNCTION__ << "Error: unknown error number:" << error;
 	}
+
+	changeState(Phonon::ErrorState);
 }

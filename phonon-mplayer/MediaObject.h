@@ -58,7 +58,7 @@ public:
 
 	/**
 	 * Needed by VideoWidget
-	 * Widget Id where VLC or MPlayer will show the videos.
+	 * Widget Id where MPlayer will show the videos.
 	 */
 	void setVideoWidgetId(int videoWidgetId);
 
@@ -120,7 +120,9 @@ private slots:
 
 	void mediaDataChanged(const MediaData & mediaData);
 
-	void stateChangedInternal(MPlayerProcess::State newState);
+	void stateChangedInternal(Phonon::State newState, Phonon::State oldState);
+
+	void endOfFileReached();
 
 	void tickInternal(qint64 currentTime);
 
@@ -136,9 +138,6 @@ private:
 
 	/** Next MediaSource to play. */
 	MediaSource _nextSource;
-
-	/** Current state. */
-	Phonon::State _currentState;
 
 	qint32 _prefinishMark;
 	bool _prefinishMarkReachedEmitted;

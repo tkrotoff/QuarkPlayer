@@ -35,7 +35,7 @@ namespace MPlayer
 class EffectManager;
 
 /**
- * VLC backend class.
+ * MPlayer backend class.
  *
  * @author Tanguy Krotoff
  */
@@ -70,11 +70,6 @@ public slots:
 	 * @see http://en.wikipedia.org/wiki/Mime_type
 	 */
 	QStringList availableMimeTypes() const;
-
-	/**
-	 * Test of introspection.
-	 */
-	QString toString() const;
 
 signals:
 

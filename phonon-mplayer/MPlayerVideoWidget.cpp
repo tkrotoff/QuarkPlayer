@@ -64,7 +64,7 @@ void MPlayerVideoWidget::setScaleAndCropMode(bool scaleAndCrop) {
 }
 
 void MPlayerVideoWidget::resizeEvent(QResizeEvent * event) {
-	qDebug() << "event->size():" << event->size();
+	qDebug() << __FUNCTION__ << "Resize:" << event->size();
 
 	updateVideoWindow();
 }

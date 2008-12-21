@@ -29,11 +29,17 @@ int MPlayerVersion::parse(const QString & line) {
 	//Examples:
 	//From older to most recent
 	//MPlayer 1.0pre4-3.3.3 (C) 2000-2004 MPlayer Team
-	//Windows, official 1.0rc2 binary: MPlayer 1.0rc2-4.2.1 (C) 2000-2007 MPlayer Team
+	//Windows, official 1.0rc2 binary:
+	//MPlayer 1.0rc2-4.2.1 (C) 2000-2007 MPlayer Team
 	//MPlayer 1.0rc2-4.2.3 (C) 2000-2007 MPlayer Team
-	//Ubuntu 8.10: MPlayer 1.0rc2-4.3.2 (C) 2000-2007 MPlayer Team
-	//Windows, rvm build: MPlayer dev-SVN-r27130-3.4.5 (with -volume) (C) 2000-2008 MPlayer Team
-	//Ubuntu 8.10, rvm build: MPlayer dev-SVN-r27900-4.3.2 (C) 2000-2008 MPlayer Team
+	//Ubuntu 8.10:
+	//MPlayer 1.0rc2-4.3.2 (C) 2000-2007 MPlayer Team
+	//Windows, rvm build:
+	//MPlayer dev-SVN-r27130-3.4.5 (with -volume) (C) 2000-2008 MPlayer Team
+	//Ubuntu 8.10, rvm build:
+	//MPlayer dev-SVN-r27900-4.3.2 (C) 2000-2008 MPlayer Team
+	//Windows, http://sourceforge.net/projects/mplayer-win32/ build:
+	//MPlayer Sherpya-SVN-r28126-4.2.5 (C) 2000-2008 MPlayer Team
 	static QRegExp rx_mplayer_revision("^MPlayer (.*)-r(\\d+)(.*)");
 	static QRegExp rx_mplayer_version("^MPlayer ([a-z,0-9,.]+)-(.*)");
 

@@ -21,6 +21,8 @@
 #include <libmplayer/MPlayerLoader.h>
 #include <libmplayer/MPlayerProcess.h>
 
+#include <QtCore/QTime>
+
 namespace Phonon
 {
 namespace MPlayer
@@ -33,7 +35,7 @@ MediaController::MediaController(QObject * parent)
 	//when starting to read the file.
 	//But we create a MPlayerProcess now so other classes like VideoWidget
 	//can connect to the MPlayerProcess signals
-	//1 MediaObject = 1 MediaObject = 1 MPlayerProcess
+	//1 MediaObject = 1 MPlayerProcess
 	_process = MPlayerLoader::createNewMPlayerProcess(this);
 
 	connect(_process, SIGNAL(audioChannelAdded(int, const QString &)),
@@ -42,6 +44,8 @@ MediaController::MediaController(QObject * parent)
 		SLOT(subtitleAdded(int, const QString &, const QString &)));
 	connect(_process, SIGNAL(titleAdded(int, qint64)),
 		SLOT(titleAdded(int, qint64)));
+	connect(_process, SIGNAL(titleChanged(int)),
+		SIGNAL(titleChanged(int)));
 	connect(_process, SIGNAL(chapterAdded(int, int)),
 		SLOT(chapterAdded(int, int)));
 	connect(_process, SIGNAL(mkvChapterAdded(int, const QString &, const QString &, const QString &)),
@@ -74,10 +78,15 @@ void MediaController::clearMediaController() {
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 
 #ifdef NEW_TITLE_CHAPTER_HANDLING
-	_currentTitle = Phonon::TitleDescription();
+	//FIXME if we use setCurrentTitle(), _currentTitle is changed
+	//we don't want to loose the current title number
+	//and get the default, first one
+	//_currentTitle = Phonon::TitleDescription();
+	///
+
 	_availableTitles.clear();
 #else
-	_currentTitle = 0;
+	//_currentTitle = 0;
 	_availableTitles = 0;
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 
@@ -216,8 +225,16 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 	case AddonInterface::AngleInterface:
 		switch (static_cast<AddonInterface::AngleCommand>(command)) {
 			case AddonInterface::availableAngles:
+				return availableAngles();
 			case AddonInterface::angle:
+				return currentAngle();
 			case AddonInterface::setAngle:
+				if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
+					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					return false;
+				}
+				setCurrentAngle(arguments.first().toInt());
+				return true;
 				break;
 			default:
 				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::AngleInterface command:" << command;
@@ -376,12 +393,22 @@ Phonon::SubtitleDescription MediaController::currentSubtitle() const {
 	return _currentSubtitle;
 }
 
+QString MediaController::convertMilliseconds(qint64 milliseconds) {
+	QTime displayTime(
+		(milliseconds / 3600000) % 60,
+		(milliseconds / 60000) % 60,
+		(milliseconds / 1000) % 60
+	);
+
+	return displayTime.toString("hh:mm:ss");
+}
+
 //Title
 void MediaController::titleAdded(int id, qint64 length) {
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 	QHash<QByteArray, QVariant> properties;
 	properties.insert("name", id);
-	properties.insert("description", length);
+	properties.insert("description", convertMilliseconds(length));
 
 	_availableTitles << Phonon::TitleDescription(id, properties);
 #else
@@ -456,7 +483,7 @@ void MediaController::chapterAdded(int titleId, int chapters) {
 	if (_availableTitles.isEmpty() && (_currentTitle.index() == -1)) {
 		//No default DVD title, let's set the default DVD title
 		//This is because we get this from MPlayer:
-
+		//
 		//DVD example:
 		//ID_DVD_TITLES=8
 		//ID_DVD_TITLE_1_CHAPTERS=2
@@ -467,7 +494,7 @@ void MediaController::chapterAdded(int titleId, int chapters) {
 		//ID_DVD_TITLE_2_LENGTH=5055.000
 		//ID_DVD_DISC_ID=6B5CDFED561E882B949047C87A88BCB4
 		//ID_DVD_CURRENT_TITLE=1
-
+		//
 		//We get DVD chapters and angles infos before titles infos :/
 
 		QHash<QByteArray, QVariant> properties;

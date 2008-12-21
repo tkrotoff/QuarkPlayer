@@ -73,8 +73,13 @@ signals:
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 
 	void availableAnglesChanged(int availableAngles);
+
+	//FIXME Won't be emitted due to MPlayer
 	void angleChanged(int angleNumber);
+
+	//FIXME Won't be emitted due to MPlayer
 	void chapterChanged(int chapterNumber);
+
 	void titleChanged(int titleNumber);
 
 private slots:
@@ -142,6 +147,7 @@ protected:
 	void setAutoplayTitles(bool autoplay);
 	bool autoplayTitles() const;
 
+private:
 
 	Phonon::AudioChannelDescription _currentAudioChannel;
 	QList<Phonon::AudioChannelDescription> _availableAudioChannels;
@@ -173,6 +179,8 @@ protected:
 private:
 
 	void loadSubtitleFile(const QString & filename);
+
+	static QString convertMilliseconds(qint64 milliseconds);
 };
 
 }}	//Namespace Phonon::MPlayer

@@ -20,6 +20,8 @@
 #ifndef MPLAYERPROCESS_H
 #define MPLAYERPROCESS_H
 
+#include <phonon/phononnamespace.h>
+
 #include <QtCore/QString>
 
 #include "MyProcess.h"
@@ -48,56 +50,6 @@
 class MPlayerProcess : public MyProcess {
 	Q_OBJECT
 public:
-
-	/**
-	 * The state of the media.
-	 *
-	 * Taken and adapted from Phonon
-	 *
-	 * @see phononnamespace.h
-	 */
-	enum State {
-
-		/**
-		 * After construction it might take a while before the Player is
-		 * ready to play(). Normally this doesn't happen for local
-		 * files, but can happen for remote files where the asynchronous
-		 * mimetype detection and prebuffering can take a while.
-		 */
-		LoadingState,
-
-		/**
-		 * The Player has a valid media file loaded and is ready for
-		 * playing.
-		 */
-		StoppedState,
-
-		/**
-		 * The Player reached the end of the stream/media/file.
-		 */
-		EndOfFileState,
-
-		/**
-		 * The Player is playing a media file.
-		 */
-		PlayingState,
-
-		/**
-		 * The Player is waiting for data to be able to continue
-		 * playing.
-		 */
-		BufferingState,
-
-		/**
-		 * The Player is currently paused.
-		 */
-		PausedState,
-
-		/**
-		 * An unrecoverable error occurred. The Object is unusable in this state.
-		 */
-		ErrorState
-	};
 
 	MPlayerProcess(QObject * parent);
 	~MPlayerProcess();
@@ -143,6 +95,9 @@ public:
 
 	bool isRunning() const;
 
+	Phonon::State currentState() const;
+	Phonon::State previousState() const;
+
 
 	static const int MPLAYER_VERSION_NOTFOUND = -1;
 	static const int MPLAYER_VERSION_FAILED = 0;
@@ -165,14 +120,28 @@ public:
 	 */
 	QString errorString() const;
 
+	/**
+	 * Describes the severity when an error has occurred during playback.
+	 *
+	 * @see Phonon::ErrorType
+	 */
+	Phonon::ErrorType errorType() const;
+
 signals:
 
 	/**
 	 * Emitted when the state of the media has changed.
 	 *
-	 * @param state The state the Player is in now.
+	 * @param newState current state
+	 * @param oldState previous state
+	 * @see Phonon::State
 	 */
-	void stateChanged(MPlayerProcess::State state);
+	void stateChanged(Phonon::State newState, Phonon::State oldState);
+
+	/**
+	 * MPlayer reached the end of the stream/media/file.
+	 */
+	void endOfFileReached();
 
 	/**
 	 * Gives the current position in the stream in milliseconds.
@@ -288,6 +257,13 @@ signals:
 	void titleAdded(int id, qint64 length);
 
 	/**
+	 * Current DVD/MKV title has changed.
+	 *
+	 * @param titleNumber the new current DVD/MKV title
+	 */
+	void titleChanged(int titleNumber);
+
+	/**
 	 * A new chapter has been detected from the media/file/stream.
 	 *
 	 * Title/chapter/angle DVD.
@@ -345,7 +321,10 @@ private slots:
 
 private:
 
-	void setState(State state);
+	/** Initializes/resets the private variables of this class. */
+	void init();
+
+	void changeState(Phonon::State newState);
 
 	bool _endOfFileReached;
 
@@ -354,11 +333,20 @@ private:
 	/** MPlayer SVN revision number. */
 	static int _mplayerVersion;
 
+	/** Previous state. */
+	Phonon::State _previousState;
+
 	/** Current state. */
-	State _state;
+	Phonon::State _currentState;
 
 	/** Last MPlayer error message. */
 	QString _errorString;
+
+	/** Describes the severity when an error has occurred during playback. */
+	Phonon::ErrorType _errorType;
+
+	/** Current DVD/MKV title number. */
+	int _currentTitleNumber;
 };
 
 #endif	//MPLAYERPROCESS_H

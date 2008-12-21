@@ -41,7 +41,6 @@ namespace MPlayer
 MediaObject::MediaObject(QObject * parent)
 	: MediaController(parent) {
 
-	_currentState = Phonon::LoadingState;
 	_videoWidgetId = 0;
 	_prefinishMarkReachedEmitted = false;
 	_aboutToFinishEmitted = false;
@@ -60,8 +59,11 @@ MediaObject::MediaObject(QObject * parent)
 	}
 	///
 
-	connect(_process, SIGNAL(stateChanged(MPlayerProcess::State)),
-		SLOT(stateChangedInternal(MPlayerProcess::State)));
+	connect(_process, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
+		SLOT(stateChangedInternal(Phonon::State, Phonon::State)));
+
+	connect(_process, SIGNAL(endOfFileReached()),
+		SLOT(endOfFileReached()));
 
 	connect(_process, SIGNAL(tick(qint64)),
 		SLOT(tickInternal(qint64)));
@@ -99,7 +101,7 @@ void MediaObject::setVideoWidgetId(int videoWidgetId) {
 void MediaObject::play() {
 	qDebug() << __FUNCTION__;
 
-	if (_currentState == Phonon::PausedState) {
+	if (_process->currentState() == Phonon::PausedState) {
 		//Pause is like resume inside MPlayer
 		pause();
 	} else {
@@ -166,8 +168,10 @@ void MediaObject::tickInternal(qint64 currentTime) {
 }
 
 void MediaObject::loadMedia(const QString & fileName) {
-	//Default MediaObject state is Phonon::LoadingState
-	_currentState = Phonon::LoadingState;
+	//Default MediaObject state should be Phonon::LoadingState
+	if (_process->currentState() != Phonon::LoadingState) {
+		qCritical() << __FUNCTION__ << "Current state is not Phonon::LoadingState:" << _process->currentState();
+	}
 
 	//Loads the media
 	_playRequestReached = false;
@@ -221,7 +225,7 @@ bool MediaObject::isSeekable() const {
 
 qint64 MediaObject::currentTime() const {
 	qint64 time = -1;
-	Phonon::State state = this->state();
+	Phonon::State state = _process->currentState();
 
 	switch(state) {
 	case Phonon::PausedState:
@@ -243,14 +247,14 @@ qint64 MediaObject::currentTime() const {
 		time = -1;
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unsupported Phonon::State:" << state;
+		qCritical() << __FUNCTION__ << "Error: unknown Phonon::State:" << state;
 	}
 
 	return time;
 }
 
 Phonon::State MediaObject::state() const {
-	return _currentState;
+	return _process->currentState();
 }
 
 QString MediaObject::errorString() const {
@@ -258,7 +262,7 @@ QString MediaObject::errorString() const {
 }
 
 Phonon::ErrorType MediaObject::errorType() const {
-	return Phonon::NormalError;
+	return _process->errorType();
 }
 
 qint64 MediaObject::totalTime() const {
@@ -308,7 +312,9 @@ QString MediaObject::sourceFileName(const MediaSource & source) {
 			if (title == 0) {
 				title = MPLAYER_DEFAULT_DVD_TITLE;
 			}
-			fileName = "dvd://" + QString::number(title);
+			//FIXME
+			//fileName = "dvd://" + QString::number(title);
+			fileName = "dvd://" + QString::number(MPLAYER_DEFAULT_DVD_TITLE);
 			break;
 		case Phonon::Vcd:
 			if (title == 0) {
@@ -317,7 +323,7 @@ QString MediaObject::sourceFileName(const MediaSource & source) {
 			fileName = "vcd://" + QString::number(title);
 			break;
 		default:
-			qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::Disc:" << discType;
+			qCritical() << __FUNCTION__ << "Error: unknown MediaSource::Disc:" << discType;
 			break;
 		}
 		}
@@ -326,7 +332,7 @@ QString MediaObject::sourceFileName(const MediaSource & source) {
 	case MediaSource::Stream:
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unsupported MediaSource:" << type;
+		qCritical() << __FUNCTION__ << "Error: unknown MediaSource:" << type;
 		break;
 	}
 
@@ -443,18 +449,17 @@ void MediaObject::mediaLoaded() {
 
 	emit availableAnglesChanged(availableAngles());
 
+	//Do we emit these signals?
+	//MPlayer gives us only the current title
+	//but no way to know the current angle and chapter :/
 	//angleChanged(int angleNumber);
 	//chapterChanged(int chapterNumber);
-	//titleChanged(int titleNumber);
 }
 
-void MediaObject::stateChangedInternal(MPlayerProcess::State newState) {
-	Phonon::State previousState = _currentState;
-
+void MediaObject::stateChangedInternal(Phonon::State newState, Phonon::State oldState) {
 	switch (newState) {
-	case MPlayerProcess::LoadingState:
+	case Phonon::LoadingState:
 		qDebug() << __FUNCTION__ << "LoadingState";
-		_currentState = Phonon::LoadingState;
 		if (_nextSource.type() != MediaSource::Invalid) {
 			//Means that we are playing the next MediaSource
 
@@ -465,57 +470,56 @@ void MediaObject::stateChangedInternal(MPlayerProcess::State newState) {
 			emit currentSourceChanged(_source);
 		}
 		break;
-	case MPlayerProcess::StoppedState:
+	case Phonon::StoppedState:
 		qDebug() << __FUNCTION__ << "StoppedState";
-		_currentState = Phonon::StoppedState;
 		break;
-	case MPlayerProcess::PlayingState:
+	case Phonon::PlayingState:
 		qDebug() << __FUNCTION__ << "PlayingState";
-		_currentState = Phonon::PlayingState;
 
 		//HACK Bug inside MPlayer, the previous volume is not set again after the "loadfile" command
+		//This should be removed when next version of MPlayer will be released
 		_process->sendCommand("volume " + QString::number(MPlayerLoader::settings.volume) + " 1");
 
 		break;
-	case MPlayerProcess::BufferingState:
+	case Phonon::BufferingState:
 		qDebug() << __FUNCTION__ << "BufferingState";
-		_currentState = Phonon::BufferingState;
 		break;
-	case MPlayerProcess::PausedState:
+	case Phonon::PausedState:
 		qDebug() << __FUNCTION__ << "PausedState";
-		_currentState = Phonon::PausedState;
 		break;
-	case MPlayerProcess::EndOfFileState:
-		qDebug() << __FUNCTION__ << "EndOfFileState";
-		_currentState = Phonon::StoppedState;
-		emit finished();
-
-		//HACK: MPlayer cannot detect end of VBR MP3s!
-		//If the MPlayer detects a length > to the real length
-		//aboutToFinish() signal will never be emitted :/
-		//Yes MPlayer devs have to fix this
-		//Inside Yourself
-		if (previousState == PlayingState && !_aboutToFinishEmitted) {
-			//Track is about to finish
-			qDebug() << __FUNCTION__ << "aboutToFinish()";
-			_aboutToFinishEmitted = true;
-			emit aboutToFinish();
-		}
-		break;
-	case MPlayerProcess::ErrorState:
+	case Phonon::ErrorState:
 		qDebug() << __FUNCTION__ << "ErrorState";
-		_currentState = Phonon::ErrorState;
 		break;
 	default:
 		qCritical() << __FUNCTION__ << "Error: unknown state:" << newState;
 		return;
 	}
 
-	if (_currentState == previousState) {
+	if (newState == oldState) {
 		qCritical() << __FUNCTION__ << "Error: 2 times the same state";
 	}
 
-	emit stateChanged(_currentState, previousState);
+	emit stateChanged(newState, oldState);
+}
+
+void MediaObject::endOfFileReached() {
+	//Should be in state: Phonon::StoppedState;
+	if (_process->currentState() != Phonon::StoppedState) {
+		qCritical() << __FUNCTION__ << "Current state is not Phonon::StoppedState:" << _process->currentState();
+	}
+
+	//HACK: MPlayer cannot detect end of VBR MP3s!
+	//If the MPlayer detects a length > to the real length
+	//aboutToFinish() signal will never be emitted :/
+	//Yes MPlayer devs have to fix this
+	if (_process->previousState() == Phonon::PlayingState && !_aboutToFinishEmitted) {
+		//Track is about to finish
+		qDebug() << __FUNCTION__ << "aboutToFinish()";
+		_aboutToFinishEmitted = true;
+		emit aboutToFinish();
+	}
+
+	emit finished();
 }
 
 }}	//Namespace Phonon::MPlayer

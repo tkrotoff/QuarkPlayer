@@ -100,7 +100,7 @@ void MPlayerLoader::startMPlayerVersion(QObject * parent) {
 
 	if (!process->start(args, filename, 0, 0)) {
 		//Error handling
-		qCritical() << __FUNCTION__ << "error: MPlayer process couldn't start";
+		qCritical() << __FUNCTION__ << "Error: MPlayer process couldn't start";
 	}
 }
 
@@ -127,7 +127,7 @@ void MPlayerLoader::loadMedia(MPlayerProcess * process, const QString & filename
 
 	if (!process->start(args, filename, 0, 0)) {
 		//Error handling
-		qCritical() << __FUNCTION__ << "error: MPlayer process couldn't start";
+		qCritical() << __FUNCTION__ << "Error: MPlayer process couldn't start";
 	}
 }
 
@@ -155,6 +155,14 @@ QStringList MPlayerLoader::readMediaSettings() {
 	//Get mkv files informations
 	args << "-msglevel";
 	args << "demux=6";
+
+#ifdef Q_OS_WIN
+	if (MPlayerProcess::getMPlayerVersion() > 28121) {
+		//Direct3D video output driver
+		args << "-vo";
+		args << "direct3d";
+	}
+#endif	//Q_OS_WIN
 
 	//Drops frames on a slow computer
 	args << "-framedrop";

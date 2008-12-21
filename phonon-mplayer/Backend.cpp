@@ -221,7 +221,7 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
 }
 
 QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescriptionType type, int index) const {
-	qDebug() << __FUNCTION__ << "";
+	qDebug() << __FUNCTION__;
 
 	QHash<QByteArray, QVariant> ret;
 
@@ -275,9 +275,9 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 }
 
 bool Backend::startConnectionChange(QSet<QObject *> nodes) {
-	qDebug() << __FUNCTION__ << "";
+	qDebug() << __FUNCTION__;
 	foreach (QObject * node, nodes) {
-		qDebug() << "node:" << node->metaObject()->className();
+		qDebug() << __FUNCTION__ << "Node:" << node->metaObject()->className();
 	}
 
 	Q_UNUSED(nodes);
@@ -325,7 +325,7 @@ bool Backend::connectNodes(QObject * source, QObject * sink) {
 }
 
 bool Backend::disconnectNodes(QObject * source, QObject * sink) {
-	qDebug() << __FUNCTION__ << source->metaObject()->className() << sink->metaObject()->className();
+	qDebug() << __FUNCTION__ << "Source:" << source->metaObject()->className() << "sink:" << sink->metaObject()->className();
 
 	SinkNode * sinkNode = qobject_cast<SinkNode *>(sink);
 	if (sinkNode) {
@@ -343,24 +343,20 @@ bool Backend::disconnectNodes(QObject * source, QObject * sink) {
 
 	}
 
-	qWarning() << __FUNCTION__ << "Disconnection not supported";
+	qWarning() << __FUNCTION__ << "Error: disconnection not supported";
 	return false;
 }
 
 bool Backend::endConnectionChange(QSet<QObject *> nodes) {
 	qDebug() << __FUNCTION__;
 	foreach (QObject * node, nodes) {
-		qDebug() << "node:" << node->metaObject()->className();
+		qDebug() << __FUNCTION__ << "Node:" << node->metaObject()->className();
 	}
 
 	return true;
 }
 
 void Backend::freeSoundcardDevices() {
-}
-
-QString Backend::toString() const {
-	return "MPlayer Phonon Backend by Tanguy Krotoff <tkrotoff@gmail.com>";
 }
 
 }}	//Namespace Phonon::MPlayer
