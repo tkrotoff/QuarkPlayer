@@ -1,15 +1,8 @@
 == Backends ==
-- fix MPlayer/VLC enqueue
-- fix MPlayer/VLC volume save
 - test DVD playback with all backends
 - fix angle which is always with one item (0) when a video is playing
 
-== VLC backend ==
-- test again VLC backend with latest VLC builds
-
 == MPlayer backend ==
-- profile MPlayer meta data solving and make it faster
-- use MPlayer in slave mode and do not start a process for each file
 
 == NSIS ==
 - remove CPack support as it is not enough powerful (even for RPM and Debian)
@@ -53,10 +46,11 @@
 - add a OSD stuff
 - implement shortcuts dialog
 - fix drag&drop inside MainWindow + command line
-- factorize FileBrowser and Playlist search
 - work on the log system, too minimalist right now
 
 == Future ==
+- add SQL library (plugin), prefered backend: MySQL Embedded cf Amarok choice instead of SQLite
+- add network system like DAAP (iTunes), see http://blog.jasondonenfeld.com/14
 - add music visualization
   see http://projectm.sourceforge.net/ and http://www.ios-software.com/?page=projet&quoi=1
 - add an equalizer
