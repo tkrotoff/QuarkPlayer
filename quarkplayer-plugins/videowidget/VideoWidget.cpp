@@ -152,12 +152,19 @@ void VideoWidget::timerEvent(QTimerEvent * event) {
 }
 
 void VideoWidget::showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder) {
-	widgetOver->resize(widgetUnder->width(), widgetOver->height());
+	//Width divided by 1.5, I think it's better
+	//otherwise the widget (playToolBar + statusBar) is too big
+	//So same as VLC...
+	int widgetOverWidth = widgetUnder->width() / 1.5;
+	widgetOver->resize(widgetOverWidth, widgetOver->height());
 
-	int x = 0;
+	//Center of the screen
+	int x = (widgetUnder->width() - widgetOverWidth) / 2;
+	//Bottom of the screen
 	int y = widgetUnder->height() - widgetOver->height();
 
 	widgetOver->move(x, y);
+
 	widgetOver->show();
 }
 
@@ -187,7 +194,7 @@ void VideoWidget::checkMousePos() {
 	QPoint pos = QCursor::pos();
 
 	if (pos.y() > height() - widgetOverFullScreenHeight) {
-		//Going near bottom
+		//Going "near bottom" area
 
 		if (!bottomCursor) {
 			qDebug() << __FUNCTION__;
@@ -208,7 +215,7 @@ void VideoWidget::checkMousePos() {
 			showWidgetOver(_widgetOverFullScreen, this);
 		}
 	} else {
-		//Leaving near bottom
+		//Leaving "near bottom" area
 
 		if (bottomCursor) {
 			bottomCursor = false;

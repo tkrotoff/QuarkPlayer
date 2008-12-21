@@ -44,6 +44,8 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	_timeLabel = new QLabel(this);
 	//Text color is white
 	_timeLabel->setStyleSheet("color: rgb(255, 255, 255);");
+	//Cursor is a hand to show that the label is clickable
+	_timeLabel->setCursor(Qt::PointingHandCursor);
 	_timeLabel->setMargin(2);
 	_timeLabel->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
 	_timeLabel->installEventFilter(new MousePressEventFilter(this, SLOT(changeTimeDisplayMode())));

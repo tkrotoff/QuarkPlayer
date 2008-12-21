@@ -413,10 +413,23 @@ void PlaylistWidget::currentSourceChanged(const Phonon::MediaSource & source) {
 
 void PlaylistWidget::stateChanged(Phonon::State newState) {
 	switch (newState) {
-	case Phonon::ErrorState:
-		//Jump to the next track if possible since the current one is not playable
-		_playlistFilter->playNextTrack();
+	case Phonon::ErrorState: {
+		Phonon::ErrorType errorType = quarkPlayer().currentMediaObject()->errorType();
+		switch (errorType) {
+		case Phonon::NoError:
+		case Phonon::NormalError:
+			//Jump to the next track if possible since the current one is not playable
+			_playlistFilter->playNextTrack();
+			//TODO add parameter to not repeat again and again the whole playlist
+			break;
+		case Phonon::FatalError:
+			//Do not jump to the next track
+			break;
+		default:
+			qCritical() << "Error: unknown errorType:" << errorType;
+		}
 		break;
+	}
 
 	case Phonon::PlayingState:
 		break;

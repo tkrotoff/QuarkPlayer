@@ -58,10 +58,10 @@ WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	msgBox->setIcon(QMessageBox::Information);
 	msgBox->setText(
 		tr("Welcome to QuarkPlayer-%1!<br><br>"
-		"QuarkPlayer is a multimedia application that play your music and videos.<br><br>"
-		"This is free software and everything is licensed under GNU GPLv3+ terms.<br><br>"
-		"QuarkPlayer uses different backends (DirectShow, GStreamer, VLC, MPlayer...) "
-		"thanks to the Phonon library. "
+		"QuarkPlayer is a multimedia application that plays your music and videos.<br><br>"
+		"This is free software licensed under GNU GPLv3+ terms.<br><br>"
+		"QuarkPlayer can use different backends (DirectShow, MPlayer, Xine, GStreamer, "
+		"VLC...) thanks to Qt and the Phonon library. "
 		"It also relies on an advanced plugin system and is available under "
 		"Windows, Linux and soon Mac OS X.").arg(QUARKPLAYER_VERSION)
 	);
