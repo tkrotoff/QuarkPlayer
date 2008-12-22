@@ -94,7 +94,9 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 			SLOT(configWindowCreated(ConfigWindow *)));
 	}
 
-	Config::instance().addKey(FILEBROWSER_SEARCH_HISTORY_KEY, QStringList());
+	if (!Config::instance().contains(FILEBROWSER_SEARCH_HISTORY_KEY)) {
+		Config::instance().addKey(FILEBROWSER_SEARCH_HISTORY_KEY, QStringList());
+	}
 
 	RETRANSLATE(this);
 	retranslate();
