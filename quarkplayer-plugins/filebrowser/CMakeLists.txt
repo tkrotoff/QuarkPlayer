@@ -4,7 +4,6 @@ set(filebrowser_SRCS
 	FileBrowserWidget.cpp
 	FileBrowserTreeView.cpp
 	FileSearchModel.cpp
-	Track.cpp
 	UuidActionCollection.cpp
 	config/FileBrowserConfigWidget.cpp
 )

@@ -78,7 +78,7 @@ void MediaDataWidget::startMediaInfoFetcher(Phonon::MediaObject * mediaObject) {
 	}
 	_mediaInfoWindow->setMediaInfoFetcher(_mediaInfoFetcher);
 	_mediaInfoWindow->setLanguage(Config::instance().language());
-	if (_mediaInfoFetcher->hasBeenFetched()) {
+	if (_mediaInfoFetcher->mediaInfo().fetched()) {
 		updateMediaInfo();
 	}
 }
@@ -88,6 +88,8 @@ void MediaDataWidget::updateMediaInfo() {
 		return;
 	}
 
+	MediaInfo mediaInfo = _mediaInfoFetcher->mediaInfo();
+
 	static const QString font("<font><b>");
 	static const QString endfont("</b></font>");
 	static const QString href("<a href=\"");
@@ -95,17 +97,17 @@ void MediaDataWidget::updateMediaInfo() {
 	static const QString endhref2("</a>");
 	static const QString br("<br>");
 
-	QString filename = _mediaInfoFetcher->fileName();
-	QString title = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title);
-	QString artist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
-	QString album = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Album);
-	QString albumArtist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::AlbumArtist);
-	QString amazonASIN = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::AmazonASIN);
-	QString streamName = _mediaInfoFetcher->networkStreamValue(MediaInfoFetcher::StreamName);
-	QString streamGenre = _mediaInfoFetcher->networkStreamValue(MediaInfoFetcher::StreamGenre);
-	QString streamWebsite = _mediaInfoFetcher->networkStreamValue(MediaInfoFetcher::StreamWebsite);
-	QString streamUrl = _mediaInfoFetcher->networkStreamValue(MediaInfoFetcher::StreamURL);
-	QString bitrate = _mediaInfoFetcher->audioStreamValue(0, MediaInfoFetcher::AudioBitrate);
+	QString filename = mediaInfo.fileName();
+	QString title = mediaInfo.metadataValue(MediaInfo::Title);
+	QString artist = mediaInfo.metadataValue(MediaInfo::Artist);
+	QString album = mediaInfo.metadataValue(MediaInfo::Album);
+	QString albumArtist = mediaInfo.metadataValue(MediaInfo::AlbumArtist);
+	QString amazonASIN = mediaInfo.metadataValue(MediaInfo::AmazonASIN);
+	QString streamName = mediaInfo.networkStreamValue(MediaInfo::StreamName);
+	QString streamGenre = mediaInfo.networkStreamValue(MediaInfo::StreamGenre);
+	QString streamWebsite = mediaInfo.networkStreamValue(MediaInfo::StreamWebsite);
+	QString streamUrl = mediaInfo.networkStreamValue(MediaInfo::StreamURL);
+	QString bitrate = mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrate);
 
 	_currentCoverArtIndex = 0;
 	_coverArtList.clear();
@@ -144,7 +146,7 @@ void MediaDataWidget::updateMediaInfo() {
 	if (!title.isEmpty()) {
 		_ui->formLayout->addRow(tr("Title:"), new QLabel(font + title + endfont));
 	} else if (!filename.isEmpty()) {
-		if (_mediaInfoFetcher->isUrl()) {
+		if (mediaInfo.isUrl()) {
 			_ui->formLayout->addRow(tr("URL:"), new QLabel(font + filename + endfont));
 		} else {
 			//Not the fullpath, only the filename + parent directory name
@@ -197,7 +199,7 @@ void MediaDataWidget::retranslate() {
 }
 
 void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist, const QString & amazonASIN) {
-	QString coverArtDir(TkFile::path(_mediaInfoFetcher->fileName()));
+	QString coverArtDir(TkFile::path(_mediaInfoFetcher->mediaInfo().fileName()));
 
 	QStringList imageSuffixList;
 	foreach (QByteArray format, QImageReader::supportedImageFormats()) {

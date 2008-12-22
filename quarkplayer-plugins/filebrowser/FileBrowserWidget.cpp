@@ -251,6 +251,7 @@ void FileBrowserWidget::searchFinished(int timeElapsed) {
 void FileBrowserWidget::configure() {
 	QString musicDir = TkFileDialog::getExistingDirectory(this, tr("Select a Directory"),
 			Config::instance().musicDir(uuid()));
+	musicDir = QDir::toNativeSeparators(musicDir);
 	if (!musicDir.isEmpty()) {
 		Config::instance().addMusicDir(musicDir, uuid());
 	}

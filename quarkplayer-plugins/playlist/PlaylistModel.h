@@ -25,10 +25,9 @@
 #include <QtCore/QList>
 #include <QtCore/QUuid>
 
-class Track;
-
 class QuarkPlayer;
 class MediaInfoFetcher;
+class MediaInfo;
 
 /**
  * Playlist model.
@@ -156,7 +155,7 @@ private:
 	/**
 	 * List of all the media (filenames) available in this QAbstractItemModel.
 	 */
-	QList<Track> _filenames;
+	QList<MediaInfo> _filenames;
 
 	/**
 	 * _mediaInfoFetcher is working or not (already resolving some metadatas or not).

@@ -121,64 +121,66 @@ void MediaInfoWindow::openDirectory() {
 
 void MediaInfoWindow::refresh() {
 	if (_mediaInfoFetcher) {
-		if (_mediaInfoFetcher->hasBeenFetched()) {
+		if (_mediaInfoFetcher->mediaInfo().fetched()) {
 			updateMediaInfo();
 		}
 	}
 }
 
 void MediaInfoWindow::updateMediaInfo() {
-	_openDirectoryButton->setEnabled(!_mediaInfoFetcher->isUrl());
+	MediaInfo mediaInfo = _mediaInfoFetcher->mediaInfo();
+
+	_openDirectoryButton->setEnabled(!mediaInfo.isUrl());
 
 	QIcon icon;
-	if (!_mediaInfoFetcher->isUrl()) {
+	if (!mediaInfo.isUrl()) {
 		static QFileIconProvider iconProvider;
-		icon = iconProvider.icon(QFileInfo(_mediaInfoFetcher->fileName()));
+		icon = iconProvider.icon(QFileInfo(mediaInfo.fileName()));
 	} else {
 		icon = TkIcon("document-open-remote");
 	}
 	_ui->fileTypeLabel->setPixmap(icon.pixmap(QSize(16, 16)));
 
 	//General
-	_ui->filenameLineEdit->setText(_mediaInfoFetcher->fileName());
+	_ui->filenameLineEdit->setText(mediaInfo.fileName());
 
 	//Metadata
-	QString tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::TrackNumber);
+	QString tmp = mediaInfo.metadataValue(MediaInfo::TrackNumber);
 	_ui->trackLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::DiscNumber);
+	tmp = mediaInfo.metadataValue(MediaInfo::DiscNumber);
 	_ui->discLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title);
+	tmp = mediaInfo.metadataValue(MediaInfo::Title);
 	_ui->titleLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
+	tmp = mediaInfo.metadataValue(MediaInfo::Artist);
 	_ui->artistLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Album);
+	tmp = mediaInfo.metadataValue(MediaInfo::Album);
 	_ui->albumLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::AlbumArtist);
+	tmp = mediaInfo.metadataValue(MediaInfo::AlbumArtist);
 	_ui->albumArtistLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::OriginalArtist);
+	tmp = mediaInfo.metadataValue(MediaInfo::OriginalArtist);
 	_ui->originalArtistLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Year);
+	tmp = mediaInfo.metadataValue(MediaInfo::Year);
 	_ui->yearLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Genre);
+	tmp = mediaInfo.metadataValue(MediaInfo::Genre);
 	_ui->genreLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Comment);
+	tmp = mediaInfo.metadataValue(MediaInfo::Comment);
 	_ui->commentLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Composer);
+	tmp = mediaInfo.metadataValue(MediaInfo::Composer);
 	_ui->composerLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Publisher);
+	tmp = mediaInfo.metadataValue(MediaInfo::Publisher);
 	_ui->publisherLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Copyright);
+	tmp = mediaInfo.metadataValue(MediaInfo::Copyright);
 	_ui->copyrightLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::URL);
+	tmp = mediaInfo.metadataValue(MediaInfo::URL);
 	_ui->urlLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::BPM);
+	tmp = mediaInfo.metadataValue(MediaInfo::BPM);
 	_ui->bpmLineEdit->setText(tmp);
-	tmp = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::EncodedBy);
+	tmp = mediaInfo.metadataValue(MediaInfo::EncodedBy);
 	_ui->encodedByLineEdit->setText(tmp);
 
 	//MusicBrainz tags
-	QString musicBrainzReleaseId = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::MusicBrainzReleaseId);
-	QString musicBrainzArtistId = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::MusicBrainzArtistId);
+	QString musicBrainzReleaseId = mediaInfo.metadataValue(MediaInfo::MusicBrainzReleaseId);
+	QString musicBrainzArtistId = mediaInfo.metadataValue(MediaInfo::MusicBrainzArtistId);
 	_ui->musicBrainzLinkLabel->clear();
 	if (!musicBrainzReleaseId.isEmpty() && !musicBrainzArtistId.isEmpty()) {
 		QString musicBrainz;
@@ -190,7 +192,7 @@ void MediaInfoWindow::updateMediaInfo() {
 	///
 
 	//Amazon ASIN
-	QString amazonASIN = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::AmazonASIN);
+	QString amazonASIN = mediaInfo.metadataValue(MediaInfo::AmazonASIN);
 	_ui->amazonLinkLabel->clear();
 	if (!amazonASIN.isEmpty()) {
 		QString websiteDomain = "com";
@@ -209,12 +211,12 @@ void MediaInfoWindow::updateMediaInfo() {
 
 	//General
 	QString fileInfo;
-	QString fileSize = _mediaInfoFetcher->fileSize();
-	QString length = _mediaInfoFetcher->length();
-	QString bitrate = _mediaInfoFetcher->bitrate();
+	QString fileSize = mediaInfo.fileSize();
+	QString length = mediaInfo.length();
+	QString bitrate = mediaInfo.bitrate();
 	if (!fileSize.isEmpty() || !length.isEmpty() || !bitrate.isEmpty()) {
-		QString fileTypeWikipedia(_mediaInfoFetcher->fileType().wikipediaArticle);
-		QString fileTypeName = _mediaInfoFetcher->fileType().fullName;
+		QString fileTypeWikipedia(mediaInfo.fileType().wikipediaArticle);
+		QString fileTypeName = mediaInfo.fileType().fullName;
 		if (!fileTypeWikipedia.isEmpty()) {
 			fileInfo += "<a href=\"http://" + _language + ".wikipedia.org/wiki/" + fileTypeWikipedia + "\">" + fileTypeName + "</a>";
 		} else {
@@ -226,30 +228,30 @@ void MediaInfoWindow::updateMediaInfo() {
 		if (!length.isEmpty()) {
 			fileInfo += ", " + length;
 		}
-		if (!bitrate.isEmpty() && _mediaInfoFetcher->videoStreamCount() > 0) {
+		if (!bitrate.isEmpty() && mediaInfo.videoStreamCount() > 0) {
 			//Don't show the overall bitrate if there is no video stream
 			//in this case the overall bitrate has no interest
 			fileInfo += ", " + bitrate + " " + tr("kbps");
 		}
 	}
 	QString encodedApplication;
-	if (!_mediaInfoFetcher->encodedApplication().isEmpty()) {
-		encodedApplication = br + tr("Encoded Application:") + " " + _mediaInfoFetcher->encodedApplication();
+	if (!mediaInfo.encodedApplication().isEmpty()) {
+		encodedApplication = br + tr("Encoded Application:") + " " + mediaInfo.encodedApplication();
 	}
 
 	//Audio
 	QString audioStream;
-	int audioStreamCount = _mediaInfoFetcher->audioStreamCount();
+	int audioStreamCount = mediaInfo.audioStreamCount();
 	for (int audioStreamId = 0; audioStreamId < audioStreamCount; audioStreamId++) {
-		QString audioBitrate = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioBitrate);
-		QString audioBitrateMode = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioBitrateMode);
-		QString audioSampleRate = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioSampleRate);
-		QString audioBitsPerSample = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioBitsPerSample);
-		QString audioChannelCount = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioChannelCount);
-		QString audioCodecProfile = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioCodecProfile);
-		QString audioCodec = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioCodec);
-		QString audioLanguage = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioLanguage);
-		QString audioEncodedLibrary = _mediaInfoFetcher->audioStreamValue(audioStreamId, MediaInfoFetcher::AudioEncodedLibrary);
+		QString audioBitrate = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioBitrate);
+		QString audioBitrateMode = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioBitrateMode);
+		QString audioSampleRate = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioSampleRate);
+		QString audioBitsPerSample = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioBitsPerSample);
+		QString audioChannelCount = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioChannelCount);
+		QString audioCodecProfile = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioCodecProfile);
+		QString audioCodec = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioCodec);
+		QString audioLanguage = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioLanguage);
+		QString audioEncodedLibrary = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioEncodedLibrary);
 
 		if (!audioBitrate.isEmpty() || !audioBitrateMode.isEmpty() || !audioSampleRate.isEmpty() ||
 			!audioBitsPerSample.isEmpty() || !audioChannelCount.isEmpty() ||
@@ -293,15 +295,15 @@ void MediaInfoWindow::updateMediaInfo() {
 
 	//Video
 	QString videoStream;
-	int videoStreamCount = _mediaInfoFetcher->videoStreamCount();
+	int videoStreamCount = mediaInfo.videoStreamCount();
 	for (int videoStreamId = 0; videoStreamId < videoStreamCount; videoStreamId++) {
-		QString videoBitrate = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoBitrate);
-		QString videoWidth = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoWidth);
-		QString videoHeight = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoHeight);
-		QString videoFrameRate = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoFrameRate);
-		QString videoFormat = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoFormat);
-		QString videoCodec = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoCodec);
-		QString videoEncodedLibrary = _mediaInfoFetcher->videoStreamValue(videoStreamId, MediaInfoFetcher::VideoEncodedLibrary);
+		QString videoBitrate = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoBitrate);
+		QString videoWidth = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoWidth);
+		QString videoHeight = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoHeight);
+		QString videoFrameRate = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoFrameRate);
+		QString videoFormat = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoFormat);
+		QString videoCodec = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoCodec);
+		QString videoEncodedLibrary = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoEncodedLibrary);
 
 		if (!videoBitrate.isEmpty() || !videoWidth.isEmpty() || !videoHeight.isEmpty() ||
 			!videoFrameRate.isEmpty() || !videoCodec.isEmpty() ||
@@ -335,10 +337,10 @@ void MediaInfoWindow::updateMediaInfo() {
 
 	//Text
 	QString textStream;
-	int textStreamCount = _mediaInfoFetcher->textStreamCount();
+	int textStreamCount = mediaInfo.textStreamCount();
 	for (int textStreamId = 0; textStreamId < textStreamCount; textStreamId++) {
-		QString textLanguage = _mediaInfoFetcher->textStreamValue(textStreamId, MediaInfoFetcher::TextLanguage);
-		QString textFormat = _mediaInfoFetcher->textStreamValue(textStreamId, MediaInfoFetcher::TextFormat);
+		QString textLanguage = mediaInfo.textStreamValue(textStreamId, MediaInfo::TextLanguage);
+		QString textFormat = mediaInfo.textStreamValue(textStreamId, MediaInfo::TextFormat);
 
 		if (!textFormat.isEmpty() || !textLanguage.isEmpty()) {
 
@@ -363,12 +365,12 @@ void MediaInfoWindow::updateMediaInfo() {
 	);
 
 	QString moreInfo;
-	if (_mediaInfoFetcher->fileType().name == FileType::WMA) {
+	if (mediaInfo.fileType().name == FileType::WMA) {
 		moreInfo += tr("Warning:") + br +
 			tr("WMA is a proprietary, Windows specific audio codec that includes DRM and thus is not recommended") + br +
 			tr("Use instead a well supported standard audio codec like MP3 or Ogg/Vorbis");
 	}
-	else if (_mediaInfoFetcher->fileType().name == FileType::WMV) {
+	else if (mediaInfo.fileType().name == FileType::WMV) {
 		moreInfo += tr("Warning:") + br +
 			tr("WMV is a proprietary, Windows specific video codec that includes DRM and thus is not recommended") + br +
 			tr("Use instead a well supported standard video codec like Xvid or Ogg/Theora");
@@ -376,7 +378,7 @@ void MediaInfoWindow::updateMediaInfo() {
 	_ui->moreInfoLabel->setText(moreInfo);
 
 	//Refresh ThumbnailView
-	QFileInfo filenameInfo(_mediaInfoFetcher->fileName());
+	QFileInfo filenameInfo(mediaInfo.fileName());
 	if (filenameInfo.isDir()) {
 		_ui->thumbnailView->setDir(filenameInfo.absoluteFilePath());
 	} else {
@@ -385,8 +387,8 @@ void MediaInfoWindow::updateMediaInfo() {
 	_ui->thumbnailView->refresh();
 
 	ContentFetcher::Track track;
-	track.artist = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist);
-	track.title = _mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title);
+	track.artist = mediaInfo.metadataValue(MediaInfo::Artist);
+	track.title = mediaInfo.metadataValue(MediaInfo::Title);
 
 	//Download the Wikipedia article
 	tmp = track.artist;

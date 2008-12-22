@@ -4,7 +4,6 @@ set(playlist_SRCS
 	PlaylistWidget.cpp
 	PlaylistModel.cpp
 	PlaylistFilter.cpp
-	Track.cpp
 	DragAndDropTreeView.cpp
 	UuidActionCollection.cpp
 )

@@ -18,8 +18,6 @@
 
 #include "FileSearchModel.h"
 
-#include "Track.h"
-
 #include <mediainfowindow/MediaInfoFetcher.h>
 
 #include <filetypes/FileTypes.h>
@@ -88,8 +86,8 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	int row = index.row();
 	int column = index.column();
 
-	Track track = _filenames[row];
-	QString filename(track.fileName());
+	MediaInfo mediaInfo = _filenames[row];
+	QString filename(mediaInfo.fileName());
 
 	switch (role) {
 	case Qt::DisplayRole: {
@@ -125,16 +123,16 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 		switch (column) {
 		case COLUMN_FILENAME:
 			if (!TkFile::isDir(filename)) {
-				if (track.mediaDataResolved()) {
+				if (mediaInfo.fetched()) {
 					tmp = filename + "<br>" +
-						tr("Title:") + "</b> <b>" + track.title() + "</b><br>" +
-						tr("Artist:") + "</b> <b>" + track.artist() + "</b><br>" +
-						tr("Album:") + "</b> <b>" + track.album() + "</b><br>" +
-						tr("Length:") + "</b> <b>" + track.length() + "</b>";
+						tr("Title:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Title) + "</b><br>" +
+						tr("Artist:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Artist) + "</b><br>" +
+						tr("Album:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Album) + "</b><br>" +
+						tr("Length:") + "</b> <b>" + mediaInfo.length() + "</b>";
 				} else {
 					tmp = filename;
 
-					//Resolve meta data file one by one
+					//Resolve metadata file one by one
 					if (_mediaInfoFetcherRow == POSITION_INVALID) {
 						_mediaInfoFetcherRow = row;
 						_mediaInfoFetcher->start(filename);
@@ -293,7 +291,7 @@ void FileSearchModel::filesFound(const QStringList & files) {
 
 	beginInsertRows(QModelIndex(), first, last);
 	foreach (QString filename, files) {
-		_filenames.insert(currentRow, Track(filename));
+		_filenames.insert(currentRow, MediaInfo(filename));
 		currentRow++;
 	}
 	endInsertRows();
@@ -304,19 +302,12 @@ void FileSearchModel::updateMediaInfo() {
 		qCritical() << __FUNCTION__ << "Error: _mediaInfoFetcherRow invalid";
 	} else {
 		if (_mediaInfoFetcherRow < _filenames.size()) {
-			Track track = _filenames[_mediaInfoFetcherRow];
+			MediaInfo mediaInfo = _filenames[_mediaInfoFetcherRow];
 
-			if (track.fileName() == _mediaInfoFetcher->fileName() &&
-				!track.mediaDataResolved()) {
+			if (mediaInfo.fileName() == _mediaInfoFetcher->mediaInfo().fileName() &&
+				!mediaInfo.fetched()) {
 
-				track.setTrackNumber(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::TrackNumber));
-				track.setTitle(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title));
-				track.setArtist(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist));
-				track.setAlbum(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::Album));
-				track.setLength(_mediaInfoFetcher->length());
-				track.setMediaDataResolved(true);
-
-				_filenames[_mediaInfoFetcherRow] = track;
+				_filenames[_mediaInfoFetcherRow] = _mediaInfoFetcher->mediaInfo();
 
 				//Update the row since the matching MediaSource has been modified
 				emit dataChanged(index(_mediaInfoFetcherRow, COLUMN_FIRST), index(_mediaInfoFetcherRow, COLUMN_LAST));

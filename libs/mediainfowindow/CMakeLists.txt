@@ -19,6 +19,7 @@ endif (MEDIAINFOLIB)
 set(mediainfowindow_SRCS
 	MediaInfoWindow.cpp
 	MediaInfoFetcher.cpp
+	MediaInfo.cpp
 )
 
 if (WIN32)

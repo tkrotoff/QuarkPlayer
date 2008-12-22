@@ -21,7 +21,7 @@
 
 #include <mediainfowindow/mediainfowindow_export.h>
 
-#include <filetypes/FileType.h>
+#include <mediainfowindow/MediaInfo.h>
 
 #include <phonon/phononnamespace.h>
 #include <phonon/mediasource.h>
@@ -91,154 +91,17 @@ public:
 	 */
 	void start(Phonon::MediaObject * mediaObject);
 
-	/** Tells if the metadata were fetched or not. */
-	bool hasBeenFetched() const;
-
-	/** FileName. */
-	QString fileName() const;
-
-	/** If the fileName is a URL or not. */
-	bool isUrl() const;
-
-	/** Gets the file type. */
-	FileType fileType() const;
-
-	/** Gets the size of the file in kbytes. */
-	QString fileSize() const;
-
-	/** Returns the length of the file in seconds. */
-	QString length() const;
-
-	/** Gets the overall bitrate = audio bitrate + video bitrate if any. */
-	QString bitrate() const;
-
-	/** Gets the application used to encode the file. */
-	QString encodedApplication() const;
-
-	//Metadata
-	enum Metadata {
-		/** int */
-		TrackNumber,
-		/** int */
-		DiscNumber,
-		/** QString */
-		Title,
-		/** QString */
-		Artist,
-		/** QString */
-		OriginalArtist,
-		/** QString */
-		Album,
-		/** QString */
-		AlbumArtist,
-		/** QString */
-		Year,
-		/** QString */
-		Genre,
-		/** QString */
-		Comment,
-		/** QString */
-		Composer,
-		/** QString */
-		Publisher,
-		/** QString */
-		Copyright,
-		/** QString */
-		URL,
-		/** QString */
-		EncodedBy,
-		/** QString */
-		AlbumArtistSort,
-		/** QString */
-		MusicBrainzArtistId,
-		/** For MusicBrainz, release = album. */
-		MusicBrainzReleaseId,
-		/** QString */
-		MusicBrainzTrackId,
-		/** QString */
-		AmazonASIN,
-		/** int */
-		BPM
-	};
-
-	QString metadataValue(Metadata metadata) const;
-
-	//Audio
-	enum AudioStream {
-		/** int */
-		AudioBitrate,
-		/** QString */
-		AudioBitrateMode,
-		/** int */
-		AudioSampleRate,
-		/** int */
-		AudioBitsPerSample,
-		/** int */
-		AudioChannelCount,
-		/** QString */
-		AudioCodec,
-		/** QString */
-		AudioCodecProfile,
-		/** QString */
-		AudioLanguage,
-		/** QString */
-		AudioEncodedLibrary
-	};
-
-	int audioStreamCount() const;
-
-	QString audioStreamValue(int audioStreamId, AudioStream audioStream) const;
-
-	//Video
-	enum VideoStream {
-		/** int */
-		VideoBitrate,
-		/** int */
-		VideoWidth,
-		/** int */
-		VideoHeight,
-		/** int */
-		VideoFrameRate,
-		/** QString */
-		VideoFormat,
-		/** QString */
-		VideoCodec,
-		/** QString */
-		VideoEncodedLibrary
-	};
-
-	int videoStreamCount() const;
-
-	QString videoStreamValue(int videoStreamId, VideoStream videoStream) const;
-
-	//Text
-	enum TextStream {
-		/** QString */
-		TextFormat,
-		/** QString */
-		TextLanguage
-	};
-
-	int textStreamCount() const;
-
-	QString textStreamValue(int textStreamId, TextStream textStream) const;
-
-	//Stream
-	enum NetworkStream {
-		/** QString */
-		StreamName,
-		/** QString */
-		StreamGenre,
-		/** QString */
-		StreamWebsite,
-		/** QString */
-		StreamURL
-	};
-
-	QString networkStreamValue(NetworkStream networkStream) const;
+	/** Gets the MediaInfo object that contains all the metadata. */
+	MediaInfo mediaInfo() const;
 
 signals:
 
+	/**
+	 * All the metadata have been retrieved/fetched.
+	 *
+	 * Now you can use mediaInfo()
+	 * @see mediaInfo()
+	 */
 	void fetched();
 
 private slots:
@@ -246,8 +109,6 @@ private slots:
 	void metaStateChanged(Phonon::State newState, Phonon::State oldState);
 
 private:
-
-	void clear();
 
 	/**
 	 * Use Phonon to find metadata.
@@ -278,42 +139,11 @@ private:
 
 	Phonon::MediaSource _mediaSource;
 
-	bool _fetched;
-
 	/** Resolves media metadata/info. */
 	Phonon::MediaObject * _metaObjectInfoResolver;
 
-	//General
-	QString _filename;
-	bool _isUrl;
-	FileType _fileType;
-	int _fileSize;
-	int _length;
-	int _bitrate;
-	QString _encodedApplication;
-
-	//Metadata
-	QHash<Metadata, QString> _metadataHash;
-	void insertMetadata(Metadata metadata, const QString & value);
-
-	//Audio
-	int _audioStreamCount;
-	QHash<int, QString> _audioStreamHash;
-	void insertAudioStream(int audioStreamId, AudioStream audioStream, const QString & value);
-
-	//Video
-	int _videoStreamCount;
-	QHash<int, QString> _videoStreamHash;
-	void insertVideoStream(int videoStreamId, VideoStream videoStream, const QString & value);
-
-	//Text
-	int _textStreamCount;
-	QHash<int, QString> _textStreamHash;
-	void insertTextStream(int textStreamId, TextStream textStream, const QString & value);
-
-	//Network stream metadata
-	QHash<NetworkStream, QString> _networkStreamHash;
-	void insertNetworkStream(NetworkStream networkStream, const QString & value);
+	/** Contains all the metadata. */
+	MediaInfo _mediaInfo;
 };
 
 #endif	//MEDIAINFOFETCHER_H

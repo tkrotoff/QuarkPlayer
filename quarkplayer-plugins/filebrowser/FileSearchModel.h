@@ -24,10 +24,9 @@
 
 #include <QtGui/QIcon>
 
-class Track;
-
 class FindFiles;
 class MediaInfoFetcher;
+class MediaInfo;
 
 class QFileIconProvider;
 class QFileInfo;
@@ -114,7 +113,7 @@ private:
 	/**
 	 * List of all the media (filenames) available in this QAbstractItemModel.
 	 */
-	QList<Track> _filenames;
+	QList<MediaInfo> _filenames;
 
 	/**
 	 * _mediaInfoFetcher is working or not (already resolving some metadatas or not).

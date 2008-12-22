@@ -18,8 +18,6 @@
 
 #include "PlaylistModel.h"
 
-#include "Track.h"
-
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config/PlaylistConfig.h>
@@ -129,24 +127,42 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 	int row = index.row();
 	int column = index.column();
 	if (role == Qt::DisplayRole) {
-		Track track = _filenames[row];
-		QString filename(track.fileName());
-		if (track.mediaDataResolved()) {
+		MediaInfo mediaInfo = _filenames[row];
+		QString filename(mediaInfo.fileName());
+		if (mediaInfo.fetched()) {
 			switch (column) {
-			case COLUMN_TRACK:
-				tmp = track.trackNumber();
+			case COLUMN_TRACK: {
+				TrackDisplayMode trackDisplayMode = static_cast<TrackDisplayMode>(Config::instance().value(PLAYLIST_TRACK_DISPLAY_MODE_KEY).toInt());
+				switch (trackDisplayMode) {
+				case TrackDisplayModeNormal:
+					tmp = mediaInfo.metadataValue(MediaInfo::TrackNumber);
+					break;
+				case TrackDisplayModeWinamp:
+					//Display track numbers like Winamp
+					tmp = QString::number(row);
+					break;
+				default:
+					qCritical() << __FUNCTION__ << "Error: unknown TrackDisplayMode:" << trackDisplayMode;
+				}
 				break;
-			case COLUMN_TITLE:
-				tmp = track.title();
+			}
+			case COLUMN_TITLE: {
+				QString title = mediaInfo.metadataValue(MediaInfo::Title);
+				if (title.isEmpty()) {
+					//Not the fullpath, only the filename
+					title = TkFile::fileName(filename);
+				}
+				tmp = title;
 				break;
+			}
 			case COLUMN_ARTIST:
-				tmp = track.artist();
+				tmp = mediaInfo.metadataValue(MediaInfo::Artist);
 				break;
 			case COLUMN_ALBUM:
-				tmp = track.album();
+				tmp = mediaInfo.metadataValue(MediaInfo::Album);
 				break;
 			case COLUMN_LENGTH:
-				tmp = track.length();
+				tmp = mediaInfo.length();
 				break;
 			default:
 				qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
@@ -298,7 +314,7 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 
 		beginInsertRows(QModelIndex(), first, last);
 		foreach (QString filename, filenameList) {
-			_filenames.insert(currentRow, Track(filename));
+			_filenames.insert(currentRow, MediaInfo(filename));
 			currentRow++;
 		}
 		endInsertRows();
@@ -420,8 +436,8 @@ void PlaylistModel::saveCurrentPlaylist() {
 
 QStringList PlaylistModel::fileNames() const {
 	QStringList files;
-	foreach (Track track, _filenames) {
-		files << track.fileName();
+	foreach (MediaInfo mediaInfo, _filenames) {
+		files << mediaInfo.fileName();
 	}
 	return files;
 }
@@ -463,31 +479,12 @@ void PlaylistModel::updateMediaInfo() {
 		qCritical() << __FUNCTION__ << "Error: _mediaInfoFetcherRow invalid";
 	} else {
 		if (_mediaInfoFetcherRow < _filenames.size()) {
-			Track track = _filenames[_mediaInfoFetcherRow];
+			MediaInfo mediaInfo = _filenames[_mediaInfoFetcherRow];
 
-			if (track.fileName() == _mediaInfoFetcher->fileName() &&
-				!track.mediaDataResolved()) {
+			if (mediaInfo.fileName() == _mediaInfoFetcher->mediaInfo().fileName() &&
+				!mediaInfo.fetched()) {
 
-				TrackDisplayMode trackDisplayMode = static_cast<TrackDisplayMode>(Config::instance().value(PLAYLIST_TRACK_DISPLAY_MODE_KEY).toInt());
-				switch (trackDisplayMode) {
-				case TrackDisplayModeNormal:
-					track.setTrackNumber(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::TrackNumber));
-					break;
-				case TrackDisplayModeWinamp:
-					//Display track numbers like Winamp
-					track.setTrackNumber(QString::number(_mediaInfoFetcherRow));
-					break;
-				default:
-					qCritical() << __FUNCTION__ << "Error: unknown TrackDisplayMode:" << trackDisplayMode;
-				}
-
-				track.setTitle(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::Title));
-				track.setArtist(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::Artist));
-				track.setAlbum(_mediaInfoFetcher->metadataValue(MediaInfoFetcher::Album));
-				track.setLength(_mediaInfoFetcher->length());
-				track.setMediaDataResolved(true);
-
-				_filenames[_mediaInfoFetcherRow] = track;
+				_filenames[_mediaInfoFetcherRow] = _mediaInfoFetcher->mediaInfo();
 
 				//Update the row since the matching MediaSource has been modified
 				emit dataChanged(index(_mediaInfoFetcherRow, COLUMN_FIRST), index(_mediaInfoFetcherRow, COLUMN_LAST));
