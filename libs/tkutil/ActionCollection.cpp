@@ -34,12 +34,23 @@ void ActionCollection::addAction(const QString & name, QAction * action) {
 		qCritical() << __FUNCTION__ << "Error: QAction is null";
 	}
 
-	if (_actionHash.contains(name)) {
-		qCritical() << __FUNCTION__ << "Error: QAction name:" << name << "already exist";
+	QString indexName = name;
+	if (indexName.isEmpty()) {
+		qCritical() << __FUNCTION__ << "Error: QAction index name is empty";
+		indexName = action->objectName();
+	} else {
+		action->setObjectName(indexName);
 	}
 
-	action->setObjectName(name);
-	_actionHash[name] = action;
+	if (indexName.isEmpty()) {
+		indexName = indexName.sprintf("unnamed-%p", (void *) action);
+	}
+
+	if (_actionHash.contains(indexName)) {
+		qCritical() << __FUNCTION__ << "Error: QAction index name:" << indexName << "already exist";
+	}
+
+	_actionHash[indexName] = action;
 }
 
 QAction * ActionCollection::action(const QString & name) {
@@ -53,4 +64,18 @@ QAction * ActionCollection::action(const QString & name) {
 	}
 
 	return action;
+}
+
+QList<QAction *> ActionCollection::actions() {
+	QList<QAction *> actionList;
+
+	QHashIterator<QString, QAction *> it(_actionHash);
+	while (it.hasNext()) {
+		it.next();
+
+		QAction * action = it.value();
+		actionList += action;
+	}
+
+	return actionList;
 }

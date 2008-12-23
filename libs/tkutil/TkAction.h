@@ -16,47 +16,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACTIONCOLLECTION_H
-#define ACTIONCOLLECTION_H
+#ifndef TKACTION_H
+#define TKACTION_H
 
 #include <tkutil/tkutil_export.h>
 
-#include <QtCore/QString>
-#include <QtCore/QHash>
-
-class QAction;
+#include <QtGui/QAction>
+#include <QtGui/QKeySequence>
 
 /**
- * The container for all QAction of QuarkPlayer.
+ * A TkAction is basically a QAction.
  *
- * This is code factorization, idea is to not duplicate QAction.
- * QAction are defined once (with translation, icon...) and used
- * everywhere via this class.
- *
- * Problem with ActionCollection is that every code checking is done at runtime :/
- *
- * Pattern singleton.
+ * This class was created because QAction does not provide a "setDefaultShortcut()" method.
+ * KAction from KDElibs does provide such a function.
  *
  * @author Tanguy Krotoff
  */
-class TKUTIL_API ActionCollection {
+class TKUTIL_API TkAction : public QAction {
+	Q_OBJECT
 public:
 
-	static QAction * action(const QString & name);
+	enum ActionAttribute {
+		ActionAttributeNonConfigureable
+	};
 
-	static void addAction(const QString & name, QAction * action);
+	~TkAction();
 
-	static QList<QAction *> actions();
+	void setDefaultShortcut(const QKeySequence & shortcut);
+	QKeySequence defaultShortcut() const;
+
+	void setAttribute(ActionAttribute attribute);
+	void removeAttribute(ActionAttribute attribute);
+	bool hasAttribute(ActionAttribute attribute) const;
 
 private:
 
-	/** Singleton. */
-	ActionCollection();
-
-	~ActionCollection();
-
-	/** Associates a name to a QAction. */
-	static QHash<QString, QAction *> _actionHash;
+	QKeySequence _defaultShortcut;
 };
 
-#endif	//ACTIONCOLLECTION_H
+#endif	//TKACTION_H

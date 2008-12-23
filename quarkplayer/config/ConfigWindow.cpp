@@ -25,6 +25,7 @@
 #include "BackendCapabilitiesWidget.h"
 #include "PluginsConfigWidget.h"
 #include "WinFileAssociationsConfigWidget.h"
+#include "ShortcutConfigWidget.h"
 
 #include <tkutil/TkIcon.h>
 #include <tkutil/LanguageChangeEventFilter.h>
@@ -57,6 +58,7 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 #endif	//Q_OS_WIN
 
 	_configWidgetList.prepend(ConfigWidget(new BackendCapabilitiesWidget()));
+	_configWidgetList.prepend(ConfigWidget(new ShortcutConfigWidget()));
 	_configWidgetList.prepend(ConfigWidget(new GeneralConfigWidget()));
 
 	//treeWidget item activated/clicked

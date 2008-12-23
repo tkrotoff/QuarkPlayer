@@ -10,6 +10,7 @@
 	<file alias="16x16/edit-clear-locationbar-rtl">icons/oxygen/16x16/actions/edit-clear-locationbar-rtl.png</file>
 	<file alias="16x16/edit-find">icons/oxygen/16x16/actions/edit-find.png</file>
 	<file alias="16x16/edit-copy">icons/oxygen/16x16/actions/edit-copy.png</file>
+	<file alias="16x16/edit-undo">icons/oxygen/16x16/actions/edit-undo.png</file>
 	<file alias="16x16/format-list-ordered">icons/oxygen/16x16/actions/format-list-ordered.png</file>
 	<file alias="16x16/speaker">icons/oxygen/16x16/actions/speaker.png</file>
 	<file alias="16x16/player-volume">icons/oxygen/16x16/actions/player-volume.png</file>
@@ -46,6 +47,7 @@
 	<file alias="16x16/list-remove">icons/oxygen/16x16/actions/list-remove.png</file>
 
 	<file alias="16x16/preferences-desktop-display">icons/oxygen/16x16/apps/preferences-desktop-display.png</file>
+	<file alias="16x16/preferences-desktop-keyboard">icons/oxygen/16x16/apps/preferences-desktop-keyboard.png</file>
 	<file alias="16x16/preferences-system-windows">icons/oxygen/16x16/apps/preferences-system-windows.png</file>
 	<file alias="16x16/preferences-plugin.png">icons/oxygen/16x16/apps/preferences-plugin.png</file>
 	<file alias="16x16/internet-web-browser">icons/oxygen/16x16/apps/internet-web-browser.png</file>

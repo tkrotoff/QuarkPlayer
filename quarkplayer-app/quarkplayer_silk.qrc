@@ -10,6 +10,7 @@
 	<file alias="16x16/edit-clear-locationbar-rtl">icons/silk/delete.png</file>
 	<file alias="16x16/edit-find">icons/silk/find.png</file>
 	<file alias="16x16/edit-copy">icons/silk/page_copy.png</file>
+	<file alias="16x16/edit-undo">icons/silk/arrow_undo.png</file>
 	<file alias="16x16/format-list-ordered">icons/silk/text_list_numbers.png</file>
 	<file alias="16x16/speaker">icons/silk/sound.png</file>
 	<file alias="16x16/player-volume">icons/silk/sound.png</file>
@@ -45,7 +46,8 @@
 	<file alias="16x16/list-add">icons/silk/page_add.png</file>
 	<file alias="16x16/list-remove">icons/silk/page_delete.png</file>
 
-	<file alias="16x16/preferences-desktop-display">icons/oxygen/16x16/apps/preferences-desktop-display.png</file>
+	<file alias="16x16/preferences-desktop-display">icons/silk/monitor.png</file>
+	<file alias="16x16/preferences-desktop-keyboard">icons/silk/keyboard.png</file>
 	<file alias="16x16/preferences-system-windows">icons/silk/application_double.png</file>
 	<file alias="16x16/preferences-plugin.png">icons/silk/plugin.png</file>
 	<file alias="16x16/internet-web-browser">icons/silk/world_go.png</file>

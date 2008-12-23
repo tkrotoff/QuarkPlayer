@@ -28,6 +28,7 @@ set(tkutil_SRCS
 	ScreenSaver.cpp
 	SearchLineEdit.cpp
 	LineEdit.cpp
+	TkAction.cpp
 )
 
 qt4_wrap_cpp(tkutil_SRCS
@@ -41,6 +42,7 @@ qt4_wrap_cpp(tkutil_SRCS
 	LineEdit.h
 	LineEdit_p.h
 	ProxyStyle.h
+	TkAction.h
 )
 
 add_library(tkutil SHARED ${tkutil_SRCS})
