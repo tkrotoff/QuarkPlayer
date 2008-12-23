@@ -46,9 +46,9 @@ FindSubtitles::FindSubtitles(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	//Need to implement a full plugin system like Qt Creator has
 	//Let's wait for Qt Creator source code to be released...
 	//This way MainWindow would be also a real plugin!
-	connect(ActionCollection::action("findSubtitles"), SIGNAL(triggered()),
+	connect(ActionCollection::action("MainWindow.FindSubtitles"), SIGNAL(triggered()),
 		SLOT(findSubtitles()));
-	connect(ActionCollection::action("uploadSubtitles"), SIGNAL(triggered()),
+	connect(ActionCollection::action("MainWindow.UploadSubtitles"), SIGNAL(triggered()),
 		SLOT(uploadSubtitles()));
 }
 

@@ -91,9 +91,9 @@ void PlayToolBar::stateChanged(Phonon::State newState) {
 
 	//Enabled/disabled fullscreen button depending if media file is a video or audio
 	if (quarkPlayer().currentMediaObject()->hasVideo()) {
-		ActionCollection::action("fullScreen")->setEnabled(true);
+		ActionCollection::action("MainWindow.FullScreen")->setEnabled(true);
 	} else {
-		ActionCollection::action("fullScreen")->setEnabled(false);
+		ActionCollection::action("MainWindow.FullScreen")->setEnabled(false);
 	}
 
 	switch (newState) {
@@ -101,33 +101,33 @@ void PlayToolBar::stateChanged(Phonon::State newState) {
 		break;
 
 	case Phonon::PlayingState:
-		ActionCollection::action("playPause")->setText(tr("&Pause"));
-		ActionCollection::action("playPause")->setIcon(TkIcon("media-playback-pause"));
-		disconnect(ActionCollection::action("playPause"), 0, 0, 0);
-		connect(ActionCollection::action("playPause"), SIGNAL(triggered()),
+		ActionCollection::action("MainWindow.PlayPause")->setText(tr("&Pause"));
+		ActionCollection::action("MainWindow.PlayPause")->setIcon(TkIcon("media-playback-pause"));
+		disconnect(ActionCollection::action("MainWindow.PlayPause"), 0, 0, 0);
+		connect(ActionCollection::action("MainWindow.PlayPause"), SIGNAL(triggered()),
 			quarkPlayer().currentMediaObject(), SLOT(pause()));
 
-		ActionCollection::action("stop")->setEnabled(true);
+		ActionCollection::action("MainWindow.Stop")->setEnabled(true);
 		break;
 
 	case Phonon::StoppedState:
-		ActionCollection::action("playPause")->setText(tr("P&lay"));
-		ActionCollection::action("playPause")->setIcon(TkIcon("media-playback-start"));
-		disconnect(ActionCollection::action("playPause"), 0, 0, 0);
-		connect(ActionCollection::action("playPause"), SIGNAL(triggered()),
+		ActionCollection::action("MainWindow.PlayPause")->setText(tr("P&lay"));
+		ActionCollection::action("MainWindow.PlayPause")->setIcon(TkIcon("media-playback-start"));
+		disconnect(ActionCollection::action("MainWindow.PlayPause"), 0, 0, 0);
+		connect(ActionCollection::action("MainWindow.PlayPause"), SIGNAL(triggered()),
 			quarkPlayer().currentMediaObject(), SLOT(play()));
 
-		ActionCollection::action("stop")->setEnabled(false);
+		ActionCollection::action("MainWindow.Stop")->setEnabled(false);
 		break;
 
 	case Phonon::PausedState:
-		ActionCollection::action("playPause")->setText(tr("P&lay"));
-		ActionCollection::action("playPause")->setIcon(TkIcon("media-playback-start"));
-		disconnect(ActionCollection::action("playPause"), 0, 0, 0);
-		connect(ActionCollection::action("playPause"), SIGNAL(triggered()),
+		ActionCollection::action("MainWindow.PlayPause")->setText(tr("P&lay"));
+		ActionCollection::action("MainWindow.PlayPause")->setIcon(TkIcon("media-playback-start"));
+		disconnect(ActionCollection::action("MainWindow.PlayPause"), 0, 0, 0);
+		connect(ActionCollection::action("MainWindow.PlayPause"), SIGNAL(triggered()),
 			quarkPlayer().currentMediaObject(), SLOT(play()));
 
-		ActionCollection::action("stop")->setEnabled(true);
+		ActionCollection::action("MainWindow.Stop")->setEnabled(true);
 		break;
 
 	case Phonon::LoadingState:
@@ -157,16 +157,16 @@ void PlayToolBar::createControlToolBar() {
 	_controlToolBar = new QToolBar(NULL);
 	//_controlToolBar->setIconSize(QSize(16, 16));
 
-	_controlToolBar->addAction(ActionCollection::action("previousTrack"));
-	_controlToolBar->addAction(ActionCollection::action("playPause"));
-	_controlToolBar->addAction(ActionCollection::action("stop"));
-	_controlToolBar->addAction(ActionCollection::action("nextTrack"));
+	_controlToolBar->addAction(ActionCollection::action("MainWindow.PreviousTrack"));
+	_controlToolBar->addAction(ActionCollection::action("MainWindow.PlayPause"));
+	_controlToolBar->addAction(ActionCollection::action("MainWindow.Stop"));
+	_controlToolBar->addAction(ActionCollection::action("MainWindow.NextTrack"));
 
 	_controlToolBar->addSeparator();
-	_controlToolBar->addAction(ActionCollection::action("fullScreen"));
+	_controlToolBar->addAction(ActionCollection::action("MainWindow.FullScreen"));
 
 	_controlToolBar->addSeparator();
-	_controlToolBar->addAction(ActionCollection::action("newMediaObject"));
+	_controlToolBar->addAction(ActionCollection::action("MainWindow.NewMediaObject"));
 
 	//volumeSlider
 	_controlToolBar->addSeparator();
@@ -192,11 +192,11 @@ void PlayToolBar::setToolBarEnabled(bool enabled) {
 	//FIXME don't why, seekToolBar does not get enabled afterwards
 	//_seekToolBar->setEnabled(enabled);
 
-	ActionCollection::action("previousTrack")->setEnabled(enabled);
-	ActionCollection::action("playPause")->setEnabled(enabled);
-	ActionCollection::action("stop")->setEnabled(enabled);
-	ActionCollection::action("nextTrack")->setEnabled(enabled);
-	ActionCollection::action("fullScreen")->setEnabled(enabled);
+	ActionCollection::action("MainWindow.PreviousTrack")->setEnabled(enabled);
+	ActionCollection::action("MainWindow.PlayPause")->setEnabled(enabled);
+	ActionCollection::action("MainWindow.Stop")->setEnabled(enabled);
+	ActionCollection::action("MainWindow.NextTrack")->setEnabled(enabled);
+	ActionCollection::action("MainWindow.FullScreen")->setEnabled(enabled);
 }
 
 void PlayToolBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
@@ -211,8 +211,8 @@ void PlayToolBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	stateChanged(mediaObject->state());
 
 	//Actions connect
-	disconnect(ActionCollection::action("stop"), 0, 0, 0);
-	connect(ActionCollection::action("stop"), SIGNAL(triggered()),
+	disconnect(ActionCollection::action("MainWindow.Stop"), 0, 0, 0);
+	connect(ActionCollection::action("MainWindow.Stop"), SIGNAL(triggered()),
 		mediaObject, SLOT(stop()));
 
 	_seekSlider->setMediaObject(mediaObject);

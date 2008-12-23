@@ -115,7 +115,7 @@ void FileBrowserWidget::createToolBar() {
 	//Browse button
 	QToolButton * browseButton = new QToolButton();
 	browseButton->setAutoRaise(true);
-	browseButton->setDefaultAction(uuidAction("fileBrowserBrowse"));
+	browseButton->setDefaultAction(uuidAction("FileBrowser.Browse"));
 	toolBar->addWidget(browseButton);
 	connect(browseButton, SIGNAL(clicked()), SLOT(configure()));
 
@@ -128,7 +128,7 @@ void FileBrowserWidget::createToolBar() {
 	//New file browser button
 	QToolButton * newFileBrowserButton = new QToolButton();
 	newFileBrowserButton->setAutoRaise(true);
-	newFileBrowserButton->setDefaultAction(uuidAction("fileBrowserNew"));
+	newFileBrowserButton->setDefaultAction(uuidAction("FileBrowser.New"));
 	toolBar->addWidget(newFileBrowserButton);
 	connect(newFileBrowserButton, SIGNAL(clicked()), SLOT(createNewFileBrowserWidget()));
 }
@@ -136,9 +136,9 @@ void FileBrowserWidget::createToolBar() {
 void FileBrowserWidget::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
-	addUuidAction("fileBrowserBrowse", new QAction(app));
+	addUuidAction("FileBrowser.Browse", new QAction(app));
 
-	addUuidAction("fileBrowserNew", new QAction(app));
+	addUuidAction("FileBrowser.New", new QAction(app));
 }
 
 QStringList FileBrowserWidget::nameFilters() const {
@@ -281,11 +281,11 @@ void FileBrowserWidget::retranslate() {
 	_searchLineEdit->setToolTip(tr("Search files, use whitespaces to separate words"));
 	_searchLineEdit->setClickMessage(tr("Enter search terms here"));
 
-	uuidAction("fileBrowserBrowse")->setText(tr("Change Directory"));
-	uuidAction("fileBrowserBrowse")->setIcon(TkIcon("document-open-folder"));
+	uuidAction("FileBrowser.Browse")->setText(tr("Change Directory"));
+	uuidAction("FileBrowser.Browse")->setIcon(TkIcon("document-open-folder"));
 
-	uuidAction("fileBrowserNew")->setText(tr("New File Browser Window"));
-	uuidAction("fileBrowserNew")->setIcon(TkIcon("window-new"));
+	uuidAction("FileBrowser.New")->setText(tr("New File Browser Window"));
+	uuidAction("FileBrowser.New")->setIcon(TkIcon("window-new"));
 
 	setWindowTitle(QString());
 }

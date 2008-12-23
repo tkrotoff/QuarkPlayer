@@ -76,7 +76,9 @@ void WinFileAssociations::addAssociation(const QString & extension) {
 	static const QString quote("\"");
 	static const QString app(quote + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + quote);
 	_hkcr->setValue(_appKeyPlay, app + " \"%1\"");
-	_hkcr->setValue(_appKeyDefaultIcon, app + ",0");
+
+	//Do not overwrite the default icon
+	//_hkcr->setValue(_appKeyDefaultIcon, app + ",0");
 }
 
 void WinFileAssociations::deleteAssociation(const QString & extension) {

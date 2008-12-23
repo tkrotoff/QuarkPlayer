@@ -106,12 +106,12 @@ FindSubtitlesWindow::FindSubtitlesWindow(QWidget * parent)
 	_networkManager = new QNetworkAccessManager(this);
 
 	populateActionCollection();
-	connect(ActionCollection::action("download"), SIGNAL(triggered()), SLOT(downloadButtonClicked()));
-	connect(ActionCollection::action("copyClipboard"), SIGNAL(triggered()), SLOT(copyClipboard()));
+	connect(ActionCollection::action("FindSubtitles.Download"), SIGNAL(triggered()), SLOT(downloadButtonClicked()));
+	connect(ActionCollection::action("FindSubtitles.CopyClipboard"), SIGNAL(triggered()), SLOT(copyClipboard()));
 
 	_contextMenu = new QMenu(this);
-	_contextMenu->addAction(ActionCollection::action("download"));
-	_contextMenu->addAction(ActionCollection::action("copyClipboard"));
+	_contextMenu->addAction(ActionCollection::action("FindSubtitles.Download"));
+	_contextMenu->addAction(ActionCollection::action("FindSubtitles.CopyClipboard"));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -128,8 +128,8 @@ FindSubtitlesWindow::~FindSubtitlesWindow() {
 void FindSubtitlesWindow::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
-	ActionCollection::addAction("download", new QAction(app));
-	ActionCollection::addAction("copyClipboard", new QAction(app));
+	ActionCollection::addAction("FindSubtitles.Download", new QAction(app));
+	ActionCollection::addAction("FindSubtitles.CopyClipboard", new QAction(app));
 }
 
 void FindSubtitlesWindow::retranslate() {
@@ -158,11 +158,11 @@ void FindSubtitlesWindow::retranslate() {
 
 	_ui->refreshButton->setIcon(TkIcon("view-refresh"));
 
-	ActionCollection::action("download")->setText(tr("&Download"));
-	ActionCollection::action("download")->setIcon(TkIcon("go-down"));
+	ActionCollection::action("FindSubtitles.Download")->setText(tr("&Download"));
+	ActionCollection::action("FindSubtitles.Download")->setIcon(TkIcon("go-down"));
 
-	ActionCollection::action("copyClipboard")->setText(tr("&Copy link to clipboard"));
-	ActionCollection::action("copyClipboard")->setIcon(TkIcon("edit-copy"));
+	ActionCollection::action("FindSubtitles.CopyClipboard")->setText(tr("&Copy link to clipboard"));
+	ActionCollection::action("FindSubtitles.CopyClipboard")->setIcon(TkIcon("edit-copy"));
 }
 
 void FindSubtitlesWindow::refreshButtonClicked() {
@@ -210,8 +210,8 @@ void FindSubtitlesWindow::download(const QUrl & url) {
 void FindSubtitlesWindow::currentItemChanged(const QModelIndex & current, const QModelIndex & /*previous*/) {
 	qDebug() << __FUNCTION__ << "Row:" << current.row() << "column:" << current.column();
 	_ui->downloadButton->setEnabled(current.isValid());
-	ActionCollection::action("download")->setEnabled(current.isValid());
-	ActionCollection::action("copyClipboard")->setEnabled(current.isValid());
+	ActionCollection::action("FindSubtitles.Download")->setEnabled(current.isValid());
+	ActionCollection::action("FindSubtitles.CopyClipboard")->setEnabled(current.isValid());
 }
 
 void FindSubtitlesWindow::setLanguage(const QString & language) {
@@ -361,8 +361,6 @@ void FindSubtitlesWindow::archiveDownloaded(const QByteArray & data) {
 	QTemporaryFile tmpFile(QDir::tempPath() + '/' + QCoreApplication::applicationName() + "_XXXXXX.zip");
 	tmpFile.setAutoRemove(false);
 
-	qDebug() << __FUNCTION__ << "Temporary file:" << tmpFile.fileName();
-
 	if (tmpFile.open()) {
 		QString fileName = tmpFile.fileName();
 		tmpFile.write(data);
@@ -380,7 +378,7 @@ void FindSubtitlesWindow::archiveDownloaded(const QByteArray & data) {
 
 		tmpFile.remove();
 	} else {
-		qCritical() << __FUNCTION__ << "Error: can't write temporary file:" << tmpFile.fileName();
+		qCritical() << __FUNCTION__ << "Error: couldn't write temporary file:" << tmpFile.fileName();
 		_ui->statusLabel->setText(tr("Error: couldn't save the file, check your folder permissions"));
 	}
 }

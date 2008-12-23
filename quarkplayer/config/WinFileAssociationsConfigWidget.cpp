@@ -33,12 +33,14 @@
 #include <QtCore/QDebug>
 
 static const int COLUMN_EXTENSION = 0;
+static const int COLUMN_NAME = 1;
 
 WinFileAssociationsConfigWidget::WinFileAssociationsConfigWidget() {
 	_ui = new Ui::WinFileAssociationsConfigWidget();
 	_ui->setupUi(this);
 
-	_ui->treeWidget->setHeaderHidden(true);
+	//_ui->treeWidget->setHeaderHidden(true);
+	_ui->treeWidget->sortByColumn(COLUMN_NAME, Qt::AscendingOrder);
 
 	_winFileAssociations = new WinFileAssociations(QCoreApplication::applicationName());
 }
@@ -96,6 +98,7 @@ void WinFileAssociationsConfigWidget::readConfig() {
 	addItems(item, FileTypes::extensions(FileType::Playlist));
 
 	_ui->treeWidget->expandAll();
+	_ui->treeWidget->resizeColumnToContents(COLUMN_EXTENSION);
 }
 
 void WinFileAssociationsConfigWidget::retranslate() {
@@ -105,12 +108,50 @@ void WinFileAssociationsConfigWidget::retranslate() {
 void WinFileAssociationsConfigWidget::addItems(QTreeWidgetItem * parent, const QStringList & extensions) {
 	foreach (QString extension, extensions) {
 		QTreeWidgetItem * item = new QTreeWidgetItem(parent);
-		item->setText(COLUMN_EXTENSION, extension);
 
+		item->setIcon(COLUMN_EXTENSION, fileExtensionIcon(extension));
+		item->setText(COLUMN_EXTENSION, extension);
+		item->setText(COLUMN_NAME, FileTypes::fileType(extension).fullName);
+
+		//For the Wikipedia link
+		connect(_ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), SLOT(currentItemChanged(QTreeWidgetItem *)));
 		if (_winFileAssociations->isAssociated(extension)) {
 			item->setCheckState(COLUMN_EXTENSION, Qt::Checked);
 		} else {
 			item->setCheckState(COLUMN_EXTENSION, Qt::Unchecked);
 		}
 	}
+}
+
+void WinFileAssociationsConfigWidget::currentItemChanged(QTreeWidgetItem * item) {
+	QString extension = item->text(COLUMN_EXTENSION);
+	if (!extension.isEmpty()) {
+		FileType fileType = FileTypes::fileType(extension);
+		QString link("<a href=\"http://" + Config::instance().language() + ".wikipedia.org/wiki/" +
+				fileType.wikipediaArticle + "\">" + extension + " - " + fileType.fullName + "</a>");
+		_ui->wikipediaArticleLabel->setText(link);
+	}
+}
+
+QIcon WinFileAssociationsConfigWidget::fileExtensionIcon(const QString & extension) const {
+	static QFileIconProvider iconProvider;
+
+	QIcon icon;
+
+	QTemporaryFile tmpFile(QDir::tempPath() + '/' + QCoreApplication::applicationName() + "_XXXXXX." + extension);
+	tmpFile.setAutoRemove(false);
+
+	if (tmpFile.open()) {
+		QString fileName = tmpFile.fileName();
+		tmpFile.write(QByteArray());
+		tmpFile.close();
+
+		icon = iconProvider.icon(QFileInfo(fileName));
+
+		tmpFile.remove();
+	} else {
+		qCritical() << __FUNCTION__ << "Error: couldn't write temporary file:" << tmpFile.fileName();
+	}
+
+	return icon;
 }

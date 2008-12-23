@@ -46,23 +46,23 @@ WebBrowser::WebBrowser(QWidget * parent)
 
 	_toolBar = new QToolBar();
 	_toolBar->setIconSize(QSize(16, 16));
-	_toolBar->addAction(ActionCollection::action("webBrowserBackward"));
-	connect(ActionCollection::action("webBrowserBackward"), SIGNAL(triggered()), _textBrowser, SLOT(backward()));
-	_toolBar->addAction(ActionCollection::action("webBrowserForward"));
-	connect(ActionCollection::action("webBrowserForward"), SIGNAL(triggered()), _textBrowser, SLOT(forward()));
-	_toolBar->addAction(ActionCollection::action("webBrowserReload"));
-	connect(ActionCollection::action("webBrowserReload"), SIGNAL(triggered()), _textBrowser, SLOT(reload()));
-	_toolBar->addAction(ActionCollection::action("webBrowserStop"));
-	//connect(ActionCollection::action("webBrowserStop"), SIGNAL(triggered()), _textBrowser, SLOT(stop()));
-	_toolBar->addAction(ActionCollection::action("webBrowserHome"));
-	connect(ActionCollection::action("webBrowserHome"), SIGNAL(triggered()), _textBrowser, SLOT(home()));
+	_toolBar->addAction(ActionCollection::action("WebBrowser.Backward"));
+	connect(ActionCollection::action("WebBrowser.Backward"), SIGNAL(triggered()), _textBrowser, SLOT(backward()));
+	_toolBar->addAction(ActionCollection::action("WebBrowser.Forward"));
+	connect(ActionCollection::action("WebBrowser.Forward"), SIGNAL(triggered()), _textBrowser, SLOT(forward()));
+	_toolBar->addAction(ActionCollection::action("WebBrowser.Reload"));
+	connect(ActionCollection::action("WebBrowser.Reload"), SIGNAL(triggered()), _textBrowser, SLOT(reload()));
+	_toolBar->addAction(ActionCollection::action("WebBrowser.Stop"));
+	//connect(ActionCollection::action("WebBrowser.Stop"), SIGNAL(triggered()), _textBrowser, SLOT(stop()));
+	_toolBar->addAction(ActionCollection::action("WebBrowser.Home"));
+	connect(ActionCollection::action("WebBrowser.Home"), SIGNAL(triggered()), _textBrowser, SLOT(home()));
 	_lineEdit = new QLineEdit();
 	_toolBar->addWidget(_lineEdit);
 	connect(_lineEdit, SIGNAL(returnPressed()), SLOT(go()));
-	_toolBar->addAction(ActionCollection::action("webBrowserGo"));
-	connect(ActionCollection::action("webBrowserGo"), SIGNAL(triggered()), SLOT(go()));
-	_toolBar->addAction(ActionCollection::action("webBrowserOpenBrowser"));
-	connect(ActionCollection::action("webBrowserOpenBrowser"), SIGNAL(triggered()), SLOT(openBrowser()));
+	_toolBar->addAction(ActionCollection::action("WebBrowser.Go"));
+	connect(ActionCollection::action("WebBrowser.Go"), SIGNAL(triggered()), SLOT(go()));
+	_toolBar->addAction(ActionCollection::action("WebBrowser.OpenBrowser"));
+	connect(ActionCollection::action("WebBrowser.OpenBrowser"), SIGNAL(triggered()), SLOT(openBrowser()));
 	layout->addWidget(_toolBar);
 
 	layout->addWidget(_textBrowser);
@@ -72,38 +72,38 @@ WebBrowser::~WebBrowser() {
 }
 
 void WebBrowser::setBackwardIcon(const QIcon & icon) {
-	ActionCollection::action("webBrowserBackward")->setText(tr("Backward"));
-	ActionCollection::action("webBrowserBackward")->setIcon(icon);
+	ActionCollection::action("WebBrowser.Backward")->setText(tr("Backward"));
+	ActionCollection::action("WebBrowser.Backward")->setIcon(icon);
 }
 
 void WebBrowser::setForwardIcon(const QIcon & icon) {
-	ActionCollection::action("webBrowserForward")->setText(tr("Forward"));
-	ActionCollection::action("webBrowserForward")->setIcon(icon);
+	ActionCollection::action("WebBrowser.Forward")->setText(tr("Forward"));
+	ActionCollection::action("WebBrowser.Forward")->setIcon(icon);
 }
 
 void WebBrowser::setReloadIcon(const QIcon & icon) {
-	ActionCollection::action("webBrowserReload")->setText(tr("Reload"));
-	ActionCollection::action("webBrowserReload")->setIcon(icon);
+	ActionCollection::action("WebBrowser.Reload")->setText(tr("Reload"));
+	ActionCollection::action("WebBrowser.Reload")->setIcon(icon);
 }
 
 void WebBrowser::setStopIcon(const QIcon & icon) {
-	ActionCollection::action("webBrowserStop")->setText(tr("Stop"));
-	ActionCollection::action("webBrowserStop")->setIcon(icon);
+	ActionCollection::action("WebBrowser.Stop")->setText(tr("Stop"));
+	ActionCollection::action("WebBrowser.Stop")->setIcon(icon);
 }
 
 void WebBrowser::setHomeIcon(const QIcon & icon) {
-	ActionCollection::action("webBrowserHome")->setText(tr("Home"));
-	ActionCollection::action("webBrowserHome")->setIcon(icon);
+	ActionCollection::action("WebBrowser.Home")->setText(tr("Home"));
+	ActionCollection::action("WebBrowser.Home")->setIcon(icon);
 }
 
 void WebBrowser::setGoIcon(const QIcon & icon) {
-	ActionCollection::action("webBrowserGo")->setText(tr("Go"));
-	ActionCollection::action("webBrowserGo")->setIcon(icon);
+	ActionCollection::action("WebBrowser.Go")->setText(tr("Go"));
+	ActionCollection::action("WebBrowser.Go")->setIcon(icon);
 }
 
 void WebBrowser::setOpenBrowserIcon(const QIcon & icon) {
-	ActionCollection::action("webBrowserOpenBrowser")->setText(tr("Open External Browser"));
-	ActionCollection::action("webBrowserOpenBrowser")->setIcon(icon);
+	ActionCollection::action("WebBrowser.OpenBrowser")->setText(tr("Open External Browser"));
+	ActionCollection::action("WebBrowser.OpenBrowser")->setIcon(icon);
 }
 
 void WebBrowser::setHtml(const QString & text) {
@@ -122,13 +122,13 @@ void WebBrowser::clear() {
 void WebBrowser::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
-	ActionCollection::addAction("webBrowserBackward", new QAction(app));
-	ActionCollection::addAction("webBrowserForward", new QAction(app));
-	ActionCollection::addAction("webBrowserReload", new QAction(app));
-	ActionCollection::addAction("webBrowserStop", new QAction(app));
-	ActionCollection::addAction("webBrowserHome", new QAction(app));
-	ActionCollection::addAction("webBrowserGo", new QAction(app));
-	ActionCollection::addAction("webBrowserOpenBrowser", new QAction(app));
+	ActionCollection::addAction("WebBrowser.Backward", new QAction(app));
+	ActionCollection::addAction("WebBrowser.Forward", new QAction(app));
+	ActionCollection::addAction("WebBrowser.Reload", new QAction(app));
+	ActionCollection::addAction("WebBrowser.Stop", new QAction(app));
+	ActionCollection::addAction("WebBrowser.Home", new QAction(app));
+	ActionCollection::addAction("WebBrowser.Go", new QAction(app));
+	ActionCollection::addAction("WebBrowser.OpenBrowser", new QAction(app));
 }
 
 void WebBrowser::go() {
@@ -142,20 +142,20 @@ void WebBrowser::go() {
 }
 
 void WebBrowser::backwardAvailable(bool available) {
-	ActionCollection::action("webBrowserBackward")->setEnabled(available);
+	ActionCollection::action("WebBrowser.Backward")->setEnabled(available);
 	if (available) {
-		ActionCollection::action("webBrowserBackward")->setToolTip(_textBrowser->historyTitle(-1));
+		ActionCollection::action("WebBrowser.Backward")->setToolTip(_textBrowser->historyTitle(-1));
 	} else {
-		ActionCollection::action("webBrowserBackward")->setToolTip(QString());
+		ActionCollection::action("WebBrowser.Backward")->setToolTip(QString());
 	}
 }
 
 void WebBrowser::forwardAvailable(bool available) {
-	ActionCollection::action("webBrowserForward")->setEnabled(available);
+	ActionCollection::action("WebBrowser.Forward")->setEnabled(available);
 	if (available) {
-		ActionCollection::action("webBrowserForward")->setToolTip(_textBrowser->historyTitle(+1));
+		ActionCollection::action("WebBrowser.Forward")->setToolTip(_textBrowser->historyTitle(+1));
 	} else {
-		ActionCollection::action("webBrowserForward")->setToolTip(QString());
+		ActionCollection::action("WebBrowser.Forward")->setToolTip(QString());
 	}
 }
 

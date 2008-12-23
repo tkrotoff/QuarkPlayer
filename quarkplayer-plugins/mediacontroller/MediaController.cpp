@@ -67,7 +67,7 @@ MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 
-	connect(ActionCollection::action("openSubtitleFile"), SIGNAL(triggered()),
+	connect(ActionCollection::action("MediaController.OpenSubtitleFile"), SIGNAL(triggered()),
 		SLOT(openSubtitleFile()));
 
 	RETRANSLATE(this);
@@ -86,13 +86,13 @@ MediaController::~MediaController() {
 void MediaController::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
-	ActionCollection::addAction("openSubtitleFile", new QAction(app));
+	ActionCollection::addAction("MediaController.OpenSubtitleFile", new QAction(app));
 
 	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
 	//Need to implement a full plugin system like Qt Creator has
 	//Let's wait for Qt Creator source code to be released...
 	//This way MainWindow would be also a real plugin!
-	//ActionCollection::addAction("findSubtitles", new QAction(app));
+	//ActionCollection::addAction("MainWindow.FindSubtitles", new QAction(app));
 }
 
 void MediaController::addMenusToMainWindow() {
@@ -107,50 +107,50 @@ void MediaController::addMenusToMainWindow() {
 	_menuAudio = new QMenu();
 	menuBar->insertAction(insertBeforeMenuSettings, _menuAudio->menuAction());
 	_menuAudioChannels = new QMenu();
-	_menuAudioChannels->addAction(ActionCollection::action("emptyMenu"));
+	_menuAudioChannels->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	_menuAudio->addAction(_menuAudioChannels->menuAction());
 
 	_menuSubtitle = new QMenu();
 	menuBar->insertAction(insertBeforeMenuSettings, _menuSubtitle->menuAction());
-	_menuSubtitle->addAction(ActionCollection::action("openSubtitleFile"));
+	_menuSubtitle->addAction(ActionCollection::action("MediaController.OpenSubtitleFile"));
 	_menuSubtitles = new QMenu();
-	_menuSubtitles->addAction(ActionCollection::action("emptyMenu"));
+	_menuSubtitles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	_menuSubtitle->addAction(_menuSubtitles->menuAction());
 
 	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
 	//Need to implement a full plugin system like Qt Creator has
 	//Let's wait for Qt Creator source code to be released...
 	//This way MainWindow would be also a real plugin!
-	_menuSubtitle->addAction(ActionCollection::action("findSubtitles"));
-	_menuSubtitle->addAction(ActionCollection::action("uploadSubtitles"));
+	_menuSubtitle->addAction(ActionCollection::action("MainWindow.FindSubtitles"));
+	_menuSubtitle->addAction(ActionCollection::action("MainWindow.UploadSubtitles"));
 	///
 
 	_menuBrowse = new QMenu();
 	menuBar->insertAction(insertBeforeMenuSettings, _menuBrowse->menuAction());
 	_menuTitles = new QMenu();
-	_menuTitles->addAction(ActionCollection::action("emptyMenu"));
+	_menuTitles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	_menuBrowse->addAction(_menuTitles->menuAction());
 	_menuChapters = new QMenu();
-	_menuChapters->addAction(ActionCollection::action("emptyMenu"));
+	_menuChapters->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	_menuBrowse->addAction(_menuChapters->menuAction());
 	_menuAngles = new QMenu();
-	_menuAngles->addAction(ActionCollection::action("emptyMenu"));
+	_menuAngles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	_menuBrowse->addAction(_menuAngles->menuAction());
 }
 
 void MediaController::retranslate() {
 	qDebug() << __FUNCTION__;
 
-	ActionCollection::action("openSubtitleFile")->setText(tr("&Open Subtitle..."));
-	ActionCollection::action("openSubtitleFile")->setIcon(TkIcon("document-open"));
+	ActionCollection::action("MediaController.OpenSubtitleFile")->setText(tr("&Open Subtitle..."));
+	ActionCollection::action("MediaController.OpenSubtitleFile")->setIcon(TkIcon("document-open"));
 
 	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
 	//Need to implement a full plugin system like Qt Creator has
 	//Let's wait for Qt Creator source code to be released...
 	//This way MainWindow would be also a real plugin!
-	ActionCollection::action("findSubtitles")->setText(tr("&Find Subtitles..."));
-	ActionCollection::action("findSubtitles")->setIcon(TkIcon("edit-find"));
-	ActionCollection::action("uploadSubtitles")->setText(tr("&Upload Subtitles..."));
+	ActionCollection::action("MainWindow.FindSubtitles")->setText(tr("&Find Subtitles..."));
+	ActionCollection::action("MainWindow.FindSubtitles")->setIcon(TkIcon("edit-find"));
+	ActionCollection::action("MainWindow.UploadSubtitles")->setText(tr("&Upload Subtitles..."));
 	///
 
 	_menuAudioChannels->setTitle(tr("&Audio Channels"));
@@ -230,8 +230,8 @@ void MediaController::availableAudioChannelsChanged() {
 	removeAllAction(_menuAudioChannels);
 	removeAllAction(_toolBar->menuAudioChannels());
 	if (audios.isEmpty()) {
-		_menuAudioChannels->addAction(ActionCollection::action("emptyMenu"));
-		_toolBar->menuAudioChannels()->addAction(ActionCollection::action("emptyMenu"));
+		_menuAudioChannels->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
+		_toolBar->menuAudioChannels()->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	}
 
 	for (int i = 0; i < audios.size(); i++) {
@@ -281,8 +281,8 @@ void MediaController::availableSubtitlesChanged() {
 	removeAllAction(_menuSubtitles);
 	removeAllAction(_toolBar->menuSubtitles());
 	if (subtitles.isEmpty()) {
-		_menuSubtitles->addAction(ActionCollection::action("emptyMenu"));
-		_toolBar->menuSubtitles()->addAction(ActionCollection::action("emptyMenu"));
+		_menuSubtitles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
+		_toolBar->menuSubtitles()->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	}
 
 	for (int i = 0; i < subtitles.size(); i++) {
@@ -330,7 +330,7 @@ void MediaController::availableTitlesChanged() {
 	QList<Phonon::TitleDescription> titles = _currentMediaController->availableTitles2();
 	removeAllAction(_menuTitles);
 	if (titles.isEmpty()) {
-		_menuTitles->addAction(ActionCollection::action("emptyMenu"));
+		_menuTitles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	}
 
 	for (int i = 0; i < titles.size(); i++) {
@@ -344,7 +344,7 @@ void MediaController::availableTitlesChanged() {
 	int titles = _currentMediaController->availableTitles();
 	removeAllAction(_menuTitles);
 	if (titles == 0) {
-		_menuTitles->addAction(ActionCollection::action("emptyMenu"));
+		_menuTitles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	}
 
 	for (int i = 0; i < titles; i++) {
@@ -392,7 +392,7 @@ void MediaController::availableChaptersChanged() {
 	QList<Phonon::ChapterDescription> chapters = _currentMediaController->availableChapters2();
 	removeAllAction(_menuChapters);
 	if (chapters.isEmpty()) {
-		_menuChapters->addAction(ActionCollection::action("emptyMenu"));
+		_menuChapters->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	}
 
 	for (int i = 0; i < chapters.size(); i++) {
@@ -406,7 +406,7 @@ void MediaController::availableChaptersChanged() {
 	int chapters = _currentMediaController->availableChapters();
 	removeAllAction(_menuChapters);
 	if (chapters == 0) {
-		_menuChapters->addAction(ActionCollection::action("emptyMenu"));
+		_menuChapters->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	}
 
 	for (int i = 0; i < chapters; i++) {
@@ -455,7 +455,7 @@ void MediaController::availableAnglesChanged() {
 	int angles = _currentMediaController->availableAngles();
 	removeAllAction(_menuAngles);
 	if (angles == 0) {
-		_menuAngles->addAction(ActionCollection::action("emptyMenu"));
+		_menuAngles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	}
 
 	for (int i = 0; i < angles; i++) {

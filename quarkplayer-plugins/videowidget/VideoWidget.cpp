@@ -93,7 +93,7 @@ void VideoWidget::setFullScreenSlot(bool fullScreen) {
 
 void VideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
 	Phonon::VideoWidget::mouseDoubleClickEvent(event);
-	QAction * fullScreen = ActionCollection::action("fullScreen");
+	QAction * fullScreen = ActionCollection::action("MainWindow.FullScreen");
 	if (fullScreen) {
 		fullScreen->setChecked(!isFullScreen());
 	} else {
@@ -234,7 +234,7 @@ void VideoWidget::playToolBarAdded(QToolBar * playToolBar) {
 	//when starting
 	addPlayToolBarToMainWindow();
 
-	connect(ActionCollection::action("fullScreen"), SIGNAL(toggled(bool)),
+	connect(ActionCollection::action("MainWindow.FullScreen"), SIGNAL(toggled(bool)),
 		SLOT(setFullScreenSlot(bool)));
 }
 

@@ -62,16 +62,16 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * 
 	_statusBar = NULL;
 	_configWindow = NULL;
 
-	connect(ActionCollection::action("playFile"), SIGNAL(triggered()), SLOT(playFile()));
-	connect(ActionCollection::action("playDVD"), SIGNAL(triggered()), SLOT(playDVD()));
-	connect(ActionCollection::action("playURL"), SIGNAL(triggered()), SLOT(playURL()));
-	connect(ActionCollection::action("playVCD"), SIGNAL(triggered()), SLOT(playVCD()));
-	connect(ActionCollection::action("newMediaObject"), SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
-	connect(ActionCollection::action("configure"), SIGNAL(triggered()), SLOT(showConfigWindow()));
-	connect(ActionCollection::action("quit"), SIGNAL(triggered()), SLOT(close()));
-	connect(ActionCollection::action("reportBug"), SIGNAL(triggered()), SLOT(reportBug()));
-	connect(ActionCollection::action("about"), SIGNAL(triggered()), SLOT(about()));
-	connect(ActionCollection::action("aboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+	connect(ActionCollection::action("MainWindow.PlayFile"), SIGNAL(triggered()), SLOT(playFile()));
+	connect(ActionCollection::action("MainWindow.PlayDVD"), SIGNAL(triggered()), SLOT(playDVD()));
+	connect(ActionCollection::action("MainWindow.PlayURL"), SIGNAL(triggered()), SLOT(playURL()));
+	connect(ActionCollection::action("MainWindow.PlayVCD"), SIGNAL(triggered()), SLOT(playVCD()));
+	connect(ActionCollection::action("MainWindow.NewMediaObject"), SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
+	connect(ActionCollection::action("MainWindow.Configure"), SIGNAL(triggered()), SLOT(showConfigWindow()));
+	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), SLOT(close()));
+	connect(ActionCollection::action("MainWindow.ReportBug"), SIGNAL(triggered()), SLOT(reportBug()));
+	connect(ActionCollection::action("MainWindow.About"), SIGNAL(triggered()), SLOT(about()));
+	connect(ActionCollection::action("MainWindow.AboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
@@ -116,7 +116,7 @@ QStatusBar * MainWindow::statusBar() const {
 }
 
 void MainWindow::addRecentFilesToMenu() {
-	connect(ActionCollection::action("clearRecentFiles"), SIGNAL(triggered()), SLOT(clearRecentFiles()));
+	connect(ActionCollection::action("MainWindow.ClearRecentFiles"), SIGNAL(triggered()), SLOT(clearRecentFiles()));
 
 	QStringList recentFiles = Config::instance().recentFiles();
 	if (!recentFiles.isEmpty()) {
@@ -141,11 +141,11 @@ void MainWindow::addRecentFilesToMenu() {
 		connect(signalMapper, SIGNAL(mapped(int)),
 			SLOT(playRecentFile(int)));
 	} else {
-		_menuRecentFiles->addAction(ActionCollection::action("emptyMenu"));
+		_menuRecentFiles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	}
 
 	_menuRecentFiles->addSeparator();
-	_menuRecentFiles->addAction(ActionCollection::action("clearRecentFiles"));
+	_menuRecentFiles->addAction(ActionCollection::action("MainWindow.ClearRecentFiles"));
 }
 
 void MainWindow::playRecentFile(int id) {
@@ -156,9 +156,9 @@ void MainWindow::playRecentFile(int id) {
 void MainWindow::clearRecentFiles() {
 	//Clear recent files menu
 	_menuRecentFiles->clear();
-	_menuRecentFiles->addAction(ActionCollection::action("emptyMenu"));
+	_menuRecentFiles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	_menuRecentFiles->addSeparator();
-	_menuRecentFiles->addAction(ActionCollection::action("clearRecentFiles"));
+	_menuRecentFiles->addAction(ActionCollection::action("MainWindow.ClearRecentFiles"));
 
 	//Clear recent files configuration
 	Config::instance().setValue(Config::RECENT_FILES_KEY, QStringList());
@@ -281,36 +281,36 @@ void MainWindow::about() {
 void MainWindow::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
-	ActionCollection::addAction("playFile", new QAction(app));
-	ActionCollection::addAction("quit", new QAction(app));
-	ActionCollection::addAction("reportBug", new QAction(app));
-	ActionCollection::addAction("about", new QAction(app));
-	ActionCollection::addAction("aboutQt", new QAction(app));
-	ActionCollection::addAction("playDVD", new QAction(app));
-	ActionCollection::addAction("playURL", new QAction(app));
-	ActionCollection::addAction("playVCD", new QAction(app));
-	ActionCollection::addAction("newMediaObject", new QAction(app));
-	ActionCollection::addAction("equalizer", new QAction(app));
-	ActionCollection::addAction("configure", new QAction(app));
-	ActionCollection::addAction("clearRecentFiles", new QAction(app));
-	ActionCollection::addAction("emptyMenu", new QAction(app));
+	ActionCollection::addAction("MainWindow.PlayFile", new QAction(app));
+	ActionCollection::addAction("MainWindow.Quit", new QAction(app));
+	ActionCollection::addAction("MainWindow.ReportBug", new QAction(app));
+	ActionCollection::addAction("MainWindow.About", new QAction(app));
+	ActionCollection::addAction("MainWindow.AboutQt", new QAction(app));
+	ActionCollection::addAction("MainWindow.PlayDVD", new QAction(app));
+	ActionCollection::addAction("MainWindow.PlayURL", new QAction(app));
+	ActionCollection::addAction("MainWindow.PlayVCD", new QAction(app));
+	ActionCollection::addAction("MainWindow.NewMediaObject", new QAction(app));
+	ActionCollection::addAction("MainWindow.Equalizer", new QAction(app));
+	ActionCollection::addAction("MainWindow.Configure", new QAction(app));
+	ActionCollection::addAction("MainWindow.ClearRecentFiles", new QAction(app));
+	ActionCollection::addAction("MainWindow.EmptyMenu", new QAction(app));
 
-	ActionCollection::addAction("previousTrack", new QAction(app));
-	ActionCollection::addAction("playPause", new QAction(app));
-	ActionCollection::addAction("stop", new QAction(app));
-	ActionCollection::addAction("nextTrack", new QAction(app));
+	ActionCollection::addAction("MainWindow.PreviousTrack", new QAction(app));
+	ActionCollection::addAction("MainWindow.PlayPause", new QAction(app));
+	ActionCollection::addAction("MainWindow.Stop", new QAction(app));
+	ActionCollection::addAction("MainWindow.NextTrack", new QAction(app));
 
 	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
 	//Need to implement a full plugin system like Qt Creator has
 	//Let's wait for Qt Creator source code to be released...
 	//This way MainWindow would be also a real plugin!
-	ActionCollection::addAction("findSubtitles", new QAction(app));
-	ActionCollection::addAction("uploadSubtitles", new QAction(app));
+	ActionCollection::addAction("MainWindow.FindSubtitles", new QAction(app));
+	ActionCollection::addAction("MainWindow.UploadSubtitles", new QAction(app));
 	///
 
 	QAction * action = new QAction(app);
 	action->setCheckable(true);
-	ActionCollection::addAction("fullScreen", action);
+	ActionCollection::addAction("MainWindow.FullScreen", action);
 }
 
 void MainWindow::setupUi() {
@@ -319,47 +319,47 @@ void MainWindow::setupUi() {
 
 	_menuFile = new QMenu();
 	menuBar()->addAction(_menuFile->menuAction());
-	_menuFile->addAction(ActionCollection::action("playFile"));
+	_menuFile->addAction(ActionCollection::action("MainWindow.PlayFile"));
 	_menuRecentFiles = new QMenu();
 	_menuFile->addAction(_menuRecentFiles->menuAction());
-	_menuFile->addAction(ActionCollection::action("playDVD"));
-	_menuFile->addAction(ActionCollection::action("playURL"));
-	_menuFile->addAction(ActionCollection::action("playVCD"));
+	_menuFile->addAction(ActionCollection::action("MainWindow.PlayDVD"));
+	_menuFile->addAction(ActionCollection::action("MainWindow.PlayURL"));
+	_menuFile->addAction(ActionCollection::action("MainWindow.PlayVCD"));
 	_menuFile->addSeparator();
-	_menuFile->addAction(ActionCollection::action("quit"));
+	_menuFile->addAction(ActionCollection::action("MainWindow.Quit"));
 
 	_menuPlay = new QMenu();
 	menuBar()->addAction(_menuPlay->menuAction());
-	_menuPlay->addAction(ActionCollection::action("previousTrack"));
-	_menuPlay->addAction(ActionCollection::action("playPause"));
-	_menuPlay->addAction(ActionCollection::action("stop"));
-	_menuPlay->addAction(ActionCollection::action("nextTrack"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.PreviousTrack"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.PlayPause"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.Stop"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.NextTrack"));
 	_menuPlay->addSeparator();
-	_menuPlay->addAction(ActionCollection::action("fullScreen"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.FullScreen"));
 	_menuPlay->addSeparator();
-	_menuPlay->addAction(ActionCollection::action("newMediaObject"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.NewMediaObject"));
 
 	_menuSettings = new QMenu();
 	menuBar()->addAction(_menuSettings->menuAction());
-	_menuSettings->addAction(ActionCollection::action("equalizer"));
-	_menuSettings->addAction(ActionCollection::action("configure"));
+	_menuSettings->addAction(ActionCollection::action("MainWindow.Equalizer"));
+	_menuSettings->addAction(ActionCollection::action("MainWindow.Configure"));
 
 	_menuHelp = new QMenu();
 	menuBar()->addAction(_menuHelp->menuAction());
-	_menuHelp->addAction(ActionCollection::action("reportBug"));
-	_menuHelp->addAction(ActionCollection::action("about"));
-	_menuHelp->addAction(ActionCollection::action("aboutQt"));
+	_menuHelp->addAction(ActionCollection::action("MainWindow.ReportBug"));
+	_menuHelp->addAction(ActionCollection::action("MainWindow.About"));
+	_menuHelp->addAction(ActionCollection::action("MainWindow.AboutQt"));
 
 	//Main ToolBar
 	_mainToolBar = new TkToolBar(this);
 	//_mainToolBar->setIconSize(QSize(16, 16));
 
-	_mainToolBar->addAction(ActionCollection::action("playFile"));
-	_mainToolBar->addAction(ActionCollection::action("playDVD"));
-	_mainToolBar->addAction(ActionCollection::action("playURL"));
+	_mainToolBar->addAction(ActionCollection::action("MainWindow.PlayFile"));
+	_mainToolBar->addAction(ActionCollection::action("MainWindow.PlayDVD"));
+	_mainToolBar->addAction(ActionCollection::action("MainWindow.PlayURL"));
 	_mainToolBar->addSeparator();
-	_mainToolBar->addAction(ActionCollection::action("equalizer"));
-	_mainToolBar->addAction(ActionCollection::action("configure"));
+	_mainToolBar->addAction(ActionCollection::action("MainWindow.Equalizer"));
+	_mainToolBar->addAction(ActionCollection::action("MainWindow.Configure"));
 	addToolBar(_mainToolBar);
 }
 
@@ -367,44 +367,44 @@ void MainWindow::retranslate() {
 	updateWindowTitle();
 	setWindowIcon(QIcon(":/icons/hi16-app-quarkplayer.png"));
 
-	ActionCollection::action("playFile")->setText(tr("Play &File..."));
-	ActionCollection::action("playFile")->setIcon(TkIcon("document-open"));
+	ActionCollection::action("MainWindow.PlayFile")->setText(tr("Play &File..."));
+	ActionCollection::action("MainWindow.PlayFile")->setIcon(TkIcon("document-open"));
 
-	ActionCollection::action("quit")->setText(tr("&Quit"));
-	ActionCollection::action("quit")->setIcon(TkIcon("application-exit"));
+	ActionCollection::action("MainWindow.Quit")->setText(tr("&Quit"));
+	ActionCollection::action("MainWindow.Quit")->setIcon(TkIcon("application-exit"));
 
-	ActionCollection::action("reportBug")->setText(tr("&Report a bug..."));
-	ActionCollection::action("reportBug")->setIcon(TkIcon("tools-report-bug"));
+	ActionCollection::action("MainWindow.ReportBug")->setText(tr("&Report a bug..."));
+	ActionCollection::action("MainWindow.ReportBug")->setIcon(TkIcon("tools-report-bug"));
 
-	ActionCollection::action("about")->setText(tr("&About"));
-	ActionCollection::action("about")->setIcon(TkIcon("help-about"));
+	ActionCollection::action("MainWindow.About")->setText(tr("&About"));
+	ActionCollection::action("MainWindow.About")->setIcon(TkIcon("help-about"));
 
-	ActionCollection::action("aboutQt")->setText(tr("About &Qt"));
-	ActionCollection::action("aboutQt")->setIcon(TkIcon("help-about"));
+	ActionCollection::action("MainWindow.AboutQt")->setText(tr("About &Qt"));
+	ActionCollection::action("MainWindow.AboutQt")->setIcon(TkIcon("help-about"));
 
-	ActionCollection::action("playDVD")->setText(tr("Play &DVD..."));
-	ActionCollection::action("playDVD")->setIcon(TkIcon("media-optical"));
+	ActionCollection::action("MainWindow.PlayDVD")->setText(tr("Play &DVD..."));
+	ActionCollection::action("MainWindow.PlayDVD")->setIcon(TkIcon("media-optical"));
 
-	ActionCollection::action("playURL")->setText(tr("Play &URL..."));
-	ActionCollection::action("playURL")->setIcon(TkIcon("document-open-remote"));
+	ActionCollection::action("MainWindow.PlayURL")->setText(tr("Play &URL..."));
+	ActionCollection::action("MainWindow.PlayURL")->setIcon(TkIcon("document-open-remote"));
 
-	ActionCollection::action("playVCD")->setText(tr("Play &VCD..."));
-	//ActionCollection::action("playVCD")->setIcon(TkIcon("media-optical"));
+	ActionCollection::action("MainWindow.PlayVCD")->setText(tr("Play &VCD..."));
+	//ActionCollection::action("MainWindow.PlayVCD")->setIcon(TkIcon("media-optical"));
 
-	ActionCollection::action("newMediaObject")->setText(tr("New Media Window"));
-	ActionCollection::action("newMediaObject")->setIcon(TkIcon("window-new"));
+	ActionCollection::action("MainWindow.NewMediaObject")->setText(tr("New Media Window"));
+	ActionCollection::action("MainWindow.NewMediaObject")->setIcon(TkIcon("window-new"));
 
-	ActionCollection::action("equalizer")->setText(tr("&Equalizer..."));
-	ActionCollection::action("equalizer")->setIcon(TkIcon("view-media-equalizer"));
+	ActionCollection::action("MainWindow.Equalizer")->setText(tr("&Equalizer..."));
+	ActionCollection::action("MainWindow.Equalizer")->setIcon(TkIcon("view-media-equalizer"));
 
-	ActionCollection::action("configure")->setText(tr("&Configure QuarkPlayer..."));
-	ActionCollection::action("configure")->setIcon(TkIcon("preferences-system"));
+	ActionCollection::action("MainWindow.Configure")->setText(tr("&Configure QuarkPlayer..."));
+	ActionCollection::action("MainWindow.Configure")->setIcon(TkIcon("preferences-system"));
 
-	ActionCollection::action("clearRecentFiles")->setText(tr("&Clear"));
-	ActionCollection::action("clearRecentFiles")->setIcon(TkIcon("edit-delete"));
+	ActionCollection::action("MainWindow.ClearRecentFiles")->setText(tr("&Clear"));
+	ActionCollection::action("MainWindow.ClearRecentFiles")->setIcon(TkIcon("edit-delete"));
 
-	ActionCollection::action("emptyMenu")->setText(tr("<empty>"));
-	ActionCollection::action("emptyMenu")->setEnabled(false);
+	ActionCollection::action("MainWindow.EmptyMenu")->setText(tr("<empty>"));
+	ActionCollection::action("MainWindow.EmptyMenu")->setEnabled(false);
 
 	_mainToolBar->setWindowTitle(tr("Main ToolBar"));
 	_mainToolBar->setMinimumSize(_mainToolBar->sizeHint());
@@ -417,20 +417,20 @@ void MainWindow::retranslate() {
 	_menuSettings->setTitle(tr("&Settings"));
 	_menuHelp->setTitle(tr("&Help"));
 
-	ActionCollection::action("previousTrack")->setText(tr("P&revious Track"));
-	ActionCollection::action("previousTrack")->setIcon(TkIcon("media-skip-backward"));
+	ActionCollection::action("MainWindow.PreviousTrack")->setText(tr("P&revious Track"));
+	ActionCollection::action("MainWindow.PreviousTrack")->setIcon(TkIcon("media-skip-backward"));
 
-	ActionCollection::action("playPause")->setText(tr("&Play/Pause"));
-	ActionCollection::action("playPause")->setIcon(TkIcon("media-playback-start"));
+	ActionCollection::action("MainWindow.PlayPause")->setText(tr("&Play/Pause"));
+	ActionCollection::action("MainWindow.PlayPause")->setIcon(TkIcon("media-playback-start"));
 
-	ActionCollection::action("stop")->setText(tr("&Stop"));
-	ActionCollection::action("stop")->setIcon(TkIcon("media-playback-stop"));
+	ActionCollection::action("MainWindow.Stop")->setText(tr("&Stop"));
+	ActionCollection::action("MainWindow.Stop")->setIcon(TkIcon("media-playback-stop"));
 
-	ActionCollection::action("nextTrack")->setText(tr("&Next Track"));
-	ActionCollection::action("nextTrack")->setIcon(TkIcon("media-skip-forward"));
+	ActionCollection::action("MainWindow.NextTrack")->setText(tr("&Next Track"));
+	ActionCollection::action("MainWindow.NextTrack")->setIcon(TkIcon("media-skip-forward"));
 
-	ActionCollection::action("fullScreen")->setText(tr("&FullScreen"));
-	ActionCollection::action("fullScreen")->setIcon(TkIcon("view-fullscreen"));
+	ActionCollection::action("MainWindow.FullScreen")->setText(tr("&FullScreen"));
+	ActionCollection::action("MainWindow.FullScreen")->setIcon(TkIcon("view-fullscreen"));
 }
 
 QMenu * MainWindow::menuFile() const {
@@ -563,6 +563,6 @@ void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	updateWindowTitle();
 	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(updateWindowTitle()));
 
-	disconnect(ActionCollection::action("quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
-	connect(ActionCollection::action("quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
+	disconnect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
+	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
 }

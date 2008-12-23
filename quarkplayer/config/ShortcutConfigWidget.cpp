@@ -32,6 +32,10 @@
 
 Q_DECLARE_METATYPE(ShortcutConfigWidget::ShortcutItem *);
 
+static const int COLUMN_ALBUM = 0;
+static const int COLUMN_LABEL = 1;
+static const int COLUMN_SHORTCUT = 2;
+
 ShortcutConfigWidget::ShortcutConfigWidget() {
 	_keyNum = _key[0] = _key[1] = _key[2] = _key[3] = 0;
 
@@ -44,7 +48,7 @@ ShortcutConfigWidget::ShortcutConfigWidget() {
 	connect(_ui->importButton, SIGNAL(clicked()), SLOT(importShortcuts()));
 	connect(_ui->defaultButton, SIGNAL(clicked()), SLOT(revertShortcutsToDefault()));
 
-	_ui->actionList->sortByColumn(0, Qt::AscendingOrder);
+	_ui->actionList->sortByColumn(COLUMN_ALBUM, Qt::AscendingOrder);
 
 	connect(_ui->filterEdit, SIGNAL(textChanged(const QString &)), SLOT(filterChanged(const QString &)));
 	connect(_ui->actionList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
@@ -54,8 +58,8 @@ ShortcutConfigWidget::ShortcutConfigWidget() {
 	connect(_ui->shortcutEdit, SIGNAL(textChanged(QString)), SLOT(keyChanged()));
 
 	QHeaderView * header = _ui->actionList->header();
-	header->resizeSection(0, 210);
-	header->resizeSection(1, 110);
+	header->resizeSection(COLUMN_ALBUM, 210);
+	header->resizeSection(COLUMN_LABEL, 110);
 	header->setStretchLastSection(true);
 
 	actionChanged(NULL);
@@ -65,10 +69,14 @@ ShortcutConfigWidget::ShortcutConfigWidget() {
 
 ShortcutConfigWidget::~ShortcutConfigWidget() {
 	delete _ui;
+
+	qDeleteAll(_shortcutItems);
+	_shortcutItems.clear();
+	_ui->actionList->clear();
 }
 
 QString ShortcutConfigWidget::name() const {
-	return tr("Keyboard");
+	return tr("Shortcuts");
 }
 
 QString ShortcutConfigWidget::iconName() const {
@@ -76,15 +84,20 @@ QString ShortcutConfigWidget::iconName() const {
 }
 
 void ShortcutConfigWidget::saveConfig() {
-	foreach (ShortcutItem * item, _shortcutItems) {
-		item->action->setShortcut(item->key);
+	foreach (ShortcutItem * shortcutItem, _shortcutItems) {
+		shortcutItem->action->setShortcut(shortcutItem->key);
 	}
 
 	qDeleteAll(_shortcutItems);
 	_shortcutItems.clear();
+	_ui->actionList->clear();
 }
 
 void ShortcutConfigWidget::readConfig() {
+	qDeleteAll(_shortcutItems);
+	_shortcutItems.clear();
+	_ui->actionList->clear();
+
 	QList<QAction *> actions = ActionCollection::actions();
 
 	foreach (QAction * action, actions) {
@@ -98,11 +111,15 @@ void ShortcutConfigWidget::readConfig() {
 		shortcutItem->treeItem = item;
 		_shortcutItems << shortcutItem;
 
-		item->setIcon(0, action->icon());
-		item->setText(0, name);
-		item->setText(1, action->toolTip());
-		item->setText(2, shortcutItem->key);
-		item->setData(0, Qt::UserRole, qVariantFromValue(shortcutItem));
+		QIcon icon = action->icon();
+		if (icon.isNull()) {
+			icon = QIcon(":/icons/hi16-emptyicon.png");
+		}
+		item->setIcon(COLUMN_ALBUM, icon);
+		item->setText(COLUMN_ALBUM, name);
+		item->setText(COLUMN_LABEL, action->toolTip());
+		item->setText(COLUMN_SHORTCUT, shortcutItem->key);
+		item->setData(COLUMN_ALBUM, Qt::UserRole, qVariantFromValue(shortcutItem));
 	}
 }
 
@@ -132,13 +149,13 @@ bool ShortcutConfigWidget::eventFilter(QObject * object, QEvent * event) {
 }
 
 void ShortcutConfigWidget::actionChanged(QTreeWidgetItem * currentItem) {
-	if (!currentItem || !currentItem->data(0, Qt::UserRole).isValid()) {
+	if (!currentItem || !currentItem->data(COLUMN_ALBUM, Qt::UserRole).isValid()) {
 		_ui->shortcutEdit->setText(QString());
 		_ui->keyGroupBox->setEnabled(false);
 		return;
 	}
 	_ui->keyGroupBox->setEnabled(true);
-	ShortcutItem * shortcutItem = qVariantValue<ShortcutItem *>(currentItem->data(0, Qt::UserRole));
+	ShortcutItem * shortcutItem = qVariantValue<ShortcutItem *>(currentItem->data(COLUMN_ALBUM, Qt::UserRole));
 	setKeySequence(shortcutItem->key);
 }
 
@@ -151,10 +168,10 @@ void ShortcutConfigWidget::filterChanged(const QString & filterText) {
 
 void ShortcutConfigWidget::keyChanged() {
 	QTreeWidgetItem * currentItem = _ui->actionList->currentItem();
-	if (currentItem && currentItem->data(0, Qt::UserRole).isValid()) {
-		ShortcutItem * shortcutItem = qVariantValue<ShortcutItem *>(currentItem->data(0, Qt::UserRole));
+	if (currentItem && currentItem->data(COLUMN_ALBUM, Qt::UserRole).isValid()) {
+		ShortcutItem * shortcutItem = qVariantValue<ShortcutItem *>(currentItem->data(COLUMN_ALBUM, Qt::UserRole));
 		shortcutItem->key = QKeySequence(_key[0], _key[1], _key[2], _key[3]);
-		currentItem->setText(2, shortcutItem->key);
+		currentItem->setText(COLUMN_SHORTCUT, shortcutItem->key);
 	}
 }
 
@@ -195,8 +212,8 @@ bool ShortcutConfigWidget::filter(const QString & filterText, const QTreeWidgetI
 
 void ShortcutConfigWidget::resetKeySequence() {
 	QTreeWidgetItem * currentItem = _ui->actionList->currentItem();
-	if (currentItem && currentItem->data(0, Qt::UserRole).isValid()) {
-		ShortcutItem * shortcutItem = qVariantValue<ShortcutItem *>(currentItem->data(0, Qt::UserRole));
+	if (currentItem && currentItem->data(COLUMN_ALBUM, Qt::UserRole).isValid()) {
+		ShortcutItem * shortcutItem = qVariantValue<ShortcutItem *>(currentItem->data(COLUMN_ALBUM, Qt::UserRole));
 		TkAction * action = qobject_cast<TkAction *>(shortcutItem->action);
 		if (action) {
 			setKeySequence(action->defaultShortcut());
@@ -225,7 +242,7 @@ void ShortcutConfigWidget::importShortcuts() {
 			QString sid = uidm->stringForUniqueIdentifier(item->m_cmd->id());
 			if (mapping.contains(sid)) {
 				item->m_key = mapping.value(sid);
-				item->m_item->setText(2, item->m_key);
+				item->m_item->setText(COLUMN_SHORTCUT, item->m_key);
 				if (item->m_item == _ui->commandList->currentItem()) {
 					commandChanged(item->m_item);
 				}
@@ -253,7 +270,7 @@ void ShortcutConfigWidget::revertShortcutsToDefault() {
 		if (action) {
 			shortcutItem->key = action->defaultShortcut();
 		}
-		shortcutItem->treeItem->setText(2, shortcutItem->key);
+		shortcutItem->treeItem->setText(COLUMN_SHORTCUT, shortcutItem->key);
 		if (shortcutItem->treeItem == _ui->actionList->currentItem()) {
 			actionChanged(shortcutItem->treeItem);
 		}

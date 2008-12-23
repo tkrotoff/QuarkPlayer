@@ -30,7 +30,7 @@ class QTreeWidgetItem;
 /**
  * Shortcuts configuration widget.
  *
- * Source code taken/inspired by shortcutsettings.cpp from Qt Creator.
+ * Source code taken/inspired by shortcutsettings.cpp from Qt Creator 0.9.2 (beta).
  *
  * @author Tanguy Krotoff
  */

@@ -52,9 +52,22 @@ public:
 
 private slots:
 
+	void currentItemChanged(QTreeWidgetItem * item);
+
 private:
 
 	void addItems(QTreeWidgetItem * parent, const QStringList & extensions);
+
+	/**
+	 * This is a hack in order to get the icons that matches an extension.
+	 *
+	 * Creates a temporary file with the proper extension and then use QFileIconProvider.
+	 *
+	 * @param extension file extension (mp3, divx...)
+	 * @return icon associated with the file extension
+	 * @see QFileIconProvider
+	 */
+	QIcon fileExtensionIcon(const QString & extension) const;
 
 	Ui::WinFileAssociationsConfigWidget * _ui;
 
