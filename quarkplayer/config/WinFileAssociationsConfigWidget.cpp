@@ -42,6 +42,9 @@ WinFileAssociationsConfigWidget::WinFileAssociationsConfigWidget() {
 	//_ui->treeWidget->setHeaderHidden(true);
 	_ui->treeWidget->sortByColumn(COLUMN_NAME, Qt::AscendingOrder);
 
+	//For the Wikipedia link
+	connect(_ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), SLOT(currentItemChanged(QTreeWidgetItem *)));
+
 	_winFileAssociations = new WinFileAssociations(QCoreApplication::applicationName());
 }
 
@@ -113,8 +116,6 @@ void WinFileAssociationsConfigWidget::addItems(QTreeWidgetItem * parent, const Q
 		item->setText(COLUMN_EXTENSION, extension);
 		item->setText(COLUMN_NAME, FileTypes::fileType(extension).fullName);
 
-		//For the Wikipedia link
-		connect(_ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), SLOT(currentItemChanged(QTreeWidgetItem *)));
 		if (_winFileAssociations->isAssociated(extension)) {
 			item->setCheckState(COLUMN_EXTENSION, Qt::Checked);
 		} else {
@@ -124,12 +125,22 @@ void WinFileAssociationsConfigWidget::addItems(QTreeWidgetItem * parent, const Q
 }
 
 void WinFileAssociationsConfigWidget::currentItemChanged(QTreeWidgetItem * item) {
+	_ui->wikipediaArticleLabel->clear();
+
+	if (!item) {
+		return;
+	}
+
 	QString extension = item->text(COLUMN_EXTENSION);
 	if (!extension.isEmpty()) {
 		FileType fileType = FileTypes::fileType(extension);
-		QString link("<a href=\"http://" + Config::instance().language() + ".wikipedia.org/wiki/" +
-				fileType.wikipediaArticle + "\">" + extension + " - " + fileType.fullName + "</a>");
-		_ui->wikipediaArticleLabel->setText(link);
+		QString wikipediaArticle = fileType.wikipediaArticle;
+		QString fullName = fileType.fullName;
+		if (!wikipediaArticle.isEmpty() && !fullName.isEmpty()) {
+			QString link("<a href=\"http://" + Config::instance().language() + ".wikipedia.org/wiki/" +
+					wikipediaArticle + "\">" + extension + " - " + fileType.fullName + "</a>");
+			_ui->wikipediaArticleLabel->setText(link);
+		}
 	}
 }
 

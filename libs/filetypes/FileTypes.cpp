@@ -62,7 +62,7 @@ static const FileType FILETYPELIST[FILETYPELIST_SIZE] = {
 	{ FileType::Audio, FileType::CDDA, "CD Audio Track", "Red_Book_(audio_CD_standard)", "cda", "" },
 	{ FileType::Audio, FileType::WAV, "Waveform (WAV)", "WAV", "wav", "audio/wav,audio/wave,audio/x-wav" },
 	{ FileType::Audio, FileType::FLAC, "Free Lossless Audio Codec (FLAC)", "Free_Lossless_Audio_Codec", "flac", "audio/x-flac,audio/x-oggflac" },
-	{ FileType::Audio, FileType::AppleLossless, "Apple_Lossless", "Apple Lossless (M4A)", "m4a", "" },
+	{ FileType::Audio, FileType::AppleLossless, "Apple Lossless (M4A)", "Apple_Lossless", "m4a", "" },
 	{ FileType::Audio, FileType::APE, "Monkey's Audio (APE)", "Monkey's_Audio", "ape", "" },
 	{ FileType::Audio, FileType::TTA, "True Audio (TTA)", "TTA_(codec)", "tta", "" },
 	{ FileType::Audio, FileType::WavPack, "WavPack (WV)", "WavPack", "wv", "" },
