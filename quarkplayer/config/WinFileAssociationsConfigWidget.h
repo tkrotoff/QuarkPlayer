@@ -54,9 +54,15 @@ private slots:
 
 	void currentItemChanged(QTreeWidgetItem * item);
 
+	void selectAllButtonClicked();
+
+	void selectNoneButtonClicked();
+
 private:
 
 	void addItems(QTreeWidgetItem * parent, const QStringList & extensions);
+
+	void selectButtonClicked(bool select);
 
 	/**
 	 * This is a hack in order to get the icons that matches an extension.

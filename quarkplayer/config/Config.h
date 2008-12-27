@@ -97,6 +97,10 @@ public:
 	static const char * PLUGINS_DIR_KEY;
 	QString pluginsDir() const;
 
+	/** Directoctory where the resources are located. */
+	static const char * RESOURCE_DIR_KEY;
+	QString resourceDir() const;
+
 	/** Last media volume used. */
 	static const char * LAST_VOLUME_USED_KEY;
 	qreal lastVolumeUsed() const;

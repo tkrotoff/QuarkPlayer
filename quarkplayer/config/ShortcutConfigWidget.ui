@@ -81,16 +81,16 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="importButton" >
+         <widget class="QPushButton" name="loadButton" >
           <property name="text" >
-           <string>Import...</string>
+           <string>Load...</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="exportButton" >
+         <widget class="QPushButton" name="saveButton" >
           <property name="text" >
-           <string>Export...</string>
+           <string>Save...</string>
           </property>
          </widget>
         </item>

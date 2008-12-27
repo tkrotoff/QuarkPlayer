@@ -45,6 +45,9 @@ WinFileAssociationsConfigWidget::WinFileAssociationsConfigWidget() {
 	//For the Wikipedia link
 	connect(_ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), SLOT(currentItemChanged(QTreeWidgetItem *)));
 
+	connect(_ui->selectAllButton, SIGNAL(clicked()), SLOT(selectAllButtonClicked()));
+	connect(_ui->selectNoneButton, SIGNAL(clicked()), SLOT(selectNoneButtonClicked()));
+
 	_winFileAssociations = new WinFileAssociations(QCoreApplication::applicationName());
 }
 
@@ -140,6 +143,34 @@ void WinFileAssociationsConfigWidget::currentItemChanged(QTreeWidgetItem * item)
 			QString link("<a href=\"http://" + Config::instance().language() + ".wikipedia.org/wiki/" +
 					wikipediaArticle + "\">" + extension + " - " + fileType.fullName + "</a>");
 			_ui->wikipediaArticleLabel->setText(link);
+		}
+	}
+}
+
+void WinFileAssociationsConfigWidget::selectAllButtonClicked() {
+	selectButtonClicked(true);
+}
+
+void WinFileAssociationsConfigWidget::selectNoneButtonClicked() {
+	selectButtonClicked(false);
+}
+
+void WinFileAssociationsConfigWidget::selectButtonClicked(bool select) {
+	for (int i = 0; i < _ui->treeWidget->topLevelItemCount(); i++) {
+		QTreeWidgetItem * topLevelItem = _ui->treeWidget->topLevelItem(i);
+
+		for (int j = 0; j < topLevelItem->childCount(); j++) {
+			QTreeWidgetItem * item = topLevelItem->child(j);
+			if (item) {
+				QString extension(item->text(COLUMN_EXTENSION));
+				if (!extension.isEmpty()) {
+					if (select) {
+						item->setCheckState(COLUMN_EXTENSION, Qt::Checked);
+					} else {
+						item->setCheckState(COLUMN_EXTENSION, Qt::Unchecked);
+					}
+				}
+			}
 		}
 	}
 }

@@ -27,6 +27,12 @@ namespace Ui { class ShortcutConfigWidget; }
 
 class QTreeWidgetItem;
 
+struct ShortcutItem {
+	QAction * action;
+	QList<QKeySequence> shortcuts;
+	QTreeWidgetItem * treeItem;
+};
+
 /**
  * Shortcuts configuration widget.
  *
@@ -37,12 +43,6 @@ class QTreeWidgetItem;
 class ShortcutConfigWidget : public IConfigWidget {
 	Q_OBJECT
 public:
-
-	struct ShortcutItem {
-		QAction * action;
-		QKeySequence key;
-		QTreeWidgetItem * treeItem;
-	};
 
 	ShortcutConfigWidget();
 
@@ -56,7 +56,9 @@ public:
 
 	void saveConfig();
 
-	void retranslate();
+	static QString toString(const QList<QKeySequence> & shortcuts);
+
+	static QList<QKeySequence> fromString(const QString & shortcuts);
 
 private slots:
 
@@ -64,21 +66,23 @@ private slots:
 
 	void filterChanged(const QString & filterText);
 
-	void keyChanged();
+	void shortcutChanged();
 
-	void resetKeySequence();
-	void removeKeySequence();
+	void resetShortcuts();
+	void removeShortcuts();
 
-	void importShortcuts();
-	void exportShortcuts();
+	void loadShortcuts();
+	void saveShortcuts();
 
 	void revertShortcutsToDefault();
+
+	void retranslate();
 
 private:
 
 	bool eventFilter(QObject * object, QEvent * event);
 
-	void setKeySequence(const QKeySequence & key);
+	void setShortcuts(const QList<QKeySequence> & shortcuts);
 
 	bool filter(const QString & filterText, const QTreeWidgetItem * item);
 

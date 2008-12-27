@@ -30,28 +30,44 @@
  * This class was created because QAction does not provide a "setDefaultShortcut()" method.
  * KAction from KDElibs does provide such a function.
  *
+ * @see QAction
+ * @see KAction
  * @author Tanguy Krotoff
  */
 class TKUTIL_API TkAction : public QAction {
 	Q_OBJECT
 public:
 
-	enum ActionAttribute {
-		ActionAttributeNonConfigureable
-	};
+	explicit TkAction(QObject * parent,
+			const QKeySequence & shortcut0 = QKeySequence(),
+			const QKeySequence & shortcut1 = QKeySequence(),
+			const QKeySequence & shortcut2 = QKeySequence(),
+			const QKeySequence & shortcut3 = QKeySequence());
+	TkAction(const QString & text, QObject * parent,
+			const QKeySequence & shortcut0 = QKeySequence(),
+			const QKeySequence & shortcut1 = QKeySequence(),
+			const QKeySequence & shortcut2 = QKeySequence(),
+			const QKeySequence & shortcut3 = QKeySequence());
+	TkAction(const QIcon & icon, const QString & text, QObject * parent,
+			const QKeySequence & shortcut0 = QKeySequence(),
+			const QKeySequence & shortcut1 = QKeySequence(),
+			const QKeySequence & shortcut2 = QKeySequence(),
+			const QKeySequence & shortcut3 = QKeySequence());
 
 	~TkAction();
 
-	void setDefaultShortcut(const QKeySequence & shortcut);
-	QKeySequence defaultShortcut() const;
-
-	void setAttribute(ActionAttribute attribute);
-	void removeAttribute(ActionAttribute attribute);
-	bool hasAttribute(ActionAttribute attribute) const;
+	void setDefaultShortcuts(const QList<QKeySequence> & shortcuts);
+	void setDefaultShortcuts(
+			const QKeySequence & shortcut0,
+			const QKeySequence & shortcut1 = QKeySequence(),
+			const QKeySequence & shortcut2 = QKeySequence(),
+			const QKeySequence & shortcut3 = QKeySequence()
+	);
+	QList<QKeySequence> defaultShortcuts() const;
 
 private:
 
-	QKeySequence _defaultShortcut;
+	QList<QKeySequence> _defaultShortcuts;
 };
 
 #endif	//TKACTION_H

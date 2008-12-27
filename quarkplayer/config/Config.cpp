@@ -39,6 +39,7 @@ const char * Config::DVD_DIR_KEY = "dvd_dir";
 const char * Config::CDROM_DIR_KEY = "cdrom_dir";
 const char * Config::MUSIC_DIR_KEY = "music_dir";
 const char * Config::PLUGINS_DIR_KEY = "plugins_dir";
+const char * Config::RESOURCE_DIR_KEY = "resource_dir";
 
 const char * Config::LAST_VOLUME_USED_KEY = "last_volume_used";
 const char * Config::VOLUME_MUTED_KEY = "volume_muted";
@@ -74,6 +75,7 @@ Config::Config()
 
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
 	addKey(PLUGINS_DIR_KEY, QString(QCoreApplication::applicationDirPath() + "/plugins"));
+	addKey(RESOURCE_DIR_KEY, QString(QCoreApplication::applicationDirPath()));
 
 	addKey(LAST_VOLUME_USED_KEY, 1.0f);
 	addKey(VOLUME_MUTED_KEY, false);
@@ -159,6 +161,10 @@ QString Config::musicDir(const QUuid & uuid) /*const*/ {
 
 QString Config::pluginsDir() const {
 	return value(PLUGINS_DIR_KEY).toString();
+}
+
+QString Config::resourceDir() const {
+	return value(RESOURCE_DIR_KEY).toString();
 }
 
 qreal Config::lastVolumeUsed() const {

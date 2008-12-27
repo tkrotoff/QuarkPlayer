@@ -39,6 +39,7 @@ set(quarkplayercore_SRCS
 	config/WinFileAssociationsConfigWidget.cpp
 	config/PlaylistConfig.cpp
 	config/ShortcutConfigWidget.cpp
+	config/ShortcutsFileParser.cpp
 )
 
 qt4_wrap_cpp(quarkplayercore_SRCS
@@ -80,6 +81,7 @@ if (KDE4_FOUND)
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
 		${KDE4_KIO_LIBS}
+		${KDE4_KDEXML_LIBS}
 		${QT_PHONON_LIBRARY}
 	)
 else (KDE4_FOUND)
@@ -89,6 +91,7 @@ else (KDE4_FOUND)
 		filetypes
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
+		${QT_QTXML_LIBRARY}
 		${QT_PHONON_LIBRARY}
 		${QT_QTMAIN_LIBRARY}
 	)
