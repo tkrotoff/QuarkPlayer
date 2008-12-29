@@ -22,7 +22,7 @@
 
 #include <tkutil/tkutil_export.h>
 
-#include <QtGui/QLineEdit.h>
+#include <QtGui/QLineEdit>
 
 class QHBoxLayout;
 class SideWidget;
