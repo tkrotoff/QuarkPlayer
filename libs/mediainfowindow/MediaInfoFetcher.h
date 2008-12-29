@@ -33,8 +33,19 @@ namespace Phonon {
 }
 
 /**
- * Shows the album cover art and other infos about the media playing.
+ * Fetches all the infos and other metadata associated with a media/track.
  *
+ * MediaInfoFetcher will store all the infos and metadata retrieved inside the MediaInfo data structure.
+ *
+ * MediaInfoFetcher currently use TagLib, MediaInfoLib and Phonon to get the infos and
+ * metadata associated with a media/track.
+ * It works asynchronously: using start() won't block your program and you have to wait for
+ * the fetched() signal.
+ *
+ * One improvement could be to add a backend system, each backend being associated with
+ * one library: TagLib, MediaInfoLib, Phonon...
+ *
+ * @see MediaInfo
  * @author Tanguy Krotoff
  */
 class MEDIAINFOWINDOW_API MediaInfoFetcher : public QObject {
@@ -91,7 +102,7 @@ public:
 	 */
 	void start(Phonon::MediaObject * mediaObject);
 
-	/** Gets the MediaInfo object that contains all the metadata. */
+	/** Gets the MediaInfo object that contains all the infos and metadata. */
 	MediaInfo mediaInfo() const;
 
 signals:

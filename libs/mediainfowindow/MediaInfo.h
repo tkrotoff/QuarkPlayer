@@ -27,11 +27,17 @@
 #include <QtCore/QHash>
 
 /**
- * Media/track info and metadata.
+ * Infos and other metadata associated with a media/track.
+ *
+ * MediaInfo is a "stupid" data structure that stores infos and metadata
+ * associated with a media (e.g a track).
+ * MediaInfo is empty by default and should be used in association with
+ * MediaInfoFetcher that will fetch all the datas and put them into MediaInfo.
  *
  * Each item inside the playlist is a MediaInfo object.
  * Thus MediaInfo should be a simple and lightweight class.
  *
+ * @see MediaInfoFetcher
  * @author Tanguy Krotoff
  */
 class MEDIAINFOWINDOW_API MediaInfo {
