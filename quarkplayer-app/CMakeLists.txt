@@ -33,7 +33,7 @@ set(TS_FILES
 
 #Pretty slow :/
 set(QM_FILES "")
-qt4_create_translation(QM_FILES ${SRCS_TRANSLATIONS} ${TS_FILES})
+#qt4_create_translation(QM_FILES ${SRCS_TRANSLATIONS} ${TS_FILES})
 ##
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)

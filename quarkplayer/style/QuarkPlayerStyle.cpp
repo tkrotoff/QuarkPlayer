@@ -40,6 +40,10 @@ QuarkPlayerStyle::QuarkPlayerStyle() {
 		//If styleName == QUARKPLAYERSTYLE_NAME, then we end up in recursion
 		_systemStyle = QStyleFactory::create(_lastValidSystemStyleName);
 	}
+
+	if (!_systemStyle) {
+		_systemStyle = QStyleFactory::create("windows");
+	}
 }
 
 QuarkPlayerStyle::~QuarkPlayerStyle() {

@@ -22,7 +22,7 @@
 #include <QtGui/QStyle>
 
 /**
- * General Qt style for correcting some bugs or ugly style.
+ * QuarkPlayer Qt style for correcting some bugs or ugly style.
  *
  * - Removes the ugly toolbar bottom line under Windows
  * - Removes the ugly frame/marging around the status bar icons under Windows
@@ -36,6 +36,7 @@ public:
 
 	~QuarkPlayerStyle();
 
+
 	void drawComplexControl(ComplexControl control, const QStyleOptionComplex * option, 
 		QPainter * painter, const QWidget * widget = 0) const {
 		_systemStyle->drawComplexControl(control, option, painter, widget);
@@ -47,7 +48,8 @@ public:
 	void drawPrimitive(PrimitiveElement element, const QStyleOption * option,
 		QPainter * painter, const QWidget * widget = 0) const;
 
-	int styleHint(StyleHint hint, const QStyleOption * option = 0, const QWidget * widget = 0, QStyleHintReturn * returnData = 0) const {
+	int styleHint(StyleHint hint, const QStyleOption * option = 0, const QWidget * widget = 0,
+		QStyleHintReturn * returnData = 0) const {
 		return _systemStyle->styleHint(hint, option, widget, returnData);
 	}
 
@@ -64,7 +66,8 @@ public:
 		return _systemStyle->generatedIconPixmap(iconMode, pixmap, option);
 	}
 
-	SubControl hitTestComplexControl(ComplexControl control, const QStyleOptionComplex * option, const QPoint & position, const QWidget * widget = 0) const {
+	SubControl hitTestComplexControl(ComplexControl control, const QStyleOptionComplex * option,
+		const QPoint & position, const QWidget * widget = 0) const {
 		return _systemStyle->hitTestComplexControl(control, option, position, widget);
 	}
 
@@ -72,7 +75,8 @@ public:
 		return _systemStyle->itemPixmapRect(rectangle, alignment, pixmap);
 	}
 
-	QRect itemTextRect(const QFontMetrics & metrics, const QRect & rectangle, int alignment, bool enabled, const QString & text) const {
+	QRect itemTextRect(const QFontMetrics & metrics, const QRect & rectangle, int alignment,
+		bool enabled, const QString & text) const {
 		return _systemStyle->itemTextRect(metrics, rectangle, alignment, enabled, text);
 	}
 
@@ -92,11 +96,13 @@ public:
 		_systemStyle->polish(palette);
 	}
 
-	QSize sizeFromContents(ContentsType type, const QStyleOption * option, const QSize & contentsSize, const QWidget * widget = 0) const {
+	QSize sizeFromContents(ContentsType type, const QStyleOption * option, const QSize & contentsSize,
+		const QWidget * widget = 0) const {
 		return _systemStyle->sizeFromContents(type, option, contentsSize, widget);
 	}
 
-	QIcon standardIcon(StandardPixmap standardIcon, const QStyleOption * option = 0, const QWidget * widget = 0) const {
+	QIcon standardIcon(StandardPixmap standardIcon, const QStyleOption * option = 0,
+		const QWidget * widget = 0) const {
 		return _systemStyle->standardIcon(standardIcon, option, widget);
 	}
 
@@ -104,11 +110,13 @@ public:
 		return _systemStyle->standardPalette();
 	}
 
-	QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption * option = 0, const QWidget * widget = 0) const {
+	QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption * option = 0,
+		const QWidget * widget = 0) const {
 		return _systemStyle->standardPixmap(standardPixmap, option, widget);
 	}
 
-	QRect subControlRect(ComplexControl control, const QStyleOptionComplex * option, SubControl subControl, const QWidget * widget = 0) const {
+	QRect subControlRect(ComplexControl control, const QStyleOptionComplex * option, SubControl subControl,
+		const QWidget * widget = 0) const {
 		return _systemStyle->subControlRect(control, option, subControl, widget);
 	}
 

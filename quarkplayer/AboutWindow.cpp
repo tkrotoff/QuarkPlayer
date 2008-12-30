@@ -50,26 +50,26 @@ AboutWindow::AboutWindow(QWidget * parent)
 #endif	//MEDIAINFOLIB
 
 	_ui->versionLabel->setText(
-		"Version: " + quarkPlayerFullVersion() + "<br>"
-		"Qt: " + QString(qVersion()) + "<br>"
-		"Phonon: " + QString(Phonon::phononVersion()) + "<br>"
+		"Version: " + quarkPlayerFullVersion()
+		+ "<br>Qt: " + QString(qVersion())
+		+ "<br>Phonon: " + QString(Phonon::phononVersion())
 #ifdef TAGLIB
-		"TagLib: " + QString::number(TAGLIB_MAJOR_VERSION) + "." +
+		+ "<br>TagLib: " + QString::number(TAGLIB_MAJOR_VERSION) + "." +
 			QString::number(TAGLIB_MINOR_VERSION) + "." +
-			QString::number(TAGLIB_PATCH_VERSION) + "<br>"
+			QString::number(TAGLIB_PATCH_VERSION)
 #endif	//TAGLIB
 
 #ifdef MEDIAINFOLIB
-		"MediaInfoLib: " + mediaInfoLibVersion
+		+ "<br>MediaInfoLib: " + mediaInfoLibVersion
 #endif	//MEDIAINFOLIB
 	);
 
 	_ui->metricsLabel->setText(
-		"Pushing intelligence to the edge; KISS Keep It Simple, Stupid; Small is Beautiful!<br>"
-		"QuarkPlayer Core: " + QString::number(QUARKPLAYER_CORE_LOC) + " LOC<br>"
-		"QuarkPlayer Libraries: " + QString::number(QUARKPLAYER_LIBS_LOC) + " LOC<br>"
-		"QuarkPlayer Plugins: " + QString::number(QUARKPLAYER_PLUGINS_LOC) + " LOC<br>"
-		"QuarkPlayer 3rdparty: " + QString::number(QUARKPLAYER_3RDPARTY_LOC) + " LOC"
+		"Pushing intelligence to the edge; KISS Keep It Simple, Stupid; Small is Beautiful!"
+		"<br>QuarkPlayer Core: " + QString::number(QUARKPLAYER_CORE_LOC) + " LOC"
+		"<br>QuarkPlayer Libraries: " + QString::number(QUARKPLAYER_LIBS_LOC) + " LOC"
+		"<br>QuarkPlayer Plugins: " + QString::number(QUARKPLAYER_PLUGINS_LOC) + " LOC"
+		"<br>QuarkPlayer 3rdparty: " + QString::number(QUARKPLAYER_3RDPARTY_LOC) + " LOC"
 	);
 }
 

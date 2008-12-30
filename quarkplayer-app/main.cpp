@@ -20,6 +20,7 @@
 #include <quarkplayer/PluginsManager.h>
 #include <quarkplayer/CommandLineParser.h>
 #include <quarkplayer/config/Config.h>
+#include <quarkplayer/style/QuarkPlayerStyle.h>
 #include <quarkplayer/version.h>
 #include <quarkplayer/config.h>
 
@@ -55,7 +56,7 @@ int main(int argc, char * argv[]) {
 			ki18n("QuarkPlayer, a Phonon media player"),
 			KAboutData::License_GPL,
 			//copyrightStatement
-			ki18n("Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>"),
+			ki18n("Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>"),
 			//text
 			ki18n(""),
 			//homePageAddress
@@ -80,11 +81,9 @@ int main(int argc, char * argv[]) {
 	//Do it now, otherwise organizationName and applicationName are not set
 	Config & config = Config::instance();
 
-#ifdef Q_OS_WIN
 	//By default QuarkPlayerStyle: specific style for QuarkPlayer
 	//Fix some ugly things under Windows XP
 	app.setStyle(QStyleFactory::create(Config::instance().style()));
-#endif	//Q_OS_WIN
 
 	//Translator
 	Translator::instance().load(config.language());
