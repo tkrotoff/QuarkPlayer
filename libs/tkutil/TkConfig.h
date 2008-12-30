@@ -76,6 +76,8 @@ public:
 
 	void addKey(const QString & key, const QVariant & defaultValue);
 
+	QSettings & settings();
+
 signals:
 
 	void valueChanged(const QString & key, const QVariant & value);

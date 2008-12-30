@@ -112,3 +112,7 @@ void TkConfig::addKey(const QString & key, const QVariant & defaultValue) {
 
 	_defaultValues[key] = defaultValue;
 }
+
+QSettings & TkConfig::settings() {
+	return _settings;
+}
