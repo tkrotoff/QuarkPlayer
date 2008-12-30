@@ -18,13 +18,13 @@
 
 #include "ShortcutsFileParser.h"
 
-#include "ShortcutConfigWidget.h"
+#include "ShortcutsConfigWidget.h"
 
 #include <QtGui/QAction>
 
-#include <QtCore/QFile>
-
 #include <QtXml/QDomDocument>
+
+#include <QtCore/QFile>
 
 ShortcutsFileParser::ShortcutsFileParser(const QString & fileName)
 	: _fileName(fileName) {
@@ -47,14 +47,14 @@ QMap<QString, QKeySequence> ShortcutsFileParser::load() const {
 	}
 
 	QDomElement root = doc.documentElement();
-	if (root.nodeName() != QLatin1String("mapping")) {
+	if (root.nodeName() != "mapping") {
 		return result;
 	}
 
 	QDomElement ks = root.firstChildElement();
 	for (; !ks.isNull(); ks = ks.nextSiblingElement()) {
-		if (ks.nodeName() == QLatin1String("shortcut")) {
-			QString id = ks.attribute(QLatin1String("id"));
+		if (ks.nodeName() == "shortcut") {
+			QString id = ks.attribute("id");
 			QKeySequence shortcutKey;
 			QDomElement keyElem = ks.firstChildElement("key");
 			if (!keyElem.isNull()) {
@@ -81,11 +81,11 @@ bool ShortcutsFileParser::save(const QList<ShortcutItem *> & shortcutItems) {
 	for (int i = 0; i < shortcutItems.count(); ++i) {
 		ShortcutItem * shortcutItem = shortcutItems.at(i);
 		QDomElement ctag = doc.createElement("shortcut");
-		ctag.setAttribute(QLatin1String("id"), shortcutItem->action->objectName());
+		ctag.setAttribute("id", shortcutItem->action->objectName());
 		root.appendChild(ctag);
 
 		QDomElement ktag = doc.createElement("key");
-		ktag.setAttribute(QLatin1String("value"), ShortcutConfigWidget::toString(shortcutItem->shortcuts));
+		ktag.setAttribute("value", ShortcutsConfigWidget::toString(shortcutItem->shortcuts));
 		ctag.appendChild(ktag);
 	}
 

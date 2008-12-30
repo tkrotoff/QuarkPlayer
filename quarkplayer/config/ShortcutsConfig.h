@@ -16,39 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SHORTCUTSFILEPARSER_H
-#define SHORTCUTSFILEPARSER_H
+#ifndef SHORTCUTSCONFIG_H
+#define SHORTCUTSCONFIG_H
 
-#include <QtCore/QString>
-#include <QtCore/QMap>
-#include <QtCore/QList>
+#include <tkutil/Singleton.h>
 
-#include <QtGui/QKeySequence>
-
-struct ShortcutItem;
+class QAction;
+class QString;
 
 /**
- * Saves/loads a list of shortcuts to/from a given file.
+ * Load and save QuarkPlayer shortcuts configuration using QSettings.
  *
- * Use the same XML format from QtCreator-0.9.2 beta
- * Code taken/inspired by QtCreator-0.9.2 beta file coreplugin/actionmanager/actionmanager.cpp
- *
+ * @see Config
  * @author Tanguy Krotoff
  */
-class ShortcutsFileParser {
+class ShortcutsConfig : public Singleton<ShortcutsConfig> {
+	friend class Singleton<ShortcutsConfig>;
 public:
 
-	ShortcutsFileParser(const QString & fileName);
+	void load() const;
 
-	~ShortcutsFileParser();
-
-	QMap<QString, QKeySequence> load() const;
-
-	bool save(const QList<ShortcutItem *> & shortcutItems);
+	void save();
 
 private:
 
-	QString _fileName;
+	QAction * findAction(const QString & name) const;
+
+	ShortcutsConfig();
+
+	~ShortcutsConfig();
 };
 
-#endif	//SHORTCUTSFILEPARSER_H
+#endif	//SHORTCUTSCONFIG_H

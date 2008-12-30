@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ShortcutConfigWidget.h"
+#include "ShortcutsConfigWidget.h"
 
-#include "ui_ShortcutConfigWidget.h"
+#include "ui_ShortcutsConfigWidget.h"
 
 #include "ShortcutsFileParser.h"
 
@@ -39,10 +39,10 @@ static const int COLUMN_ACTION = 0;
 static const int COLUMN_LABEL = 1;
 static const int COLUMN_SHORTCUT = 2;
 
-ShortcutConfigWidget::ShortcutConfigWidget() {
+ShortcutsConfigWidget::ShortcutsConfigWidget() {
 	_keyNum = _key[0] = _key[1] = _key[2] = _key[3] = 0;
 
-	_ui = new Ui::ShortcutConfigWidget();
+	_ui = new Ui::ShortcutsConfigWidget();
 	_ui->setupUi(this);
 
 	connect(_ui->resetButton, SIGNAL(clicked()), SLOT(resetShortcuts()));
@@ -70,7 +70,7 @@ ShortcutConfigWidget::ShortcutConfigWidget() {
 	retranslate();
 }
 
-ShortcutConfigWidget::~ShortcutConfigWidget() {
+ShortcutsConfigWidget::~ShortcutsConfigWidget() {
 	delete _ui;
 
 	qDeleteAll(_shortcutItems);
@@ -78,15 +78,15 @@ ShortcutConfigWidget::~ShortcutConfigWidget() {
 	_ui->actionList->clear();
 }
 
-QString ShortcutConfigWidget::name() const {
+QString ShortcutsConfigWidget::name() const {
 	return tr("Shortcuts");
 }
 
-QString ShortcutConfigWidget::iconName() const {
+QString ShortcutsConfigWidget::iconName() const {
 	return "preferences-desktop-keyboard";
 }
 
-void ShortcutConfigWidget::saveConfig() {
+void ShortcutsConfigWidget::saveConfig() {
 	foreach (ShortcutItem * shortcutItem, _shortcutItems) {
 		shortcutItem->action->setShortcuts(shortcutItem->shortcuts);
 	}
@@ -96,7 +96,7 @@ void ShortcutConfigWidget::saveConfig() {
 	_ui->actionList->clear();
 }
 
-void ShortcutConfigWidget::readConfig() {
+void ShortcutsConfigWidget::readConfig() {
 	qDeleteAll(_shortcutItems);
 	_shortcutItems.clear();
 	_ui->actionList->clear();
@@ -126,14 +126,14 @@ void ShortcutConfigWidget::readConfig() {
 	}
 }
 
-void ShortcutConfigWidget::retranslate() {
+void ShortcutsConfigWidget::retranslate() {
 	_ui->retranslateUi(this);
 
 	_ui->resetButton->setIcon(TkIcon("edit-undo"));
 	_ui->removeButton->setIcon(TkIcon("edit-delete"));
 }
 
-bool ShortcutConfigWidget::eventFilter(QObject * object, QEvent * event) {
+bool ShortcutsConfigWidget::eventFilter(QObject * object, QEvent * event) {
 	Q_UNUSED(object);
 
 	if (event->type() == QEvent::KeyPress) {
@@ -151,7 +151,7 @@ bool ShortcutConfigWidget::eventFilter(QObject * object, QEvent * event) {
 	return false;
 }
 
-void ShortcutConfigWidget::actionChanged(QTreeWidgetItem * currentItem) {
+void ShortcutsConfigWidget::actionChanged(QTreeWidgetItem * currentItem) {
 	if (!currentItem || !currentItem->data(COLUMN_ACTION, Qt::UserRole).isValid()) {
 		_ui->shortcutEdit->setText(QString());
 		_ui->keyGroupBox->setEnabled(false);
@@ -162,14 +162,14 @@ void ShortcutConfigWidget::actionChanged(QTreeWidgetItem * currentItem) {
 	setShortcuts(shortcutItem->shortcuts);
 }
 
-void ShortcutConfigWidget::filterChanged(const QString & filterText) {
+void ShortcutsConfigWidget::filterChanged(const QString & filterText) {
 	for (int i = 0; i < _ui->actionList->topLevelItemCount(); ++i) {
 		QTreeWidgetItem * item = _ui->actionList->topLevelItem(i);
 		item->setHidden(filter(filterText, item));
 	}
 }
 
-void ShortcutConfigWidget::shortcutChanged() {
+void ShortcutsConfigWidget::shortcutChanged() {
 	QTreeWidgetItem * currentItem = _ui->actionList->currentItem();
 	if (currentItem && currentItem->data(COLUMN_ACTION, Qt::UserRole).isValid()) {
 		ShortcutItem * shortcutItem = qVariantValue<ShortcutItem *>(currentItem->data(COLUMN_ACTION, Qt::UserRole));
@@ -183,7 +183,7 @@ void ShortcutConfigWidget::shortcutChanged() {
 	}
 }
 
-void ShortcutConfigWidget::setShortcuts(const QList<QKeySequence> & shortcuts) {
+void ShortcutsConfigWidget::setShortcuts(const QList<QKeySequence> & shortcuts) {
 	_keyNum = _key[0] = _key[1] = _key[2] = _key[3] = 0;
 	_keyNum = shortcuts.count();
 	for (int i = 0; i < _keyNum; ++i) {
@@ -192,7 +192,7 @@ void ShortcutConfigWidget::setShortcuts(const QList<QKeySequence> & shortcuts) {
 	_ui->shortcutEdit->setText(toString(shortcuts));
 }
 
-bool ShortcutConfigWidget::filter(const QString & filterText, const QTreeWidgetItem * item) {
+bool ShortcutsConfigWidget::filter(const QString & filterText, const QTreeWidgetItem * item) {
 	if (item->childCount() == 0) {
 		if (filterText.isEmpty()) {
 			return false;
@@ -218,7 +218,7 @@ bool ShortcutConfigWidget::filter(const QString & filterText, const QTreeWidgetI
 	return !found;
 }
 
-void ShortcutConfigWidget::resetShortcuts() {
+void ShortcutsConfigWidget::resetShortcuts() {
 	QTreeWidgetItem * currentItem = _ui->actionList->currentItem();
 	if (currentItem && currentItem->data(COLUMN_ACTION, Qt::UserRole).isValid()) {
 		ShortcutItem * shortcutItem = qVariantValue<ShortcutItem *>(currentItem->data(COLUMN_ACTION, Qt::UserRole));
@@ -229,12 +229,12 @@ void ShortcutConfigWidget::resetShortcuts() {
 	}
 }
 
-void ShortcutConfigWidget::removeShortcuts() {
+void ShortcutsConfigWidget::removeShortcuts() {
 	_keyNum = _key[0] = _key[1] = _key[2] = _key[3] = 0;
 	_ui->shortcutEdit->clear();
 }
 
-void ShortcutConfigWidget::loadShortcuts() {
+void ShortcutsConfigWidget::loadShortcuts() {
 	QString fileName = TkFileDialog::getOpenFileName(this, tr("Load Keyboard Mapping Scheme"),
 		Config::instance().resourceDir() + "/schemes/",
 		tr("Keyboard Mapping Scheme (*.kms)")
@@ -257,7 +257,7 @@ void ShortcutConfigWidget::loadShortcuts() {
 	}
 }
 
-void ShortcutConfigWidget::saveShortcuts() {
+void ShortcutsConfigWidget::saveShortcuts() {
 	QString fileName = TkFileDialog::getSaveFileName(this, tr("Save Keyboard Mapping Scheme"),
 		Config::instance().resourceDir() + "/schemes/",
 		tr("Keyboard Mapping Scheme (*.kms)")
@@ -269,7 +269,7 @@ void ShortcutConfigWidget::saveShortcuts() {
 	}
 }
 
-void ShortcutConfigWidget::revertShortcutsToDefault() {
+void ShortcutsConfigWidget::revertShortcutsToDefault() {
 	foreach (ShortcutItem * shortcutItem, _shortcutItems) {
 		TkAction * action = qobject_cast<TkAction *>(shortcutItem->action);
 		if (action) {
@@ -282,7 +282,7 @@ void ShortcutConfigWidget::revertShortcutsToDefault() {
 	}
 }
 
-void ShortcutConfigWidget::handleKeyEvent(QKeyEvent * event) {
+void ShortcutsConfigWidget::handleKeyEvent(QKeyEvent * event) {
 	int nextKey = event->key();
 	if (_keyNum > 3 ||
 		nextKey == Qt::Key_Control ||
@@ -321,7 +321,7 @@ void ShortcutConfigWidget::handleKeyEvent(QKeyEvent * event) {
 	event->accept();
 }
 
-int ShortcutConfigWidget::translateModifiers(Qt::KeyboardModifiers state, const QString & text) {
+int ShortcutsConfigWidget::translateModifiers(Qt::KeyboardModifiers state, const QString & text) {
 	int result = 0;
 
 	//The shift modifier only counts when it is not used to type a symbol
@@ -346,7 +346,7 @@ int ShortcutConfigWidget::translateModifiers(Qt::KeyboardModifiers state, const 
 	return result;
 }
 
-QString ShortcutConfigWidget::toString(const QList<QKeySequence> & shortcuts) {
+QString ShortcutsConfigWidget::toString(const QList<QKeySequence> & shortcuts) {
 	QStringList strList;
 	foreach (QKeySequence shortcut, shortcuts) {
 		QString tmp = shortcut;
@@ -357,7 +357,7 @@ QString ShortcutConfigWidget::toString(const QList<QKeySequence> & shortcuts) {
 	return strList.join(", ");
 }
 
-QList<QKeySequence> ShortcutConfigWidget::fromString(const QString & shortcuts) {
+QList<QKeySequence> ShortcutsConfigWidget::fromString(const QString & shortcuts) {
 	QList<QKeySequence> shortcutList;
 	QStringList strList = shortcuts.split(", ");
 	foreach (QString str, strList) {

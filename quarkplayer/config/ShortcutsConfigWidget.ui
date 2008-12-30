@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>ShortcutConfigWidget</class>
- <widget class="QWidget" name="ShortcutConfigWidget" >
+ <class>ShortcutsConfigWidget</class>
+ <widget class="QWidget" name="ShortcutsConfigWidget" >
   <property name="geometry" >
    <rect>
     <x>0</x>

@@ -22,9 +22,11 @@
 #include "AboutWindow.h"
 #include "config/Config.h"
 #include "config/ConfigWindow.h"
+#include "config/ShortcutsConfig.h"
 #include "version.h"
 
 #include <tkutil/ActionCollection.h>
+#include <tkutil/TkAction.h>
 #include <tkutil/TkIcon.h>
 #include <tkutil/TkFile.h>
 #include <tkutil/TkFileDialog.h>
@@ -62,10 +64,10 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * 
 	_statusBar = NULL;
 	_configWindow = NULL;
 
-	connect(ActionCollection::action("MainWindow.PlayFile"), SIGNAL(triggered()), SLOT(playFile()));
-	connect(ActionCollection::action("MainWindow.PlayDVD"), SIGNAL(triggered()), SLOT(playDVD()));
-	connect(ActionCollection::action("MainWindow.PlayURL"), SIGNAL(triggered()), SLOT(playURL()));
-	connect(ActionCollection::action("MainWindow.PlayVCD"), SIGNAL(triggered()), SLOT(playVCD()));
+	connect(ActionCollection::action("MainWindow.OpenFile"), SIGNAL(triggered()), SLOT(playFile()));
+	connect(ActionCollection::action("MainWindow.OpenDVD"), SIGNAL(triggered()), SLOT(playDVD()));
+	connect(ActionCollection::action("MainWindow.OpenURL"), SIGNAL(triggered()), SLOT(playURL()));
+	connect(ActionCollection::action("MainWindow.OpenVCD"), SIGNAL(triggered()), SLOT(playVCD()));
 	connect(ActionCollection::action("MainWindow.NewMediaObject"), SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
 	connect(ActionCollection::action("MainWindow.Configure"), SIGNAL(triggered()), SLOT(showConfigWindow()));
 	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), SLOT(close()));
@@ -83,6 +85,8 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * 
 
 	RETRANSLATE(this);
 	retranslate();
+
+	loadSettings();
 }
 
 MainWindow::~MainWindow() {
@@ -281,24 +285,25 @@ void MainWindow::about() {
 void MainWindow::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
-	ActionCollection::addAction("MainWindow.PlayFile", new QAction(app));
-	ActionCollection::addAction("MainWindow.Quit", new QAction(app));
+	ActionCollection::addAction("MainWindow.OpenFile", new TkAction(app, QKeySequence::Open));
+	ActionCollection::addAction("MainWindow.Quit", new TkAction(app, tr("Ctrl+Q"), tr("Alt+X")));
 	ActionCollection::addAction("MainWindow.ReportBug", new QAction(app));
-	ActionCollection::addAction("MainWindow.About", new QAction(app));
+	ActionCollection::addAction("MainWindow.About", new TkAction(app, tr("Ctrl+F1")));
 	ActionCollection::addAction("MainWindow.AboutQt", new QAction(app));
-	ActionCollection::addAction("MainWindow.PlayDVD", new QAction(app));
-	ActionCollection::addAction("MainWindow.PlayURL", new QAction(app));
-	ActionCollection::addAction("MainWindow.PlayVCD", new QAction(app));
+	ActionCollection::addAction("MainWindow.OpenDVD", new TkAction(app, tr("Ctrl+D")));
+	ActionCollection::addAction("MainWindow.OpenURL", new TkAction(app, tr("Ctrl+U")));
+	ActionCollection::addAction("MainWindow.OpenVCD", new QAction(app));
 	ActionCollection::addAction("MainWindow.NewMediaObject", new QAction(app));
-	ActionCollection::addAction("MainWindow.Equalizer", new QAction(app));
+	ActionCollection::addAction("MainWindow.Equalizer", new TkAction(app, tr("Ctrl+E")));
 	ActionCollection::addAction("MainWindow.Configure", new QAction(app));
 	ActionCollection::addAction("MainWindow.ClearRecentFiles", new QAction(app));
 	ActionCollection::addAction("MainWindow.EmptyMenu", new QAction(app));
 
-	ActionCollection::addAction("MainWindow.PreviousTrack", new QAction(app));
-	ActionCollection::addAction("MainWindow.PlayPause", new QAction(app));
-	ActionCollection::addAction("MainWindow.Stop", new QAction(app));
-	ActionCollection::addAction("MainWindow.NextTrack", new QAction(app));
+	ActionCollection::addAction("MainWindow.PlayPause", new TkAction(app, tr("Space"), Qt::Key_MediaPlay));
+	ActionCollection::addAction("MainWindow.Stop", new TkAction(app, Qt::Key_MediaStop));
+
+	ActionCollection::addAction("MainWindow.NextTrack", new TkAction(app, tr("N"), tr(">"), Qt::Key_MediaNext));
+	ActionCollection::addAction("MainWindow.PreviousTrack", new TkAction(app, tr("P"), tr("<"), Qt::Key_MediaPrevious));
 
 	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
 	//Need to implement a full plugin system like Qt Creator has
@@ -308,7 +313,7 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("MainWindow.UploadSubtitles", new QAction(app));
 	///
 
-	QAction * action = new QAction(app);
+	TkAction * action = new TkAction(app, tr("F"), tr("Alt+Enter"));
 	action->setCheckable(true);
 	ActionCollection::addAction("MainWindow.FullScreen", action);
 }
@@ -319,12 +324,12 @@ void MainWindow::setupUi() {
 
 	_menuFile = new QMenu();
 	menuBar()->addAction(_menuFile->menuAction());
-	_menuFile->addAction(ActionCollection::action("MainWindow.PlayFile"));
+	_menuFile->addAction(ActionCollection::action("MainWindow.OpenFile"));
 	_menuRecentFiles = new QMenu();
 	_menuFile->addAction(_menuRecentFiles->menuAction());
-	_menuFile->addAction(ActionCollection::action("MainWindow.PlayDVD"));
-	_menuFile->addAction(ActionCollection::action("MainWindow.PlayURL"));
-	_menuFile->addAction(ActionCollection::action("MainWindow.PlayVCD"));
+	_menuFile->addAction(ActionCollection::action("MainWindow.OpenDVD"));
+	_menuFile->addAction(ActionCollection::action("MainWindow.OpenURL"));
+	_menuFile->addAction(ActionCollection::action("MainWindow.OpenVCD"));
 	_menuFile->addSeparator();
 	_menuFile->addAction(ActionCollection::action("MainWindow.Quit"));
 
@@ -354,9 +359,9 @@ void MainWindow::setupUi() {
 	_mainToolBar = new TkToolBar(this);
 	//_mainToolBar->setIconSize(QSize(16, 16));
 
-	_mainToolBar->addAction(ActionCollection::action("MainWindow.PlayFile"));
-	_mainToolBar->addAction(ActionCollection::action("MainWindow.PlayDVD"));
-	_mainToolBar->addAction(ActionCollection::action("MainWindow.PlayURL"));
+	_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenFile"));
+	_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenDVD"));
+	_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenURL"));
 	_mainToolBar->addSeparator();
 	_mainToolBar->addAction(ActionCollection::action("MainWindow.Equalizer"));
 	_mainToolBar->addAction(ActionCollection::action("MainWindow.Configure"));
@@ -367,8 +372,8 @@ void MainWindow::retranslate() {
 	updateWindowTitle();
 	setWindowIcon(QIcon(":/icons/hi16-app-quarkplayer.png"));
 
-	ActionCollection::action("MainWindow.PlayFile")->setText(tr("Play &File..."));
-	ActionCollection::action("MainWindow.PlayFile")->setIcon(TkIcon("document-open"));
+	ActionCollection::action("MainWindow.OpenFile")->setText(tr("Play &File..."));
+	ActionCollection::action("MainWindow.OpenFile")->setIcon(TkIcon("document-open"));
 
 	ActionCollection::action("MainWindow.Quit")->setText(tr("&Quit"));
 	ActionCollection::action("MainWindow.Quit")->setIcon(TkIcon("application-exit"));
@@ -382,14 +387,14 @@ void MainWindow::retranslate() {
 	ActionCollection::action("MainWindow.AboutQt")->setText(tr("About &Qt"));
 	ActionCollection::action("MainWindow.AboutQt")->setIcon(TkIcon("help-about"));
 
-	ActionCollection::action("MainWindow.PlayDVD")->setText(tr("Play &DVD..."));
-	ActionCollection::action("MainWindow.PlayDVD")->setIcon(TkIcon("media-optical"));
+	ActionCollection::action("MainWindow.OpenDVD")->setText(tr("Play &DVD..."));
+	ActionCollection::action("MainWindow.OpenDVD")->setIcon(TkIcon("media-optical"));
 
-	ActionCollection::action("MainWindow.PlayURL")->setText(tr("Play &URL..."));
-	ActionCollection::action("MainWindow.PlayURL")->setIcon(TkIcon("document-open-remote"));
+	ActionCollection::action("MainWindow.OpenURL")->setText(tr("Play &URL..."));
+	ActionCollection::action("MainWindow.OpenURL")->setIcon(TkIcon("document-open-remote"));
 
-	ActionCollection::action("MainWindow.PlayVCD")->setText(tr("Play &VCD..."));
-	//ActionCollection::action("MainWindow.PlayVCD")->setIcon(TkIcon("media-optical"));
+	ActionCollection::action("MainWindow.OpenVCD")->setText(tr("Play &VCD..."));
+	//ActionCollection::action("MainWindow.OpenVCD")->setIcon(TkIcon("media-optical"));
 
 	ActionCollection::action("MainWindow.NewMediaObject")->setText(tr("New Media Window"));
 	ActionCollection::action("MainWindow.NewMediaObject")->setIcon(TkIcon("window-new"));
@@ -508,8 +513,12 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 
 	TkMainWindow::closeEvent(event);
 
+	saveSettings();
+
+	event->accept();
+
 	//Quits the application
-	QCoreApplication::quit();
+	//QCoreApplication::quit();
 
 	//FIXME we should only use QCoreApplication::quit()
 	//exit(EXIT_SUCCESS);
@@ -565,4 +574,12 @@ void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 
 	disconnect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
 	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
+}
+
+void MainWindow::loadSettings() {
+	ShortcutsConfig::instance().load();
+}
+
+void MainWindow::saveSettings() {
+	ShortcutsConfig::instance().save();
 }

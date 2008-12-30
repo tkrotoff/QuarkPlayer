@@ -187,6 +187,10 @@ private:
 
 	void closeEvent(QCloseEvent * event);
 
+	void loadSettings();
+
+	void saveSettings();
+
 	TkToolBar * _mainToolBar;
 	QMenu * _menuRecentFiles;
 	QMenu * _menuFile;

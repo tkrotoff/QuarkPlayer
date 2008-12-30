@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SHORTCUTCONFIGWIDGET_H
-#define SHORTCUTCONFIGWIDGET_H
+#ifndef SHORTCUTSCONFIGWIDGET_H
+#define SHORTCUTSCONFIGWIDGET_H
 
 #include "IConfigWidget.h"
 
 #include <QtCore/QString>
 
-namespace Ui { class ShortcutConfigWidget; }
+namespace Ui { class ShortcutsConfigWidget; }
 
 class QTreeWidgetItem;
 
@@ -40,13 +40,13 @@ struct ShortcutItem {
  *
  * @author Tanguy Krotoff
  */
-class ShortcutConfigWidget : public IConfigWidget {
+class ShortcutsConfigWidget : public IConfigWidget {
 	Q_OBJECT
 public:
 
-	ShortcutConfigWidget();
+	ShortcutsConfigWidget();
 
-	~ShortcutConfigWidget();
+	~ShortcutsConfigWidget();
 
 	QString name() const;
 
@@ -95,7 +95,7 @@ private:
 	int _key[4];
 	int _keyNum;
 
-	Ui::ShortcutConfigWidget * _ui;
+	Ui::ShortcutsConfigWidget * _ui;
 };
 
-#endif	//SHORTCUTCONFIGWIDGET_H
+#endif	//SHORTCUTSCONFIGWIDGET_H

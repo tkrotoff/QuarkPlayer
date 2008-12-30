@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>158</width>
+    <width>321</width>
     <height>100</height>
    </rect>
   </property>
@@ -42,19 +42,6 @@
       <number>0</number>
      </property>
     </layout>
-   </item>
-   <item row="0" column="2" >
-    <spacer name="horizontalSpacer" >
-     <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0" >
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

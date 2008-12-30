@@ -197,7 +197,7 @@ void PluginsManager::updatePluginData(const PluginData & pluginData) {
 	_plugins += pluginData;
 
 	if (_allPluginsAlreadyLoaded) {
-		//Optimization: save the plugin list only is loading is finished
+		//Optimization: save the plugin list only if loading is finished
 		//this means we save only modifications made by the user
 		//when dealing with the configuration panel
 		PluginsConfig::instance().setPlugins(_plugins);

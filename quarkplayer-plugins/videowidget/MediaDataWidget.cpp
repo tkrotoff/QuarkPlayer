@@ -25,6 +25,7 @@
 #include <tkutil/TkFile.h>
 #include <tkutil/MouseEventFilter.h>
 #include <tkutil/LanguageChangeEventFilter.h>
+#include <tkutil/SqueezeLabel.h>
 
 #include <mediainfowindow/MediaInfoWindow.h>
 #include <mediainfowindow/MediaInfoFetcher.h>
@@ -142,50 +143,51 @@ void MediaDataWidget::updateMediaInfo() {
 			delete item;
 		}
 	}
+	///
 
 	if (!title.isEmpty()) {
-		_ui->formLayout->addRow(tr("Title:"), new QLabel(font + title + endfont));
+		_ui->formLayout->addRow(tr("Title:"), new SqueezeLabel(font + title + endfont));
 	} else if (!filename.isEmpty()) {
 		if (mediaInfo.isUrl()) {
-			_ui->formLayout->addRow(tr("URL:"), new QLabel(font + filename + endfont));
+			_ui->formLayout->addRow(tr("URL:"), new SqueezeLabel(font + filename + endfont));
 		} else {
 			//Not the fullpath, only the filename + parent directory name
 			QString tmp(TkFile::dir(filename) + "/");
 			tmp += TkFile::removeFileExtension(TkFile::fileName(filename));
-			_ui->formLayout->addRow(tr("File:"), new QLabel(font + tmp + endfont));
+			_ui->formLayout->addRow(tr("File:"), new SqueezeLabel(font + tmp + endfont));
 		}
 	}
 
 	if (!artist.isEmpty()) {
-		_ui->formLayout->addRow(tr("Artist:"), new QLabel(font + artist + endfont));
+		_ui->formLayout->addRow(tr("Artist:"), new SqueezeLabel(font + artist + endfont));
 	}
 
 	if (!album.isEmpty()) {
-		_ui->formLayout->addRow(tr("Album:"), new QLabel(font + album + endfont));
+		_ui->formLayout->addRow(tr("Album:"), new SqueezeLabel(font + album + endfont));
 	}
 
 	if (!streamName.isEmpty()) {
-		_ui->formLayout->addRow(tr("Stream Name:"), new QLabel(font + streamName + endfont));
+		_ui->formLayout->addRow(tr("Stream Name:"), new SqueezeLabel(font + streamName + endfont));
 	}
 
 	if (!streamGenre.isEmpty()) {
-		_ui->formLayout->addRow(tr("Stream Genre:"), new QLabel(font + streamGenre + endfont));
+		_ui->formLayout->addRow(tr("Stream Genre:"), new SqueezeLabel(font + streamGenre + endfont));
 	}
 
 	if (!streamWebsite.isEmpty()) {
-		QLabel * label = new QLabel(href + streamWebsite + endhref1 + font + streamWebsite + endfont + endhref2);
+		QLabel * label = new SqueezeLabel(href + streamWebsite + endhref1 + font + streamWebsite + endfont + endhref2);
 		label->setOpenExternalLinks(true);
 		_ui->formLayout->addRow(tr("Stream Website:"), label);
 	}
 
 	if (!streamUrl.isEmpty()) {
-		QLabel * label = new QLabel(href + streamUrl + endhref1 + font + streamUrl + endfont + endhref2);
+		QLabel * label = new SqueezeLabel(href + streamUrl + endhref1 + font + streamUrl + endfont + endhref2);
 		label->setOpenExternalLinks(true);
 		_ui->formLayout->addRow(tr("URL:"), label);
 	}
 
 	if (bitrate != 0) {
-		_ui->formLayout->addRow(tr("Bitrate:"), new QLabel(font + bitrate + " " + tr("kbps") + endfont));
+		_ui->formLayout->addRow(tr("Bitrate:"), new SqueezeLabel(font + bitrate + " " + tr("kbps") + endfont));
 	}
 }
 

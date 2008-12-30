@@ -56,7 +56,7 @@ public:
 
 	static void deleteInstance() {
 		delete _instance;
-		_instance = NULL;
+		_instance = 0;
 	}
 
 protected:
@@ -73,6 +73,6 @@ private:
 	static T * _instance;
 };
 
-template<typename T> T * Singleton<T>::_instance = NULL;
+template<typename T> T * Singleton<T>::_instance = 0;
 
 #endif	//SINGLETON_H

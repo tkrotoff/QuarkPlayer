@@ -38,8 +38,9 @@ set(quarkplayercore_SRCS
 	config/PluginsConfigWidget.cpp
 	config/WinFileAssociationsConfigWidget.cpp
 	config/PlaylistConfig.cpp
-	config/ShortcutConfigWidget.cpp
+	config/ShortcutsConfigWidget.cpp
 	config/ShortcutsFileParser.cpp
+	config/ShortcutsConfig.cpp
 )
 
 qt4_wrap_cpp(quarkplayercore_SRCS
@@ -56,7 +57,8 @@ qt4_wrap_cpp(quarkplayercore_SRCS
 	config/PluginsConfigWidget.h
 	config/WinFileAssociationsConfigWidget.h
 	config/PlaylistConfig.h
-	config/ShortcutConfigWidget.h
+	config/ShortcutsConfigWidget.h
+	config/ShortcutsConfig.h
 )
 
 qt4_wrap_ui(quarkplayercore_SRCS
@@ -67,7 +69,7 @@ qt4_wrap_ui(quarkplayercore_SRCS
 	config/BackendCapabilitiesWidget.ui
 	config/PluginsConfigWidget.ui
 	config/WinFileAssociationsConfigWidget.ui
-	config/ShortcutConfigWidget.ui
+	config/ShortcutsConfigWidget.ui
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 

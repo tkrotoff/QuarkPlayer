@@ -29,6 +29,7 @@ set(tkutil_SRCS
 	SearchLineEdit.cpp
 	LineEdit.cpp
 	TkAction.cpp
+	SqueezeLabel.cpp
 )
 
 qt4_wrap_cpp(tkutil_SRCS
