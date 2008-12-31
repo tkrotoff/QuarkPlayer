@@ -1,0 +1,14 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+	<file>images/dvd.png</file>
+	<file>images/addplay.png</file>
+	<file>images/play.png</file>
+	<file>images/stop.png</file>
+	<file>images/pause.png</file>
+	<file>images/volume.png</file>
+	<file>images/fullscreen.png</file>
+	<file>images/qt.png</file>
+	<file>images/exit.png</file>
+	<file>images/plus.png</file>
+</qresource>
+</RCC>

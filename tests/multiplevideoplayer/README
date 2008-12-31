@@ -1,0 +1,4 @@
+MultipleVideoPlayer example based on Qt musicplayer example.
+See QTDIR/examples/phonon/musicplayer for the original code.
+
+MultipleVideoPlayer allows to play several audio/video files at the same time.

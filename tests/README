@@ -1,0 +1,7 @@
+This directory contains test applications for Phonon.
+ * mediaplayer: mediaplayer demo taken from Qt-4.4 source code from Trolltech
+ * multiplevideoplayer: allows to play several video/audio files at the same time
+ * videoplayer: inspired from the musicplayer example from Qt-4.4 source code from Trolltech
+ * capabilities: capabilities example taken from Qt-4.4 source code from Trolltech
+
+This allows to test phonon-mplayer.

@@ -1,0 +1,2 @@
+VideoPlayer example based on Qt musicplayer example.
+See QTDIR/examples/phonon/musicplayer for the original code.
