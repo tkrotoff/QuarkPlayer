@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,6 +26,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
+
 #include <QtCore/QtDebug>
 
 namespace Phonon
@@ -57,7 +58,7 @@ void VideoWidget::connectToMediaObject(MediaObject * mediaObject) {
 	connect(process, SIGNAL(videoWidgetSizeChanged(int, int)),
 		SLOT(videoWidgetSizeChanged(int, int)));
 
-	_mediaObject->setVideoWidgetId((int) _videoWidget->winId());
+	_mediaObject->setVideoWidgetId(_videoWidget->winId());
 }
 
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const {
@@ -182,15 +183,23 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height) {
 	QSize videoSize(width, height);
 	videoSize.boundedTo(QApplication::desktop()->availableGeometry().size());
 
-//	_videoWidget->hide();
+	_videoWidget->hide();
 	_videoWidget->setVideoSize(videoSize);
+
 #ifdef Q_OS_WIN
-//	QSize previousSize = parent->minimumSize();
-//	parent->setMinimumSize(videoSize);
+	QSize previousSize;
+	if (parent) {
+		previousSize = parent->minimumSize();
+		parent->setMinimumSize(videoSize);
+	}
 #endif	//Q_OS_WIN
-//	_videoWidget->show();
+
+	_videoWidget->show();
+
 #ifdef Q_OS_WIN
-//	parent->setMinimumSize(previousSize);
+	if (parent) {
+		parent->setMinimumSize(previousSize);
+	}
 #endif	//Q_OS_WIN
 	///
 }

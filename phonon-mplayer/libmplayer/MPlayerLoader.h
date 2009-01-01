@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,6 +18,9 @@
 
 #ifndef MPLAYERLOADER_H
 #define MPLAYERLOADER_H
+
+//For WId
+#include <QtGui/QWidget>
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
@@ -69,7 +72,7 @@ public:
 	 * @param filename media to play
 	 * @param videoWidgetId QWidget ID where the video (if any) will be played
 	 */
-	static void start(MPlayerProcess * process, const QString & filename, int videoWidgetId);
+	static void start(MPlayerProcess * process, const QString & filename, WId videoWidgetId);
 
 	/**
 	 * Restarts/replays a media given its MPlayerProcess.
@@ -99,7 +102,7 @@ private:
 	static QStringList readMediaSettings();
 
 	/** Code factorization. */
-	static void start(MPlayerProcess * process, const QStringList & arguments, const QString & filename, int videoWidgetId, qint64 seek);
+	static void start(MPlayerProcess * process, const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek);
 };
 
 #endif	//MPLAYERLOADER_H

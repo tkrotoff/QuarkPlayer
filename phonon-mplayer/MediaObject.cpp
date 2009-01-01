@@ -94,7 +94,7 @@ MPlayerProcess * MediaObject::getMPlayerProcess() const {
 	return _process;
 }
 
-void MediaObject::setVideoWidgetId(int videoWidgetId) {
+void MediaObject::setVideoWidgetId(WId videoWidgetId) {
 	_videoWidgetId = videoWidgetId;
 }
 
@@ -478,7 +478,10 @@ void MediaObject::stateChangedInternal(Phonon::State newState, Phonon::State old
 
 		//HACK Bug inside MPlayer, the previous volume is not set again after the "loadfile" command
 		//This should be removed when next version of MPlayer will be released
-		_process->sendCommand("volume " + QString::number(MPlayerLoader::settings.volume) + " 1");
+		if (MPlayerLoader::settings.volume >= 0) {
+			_process->sendCommand("volume " + QString::number(MPlayerLoader::settings.volume) + " 1");
+		}
+		///
 
 		break;
 	case Phonon::BufferingState:

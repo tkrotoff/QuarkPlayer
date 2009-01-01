@@ -20,6 +20,9 @@
 #ifndef MEDIADATA_H
 #define MEDIADATA_H
 
+//For WId
+#include <QtGui/QWidget>
+
 #include <QtCore/QString>
 
 /**
@@ -70,7 +73,7 @@ public:
 	qint64 currentTime;
 
 	/** Id of the widget where MPlayer will show the video. */
-	int videoWidgetId;
+	WId videoWidgetId;
 
 	//Resolution of the video
 

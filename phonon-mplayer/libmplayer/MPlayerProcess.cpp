@@ -1,7 +1,7 @@
 /*
  * MPlayer backend for the Phonon library
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -66,7 +66,7 @@ void MPlayerProcess::init() {
 	_currentTitleNumber = 0;
 }
 
-bool MPlayerProcess::start(const QStringList & arguments, const QString & filename, int videoWidgetId, qint64 seek) {
+bool MPlayerProcess::start(const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek) {
 	//Stop MPlayerProcess if it is already running
 	if (isRunning()) {
 		stop();
@@ -81,7 +81,7 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 		//Attach MPlayer video output to our widget
 		_mediaData.videoWidgetId = videoWidgetId;
 		args << "-wid";
-		args << QString::number(_mediaData.videoWidgetId);
+		args << QString::number((qint64) _mediaData.videoWidgetId);
 	}
 
 	//If seek < 5 it's better to allow the video to start from the beginning

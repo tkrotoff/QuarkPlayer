@@ -60,7 +60,7 @@ public:
 	 * Needed by VideoWidget
 	 * Widget Id where MPlayer will show the videos.
 	 */
-	void setVideoWidgetId(int videoWidgetId);
+	void setVideoWidgetId(WId videoWidgetId);
 
 	//Needed by SeekStack
 	void seekInternal(qint64 milliseconds);
@@ -151,7 +151,7 @@ private:
 
 	QString _fileName;
 
-	int _videoWidgetId;
+	WId _videoWidgetId;
 };
 
 }}	//Namespace Phonon::MPlayer

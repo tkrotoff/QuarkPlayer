@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,7 +31,7 @@ MPlayerProcess * MPlayerLoader::createNewMPlayerProcess(QObject * parent) {
 	return process;
 }
 
-void MPlayerLoader::start(MPlayerProcess * process, const QStringList & arguments, const QString & filename, int videoWidgetId, qint64 seek) {
+void MPlayerLoader::start(MPlayerProcess * process, const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek) {
 	if (!process) {
 		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
 		return;
@@ -88,7 +88,7 @@ void MPlayerLoader::restart(MPlayerProcess * process, const QStringList & argume
 	start(process, args, mediaData.filename, mediaData.videoWidgetId, mediaData.currentTime);
 }
 
-void MPlayerLoader::start(MPlayerProcess * process, const QString & filename, int videoWidgetId) {
+void MPlayerLoader::start(MPlayerProcess * process, const QString & filename, WId videoWidgetId) {
 	start(process, QStringList(), filename, videoWidgetId, 0);
 }
 
@@ -210,8 +210,10 @@ QStringList MPlayerLoader::readMediaSettings() {
 
 	if (MPlayerProcess::getMPlayerVersion() > MPlayerProcess::MPLAYER_1_0_RC2_SVN) {
 		//Volume, this option only appeared after 1.0rc2
-		args << "-volume";
-		args << QString::number(settings.volume);
+		if (settings.volume >= 0) {
+			args << "-volume";
+			args << QString::number(settings.volume);
+		}
 	}
 
 	//Speedup internet media by using IPv4

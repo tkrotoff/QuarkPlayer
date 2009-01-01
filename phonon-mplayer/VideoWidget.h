@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,8 +31,9 @@ namespace MPlayer
 class MPlayerVideoWidget;
 
 /**
+ * Widget where to show the MPlayer video.
  *
- *
+ * @see MPlayerVideoWidget
  * @author Tanguy Krotoff
  */
 class VideoWidget : public SinkNode, public VideoWidgetInterface {

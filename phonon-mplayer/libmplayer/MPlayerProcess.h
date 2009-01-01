@@ -1,7 +1,7 @@
 /*
  * MPlayer backend for the Phonon library
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,6 +21,9 @@
 #define MPLAYERPROCESS_H
 
 #include <phonon/phononnamespace.h>
+
+//For WId
+#include <QtGui/QWidget>
 
 #include <QtCore/QString>
 
@@ -69,7 +72,7 @@ public:
 	 * @param videoWidgetId used with the -wid option
 	 * @param seek position where to start inside the file/media/stream
 	 */
-	bool start(const QStringList & arguments, const QString & filename, int videoWidgetId, qint64 seek);
+	bool start(const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek);
 
 	/**
 	 * Stops the MPlayer process.
