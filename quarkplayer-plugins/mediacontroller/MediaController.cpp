@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ MediaController::~MediaController() {
 	_mainWindow->removeToolBar(_toolBar);
 
 	QMenuBar * menuBar = _mainWindow->menuBar();
-	menuBar->removeAction(_menuAudio->menuAction());
+	menuBar->removeAction(_menuAudioChannels->menuAction());
 	menuBar->removeAction(_menuSubtitle->menuAction());
 	menuBar->removeAction(_menuBrowse->menuAction());
 }
@@ -104,18 +104,16 @@ void MediaController::addMenusToMainWindow() {
 
 	QAction * insertBeforeMenuSettings = _mainWindow->menuSettings()->menuAction();
 
-	_menuAudio = new QMenu();
-	menuBar->insertAction(insertBeforeMenuSettings, _menuAudio->menuAction());
 	_menuAudioChannels = new QMenu();
 	_menuAudioChannels->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
-	_menuAudio->addAction(_menuAudioChannels->menuAction());
+	_mainWindow->menuAudio()->addMenu(_menuAudioChannels);
 
 	_menuSubtitle = new QMenu();
-	menuBar->insertAction(insertBeforeMenuSettings, _menuSubtitle->menuAction());
+	menuBar->insertMenu(insertBeforeMenuSettings, _menuSubtitle);
 	_menuSubtitle->addAction(ActionCollection::action("MediaController.OpenSubtitleFile"));
 	_menuSubtitles = new QMenu();
 	_menuSubtitles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
-	_menuSubtitle->addAction(_menuSubtitles->menuAction());
+	_menuSubtitle->addMenu(_menuSubtitles);
 
 	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
 	//Need to implement a full plugin system like Qt Creator has
@@ -126,7 +124,7 @@ void MediaController::addMenusToMainWindow() {
 	///
 
 	_menuBrowse = new QMenu();
-	menuBar->insertAction(insertBeforeMenuSettings, _menuBrowse->menuAction());
+	menuBar->insertMenu(insertBeforeMenuSettings, _menuBrowse);
 	_menuTitles = new QMenu();
 	_menuTitles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	_menuBrowse->addAction(_menuTitles->menuAction());
@@ -166,7 +164,6 @@ void MediaController::retranslate() {
 	_menuChapters->setIcon(TkIcon("x-office-address-book"));
 
 	_menuAngles->setTitle(tr("&Angle"));
-	_menuAudio->setTitle(tr("&Audio"));
 	_menuSubtitle->setTitle(tr("&Subtitle"));
 	_menuBrowse->setTitle(tr("&Browse"));
 }

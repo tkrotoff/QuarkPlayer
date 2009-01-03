@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,15 +54,21 @@ public:
 private slots:
 
 	void setFullScreenSlot(bool fullScreen);
+	void enterFullScreenSlot();
+	void leaveFullScreenSlot();
 
 	void playToolBarAdded(QToolBar * playToolBar);
 	void statusBarAdded(QStatusBar * statusBar);
 
+	void showContextMenu(const QPoint & pos);
+	void scaleModeChanged(QAction * action);
+	void aspectRatioChanged(QAction * action);
+
+	void retranslate();
+
 private:
 
 	void mouseDoubleClickEvent(QMouseEvent * event);
-
-	void keyPressEvent(QKeyEvent * event);
 
 	bool event(QEvent * event);
 
@@ -73,6 +79,10 @@ private:
 	static void showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder);
 
 	void addPlayToolBarToMainWindow();
+
+	void createContextMenu();
+
+	void populateActionCollection();
 
 	QDockWidget * _dockWidget;
 
@@ -86,6 +96,8 @@ private:
 
 	/** QWidget that contains PlayToolBar + StatusBar. */
 	QWidget * _widgetOverFullScreen;
+
+	QMenu * _contextMenu;
 };
 
 #endif	//VIDEOWIDGET_H

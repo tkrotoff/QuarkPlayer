@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,17 +45,19 @@ PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	_volumeSlider = NULL;
 	_seekSlider = NULL;
 
-	QVBoxLayout * vLayout = new QVBoxLayout();
-	vLayout->setSpacing(0);
-	vLayout->setMargin(0);
+	QVBoxLayout * layout = new QVBoxLayout();
+	layout->setSpacing(0);
+	layout->setMargin(0);
+	layout->setContentsMargins(0, 0, 0, 0);
 	QWidget * widget = new QWidget();
-	widget->setLayout(vLayout);
+	widget->setContentsMargins(0, 0, 0, 0);
+	widget->setLayout(layout);
 
 	createSeekToolBar();
-	vLayout->addWidget(_seekToolBar);
+	layout->addWidget(_seekToolBar);
 
 	createControlToolBar();
-	vLayout->addWidget(_controlToolBar);
+	layout->addWidget(_controlToolBar);
 
 	addWidget(widget);
 
@@ -143,19 +145,118 @@ void PlayToolBar::stateChanged(Phonon::State newState) {
 
 void PlayToolBar::createSeekToolBar() {
 	_seekToolBar = new QToolBar(NULL);
-	//_seekToolBar->setIconSize(QSize(16, 16));
+	_seekToolBar->setIconSize(QSize(24, 18));
 
 	//SeekSlider
 	_seekSlider = new Phonon::SeekSlider();
-	_seekSlider->setIconVisible(true);
+	//_seekSlider->setIconVisible(true);
 	//_seekSlider->setTracking(false);
 
+	//_seekToolBar->addAction(ActionCollection::action("MainWindow.SpeedDecrease10%"));
+	connect(ActionCollection::action("MainWindow.SpeedDecrease10%"), SIGNAL(triggered()), SLOT(decreaseSpeed10()));
+	//_seekToolBar->addAction(ActionCollection::action("MainWindow.JumpBackward10min"));
+	connect(ActionCollection::action("MainWindow.JumpBackward10min"), SIGNAL(triggered()), SLOT(jumpBackward10min()));
+	_seekToolBar->addAction(ActionCollection::action("MainWindow.JumpBackward1min"));
+	connect(ActionCollection::action("MainWindow.JumpBackward1min"), SIGNAL(triggered()), SLOT(jumpBackward1min()));
+	//_seekToolBar->addAction(ActionCollection::action("MainWindow.JumpBackward10s"));
+	connect(ActionCollection::action("MainWindow.JumpBackward10s"), SIGNAL(triggered()), SLOT(jumpBackward10s()));
+
 	_seekToolBar->addWidget(_seekSlider);
+
+	//_seekToolBar->addAction(ActionCollection::action("MainWindow.JumpForward10s"));
+	connect(ActionCollection::action("MainWindow.JumpForward10s"), SIGNAL(triggered()), SLOT(jumpForward10s()));
+	_seekToolBar->addAction(ActionCollection::action("MainWindow.JumpForward1min"));
+	connect(ActionCollection::action("MainWindow.JumpForward1min"), SIGNAL(triggered()), SLOT(jumpForward1min()));
+	//_seekToolBar->addAction(ActionCollection::action("MainWindow.JumpForward10min"));
+	connect(ActionCollection::action("MainWindow.JumpForward10min"), SIGNAL(triggered()), SLOT(jumpForward10min()));
+	//_seekToolBar->addAction(ActionCollection::action("MainWindow.SpeedIncrease10%"));
+	connect(ActionCollection::action("MainWindow.SpeedIncrease10%"), SIGNAL(triggered()), SLOT(increaseSpeed10()));
+
+	connect(ActionCollection::action("MainWindow.VolumeDecrease10%"), SIGNAL(triggered()), SLOT(volumeDecrease10()));
+	connect(ActionCollection::action("MainWindow.VolumeIncrease10%"), SIGNAL(triggered()), SLOT(volumeIncrease10()));
+}
+
+void PlayToolBar::decreaseSpeed10() {
+}
+
+void PlayToolBar::jumpBackward10min() {
+	Phonon::MediaObject * mediaObject = quarkPlayer().currentMediaObject();
+	qint64 seek = mediaObject->currentTime() - 1000 * 60 * 10;
+	if (seek < 0) {
+		seek = 0;
+	}
+	mediaObject->seek(seek);
+}
+
+void PlayToolBar::jumpBackward1min() {
+	Phonon::MediaObject * mediaObject = quarkPlayer().currentMediaObject();
+	qint64 seek = mediaObject->currentTime() - 1000 * 60;
+	if (seek < 0) {
+		seek = 0;
+	}
+	mediaObject->seek(seek);
+}
+
+void PlayToolBar::jumpBackward10s() {
+	Phonon::MediaObject * mediaObject = quarkPlayer().currentMediaObject();
+	qint64 seek = mediaObject->currentTime() - 1000 * 10;
+	if (seek < 0) {
+		seek = 0;
+	}
+	mediaObject->seek(seek);
+}
+
+void PlayToolBar::jumpForward10s() {
+	Phonon::MediaObject * mediaObject = quarkPlayer().currentMediaObject();
+	qint64 seek = mediaObject->currentTime() + 1000 * 10;
+	if (seek > mediaObject->totalTime()) {
+		seek = mediaObject->totalTime();
+	}
+	mediaObject->seek(seek);
+}
+
+void PlayToolBar::jumpForward1min() {
+	Phonon::MediaObject * mediaObject = quarkPlayer().currentMediaObject();
+	qint64 seek = mediaObject->currentTime() + 1000 * 60;
+	if (seek > mediaObject->totalTime()) {
+		seek = mediaObject->totalTime();
+	}
+	mediaObject->seek(seek);
+}
+
+void PlayToolBar::jumpForward10min() {
+	Phonon::MediaObject * mediaObject = quarkPlayer().currentMediaObject();
+	qint64 seek = mediaObject->currentTime() + 1000 * 60 * 10;
+	if (seek > mediaObject->totalTime()) {
+		seek = mediaObject->totalTime();
+	}
+	mediaObject->seek(seek);
+}
+
+void PlayToolBar::increaseSpeed10() {
+}
+
+void PlayToolBar::volumeDecrease10() {
+	Phonon::AudioOutput * audioOutput = quarkPlayer().currentAudioOutput();
+	qreal volume = audioOutput->volume() - 0.1;
+	if (volume < 0.0) {
+		volume = 0.0;
+	}
+	audioOutput->setVolume(volume);
+}
+
+void PlayToolBar::volumeIncrease10() {
+	Phonon::AudioOutput * audioOutput = quarkPlayer().currentAudioOutput();
+	qreal volume = audioOutput->volume() + 0.1;
+	if (volume > 1.0) {
+		volume = 1.0;
+	}
+	audioOutput->setVolume(volume);
 }
 
 void PlayToolBar::createControlToolBar() {
 	_controlToolBar = new QToolBar(NULL);
-	//_controlToolBar->setIconSize(QSize(16, 16));
+	_controlToolBar->setIconSize(QSize(24, 18));
 
 	_controlToolBar->addAction(ActionCollection::action("MainWindow.PreviousTrack"));
 	_controlToolBar->addAction(ActionCollection::action("MainWindow.PlayPause"));
@@ -181,9 +282,9 @@ void PlayToolBar::retranslate() {
 	setWindowTitle(tr("Play ToolBar"));
 
 	_volumeSlider->setVolumeIcon(TkIcon("player-volume"));
-	_volumeSlider->setMutedIcon(TkIcon("player-volume-muted"));
+	_volumeSlider->setMutedIcon(TkIcon("audio-volume-muted"));
 
-	_seekSlider->setIcon(TkIcon("player-time"));
+	//_seekSlider->setIcon(TkIcon("player-time"));
 
 	setMinimumSize(sizeHint());
 }

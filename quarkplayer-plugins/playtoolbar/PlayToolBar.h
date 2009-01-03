@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,6 +61,26 @@ private slots:
 	void retranslate();
 
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
+
+	void decreaseSpeed10();
+
+	void jumpBackward10min();
+
+	void jumpBackward1min();
+
+	void jumpBackward10s();
+
+	void jumpForward10s();
+
+	void jumpForward1min();
+
+	void jumpForward10min();
+
+	void increaseSpeed10();
+
+	void volumeDecrease10();
+
+	void volumeIncrease10();
 
 private:
 

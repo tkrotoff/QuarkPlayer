@@ -35,17 +35,18 @@ int main(int argc, char * argv[]) {
 	//QString fileName(args[1]);
 	QString fileName("1ind-shrek3.sample.avi");
 
-	QWidget * widget = new QWidget();
+	QGraphicsScene scene;
+	QGraphicsView view(&scene);
 
 	Phonon::MediaObject * mediaObject = new Phonon::MediaObject();
-	Phonon::VideoWidget * videoWidget = new Phonon::VideoWidget(widget);
+	Phonon::VideoWidget * videoWidget = new Phonon::VideoWidget(&view);
 	Phonon::AudioOutput * audioOutput = new Phonon::AudioOutput();
 	Phonon::createPath(mediaObject, videoWidget);
 	Phonon::createPath(mediaObject, audioOutput);
 
-	QGraphicsScene scene;
-	QGraphicsProxyWidget * proxy = scene.addWidget(widget);
-	QGraphicsView view(&scene);
+	qDebug() << "VideoWidget winId:" << videoWidget->winId();
+
+	QGraphicsProxyWidget * proxy = scene.addWidget(videoWidget);
 	view.show();
 
 	mediaObject->setCurrentSource(fileName);

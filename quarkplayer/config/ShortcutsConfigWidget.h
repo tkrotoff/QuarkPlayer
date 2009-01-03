@@ -64,7 +64,7 @@ private slots:
 
 	void actionChanged(QTreeWidgetItem * currentItem);
 
-	void filterChanged(const QString & filterText);
+	void searchChanged(const QString & pattern);
 
 	void shortcutChanged();
 
@@ -84,7 +84,7 @@ private:
 
 	void setShortcuts(const QList<QKeySequence> & shortcuts);
 
-	bool filter(const QString & filterText, const QTreeWidgetItem * item);
+	bool search(const QString & pattern, const QTreeWidgetItem * item);
 
 	void handleKeyEvent(QKeyEvent * event);
 

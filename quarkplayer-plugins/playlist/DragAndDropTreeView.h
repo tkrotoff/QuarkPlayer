@@ -72,8 +72,6 @@ private:
 
 	void dragMoveEvent(QDragMoveEvent * event);
 
-	void showMenu(const QPoint & pos);
-
 	void populateActionCollection();
 
 	PlaylistModel * _playlistModel;

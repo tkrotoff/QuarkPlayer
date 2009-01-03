@@ -70,6 +70,9 @@
 /**
  * Paint the current text with an elided in the middle
  * if the width of the text is less then the width of the widget.
+ *
+ * Taken from Trolltech Browser demo and Arora source code
+ * @see http://github.com/Arora/arora/tree/master
  */
 class TKUTIL_API SqueezeLabel : public QLabel {
 public:

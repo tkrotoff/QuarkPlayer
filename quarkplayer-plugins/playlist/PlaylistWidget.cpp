@@ -30,6 +30,7 @@
 #include <quarkplayer/PluginsManager.h>
 
 #include <tkutil/TkIcon.h>
+#include <tkutil/TkAction.h>
 #include <tkutil/ActionCollection.h>
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
@@ -196,14 +197,15 @@ void PlaylistWidget::populateActionCollection() {
 
 	addUuidAction("Playlist.RemoveAll", new QAction(app));
 
-	QAction * action = new QAction(app);
+	TkAction * action = new TkAction(app, tr("S"));
 	action->setCheckable(true);
 	addUuidAction("Playlist.Shuffle", action);
-	action = new QAction(app);
+
+	action = new TkAction(app, tr("R"));
 	action->setCheckable(true);
 	addUuidAction("Playlist.Repeat", action);
 
-	addUuidAction("Playlist.JumpToCurrent", new QAction(app));
+	addUuidAction("Playlist.JumpToCurrent", new TkAction(app, tr("J")));
 
 	addUuidAction("Playlist.New", new QAction(app));
 }
@@ -526,6 +528,8 @@ bool PlaylistWidget::event(QEvent * event) {
 	case QEvent::WindowActivate:
 		//When this window is active, this playlist becomes the only active one
 		PlaylistConfig::instance().setActivePlaylist(uuid());
+		break;
+	default:
 		break;
 	}
 	return QWidget::event(event);

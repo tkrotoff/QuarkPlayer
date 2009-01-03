@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +24,22 @@
 
 #include <QtCore/QDebug>
 
+SearchLineEdit::SearchLineEdit(QWidget * parent)
+	: LineEdit(parent) {
+
+	init(QStringList());
+}
+
 SearchLineEdit::SearchLineEdit(const QStringList & wordList, QWidget * parent)
 	: LineEdit(parent) {
 
+	init(wordList);
+}
+
+SearchLineEdit::~SearchLineEdit() {
+}
+
+void SearchLineEdit::init(const QStringList & wordList) {
 	//For click message
 	_enableClickMessage = false;
 	_drawClickMessage = false;
@@ -45,7 +58,7 @@ SearchLineEdit::SearchLineEdit(const QStringList & wordList, QWidget * parent)
 	_showWordListButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
 	connect(_showWordListButton, SIGNAL(clicked()), SLOT(showWordList()));
 	_showWordListButton->setEnabled(!wordList.isEmpty());
-	addWidget(_showWordListButton, LeftSide);
+	addWidget(_showWordListButton, RightSide);
 
 	//Search completion
 	_stringListModel = new QStringListModel();
@@ -53,9 +66,6 @@ SearchLineEdit::SearchLineEdit(const QStringList & wordList, QWidget * parent)
 	QCompleter * completer = new QCompleter(_stringListModel, this);
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	setCompleter(completer);
-}
-
-SearchLineEdit::~SearchLineEdit() {
 }
 
 QToolButton * SearchLineEdit::clearButton() const {

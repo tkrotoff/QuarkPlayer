@@ -14,9 +14,10 @@
 	<file alias="16x16/format-list-ordered">icons/oxygen/16x16/actions/format-list-ordered.png</file>
 	<file alias="16x16/speaker">icons/oxygen/16x16/actions/speaker.png</file>
 	<file alias="16x16/player-volume">icons/oxygen/16x16/actions/player-volume.png</file>
-	<file alias="16x16/player-volume-muted">icons/oxygen/16x16/actions/player-volume-muted.png</file>
-	<file alias="16x16/player-volume-low">icons/oxygen/16x16/actions/player-volume.png</file>
-	<file alias="16x16/player-volume-medium">icons/oxygen/16x16/actions/player-volume.png</file>
+	<file alias="16x16/audio-volume-muted">icons/oxygen/16x16/status/audio-volume-muted.png</file>
+	<file alias="16x16/audio-volume-low">icons/oxygen/16x16/status/audio-volume-low.png</file>
+	<file alias="16x16/audio-volume-medium">icons/oxygen/16x16/status/audio-volume-medium.png</file>
+	<file alias="16x16/audio-volume-high">icons/oxygen/16x16/status/audio-volume-high.png</file>
 	<file alias="16x16/player-time">icons/oxygen/16x16/actions/player-time.png</file>
 	<file alias="16x16/view-media-equalizer">icons/oxygen/16x16/actions/view-media-equalizer.png</file>
 	<file alias="16x16/go-next">icons/oxygen/16x16/actions/go-next.png</file>
@@ -41,6 +42,8 @@
 	<file alias="16x16/media-playback-stop">icons/oxygen/16x16/actions/media-playback-stop.png</file>
 	<file alias="16x16/media-skip-backward">icons/oxygen/16x16/actions/media-skip-backward.png</file>
 	<file alias="16x16/media-skip-forward">icons/oxygen/16x16/actions/media-skip-forward.png</file>
+	<file alias="16x16/media-seek-backward">icons/oxygen/16x16/actions/media-seek-backward.png</file>
+	<file alias="16x16/media-seek-forward">icons/oxygen/16x16/actions/media-seek-forward.png</file>
 	<file alias="16x16/view-fullscreen">icons/oxygen/16x16/actions/view-fullscreen.png</file>
 	<file alias="16x16/help-about">icons/oxygen/16x16/actions/help-about.png</file>
 	<file alias="16x16/list-add">icons/oxygen/16x16/actions/list-add.png</file>

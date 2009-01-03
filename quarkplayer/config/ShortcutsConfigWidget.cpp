@@ -53,7 +53,7 @@ ShortcutsConfigWidget::ShortcutsConfigWidget() {
 
 	_ui->actionList->sortByColumn(COLUMN_ACTION, Qt::AscendingOrder);
 
-	connect(_ui->filterEdit, SIGNAL(textChanged(const QString &)), SLOT(filterChanged(const QString &)));
+	connect(_ui->searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(searchChanged(const QString &)));
 	connect(_ui->actionList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
 		SLOT(actionChanged(QTreeWidgetItem *)));
 
@@ -104,25 +104,30 @@ void ShortcutsConfigWidget::readConfig() {
 	QList<QAction *> actions = ActionCollection::actions();
 
 	foreach (QAction * action, actions) {
-		QTreeWidgetItem * item = new QTreeWidgetItem(_ui->actionList);
+		TkAction * tkAction = qobject_cast<TkAction *>(action);
+		//If action is not a TkAction then we don't add it to the list of actions to be
+		//displayed and configurable
+		if (tkAction) {
+			QTreeWidgetItem * item = new QTreeWidgetItem(_ui->actionList);
 
-		QString name = action->objectName();
+			QString name = tkAction->objectName();
 
-		ShortcutItem * shortcutItem = new ShortcutItem();
-		shortcutItem->action = action;
-		shortcutItem->shortcuts = action->shortcuts();
-		shortcutItem->treeItem = item;
-		_shortcutItems << shortcutItem;
+			ShortcutItem * shortcutItem = new ShortcutItem();
+			shortcutItem->action = tkAction;
+			shortcutItem->shortcuts = tkAction->shortcuts();
+			shortcutItem->treeItem = item;
+			_shortcutItems << shortcutItem;
 
-		QIcon icon = action->icon();
-		if (icon.isNull()) {
-			icon = QIcon(":/icons/hi16-emptyicon.png");
+			QIcon icon = tkAction->icon();
+			if (icon.isNull()) {
+				icon = QIcon(":/icons/hi16-emptyicon.png");
+			}
+			item->setIcon(COLUMN_ACTION, icon);
+			item->setText(COLUMN_ACTION, name);
+			item->setText(COLUMN_LABEL, tkAction->toolTip());
+			item->setText(COLUMN_SHORTCUT, toString(shortcutItem->shortcuts));
+			item->setData(COLUMN_ACTION, Qt::UserRole, qVariantFromValue(shortcutItem));
 		}
-		item->setIcon(COLUMN_ACTION, icon);
-		item->setText(COLUMN_ACTION, name);
-		item->setText(COLUMN_LABEL, action->toolTip());
-		item->setText(COLUMN_SHORTCUT, toString(shortcutItem->shortcuts));
-		item->setData(COLUMN_ACTION, Qt::UserRole, qVariantFromValue(shortcutItem));
 	}
 }
 
@@ -131,6 +136,15 @@ void ShortcutsConfigWidget::retranslate() {
 
 	_ui->resetButton->setIcon(TkIcon("edit-undo"));
 	_ui->removeButton->setIcon(TkIcon("edit-delete"));
+
+	_ui->searchLineEdit->clearButton()->setToolTip(tr("Clear Search"));
+	_ui->searchLineEdit->clearButton()->setIcon(TkIcon("edit-clear-locationbar-rtl"));
+
+	_ui->searchLineEdit->showWordListButton()->setToolTip(tr("Previous Searches"));
+	_ui->searchLineEdit->showWordListButton()->setIcon(TkIcon("go-down-search"));
+
+	_ui->searchLineEdit->setToolTip(tr("Search shortcuts, use whitespaces to separate words"));
+	_ui->searchLineEdit->setClickMessage(tr("Enter search terms here"));
 }
 
 bool ShortcutsConfigWidget::eventFilter(QObject * object, QEvent * event) {
@@ -162,10 +176,10 @@ void ShortcutsConfigWidget::actionChanged(QTreeWidgetItem * currentItem) {
 	setShortcuts(shortcutItem->shortcuts);
 }
 
-void ShortcutsConfigWidget::filterChanged(const QString & filterText) {
+void ShortcutsConfigWidget::searchChanged(const QString & pattern) {
 	for (int i = 0; i < _ui->actionList->topLevelItemCount(); ++i) {
 		QTreeWidgetItem * item = _ui->actionList->topLevelItem(i);
-		item->setHidden(filter(filterText, item));
+		item->setHidden(search(pattern, item));
 	}
 }
 
@@ -192,13 +206,13 @@ void ShortcutsConfigWidget::setShortcuts(const QList<QKeySequence> & shortcuts) 
 	_ui->shortcutEdit->setText(toString(shortcuts));
 }
 
-bool ShortcutsConfigWidget::filter(const QString & filterText, const QTreeWidgetItem * item) {
+bool ShortcutsConfigWidget::search(const QString & pattern, const QTreeWidgetItem * item) {
 	if (item->childCount() == 0) {
-		if (filterText.isEmpty()) {
+		if (pattern.isEmpty()) {
 			return false;
 		}
 		for (int i = 0; i < item->columnCount(); ++i) {
-			if (item->text(i).contains(filterText, Qt::CaseInsensitive)) {
+			if (item->text(i).contains(pattern, Qt::CaseInsensitive)) {
 				return false;
 			}
 		}
@@ -208,7 +222,7 @@ bool ShortcutsConfigWidget::filter(const QString & filterText, const QTreeWidget
 	bool found = false;
 	for (int i = 0; i < item->childCount(); ++i) {
 		QTreeWidgetItem * citem = item->child(i);
-		if (filter(filterText, citem)) {
+		if (search(pattern, citem)) {
 			citem->setHidden(true);
 		} else {
 			citem->setHidden(false);

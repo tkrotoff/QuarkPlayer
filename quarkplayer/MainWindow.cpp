@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>
+#include <phonon/audiooutput.h>
 
 #include <QtCore/QSignalMapper>
 #include <QtCore/QCoreApplication>
@@ -74,6 +75,8 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * 
 	connect(ActionCollection::action("MainWindow.ReportBug"), SIGNAL(triggered()), SLOT(reportBug()));
 	connect(ActionCollection::action("MainWindow.About"), SIGNAL(triggered()), SLOT(about()));
 	connect(ActionCollection::action("MainWindow.AboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+
+	connect(ActionCollection::action("MainWindow.VolumeMute"), SIGNAL(toggled(bool)), SLOT(mutedToggled(bool)));
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
@@ -274,7 +277,7 @@ ConfigWindow * MainWindow::configWindow() const {
 }
 
 void MainWindow::reportBug() {
-	QDesktopServices::openUrl(QUrl("http://code.google.com/p/phonon-vlc-mplayer/issues/list"));
+	QDesktopServices::openUrl(QUrl("http://phonon-vlc-mplayer.googlecode.com/issues/list"));
 }
 
 void MainWindow::about() {
@@ -299,11 +302,56 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("MainWindow.ClearRecentFiles", new QAction(app));
 	ActionCollection::addAction("MainWindow.EmptyMenu", new QAction(app));
 
-	ActionCollection::addAction("MainWindow.PlayPause", new TkAction(app, tr("Space"), Qt::Key_MediaPlay));
-	ActionCollection::addAction("MainWindow.Stop", new TkAction(app, Qt::Key_MediaStop));
+	TkAction * action = new TkAction(app, tr("Space"), Qt::Key_MediaPlay);
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.PlayPause", action);
+	action = new TkAction(app, Qt::Key_MediaStop);
+	ActionCollection::addAction("MainWindow.Stop", action);
+	action = new TkAction(app, tr("N"), tr(">"), Qt::Key_MediaNext);
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.NextTrack", action);
+	action = new TkAction(app, tr("P"), tr("<"), Qt::Key_MediaPrevious);
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.PreviousTrack", action);
 
-	ActionCollection::addAction("MainWindow.NextTrack", new TkAction(app, tr("N"), tr(">"), Qt::Key_MediaNext));
-	ActionCollection::addAction("MainWindow.PreviousTrack", new TkAction(app, tr("P"), tr("<"), Qt::Key_MediaPrevious));
+	action = new TkAction(app, tr("Shift+Left"));
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.JumpBackward10s", action);
+	action = new TkAction(app, tr("Ctrl+Left"));
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.JumpBackward1min", action);
+	action = new TkAction(app, tr("Alt+Left"));
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.JumpBackward10min", action);
+
+	action = new TkAction(app, tr("Shift+Right"));
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.JumpForward10s", action);
+	action = new TkAction(app, tr("Ctrl+Right"));
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.JumpForward1min", action);
+	action = new TkAction(app, tr("Alt+Right"));
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.JumpForward10min", action);
+
+	action = new TkAction(app, tr("["));
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.SpeedDecrease10%", action);
+	action = new TkAction(app, tr("]"));
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.SpeedIncrease10%", action);
+
+	action = new TkAction(app, tr("M"), tr("Ctrl+M"));
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	action->setCheckable(true);
+	ActionCollection::addAction("MainWindow.VolumeMute", action);
+
+	action = new TkAction(app, tr("Ctrl+Down"), tr("-"), tr("Alt+-"));
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.VolumeDecrease10%", action);
+	action = new TkAction(app, tr("Ctrl+Up"), tr("+"), tr("Alt++"));
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	ActionCollection::addAction("MainWindow.VolumeIncrease10%", action);
 
 	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
 	//Need to implement a full plugin system like Qt Creator has
@@ -313,9 +361,13 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("MainWindow.UploadSubtitles", new QAction(app));
 	///
 
-	TkAction * action = new TkAction(app, tr("F"), tr("Alt+Enter"));
+	action = new TkAction(app, tr("F"), tr("Alt+Return"));
+	action->setShortcutContext(Qt::ApplicationShortcut);
 	action->setCheckable(true);
 	ActionCollection::addAction("MainWindow.FullScreen", action);
+
+	action = new TkAction(app, tr("Esc"));
+	ActionCollection::addAction("MainWindow.FullScreenLeave", action);
 }
 
 void MainWindow::setupUi() {
@@ -323,10 +375,10 @@ void MainWindow::setupUi() {
 	setCentralWidget(NULL);
 
 	_menuFile = new QMenu();
-	menuBar()->addAction(_menuFile->menuAction());
+	menuBar()->addMenu(_menuFile);
 	_menuFile->addAction(ActionCollection::action("MainWindow.OpenFile"));
 	_menuRecentFiles = new QMenu();
-	_menuFile->addAction(_menuRecentFiles->menuAction());
+	_menuFile->addMenu(_menuRecentFiles);
 	_menuFile->addAction(ActionCollection::action("MainWindow.OpenDVD"));
 	_menuFile->addAction(ActionCollection::action("MainWindow.OpenURL"));
 	_menuFile->addAction(ActionCollection::action("MainWindow.OpenVCD"));
@@ -334,23 +386,38 @@ void MainWindow::setupUi() {
 	_menuFile->addAction(ActionCollection::action("MainWindow.Quit"));
 
 	_menuPlay = new QMenu();
-	menuBar()->addAction(_menuPlay->menuAction());
+	menuBar()->addMenu(_menuPlay);
 	_menuPlay->addAction(ActionCollection::action("MainWindow.PreviousTrack"));
 	_menuPlay->addAction(ActionCollection::action("MainWindow.PlayPause"));
 	_menuPlay->addAction(ActionCollection::action("MainWindow.Stop"));
 	_menuPlay->addAction(ActionCollection::action("MainWindow.NextTrack"));
 	_menuPlay->addSeparator();
+	_menuPlay->addAction(ActionCollection::action("MainWindow.JumpBackward10s"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.JumpBackward1min"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.JumpBackward10min"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.JumpForward10s"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.JumpForward1min"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.JumpForward10min"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.SpeedDecrease10%"));
+	_menuPlay->addAction(ActionCollection::action("MainWindow.SpeedIncrease10%"));
+	_menuPlay->addSeparator();
 	_menuPlay->addAction(ActionCollection::action("MainWindow.FullScreen"));
 	_menuPlay->addSeparator();
 	_menuPlay->addAction(ActionCollection::action("MainWindow.NewMediaObject"));
 
+	_menuAudio = new QMenu();
+	menuBar()->addMenu(_menuAudio);
+	_menuAudio->addAction(ActionCollection::action("MainWindow.VolumeMute"));
+	_menuAudio->addAction(ActionCollection::action("MainWindow.VolumeDecrease10%"));
+	_menuAudio->addAction(ActionCollection::action("MainWindow.VolumeIncrease10%"));
+
 	_menuSettings = new QMenu();
-	menuBar()->addAction(_menuSettings->menuAction());
+	menuBar()->addMenu(_menuSettings);
 	_menuSettings->addAction(ActionCollection::action("MainWindow.Equalizer"));
 	_menuSettings->addAction(ActionCollection::action("MainWindow.Configure"));
 
 	_menuHelp = new QMenu();
-	menuBar()->addAction(_menuHelp->menuAction());
+	menuBar()->addMenu(_menuHelp);
 	_menuHelp->addAction(ActionCollection::action("MainWindow.ReportBug"));
 	_menuHelp->addAction(ActionCollection::action("MainWindow.About"));
 	_menuHelp->addAction(ActionCollection::action("MainWindow.AboutQt"));
@@ -419,6 +486,7 @@ void MainWindow::retranslate() {
 
 	_menuFile->setTitle(tr("&File"));
 	_menuPlay->setTitle(tr("&Play"));
+	_menuAudio->setTitle(tr("&Audio"));
 	_menuSettings->setTitle(tr("&Settings"));
 	_menuHelp->setTitle(tr("&Help"));
 
@@ -434,8 +502,34 @@ void MainWindow::retranslate() {
 	ActionCollection::action("MainWindow.NextTrack")->setText(tr("&Next Track"));
 	ActionCollection::action("MainWindow.NextTrack")->setIcon(TkIcon("media-skip-forward"));
 
-	ActionCollection::action("MainWindow.FullScreen")->setText(tr("&FullScreen"));
+	ActionCollection::action("MainWindow.JumpBackward10s")->setText(tr("Jump &Backward 10s"));
+	ActionCollection::action("MainWindow.JumpBackward10s")->setIcon(TkIcon("media-seek-backward"));
+	ActionCollection::action("MainWindow.JumpBackward1min")->setText(tr("Jump &Backward 1min"));
+	ActionCollection::action("MainWindow.JumpBackward1min")->setIcon(TkIcon("media-seek-backward"));
+	ActionCollection::action("MainWindow.JumpBackward10min")->setText(tr("Jump &Backward 10min"));
+	ActionCollection::action("MainWindow.JumpBackward10min")->setIcon(TkIcon("media-seek-backward"));
+	ActionCollection::action("MainWindow.JumpForward10s")->setText(tr("Jump &Forward 10s"));
+	ActionCollection::action("MainWindow.JumpForward10s")->setIcon(TkIcon("media-seek-forward"));
+	ActionCollection::action("MainWindow.JumpForward1min")->setText(tr("Jump &Forward 1min"));
+	ActionCollection::action("MainWindow.JumpForward1min")->setIcon(TkIcon("media-seek-forward"));
+	ActionCollection::action("MainWindow.JumpForward10min")->setText(tr("Jump &Forward 10min"));
+	ActionCollection::action("MainWindow.JumpForward10min")->setIcon(TkIcon("media-seek-forward"));
+	ActionCollection::action("MainWindow.SpeedDecrease10%")->setText(tr("Decrease Speed"));
+	ActionCollection::action("MainWindow.SpeedDecrease10%")->setIcon(TkIcon("media-seek-backward"));
+	ActionCollection::action("MainWindow.SpeedIncrease10%")->setText(tr("Increase Speed"));
+	ActionCollection::action("MainWindow.SpeedIncrease10%")->setIcon(TkIcon("media-seek-forward"));
+
+	ActionCollection::action("MainWindow.VolumeMute")->setText(tr("Mute"));
+	ActionCollection::action("MainWindow.VolumeMute")->setIcon(TkIcon("audio-volume-muted"));
+	ActionCollection::action("MainWindow.VolumeDecrease10%")->setText(tr("Decrease Volume"));
+	ActionCollection::action("MainWindow.VolumeDecrease10%")->setIcon(TkIcon("audio-volume-low"));
+	ActionCollection::action("MainWindow.VolumeIncrease10%")->setText(tr("Increase Volume"));
+	ActionCollection::action("MainWindow.VolumeIncrease10%")->setIcon(TkIcon("audio-volume-high"));
+
+	ActionCollection::action("MainWindow.FullScreen")->setText(tr("&Fullscreen"));
 	ActionCollection::action("MainWindow.FullScreen")->setIcon(TkIcon("view-fullscreen"));
+
+	ActionCollection::action("MainWindow.FullScreenLeave")->setText(tr("Leave Fullscreen"));
 }
 
 QMenu * MainWindow::menuFile() const {
@@ -444,6 +538,10 @@ QMenu * MainWindow::menuFile() const {
 
 QMenu * MainWindow::menuPlay() const {
 	return _menuPlay;
+}
+
+QMenu * MainWindow::menuAudio() const {
+	return _menuAudio;
 }
 
 QMenu * MainWindow::menuSettings() const {
@@ -574,6 +672,11 @@ void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 
 	disconnect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
 	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
+
+	Phonon::AudioOutput * audioOutput = quarkPlayer().currentAudioOutput();
+	ActionCollection::action("MainWindow.VolumeMute")->setChecked(audioOutput->isMuted());
+	disconnect(audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(mutedChanged(bool)));
+	connect(audioOutput, SIGNAL(mutedChanged(bool)), SLOT(mutedChanged(bool)));
 }
 
 void MainWindow::loadSettings() {
@@ -582,4 +685,12 @@ void MainWindow::loadSettings() {
 
 void MainWindow::saveSettings() {
 	ShortcutsConfig::instance().save();
+}
+
+void MainWindow::mutedChanged(bool muted) {
+	ActionCollection::action("MainWindow.VolumeMute")->setChecked(muted);
+}
+
+void MainWindow::mutedToggled(bool muted) {
+	quarkPlayer().currentAudioOutput()->setMuted(muted);
 }

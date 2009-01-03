@@ -47,10 +47,8 @@ FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setContextMenuPolicy(Qt::ActionsContextMenu);
 
-	connect(this, SIGNAL(clicked(const QModelIndex &)),
-		SLOT(clicked(const QModelIndex &)));
-	connect(this, SIGNAL(doubleClicked(const QModelIndex &)),
-		SLOT(doubleClicked(const QModelIndex &)));
+	connect(this, SIGNAL(activated(const QModelIndex &)),
+		SLOT(activated(const QModelIndex &)));
 
 	//Add to playlist
 	connect(uuidAction("FileBrowser.AddToPlaylist"), SIGNAL(triggered()),
@@ -82,7 +80,7 @@ void FileBrowserTreeView::populateActionCollection() {
 	addUuidAction("FileBrowser.ViewMediaInfo", new QAction(app));
 }
 
-void FileBrowserTreeView::doubleClicked(const QModelIndex & index) {
+void FileBrowserTreeView::activated(const QModelIndex & index) {
 	QFileInfo fileInfo = this->fileInfo(index);
 	qDebug() << __FUNCTION__ << fileInfo.fileName() << index.row() << index.column();
 
@@ -90,14 +88,6 @@ void FileBrowserTreeView::doubleClicked(const QModelIndex & index) {
 	if (!fileInfo.isDir()) {
 		addToPlaylist();
 	}
-}
-
-void FileBrowserTreeView::clicked(const QModelIndex & index) {
-	QFileInfo fileInfo = this->fileInfo(index);
-	qDebug() << __FUNCTION__ << fileInfo.fileName() << index.row() << index.column();
-
-	//Cannot play a directory
-	uuidAction("FileBrowser.Play")->setEnabled(!fileInfo.isDir());
 }
 
 void FileBrowserTreeView::addToPlaylist() {

@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>568</width>
-    <height>451</height>
+    <width>430</width>
+    <height>405</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" >
@@ -15,22 +15,11 @@
      <property name="title" >
       <string>Keyboard Shortcuts</string>
      </property>
-     <layout class="QVBoxLayout" >
-      <item>
-       <layout class="QHBoxLayout" >
-        <item>
-         <widget class="QLabel" name="filterLabel" >
-          <property name="text" >
-           <string>Filter:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="filterEdit" />
-        </item>
-       </layout>
+     <layout class="QGridLayout" name="gridLayout" >
+      <item row="0" column="0" >
+       <widget class="SearchLineEdit" name="searchLineEdit" />
       </item>
-      <item>
+      <item row="1" column="0" >
        <widget class="QTreeWidget" name="actionList" >
         <property name="uniformRowHeights" >
          <bool>true</bool>
@@ -58,7 +47,7 @@
         </column>
        </widget>
       </item>
-      <item>
+      <item row="2" column="0" >
        <layout class="QHBoxLayout" >
         <item>
          <widget class="QPushButton" name="defaultButton" >
@@ -138,6 +127,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SearchLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global" >tkutil/SearchLineEdit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

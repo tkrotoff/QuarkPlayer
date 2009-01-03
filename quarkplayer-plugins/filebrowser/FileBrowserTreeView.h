@@ -47,9 +47,7 @@ private slots:
 
 	void retranslate();
 
-	void doubleClicked(const QModelIndex & index);
-
-	void clicked(const QModelIndex & index);
+	void activated(const QModelIndex & index);
 
 	void viewMediaInfo();
 

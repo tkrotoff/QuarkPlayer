@@ -144,8 +144,11 @@ void FileBrowserWidget::populateActionCollection() {
 QStringList FileBrowserWidget::nameFilters() const {
 	static QStringList tmp;
 	if (tmp.isEmpty()) {
-		QStringList extensions(FileTypes::extensions(FileType::Video, FileType::Audio));
+		QStringList extensions;
+		extensions << FileTypes::extensions(FileType::Video);
+		extensions << FileTypes::extensions(FileType::Audio);
 		extensions << FileTypes::extensions(FileType::Playlist);
+		extensions << FileTypes::extensions(FileType::Subtitle);
 		foreach (QString ext, extensions) {
 			tmp << "*." + ext;
 		}
@@ -210,8 +213,11 @@ void FileBrowserWidget::search() {
 		_fileSearchModel->setIconProvider(_dirModel->iconProvider());
 		_treeView->setModel(_fileSearchModel);
 
-		QStringList extensions = FileTypes::extensions(FileType::Video, FileType::Audio);
+		QStringList extensions;
+		extensions << FileTypes::extensions(FileType::Video);
+		extensions << FileTypes::extensions(FileType::Audio);
 		extensions << FileTypes::extensions(FileType::Playlist);
+		extensions << FileTypes::extensions(FileType::Subtitle);
 
 		QString tmp;
 		QStringList words(pattern.split(' '));

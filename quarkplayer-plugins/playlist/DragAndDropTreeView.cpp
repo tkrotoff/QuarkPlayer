@@ -29,6 +29,7 @@
 #include <mediainfowindow/MediaInfoFetcher.h>
 
 #include <tkutil/TkIcon.h>
+#include <tkutil/TkAction.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
@@ -54,14 +55,20 @@ DragAndDropTreeView::DragAndDropTreeView(PlaylistModel * playlistModel, Playlist
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	//setSortingEnabled(true);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setContextMenuPolicy(Qt::ActionsContextMenu);
 
 	populateActionCollection();
 
 	connect(uuidAction("Playlist.PlayItem"), SIGNAL(triggered()), SLOT(playItem()));
+	addAction(uuidAction("Playlist.PlayItem"));
 	connect(uuidAction("Playlist.SendTo"), SIGNAL(triggered()), SLOT(sendTo()));
+	//addAction(uuidAction("Playlist.SendTo"));
 	connect(uuidAction("Playlist.DeleteItem"), SIGNAL(triggered()), SLOT(clearSelection()));
+	addAction(uuidAction("Playlist.DeleteItem"));
 	connect(uuidAction("Playlist.RateItem"), SIGNAL(triggered()), SLOT(rateItem()));
+	//addAction(uuidAction("Playlist.RateItem"));
 	connect(uuidAction("Playlist.ViewMediaInfo"), SIGNAL(triggered()), SLOT(viewMediaInfo()));
+	addAction(uuidAction("Playlist.ViewMediaInfo"));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -75,10 +82,13 @@ void DragAndDropTreeView::mousePressEvent(QMouseEvent * event) {
 	PlaylistConfig::instance().setActivePlaylist(_uuid);
 
 	if (event->button() == Qt::RightButton) {
-		showMenu(event->pos());
+		QModelIndex index(indexAt(event->pos()));
+		if (index.isValid()) {
+			setCurrentIndex(index);
+		}
 	}
 
-	else if (event->button() == Qt::LeftButton) {
+	if (event->button() == Qt::LeftButton) {
 		//This should be an internal move
 		//since we are doing a drag&drop within the playlist, not from outside
 		setDragDropMode(QAbstractItemView::InternalMove);
@@ -111,40 +121,6 @@ void DragAndDropTreeView::dragMoveEvent(QDragMoveEvent * event) {
 	QTreeView::dragMoveEvent(event);
 }
 
-void DragAndDropTreeView::showMenu(const QPoint & pos) {
-	QModelIndex index(indexAt(pos));
-	if (index.isValid()) {
-		QModelIndexList indexList = selectionModel()->selectedRows();
-		if (indexList.isEmpty()) {
-			setCurrentIndex(index);
-		} else {
-			int selectedIndexRow = index.row();
-			int selectionBeginRow = indexList.at(0).row();
-			int selectionEndRow = selectionBeginRow + indexList.size();
-			qDebug() << " ";
-			qDebug() << __FUNCTION__ << "indexRow:" << selectedIndexRow;
-			qDebug() << __FUNCTION__ << "beginRow:" << selectionBeginRow;
-			qDebug() << __FUNCTION__ << "endRow:" << selectionEndRow;
-			qDebug() << " ";
-			if (selectedIndexRow >= selectionBeginRow && selectedIndexRow <= selectionEndRow) {
-				//Nothing to do, index is already inside the selection
-			} else {
-				//Index is outside the selection
-				setCurrentIndex(index);
-			}
-		}
-
-		QMenu * menu = new QMenu(this);
-		menu->addAction(uuidAction("Playlist.PlayItem"));
-		//FIXME For the future menu->addAction(uuidAction("Playlist.SendTo"));
-		menu->addAction(uuidAction("Playlist.DeleteItem"));
-		//FIXME For the future menu->addAction(uuidAction("Playlist.RateItem"));
-		menu->addAction(uuidAction("Playlist.ViewMediaInfo"));
-
-		menu->exec(QCursor::pos());
-	}
-}
-
 void DragAndDropTreeView::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
@@ -152,7 +128,9 @@ void DragAndDropTreeView::populateActionCollection() {
 	addUuidAction("Playlist.SendTo", new QAction(app));
 	addUuidAction("Playlist.DeleteItem", new QAction(app));
 	addUuidAction("Playlist.RateItem", new QAction(app));
-	addUuidAction("Playlist.ViewMediaInfo", new QAction(app));
+	TkAction * action = new TkAction(app, tr("Ctrl+I"), tr("Alt+3"));
+	action->setShortcutContext(Qt::ApplicationShortcut);
+	addUuidAction("Playlist.ViewMediaInfo", action);
 }
 
 void DragAndDropTreeView::retranslate() {
@@ -240,6 +218,8 @@ void DragAndDropTreeView::rateItem() {
 }
 
 void DragAndDropTreeView::viewMediaInfo() {
+	qDebug() << __FUNCTION__;
+
 	_mediaInfoWindow = new MediaInfoWindow(this);
 
 	MediaInfoFetcher * mediaInfoFetcher = new MediaInfoFetcher(this);

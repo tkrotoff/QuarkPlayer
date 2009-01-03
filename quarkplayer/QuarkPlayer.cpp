@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,6 +63,8 @@ void QuarkPlayer::setCurrentMediaObject(Phonon::MediaObject * mediaObject) {
 	if (_currentMediaObject != mediaObject) {
 		_currentMediaObject = mediaObject;
 		emit currentMediaObjectChanged(_currentMediaObject);
+	} else {
+		qCritical() << __FUNCTION__ << "Error: _currentMediaObject and mediaObject are the same";
 	}
 }
 
@@ -92,6 +94,8 @@ QString QuarkPlayer::currentMediaObjectTitle() const {
 				fullTitle += artist;
 			}
 		}
+	} else {
+		qCritical() << __FUNCTION__ << "Error: no MediaObject available";
 	}
 
 	return fullTitle;
@@ -124,6 +128,8 @@ void QuarkPlayer::play(const Phonon::MediaSource & mediaSource) {
 
 		_currentMediaObject->setCurrentSource(tmp);
 		_currentMediaObject->play();
+	} else {
+		qCritical() << __FUNCTION__ << "Error: no MediaObject available";
 	}
 }
 
@@ -133,6 +139,11 @@ void QuarkPlayer::addFilesToPlaylist(const QStringList & files) {
 
 Phonon::AudioOutput * QuarkPlayer::currentAudioOutput() const {
 	Phonon::AudioOutput * audioOutput = NULL;
+
+	if (!_currentMediaObject) {
+		qCritical() << __FUNCTION__ << "Error: no MediaObject available";
+		return audioOutput;
+	}
 
 	QList<Phonon::Path> outputPaths = _currentMediaObject->outputPaths();
 	foreach (Phonon::Path outputPath, outputPaths) {
@@ -152,6 +163,11 @@ Phonon::Path QuarkPlayer::currentAudioOutputPath() const {
 	Phonon::AudioOutput * audioOutput = NULL;
 	Phonon::Path audioOutputPath;
 
+	if (!_currentMediaObject) {
+		qCritical() << __FUNCTION__ << "Error: no MediaObject available";
+		return audioOutputPath;
+	}
+
 	QList<Phonon::Path> outputPaths = _currentMediaObject->outputPaths();
 	foreach (Phonon::Path outputPath, outputPaths) {
 		//Cannot use qobject_cast<> since MediaNode is not a QObject
@@ -169,6 +185,11 @@ Phonon::Path QuarkPlayer::currentAudioOutputPath() const {
 
 Phonon::VideoWidget * QuarkPlayer::currentVideoWidget() const {
 	Phonon::VideoWidget * videoWidget = NULL;
+
+	if (!_currentMediaObject) {
+		qCritical() << __FUNCTION__ << "Error: no MediaObject available";
+		return videoWidget;
+	}
 
 	QList<Phonon::Path> outputPaths = _currentMediaObject->outputPaths();
 	foreach (Phonon::Path outputPath, outputPaths) {

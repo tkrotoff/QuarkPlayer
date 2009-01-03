@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>321</width>
+    <width>378</width>
     <height>100</height>
    </rect>
   </property>
@@ -41,6 +41,13 @@
      <property name="verticalSpacing" >
       <number>0</number>
      </property>
+     <item row="0" column="0" >
+      <widget class="QLabel" name="pushTheCoverArtOnTheLeftLabel" >
+       <property name="text" >
+        <string/>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>

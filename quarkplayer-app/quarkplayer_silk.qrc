@@ -14,9 +14,10 @@
 	<file alias="16x16/format-list-ordered">icons/silk/text_list_numbers.png</file>
 	<file alias="16x16/speaker">icons/silk/sound.png</file>
 	<file alias="16x16/player-volume">icons/silk/sound.png</file>
-	<file alias="16x16/player-volume-muted">icons/silk/sound_mute.png</file>
-	<file alias="16x16/player-volume-low">icons/silk/sound_low.png</file>
-	<file alias="16x16/player-volume-medium">icons/silk/sound.png</file>
+	<file alias="16x16/audio-volume-muted">icons/silk/sound_mute.png</file>
+	<file alias="16x16/audio-volume-low">icons/silk/sound_low.png</file>
+	<file alias="16x16/audio-volume-medium">icons/silk/sound.png</file>
+	<file alias="16x16/audio-volume-high">icons/silk/sound.png</file>
 	<file alias="16x16/player-time">icons/silk/time.png</file>
 	<file alias="16x16/view-media-equalizer">icons/silk/control_equalizer_blue.png</file>
 	<file alias="16x16/go-next">icons/silk/resultset_next.png</file>
@@ -41,6 +42,8 @@
 	<file alias="16x16/media-playback-stop">icons/silk/control_stop_blue.png</file>
 	<file alias="16x16/media-skip-backward">icons/silk/control_start_blue.png</file>
 	<file alias="16x16/media-skip-forward">icons/silk/control_end_blue.png</file>
+	<file alias="16x16/media-seek-backward">icons/silk/control_rewind_blue.png</file>
+	<file alias="16x16/media-seek-forward">icons/silk/control_fastforward_blue.png</file>
 	<file alias="16x16/view-fullscreen">icons/silk/arrow_out.png</file>
 	<file alias="16x16/help-about">icons/silk/information.png</file>
 	<file alias="16x16/list-add">icons/silk/page_add.png</file>

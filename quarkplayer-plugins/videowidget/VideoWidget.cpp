@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,9 @@
 
 #include <tkutil/ActionCollection.h>
 #include <tkutil/ScreenSaver.h>
+#include <tkutil/TkAction.h>
+#include <tkutil/TkIcon.h>
+#include <tkutil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
 
@@ -47,78 +50,214 @@ VideoWidget::VideoWidget(QDockWidget * dockWidget, MainWindow * mainWindow)
 	if (_playToolBar) {
 		playToolBarAdded(_playToolBar);
 	}
+
+	populateActionCollection();
+
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	createContextMenu();
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
+		SLOT(showContextMenu(const QPoint &)));
+
+	RETRANSLATE(this);
+	retranslate();
 }
 
 VideoWidget::~VideoWidget() {
 }
 
+void VideoWidget::populateActionCollection() {
+	QCoreApplication * app = QApplication::instance();
+
+	TkAction * action = new TkAction(app);
+	ActionCollection::addAction("VideoWidget.AspectRatioAuto", action);
+
+	action = new TkAction(app);
+	ActionCollection::addAction("VideoWidget.AspectRatioScale", action);
+
+	action = new TkAction(app);
+	ActionCollection::addAction("VideoWidget.AspectRatio16/9", action);
+
+	action = new TkAction(app);
+	ActionCollection::addAction("VideoWidget.AspectRatio4/3", action);
+
+	action = new TkAction(app);
+	ActionCollection::addAction("VideoWidget.ScaleModeFitInView", action);
+
+	action = new TkAction(app);
+	ActionCollection::addAction("VideoWidget.ScaleModeScaleAndCrop", action);
+}
+
+void VideoWidget::retranslate() {
+	ActionCollection::action("VideoWidget.AspectRatioAuto")->setText(tr("Auto"));
+	ActionCollection::action("VideoWidget.AspectRatioScale")->setText(tr("Scale"));
+	ActionCollection::action("VideoWidget.AspectRatio16/9")->setText(tr("16/9"));
+	ActionCollection::action("VideoWidget.AspectRatio4/3")->setText(tr("4/3"));
+	ActionCollection::action("VideoWidget.ScaleModeFitInView")->setText(tr("Fit in View"));
+	ActionCollection::action("VideoWidget.ScaleModeScaleAndCrop")->setText(tr("Scale and Crop"));
+}
+
+void VideoWidget::createContextMenu() {
+	_contextMenu = new QMenu(this);
+
+	_contextMenu->addAction(ActionCollection::action("MainWindow.PreviousTrack"));
+	_contextMenu->addAction(ActionCollection::action("MainWindow.PlayPause"));
+	_contextMenu->addAction(ActionCollection::action("MainWindow.Stop"));
+	_contextMenu->addAction(ActionCollection::action("MainWindow.NextTrack"));
+	_contextMenu->addAction(ActionCollection::action("MainWindow.FullScreen"));
+
+	_contextMenu->addSeparator();
+
+	_contextMenu->addAction(ActionCollection::action("MainWindow.OpenFile"));
+	_contextMenu->addAction(ActionCollection::action("MainWindow.OpenDVD"));
+	_contextMenu->addAction(ActionCollection::action("MainWindow.OpenURL"));
+
+	_contextMenu->addSeparator();
+
+	QMenu * aspectRatioMenu = _contextMenu->addMenu(tr("&Aspect Ratio"));
+	QActionGroup * aspectRatioGroup = new QActionGroup(aspectRatioMenu);
+	connect(aspectRatioGroup, SIGNAL(triggered(QAction *)), SLOT(aspectRatioChanged(QAction *)));
+	aspectRatioGroup->setExclusive(true);
+
+	QAction * action = ActionCollection::action("VideoWidget.AspectRatioAuto");
+	action->setCheckable(true);
+	action->setChecked(true);
+	aspectRatioMenu->addAction(action);
+	aspectRatioGroup->addAction(action);
+
+	action = ActionCollection::action("VideoWidget.AspectRatioScale");
+	action->setCheckable(true);
+	aspectRatioMenu->addAction(action);
+	aspectRatioGroup->addAction(action);
+
+	action = ActionCollection::action("VideoWidget.AspectRatio16/9");
+	action->setCheckable(true);
+	aspectRatioMenu->addAction(action);
+	aspectRatioGroup->addAction(action);
+
+	action = ActionCollection::action("VideoWidget.AspectRatio4/3");
+	action->setCheckable(true);
+	aspectRatioMenu->addAction(action);
+	aspectRatioGroup->addAction(action);
+
+	QMenu * scaleModeMenu = _contextMenu->addMenu(tr("&Scale Mode"));
+	QActionGroup * scaleModeGroup = new QActionGroup(scaleModeMenu);
+	connect(scaleModeGroup, SIGNAL(triggered(QAction *)), SLOT(scaleModeChanged(QAction *)));
+	scaleModeGroup->setExclusive(true);
+
+	action = ActionCollection::action("VideoWidget.ScaleModeFitInView");
+	action->setCheckable(true);
+	action->setChecked(true);
+	scaleModeMenu->addAction(action);
+	scaleModeGroup->addAction(action);
+
+	action = ActionCollection::action("VideoWidget.ScaleModeScaleAndCrop");
+	action->setCheckable(true);
+	scaleModeMenu->addAction(action);
+	scaleModeGroup->addAction(action);
+
+	_contextMenu->addSeparator();
+
+	_contextMenu->addAction(ActionCollection::action("MainWindow.Quit"));
+}
+
+void VideoWidget::showContextMenu(const QPoint & pos) {
+	_contextMenu->popup(isFullScreen() ? pos : mapToGlobal(pos));
+}
+
+void VideoWidget::scaleModeChanged(QAction * action) {
+	if (action == ActionCollection::action("VideoWidget.ScaleModeFitInView")) {
+		setScaleMode(Phonon::VideoWidget::FitInView);
+	} else if (action == ActionCollection::action("VideoWidget.ScaleModeScaleAndCrop")) {
+		setScaleMode(Phonon::VideoWidget::ScaleAndCrop);
+	} else {
+		qCritical() << __FUNCTION__ << "Error: unknown action:" << action->text();
+	}
+}
+
+void VideoWidget::aspectRatioChanged(QAction * action) {
+	if (action == ActionCollection::action("VideoWidget.AspectRatio16/9")) {
+		setAspectRatio(Phonon::VideoWidget::AspectRatio16_9);
+	} else if (action == ActionCollection::action("VideoWidget.AspectRatioScale")) {
+		setAspectRatio(Phonon::VideoWidget::AspectRatioWidget);
+	} else if (action == ActionCollection::action("VideoWidget.AspectRatio4/3")) {
+		setAspectRatio(Phonon::VideoWidget::AspectRatio4_3);
+	} else if (action == ActionCollection::action("VideoWidget.AspectRatioAuto")) {
+		setAspectRatio(Phonon::VideoWidget::AspectRatioAuto);
+	} else {
+		qCritical() << __FUNCTION__ << "Error: unknown action:" << action->text();
+	}
+}
+
+void VideoWidget::enterFullScreenSlot() {
+	if (isFullScreen()) {
+		return;
+	}
+
+	//Going fullscreen
+
+	//Disable screensaver
+	ScreenSaver::disable();
+
+	//Bugfix: when going fullscreen, dockWidget does not have any child widget
+	//and thus get closed. In order to avoid this, we set a fake child widget to dockWidget
+	_dockWidget->setWidget(new QLabel("Fullscreen bugfix"));
+	enterFullScreen();
+	show();
+	//
+
+	//QWidget that contains PlayToolBar + StatusBar
+	//Lazy initialization
+	if (!_widgetOverFullScreen) {
+		_widgetOverFullScreen = new QWidget(NULL);
+		_widgetOverFullScreen->setWindowFlags(Qt::Window | Qt::FramelessWindowHint |
+			Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+
+		QVBoxLayout * layout = new QVBoxLayout();
+		layout->setSpacing(0);
+		layout->setMargin(0);
+		layout->setContentsMargins(0, 0, 0, 0);
+		_widgetOverFullScreen->setLayout(layout);
+	}
+
+	QAction * fullScreen = ActionCollection::action("MainWindow.FullScreen");
+	fullScreen->setChecked(true);
+}
+
+void VideoWidget::leaveFullScreenSlot() {
+	if (!isFullScreen()) {
+		return;
+	}
+
+	//Leaving fullscreen
+
+	//Restore screensaver
+	ScreenSaver::restore();
+
+	exitFullScreen();
+	_dockWidget->setWidget(this);
+
+	addPlayToolBarToMainWindow();
+	_widgetOverFullScreen->hide();
+
+	QAction * fullScreen = ActionCollection::action("MainWindow.FullScreen");
+	fullScreen->setChecked(false);
+}
+
 void VideoWidget::setFullScreenSlot(bool fullScreen) {
 	if (fullScreen) {
-		//Going fullscreen
-
-		//Disable screensaver
-		ScreenSaver::disable();
-
-		//Bugfix: when going fullscreen, dockWidget does not have any child widget
-		//and thus get closed. In order to avoid this, we set a fake child widget to dockWidget
-		_dockWidget->setWidget(new QLabel("Fullscreen bugfix"));
-		setFullScreen(fullScreen);
-		show();
-		//
-
-		//QWidget that contains PlayToolBar + StatusBar
-		//Lazy initialization
-		if (!_widgetOverFullScreen) {
-			_widgetOverFullScreen = new QWidget(NULL);
-			_widgetOverFullScreen->setWindowFlags(Qt::Window | Qt::FramelessWindowHint |
-				Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
-
-			QVBoxLayout * layout = new QVBoxLayout();
-			layout->setContentsMargins(0, 0, 0, 0);
-			_widgetOverFullScreen->setLayout(layout);
-		}
+		enterFullScreenSlot();
 	} else {
-		//Leaving fullscreen
-
-		//Restore screensaver
-		ScreenSaver::restore();
-
-		setFullScreen(fullScreen);
-		_dockWidget->setWidget(this);
-
-		addPlayToolBarToMainWindow();
-		_widgetOverFullScreen->hide();
+		leaveFullScreenSlot();
 	}
 }
 
 void VideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
 	Phonon::VideoWidget::mouseDoubleClickEvent(event);
-	QAction * fullScreen = ActionCollection::action("MainWindow.FullScreen");
-	if (fullScreen) {
-		fullScreen->setChecked(!isFullScreen());
-	} else {
-		setFullScreenSlot(!isFullScreen());
-	}
-}
-
-void VideoWidget::keyPressEvent(QKeyEvent * event) {
-	if (event->key() == Qt::Key_Escape && !event->modifiers()) {
-		setFullScreenSlot(false);
-		event->accept();
-		return;
-	}
-
-	Phonon::VideoWidget::keyPressEvent(event);
+	setFullScreenSlot(!isFullScreen());
 }
 
 bool VideoWidget::event(QEvent * event) {
 	switch(event->type()) {
-	case QEvent::Close:
-		//We just ignore the close event on the video widget
-		//this prevents ALT+F4 from having an effect in fullscreen mode
-		event->ignore();
-		return true;
-
 	case QEvent::MouseMove:
 		if (isFullScreen()) {
 			checkMousePos();
@@ -236,6 +375,9 @@ void VideoWidget::playToolBarAdded(QToolBar * playToolBar) {
 
 	connect(ActionCollection::action("MainWindow.FullScreen"), SIGNAL(toggled(bool)),
 		SLOT(setFullScreenSlot(bool)));
+
+	connect(ActionCollection::action("MainWindow.FullScreenLeave"), SIGNAL(triggered()),
+		SLOT(leaveFullScreenSlot()));
 }
 
 void VideoWidget::statusBarAdded(QStatusBar * statusBar) {

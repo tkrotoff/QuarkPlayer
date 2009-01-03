@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -175,13 +175,15 @@ void MediaDataWidget::updateMediaInfo() {
 	}
 
 	if (!streamWebsite.isEmpty()) {
-		QLabel * label = new SqueezeLabel(href + streamWebsite + endhref1 + font + streamWebsite + endfont + endhref2);
+		SqueezeLabel * label = new SqueezeLabel();
+		label->setText(href + streamWebsite + endhref1 + font + streamWebsite + endfont + endhref2);
 		label->setOpenExternalLinks(true);
 		_ui->formLayout->addRow(tr("Stream Website:"), label);
 	}
 
 	if (!streamUrl.isEmpty()) {
-		QLabel * label = new SqueezeLabel(href + streamUrl + endhref1 + font + streamUrl + endfont + endhref2);
+		SqueezeLabel * label = new SqueezeLabel();
+		label->setText(href + streamUrl + endhref1 + font + streamUrl + endfont + endhref2);
 		label->setOpenExternalLinks(true);
 		_ui->formLayout->addRow(tr("URL:"), label);
 	}
