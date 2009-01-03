@@ -22,13 +22,13 @@ set(mediainfowindow_SRCS
 	MediaInfo.cpp
 )
 
-if (WIN32)
+if (MSVC)
 	#Do not treat wchar_t as built-in type otherwise QString::fromStdWString()
 	#and QString::toStdWString() get unresolved
 	set_source_files_properties(
 		MediaInfoFetcher.cpp
 		PROPERTIES COMPILE_FLAGS "/Zc:wchar_t-")
-endif (WIN32)
+endif (MSVC)
 
 qt4_wrap_cpp(mediainfowindow_SRCS
 	MediaInfoWindow.h
