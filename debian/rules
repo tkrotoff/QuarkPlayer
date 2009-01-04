@@ -15,6 +15,7 @@ configure-stamp:
 	dh_testdir
 
 	# Add here commands to configure the package.
+	$(MAKE) configure
 
 	touch configure-stamp
 
@@ -34,7 +35,7 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
-	$(MAKE) clean
+	#$(MAKE) clean
 
 	dh_clean
 

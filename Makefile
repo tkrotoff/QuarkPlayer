@@ -1,12 +1,13 @@
-BUILD_DIR = linux-gcc43-release
+PREFIX = /usr
+BUILD_DIR = build/linux-gcc43-release
 
-PREFIX=/usr/local
+all: quarkplayer
 
 configure:
 	cd build && ./build_make-release.sh
 
-quarkplayer: configure
-	cd build && $(MAKE)
+quarkplayer:
+	cd build && $(MAKE) install
 
 clean:
 	cd build && $(MAKE) clean
@@ -14,64 +15,94 @@ clean:
 install: quarkplayer
 
 	#Binary
-	install -d $(PREFIX)/bin
-	install -m 755 $(BUILD_DIR)/quarkplayer $(PREFIX)/bin
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -m 755 $(BUILD_DIR)/quarkplayer $(DESTDIR)$(PREFIX)/bin
 
 	#Internal libraries
-	install -d $(PREFIX)/lib/quarkplayer
-	install -m 644 $(BUILD_DIR)/*.so $(PREFIX)/lib/quarkplayer
+	install -d $(DESTDIR)$(PREFIX)/lib/quarkplayer
+	install -m 644 $(BUILD_DIR)/*.so $(DESTDIR)$(PREFIX)/lib/quarkplayer
 
 	#Plugins
-	install -d $(PREFIX)/lib/quarkplayer/plugins
-	install -m 644 $(BUILD_DIR)/lib/quarkplayer/plugins/*.so $(PREFIX)/lib/quarkplayer/plugins
+	install -d $(DESTDIR)$(PREFIX)/lib/quarkplayer/plugins
+	install -m 644 $(BUILD_DIR)/plugins/*.so $(DESTDIR)$(PREFIX)/lib/quarkplayer/plugins
 
 	#MPlayer Phonon backend
-	install -d $(PREFIX)/lib/quarkplayer/phonon_backend
-	install -m 644 $(BUILD_DIR)/phonon_backend/*.so $(PREFIX)/lib/quarkplayer/phonon_backend
+	install -d $(DESTDIR)$(PREFIX)/lib/quarkplayer/phonon_backend
+	install -m 644 $(BUILD_DIR)/phonon_backend/*.so $(DESTDIR)$(PREFIX)/lib/quarkplayer/phonon_backend
 
 	#Qt styles
-	install -d $(PREFIX)/lib/quarkplayer/styles
-	install -m 644 $(BUILD_DIR)/styles/*.so $(PREFIX)/lib/quarkplayer/styles
+	install -d $(DESTDIR)$(PREFIX)/lib/quarkplayer/styles
+	install -m 644 $(BUILD_DIR)/styles/*.so $(DESTDIR)$(PREFIX)/lib/quarkplayer/styles
 
 	#Translations
-	install -d $(PREFIX)/share/quarkplayer/translations
-	install -m 644 $(BUILD_DIR)/translations/*.qm $(PREFIX)/share/quarkplayer/translations
+	install -d $(DESTDIR)$(PREFIX)/share/quarkplayer/translations
+	install -m 644 $(BUILD_DIR)/translations/*.qm $(DESTDIR)$(PREFIX)/share/quarkplayer/translations
 
 	#Documentation
-	install -d $(PREFIX)/share/quarkplayer/doc
-	install -m 644 $(BUILD_DIR)/README $(PREFIX)/share/quarkplayer/doc
-	install -m 644 $(BUILD_DIR)/AUTHORS $(PREFIX)/share/quarkplayer/doc
-	install -m 644 $(BUILD_DIR)/ChangeLog $(PREFIX)/share/quarkplayer/doc
-	install -m 644 $(BUILD_DIR)/COPYING $(PREFIX)/share/quarkplayer/doc
-	install -m 644 $(BUILD_DIR)/COPYING.LESSER $(PREFIX)/share/quarkplayer/doc
-	install -m 644 $(BUILD_DIR)/THANKS $(PREFIX)/share/quarkplayer/doc
+	install -d $(DESTDIR)$(PREFIX)/share/quarkplayer/doc
+	install -m 644 $(BUILD_DIR)/README $(DESTDIR)$(PREFIX)/share/quarkplayer/doc
+	install -m 644 $(BUILD_DIR)/AUTHORS $(DESTDIR)$(PREFIX)/share/quarkplayer/doc
+	install -m 644 $(BUILD_DIR)/ChangeLog $(DESTDIR)$(PREFIX)/share/quarkplayer/doc
+	install -m 644 $(BUILD_DIR)/COPYING $(DESTDIR)$(PREFIX)/share/quarkplayer/doc
+	install -m 644 $(BUILD_DIR)/COPYING.LESSER $(DESTDIR)$(PREFIX)/share/quarkplayer/doc
+	install -m 644 $(BUILD_DIR)/THANKS $(DESTDIR)$(PREFIX)/share/quarkplayer/doc
 
-	#.desktop
-	install -d $(PREFIX)/share/applications
-	install -m 644 $(BUILD_DIR)/quarkplayer.desktop $(PREFIX)/share/applications
+	#Man pages
+	install -d $(DESTDIR)$(PREFIX)/share/man/man1
+
+	#.desktop file
+	install -d $(DESTDIR)$(PREFIX)/share/applications
+	install -m 644 $(BUILD_DIR)/quarkplayer.desktop $(DESTDIR)$(PREFIX)/share/applications
+
+	#KDE Icons
+	install -d $(DESTDIR)$(PREFIX)/share/icons/hicolor/16x16/apps
+	install -d $(DESTDIR)$(PREFIX)/share/icons/hicolor/22x22/apps
+	install -d $(DESTDIR)$(PREFIX)/share/icons/hicolor/32x32/apps
+	install -d $(DESTDIR)$(PREFIX)/share/icons/hicolor/48x48/apps
+	install -d $(DESTDIR)$(PREFIX)/share/icons/hicolor/64x64/apps
+	install -d $(DESTDIR)$(PREFIX)/share/icons/hicolor/128x128/apps
+	install -d $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps
+	install -m 644 quarkplayer-app/icons/hi16-app-quarkplayer.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/16x16/apps/quarkplayer.png
+	install -m 644 quarkplayer-app/icons/hi22-app-quarkplayer.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/22x22/apps/quarkplayer.png
+	install -m 644 quarkplayer-app/icons/hi32-app-quarkplayer.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/32x32/apps/quarkplayer.png
+	install -m 644 quarkplayer-app/icons/hi48-app-quarkplayer.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/48x48/apps/quarkplayer.png
+	install -m 644 quarkplayer-app/icons/hi64-app-quarkplayer.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/64x64/apps/quarkplayer.png
+	install -m 644 quarkplayer-app/icons/quarkplayer.svgz $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps/quarkplayer.svgz
 
 uninstall:
 
 	#Binary
-	rm -f $(PREFIX)/bin/quarkplayer
+	rm -f $(DESTDIR)$(PREFIX)/bin/quarkplayer
 
 	#Internal libraries
-	rm -f $(PREFIX)/lib/quarkplayer/*.so
+	rm -f $(DESTDIR)$(PREFIX)/lib/quarkplayer/*.so
 
 	#Plugins
-	rm -f $(PREFIX)/lib/quarkplayer/plugins/*.so
+	rm -f $(DESTDIR)$(PREFIX)/lib/quarkplayer/plugins/*.so
 
 	#MPlayer Phonon backend
-	rm -f $(PREFIX)/lib/quarkplayer/phonon_backend/*.so
+	rm -f $(DESTDIR)$(PREFIX)/lib/quarkplayer/phonon_backend/*.so
 
 	#Qt styles
-	rm -f $(PREFIX)/lib/quarkplayer/styles/*.so
+	rm -f $(DESTDIR)$(PREFIX)/lib/quarkplayer/styles/*.so
 
 	#Translations
-	rm -f $(PREFIX)/share/quarkplayer/translations/*.qm
+	rm -f $(DESTDIR)$(PREFIX)/share/quarkplayer/translations/*.qm
 
 	#Documentation
-	rm -f $(PREFIX)/share/quarkplayer/doc/*
+	rm -f $(DESTDIR)$(PREFIX)/share/quarkplayer/doc/*
 
-	#.desktop
-	rm -f $(PREFIX)/share/applications/quarkplayer.desktop
+	#Man pages
+	rm -f $(DESTDIR)$(PREFIX)/share/man/man1/quarkplayer.1.gz
+
+	#.desktop file
+	rm -f $(DESTDIR)$(PREFIX)/share/applications/quarkplayer.desktop
+
+	#KDE Icons
+	rm -f $(DESTDIR)$(PREFIX)/share/icons/hicolor/16x16/apps/quarkplayer.png
+	rm -f $(DESTDIR)$(PREFIX)/share/icons/hicolor/22x22/apps/quarkplayer.png
+	rm -f $(DESTDIR)$(PREFIX)/share/icons/hicolor/32x32/apps/quarkplayer.png
+	rm -f $(DESTDIR)$(PREFIX)/share/icons/hicolor/48x48/apps/quarkplayer.png
+	rm -f $(DESTDIR)$(PREFIX)/share/icons/hicolor/64x64/apps/quarkplayer.png
+	rm -f $(DESTDIR)$(PREFIX)/share/icons/hicolor/128x128/apps/quarkplayer.png
+	rm -f $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps/quarkplayer.svgz
