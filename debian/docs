@@ -1,8 +1,2 @@
-CMakeLists-linux.txt
-CMakeLists-macos.txt
-CMakeLists-owbuild.txt
-CMakeLists.txt
-CMakeLists-win32.txt
-CPackConfig.txt
 README
 TODO
