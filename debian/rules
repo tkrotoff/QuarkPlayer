@@ -17,7 +17,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-
+	cd build && ./build_make-release.sh
 	touch configure-stamp
 
 
@@ -27,7 +27,7 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
-	$(MAKE)
+	cd build && $(MAKE) install
 	#docbook-to-man debian/quarkplayer.sgml > quarkplayer.1
 
 	touch $@
@@ -49,7 +49,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/quarkplayer.
-	$(MAKE) DESTDIR=$(CURDIR)/debian/quarkplayer install
+	cd build && $(MAKE) DESTDIR=$(CURDIR)/debian/quarkplayer install
 
 
 # Build architecture-independent files here.
