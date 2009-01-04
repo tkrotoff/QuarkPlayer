@@ -1,8 +1,8 @@
 Source: quarkplayer
-Section: unknown
+Section: graphics
 Priority: extra
 Maintainer: Tanguy Krotoff <tkrotoff@gmail.com>
-Build-Depends: debhelper (>= 7)
+Build-Depends: debhelper (>= 7), libqt4-dev
 Standards-Version: 3.7.3
 Homepage: http://phonon-vlc-mplayer.googlecode.com/
 
