@@ -21,14 +21,15 @@ VS_VERSION_INFO VERSIONINFO
 			//Lang=US English, CharSet=Unicode
 			BLOCK "040904B0"
 			BEGIN
-				VALUE "CompanyName", "Tanguy Krotoff"
-				VALUE "FileDescription", "QuarkPlayer"
-				VALUE "FileVersion", "@QUARKPLAYER_VERSION@"
-				VALUE "InternalName", "QuarkPlayer"
-				VALUE "LegalCopyright", "Copyright (C) 2008  Tanguy Krotoff"
-				VALUE "OriginalFilename", "quarkplayer.exe"
-				VALUE "ProductName", "QuarkPlayer"
+				VALUE "ProductName", "@QUARKPLAYER_NAME@"
 				VALUE "ProductVersion", "@QUARKPLAYER_VERSION@"
+				VALUE "Comments", "@QUARKPLAYER_DESCRIPTION_SUMMARY@"
+				VALUE "CompanyName", "@QUARKPLAYER_AUTHORS@"
+				VALUE "LegalCopyright", "@QUARKPLAYER_COPYRIGHT@"
+				VALUE "FileDescription", "@QUARKPLAYER_NAME@"
+				VALUE "FileVersion", "@QUARKPLAYER_VERSION@"
+				VALUE "InternalName", "@QUARKPLAYER_NAME@"
+				VALUE "OriginalFilename", "@QUARKPLAYER_BINARY_NAME@"
 			END
 		END
 

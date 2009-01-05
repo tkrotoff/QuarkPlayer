@@ -11,10 +11,6 @@ else (NSIS_PROGRAM)
 	message(FATAL_ERROR "Could not find NSIS")
 endif (NSIS_PROGRAM)
 
-set(INSTALLER_DIR
-	${CMAKE_SOURCE_DIR}/nsis
-)
-
 add_custom_target(nsis
 	${NSIS_PROGRAM}
 	/DBUILD_DIR="${BUILD_DIR}"

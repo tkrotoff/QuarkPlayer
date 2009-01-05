@@ -3,16 +3,36 @@ cmake_minimum_required(VERSION 2.6)
 
 project(quarkplayer)
 
-set(QUARKPLAYER_MAJOR_VERSION 0)
-set(QUARKPLAYER_MINOR_VERSION 2)
-set(QUARKPLAYER_PATCH_VERSION 5)
-set(QUARKPLAYER_VERSION ${QUARKPLAYER_MAJOR_VERSION}.${QUARKPLAYER_MINOR_VERSION}.${QUARKPLAYER_PATCH_VERSION})
-
 #Add options values
 include(Options.cmake)
 
 #OWBuild
 include(CMakeLists-owbuild.txt)
+
+#Global variables about QuarkPlayer
+set(QUARKPLAYER_NAME "QuarkPlayer")
+set(QUARKPLAYER_MAJOR_VERSION 0)
+set(QUARKPLAYER_MINOR_VERSION 2)
+set(QUARKPLAYER_PATCH_VERSION 5)
+set(QUARKPLAYER_VERSION ${QUARKPLAYER_MAJOR_VERSION}.${QUARKPLAYER_MINOR_VERSION}.${QUARKPLAYER_PATCH_VERSION})
+if (WIN32)
+	set(QUARKPLAYER_BINARY_NAME quarkplayer.exe)
+endif (WIN32)
+set(QUARKPLAYER_DESCRIPTION_SUMMARY "QuarkPlayer, a Phonon media player")
+set(QUARKPLAYER_DESCRIPTION
+"QuarkPlayer is a multimedia application that plays your music and videos.
+QuarkPlayer can use different backends (DirectShow, MPlayer, Xine,
+GStreamer, VLC...) thanks to Qt and the Phonon library.
+It also relies on an advanced plugin system and is available under Windows,
+Linux and soon Mac OS X."
+)
+set(QUARKPLAYER_AUTHORS "Tanguy Krotoff <tkrotoff@gmail.com>")
+set(QUARKPLAYER_URL "http://phonon-vlc-mplayer.googlecode.com/")
+set(QUARKPLAYER_COPYRIGHT "Copyright (C) 2008-2009  Tanguy Krotoff")
+set(QUARKPLAYER_LICENSE_FILE ${CMAKE_SOURCE_DIR}/COPYING)
+set(QUARKPLAYER_PACKAGE_FILE quarkplayer-${QUARKPLAYER_VERSION}-rev${SVN_REVISION}-${BUILD_NAME})
+set(QUARKPLAYER_PACKAGE_AUTHORS ${QUARKPLAYER_AUTHORS})
+##
 
 
 #CMake declarations order matters!
@@ -128,6 +148,22 @@ add_subdirectory(quarkplayer-plugins)
 add_subdirectory(quarkplayer-app)
 ##
 
+#Tests
+add_subdirectory(tests)
+##
+
+if (WIN32)
+	#NSIS installer script
+	add_subdirectory(nsis)
+endif (WIN32)
+
+if (LINUX)
+	#Debian installer script
+	add_subdirectory(debian)
+
+	#RPM installer script
+	add_subdirectory(rpm)
+endif (LINUX)
 
 #CPack instructions
-include(CPackConfig.txt)
+#include(CPackConfig.txt)
