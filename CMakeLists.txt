@@ -149,7 +149,7 @@ add_subdirectory(quarkplayer-app)
 ##
 
 #Tests
-add_subdirectory(tests)
+#add_subdirectory(tests)
 ##
 
 if (WIN32)
