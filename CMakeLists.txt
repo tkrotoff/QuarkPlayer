@@ -20,11 +20,11 @@ if (WIN32)
 endif (WIN32)
 set(QUARKPLAYER_DESCRIPTION_SUMMARY "QuarkPlayer, a Phonon media player")
 set(QUARKPLAYER_DESCRIPTION
-"QuarkPlayer is a multimedia application that plays your music and videos.
-QuarkPlayer can use different backends (DirectShow, MPlayer, Xine,
-GStreamer, VLC...) thanks to Qt and the Phonon library.
-It also relies on an advanced plugin system and is available under Windows,
-Linux and soon Mac OS X."
+" QuarkPlayer is a multimedia application that plays your music and videos.
+ QuarkPlayer can use different backends (DirectShow, MPlayer, Xine,
+ GStreamer, VLC...) thanks to Qt and the Phonon library.
+ It also relies on an advanced plugin system and is available under Windows,
+ Linux and soon Mac OS X."
 )
 set(QUARKPLAYER_AUTHORS "Tanguy Krotoff <tkrotoff@gmail.com>")
 set(QUARKPLAYER_URL "http://phonon-vlc-mplayer.googlecode.com/")
@@ -166,4 +166,4 @@ if (LINUX)
 endif (LINUX)
 
 #CPack instructions
-#include(CPackConfig.txt)
+include(CPackConfig.txt)

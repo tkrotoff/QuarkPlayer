@@ -1,55 +1,6 @@
-if (LINUX)
-	set(CPACK_GENERATOR "TGZ;DEB;RPM")
-endif (LINUX)
+set(CPACK_GENERATOR "TGZ;ZIP")
 
 set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_BINARY_DIR};quarkplayer;ALL;/")
-
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "QuarkPlayer, a Phonon media player http://phonon-vlc-mplayer.googlecode.com/")
-set(CPACK_PACKAGE_VENDOR "http://phonon-vlc-mplayer.googlecode.com/")
-set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_SOURCE_DIR}/README)
-set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/COPYING)
-set(CPACK_RESOURCE_FILE_README ${CMAKE_SOURCE_DIR}/README)
-set(CPACK_RESOURCE_FILE_WELCOME ${CMAKE_SOURCE_DIR}/README)
-set(CPACK_PACKAGE_VERSION_MAJOR ${QUARKPLAYER_MAJOR_VERSION})
-set(CPACK_PACKAGE_VERSION_MINOR ${QUARKPLAYER_MINOR_VERSION})
-set(CPACK_PACKAGE_VERSION_PATCH ${QUARKPLAYER_PATCH_VERSION})
-set(CPACK_PACKAGE_VERSION "${QUARKPLAYER_VERSION}")
-set(CPACK_PACKAGE_CONTACT "http://phonon-vlc-mplayer.googlecode.com/")
-set(CPACK_PACKAGE_NAME "QuarkPlayer")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
-set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY ${CPACK_PACKAGE_NAME})
-set(CPACK_PACKAGE_FILE_NAME ${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION}-rev${SVN_REVISION}-${BUILD_NAME})
-
-
-
-#Debian
-set(CPACK_DEBIAN_PACKAGE_DEPENDS
-	${CPACK_DEBIAN_PACKAGE_DEPENDS}
-	"libqt4-core (>=4.4.0), libqt4-gui (>=4.4.0), libvlc1, mplayer | mplayer-nogui"
-)
-
-
-
-#RPM
-
-
-
-
-#NSIS
-set(CPACK_NSIS_MODIFY_PATH OFF)
-set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\phonon-vlc-mplayer.googlecode.com")
-set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\phonon-vlc-mplayer.googlecode.com")
-set(CPACK_PACKAGE_EXECUTABLES "quarkplayer" "QuarkPlayer")
-set(CPACK_NSIS_CREATE_ICONS "
-	CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${CPACK_PACKAGE_NAME}.lnk\\\" \\\"$INSTDIR\\\\quarkplayer.exe\\\"
-	CreateShortCut \\\"$DESKTOP\\\\${CPACK_PACKAGE_NAME}.lnk\\\" \\\"$INSTDIR\\\\quarkplayer.exe\\\"
-")
-set(CPACK_NSIS_DELETE_ICONS "
-	Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\${CPACK_PACKAGE_NAME}.lnk\\\"
-	Delete \\\"$DESKTOP\\\\${CPACK_PACKAGE_NAME}.lnk\\\"
-")
-
-
 
 #CPack
 include(CPack)

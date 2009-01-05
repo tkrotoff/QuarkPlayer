@@ -11,7 +11,7 @@ else (RPMBUILD_PROGRAM)
 	message(FATAL_ERROR "Could not find rpmbuild")
 endif (RPMBUILD_PROGRAM)
 
-configure_file(quarksplayer.spec.in ${CMAKE_BINARY_DIR}/quarkplayer.spec)
+configure_file(quarkplayer.spec.in ${CMAKE_BINARY_DIR}/quarkplayer.spec @ONLY)
 
 #Trick: define our own topdir so there is no need to be root to create
 #the package
