@@ -2,6 +2,10 @@
 # RPM spec file for QuarkPlayer
 #
 
+%define _topdir @RPM_TOP_DIR@
+%define _builddir @RPM_BUILD_DIR@
+%define _rpmfilename @RPM_FILENAME@
+
 Name:          quarkplayer
 License:       GPL
 Group:         Applications/Multimedia
@@ -10,7 +14,7 @@ Version:       @QUARKPLAYER_VERSION@
 Release:       1
 URL:           @QUARKPLAYER_URL@
 BuildRoot:     %{_tmppath}/%{name}-%{version}-build
-Source:        %{name}-%{version}.tar.bz2
+#Source:        @QUARKPLAYER_SOURCE_PACKAGE_FILE@.tar.bz2
 #BuildRequires cannot work under non-RPM based distributions like Debian
 #Uncomment it under RPM based distributions
 #BuildRequires: libqt4-devel
@@ -23,8 +27,6 @@ Source:        %{name}-%{version}.tar.bz2
 # This is a bit tricky: I don't want to download QuarkPlayer' source code,
 # to create a .tar.bz2 and then extract it: this is useless
 # Let's directly use the current source code directory
-# To perform this trick, rpmbuild/BUILD is a symlink to current source code
-# directory
 # -D : do not delete the directory before unpacking sources
 # -T : do not perform default achive unpacking
 # -n : set the name of build directory
@@ -32,6 +34,7 @@ Source:        %{name}-%{version}.tar.bz2
 
 %build
 # Build the source code
+make configure
 make
 
 %install
@@ -44,7 +47,7 @@ rm -rf %{buildroot}
 
 %files
 # Copy all the files that come with 'make install'
-%attr(-,root,root) /*
+%attr(-,root,root) /usr/*
 
 %changelog
 * Sun Jan 4 2009 Tanguy Krotoff <tkrotoff@gmail.com>

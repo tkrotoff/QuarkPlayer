@@ -1,18 +1,19 @@
 PREFIX = /usr
 BUILD_DIR = build/linux-gcc43-release
 
-all: quarkplayer
+all: quarkplayer-src
 
 configure:
 	cd build && ./build_make-release.sh
 
-quarkplayer:
+#Cannot name this target 'quarkplayer' since a directory has this name already
+quarkplayer-src:
 	cd build && $(MAKE) install
 
 clean:
 	cd build && $(MAKE) clean
 
-install: quarkplayer
+install:
 
 	#Binary
 	install -d $(DESTDIR)$(PREFIX)/bin
