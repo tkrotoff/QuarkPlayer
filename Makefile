@@ -13,7 +13,10 @@
 # debian/control.in
 #
 
+# Can be changed to /usr/local for example
 PREFIX = /usr
+
+# Output directory of CMake install target
 #BUILD_DIR = build/linux-gcc43-release
 
 all: quarkplayer-src
