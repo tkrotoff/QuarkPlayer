@@ -1,6 +1,8 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Sample debian/rules that uses debhelper.
+#
+# debian/rules file for QuarkPlayer
+#
 # This file was originally written by Joey Hess and Craig Small.
 # As a special exception, when this file is copied by dh-make into a
 # dh-make output file, you may use that output file without restriction.
@@ -11,7 +13,7 @@
 
 configure: configure-stamp
 configure-stamp:
-	dh_testdir
+	dh_testdir -P@DEB_BUILD_DIR@
 
 	# Add here commands to configure the package.
 	# Done by CMake
@@ -21,7 +23,7 @@ configure-stamp:
 
 build: build-stamp
 build-stamp: configure-stamp
-	dh_testdir
+	dh_testdir -P@DEB_BUILD_DIR@
 
 	# Add here commands to compile the package.
 	$(MAKE)
@@ -30,21 +32,21 @@ build-stamp: configure-stamp
 	touch $@
 
 clean:
-	dh_testdir
-	dh_testroot
+	dh_testdir -P@DEB_BUILD_DIR@
+	dh_testroot -P@DEB_BUILD_DIR@
 	rm -f build-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
 	# No clean since we are inside our source code directory
 	#$(MAKE) clean
 
-	dh_clean
+	dh_clean -P@DEB_BUILD_DIR@
 
 install: build
-	dh_testdir
-	dh_testroot
-	dh_clean -k
-	dh_installdirs
+	dh_testdir -P@DEB_BUILD_DIR@
+	dh_testroot -P@DEB_BUILD_DIR@
+	dh_clean -k -P@DEB_BUILD_DIR@
+	dh_installdirs -P@DEB_BUILD_DIR@
 
 	# Add here commands to install the package.
 	$(MAKE) BUILD_DIR=@BUILD_DIR@ DESTDIR=@DEB_BUILD_DIR@ install
@@ -80,7 +82,10 @@ binary-arch: build install
 #	dh_perl -P@DEB_BUILD_DIR@
 #	dh_makeshlibs -P@DEB_BUILD_DIR@
 	dh_installdeb -P@DEB_BUILD_DIR@
+
+	# Takes a very long time!
 	dh_shlibdeps -P@DEB_BUILD_DIR@
+
 	dh_gencontrol -P@DEB_BUILD_DIR@
 	dh_md5sums -P@DEB_BUILD_DIR@
 	dh_builddeb -P@DEB_BUILD_DIR@ --destdir=@CMAKE_BINARY_DIR@ --filename=@QUARKPLAYER_PACKAGE_FILE@.deb

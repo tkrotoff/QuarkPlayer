@@ -17,6 +17,7 @@ if (FAKEROOT_EXECUTABLE)
 	#-us : unsigned source
 	#-uc : unsigned changes
 	add_custom_target(deb
+		# Fails on dpkg-genchanges :/
 		#debuild -i -us -uc -b
 		#dpkg-buildpackage -rfakeroot -i -us -uc -b
 		${FAKEROOT_EXECUTABLE} debian/rules binary
