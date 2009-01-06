@@ -93,9 +93,9 @@ public:
 	QString musicDir(const QUuid & uuid) /*const*/;
 	void addMusicDir(const QString & musicDir, const QUuid & uuid);
 
-	/** Directory where the plugins *.(dll|so|dylib) are located. */
-	static const char * PLUGINS_DIR_KEY;
-	QString pluginsDir() const;
+	/** Directories where the plugins *.(dll|so|dylib) are located. */
+	static const char * PLUGIN_DIR_KEY;
+	QStringList pluginDirList() const;
 
 	/** Directoctory where the resources are located. */
 	static const char * RESOURCE_DIR_KEY;

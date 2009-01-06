@@ -34,12 +34,13 @@ BuildRoot:     %{_tmppath}/%{name}-%{version}-build
 
 %build
 # Build the source code
-make configure
+# Done by CMake
+#make configure
 make
 
 %install
 # Install all files into the BuildRoot
-make DESTDIR=%{buildroot} install
+make BUILD_DIR=@BUILD_DIR@ DESTDIR=%{buildroot} install
 
 %clean
 # Clean up the hard disc after build

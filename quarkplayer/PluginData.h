@@ -72,8 +72,6 @@ public:
 
 	QString fileName() const;
 
-	QString absoluteFilePath() const;
-
 	QUuid uuid() const;
 
 	/** Is the plugin enabled or disabled? */

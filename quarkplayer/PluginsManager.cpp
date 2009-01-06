@@ -55,8 +55,15 @@ void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	_quarkPlayer = &quarkPlayer;
 	///
 
-	QDir pluginsDir = QDir(Config::instance().pluginsDir());
-	QStringList fileNameListTmp = pluginsDir.entryList(QDir::Files);
+	QStringList pluginDirList = Config::instance().pluginDirList();
+	QStringList fileNameListTmp;
+	foreach (QString pluginDir, pluginDirList) {
+		QDir dir(pluginDir);
+		QStringList files = dir.entryList(QDir::Files);
+		foreach (QString file, files) {
+			fileNameListTmp << dir.absoluteFilePath(file);
+		}
+	}
 
 	//Removes duplicated items from the list of plugins
 	PluginData::PluginList newPluginList;
@@ -85,7 +92,7 @@ void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 				}
 			}
 		} else {
-			//No plugin matching the given filename already in database
+			//No plugin matching the given filename in database
 			//Let's create it for the first time
 			PluginData pluginData(fileName, QUuid::createUuid(), true);
 			loadPlugin(pluginData);
@@ -129,7 +136,7 @@ bool PluginsManager::loadPlugin(PluginData & pluginData) {
 
 	if (!pluginData.loader()) {
 		//Not already loaded
-		pluginData.setLoader(new QPluginLoader(pluginData.absoluteFilePath()));
+		pluginData.setLoader(new QPluginLoader(pluginData.fileName()));
 	}
 
 	QObject * plugin = pluginData.loader()->instance();

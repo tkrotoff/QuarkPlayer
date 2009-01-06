@@ -9,13 +9,13 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
 
 	# Add here commands to configure the package.
-	$(MAKE) configure
+	# Done by CMake
+	#$(MAKE) configure
 
 	touch configure-stamp
 
@@ -35,6 +35,7 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
+	# No clean since we are inside our source code directory
 	#$(MAKE) clean
 
 	dh_clean
@@ -46,7 +47,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package.
-	$(MAKE) DESTDIR=$(CURDIR)/build/deb/quarkplayer install
+	$(MAKE) BUILD_DIR=@BUILD_DIR@ DESTDIR=@DEB_BUILD_DIR@ install
 
 
 # Build architecture-independent files here.
@@ -55,34 +56,34 @@ binary-indep: build install
 
 # Build architecture-dependent files here.
 binary-arch: build install
-	dh_testdir
-	dh_testroot
-	dh_installchangelogs
-	dh_installdocs
-	dh_installexamples
-#	dh_install
-	dh_installmenu
-#	dh_installdebconf
-#	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
-#	dh_python
-#	dh_installinit
-#	dh_installcron
-#	dh_installinfo
-	dh_installman
-	dh_link
-	dh_strip
-	dh_compress
-	dh_fixperms
-#	dh_perl
-#	dh_makeshlibs
-	dh_installdeb
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
+	dh_testdir -P@DEB_BUILD_DIR@
+	dh_testroot -P@DEB_BUILD_DIR@
+	dh_installchangelogs -P@DEB_BUILD_DIR@
+	dh_installdocs -P@DEB_BUILD_DIR@
+	dh_installexamples -P@DEB_BUILD_DIR@
+#	dh_install -P@DEB_BUILD_DIR@
+	dh_installmenu -P@DEB_BUILD_DIR@
+#	dh_installdebconf -P@DEB_BUILD_DIR@
+#	dh_installlogrotate -P@DEB_BUILD_DIR@
+#	dh_installemacsen -P@DEB_BUILD_DIR@
+#	dh_installpam -P@DEB_BUILD_DIR@
+#	dh_installmime -P@DEB_BUILD_DIR@
+#	dh_python -P@DEB_BUILD_DIR@
+#	dh_installinit -P@DEB_BUILD_DIR@
+#	dh_installcron -P@DEB_BUILD_DIR@
+#	dh_installinfo -P@DEB_BUILD_DIR@
+	dh_installman -P@DEB_BUILD_DIR@
+	dh_link -P@DEB_BUILD_DIR@
+	dh_strip -P@DEB_BUILD_DIR@
+	dh_compress -P@DEB_BUILD_DIR@
+	dh_fixperms -P@DEB_BUILD_DIR@
+#	dh_perl -P@DEB_BUILD_DIR@
+#	dh_makeshlibs -P@DEB_BUILD_DIR@
+	dh_installdeb -P@DEB_BUILD_DIR@
+	dh_shlibdeps -P@DEB_BUILD_DIR@
+	dh_gencontrol -P@DEB_BUILD_DIR@
+	dh_md5sums -P@DEB_BUILD_DIR@
+	dh_builddeb -P@DEB_BUILD_DIR@ --destdir=@CMAKE_BINARY_DIR@ --filename=@QUARKPLAYER_PACKAGE_FILE@.deb
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install configure

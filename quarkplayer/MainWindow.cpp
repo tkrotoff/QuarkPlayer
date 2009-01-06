@@ -674,9 +674,12 @@ void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
 
 	Phonon::AudioOutput * audioOutput = quarkPlayer().currentAudioOutput();
-	ActionCollection::action("MainWindow.VolumeMute")->setChecked(audioOutput->isMuted());
-	disconnect(audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(mutedChanged(bool)));
-	connect(audioOutput, SIGNAL(mutedChanged(bool)), SLOT(mutedChanged(bool)));
+	if (audioOutput) {
+		//Avoid a crash inside Phonon if the backend couldn't be loaded
+		ActionCollection::action("MainWindow.VolumeMute")->setChecked(audioOutput->isMuted());
+		disconnect(audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(mutedChanged(bool)));
+		connect(audioOutput, SIGNAL(mutedChanged(bool)), SLOT(mutedChanged(bool)));
+	}
 }
 
 void MainWindow::loadSettings() {

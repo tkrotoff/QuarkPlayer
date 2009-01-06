@@ -79,11 +79,6 @@ QString PluginData::fileName() const {
 	return _fileName;
 }
 
-QString PluginData::absoluteFilePath() const {
-	QDir pluginsDir = QDir(Config::instance().pluginsDir());
-	return pluginsDir.absoluteFilePath(_fileName);
-}
-
 QUuid PluginData::uuid() const {
 	return _uuid;
 }

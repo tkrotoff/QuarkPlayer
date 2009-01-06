@@ -1,5 +1,20 @@
+#
+# This Makefile is used by targets deb and rpm.
+#
+# Targets deb and rpm create respectively Debian and RPM packages
+# for QuarkPlayer. This Makefile cannot be used without CMake.
+# Target package from CMake is not powerful enough cf
+# http://article.gmane.org/gmane.comp.programming.tools.cmake.user/16242
+# See:
+# rpm/CMakeLists.txt
+# rpm/quarkplayer.spec.in
+# debian/CMakeLists.txt
+# debian/rules.in
+# debian/control.in
+#
+
 PREFIX = /usr
-BUILD_DIR = build/linux-gcc43-release
+#BUILD_DIR = build/linux-gcc43-release
 
 all: quarkplayer-src
 
@@ -21,19 +36,19 @@ install:
 
 	#Internal libraries
 	install -d $(DESTDIR)$(PREFIX)/lib/quarkplayer
-	install -m 644 $(BUILD_DIR)/*.so $(DESTDIR)$(PREFIX)/lib/quarkplayer
+	install -m 644 $(BUILD_DIR)/*.so** $(DESTDIR)$(PREFIX)/lib/quarkplayer
 
 	#Plugins
 	install -d $(DESTDIR)$(PREFIX)/lib/quarkplayer/plugins
-	install -m 644 $(BUILD_DIR)/plugins/*.so $(DESTDIR)$(PREFIX)/lib/quarkplayer/plugins
+	install -m 644 $(BUILD_DIR)/plugins/*.so* $(DESTDIR)$(PREFIX)/lib/quarkplayer/plugins
 
 	#MPlayer Phonon backend
 	install -d $(DESTDIR)$(PREFIX)/lib/quarkplayer/phonon_backend
-	install -m 644 $(BUILD_DIR)/phonon_backend/*.so $(DESTDIR)$(PREFIX)/lib/quarkplayer/phonon_backend
+	install -m 644 $(BUILD_DIR)/phonon_backend/*.so* $(DESTDIR)$(PREFIX)/lib/quarkplayer/phonon_backend
 
 	#Qt styles
 	install -d $(DESTDIR)$(PREFIX)/lib/quarkplayer/styles
-	install -m 644 $(BUILD_DIR)/styles/*.so $(DESTDIR)$(PREFIX)/lib/quarkplayer/styles
+	install -m 644 $(BUILD_DIR)/styles/*.so* $(DESTDIR)$(PREFIX)/lib/quarkplayer/styles
 
 	#Translations
 	install -d $(DESTDIR)$(PREFIX)/share/quarkplayer/translations
@@ -76,16 +91,16 @@ uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/quarkplayer
 
 	#Internal libraries
-	rm -f $(DESTDIR)$(PREFIX)/lib/quarkplayer/*.so
+	rm -f $(DESTDIR)$(PREFIX)/lib/quarkplayer/*.so*
 
 	#Plugins
-	rm -f $(DESTDIR)$(PREFIX)/lib/quarkplayer/plugins/*.so
+	rm -f $(DESTDIR)$(PREFIX)/lib/quarkplayer/plugins/*.so*
 
 	#MPlayer Phonon backend
-	rm -f $(DESTDIR)$(PREFIX)/lib/quarkplayer/phonon_backend/*.so
+	rm -f $(DESTDIR)$(PREFIX)/lib/quarkplayer/phonon_backend/*.so*
 
 	#Qt styles
-	rm -f $(DESTDIR)$(PREFIX)/lib/quarkplayer/styles/*.so
+	rm -f $(DESTDIR)$(PREFIX)/lib/quarkplayer/styles/*.so*
 
 	#Translations
 	rm -f $(DESTDIR)$(PREFIX)/share/quarkplayer/translations/*.qm

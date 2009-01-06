@@ -1,4 +1,4 @@
-quarkplayer (0.2.5) unstable; urgency=low
+quarkplayer (@QUARKPLAYER_VERSION@) unstable; urgency=low
 
   * Initial Release.
 

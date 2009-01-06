@@ -38,7 +38,7 @@ const char * Config::LAST_DIR_USED_KEY = "last_dir_used";
 const char * Config::DVD_DIR_KEY = "dvd_dir";
 const char * Config::CDROM_DIR_KEY = "cdrom_dir";
 const char * Config::MUSIC_DIR_KEY = "music_dir";
-const char * Config::PLUGINS_DIR_KEY = "plugins_dir";
+const char * Config::PLUGIN_DIR_KEY = "plugin_dir";
 const char * Config::RESOURCE_DIR_KEY = "resource_dir";
 
 const char * Config::LAST_VOLUME_USED_KEY = "last_volume_used";
@@ -74,7 +74,13 @@ Config::Config()
 	addKey(CDROM_DIR_KEY, cdromDir);
 
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
-	addKey(PLUGINS_DIR_KEY, QString(QCoreApplication::applicationDirPath() + "/plugins"));
+	
+	QStringList pluginDirList;
+	pluginDirList << QCoreApplication::applicationDirPath() + "/plugins";
+#ifdef Q_OS_UNIX
+	pluginDirList << "/usr/lib/quarkplayer/plugins";
+#endif	//Q_OS_UNIX
+	addKey(PLUGIN_DIR_KEY, pluginDirList);
 	addKey(RESOURCE_DIR_KEY, QString(QCoreApplication::applicationDirPath()));
 
 	addKey(LAST_VOLUME_USED_KEY, 1.0f);
@@ -159,8 +165,8 @@ QString Config::musicDir(const QUuid & uuid) /*const*/ {
 	return value(key).toString();
 }
 
-QString Config::pluginsDir() const {
-	return value(PLUGINS_DIR_KEY).toString();
+QStringList Config::pluginDirList() const {
+	return value(PLUGIN_DIR_KEY).toStringList();
 }
 
 QString Config::resourceDir() const {
