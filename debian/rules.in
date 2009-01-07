@@ -17,7 +17,7 @@ configure-stamp:
 
 	# Add here commands to configure the package.
 	# Done by CMake
-	#$(MAKE) configure
+	#$(MAKE) CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@ configure
 
 	touch configure-stamp
 
@@ -26,7 +26,7 @@ build-stamp: configure-stamp
 	dh_testdir -P@DEB_BUILD_DIR@
 
 	# Add here commands to compile the package.
-	$(MAKE)
+	$(MAKE) CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@
 	#docbook-to-man debian/quarkplayer.sgml > quarkplayer.1
 
 	touch $@
@@ -38,7 +38,7 @@ clean:
 
 	# Add here commands to clean up after the build process.
 	# No clean since we are inside our source code directory
-	#$(MAKE) clean
+	#$(MAKE) @CMAKE_BINARY_DIR@ clean
 
 	dh_clean -P@DEB_BUILD_DIR@
 
@@ -49,7 +49,7 @@ install: build
 	dh_installdirs -P@DEB_BUILD_DIR@
 
 	# Add here commands to install the package.
-	$(MAKE) BUILD_DIR=@BUILD_DIR@ DESTDIR=@DEB_BUILD_DIR@ install
+	$(MAKE) CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@ BUILD_DIR=@BUILD_DIR@ DESTDIR=@DEB_BUILD_DIR@ install
 
 
 # Build architecture-independent files here.

@@ -19,17 +19,20 @@ PREFIX = /usr
 # Output directory of CMake install target
 #BUILD_DIR = build/linux-gcc43-release
 
+# Directory where to run make
+#CMAKE_BINARY_DIR = build
+
 all: quarkplayer-src
 
 configure:
-	cd build && ./build_make-release.sh
+	cd $(CMAKE_BINARY_DIR) && ./build_make-release.sh
 
 #Cannot name this target 'quarkplayer' since a directory has this name already
 quarkplayer-src:
-	cd build && $(MAKE) install
+	cd $(CMAKE_BINARY_DIR) && $(MAKE) install
 
 clean:
-	cd build && $(MAKE) clean
+	cd $(CMAKE_BINARY_DIR) && $(MAKE) clean
 
 install:
 
