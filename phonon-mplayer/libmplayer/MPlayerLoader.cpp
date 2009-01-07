@@ -158,7 +158,8 @@ QStringList MPlayerLoader::readMediaSettings() {
 
 #ifdef Q_OS_WIN
 	if (MPlayerProcess::getMPlayerVersion() > 28121) {
-		//Direct3D video output driver
+		//Direct3D video output driver only available after revision 28121
+		//See http://svn.mplayerhq.hu/mplayer/trunk/libvo/vo_direct3d.c
 		args << "-vo";
 		args << "direct3d";
 	}
@@ -208,8 +209,9 @@ QStringList MPlayerLoader::readMediaSettings() {
 	args << "-saturation";
 	args << QString::number(settings.saturation);
 
-	if (MPlayerProcess::getMPlayerVersion() > MPlayerProcess::MPLAYER_1_0_RC2_SVN) {
-		//Volume, this option only appeared after 1.0rc2
+	if (MPlayerProcess::getMPlayerVersion() > 27872) {
+		//Volume startup command line only available after revision 27872
+		//See http://svn.mplayerhq.hu/mplayer/trunk/mplayer.c?revision=27872&view=markup
 		if (settings.volume >= 0) {
 			args << "-volume";
 			args << QString::number(settings.volume);
