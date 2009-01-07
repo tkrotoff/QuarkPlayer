@@ -42,7 +42,7 @@ install:
 
 	#Internal libraries
 	install -d $(DESTDIR)$(PREFIX)/lib/quarkplayer
-	install -m 644 $(BUILD_DIR)/*.so** $(DESTDIR)$(PREFIX)/lib/quarkplayer
+	install -m 644 $(BUILD_DIR)/*.so* $(DESTDIR)$(PREFIX)/lib/quarkplayer
 
 	#Plugins
 	install -d $(DESTDIR)$(PREFIX)/lib/quarkplayer/plugins

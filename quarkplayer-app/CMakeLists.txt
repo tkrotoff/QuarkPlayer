@@ -33,7 +33,7 @@ set(TS_FILES
 
 #Pretty slow :/
 set(QM_FILES "")
-qt4_create_translation(QM_FILES ${SRCS_TRANSLATIONS} ${TS_FILES})
+#qt4_create_translation(QM_FILES ${SRCS_TRANSLATIONS} ${TS_FILES})
 ##
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -44,25 +44,14 @@ else (CMAKE_BUILD_TYPE STREQUAL Debug)
 	add_executable(quarkplayer WIN32 ${quarkplayer_SRCS} ${QM_FILES})
 endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
-if (KDE4_FOUND)
-	target_link_libraries(quarkplayer
-		quarkplayercore
-		tkutil
-		${KDE4_KDECORE_LIBS}
-		${KDE4_KDEUI_LIBS}
-		${KDE4_KIO_LIBS}
-		${QT_PHONON_LIBRARY}
-	)
-else (KDE4_FOUND)
-	target_link_libraries(quarkplayer
-		quarkplayercore
-		tkutil
-		${QT_QTCORE_LIBRARY}
-		${QT_QTGUI_LIBRARY}
-		${QT_PHONON_LIBRARY}
-		${QT_QTMAIN_LIBRARY}
-	)
-endif (KDE4_FOUND)
+target_link_libraries(quarkplayer
+	quarkplayercore
+	tkutil
+	${QT_QTCORE_LIBRARY}
+	${QT_QTGUI_LIBRARY}
+	${QT_PHONON_LIBRARY}
+	${QT_QTMAIN_LIBRARY}
+)
 
 install(TARGETS quarkplayer DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
 if (UNIX)

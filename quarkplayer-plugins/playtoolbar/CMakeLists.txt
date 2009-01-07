@@ -10,20 +10,11 @@ qt4_wrap_cpp(playtoolbar_SRCS
 
 add_library(playtoolbar MODULE ${playtoolbar_SRCS})
 
-if (KDE4_FOUND)
-	target_link_libraries(playtoolbar
-		quarkplayercore
-		${KDE4_KDECORE_LIBS}
-		${KDE4_KDEUI_LIBS}
-		${KDE4_KIO_LIBS}
-	)
-else (KDE4_FOUND)
-	target_link_libraries(playtoolbar
-		quarkplayercore
-		${QT_QTCORE_LIBRARY}
-		${QT_QTGUI_LIBRARY}
-	)
-endif (KDE4_FOUND)
+target_link_libraries(playtoolbar
+	quarkplayercore
+	${QT_QTCORE_LIBRARY}
+	${QT_QTGUI_LIBRARY}
+)
 
 #Translations
 add_qt_translations(${playtoolbar_SRCS})

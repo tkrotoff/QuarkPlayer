@@ -15,20 +15,11 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(quicksettings MODULE ${quicksettings_SRCS})
 
-if (KDE4_FOUND)
-	target_link_libraries(quicksettings
-		quarkplayercore
-		${KDE4_KDECORE_LIBS}
-		${KDE4_KDEUI_LIBS}
-		${KDE4_KIO_LIBS}
-	)
-else (KDE4_FOUND)
-	target_link_libraries(quicksettings
-		quarkplayercore
-		${QT_QTCORE_LIBRARY}
-		${QT_QTGUI_LIBRARY}
-	)
-endif (KDE4_FOUND)
+target_link_libraries(quicksettings
+	quarkplayercore
+	${QT_QTCORE_LIBRARY}
+	${QT_QTGUI_LIBRARY}
+)
 
 #Translations
 add_qt_translations(${quicksettings_SRCS})

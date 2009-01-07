@@ -1,7 +1,7 @@
 project(mediainfowindow)
 
 if (TAGLIB)
-	#This is because of the pretty strange taglib structure
+	# This is because of the pretty strange taglib structure
 	include_directories(${CMAKE_SOURCE_DIR}/3rdparty/taglib)
 endif (TAGLIB)
 
@@ -9,8 +9,12 @@ configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 add_definitions(-DBUILD_MEDIAINFOWINDOW)
 
+# Otherwise QString::fromStdWString() is not defined
+# This happens when compiling using the KDE4 libraries
+remove_definitions(-DQT_NO_STL)
+
 if (MEDIAINFOLIB)
-	#MediaInfo is compiled with Unicode support on
+	# MediaInfo is compiled with Unicode support on
 	add_definitions(
 		-DUNICODE
 	)
@@ -23,8 +27,8 @@ set(mediainfowindow_SRCS
 )
 
 if (MSVC)
-	#Do not treat wchar_t as built-in type otherwise QString::fromStdWString()
-	#and QString::toStdWString() get unresolved
+	# Do not treat wchar_t as built-in type otherwise QString::fromStdWString()
+	# and QString::toStdWString() get unresolved
 	set_source_files_properties(
 		MediaInfoFetcher.cpp
 		PROPERTIES COMPILE_FLAGS "/Zc:wchar_t-")
@@ -54,6 +58,14 @@ target_link_libraries(mediainfowindow
 	${QT_PHONON_LIBRARY}
 )
 
+if (UNIX)
+	# Otherwise get dlopen, dlsym, dlclose unresolved
+	# This happens when compiling using the KDE4 libraries
+	target_link_libraries(mediainfowindow
+		dl
+	)
+endif (UNIX)
+
 if (TAGLIB)
 	target_link_libraries(mediainfowindow tag)
 endif (TAGLIB)
@@ -62,7 +74,7 @@ if (MEDIAINFO)
 	target_link_libraries(mediainfowindow mediainfo)
 endif (MEDIAINFO)
 
-#Translations
+# Translations
 add_qt_translations(${mediainfowindow_SRCS})
 
 install(TARGETS mediainfowindow DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
