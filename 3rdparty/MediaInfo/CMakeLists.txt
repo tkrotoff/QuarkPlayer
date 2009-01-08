@@ -117,12 +117,12 @@ set(mediainfo_SRCS
 	Video/File_Mpeg4v.cpp
 	Video/File_Mpegv.cpp
 	Video/File_Vc1.cpp
-	MediaInfoDLL.cpp
-	MediaInfoDLL.def
+#	MediaInfoDLL.cpp
+#	MediaInfoDLL.def
 )
 
 if (WIN32)
-	#FIXME MediaInfo.rc should use ${MEDIAINFO_MAJOR_VERSION} and friends
+	# FIXME MediaInfo.rc should use ${MEDIAINFO_MAJOR_VERSION} and friends
 	list(APPEND mediainfo_SRCS
 		MediaInfo.rc
 	)

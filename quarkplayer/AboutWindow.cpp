@@ -33,7 +33,9 @@
 #endif	//TAGLIB
 
 #ifdef MEDIAINFOLIB
-	#include <MediaInfoDLL/MediaInfoDLL.h>
+	//MediaInfo is compiled with Unicode support on
+	#define UNICODE
+	#include <MediaInfo/MediaInfo.h>
 #endif	//MEDIAINFOLIB
 
 AboutWindow::AboutWindow(QWidget * parent)
@@ -45,7 +47,7 @@ AboutWindow::AboutWindow(QWidget * parent)
 	QString mediaInfoLibVersion;
 #ifdef MEDIAINFOLIB
 	MediaInfoLib::MediaInfo mediaInfo;
-	mediaInfoLibVersion = mediaInfo.Option(_T("Info_Version"), _T("")).c_str();
+	mediaInfoLibVersion = QString::fromStdWString(mediaInfo.Option(_T("Info_Version"), _T("")));
 	mediaInfoLibVersion.remove("MediaInfoLib - v");
 #endif	//MEDIAINFOLIB
 
@@ -74,4 +76,5 @@ AboutWindow::AboutWindow(QWidget * parent)
 }
 
 AboutWindow::~AboutWindow() {
+	delete _ui;
 }

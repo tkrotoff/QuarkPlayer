@@ -13,13 +13,6 @@ add_definitions(-DBUILD_MEDIAINFOWINDOW)
 # This happens when compiling using the KDE4 libraries
 remove_definitions(-DQT_NO_STL)
 
-if (MEDIAINFOLIB)
-	# MediaInfo is compiled with Unicode support on
-	add_definitions(
-		-DUNICODE
-	)
-endif (MEDIAINFOLIB)
-
 set(mediainfowindow_SRCS
 	MediaInfoWindow.cpp
 	MediaInfoFetcher.cpp
@@ -29,9 +22,9 @@ set(mediainfowindow_SRCS
 if (MSVC)
 	# Do not treat wchar_t as built-in type otherwise QString::fromStdWString()
 	# and QString::toStdWString() get unresolved
-	set_source_files_properties(
-		MediaInfoFetcher.cpp
-		PROPERTIES COMPILE_FLAGS "/Zc:wchar_t-")
+	set_source_files_properties(MediaInfoFetcher.cpp
+		PROPERTIES COMPILE_FLAGS "/Zc:wchar_t-"
+	)
 endif (MSVC)
 
 qt4_wrap_cpp(mediainfowindow_SRCS
@@ -67,6 +60,10 @@ endif (UNIX)
 if (TAGLIB)
 	target_link_libraries(mediainfowindow tag)
 endif (TAGLIB)
+
+if (MEDIAINFOLIB)
+	target_link_libraries(mediainfowindow mediainfo)
+endif (MEDIAINFOLIB)
 
 # Translations
 add_qt_translations(${mediainfowindow_SRCS})

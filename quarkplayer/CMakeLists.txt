@@ -8,6 +8,10 @@ configure_file(version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/version.h)
 
 add_definitions(-DBUILD_QUARKPLAYER)
 
+# Otherwise QString::fromStdWString() is not defined
+# This happens when compiling using the KDE4 libraries
+remove_definitions(-DQT_NO_STL)
+
 # Takes a lot of time :/
 set(QUARKPLAYER_CORE_LOC 0)
 set(QUARKPLAYER_PLUGINS_LOC 0)
@@ -89,10 +93,12 @@ target_link_libraries(quarkplayercore
 if (UNIX)
 	# Otherwise dlopen, dlsym, dlclose are unresolved
 	# This happens when compiling using the KDE4 libraries
-	target_link_libraries(quarkplayercore
-		dl
-	)
+	target_link_libraries(quarkplayercore dl)
 endif (UNIX)
+
+if (MEDIAINFOLIB)
+	target_link_libraries(mediainfowindow mediainfo)
+endif (MEDIAINFOLIB)
 
 # Translations
 add_qt_translations(${quarkplayercore_SRCS})

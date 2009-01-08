@@ -48,7 +48,7 @@ int MPlayerVersion::parse(const QString & line) {
 	//MPlayer Sherpya-SVN-r28126-4.2.5 (C) 2000-2008 MPlayer Team
 	//
 	//openSUSE 11.1:
-	//MPlayer dev-SVN-r27637-4.3-openSUSE Linux 11.1 (i686)-Packman (C) 2000-2008 MPlayerTeam"
+	//MPlayer dev-SVN-r27637-4.3-openSUSE Linux 11.1 (i686)-Packman (C) 2000-2008 MPlayerTeam
 	//
 	static QRegExp rx_mplayer_revision("^MPlayer (.*)-r(\\d+)(.*)");
 	static QRegExp rx_mplayer_version("^MPlayer ([a-z,0-9,.]+)-(.*)");
