@@ -97,7 +97,7 @@ if (UNIX)
 endif (UNIX)
 
 if (MEDIAINFOLIB)
-	target_link_libraries(mediainfowindow mediainfo)
+	target_link_libraries(quarkplayercore mediainfo)
 endif (MEDIAINFOLIB)
 
 # Translations
