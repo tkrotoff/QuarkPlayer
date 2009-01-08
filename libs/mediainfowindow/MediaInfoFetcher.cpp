@@ -56,7 +56,7 @@
 #ifdef MEDIAINFOLIB
 	//MediaInfo is compiled with Unicode support on
 	#define UNICODE
-	#include <MediaInfo/MediaInfo.h>
+	#include <MediaInfo/MediaInfoDLL_Static.h>
 #endif	//MEDIAINFOLIB
 
 #include <QtCore/QUrl>

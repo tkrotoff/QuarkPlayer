@@ -47,6 +47,14 @@ set(quarkplayercore_SRCS
 	config/ShortcutsConfig.cpp
 )
 
+if (MSVC)
+	# Do not treat wchar_t as built-in type otherwise QString::fromStdWString()
+	# and QString::toStdWString() get unresolved
+	set_source_files_properties(AboutWindow.cpp
+		PROPERTIES COMPILE_FLAGS "/Zc:wchar_t-"
+	)
+endif (MSVC)
+
 qt4_wrap_cpp(quarkplayercore_SRCS
 	QuarkPlayer.h
 	MainWindow.h

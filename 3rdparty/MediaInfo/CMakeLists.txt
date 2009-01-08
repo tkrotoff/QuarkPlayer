@@ -117,8 +117,8 @@ set(mediainfo_SRCS
 	Video/File_Mpeg4v.cpp
 	Video/File_Mpegv.cpp
 	Video/File_Vc1.cpp
-#	MediaInfoDLL.cpp
-#	MediaInfoDLL.def
+	MediaInfoDLL.cpp
+	MediaInfoDLL.def
 )
 
 if (WIN32)
