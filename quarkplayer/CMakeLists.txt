@@ -87,7 +87,7 @@ target_link_libraries(quarkplayercore
 )
 
 if (UNIX)
-	# Otherwise get dlopen, dlsym, dlclose unresolved
+	# Otherwise dlopen, dlsym, dlclose are unresolved
 	# This happens when compiling using the KDE4 libraries
 	target_link_libraries(quarkplayercore
 		dl

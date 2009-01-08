@@ -54,7 +54,7 @@
 #endif	//TAGLIB
 
 #ifdef MEDIAINFOLIB
-	#include <MediaInfo/MediaInfoDLL.h>
+	#include <MediaInfoDLL/MediaInfoDLL.h>
 #endif	//MEDIAINFOLIB
 
 #include <QtCore/QUrl>

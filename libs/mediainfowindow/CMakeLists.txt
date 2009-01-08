@@ -59,20 +59,14 @@ target_link_libraries(mediainfowindow
 )
 
 if (UNIX)
-	# Otherwise get dlopen, dlsym, dlclose unresolved
+	# Otherwise dlopen, dlsym, dlclose are unresolved
 	# This happens when compiling using the KDE4 libraries
-	target_link_libraries(mediainfowindow
-		dl
-	)
+	target_link_libraries(mediainfowindow dl)
 endif (UNIX)
 
 if (TAGLIB)
 	target_link_libraries(mediainfowindow tag)
 endif (TAGLIB)
-
-if (MEDIAINFO)
-	target_link_libraries(mediainfowindow mediainfo)
-endif (MEDIAINFO)
 
 # Translations
 add_qt_translations(${mediainfowindow_SRCS})
