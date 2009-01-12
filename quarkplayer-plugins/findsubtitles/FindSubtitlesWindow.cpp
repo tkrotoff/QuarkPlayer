@@ -1,7 +1,7 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -487,6 +487,7 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 		_ui->statusLabel->setText(tr("%1 subtitle(s) extracted").arg(filesExtracted.size()));
 		if (filesExtracted.size() > 0) {
 			emit subtitleDownloaded(filesExtracted[0]);
+			close();
 		}
 	}
 

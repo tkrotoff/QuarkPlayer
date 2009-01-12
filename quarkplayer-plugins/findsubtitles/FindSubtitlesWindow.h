@@ -1,7 +1,7 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,9 @@ class QNetworkReply;
 class QuaZip;
 
 /**
- * OSDb http://trac.opensubtitles.org/projects/opensubtitles/wiki/OSDb
+ * Find subtitles plugin
+ *
+ * Open Subtitles DataBase OSDb protocol: http://trac.opensubtitles.org/projects/opensubtitles/wiki/OSDb
  *
  * Source code taken from SMPlayer, original author: Ricardo Villalba
  *
