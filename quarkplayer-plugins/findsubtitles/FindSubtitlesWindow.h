@@ -98,8 +98,15 @@ private:
 	/** Move this to another class? */
 	bool uncompressZip(const QString & fileName, const QString & outputDir, const QStringList & filter);
 
+	enum ExtractFile {
+		ExtractFileNoError,
+		ExtractFileReadError,
+		ExtractFileWriteError,
+		ExtractFileSelectError
+	};
+
 	/** Move this to another class? */
-	bool extractFile(QuaZip & zipFile, const QString & fileName, const QString & outputFileName);
+	ExtractFile extractFile(QuaZip & zipFile, const QString & fileName, const QString & outputFileName);
 
 	Ui::FindSubtitlesWindow * _ui;
 

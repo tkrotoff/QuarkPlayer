@@ -31,6 +31,7 @@
 #include <tkutil/TkIcon.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 #include <tkutil/ActionCollection.h>
+#include <tkutil/TkFileDialog.h>
 
 #include <QtGui/QtGui>
 
@@ -425,19 +426,67 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 			zipFile.close();
 			return false;
 		}
-		QStringList newFilesToExtract = fileChooserWindow.selectedFiles();
 
-		int extractedCount = 0;
-		foreach (QString fileToExtract, newFilesToExtract) {
-			bool ok = extractFile(zipFile, fileToExtract, outputDir + "/" + fileToExtract);
-			qDebug() << __FUNCTION__ << "File saved:" << fileToExtract;
-			if (ok) {
-				extractedCount++;
+		QStringList filesExtracted;
+		foreach (QString fileToExtract, fileChooserWindow.selectedFiles()) {
+			QString outputFileName = outputDir + "/" + fileToExtract;
+
+			if (QFile::exists(outputFileName)) {
+				if (QMessageBox::question(this, tr("Overwrite?"),
+					tr("The file '%1' already exits, overwrite?").arg(outputFileName), QMessageBox::Yes, QMessageBox::No)
+					== QMessageBox::No) {
+					continue;
+				}
+			}
+
+			ExtractFile error = ExtractFileNoError;
+			QString newOutputDir = outputDir;
+			while ((error = extractFile(zipFile, fileToExtract, outputFileName)) == ExtractFileWriteError) {
+				newOutputDir = TkFileDialog::getExistingDirectory(this,
+					tr("The directory '%1' can not be written. Please choose another directory where to save '%2'").arg(newOutputDir).arg(fileToExtract),
+					newOutputDir);
+				if (newOutputDir.isEmpty()) {
+					//Means that the user clicks on Cancel while choosing another directory
+					//where to save the file
+					break;
+				} else {
+					//Ok the uses has chosen another directory where to save the file
+					outputFileName = newOutputDir + "/" + fileToExtract;
+				}
+
+				if (QFile::exists(outputFileName)) {
+					if (QMessageBox::question(this, tr("Overwrite?"),
+						tr("The file '%1' already exits, overwrite?").arg(outputFileName), QMessageBox::Yes, QMessageBox::No)
+						== QMessageBox::No) {
+						break;
+					}
+				}
+			}
+
+			switch (error) {
+			case ExtractFileNoError:
+				qDebug() << __FUNCTION__ << "File saved:" << fileToExtract;
+				filesExtracted += outputFileName;
+				break;
+			case ExtractFileReadError:
+				//Cannot do anything
+				break;
+			case ExtractFileWriteError:
+				//Means that the user clicks on Cancel while choosing another directory
+				//where to save the file
+				break;
+			case ExtractFileSelectError:
+				//Cannot do anything
+				break;
+			default:
+				qCritical() << __FUNCTION__ << "Error: unknown error:" << error;
+				break;
 			}
 		}
-		_ui->statusLabel->setText(tr("%1 subtitle(s) extracted").arg(extractedCount));
-		if (extractedCount > 0) {
-			emit subtitleDownloaded(outputDir + "/" + newFilesToExtract[0]);
+
+		_ui->statusLabel->setText(tr("%1 subtitle(s) extracted").arg(filesExtracted.size()));
+		if (filesExtracted.size() > 0) {
+			emit subtitleDownloaded(filesExtracted[0]);
 		}
 	}
 
@@ -445,20 +494,12 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 	return true;
 }
 
-bool FindSubtitlesWindow::extractFile(QuaZip & zipFile, const QString & fileName, const QString & outputFileName) {
+FindSubtitlesWindow::ExtractFile FindSubtitlesWindow::extractFile(QuaZip & zipFile, const QString & fileName, const QString & outputFileName) {
 	qDebug() << __FUNCTION__ << "Extract:" << fileName << outputFileName;
-
-	if (QFile::exists(outputFileName)) {
-		if (QMessageBox::question(this, tr("Overwrite?"),
-			tr("The file '%1' already exits, overwrite?").arg(outputFileName), QMessageBox::Yes, QMessageBox::No)
-			== QMessageBox::No) {
-			return false;
-		}
-	}
 
 	if (!zipFile.setCurrentFile(fileName)) {
 		qCritical() << __FUNCTION__ << "Error: can't select file:" << fileName;
-		return false;
+		return ExtractFileSelectError;
 	}
 
 	//Saving
@@ -467,7 +508,7 @@ bool FindSubtitlesWindow::extractFile(QuaZip & zipFile, const QString & fileName
 
 	if (!file.open(QIODevice::ReadOnly)) {
 		qCritical() << "Error: can't read file:" << file.getZipError();
-		return false;
+		return ExtractFileReadError;
 	}
 
 	if (out.open(QIODevice::WriteOnly)) {
@@ -484,8 +525,8 @@ bool FindSubtitlesWindow::extractFile(QuaZip & zipFile, const QString & fileName
 		file.close();
 	} else {
 		qCritical() << __FUNCTION__ << "Error: can't write file:" << outputFileName;
-		return false;
+		return ExtractFileWriteError;
 	}
 
-	return true;
+	return ExtractFileNoError;
 }
