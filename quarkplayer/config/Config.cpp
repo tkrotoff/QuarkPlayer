@@ -34,7 +34,7 @@ const char * Config::ICON_THEME_KEY = "icon_theme";
 
 const char * Config::RECENT_FILES_KEY = "recent_files";
 
-const char * Config::LAST_DIR_USED_KEY = "last_dir_used";
+const char * Config::LAST_DIR_OPENED_KEY = "last_dir_opened";
 const char * Config::DVD_DIR_KEY = "dvd_dir";
 const char * Config::CDROM_DIR_KEY = "cdrom_dir";
 const char * Config::MUSIC_DIR_KEY = "music_dir";
@@ -54,7 +54,7 @@ Config::Config()
 	addKey(STYLE_KEY, "QuarkPlayerStyle");
 	addKey(ICON_THEME_KEY, "silk");
 	addKey(RECENT_FILES_KEY, QStringList());
-	addKey(LAST_DIR_USED_KEY, QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
+	addKey(LAST_DIR_OPENED_KEY, QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
 
 	//Default DVD and CDROM device
 	QString dvdDir;
@@ -74,7 +74,7 @@ Config::Config()
 	addKey(CDROM_DIR_KEY, cdromDir);
 
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
-	
+
 	QStringList pluginDirList;
 	pluginDirList << QCoreApplication::applicationDirPath() + "/plugins";
 #ifdef Q_OS_UNIX
@@ -131,8 +131,8 @@ QStringList Config::recentFiles() const {
 	return tmp.toList();
 }
 
-QString Config::lastDirUsed() const {
-	return value(LAST_DIR_USED_KEY).toString();
+QString Config::lastDirOpened() const {
+	return value(LAST_DIR_OPENED_KEY).toString();
 }
 
 QString Config::dvdDir() const {

@@ -77,8 +77,8 @@ public:
 	QStringList recentFiles() const;
 
 	/** Last directory used to open a media. */
-	static const char * LAST_DIR_USED_KEY;
-	QString lastDirUsed() const;
+	static const char * LAST_DIR_OPENED_KEY;
+	QString lastDirOpened() const;
 
 	/** DVD directory: DVD device. */
 	static const char * DVD_DIR_KEY;

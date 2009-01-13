@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -74,10 +74,10 @@ signals:
 
 	void availableAnglesChanged(int availableAngles);
 
-	//FIXME Won't be emitted due to MPlayer
+	//FIXME Won't be emitted due to MPlayer, no signal from MPlayerProcess
 	void angleChanged(int angleNumber);
 
-	//FIXME Won't be emitted due to MPlayer
+	//FIXME Won't be emitted due to MPlayer, no signal from MPlayerProcess
 	void chapterChanged(int chapterNumber);
 
 	void titleChanged(int titleNumber);
@@ -85,7 +85,8 @@ signals:
 private slots:
 
 	void audioChannelAdded(int id, const QString & lang);
-	void subtitleAdded(int id, const QString & lang, const QString & type);
+	void subtitleAdded(int id, const QString & name, const QString & type);
+	void subtitleChanged(int id);
 	void titleAdded(int id, qint64 length);
 	void chapterAdded(int titleId, int chapters);
 	void mkvChapterAdded(int id, const QString & title, const QString & from, const QString & to);

@@ -173,7 +173,7 @@ void MainWindow::clearRecentFiles() {
 
 void MainWindow::playFile() {
 	QString filename = TkFileDialog::getOpenFileName(
-		this, tr("Select Audio/Video File"), Config::instance().lastDirUsed(),
+		this, tr("Select Audio/Video File"), Config::instance().lastDirOpened(),
 		tr("Multimedia") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video, FileType::Audio)) + ";;" +
 		tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video)) +";;" +
 		tr("Audio") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Audio)) +";;" +
@@ -182,7 +182,7 @@ void MainWindow::playFile() {
 	);
 
 	if (!filename.isEmpty()) {
-		Config::instance().setValue(Config::LAST_DIR_USED_KEY, QFileInfo(filename).absolutePath());
+		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(filename).absolutePath());
 
 		play(filename);
 	}

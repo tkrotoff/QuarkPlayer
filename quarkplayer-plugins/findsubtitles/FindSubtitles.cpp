@@ -78,16 +78,29 @@ void FindSubtitles::loadSubtitle(const QString & fileName) {
 		return;
 	}
 
-	QHash<QByteArray, QVariant> properties;
-	properties.insert("type", "file");
-	properties.insert("name", fileName);
-
-	int id = 0;
-	Phonon::SubtitleDescription subtitle(id, properties);
-
 	Phonon::MediaController * currentMediaController = quarkPlayer().currentMediaController();
 	if (currentMediaController) {
-		currentMediaController->setCurrentSubtitle(subtitle);
+
+		//Get a subtitle id that is not already taken/existing
+		int newSubtitleId = 0;
+		QList<Phonon::SubtitleDescription> subtitles = currentMediaController->availableSubtitles();
+		foreach (Phonon::SubtitleDescription subtitle, subtitles) {
+			int id = subtitle.index();
+			QString type = subtitle.property("type").toString();
+			QString name = subtitle.property("name").toString();
+			qDebug() << __FUNCTION__ << "Subtitle available:" << id << type << name;
+
+			if (newSubtitleId <= id) {
+				newSubtitleId = id + 1;
+			}
+		}
+
+		//Create the new subtitle and add it to the list of available subtitles
+		QHash<QByteArray, QVariant> properties;
+		properties.insert("type", "file");
+		properties.insert("name", fileName);
+		Phonon::SubtitleDescription newSubtitle(newSubtitleId, properties);
+		currentMediaController->setCurrentSubtitle(newSubtitle);
 	}
 }
 

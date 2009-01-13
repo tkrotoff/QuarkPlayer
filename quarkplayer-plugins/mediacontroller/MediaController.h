@@ -65,7 +65,7 @@ public:
 private slots:
 
 	void openSubtitleFile();
-	void openSubtitleFile(const QString & subtitleFile);
+	void openSubtitleFile(const QString & fileName);
 
 	void availableAudioChannelsChanged();
 	void actionAudioChannelTriggered(int id);

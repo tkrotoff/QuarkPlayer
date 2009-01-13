@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -42,6 +42,8 @@ MediaController::MediaController(QObject * parent)
 		SLOT(audioChannelAdded(int, const QString &)));
 	connect(_process, SIGNAL(subtitleAdded(int, const QString &, const QString &)),
 		SLOT(subtitleAdded(int, const QString &, const QString &)));
+	connect(_process, SIGNAL(subtitleChanged(int)),
+		SLOT(subtitleChanged(int)));
 	connect(_process, SIGNAL(titleAdded(int, qint64)),
 		SLOT(titleAdded(int, qint64)));
 	connect(_process, SIGNAL(titleChanged(int)),
@@ -97,6 +99,7 @@ void MediaController::clearMediaController() {
 	//Create a fake subtitle called "None" with -1 for value
 	//This special subtitle let's the user turn off subtitles cf ("sub_demux -1")
 	subtitleAdded(-1, "None", "SID");
+	subtitleChanged(-1);
 }
 
 bool MediaController::hasInterface(Interface iface) const {
@@ -318,15 +321,25 @@ Phonon::AudioChannelDescription MediaController::currentAudioChannel() const {
 }
 
 //Subtitle
-void MediaController::subtitleAdded(int id, const QString & lang, const QString & type) {
+void MediaController::subtitleAdded(int id, const QString & name, const QString & type) {
 	qDebug() << __FUNCTION__;
 
 	QHash<QByteArray, QVariant> properties;
-	properties.insert("name", lang);
-	properties.insert("description", "");
+	properties.insert("name", name);
+	properties.insert("description", QString());
 	properties.insert("type", type);
 
 	_availableSubtitles << Phonon::SubtitleDescription(id, properties);
+}
+
+void MediaController::subtitleChanged(int id) {
+	foreach (Phonon::SubtitleDescription subtitle, _availableSubtitles) {
+		if (subtitle.index() == id) {
+			_currentSubtitle = subtitle;
+			qDebug() << __FUNCTION__ << "New current subtitle:" << _currentSubtitle;
+			break;
+		}
+	}
 }
 
 void MediaController::loadSubtitleFile(const QString & filename) {

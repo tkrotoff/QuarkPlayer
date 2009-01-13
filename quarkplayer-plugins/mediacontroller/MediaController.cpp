@@ -169,32 +169,67 @@ void MediaController::retranslate() {
 }
 
 void MediaController::openSubtitleFile() {
-	QString filename = TkFileDialog::getOpenFileName(
-		_mainWindow, tr("Select Subtitle File"), Config::instance().lastDirUsed(),
+	//Try to get the path of the current playing media if any
+	//In general subtitle files are inside the same directory
+	//as the media
+	//Example:
+	//Quantum.of.Solace.REPACK.DVDSCR.XviD-COALiTiON/Quantum.of.Solace.REPACK.DVDSCR.XviD-COALiTiON.avi
+	//Quantum.of.Solace.REPACK.DVDSCR.XviD-COALiTiON/Quantum.Of.Solace.REPACK.DVDSCR.XviD-COALiTiON.srt
+	//Quantum.of.Solace.REPACK.DVDSCR.XviD-COALiTiON/Quantum.of.Solace.srt
+	QString dir;
+	bool updateLastDirOpened = false;
+	Phonon::MediaObject * mediaObject = quarkPlayer().currentMediaObject();
+	if (mediaObject) {
+		Phonon::MediaSource source = mediaObject->currentSource();
+		dir = QFileInfo(source.fileName()).absolutePath();
+	}
+	if (dir.isEmpty()) {
+		//Couldn't find the directory where the current media is playing
+		//Let's use the last directory opened
+		dir = Config::instance().lastDirOpened();
+		updateLastDirOpened = true;
+	}
+	///
+
+	QString fileName = TkFileDialog::getOpenFileName(
+		_mainWindow, tr("Select Subtitle File"), dir,
 		tr("Subtitle") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Subtitle)) + ";;" +
 		tr("All Files") + " (*.*)"
 	);
 
-	if (!filename.isEmpty()) {
-		Config::instance().setValue(Config::LAST_DIR_USED_KEY, QFileInfo(filename).absolutePath());
-
-		openSubtitleFile(filename);
+	if (!fileName.isEmpty()) {
+		if (updateLastDirOpened) {
+			Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(fileName).absolutePath());
+		}
+		openSubtitleFile(fileName);
 	}
 }
 
-void MediaController::openSubtitleFile(const QString & subtitleFile) {
-	if (subtitleFile.isEmpty()) {
+void MediaController::openSubtitleFile(const QString & fileName) {
+	if (fileName.isEmpty()) {
 		return;
 	}
 
+	//Get a subtitle id that is not already taken/existing
+	int newSubtitleId = 0;
+	QList<Phonon::SubtitleDescription> subtitles = _currentMediaController->availableSubtitles();
+	foreach (Phonon::SubtitleDescription subtitle, subtitles) {
+		int id = subtitle.index();
+		QString type = subtitle.property("type").toString();
+		QString name = subtitle.property("name").toString();
+		qDebug() << __FUNCTION__ << "Subtitle available:" << id << type << name;
+
+		if (newSubtitleId <= id) {
+			newSubtitleId = id + 1;
+		}
+	}
+
+	//Create the new subtitle and add it to the list of available subtitles
 	QHash<QByteArray, QVariant> properties;
 	properties.insert("type", "file");
-	properties.insert("name", subtitleFile);
-
-	int id = 0;
-	Phonon::SubtitleDescription subtitle(id, properties);
-
-	_currentMediaController->setCurrentSubtitle(subtitle);
+	properties.insert("name", fileName);
+	Phonon::SubtitleDescription newSubtitle(newSubtitleId, properties);
+	_currentMediaController->setCurrentSubtitle(newSubtitle);
 }
 
 void MediaController::removeAllAction(QObject * object) {
@@ -304,9 +339,18 @@ void MediaController::availableSubtitlesChanged() {
 	connect(signalMapper, SIGNAL(mapped(int)), SLOT(actionSubtitleTriggered(int)));
 
 	//Sets the current subtitle
-	if (!subtitles.isEmpty()) {
-		_menuSubtitles->actions()[0]->setChecked(true);
-		_toolBar->menuSubtitles()->actions()[0]->setChecked(true);
+	int index = 0;
+	foreach (Phonon::SubtitleDescription subtitle, subtitles) {
+		if (subtitle == _currentMediaController->currentSubtitle()) {
+			break;
+		}
+		index++;
+	}
+	if (index < subtitles.size()) {
+		//Means that we've got a match between the currentSubtitle and the list of available subtitles
+		//Let's select it inside the menu
+		_menuSubtitles->actions()[index]->setChecked(true);
+		_toolBar->menuSubtitles()->actions()[index]->setChecked(true);
 	}
 }
 

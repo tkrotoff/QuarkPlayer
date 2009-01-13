@@ -243,11 +243,21 @@ signals:
 	 * Example: DVD, Matroska
 	 *
 	 * @see http://en.wikipedia.org/wiki/Matroska
-	 * @param id subtitle id to select if we choose this lang
-	 * @param lang fr, en... / french, english...
-	 * @param type still to be done
+	 * @param id subtitle id to select, start at number 0
+	 * @param name can be the filename or the subtitle
+	 *        language (fr, en... / french, english...) or anything else
+	 * @param type subtitle type:
+	 *        - file
+	 *        - FIXME still to be done
 	 */
-	void subtitleAdded(int id, const QString & lang, const QString & type);
+	void subtitleAdded(int id, const QString & name, const QString & type);
+
+	/**
+	 * Current subtitle has changed.
+	 *
+	 * @param id the new current subtitle
+	 */
+	void subtitleChanged(int id);
 
 	/**
 	 * A new title has been detected from the media/file/stream.
@@ -262,9 +272,9 @@ signals:
 	/**
 	 * Current DVD/MKV title has changed.
 	 *
-	 * @param titleNumber the new current DVD/MKV title
+	 * @param id the new current DVD/MKV title
 	 */
-	void titleChanged(int titleNumber);
+	void titleChanged(int id);
 
 	/**
 	 * A new chapter has been detected from the media/file/stream.
@@ -348,8 +358,8 @@ private:
 	/** Describes the severity when an error has occurred during playback. */
 	Phonon::ErrorType _errorType;
 
-	/** Current DVD/MKV title number. */
-	int _currentTitleNumber;
+	/** Current DVD/MKV title id. */
+	int _currentTitleId;
 };
 
 #endif	//MPLAYERPROCESS_H

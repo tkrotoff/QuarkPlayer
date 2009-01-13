@@ -63,7 +63,7 @@ void MPlayerProcess::init() {
 	_currentState = Phonon::LoadingState;
 	_errorString.clear();
 	_errorType = Phonon::NoError;
-	_currentTitleNumber = 0;
+	_currentTitleId = 0;
 }
 
 bool MPlayerProcess::start(const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek) {
@@ -215,7 +215,8 @@ static QRegExp rx_cdda("^ID_CDDA_TRACK_(\\d+)_MSF=(.*)");
 //Subtitles
 static QRegExp rx_subtitle("^ID_(SUBTITLE|FILE_SUB|VOBSUB)_ID=(\\d+)");
 static QRegExp rx_sid("^ID_(SID|VSID)_(\\d+)_(LANG|NAME)=(.*)");
-static QRegExp rx_subtitle_file("^ID_FILE_SUB_FILENAME=(.*)");
+//static QRegExp rx_subtitle_file("^ID_FILE_SUB_FILENAME=(.*)");
+static QRegExp rx_subtitle_file("^SUB: Added subtitle file \\((\\d+)\\): (.*)");
 
 //Meta data infos
 static QRegExp rx_clip_title("^(name|title): (.*)", Qt::CaseInsensitive);
@@ -405,10 +406,8 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			_mediaData.streamWebsite = website;
 		}
 
-		//Subtitles
+		//Subtitle
 		//static QRegExp rx_subtitle("^ID_(SUBTITLE|FILE_SUB|VOBSUB)_ID=(\\d+)");
-		//static QRegExp rx_sid("^ID_(SID|VSID)_(\\d+)_(LANG|NAME)=(.*)");
-		//static QRegExp rx_subtitle_file("^ID_FILE_SUB_FILENAME=(.*)");
 		else if (rx_subtitle.indexIn(line) > -1) {
 			//DVD line example:
 
@@ -450,6 +449,8 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			}
 		}
 
+		//Subtitle
+		//static QRegExp rx_sid("^ID_(SID|VSID)_(\\d+)_(LANG|NAME)=(.*)");
 		else if (rx_sid.indexIn(line) > -1) {
 			int id = rx_sid.cap(2).toInt();
 			const QString lang = rx_sid.cap(4);
@@ -468,16 +469,21 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			emit subtitleAdded(id, lang, type);
 		}
 
+		//Subtitle
+		//static QRegExp rx_subtitle_file("^SUB: Added subtitle file \\((\\d+)\\): (.*)");
 		else if (rx_subtitle_file.indexIn(line) > -1) {
-			const QString file = rx_subtitle_file.cap(1);
-			/*if (subs.count() > 0) {
-				int last = subs.count() -1;
-				if (subs[last].type() == SubData::File) {
-					subs[last].setFilename(file);
-				}
-			}*/
+			//MPlayer make the id start at number 1,
+			//we want it to start at number 0
+			int id = rx_subtitle_file.cap(1).toInt() - 1;
+			const QString fileName = rx_subtitle_file.cap(2);
+			qDebug() << __FUNCTION__ << "Subtitle id:" << id << "file:" << fileName;
 
-			emit subtitleAdded(0, file, "file");
+			emit subtitleAdded(id, fileName, "file");
+
+			if (id == 0) {
+				qDebug() << __FUNCTION__ << "Current subtitle changed:" << id;
+				emit subtitleChanged(0);
+			}
 		}
 
 		//AO
@@ -843,10 +849,10 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			}
 
 			else if (tag == "ID_DVD_CURRENT_TITLE") {
-				int titleNumber = value.toInt();
-				if (_currentTitleNumber != titleNumber) {
-					_currentTitleNumber = titleNumber;
-					emit titleChanged(_currentTitleNumber);
+				int id = value.toInt();
+				if (_currentTitleId != id) {
+					_currentTitleId = id;
+					emit titleChanged(_currentTitleId);
 				}
 			}
 		}
