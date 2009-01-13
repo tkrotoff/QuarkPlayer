@@ -195,7 +195,9 @@ void MediaDataWidget::updateMediaInfo() {
 
 void MediaDataWidget::retranslate() {
 	updateMediaInfo();
-	_ui->retranslateUi(this);
+	//Crash inside Ui_MediaDataWidget::retranslateUi(QWidget *)
+	//pushTheCoverArtOnTheLeftLabel was deleted before
+	//_ui->retranslateUi(this);
 
 	if (_mediaInfoWindow) {
 		_mediaInfoWindow->setLanguage(Config::instance().language());
