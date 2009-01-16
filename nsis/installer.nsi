@@ -38,6 +38,7 @@ VIProductVersion "${PRODUCT_VERSION}.0"
 SetCompressor /SOLID /FINAL lzma
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+BrandingText "$(^Name)"
 
 ; Installer name (e.g. quarkplayer-0.2.4-rev629-win32-msvc90-minsizerel.exe)
 OutFile "${INSTALLER_NAME}"
