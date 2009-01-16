@@ -72,6 +72,7 @@ void PluginsConfigWidget::readConfig() {
 
 		PluginInterface * interface = pluginData.interface();
 		if (interface) {
+			qDebug() << __FUNCTION__ << "interface:" << interface;
 			_ui->tableWidget->setItem(i, NAME_COLUMN, new QTableWidgetItem(interface->name()));
 			_ui->tableWidget->setItem(i, VERSION_COLUMN, new QTableWidgetItem(interface->version()));
 		} else {
