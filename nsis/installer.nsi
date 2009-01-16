@@ -35,7 +35,7 @@ VIAddVersionKey InternalName "${PRODUCT_NAME}"
 VIAddVersionKey OriginalFilename "${INSTALLER_NAME}"
 VIProductVersion "${PRODUCT_VERSION}.0"
 
-;SetCompressor /SOLID /FINAL lzma
+SetCompressor /SOLID /FINAL lzma
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 
@@ -51,7 +51,7 @@ ShowInstDetails show
 ShowUnInstDetails show
 
 ; Request application privileges for Windows Vista
-;RequestExecutionLevel admin
+RequestExecutionLevel admin
 
 ; LogicLib makes NSIS scripts easier, provides a similar to other programming languages
 !include "LogicLib.nsh"
@@ -102,7 +102,7 @@ Function .onInit
 	Sleep 100
 
 	; Display a language selection dialog
-	!insertmacro MUI_LANGDLL_DISPLAY
+	;!insertmacro MUI_LANGDLL_DISPLAY
 FunctionEnd
 
 Section -Files
