@@ -82,6 +82,11 @@ private slots:
 
 	void volumeIncrease10();
 
+	/**
+	 * Volume output has been changed, let's change the icon.
+	 */
+	void volumeChanged(qreal volume);
+
 private:
 
 	void createSeekToolBar();

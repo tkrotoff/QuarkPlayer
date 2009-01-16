@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -198,8 +198,8 @@ void FileBrowserWidget::search() {
 
 	} else {
 		//Sets a busy mouse cursor since the search can take several seconds
-		QApplication::restoreOverrideCursor();
-		QApplication::setOverrideCursor(Qt::BusyCursor);
+		unsetCursor();
+		setCursor(Qt::BusyCursor);
 
 		setWindowTitle(tr("Searching..."));
 		_treeView->setRootIsDecorated(false);
@@ -237,7 +237,7 @@ void FileBrowserWidget::search() {
 
 void FileBrowserWidget::searchFinished(int timeElapsed) {
 	//Restores the mouse cursor from busy to normal
-	QApplication::restoreOverrideCursor();
+	unsetCursor();
 
 	setWindowTitle(tr("Search finished:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
 			" (" + QString::number(_fileSearchModel->rowCount()) + " " + tr("medias") + ")");

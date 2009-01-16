@@ -74,7 +74,7 @@ install:
 
 	#.desktop file
 	install -d $(DESTDIR)$(PREFIX)/share/applications
-	install -m 644 $(BUILD_DIR)/quarkplayer.desktop $(DESTDIR)$(PREFIX)/share/applications
+	install -m 644 quarkplayer-app/quarkplayer.desktop $(DESTDIR)$(PREFIX)/share/applications
 
 	#KDE Icons
 	install -d $(DESTDIR)$(PREFIX)/share/icons/hicolor/16x16/apps

@@ -38,7 +38,7 @@ BuildRoot:     %{_tmppath}/%{name}-%{version}-build
 # to create a .tar.bz2 and then extract it: this is useless
 # Let's directly use the current source code directory
 # -D : do not delete the directory before unpacking sources
-# -T : do not perform default achive unpacking
+# -T : do not perform default archive unpacking
 # -n : set the name of build directory
 %setup -D -T -n .
 

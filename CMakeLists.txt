@@ -28,7 +28,7 @@ set(QUARKPLAYER_DESCRIPTION
  It also relies on an advanced plugin system and is available under Windows,
  Linux and soon Mac OS X."
 )
-set(QUARKPLAYER_AUTHORS "Tanguy Krotoff <tkrotoff@gmail.com>")
+set(QUARKPLAYER_AUTHORS "QuarkPlayer Team")
 set(QUARKPLAYER_URL "http://phonon-vlc-mplayer.googlecode.com/")
 set(QUARKPLAYER_COPYRIGHT "Copyright (C) 2008-2009  Tanguy Krotoff")
 set(QUARKPLAYER_LICENSE_FILE ${CMAKE_SOURCE_DIR}/COPYING)
