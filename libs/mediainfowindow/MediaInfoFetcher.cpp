@@ -59,7 +59,7 @@
 	#ifdef Q_OS_UNIX
 		#include <MediaInfo/MediaInfo.h>
 	#else
-		#include <MediaInfoDLL/MediaInfoDLL.h>
+		#include <MediaInfo/MediaInfoDLL.h>
 	#endif	//Q_OS_UNIX
 #endif	//MEDIAINFOLIB
 
