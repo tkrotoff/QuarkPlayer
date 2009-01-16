@@ -1,8 +1,12 @@
-/**
- * Global variables, already defined.
- *
- * If you add a global variable, declare it here as commented.
- */
+;
+; NSIS installer script for QuarkPlayer
+;
+; Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+;
+
+; Global variables, already defined.
+; If you add a global variable, declare it here as commented.
+
 ;!define BUILD_DIR "..\build\win32-msvc80-release\"
 ;!define PRODUCT_NAME "QuarkPlayer"
 ;!define PRODUCT_VERSION "0.2.5"
@@ -13,6 +17,8 @@
 ;!define PRODUCT_URL "http://phonon-vlc-mplayer.googlecode.com/"
 ;!define PRODUCT_COPYRIGHT "Copyright (C) 2008-2009 Tanguy Krotoff"
 ;!define PRODUCT_LICENSE_FILE "../COPYING"
+;!define COMPILER_NAME "MSVC80"
+;!define BUILD_TYPE "Debug"
 
 !define PRODUCT_REGKEY "Software\${PRODUCT_NAME}"
 !define PRODUCT_UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -29,13 +35,33 @@ VIAddVersionKey InternalName "${PRODUCT_NAME}"
 VIAddVersionKey OriginalFilename "${INSTALLER_NAME}"
 VIProductVersion "${PRODUCT_VERSION}.0"
 
-SetCompressor lzma
+;SetCompressor /SOLID /FINAL lzma
 
-; Modern UI 1.67 compatible
-!include "MUI.nsh"
+Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+
+; Installer name (e.g. quarkplayer-0.2.4-rev629-win32-msvc90-minsizerel.exe)
+OutFile "${INSTALLER_NAME}"
+
+InstallDir "$PROGRAMFILES\${PRODUCT_NAME}"
+
+; Gets installation folder from registry if available
+InstallDirRegKey HKCU "${PRODUCT_REGKEY}" ""
+
+ShowInstDetails show
+ShowUnInstDetails show
+
+; Request application privileges for Windows Vista
+;RequestExecutionLevel admin
+
+; LogicLib makes NSIS scripts easier, provides a similar to other programming languages
+!include "LogicLib.nsh"
+
+; Modern UI
+!include "MUI2.nsh"
 
 ; MUI Settings
 !define MUI_ABORTWARNING
+!define MUI_COMPONENTSPAGE_SMALLDESC
 
 ; Language Selection Dialog Settings
 ; Remember the installer language
@@ -46,6 +72,7 @@ SetCompressor lzma
 ; Pages
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "${PRODUCT_LICENSE_FILE}"
+!insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !define MUI_FINISHPAGE_RUN "$INSTDIR\${BINARY_NAME}"
@@ -55,57 +82,51 @@ SetCompressor lzma
 !insertmacro MUI_UNPAGE_INSTFILES
 !insertmacro MUI_UNPAGE_FINISH
 
-; Language files, first language is the default language
+; Language files, first language is the default one
 !insertmacro MUI_LANGUAGE "English"
 !insertmacro MUI_LANGUAGE "French"
 
-; Reserve files
-!insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
+; Translations files
+!include "translations\english.nsh"
+!include "translations\french.nsh"
 
-; MUI end
+; Function includes, cannot be inside a Section
+!include "IsMsvcrt80Installed.nsi"
+!include "IsMsvcrt90Installed.nsi"
+;!include "IsUserAdmin.nsi"
 
 
-Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-
-/** Installer name (e.g. quarkplayer-0.2.4-rev629-win32-msvc90-minsizerel.exe). */
-OutFile "${INSTALLER_NAME}"
-
-;!include "nsProcess.nsh"
-
-!include "IsUserAdmin.nsi"
 Function .onInit
-	/** Kills running quarkplayer.exe */
-	;${nsProcess::KillProcess} "${BINARY_NAME}" $R0
+	; Kills any running quarkplayer.exe
+	;KillProcDLL::KillProc "${BINARY_NAME}"
+	Sleep 100
 
+	; Display a language selection dialog
 	!insertmacro MUI_LANGDLL_DISPLAY
-
-	Call IsUserAdmin
-	Pop $R0
-	StrCmp $R0 "true" isAdmin
-		; Not an admin
-		StrCpy $INSTDIR "$DOCUMENTS\${PRODUCT_NAME}"
-		goto initDone
-	isAdmin:
-		; User is admin
-		StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_NAME}"
-	initDone:
 FunctionEnd
 
-; Gets installation folder from registry if available
-InstallDirRegKey HKCU "${PRODUCT_REGKEY}" ""
-
-ShowInstDetails show
-ShowUnInstDetails show
-
-Section BaseSection
+Section -Files
+	SetOverwrite on
 	!include "files_install.nsi"
 SectionEnd
 
-Section -AdditionalIcons
+Section $(SectionStartMenuShortcutName) SectionStartMenuShortcut
 	WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_URL}"
+	CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
+	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk" "$INSTDIR\${BINARY_NAME}"
 	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
 	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 SectionEnd
+
+Section $(SectionDesktopShortcutName) SectionDesktopShortcut
+	CreateShortCut "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\${BINARY_NAME}"
+SectionEnd
+
+; Assign language strings to sections
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+	!insertmacro MUI_DESCRIPTION_TEXT ${SectionStartMenuShortcut} $(Desc_SectionStartMenuShortcut)
+	!insertmacro MUI_DESCRIPTION_TEXT ${SectionDesktopShortcut} $(Desc_SectionDesktopShortcut)
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section -Post
 	; Stores installation folder
@@ -123,9 +144,24 @@ Section -Post
 SectionEnd
 
 Function un.onInit
+	; Kills any running quarkplayer.exe
+	;KillProcDLL::KillProc "${BINARY_NAME}"
+	Sleep 100
+
+	; Get the stored language preference
 	!insertmacro MUI_UNGETLANGUAGE
 FunctionEnd
 
 Section Uninstall
 	!include "files_uninstall.nsi"
+
+	Delete "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk"
+	Delete "$SMPROGRAMS\${PRODUCT_NAME}\Website.lnk"
+	Delete "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk"
+	RMDir "$SMPROGRAMS\${PRODUCT_NAME}"
+
+	Delete "$DESKTOP\${PRODUCT_NAME}.lnk"
+
+	DeleteRegKey HKLM "${PRODUCT_UNINSTALL_KEY}"
+	DeleteRegKey HKCU "${PRODUCT_REGKEY}"
 SectionEnd

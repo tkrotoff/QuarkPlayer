@@ -1,3 +1,4 @@
+; IsUserAdmin
 ; Function that checks if the user is an Administrator
 ; Taken from http://nsis.sourceforge.net/IsUserAdmin
 ; Usage:
@@ -22,7 +23,7 @@
 ; Usage:
 ;   Call IsUserAdmin
 ;   Pop $R0   ; at this point $R0 is "true" or "false"
-;
+
 Function IsUserAdmin
 	Push $R0
 	Push $R1
