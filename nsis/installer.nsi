@@ -91,9 +91,9 @@ ShowUnInstDetails show
 !include "translations\french.nsh"
 
 ; Function includes, cannot be inside a Section
-!include "IsMsvcrt80Installed.nsi"
-!include "IsMsvcrt90Installed.nsi"
-;!include "IsUserAdmin.nsi"
+!include "IsMsvcrt80Installed.nsh"
+!include "IsMsvcrt90Installed.nsh"
+;!include "IsUserAdmin.nsh"
 
 
 Function .onInit
@@ -107,7 +107,7 @@ FunctionEnd
 
 Section -Files
 	SetOverwrite on
-	!include "files_install.nsi"
+	!include "files_install.nsh"
 SectionEnd
 
 Section $(SectionStartMenuShortcutName) SectionStartMenuShortcut
@@ -153,7 +153,7 @@ Function un.onInit
 FunctionEnd
 
 Section Uninstall
-	!include "files_uninstall.nsi"
+	!include "files_uninstall.nsh"
 
 	Delete "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk"
 	Delete "$SMPROGRAMS\${PRODUCT_NAME}\Website.lnk"
