@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,20 +50,57 @@ PluginData::PluginList PluginsManager::pluginDataList(const QString & fileName) 
 	return pluginDataList;
 }
 
+QString PluginsManager::findPluginDir() const {
+	QStringList pluginDirList = Config::instance().pluginDirList();
+	QString appDir = QCoreApplication::applicationDirPath();
+
+	QString tmp;
+	foreach (QString pluginDir, pluginDirList) {
+		QDir dir(pluginDir);
+
+		//Order matters!!! See Config.cpp
+		//Check if we have:
+		//applicationDirPath/quarkplayer.exe
+		//applicationDirPath/plugins/*.dll
+		//Then applicationDirPath/plugins/ is the plugin directory
+		//
+		//Check if we have:
+		//applicationDirPath/quarkplayer.exe
+		//usr/lib/quarkplayer/plugins/*.dll
+
+		qDebug() << "Checking for plugins:" << pluginDir;
+
+		if (pluginDir.contains(appDir)) {
+			if (dir.exists() && !dir.entryList(QDir::Files).isEmpty()) {
+				//We have found the plugin directory
+				tmp = pluginDir;
+				break;
+			}
+		} else {
+			if (dir.exists() && !dir.entryList(QDir::Files).isEmpty()) {
+				//We have found the plugin directory
+				tmp = pluginDir;
+				break;
+			}
+		}
+	}
+
+	if (tmp.isEmpty()) {
+		qCritical() << __FUNCTION__ << "Error: couldn't find the plugin directory";
+	} else {
+		qDebug() << __FUNCTION__ << "Plugin directory:" << tmp;
+	}
+
+	return tmp;
+}
+
 void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	//Stupid hack, see loadPlugin()
 	_quarkPlayer = &quarkPlayer;
 	///
 
-	QStringList pluginDirList = Config::instance().pluginDirList();
-	QStringList fileNameListTmp;
-	foreach (QString pluginDir, pluginDirList) {
-		QDir dir(pluginDir);
-		QStringList files = dir.entryList(QDir::Files);
-		foreach (QString file, files) {
-			fileNameListTmp << dir.absoluteFilePath(file);
-		}
-	}
+	_pluginDir = findPluginDir();
+	QStringList fileNameListTmp = QDir(_pluginDir).entryList(QDir::Files);
 
 	//Removes duplicated items from the list of plugins
 	PluginData::PluginList newPluginList;
@@ -136,7 +173,7 @@ bool PluginsManager::loadPlugin(PluginData & pluginData) {
 
 	if (!pluginData.loader()) {
 		//Not already loaded
-		pluginData.setLoader(new QPluginLoader(pluginData.fileName()));
+		pluginData.setLoader(new QPluginLoader(_pluginDir + "/" + pluginData.fileName()));
 	}
 
 	QObject * plugin = pluginData.loader()->instance();

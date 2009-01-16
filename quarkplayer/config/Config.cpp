@@ -75,12 +75,16 @@ Config::Config()
 
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
 
+	//Order matters!!! See PluginsManager.cpp
+	//All possible plugin directories
 	QStringList pluginDirList;
 	pluginDirList << QCoreApplication::applicationDirPath() + "/plugins";
 #ifdef Q_OS_UNIX
 	pluginDirList << "/usr/lib/quarkplayer/plugins";
 #endif	//Q_OS_UNIX
 	addKey(PLUGIN_DIR_KEY, pluginDirList);
+	///
+
 	addKey(RESOURCE_DIR_KEY, QString(QCoreApplication::applicationDirPath()));
 
 	addKey(LAST_VOLUME_USED_KEY, 1.0f);

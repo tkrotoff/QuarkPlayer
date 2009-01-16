@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,11 +124,15 @@ private:
 	/** Updates and synchronizes the given plugin with the list of plugins. */
 	void updatePluginData(const PluginData & pluginData);
 
+	QString findPluginDir() const;
+
 	QuarkPlayer * _quarkPlayer;
 
 	bool _allPluginsAlreadyLoaded;
 
 	PluginData::PluginList _plugins;
+
+	QString _pluginDir;
 };
 
 #endif	//PLUGINSMANAGER_H
