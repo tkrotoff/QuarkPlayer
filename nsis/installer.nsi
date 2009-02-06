@@ -106,7 +106,7 @@ Function .onInit
 	Sleep 100
 
 	; Display a language selection dialog
-	!insertmacro MUI_LANGDLL_DISPLAY
+	;!insertmacro MUI_LANGDLL_DISPLAY
 FunctionEnd
 
 Section $(Name_SectionInstallFiles) SectionInstallFiles
@@ -136,7 +136,7 @@ Section $(Name_SectionSetAsDefaultProgram) SectionSetAsDefaultProgram
 SectionEnd
 
 !macro deletePreferences
-	;ExecWait '"$INSTDIR\${BINARY_NAME}" --delete-preferences"'
+	ExecWait '"$INSTDIR\${BINARY_NAME}" --delete-preferences"'
 !macroend
 
 Section /o $(Name_SectionDeletePreferences) SectionDeletePreferences
