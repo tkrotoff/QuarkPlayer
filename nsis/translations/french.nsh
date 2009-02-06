@@ -14,7 +14,7 @@ LangString Name_SectionDeletePreferences ${LANG_FRENCH} "Effacer les préférences
 LangString Name_SectionUninstallFiles ${LANG_FRENCH} "${PRODUCT_NAME}"
 
 ; Translate the section descriptions
-LangString Desc_SectionInstallFiles ${LANG_FRENCH} "Installe ${PRODUCT_NAME}"
+LangString Desc_SectionInstallFiles ${LANG_FRENCH} "Installer ${PRODUCT_NAME}"
 LangString Desc_SectionStartMenuShortcut ${LANG_FRENCH} "Ajouter des icones dans le menu démarrer"
 LangString Desc_SectionDesktopIcon ${LANG_FRENCH} "Ajouter une icone sur le bureau"
 LangString Desc_SectionQuickLaunchIcon ${LANG_FRENCH} "Ajouter une icone dans la zone de Lancement rapide"
