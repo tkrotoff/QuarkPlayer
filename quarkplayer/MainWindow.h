@@ -153,6 +153,7 @@ public slots:
 private slots:
 
 	void reportBug();
+	void showMailingList();
 
 	void about();
 

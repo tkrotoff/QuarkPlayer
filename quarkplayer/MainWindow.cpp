@@ -73,6 +73,7 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * 
 	connect(ActionCollection::action("MainWindow.Configure"), SIGNAL(triggered()), SLOT(showConfigWindow()));
 	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), SLOT(close()));
 	connect(ActionCollection::action("MainWindow.ReportBug"), SIGNAL(triggered()), SLOT(reportBug()));
+	connect(ActionCollection::action("MainWindow.ShowMailingList"), SIGNAL(triggered()), SLOT(showMailingList()));
 	connect(ActionCollection::action("MainWindow.About"), SIGNAL(triggered()), SLOT(about()));
 	connect(ActionCollection::action("MainWindow.AboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
@@ -277,7 +278,11 @@ ConfigWindow * MainWindow::configWindow() const {
 }
 
 void MainWindow::reportBug() {
-	QDesktopServices::openUrl(QUrl("http://phonon-vlc-mplayer.googlecode.com/issues/list"));
+	QDesktopServices::openUrl(QUrl("http://code.google.com/p/phonon-vlc-mplayer/issues/list"));
+}
+
+void MainWindow::showMailingList() {
+	QDesktopServices::openUrl(QUrl("http://groups.google.com/group/phonon-vlc-mplayer"));
 }
 
 void MainWindow::about() {
@@ -291,6 +296,7 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("MainWindow.OpenFile", new TkAction(app, QKeySequence::Open));
 	ActionCollection::addAction("MainWindow.Quit", new TkAction(app, tr("Ctrl+Q"), tr("Alt+X")));
 	ActionCollection::addAction("MainWindow.ReportBug", new QAction(app));
+	ActionCollection::addAction("MainWindow.ShowMailingList", new QAction(app));
 	ActionCollection::addAction("MainWindow.About", new TkAction(app, tr("Ctrl+F1")));
 	ActionCollection::addAction("MainWindow.AboutQt", new QAction(app));
 	ActionCollection::addAction("MainWindow.OpenDVD", new TkAction(app, tr("Ctrl+D")));
@@ -419,6 +425,7 @@ void MainWindow::setupUi() {
 	_menuHelp = new QMenu();
 	menuBar()->addMenu(_menuHelp);
 	_menuHelp->addAction(ActionCollection::action("MainWindow.ReportBug"));
+	_menuHelp->addAction(ActionCollection::action("MainWindow.ShowMailingList"));
 	_menuHelp->addAction(ActionCollection::action("MainWindow.About"));
 	_menuHelp->addAction(ActionCollection::action("MainWindow.AboutQt"));
 
@@ -447,6 +454,9 @@ void MainWindow::retranslate() {
 
 	ActionCollection::action("MainWindow.ReportBug")->setText(tr("&Report a bug..."));
 	ActionCollection::action("MainWindow.ReportBug")->setIcon(TkIcon("tools-report-bug"));
+
+	ActionCollection::action("MainWindow.ShowMailingList")->setText(tr("&Discuss about QuarkPlayer..."));
+	ActionCollection::action("MainWindow.ShowMailingList")->setIcon(TkIcon("mail-mark-unread"));
 
 	ActionCollection::action("MainWindow.About")->setText(tr("&About"));
 	ActionCollection::action("MainWindow.About")->setIcon(TkIcon("help-about"));
