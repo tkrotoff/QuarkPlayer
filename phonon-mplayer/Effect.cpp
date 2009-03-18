@@ -85,7 +85,7 @@ QList<EffectParameter> Effect::parameters() const {
 }
 
 QVariant Effect::parameterValue(const EffectParameter & param) const {
-	return new QVariant();
+	return QVariant();
 }
 
 void Effect::setParameterValue(const EffectParameter & param, const QVariant & newValue) {

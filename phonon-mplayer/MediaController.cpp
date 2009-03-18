@@ -291,7 +291,7 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 		qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::Interface:" << iface;
 	}
 
-	return new QVariant();
+	return QVariant();
 }
 
 //AudioChannel
