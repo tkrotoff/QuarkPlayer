@@ -659,7 +659,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			tmp = tmp.trimmed();
 			float percentFilled = tmp.toFloat();
 			qDebug() << __FUNCTION__ << "Cache %:" << percentFilled << tmp;
-			emit bufferStatus(percentFilled);
+			emit bufferStatus(static_cast<int>(percentFilled));
 		}
 
 		//Meta data infos

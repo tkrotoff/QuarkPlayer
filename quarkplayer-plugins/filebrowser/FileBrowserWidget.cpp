@@ -77,7 +77,7 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 	quarkPlayer.mainWindow()->addBrowserDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
 
-	setMaximumSize(1.5 * sizeHint().width(), maximumSize().height());
+	setMaximumSize(static_cast<int>(1.5 * sizeHint().width()), maximumSize().height());
 
 	if (PluginsManager::instance().allPluginsAlreadyLoaded()) {
 		loadDirModel();

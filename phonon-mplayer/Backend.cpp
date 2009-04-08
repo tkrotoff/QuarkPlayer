@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -72,17 +72,16 @@ QObject * Backend::createObject(BackendInterface::Class c, QObject * parent, con
 	case MediaObjectClass:
 		return new MediaObject(parent);
 
-	/*case VolumeFaderEffectClass:
-		return new VolumeFaderEffect(parent);
-	*/
 	case AudioOutputClass:
 		return new AudioOutput(parent);
-	/*case AudioDataOutputClass:
-		return new AudioDataOutput(parent);
+
+	case VolumeFaderEffectClass:
+	case AudioDataOutputClass:
 	case VisualizationClass:
-		return new Visualization(parent);
 	case VideoDataOutputClass:
-		return new VideoDataOutput(parent);*/
+		qWarning() << __FUNCTION__ << "Not implemented yet: " << c;
+		break;
+
 	case EffectClass: {
 		return new Effect(_effectManager, args[0].toInt(), parent);
 	}
@@ -195,20 +194,9 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
 	case Phonon::AudioOutputDeviceType:
 		list.append(1);
 		break;
-	/*case Phonon::AudioCaptureDeviceType:
+	case Phonon::AudioCaptureDeviceType:
+		qWarning() << __FUNCTION__ << "Not implemented yet: " << type;
 		break;
-	case Phonon::VideoOutputDeviceType:
-		break;
-	case Phonon::VideoCaptureDeviceType:
-		break;
-	case Phonon::VisualizationType:
-		break;
-	case Phonon::AudioCodecType:
-		break;
-	case Phonon::VideoCodecType:
-		break;
-	case Phonon::ContainerFormatType:
-		break;*/
 
 	case Phonon::EffectType:
 		QList<EffectInfo *> effectList = _effectManager->effectList();
@@ -241,21 +229,10 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 		//mplayer -ao dsound:device=0
 		ret.insert("device", "0");
 		break;
-	/*case Phonon::AudioCaptureDeviceType:
+
+	case Phonon::AudioCaptureDeviceType:
+		qWarning() << __FUNCTION__ << "Not implemented yet: " << type;
 		break;
-	case Phonon::VideoOutputDeviceType:
-		break;
-	case Phonon::VideoCaptureDeviceType:
-		break;
-	case Phonon::VisualizationType:
-		break;
-	case Phonon::AudioCodecType:
-		break;
-	case Phonon::VideoCodecType:
-		break;
-	case Phonon::ContainerFormatType:
-		break;
-	*/
 
 	case Phonon::EffectType: {
 		QList<EffectInfo *> effectList = _effectManager->effectList();
@@ -263,8 +240,9 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 			const EffectInfo * effect = effectList[index];
 			ret.insert("name", effect->name());
 			ret.insert("command", effect->command());
-		} else
-			Q_ASSERT(1); // Since we use list position as ID, this should not happen
+		} else {
+			Q_ASSERT(1);	//Since we use list position as ID, this should not happen
+		}
 
 		break;
 	}

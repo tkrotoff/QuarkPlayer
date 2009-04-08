@@ -24,6 +24,7 @@ loc_counter(${CMAKE_SOURCE_DIR}/3rdparty QUARKPLAYER_3RDPARTY_LOC 1)
 configure_file(metrics.h.in ${CMAKE_CURRENT_BINARY_DIR}/metrics.h)
 
 set(quarkplayercore_SRCS
+	version.cpp
 	QuarkPlayer.cpp
 	PluginInterface.cpp
 	PluginData.cpp

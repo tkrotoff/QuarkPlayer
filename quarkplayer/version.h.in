@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #ifndef VERSION_H_IN
 #define VERSION_H_IN
 
-#include <QtCore/QString>
+class QString;
 
 /**
  * QuarkPlayer version string: "major.minor.patch". E.g. "1.2.1"
@@ -51,27 +51,9 @@ static const char * QUARKPLAYER_BUILD_TYPE = "@CMAKE_BUILD_TYPE@";
  */
 static const char * QUARKPLAYER_BUILD_DATE = "@CMAKE_BUILD_DATE@";
 
-
-#include "config.h"
-
 /**
  * Returns a formatted string with full version description.
  */
-static QString quarkPlayerFullVersion() {
-	QString rev;
-	if (QUARKPLAYER_SVN_REVISION > 0) {
-		rev = "-rev" + QString::number(QUARKPLAYER_SVN_REVISION);
-	}
-
-	return QString(QUARKPLAYER_VERSION) +
-#ifdef KDE4_FOUND
-	"/KDE4" +
-#endif	//KDE4_FOUND
-	rev +
-	"-" + QString(QUARKPLAYER_SYSTEM).toLower() +
-	"-" + QString(QUARKPLAYER_COMPILER).toLower() +
-	"-" + QString(QUARKPLAYER_BUILD_TYPE).toLower() +
-	"-" + QString(QUARKPLAYER_BUILD_DATE).toLower();
-}
+QString quarkPlayerFullVersion();
 
 #endif	//VERSION_H_IN
