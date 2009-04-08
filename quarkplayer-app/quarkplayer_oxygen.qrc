@@ -32,6 +32,7 @@
 	<file alias="16x16/rating">icons/oxygen/16x16/actions/rating.png</file>
 	<file alias="16x16/document-properties">icons/oxygen/16x16/actions/document-properties.png</file>
 	<file alias="16x16/window-new">icons/oxygen/16x16/actions/window-new.png</file>
+	<file alias="16x16/window-close">icons/oxygen/16x16/actions/window-close.png</file>
 	<file alias="16x16/window-duplicate">icons/oxygen/16x16/actions/window-duplicate.png</file>
 	<file alias="16x16/mail-mark-unread">icons/oxygen/16x16/actions/mail-mark-unread.png</file>
 

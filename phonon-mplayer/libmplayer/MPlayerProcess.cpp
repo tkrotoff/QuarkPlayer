@@ -440,7 +440,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			//ID_SUBTITLE_ID=2
 			//ID_SID_2_LANG=eng
 
-			int id = rx_subtitle.cap(2).toInt();
+			//int id = rx_subtitle.cap(2).toInt();
 			const QString type = rx_subtitle.cap(1);
 
 			if (type == "FILE_SUB") {
@@ -580,7 +580,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		//DVD titles
 		else if (rx_titles.indexIn(line) > -1) {
 			//Available DVD titles
-			int titles = rx_title.cap(1).toInt();
+			//int titles = rx_title.cap(1).toInt();
 		}
 
 		else if (rx_title.indexIn(line) > -1) {

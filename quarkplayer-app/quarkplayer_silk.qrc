@@ -32,6 +32,7 @@
 	<file alias="16x16/rating">icons/silk/star.png</file>
 	<file alias="16x16/document-properties">icons/silk/page_edit.png</file>
 	<file alias="16x16/window-new">icons/silk/application_add.png</file>
+	<file alias="16x16/window-close">icons/silk/application_delete.png</file>
 	<file alias="16x16/window-duplicate">icons/silk/application_double.png</file>
 	<file alias="16x16/mail-mark-unread">icons/silk/email.png</file>
 

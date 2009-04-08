@@ -52,6 +52,8 @@ namespace MPlayer
 Backend::Backend(QObject * parent, const QVariantList & args)
 	: QObject(parent) {
 
+	Q_UNUSED(args);
+
 	setProperty("identifier", QLatin1String("phonon_mplayer"));
 	setProperty("backendName", QLatin1String("MPlayer"));
 	setProperty("backendComment", QLatin1String("MPlayer plugin for Phonon"));
@@ -314,7 +316,7 @@ bool Backend::connectNodes(QObject * source, QObject * sink) {
 			return true;
 		} else {
 			//FIXME try to find a better way...
-			Effect * effect = qobject_cast<Effect * >(source);
+			//Effect * effect = qobject_cast<Effect * >(source);
 			//Nothing todo, MPlayer does not support this kind of connection
 			return true;
 		}
@@ -336,7 +338,7 @@ bool Backend::disconnectNodes(QObject * source, QObject * sink) {
 			return true;
 		} else {
 			//FIXME try to find a better way...
-			Effect * effect = qobject_cast<Effect * >(source);
+			//Effect * effect = qobject_cast<Effect * >(source);
 			//Nothing todo, MPlayer does not support this kind of connection
 			return true;
 		}

@@ -84,7 +84,11 @@ private slots:
 
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
 
-	/** Create a new playlist widget that will add itself to the dockwidget. */
+	/**
+	 * Create a new playlist widget that will add itself to the dockwidget.
+	 *
+	 * Loads a new playlist plugin
+	 */
 	void createNewPlaylistWidget();
 
 	void parserFilesFound(const QStringList & files);

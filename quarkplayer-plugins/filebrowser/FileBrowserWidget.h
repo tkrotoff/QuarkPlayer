@@ -70,7 +70,11 @@ private slots:
 
 	void musicDirChanged(const QString & key, const QVariant & value);
 
-	/** Create a new file browser widget that will add itself to the dockwidget. */
+	/**
+	 * Create a new file browser widget that will add itself to the dockwidget.
+	 *
+	 * Loads a new file browser plugin
+	 */
 	void createNewFileBrowserWidget();
 
 	void retranslate();

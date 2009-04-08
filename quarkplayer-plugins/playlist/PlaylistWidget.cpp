@@ -197,15 +197,15 @@ void PlaylistWidget::populateActionCollection() {
 
 	addUuidAction("Playlist.RemoveAll", new QAction(app));
 
-	TkAction * action = new TkAction(app, tr("S"));
+	TkAction * action = new TkAction(app, tr("Ctrl+S"));
 	action->setCheckable(true);
 	addUuidAction("Playlist.Shuffle", action);
 
-	action = new TkAction(app, tr("R"));
+	action = new TkAction(app, tr("Ctrl+R"));
 	action->setCheckable(true);
 	addUuidAction("Playlist.Repeat", action);
 
-	addUuidAction("Playlist.JumpToCurrent", new TkAction(app, tr("J")));
+	addUuidAction("Playlist.JumpToCurrent", new TkAction(app, tr("Ctrl+J")));
 
 	addUuidAction("Playlist.New", new QAction(app));
 }

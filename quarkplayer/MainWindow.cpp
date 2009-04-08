@@ -313,10 +313,10 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("MainWindow.PlayPause", action);
 	action = new TkAction(app, Qt::Key_MediaStop);
 	ActionCollection::addAction("MainWindow.Stop", action);
-	action = new TkAction(app, tr("N"), tr(">"), Qt::Key_MediaNext);
+	action = new TkAction(app, tr("Ctrl+N"), tr(">"), Qt::Key_MediaNext);
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	ActionCollection::addAction("MainWindow.NextTrack", action);
-	action = new TkAction(app, tr("P"), tr("<"), Qt::Key_MediaPrevious);
+	action = new TkAction(app, tr("Ctrl+P"), tr("<"), Qt::Key_MediaPrevious);
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	ActionCollection::addAction("MainWindow.PreviousTrack", action);
 
@@ -347,7 +347,7 @@ void MainWindow::populateActionCollection() {
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	ActionCollection::addAction("MainWindow.SpeedIncrease10%", action);
 
-	action = new TkAction(app, tr("M"), tr("Ctrl+M"));
+	action = new TkAction(app, tr("Ctrl+M"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	action->setCheckable(true);
 	ActionCollection::addAction("MainWindow.VolumeMute", action);
@@ -367,7 +367,7 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("MainWindow.UploadSubtitles", new QAction(app));
 	///
 
-	action = new TkAction(app, tr("F"), tr("Alt+Return"));
+	action = new TkAction(app, tr("Ctrl+F"), tr("Alt+Return"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	action->setCheckable(true);
 	ActionCollection::addAction("MainWindow.FullScreen", action);
