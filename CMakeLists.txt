@@ -1,6 +1,6 @@
 #Mininum required CMake version
 cmake_minimum_required(VERSION 2.6)
-cmake_policy(VERSION 2.6.3)
+cmake_policy(VERSION 2.6.0)
 
 project(quarkplayer)
 
