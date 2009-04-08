@@ -58,7 +58,17 @@ install(FILES ${QT_BINARY_DIR}/../translations/qt_uk.qm DESTINATION ${BIN_INSTAL
 #just install SMPlayer inside C:/Program Files/SMPlayer
 set(MPLAYER_INSTALL_DIR "C:/Program Files/SMPlayer/mplayer")
 if (EXISTS ${MPLAYER_INSTALL_DIR})
-	#install(DIRECTORY ${MPLAYER_INSTALL_DIR} DESTINATION ${BIN_INSTALL_DIR})
+	install(DIRECTORY ${MPLAYER_INSTALL_DIR} DESTINATION ${BIN_INSTALL_DIR})
 else (EXISTS ${MPLAYER_INSTALL_DIR})
 	message(STATUS "SMPlayer was not found, the MPlayer backend won't run (no MPlayer build)")
 endif (EXISTS ${MPLAYER_INSTALL_DIR})
+
+if (MINGW)
+	#When compiled with MinGW, we need mingwm10.dll
+	install(FILES "${QT_BINARY_DIR}/mingwm10.dll" DESTINATION ${BIN_INSTALL_DIR})
+
+	#For Visual C++ dlls (msvcr*d.dll, msvcp*d.dll), no need to copy these files now
+	#They are already inside the PATH on the dev platform,
+	#so this step is done inside the NSIS installer script instead,
+	#via the special Microsoft package: vcredist_x86.exe
+endif (MINGW)

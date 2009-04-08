@@ -24,13 +24,6 @@ File "${BUILD_DIR}\COPYING.LESSER"
 File "${BUILD_DIR}\AUTHORS"
 File "${BUILD_DIR}\THANKS"
 
-; Detects MinGW
-${If} ${COMPILER_NAME} == "MINGW"
-	; Compiler is MinGW
-	;SetOutPath "$INSTDIR"
-	;File /nonfatal "C:\mingw\bin\mingwm10.dll"
-${EndIf}
-
 ; Detects MSVC71 (Visual C++ 2003)
 ${If} ${COMPILER_NAME} == "MSVC71"
 	;SetOutPath "$INSTDIR"
