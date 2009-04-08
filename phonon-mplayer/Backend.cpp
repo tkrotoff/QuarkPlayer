@@ -75,18 +75,18 @@ QObject * Backend::createObject(BackendInterface::Class c, QObject * parent, con
 	case AudioOutputClass:
 		return new AudioOutput(parent);
 
+	case EffectClass:
+		return new Effect(_effectManager, args[0].toInt(), parent);
+
+	case VideoWidgetClass:
+		return new VideoWidget(qobject_cast<QWidget *>(parent));
+
 	case VolumeFaderEffectClass:
 	case AudioDataOutputClass:
 	case VisualizationClass:
 	case VideoDataOutputClass:
 		qWarning() << __FUNCTION__ << "Not implemented yet: " << c;
 		break;
-
-	case EffectClass: {
-		return new Effect(_effectManager, args[0].toInt(), parent);
-	}
-	case VideoWidgetClass:
-		return new VideoWidget(qobject_cast<QWidget *>(parent));
 	}
 
 	return NULL;
@@ -101,6 +101,8 @@ bool Backend::supportsOSD() const {
 }
 
 bool Backend::supportsFourcc(quint32 fourcc) const {
+	Q_UNUSED(fourcc);
+
 	return true;
 }
 
@@ -186,7 +188,7 @@ QStringList Backend::availableMimeTypes() const {
 }
 
 QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
-	qDebug() << __FUNCTION__ << "";
+	qDebug() << __FUNCTION__;
 
 	QList<int> list;
 
@@ -194,17 +196,22 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
 	case Phonon::AudioOutputDeviceType:
 		list.append(1);
 		break;
-	case Phonon::AudioCaptureDeviceType:
-		qWarning() << __FUNCTION__ << "Not implemented yet: " << type;
-		break;
 
-	case Phonon::EffectType:
+	case Phonon::EffectType: {
 		QList<EffectInfo *> effectList = _effectManager->effectList();
 		for (int effect = 0; effect < effectList.size(); ++effect) {
 			list.append(effect);
 		}
 		break;
+	}
 
+	case Phonon::AudioCaptureDeviceType:
+	case Phonon::AudioChannelType:
+	case Phonon::SubtitleType:
+	case Phonon::ChapterType:
+	case Phonon::TitleType:
+		qWarning() << __FUNCTION__ << "Not implemented yet: " << type;
+		break;
 	}
 
 	return list;
@@ -230,10 +237,6 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 		ret.insert("device", "0");
 		break;
 
-	case Phonon::AudioCaptureDeviceType:
-		qWarning() << __FUNCTION__ << "Not implemented yet: " << type;
-		break;
-
 	case Phonon::EffectType: {
 		QList<EffectInfo *> effectList = _effectManager->effectList();
 		if (index >= 0 && index <= effectList.size()) {
@@ -246,6 +249,10 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 
 		break;
 	}
+
+	case Phonon::AudioCaptureDeviceType:
+		qWarning() << __FUNCTION__ << "Not implemented yet: " << type;
+		break;
 
 	default:
 		qCritical() << __FUNCTION__ << "Unknow ObjectDescriptionType:" << type;

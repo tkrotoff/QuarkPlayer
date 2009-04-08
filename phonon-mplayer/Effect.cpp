@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -85,10 +85,13 @@ QList<EffectParameter> Effect::parameters() const {
 }
 
 QVariant Effect::parameterValue(const EffectParameter & param) const {
+	Q_UNUSED(param);
 	return QVariant();
 }
 
 void Effect::setParameterValue(const EffectParameter & param, const QVariant & newValue) {
+	Q_UNUSED(param);
+	Q_UNUSED(newValue);
 }
 
 }}	//Namespace Phonon::MPlayer

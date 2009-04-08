@@ -63,10 +63,12 @@ int AudioOutput::outputDevice() const {
 }
 
 bool AudioOutput::setOutputDevice(int device) {
+	Q_UNUSED(device);
 	return true;
 }
 
 bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice & device) {
+	Q_UNUSED(device);
 	return true;
 }
 

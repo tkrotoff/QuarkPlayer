@@ -531,6 +531,8 @@ void MediaController::chapterAdded(int titleId, int chapters) {
 }
 
 void MediaController::mkvChapterAdded(int id, const QString & title, const QString & from, const QString & to) {
+	Q_UNUSED(to);
+
 	//HACK
 	//id + 1 since MPlayer starts from 1
 	id += 1;
