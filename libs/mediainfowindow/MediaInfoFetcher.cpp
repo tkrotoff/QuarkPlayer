@@ -22,10 +22,10 @@
 
 #include <filetypes/FileTypes.h>
 
-#include <tkutil/TkFile.h>
-
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>
+
+#include <QtCore/QFileInfo>
 
 #ifdef TAGLIB
 	#include <taglib/fileref.h>
@@ -511,6 +511,6 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 }
 
 void MediaInfoFetcher::determineFileTypeFromExtension() {
-	QString extension(TkFile::fileExtension(_mediaInfo.fileName()));
+	QString extension(QFileInfo(_mediaInfo.fileName()).suffix());
 	_mediaInfo.setFileType(FileTypes::fileType(extension));
 }

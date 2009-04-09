@@ -28,7 +28,6 @@
 #include <tkutil/ActionCollection.h>
 #include <tkutil/TkAction.h>
 #include <tkutil/TkIcon.h>
-#include <tkutil/TkFile.h>
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
@@ -138,7 +137,7 @@ void MainWindow::addRecentFilesToMenu() {
 			QUrl url(filename);
 			if (url.host().isEmpty()) {
 				//Then we have a local file and not a real url (i.e "http://blabla")
-				filename = TkFile::fileName(filename);
+				filename = QFileInfo(filename).fileName();
 				filename = filename.right(filename.length() - filename.lastIndexOf('/') - 1);
 			}
 
@@ -596,11 +595,11 @@ void MainWindow::dropEvent(QDropEvent * event) {
 			//1 file
 			QString filename = files[0];
 
-			bool isSubtitle = FileTypes::extensions(FileType::Subtitle).contains(TkFile::fileExtension(filename), Qt::CaseInsensitive);
+			bool isSubtitle = FileTypes::extensions(FileType::Subtitle).contains(QFileInfo(filename).completeSuffix(), Qt::CaseInsensitive);
 			if (isSubtitle) {
 				qDebug() << __FUNCTION__ << "Loading subtitle:" << filename;
 				emit subtitleFileDropped(filename);
-			} else if (TkFile::isDir(filename)) {
+			} else if (QDir(filename).exists()) {
 				//TODO open directory
 			} else {
 				//TODO add to playlist if 'auto-add-playlist' option

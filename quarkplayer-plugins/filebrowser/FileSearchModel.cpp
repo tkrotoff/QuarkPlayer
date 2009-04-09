@@ -23,7 +23,6 @@
 #include <filetypes/FileTypes.h>
 
 #include <tkutil/FindFiles.h>
-#include <tkutil/TkFile.h>
 
 #include <QtGui/QtGui>
 
@@ -94,7 +93,7 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	case Qt::DisplayRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			tmp = TkFile::fileName(filename);
+			tmp = QFileInfo(filename).fileName();
 			break;
 		}
 		break;
@@ -109,9 +108,10 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 				//We want a cache system -> way faster!
 				//tmp = _iconProvider->icon(QFileInfo(filename));
 
-				QString ext(TkFile::fileExtension(filename));
+				QFileInfo fileInfo(filename);
+				QString ext(fileInfo.suffix());
 				if (!_iconsCache.contains(ext)) {
-					_iconsCache[ext] = _iconProvider->icon(QFileInfo(filename));
+					_iconsCache[ext] = _iconProvider->icon(fileInfo);
 				}
 				tmp = _iconsCache.value(ext);
 			}
@@ -123,7 +123,7 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	case Qt::ToolTipRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			if (!TkFile::isDir(filename)) {
+			if (!QDir(filename).exists()) {
 				if (mediaInfo.fetched()) {
 					tmp = filename + "<br>" +
 						tr("Title:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Title) + "</b><br>" +

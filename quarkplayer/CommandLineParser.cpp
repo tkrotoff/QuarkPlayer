@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +20,11 @@
 
 #include "CommandLineHelp.h"
 
-#include <tkutil/TkFile.h>
-
 #include <filetypes/FileTypes.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
 
 #include <iostream>
 
@@ -41,7 +40,7 @@ QString CommandLineParser::fileToPlay() const {
 
 	if (!_filesForPlaylist.isEmpty()) {
 		QString filename(_filesForPlaylist[0]);
-		bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(TkFile::fileExtension(filename), Qt::CaseInsensitive);
+		bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(QFileInfo(filename).suffix(), Qt::CaseInsensitive);
 		if (isMultimediaFile) {
 			//The file is a playable file
 			fileToPlay = filename;

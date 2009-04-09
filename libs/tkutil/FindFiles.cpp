@@ -18,8 +18,6 @@
 
 #include "FindFiles.h"
 
-#include "TkFile.h"
-
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTime>
@@ -116,7 +114,7 @@ void FindFiles::findAllFilesQt(const QString & path) {
 
 		QString filename(path + '/' + name);
 
-		if (TkFile::isDir(filename)) {
+		if (QDir(filename).exists()) {
 			//Filter directory matching the given pattern
 			if (_findDirs && patternMatches(name)) {
 				_files << filename;
@@ -249,7 +247,7 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 
 				QString filename(path + '/' + name);
 
-				if (TkFile::isDir(filename)) {
+				if (QDir(filename).exists()) {
 					//Filter directory matching the given pattern
 					if (_findDirs && patternMatches(name)) {
 						_files << filename;
@@ -304,7 +302,7 @@ bool FindFiles::extensionMatches(const QString & filename) const {
 
 	if (_extensions.isEmpty()) {
 		tmp = true;
-	} else if (_extensions.contains(TkFile::fileExtension(filename), Qt::CaseInsensitive)) {
+	} else if (_extensions.contains(QFileInfo(filename).suffix(), Qt::CaseInsensitive)) {
 		tmp = true;
 	}
 

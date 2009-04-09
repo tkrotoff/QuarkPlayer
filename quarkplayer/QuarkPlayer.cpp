@@ -23,8 +23,6 @@
 
 #include "config/Config.h"
 
-#include <tkutil/TkFile.h>
-
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>
 #include <phonon/mediasource.h>
@@ -32,6 +30,7 @@
 #include <phonon/mediacontroller.h>
 
 #include <QtCore/QRegExp>
+#include <QtCore/QFileInfo>
 
 QuarkPlayer::QuarkPlayer(QObject * parent)
 	: QObject(parent) {
@@ -76,13 +75,13 @@ QString QuarkPlayer::currentMediaObjectTitle() const {
 	QString fullTitle;
 
 	if (_currentMediaObject) {
-		QString fileName = _currentMediaObject->currentSource().fileName();
+		QString filename = _currentMediaObject->currentSource().fileName();
 		QMultiMap<QString, QString> metaData = _currentMediaObject->metaData();
 
 		QString artist = metaData.value("ARTIST");
 		QString title = metaData.value("TITLE");
 		if (artist.isEmpty() && title.isEmpty()) {
-			fullTitle = TkFile::removeFileExtension(TkFile::fileName(fileName));
+			fullTitle = QFileInfo(filename).baseName();
 		} else {
 			if (!title.isEmpty()) {
 				fullTitle = title;
@@ -116,8 +115,8 @@ void QuarkPlayer::play(const Phonon::MediaSource & mediaSource) {
 		//from device D:/
 		//Let's use a regexp to detect this case
 		static QRegExp rx_windows_cdda("^(\\D+)Track(\\d+).cda$");
-		QString fileName = tmp.fileName();
-		if (!fileName.isEmpty() && rx_windows_cdda.indexIn(fileName) > -1) {
+		QString filename = tmp.fileName();
+		if (!filename.isEmpty() && rx_windows_cdda.indexIn(filename) > -1) {
 			QString deviceName = rx_windows_cdda.cap(1);
 			int track = rx_windows_cdda.cap(2).toInt();
 			_currentMediaController->setCurrentTitle(track);

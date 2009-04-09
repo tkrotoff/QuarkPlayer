@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -105,6 +105,8 @@ private:
 	/**
 	 * UNIX/POSIX version
 	 *
+	 * Very fast implementation.
+	 *
 	 * @param path directory where to search for files.
 	 */
 	void findAllFilesUNIX(const QString & path);
@@ -113,11 +115,14 @@ private:
 	 * Generic Qt version.
 	 *
 	 * Very slow :/
+	 * That's why findAllFilesUNIX() and findAllFilesWin32() were created.
 	 */
 	void findAllFilesQt(const QString & path);
 
 	/**
 	 * Win32 version.
+	 *
+	 * Very fast implementation.
 	 */
 	void findAllFilesWin32(const QString & path);
 

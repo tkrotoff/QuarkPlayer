@@ -28,7 +28,6 @@
 #include <filetypes/FileTypes.h>
 
 #include <tkutil/FindFiles.h>
-#include <tkutil/TkFile.h>
 #include <tkutil/Random.h>
 
 #include <playlistparser/PlaylistParser.h>
@@ -151,7 +150,7 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 				QString title = mediaInfo.metadataValue(MediaInfo::Title);
 				if (title.isEmpty()) {
 					//Not the fullpath, only the filename
-					title = TkFile::fileName(filename);
+					title = QFileInfo(filename).fileName();
 				}
 				tmp = title;
 				break;
@@ -178,8 +177,8 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 					//So let's keep the complete filename
 					tmp = filename;
 				} else {
-					tmp = TkFile::dir(filename) + "/" +
-						TkFile::removeFileExtension(TkFile::fileName(filename));
+					tmp = QDir(filename).dirName() + "/" +
+						QFileInfo(filename).fileName();
 
 					//Resolve meta data file one by one
 					//Cannot do that for remote/network media, i.e URLs
@@ -285,10 +284,10 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 	QStringList filenameList;
 	foreach (QString filename, files) {
 		bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(
-					TkFile::fileExtension(filename), Qt::CaseInsensitive);
+					QFileInfo(filename).suffix(), Qt::CaseInsensitive);
 		if (isMultimediaFile) {
 			filenameList << filename;
-		} else if (TkFile::isDir(filename)) {
+		} else if (QFileInfo(filename).exists()) {
 			_nbFindFiles++;
 			FindFiles * findFiles = new FindFiles(this);
 			connect(findFiles, SIGNAL(filesFound(const QStringList &)),
@@ -530,9 +529,9 @@ void PlaylistModel::clear() {
 void PlaylistModel::play(int position) {
 	setPosition(position);
 	if (_position != POSITION_INVALID) {
-		QString fileName(_filenames[position].fileName());
-		qDebug() << __FUNCTION__ << "Play file:" << fileName;
-		_quarkPlayer.play(fileName);
+		QString filename(_filenames[position].fileName());
+		qDebug() << __FUNCTION__ << "Play file:" << filename;
+		_quarkPlayer.play(filename);
 	} else {
 		qCritical() << __FUNCTION__ << "Error: invalid position";
 	}
@@ -545,9 +544,9 @@ void PlaylistModel::enqueue(int position) {
 		//better to erase it and be sure
 		_quarkPlayer.currentMediaObject()->clearQueue();
 
-		QString fileName(_filenames[position].fileName());
-		qDebug() << __FUNCTION__ << "Enqueue file:" << fileName;
-		_quarkPlayer.currentMediaObject()->enqueue(fileName);
+		QString filename(_filenames[position].fileName());
+		qDebug() << __FUNCTION__ << "Enqueue file:" << filename;
+		_quarkPlayer.currentMediaObject()->enqueue(filename);
 	} else {
 		qCritical() << __FUNCTION__ << "Error: invalid position";
 	}

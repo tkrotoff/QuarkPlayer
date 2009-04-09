@@ -22,7 +22,6 @@
 
 #include <quarkplayer/config/Config.h>
 
-#include <tkutil/TkFile.h>
 #include <tkutil/MouseEventFilter.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 #include <tkutil/SqueezeLabel.h>
@@ -98,18 +97,18 @@ void MediaDataWidget::updateMediaInfo() {
 	static const QString endhref2("</a>");
 	static const QString br("<br>");
 
-	QString filename = mediaInfo.fileName();
-	QString title = mediaInfo.metadataValue(MediaInfo::Title);
-	QString artist = mediaInfo.metadataValue(MediaInfo::Artist);
-	QString album = mediaInfo.metadataValue(MediaInfo::Album);
-	QString albumArtist = mediaInfo.metadataValue(MediaInfo::AlbumArtist);
-	QString amazonASIN = mediaInfo.metadataValue(MediaInfo::AmazonASIN);
-	QString streamName = mediaInfo.networkStreamValue(MediaInfo::StreamName);
-	QString streamGenre = mediaInfo.networkStreamValue(MediaInfo::StreamGenre);
-	QString streamWebsite = mediaInfo.networkStreamValue(MediaInfo::StreamWebsite);
-	QString streamUrl = mediaInfo.networkStreamValue(MediaInfo::StreamURL);
-	QString bitrate = mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrate);
-	QString bitrateMode = mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrateMode);
+	QString filename(mediaInfo.fileName());
+	QString title(mediaInfo.metadataValue(MediaInfo::Title));
+	QString artist(mediaInfo.metadataValue(MediaInfo::Artist));
+	QString album(mediaInfo.metadataValue(MediaInfo::Album));
+	QString albumArtist(mediaInfo.metadataValue(MediaInfo::AlbumArtist));
+	QString amazonASIN(mediaInfo.metadataValue(MediaInfo::AmazonASIN));
+	QString streamName(mediaInfo.networkStreamValue(MediaInfo::StreamName));
+	QString streamGenre(mediaInfo.networkStreamValue(MediaInfo::StreamGenre));
+	QString streamWebsite(mediaInfo.networkStreamValue(MediaInfo::StreamWebsite));
+	QString streamUrl(mediaInfo.networkStreamValue(MediaInfo::StreamURL));
+	QString bitrate(mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrate));
+	QString bitrateMode(mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrateMode));
 
 	_currentCoverArtIndex = 0;
 	_coverArtList.clear();
@@ -153,8 +152,7 @@ void MediaDataWidget::updateMediaInfo() {
 			_ui->formLayout->addRow(tr("URL:"), new SqueezeLabel(font + filename + endfont));
 		} else {
 			//Not the fullpath, only the filename + parent directory name
-			QString tmp(TkFile::dir(filename) + "/");
-			tmp += TkFile::removeFileExtension(TkFile::fileName(filename));
+			QString tmp(QDir(filename).dirName() + "/" + QFileInfo(filename).baseName());
 			_ui->formLayout->addRow(tr("File:"), new SqueezeLabel(font + tmp + endfont));
 		}
 	}
@@ -207,7 +205,7 @@ void MediaDataWidget::retranslate() {
 }
 
 void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist, const QString & amazonASIN) {
-	QString coverArtDir(TkFile::path(_mediaInfoFetcher->mediaInfo().fileName()));
+	QString coverArtDir(QFileInfo(_mediaInfoFetcher->mediaInfo().fileName()).path());
 
 	QStringList imageSuffixList;
 	foreach (QByteArray format, QImageReader::supportedImageFormats()) {

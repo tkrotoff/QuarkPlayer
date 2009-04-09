@@ -19,8 +19,6 @@
 
 #include "ThumbnailListView.h"
 
-#include <tkutil/TkFile.h>
-
 #include <QtGui/QApplication>
 #include <QtGui/QHelpEvent>
 #include <QtGui/QPainter>
@@ -28,6 +26,7 @@
 #include <QtGui/QDesktopServices>
 
 #include <QtCore/QUrl>
+#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
 //Space between the item outer rect and the content
@@ -120,7 +119,7 @@ private:
 			return;
 		}
 
-		QString filename(TkFile::fileName(index.data().toString()));
+		QString filename(QFileInfo(index.data().toString()).fileName());
 
 		QRect rect = view->visualRect(index);
 		QPoint pos(rect.left() + ITEM_MARGIN, rect.top() + ITEM_MARGIN);
