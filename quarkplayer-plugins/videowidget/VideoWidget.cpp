@@ -294,7 +294,7 @@ void VideoWidget::showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder) {
 	//Width divided by 1.5, I think it's better
 	//otherwise the widget (playToolBar + statusBar) is too big
 	//So same as VLC...
-	int widgetOverWidth = widgetUnder->width() / 1.5;
+	int widgetOverWidth = static_cast<int>(widgetUnder->width() / 1.5);
 	widgetOver->resize(widgetOverWidth, widgetOver->height());
 
 	//Center of the screen
