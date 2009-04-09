@@ -238,7 +238,7 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 		perror(path.toUtf8().constData());
 	} else {
 		struct dirent * entry = NULL;
-		while (entry = readdir(dir)) {
+		while ((entry = readdir(dir))) {
 			if (_stop) {
 				break;
 			}
