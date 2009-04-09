@@ -522,6 +522,8 @@ void MediaController::actionAngleTriggered(int id) {
 }
 
 void MediaController::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
+	Q_UNUSED(mediaObject);
+
 	_currentMediaController = quarkPlayer().currentMediaController();
 
 	connect(_currentMediaController, SIGNAL(availableAudioChannelsChanged()),

@@ -266,6 +266,8 @@ void FileBrowserWidget::configure() {
 }
 
 void FileBrowserWidget::musicDirChanged(const QString & key, const QVariant & value) {
+	Q_UNUSED(value);
+
 	if (key == Config::MUSIC_DIR_KEY + uuid().toString()) {
 		_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir(uuid())));
 		setWindowTitle(QString());

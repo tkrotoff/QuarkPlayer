@@ -1,7 +1,7 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2004-2007  Wengo
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +72,7 @@ bool MouseReleaseEventFilter::eventFilter(QObject * watched, QEvent * event) {
 
 MouseEnterEventFilter::MouseEnterEventFilter(QObject * receiver, const char * member, bool filter)
 	: EventFilter(receiver, member, false) {
+	Q_UNUSED(filter);
 }
 
 bool MouseEnterEventFilter::eventFilter(QObject * watched, QEvent * event) {

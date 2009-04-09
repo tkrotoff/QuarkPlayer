@@ -241,5 +241,24 @@ QStringList MPlayerLoader::readMediaSettings() {
 		}
 	}
 
+	//Subtitles font
+
+	//Turn on SSA/ASS subtitle rendering. With this option, libass will be used for
+	//SSA/ASS external subtitles and Matroska tracks. You may also want to use -embeddedfonts
+	//NOTE: When fontconfig is compiled-in, -ass turns on -fontconfig unless explicitly
+	//turned off with -nofontconfig
+	args << "-ass";
+
+	//Enables extraction of Matroska embedded fonts (default: disabled)
+	//These fonts can be used for SSA/ASS subtitle rendering (-ass option)
+	//Font files are created in the ~/.mplayer/fonts directory
+	//NOTE: With FontConfig 2.4.2 or newer, embedded fonts are opened directly from memory,
+	//and this option is enabled by default
+	args << "-embeddedfonts";
+
+	//Enables placing toptitles and subtitles in black borders when they are available
+	args << "-ass-use-margins";
+
+
 	return args;
 }

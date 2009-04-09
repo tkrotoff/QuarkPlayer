@@ -16,44 +16,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VERSION_H_IN
-#define VERSION_H_IN
+#ifndef VERSION_H
+#define VERSION_H
+
+#include <quarkplayer/quarkplayer_export.h>
 
 class QString;
 
 /**
  * QuarkPlayer version string: "major.minor.patch". E.g. "1.2.1"
  */
-static const char * QUARKPLAYER_VERSION = "@QUARKPLAYER_MAJOR_VERSION@.@QUARKPLAYER_MINOR_VERSION@.@QUARKPLAYER_PATCH_VERSION@";
+QUARKPLAYER_API extern const char * QUARKPLAYER_VERSION;
 
 /**
  * QuarkPlayer Subversion revision number.
  */
-static const int QUARKPLAYER_SVN_REVISION = @SVN_REVISION@;
+QUARKPLAYER_API extern const int QUARKPLAYER_SVN_REVISION;
 
 /**
  * Compiler used (GCC, MSVC...)
  */
-static const char * QUARKPLAYER_COMPILER = "@COMPILER_NAME@";
+QUARKPLAYER_API extern const char * QUARKPLAYER_COMPILER;
 
 /**
  * System/OS used (Win32, Linux, MacOS...)
  */
-static const char * QUARKPLAYER_SYSTEM = "@SYSTEM_NAME@";
+QUARKPLAYER_API extern const char * QUARKPLAYER_SYSTEM;
 
 /**
  * Build type: Release, Debug, RelWithDebInfo...
  */
-static const char * QUARKPLAYER_BUILD_TYPE = "@CMAKE_BUILD_TYPE@";
+QUARKPLAYER_API extern const char * QUARKPLAYER_BUILD_TYPE;
 
 /**
  * Build date.
  */
-static const char * QUARKPLAYER_BUILD_DATE = "@CMAKE_BUILD_DATE@";
+QUARKPLAYER_API extern const char * QUARKPLAYER_BUILD_DATE;
 
 /**
  * Returns a formatted string with full version description.
  */
-QString quarkPlayerFullVersion();
+QUARKPLAYER_API QString quarkPlayerFullVersion();
 
-#endif	//VERSION_H_IN
+#endif	//VERSION_H

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -217,6 +217,8 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 	}
 
 	FindClose(hList);
+#else
+	Q_UNUSED(path);
 #endif	//Q_OS_WIN
 }
 
@@ -280,6 +282,8 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 			perror(path.toUtf8().constData());
 		}
 	}
+#else
+	Q_UNUSED(path);
 #endif	//Q_OS_WIN
 }
 

@@ -59,6 +59,7 @@ FileSearchModel::~FileSearchModel() {
 }
 
 int FileSearchModel::columnCount(const QModelIndex & parent) const {
+	Q_UNUSED(parent);
 	return COLUMN_COUNT;
 }
 
@@ -166,6 +167,7 @@ QModelIndex FileSearchModel::index(int row, int column, const QModelIndex & pare
 }
 
 QModelIndex FileSearchModel::parent(const QModelIndex & index) const {
+	Q_UNUSED(index);
 	return QModelIndex();
 }
 

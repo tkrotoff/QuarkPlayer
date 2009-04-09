@@ -404,6 +404,8 @@ void PlaylistWidget::disconnectFromMediaObjectList() {
 }
 
 void PlaylistWidget::currentSourceChanged(const Phonon::MediaSource & source) {
+	Q_UNUSED(source);
+
 	if (PlaylistConfig::instance().activePlaylist() == uuid()) {
 		//Each time the track changes, we enqueue the next track
 		//currentSourceChanged() is the only signal that we get when we queue tracks

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -424,6 +424,8 @@ void MediaInfoWindow::networkError(QNetworkReply::NetworkError errorCode) {
 }
 
 void MediaInfoWindow::lyricsFound(const QByteArray & lyrics, bool accurate) {
+	Q_UNUSED(accurate);
+
 	QString text = QString::fromUtf8(lyrics);
 	if (!text.isEmpty()) {
 		_ui->lyricsTextEdit->setHtml(text);

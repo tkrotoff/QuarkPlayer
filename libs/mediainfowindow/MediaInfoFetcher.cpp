@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -180,6 +180,8 @@ void MediaInfoFetcher::startPhononResolver() {
 }
 
 void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State oldState) {
+	Q_UNUSED(oldState);
+
 	QMap<QString, QString> metadata = _metaObjectInfoResolver->metaData();
 
 	if (newState == Phonon::ErrorState) {
@@ -374,20 +376,20 @@ void MediaInfoFetcher::startTagLibResolver() {
 				}
 			}
 
-		} else if (TagLib::Ogg::Speex::File * file = dynamic_cast<TagLib::Ogg::Speex::File *>(fileRef.file())) {
+		} else if (dynamic_cast<TagLib::Ogg::Speex::File *>(fileRef.file())) {
 			_mediaInfo.setFileType(FileTypes::fileType(FileType::Speex));
-		} else if (TagLib::MPC::File * file = dynamic_cast<TagLib::MPC::File *>(fileRef.file())) {
+		} else if (dynamic_cast<TagLib::MPC::File *>(fileRef.file())) {
 			_mediaInfo.setFileType(FileTypes::fileType(FileType::MPC));
-		} else if (TagLib::WavPack::File * file = dynamic_cast<TagLib::WavPack::File *>(fileRef.file())) {
+		} else if (dynamic_cast<TagLib::WavPack::File *>(fileRef.file())) {
 			_mediaInfo.setFileType(FileTypes::fileType(FileType::WavPack));
-		} else if (TagLib::TrueAudio::File * file = dynamic_cast<TagLib::TrueAudio::File *>(fileRef.file())) {
+		} else if (dynamic_cast<TagLib::TrueAudio::File *>(fileRef.file())) {
 			_mediaInfo.setFileType(FileTypes::fileType(FileType::TTA));
-		} else if (TagLib::ASF::File * file = dynamic_cast<TagLib::ASF::File *>(fileRef.file())) {
+		} else if (dynamic_cast<TagLib::ASF::File *>(fileRef.file())) {
 			//ASF is a container, WMA is the real codec, see http://en.wikipedia.org/wiki/Advanced_Systems_Format
 			//and http://en.wikipedia.org/wiki/Windows_Media_Audio
 			//Let's ASF be WMA, more consistent for the users
 			_mediaInfo.setFileType(FileTypes::fileType(FileType::WMA));
-		} else if (TagLib::MP4::File * file = dynamic_cast<TagLib::MP4::File *>(fileRef.file())) {
+		} else if (dynamic_cast<TagLib::MP4::File *>(fileRef.file())) {
 			//MP4 is in fact AAC (.m4a), see http://en.wikipedia.org/wiki/Advanced_Audio_Coding
 			//and http://en.wikipedia.org/wiki/MPEG-4_Part_14
 			_mediaInfo.setFileType(FileTypes::fileType(FileType::AAC));

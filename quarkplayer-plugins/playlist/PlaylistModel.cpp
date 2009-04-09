@@ -86,6 +86,7 @@ PlaylistModel::~PlaylistModel() {
 }
 
 int PlaylistModel::columnCount(const QModelIndex & parent) const {
+	Q_UNUSED(parent);
 	return COLUMN_COUNT;
 }
 
@@ -222,6 +223,7 @@ QModelIndex PlaylistModel::index(int row, int column, const QModelIndex & parent
 }
 
 QModelIndex PlaylistModel::parent(const QModelIndex & index) const {
+	Q_UNUSED(index);
 	return QModelIndex();
 }
 
@@ -242,6 +244,10 @@ Qt::ItemFlags PlaylistModel::flags(const QModelIndex & index) const {
 }
 
 bool PlaylistModel::dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) {
+	Q_UNUSED(action);
+	Q_UNUSED(column);
+	Q_UNUSED(parent);
+
 	QStringList files;
 
 	//Add urls to a list
@@ -351,6 +357,8 @@ void PlaylistModel::addFilesToCurrentPlaylist(const QStringList & files) {
 }
 
 void PlaylistModel::searchfinished(int timeElapsed) {
+	Q_UNUSED(timeElapsed);
+
 	_nbFindFiles--;
 	if (_nbFindFiles <= 0) {
 		saveCurrentPlaylist();

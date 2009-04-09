@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,6 +67,8 @@ VideoWidgetPlugin::~VideoWidgetPlugin() {
 }
 
 void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldState) {
+	Q_UNUSED(newState);
+
 	VideoContainer * container = _mediaObjectHash.value(quarkPlayer().currentMediaObject());
 
 	//Remove the background logo, not needed anymore

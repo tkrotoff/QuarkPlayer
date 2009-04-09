@@ -1,7 +1,7 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2005  Iulian M <eti@erata.net>
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,6 +98,8 @@ QHttp::Error SyncHttp::syncRequest(const QHttpRequestHeader & header, const QByt
 }
 
 void SyncHttp::requestFinished(int id, bool error) {
+	Q_UNUSED(error);
+
 	//Check to see if it's the request we made
 	if (id != _requestId) {
 		return;

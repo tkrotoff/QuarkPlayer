@@ -4,7 +4,7 @@ project(quarkplayercore)
 # is used by external components (i.e plugins) and the API must
 # be coherent
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
-configure_file(version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/version.h)
+configure_file(version.cpp.in ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp)
 
 add_definitions(-DBUILD_QUARKPLAYER)
 

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 		"QuarkPlayer can use different backends (DirectShow, MPlayer, Xine, GStreamer, "
 		"VLC...) thanks to Qt and the Phonon library. "
 		"It also relies on an advanced plugin system and is available under "
-		"Windows, Linux and soon Mac OS X.").arg(QUARKPLAYER_VERSION)
+		"Windows, Linux and soon Mac OS X.<br><br><br>Version: %2").arg(QUARKPLAYER_VERSION).arg(quarkPlayerFullVersion())
 	);
 	msgBox->show();
 }
