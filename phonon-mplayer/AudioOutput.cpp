@@ -50,7 +50,7 @@ qreal AudioOutput::volume() const {
 
 void AudioOutput::setVolume(qreal volume) {
 	//Saves the volume for the next running MPlayer process
-	MPlayerLoader::settings.volume = volume * 100;
+	MPlayerLoader::settings.volume = static_cast<int>(volume * 100);
 
 	//Sets the volume for the current running MPlayer process if any
 	sendMPlayerCommand("volume " + QString::number(MPlayerLoader::settings.volume) + " 1");

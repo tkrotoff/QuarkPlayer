@@ -199,7 +199,7 @@ void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State ol
 		_mediaInfo.insertMetadata(MediaInfo::Comment, metadata.value("COMMENT").trimmed());
 
 		//Converts from milliseconds to seconds
-		_mediaInfo.setLength(metadata.value("LENGTH").toInt() / 1000.0);
+		_mediaInfo.setLength(static_cast<int>(metadata.value("LENGTH").toInt() / 1000.0));
 		//Converts from bps to kbps
 		_mediaInfo.insertAudioStream(0, MediaInfo::AudioBitrate, QString::number(metadata.value("BITRATE").trimmed().toInt() / 1000));
 		_mediaInfo.insertAudioStream(0, MediaInfo::AudioSampleRate, metadata.value("SAMPLERATE").trimmed());
@@ -473,8 +473,8 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 	_mediaInfo.insertMetadata(MediaInfo::AmazonASIN, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("ASIN"))).trimmed());
 
 	//Audio
-	int audioStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Audio);
-	for (int audioStreamId = 0; audioStreamId < audioStreamCount; audioStreamId++) {
+	size_t audioStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Audio);
+	for (size_t audioStreamId = 0; audioStreamId < audioStreamCount; audioStreamId++) {
 		_mediaInfo.insertAudioStream(audioStreamId, MediaInfo::AudioBitrate, QString::number(QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("BitRate"))).trimmed().toInt() / 1000));
 		_mediaInfo.insertAudioStream(audioStreamId, MediaInfo::AudioBitrateMode, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("BitRate_Mode"))).trimmed());
 		_mediaInfo.insertAudioStream(audioStreamId, MediaInfo::AudioSampleRate, QString::number(QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("SamplingRate"))).trimmed().toFloat() / 1000.0));
@@ -487,8 +487,8 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 	}
 
 	//Video
-	int videoStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Video);
-	for (int videoStreamId = 0; videoStreamId < videoStreamCount; videoStreamId++) {
+	size_t videoStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Video);
+	for (size_t videoStreamId = 0; videoStreamId < videoStreamCount; videoStreamId++) {
 		_mediaInfo.insertVideoStream(videoStreamId, MediaInfo::VideoBitrate, QString::number(QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Video, videoStreamId, _T("BitRate"))).trimmed().toInt() / 1000));
 		_mediaInfo.insertVideoStream(videoStreamId, MediaInfo::VideoWidth, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Video, videoStreamId, _T("Width"))).trimmed());
 		_mediaInfo.insertVideoStream(videoStreamId, MediaInfo::VideoHeight, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Video, videoStreamId, _T("Height"))).trimmed());
@@ -499,8 +499,8 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 	}
 
 	//Text
-	int textStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Text);
-	for (int textStreamId = 0; textStreamId < textStreamCount; textStreamId++) {
+	size_t textStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Text);
+	for (size_t textStreamId = 0; textStreamId < textStreamCount; textStreamId++) {
 		_mediaInfo.insertTextStream(textStreamId, MediaInfo::TextFormat, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Text, textStreamId, _T("Format"))).trimmed());
 		_mediaInfo.insertTextStream(textStreamId, MediaInfo::TextLanguage, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Text, textStreamId, _T("Language/String"))).trimmed());
 	}
