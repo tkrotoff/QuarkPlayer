@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "version.h"
+#include <quarkplayer/version.h>
 
-#include "config.h"
+#include <quarkplayer/config.h>
 
 #include <QtCore/QString>
 

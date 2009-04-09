@@ -4,7 +4,7 @@ project(quarkplayercore)
 # is used by external components (i.e plugins) and the API must
 # be coherent
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
-configure_file(version.cpp.in ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp)
+configure_file(version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
 
 add_definitions(-DBUILD_QUARKPLAYER)
 
@@ -24,7 +24,7 @@ loc_counter(${CMAKE_SOURCE_DIR}/3rdparty QUARKPLAYER_3RDPARTY_LOC 1)
 configure_file(metrics.h.in ${CMAKE_CURRENT_BINARY_DIR}/metrics.h)
 
 set(quarkplayercore_SRCS
-	version.cpp
+	${CMAKE_CURRENT_BINARY_DIR}/version.cpp
 	QuarkPlayer.cpp
 	PluginInterface.cpp
 	PluginData.cpp
