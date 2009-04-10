@@ -163,8 +163,12 @@ void MediaInfoWindow::updateMediaInfo() {
 	_ui->yearLineEdit->setText(tmp);
 	tmp = mediaInfo.metadataValue(MediaInfo::Genre);
 	_ui->genreLineEdit->setText(tmp);
+
 	tmp = mediaInfo.metadataValue(MediaInfo::Comment);
-	_ui->commentLineEdit->setText(tmp);
+	//" / " means new line inside a MP3 comment
+	tmp.replace(" / ", "<br>");
+	_ui->commentTextEdit->setHtml(tmp);
+
 	tmp = mediaInfo.metadataValue(MediaInfo::Composer);
 	_ui->composerLineEdit->setText(tmp);
 	tmp = mediaInfo.metadataValue(MediaInfo::Publisher);
