@@ -138,7 +138,7 @@ void MainWindow::addRecentFilesToMenu() {
 			if (url.host().isEmpty()) {
 				//Then we have a local file and not a real url (i.e "http://blabla")
 				filename = QFileInfo(filename).fileName();
-				filename = filename.right(filename.length() - filename.lastIndexOf('/') - 1);
+				filename = filename.right(filename.length() - filename.lastIndexOf(QDir::separator()) - 1);
 			}
 
 			QAction * action = _menuRecentFiles->addAction(filename, signalMapper, SLOT(map()));

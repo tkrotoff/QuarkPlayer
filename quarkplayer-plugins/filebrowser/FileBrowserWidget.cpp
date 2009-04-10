@@ -240,7 +240,7 @@ void FileBrowserWidget::searchFinished(int timeElapsed) {
 	unsetCursor();
 
 	setWindowTitle(tr("Search finished:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
-			" (" + QString::number(_fileSearchModel->rowCount()) + " " + tr("medias") + ")");
+			" (" + QString::number(_fileSearchModel->rowCount()) + ' ' + tr("medias") + ')');
 
 	//Add the word searched inside the SearchToolBar
 	QString word = _searchLineEdit->text();

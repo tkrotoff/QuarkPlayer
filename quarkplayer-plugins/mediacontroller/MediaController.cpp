@@ -267,7 +267,7 @@ void MediaController::availableAudioChannelsChanged() {
 	}
 
 	for (int i = 0; i < audios.size(); i++) {
-		QString audioChannelText(audios[i].name() + " " + audios[i].description());
+		QString audioChannelText(audios[i].name() + ' ' + audios[i].description());
 
 		QAction * actionMainWindow = _menuAudioChannels->addAction(audioChannelText, signalMapper, SLOT(map()));
 		actionMainWindow->setCheckable(true);
@@ -318,7 +318,7 @@ void MediaController::availableSubtitlesChanged() {
 	}
 
 	for (int i = 0; i < subtitles.size(); i++) {
-		QString subtitleText(subtitles[i].name() + " " + subtitles[i].description());
+		QString subtitleText(subtitles[i].name() + ' ' + subtitles[i].description());
 
 		QAction * actionMainWindow = _menuSubtitles->addAction(subtitleText, signalMapper, SLOT(map()));
 		actionMainWindow->setCheckable(true);
@@ -375,7 +375,7 @@ void MediaController::availableTitlesChanged() {
 	}
 
 	for (int i = 0; i < titles.size(); i++) {
-		QAction * action = _menuTitles->addAction(titles[i].name() + " " + titles[i].description(), signalMapper, SLOT(map()));
+		QAction * action = _menuTitles->addAction(titles[i].name() + ' ' + titles[i].description(), signalMapper, SLOT(map()));
 		connect(action, SIGNAL(triggered(bool)), action, SLOT(setChecked(bool)));
 		action->setCheckable(true);
 		actionGroup->addAction(action);
@@ -437,7 +437,7 @@ void MediaController::availableChaptersChanged() {
 	}
 
 	for (int i = 0; i < chapters.size(); i++) {
-		QAction * action = _menuChapters->addAction(chapters[i].name() + " " + chapters[i].description(), signalMapper, SLOT(map()));
+		QAction * action = _menuChapters->addAction(chapters[i].name() + ' ' + chapters[i].description(), signalMapper, SLOT(map()));
 		connect(action, SIGNAL(triggered(bool)), action, SLOT(setChecked(bool)));
 		action->setCheckable(true);
 		actionGroup->addAction(action);

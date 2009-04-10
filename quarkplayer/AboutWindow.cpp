@@ -51,7 +51,7 @@ AboutWindow::AboutWindow(QWidget * parent)
 	QString mediaInfoLibVersion;
 #ifdef MEDIAINFOLIB
 	MediaInfoLib::MediaInfo mediaInfo;
-	mediaInfoLibVersion = QString::fromStdWString(mediaInfo.Option(_T("Info_Version"), _T("")));
+	mediaInfoLibVersion = QString::fromStdWString(mediaInfo.Option(_T("Info_Version"), _T('')));
 	mediaInfoLibVersion.remove("MediaInfoLib - v");
 #endif	//MEDIAINFOLIB
 
@@ -60,8 +60,8 @@ AboutWindow::AboutWindow(QWidget * parent)
 		+ "<br>Qt: " + QString(qVersion())
 		+ "<br>Phonon: " + QString(Phonon::phononVersion())
 #ifdef TAGLIB
-		+ "<br>TagLib: " + QString::number(TAGLIB_MAJOR_VERSION) + "." +
-			QString::number(TAGLIB_MINOR_VERSION) + "." +
+		+ "<br>TagLib: " + QString::number(TAGLIB_MAJOR_VERSION) + '.' +
+			QString::number(TAGLIB_MINOR_VERSION) + '.' +
 			QString::number(TAGLIB_PATCH_VERSION)
 #endif	//TAGLIB
 

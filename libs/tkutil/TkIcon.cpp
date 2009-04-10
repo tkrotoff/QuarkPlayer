@@ -31,7 +31,7 @@ TkIcon::TkIcon(const QString & standardIconName)
 #ifdef KDE4_FOUND
 	: PrivateIcon(standardIconName)
 #else
-	: PrivateIcon(":/" + _iconTheme + "/" + _iconSize + "/" + standardIconName)
+	: PrivateIcon(":/" + _iconTheme + '/' + _iconSize + '/' + standardIconName)
 #endif	//KDE4_FOUND
 	{
 
@@ -49,5 +49,5 @@ void TkIcon::setIconTheme(const QString & iconTheme) {
 
 void TkIcon::setIconSize(int iconSize) {
 	QString size = QString::number(iconSize);
-	_iconSize = size + "x" + size;
+	_iconSize = size + 'x' + size;
 }

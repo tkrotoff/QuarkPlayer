@@ -145,7 +145,7 @@ void VideoWindow::availableAudioChannelsChanged() {
 
 	QList<Phonon::AudioChannelDescription> audios = _mediaController->availableAudioChannels();
 	for (int i = 0; i < audios.size(); i++) {
-		QAction * action = menuAudioChannels->addAction(audios[i].name() + " " + audios[i].description(), signalMapper, SLOT(map()));
+		QAction * action = menuAudioChannels->addAction(audios[i].name() + ' ' + audios[i].description(), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 
@@ -165,7 +165,7 @@ void VideoWindow::availableSubtitlesChanged() {
 
 	QList<Phonon::SubtitleDescription> subtitles = _mediaController->availableSubtitles();
 	for (int i = 0; i < subtitles.size(); i++) {
-		QAction * action = menuSubtitles->addAction(subtitles[i].name() + " " + subtitles[i].description(), signalMapper, SLOT(map()));
+		QAction * action = menuSubtitles->addAction(subtitles[i].name() + ' ' + subtitles[i].description(), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 
@@ -186,7 +186,7 @@ void VideoWindow::availableTitlesChanged() {
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 	QList<Phonon::TitleDescription> titles = _mediaController->availableTitles2();
 	for (int i = 0; i < titles.size(); i++) {
-		QAction * action = menuTitles->addAction(titles[i].name() + " " + titles[i].description(), signalMapper, SLOT(map()));
+		QAction * action = menuTitles->addAction(titles[i].name() + ' ' + titles[i].description(), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 #else
@@ -218,7 +218,7 @@ void VideoWindow::availableChaptersChanged() {
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 	QList<Phonon::ChapterDescription> chapters = _mediaController->availableChapters2();
 	for (int i = 0; i < chapters.size(); i++) {
-		QAction * action = menuChapters->addAction(chapters[i].name() + " " + chapters[i].description(), signalMapper, SLOT(map()));
+		QAction * action = menuChapters->addAction(chapters[i].name() + ' ' + chapters[i].description(), signalMapper, SLOT(map()));
 		signalMapper->setMapping(action, i);
 	}
 #else

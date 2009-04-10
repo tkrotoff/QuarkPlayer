@@ -152,7 +152,7 @@ void FindSubtitlesWindow::retranslate() {
 		_ui->languageComboBox->addItem(it.value(), it.key());
 	}
 	_ui->languageComboBox->model()->sort(0);
-	_ui->languageComboBox->insertItem(0, tr("All"), "*");
+	_ui->languageComboBox->insertItem(0, tr("All"), '*');
 	_ui->languageComboBox->setCurrentIndex(_ui->languageComboBox->findData(currentLanguage));
 
 	_ui->downloadButton->setIcon(TkIcon("go-down"));
@@ -359,7 +359,7 @@ void FindSubtitlesWindow::showContextMenu(const QPoint & pos) {
 }
 
 void FindSubtitlesWindow::archiveDownloaded(const QByteArray & data) {
-	QTemporaryFile tmpFile(QDir::tempPath() + '/' + QCoreApplication::applicationName() + "_XXXXXX.zip");
+	QTemporaryFile tmpFile(QDir::tempPath() + QDir::separator() + QCoreApplication::applicationName() + "_XXXXXX.zip");
 	tmpFile.setAutoRemove(false);
 
 	if (tmpFile.open()) {
@@ -429,7 +429,7 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 
 		QStringList filesExtracted;
 		foreach (QString fileToExtract, fileChooserWindow.selectedFiles()) {
-			QString outputFileName = outputDir + "/" + fileToExtract;
+			QString outputFileName = outputDir + QDir::separator() + fileToExtract;
 
 			if (QFile::exists(outputFileName)) {
 				if (QMessageBox::question(this, tr("Overwrite?"),
@@ -451,7 +451,7 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 					break;
 				} else {
 					//Ok the uses has chosen another directory where to save the file
-					outputFileName = newOutputDir + "/" + fileToExtract;
+					outputFileName = newOutputDir + QDir::separator() + fileToExtract;
 				}
 
 				if (QFile::exists(outputFileName)) {

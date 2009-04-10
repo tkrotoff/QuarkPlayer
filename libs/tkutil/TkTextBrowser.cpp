@@ -81,7 +81,7 @@ QVariant TkTextBrowser::loadResource(int type, const QUrl & name) {
 				_httpSyncDownloader->setHost(name.host(), mode, name.port() == -1 ? 0 : name.port());
 				QString path = name.path();
 				if (name.hasQuery()) {
-					path += "?" + name.encodedQuery();
+					path += '?' + name.encodedQuery();
 				}
 
 				//We use QHttpRequestHeader since Wikipedia for example does

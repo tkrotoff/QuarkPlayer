@@ -33,12 +33,12 @@ QAction * uuidAction(const QString & name) {
 	if (_uuid.isNull()) {
 		qCritical() << __FUNCTION__ << "Error: UUID is null";
 	}
-	return ActionCollection::action(name + "_" + _uuid.toString());
+	return ActionCollection::action(name + '_' + _uuid.toString());
 }
 
 void addUuidAction(const QString & name, QAction * action) {
 	if (_uuid.isNull()) {
 		qCritical() << __FUNCTION__ << "Error: UUID is null";
 	}
-	return ActionCollection::addAction(name + "_" + _uuid.toString(), action);
+	return ActionCollection::addAction(name + '_' + _uuid.toString(), action);
 }

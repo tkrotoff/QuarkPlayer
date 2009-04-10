@@ -318,17 +318,17 @@ void PlaylistWidget::parserFilesFound(const QStringList & files) {
 
 void PlaylistWidget::playlistLoaded(int timeElapsed) {
 	updateWindowTitle(tr("Playlist loaded:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
-			" (" + QString::number(_playlistModel->rowCount()) + " " + tr("medias") + ")");
+			" (" + QString::number(_playlistModel->rowCount()) + ' ' + tr("medias") + ')');
 }
 
 void PlaylistWidget::playlistSaved(int timeElapsed) {
 	updateWindowTitle(tr("Playlist saved:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
-			" (" + QString::number(_playlistModel->rowCount()) + " " + tr("medias") + ")");
+			" (" + QString::number(_playlistModel->rowCount()) + ' ' + tr("medias") + ')');
 }
 
 void PlaylistWidget::updateWindowTitle(const QString & statusMessage) {
 	QString nbMedias(QString::number(_playlistModel->rowCount()));
-	QString windowTitle(nbMedias + " " + tr("medias"));
+	QString windowTitle(nbMedias + ' ' + tr("medias"));
 	if (!statusMessage.isEmpty()) {
 		windowTitle += " - " + statusMessage;
 	}
@@ -497,7 +497,7 @@ void PlaylistWidget::search() {
 
 	if (!pattern.isEmpty()) {
 		updateWindowTitle(tr("Search finished:") + ' ' + QString::number((float) timeElapsed.elapsed() / 1000) + ' ' + tr("seconds") +
-			" (" + QString::number(_playlistFilter->rowCount()) + " " + tr("medias") + ")");
+			" (" + QString::number(_playlistFilter->rowCount()) + ' ' + tr("medias") + ')');
 	} else {
 		updateWindowTitle();
 	}

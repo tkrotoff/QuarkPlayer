@@ -227,7 +227,7 @@ void MediaInfoWindow::updateMediaInfo() {
 			fileInfo += fileTypeName;
 		}
 		if (!fileSize.isEmpty()) {
-			fileInfo += ", " + fileSize + " " + tr("MB");
+			fileInfo += ", " + fileSize + ' ' + tr("MB");
 		}
 		if (!length.isEmpty()) {
 			fileInfo += ", " + length;
@@ -235,12 +235,12 @@ void MediaInfoWindow::updateMediaInfo() {
 		if (!bitrate.isEmpty() && mediaInfo.videoStreamCount() > 0) {
 			//Don't show the overall bitrate if there is no video stream
 			//in this case the overall bitrate has no interest
-			fileInfo += ", " + bitrate + " " + tr("kbps");
+			fileInfo += ", " + bitrate + ' ' + tr("kbps");
 		}
 	}
 	QString encodedApplication;
 	if (!mediaInfo.encodedApplication().isEmpty()) {
-		encodedApplication = br + tr("Encoded Application:") + " " + mediaInfo.encodedApplication();
+		encodedApplication = br + tr("Encoded Application:") + ' ' + mediaInfo.encodedApplication();
 	}
 
 	//Audio
@@ -268,22 +268,22 @@ void MediaInfoWindow::updateMediaInfo() {
 				audioStream += br + tr("Audio Stream:");
 			}
 			if (!audioLanguage.isEmpty()) {
-				audioStream += " " + audioLanguage + ",";
+				audioStream += ' ' + audioLanguage + ',';
 			}
 			if (!audioBitrate.isEmpty()) {
-				audioStream += " " + audioBitrate + " " + tr("kbps");
+				audioStream += ' ' + audioBitrate + ' ' + tr("kbps");
 			}
 			if (!audioBitrateMode.isEmpty()) {
-				audioStream += " " + audioBitrateMode;
+				audioStream += ' ' + audioBitrateMode;
 			}
 			if (!audioSampleRate.isEmpty()) {
-				audioStream += ", " + audioSampleRate + " " + tr("kHz");
+				audioStream += ", " + audioSampleRate + ' ' + tr("kHz");
 			}
 			if (!audioBitsPerSample.isEmpty()) {
-				audioStream += ", " + audioBitsPerSample + " " + tr("bits");
+				audioStream += ", " + audioBitsPerSample + ' ' + tr("bits");
 			}
 			if (!audioChannelCount.isEmpty()) {
-				audioStream += ", " + audioChannelCount + " " + tr("channels");
+				audioStream += ", " + audioChannelCount + ' ' + tr("channels");
 			}
 			if (!audioCodec.isEmpty()) {
 				audioStream += ", " + audioCodec;
@@ -319,13 +319,13 @@ void MediaInfoWindow::updateMediaInfo() {
 				videoStream += br + tr("Video Stream:");
 			}
 			if (!videoBitrate.isEmpty()) {
-				videoStream += " " + videoBitrate + " " + tr("kbps");
+				videoStream += ' ' + videoBitrate + ' ' + tr("kbps");
 			}
 			if (!videoWidth.isEmpty() && !videoHeight.isEmpty()) {
 				videoStream += ", " + videoWidth + "*" + videoHeight;
 			}
 			if (!videoFrameRate.isEmpty()) {
-				videoStream += ", " + videoFrameRate + " " + tr("FPS");
+				videoStream += ", " + videoFrameRate + ' ' + tr("FPS");
 			}
 			if (!videoFormat.isEmpty()) {
 				videoStream += ", " + videoFormat;
@@ -354,7 +354,7 @@ void MediaInfoWindow::updateMediaInfo() {
 				textStream += br + tr("Text Stream:");
 			}
 			if (!textLanguage.isEmpty()) {
-				textStream += " " + textLanguage;
+				textStream += ' ' + textLanguage;
 			}
 			if (!textFormat.isEmpty()) {
 				textStream += ", " + textFormat;
@@ -396,7 +396,7 @@ void MediaInfoWindow::updateMediaInfo() {
 
 	//Download the Wikipedia article
 	tmp = track.artist;
-	tmp.replace(" ", "_");
+	tmp.replace(' ', '_');
 	tmp = QUrl::toPercentEncoding(tmp);
 	if (!tmp.isEmpty()) {
 		if (_language.isEmpty()) {

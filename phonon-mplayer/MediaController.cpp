@@ -539,8 +539,8 @@ void MediaController::mkvChapterAdded(int id, const QString & title, const QStri
 
 	//Matroska chapter added
 	QHash<QByteArray, QVariant> properties;
-	properties.insert("name", QString::number(id) + " " + title + " (" + from + ")");
-	properties.insert("description", "");
+	properties.insert("name", QString::number(id) + ' ' + title + " (" + from + ')');
+	properties.insert("description", QString());
 
 	_availableChapters << Phonon::ChapterDescription(id, properties);
 	qDebug() << __FUNCTION__ << "MKV chapter id: " << id << "title:" << title;

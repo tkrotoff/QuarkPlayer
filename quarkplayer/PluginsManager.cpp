@@ -173,7 +173,7 @@ bool PluginsManager::loadPlugin(PluginData & pluginData) {
 
 	if (!pluginData.loader()) {
 		//Not already loaded
-		pluginData.setLoader(new QPluginLoader(_pluginDir + "/" + pluginData.fileName()));
+		pluginData.setLoader(new QPluginLoader(_pluginDir + QDir::separator() + pluginData.fileName()));
 	}
 
 	QObject * plugin = pluginData.loader()->instance();

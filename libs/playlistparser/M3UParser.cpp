@@ -97,7 +97,7 @@ void M3UParser::load() {
 				//qDebug() << __FUNCTION__ << "Name:" << name << "duration:" << duration;
 			}
 
-			else if (line.startsWith("#")) {
+			else if (line.startsWith('#')) {
 				//# line, comment, ignored
 			}
 
@@ -108,8 +108,8 @@ void M3UParser::load() {
 					filename = fileInfo.absoluteFilePath();
 				}
 				if (!fileInfo.exists()) {
-					if (QFileInfo(path + "/" + filename).exists()) {
-						filename = path + "/" + filename;
+					if (QFileInfo(path + QDir::separator() + filename).exists()) {
+						filename = path + QDir::separator() + filename;
 					}
 				}
 
@@ -145,8 +145,8 @@ void M3UParser::save(const QStringList & files) {
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
 	QString path = QFileInfo(_filename).path();
-	if (!path.endsWith("/")) {
-		path += "/";
+	if (!path.endsWith(QDir::separator())) {
+		path += QDir::separator();
 	}
 
 #ifdef Q_OS_WIN
@@ -176,7 +176,7 @@ void M3UParser::save(const QStringList & files) {
 
 			/*
 			stream << "#EXTINF:";
-			stream << duration << ",";
+			stream << duration << ',';
 			stream << name << "\n";
 			*/
 

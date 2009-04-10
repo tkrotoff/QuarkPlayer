@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,7 +94,7 @@ void StatusBar::changeTimeDisplayMode() {
 	qDebug() << __FUNCTION__;
 
 	TimeDisplayMode timeDisplayMode = static_cast<TimeDisplayMode>(Config::instance().value(STATUSBAR_TIME_DIPLAY_MODE_KEY).toInt());
-	TimeDisplayMode newTimeDisplayMode;
+	TimeDisplayMode newTimeDisplayMode = TimeDisplayModeElapsed;	//Initialization just to avoid a warning
 	switch (timeDisplayMode) {
 	case TimeDisplayModeElapsed:
 		newTimeDisplayMode = TimeDisplayModeRemaining;

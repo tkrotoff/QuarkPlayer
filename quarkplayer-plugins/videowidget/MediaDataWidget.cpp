@@ -194,7 +194,7 @@ void MediaDataWidget::updateMediaInfo() {
 
 	if (bitrate != 0) {
 		_ui->formLayout->addRow(tr("Bitrate:"),
-			new SqueezeLabel(font + bitrate + " " + tr("kbps") + " " + bitrateMode + endfont));
+			new SqueezeLabel(font + bitrate + ' ' + tr("kbps") + ' ' + bitrateMode + endfont));
 	}
 }
 
@@ -234,18 +234,18 @@ void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist
 		//Download the cover only if album + artist are not empty
 
 		QString amazonCoverArtFilename(artist + " - " + album + ".jpg");
-		//Remove all not possible characters for a filename
-		static const QString space(" ");
-		amazonCoverArtFilename.replace("/", space);
+		//Remove characters not allowed inside a filename
+		static const QChar space(' ');
+		amazonCoverArtFilename.replace('/', space);
 		amazonCoverArtFilename.replace("\\", space);
-		amazonCoverArtFilename.replace(":", space);
-		amazonCoverArtFilename.replace("*", space);
-		amazonCoverArtFilename.replace("?", space);
-		amazonCoverArtFilename.replace(">", space);
-		amazonCoverArtFilename.replace(">", space);
-		amazonCoverArtFilename.replace("|", space);
+		amazonCoverArtFilename.replace(':', space);
+		amazonCoverArtFilename.replace('*', space);
+		amazonCoverArtFilename.replace('?', space);
+		amazonCoverArtFilename.replace('>', space);
+		amazonCoverArtFilename.replace('>', space);
+		amazonCoverArtFilename.replace('|', space);
 
-		_amazonCoverArtPath = coverArtDir + "/" + amazonCoverArtFilename;
+		_amazonCoverArtPath = coverArtDir + QDir::separator() + amazonCoverArtFilename;
 
 		bool amazonCoverArtAlreadyDownloaded = _coverArtList.contains(_amazonCoverArtPath);
 		if (!amazonCoverArtAlreadyDownloaded) {

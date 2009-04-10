@@ -204,11 +204,11 @@ FileType FileTypes::fileType(FileType::Name name) {
 QString FileTypes::toFilterFormat(const QStringList & extensions) {
 	QString tmp;
 	foreach (QString ext, extensions) {
-		tmp += "*." + ext + " ";
+		tmp += "*." + ext + ' ';
 	}
 	tmp = tmp.trimmed();
 	tmp.prepend(" (");
-	tmp.append(")");
+	tmp.append(')');
 	qDebug() << __FUNCTION__ << tmp;
 	return tmp;
 }

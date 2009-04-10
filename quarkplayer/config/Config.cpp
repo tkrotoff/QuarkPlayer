@@ -64,8 +64,8 @@ Config::Config()
 	cdromDir = "D:/";
 #elif defined(Q_OS_MAC)
 	//FIXME don't know yet
-	dvdDir = "/";
-	cdromDir = "/";
+	dvdDir = '/';
+	cdromDir = '/';
 #elif defined(Q_OS_UNIX)
 	dvdDir = "/dev/dvd";
 	cdromDir = "/dev/cdrom";

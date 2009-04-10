@@ -180,7 +180,7 @@ QIcon WinFileAssociationsConfigWidget::fileExtensionIcon(const QString & extensi
 
 	QIcon icon;
 
-	QTemporaryFile tmpFile(QDir::tempPath() + '/' + QCoreApplication::applicationName() + "_XXXXXX." + extension);
+	QTemporaryFile tmpFile(QDir::tempPath() + QDir::separator() + QCoreApplication::applicationName() + "_XXXXXX." + extension);
 	tmpFile.setAutoRemove(false);
 
 	if (tmpFile.open()) {

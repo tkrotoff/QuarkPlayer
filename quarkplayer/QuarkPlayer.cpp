@@ -219,7 +219,7 @@ Phonon::MediaObject * QuarkPlayer::createNewMediaObject() {
 	/*QStringList originalPaths = QCoreApplication::libraryPaths();
 	QString backendName = Config::instance().backend();
 	QStringList paths;
-	paths << QCoreApplication::applicationDirPath() + "/" + backendName;
+	paths << QCoreApplication::applicationDirPath() + QDir::separator() + backendName;
 	QCoreApplication::setLibraryPaths(paths);
 	*/
 #endif	//KDE4_FOUND

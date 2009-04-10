@@ -36,8 +36,8 @@ void WinFileAssociations::updateNeededKeys(const QString & extension) {
 
 	//extension: mp3, avi...
 	QString ext(extension);
-	if (!ext.startsWith(".")) {
-		ext.prepend(".");
+	if (!ext.startsWith('.')) {
+		ext.prepend('.');
 	}
 	//.mp3, .avi
 	_extKey = ext + defaultStr;
@@ -48,7 +48,7 @@ void WinFileAssociations::updateNeededKeys(const QString & extension) {
 	//QuarkPlayer.mp3/DefaultIcon
 	_appKeyDefaultIcon = _appKey + "/DefaultIcon" + defaultStr;
 	//.mp3/QuarkPlayer.backup
-	_backupKey = ext + "/" + _applicationName + ".backup";
+	_backupKey = ext + '/' + _applicationName + ".backup";
 }
 
 void WinFileAssociations::addAssociation(const QString & extension) {

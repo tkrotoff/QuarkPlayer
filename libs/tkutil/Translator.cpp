@@ -94,7 +94,7 @@ void Translator::load(const QString & language) {
 }
 
 bool Translator::loadLanguage(QTranslator & translator, const QString & name, const QString & language, const QString & translationsPath) {
-	QString filename = name + "_" + language;
+	QString filename = name + '_' + language;
 	bool ret = translator.load(filename, translationsPath);
 	if (!ret) {
 		qDebug() << __FUNCTION__ << "Error: couldn't load translation:" << filename << "from:" << translationsPath;

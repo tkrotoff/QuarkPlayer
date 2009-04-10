@@ -364,7 +364,7 @@ void MediaObject::setNextSource(const MediaSource & source) {
 		QString quote("\"");
 		if (_process->isRunning()) {
 			//If MPlayerProcess is already running then use loadfile slave command
-			_process->sendCommand("loadfile " + quote + fileName + quote + " " + QString::number(1));
+			_process->sendCommand("loadfile " + quote + fileName + quote + ' ' + QString::number(1));
 		} else {
 			//Otherwise back to create a new MPlayerProcess with the given media source
 			setSource(source);

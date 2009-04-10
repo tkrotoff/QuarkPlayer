@@ -112,7 +112,7 @@ void FindFiles::findAllFilesQt(const QString & path) {
 			break;
 		}
 
-		QString filename(path + '/' + name);
+		QString filename(path + QDir::separator() + name);
 
 		if (QFileInfo(filename).isDir()) {
 			//Filter directory matching the given pattern
@@ -178,7 +178,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 			}
 
 			QString name(QString::fromUtf16((unsigned short *) fileData.cFileName));
-			QString filename(path + '\\' + name);
+			QString filename(path + QDir::separator() + name);
 
 			//Check if the object is a directory or not
 			if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
@@ -248,7 +248,7 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 			//Avoid '.', '..' and other hidden files
 			if (!name.startsWith('.')) {
 
-				QString filename(path + '/' + name);
+				QString filename(path + QDir::separator() + name);
 
 				if (QFileInfo(filename).isDir()) {
 					//Filter directory matching the given pattern
