@@ -6,7 +6,7 @@
     License as published by the Free Software Foundation; either
     version 2.1 of the License, or (at your option) version 3, or any
     later version accepted by the membership of KDE e.V. (or its
-    successor approved by the membership of KDE e.V.), Trolltech ASA 
+    successor approved by the membership of KDE e.V.), Nokia Corporation 
     (or its successors, if any) and the KDE Free Qt Foundation, which shall
     act as a proxy defined in Section 6 of version 3 of the license.
 
@@ -102,41 +102,6 @@ void VolumeSlider::setIconSize(const QSize &iconSize)
 {
     pDebug() << Q_FUNC_INFO << iconSize;
     k_ptr->muteButton.setIconSize(iconSize);
-}
-
-QIcon VolumeSlider::volumeIcon() const
-{
-    return k_ptr->volumeIcon;
-}
-
-void VolumeSlider::setVolumeIcon(const QIcon &icon)
-{
-    K_D(VolumeSlider);
-    pDebug() << Q_FUNC_INFO << icon;
-    k_ptr->volumeIcon = icon;
-    d->updateIcon();
-}
-
-QIcon VolumeSlider::mutedIcon() const
-{
-    return k_ptr->mutedIcon;
-}
-
-void VolumeSlider::setMutedIcon(const QIcon &icon)
-{
-    K_D(VolumeSlider);
-    pDebug() << Q_FUNC_INFO << icon;
-    k_ptr->mutedIcon = icon;
-    d->updateIcon();
-}
-
-void VolumeSliderPrivate::updateIcon()
-{
-    if (output && output->isMuted()) {
-        muteButton.setIcon(mutedIcon);
-    } else {
-        muteButton.setIcon(volumeIcon);
-    }
 }
 
 qreal VolumeSlider::maximumVolume() const

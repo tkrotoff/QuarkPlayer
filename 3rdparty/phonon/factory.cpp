@@ -6,7 +6,7 @@
     License as published by the Free Software Foundation; either
     version 2.1 of the License, or (at your option) version 3, or any
     later version accepted by the membership of KDE e.V. (or its
-    successor approved by the membership of KDE e.V.), Trolltech ASA 
+    successor approved by the membership of KDE e.V.), Nokia Corporation 
     (or its successors, if any) and the KDE Free Qt Foundation, which shall
     act as a proxy defined in Section 6 of version 3 of the license.
 
@@ -176,8 +176,8 @@ FactoryPrivate::FactoryPrivate()
     // as the whole backend might still be alive.
     qAddPostRoutine(globalFactory.destroy);
 #ifndef QT_NO_DBUS
-    QDBusConnection::sessionBus().connect(QString(), QString(), "org.kde.Phonon.Factory",
-            "phononBackendChanged", this, SLOT(phononBackendChanged()));
+    QDBusConnection::sessionBus().connect(QString(), QString(), QLatin1String("org.kde.Phonon.Factory"),
+        QLatin1String("phononBackendChanged"), this, SLOT(phononBackendChanged()));
 #endif
 }
 
@@ -342,39 +342,61 @@ PlatformPlugin *FactoryPrivate::platformPlugin()
         pWarning() << "Phonon needs QCoreApplication::applicationName to be set to export audio output names through the DBUS interface";
     }
 #endif
-    const QString suffix(QLatin1String("/phonon_platform/"));
     Q_ASSERT(QCoreApplication::instance());
-    ensureLibraryPathSet();
-    foreach (QString libPath, QCoreApplication::libraryPaths()) {
-        libPath += suffix;
-        const QDir dir(libPath);
-        if (!dir.exists()) {
-            pDebug() << Q_FUNC_INFO << dir.absolutePath() << "does not exist";
-            continue;
-        }
-        foreach (const QString &pluginName, dir.entryList(QDir::Files)) {
-            QPluginLoader pluginLoader(libPath + pluginName);
-            if (!pluginLoader.load()) {
-                pDebug() << Q_FUNC_INFO << "  platform plugin load failed:"
-                    << pluginLoader.errorString();
-                continue;
-            }
-            pDebug() << pluginLoader.instance();
-            QObject *qobj = pluginLoader.instance();
-            m_platformPlugin = qobject_cast<PlatformPlugin *>(qobj);
-            pDebug() << m_platformPlugin;
+    const QByteArray platform_plugin_env = qgetenv("PHONON_PLATFORMPLUGIN");
+    if (!platform_plugin_env.isEmpty()) {
+        QPluginLoader pluginLoader(QString::fromLocal8Bit(platform_plugin_env.constData()));
+        if (pluginLoader.load()) {
+            m_platformPlugin = qobject_cast<PlatformPlugin *>(pluginLoader.instance());
             if (m_platformPlugin) {
-                connect(qobj, SIGNAL(objectDescriptionChanged(ObjectDescriptionType)),
-                        SLOT(objectDescriptionChanged(ObjectDescriptionType)));
                 return m_platformPlugin;
-            } else {
-                delete qobj;
-                pDebug() << Q_FUNC_INFO << dir.absolutePath() << "exists but the platform plugin was not loadable:" << pluginLoader.errorString();
-                pluginLoader.unload();
             }
         }
     }
-    pDebug() << Q_FUNC_INFO << "phonon_platform/kde plugin could not be loaded";
+    const QString suffix(QLatin1String("/phonon_platform/"));
+    ensureLibraryPathSet();
+    QDir dir;
+    dir.setNameFilters(
+            !qgetenv("KDE_FULL_SESSION").isEmpty() ? QStringList(QLatin1String("kde.*")) :
+            (!qgetenv("GNOME_DESKTOP_SESSION_ID").isEmpty() ? QStringList(QLatin1String("gnome.*")) :
+             QStringList())
+            );
+    dir.setFilter(QDir::Files);
+    forever {
+        foreach (QString libPath, QCoreApplication::libraryPaths()) {
+            libPath += suffix;
+            dir.setPath(libPath);
+            if (!dir.exists()) {
+                continue;
+            }
+            foreach (const QString &pluginName, dir.entryList()) {
+                QPluginLoader pluginLoader(libPath + pluginName);
+                if (!pluginLoader.load()) {
+                    pDebug() << Q_FUNC_INFO << "  platform plugin load failed:"
+                        << pluginLoader.errorString();
+                    continue;
+                }
+                pDebug() << pluginLoader.instance();
+                QObject *qobj = pluginLoader.instance();
+                m_platformPlugin = qobject_cast<PlatformPlugin *>(qobj);
+                pDebug() << m_platformPlugin;
+                if (m_platformPlugin) {
+                    connect(qobj, SIGNAL(objectDescriptionChanged(ObjectDescriptionType)),
+                            SLOT(objectDescriptionChanged(ObjectDescriptionType)));
+                    return m_platformPlugin;
+                } else {
+                    delete qobj;
+                    pDebug() << Q_FUNC_INFO << dir.absolutePath() << "exists but the platform plugin was not loadable:" << pluginLoader.errorString();
+                    pluginLoader.unload();
+                }
+            }
+        }
+        if (dir.nameFilters().isEmpty()) {
+            break;
+        }
+        dir.setNameFilters(QStringList());
+    }
+    pDebug() << Q_FUNC_INFO << "platform plugin could not be loaded";
     m_noPlatformPlugin = true;
     return 0;
 }

@@ -6,7 +6,7 @@
     License as published by the Free Software Foundation; either
     version 2.1 of the License, or (at your option) version 3, or any
     later version accepted by the membership of KDE e.V. (or its
-    successor approved by the membership of KDE e.V.), Trolltech ASA 
+    successor approved by the membership of KDE e.V.), Nokia Corporation 
     (or its successors, if any) and the KDE Free Qt Foundation, which shall
     act as a proxy defined in Section 6 of version 3 of the license.
 
@@ -98,26 +98,11 @@ class PHONON_EXPORT VolumeSlider : public QWidget
     Q_PROPERTY(bool muteVisible READ isMuteVisible WRITE setMuteVisible)
 
     /**
-     * The icon size used for the mute button/icon.
+     * \brief the icon size used for the mute button/icon.
      *
      * The default size is defined by the GUI style.
      */
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
-
-    /**
-     * The volume icon to be used instead of the default one.
-     *
-     * Default icon used is "player-volume".
-     */
-    Q_PROPERTY(QIcon volumeIcon READ volumeIcon WRITE setVolumeIcon)
-
-    /**
-     * The muted icon to be used instead of the default one.
-     *
-     * Default icon used is "player-volume-muted".
-     */
-    Q_PROPERTY(QIcon mutedIcon READ mutedIcon WRITE setMutedIcon)
-
     public:
         /**
          * Constructs a new volume slider with a \p parent.
@@ -134,8 +119,6 @@ class PHONON_EXPORT VolumeSlider : public QWidget
         void setSingleStep(int milliseconds);
         bool isMuteVisible() const;
         QSize iconSize() const;
-        QIcon volumeIcon() const;
-        QIcon mutedIcon() const;
         qreal maximumVolume() const;
         Qt::Orientation orientation() const;
         AudioOutput *audioOutput() const;
@@ -145,8 +128,6 @@ class PHONON_EXPORT VolumeSlider : public QWidget
         void setOrientation(Qt::Orientation);
         void setMuteVisible(bool);
         void setIconSize(const QSize &size);
-        void setVolumeIcon(const QIcon &icon);
-        void setMutedIcon(const QIcon &icon);
 
         /**
          * Sets the audio output object to be controlled by this slider.

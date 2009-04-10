@@ -6,7 +6,7 @@
     License as published by the Free Software Foundation; either
     version 2.1 of the License, or (at your option) version 3, or any
     later version accepted by the membership of KDE e.V. (or its
-    successor approved by the membership of KDE e.V.), Trolltech ASA 
+    successor approved by the membership of KDE e.V.), Nokia Corporation 
     (or its successors, if any) and the KDE Free Qt Foundation, which shall
     act as a proxy defined in Section 6 of version 3 of the license.
 
@@ -313,6 +313,8 @@ bool ObjectDescriptionModelData::dropMimeData(ObjectDescriptionType type, const 
 
         if (obj->isValid()) {
             toInsert << QExplicitlySharedDataPointer<ObjectDescriptionData>(obj);
+        } else {
+            delete obj;
         }
     }
     d->model->beginInsertRows(QModelIndex(), row, row + toInsert.size() - 1);
@@ -362,8 +364,8 @@ QStringList ObjectDescriptionModelData::mimeTypes(ObjectDescriptionType type) co
 
 #if !defined(Q_CC_MSVC) || _MSC_VER > 1300 || defined(Q_CC_INTEL) || defined(Q_CC_MINGW)
 #define INSTANTIATE_META_FUNCTIONS(type) \
-template PHONON_EXPORT const QMetaObject *ObjectDescriptionModel<type>::metaObject() const; \
-template PHONON_EXPORT void *ObjectDescriptionModel<type>::qt_metacast(const char *)
+template const QMetaObject *ObjectDescriptionModel<type>::metaObject() const; \
+template void *ObjectDescriptionModel<type>::qt_metacast(const char *)
 
 INSTANTIATE_META_FUNCTIONS(AudioOutputDeviceType);
 INSTANTIATE_META_FUNCTIONS(AudioCaptureDeviceType);

@@ -6,7 +6,7 @@
     License as published by the Free Software Foundation; either
     version 2.1 of the License, or (at your option) version 3, or any
     later version accepted by the membership of KDE e.V. (or its
-    successor approved by the membership of KDE e.V.), Trolltech ASA 
+    successor approved by the membership of KDE e.V.), Nokia Corporation 
     (or its successors, if any) and the KDE Free Qt Foundation, which shall
     act as a proxy defined in Section 6 of version 3 of the license.
 
@@ -30,6 +30,12 @@
 
 QT_BEGIN_HEADER
 QT_BEGIN_NAMESPACE
+
+#ifdef __QT_SYNCQT__
+// Tell syncqt that the BackendCapabilities namespace should be treated like a class
+#pragma qt_class(Phonon::BackendCapabilities)
+#pragma qt_sync_stop_processing
+#endif
 
 template<class T> class QList;
 class QStringList;

@@ -6,7 +6,7 @@
     License as published by the Free Software Foundation; either
     version 2.1 of the License, or (at your option) version 3, or any
     later version accepted by the membership of KDE e.V. (or its
-    successor approved by the membership of KDE e.V.), Trolltech ASA 
+    successor approved by the membership of KDE e.V.), Nokia Corporation 
     (or its successors, if any) and the KDE Free Qt Foundation, which shall
     act as a proxy defined in Section 6 of version 3 of the license.
 
@@ -92,7 +92,15 @@ class PHONON_EXPORT MediaSource
              *
              * \see AbstractMediaStream
              */
-            Stream
+            Stream,
+            /**
+             * An empty MediaSource.
+             *
+             * It can be used to unload the current media from a MediaObject.
+             *
+             * \see MediaSource()
+             */
+            Empty
 /*          post 4.0:
             / **
              * Links multiple MediaSource objects together.
@@ -100,10 +108,14 @@ class PHONON_EXPORT MediaSource
             Link
 */
         };
+
         /**
-         * Creates an invalid MediaSource object.
+         * Creates an empty MediaSource.
          *
-         * \see Invalid
+         * An empty MediaSource is considered valid and can be set on a MediaObject to unload its
+         * current media.
+         *
+         * \see Empty
          */
         MediaSource();
 

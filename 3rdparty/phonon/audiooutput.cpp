@@ -6,7 +6,7 @@
     License as published by the Free Software Foundation; either
     version 2.1 of the License, or (at your option) version 3, or any
     later version accepted by the membership of KDE e.V. (or its
-    successor approved by the membership of KDE e.V.), Trolltech ASA
+    successor approved by the membership of KDE e.V.), Nokia Corporation
     (or its successors, if any) and the KDE Free Qt Foundation, which shall
     act as a proxy defined in Section 6 of version 3 of the license.
 
@@ -29,7 +29,7 @@
 #include "phononnamespace_p.h"
 #include "platform_p.h"
 
-#include <QtCore/qmath.h>
+#include <qmath.h>
 
 #define PHONON_CLASSNAME AudioOutput
 #define IFACES2 AudioOutputInterface42
@@ -77,17 +77,23 @@ AudioOutput::AudioOutput(QObject *parent)
 void AudioOutputPrivate::init(Phonon::Category c)
 {
     Q_Q(AudioOutput);
+#ifndef QT_NO_DBUS
+    adaptor = new AudioOutputAdaptor(q);
+    static unsigned int number = 0;
+    const QString &path = QLatin1String("/AudioOutputs/") + QString::number(number++);
+    QDBusConnection con = QDBusConnection::sessionBus();
+    con.registerObject(path, q);
+    emit adaptor->newOutputAvailable(con.baseService(), path);
+    q->connect(q, SIGNAL(volumeChanged(qreal)), adaptor, SIGNAL(volumeChanged(qreal)));
+    q->connect(q, SIGNAL(mutedChanged(bool)), adaptor, SIGNAL(mutedChanged(bool)));
+#endif
+
     category = c;
 
     // select hardware device according to the category
-    outputDeviceIndex = GlobalConfig().audioOutputDeviceFor(category);
+    device = AudioOutputDevice::fromIndex(GlobalConfig().audioOutputDeviceFor(category, GlobalConfig::AdvancedDevicesFromSettings | GlobalConfig::HideUnavailableDevices));
 
     createBackendObject();
-#ifndef QT_NO_DBUS
-    new AudioOutputAdaptor(q);
-    static unsigned int number = 0;
-    QDBusConnection::sessionBus().registerObject("/AudioOutputs/" + QString::number(number++), q);
-#endif
 
     q->connect(Factory::sender(), SIGNAL(availableAudioOutputDevicesChanged()), SLOT(_k_deviceListChanged()));
 }
@@ -114,12 +120,20 @@ QString AudioOutput::name() const
 void AudioOutput::setName(const QString &newName)
 {
     K_D(AudioOutput);
+    if (d->name == newName) {
+        return;
+    }
     d->name = newName;
     setVolume(Platform::loadVolume(newName));
+#ifndef QT_NO_DBUS
+    if (d->adaptor) {
+        emit d->adaptor->nameChanged(newName);
+    }
+#endif
 }
 
-static const qreal LOUDNESS_TO_VOLTAGE_EXPONENT = 0.67;
-static const qreal VOLTAGE_TO_LOUDNESS_EXPONENT = 1.0/LOUDNESS_TO_VOLTAGE_EXPONENT;
+static const qreal LOUDNESS_TO_VOLTAGE_EXPONENT = qreal(0.67);
+static const qreal VOLTAGE_TO_LOUDNESS_EXPONENT = qreal(1.0/LOUDNESS_TO_VOLTAGE_EXPONENT);
 
 void AudioOutput::setVolume(qreal volume)
 {
@@ -148,21 +162,21 @@ qreal AudioOutput::volume() const
 
 #ifndef PHONON_LOG10OVER20
 #define PHONON_LOG10OVER20
-static const qreal log10over20 = 0.1151292546497022842; // ln(10) / 20
+static const qreal log10over20 = qreal(0.1151292546497022842); // ln(10) / 20
 #endif // PHONON_LOG10OVER20
 
 qreal AudioOutput::volumeDecibel() const
 {
     K_D(const AudioOutput);
     if (d->muted || !d->m_backendObject) {
-        return -log(d->volume) / log10over20;
+        return log(d->volume) / log10over20;
     }
-    return -0.67 * log(INTERFACE_CALL(volume())) / log10over20;
+    return 0.67 * log(INTERFACE_CALL(volume())) / log10over20;
 }
 
 void AudioOutput::setVolumeDecibel(qreal newVolumeDecibel)
 {
-    setVolume(exp(-newVolumeDecibel * log10over20));
+    setVolume(exp(newVolumeDecibel * log10over20));
 }
 
 bool AudioOutput::isMuted() const
@@ -199,12 +213,7 @@ Category AudioOutput::category() const
 AudioOutputDevice AudioOutput::outputDevice() const
 {
     K_D(const AudioOutput);
-    int index;
-    if (d->m_backendObject)
-        index = INTERFACE_CALL(outputDevice());
-    else
-        index = d->outputDeviceIndex;
-    return AudioOutputDevice::fromIndex(index);
+    return d->device;
 }
 
 bool AudioOutput::setOutputDevice(const AudioOutputDevice &newAudioOutputDevice)
@@ -212,13 +221,20 @@ bool AudioOutput::setOutputDevice(const AudioOutputDevice &newAudioOutputDevice)
     K_D(AudioOutput);
     if (!newAudioOutputDevice.isValid()) {
         d->outputDeviceOverridden = false;
-        d->outputDeviceIndex = GlobalConfig().audioOutputDeviceFor(d->category);
+        const int newIndex = GlobalConfig().audioOutputDeviceFor(d->category);
+        if (newIndex == d->device.index()) {
+            return true;
+        }
+        d->device = AudioOutputDevice::fromIndex(newIndex);
     } else {
         d->outputDeviceOverridden = true;
-        d->outputDeviceIndex = newAudioOutputDevice.index();
+        if (d->device == newAudioOutputDevice) {
+            return true;
+        }
+        d->device = newAudioOutputDevice;
     }
     if (k_ptr->backendObject()) {
-        return callSetOutputDevice(k_ptr, d->outputDeviceIndex);
+        return callSetOutputDevice(k_ptr, d->device.index());
     }
     return true;
 }
@@ -244,21 +260,23 @@ void AudioOutputPrivate::setupBackendObject()
     pINTERFACE_CALL(setVolume(pow(volume, VOLTAGE_TO_LOUDNESS_EXPONENT)));
 
     // if the output device is not available and the device was not explicitly set
-    if (!outputDeviceOverridden && !callSetOutputDevice(this, outputDeviceIndex)) {
+    if (!callSetOutputDevice(this, device) && !outputDeviceOverridden) {
         // fall back in the preference list of output devices
-        QList<int> deviceList = GlobalConfig().audioOutputDeviceListFor(category);
+        QList<int> deviceList = GlobalConfig().audioOutputDeviceListFor(category, GlobalConfig::AdvancedDevicesFromSettings | GlobalConfig::HideUnavailableDevices);
         if (deviceList.isEmpty()) {
             return;
         }
-        if (outputDeviceIndex == deviceList.takeFirst()) { // removing the first device so that
-            // if it's the same device as the one we tried we only try all the following
-            foreach (int devIndex, deviceList) {
-                if (callSetOutputDevice(this, devIndex)) {
-                    handleAutomaticDeviceChange(AudioOutputDevice::fromIndex(devIndex), AudioOutputPrivate::FallbackChange);
-                    break; // found one that works
-                }
+        foreach (int devIndex, deviceList) {
+            const AudioOutputDevice &dev = AudioOutputDevice::fromIndex(devIndex);
+            if (callSetOutputDevice(this, dev)) {
+                handleAutomaticDeviceChange(dev, AudioOutputPrivate::FallbackChange);
+                return; // found one that works
             }
         }
+        // if we get here there is no working output device. Tell the backend.
+        const AudioOutputDevice none;
+        callSetOutputDevice(this, none);
+        handleAutomaticDeviceChange(none, FallbackChange);
     }
 }
 
@@ -275,10 +293,13 @@ void AudioOutputPrivate::_k_revertFallback()
     if (deviceBeforeFallback == -1) {
         return;
     }
-    outputDeviceIndex = deviceBeforeFallback;
-    callSetOutputDevice(this, outputDeviceIndex);
+    device = AudioOutputDevice::fromIndex(deviceBeforeFallback);
+    callSetOutputDevice(this, device);
     Q_Q(AudioOutput);
-    emit q->outputDeviceChanged(AudioOutputDevice::fromIndex(outputDeviceIndex));
+    emit q->outputDeviceChanged(device);
+#ifndef QT_NO_DBUS
+    emit adaptor->outputDeviceIndexChanged(device.index());
+#endif
 }
 
 void AudioOutputPrivate::_k_audioDeviceFailed()
@@ -286,39 +307,42 @@ void AudioOutputPrivate::_k_audioDeviceFailed()
     pDebug() << Q_FUNC_INFO;
     // outputDeviceIndex identifies a failing device
     // fall back in the preference list of output devices
-    QList<int> deviceList = GlobalConfig().audioOutputDeviceListFor(category);
+    QList<int> deviceList = GlobalConfig().audioOutputDeviceListFor(category, GlobalConfig::AdvancedDevicesFromSettings | GlobalConfig::HideUnavailableDevices);
     foreach (int devIndex, deviceList) {
         // if it's the same device as the one that failed, ignore it
-        if (outputDeviceIndex != devIndex) {
-            const AudioOutputDevice info = AudioOutputDevice::fromIndex(devIndex);
-            if (info.property("available").toBool()) {
-                if (callSetOutputDevice(this, info)) {
-                    handleAutomaticDeviceChange(info, FallbackChange);
-                    break; // found one that works
-                }
+        if (device.index() != devIndex) {
+            const AudioOutputDevice &info = AudioOutputDevice::fromIndex(devIndex);
+            if (callSetOutputDevice(this, info)) {
+                handleAutomaticDeviceChange(info, FallbackChange);
+                return; // found one that works
             }
         }
     }
+    // if we get here there is no working output device. Tell the backend.
+    const AudioOutputDevice none;
+    callSetOutputDevice(this, none);
+    handleAutomaticDeviceChange(none, FallbackChange);
 }
 
 void AudioOutputPrivate::_k_deviceListChanged()
 {
     pDebug() << Q_FUNC_INFO;
     // let's see if there's a usable device higher in the preference list
-    QList<int> deviceList = GlobalConfig().audioOutputDeviceListFor(category);
+    QList<int> deviceList = GlobalConfig().audioOutputDeviceListFor(category, GlobalConfig::AdvancedDevicesFromSettings);
     DeviceChangeType changeType = HigherPreferenceChange;
     foreach (int devIndex, deviceList) {
-        const AudioOutputDevice info = AudioOutputDevice::fromIndex(devIndex);
+        const AudioOutputDevice &info = AudioOutputDevice::fromIndex(devIndex);
         if (!info.property("available").toBool()) {
-            if (outputDeviceIndex == devIndex) {
-                // we've reached the currently used device
+            if (device.index() == devIndex) {
+                // we've reached the currently used device and it's not available anymore, so we
+                // fallback to the next available device
                 changeType = FallbackChange;
             }
             pDebug() << devIndex << "is not available";
             continue;
         }
         pDebug() << devIndex << "is available";
-        if (outputDeviceIndex == devIndex) {
+        if (device.index() == devIndex) {
             // we've reached the currently used device, nothing to change
             break;
         }
@@ -338,16 +362,22 @@ static struct
 void AudioOutputPrivate::handleAutomaticDeviceChange(const AudioOutputDevice &device2, DeviceChangeType type)
 {
     Q_Q(AudioOutput);
-    deviceBeforeFallback = outputDeviceIndex;
-    outputDeviceIndex = device2.index();
+    deviceBeforeFallback = device.index();
+    device = device2;
     emit q->outputDeviceChanged(device2);
+#ifndef QT_NO_DBUS
+    emit adaptor->outputDeviceIndexChanged(device.index());
+#endif
     const AudioOutputDevice &device1 = AudioOutputDevice::fromIndex(deviceBeforeFallback);
     switch (type) {
     case FallbackChange:
         if (g_lastFallback.first != device1.index() || g_lastFallback.second != device2.index()) {
 #ifndef QT_NO_PHONON_PLATFORMPLUGIN
-            const QString text = AudioOutput::tr("<html>The audio playback device <b>%1</b> does not work.<br/>"
-                    "Falling back to <b>%2</b>.</html>").arg(device1.name()).arg(device2.name());
+            const QString &text = //device2.isValid() ?
+                AudioOutput::tr("<html>The audio playback device <b>%1</b> does not work.<br/>"
+                        "Falling back to <b>%2</b>.</html>").arg(device1.name()).arg(device2.name()) /*:
+                AudioOutput::tr("<html>The audio playback device <b>%1</b> does not work.<br/>"
+                        "No other device available.</html>").arg(device1.name())*/;
             Platform::notification("AudioDeviceFallback", text);
 #endif //QT_NO_PHONON_PLATFORMPLUGIN
             g_lastFallback.first = device1.index();
@@ -368,6 +398,15 @@ void AudioOutputPrivate::handleAutomaticDeviceChange(const AudioOutputDevice &de
         }
         break;
     }
+}
+
+AudioOutputPrivate::~AudioOutputPrivate()
+{
+#ifndef QT_NO_DBUS
+    if (adaptor) {
+        emit adaptor->outputDestroyed();
+    }
+#endif
 }
 
 } //namespace Phonon

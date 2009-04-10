@@ -6,7 +6,7 @@
     License as published by the Free Software Foundation; either
     version 2.1 of the License, or (at your option) version 3, or any
     later version accepted by the membership of KDE e.V. (or its
-    successor approved by the membership of KDE e.V.), Trolltech ASA 
+    successor approved by the membership of KDE e.V.), Nokia Corporation 
     (or its successors, if any) and the KDE Free Qt Foundation, which shall
     act as a proxy defined in Section 6 of version 3 of the license.
 
@@ -52,8 +52,8 @@ namespace Phonon
          * other virtual outputs like playback on a different computer on the
          * network.
          *
-         * For Hardware devices the backend should use libkaudiodevicelist (\ref
-         * AudioDevice and \ref AudioDeviceEnumerator) which will list removable
+         * For Hardware devices the backend should use libkaudiodevicelist
+         * (AudioDevice and AudioDeviceEnumerator) which will list removable
          * devices even when they are unplugged and provide a unique identifier
          * that can make backends use the same identifiers.
          */
@@ -65,16 +65,14 @@ namespace Phonon
         EffectType,
         AudioChannelType,
         SubtitleType,
-        ChapterType,
-        TitleType,
 
         /**
          * Audio capture devices. This can be soundcards (with different drivers), soundservers or
          * other virtual inputs like capture on a different computer on the
          * network.
          *
-         * For Hardware devices the backend should use libkaudiodevicelist (\ref
-         * AudioDevice and \ref AudioDeviceEnumerator) which will list removable
+         * For Hardware devices the backend should use libkaudiodevicelist
+         * (AudioDevice and AudioDeviceEnumerator) which will list removable
          * devices even when they are unplugged and provide a unique identifier
          * that can make backends use the same identifiers.
          */
@@ -312,8 +310,6 @@ typedef ObjectDescription<EffectType> EffectDescription;
 #ifndef QT_NO_PHONON_MEDIACONTROLLER
 typedef ObjectDescription<AudioChannelType> AudioChannelDescription;
 typedef ObjectDescription<SubtitleType> SubtitleDescription;
-typedef ObjectDescription<ChapterType> ChapterDescription;
-typedef ObjectDescription<TitleType> TitleDescription;
 #endif //QT_NO_PHONON_MEDIACONTROLLER
 
 } //namespace Phonon
@@ -337,12 +333,8 @@ Q_DECLARE_METATYPE(Phonon::EffectDescription)
 #ifndef QT_NO_PHONON_MEDIACONTROLLER
 Q_DECLARE_METATYPE(Phonon::AudioChannelDescription)
 Q_DECLARE_METATYPE(Phonon::SubtitleDescription)
-Q_DECLARE_METATYPE(Phonon::ChapterDescription)
-Q_DECLARE_METATYPE(Phonon::TitleDescription)
 Q_DECLARE_METATYPE(QList<Phonon::AudioChannelDescription>)
 Q_DECLARE_METATYPE(QList<Phonon::SubtitleDescription>)
-Q_DECLARE_METATYPE(QList<Phonon::ChapterDescription>)
-Q_DECLARE_METATYPE(QList<Phonon::TitleDescription>)
 #endif //QT_NO_PHONON_MEDIACONTROLLER
 
 QT_END_HEADER
