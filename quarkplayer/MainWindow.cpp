@@ -599,7 +599,7 @@ void MainWindow::dropEvent(QDropEvent * event) {
 			if (isSubtitle) {
 				qDebug() << __FUNCTION__ << "Loading subtitle:" << filename;
 				emit subtitleFileDropped(filename);
-			} else if (QDir(filename).exists()) {
+			} else if (QFileInfo(filename).isDir()) {
 				//TODO open directory
 			} else {
 				//TODO add to playlist if 'auto-add-playlist' option

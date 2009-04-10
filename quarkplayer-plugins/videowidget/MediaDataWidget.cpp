@@ -151,8 +151,13 @@ void MediaDataWidget::updateMediaInfo() {
 		if (mediaInfo.isUrl()) {
 			_ui->formLayout->addRow(tr("URL:"), new SqueezeLabel(font + filename + endfont));
 		} else {
-			//Not the fullpath, only the filename + parent directory name
-			QString tmp(QDir(filename).dirName() + "/" + QFileInfo(filename).baseName());
+			//filename + parent directory name, e.g:
+			// /home/tanguy/Music/DJ Vadim/Bluebird.mp3
+			// --> DJ Vadim/06 Bluebird.mp3
+			filename = QDir::toNativeSeparators(filename);
+			int lastSlashPos = filename.lastIndexOf(QDir::separator()) - 1;
+			QString tmp(filename.mid(filename.lastIndexOf(QDir::separator(), lastSlashPos) + 1));
+
 			_ui->formLayout->addRow(tr("File:"), new SqueezeLabel(font + tmp + endfont));
 		}
 	}

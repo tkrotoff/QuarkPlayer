@@ -177,8 +177,14 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 					//So let's keep the complete filename
 					tmp = filename;
 				} else {
-					tmp = QDir(filename).dirName() + "/" +
-						QFileInfo(filename).fileName();
+					//filename + parent directory name, e.g:
+					// /home/tanguy/Music/DJ Vadim/Bluebird.mp3
+					// --> DJ Vadim/06 Bluebird.mp3
+					//This allow to search within file and directory names without
+					//resolving yet all the metadatas
+					filename = QDir::toNativeSeparators(filename);
+					int lastSlashPos = filename.lastIndexOf(QDir::separator()) - 1;
+					tmp = filename.mid(filename.lastIndexOf(QDir::separator(), lastSlashPos) + 1);
 
 					//Resolve meta data file one by one
 					//Cannot do that for remote/network media, i.e URLs
@@ -287,7 +293,7 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 					QFileInfo(filename).suffix(), Qt::CaseInsensitive);
 		if (isMultimediaFile) {
 			filenameList << filename;
-		} else if (QFileInfo(filename).exists()) {
+		} else if (QFileInfo(filename).isDir()) {
 			_nbFindFiles++;
 			FindFiles * findFiles = new FindFiles(this);
 			connect(findFiles, SIGNAL(filesFound(const QStringList &)),

@@ -123,7 +123,7 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	case Qt::ToolTipRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			if (!QDir(filename).exists()) {
+			if (!QFileInfo(filename).isDir()) {
 				if (mediaInfo.fetched()) {
 					tmp = filename + "<br>" +
 						tr("Title:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Title) + "</b><br>" +

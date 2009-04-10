@@ -114,7 +114,7 @@ void FindFiles::findAllFilesQt(const QString & path) {
 
 		QString filename(path + '/' + name);
 
-		if (QDir(filename).exists()) {
+		if (QFileInfo(filename).isDir()) {
 			//Filter directory matching the given pattern
 			if (_findDirs && patternMatches(name)) {
 				_files << filename;
@@ -152,6 +152,9 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 	}
 
 	QString longPath("\\\\?\\" + path + "\\*");
+
+	//Converts to native separator, otherwise FindFirstFileW()
+	//won't work if '/' separators are found
 	longPath = QDir::toNativeSeparators(longPath);
 
 	WIN32_FIND_DATAW fileData;
@@ -163,7 +166,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 	//Get the first file
 	HANDLE hList = FindFirstFileW((TCHAR *) longPath.utf16(), &fileData);
 	if (hList == INVALID_HANDLE_VALUE) {
-		qCritical() << __FUNCTION__ << "Error: no files found, error code:" << GetLastError();
+		qCritical() << __FUNCTION__ << "Error: no files found, path:" << path << " error code:" << GetLastError();
 	}
 
 	else {
@@ -247,7 +250,7 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 
 				QString filename(path + '/' + name);
 
-				if (QDir(filename).exists()) {
+				if (QFileInfo(filename).isDir()) {
 					//Filter directory matching the given pattern
 					if (_findDirs && patternMatches(name)) {
 						_files << filename;
