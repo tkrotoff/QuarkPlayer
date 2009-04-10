@@ -1,5 +1,5 @@
 // File_ImpulseTracker - Info for Impulse Tracker files
-// Copyright (C) 2008-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2008-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,9 +39,12 @@ namespace MediaInfoLib
 
 class File_ImpulseTracker : public File__Analyze
 {
-private :
-    //Buffer
-    void FileHeader_Parse ();
+protected :
+    //Buffer - File header
+    bool FileHeader_Begin();
+
+    //Buffer - Global
+    void Read_Buffer_Continue ();
 };
 
 } //NameSpace

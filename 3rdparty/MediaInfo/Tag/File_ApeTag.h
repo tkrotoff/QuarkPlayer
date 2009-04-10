@@ -1,5 +1,5 @@
 // File_ApeTag - Info for APETAG tagged files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -40,14 +40,16 @@ namespace MediaInfoLib
 class File_ApeTag : public File__Analyze
 {
 private :
-    //Buffer
+    //Buffer - File header
+    void FileHeader_Parse();
+
+    //Buffer - Per element
     bool Header_Begin();
     void Header_Parse();
     void Data_Parse();
 
     //Elements
-    void Header();
-    void Tag();
+    void HeaderFooter();
 
     //Temp
     std::string Key;

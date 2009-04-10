@@ -1,5 +1,5 @@
 // MediaInfoList_Internal - A list of MediaInfo
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -86,7 +86,7 @@ size_t MediaInfoList_Internal::Open(const String &File, const fileoptions_t Opti
     //TODO
 
     //Get all filenames
-    ZtringList List=Dir::GetAllFileNames(File);
+    ZtringList List=Dir::GetAllFileNames(File, (Options&FileOption_NoRecursive)?Dir::Nothing:Dir::Parse_SubDirs);
 
     //Registering files
     CS.Enter();
@@ -114,7 +114,7 @@ size_t MediaInfoList_Internal::Open(const String &File, const fileoptions_t Opti
     else
     {
         Entry(); //Normal parsing
-        return CountValid;
+        return Count_Get();
     }
 }
 

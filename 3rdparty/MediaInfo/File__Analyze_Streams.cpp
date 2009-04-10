@@ -1,5 +1,5 @@
 // File__Analyze - Base for analyze files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -162,18 +162,28 @@ void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, const char* Par
     }
 
     //Handling of unknown parameters
-    Ztring &Target=(*Stream_More)[StreamKind][StreamPos](Ztring().From_UTF8(Parameter), Info_Text);
-    if (Target.empty() || Replace)
+    if (Value.empty())
     {
-        Target=Value; //First value
-        (*Stream_More)[StreamKind][StreamPos](Ztring().From_UTF8(Parameter), Info_Options)=_T("Y NT");
+        if (Replace)
+        {
+            size_t Pos=(*Stream_More)[StreamKind][StreamPos].Find(Ztring().From_UTF8(Parameter), Info_Name);
+            if (Pos!=(size_t)-1)
+                (*Stream_More)[StreamKind][StreamPos].erase((*Stream_More)[StreamKind][StreamPos].begin()+Pos); //Empty value --> remove the line
+        }
     }
-    else if (Value.empty())
-        Target.clear(); //Empty value --> clear other values
     else
     {
-        Target+=MediaInfoLib::Config.TagSeparator_Get();
-        Target+=Value;
+        Ztring &Target=(*Stream_More)[StreamKind][StreamPos](Ztring().From_UTF8(Parameter), Info_Text);
+        if (Target.empty() || Replace)
+        {
+            Target=Value; //First value
+            (*Stream_More)[StreamKind][StreamPos](Ztring().From_UTF8(Parameter), Info_Options)=_T("Y NT");
+        }
+        else
+        {
+            Target+=MediaInfoLib::Config.TagSeparator_Get();
+            Target+=Value;
+        }
     }
 }
 
@@ -232,11 +242,23 @@ void File__Analyze::Clear (stream_t StreamKind, size_t StreamPos, size_t Paramet
 {
     //Integrity
     if (StreamKind>=Stream_Max
-     || StreamPos>=(*Stream)[StreamKind].size()
-     || Parameter>=(*Stream)[StreamKind][StreamPos].size())
+     || StreamPos>=(*Stream)[StreamKind].size())
         return;
 
-    (*Stream)[StreamKind][StreamPos](Parameter).clear();
+    //Normal
+    if (Parameter<(*Stream)[StreamKind][StreamPos].size())
+    {
+        (*Stream)[StreamKind][StreamPos][Parameter].clear();
+        return;
+    }
+
+    //More
+    Parameter-=(*Stream)[StreamKind][StreamPos].size(); //For having Stream_More position
+    if (Parameter<(*Stream_More)[StreamKind][StreamPos].size())
+    {
+        (*Stream_More)[StreamKind][StreamPos].erase((*Stream_More)[StreamKind][StreamPos].begin()+Parameter);
+        return;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -268,7 +290,7 @@ void File__Analyze::Fill_Flush()
 }
 
 //---------------------------------------------------------------------------
-size_t File__Analyze::Merge(File__Base &ToAdd, bool Erase)
+size_t File__Analyze::Merge(File__Analyze &ToAdd, bool Erase)
 {
     size_t Count=0;
     for (size_t StreamKind=(size_t)Stream_General+1; StreamKind<(size_t)Stream_Max; StreamKind++)
@@ -286,7 +308,7 @@ size_t File__Analyze::Merge(File__Base &ToAdd, bool Erase)
 }
 
 //---------------------------------------------------------------------------
-size_t File__Analyze::Merge(File__Base &ToAdd, stream_t StreamKind, size_t StreamPos_From, size_t StreamPos_To, bool Erase)
+size_t File__Analyze::Merge(File__Analyze &ToAdd, stream_t StreamKind, size_t StreamPos_From, size_t StreamPos_To, bool Erase)
 {
     //Integrity
     if (&ToAdd==NULL || StreamKind>=Stream_Max || !ToAdd.Stream || StreamPos_From>=(*ToAdd.Stream)[StreamKind].size())
@@ -295,6 +317,15 @@ size_t File__Analyze::Merge(File__Base &ToAdd, stream_t StreamKind, size_t Strea
     //Destination
     while (StreamPos_To>=(*Stream)[StreamKind].size())
         Stream_Prepare(StreamKind);
+
+    //Specific stuff
+    Ztring FrameRate_Temp, PixelAspectRatio_Temp, DisplayAspectRatio_Temp;
+    if (StreamKind==Stream_Video)
+    {
+        PixelAspectRatio_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_PixelAspectRatio); //We want to keep the PixelAspectRatio_Temp of the video stream
+        DisplayAspectRatio_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio); //We want to keep the DisplayAspectRatio_Temp of the video stream
+        FrameRate_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate); //We want to keep the FrameRate of AVI 120 fps
+    }
 
     //Merging
     size_t Count=0;
@@ -309,6 +340,29 @@ size_t File__Analyze::Merge(File__Base &ToAdd, stream_t StreamKind, size_t Strea
             else
                 (*Stream_More)[StreamKind][StreamPos_To].push_back((*ToAdd.Stream_More)[StreamKind][StreamPos_From].Read(Pos-MediaInfoLib::Config.Info_Get(StreamKind).size()));
             Count++;
+        }
+    }
+
+    //Specific stuff
+    if (StreamKind==Stream_Video)
+    {
+        if (!PixelAspectRatio_Temp.empty() || !DisplayAspectRatio_Temp.empty())
+        {
+            if (PixelAspectRatio_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_PixelAspectRatio))
+                Fill(Stream_Video, StreamPos_Last, Video_PixelAspectRatio_Original, Retrieve(Stream_Video, StreamPos_Last, Video_PixelAspectRatio), true);
+            Fill(Stream_Video, StreamPos_Last, Video_PixelAspectRatio, PixelAspectRatio_Temp, true);
+        }
+        if (!DisplayAspectRatio_Temp.empty() || !PixelAspectRatio_Temp.empty())
+        {
+            if (DisplayAspectRatio_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio))
+                Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio_Original, Retrieve(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio), true);
+            Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, DisplayAspectRatio_Temp, true);
+        }
+        if (!FrameRate_Temp.empty())
+        {
+            if (FrameRate_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate))
+                Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Original, Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate), true);
+            Fill(Stream_Video, StreamPos_Last, Video_FrameRate, FrameRate_Temp, true);
         }
     }
 

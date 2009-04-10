@@ -1,5 +1,5 @@
 // File_OtherText - Use magic number to detect only the format (Text)
-// Copyright (C) 2006-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -57,7 +57,7 @@ void File_OtherText::Read_Buffer_Continue()
         //TODO: Order of bytes (big or Little endian)
         if (File.size()<0x100)
         {
-            Finished();
+            Reject("Other text");
             return;
         }
     }
@@ -80,12 +80,12 @@ void File_OtherText::Read_Buffer_Continue()
     }
     else
     {
-        Finished();
+        Reject("Other text");
         return;
     }
     if (Lines.size()<0x10)
     {
-        Finished();
+        Reject("Other text");
         return;
     }
     Lines.resize(0x20);
@@ -227,7 +227,8 @@ void File_OtherText::Read_Buffer_Continue()
     //No need of more
     Element_Begin(Format);
     Element_End();
-    Finished();
+    Accept("Other text");
+    Finish("Other text");
 }
 
 } //NameSpace

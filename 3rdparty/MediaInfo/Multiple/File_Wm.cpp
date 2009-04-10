@@ -1,5 +1,5 @@
 // File_Wm - Info for Windows Media files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -89,12 +89,18 @@ void File_Wm::Read_Buffer_Finalize()
     std::map<int16u, stream>::iterator Temp=Stream.begin();
     while (Temp!=Stream.end())
     {
-        std::map<std::string, ZenLib::Ztring>::iterator Info_Temp=Temp->second.Info.begin();
-        while (Info_Temp!=Temp->second.Info.end())
+        for (std::map<std::string, ZenLib::Ztring>::iterator Info_Temp=Temp->second.Info.begin(); Info_Temp!=Temp->second.Info.end(); Info_Temp++)
+            Fill(Temp->second.StreamKind, Temp->second.StreamPos, Info_Temp->first.c_str(), Info_Temp->second, true);
+
+        //Codec Info
+        for (size_t Pos=0; Pos<CodecInfos.size(); Pos++)
         {
-            if (Codec_Description_Count==Stream.size() || Info_Temp->first!="CodecID_Description") //With some files, There are only x Codec desecription and !x streams, no coherancy
-                Fill(Temp->second.StreamKind, Temp->second.StreamPos, Info_Temp->first.c_str(), Info_Temp->second, true);
-            Info_Temp++;
+            if (CodecInfos[Pos].Type==1 && Temp->second.StreamKind==Stream_Video
+             || CodecInfos[Pos].Type==2 && Temp->second.StreamKind==Stream_Audio)
+            {
+                Fill(Temp->second.StreamKind, Temp->second.StreamPos, "CodecID_Description", CodecInfos[Pos].Info, true);
+                Fill(Temp->second.StreamKind, Temp->second.StreamPos, "Codec_Description", CodecInfos[Pos].Info, true);
+            }
         }
 
         if (Temp->second.StreamKind==Stream_Video)
@@ -115,13 +121,14 @@ void File_Wm::Read_Buffer_Finalize()
              || (PresentationTime_Deltas_Most.size()==2 && PresentationTime_Deltas_Problem.size()>2))
             {
                 if (Temp->second.AverageTimePerFrame>0)
-                    Fill(Temp->second.StreamKind, Temp->second.StreamPos, "FrameRate", ((float)10000000)/Temp->second.AverageTimePerFrame, 3, true);
+                    Fill(Stream_Video, Temp->second.StreamPos, Video_FrameRate, ((float)10000000)/Temp->second.AverageTimePerFrame, 3, true);
             }
             else if (PresentationTime_Deltas_Most.size()==1)
             {
-                Fill(Temp->second.StreamKind, Temp->second.StreamPos, "FrameRate", 1000/((float64)PresentationTime_Deltas_Most.begin()->first), 3, true);
+                if (PresentationTime_Deltas_Most.begin()->first>1) //Not 0, we want to remove Delta incremented 1 per 1
+                    Fill(Stream_Video, Temp->second.StreamPos, Video_FrameRate, 1000/((float64)PresentationTime_Deltas_Most.begin()->first), 3, true);
                 if (Temp->second.AverageTimePerFrame>0)
-                    Fill(Temp->second.StreamKind, Temp->second.StreamPos, "FrameRate_Nominal", ((float)10000000)/Temp->second.AverageTimePerFrame, 3, true);
+                    Fill(Stream_Video, Temp->second.StreamPos, Video_FrameRate_Nominal, ((float)10000000)/Temp->second.AverageTimePerFrame, 3, true);
             }
             else if (PresentationTime_Deltas_Most.size()==2)
             {
@@ -132,27 +139,15 @@ void File_Wm::Read_Buffer_Finalize()
                 float64 PresentationTime_Deltas_2_Value=(float64)PresentationTime_Delta_Most->first;
                 float64 PresentationTime_Deltas_2_Count=(float64)PresentationTime_Delta_Most->second;
                 float64 FrameRate_Real=1000/(((PresentationTime_Deltas_1_Value*PresentationTime_Deltas_1_Count)+(PresentationTime_Deltas_2_Value*PresentationTime_Deltas_2_Count))/(PresentationTime_Deltas_1_Count+PresentationTime_Deltas_2_Count));
-                     if (FrameRate_Real> 9.990 && FrameRate_Real<=10.010) FrameRate_Real=10.000;
-                else if (FrameRate_Real>14.990 && FrameRate_Real<=15.010) FrameRate_Real=15.000;
-                else if (FrameRate_Real>23.964 && FrameRate_Real<=23.988) FrameRate_Real=23.976;
-                else if (FrameRate_Real>23.988 && FrameRate_Real<=24.012) FrameRate_Real=24.000;
-                else if (FrameRate_Real>24.988 && FrameRate_Real<=25.012) FrameRate_Real=24.000;
-                else if (FrameRate_Real>29.955 && FrameRate_Real<=29.985) FrameRate_Real=29.970;
-                else if (FrameRate_Real>29.985 && FrameRate_Real<=30.015) FrameRate_Real=30.000;
-                else if (FrameRate_Real>23.964*2 && FrameRate_Real<=23.988*2) FrameRate_Real=23.976;
-                else if (FrameRate_Real>23.988*2 && FrameRate_Real<=24.012*2) FrameRate_Real=24.000;
-                else if (FrameRate_Real>24.988*2 && FrameRate_Real<=25.012*2) FrameRate_Real=25.000;
-                else if (FrameRate_Real>29.955*2 && FrameRate_Real<=29.985*2) FrameRate_Real=29.970;
-                else if (FrameRate_Real>30.985*2 && FrameRate_Real<=30.015*2) FrameRate_Real=30.000;
-                Fill(Temp->second.StreamKind, Temp->second.StreamPos, "FrameRate", FrameRate_Real, 3, true);
+                Fill(Temp->second.StreamKind, Temp->second.StreamPos, Video_FrameRate, FrameRate_Real, 3, true);
                 if (Temp->second.AverageTimePerFrame>0)
-                    Fill(Temp->second.StreamKind, Temp->second.StreamPos, "FrameRate_Nominal", ((float)10000000)/Temp->second.AverageTimePerFrame, 3, true);
+                    Fill(Stream_Video, Temp->second.StreamPos, Video_FrameRate_Nominal, ((float)10000000)/Temp->second.AverageTimePerFrame, 3, true);
             }
             else
             {
-                Fill(Temp->second.StreamKind, Temp->second.StreamPos, "FrameRate_Mode", "VFR");
+                Fill(Stream_Video, Temp->second.StreamPos, Video_FrameRate_Mode, "VFR");
                 if (Temp->second.AverageTimePerFrame>0)
-                    Fill(Temp->second.StreamKind, Temp->second.StreamPos, "FrameRate_Nominal", ((float)10000000)/Temp->second.AverageTimePerFrame, 3, true);
+                    Fill(Stream_Video, Temp->second.StreamPos, Video_FrameRate_Nominal, ((float)10000000)/Temp->second.AverageTimePerFrame, 3, true);
             }
         }
         if (Temp->second.AverageBitRate>0)
@@ -171,8 +166,26 @@ void File_Wm::Read_Buffer_Finalize()
                     Temp->second.StreamPos=StreamPos_Last;
                 }
             Open_Buffer_Finalize(Temp->second.Parser);
+            Ztring Format_Profile;
+            if (Temp->second.StreamKind==Stream_Video)
+                Format_Profile=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Format_Profile);
             Merge(*Temp->second.Parser, Temp->second.StreamKind, 0, Temp->second.StreamPos);
+            if (!Format_Profile.empty() && Format_Profile.find(Retrieve(Stream_Video, Temp->second.StreamPos, Video_Format_Profile))==0)
+                Fill(Stream_Video, Temp->second.StreamPos, Video_Format_Profile, Format_Profile, true);
         }
+
+        //Delay (in case of MPEG-PS)
+        if (Temp->second.StreamKind==Stream_Video)
+        {
+            Fill(Stream_Video, Temp->second.StreamPos, Video_Delay_Original, Retrieve(Temp->second.StreamKind, Temp->second.StreamPos, "Delay"));
+            Fill(Stream_Video, Temp->second.StreamPos, Video_Delay_Original_Settings, Retrieve(Temp->second.StreamKind, Temp->second.StreamPos, "Delay_Settings"));
+        }
+        if (Temp->second.TimeCode_First!=(int64u)-1)
+            Fill(Temp->second.StreamKind, Temp->second.StreamPos, "Delay", Temp->second.TimeCode_First, 10, true);
+        else
+            Fill(Temp->second.StreamKind, Temp->second.StreamPos, "Delay", "", Unlimited, true, true);
+        Fill(Temp->second.StreamKind, Temp->second.StreamPos, "Delay_Settings", "", Unlimited, true, true);
+
         Temp++;
     }
 

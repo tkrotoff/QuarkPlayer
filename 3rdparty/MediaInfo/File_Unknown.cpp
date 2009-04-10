@@ -1,5 +1,5 @@
 // File_Unknown - Empty container
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -37,15 +37,15 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Format
+// Buffer - Global
 //***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_Unknown::Read_Buffer_Init()
 {
     Stream_Prepare(Stream_General);
-
-    Finished();
+    Accept("Unknown");
+    Finish("Unknown");
 }
 
 //***************************************************************************

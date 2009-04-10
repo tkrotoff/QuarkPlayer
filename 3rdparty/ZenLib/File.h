@@ -1,5 +1,5 @@
 // ZenLib::File - File functions
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -86,7 +86,9 @@ public :
     //Attributes
     int64u Size_Get();
     Ztring Created_Get();
+    Ztring Created_Local_Get();
     Ztring Modified_Get();
+    Ztring Modified_Local_Get();
     bool   Opened_Get();
 
     //Helpers

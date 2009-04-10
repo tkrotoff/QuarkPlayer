@@ -1,5 +1,5 @@
 // File_Wvpk - Info for WavPack files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -112,6 +112,10 @@ File_Wvpk::File_Wvpk()
     //File__Tags_Helper
     Base=this;
 
+    //Configuration
+    MustSynchronize=true;
+    Buffer_TotalBytes_FirstSynched_Max=32*1024;
+
     //In
     Frame_Count_Valid=2;
     FromMKV=false;
@@ -121,12 +125,106 @@ File_Wvpk::File_Wvpk()
     Frame_Count=0;
 
     //Temp - Technical info
-    total_samples_FirstFrame=0xFFFFFFFF;
+    total_samples_FirstFrame=(int32u)-1;
     block_index_FirstFrame=0;
     block_index_LastFrame=0;
     SamplingRate=(int8u)-1;
     num_channels=0;
     channel_mask=0;
+}
+
+//***************************************************************************
+// Buffer - Synchro
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+bool File_Wvpk::Synchronize()
+{
+    //Specific case
+    if (FromMKV)
+        return true;
+
+    //Tags
+    bool Tag_Found;
+    if (!File__Tags_Helper::Synchronize(Tag_Found))
+        return false;
+    if (Tag_Found)
+        return true;
+
+    //Synchronizing
+    while (Buffer_Offset+8<=Buffer_Size)
+    {
+        while (Buffer_Offset+8<=Buffer_Size
+            && CC4(Buffer+Buffer_Offset)!=CC4("wvpk"))
+        {
+            Buffer_Offset++;
+        }
+
+        if (Buffer_Offset+8<=Buffer_Size)//Testing if size is coherant
+        {
+            //Testing next start, to be sure
+            size_t Size=LittleEndian2int32u(Buffer+Buffer_Offset+4)+8;
+            if (1)//File_Offset+Buffer_Offset+Size!=File_Size-File_EndTagSize)
+            {
+                if (Buffer_Offset+Size+8>Buffer_Size)
+                    return false; //Need more data
+
+                //Testing
+                if (CC4(Buffer+Buffer_Offset+Size)!=CC4("wvpk"))
+                    Buffer_Offset++;
+                else
+                    break; //while()
+            }
+            else
+                Buffer_Offset++;
+        }
+    }
+
+    //Parsing last bytes if needed
+    if (Buffer_Offset+8>Buffer_Size)
+    {
+        if (Buffer_Offset+7==Buffer_Size && CC4(Buffer+Buffer_Offset)!=0x7776706B) //"wvpk"
+            Buffer_Offset++;
+        if (Buffer_Offset+6==Buffer_Size && CC4(Buffer+Buffer_Offset)!=0x7776706B) //"wvpk"
+            Buffer_Offset++;
+        if (Buffer_Offset+5==Buffer_Size && CC4(Buffer+Buffer_Offset)!=0x7776706B) //"wvpk"
+            Buffer_Offset++;
+        if (Buffer_Offset+4==Buffer_Size && CC4(Buffer+Buffer_Offset)!=0x7776706B) //"wvpk"
+            Buffer_Offset++;
+        if (Buffer_Offset+3==Buffer_Size && CC3(Buffer+Buffer_Offset)!=0x777670)   //"wv"
+            Buffer_Offset++;
+        if (Buffer_Offset+2==Buffer_Size && CC2(Buffer+Buffer_Offset)!=0x7776)     //"wv"
+            Buffer_Offset++;
+        if (Buffer_Offset+1==Buffer_Size && CC1(Buffer+Buffer_Offset)!=0x77)       //"w"
+            Buffer_Offset++;
+        return false;
+    }
+
+    //Synched is OK
+    return true;
+}
+
+//---------------------------------------------------------------------------
+bool File_Wvpk::Synched_Test()
+{
+    //Specific case
+    if (FromMKV)
+        return true;
+
+    //Tags
+    if (!File__Tags_Helper::Synched_Test())
+        return false;
+
+    //Must have enough buffer for having header
+    if (Buffer_Offset+3>Buffer_Size)
+        return false;
+
+    //Quick test of synchro
+    if (CC4(Buffer+Buffer_Offset)!=CC4("wvpk"))
+        Synched=false;
+
+    //We continue
+    return true;
 }
 
 //***************************************************************************
@@ -137,13 +235,15 @@ File_Wvpk::File_Wvpk()
 void File_Wvpk::Read_Buffer_Continue()
 {
     //Tags
-    if (!FromMKV && !File__Tags_Helper::Read_Buffer_Continue())
-            return;
+    if (!FromMKV)
+        File__Tags_Helper::Read_Buffer_Continue();
 }
 
 //---------------------------------------------------------------------------
 void File_Wvpk::Read_Buffer_Finalize()
 {
+    Fill(Stream_Audio, 0, Audio_BitRate_Mode, "VBR");
+
     //Specific case
     if (FromMKV)
         return;
@@ -152,50 +252,20 @@ void File_Wvpk::Read_Buffer_Finalize()
     if (SamplingRate<15)
     {
         int64u Duration=(((int64u)(block_index_LastFrame+block_samples_LastFrame-block_index_FirstFrame))*1000/Wvpk_SamplingRate[SamplingRate]); //Don't forget the last frame with block_samples...
-        int64u CompressedSize=File_Size-File_BeginTagSize-File_EndTagSize;
+        int64u CompressedSize=File_Size-TagsSize;
         int64u UncompressedSize=Duration*(mono?1:2)*Wvpk_Resolution[(resolution1?1:0)*2+(resolution0?1:0)]*Wvpk_SamplingRate[SamplingRate]/8/1000;
         float32 CompressionRatio=((float32)UncompressedSize)/CompressedSize;
         Fill(Stream_Audio, 0, Audio_StreamSize, CompressedSize, 3, true);
         Fill(Stream_Audio, 0, Audio_Duration, Duration, 10, true);
         Fill(Stream_Audio, 0, Audio_CompressionRatio, CompressionRatio, 3, true);
-        Fill(Stream_Audio, 0, Audio_BitRate_Mode, "VBR");
     }
 
-    //Tags
     File__Tags_Helper::Read_Buffer_Finalize();
 }
 
 //***************************************************************************
-// Buffer
+// Buffer - Per element
 //***************************************************************************
-
-//---------------------------------------------------------------------------
-bool File_Wvpk::Header_Begin()
-{
-    //Specific cases
-    if (FromMKV)
-        return true;
-        
-    if (!File__Tags_Helper::Header_Begin())
-        return false;
-
-    //Must have enough buffer for having header
-    if (Buffer_Offset+4>Buffer_Size)
-        return false;
-
-    //Quick test of synchro
-    if (Synched && CC4(Buffer+Buffer_Offset)!=CC4("wvpk"))
-    {
-        Trusted_IsNot("WavPack, Synchronisation lost");
-        Synched=false;
-    }
-
-    //Synchro
-    if (!Synched && !Synchronize())
-        return false;
-
-    return true;
-}
 
 //---------------------------------------------------------------------------
 void File_Wvpk::Header_Parse()
@@ -218,10 +288,6 @@ void File_Wvpk::Header_Parse()
     Header_Fill_Code(0, "Block");
 }
 
-//***************************************************************************
-// Elements
-//***************************************************************************
-
 //---------------------------------------------------------------------------
 void File_Wvpk::Data_Parse()
 {
@@ -241,7 +307,7 @@ void File_Wvpk::Data_Parse()
     Frame_Count++;
 
     //Parsing
-    Element_Begin("Header", 32);
+    Element_Begin("Block Header");
     if (!FromMKV)
         Get_L2 (version,                                        "version");
     if (version/0x100==0x4)
@@ -257,12 +323,15 @@ void File_Wvpk::Data_Parse()
         Get_L4 (block_samples,                                  "block_samples");
         if (block_samples!=0) //empty frames have other values empty
         {
-            if (block_index==0) //Only the frame with block_index==0
-                total_samples_FirstFrame=total_samples; //Note: total_samples is not trustable for a cutted file
-            if (Frame_Count==1)
-                block_index_FirstFrame=block_index; //Save the block_index of the first block
-            block_index_LastFrame=block_index;
-            block_samples_LastFrame=block_samples;
+            if (!FromMKV)
+            {
+                if (block_index==0) //Only the frame with block_index==0
+                    total_samples_FirstFrame=total_samples; //Note: total_samples is not trustable for a cutted file
+                if (Frame_Count==1)
+                    block_index_FirstFrame=block_index; //Save the block_index of the first block
+                block_index_LastFrame=block_index;
+                block_samples_LastFrame=block_samples;
+            }
             Get_L4 (flags,                                      "flags");
                 Get_Flags (flags,  0, resolution0,              "resolution0");
                 Get_Flags (flags,  1, resolution1,              "resolution1");
@@ -299,7 +368,7 @@ void File_Wvpk::Data_Parse()
         }
         else
         {
-            Skip_L4(                                            "flags_empty");
+            Skip_L4(                                            "flags (empty)");
 
             //Counting
             Frame_Count--; //This is not a real frame
@@ -358,9 +427,9 @@ void File_Wvpk::Data_Parse_Fill()
     //Filling
     if (Count_Get(Stream_General)==0)
     {
-        Stream_Prepare(Stream_General);
+        File__Tags_Helper::Stream_Prepare(Stream_General);
         Fill(Stream_General, 0, General_Format, "WavPack");
-        Stream_Prepare(Stream_Audio);
+        File__Tags_Helper::Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, 0, Audio_Format, "WavPack");
         Ztring Version_Minor=Ztring::ToZtring(version%0x100);
         if (Version_Minor.size()==1)
@@ -460,17 +529,21 @@ void File_Wvpk::Data_Parse_Fill()
     if (!FromMKV && SamplingRate<15)
     {
         Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, Wvpk_SamplingRate[SamplingRate]);
-        if (total_samples_FirstFrame!=0xFFFFFFFF) //--> this is a valid value
+        if (total_samples_FirstFrame!=(int32u)-1) //--> this is a valid value
             Fill(Stream_Audio, 0, Audio_Duration, ((int64u)total_samples_FirstFrame)*1000/Wvpk_SamplingRate[SamplingRate]);
     }
     Fill(Stream_Audio, 0, Audio_Format_Settings, hybrid?"Hybrid lossy":"Lossless");
     Fill(Stream_Audio, 0, Audio_Codec_Settings, hybrid?"hybrid lossy":"lossless");
     Fill(Stream_Audio, 0, Audio_Encoded_Library_Settings, Encoded_Library_Settings);
 
-    //Going to end of file
-    if (File_Size>512*1024)
-        File__Tags_Helper::Data_GoTo(File_Size-512*1024, "WavPack");
+    //No more need data
+    File__Tags_Helper::Accept("WavPack");
+    File__Tags_Helper::GoToFromEnd(512*1024, "WavPack");
 }
+
+//***************************************************************************
+// Elements
+//***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_Wvpk::id_0D()
@@ -604,86 +677,6 @@ void File_Wvpk::id_25()
         Encoded_Library_Settings+=_T(" --optimize-mono");
     if (!Encoded_Library_Settings.empty())
         Encoded_Library_Settings.erase(Encoded_Library_Settings.begin());
-}
-
-//***************************************************************************
-// Helpers
-//***************************************************************************
-
-//---------------------------------------------------------------------------
-bool File_Wvpk::Synchronize()
-{
-    //Synchronizing
-    while (Buffer_Offset+8<=Buffer_Size)
-    {
-        while (Buffer_Offset+8<=Buffer_Size
-            && CC4(Buffer+Buffer_Offset)!=CC4("wvpk"))
-        {
-            //Tags
-            if (File_Offset+Buffer_Offset+File_EndTagSize==File_Size && !File__Tags_Helper::Header_Begin())
-                return false;
-
-            Buffer_Offset++;
-        }
-
-        if (Buffer_Offset+8<=Buffer_Size)//Testing if size is coherant
-        {
-            //Testing next start, to be sure
-            size_t Size=LittleEndian2int32u(Buffer+Buffer_Offset+4)+8;
-            if (File_Offset+Buffer_Offset+Size!=File_Size-File_EndTagSize)
-            {
-                if (Buffer_Offset+Size+8>Buffer_Size)
-                    return false; //Need more data
-
-                //Testing
-                if (CC4(Buffer+Buffer_Offset+Size)!=CC4("wvpk"))
-                    Buffer_Offset++;
-                else
-                    break; //while()
-            }
-            else
-                Buffer_Offset++;
-        }
-    }
-    if (Buffer_Offset+8>Buffer_Size)
-    {
-        //Parsing last bytes
-        if (Buffer_Offset+7==Buffer_Size)
-        {
-            if (CC4(Buffer+Buffer_Offset)!=CC4("wvpk"))
-            {
-                Buffer_Offset++;
-                if (CC4(Buffer+Buffer_Offset)!=CC4("wvpk"))
-                {
-                    Buffer_Offset++;
-                    if (CC4(Buffer+Buffer_Offset)!=CC4("wvpk"))
-                    {
-                        Buffer_Offset++;
-                        if (CC4(Buffer+Buffer_Offset)!=CC4("wvpk"))
-                        {
-                            Buffer_Offset++;
-                            if (CC3(Buffer+Buffer_Offset)!=CC3("wvp"))
-                            {
-                                Buffer_Offset++;
-                                if (CC2(Buffer+Buffer_Offset)!=CC2("wv"))
-                                {
-                                    Buffer_Offset++;
-                                    if (CC1(Buffer+Buffer_Offset)!=CC1("w"))
-                                        Buffer_Offset++;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    //Synched is OK
-    Synched=true;
-    return true;
 }
 
 //***************************************************************************

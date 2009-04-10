@@ -1,5 +1,5 @@
 // File_Amr - Info for AMR files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -44,14 +44,9 @@ public :
     ZenLib::Ztring Codec;
 
 protected :
-    //Format
-    void Read_Buffer_Continue ();
-    void Read_Buffer_Finalize ();
-
-private :
-
-    //Elements
-    void Tags();
+    //Buffer - File header
+    bool FileHeader_Begin();
+    void FileHeader_Parse ();
 };
 
 } //NameSpace

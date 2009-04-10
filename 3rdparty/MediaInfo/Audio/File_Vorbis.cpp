@@ -1,5 +1,5 @@
 // File_Vorbis - Info for Vorbis files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -42,6 +42,7 @@ using namespace std;
 namespace MediaInfoLib
 {
 
+//---------------------------------------------------------------------------
 int32u ilog(int32u Value)
 {
     int32u ToReturn=0;
@@ -54,7 +55,7 @@ int32u ilog(int32u Value)
 }
 
 //***************************************************************************
-// Format
+// Buffer - Per element
 //***************************************************************************
 
 //---------------------------------------------------------------------------
@@ -62,13 +63,78 @@ void File_Vorbis::Header_Parse()
 {
     //Filling
     Header_Fill_Code(0, "Vorbis");
-    Header_Fill_Size(Element_Size);
+    Header_Fill_Size(Buffer_Size);
 }
 
 //---------------------------------------------------------------------------
 void File_Vorbis::Data_Parse()
 {
     //Parsing
+    if (IsAccepted)
+        Setup();
+    else
+        Identification();
+}
+
+//***************************************************************************
+// Elements
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_Vorbis::Identification()
+{
+    Element_Name("Identification");
+
+    //Parsing
+    int32u Version, SamplingRate, BitRate_Maximum, BitRate_Nominal, BitRate_Minimum;
+    int8u Channels;
+    Skip_B1   (                                                 "Signature");
+    Skip_Local(6,                                               "Signature");
+    Get_L4 (Version,                                            "Version");
+    if (Version>0)
+        return; //Not supported
+    Get_L1 (Channels,                                           "Channels");
+    Get_L4 (SamplingRate,                                       "SamplingRate");
+    Get_L4 (BitRate_Maximum,                                    "BitRate_Maximum");
+    Get_L4 (BitRate_Nominal,                                    "BitRate_Nominal");
+    Get_L4 (BitRate_Minimum,                                    "BitRate_Minimum");
+    BS_Begin();
+    Skip_BS(4,                                                  "BlockSize_0"); //2^Value
+    Skip_BS(4,                                                  "BlockSize_1"); //2^Value
+    BS_End();
+    Skip_L1(                                                    "Framing");
+
+    //Filling
+    FILLING_BEGIN()
+        Stream_Prepare(Stream_General);
+        Stream_Prepare(Stream_Audio);
+        Fill(Stream_Audio, StreamPos_Last, Audio_Format, "Vorbis");
+        Fill(Stream_Audio, StreamPos_Last, Audio_Codec, "Vorbis");
+        if (BitRate_Maximum!=0 && BitRate_Maximum<0x80000000) //This is a signed value, and negative values are not OK
+            Fill(Stream_Audio, StreamPos_Last, Audio_BitRate_Maximum, BitRate_Maximum);
+        if (BitRate_Nominal!=0 && BitRate_Nominal<0x80000000) //This is a signed value, and negative values are not OK
+            Fill(Stream_Audio, StreamPos_Last, Audio_BitRate, BitRate_Nominal);
+        if (BitRate_Minimum!=0 && BitRate_Minimum<0x80000000) //This is a signed value, and negative values are not OK
+            Fill(Stream_Audio, StreamPos_Last, Audio_BitRate_Minimum, BitRate_Minimum);
+        if (BitRate_Maximum==0 && BitRate_Nominal!=0 && BitRate_Minimum==0)
+            Fill(Stream_Audio, StreamPos_Last, Audio_BitRate_Mode, "CBR");
+        else if (BitRate_Maximum>BitRate_Nominal*1.1 && BitRate_Minimum<BitRate_Nominal*0.9)
+            Fill(Stream_Audio, StreamPos_Last, Audio_BitRate_Mode, "VBR");
+        Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, Channels);
+        Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, SamplingRate);
+    FILLING_END();
+
+    //Filling
+    Accept("Vorbis");
+}
+
+//---------------------------------------------------------------------------
+void File_Vorbis::Setup()
+{
+    Element_Name("Setup");
+
+    //Parsing
+    Skip_Local(6,                                               "Signature");
     int32u codebook, codebook_dimensions, codebook_entries, ordered, codebook_lookup_type;
     int8u vorbis_codebook_count;
     Get_L1 (vorbis_codebook_count,                              "vorbis_codebook_count");
@@ -166,9 +232,8 @@ void File_Vorbis::Data_Parse()
     for (int32u Pos=0; Pos<vorbis_floor_count; Pos++)
     {
         Info_BS(16, vorbis_floor_types,                         "vorbis_floor_types");
-        if (Count_Get(Stream_Audio)==0)
+        if (Retrieve(Stream_Audio, 0, Audio_Format_Settings_Floor).empty())
         {
-            Stream_Prepare(Stream_Audio);
             Fill(Stream_Audio, 0, Audio_Format_Settings_Floor, vorbis_floor_types);
             Fill(Stream_Audio, 0, Audio_Codec_Settings_Floor, vorbis_floor_types);
             if (vorbis_floor_types==0)
@@ -181,7 +246,7 @@ void File_Vorbis::Data_Parse()
     }
     BS_End_LE();
 
-    Finished();
+    Finish("Vorbis");
 }
 
 //***************************************************************************
@@ -190,4 +255,4 @@ void File_Vorbis::Data_Parse()
 
 } //NameSpace
 
-#endif //MEDIAINFO_MIDI_YES
+#endif //MEDIAINFO_VORBIS_YES

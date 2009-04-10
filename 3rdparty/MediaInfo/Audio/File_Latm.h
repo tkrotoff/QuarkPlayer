@@ -1,5 +1,5 @@
 // File_Latm - Info for LATM files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -35,27 +35,25 @@ namespace MediaInfoLib
 
 class File_Latm : public File__Analyze
 {
-protected :
+public :
     //In
     bool audioMuxVersionA;
 
-public :
+    //Constructor/Destructor
     File_Latm();
 
 private :
-    //Buffer
-    bool Header_Begin();
+    //Buffer - Synchro
+    bool Synchronize();
+    bool Synched_Test();
+
+    //Buffer - Per element
     void Header_Parse();
     void Data_Parse();
 
     //Elements
     void AudioMuxElement(bool muxConfigPresent);
     void StreamMuxConfig();
-
-    //Temp - Technical info
-
-    //Helpers
-    bool Synchronize();
 };
 
 } //NameSpace

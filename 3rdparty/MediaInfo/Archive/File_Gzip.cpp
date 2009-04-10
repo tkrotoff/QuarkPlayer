@@ -1,5 +1,5 @@
 // File_Gzip - Info for Gzip files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -37,13 +37,49 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Format
+// Static stuff
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+bool File_Gzip::FileHeader_Begin()
+{
+    //Element_Size
+    if (Buffer_Size<2)
+        return false; //Must wait for more data
+
+    if (CC2(Buffer)!=0x1F8B)
+    {
+        Reject("Gzip");
+        return false;
+    }
+
+    //All should be OK...
+    return true;
+}
+
+//***************************************************************************
+// Buffer - Global
 //***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_Gzip::Read_Buffer_Continue()
 {
-    Finished();
+    //Parsing
+    int8u CM;
+    Skip_B2(                                                    "IDentification");
+    Get_B1 (CM,                                                 "Compression Method");
+    Skip_B1(                                                    "FLaGs");
+    Skip_B4(                                                    "Modified TIME");
+    Skip_XX(File_Size-10,                                       "Data");
+
+    FILLING_BEGIN();
+        //Filling
+        Stream_Prepare(Stream_General);
+        Fill(Stream_General, 0, General_Format, "GZip");
+        Fill(Stream_General, 0, General_Format_Profile, "deflate");
+        Accept("Gzip");
+        Finish("Gzip");
+    FILLING_END();
 }
 
 //***************************************************************************

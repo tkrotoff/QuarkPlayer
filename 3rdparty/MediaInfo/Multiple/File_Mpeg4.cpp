@@ -1,5 +1,5 @@
 // File_Mpeg4 - Info for MPEG-4 files
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -17,7 +17,7 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-// Main part
+// Main part          
 //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -98,6 +98,20 @@ namespace Elements
     const int64u moov_meta__year=0x79656172;
 }
 
+//---------------------------------------------------------------------------
+Ztring Mpeg4_Encoded_Library(int32u Vendor)
+{
+    switch (Vendor)
+    {
+        case 0x33495658 : return _T("3ivX");                //3IVX
+        case 0x6170706C : return _T("Apple QuickTime");     //appl
+        case 0x6E696B6F : return _T("Nikon");               //niko
+        case 0x6F6C796D : return _T("Olympus");             //olym
+        case 0x6F6D6E65 : return _T("Omneon");              //omne
+        default: return Ztring().From_CC4(Vendor);
+    }
+}
+
 //***************************************************************************
 // Constructor/Destructor
 //***************************************************************************
@@ -108,13 +122,14 @@ File_Mpeg4::File_Mpeg4()
 {
     //Configuration
     DataMustAlwaysBeComplete=false;
-    File_MaximumOffset=(int64u)-1;
-    
+
     //Temp
     mdat_MustParse=false;
     moov_Done=false;
     moov_trak_mdia_mdhd_TimeScale=0;
     TimeScale=1;
+    Vendor=0x00000000;
+    IsParsing_mdat=false;
 }
 
 //***************************************************************************
@@ -137,23 +152,21 @@ void File_Mpeg4::Read_Buffer_Finalize()
         {
             //Finalizing and Merging
             Open_Buffer_Finalize(Temp->second.Parser);
-            Ztring FrameRate_Temp;
-            if (StreamKind_Last==Stream_Video)
+            if (StreamKind_Last==Stream_General)
             {
-                FrameRate_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate); //We want to keep the FrameRate of AVI 120 fps
+                //Special case for TimeCode without link
+                for (std::map<int32u, stream>::iterator Target=Stream.begin(); Target!=Stream.end(); Target++)
+                    if (Target->second.StreamKind!=Stream_General)
+                        Merge(*Temp->second.Parser, Target->second.StreamKind, 0, Target->second.StreamPos);
             }
-            Merge(*Temp->second.Parser, StreamKind_Last, 0, StreamPos_Last);
-            if (StreamKind_Last==Stream_Video)
-            {
-                if (FrameRate_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate))
-                    Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Original, Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate), true);
-                if (!FrameRate_Temp.empty())
-                    Fill(Stream_Video, StreamPos_Last, Video_FrameRate, FrameRate_Temp, true);
-            }
+            else
+                Merge(*Temp->second.Parser, StreamKind_Last, 0, StreamPos_Last);
         }
 
         Temp++;
     }
+    if (Vendor!=0x00000000 && Vendor!=0xFFFFFFFF)
+        Fill(Stream_General, 0, General_Encoded_Library, Mpeg4_Encoded_Library(Vendor));
 
     //Purge what is not needed anymore
     if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
@@ -168,12 +181,22 @@ void File_Mpeg4::Read_Buffer_Finalize()
 //***************************************************************************
 
 //---------------------------------------------------------------------------
+bool File_Mpeg4::Header_Begin()
+{
+    if (!mdat_Pos.empty() && Element_Level==0)
+        Element_Begin();
+
+    return true;
+}
+
+//---------------------------------------------------------------------------
 void File_Mpeg4::Header_Parse()
 {
     //mdat
     if (!mdat_Pos.empty())
     {
         //Filling
+        IsParsing_mdat=true;
         Header_Fill_Code(mdat_Pos.begin()->second.StreamID, Ztring::ToZtring(mdat_Pos.begin()->second.StreamID));
         Header_Fill_Size(mdat_Pos.begin()->second.Size);
         if (Buffer_Offset+mdat_Pos.begin()->second.Size<=Buffer_Size)
@@ -227,66 +250,6 @@ bool File_Mpeg4::BookMark_Needed()
         
     File_GoTo=0; //Reseting it
     return true;
-}
-
-//***************************************************************************
-// MDAT Parsing
-//***************************************************************************
-
-//---------------------------------------------------------------------------
-// mdat parsing, for MPEG-PS, must be improved
-//
-void File_Mpeg4::mdat_Parse()
-{
-    /*
-    std::map<int64u, mdat_Pos_Type>::iterator mdat_Pos_Temp=mdat_Pos.begin();
-    while (mdat_Pos_Temp!=mdat_Pos.end())
-    {
-        FLUSH();
-        ELEMENT(1, "Chunk", 0);
-        mdat_Pos_Temp++;
-    }
-    */
-
-    /*
-    #if defined(MEDIAINFO_MPEGPS_YES)
-        if (mdat_Info==NULL)
-            mdat_Info=new File_MpegPs();
-
-        //Calculating buffer size to parse
-        size_t ToParse_Size;
-        if (Buffer_Offset+Buffer_Size<Element_Next[1])
-            ToParse_Size=Buffer_Size-Buffer_Offset;
-        else
-        {
-            ToParse_Size=(size_t)(Element_Next[1]-Buffer_Offset);
-            mdat_MustParse=false; //We no more need
-        }
-
-        Open_Buffer_Init(mdat_Info, Element_Next[1], File_Offset+Buffer_Offset);
-        Open_Buffer_Continue(mdat_Info, Buffer+Buffer_Offset, ToParse_Size);
-        Buffer_Offset+=ToParse_Size;
-        if (mdat_Info->File_GoTo!=(int64u)-1 && mdat_Info->File_Size-mdat_Info->File_GoTo!=(int64u)-1)
-        {
-            //Details
-            if (Config.Details_Get())
-            {
-                Details_Add_Error("------------------------------------------");
-                Details_Add_Error("---   MPEG-4, Jumping to end of file   ---");
-                Details_Add_Error("------------------------------------------");
-            }
-
-            //Jumping
-            File_GoTo=Element_Next[1]-(mdat_Info->File_Size-mdat_Info->File_GoTo);
-            return;
-        }
-
-        if (!mdat_MustParse || File_Offset+Buffer_Offset==Element_Next[1])
-        {
-            Open_Buffer_Finalize(mdat_Info);
-            Merge(*mdat_Info);
-        }
-    #endif */
 }
 
 //---------------------------------------------------------------------------
@@ -392,9 +355,9 @@ void File_Mpeg4::Descriptors()
     File_Mpeg4_Descriptors MI;
     MI.KindOfStream=StreamKind_Last;
     MI.Parser_DoNotFreeIt=true;
+    Open_Buffer_Init(&MI);
 
     //Parsing
-    Open_Buffer_Init(&MI, File_Offset+Buffer_Offset+Element_Size, File_Offset+Buffer_Offset+Element_Offset);
     Open_Buffer_Continue(&MI, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
     Open_Buffer_Finalize(&MI);
 

@@ -1,5 +1,5 @@
 // ZenLib::OS_Utils - Cross platform OS utils
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -29,8 +29,7 @@
 //---------------------------------------------------------------------------
 #ifdef ZENLIB_USEWX
 #else //ZENLIB_USEWX
-    #ifdef ZENLIB_STANDARD
-    #elif defined WINDOWS
+    #ifdef WINDOWS
         #undef __TEXT
         #include <windows.h>
         #include <shlobj.h>

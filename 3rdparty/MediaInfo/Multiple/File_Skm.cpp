@@ -1,5 +1,5 @@
 // File_Skm - Info for Skm files
-// Copyright (C) 2006-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -41,31 +41,69 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Buffer
+// Constructor/Destructor
 //***************************************************************************
+
+//---------------------------------------------------------------------------
+File_Skm::File_Skm()
+:File__Analyze()
+{
+    //Configuration
+    MustSynchronize=true;
+}
+
+//***************************************************************************
+// Buffer - File header
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+bool File_Skm::FileHeader_Begin()
+{
+    if (Buffer_Size<5)
+        return false;
+    if (CC5(Buffer)!=0x444D534B4DLL) //DMSKM
+    {
+        Reject("SKM");
+        return false;
+    }
+    return true;
+}
 
 //---------------------------------------------------------------------------
 void File_Skm::FileHeader_Parse()
 {
-    //Parsing
-    Element_Begin("SKM header");
-    int64u Signature;
-    Get_C5 (Signature,                                          "Signature");
-    Element_End();
+    Skip_C5(                                                    "Signature");
 
     FILLING_BEGIN();
-        //Integrity
-        if (Signature!=CC5("DMSKM"))
-        {
-            Finished();
-            return;
-        }
-
-        //Filling
         Stream_Prepare(Stream_General);
         Fill(Stream_General, 0, General_Format, "SKM");
+
+        Accept("SKM");
     FILLING_END();
 }
+
+//***************************************************************************
+// Buffer - Synchro
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+bool File_Skm::Synched_Test()
+{
+    //Must have enough buffer for having header
+    if (Buffer_Offset+3>Buffer_Size)
+        return false;
+
+    //Quick test of synchro
+    if (CC3(Buffer+Buffer_Offset)!=0x000001)
+        Synched=false;
+
+    //We continue
+    return true;
+}
+
+//***************************************************************************
+// Buffer - Per element
+//***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_Skm::Header_Parse()
@@ -91,21 +129,6 @@ void File_Skm::Header_Parse()
     //Filling
     Header_Fill_Code(Type, Ztring().From_Number(Type, 16));
     Header_Fill_Size(Element_Offset+BodyLength);
-}
-
-//***************************************************************************
-// Buffer
-//***************************************************************************
-
-//---------------------------------------------------------------------------
-bool File_Skm::Header_Begin()
-{
-    //Synchro
-    if (!Synched && !Synchronize())
-        return false;
-
-    //All should be OK...
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -150,51 +173,15 @@ void File_Skm::Data_Parse()
         Stream.Parser=new File_Mpeg4v();
         ((File_Mpeg4v*)Stream.Parser)->FrameIsAlwaysComplete=true;
         ((File_Mpeg4v*)Stream.Parser)->OnlyVOP();
-        Open_Buffer_Init(Stream.Parser, File_Size, File_Offset+Buffer_Offset);
+        Open_Buffer_Init(Stream.Parser);
         Open_Buffer_Continue(Stream.Parser, Buffer+Buffer_Offset, (size_t)Element_Size);
         //if (Stream.Parser->Count_Get(Stream_Video)>0)
         {
             Open_Buffer_Finalize(Stream.Parser);
             Merge(*Stream.Parser);
-            Finished();
+            Finish("SKM");
         }
     #endif
-}
-
-//***************************************************************************
-// Helpers
-//***************************************************************************
-
-//---------------------------------------------------------------------------
-bool File_Skm::Synchronize()
-{
-    //Synchronizing
-    while (Buffer_Offset+4<=Buffer_Size
-        && CC3(Buffer+Buffer_Offset)!=0x000001)
-        Buffer_Offset++;
-    if (Buffer_Offset+4>Buffer_Size)
-    {
-        //Parsing last bytes
-        if (Buffer_Offset+3==Buffer_Size)
-        {
-            if (CC3(Buffer+Buffer_Offset)!=0x000001)
-            {
-                Buffer_Offset++;
-                if (CC2(Buffer+Buffer_Offset)!=0x0000)
-                {
-                    Buffer_Offset++;
-                    if (CC1(Buffer+Buffer_Offset)!=0x00)
-                        Buffer_Offset++;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    //Synched is OK
-    Synched=true;
-    return true;
 }
 
 } //NameSpace

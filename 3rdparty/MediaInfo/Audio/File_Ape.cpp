@@ -1,6 +1,6 @@
 // File_Ape - Info for Ape files
-// Copyright (C) 2003-2008 Jasper van de Gronde, th.v.d.gronde@hccnet.nl
-// Copyright (C) 2003-2008 Jerome Martinez, zen@mediaarea.net
+// Copyright (C) 2003-2009 Jasper van de Gronde, th.v.d.gronde@hccnet.nl
+// Copyright (C) 2003-2009 Jerome Martinez, zen@mediaarea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,6 +39,10 @@ using namespace ZenLib;
 namespace MediaInfoLib
 {
 
+//***************************************************************************
+// Infos
+//***************************************************************************
+
 //---------------------------------------------------------------------------
 int32u Ape_SamplesPerFrame(int16u Version, int16u CompressionLevel)
 {
@@ -52,6 +56,7 @@ int32u Ape_SamplesPerFrame(int16u Version, int16u CompressionLevel)
         return 9216;
 }
 
+//---------------------------------------------------------------------------
 const char* Ape_Codec_Settings(int16u Setting)
 {
     switch (Setting)
@@ -78,29 +83,30 @@ File_Ape::File_Ape()
 }
 
 //***************************************************************************
-// Format
+// Buffer - Global
 //***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_Ape::Read_Buffer_Continue()
 {
     //Tags
-    if (!File__Tags_Helper::Read_Buffer_Continue())
-        return;
+    File__Tags_Helper::Read_Buffer_Continue();
 }
 
 //---------------------------------------------------------------------------
 void File_Ape::Read_Buffer_Finalize()
 {
+    if (!IsAccepted)
+        return;
+
     //Filling
-    int64u CompressedSize=File_Size-File_BeginTagSize-File_EndTagSize;
+    int64u CompressedSize=File_Size-TagsSize;
     float32 CompressionRatio=((float32)UncompressedSize)/CompressedSize;
-    int64u BitRate=CompressedSize*8*1000/Duration;
+    int64u BitRate=Duration?(CompressedSize*8*1000/Duration):0;
 
     Fill(Stream_Audio, 0, Audio_CompressionRatio, CompressionRatio);
     Fill(Stream_Audio, 0, Audio_BitRate, BitRate);
 
-    //Tags
     File__Tags_Helper::Read_Buffer_Finalize();
 }
 
@@ -111,8 +117,17 @@ void File_Ape::Read_Buffer_Finalize()
 //---------------------------------------------------------------------------
 bool File_Ape::FileHeader_Begin()
 {
-    if (!File__Tags_Helper::Header_Begin())
+    if (!File__Tags_Helper::FileHeader_Begin())
         return false;
+
+    //Testing
+    if (Buffer_Offset+4>Buffer_Size)
+        return false;
+    if (CC4(Buffer+Buffer_Offset)!=0x4D414320) //"MAC "
+    {
+        File__Tags_Helper::Reject("APE");
+        return false;
+    }
 
     return true;
 }
@@ -121,11 +136,10 @@ bool File_Ape::FileHeader_Begin()
 void File_Ape::FileHeader_Parse()
 {
     //Parsing
-    Element_Begin("APE header");
-    int32u Identifier, SampleRate=0, TotalFrames=0, FinalFrameSamples=0, SamplesPerFrame=0, SeekElements;
+    int32u SampleRate=0, TotalFrames=0, FinalFrameSamples=0, SamplesPerFrame=0, SeekElements;
     int16u Version, CompressionLevel=0, Flags=0, Channels=0, Resolution=0;
     bool Resolution8=false, Resolution24=false, no_wav_header;
-    Get_C4 (Identifier,                                         "Identifier");
+    Skip_C4(                                                    "Identifier");
     Get_L2 (Version,                                            "Version");
     if (Version<3980) //<3.98
     {
@@ -176,30 +190,22 @@ void File_Ape::FileHeader_Parse()
         Get_L2 (Channels,                                       "Channels");
         Get_L4 (SampleRate,                                     "SampleRate");
     }
-    Element_End();
 
     FILLING_BEGIN();
-        //Integrity
-        if (Identifier!=CC4("MAC "))
-        {
-            Finished();
-            return;
-        }
-
         //Coherancy
         int32u Samples=(TotalFrames-1)*SamplesPerFrame+FinalFrameSamples;
         if (Samples==0 || SampleRate==0 || Channels==0 || Resolution==0)
         {
-            Finished();
+            File__Tags_Helper::Reject("APE");
             return;
         }
 
         //Filling
         Duration=((int64u)Samples)*1000/SampleRate;
         UncompressedSize=Samples*Channels*(Resolution/8);
-        Stream_Prepare(Stream_General);
+        File__Tags_Helper::Stream_Prepare(Stream_General);
         Fill(Stream_General, 0, General_Format, "Monkey's Audio");
-        Stream_Prepare(Stream_Audio);
+        File__Tags_Helper::Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, 0, Audio_Format, "Monkey's Audio");
         Fill(Stream_Audio, 0, Audio_Codec, "APE");
         Fill(Stream_Audio, 0, Audio_Resolution, Resolution);
@@ -207,17 +213,10 @@ void File_Ape::FileHeader_Parse()
         Fill(Stream_Audio, 0, Audio_SamplingRate, SampleRate);
         Fill(Stream_Audio, 0, Audio_Duration, Duration);
 
-        File__Tags_Helper::Data_GoTo(File_Size, "APE");
+        //No more need data
+        File__Tags_Helper::Accept("APE");
+        File__Tags_Helper::Finish("APE");
     FILLING_END();
-}
-
-//---------------------------------------------------------------------------
-bool File_Ape::Header_Begin()
-{
-    if (!File__Tags_Helper::Header_Begin())
-        return false;
-
-    return true;
 }
 
 } //NameSpace

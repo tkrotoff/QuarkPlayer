@@ -1,5 +1,5 @@
 // File_Mpeg4 - Info for MPEG-4 files
-// Copyright (C) 2004-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2004-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -38,7 +38,7 @@ namespace MediaInfoLib
 class File_Mpeg4 : public File__Analyze
 {
 protected :
-    //Format
+    //Buffer - Global
     void Read_Buffer_Finalize();
 
 public :
@@ -46,12 +46,10 @@ public :
 
 private :
     //Buffer
+    bool Header_Begin();
     void Header_Parse();
     void Data_Parse();
     bool BookMark_Needed();
-
-    //mdat specific
-    void mdat_Parse();
 
     //Elements
     void free();
@@ -62,6 +60,15 @@ private :
     void mdat_xxxx();
     void mdat_StreamClear();
     void mdat_StreamJump();
+    void mfra();
+    void mfra_mfro();
+    void mfra_tfra();
+    void moof();
+    void moof_mfhd();
+    void moof_traf();
+    void moof_traf_sdtp();
+    void moof_traf_tfhd();
+    void moof_traf_trun();
     void moov();
     void moov_cmov();
     void moov_cmov_cmvd();
@@ -80,10 +87,14 @@ private :
     void moov_meta_ilst_xxxx_mean();
     void moov_meta_ilst_xxxx_name();
     void moov_meta_xml();
+    void moov_mvex();
+    void moov_mvex_mehd();
+    void moov_mvex_trex();
     void moov_mvhd();
     void moov_trak();
     void moov_trak_edts();
     void moov_trak_edts_elst();
+    void moov_trak_load();
     void moov_trak_mdia();
     void moov_trak_mdia_hdlr();
     void moov_trak_mdia_imap();
@@ -100,6 +111,10 @@ private :
     void moov_trak_mdia_minf_dinf_dref();
     void moov_trak_mdia_minf_dinf_dref_alis();
     void moov_trak_mdia_minf_dinf_dref_rsrc();
+    void moov_trak_mdia_minf_gmhd();
+    void moov_trak_mdia_minf_gmhd_gmin();
+    void moov_trak_mdia_minf_gmhd_tmcd();
+    void moov_trak_mdia_minf_gmhd_tmcd_tcmi();
     void moov_trak_mdia_minf_hint();
     void moov_trak_mdia_minf_hdlr();
     void moov_trak_mdia_minf_hmhd();
@@ -107,11 +122,19 @@ private :
     void moov_trak_mdia_minf_smhd();
     void moov_trak_mdia_minf_vmhd();
     void moov_trak_mdia_minf_stbl();
+    void moov_trak_mdia_minf_stbl_cslg();
     void moov_trak_mdia_minf_stbl_ctts();
+    void moov_trak_mdia_minf_stbl_sdtp();
     void moov_trak_mdia_minf_stbl_stco();
     void moov_trak_mdia_minf_stbl_stdp();
+    void moov_trak_mdia_minf_stbl_stps();
     void moov_trak_mdia_minf_stbl_stsc();
     void moov_trak_mdia_minf_stbl_stsd();
+    void moov_trak_mdia_minf_stbl_stsd_text();
+    void moov_trak_mdia_minf_stbl_stsd_tmcd();
+    void moov_trak_mdia_minf_stbl_stsd_tmcd_name();
+    void moov_trak_mdia_minf_stbl_stsd_tx3g();
+    void moov_trak_mdia_minf_stbl_stsd_tx3g_ftab();
     void moov_trak_mdia_minf_stbl_stsd_xxxx();
     void moov_trak_mdia_minf_stbl_stsd_xxxxSound();
     void moov_trak_mdia_minf_stbl_stsd_xxxxVideo();
@@ -119,14 +142,19 @@ private :
     void moov_trak_mdia_minf_stbl_stsd_xxxx_alac();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_btrt();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_chan();
+    void moov_trak_mdia_minf_stbl_stsd_xxxx_clap();
+    void moov_trak_mdia_minf_stbl_stsd_xxxx_colr();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_dac3();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_dec3();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_damr();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_esds();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_idfm();
+    void moov_trak_mdia_minf_stbl_stsd_xxxx_pasp();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_wave();
+    void moov_trak_mdia_minf_stbl_stsd_xxxx_wave_acbf();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_wave_enda();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_wave_frma();
+    void moov_trak_mdia_minf_stbl_stsd_xxxx_wave_srcq();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_wave_xxxx();
     void moov_trak_mdia_minf_stbl_stsh();
     void moov_trak_mdia_minf_stbl_stss();
@@ -210,10 +238,12 @@ private :
     int32u                                  moov_trak_tkhd_TrackID;
     float32                                 moov_trak_tkhd_Width;
     float32                                 moov_trak_tkhd_Height;
+    float32                                 moov_trak_tkhd_DisplayAspectRatio;
     std::vector<std::string>                moov_udta_meta_keys_List;
     size_t                                  moov_udta_meta_keys_ilst_Pos;
     char                                    Language_Result[4];
     int32u                                  TimeScale;
+    int32u                                  Vendor;
 
     //Data
     struct stream
@@ -229,12 +259,16 @@ private :
         };
         std::vector<stsc_struct> stsc;
         std::vector<int64u>     stsz;
+        int32u                  TimeCode_TrackID;
+        bool                    TimeCode_IsVisual;
 
         stream()
         {
             Parser=NULL;
             StreamKind=Stream_Max;
             StreamPos=0;
+            TimeCode_TrackID=(int32u)-1;
+            TimeCode_IsVisual=false;
         }
 
         ~stream()
@@ -251,6 +285,7 @@ private :
         int64u Size;
     };
     std::map<int64u, mdat_Pos_Type> mdat_Pos;
+    bool IsParsing_mdat;
 };
 
 } //NameSpace

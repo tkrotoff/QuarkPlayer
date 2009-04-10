@@ -1,5 +1,5 @@
 // File_Other - Use magic number to detect only the format
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -59,14 +59,13 @@ void File_Other::Read_Buffer_Continue()
     else if (CC4(Buffer)==CC4("SMOD")) {Format=_T("Amiga Future Composer");}
     else if (CC4(Buffer)==CC4("AON4")) {Format=_T("Amiga Art Of Noise");}
     else if (CC8(Buffer+1)==CC8("MUGICIAN")) {Format=_T("Amiga Mugician");}
-    else if (Buffer_Size>=64 && CC8(Buffer+58)==CC8("SIDMON I")) {Format=_T("Amiga Sidmon");}
+    else if (Buffer_Size>=66 && CC8(Buffer+58)==CC8("SIDMON I")) {Format=_T("Amiga Sidmon");}
     else if (CC8(Buffer)==CC8("Synth4.0")) {Format=_T("Amiga Synthesis");}
     else if (CC4(Buffer)==CC4("ARP.")) {Format=_T("Amiga Holy Noise");}
     else if (CC4(Buffer)==CC4("BeEp")) {Format=_T("Amiga JamCracker");}
     else if (CC4(Buffer)==CC4("COSO")) {Format=_T("Amiga Hippel-COSO");}
     else if (CC3(Buffer)==CC3("LSX")) {Format=_T("Amiga LZX");}
     else if (CC4(Buffer)==CC4("MOVI")) {Format=_T("Silicon Graphics movie");}
-    else if (CC3(Buffer)==0x1F0700) {Format=_T("DIF");}
     else if (CC4(Buffer+10)==CC4("Vivo")) {Format=_T("Vivo");}
     else if (CC4(Buffer+1)==CC4("VRML")) {Format=_T("VRML");}
     else if (CC5(Buffer)==CC5("HVQM4")) {Format=_T("GameCube Movie");}
@@ -81,7 +80,6 @@ void File_Other::Read_Buffer_Continue()
     else if (CC3(Buffer)==CC3("SBI")) {Format=_T("SoundBlaster");}
     else if (CC4(Buffer)==CC4("EMOD")) {Format=_T("Ext. MOD");}
     else if (CC3(Buffer)==CC3("TTA")) {Format=_T("True Audio"); Url=_T("http://www.true-audio.com/site.download"); Extensions=_T("tta");}
-    else if (CC4(Buffer)==CC4("wvpk")) {Format=_T("WavPack"); Url=_T("http://www.wavpack.com/downloads.html"); Extensions=_T("wv");}
     //TODO: Other Sound magic numbers
     else if (CC7(Buffer)==CC7("BLENDER")) {Format=_T("Blender"); Url=_T("http://www.blender3d.com"); Extensions=_T("blenders");}
     else if (CC4(Buffer)==CC4("AC10")) {Format=_T("AutoCAD"); Url=_T("http://www.autodesk.com"); Extensions=_T("dwg");}
@@ -119,16 +117,41 @@ void File_Other::Read_Buffer_Continue()
     else if (CC6(Buffer)==CC6("Z\0W\0F\0"))
                 {Format=_T("ZWF");
                 Stream_Prepare(Stream_Audio); Fill(Stream_Audio, 0, Audio_Format, "ZWF");}
+    else if (CC4(Buffer)==0x616A6B67) //"ajkg"
+    {
+        Stream_Prepare(Stream_General);
+        Fill(Stream_General, 0, General_Format, "Shorten");
+        Fill(Stream_General, 0, General_Format_Version, CC1(Buffer+4));
+        Stream_Prepare(Stream_Audio);
+        Fill(Stream_Audio, 0, Audio_Format, "Shorten");
+        Accept();
+        Finish();
+        return;
+    }
+    else if (CC4(Buffer)==0x7442614B) //"tBaK"
+    {
+        Stream_Prepare(Stream_General);
+        Fill(Stream_General, 0, General_Format, "TAK");
+        Stream_Prepare(Stream_Audio);
+        Fill(Stream_Audio, 0, Audio_Format, "TAK");
+        Accept();
+        Finish();
+        return;
+    }
     else if (CC4(Buffer)==CC4("")) {Format=_T("");}
 
     if (Format.empty())
+    {
+        Reject();
         return;
+    }
 
     Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, Format);
     Fill(Stream_General, 0, General_Format_Url, Url);
     Fill(Stream_General, 0, General_Format_Extensions, Extensions);
-    Finished();
+    Accept();
+    Finish();
 }
 
 } //NameSpace

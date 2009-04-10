@@ -1,6 +1,6 @@
 // File_Ape - Info for Ape Audio files
-// Copyright (C) 2003-2008 Jasper van de Gronde, th.v.d.gronde@hccnet.nl
-// Copyright (C) 2003-2008 Jerome Martinez, zen@mediaarea.net
+// Copyright (C) 2003-2009 Jasper van de Gronde, th.v.d.gronde@hccnet.nl
+// Copyright (C) 2003-2009 Jerome Martinez, zen@mediaarea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -41,19 +41,18 @@ namespace MediaInfoLib
 
 class File_Ape : public File__Analyze, public File__Tags_Helper
 {
-protected :
-    //Format
-    void Read_Buffer_Continue ();
-    void Read_Buffer_Finalize ();
-
 public :
+    //Constructor/Destructor
     File_Ape();
 
 private :
-    //Buffer
+    //Buffer - File header
     bool FileHeader_Begin();
     void FileHeader_Parse ();
-    bool Header_Begin ();
+
+    //Buffer - Global
+    void Read_Buffer_Continue ();
+    void Read_Buffer_Finalize ();
 
     //Temp
     int64u Duration;

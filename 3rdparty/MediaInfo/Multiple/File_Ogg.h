@@ -1,5 +1,5 @@
 // File_Ogg - Info for ogg files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -45,16 +45,21 @@ public :
     bool   SizedBlocks;
     bool   XiphLacing;
 
-protected :
-    //Formats
-    void Read_Buffer_Finalize ();
-
-public :
+    //Constructor/Destructor
     File_Ogg();
 
 private :
-    //Buffer
-    bool Header_Begin();
+    //Buffer - File header
+    bool FileHeader_Begin();
+
+    //Buffer - Synchro
+    bool Synchronize();
+    bool Synched_Test();
+
+    //Buffer - Global
+    void Read_Buffer_Finalize ();
+
+    //Buffer - Per element
     void Header_Parse();
     void Header_Parse_AdaptationField();
     void Data_Parse();
@@ -69,6 +74,8 @@ private :
         File__Analyze* Parser;
         stream_t StreamKind;
         size_t StreamPos;
+        bool   SearchingPayload;
+        bool   SearchingTimeCode;
         int64u absolute_granule_position;
         int64u absolute_granule_position_Resolution;
 
@@ -77,6 +84,8 @@ private :
             Parser=NULL;
             StreamKind=Stream_Max;
             StreamPos=(size_t)-1;
+            SearchingPayload=true;
+            SearchingTimeCode=true;
             absolute_granule_position=0;
             absolute_granule_position_Resolution=0;
         }
@@ -88,13 +97,11 @@ private :
 
     int8u packet_type;
     bool continued;
+    bool eos;
     bool continued_NextFrame;
     std::map<int64u, stream> Stream;
     std::vector<size_t>      Chunk_Sizes;
     bool                     Chunk_Sizes_Finished;
-
-    //Helpers
-    bool   Synchronize();
 };
 
 } //NameSpace

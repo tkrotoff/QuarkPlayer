@@ -1,5 +1,5 @@
 // MediaInfo_Internal - All info about media files, different parser listing part
-// Copyright (C) 2006-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -37,9 +37,6 @@
 
 //---------------------------------------------------------------------------
 // Multiple
-#if defined(MEDIAINFO_BDAV_YES)
-    #include "MediaInfo/Multiple/File_Bdav.h"
-#endif
 #if defined(MEDIAINFO_CDXA_YES)
     #include "MediaInfo/Multiple/File_Cdxa.h"
 #endif
@@ -61,7 +58,7 @@
 #if defined(MEDIAINFO_MPEGPS_YES)
     #include "MediaInfo/Multiple/File_MpegPs.h"
 #endif
-#if defined(MEDIAINFO_MPEGTS_YES)
+#if defined(MEDIAINFO_MPEGTS_YES) || defined(MEDIAINFO_BDAV_YES) || defined(MEDIAINFO_TSP_YES)
     #include "MediaInfo/Multiple/File_MpegTs.h"
 #endif
 #if defined(MEDIAINFO_MXF_YES)
@@ -87,6 +84,9 @@
 #endif
 #if defined(MEDIAINFO_WM_YES)
     #include "MediaInfo/Multiple/File_Wm.h"
+#endif
+#if defined(MEDIAINFO_DPG_YES)
+    #include "MediaInfo/Multiple/File_Dpg.h"
 #endif
 
 //---------------------------------------------------------------------------
@@ -202,9 +202,6 @@
 #if defined(MEDIAINFO_PNG_YES)
     #include "MediaInfo/Image/File_Png.h"
 #endif
-#if defined(MEDIAINFO_RLE_YES)
-    #include "MediaInfo/Image/File_Rle.h"
-#endif
 #if defined(MEDIAINFO_TIFF_YES)
     #include "MediaInfo/Image/File_Tiff.h"
 #endif
@@ -220,8 +217,14 @@
 #if defined(MEDIAINFO_BZIP2_YES)
     #include "MediaInfo/Archive/File_Bzip2.h"
 #endif
+#if defined(MEDIAINFO_ELF_YES)
+    #include "MediaInfo/Archive/File_Elf.h"
+#endif
 #if defined(MEDIAINFO_GZIP_YES)
     #include "MediaInfo/Archive/File_Gzip.h"
+#endif
+#if defined(MEDIAINFO_MZ_YES)
+    #include "MediaInfo/Archive/File_Mz.h"
 #endif
 #if defined(MEDIAINFO_RAR_YES)
     #include "MediaInfo/Archive/File_Rar.h"
@@ -235,13 +238,13 @@
 
 //---------------------------------------------------------------------------
 // Other
-#if !defined(MEDIAINFO_OTHER_NO)
+#if defined(MEDIAINFO_OTHER_YES)
     #include "MediaInfo/File_Other.h"
 #endif
-#if !defined(MEDIAINFO_UNKNOWN_NO)
+#if defined(MEDIAINFO_UNKNOWN_YES)
     #include "MediaInfo/File_Unknown.h"
 #endif
-#if !defined(MEDIAINFO_DUMMY_NO)
+#if defined(MEDIAINFO_DUMMY_YES)
     #include "MediaInfo/File_Dummy.h"
 #endif
 //---------------------------------------------------------------------------
@@ -264,7 +267,7 @@ void MediaInfo_Internal::SelectFromExtension (const String &Parser)
 
     // Multiple
     #if defined(MEDIAINFO_BDAV_YES)
-        else if (Parser==_T("Bdav"))        Info=new File_Bdav();
+        else if (Parser==_T("Bdav"))       {Info=new File_MpegTs(); ((File_MpegTs*)Info)->BDAV_Size=4;}
     #endif
     #if defined(MEDIAINFO_CDXA_YES)
         else if (Parser==_T("Cdxa"))        Info=new File_Cdxa();
@@ -313,6 +316,9 @@ void MediaInfo_Internal::SelectFromExtension (const String &Parser)
     #endif
     #if defined(MEDIAINFO_WM_YES)
         else if (Parser==_T("Wm"))          Info=new File_Wm();
+    #endif
+    #if defined(MEDIAINFO_DPG_YES)
+        else if (Parser==_T("Dpg"))         Info=new File_Dpg();
     #endif
 
     // Video
@@ -424,9 +430,6 @@ void MediaInfo_Internal::SelectFromExtension (const String &Parser)
     #if defined(MEDIAINFO_PNG_YES)
         else if (Parser==_T("Png"))         Info=new File_Png();
     #endif
-    #if defined(MEDIAINFO_RLE_YES)
-        else if (Parser==_T("Rle"))        Info=new File_Rle();
-    #endif
     #if defined(MEDIAINFO_TIFF_YES)
         else if (Parser==_T("Tiff"))        Info=new File_Tiff();
     #endif
@@ -441,8 +444,14 @@ void MediaInfo_Internal::SelectFromExtension (const String &Parser)
     #if defined(MEDIAINFO_BZIP2_YES)
         else if (Parser==_T("Bzip2"))       Info=new File_Bzip2();
     #endif
+    #if defined(MEDIAINFO_ELF_YES)
+        else if (Parser==_T("Elf"))         Info=new File_Elf();
+    #endif
     #if defined(MEDIAINFO_GZIP_YES)
         else if (Parser==_T("Gzip"))        Info=new File_Gzip();
+    #endif
+    #if defined(MEDIAINFO_MZ_YES)
+        else if (Parser==_T("Mz"))          Info=new File_Mz();
     #endif
     #if defined(MEDIAINFO_RAR_YES)
         else if (Parser==_T("Rar"))         Info=new File_Rar();
@@ -467,7 +476,7 @@ int MediaInfo_Internal::ListFormats()
 
     // Multiple
     #if defined(MEDIAINFO_BDAV_YES)
-        delete Info; Info=new File_Bdav();               if (ApplyMethod()>0) return 1;
+        delete Info; Info=new File_MpegTs(); ((File_MpegTs*)Info)->BDAV_Size=4; if (ApplyMethod()>0) return 1;
     #endif
     #if defined(MEDIAINFO_CDXA_YES)
         delete Info; Info=new File_Cdxa();               if (ApplyMethod()>0) return 1;
@@ -514,8 +523,14 @@ int MediaInfo_Internal::ListFormats()
     #if defined(MEDIAINFO_SWF_YES)
         delete Info; Info=new File_Swf();                if (ApplyMethod()>0) return 1;
     #endif
+    #if defined(MEDIAINFO_TSP_YES)
+        delete Info; Info=new File_MpegTs(); ((File_MpegTs*)Info)->TSP_Size=16; if (ApplyMethod()>0) return 1;
+    #endif
     #if defined(MEDIAINFO_WM_YES)
         delete Info; Info=new File_Wm();                 if (ApplyMethod()>0) return 1;
+    #endif
+    #if defined(MEDIAINFO_DPG_YES)
+        delete Info; Info=new File_Dpg();                if (ApplyMethod()>0) return 1;
     #endif
 
     // Video
@@ -627,9 +642,6 @@ int MediaInfo_Internal::ListFormats()
     #if defined(MEDIAINFO_PNG_YES)
         delete Info; Info=new File_Png();                if (ApplyMethod()>0) return 1;
     #endif
-    #if defined(MEDIAINFO_RLE_YES)
-      //delete Info; Info=new File_Rle();                if (ApplyMethod()>0) return 1;
-    #endif
     #if defined(MEDIAINFO_TIFF_YES)
         delete Info; Info=new File_Tiff();               if (ApplyMethod()>0) return 1;
     #endif
@@ -644,8 +656,14 @@ int MediaInfo_Internal::ListFormats()
     #if defined(MEDIAINFO_BZIP2_YES)
         delete Info; Info=new File_Bzip2();              if (ApplyMethod()>0) return 1;
     #endif
+    #if defined(MEDIAINFO_ELF_YES)
+        delete Info; Info=new File_Elf();                if (ApplyMethod()>0) return 1;
+    #endif
     #if defined(MEDIAINFO_GZIP_YES)
         delete Info; Info=new File_Gzip();               if (ApplyMethod()>0) return 1;
+    #endif
+    #if defined(MEDIAINFO_MZ_YES)
+        delete Info; Info=new File_Mz();                 if (ApplyMethod()>0) return 1;
     #endif
     #if defined(MEDIAINFO_RAR_YES)
         delete Info; Info=new File_Rar();                if (ApplyMethod()>0) return 1;
@@ -677,12 +695,12 @@ int MediaInfo_Internal::ListFormats()
 bool MediaInfo_Internal::LibraryIsModified ()
 {
     #if defined(MEDIAINFO_MULTI_NO) || defined(MEDIAINFO_VIDEO_NO) || defined(MEDIAINFO_AUDIO_NO) || defined(MEDIAINFO_TEXT_NO) || defined(MEDIAINFO_IMAGE_NO) || defined(MEDIAINFO_ARCHIVE_NO) \
-     || defined(MEDIAINFO_MK_NO) || defined(MEDIAINFO_OGG_NO) || defined(MEDIAINFO_RIFF_NO) || defined(MEDIAINFO_MPEG4_NO) || defined(MEDIAINFO_MPEGPS_NO) || defined(MEDIAINFO_MPEGTS_NO) || defined(MEDIAINFO_FLV_NO) || defined(MEDIAINFO_SWF_NO) || defined(MEDIAINFO_MXF_NO) || defined(MEDIAINFO_NUT_NO) || defined(MEDIAINFO_WM_NO) || defined(MEDIAINFO_QT_NO) || defined(MEDIAINFO_RM_NO) || defined(MEDIAINFO_DVDIF_NO) || defined(MEDIAINFO_DVDV_NO) || defined(MEDIAINFO_CDXA_NO) \
-     || defined(MEDIAINFO_AVC_NO) || defined(MEDIAINFO_MPEG4V_NO) || defined(MEDIAINFO_MPEGV_NO) || defined(MEDIAINFO_FLIC_NO) \
-     || defined(MEDIAINFO_AC3_NO) || defined(MEDIAINFO_ADIF_NO) || defined(MEDIAINFO_ADTS_NO) || defined(MEDIAINFO_AMR_NO) || defined(MEDIAINFO_DTS_NO) || defined(MEDIAINFO_FLAC_NO) || defined(MEDIAINFO_APE_NO) || defined(MEDIAINFO_MPC_NO) || defined(MEDIAINFO_MPCSV8_NO) || defined(MEDIAINFO_MPEGA_NO) || defined(MEDIAINFO_TWINVQ_NO) || defined(MEDIAINFO_XM_NO) || defined(MEDIAINFO_MOD_NO) || defined(MEDIAINFO_S3M_NO) || defined(MEDIAINFO_IT_NO) || defined(MEDIAINFO_AES3_NO) \
-     || defined(MEDIAINFO_OTHERTEXT_NO) \
+     || defined(MEDIAINFO_BDAV_NO) || defined(MEDIAINFO_MK_NO) || defined(MEDIAINFO_OGG_NO) || defined(MEDIAINFO_RIFF_NO) || defined(MEDIAINFO_MPEG4_NO) || defined(MEDIAINFO_MPEGPS_NO) || defined(MEDIAINFO_MPEGTS_NO) || defined(MEDIAINFO_FLV_NO) || defined(MEDIAINFO_SWF_NO) || defined(MEDIAINFO_MXF_NO) || defined(MEDIAINFO_NUT_NO) || defined(MEDIAINFO_WM_NO) || defined(MEDIAINFO_QT_NO) || defined(MEDIAINFO_RM_NO) || defined(MEDIAINFO_DVDIF_NO) || defined(MEDIAINFO_DVDV_NO) || defined(MEDIAINFO_CDXA_NO) || defined(MEDIAINFO_DPG_NO) || defined(MEDIAINFO_TSP_NO) \
+     || defined(MEDIAINFO_AVC_NO) || defined(MEDIAINFO_MPEG4V_NO) || defined(MEDIAINFO_MPEGV_NO) || defined(MEDIAINFO_FLIC_NO) || defined(MEDIAINFO_THEORA_NO) \
+     || defined(MEDIAINFO_AC3_NO) || defined(MEDIAINFO_ADIF_NO) || defined(MEDIAINFO_ADTS_NO) || defined(MEDIAINFO_AMR_NO) || defined(MEDIAINFO_DTS_NO) || defined(MEDIAINFO_FLAC_NO) || defined(MEDIAINFO_APE_NO) || defined(MEDIAINFO_MPC_NO) || defined(MEDIAINFO_MPCSV8_NO) || defined(MEDIAINFO_MPEGA_NO) || defined(MEDIAINFO_TWINVQ_NO) || defined(MEDIAINFO_XM_NO) || defined(MEDIAINFO_MOD_NO) || defined(MEDIAINFO_S3M_NO) || defined(MEDIAINFO_IT_NO) || defined(MEDIAINFO_AES3_NO) || defined(MEDIAINFO_SPEEX_NO) || defined(MEDIAINFO_PS2A_NO) \
+     || defined(MEDIAINFO_CMML_NO)  || defined(MEDIAINFO_KATE_NO)  || defined(MEDIAINFO_PGS_NO) || defined(MEDIAINFO_OTHERTEXT_NO) \
      || defined(MEDIAINFO_PNG_NO) || defined(MEDIAINFO_JPEG_NO) || defined(MEDIAINFO_BMP_NO) || defined(MEDIAINFO_ICO_NO) || defined(MEDIAINFO_GIF_NO) || defined(MEDIAINFO_TIFF_NO) \
-     || defined(MEDIAINFO_7Z_NO) || defined(MEDIAINFO_ZIP_NO) || defined(MEDIAINFO_RAR_NO) || defined(MEDIAINFO_ACE_NO) \
+     || defined(MEDIAINFO_7Z_NO) || defined(MEDIAINFO_ZIP_NO) || defined(MEDIAINFO_RAR_NO) || defined(MEDIAINFO_ACE_NO) || defined(MEDIAINFO_ELF_NO) || defined(MEDIAINFO_MZ_NO) \
      || defined(MEDIAINFO_OTHER_NO) || defined(MEDIAINFO_DUMMY_NO)
         return true;
     #else
@@ -693,9 +711,9 @@ bool MediaInfo_Internal::LibraryIsModified ()
 //---------------------------------------------------------------------------
 void MediaInfo_Internal::CreateDummy (const String& Value)
 {
-    #if !defined(MEDIAINFO_DUMMY_NO)
-    Info=new File_Dummy();
-    ((File_Dummy*)Info)->KindOfDummy=Value;
+    #if defined(MEDIAINFO_DUMMY_YES)
+        Info=new File_Dummy();
+        ((File_Dummy*)Info)->KindOfDummy=Value;
     #endif
 }
 

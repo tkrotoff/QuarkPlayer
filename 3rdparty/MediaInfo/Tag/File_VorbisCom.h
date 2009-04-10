@@ -1,5 +1,5 @@
 // File_VorbisCom - Info for VorbisComments tagged files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -45,42 +45,21 @@ public :
     stream_t StreamKind_Multiple; //Specific stream kind depend if there is multiple streams or not
     stream_t StreamKind_Common;   //Stream kind for common values
 
-public :
+    //Constructor/Destructor
     File_VorbisCom();
 
 private :
-    //Buffer
+    //Buffer - File header
     void FileHeader_Parse();
 
-    //Elements
-    void Comment();
+    //Buffer - Per element
+    void Header_Parse();
+    void Data_Parse();
 
     //Temp
     int32u user_comment_list_length;
     Ztring Chapter_Pos;
     Ztring Chapter_Time;
-};
-
-//***************************************************************************
-// Class File_VorbisCom_Helper
-//***************************************************************************
-
-class File_VorbisCom_Helper
-{
-public :
-    File_VorbisCom_Helper(File__Base* Base_);
-    ~File_VorbisCom_Helper();
-
-protected :
-    //Temp
-    File_VorbisCom* VorbisCom;
-
-    //From elsewhere
-    bool VorbisCom_Read_Buffer_Continue ();
-    void VorbisCom_Read_Buffer_Finalize ();
-
-    //Data
-    File__Base* Base;
 };
 
 } //NameSpace

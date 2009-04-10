@@ -1,5 +1,5 @@
 // MediaInfo_Config_MediaInfo - Configuration class
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -59,9 +59,6 @@ public :
     void          File_ForceParser_Set (const Ztring &NewValue);
     Ztring        File_ForceParser_Get ();
 
-    void          File_IsSub_Set (bool NewValue);
-    bool          File_IsSub_Get ();
-
     void          File_Filter_Set     (int64u NewValue);
     bool          File_Filter_Get     (const int16u  Value);
     bool          File_Filter_Get     ();
@@ -81,7 +78,6 @@ public :
 private :
     bool                    FileIsSeekable;
     Ztring                  File_ForceParser;
-    bool                    File_IsSub;
 
     //Extra
     std::map<int16u, bool>  File_Filter_16;

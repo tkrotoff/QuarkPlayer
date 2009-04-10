@@ -1,5 +1,5 @@
 // File_Pgs - Info for PGS files
-// Copyright (C) 2008-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2008-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -37,18 +37,12 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Format
+// Buffer - Global
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-bool File_Pgs::Header_Begin()
+void File_Pgs::Read_Buffer_Continue()
 {
-    if (!File_Name.empty())
-    {
-        Finished();
-        return false;
-    }
-
     //Filling
     Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "PGS");
@@ -56,9 +50,8 @@ bool File_Pgs::Header_Begin()
     Fill(Stream_Text, 0, Text_Format, "PGS");
     Fill(Stream_Text, 0, Text_Codec, "PGS");
 
-    Info("PGS, Jumping to end of file");
-    Finished();
-    return false;
+    Accept("PGS");
+    Finish("PGS");
 }
 
 //***************************************************************************

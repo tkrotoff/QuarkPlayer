@@ -35,15 +35,14 @@ namespace MediaInfoLib
 {
 
 //---------------------------------------------------------------------------
-void File__Base_DefaultLanguage (Translation &Info)
+void MediaInfo_Config_DefaultLanguage (Translation &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
-    "﻿   Junk;x\n"
+    Info.Write(Ztring().From_UTF8(
+    "  Language_ISO639;en\n"
     "  Author_Email;Zen@mediaarea.net\n"
     "  Author_Name;Zen\n"
     "  Author_OldNames;Initial translator\n"
-    "  Language_ISO639;en\n"
     "  Language_Name;English\n"
     "  Config_Text_ColumnSize;32\n"
     "  Config_Text_Separator; : \n"
@@ -283,6 +282,7 @@ void File__Base_DefaultLanguage (Translation &Info)
     "Country;Country\n"
     "Cover;Cover\n"
     "Cover_Datas;Cover datas\n"
+    "Cover_Description;Cover description\n"
     "Cover_Mime;Cover MIME\n"
     "Cover_Type;Cover type\n"
     "Cropped;Crop dimensions\n"
@@ -299,10 +299,13 @@ void File__Base_DefaultLanguage (Translation &Info)
     "Director;Director\n"
     "DirectorOfPhotography;Director of photography\n"
     "DisplayAspectRatio;Display aspect ratio\n"
+    "DisplayAspectRatio_Original;Original display aspect ratio\n"
     "DistributedBy;Distributed by\n"
     "Donate;Donate\n"
     "DotsPerInch;Dots per inch\n"
     "Duration;Duration\n"
+    "Duration_End;End time\n"
+    "Duration_Start;Start time\n"
     "Edit;Edit\n"
     "EditedBy;Edited by\n"
     "EMail;E-Mail\n"
@@ -310,8 +313,9 @@ void File__Base_DefaultLanguage (Translation &Info)
     "Encoded_Date;Encoded date\n"
     "Encoded_Library;Writing library\n"
     "Encoded_Library_Settings;Encoding settings\n"
-    "Encoded_Original;Original\n"
+    "Encoded_Original;Original support\n"
     "EncodedBy;Encoded by\n"
+    "EPG_Positions;EPG positions (internal)\n"
     "Error_File;Error while reading file\n"
     "ExecutiveProducer;Executive producer\n"
     "Exit;Exit\n"
@@ -325,8 +329,10 @@ void File__Base_DefaultLanguage (Translation &Info)
     "File size;File size\n"
     "File_Append;Append to the existing file (Warning : be careful to have the same parameters)\n"
     "File_Created_Date;File creation date\n"
+    "File_Created_Date_Local;File creation date (local)\n"
     "File_Hint;Select a multimedia file to study\n"
     "File_Modified_Date;File last modification date\n"
+    "File_Modified_Date_Local;File last modification date (local)\n"
     "FileExtension;File extension\n"
     "FileName;File name\n"
     "FileSize;File size\n"
@@ -556,7 +562,7 @@ void File__Base_DefaultLanguage (Translation &Info)
     "Known parameters;Known parameters\n"
     "Label;Label\n"
     "Language;Language\n"
-    "Language___;Multiple languages\n"
+    "Language_More;Language, more info\n"
     "Language_aa;Afar\n"
     "Language_ab;Abkhazian\n"
     "Language_ae;Avestan\n"
@@ -595,6 +601,8 @@ void File__Base_DefaultLanguage (Translation &Info)
     "Language_ee;Ewe\n"
     "Language_el;Greek\n"
     "Language_en;English\n"
+    "Language_en-gb;English (Great Britain)\n"
+    "Language_en-us;English (United States)\n"
     "Language_eo;Esperanto\n"
     "Language_es;Spanish\n"
     "Language_et;Estonian\n"
@@ -668,6 +676,7 @@ void File__Base_DefaultLanguage (Translation &Info)
     "Language_mr;Marathi\n"
     "Language_ms;Malay\n"
     "Language_mt;Maltese\n"
+    "Language_mul;Multiple languages\n"
     "Language_my;Burmese\n"
     "Language_na;Nauru\n"
     "Language_nb;Norwegian Bokmal\n"
@@ -675,8 +684,8 @@ void File__Base_DefaultLanguage (Translation &Info)
     "Language_ne;Nepali\n"
     "Language_ng;Ndonga\n"
     "Language_nl;Dutch\n"
-    "Language_nn;Norwegian Bokmal\n"
-    "Language_no;Norwegian Nynorsk\n"
+    "Language_nn;Norwegian Nynorsk\n"
+    "Language_no;Norwegian Bokmal\n"
     "Language_nr;Ndebele\n"
     "Language_nv;Navaho\n"
     "Language_ny;Nyanja\n"
@@ -685,11 +694,12 @@ void File__Base_DefaultLanguage (Translation &Info)
     "Language_om;Oromo\n"
     "Language_or;Oriya\n"
     "Language_os;Ossetic\n"
-    "Language_pa;Panjabi\n"
+    "Language_pa;Penjabi\n"
     "Language_pi;Pali\n"
     "Language_pl;Polish\n"
     "Language_ps;Pushto\n"
     "Language_pt;Portuguese\n"
+    "Language_pt-br;Portuguese (Brazil)\n"
     "Language_qu;Quechua\n"
     "Language_rm;Raeto-Romance\n"
     "Language_rn;Rundi\n"
@@ -742,6 +752,8 @@ void File__Base_DefaultLanguage (Translation &Info)
     "Language_yo;Yoruba\n"
     "Language_za;Zhuang\n"
     "Language_zh;Chinese\n"
+    "Language_zh-cn;Chinese (China)\n"
+    "Language_zh-tw;Chinese (Taiwan)\n"
     "Language_zu;Zulu\n"
     "LawRating;Law rating\n"
     "LCCN;LCCN\n"
@@ -771,6 +783,7 @@ void File__Base_DefaultLanguage (Translation &Info)
     "MuxingMode_PackedBitstream;Packed bitstream\n"
     "Name;Name\n"
     "Nationality;Nationality\n"
+    "NetworkName;Network name\n"
     "New;New\n"
     "Newest version;Check for newest versions (require Internet connection)\n"
     "No;No\n"
@@ -779,9 +792,46 @@ void File__Base_DefaultLanguage (Translation &Info)
     "OK;OK\n"
     "One output file per input file;One output file per input file\n"
     "Open;Open\n"
+    "OpenCandy_01;Downloading ________\n"
+    "OpenCandy_02;__% Complete\n"
+    "OpenCandy_03;Internet connection interrupted\n"
+    "OpenCandy_04;________ download complete\n"
+    "OpenCandy_05;Click to install ________\n"
+    "OpenCandy_06;Are you sure you wish to cancel the install?\r\nIf you wish to postpone the install until later, select 'No'.\r\nNote: You may select Exit from the menu to defer installation until after the next time you reboot.\n"
+    "OpenCandy_07;Download of ________ has been paused.\r\nClick on the tray icon to resume downloading.\n"
+    "OpenCandy_08;A critical error has occurred. Installation of _________ will be aborted.\n"
+    "OpenCandy_09;Pause download\n"
+    "OpenCandy_10;Cancel install\n"
+    "OpenCandy_11;Resume download\n"
+    "OpenCandy_12;Exit Installer\n"
+    "OpenCandy_13;___________ - Recommended by ____________\n"
+    "OpenCandy_14;Downloading _________\n"
+    "OpenCandy_15;___________, the software recommended to you by ___________, is now downloading at your requestWe will let you know when it is ready to be installed.\n"
+    "OpenCandy_16;___________ is ready for installation\n"
+    "OpenCandy_17;___________ is now fully downloaded. Please click on 'Install' to proceed.\n"
+    "OpenCandy_18;___________ of ___________ downloaded\n"
+    "OpenCandy_19;Powered by OpenCandy\n"
+    "OpenCandy_20;Learn more at OpenCandy.com\n"
+    "OpenCandy_21;Install\n"
+    "OpenCandy_22;Installation of ___________\n"
+    "OpenCandy_23;This will cancel the installation of ___________\r\nAre you sure you wish to exit?\n"
+    "OpenCandy_24;Pause\n"
+    "OpenCandy_25;Your download has been paused. Click 'Resume' when you are ready to continue.\n"
+    "OpenCandy_26;Resume\n"
+    "OpenCandy_27;Install Now\n"
+    "OpenCandy_28;Pause Download\n"
+    "OpenCandy_29;Resume Download\n"
+    "OpenCandy_30;Cancel Install\n"
+    "OpenCandy_31;Please choose an installation option\n"
+    "OpenCandy_32;Install ___________\n"
+    "OpenCandy_33;Don't Install\n"
+    "OpenCandy_34;Please select an install option\n"
+    "OpenCandy_35;______ recommends this software\n"
+    "OpenCandy_36;Your current installation will not be interrupted\n"
     "Options;Options\n"
     "Options_Hint;Preferences\n"
     "Original;Original\n"
+    "OriginalNetworkName;Original network name\n"
     "OriginalSourceForm;Original source form\n"
     "OriginalSourceMedium;Original source medium\n"
     "Other;Other\n"
@@ -797,7 +847,8 @@ void File__Base_DefaultLanguage (Translation &Info)
     "Performer;Performer\n"
     "Period;Period\n"
     "Phone;Phone\n"
-    "PixelAspectRatio;Pixel Aspect Ratio\n"
+    "PixelAspectRatio;Pixel aspect ratio\n"
+    "PixelAspectRatio_Original;Original pixel aspect ratio\n"
     "PlayCounter;PlayCounter\n"
     "Played_Count;Times played\n"
     "Played_First_Date;First played\n"
@@ -863,7 +914,7 @@ void File__Base_DefaultLanguage (Translation &Info)
     "Summary;Summary\n"
     "Supported formats;Supported formats\n"
     "Supported?;Supported?\n"
-    "Synopsys;Synopsys\n"
+    "Synopsis;Synopsis\n"
     "SystemId;Id\n"
     "Tagged_Application;Tagging application\n"
     "Tagged_Date;Tagged date\n"
@@ -884,6 +935,7 @@ void File__Base_DefaultLanguage (Translation &Info)
     "Thousands separator;Thousands separator\n"
     "Title;Title\n"
     "Title_More;Title, more info\n"
+    "TimeZone;Timezone\n"
     "Total;Total\n"
     "Track;Track name\n"
     "Track_Count;Track count\n"
@@ -928,10 +980,10 @@ void File__Base_DefaultLanguage (Translation &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Container (InfoMap &Info)
+void MediaInfo_Config_Format (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "AAC;;;A;;Advanced Audio Codec;aac\n"
     "AC-3;;;A;Ac3;Audio Coding 3;ac3\n"
     "ADIF;;;A;Adif;Audio Data Interchange Format;aac\n"
@@ -960,6 +1012,8 @@ void File__Base_Container (InfoMap &Info)
     "WavPack;;;A;Wvpk;;wv wvc;http://www.wavpack.com\n"
     "7-Zip;;;C;7z;;7z;http://7-zip.org\n"
     "ACE;;;C;Ace;;ace;http://winace.com\n"
+    "ELF;;;C;Elf;;so\n"
+    "MZ;;;C;Mz;;exe dll\n"
     "RAR;;;C;Rar;From Rarlabs;rar;http://rarlabs.com\n"
     "ZIP;;;C;Zip;;zip;http://winzip.com\n"
     "Bitmap;;;I;Bmp;;bmp\n"
@@ -982,95 +1036,14 @@ void File__Base_Container (InfoMap &Info)
     "CDXA;;;M;Cdxa;;dat\n"
     "Digital Video;;;M;DvdDif;;dv\n"
     "DivX;;;M;Riff;Hack of AVI;divx;http://www.divx.com\n"
+    "DPG;;;M;Dpg;Nintendo DS;dpg\n"
     "DVD Video;;;M;Dvdv;;ifo\n"
     "Flash Video;;;M;Flv;;flv;http://www.macromedia.com/go/getflashplayer\n"
     "Google Video;;;M;Riff;Hack of AVI;gvi;http://video.google.com/playerdownload.html\n"
     "Matroska;;;M;Mk;;mkv mka mks;http://packs.matroska.org/\n"
-    "MPEG Program;;;M;MpegPs;;mpeg mpg vob\n"
+    "MPEG Program;;;M;MpegPs;;mpeg mpg vob pss\n"
     "MPEG Transport;;;M;MpegTs;;ts m2t m2s m4t m4s ts tp trp\n"
-    "MPEG-4;;;M;Mpeg4;;mp4 m4v m4a m4p 3gpp 3gp 3gpp2 3g2 k3g jpm jpx mqv\n"
-    "MTV;;;M;Other;Chinese hack of MPEG-1 layer 3;mtv;http://en.wikipedia.org/wiki/Chinese_MP4/MTV_Player\n"
-    "MXF;;;M;Mxf;;mxf\n"
-    "NSV;;;M;Nsv;Nullsoft Streaming Video;nsv;http://winamp.com\n"
-    "Ogg;;;M;Ogg;;ogg ogm;http://www.free-codecs.com/Ogg_DirectShow_Filters_download.htm\n"
-    "QuickTime;;;M;Mpeg4;Original Apple specifications;mov qt;http://www.apple.com/quicktime/download/standalone.html\n"
-    "RealMedia;;;M;Rm;;rm rmvb ra\n"
-    "RIFF-MMP;;;M;Riff;RIFF Multimedia Movie\n"
-    "ShockWave;;;M;Swf;;swf;http://www.macromedia.com/go/getflashplayer\n"
-    "SKM;;;M;Skm;Sky Korean Mobilephone;skm;http://www.isky.co.kr/html/cs/download.jsp\n"
-    "Windows Media;;;M;Wm;;asf wmv wma\n"
-    "AVC;;;V;Avc;Advanced Video Codec;avc h264;http://developers.videolan.org/x264.html\n"
-    "Dirac;;;V;Dirac;;drc\n"
-    "FLI;;;V;Flic;;fli flc;http://www.chem.nott.ac.uk/flc.html\n"
-    "FLC;;;V;Flic;;fli flc;http://www.chem.nott.ac.uk/flc.html\n"
-    "FLIC;;;V;Flic;;fli flc;http://www.chem.nott.ac.uk/flc.html\n"
-    "M-JPEG;;;V\n"
-    "MPEG Video;;;V;Mpegv;;mpgv mpv mp1v m1v mp2v m2v\n"
-    "MPEG-4 Visual;;;V;Mpeg4;;mp4v\n"
-    "VC-1;;;V;Vc1;;vc1\n"
-    "Theora;;;V\n"
-    ));
-    Info.Separator_Set(0, ZenLib::EOL);
-}
-
-//---------------------------------------------------------------------------
-void File__Base_Format (InfoMap &Info)
-{
-    Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
-    "AAC;;;A;;Advanced Audio Codec;aac\n"
-    "AC-3;;;A;Ac3;Audio Coding 3;ac3\n"
-    "ADIF;;;A;Adif;Audio Data Interchange Format;aac\n"
-    "ADTS;;;A;Adts;Audio Data Transport Stream;aac\n"
-    "ALS;;;A;;MPEG-4 Audio Lossless Coding;als;http://www.nue.tu-berlin.de/forschung/projekte/lossless/mp4als.html#downloads\n"
-    "AMR;;;A;Amr;Adaptive Multi-Rate;amr;http://www.apple.com/quicktime/download/standalone.html\n"
-    "AU;;;A;Au;uLaw/AU Audio File;au\n"
-    "DTS;;;A;Dts;Digital Theater Systems;dts\n"
-    "DTS-HD;;;A;Dts;Digital Theater Systems;dts\n"
-    "E-AC-3;;;A;Ac3;Audio Coding 3;dd+\n"
-    "FLAC;;;A;Flac;Free Lossless Audio Codec;flac;http://flac.sourceforge.net/\n"
-    "MIDI;;;A;Riff;RIFF Musical Instrument Digital Interface\n"
-    "Monkey's Audio;;;A;Ape;;ape mac;http://www.monkeysaudio.com/\n"
-    "MPEG Audio;;;A;Mpega;;m1a mpa1 mp1 m2a mpa2 mp2 mp3\n"
-    "MusePack SV7;;;A;Mpc;;mpc;http://www.musepack.net\n"
-    "MusePack SV8;;;A;Mpc;;mp+;http://www.musepack.net\n"
-    "RIFF-MIDI;;;A;Riff;RIFF Musical Instrument Digital Interface\n"
-    "TrueHD;;;A;Ac3;;dts\n"
-    "TwinVQ;;;A;TwinVQ;Transform domain Weighted INterleave Vector Quantization;vqf;http://www.twinvq.org/english/index_en.html\n"
-    "Vorbis;;;A\n"
-    "Wave;;;A;Riff;;wav\n"
-    "WavPack;;;A;Wvpk;;wv wvc;http://www.wavpack.com\n"
-    "7-Zip;;;C;7z;;7z;http://7-zip.org\n"
-    "ACE;;;C;Ace;;ace;http://winace.com\n"
-    "RAR;;;C;Rar;From Rarlabs;rar;http://rarlabs.com\n"
-    "ZIP;;;C;Zip;;zip;http://winzip.com\n"
-    "Bitmap;;;I;Bmp;;bmp\n"
-    "DIB;;;I;Riff;RIFF Device Independent Bitmap\n"
-    "GIF;;;I;Gif;Graphics Interchange Format;gif\n"
-    "ICO;;;I;Ico;;ico\n"
-    "JNG;;;I;Jng;JPEG Network Graphic;jng\n"
-    "JPEG;;;I;Jpeg;;jpeg jpg jpe\n"
-    "JPEG2000;;;I;Other;;jp2;http://www.morgan-multimedia.com/JPEG2000/\n"
-    "LZ77;;;I\n"
-    "MNG;;;I;Mng;Multiple-Image Network Graphic;mng\n"
-    "RIFF Palette;;;I;Riff;RIFF Palette\n"
-    "PNG;;;I;Png;Portable Network Graphic;png\n"
-    "RLE;;;I;;Run-length encoding;rle\n"
-    "TIFF;;;I;Tiff;;tiff tif\n"
-    "AIFF;;;M;Riff;Apple/SGI;aiff aifc\n"
-    "AMV;;;M;Riff;Chinese hack of AVI;amv;http://en.wikipedia.org/wiki/AMV_video_format\n"
-    "AVI;;;M;Riff;Audio Video Interleave;avi\n"
-    "BDAV;;;M;Bdav;BluRay Video;m2ts\n"
-    "CDXA;;;M;Cdxa;;dat\n"
-    "Digital Video;;;M;DvdDif;;dv\n"
-    "DivX;;;M;Riff;Hack of AVI;divx;http://www.divx.com\n"
-    "DVD Video;;;M;Dvdv;;ifo\n"
-    "Flash Video;;;M;Flv;;flv;http://www.macromedia.com/go/getflashplayer\n"
-    "Google Video;;;M;Riff;Hack of AVI;gvi;http://video.google.com/playerdownload.html\n"
-    "Matroska;;;M;Mk;;mkv mka mks;http://packs.matroska.org/\n"
-    "MPEG Program;;;M;MpegPs;;mpeg mpg vob\n"
-    "MPEG Transport;;;M;MpegTs;;ts m2t m2s m4t m4s ts tp trp\n"
-    "MPEG-4;;;M;Mpeg4;;mp4 m4v m4a m4p 3gpp 3gp 3gpp2 3g2 k3g jpm jpx mqv\n"
+    "MPEG-4;;;M;Mpeg4;;mp4 m4v m4a m4p 3gpp 3gp 3gpp2 3g2 k3g jpm jpx mqv ismv isma\n"
     "MTV;;;M;Other;Chinese hack of MPEG-1 layer 3;mtv;http://en.wikipedia.org/wiki/Chinese_MP4/MTV_Player\n"
     "MXF;;;M;Mxf;;mxf\n"
     "NSV;;;M;Nsv;Nullsoft Streaming Video;nsv;http://winamp.com\n"
@@ -1092,15 +1065,17 @@ void File__Base_Format (InfoMap &Info)
     "VC-1;;;V;Vc1;;vc1\n"
     "Theora;;;V\n"
     "AVS Video;;;V;AvsV;Audio Video Standart, Video part;;http://www.avs.org.cn/\n"
+    "Shorten;;;A;;;shn;http://etree.org/shnutils/shorten/\n"
+    "TAK;;;A;;;tak;http://thbeck.de/Tak/Tak.html\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
 }
 
 //---------------------------------------------------------------------------
-void File__Base_CodecID_General_Mpeg4 (InfoMap &Info)
+void MediaInfo_Config_CodecID_General_Mpeg4 (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "M4V ;MPEG-4\n"
     "isom;MPEG-4;;;http://www.apple.com/quicktime/download/standalone.html;Base Media\n"
     "iso2;MPEG-4;;;http://www.apple.com/quicktime/download/standalone.html;Base Media\n"
@@ -1161,24 +1136,24 @@ void File__Base_CodecID_General_Mpeg4 (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_CodecID_Video_Matroska (InfoMap &Info)
+void MediaInfo_Config_CodecID_Video_Matroska (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "V_UNCOMPRESSED;RGB;;Raw uncompressed video frames\n"
     "V_DIRAC;Dirac;;;http://diracvideo.org/\n"
     "V_MPEG4/IS0/SP;MPEG-4 Visual;;There is a zero instead of a O, may be a problem;http://www.divx.com\n"
     "V_MPEG4/IS0/ASP;MPEG-4 Visual;;There is a zero instead of a O, may be a problem;http://www.xvid.org/Downloads.15.0.html\n"
-    "V_MPEG4/IS0/AP;MPEG-4 Visual;;There is a zero instead of a O, may be a problem;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "V_MPEG4/IS0/AVC;AVC;;There is a zero instead of a O, may be a problem;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "V_MPEG4/IS0/AP;MPEG-4 Visual;;There is a zero instead of a O, may be a problem;http://ffdshow-tryout.sourceforge.net/\n"
+    "V_MPEG4/IS0/AVC;AVC;;There is a zero instead of a O, may be a problem;http://ffdshow-tryout.sourceforge.net/\n"
     "V_MPEG4/ISO/SP;MPEG-4 Visual;;Simple Profile;http://www.divx.com\n"
     "V_MPEG4/ISO/ASP;MPEG-4 Visual;;Advanced Simple Profile;http://www.xvid.org/Downloads.15.0.html\n"
-    "V_MPEG4/ISO/AP;MPEG-4 Visual;;Advanced Profile;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "V_MPEG4/ISO/AVC;AVC;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "V_MPEG4/MS/V2;MPEG-4 Visual;MS MPEG-4 v2;MS MPEG-4 v2;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "V_MPEG4/MS/V3;MPEG-4 Visual;MS MPEG-4 v3;MS MPEG-4 v3;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "V_MPEG1;MPEG Video;;MPEG 1 or 2 Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "V_MPEG2;MPEG Video;;MPEG 1 or 2 Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "V_MPEG4/ISO/AP;MPEG-4 Visual;;Advanced Profile;http://ffdshow-tryout.sourceforge.net/\n"
+    "V_MPEG4/ISO/AVC;AVC;;;http://ffdshow-tryout.sourceforge.net/\n"
+    "V_MPEG4/MS/V2;MPEG-4 Visual;MS MPEG-4 v2;MS MPEG-4 v2;http://ffdshow-tryout.sourceforge.net/\n"
+    "V_MPEG4/MS/V3;MPEG-4 Visual;MS MPEG-4 v3;MS MPEG-4 v3;http://ffdshow-tryout.sourceforge.net/\n"
+    "V_MPEG1;MPEG Video;;MPEG 1 or 2 Video;http://ffdshow-tryout.sourceforge.net/\n"
+    "V_MPEG2;MPEG Video;;MPEG 1 or 2 Video;http://ffdshow-tryout.sourceforge.net/\n"
     "V_REAL/RV10;RealVideo 1;;RealVideo 1.0 aka RealVideo 5;http://www.real.com\n"
     "V_REAL/RV20;RealVideo 2;;RealVideo 2.0 aka G2 and RealVideo G2+SVT;http://www.real.com\n"
     "V_REAL/RV30;RealVideo 3;;RealVideo 3.0 aka RealVideo 8;http://www.real.com\n"
@@ -1189,10 +1164,10 @@ void File__Base_CodecID_Video_Matroska (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_CodecID_Video_Mpeg4 (InfoMap &Info)
+void MediaInfo_Config_CodecID_Video_Mpeg4 (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "avc1;AVC;;Advanced Video Coding;http://www.apple.com/quicktime/download/standalone.html\n"
     "avcp;AVC;;Advanced Video Coding Parameters;http://www.apple.com/quicktime/download/standalone.html\n"
     "drac;Dirac;;Dirac Video Coder;http://www.bbc.co.uk/rd/projects/dirac/index.shtml\n"
@@ -1215,6 +1190,7 @@ void File__Base_CodecID_Video_Mpeg4 (InfoMap &Info)
     "mjpa;M-JPEG\n"
     "mjpb;M-JPEG\n"
     "mp4v;MPEG-4 Visual\n"
+    "ovc1;VC-1;;Smooth Streaming Media Video;http://alexzambelli.com/blog/2009/02/10/smooth-streaming-architecture/\n"
     "PNTG;MacPaint;;Apple MacPaint image format;http://www.apple.com/quicktime/download/standalone.html\n"
     "rle ;RLE;;;http://www.apple.com/quicktime/download/standalone.html\n"
     "rpza;Road Pizza;;;http://www.apple.com/quicktime/download/standalone.html\n"
@@ -1235,10 +1211,10 @@ void File__Base_CodecID_Video_Mpeg4 (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_CodecID_Video_Real (InfoMap &Info)
+void MediaInfo_Config_CodecID_Video_Real (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "RV10;RealVideo 1;;Based on H.263, Real Player 5;http://www.real.com\n"
     "RV13;RealVideo 1.3;;Based on H.263, Real Player 5;http://www.real.com\n"
     "RV20;RealVideo 2;;Based on H.263, Real Player 6;http://www.real.com\n"
@@ -1249,10 +1225,10 @@ void File__Base_CodecID_Video_Real (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_CodecID_Video_Riff (InfoMap &Info)
+void MediaInfo_Config_CodecID_Video_Riff (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     " BIT;RGB\n"
     " JPG;M-JPEG\n"
     " PNG;RGB\n"
@@ -1265,10 +1241,10 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "3IV0;MPEG-4 Visual;3ivX;3ivX pre-1.0;http://www.3ivx.com/download/\n"
     "3IV1;MPEG-4 Visual;3ivX;3ivX 1.0-3.5;http://www.3ivx.com/download/\n"
     "3IV2;MPEG-4 Visual;3ivX;3ivX 4.0;http://www.3ivx.com/download/\n"
-    "3IVD;MPEG-4 Visual;3ivX;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "3IVD;MPEG-4 Visual;3ivX;;http://ffdshow-tryout.sourceforge.net/\n"
     "3IVX;MPEG-4 Visual;3ivX;;http://www.3ivx.com/download/\n"
     "3VID;MPEG-4 Visual;3ivX;;http://www.3ivx.com/download/\n"
-    "8BPS;RGB;Apple;QuickTime Planar RGB with Alpha-channel;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "8BPS;RGB;Apple;QuickTime Planar RGB with Alpha-channel;http://ffdshow-tryout.sourceforge.net/\n"
     "AAS4;RLE;Autodesk;;http://mirror01.iptelecom.net.ua/~video/codecs/Autodesk.Animator.v1.11.Codec.exe\n"
     "AASC;RLE;Autodesk;;http://mirror01.iptelecom.net.ua/~video/codecs/Autodesk.Animator.v1.11.Codec.exe\n"
     "ABYR;Kensigton low;Kensington;Low resolution, low frame rate (6fps) for digital cameras\n"
@@ -1296,7 +1272,7 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "AURA;YUV;;Auravision Aura 1 - YUV 411\n"
     "AUVX;AUVX;;USH GmbH\n"
     "AV1X;Avid 1:1;;;http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
-    "AVC1;AVC;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "AVC1;AVC;;;http://ffdshow-tryout.sourceforge.net/\n"
     "AVD1;Digital Video;Avid;;http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
     "AVDJ;M-JPEG;Avid;;http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
     "AVDN;Avid HD;;;http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
@@ -1304,7 +1280,7 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "AVI1;M-JPEG;MainConcept\n"
     "AVI2;M-JPEG;MainConcept\n"
     "AVID;M-JPEG;Avid;;http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
-    "AVIS;AviSynth;;Wrapper for AviSynth (Dummy);http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "AVIS;AviSynth;;Wrapper for AviSynth (Dummy);http://ffdshow-tryout.sourceforge.net/\n"
     "AVMP;Avid IMX;;;http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
     "AVR ;M-JPEG;Avid NuVista;Avid ABVB/NuVista M-JPEG with Alpha-channel\n"
     "AVRn;M-JPEG;Avid M-JPEG;;http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
@@ -1320,7 +1296,7 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "BIT ;RGB;RGB\n"
     "BITM;H.261;Microsoft\n"
     "BLOX;Blox;;Jan Jezabek BLOX MPEG;http://www.ii.uj.edu.pl/~jezabek/blox/blox-0.1.0b.zip\n"
-    "BLZ0;MPEG-4 Visual;DivX;DivX for Blizzard Decoder Filter;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "BLZ0;MPEG-4 Visual;DivX;DivX for Blizzard Decoder Filter;http://ffdshow-tryout.sourceforge.net/\n"
     "BT20;MediaStream;;Conexant ProSummer MediaStream\n"
     "BTCV;Composite;;Conexant Composite Video\n"
     "BTVC;Composite;;Conexant Composite Video\n"
@@ -1344,8 +1320,8 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "CLPL;YUV;;Format similar to YV12 but including a level of indirection.\n"
     "CM10;MediaShow;;CyberLink Corporation;http://www.cyberlink.com\n"
     "CMYK;CMYK;;Common Data Format in Printing\n"
-    "COL0;MPEG-4 Visual;;Hacked MS MPEG-4 v3;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "COL1;MPEG-4 Visual;;Hacked MS MPEG-4 v3;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "COL0;MPEG-4 Visual;;Hacked MS MPEG-4 v3;http://ffdshow-tryout.sourceforge.net/\n"
+    "COL1;MPEG-4 Visual;;Hacked MS MPEG-4 v3;http://ffdshow-tryout.sourceforge.net/\n"
     "CPLA;YUV;;Weitek YUV 4:2:0 Planar\n"
     "CRAM;MS Video;;Microsoft Video 1\n"
     "CSCD;CamStudio;;RenderSoft CamStudio lossless (LZO & GZIP compression)\n"
@@ -1366,12 +1342,12 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "DCT0;WniWni\n"
     "DFSC;VFW;;DebugMode FrameServer VFW\n"
     "DIB ;RGB\n"
-    "DIV1;MPEG-4 Visual;FFMpeg;Hacked MS MPEG-4 V1;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "DIV2;MPEG-4 Visual;MS MPEG-4 1/2;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "DIV1;MPEG-4 Visual;FFMpeg;Hacked MS MPEG-4 V1;http://ffdshow-tryout.sourceforge.net/\n"
+    "DIV2;MPEG-4 Visual;MS MPEG-4 1/2;;http://ffdshow-tryout.sourceforge.net/\n"
     "DIV3;MPEG-4 Visual;DivX 3 Low;;http://www.divx.com\n"
     "DIV4;MPEG-4 Visual;DivX 3 Fast;;http://www.divx.com\n"
     "DIV5;MPEG-4 Visual;DivX 5;;http://www.divx.com\n"
-    "DIV6;MPEG-4 Visual;MS MPEG-4 v3;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "DIV6;MPEG-4 Visual;MS MPEG-4 v3;;http://ffdshow-tryout.sourceforge.net/\n"
     "DIVX;MPEG-4 Visual;DivX 4;Project Mayo;http://mediaarea.net/DIVX\n"
     "divx;MPEG-4 Visual;DivX;Mainly used by Google;http://www.divx.com\n"
     "DJPG;M-JPEG;Broadway 101;Data Translation, Inc.\n"
@@ -1439,15 +1415,15 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "ETV1;eTreppid 1;;eTreppid Video 1\n"
     "ETV2;eTreppid 2;;eTreppid Video 2\n"
     "ETVC;eTreppid C;;eTreppid Video C\n"
-    "FFDS;FFDS;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "FFV1;FFV1;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "FFVH;FFVH;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "FFDS;FFDS;;;http://ffdshow-tryout.sourceforge.net/\n"
+    "FFV1;FFV1;;;http://ffdshow-tryout.sourceforge.net/\n"
+    "FFVH;FFVH;;;http://ffdshow-tryout.sourceforge.net/\n"
     "FLIC;FLI/FLC;Autodesk\n"
     "FLJP;DField M-JPEG;;D-Vision Field Encoded M-JPEG with LSI (or Targa emulation)\n"
-    "FLV1;FFDS;;FFDShow supported;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "FLV1;FFDS;;FFDShow supported;http://ffdshow-tryout.sourceforge.net/\n"
     "FLV4;VP6;On2;;http://www.on2.com\n"
     "FMJP;M-JPEG;D-Vision\n"
-    "FMP4;MPEG-4 Visual;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "FMP4;MPEG-4 Visual;;;http://ffdshow-tryout.sourceforge.net/\n"
     "FPS1;FRAPS;;;http://www.fraps.com/\n"
     "FRLE;M-JPEG;SoftLab-Nsk;SoftLab-NSK Y16 + Alpha RLE\n"
     "FRWA;M-JPEG;SoftLab-Nsk;SoftLab-NSK Vision Forward M-JPEG with Alpha-channel\n"
@@ -1455,7 +1431,7 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "FRWT;M-JPEG;SoftLab-Nsk;SoftLab-NSK Vision Forward M-JPEG with Alpha-channel\n"
     "FRWU;M-JPEG;SoftLab-Nsk;SoftLab-NSK Vision Forward Uncompressed\n"
     "FVF1;Itered Fractal\n"
-    "FVFW;FVFW;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "FVFW;FVFW;;;http://ffdshow-tryout.sourceforge.net/\n"
     "FXT1;3DFX\n"
     "G2M2;GoToMeeting2;;Citrix Systems, Inc.;http://www.gotomeeting.com/\n"
     "G2M3;GoToMeeting3;;Citrix Systems, Inc.;http://www.gotomeeting.com/\n"
@@ -1533,7 +1509,7 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "IYU1;YUV;;IEEE1394 12bpp. 12 bit format used in mode 2 of the IEEE 1394 Digital Camera 1.04 spec;http://www.fourcc.org/indexyuv.htm\n"
     "IYU2;YUV;;IEEE1394 24bpp. 24 bit format used in mode 2 of the IEEE 1394 Digital Camera 1.04 spec\n"
     "IYUV;YUV;;Intel Indeo iYUV 4:2:0\n"
-    "JBYR;Kensington;;Kensington Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "JBYR;Kensington;;Kensington Video;http://ffdshow-tryout.sourceforge.net/\n"
     "JFIF;M-JPEG\n"
     "JPEG;M-JPEG;;;http://www.apple.com/quicktime/download/standalone.html\n"
     "JPG;M-JPEG;;;http://mirror01.iptelecom.net.ua/~video/codecs/PICVideo.Lossless.JPEG.codec.v2.10.27.exe\n"
@@ -1583,18 +1559,18 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "MMES;MPEG Video;Matrox;I-frame\n"
     "MMIF;MPEG Video;Matrox;I-frame\n"
     "MNVD;MindVid;;MindBend MindVid LossLess\n"
-    "MP2V;MPEG Video;;Media Excel MPEG-2 Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "MP2v;MPEG Video;;MPEG-2 Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "MP41;S-Mpeg 4 v1;;Microsoft MPEG-4 V1 (enhansed H263);http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "MP2V;MPEG Video;;Media Excel MPEG-2 Video;http://ffdshow-tryout.sourceforge.net/\n"
+    "MP2v;MPEG Video;;MPEG-2 Video;http://ffdshow-tryout.sourceforge.net/\n"
+    "MP41;S-Mpeg 4 v1;;Microsoft MPEG-4 V1 (enhansed H263);http://ffdshow-tryout.sourceforge.net/\n"
     "MP42;S-Mpeg 4 v2;;Microsoft MPEG-4 V2;http://www.apple.com/quicktime/download/standalone.html\n"
     "MP43;S-Mpeg 4 v3;;Microsoft MPEG-4 V3\n"
     "MP4S;MPEG-4 Visual;MS MPEG-4 v3;Microsoft MPEG-4 (Windows Media 7.0)\n"
-    "MP4V;MPEG-4 Visual;;Apple QuickTime MPEG-4 native;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "MPEG;MPEG Video;;Chromatic MPEG 1 Video I Frame;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "mpeg;MPEG Video;;MPEG-1 Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "MPG1;MPEG Video;Ffmpeg;(MPEG-1/2) FFmpeg;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "MPG2;MPEG Video;Ffmpeg;(MPEG-1/2) FFmpeg;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "mpg2;MPEG Video;Ffmpeg;(MPEG-1/2) FFmpeg;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "MP4V;MPEG-4 Visual;;Apple QuickTime MPEG-4 native;http://ffdshow-tryout.sourceforge.net/\n"
+    "MPEG;MPEG Video;;Chromatic MPEG 1 Video I Frame;http://ffdshow-tryout.sourceforge.net/\n"
+    "mpeg;MPEG Video;;MPEG-1 Video;http://ffdshow-tryout.sourceforge.net/\n"
+    "MPG1;MPEG Video;Ffmpeg;(MPEG-1/2) FFmpeg;http://ffdshow-tryout.sourceforge.net/\n"
+    "MPG2;MPEG Video;Ffmpeg;(MPEG-1/2) FFmpeg;http://ffdshow-tryout.sourceforge.net/\n"
+    "mpg2;MPEG Video;Ffmpeg;(MPEG-1/2) FFmpeg;http://ffdshow-tryout.sourceforge.net/\n"
     "MPG3;MPEG-4 Visual;FFmpeg DivX 3;(MPEG-4) MS MPEG-4 v3\n"
     "MPG4;MPEG-4 Visual;MS MPEG-4 v1;Microsoft MPEG-4 v1\n"
     "MPGI;MPEG Video;Sigma;Sigma Design MPEG-1 I-frame\n"
@@ -1719,7 +1695,7 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "RV30;RealVideo 3;;Between H263 and H264, RealVideo 8;http://www.real.com\n"
     "RV40;RealVideo 4;;H264, RealVideo 9;http://www.real.com\n"
     "RVX ;RDX;;Intel RDX\n"
-    "S263;H.263;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "S263;H.263;;;http://ffdshow-tryout.sourceforge.net/\n"
     "S422;YUV;VideoCap C210;VideoCap C210\n"
     "SAN3;MPEG-4 Visual;;Direct copy of DivX 3.11\n"
     "SANM;Smush v2;;LucasArts;http://www.lucasarts.com/\n"
@@ -1747,7 +1723,7 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "SMSC;Radius\n"
     "SMSD;Radius\n"
     "SMSV;Wavelet Video;;WorldConnect Wavelet Streaming Video\n"
-    "SNOW;Snow;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "SNOW;Snow;;;http://ffdshow-tryout.sourceforge.net/\n"
     "SP40;YUV;SunPlus;SunPlus YUV\n"
     "SP44;MegaCam;;SunPlus Aiptek MegaCam\n"
     "SP53;MegaCam;;SunPlus Aiptek MegaCam\n"
@@ -1866,17 +1842,17 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
     "WMV1;WMV1;;Windows Media Video 7;http://www.microsoft.com/windows/windowsmedia/format/codecdownload.aspx\n"
     "WMV2;WMV2;;Windows Media Video 8;http://www.microsoft.com/windows/windowsmedia/format/codecdownload.aspx\n"
     "WMV3;VC-1;WMV3;Windows Media Video 9;http://www.microsoft.com/windows/windowsmedia/format/codecdownload.aspx\n"
-    "WMVA;VC-1;WMV;Windows Media Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "WMVA;VC-1;WMV;Windows Media Video;http://ffdshow-tryout.sourceforge.net/\n"
     "WMVP;WMV3;;Windows Media Video V9\n"
     "WNIX;WniWni;;WniWni\n"
     "WNV1;WinNov;;WinNov Videum Hardware Compression;http://www.winnov.com/\n"
     "WNVA;WinNov;;WinNov Videum Hardware Compression;http://www.winnov.com/\n"
     "WRLE;RGB;Apple;Apple QuickTime BMP\n"
     "WRPR;AVideoTools;;VideoTools VideoServer Client (wrapper for AviSynth)\n"
-    "WV1F;;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "WV1F;;;;http://ffdshow-tryout.sourceforge.net/\n"
     "WVC1;VC-1;Microsoft\n"
     "WVLT;IllusionHope Wavelet 9/7;;IllusionHope Wavelet 9/7\n"
-    "WVP2;;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "WVP2;;;;http://ffdshow-tryout.sourceforge.net/\n"
     "WZCD;iScan;;CORE Co. Ltd.\n"
     "WZDC;iSnap;;CORE Co. Ltd.\n"
     "X263;H.263;Xirlink\n"
@@ -1937,10 +1913,10 @@ void File__Base_CodecID_Video_Riff (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_CodecID_Audio_Matroska (InfoMap &Info)
+void MediaInfo_Config_CodecID_Audio_Matroska (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "A_MPEG/L1;MPEG Audio;MP1;;http://www.iis.fraunhofer.de/amm/index.html\n"
     "A_MPEG/L2;MPEG Audio;MP2;;http://www.iis.fraunhofer.de/amm/index.html\n"
     "A_MPEG/L3;MPEG Audio;MP3;;http://www.iis.fraunhofer.de/amm/index.html\n"
@@ -1962,6 +1938,8 @@ void File__Base_CodecID_Audio_Matroska (InfoMap &Info)
     "A_REAL/SIPR;G.729;;Real & Sipro Voice Codec;http://www.real.com\n"
     "A_REAL/RALF;RealAudio Lossless;;Real Audio Lossless Format;http://www.real.com\n"
     "A_REAL/ATRC;Atrac;;Real & Sony Atrac3 Codec;http://www.real.com\n"
+    "A_TRUEHD;TrueHD;;Dolby TrueHD;http://www.dolby.com/consumer/technology/trueHD.html\n"
+    "A_MLP;MLP;;Meridian Lossless Packing;http://www.meridian-audio.com\n"
     "A_AAC;AAC\n"
     "A_AAC/MPEG2/MAIN;AAC\n"
     "A_AAC/MPEG2/LC;AAC\n"
@@ -1978,10 +1956,10 @@ void File__Base_CodecID_Audio_Matroska (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_CodecID_Audio_Mpeg4 (InfoMap &Info)
+void MediaInfo_Config_CodecID_Audio_Mpeg4 (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     ".mp3;MPEG Audio\n"
     "ac-3;AC-3\n"
     "alac;ALAC;;Apple Lossless Format;http://www.apple.com/quicktime/download/standalone.html\n"
@@ -1997,6 +1975,7 @@ void File__Base_CodecID_Audio_Mpeg4 (InfoMap &Info)
     "MAC3;MACE 3\n"
     "MAC6;MACE 6\n"
     "NONE;PCM;;;http://www.apple.com/quicktime/download/standalone.html\n"
+    "owma;WMA Pro;;Smooth Streaming Media Audio;http://alexzambelli.com/blog/2009/02/10/smooth-streaming-architecture/\n"
     "Qclp;QCELP;;Qualcomm PureVoice\n"
     "QDM1;QDesign 1;;QDesign Music 1;http://www.apple.com/quicktime/download/standalone.html\n"
     "QDM2;Qdesign 2;;QDesign Music 2;http://www.apple.com/quicktime/download/standalone.html\n"
@@ -2015,10 +1994,10 @@ void File__Base_CodecID_Audio_Mpeg4 (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_CodecID_Audio_Real (InfoMap &Info)
+void MediaInfo_Config_CodecID_Audio_Real (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "14.4;VSELP;;Real Player 1;http://www.real.com\n"
     "14_4;VSELP;;Real Player 1;http://www.real.com\n"
     "28.8;G.728;;Real Player 2;http://www.real.com\n"
@@ -2040,10 +2019,10 @@ void File__Base_CodecID_Audio_Real (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_CodecID_Audio_Riff (InfoMap &Info)
+void MediaInfo_Config_CodecID_Audio_Riff (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "0\n"
     "1;PCM;Microsoft;;http://www.microsoft.com/windows/\n"
     "2;ADPCM;;Microsoft ADPCM;http://www.microsoft.com/windows/\n"
@@ -2278,17 +2257,17 @@ void File__Base_CodecID_Audio_Riff (InfoMap &Info)
     "A109;Speex;;;http://www.speex.org/\n"
     "DFAC;FrameServer;;DebugMode SonicFoundry Vegas FrameServer ACM Codec\n"
     "F1AC;FLAC;;Free Lossless Audio Codec FLAC\n"
-    "FFFE;;Extensible;Extensible wave format\n"
+    "FFFE;PCM;;Extensible\n"
     "FFFF;;In Development;In Development / Unregistered\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
 }
 
 //---------------------------------------------------------------------------
-void File__Base_CodecID_Text_Matroska (InfoMap &Info)
+void MediaInfo_Config_CodecID_Text_Matroska (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "S_ASS;ASS;;Advanced Sub Station Alpha\n"
     "S_IMAGE/BMP;Bitmap;;Basic image based subtitle format\n"
     "S_SSA;SSA;;Sub Station Alpha\n"
@@ -2304,11 +2283,12 @@ void File__Base_CodecID_Text_Matroska (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_CodecID_Text_Mpeg4 (InfoMap &Info)
+void MediaInfo_Config_CodecID_Text_Mpeg4 (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "subp;VobSub;;The same subtitle format used on DVDs\n"
+    "text;Apple text;;;http://www.apple.com/quicktime/download/standalone.html\n"
     "tx3g;Timed text;;;http://www.apple.com/quicktime/download/standalone.html\n"
     "enct;(Encrypted)\n"
     ));
@@ -2316,20 +2296,20 @@ void File__Base_CodecID_Text_Mpeg4 (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_CodecID_Text_Riff (InfoMap &Info)
+void MediaInfo_Config_CodecID_Text_Riff (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "DXSB;DivX Subtitle;;Subtitle in AVI from DivX networks;http://www.divx.com\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Codec (InfoMap &Info)
+void MediaInfo_Config_Codec (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     " BIT;RGB;4CC;V;RGB;;Uncompressed\n"
     " JPG;M-JPEG;4CC;V;M-JPEG\n"
     " PNG;PNG;4CC;V;RGB\n"
@@ -2342,10 +2322,10 @@ void File__Base_Codec (InfoMap &Info)
     "3IV0;3ivX;4CC;V;MPEG-4V;;3ivX pre-1.0;http://www.3ivx.com/download/\n"
     "3IV1;3ivX;4CC;V;MPEG-4V;;3ivX 1.0-3.5;http://www.3ivx.com/download/\n"
     "3IV2;3ivX;4CC;V;MPEG-4V;;3ivX 4.0;http://www.3ivx.com/download/\n"
-    "3IVD;3ivX;4CC;V;MPEG-4V;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "3IVD;3ivX;4CC;V;MPEG-4V;;;http://ffdshow-tryout.sourceforge.net/\n"
     "3IVX;3ivX;4CC;V;MPEG-4V;;;http://www.3ivx.com/download/\n"
     "3VID;3ivX;4CC;V;MPEG-4V;;;http://www.3ivx.com/download/\n"
-    "8BPS;QuickTime 8bps;4CC;V;RGB;;Apple QuickTime Planar RGB with Alpha-channel;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "8BPS;QuickTime 8bps;4CC;V;RGB;;Apple QuickTime Planar RGB with Alpha-channel;http://ffdshow-tryout.sourceforge.net/\n"
     "AAS4;Autodesk;4CC;V;RGB;;Autodesk Animator Studio RLE (warning: this is a discoutinued product);http://mirror01.iptelecom.net.ua/~video/codecs/Autodesk.Animator.v1.11.Codec.exe\n"
     "AASC;Autodesk;4CC;V;RGB;;Autodesk Animator Studio RLE (warning: this is a discoutinued product);http://mirror01.iptelecom.net.ua/~video/codecs/Autodesk.Animator.v1.11.Codec.exe\n"
     "ABYR;Kensigton low;4CC;V;;;Kensington (low resolution, low frame rate (6fps) for digital cameras)\n"
@@ -2373,7 +2353,7 @@ void File__Base_Codec (InfoMap &Info)
     "AURA;YUV;4CC;V;YUV;;Auravision Aura 1 - YUV 411\n"
     "AUVX;AUVX;4CC;V;;;USH GmbH\n"
     "AV1X;Avid 1:1;4CC;V;;;Avid 1:1x (Quick Time);http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
-    "AVC1;AVC;4CC;V;AVC;;Advanced Video Codec;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "AVC1;AVC;4CC;V;AVC;;Advanced Video Codec;http://ffdshow-tryout.sourceforge.net/\n"
     "AVD1;Avid DV;4CC;V;DV;;Avid DV (Quick Time);http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
     "AVDJ;Avid JFIF;4CC;V;M-JPEG;;Avid Meridien JFIF with Alpha-channel;http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
     "AVDN;Avid HD;4CC;V;;;Avid DNxHD (Quick Time);http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
@@ -2381,7 +2361,7 @@ void File__Base_Codec (InfoMap &Info)
     "AVI1;MainConcept;4CC;V;M-JPEG;;MainConcept M-JPEG\n"
     "AVI2;MainConcept;4CC;V;M-JPEG;;MainConcept M-JPEG\n"
     "AVID;Avid M-JPEG;4CC;V;M-JPEG;;Avid M-JPEG;http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
-    "AVIS;AviSynth;4CC;V;;;Wrapper for AviSynth (Dummy);http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "AVIS;AviSynth;4CC;V;;;Wrapper for AviSynth (Dummy);http://ffdshow-tryout.sourceforge.net/\n"
     "AVMP;Avid IMX;4CC;V;;;Avid IMX (Quick Time);http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
     "AVR ;Avid NuVista;4CC;V;M-JPEG;;Avid ABVB/NuVista M-JPEG with Alpha-channel\n"
     "AVRn;Avid M-JPEG;4CC;V;M-JPEG;;Avid M-JPEG;http://mirror01.iptelecom.net.ua/~video/codecs/Avid.VfW.codec.v2.0d2.exe\n"
@@ -2397,7 +2377,7 @@ void File__Base_Codec (InfoMap &Info)
     "BIT ;RGB;4CC;V;RGB;;Uncompressed. BI_BITFIELDS\n"
     "BITM;H.261;4CC;V;;;Microsoft H.261\n"
     "BLOX;Blox;4CC;V;;;Jan Jezabek BLOX MPEG;http://www.ii.uj.edu.pl/~jezabek/blox/blox-0.1.0b.zip\n"
-    "BLZ0;DivX;4CC;V;MPEG-4V;;DivX for Blizzard Decoder Filter;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "BLZ0;DivX;4CC;V;MPEG-4V;;DivX for Blizzard Decoder Filter;http://ffdshow-tryout.sourceforge.net/\n"
     "BT20;MediaStream;4CC;V;;;Conexant ProSummer MediaStream\n"
     "BTCV;Composite;4CC;V;;;Conexant Composite Video\n"
     "BTVC;Composite;4CC;V;;;Conexant Composite Video\n"
@@ -2421,8 +2401,8 @@ void File__Base_Codec (InfoMap &Info)
     "CLPL;YUV;4CC;V;YUV;;Format similar to YV12 but including a level of indirection.\n"
     "CM10;MediaShow;4CC;V;;;CyberLink Corporation;http://www.cyberlink.com\n"
     "CMYK;CMYK;4CC;V;;;Common Data Format in Printing\n"
-    "COL0;MS MPEG-4 v3;4CC;V;MPEG-4V;;Hacked MS MPEG-4 v3;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "COL1;MS MPEG-4 v3;4CC;V;MPEG-4V;;Hacked MS MPEG-4 v3;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "COL0;MS MPEG-4 v3;4CC;V;MPEG-4V;;Hacked MS MPEG-4 v3;http://ffdshow-tryout.sourceforge.net/\n"
+    "COL1;MS MPEG-4 v3;4CC;V;MPEG-4V;;Hacked MS MPEG-4 v3;http://ffdshow-tryout.sourceforge.net/\n"
     "CPLA;YUV;4CC;V;YUV;;Weitek YUV 4:2:0 Planar\n"
     "CRAM;MS Video;4CC;V;;;Microsoft Video 1\n"
     "CSCD;CamStudio;4CC;V;;;RenderSoft CamStudio lossless (LZO & GZIP compression)\n"
@@ -2443,12 +2423,12 @@ void File__Base_Codec (InfoMap &Info)
     "DCT0;WniWni;4CC;V;;;WniWni\n"
     "DFSC;VFW;4CC;V;;;DebugMode FrameServer VFW\n"
     "DIB ;RGB;4CC;V;RGB;;Device Independent Bitmap\n"
-    "DIV1;FFMpeg;4CC;V;MPEG-4V;;FFmpeg-4 V1 (hacked MS MPEG-4 V1);http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "DIV2;MS MPEG-4 1/2;4CC;V;MPEG-4V;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "DIV1;FFMpeg;4CC;V;MPEG-4V;;FFmpeg-4 V1 (hacked MS MPEG-4 V1);http://ffdshow-tryout.sourceforge.net/\n"
+    "DIV2;MS MPEG-4 1/2;4CC;V;MPEG-4V;;;http://ffdshow-tryout.sourceforge.net/\n"
     "DIV3;DivX 3 Low;4CC;V;MPEG-4V;;;http://www.divx.com\n"
     "DIV4;DivX 3 Fast;4CC;V;MPEG-4V;;;http://www.divx.com\n"
     "DIV5;DivX 5;4CC;V;MPEG-4V;;;http://www.divx.com\n"
-    "DIV6;MS MPEG-4 v3;4CC;V;MPEG-4V;;MS MPEG-4 v3;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "DIV6;MS MPEG-4 v3;4CC;V;MPEG-4V;;MS MPEG-4 v3;http://ffdshow-tryout.sourceforge.net/\n"
     "DIVX;DivX 4;4CC;V;MPEG-4V;;Project Mayo DivX 4;http://www.divx.com\n"
     "divx;DivX;4CC;V;MPEG-4V;;Mainly used by Google;http://www.divx.com\n"
     "DJPG;Broadway 101;4CC;V;M-JPEG;;Data Translation, Inc.\n"
@@ -2524,15 +2504,15 @@ void File__Base_Codec (InfoMap &Info)
     "ETV1;eTreppid 1;4CC;V;;;eTreppid Video 1\n"
     "ETV2;eTreppid 2;4CC;V;;;eTreppid Video 2\n"
     "ETVC;eTreppid C;4CC;V;;;eTreppid Video C\n"
-    "FFDS;FFDS;4CC;V;;;FFDShow supported;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "FFV1;FFV1;4CC;V;;;FFDShow supported;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "FFVH;FFVH;4CC;V;;;FFDShow supported;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "FFDS;FFDS;4CC;V;;;FFDShow supported;http://ffdshow-tryout.sourceforge.net/\n"
+    "FFV1;FFV1;4CC;V;;;FFDShow supported;http://ffdshow-tryout.sourceforge.net/\n"
+    "FFVH;FFVH;4CC;V;;;FFDShow supported;http://ffdshow-tryout.sourceforge.net/\n"
     "FLIC;FLI/FLC;4CC;V;;;Autodesk FLI/FLC Animation\n"
     "FLJP;DField M-JPEG;4CC;V;;;D-Vision Field Encoded M-JPEG with LSI (or Targa emulation)\n"
-    "FLV1;FFDS;4CC;V;;;FFDShow supported;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "FLV1;FFDS;4CC;V;;;FFDShow supported;http://ffdshow-tryout.sourceforge.net/\n"
     "FLV4;VP6;4CC;V;;;Flash, On2 Technologies;http://www.on2.com\n"
     "FMJP;D-Vision M-JPEG;4CC;V;;;D-Vision fieldbased ISO M-JPEG\n"
-    "FMP4;MPEG-4 Visual;4CC;V;MPEG-4V;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "FMP4;MPEG-4 Visual;4CC;V;MPEG-4V;;;http://ffdshow-tryout.sourceforge.net/\n"
     "FPS1;FRAPS;4CC;V;;;;http://www.fraps.com/\n"
     "FRLE;SoftLab-Nsk M-JPEG;4CC;V;;;SoftLab-NSK Y16 + Alpha RLE\n"
     "FRWA;SoftLab-Nsk M-JPEG (w Alpha);4CC;V;;;SoftLab-NSK Vision Forward M-JPEG with Alpha-channel\n"
@@ -2540,7 +2520,7 @@ void File__Base_Codec (InfoMap &Info)
     "FRWT;SoftLab-Nsk M-JPEG;4CC;V;;;SoftLab-NSK Vision Forward M-JPEG with Alpha-channel\n"
     "FRWU;SoftLab-Nsk M-JPEG;4CC;V;;;SoftLab-NSK Vision Forward Uncompressed\n"
     "FVF1;Itered Fractal;4CC;V;;;Iterated Systems Fractal Video Frame\n"
-    "FVFW;FVFW;4CC;V;;;FFDShow supported;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "FVFW;FVFW;4CC;V;;;FFDShow supported;http://ffdshow-tryout.sourceforge.net/\n"
     "FXT1;3DFX;4CC;V;;;3dfx Interactive, Inc.\n"
     "G2M2;GoToMeeting2;4CC;V;;;Citrix Systems, Inc.;http://www.gotomeeting.com/\n"
     "G2M3;GoToMeeting3;4CC;V;;;Citrix Systems, Inc.;http://www.gotomeeting.com/\n"
@@ -2617,7 +2597,7 @@ void File__Base_Codec (InfoMap &Info)
     "IYU1;YUV;4CC;V;YUV;;IEEE1394 12bpp. 12 bit format used in mode 2 of the IEEE 1394 Digital Camera 1.04 spec;http://www.fourcc.org/indexyuv.htm\n"
     "IYU2;YUV;4CC;V;YUV;;IEEE1394 24bpp. 24 bit format used in mode 2 of the IEEE 1394 Digital Camera 1.04 spec\n"
     "IYUV;YUV;4CC;V;YUV;;Intel Indeo iYUV 4:2:0\n"
-    "JBYR;Kensington;4CC;V;;;Kensington Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "JBYR;Kensington;4CC;V;;;Kensington Video;http://ffdshow-tryout.sourceforge.net/\n"
     "JFIF;M-JPEG;4CC;V;M-JPEG;;FFDShow supported\n"
     "JPEG;M-JPEG;4CC;V;M-JPEG;;JPEG compressed;http://www.apple.com/quicktime/download/standalone.html\n"
     "jpeg;M-JPEG;4CC;V;M-JPEG;;JPEG compressed\n"
@@ -2670,22 +2650,22 @@ void File__Base_Codec (InfoMap &Info)
     "MNVD;MindVid;4CC;V;;;MindBend MindVid LossLess\n"
     "MP2A;MPEG-2 Audio;4CC;A;MPEG-A;;Media Excel MPEG-2 Audio\n"
     "MP2T;MPEG-2 TS;4CC;M;MPEG-TS;;Media Excel MPEG-2 Transport Stream\n"
-    "MP2V;MPEG-2 Video;4CC;V;MPEG-V;;Media Excel MPEG-2 Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "MP2v;MPEG-2 Video;4CC;V;MPEG-V;;MPEG-2 Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "MP41;S-Mpeg 4 v1;4CC;V;;;Microsoft MPEG-4 V1 (enhansed H263);http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "MP2V;MPEG-2 Video;4CC;V;MPEG-V;;Media Excel MPEG-2 Video;http://ffdshow-tryout.sourceforge.net/\n"
+    "MP2v;MPEG-2 Video;4CC;V;MPEG-V;;MPEG-2 Video;http://ffdshow-tryout.sourceforge.net/\n"
+    "MP41;S-Mpeg 4 v1;4CC;V;;;Microsoft MPEG-4 V1 (enhansed H263);http://ffdshow-tryout.sourceforge.net/\n"
     "MP42;S-Mpeg 4 v2;4CC;V;;;Microsoft MPEG-4 V2;http://www.apple.com/quicktime/download/standalone.html\n"
     "MP43;S-Mpeg 4 v3;4CC;V;;;Microsoft MPEG-4 V3\n"
-    "mp4a;AAC;4CC;A;AAC;;AAC;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "mp4a;AAC;4CC;A;AAC;;AAC;http://ffdshow-tryout.sourceforge.net/\n"
     "MP4A;MPEG-4 Audio;4CC;A;AAC;;Media Excel MPEG-4 Audio;http://www.apple.com/quicktime/download/standalone.html\n"
     "MP4S;MS MPEG-4 v3;4CC;V;MPEG-4V;;Microsoft MPEG-4 (Windows Media 7.0)\n"
-    "mp4s;MPEG-4 TS;4CC;M;MPEG-TS;;(MPEG-4) Apple MPEG-4 Transport Stream;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "mp4s;MPEG-4 TS;4CC;M;MPEG-TS;;(MPEG-4) Apple MPEG-4 Transport Stream;http://ffdshow-tryout.sourceforge.net/\n"
     "MP4T;MPEG-4 TS;4CC;M;MPEG-TS;;Media Excel MPEG-4 Transport Stream;http://www.apple.com/quicktime/download/standalone.html\n"
-    "MP4V;MPEG-4 Video;4CC;V;MPEG-4V;;Apple QuickTime MPEG-4 native;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "MP4V;MPEG-4 Video;4CC;V;MPEG-4V;;Apple QuickTime MPEG-4 native;http://ffdshow-tryout.sourceforge.net/\n"
     "mp4v;MPEG-4 Video;4CC;V;MPEG-4V;;(MPEG-4) Apple MPEG-4 Video;http://www.apple.com/quicktime/download/standalone.html\n"
-    "MPEG;MPEG;4CC;V;MPEG-V;;Chromatic MPEG 1 Video I Frame;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "mpeg;MPEG;4CC;V;MPEG-V;;MPEG-1 Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "MPG1;FFmpeg MPEG 1/2;4CC;V;MPEG-V;;(MPEG-1/2) FFmpeg;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "MPG2;FFmpeg MPEG 1/2;4CC;V;MPEG-V;;(MPEG-1/2) FFmpeg;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "MPEG;MPEG;4CC;V;MPEG-V;;Chromatic MPEG 1 Video I Frame;http://ffdshow-tryout.sourceforge.net/\n"
+    "mpeg;MPEG;4CC;V;MPEG-V;;MPEG-1 Video;http://ffdshow-tryout.sourceforge.net/\n"
+    "MPG1;FFmpeg MPEG 1/2;4CC;V;MPEG-V;;(MPEG-1/2) FFmpeg;http://ffdshow-tryout.sourceforge.net/\n"
+    "MPG2;FFmpeg MPEG 1/2;4CC;V;MPEG-V;;(MPEG-1/2) FFmpeg;http://ffdshow-tryout.sourceforge.net/\n"
     "MPG3;FFmpeg DivX 3;4CC;V;MPEG-4V;;(MPEG-4) MS MPEG-4 v3\n"
     "MPG4;MS MPEG-4 v1;4CC;V;MPEG-4V;;Microsoft MPEG-4 v1\n"
     "MPGI;Sigma MPEG;4CC;V;MPEG-V;;Sigma Design MPEG-1 I-frame\n"
@@ -2819,7 +2799,7 @@ void File__Base_Codec (InfoMap &Info)
     "rv40;RealVideo 4;Real;V;;;H264, RealVideo 9;http://www.real.com\n"
     "RV40;RealVideo 4;4CC;V;;;H264, RealVideo 9;http://www.real.com\n"
     "RVX ;RDX;4CC;V;;;Intel RDX\n"
-    "S263;S263;4CC;V;;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "S263;S263;4CC;V;;;;http://ffdshow-tryout.sourceforge.net/\n"
     "S422;VideoCap C210;4CC;V;YUV;;VideoCap C210\n"
     "s422;VideoCap C210;4CC;V;YUV;;VideoCap C210\n"
     "SAMR;AMR;4CC;A\n"
@@ -2850,7 +2830,7 @@ void File__Base_Codec (InfoMap &Info)
     "SMSD;Radius;4CC;V\n"
     "SMSV;Wavelet Video;4CC;V;;;WorldConnect Wavelet Streaming Video\n"
     "smsv;Wavelet Video;4CC;V;;;WorldConnect Wavelet Video\n"
-    "SNOW;Snow;4CC;V;;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "SNOW;Snow;4CC;V;;;;http://ffdshow-tryout.sourceforge.net/\n"
     "SP40;SunPlus YUV;4CC;V;YUV;;SunPlus YUV\n"
     "SP44;MegaCam;4CC;V;;;SunPlus Aiptek MegaCam\n"
     "SP53;MegaCam;4CC;V;;;SunPlus Aiptek MegaCam\n"
@@ -2969,17 +2949,17 @@ void File__Base_Codec (InfoMap &Info)
     "WMV1;WMV1;4CC;V;;;Windows Media Video 7;http://www.microsoft.com/windows/windowsmedia/format/codecdownload.aspx\n"
     "WMV2;WMV2;4CC;V;;;Windows Media Video 8;http://www.microsoft.com/windows/windowsmedia/format/codecdownload.aspx\n"
     "WMV3;WMV3;4CC;V;VC-1;;Windows Media Video 9;http://www.microsoft.com/windows/windowsmedia/format/codecdownload.aspx\n"
-    "WMVA;WMV;4CC;V;VC-1;;Windows Media Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "WMVA;WMV;4CC;V;VC-1;;Windows Media Video;http://ffdshow-tryout.sourceforge.net/\n"
     "WMVP;WMV3;4CC;V;;;Windows Media Video V9\n"
     "WNIX;WniWni;4CC;V;;;WniWni\n"
     "WNV1;WinNov;4CC;V;;;WinNov Videum Hardware Compression;http://www.winnov.com/\n"
     "WNVA;WinNov;4CC;V;;;WinNov Videum Hardware Compression;http://www.winnov.com/\n"
     "WRLE;Apple BMP;4CC;V;RGB;;Apple QuickTime BMP\n"
     "WRPR;AVideoTools;4CC;V;;;VideoTools VideoServer Client (wrapper for AviSynth)\n"
-    "WV1F;WV1F;4CC;V;;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "WV1F;WV1F;4CC;V;;;;http://ffdshow-tryout.sourceforge.net/\n"
     "WVC1;VC-1;4CC;V;VC-1;;Microsoft\n"
     "WVLT;IllusionHope Wavelet 9/7;4CC;V;;;IllusionHope Wavelet 9/7\n"
-    "WVP2;WVP2;4CC;V;;;;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "WVP2;WVP2;4CC;V;;;;http://ffdshow-tryout.sourceforge.net/\n"
     "WZCD;iScan;4CC;V;;;CORE Co. Ltd.\n"
     "WZDC;iSnap;4CC;V;;;CORE Co. Ltd.\n"
     "X263;H.263;4CC;V;;;Xirlink H.263\n"
@@ -3041,12 +3021,12 @@ void File__Base_Codec (InfoMap &Info)
     "V_DIRAC;Dirac;Mk;V;;;;http://diracvideo.org/\n"
     "V_MPEG4/ISO/SP;MPEG-4 Visual SP;Mk;V;MPEG-4V;;Simple Profile;http://www.divx.com\n"
     "V_MPEG4/ISO/ASP;MPEG-4 Visual ASP;Mk;V;MPEG-4V;;Advanced Simple Profile;http://www.xvid.org/Downloads.15.0.html\n"
-    "V_MPEG4/ISO/AP;MPEG-4 Visual AP;Mk;V;MPEG-4V;;Advanced Profile;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "V_MPEG4/ISO/AVC;AVC;Mk;V;AVC;;Advanced Video Codec;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "V_MPEG4/MS/V2;MS MPEG-4 v2;Mk;V;MPEG-4V;;MS MPEG-4 v2;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "V_MPEG4/MS/V3;MS MPEG-4 v3;Mk;V;MPEG-4V;;MS MPEG-4 v3;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "V_MPEG1;MPEG-1 Video;Mk;V;MPEG-V;;MPEG 1 or 2 Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
-    "V_MPEG2;MPEG-2 Video;Mk;V;MPEG-V;;MPEG 1 or 2 Video;http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow\n"
+    "V_MPEG4/ISO/AP;MPEG-4 Visual AP;Mk;V;MPEG-4V;;Advanced Profile;http://ffdshow-tryout.sourceforge.net/\n"
+    "V_MPEG4/ISO/AVC;AVC;Mk;V;AVC;;Advanced Video Codec;http://ffdshow-tryout.sourceforge.net/\n"
+    "V_MPEG4/MS/V2;MS MPEG-4 v2;Mk;V;MPEG-4V;;MS MPEG-4 v2;http://ffdshow-tryout.sourceforge.net/\n"
+    "V_MPEG4/MS/V3;MS MPEG-4 v3;Mk;V;MPEG-4V;;MS MPEG-4 v3;http://ffdshow-tryout.sourceforge.net/\n"
+    "V_MPEG1;MPEG-1 Video;Mk;V;MPEG-V;;MPEG 1 or 2 Video;http://ffdshow-tryout.sourceforge.net/\n"
+    "V_MPEG2;MPEG-2 Video;Mk;V;MPEG-V;;MPEG 1 or 2 Video;http://ffdshow-tryout.sourceforge.net/\n"
     "V_REAL/RV10;Real 1;Mk;V;;;RealVideo 1.0 aka RealVideo 5;http://www.real.com\n"
     "V_REAL/RV20;Real 2;Mk;V;;;RealVideo 2.0 aka G2 and RealVideo G2+SVT;http://www.real.com\n"
     "V_REAL/RV30;Real 3;Mk;V;;;RealVideo 3.0 aka RealVideo 8;http://www.real.com\n"
@@ -3388,7 +3368,7 @@ void File__Base_Codec (InfoMap &Info)
     "A109;Speex;2CC;A;;;;http://www.speex.org/\n"
     "DFAC;FrameServer;2CC;A;;;DebugMode SonicFoundry Vegas FrameServer ACM Codec\n"
     "F1AC;FLAC;2CC;A;;;Free Lossless Audio Codec FLAC\n"
-    "FFFE;Extensible;2CC;A;;;Extensible wave format\n"
+    "FFFE;PCM;2CC;A;PCM;;Extensible wave format\n"
     "FFFF;In Development;2CC;A;;;In Development / Unregistered\n"
     "S_TEXT/UTF8;UTF-8;Mk;T;;;UTF-8 Plain Text\n"
     "S_TEXT/SSA;SSA;Mk;T;;;Sub Station Alpha\n"
@@ -3401,10 +3381,10 @@ void File__Base_Codec (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_General (ZtringListList &Info)
+void MediaInfo_Config_General (ZtringListList &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "Count;;;N NI;;;Number of objects available in this stream\n"
     "StreamCount;;;N NI;;;Number of streams of this kind available\n"
     "StreamKind;General;;N NI;;;Stream type name\n"
@@ -3412,7 +3392,7 @@ void File__Base_General (ZtringListList &Info)
     "StreamKindID;;;N NI;;;Number of the stream (base=0)\n"
     "StreamKindPos;;;N NI;;;When multiple streams, number of the stream (base=1)\n"
     "Inform;;;N NT;;;Last **Inform** call\n"
-    "ID;;;Y YI;;;The ID for this stream in this file\n"
+    "ID;;;N YI;;;The ID for this stream in this file\n"
     "ID/String;;;Y NT;;;The ID for this stream in this file\n"
     "UniqueID;;;N YI;;;The unique ID for this stream, should be copied with stream copy\n"
     "GeneralCount;1;;N NI;;;Number of general streams\n"
@@ -3482,6 +3462,8 @@ void File__Base_General (ZtringListList &Info)
     "Duration/String1;;;N NT;;;Play time in format : HHh MMmn SSs MMMms, XX omited if zero\n"
     "Duration/String2;;;N NT;;;Play time in format : XXx YYy only, YYy omited if zero\n"
     "Duration/String3;;;N NT;;;Play time in format : HH:MM:SS.MMM\n"
+    "Duration_Start;;;Y YT\n"
+    "Duration_End;;;Y YT\n"
     "OverallBitRate_Mode;;;N YT;;;Bit rate mode of all streams (VBR, CBR)\n"
     "OverallBitRate_Mode/String;;;Y NT;;;Bit rate mode of all streams (Variable, Constant)\n"
     "OverallBitRate;; bps;N YF;;;Bit rate of all streams in bps\n"
@@ -3585,7 +3567,7 @@ void File__Base_General (ZtringListList &Info)
     "Description;;;Y YT;;;A short description of the contents, such as Two birds flying.;;Classification\n"
     "Keywords;;;Y YT;;;Keywords to the item separated by a comma, used for searching.;;Classification\n"
     "Summary;;;Y YT;;;A plot outline or a summary of the story.;;Classification\n"
-    "Synopsys;;;Y YT;;;A description of the story line of the item.;;Classification\n"
+    "Synopsis;;;Y YT;;;A description of the story line of the item.;;Classification\n"
     "Period;;;Y YT;;;Describes the period that the piece is from or about. e.g. Renaissance.;;Classification\n"
     "LawRating;;;Y YT;;;Depending on the country it's the format of the rating of a movie (P, R, X in the USA, an age in other countries or a URI defining a logo).;;Classification\n"
     "LawRating_Reason;;;Y YT;;;Reason for the law rating;;Classification\n"
@@ -3598,7 +3580,9 @@ void File__Base_General (ZtringListList &Info)
     "Written_Date;;;Y YT;;;The time/date/year that the composition of the music/script began.;;Temporal\n"
     "Mastered_Date;;;Y YT;;;The time/date/year that the item was tranfered to a digitalmedium.;;Temporal\n"
     "File_Created_Date;;;N NT;;;The time that the file was created on the file system;;Temporal\n"
+    "File_Created_Date_Local;;;N NT;;;The time that the file was created on the file system (Warning: this field depends of local configuration, do not use it in an international database);;Temporal\n"
     "File_Modified_Date;;;N NT;;;The time that the file was modified on the file system;;Temporal\n"
+    "File_Modified_Date_Local;;;N NT;;;The time that the file was modified on the file system (Warning: this field depends of local configuration, do not use it in an international database);;Temporal\n"
     "Recorded_Location;;;Y YT;;;Location where track was recorded. (See COMPOSITION_LOCATION for format);;Spatial\n"
     "Written_Location;;;Y YT;;;Location that the item was originaly designed/written. Information should be stored in the following format: country code, state/province, city where the coutry code is the same 2 octets as in Internet domains, or possibly ISO-3166. e.g. US, Texas, Austin or US, , Austin.;;Spatial\n"
     "Archival_Location;;;Y YT;;;Location, where an item is archived, e.eg. Louvre,Paris,France;;Spatial\n"
@@ -3639,6 +3623,10 @@ void File__Base_General (ZtringListList &Info)
     "ServiceProvider;;;Y YT;;;;;Legal\n"
     "ServiceProviderr/Url;;;Y YT;;;;;Legal\n"
     "ServiceType;;;Y YT;;;;;Legal\n"
+    "NetworkName;;;Y YT;;;;;Legal\n"
+    "OriginalNetworkName;;;Y YT;;;;;Legal\n"
+    "Country;;;Y YT;;;;;Legal\n"
+    "TimeZone;;;Y YT;;;;;Legal\n"
     "Cover;;;Y YT;;;Is there a cover;;Info\n"
     "Cover_Description;;;Y YT;;;short descriptio, e.g. Earth in space;;Info\n"
     "Cover_Type;;;Y YT;;;;;Info\n"
@@ -3651,15 +3639,17 @@ void File__Base_General (ZtringListList &Info)
     "Played_First_Date;;;Y YT;;;The date, the owner first played an item;;Personal\n"
     "Played_Last_Date;;;Y YT;;;The date, the owner last played an item;;Personal\n"
     "Played_Count;;;Y YI;;;Number of times an item was played;;Personal\n"
+    "EPG_Positions_Begin;;;N NI\n"
+    "EPG_Positions_End;;;N NI\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Video (ZtringListList &Info)
+void MediaInfo_Config_Video (ZtringListList &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "Count;;;N NI;;;Number of objects available in this stream\n"
     "StreamCount;;;N NI;;;Number of streams of this kind available\n"
     "StreamKind;Video;;N NI;;;Stream type name\n"
@@ -3737,8 +3727,12 @@ void File__Base_Video (ZtringListList &Info)
     "Height/String;;;Y NT;;;Width with measurement (pixel)\n"
     "PixelAspectRatio;;;N YF;;;Pixel Aspect ratio\n"
     "PixelAspectRatio/String;;;N NT;;;Pixel Aspect ratio\n"
+    "PixelAspectRatio_Original;;;N YF;;;Original (in the raw stream) Pixel Aspect ratio\n"
+    "PixelAspectRatio_Original/String;;;N NT;;;Original (in the raw stream) Pixel Aspect ratio\n"
     "DisplayAspectRatio;;;N YF;;;Display Aspect ratio\n"
     "DisplayAspectRatio/String;;;Y NT;;;Display Aspect ratio\n"
+    "DisplayAspectRatio_Original;;;N YF;;;Original (in the raw stream) Display Aspect ratio\n"
+    "DisplayAspectRatio_Original/String;;;Y NT;;;Original (in the raw stream) Display Aspect ratio\n"
     "FrameRate_Mode;;;N YT;;;Frame rate mode (CFR, VFR)\n"
     "FrameRate_Mode/String;;;Y NT;;;Frame rate mode (Constant, Variable)\n"
     "FrameRate;; fps;N YF;;;Frames per second\n"
@@ -3768,6 +3762,13 @@ void File__Base_Video (ZtringListList &Info)
     "Delay/String1;;;N NT;;;Delay with measurement\n"
     "Delay/String2;;;N NT;;;Delay with measurement\n"
     "Delay/String3;;;N NT;;;format : HH:MM:SS.MMM\n"
+    "Delay_Settings;;;N NT;;;Delay settings (in case of timecode for example)\n"
+    "Delay_Original;; ms;N NI;;;Delay fixed in the raw stream (relative) IN MS\n"
+    "Delay_Original/String;;;N NT;;;Delay with measurement\n"
+    "Delay_Original/String1;;;N NT;;;Delay with measurement\n"
+    "Delay_Original/String2;;;N NT;;;Delay with measurement\n"
+    "Delay_Original/String3;;;N NT;;;format : HH:MM:SS.MMM\n"
+    "Delay_Original_Settings;;;N NT;;;Delay settings (in case of timecode for example)\n"
     "StreamSize;; byte;N YI;;;Stream size in bytes\n"
     "StreamSize/String;;;Y NT;;;Streamsize in with percentage value\n"
     "StreamSize/String1;;;N NT;;;Streamsize with measurement\n"
@@ -3787,9 +3788,9 @@ void File__Base_Video (ZtringListList &Info)
     "Encoded_Library/Version;;;N NT;;;Version of software\n"
     "Encoded_Library/Date;;;N NT;;;Release date of software\n"
     "Encoded_Library_Settings;;;Y YT;;;Parameters used by the software\n"
-    "Language;;;N YT;;;Language (ISO 639-1, 2 letters)\n"
+    "Language;;;N YT;;;Language (2-letter ISO 639-1 if exists, else 3-letter ISO 639-2, and with optional ISO 3166-1 country separated by a dash if available, e.g. en, en-us, zh-cn)\n"
     "Language/String;;;Y NT;;;Language (full)\n"
-    "Language_More;;;Y YT;;;More info about Language (e.g. Swiss German)\n"
+    "Language_More;;;Y YT;;;More info about Language (e.g. Director's Comment)\n"
     "Encoded_Date;;;Y YT;;;UTC time that the encoding of this item was completed began.;;Temporal\n"
     "Tagged_Date;;;Y YT;;;UTC time that the tags were done for this item.;;Temporal\n"
     "Encryption;;;Y YT\n"
@@ -3798,10 +3799,10 @@ void File__Base_Video (ZtringListList &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Audio (ZtringListList &Info)
+void MediaInfo_Config_Audio (ZtringListList &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "Count;;;N NI;;;Number of objects available in this stream\n"
     "StreamCount;;;N NI;;;Number of streams of this kind available\n"
     "StreamKind;Audio;;N NI;;;Stream type name\n"
@@ -3917,9 +3918,9 @@ void File__Base_Audio (ZtringListList &Info)
     "Encoded_Library/Version;;;N NT;;;Version of software\n"
     "Encoded_Library/Date;;;N NT;;;Release date of software\n"
     "Encoded_Library_Settings;;;Y YT;;;Parameters used by the software\n"
-    "Language;;;N YT;;;Language (ISO 639-1, 2 letters)\n"
+    "Language;;;N YT;;;Language (2-letter ISO 639-1 if exists, else 3-letter ISO 639-2, and with optional ISO 3166-1 country separated by a dash if available, e.g. en, en-us, zh-cn)\n"
     "Language/String;;;Y NT;;;Language (full)\n"
-    "Language_More;;;Y YT;;;More info about Language (e.g. Swiss German or Director's Comment)\n"
+    "Language_More;;;Y YT;;;More info about Language (e.g. Director's Comment)\n"
     "Encoded_Date;;;Y YT;;;UTC time that the encoding of this item was completed began.;;Temporal\n"
     "Tagged_Date;;;Y YT;;;UTC time that the tags were done for this item.;;Temporal\n"
     "Encryption;;;Y YT\n"
@@ -3928,10 +3929,10 @@ void File__Base_Audio (ZtringListList &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Text (ZtringListList &Info)
+void MediaInfo_Config_Text (ZtringListList &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "Count;;;N NI;;;Count of objects available in this stream\n"
     "StreamCount;;;N NI;;;Count of streams of that kind available\n"
     "StreamKind;Text;;N NI;;;Stream type name\n"
@@ -4003,9 +4004,9 @@ void File__Base_Text (ZtringListList &Info)
     "Encoded_Library/Version;;;N NT;;;Version of software\n"
     "Encoded_Library/Date;;;N NT;;;Release date of software\n"
     "Encoded_Library_Settings;;;Y YT;;;Parameters used by the software\n"
-    "Language;;;N YT;;;Language (2 letters)\n"
+    "Language;;;N YT;;;Language (2-letter ISO 639-1 if exists, else 3-letter ISO 639-2, and with optional ISO 3166-1 country separated by a dash if available, e.g. en, en-us, zh-cn)\n"
     "Language/String;;;Y NT;;;Language (full)\n"
-    "Language_More;;;Y YT;;;More info about Language (director's comment...)\n"
+    "Language_More;;;Y YT;;;More info about Language (e.g. Director's Comment)\n"
     "Summary;;;N NT\n"
     "Encoded_Date;;;Y YT;;;The time that the encoding of this item was completed began.;;Temporal\n"
     "Tagged_Date;;;Y YT;;;The time that the tags were done for this item.;;Temporal\n"
@@ -4015,10 +4016,10 @@ void File__Base_Text (ZtringListList &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Chapters (ZtringListList &Info)
+void MediaInfo_Config_Chapters (ZtringListList &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "Count;;;N NI;;;Count of objects available in this stream\n"
     "StreamCount;;;N NI;;;Count of streams of that kind available\n"
     "StreamKind;Chapters;;N NI;;;Stream type name\n"
@@ -4038,17 +4039,17 @@ void File__Base_Chapters (ZtringListList &Info)
     "Codec/Url;;;Y YT;;;Deprecated\n"
     "Total;;;N YT;;;Total number of chapters\n"
     "Title;;;Y YI;;;Name of the track\n"
-    "Language;;;N YT;;;Language (2 letters)\n"
+    "Language;;;N YT;;;Language (2-letter ISO 639-1 if exists, else 3-letter ISO 639-2, and with optional ISO 3166-1 country separated by a dash if available, e.g. en, en-us, zh-cn)\n"
     "Language/String;;;Y NT;;;Language (full)\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Image (ZtringListList &Info)
+void MediaInfo_Config_Image (ZtringListList &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "Count;;;N YI;;;Count of objects available in this stream\n"
     "StreamCount;;;N YI;;;Count of streams of that kind available\n"
     "StreamKind;Image;;N NI;;;Stream type name\n"
@@ -4093,7 +4094,7 @@ void File__Base_Image (ZtringListList &Info)
     "Encoded_Library/Version;;;N NT;;;Version of software\n"
     "Encoded_Library/Date;;;N NT;;;Release date of software\n"
     "Encoded_Library_Settings;;;Y YT;;;Parameters used by the software\n"
-    "Language;;;N YT;;;Language (2 letters)\n"
+    "Language;;;N YT;;;Language (2-letter ISO 639-1 if exists, else 3-letter ISO 639-2, and with optional ISO 3166-1 country separated by a dash if available, e.g. en, en-us, zh-cn)\n"
     "Language/String;;;Y NT;;;Language (full)\n"
     "Summary;;;N NT\n"
     "Encoded_Date;;;Y YT;;;The time that the encoding of this item was completed began.;;Temporal\n"
@@ -4104,10 +4105,10 @@ void File__Base_Image (ZtringListList &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Menu (ZtringListList &Info)
+void MediaInfo_Config_Menu (ZtringListList &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "Count;;;N NI;;;Count of objects available in this stream\n"
     "StreamCount;;;N NI;;;Count of streams of that kind available\n"
     "StreamKind;Menu;;N NI;;;Stream type name\n"
@@ -4132,25 +4133,30 @@ void File__Base_Menu (ZtringListList &Info)
     "List;;;N YT;;;List of programs available\n"
     "List/String;;;Y NT\n"
     "Title;;;Y YI;;;Name of this menu\n"
-    "Language;;;N YT;;;Language (2 letters)\n"
-    "Language/String;;;N NT;;;Language (full)\n"
-    "Language_More;;;N YT;;;More info about Language (director's comment...)\n"
+    "Language;;;N YT;;;Language (2-letter ISO 639-1 if exists, else 3-letter ISO 639-2, and with optional ISO 3166-1 country separated by a dash if available, e.g. en, en-us, zh-cn)\n"
+    "Language/String;;;Y NT;;;Language (full)\n"
+    "Language_More;;;Y YT;;;More info about Language (e.g. Director's Comment)\n"
     "ServiceName;;;Y YT;;;;;Legal\n"
     "ServiceChannel;;;Y YT;;;;;Legal\n"
     "Service/Url;;;Y YT;;;;;Legal\n"
     "ServiceProvider;;;Y YT;;;;;Legal\n"
     "ServiceProviderr/Url;;;Y YT;;;;;Legal\n"
     "ServiceType;;;Y YT;;;;;Legal\n"
+    "NetworkName;;;Y YT;;;;;Legal\n"
+    "Original/NetworkName;;;Y YT;;;;;Legal\n"
+    "Countries;;;Y YT;;;;;Legal\n"
+    "TimeZones;;;Y YT;;;;;Legal\n"
+    "Chapters_Pos_Begin;;;N NI;;;Used by third-party developpers to know about the begining of the chapters list, to be used by Get(Stream_Menu, x, Pos), where Pos is an Integer between Chapters_Pos_Begin and Chapters_Pos_End\n"
+    "Chapters_Pos_End;;;N NI;;;Used by third-party developpers to know about the end of the chapters list (this position excluded)\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Iso639 (InfoMap &Info)
+void MediaInfo_Config_Iso639 (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
-    "___;__\n"
+    Info.Write(Ztring().From_UTF8(
     "aar;aa\n"
     "abk;ab\n"
     "ave;ae\n"
@@ -4270,14 +4276,12 @@ void File__Base_Iso639 (InfoMap &Info)
     "mac;mk\n"
     "mkd;mk\n"
     "mal;ml\n"
-    "mis;__\n"
     "mon;mn\n"
     "mol;mo\n"
     "mar;mr\n"
     "may;ms\n"
     "msa;ms\n"
     "mlt;mt\n"
-    "mul;__\n"
     "bur;my\n"
     "mya;my\n"
     "nau;na\n"
@@ -4367,10 +4371,10 @@ void File__Base_Iso639 (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Library_DivX (InfoMap &Info)
+void MediaInfo_Config_Library_DivX (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "Main source;http://xmm.sourceforge.net/DivX5-6_Xvid_Bitstream_version.php\n"
     "413;5.0.0;UTC 2002-03-04\n"
     "450;5.0.1;UTC 2002-04-09\n"
@@ -4435,15 +4439,16 @@ void File__Base_Library_DivX (InfoMap &Info)
     "2521;6.8.0 Converter 6.6\n"
     "2559;6.8.2;UTC 2008-05-17\n"
     "2676;6.8.3;UTC 2008-06-07\n"
+    "2816;6.8.5\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Library_XviD (InfoMap &Info)
+void MediaInfo_Config_Library_XviD (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "Main source;http://xmm.sourceforge.net/DivX5-6_Xvid_Bitstream_version.php\n"
     "1;0.0.01;UTC 2002-10-17\n"
     "2;0.0.02;UTC 2002-10-30\n"
@@ -4495,25 +4500,26 @@ void File__Base_Library_XviD (InfoMap &Info)
     "48;1.2.0.dev48\n"
     "49;1.2.0.dev49\n"
     "50;1.2.1;UTC 2008-12-04\n"
+    "55;1.3.0.dev55\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Library_MainConcept_Avc (InfoMap &Info)
+void MediaInfo_Config_Library_MainConcept_Avc (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "2.0.1889;2.0.1889;UTC 2006-01-11\n"
     ));
     Info.Separator_Set(0, ZenLib::EOL);
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Library_VorbisCom (InfoMap &Info)
+void MediaInfo_Config_Library_VorbisCom (InfoMap &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "Main source;http://wiki.hydrogenaudio.org/index.php?title=Recommended_Ogg_Vorbis\n"
     "Xiphophorus libVorbis I 20000508;1.0 Beta 1/2;UTC 2000-05-08\n"
     "Xiphophorus libVorbis I 20001031;1.0 Beta 3;UTC 2000-10-31\n"
@@ -4549,10 +4555,10 @@ void File__Base_Library_VorbisCom (InfoMap &Info)
 }
 
 //---------------------------------------------------------------------------
-void File__Base_Summary (ZtringListList &Info)
+void MediaInfo_Config_Summary (ZtringListList &Info)
 {
     Info.Separator_Set(0, _T("\n"));
-    Info.Write(Ztring().From_Local(
+    Info.Write(Ztring().From_UTF8(
     "General;[%Format%][ (%Format_Profile%)]$if(%Format%,$: $)%FileSize/String%[, %Duration/String%]\n"
     "Video;[%Language/String%, ][%BitRate/String%$if(%BitRate_Nominal/String%, \\(%BitRate_Nominal/String%\\)), ][%Width%*][%Height%][ (%DisplayAspectRatio/String%), ][$at$ %FrameRate/String%, ][%Format%][ (%CodecID/Hint%)][ (%Standard%)]$if(%MuxingMode%, \\(%MuxingMode%\\))$if(%Format_Version%, \\(%Format_Version%\\))$if(%Format_Profile%, \\(%Format_Profile%\\))$if(%Format_Settings%, \\(%Format_Settings%\\))\n"
     "Audio;[%Language/String%, ][%BitRate/String%$if(%BitRate_Nominal/String%, \\(%BitRate_Nominal/String%\\)), ][%SamplingRate/String%, ][%Channel(s)/String%, ][%Format%][ (%CodecID/Hint%)]$if(%MuxingMode%, \\(%MuxingMode%\\))$if(%Format_Version%, \\(%Format_Version%\\))$if(%Format_Profile%, \\(%Format_Profile%\\))$if(%Format_Settings%, \\(%Format_Settings%\\))\n"

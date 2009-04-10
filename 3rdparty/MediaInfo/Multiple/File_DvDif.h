@@ -1,5 +1,5 @@
 // File_DvDif - Info for DVD objects (IFO) files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -43,9 +43,10 @@ public :
     //In
     size_t Frame_Count_Valid;
     int8u  AuxToAnalyze; //Only Aux must be parsed
+    bool   IgnoreAudio;
 
 protected :
-    //Format
+    //Buffer - Global
     void Read_Buffer_Finalize ();
 
 public :
@@ -72,6 +73,7 @@ private :
     void audio_recdate();
     void audio_rectime();
     void video_source();
+    void video_control_Fill();
     void video_control();
     void video_recdate();
     void video_rectime();
@@ -87,6 +89,7 @@ private :
     size_t FrameSize_Theory; //The size of a frame
     int64u Duration;
     int8u  DIFBlockNumber;
+    int8u  FSC;
     int8u  Subcode_First;
     bool   dsf;
     bool   dsf_IsValid;
@@ -94,6 +97,11 @@ private :
     bool   tf1;
     bool   tf2;
     bool   tf3;
+    int8u  aspect;
+    bool   Interlaced;
+    int64u TimeCode_First;
+
+    int8u DIFBlockNumbers[2][8];
 };
 
 } //NameSpace

@@ -1,5 +1,5 @@
 // File_Aac - Info for AAC Audio files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -30,18 +30,16 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Class File_Aac
+// Class File_Mpeg4_AudioSpecificConfig
 //***************************************************************************
 
 class File_Mpeg4_AudioSpecificConfig : public File__Analyze
 {
 private :
-    //Buffer
-    void Header_Parse();
-    void Data_Parse();
+    //Buffer - Global
+    void Read_Buffer_Continue ();
 
     //Elements
-    void audioSpecificConfig();
     void GASpecificConfig();
     void SBR();
     void PS();

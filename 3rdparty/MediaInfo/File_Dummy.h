@@ -1,5 +1,5 @@
 // File_Dummy - Fill with Name of tags
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -44,8 +44,8 @@ public :
     Ztring KindOfDummy;
 
 protected :
-    //Format
-    void Read_Buffer_Init ();
+    //Buffer - File header
+    void FileHeader_Parse ();
 
 private :
     void Fill_Dummy_General();

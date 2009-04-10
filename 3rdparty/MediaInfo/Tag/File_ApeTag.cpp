@@ -1,5 +1,5 @@
 // File_ApeTag - Info for ApeTag tagged files
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -40,14 +40,35 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Format
+// Buffer - File header
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_ApeTag::FileHeader_Parse()
+{
+    //Parsing
+    int64u Signature;
+    Peek_B8(Signature);
+    if (Signature==0x4150455441474558LL) //"APETAGEX"
+        HeaderFooter(); //v2
+
+    FILLING_BEGIN();
+        Stream_Prepare(Stream_General);
+        Stream_Prepare(Stream_Audio);
+
+        Accept("ApeTag");
+    FILLING_END();
+}
+
+//***************************************************************************
+// Buffer - Per element
 //***************************************************************************
 
 //---------------------------------------------------------------------------
 bool File_ApeTag::Header_Begin()
 {
     if (Buffer_Size<0x20)
-        return false; //At least 32 bytes for footer, and we need 32 bytes for header
+        return false; //At least 32 bytes are needed for footer
 
     return true;
 }
@@ -56,10 +77,10 @@ bool File_ApeTag::Header_Begin()
 void File_ApeTag::Header_Parse()
 {
     //Testing if begin or end of tags
-    if (CC8(Buffer+Buffer_Offset)==CC8("APETAGEX"))
+    if (CC8(Buffer+Buffer_Offset)==0x4150455441474558LL) //"APETAGEX"
     {
         //Filling
-        Header_Fill_Code(0xFFFFFFFF, Buffer_Offset+0x20>=Buffer_Size?"Footer":"Header");
+        Header_Fill_Code((int64u)-1, "File Footer");
         Header_Fill_Size(0x20);
         return;
     }
@@ -91,7 +112,7 @@ void File_ApeTag::Header_Parse()
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_ApeTag::Header()
+void File_ApeTag::HeaderFooter()
 {
     //Parsing
     int32u Flags;
@@ -107,24 +128,16 @@ void File_ApeTag::Header()
         Skip_Flags(Flags, 30,                                   "Contains a footer");
         Skip_Flags(Flags, 31,                                   "Contains a header");
     Skip_L8(                                                    "Reserved");
-
-    //Filling
-    FILLING_BEGIN();
-        if (Count_Get(Stream_General)==0)
-        {
-            Stream_Prepare(Stream_General);
-            Stream_Prepare(Stream_Audio);
-        }
-    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
 void File_ApeTag::Data_Parse()
 {
     //If footer
-    if (Element_Code==0xFFFFFFFF)
+    if (Element_Code==(int64u)-1)
     {
-        Header();
+        HeaderFooter();
+        Finish("ApeTag");
         return;
     }
 
@@ -173,6 +186,10 @@ void File_ApeTag::Data_Parse()
     else if (Key=="CONTENT GROUP DESCRIPTION") Fill(Stream_General, 0, General_Title, Value);
     else if (Key=="ORIGINAL ALBUM/MOVIE/SHOW TITLE") Fill(Stream_General, 0, General_Original_Album, Value);
     else if (Key=="ORIGINAL ARTIST(S)/PERFORMER(S)") Fill(Stream_General, 0, General_Original_Performer, Value);
+    else if (Key=="MP3GAIN_MINMAX") Fill(Stream_Audio, 0, "MP3Gain, Min/Max", Value);
+    else if (Key=="MP3GAIN_UNDO") Fill(Stream_Audio, 0, "MP3Gain, Undo", Value);
+    else if (Key=="REPLAYGAIN_TRACK_GAIN") Fill(Stream_Audio, 0, Audio_ReplayGain_Gain, Value.To_float64(), 2, true);
+    else if (Key=="REPLAYGAIN_TRACK_PEAK") Fill(Stream_Audio, 0, Audio_ReplayGain_Peak, Value.To_float64(), 6, true);
     else                            Fill(Stream_General, 0, Key.c_str(), Value);
 }
 
@@ -182,5 +199,5 @@ void File_ApeTag::Data_Parse()
 
 } //NameSpace
 
-#endif //MEDIAINFO_MPEGA_YES
+#endif //MEDIAINFO_APETAG_YES
 

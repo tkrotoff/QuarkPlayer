@@ -1,5 +1,5 @@
 // File_Amr - Info for AMR files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,53 +39,60 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Format
+// Buffer - File header
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Amr::Read_Buffer_Continue()
+bool File_Amr::FileHeader_Begin()
 {
-    if (Codec.empty()) //Test of header only if it is a file --> The codec field is empty
-    {
-        //Integrity
-        if (Buffer_Size<=16)
-            return;
+    if (!Codec.empty()) //Test of header only if it is a file --> The codec field is empty
+        return true;
 
-        //Header
-        if (!(CC5(Buffer)==CC5("#!AMR")))
-        {
-            Finished();
-            return;
-        }
+    //Testing
+    if (Buffer_Size<5)
+        return false; //Must wait for more data
+    if (CC5(Buffer)!=0x2321414D52LL) //"#!AMR"
+    {
+        Reject("AMR");
+        return false;
     }
 
-    //Filling
-    Stream_Prepare(Stream_General);
-    Fill(Stream_General, 0, General_Format, "AMR");
-
-    Stream_Prepare(Stream_Audio);
-    Fill(Stream_Audio, 0, Audio_Format, "AMR");
-    Fill(Stream_Audio, 0, Audio_Codec, "AMR");
-
-    //No need of more
-    Finished();
+    //All should be OK...
+    return true;
 }
 
+//***************************************************************************
+// Buffer - Global
+//***************************************************************************
+
 //---------------------------------------------------------------------------
-void File_Amr::Read_Buffer_Finalize()
+void File_Amr::FileHeader_Parse()
 {
+    //Parsing
     if (Codec.empty())
-        return; //This is only if this is not a file
+        Skip_C5(                                                "Signature");
 
-    //Filling
-    Ztring Profile;
-    if (0)
-        ;
-    else if (Codec==_T("samr"))             {Profile=_T("Narrow band");}
-    else if (Codec==_T("sawb"))             {Profile=_T("Wide band");}
-    else if (Codec==_T("A104"))             {Profile=_T("Wide band");}
+    FILLING_BEGIN();
+        Stream_Prepare(Stream_General);
+        Fill(Stream_General, 0, General_Format, "AMR");
+        Stream_Prepare(Stream_Audio);
+        Fill(Stream_Audio, 0, Audio_Format, "AMR");
+        Fill(Stream_Audio, 0, Audio_Codec, "AMR");
+        if (!Codec.empty())
+        {
+            Ztring Profile;
+            if (0)
+                ;
+            else if (Codec==_T("samr"))             {Profile=_T("Narrow band");}
+            else if (Codec==_T("sawb"))             {Profile=_T("Wide band");}
+            else if (Codec==_T("A104"))             {Profile=_T("Wide band");}
+            Fill(Stream_Audio, 0, Audio_Format_Profile, Profile);
+        }
 
-    Fill(Stream_Audio, 0, Audio_Format_Profile, Profile);
+        //No need of more
+        Accept("AMR");
+        Finish("AMR");
+    FILLING_END();
 }
 
 } //NameSpace

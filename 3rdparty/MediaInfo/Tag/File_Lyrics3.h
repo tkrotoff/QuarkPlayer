@@ -1,5 +1,5 @@
 // File_Lyrics3 - Info for Lyrics3 tagged files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,15 +39,16 @@ namespace MediaInfoLib
 
 class File_Lyrics3 : public File__Analyze
 {
-protected :
-    //Format
-    void Read_Buffer_Continue ();
+public :
+    //In
+    int64u TotalSize;
+
+    //Constructor/Destructor
+    File_Lyrics3();
 
 private :
-    //Elements
-    void Header();
-    void Footer();
-    void Lyrics();
+    //Buffer - Global
+    void Read_Buffer_Continue ();
 };
 
 } //NameSpace

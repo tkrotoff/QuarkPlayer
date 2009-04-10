@@ -1,5 +1,5 @@
 // File__Tags - Info for all kind of framed tags tagged files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -28,21 +28,6 @@
 
 //---------------------------------------------------------------------------
 #include "MediaInfo/File__Analyze.h"
-#if defined(MEDIAINFO_APETAG_YES)
-    #include "MediaInfo/Tag/File_ApeTag.h"
-#endif //MEDIAINFO_APETAG_YES
-#if defined(MEDIAINFO_ID3_YES)
-    #include "MediaInfo/Tag/File_Id3.h"
-#endif //MEDIAINFO_ID3_YES
-#if defined(MEDIAINFO_ID3V2_YES)
-    #include "MediaInfo/Tag/File_Id3v2.h"
-#endif //MEDIAINFO_ID3V2_YES
-#if defined(MEDIAINFO_LYRICS3_YES)
-    #include "MediaInfo/Tag/File_Lyrics3.h"
-#endif //MEDIAINFO_LYRICS3_YES
-#if defined(MEDIAINFO_LYRICS3V2_YES)
-    #include "MediaInfo/Tag/File_Lyrics3v2.h"
-#endif //MEDIAINFO_LYRICS3V2_YES
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -55,35 +40,50 @@ namespace MediaInfoLib
 class File__Tags_Helper
 {
 public :
-    //Out
-    int64u File_BeginTagSize;   //Begin
-    int64u File_EndTagSize;     //End
-
-public :
-    File__Tags_Helper();
-    ~File__Tags_Helper();
-
-protected :
-    //From elsewhere
-    bool Read_Buffer_Continue ();       //return true if we can continue, false if want return
-    void Read_Buffer_Finalize ();
-
-    //Elements
-    bool Header_Begin ();               //return true if we can continue, false if want return
-    void Data_GoTo    (int64u GoTo, const char* Message);
-
-    //Handlers
+    //In
     File__Analyze* Base;
 
+    //Out
+    int64u TagsSize;
+    int64u File_BeginTagSize;
+    int64u File_EndTagSize;
+
+    //Constructor/Destructor
+    File__Tags_Helper();
+
+    //Buffer - File header
+    bool FileHeader_Begin() {return Synched_Test();}
+
+    //Buffer - Synchro
+    bool Synchronize(bool &Tag_Found, size_t Synchro_Offset=0);
+    bool Synched_Test();
+
+    //Buffer - Global
+    bool Read_Buffer_Continue ();
+    void Read_Buffer_Finalize ();
+
+    //Per element
+    bool Header_Begin() {return Synched_Test();}
+
+    //Streams
+    size_t Stream_Prepare(stream_t StreamKind);
+
+    //End
+    void GoTo           (int64u GoTo, const char* ParserName=NULL);
+    void GoToFromEnd    (int64u GoToFromEnd=0, const char* ParserName=NULL);
+    void Accept         (const char* ParserName);
+    void Reject         (const char* ParserName);
+    void Finish         (const char* ParserName);
+
 private :
-    //Offset
+    //Temp
+    File__Analyze* Parser;
+    size_t         Parser_Buffer_Size;
     int64u Id3v1_Offset;
     int64u Lyrics3_Offset;
     int64u Lyrics3v2_Offset;
     int64u ApeTag_Offset;
     int64u JumpTo_WantedByParser;
-
-    //Size
     int64u Id3v1_Size;
     int64u Lyrics3_Size;
     int64u Lyrics3v2_Size;
@@ -91,23 +91,10 @@ private :
     bool TagSizeIsFinal;
     bool SearchingForEndTags;
 
-    //Handlers
-    File__Analyze* Id3;
-    File__Analyze* Id3v2;
-    File__Analyze* Lyrics3;
-    File__Analyze* Lyrics3v2;
-    File__Analyze* ApeTag;
-
     //Helpers
     bool DetectBeginOfEndTags();        //return true if we can continue, false if want return
     bool DetectBeginOfEndTags_Test();
 
-public :
-    inline static int32u SynchSafeInt (const int8u* B) {return ((B[0]<<21)
-                                                              | (B[1]<<14)
-                                                              | (B[2]<< 7)
-                                                              | (B[3]<< 0));}
-};
-} //NameSpace
+};} //NameSpace
 
 #endif

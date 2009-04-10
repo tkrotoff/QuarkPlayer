@@ -1,5 +1,5 @@
 /* MediaInfoDLL - All info about media files, for DLL
-// Copyright (C) 2002-2007 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -28,18 +28,44 @@
 
 /*-------------------------------------------------------------------------*/
 #if defined(_WIN32) && !defined(__MINGW32__) //MinGW32 does not support _declspec
-	#ifdef MEDIAINFO_DLL_EXPORT
+    #ifdef MEDIAINFO_DLL_EXPORT
         #define MEDIAINFO_EXP extern _declspec(dllexport)
     #else
         #define MEDIAINFO_EXP extern _declspec(dllimport)
     #endif
 #else //defined(_WIN32) && !defined(__MINGW32__)
-	#define MEDIAINFO_EXP
+    #define MEDIAINFO_EXP
 #endif //defined(_WIN32) && !defined(__MINGW32__)
 
-#if !defined(_WIN32) 
-	#define __stdcall
+#if !defined(_WIN32) && !defined(__WIN32__)
+    #define __stdcall
 #endif //!defined(_WIN32)
+
+/*-------------------------------------------------------------------------*/
+/*8-bit int                                                                */
+#if UCHAR_MAX==0xff
+    #undef  MAXTYPE_INT
+    #define MAXTYPE_INT 8
+    typedef unsigned char       MediaInfo_int8u;
+#else
+    #pragma message This machine has no 8-bit integertype?
+#endif
+/*-------------------------------------------------------------------------*/
+
+/*-------------------------------------------------------------------------*/
+/*64-bit int                                                               */
+#if defined(__MINGW32__) || defined(__CYGWIN32__) || defined(__UNIX__) || defined(__MACOSX__)
+    #undef  MAXTYPE_INT
+    #define MAXTYPE_INT 64
+    typedef unsigned long long  MediaInfo_int64u;
+#elif defined(__WIN32__) ||  defined(_WIN32)
+    #undef  MAXTYPE_INT
+    #define MAXTYPE_INT 64
+    typedef unsigned __int64    MediaInfo_int64u;
+#else
+    #pragma message This machine has no 64-bit integer type?
+#endif
+/*-------------------------------------------------------------------------*/
 
 /** @brief Kinds of Stream */
 typedef enum MediaInfo_stream_t
@@ -82,7 +108,7 @@ typedef enum MediaInfo_infooptions_t
 typedef enum MediaInfo_fileoptions_t
 {
     MediaInfo_FileOption_Nothing        =0x00,
-    MediaInfo_FileOption_Recursive      =0x01,
+    MediaInfo_FileOption_NoRecursive    =0x01,
     MediaInfo_FileOption_CloseAll       =0x02,
     MediaInfo_FileOption_Max            =0x04
 } MediaInfo_fileoptions_C;
@@ -113,6 +139,14 @@ MEDIAINFO_EXP void              __stdcall MediaInfo_Delete (void* Handle);
 MEDIAINFO_EXP size_t            __stdcall MediaInfo_Open (void* Handle, const wchar_t* File);
 /** @brief Wrapper for MediaInfoLib::MediaInfo::Open (with a buffer) */
 MEDIAINFO_EXP size_t            __stdcall MediaInfo_Open_Buffer (void* Handle, const unsigned char* Begin, size_t Begin_Size, const unsigned char* End, size_t End_Size); /*return Handle*/
+/** @brief Wrapper for MediaInfoLib::MediaInfo::Open (with a buffer, Init) */
+MEDIAINFO_EXP size_t            __stdcall MediaInfo_Open_Buffer_Init (void* Handle, MediaInfo_int64u File_Size, MediaInfo_int64u File_Offset);
+/** @brief Wrapper for MediaInfoLib::MediaInfo::Open (with a buffer, Continue) */
+MEDIAINFO_EXP size_t            __stdcall MediaInfo_Open_Buffer_Continue (void* Handle, MediaInfo_int8u* Buffer, size_t Buffer_Size);
+/** @brief Wrapper for MediaInfoLib::MediaInfo::Open (with a buffer, Continue_GoTo_Get) */
+MEDIAINFO_EXP MediaInfo_int64u  __stdcall MediaInfo_Open_Buffer_Continue_GoTo_Get (void* Handle);
+/** @brief Wrapper for MediaInfoLib::MediaInfo::Open (with a buffer, Finalize) */
+MEDIAINFO_EXP size_t            __stdcall MediaInfo_Open_Buffer_Finalize (void* Handle);
 /** @brief Wrapper for MediaInfoLib::MediaInfo::Save */
 MEDIAINFO_EXP size_t            __stdcall MediaInfo_Save (void* Handle);
 /** @brief Wrapper for MediaInfoLib::MediaInfo::Close */
@@ -161,6 +195,14 @@ MEDIAINFO_EXP void              __stdcall MediaInfoA_Delete (void* Handle);
 MEDIAINFO_EXP size_t            __stdcall MediaInfoA_Open (void* Handle, const char* File); /*you must ALWAYS call MediaInfo_Close(Handle) in order to free memory*/
 /** @brief Wrapper for MediaInfoLib::MediaInfo::Open (with a buffer) */
 MEDIAINFO_EXP size_t            __stdcall MediaInfoA_Open_Buffer (void* Handle, const unsigned char* Begin, size_t Begin_Size, const unsigned char* End, size_t End_Size); /*return Handle*/
+/** @brief Wrapper for MediaInfoLib::MediaInfo::Open (with a buffer, Init) */
+MEDIAINFO_EXP size_t            __stdcall MediaInfoA_Open_Buffer_Init (void* Handle, MediaInfo_int64u File_Size, MediaInfo_int64u File_Offset);
+/** @brief Wrapper for MediaInfoLib::MediaInfo::Open (with a buffer, Continue) */
+MEDIAINFO_EXP size_t            __stdcall MediaInfoA_Open_Buffer_Continue (void* Handle, MediaInfo_int8u* Buffer, size_t Buffer_Size);
+/** @brief Wrapper for MediaInfoLib::MediaInfo::Open (with a buffer, Continue_GoTo_Get) */
+MEDIAINFO_EXP MediaInfo_int64u  __stdcall MediaInfoA_Open_Buffer_Continue_GoTo_Get (void* Handle);
+/** @brief Wrapper for MediaInfoLib::MediaInfo::Open (with a buffer, Finalize) */
+MEDIAINFO_EXP size_t            __stdcall MediaInfoA_Open_Buffer_Finalize (void* Handle);
 /** @brief Wrapper for MediaInfoLib::MediaInfo::Save */
 MEDIAINFO_EXP size_t            __stdcall MediaInfoA_Save (void* Handle);
 /** @brief Wrapper for MediaInfoLib::MediaInfo::Close */
@@ -289,7 +331,7 @@ MEDIAINFO_EXP size_t            __stdcall MediaInfoListA_Count_Get_Files (void* 
 #include <string>
 //---------------------------------------------------------------------------
 
-namespace MediaInfoLib
+namespace MediaInfoDLL
 {
 
 //---------------------------------------------------------------------------
@@ -305,7 +347,10 @@ namespace MediaInfoLib
     #undef  __T
     #define __T(__x) __x
 #endif
-typedef std::basic_string<Char, std::char_traits<Char>, std::allocator<Char> > String;
+typedef std::basic_string<Char>        String;
+typedef std::basic_stringstream<Char>  StringStream;
+typedef std::basic_istringstream<Char> tiStringStream;
+typedef std::basic_ostringstream<Char> toStringStream;
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -353,7 +398,7 @@ enum infooptions_t
 enum fileoptions_t
 {
     FileOption_Nothing      =0x00,
-    FileOption_Recursive    =0x01,  ///< Browse folders recursively
+    FileOption_NoRecursive  =0x01,  ///< Do not browse folders recursively
     FileOption_CloseAll     =0x02,  ///< Close all files before open
     FileOption_Max          =0x04
 };

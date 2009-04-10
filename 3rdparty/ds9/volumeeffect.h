@@ -1,6 +1,6 @@
 /*  This file is part of the KDE project.
 
-Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies).
+Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 
 This library is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -43,9 +43,6 @@ namespace Phonon
             virtual Phonon::VolumeFaderEffect::FadeCurve fadeCurve() const;
             virtual void setFadeCurve(Phonon::VolumeFaderEffect::FadeCurve);
             virtual void fadeTo(float, int);
-
-            private Q_SLOTS:
-                void setVolumePercentage(int);
 
         private:
             float m_volume;

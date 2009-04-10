@@ -1,5 +1,5 @@
 // File_Skm - Info for SKM files
-// Copyright (C) 2006-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,10 +39,20 @@ namespace MediaInfoLib
 
 class File_Skm : public File__Analyze
 {
+public :
+    //Constructor/Destructor
+    File_Skm();
+
 private :
-    //Buffer
+    //Buffer - File header
+    bool FileHeader_Begin();
     void FileHeader_Parse();
-    bool Header_Begin();
+
+    //Buffer - Synchro
+    bool Synchronize() {return Synchronize_0x000001();}
+    bool Synched_Test();
+
+    //Buffer - Per element
     void Header_Parse();
     bool Header_Parse_Fill_Size();
     void Data_Parse();
@@ -63,9 +73,6 @@ private :
         }
     };
     stream Stream;
-
-    //Helpers
-    bool Synchronize();
 };
 
 } //NameSpace

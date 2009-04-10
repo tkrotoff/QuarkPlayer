@@ -1,5 +1,5 @@
 // File_Pcm - Info for PCM files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -37,7 +37,7 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Constants
+// Infos
 //***************************************************************************
 
 //---------------------------------------------------------------------------
@@ -49,6 +49,7 @@ int32u Pcm_VOB_Frequency[]=
         0,
 };
 
+//---------------------------------------------------------------------------
 const char* Pcm_VOB_ChannelsPositions(int8u NumberOfChannelsMinusOne)
 {
     switch (NumberOfChannelsMinusOne)
@@ -65,6 +66,7 @@ const char* Pcm_VOB_ChannelsPositions(int8u NumberOfChannelsMinusOne)
     }
 }
 
+//---------------------------------------------------------------------------
 const char* Pcm_VOB_ChannelsPositions2(int8u NumberOfChannelsMinusOne)
 {
     switch (NumberOfChannelsMinusOne)
@@ -82,7 +84,7 @@ const char* Pcm_VOB_ChannelsPositions2(int8u NumberOfChannelsMinusOne)
 }
 
 //***************************************************************************
-// Format
+// Buffer - Global
 //***************************************************************************
 
 //---------------------------------------------------------------------------
@@ -99,7 +101,8 @@ void File_Pcm::Read_Buffer_Continue()
         Fill(Stream_Audio, 0, Audio_Codec, "PCM");
 
         //Finished
-        Finished();
+        Accept("PCM");
+        Finish("PCM");
     }
 }
 
@@ -198,7 +201,7 @@ void File_Pcm::Read_Buffer_Finalize()
 }
 
 //***************************************************************************
-// Buffer
+// Buffer - Per element
 //***************************************************************************
 
 //---------------------------------------------------------------------------
@@ -218,8 +221,8 @@ void File_Pcm::Data_Parse()
     else
         Skip_XX(Element_Size,                                   "Data"); //It is impossible to detect... Default is no detection, only filling
 
-    Info("PCM, Jumping to end of file");
-    Finished();
+    Accept("PCM");
+    Finish("PCM");
 }
 
 //***************************************************************************

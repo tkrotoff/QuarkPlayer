@@ -1,5 +1,5 @@
 // File_Dvdv - Info for DVD objects (IFO) files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -42,7 +42,7 @@ namespace MediaInfoLib
 class File_Dvdv : public File__Analyze
 {
 protected :
-    //Format
+    //Buffer - Global
     void Read_Buffer_Finalize();
 
 public :

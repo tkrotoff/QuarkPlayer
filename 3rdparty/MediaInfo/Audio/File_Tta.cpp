@@ -1,5 +1,5 @@
 // File_Tta - Info for TTA  files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -41,7 +41,7 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Format
+// Constructor/Destructor
 //***************************************************************************
 
 //---------------------------------------------------------------------------
@@ -52,45 +52,22 @@ File_Tta::File_Tta()
     Base=this;
 }
 
-void File_Tta::Read_Buffer_Continue()
-{
-    //Tags
-    if (!File__Tags_Helper::Read_Buffer_Continue())
-        return;
-}
-
-//---------------------------------------------------------------------------
-void File_Tta::Read_Buffer_Finalize()
-{
-    //Filling
-    int64u CompressedSize=File_Size-File_BeginTagSize-File_EndTagSize;
-    float32 CompressionRatio=((float32)UncompressedSize)/CompressedSize;
-
-    Fill(Stream_Audio, 0, Audio_StreamSize, CompressedSize);
-    Fill(Stream_Audio, 0, Audio_CompressionRatio, CompressionRatio);
-    Fill(Stream_Audio, 0, Audio_BitRate_Mode, "VBR");
-
-    //Tags
-    File__Tags_Helper::Read_Buffer_Finalize();
-}
-
 //***************************************************************************
-// Buffer
+// Buffer - File header
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-bool File_Tta::Header_Begin()
+bool File_Tta::FileHeader_Begin()
 {
-    if (!File__Tags_Helper::Header_Begin())
+    if (!File__Tags_Helper::FileHeader_Begin())
         return false;
 
     //Synchro
     if (Buffer_Offset+4>Buffer_Size)
         return false;
-    if ((File_Offset==0 && CC4(Buffer+Buffer_Offset)!=CC4("TTA1"))
-     || (File_Offset!=0 && Count_Get(Stream_General)==0))
+    if (CC4(Buffer+Buffer_Offset)!=0x54544131) //"TTA1"
     {
-        Finished();
+        File__Tags_Helper::Reject("TTA");
         return false;
     }
 
@@ -98,7 +75,7 @@ bool File_Tta::Header_Begin()
 }
 
 //---------------------------------------------------------------------------
-void File_Tta::Header_Parse()
+void File_Tta::FileHeader_Parse()
 {
     //Parsing
     int32u SampleRate, Samples, CRC32;
@@ -121,9 +98,9 @@ void File_Tta::Header_Parse()
     if (UncompressedSize==0)
         return;
 
-    Stream_Prepare(Stream_General);
+    File__Tags_Helper::Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "TTA");
-    Stream_Prepare(Stream_Audio);
+    File__Tags_Helper::Stream_Prepare(Stream_Audio);
     Fill(Stream_Audio, 0, Audio_Format, "TTA");
     Fill(Stream_Audio, 0, Audio_Codec, "TTA ");
     Fill(Stream_Audio, 0, Audio_Resolution, BitsPerSample);
@@ -131,20 +108,30 @@ void File_Tta::Header_Parse()
     Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, SampleRate);
     Fill(Stream_Audio, 0, Audio_Duration, Duration);
 
-    //Filling
-    Header_Fill_Size(22);
-    Header_Fill_Code(0, "Header");
+    //No more need data
+    File__Tags_Helper::Accept("TTA");
+    File__Tags_Helper::Finish("TTA");
 }
 
 //***************************************************************************
-// Elements
+// Buffer - Global
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Tta::Data_Parse()
+void File_Tta::Read_Buffer_Finalize()
 {
-    //Next element
-    File__Tags_Helper::Data_GoTo(File_Size, "TTA");
+    if (!IsAccepted)
+        return;
+
+    //Filling
+    int64u CompressedSize=File_Size-TagsSize;
+    float32 CompressionRatio=((float32)UncompressedSize)/CompressedSize;
+
+    Fill(Stream_Audio, 0, Audio_StreamSize, CompressedSize);
+    Fill(Stream_Audio, 0, Audio_CompressionRatio, CompressionRatio);
+    Fill(Stream_Audio, 0, Audio_BitRate_Mode, "VBR");
+
+    File__Tags_Helper::Read_Buffer_Finalize();
 }
 
 //***************************************************************************

@@ -1,5 +1,5 @@
 // File_Mpeg - Info for MPEG files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -41,20 +41,18 @@ namespace MediaInfoLib
 class File__MultipleParsing : public File__Analyze
 {
 public :
+    //Out
     File__Analyze* Parser_Get();
 
-protected :
-    //Format
-    void Read_Buffer_Continue ();
-
-public :
+    //Constructor
     File__MultipleParsing();
     ~File__MultipleParsing();
 
 private :
-    //Buffer
-    void Header_Parse();
-    void Data_Parse();
+    //Buffer - Global
+    void Read_Buffer_Init();
+    void Read_Buffer_Continue();
+    void Read_Buffer_Finalize();
 
     //Temp
     std::vector<File__Analyze*> Parser;

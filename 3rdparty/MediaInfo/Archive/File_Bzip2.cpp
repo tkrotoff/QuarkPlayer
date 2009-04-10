@@ -1,5 +1,5 @@
 // File_Bzip2 - Info for BZIP2 files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -37,13 +37,43 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Format
+// Static stuff
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+bool File_Bzip2::FileHeader_Begin()
+{
+    //Element_Size
+    if (Buffer_Size<2)
+        return false; //Must wait for more data
+
+    if (CC2(Buffer)!=0x425A) //"BZ"
+    {
+        Reject("Bzip2");
+        return false;
+    }
+
+    //All should be OK...
+    return true;
+}
+
+//***************************************************************************
+// Buffer - Global
 //***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_Bzip2::Read_Buffer_Continue()
 {
-    Finished();
+    //Parsing
+    Skip_B7(                                                    "Magic");
+    Skip_XX(File_Size-2,                                        "Data");
+
+    FILLING_BEGIN();
+        Stream_Prepare(Stream_General);
+        Fill(Stream_General, 0, General_Format, "BZip2");
+        Accept("Bzip2");
+        Finish("Bzip2");
+    FILLING_END();
 }
 
 //***************************************************************************

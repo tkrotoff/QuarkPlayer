@@ -1,6 +1,6 @@
 /*  This file is part of the KDE project.
 
-Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies).
+Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 
 This library is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -30,7 +30,8 @@ namespace Phonon
     {
 
         AbstractVideoRenderer::AbstractVideoRenderer() : 
-            m_dstX(0), m_dstY(0), m_dstWidth(0), m_dstHeight(0)
+            m_dstX(0), m_dstY(0), m_dstWidth(0), m_dstHeight(0),
+                m_active(false)
         {
         }
 
@@ -52,6 +53,15 @@ namespace Phonon
             return s;
         }
 
+        void AbstractVideoRenderer::setActive(bool b)
+        {
+            m_active = b;
+        }
+
+        bool AbstractVideoRenderer::isActive() const
+        {
+            return m_active;
+        }
 
         void AbstractVideoRenderer::internalNotifyResize(const QSize &size, const QSize &videoSize,
             Phonon::VideoWidget::AspectRatio aspectRatio, Phonon::VideoWidget::ScaleMode scaleMode)

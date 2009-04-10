@@ -1,5 +1,5 @@
 //***************************************************************************
-// Class File__Base
+// Class File__Analyze
 //***************************************************************************
 
 class File__Analyze : public File__Base
@@ -22,6 +22,8 @@ public :
     void    Open_Buffer_Init        (File__Analyze* Sub, int64u File_Size, int64u File_Offset=0);
     void    Open_Buffer_Continue    (                    const int8u* Buffer, size_t Buffer_Size);
     void    Open_Buffer_Continue    (File__Analyze* Sub, const int8u* Buffer, size_t Buffer_Size);
+    void    Open_Buffer_Fill        ();
+    void    Open_Buffer_Update      ();
     void    Open_Buffer_Finalize    (bool NoBufferModification=false);
     void    Open_Buffer_Finalize    (File__Analyze* Sub);
 
@@ -30,11 +32,29 @@ public :
     //***************************************************************************
 
     //In
+    int64u PTS; //In nanoseconds
+    int64u DTS; //In nanoseconds
 
     //Out
     size_t Frame_Count_InThisBlock;
 
 protected :
+    //***************************************************************************
+    // Streams management
+    //***************************************************************************
+
+    virtual void Streams_Fill()                                                 {};
+    virtual void Streams_Update()                                               {};
+
+    //***************************************************************************
+    // Synchro
+    //***************************************************************************
+
+    virtual bool Synchronize()    {Synched=true; return true;}; //Look for the synchro
+    virtual bool Synched_Test()   {return true;}; //Test is synchro is OK
+    virtual void Synched_Init()   {}; //When synched, we can Init data
+    bool Synchro_Manage();
+
     //***************************************************************************
     // Buffer
     //***************************************************************************
@@ -80,7 +100,7 @@ protected :
     virtual bool Header_Begin ()                                                {return true;};
 
     //Header - Parse
-    virtual void Header_Parse ()                                                {};
+    virtual void Header_Parse ();
 
     //Header - Info
     void Header_Fill_Code (int64u Code);
@@ -110,9 +130,16 @@ protected :
     bool EOF_AlreadyDetected;
 
     //Data - Helpers
-    inline void Data_Finished(const char*)                                     {Data_GoTo(File_Size);}
-    void Data_GoTo     (int64u GoTo);
-    inline void Data_GoTo     (int64u GoTo, const char*)                        {Data_GoTo(GoTo);}
+    void Data_Accept        (const char*)                                       {Accept();}
+    void Data_Accept        ()                                                  {Accept();}
+    void Data_Reject        (const char*)                                       {Reject();}
+    void Data_Reject        ()                                                  {Reject();}
+    void Data_Finish        (const char*)                                       {Finish();}
+    void Data_Finish        ()                                                  {Finish();}
+    void Data_GoTo          (int64u GoTo_, const char*)                         {GoTo(GoTo_);}
+    void Data_GoTo          (int64u GoTo_)                                      {GoTo(GoTo_);}
+    void Data_GoToFromEnd   (int64u GoToFromEnd_, const char*)                  {GoToFromEnd(GoToFromEnd_);}
+    void Data_GoToFromEnd   (int64u GoToFromEnd_)                               {GoToFromEnd(GoToFromEnd_);}
 
     //***************************************************************************
     // Elements
@@ -273,18 +300,18 @@ public :
     void Peek_BF8 (float64 &Info);
     void Peek_BF10(float64 &Info);
     void Peek_BFP4(size_t Bits, float64 &Info);
-    inline void Skip_B1  (               const char*) {Element_Offset+=1;}
-    inline void Skip_B2  (               const char*) {Element_Offset+=2;}
-    inline void Skip_B3  (               const char*) {Element_Offset+=3;}
-    inline void Skip_B4  (               const char*) {Element_Offset+=4;}
-    inline void Skip_B5  (               const char*) {Element_Offset+=5;}
-    inline void Skip_B6  (               const char*) {Element_Offset+=6;}
-    inline void Skip_B7  (               const char*) {Element_Offset+=7;}
-    inline void Skip_B8  (               const char*) {Element_Offset+=8;}
-    inline void Skip_BF4 (               const char*) {Element_Offset+=4;}
-    inline void Skip_BF8 (               const char*) {Element_Offset+=8;}
-    inline void Skip_B16 (               const char*) {Element_Offset+=16;}
-    inline void Skip_BFP4(size_t Bits,                const char*) {Element_Offset+=4;};
+    inline void Skip_B1  (               const char*) {if (Element_Offset+1>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=1;}
+    inline void Skip_B2  (               const char*) {if (Element_Offset+2>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=2;}
+    inline void Skip_B3  (               const char*) {if (Element_Offset+3>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=3;}
+    inline void Skip_B4  (               const char*) {if (Element_Offset+4>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=4;}
+    inline void Skip_B5  (               const char*) {if (Element_Offset+5>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=5;}
+    inline void Skip_B6  (               const char*) {if (Element_Offset+6>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=6;}
+    inline void Skip_B7  (               const char*) {if (Element_Offset+7>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=7;}
+    inline void Skip_B8  (               const char*) {if (Element_Offset+8>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=8;}
+    inline void Skip_BF4 (               const char*) {if (Element_Offset+4>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=4;}
+    inline void Skip_BF8 (               const char*) {if (Element_Offset+8>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=8;}
+    inline void Skip_B16 (               const char*) {if (Element_Offset+16>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=16;}
+    inline void Skip_BFP4(size_t,                     const char*) {if (Element_Offset+4>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=4;};
     #define Info_B1(_INFO, _NAME)   int8u   _INFO; Get_B1 (_INFO, _NAME)
     #define Info_B2(_INFO, _NAME)   int16u  _INFO; Get_B2 (_INFO, _NAME)
     #define Info_B3(_INFO, _NAME)   int32u  _INFO; Get_B3 (_INFO, _NAME)
@@ -336,17 +363,17 @@ public :
     void Peek_L16(int128u &Info);
     void Peek_LF4(float32 &Info);
     void Peek_LF8(float64 &Info);
-    inline void Skip_L1  (               const char*) {Element_Offset+=1;}
-    inline void Skip_L2  (               const char*) {Element_Offset+=2;}
-    inline void Skip_L3  (               const char*) {Element_Offset+=3;}
-    inline void Skip_L4  (               const char*) {Element_Offset+=4;}
-    inline void Skip_L5  (               const char*) {Element_Offset+=5;}
-    inline void Skip_L6  (               const char*) {Element_Offset+=6;}
-    inline void Skip_L7  (               const char*) {Element_Offset+=7;}
-    inline void Skip_L8  (               const char*) {Element_Offset+=8;}
-    inline void Skip_LF4 (               const char*) {Element_Offset+=4;}
-    inline void Skip_LF8 (               const char*) {Element_Offset+=8;}
-    inline void Skip_L16 (               const char*) {Element_Offset+=16;}
+    inline void Skip_L1  (               const char*) {if (Element_Offset+1>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=1;}
+    inline void Skip_L2  (               const char*) {if (Element_Offset+2>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=2;}
+    inline void Skip_L3  (               const char*) {if (Element_Offset+3>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=3;}
+    inline void Skip_L4  (               const char*) {if (Element_Offset+4>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=4;}
+    inline void Skip_L5  (               const char*) {if (Element_Offset+5>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=5;}
+    inline void Skip_L6  (               const char*) {if (Element_Offset+6>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=6;}
+    inline void Skip_L7  (               const char*) {if (Element_Offset+7>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=7;}
+    inline void Skip_L8  (               const char*) {if (Element_Offset+8>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=8;}
+    inline void Skip_LF4 (               const char*) {if (Element_Offset+4>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=4;}
+    inline void Skip_LF8 (               const char*) {if (Element_Offset+8>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=8;}
+    inline void Skip_L16 (               const char*) {if (Element_Offset+16>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=16;}
     #define Info_L1(_INFO, _NAME)  int8u   _INFO; Get_L1 (_INFO, _NAME)
     #define Info_L2(_INFO, _NAME)  int16u  _INFO; Get_L2 (_INFO, _NAME)
     #define Info_L3(_INFO, _NAME)  int32u  _INFO; Get_L3 (_INFO, _NAME)
@@ -366,7 +393,7 @@ public :
     void Get_UUID (int128u &Info);
     inline void Get_UUID (int128u &Info, const char*) {Get_UUID(Info);}
     void Peek_UUID(int128u &Info);
-    inline void Skip_UUID(               const char*) {Element_Offset+=16;}
+    inline void Skip_UUID(               const char*) {if (Element_Offset+16>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=16;}
     #define Info_UUID(_INFO, _NAME) int128u _INFO; Get_UUID(_INFO, _NAME)
 
     //***************************************************************************
@@ -454,14 +481,14 @@ public :
     inline void Get_C6 (int64u &Info, const char*) {Get_C6(Info);}
     inline void Get_C7 (int64u &Info, const char*) {Get_C7(Info);}
     inline void Get_C8 (int64u &Info, const char*) {Get_C8(Info);}
-    inline void Skip_C1(              const char*) {Element_Offset+=1;}
-    inline void Skip_C2(              const char*) {Element_Offset+=2;}
-    inline void Skip_C3(              const char*) {Element_Offset+=3;}
-    inline void Skip_C4(              const char*) {Element_Offset+=4;}
-    inline void Skip_C5(              const char*) {Element_Offset+=5;}
-    inline void Skip_C6(              const char*) {Element_Offset+=6;}
-    inline void Skip_C7(              const char*) {Element_Offset+=7;}
-    inline void Skip_C8(              const char*) {Element_Offset+=8;}
+    inline void Skip_C1(              const char*) {if (Element_Offset+1>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=1;}
+    inline void Skip_C2(              const char*) {if (Element_Offset+2>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=2;}
+    inline void Skip_C3(              const char*) {if (Element_Offset+3>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=3;}
+    inline void Skip_C4(              const char*) {if (Element_Offset+4>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=4;}
+    inline void Skip_C5(              const char*) {if (Element_Offset+5>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=5;}
+    inline void Skip_C6(              const char*) {if (Element_Offset+6>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=6;}
+    inline void Skip_C7(              const char*) {if (Element_Offset+7>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=7;}
+    inline void Skip_C8(              const char*) {if (Element_Offset+8>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=8;}
     #define Info_C1(_INFO, _NAME) int8u  _INFO; Get_C1(_INFO, _NAME)
     #define Info_C2(_INFO, _NAME) int16u _INFO; Get_C2(_INFO, _NAME)
     #define Info_C3(_INFO, _NAME) int32u _INFO; Get_C3(_INFO, _NAME)
@@ -489,11 +516,11 @@ public :
     inline void Get_UTF16L (int64u Bytes, Ztring      &Info, const char*) {Get_UTF16L(Bytes, Info);}
     void Peek_Local (int64u Bytes, Ztring      &Info);
     void Peek_String(int64u Bytes, std::string &Info);
-    void Skip_Local (int64u Bytes,                    const char*) {Element_Offset+=(size_t)Bytes;}
-    void Skip_String(int64u Bytes,                    const char*) {Element_Offset+=(size_t)Bytes;}
-    void Skip_UTF8  (int64u Bytes,                    const char*) {Element_Offset+=(size_t)Bytes;}
-    void Skip_UTF16B(int64u Bytes,                    const char*) {Element_Offset+=(size_t)Bytes;}
-    void Skip_UTF16L(int64u Bytes,                    const char*) {Element_Offset+=(size_t)Bytes;}
+    void Skip_Local (int64u Bytes,                    const char*) {if (Element_Offset+Bytes>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=(size_t)Bytes;}
+    void Skip_String(int64u Bytes,                    const char*) {if (Element_Offset+Bytes>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=(size_t)Bytes;}
+    void Skip_UTF8  (int64u Bytes,                    const char*) {if (Element_Offset+Bytes>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=(size_t)Bytes;}
+    void Skip_UTF16B(int64u Bytes,                    const char*) {if (Element_Offset+Bytes>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=(size_t)Bytes;}
+    void Skip_UTF16L(int64u Bytes,                    const char*) {if (Element_Offset+Bytes>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=(size_t)Bytes;}
     #define Info_Local(_BYTES, _INFO, _NAME)  Ztring _INFO; Get_Local (_BYTES, _INFO, _NAME)
     #define Info_UTF8(_BYTES, _INFO, _NAME)   Ztring _INFO; Get_UTF8  (_BYTES, _INFO, _NAME)
     #define Info_UTF16B(_BYTES, _INFO, _NAME) Ztring _INFO; Get_UTF16B(_BYTES, _INFO, _NAME)
@@ -526,6 +553,7 @@ public :
     inline void Get_Flags (int64u ValueToPut,          int8u &Info, const char*) {Get_Flags(ValueToPut, Info);}
     inline void Skip_Flags(int64u, size_t,                          const char*) {}
     inline void Skip_Flags(int64u,                                  const char*) {}
+    #define Info_Flags(_FLAGS, _ORDER, _INFO, _NAME) bool _INFO; Get_Flags (_FLAGS, _ORDER, _INFO, _NAME)
 
     //***************************************************************************
     // BitStream
@@ -654,13 +682,14 @@ public :
 
     void NextCode_Add(int64u Code);
     void NextCode_Clear();
-    void NextCode_Test();
+    bool NextCode_Test();
 
     //***************************************************************************
     // Element trusting
     //***************************************************************************
 
-    void Trusted_IsNot (const char* Reason);
+    void Trusted_IsNot (const char*)                                            {Trusted_IsNot();}
+    void Trusted_IsNot ();
 
     //***************************************************************************
     // Stream filling
@@ -725,13 +754,23 @@ public :
     //***************************************************************************
 
     //Actions
-    void Finished();
+    void Accept        (const char*)                                            {Accept();}
+    void Accept        ();
+    void Reject        (const char*)                                            {Reject();}
+    void Reject        ();
+    void Finish        (const char*)                                            {Finish();}
+    void Finish        ();
+    void GoTo          (int64u GoTo_, const char*)                              {GoTo(GoTo_);}
+    void GoTo          (int64u GoTo);
+    void GoToFromEnd   (int64u GoToFromEnd_, const char*)                       {GoToFromEnd(GoToFromEnd_);}
+    void GoToFromEnd   (int64u GoToFromEnd);
     int64u Element_Code_Get (size_t Level);
     int64u Element_TotalSize_Get (size_t LevelLess=0);
     bool Element_IsComplete_Get ();
     void Element_ThisIsAList ();
     void Element_WaitForMoreData ();
-    void Element_DoNotTrust (const char* Reason);
+    void Element_DoNotTrust (const char*)                                       {Element_DoNotTrust();}
+    void Element_DoNotTrust ();
     inline void Element_DoNotShow () {}
     inline void Element_Show () {}
     inline bool Element_Show_Get () {return false;}
@@ -743,10 +782,25 @@ public :
     bool Element_IsWaitingForMoreData ();
 
     //Begin
-    #define FILLING_BEGIN() if (Element_IsOK()) {
+    #define FILLING_BEGIN() \
+        if (Element_IsOK()) \
+        {
+
+    #define FILLING_BEGIN_PRECISE() \
+        if (Element_Offset!=Element_Size) \
+            Trusted_IsNot("Size error"); \
+        else if (Element_IsOK()) \
+        {
+
+    //Else
+    #define FILLING_ELSE() \
+        } \
+        else \
+        { \
 
     //End
-    #define FILLING_END() }
+    #define FILLING_END() \
+        }
 
     //***************************************************************************
     // Merging
@@ -754,38 +808,48 @@ public :
 
     //Utils
 public :
-    size_t Merge(File__Base &ToAdd, bool Erase=true); //Merge 2 File_Base
-    size_t Merge(File__Base &ToAdd, stream_t StreamKind, size_t StreamPos_From, size_t StreamPos_To, bool Erase=true); //Merge 2 streams
+    size_t Merge(File__Analyze &ToAdd, bool Erase=true); //Merge 2 File_Base
+    size_t Merge(File__Analyze &ToAdd, stream_t StreamKind, size_t StreamPos_From, size_t StreamPos_To, bool Erase=true); //Merge 2 streams
 
     //***************************************************************************
     // Finalize
     //***************************************************************************
 
     //End
-    void Finalize();
+    void Finalize_Global();
 
 protected :
 
-    void Finalize__All      (stream_t StreamKind);
-    void Finalize__All      (stream_t StreamKind, size_t Pos);
-    void Finalize_General   (size_t Pos);
-    void Finalize_Video     (size_t Pos);
-    void Finalize_Audio     (size_t Pos);
-    void Finalize_Audio_BitRate (size_t Pos, audio Parameter);
-    void Finalize_Text      (size_t Pos);
-    void Finalize_Chapters  (size_t Pos);
-    void Finalize_Image     (size_t Pos);
-    void Finalize_Menu      (size_t Pos);
+    void Finalize_StreamOnly();
+    void Finalize_StreamOnly(stream_t StreamKid, size_t StreamPos);
+    void Finalize_StreamOnly_General(size_t StreamPos);
+    void Finalize_StreamOnly_Video(size_t StreamPos);
+    void Finalize_StreamOnly_Audio(size_t StreamPos);
+    void Finalize_StreamOnly_Text(size_t StreamPos);
+    void Finalize_StreamOnly_Chapters(size_t StreamPos);
+    void Finalize_StreamOnly_Image(size_t StreamPos);
+    void Finalize_StreamOnly_Menu(size_t StreamPos);
+    void Finalize_InterStreams();
+    void Finalize_Cosmetic();
+    void Finalize_Cosmetic(stream_t StreamKid, size_t StreamPos);
+    void Finalize_Cosmetic_General(size_t StreamPos);
+    void Finalize_Cosmetic_Video(size_t StreamPos);
+    void Finalize_Cosmetic_Audio(size_t StreamPos);
+    void Finalize_Cosmetic_Text(size_t StreamPos);
+    void Finalize_Cosmetic_Chapters(size_t StreamPos);
+    void Finalize_Cosmetic_Image(size_t StreamPos);
+    void Finalize_Cosmetic_Menu(size_t StreamPos);
+
     void Finalize_Tags      ();
-    void Finalize_Final     ();
-    void Finalize_Final_All (stream_t StreamKind);
-    void Finalize_Final_All (stream_t StreamKind, size_t Pos, Ztring &Codec_List, Ztring &Language_List, Ztring &Format_List, Ztring &Format_WithHint_List);
+    void Finalize_Video_FrameRate (size_t Pos, video Parameter);
+    void Finalize_Audio_BitRate (size_t Pos, audio Parameter);
 
     //Utils - Finalize
     void Duration_Duration123   (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
     void FileSize_FileSize123   (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
     void Kilo_Kilo123           (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
     void Value_Value123         (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
+    void AspectRatio_AspectRatio(size_t Pos, size_t DisplayAspectRatio, size_t PixelAspectRatio, size_t DisplayAspectRatio_String);
     void YesNo_YesNo            (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
     void CodecID_Fill           (const Ztring &Value, stream_t StreamKind, size_t StreamPos, infocodecid_format_t Format);
 
@@ -831,6 +895,7 @@ protected :
     const int8u* Buffer;
 public : //TO CHANGE
     size_t Buffer_Size;
+    int64u Buffer_TotalBytes_FirstSynched;
 protected :
     int8u* Buffer_Temp;
     size_t Buffer_Temp_Size;
@@ -839,8 +904,17 @@ protected :
     size_t Buffer_Offset_Temp; //Temporary usage in this parser
     size_t Buffer_MinimumSize;
     size_t Buffer_MaximumSize;
-    bool   Buffer_Init_Done;
+    int64u Buffer_TotalBytes;
+    int64u Buffer_TotalBytes_FirstSynched_Max;
     friend class File__Tags_Helper;
+
+    //***************************************************************************
+    // Helpers
+    //***************************************************************************
+
+    bool FileHeader_Begin_0x000001();
+    bool Synchronize_0x000001();
+
 private :
 
     //***************************************************************************
@@ -859,28 +933,19 @@ private :
     //Elements
     size_t Element_Level_Base;      //From other parsers
 
+public : //For very quick access, to not use except if you know what you do
     struct element_details
     {
-        struct to_show
-        {
-            int64u Pos;             //Position of the element in the file
-            int64u Size;            //Size of the element (including header and sub-elements)
-            int64u Header_Size;     //Size of the header of the element
-            Ztring Name;            //Name planned for this element
-            Ztring Info;            //More info about the element
-            Ztring Details;         //The main text
-            bool   NoShow;          //Don't show this element
-        };
-
         int64u  Code;               //Code filled in the file
         int64u  Next;               //
         bool    WaitForMoreData;    //This element is not complete, we need more data
         bool    UnTrusted;          //This element has a problem
         bool    IsComplete;         //This element is fully buffered, no need of more
         bool    InLoop;             //This element is in a parsing loop
-        //to_show ToShow;
     };
     std::vector<element_details> Element;
+
+private :
 
     //NextCode
     std::map<int64u, bool> NextCode;
@@ -897,8 +962,14 @@ public :
     virtual bool BookMark_Needed()                                              {return false;};
 
     //Temp
-    bool NewFinnishMethod;
+    bool IsAccepted;
+    bool IsFilled;
+    bool IsUpdated;
     bool IsFinished;
+    bool IsFinalized;
     bool ShouldContinueParsing;
+
+    //Configuration
+    bool MustSynchronize;
 };
 

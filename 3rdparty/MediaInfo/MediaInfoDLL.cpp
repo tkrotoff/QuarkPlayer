@@ -1,5 +1,5 @@
 // MediaInfoDLL - All info about media files, for DLL
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -264,6 +264,26 @@ size_t          __stdcall MediaInfoA_Open_Buffer (void* Handle, const unsigned c
     return MediaInfo_Open_Buffer(Handle, Begin, Begin_Size, End, End_Size);
 }
 
+size_t          __stdcall MediaInfoA_Open_Buffer_Init (void* Handle, MediaInfo_int64u File_Size, MediaInfo_int64u File_Offset)
+{
+    return MediaInfo_Open_Buffer_Init(Handle, File_Size, File_Offset);
+}
+
+size_t          __stdcall MediaInfoA_Open_Buffer_Continue (void* Handle, MediaInfo_int8u* Buffer, size_t Buffer_Size)
+{
+    return MediaInfo_Open_Buffer_Continue(Handle, Buffer, Buffer_Size);
+}
+
+MediaInfo_int64u __stdcall MediaInfoA_Open_Buffer_Continue_GoTo_Get (void* Handle)
+{
+    return MediaInfo_Open_Buffer_Continue_GoTo_Get(Handle);
+}
+
+size_t          __stdcall MediaInfoA_Open_Buffer_Finalize (void* Handle)
+{
+    return MediaInfo_Open_Buffer_Finalize(Handle);
+}
+
 size_t          __stdcall MediaInfoA_Save (void* Handle)
 {
     return MediaInfo_Save(Handle);
@@ -409,6 +429,9 @@ void*           __stdcall MediaInfo_New ()
     {
         MI_Handle[NULL]=new MI_List; //Generic Handle
         MI_Handle[NULL]->Ansi.clear();
+
+        //Localisation
+        setlocale(LC_ALL, """""");
     }
     v07Mode=true; //Application is compatible with v0.7+ interface
 
@@ -484,6 +507,34 @@ size_t          __stdcall MediaInfo_Open_Buffer (void* Handle, const unsigned ch
     EXECUTE_INT(MediaInfo, Open(Begin, Begin_Size, End, End_Size), Debug+="Open_Buffer, will return ";Debug+=ZenLib::Ztring::ToZtring((size_t)ToReturn).To_Local().c_str();Debug+="\r\n";)
 }
 
+size_t          __stdcall MediaInfo_Open_Buffer_Init (void* Handle, MediaInfo_int64u File_Size, MediaInfo_int64u File_Offset)
+{
+    INTEGRITY_INT(Debug+="Open_Buffer_Init, Handle=";Debug+=ZenLib::Ztring::ToZtring((size_t)Handle).To_Local().c_str();Debug+=", ";Debug+="\r\n";)
+
+    EXECUTE_INT(MediaInfo, Open_Buffer_Init(File_Size, File_Offset), Debug+="Open_Buffer_Init, will return ";Debug+=ZenLib::Ztring::ToZtring((size_t)ToReturn).To_Local().c_str();Debug+="\r\n";)
+}
+
+size_t          __stdcall MediaInfo_Open_Buffer_Continue (void* Handle, MediaInfo_int8u* Buffer, size_t Buffer_Size)
+{
+    INTEGRITY_INT(Debug+="MediaInfo_Open_Buffer_Continue, Handle=";Debug+=ZenLib::Ztring::ToZtring((size_t)Handle).To_Local().c_str();Debug+=", ";Debug+="\r\n";)
+
+    EXECUTE_INT(MediaInfo, Open_Buffer_Continue(Buffer, Buffer_Size), Debug+="MediaInfo_Open_Buffer_Continue, will return ";Debug+=ZenLib::Ztring::ToZtring((size_t)ToReturn).To_Local().c_str();Debug+="\r\n";)
+}
+
+MediaInfo_int64u __stdcall MediaInfo_Open_Buffer_Continue_GoTo_Get (void* Handle)
+{
+    INTEGRITY_INT(Debug+="MediaInfo_Open_Buffer_Continue_GoTo_Get, Handle=";Debug+=ZenLib::Ztring::ToZtring((size_t)Handle).To_Local().c_str();Debug+=", ";Debug+="\r\n";)
+
+    EXECUTE_INT(MediaInfo, Open_Buffer_Continue_GoTo_Get(), Debug+="MediaInfo_Open_Buffer_Continue_GoTo_Get, will return ";Debug+=ZenLib::Ztring::ToZtring((size_t)ToReturn).To_Local().c_str();Debug+="\r\n";)
+}
+
+size_t          __stdcall MediaInfo_Open_Buffer_Finalize (void* Handle)
+{
+    INTEGRITY_INT(Debug+="MediaInfo_Open_Buffer_Finalize, Handle=";Debug+=ZenLib::Ztring::ToZtring((size_t)Handle).To_Local().c_str();Debug+=", ";Debug+="\r\n";)
+
+    EXECUTE_INT(MediaInfo, Open_Buffer_Finalize(), Debug+="MediaInfo_Open_Buffer_Finalize, will return ";Debug+=ZenLib::Ztring::ToZtring((size_t)ToReturn).To_Local().c_str();Debug+="\r\n";)
+}
+
 size_t          __stdcall MediaInfo_Save (void* Handle)
 {
     MANAGE_INT(MediaInfo, Save(), Debug+="Save, Handle=";Debug+=ZenLib::Ztring::ToZtring((size_t)Handle).To_Local().c_str();Debug+="\r\n";, Debug+="Save, will return ";Debug+=ZenLib::Ztring::ToZtring((size_t)ToReturn).To_Local().c_str();Debug+="\r\n";)
@@ -536,6 +587,9 @@ const wchar_t*     __stdcall MediaInfo_Option (void* Handle, const wchar_t* Opti
     {
         MI_Handle[NULL]=new MI_List; //Generic Handle
         MI_Handle[NULL]->Ansi.clear();
+
+        //Localisation
+        setlocale(LC_ALL, """""");
     }
 
     //DLL only option
@@ -578,7 +632,7 @@ size_t          __stdcall MediaInfo_State_Get(void* Handle)
 size_t          __stdcall MediaInfo_Count_Get(void* Handle, MediaInfo_stream_t StreamKind, size_t StreamNumber)
 {
     StreamKind=(MediaInfo_stream_t)(((size_t)StreamKind)&0xFF);
-    MANAGE_INT(MediaInfo, Count_Get((stream_t)StreamKind, StreamNumber), Debug+="Count_Get, Handle=";Debug+=ZenLib::Ztring::ToZtring((size_t)Handle).To_Local().c_str();Debug+="\r\n";, Debug+="Count_Get, will return ";Debug+=ZenLib::Ztring::ToZtring((size_t)ToReturn).To_Local().c_str();Debug+="\r\n";)
+    MANAGE_INT(MediaInfo, Count_Get((stream_t)StreamKind, StreamNumber), Debug+="Count_Get, Handle=";Debug+=ZenLib::Ztring::ToZtring((size_t)Handle).To_Local().c_str();Debug+=", StreamKind=";Debug+=ZenLib::Ztring::ToZtring((size_t)StreamKind).To_Local().c_str();Debug+=", StreamNumber=";Debug+=ZenLib::Ztring::ToZtring((size_t)StreamNumber).To_Local().c_str();Debug+="\r\n", Debug+="Count_Get, will return ";Debug+=ZenLib::Ztring::ToZtring((size_t)ToReturn).To_Local().c_str();Debug+="\r\n";)
 }
 
 //---------------------------------------------------------------------------
@@ -593,6 +647,9 @@ void*           __stdcall MediaInfoList_New ()
     {
         MI_Handle[NULL]=new MI_List; //Generic Handle
         MI_Handle[NULL]->Ansi.clear();
+
+        //Localisation
+        setlocale(LC_ALL, """""");
     }
     v07Mode=true; //Application is compatible with v0.7+ interface
 
@@ -719,6 +776,9 @@ const wchar_t*     __stdcall MediaInfoList_Option (void* Handle, const wchar_t* 
     {
         MI_Handle[NULL]=new MI_List; //Generic Handle
         MI_Handle[NULL]->Ansi.clear();
+
+        //Localisation
+        setlocale(LC_ALL, """""");
     }
 
     //DLL only option

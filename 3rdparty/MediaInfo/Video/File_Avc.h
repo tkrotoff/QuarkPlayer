@@ -1,5 +1,5 @@
 // File_Avc - Info for AVC Video files
-// Copyright (C) 2006-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -24,6 +24,7 @@
 
 //---------------------------------------------------------------------------
 #include "MediaInfo/File__Analyze.h"
+#include "MediaInfo/File__Duplicate.h"
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -33,7 +34,7 @@ namespace MediaInfoLib
 // Class File_Avc
 //***************************************************************************
 
-class File_Avc : public File__Analyze
+class File_Avc : public File__Duplicate
 {
 public :
     //In
@@ -44,26 +45,35 @@ public :
     bool   MustParse_SPS_PPS_Done;
     bool   SizedBlocks;
 
-protected :
-    //Format
-    void Read_Buffer_Continue ();
-    void Read_Buffer_Finalize ();
-
-public :
+    //Constructor/Destructor
     File_Avc();
 
 private :
-    //Replacement of File__Base
-    const int8u* Buffer_ToSave;
-    size_t Buffer_Size_ToSave;
+    //Buffer - File header
+    bool FileHeader_Begin();
 
-    //Buffer
-    bool Header_Begin();
+    //Buffer - Synchro
+    bool Synchronize() {return Synchronize_0x000001();}
+    bool Synched_Test();
+    void Synched_Init();
+    
+    //Buffer - Global
+    void Read_Buffer_Finalize ();
+
+    //Buffer - Per element
     void Header_Parse();
-    bool Header_Parse_Fill_Size();
+    bool Header_Parser_QuickSearch();
+    bool Header_Parser_Fill_Size();
     void Data_Parse();
 
-    //Packets
+    //Output buffer
+    size_t Output_Buffer_Get (const String &Value);
+    size_t Output_Buffer_Get (size_t Pos);
+
+    //Options
+    void Option_Manage ();
+
+    //Elements
     void slice_layer_without_partitioning_IDR();
     void slice_layer_without_partitioning_non_IDR();
     void slice_header();
@@ -88,6 +98,35 @@ private :
 
     //Packets - Specific
     void SPS_PPS();
+
+    //Streams
+    struct stream
+    {
+        bool   Searching_Payload;
+        bool   ShouldDuplicate;
+
+        stream()
+        {
+            Searching_Payload=false;
+            ShouldDuplicate=false;
+        }
+    };
+    std::vector<stream> Streams;
+
+    //Temporal reference
+    struct temporalreference
+    {
+        int32u frame_num;
+        bool   IsTop;
+        bool   IsField;
+    };
+    std::map<int32u, temporalreference> TemporalReference; //int32u is the reference
+    int32u TemporalReference_Offset;
+    int32u pic_order_cnt_lsb_Before;
+
+    //Replacement of File__Analyze
+    const int8u* Buffer_ToSave;
+    size_t Buffer_Size_ToSave;
 
     //Count of a Packets
     size_t Frame_Count;
@@ -143,38 +182,19 @@ private :
     bool   mb_adaptive_frame_field_flag;
     bool   pic_order_present_flag;
 
-    //PS
-    struct stream
-    {
-        bool   Searching_Payload;
-
-        stream()
-        {
-            Searching_Payload=false;
-        }
-    };
-    std::vector<stream> Streams;
-
-    //Temporal reference
-    struct temporalreference
-    {
-        int32u frame_num;
-        bool   IsTop;
-        bool   IsField;
-    };
-    std::map<int32u, temporalreference> TemporalReference; //int32u is the reference
-    int32u TemporalReference_Offset;
-    int32u pic_order_cnt_lsb_Before;
-
     //Temp
     bool SPS_IsParsed;
     bool PPS_IsParsed;
 
-    //Helpers
-    bool Synchronize();
-    bool Header_Parser_QuickSearch();
-    bool Detect_NonAVC();
-    void Init();
+    //File__Duplicate
+    bool   File__Duplicate_Set  (const Ztring &Value); //Fill a new File__Duplicate value
+    void   File__Duplicate_Write (int64u Element_Code, int32u frame_num=(int32u)-1);
+    File__Duplicate__Writer Writer;
+    int8u  Duplicate_Buffer[1024*1024];
+    size_t Duplicate_Buffer_Size;
+    size_t frame_num_Old;
+    bool   SPS_PPS_AlreadyDone;
+    bool   FLV;
 };
 
 } //NameSpace

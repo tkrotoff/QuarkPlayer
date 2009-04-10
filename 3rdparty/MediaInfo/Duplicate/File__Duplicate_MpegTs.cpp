@@ -1,5 +1,5 @@
 // File__Duplicate_MpegTs - Duplication of some formats
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -228,7 +228,8 @@ bool File__Duplicate_MpegTs::Manage_PMT (const int8u* ToAdd, size_t ToAdd_Size)
         return false;
 
     //Testing program_number
-    if (Wanted_program_numbers.find(StreamID)==Wanted_program_numbers.end())
+    if (Wanted_program_numbers.find(StreamID)==Wanted_program_numbers.end()
+     && Wanted_program_map_PIDs.find(elementary_PIDs_program_map_PIDs[StreamID])==Wanted_program_numbers.end())
     {
         delete PMT[StreamID].Buffer; PMT[StreamID].Buffer=NULL;
         return false;
@@ -270,7 +271,7 @@ bool File__Duplicate_MpegTs::Manage_PMT (const int8u* ToAdd, size_t ToAdd_Size)
 bool File__Duplicate_MpegTs::Parsing_Begin (const int8u* ToAdd, size_t ToAdd_Size, std::map<int16u, buffer> &ToModify_)
 {
     //Managing big chunks
-    int16u PID=BigEndian2int16u(ToAdd+1)&0x1FFF;
+    int16u PID=((ToAdd[1]&0x1F)<<8)|ToAdd[2]; //BigEndian2int16u(ToAdd+1)&0x1FFF;
     if (ToAdd[1]&0x40) //payload_unit_start_indicator
     {
         FromTS.Buffer=ToAdd;

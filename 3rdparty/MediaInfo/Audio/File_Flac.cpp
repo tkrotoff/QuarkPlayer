@@ -1,5 +1,5 @@
 // File_Flac - Info for Flac files
-// Copyright (C) 2003-2008 Jerome Martinez, zen@mediaarea.net
+// Copyright (C) 2003-2009 Jerome Martinez, zen@mediaarea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,7 +39,7 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Const
+// Infos
 //***************************************************************************
 
 //---------------------------------------------------------------------------
@@ -56,34 +56,34 @@ File_Flac::File_Flac()
     //File__Tags_Helper
     Base=this;
 
+    //In
+    VorbisHeader=false;
+    
+    //Temp
     Last_metadata_block=false;
 }
 
 //***************************************************************************
-// Format
+// Buffer - File header
 //***************************************************************************
-
-//---------------------------------------------------------------------------
-void File_Flac::Read_Buffer_Continue()
-{
-    //Tags
-    if (!File__Tags_Helper::Read_Buffer_Continue())
-        return;
-}
-
-//---------------------------------------------------------------------------
-void File_Flac::Read_Buffer_Finalize()
-{
-    //Tags
-    File__Tags_Helper::Read_Buffer_Finalize();
-}
 
 //---------------------------------------------------------------------------
 bool File_Flac::FileHeader_Begin()
 {
-    if (!File__Tags_Helper::Header_Begin())
+    if (!File__Tags_Helper::FileHeader_Begin())
         return false;
 
+    //Element_Size
+    if (Buffer_Size<Buffer_Offset+4+(VorbisHeader?9:0))
+        return false; //Must wait for more data
+
+    if (CC4(Buffer+Buffer_Offset+(VorbisHeader?9:0))!=0x664C6143) //"fLaC"
+    {
+        IsFinished=true;
+        return false;
+    }
+
+    //All should be OK...
     return true;
 }
 
@@ -91,30 +91,20 @@ bool File_Flac::FileHeader_Begin()
 void File_Flac::FileHeader_Parse()
 {
     //Parsing
-    int32u Signature;
-    Get_C4 (Signature,                                          "Signature");
-
-    FILLING_BEGIN();
-        //Integrity
-        if (Signature!=CC4("fLaC"))
-        {
-            Finished();
-            return;
-        }
-
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "FLAC");
-    FILLING_END();
+    if (VorbisHeader)
+    {
+        Skip_B1(                                                "Signature");
+        Skip_Local(4,                                           "Signature");
+        Skip_B1(                                                "Major version");
+        Skip_B1(                                                "Minor version");
+        Skip_B2(                                                "Number of header");
+    }
+    Skip_C4(                                                    "Signature");
 }
 
-//---------------------------------------------------------------------------
-bool File_Flac::Header_Begin()
-{
-    if (!File__Tags_Helper::Header_Begin())
-        return false;
-
-    return true;
-}
+//***************************************************************************
+// Buffer - Per element
+//***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_Flac::Header_Parse()
@@ -133,33 +123,32 @@ void File_Flac::Header_Parse()
     Header_Fill_Size(Element_Offset+Length);
 }
 
-//***************************************************************************
-// Elements
-//***************************************************************************
-
 //---------------------------------------------------------------------------
 void File_Flac::Data_Parse()
 {
-    #define ELEMENT_CASE(_NAME) \
-        case Flac::_NAME : _NAME(); break;
+    #define CASE_INFO(_NAME) \
+        case Flac::_NAME : Element_Info(#_NAME); _NAME(); break;
 
     //Parsing
     switch (Element_Code)
     {
-        ELEMENT_CASE(STREAMINFO);
-        ELEMENT_CASE(PADDING);
-        ELEMENT_CASE(APPLICATION);
-        ELEMENT_CASE(SEEKTABLE);
-        ELEMENT_CASE(VORBIS_COMMENT);
-        ELEMENT_CASE(CUESHEET);
-        ELEMENT_CASE(PICTURE);
+        CASE_INFO(STREAMINFO);
+        CASE_INFO(PADDING);
+        CASE_INFO(APPLICATION);
+        CASE_INFO(SEEKTABLE);
+        CASE_INFO(VORBIS_COMMENT);
+        CASE_INFO(CUESHEET);
+        CASE_INFO(PICTURE);
         default : Skip_XX(Element_Size,                         "Data");
     }
 
     if (Last_metadata_block)
     {
-        Fill(Stream_Audio, 0, Audio_StreamSize, File_Size-(File_Offset+Buffer_Offset+Element_Size));
-        File__Tags_Helper::Data_GoTo(File_Size, "Flac");
+        if (!IsSub)
+            Fill(Stream_Audio, 0, Audio_StreamSize, File_Size-(File_Offset+Buffer_Offset+Element_Size));
+
+        //No more need data
+        File__Tags_Helper::Finish("Flac");
     }
 }
 
@@ -170,8 +159,6 @@ void File_Flac::Data_Parse()
 //---------------------------------------------------------------------------
 void File_Flac::STREAMINFO()
 {
-    Element_Info("STREAMINFO");
-
     //Parsing
     int64u Samples;
     int32u FrameSize_Min, FrameSize_Max, SampleRate;
@@ -188,36 +175,31 @@ void File_Flac::STREAMINFO()
     BS_End();
     Skip_B16(                                                   "MD5 signature of the unencoded audio data");
 
-    //Filling
-    if (SampleRate==0)
-        return;
-    Stream_Prepare(Stream_Audio);
-    Fill(Stream_Audio, 0, Audio_Format, "FLAC");
-    Fill(Stream_Audio, 0, Audio_Codec, "FLAC");
-    if (FrameSize_Min==FrameSize_Max && FrameSize_Min!=0 ) // 0 means it is unknown
-        Fill(Stream_Audio, 0, Audio_BitRate_Mode, "CBR");
-     else
-        Fill(Stream_Audio, 0, Audio_BitRate_Mode, "VBR");
-    Fill(Stream_Audio, 0, Audio_SamplingRate, SampleRate);
-    Fill(Stream_Audio, 0, Audio_Channel_s_, Channels+1);
-    Fill(Stream_Audio, 0, Audio_Resolution, BitPerSample+1);
-    Fill(Stream_Audio, 0, Audio_Duration, Samples*1000/SampleRate);
-}
+    FILLING_BEGIN()
+        if (SampleRate==0)
+            return;
+        File__Tags_Helper::Stream_Prepare(Stream_General);
+        Fill(Stream_General, 0, General_Format, "FLAC");
+        File__Tags_Helper::Stream_Prepare(Stream_Audio);
+        Fill(Stream_Audio, 0, Audio_Format, "FLAC");
+        Fill(Stream_Audio, 0, Audio_Codec, "FLAC");
+        if (FrameSize_Min==FrameSize_Max && FrameSize_Min!=0 ) // 0 means it is unknown
+            Fill(Stream_Audio, 0, Audio_BitRate_Mode, "CBR");
+         else
+            Fill(Stream_Audio, 0, Audio_BitRate_Mode, "VBR");
+        Fill(Stream_Audio, 0, Audio_SamplingRate, SampleRate);
+        Fill(Stream_Audio, 0, Audio_Channel_s_, Channels+1);
+        Fill(Stream_Audio, 0, Audio_Resolution, BitPerSample+1);
+        Fill(Stream_Audio, 0, Audio_Duration, Samples*1000/SampleRate);
 
-//---------------------------------------------------------------------------
-void File_Flac::PADDING()
-{
-    Element_Info("PADDING");
-
-    //Parsing
-    Skip_XX(Element_Size,                                       "Padding");
+        File__Tags_Helper::Accept("FLAC");
+        Buffer_MaximumSize=4*1024*1024;
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
 void File_Flac::APPLICATION()
 {
-    Element_Info("APPLICATION");
-
     //Parsing
     Skip_C4(                                                    "Application");
     if (Element_Size>4)
@@ -225,44 +207,26 @@ void File_Flac::APPLICATION()
 }
 
 //---------------------------------------------------------------------------
-void File_Flac::SEEKTABLE()
-{
-    Element_Info("SEEKTABLE");
-
-    //Parsing
-    Skip_XX(Element_Size,                                       "Data");
-}
-
-//---------------------------------------------------------------------------
 void File_Flac::VORBIS_COMMENT()
 {
-    Element_Info("VORBIS_COMMENT");
-
     //Parsing
-    File_VorbisCom VorbisCom;
-    VorbisCom.StreamKind_Specific=Stream_Audio;
-    Open_Buffer_Init(&VorbisCom, File_Size, File_Offset+Buffer_Offset);
-    Open_Buffer_Continue(&VorbisCom, Buffer+Buffer_Offset, (size_t)Element_Size);
-    Open_Buffer_Finalize(&VorbisCom);
-    Merge(VorbisCom, Stream_General,  0, 0);
-    Merge(VorbisCom, Stream_Audio,    0, 0);
-    Merge(VorbisCom, Stream_Chapters, 0, 0);
-}
-
-//---------------------------------------------------------------------------
-void File_Flac::CUESHEET()
-{
-    Element_Info("CUESHEET");
-
-    //Parsing
-    Skip_XX(Element_Size,                                       "Data");
+    #if defined(MEDIAINFO_VORBISCOM_YES)
+        File_VorbisCom VorbisCom;
+        VorbisCom.StreamKind_Specific=Stream_Audio;
+        Open_Buffer_Init(&VorbisCom);
+        Open_Buffer_Continue(&VorbisCom, Buffer+Buffer_Offset, (size_t)Element_Size);
+        Open_Buffer_Finalize(&VorbisCom);
+        Merge(VorbisCom, Stream_General,  0, 0);
+        Merge(VorbisCom, Stream_Audio,    0, 0);
+        Merge(VorbisCom, Stream_Menu,     0, 0);
+    #else
+        Skip_XX(Element_Offset,                                 "Data");
+    #endif
 }
 
 //---------------------------------------------------------------------------
 void File_Flac::PICTURE()
 {
-    Element_Info("PICTURE");
-
     //Parsing
     int32u PictureType, MimeType_Size, Description_Size, Data_Size;
     Ztring MimeType, Description;
@@ -292,4 +256,5 @@ void File_Flac::PICTURE()
 } //NameSpace
 
 #endif //MEDIAINFO_FLAC_YES
+
 

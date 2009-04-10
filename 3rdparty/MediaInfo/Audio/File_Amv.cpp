@@ -1,5 +1,5 @@
 // File_Amv - Info for AMV  files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -37,13 +37,13 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Format
+// Buffer - Global
 //***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_Amv::Read_Buffer_Continue()
 {
-    Finished();
+    Reject("AMV");
 }
 
 //***************************************************************************

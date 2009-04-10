@@ -1,5 +1,5 @@
 // File_Pcm - Info for PCM files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -43,13 +43,12 @@ public :
     //In
     ZenLib::Ztring Codec;
 
-protected :
-    //Format
+private :
+    //Buffer - Global
     void Read_Buffer_Continue ();
     void Read_Buffer_Finalize ();
 
-private :
-    //Buffer
+    //Buffer - Per element
     void Header_Parse();
     void Data_Parse();
 

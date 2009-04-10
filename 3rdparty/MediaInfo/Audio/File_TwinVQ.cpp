@@ -1,5 +1,5 @@
 // File_TwinVQ - Info for TwiVQ files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -72,7 +72,45 @@ namespace Elements
 }
 
 //***************************************************************************
-// Format
+// Buffer - File header
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+bool File_TwinVQ::FileHeader_Begin()
+{
+    //Testing
+    if (Buffer_Offset+4>Buffer_Size)
+        return false;
+    if (CC4(Buffer+Buffer_Offset)!=0x5457494E) //"TWIN"
+    {
+        Reject("TwinVQ");
+        return false;
+    }
+
+    //All should be OK...
+    return true;
+}
+
+//---------------------------------------------------------------------------
+void File_TwinVQ::FileHeader_Parse()
+{
+    //Parsing
+    Skip_C4(                                                    "magic");
+    Skip_Local(8,                                               "version");
+    Skip_B4(                                                    "subchunks_size");
+
+    FILLING_BEGIN();
+        Stream_Prepare(Stream_General);
+        Fill(Stream_General, 0, General_Format, "TwinVQ");
+        Stream_Prepare(Stream_Audio);
+        Fill(Stream_Audio, 0, Audio_Format, "TwinVQ");
+        Fill(Stream_Audio, 0, Audio_Codec, "TwinVQ");
+        Accept("TwinVQ");
+    FILLING_END();
+}
+
+//***************************************************************************
+// Buffer - Per element
 //***************************************************************************
 
 //---------------------------------------------------------------------------
@@ -87,37 +125,6 @@ void File_TwinVQ::Header_Parse()
     Header_Fill_Code(id, Ztring().From_CC4(id));
     Header_Fill_Size(8+(id==Elements::DATA?0:size)); //DATA chunk indicates the end of the header, with no chunk size
 }
-
-//---------------------------------------------------------------------------
-void File_TwinVQ::FileHeader_Parse()
-{
-    //Parsing
-    Element_Begin("TwinVQ header", 12);
-    int32u magic;
-    Get_C4 (magic,                                              "magic");
-    Skip_Local(8,                                               "version");
-    Skip_B4(                                                    "subchunks_size");
-    Element_End();
-
-    FILLING_BEGIN();
-        //Integrity
-        if (magic!=CC4("TWIN"))
-        {
-            Finished();
-            return;
-        }
-
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "TwinVQ");
-        Stream_Prepare(Stream_Audio);
-        Fill(Stream_Audio, 0, Audio_Format, "TwinVQ");
-        Fill(Stream_Audio, 0, Audio_Codec, "TwinVQ");
-    FILLING_END();
-}
-
-//***************************************************************************
-// Elements
-//***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_TwinVQ::Data_Parse()
@@ -140,6 +147,10 @@ void File_TwinVQ::Data_Parse()
     }
 }
 
+//***************************************************************************
+// Elements
+//***************************************************************************
+
 //---------------------------------------------------------------------------
 void File_TwinVQ::COMM()
 {
@@ -160,7 +171,7 @@ void File_TwinVQ::COMM()
 void File_TwinVQ::DATA()
 {
     //This is the end of the parsing (DATA chunk format is unknown)
-    Finished();
+    Finish("TwinVQ");
 }
 
 //---------------------------------------------------------------------------

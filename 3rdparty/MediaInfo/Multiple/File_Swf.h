@@ -1,5 +1,5 @@
 // File_Swf - Info for SWF Audio files
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -41,8 +41,13 @@ class File_Swf : public File__Analyze
 {
 public :
     //In
+    size_t Frame_Count_Valid;
     int32u FileLength;;
     int8u  Version;
+
+protected :
+    //Buffer - Global
+    void Read_Buffer_Finalize ();
 
 public :
     File_Swf();
@@ -88,7 +93,7 @@ private :
     void DefineBitsJPEG3()              {};
     void DefineBitsLossless2()          {};
     void DefineEditText()               {};
-    void DefineSprite()                 {};
+    void DefineSprite();
     void FrameLabel()                   {};
     void DefineMorphShape()             {};
     void SoundStreamHead2()             {SoundStreamHead();};
@@ -122,6 +127,9 @@ private :
 
     //Helpers
     bool Decompress();
+
+    //Temp
+    size_t  Frame_Count;
 };
 
 } //NameSpace

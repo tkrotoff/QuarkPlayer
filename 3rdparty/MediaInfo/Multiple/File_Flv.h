@@ -1,5 +1,5 @@
 // File_Flv - Info for Flash files
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -41,7 +41,7 @@ namespace MediaInfoLib
 class File_Flv : public File__Analyze
 {
 protected :
-    //Format
+    //Buffer - Global
     void Read_Buffer_Finalize ();
 
 public :
@@ -106,6 +106,7 @@ private :
     int64u meta_filesize;
     float64 meta_duration;
     int32u LastFrame_Time;
+    int8u  LastFrame_Type;
 };
 
 } //NameSpace

@@ -1,6 +1,6 @@
 /*  This file is part of the KDE project.
 
-Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies).
+Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 
 This library is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -54,7 +54,6 @@ namespace Phonon
 
             //registering meta types
             qRegisterMetaType<HRESULT>("HRESULT");
-            qRegisterMetaType<QSet<Filter> >("QSet<Filter>");
             qRegisterMetaType<Graph>("Graph");
         }
 
@@ -101,19 +100,20 @@ namespace Phonon
 
         QStringList Backend::availableMimeTypes() const
         {
-            QSet<QString> ret;
-
-            const QStringList locations = QStringList() << QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Multimedia\\mplayer2\\mime types")
-                << QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Multimedia\\wmplayer\\mime types");
-
-            Q_FOREACH(QString s, locations) {
-                QSettings settings(s, QSettings::NativeFormat);
-                ret += settings.childGroups().replaceInStrings("\\", "/").toSet();
+            QStringList ret;
+            {
+                QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Multimedia\\mplayer2\\mime types"), QSettings::NativeFormat);
+                ret += settings.childGroups();
+            }
+            {
+                QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Multimedia\\wmplayer\\mime types"), QSettings::NativeFormat);
+                ret += settings.childGroups();
             }
 
-            QStringList list = ret.toList();
-            qSort(list);
-            return list;
+            ret.removeDuplicates();
+            ret.replaceInStrings("\\", "/");
+            qSort(ret);
+            return ret;
         }
 
 		Filter Backend::getAudioOutputFilter(int index) const
@@ -245,58 +245,54 @@ namespace Phonon
         bool Backend::endConnectionChange(QSet<QObject *> objects)
         {
             //end of a transaction
-            HRESULT hr = E_FAIL;
-            if (!objects.isEmpty()) {
-                Q_FOREACH(QObject *o, objects) {
-                    if (BackendNode *node = qobject_cast<BackendNode*>(o)) {
-                        MediaObject *mo = node->mediaObject();
-                        if (mo && m_graphState.contains(mo)) {
-                            switch(m_graphState[mo])
-                            {
-                            case Phonon::ErrorState:
-                            case Phonon::StoppedState:
-                            case Phonon::LoadingState:
-                                //nothing to do
-                                break;
-                            case Phonon::PausedState:
-                                mo->pause();
-                                break;
-                            default:
-                                mo->play();
-                                break;
-                            }
-                            if (mo->state() != Phonon::ErrorState) {
-                                hr = S_OK;
-                            }
-                            m_graphState.remove(mo);
+            for(QSet<QObject *>::const_iterator it = objects.begin(); it != objects.end(); ++it) {
+                if (BackendNode *node = qobject_cast<BackendNode*>(*it)) {
+                    MediaObject *mo = node->mediaObject();
+                    if (mo) {
+                        switch(mo->transactionState)
+                        {
+                        case Phonon::ErrorState:
+                        case Phonon::StoppedState:
+                        case Phonon::LoadingState:
+                            //nothing to do
+                            break;
+                        case Phonon::PausedState:
+                            mo->transactionState = Phonon::StoppedState;
+                            mo->pause();
+                            break;
+                        default:
+                            mo->transactionState = Phonon::StoppedState;
+                            mo->play();
+                            break;
                         }
+
+                        if (mo->state() == Phonon::ErrorState)
+                            return false;
                     }
                 }
             }
-            return SUCCEEDED(hr);
+
+            return true;
         }
 
 
         bool Backend::startConnectionChange(QSet<QObject *> objects)
         {
-            //start a transaction
-            QSet<MediaObject*> mediaObjects;
-
             //let's save the state of the graph (before we stop it)
-            Q_FOREACH(QObject *o, objects) {
-                if (BackendNode *node = qobject_cast<BackendNode*>(o)) {
+            for(QSet<QObject *>::const_iterator it = objects.begin(); it != objects.end(); ++it) {
+                if (BackendNode *node = qobject_cast<BackendNode*>(*it)) {
                     if (MediaObject *mo = node->mediaObject()) {
-                        mediaObjects << mo;
+                        if (mo->state() != Phonon::StoppedState) {
+                            mo->transactionState = mo->state();
+                            mo->ensureStopped(); //we have to stop the graph..
+                            if (mo->state() == Phonon::ErrorState)
+                                return false;
+                        }
                     }
                 }
             }
 
-            Q_FOREACH(MediaObject *mo, mediaObjects) {
-                m_graphState[mo] = mo->state();
-                mo->ensureStopped(); //we have to stop the graph..
-            }
-
-            return objects.isEmpty() || !mediaObjects.isEmpty();
+            return true;
         }
 
         bool Backend::connectNodes(QObject *_source, QObject *_sink)

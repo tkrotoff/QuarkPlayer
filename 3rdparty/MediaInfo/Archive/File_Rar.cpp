@@ -1,5 +1,5 @@
 // File_Rar - Info for RAR files
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,29 +39,42 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Format
+// Static stuff
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+bool File_Rar::FileHeader_Begin()
+{
+    //Element_Size
+    if (Buffer_Size<4)
+        return false; //Must wait for more data
+
+    if (CC4(Buffer)!=0x52415221) //"RAR!"
+    {
+        Reject("RAR");
+        return false;
+    }
+
+    //All should be OK...
+    return true;
+}
+
+//***************************************************************************
+// Buffer - Global
 //***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_Rar::Read_Buffer_Continue()
 {
-    //Integrity
-    if (Buffer_Size<=4)
-        return;
+    Skip_B4(                                                    "Magic");
+    Skip_XX(File_Size-4,                                        "Data");
 
-    //Header
-    if (CC4(Buffer)!=CC4("RAR!"))
-    {
-        Finished();
-        return;
-    }
-
-    //Filling
-    Stream_Prepare(Stream_General);
-    Fill(Stream_General, 0, General_Format, "RAR");
-
-    //No need of more
-    Finished();
+    FILLING_BEGIN();
+        Stream_Prepare(Stream_General);
+        Fill(Stream_General, 0, General_Format, "RAR");
+        Accept("RAR");
+        Finish("RAR");
+    FILLING_END();
 }
 
 } //NameSpace

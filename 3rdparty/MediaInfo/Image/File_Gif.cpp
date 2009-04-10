@@ -1,5 +1,5 @@
 // File_Gif - Info for GIF files
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -42,19 +42,39 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Buffer
+// Static stuff
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Gif::FileHeader_Parse()
+bool File_Gif::FileHeader_Begin()
+{
+    //Element_Size
+    if (Buffer_Size<3)
+        return false; //Must wait for more data
+
+    if (CC3(Buffer)!=0x474946) //"GIF"
+    {
+        Reject("GIF");
+        return false;
+    }
+
+    //All should be OK...
+    return true;
+}
+
+//***************************************************************************
+// Buffer - Global
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_Gif::Read_Buffer_Continue()
 {
     //Parsing
-    Element_Begin("Header");
-    Ztring Header, Version;
+    Ztring Version;
     int16u Width, Height;
     int8u  BackgroundColorIndex, PixelAspectRatio, Resolution, GCT_Size;
     bool GCT_Flag, Sort;
-    Get_Local (3, Header,                                       "Header");
+    Skip_Local(3,                                               "Header");
     Get_Local (3, Version,                                      "Version");
     Get_L2 (Width,                                              "Logical Screen Width");
     Get_L2 (Height,                                             "Logical Screen Height");
@@ -71,39 +91,17 @@ void File_Gif::FileHeader_Parse()
     Element_End();
 
     FILLING_BEGIN();
-        if (Header!=_T("GIF"))
-        {
-            Finished();
-            return;
-        }
-
-        //Filling
         Stream_Prepare(Stream_General);
         Fill(Stream_General, 0, General_Format, "GIF");
-
         Stream_Prepare(Stream_Image);
         Fill(Stream_Image, 0, Image_Width, Width);
         Fill(Stream_Image, 0, Image_Height, Height);
-        Fill(Stream_Image, 0, Image_Format, Header+Version);
-        Fill(Stream_Image, 0, Image_Codec, Header+Version);
+        Fill(Stream_Image, 0, Image_Format, _T("GIF")+Version);
+        Fill(Stream_Image, 0, Image_Codec, _T("GIF")+Version);
 
-        Finished();
+        Accept("GIF");
+        Finish("GIF");
     FILLING_END();
-}
-
-//---------------------------------------------------------------------------
-void File_Gif::Header_Parse()
-{
-    //Parsing
-
-    //Filling
-    //Header_Fill_Code(, );
-    //Header_Fill_Size();
-}
-
-//---------------------------------------------------------------------------
-void File_Gif::Data_Parse()
-{
 }
 
 } //NameSpace

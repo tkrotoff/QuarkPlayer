@@ -1,5 +1,5 @@
 // File_Wm - Info for Windows Media files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -40,7 +40,7 @@ public :
     File_Wm();
 
 protected :
-    //Format
+    //Buffer - Global
     void Read_Buffer_Finalize ();
 
 private :
@@ -90,6 +90,8 @@ private :
     void Header_Padding();
     void Data();
     void Data_Packet();
+    void Data_Packet_ReplicatedData(int32u Size);
+    void Data_Packet_ReplicatedData_TimeStamp();
     void SimpleIndex();
     void Index();
     void MediaIndex();
@@ -98,6 +100,12 @@ private :
     //Data
     struct stream
     {
+        struct payload_extension_system
+        {
+            int128u ID;
+            int16u  Size;
+        };
+
         File__Analyze*          Parser;
         File__Analyze*          Parser2;
         File__Analyze*          Parser3;
@@ -113,6 +121,8 @@ private :
         int32u                  PresentationTime_Old;
         int32u                  PresentationTime_Count;
         std::map<int32u, int32u> PresentationTime_Deltas;
+        std::vector<payload_extension_system> Payload_Extension_Systems;
+        int64u                  TimeCode_First;
 
         stream()
         {
@@ -129,6 +139,7 @@ private :
             SearchingPayload=false;
             PresentationTime_Old=0;
             PresentationTime_Count=0;
+            TimeCode_First=(int64u)-1;
         }
 
         ~stream()
@@ -138,9 +149,15 @@ private :
             delete Parser3; //Parser3=NULL
         }
     };
+    struct codecinfo
+    {
+        int16u  Type;
+        Ztring  Info;
+    };
     std::map<int16u, stream>    Stream;
     int16u                      Stream_Number; //In header: current pos, in Data: Count of enabled parsers
     std::vector<ZenLib::Ztring> Languages;
+    std::vector<codecinfo>      CodecInfos;
     Ztring                      Language_ForAll;
     int32u                      Data_Parse_Padding;
     int32u                      MaximumDataPacketSize;

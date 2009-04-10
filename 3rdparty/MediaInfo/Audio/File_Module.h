@@ -1,5 +1,5 @@
 // File_Module - Info for Module files
-// Copyright (C) 2008-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2008-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,9 +39,13 @@ namespace MediaInfoLib
 
 class File_Module : public File__Analyze
 {
-private :
-    //Buffer
-    void FileHeader_Parse ();
+public :
+protected :
+    //Buffer - File header
+    bool FileHeader_Begin();
+
+    //Buffer - Global
+    void Read_Buffer_Continue ();
 };
 
 } //NameSpace

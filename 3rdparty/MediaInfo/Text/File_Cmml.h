@@ -1,5 +1,5 @@
-// File_Bdav - Info for BluRay Audio/Video files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// File_Cmml - Info for Cmml files
+// Copyright (C) 2009-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -14,39 +14,43 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this library. If not, see <http://www.gnu.org/licenses/>.
 //
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+//
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-// Information about MPEG Transport Stream files
+// Information about Cmml files
 //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //---------------------------------------------------------------------------
-#ifndef MediaInfo_BdavH
-#define MediaInfo_BdavH
+#ifndef MediaInfo_File_CmmlH
+#define MediaInfo_File_CmmlH
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 #include "MediaInfo/File__Analyze.h"
-#include "MediaInfo/Multiple/File_MpegTs.h"
-#include <vector>
-#include <map>
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Class File_Bdav
+// Class File_Cmml
 //***************************************************************************
 
-class File_Bdav : public File_MpegTs
+class File_Cmml : public File__Analyze
 {
-public :
-    File_Bdav();
+private :
+    //Buffer - Per element
+    void Header_Parse();
+    void Data_Parse();
 
-protected :
-    void Read_Buffer_Finalize ();
+    //Elements
+    void Identification();
+    void Configuration();
 };
 
 } //NameSpace

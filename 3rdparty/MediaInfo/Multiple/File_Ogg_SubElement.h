@@ -1,5 +1,5 @@
 // File_Ogg_SubElement - Info for OGG files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -47,8 +47,11 @@ public :
     int64u   absolute_granule_position_Resolution;
 
 protected :
-    //Formats
-    void Read_Buffer_Init ();
+    //Buffer - File header
+    void FileHeader_Parse ();
+
+    //Buffer - Globals
+    void Read_Buffer_Finalize();
 
 public :
     File_Ogg_SubElement();
@@ -60,57 +63,38 @@ private :
     void Header_Parse();
     void Data_Parse();
 
-    size_t OldSize;
-
     //Elements
     void Identification();
-    void Identification_vorbis();
+    void Identification_CELT();
+    void Identification_CMML();
+    void Identification_BBCD();
+    void Identification_FLAC();
+    void Identification_JNG();
+    void Identification_kate();
+    void Identification_KW_DIRAC();
+    void Identification_OggMIDI();
+    void Identification_MNG();
+    void Identification_PCM();
+    void Identification_PNG();
+    void Identification_Speex();
     void Identification_theora();
+    void Identification_vorbis();
+    void Identification_YUV4MPEG();
     void Identification_video();
     void Identification_audio();
     void Identification_text();
-    void Identification_FLAC1();
+    void Identification_fLaC();
+    void Identification_fishead();
+    void Identification_fisbone();
     void Comment();
-    void Comment_vorbis();
-    void Comment_theora();
-    void Comment_video();
-    void Comment_audio();
-    void Comment_text();
-    void Setup();
-    void Setup_vorbis();
-    void FLAC1();
-    void OutOfSpecs();
+    void Default();
 
     //Temp
-    File__Analyze* Setup_Vorbis;
-    File__Analyze* Flac;
-    int64u         ID_Identification;
-    bool           IsOutOfSpecs_Flac;
+    File__Analyze*  Parser;
+    size_t          OldSize;
+    bool            Identified;
+    bool            WithType;
 };
-
-#ifdef __BORLANDC__ //Borland converts int64u to int32u without error or warning
-    #define OGG_ID(NAME, PART1, PART2) \
-        const int32u NAME##1=0x##PART1; \
-        const int32u NAME##2=0x##PART2; \
-
-#else //__BORLANDC__
-    #define OGG_ID(NAME, PART1, PART2) \
-        const int64u NAME=0x##PART1##PART2##LL; \
-
-#endif //__BORLANDC__
-
-namespace Ogg
-{
-    const int32u OggS=0x4F676753;
-    const int32u fLaC=0x664C6143;
-
-    OGG_ID(vorbis, 766F, 72626973)
-    OGG_ID(theora, 7468, 656F7261)
-    OGG_ID(video,  7669, 64656F00)
-    OGG_ID(audio,  6175, 64696F00)
-    OGG_ID(text,   7465, 78740000)
-    OGG_ID(FLAC1,  464C, 41430100)
-}
 
 } //NameSpace
 

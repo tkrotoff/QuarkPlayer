@@ -1,5 +1,5 @@
 // File_Flac - Info for Flac Audio files
-// Copyright (C) 2003-2008 Jerome Martinez, zen@mediaarea.net
+// Copyright (C) 2003-2009 Jerome Martinez, zen@mediaarea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -41,27 +41,32 @@ namespace MediaInfoLib
 class File_Flac : public File__Analyze, public File__Tags_Helper
 {
 public :
+    //In
+    bool VorbisHeader;
+
+    //Constructor/Destructor
     File_Flac();
 
 private :
-    //Format
-    void Read_Buffer_Continue();
-    void Read_Buffer_Finalize ();
-
-    //Buffer
+    //Buffer - File header
     bool FileHeader_Begin();
     void FileHeader_Parse();
-    bool Header_Begin();
+
+    //Buffer - Global
+    void Read_Buffer_Continue()                                                 {File__Tags_Helper::Read_Buffer_Continue();}
+    void Read_Buffer_Finalize()                                                 {File__Tags_Helper::Read_Buffer_Finalize();}
+
+    //Buffer - Per element
     void Header_Parse();
     void Data_Parse();
 
     //Elements
     void STREAMINFO();
-    void PADDING();
+    void PADDING()          {Skip_XX(Element_Size, "Data");}
     void APPLICATION();
-    void SEEKTABLE();
+    void SEEKTABLE()        {Skip_XX(Element_Size, "Data");}
     void VORBIS_COMMENT();
-    void CUESHEET();
+    void CUESHEET()         {Skip_XX(Element_Size, "Data");}
     void PICTURE();
 
     //Temp

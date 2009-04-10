@@ -1,5 +1,5 @@
 // File_Dirac - Info for DIRAC  files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -403,21 +403,83 @@ void Dirac_base_video_format(int32u   base_video_format,
 File_Dirac::File_Dirac()
 :File__Analyze()
 {
+    //Configuration
+    MustSynchronize=true;
+    Buffer_TotalBytes_FirstSynched_Max=64*1024;
+
     //In
     Frame_Count_Valid=1;
+    Ignore_End_of_Sequence=false;
 }
 
 //***************************************************************************
-// Format
+// Buffer - Synchro
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Dirac::Read_Buffer_Continue()
+bool File_Dirac::Synchronize()
 {
-    //Integrity
-    if (File_Offset==0 && Detect_NonDirac())
-        return;
+    //Synchronizing
+    while (Buffer_Offset+5<=Buffer_Size
+        && CC4(Buffer+Buffer_Offset)!=0x42424344)  //"BBCD"
+        Buffer_Offset++;
+
+    //Parsing last bytes if needed
+    if (Buffer_Offset+5>Buffer_Size)
+    {
+        if (Buffer_Offset+4==Buffer_Size && CC4(Buffer+Buffer_Offset)!=0x42424344) //"BBCD"
+            Buffer_Offset++;
+        if (Buffer_Offset+3==Buffer_Size && CC3(Buffer+Buffer_Offset)!=0x424243)    //"BBC"
+            Buffer_Offset++;
+        if (Buffer_Offset+2==Buffer_Size && CC2(Buffer+Buffer_Offset)!=0x4242)      //"BB"
+            Buffer_Offset++;
+        if (Buffer_Offset+1==Buffer_Size && CC1(Buffer+Buffer_Offset)!=0x42)        //"B"
+            Buffer_Offset++;
+        return false;
+    }
+
+    //Synched is OK
+    return true;
 }
+
+//---------------------------------------------------------------------------
+bool File_Dirac::Synched_Test()
+{
+    //Must have enough buffer for having header
+    if (Buffer_Offset+4>Buffer_Size)
+        return false;
+
+    //Quick test of synchro
+    if (CC4(Buffer+Buffer_Offset)!=0x42424344) //"BBCD"
+        Synched=false;
+
+    //Quick search
+    if (Synched && !Header_Parser_QuickSearch())
+        return false;
+
+    //We continue
+    return true;
+}
+
+//---------------------------------------------------------------------------
+void File_Dirac::Synched_Init()
+{
+    //Count of a Packets
+    Frame_Count=0;
+
+    //Temp
+    Dirac_base_video_format((int32u)-1, frame_width, frame_height, chroma_format, source_sampling,
+                            clean_width, clean_height, clean_left_offset, clean_top_offset,
+                            frame_rate, pixel_aspect_ratio);
+
+    //Default stream values
+    Streams.resize(0x100);
+    Streams[0x00].Searching_Payload=true; //Sequence header
+}
+
+//***************************************************************************
+// Buffer - Global
+//***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_Dirac::Read_Buffer_Finalize()
@@ -435,34 +497,8 @@ void File_Dirac::Read_Buffer_Finalize()
 }
 
 //***************************************************************************
-// Buffer
+// Buffer - Per element
 //***************************************************************************
-
-//---------------------------------------------------------------------------
-bool File_Dirac::Header_Begin()
-{
-    //Must have enough buffer for having header
-    if (Buffer_Offset+5>Buffer_Size)
-        return false;
-
-    //Quick test of synchro
-    if (Synched && CC4(Buffer+Buffer_Offset)!=0x42424344) //"BBCD"
-    {
-        Trusted_IsNot("Dirac, Synchronisation lost");
-        Synched=false;
-    }
-
-    //Synchro
-    if (!Synched && !Synchronize())
-        return false;
-
-    //Quick search
-    if (!Header_Parser_QuickSearch())
-        return false;
-
-    //All should be OK...
-    return true;
-}
 
 //---------------------------------------------------------------------------
 void File_Dirac::Header_Parse()
@@ -477,7 +513,30 @@ void File_Dirac::Header_Parse()
 
     //Filling
     Header_Fill_Code(Parse_Code, Ztring().From_CC1(Parse_Code));
-    Header_Fill_Size(Next_Parse_Offset);
+    Header_Fill_Size((Parse_Code==0x10 && Next_Parse_Offset==0)?13:Next_Parse_Offset); //Speacial case if this is the End Of Sequence
+}
+
+//---------------------------------------------------------------------------
+bool File_Dirac::Header_Parser_QuickSearch()
+{
+    while (           Buffer_Offset+13<=Buffer_Size
+      &&   CC4(Buffer+Buffer_Offset)==0x42424344) //"BBCD"
+    {
+        //Getting start_code
+        int8u start_code=CC1(Buffer+Buffer_Offset+4);
+
+        //Searching start
+        if (Streams[start_code].Searching_Payload)
+            return true;
+
+        //Getting size
+        Buffer_Offset+=BigEndian2int32u(Buffer+Buffer_Offset+5);
+    }
+
+    if (Buffer_Offset+13<=Buffer_Size)
+        Trusted_IsNot("Dirac, Synchronisation lost");
+    Synched=false;
+    return Synchronize();
 }
 
 //---------------------------------------------------------------------------
@@ -632,7 +691,8 @@ void File_Dirac::End_of_Sequence()
     Element_Name("End of Sequence");
 
     //Parsing
-    picture_Fill();
+    if (!Ignore_End_of_Sequence)
+        picture_Fill();
 }
 
 //---------------------------------------------------------------------------
@@ -813,119 +873,9 @@ void File_Dirac::picture_Fill()
     if (File_Offset+Buffer_Size<File_Size)
     {
         NextCode_Clear();
-
-        Info("Dirac, Jumping to end of file");
-        Finished();
+        Accept("Dirac");
+        Finish("Dirac");
     }
-}
-
-//***************************************************************************
-// Helpers
-//***************************************************************************
-
-//---------------------------------------------------------------------------
-bool File_Dirac::Synchronize()
-{
-    //Synchronizing
-    while (Buffer_Offset+5<=Buffer_Size
-        && CC4(Buffer+Buffer_Offset)!=0x42424344)  //"BBCD"
-        Buffer_Offset++;
-    if (Buffer_Offset+5>Buffer_Size)
-    {
-        //Parsing last bytes
-        if (Buffer_Offset+4==Buffer_Size)
-        {
-            if (CC4(Buffer+Buffer_Offset)!=0x42424344)
-            {
-                Buffer_Offset++;
-                if (CC3(Buffer+Buffer_Offset)!=0x424243)
-                {
-                    Buffer_Offset++;
-                    if (CC2(Buffer+Buffer_Offset)!=0x4242)
-                    {
-                        Buffer_Offset++;
-                        if (CC1(Buffer+Buffer_Offset)!=0x42)
-                            Buffer_Offset++;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    //Synched is OK
-    Synched=true;
-    if (Streams.empty())
-    {
-        //Count of a Packets
-        Frame_Count=0;
-
-        //Temp
-        Dirac_base_video_format((int32u)-1, frame_width, frame_height, chroma_format, source_sampling,
-                                clean_width, clean_height, clean_left_offset, clean_top_offset,
-                                frame_rate, pixel_aspect_ratio);
-
-        //Default stream values
-        Streams.resize(0x100);
-        Streams[0x00].Searching_Payload=true; //Sequence header
-    }
-    return true;
-}
-
-//---------------------------------------------------------------------------
-bool File_Dirac::Header_Parser_QuickSearch()
-{
-    while (           Buffer_Offset+13<=Buffer_Size
-      &&   CC4(Buffer+Buffer_Offset)==0x42424344) //"BBCD"
-    {
-        //Getting start_code
-        int8u start_code=CC1(Buffer+Buffer_Offset+4);
-
-        //Searching start
-        if (Streams[start_code].Searching_Payload)
-            return true;
-
-        //Getting size
-        Buffer_Offset+=BigEndian2int32u(Buffer+Buffer_Offset+5);
-    }
-
-    if (Buffer_Offset+13<=Buffer_Size)
-        Trusted_IsNot("Dirac, Synchronisation lost");
-    Synched=false;
-    return Synchronize();
-}
-
-//---------------------------------------------------------------------------
-bool File_Dirac::Detect_NonDirac ()
-{
-    //File_Size
-    if (File_Size<188*4)
-        return false; //We can't do detection
-
-    //Element_Size
-    if (Buffer_Size<188*4)
-        return true; //Must wait for more data
-
-    //Detect mainly DAT files, and the parser is not enough precise to detect them later
-    if (CC4(Buffer)==CC4("RIFF"))
-    {
-        Finished();
-        return true;
-    }
-
-    //Detect TS files, and the parser is not enough precise to detect them later
-    while (Buffer_Offset<188 && CC1(Buffer+Buffer_Offset)!=0x47) //Look for first Sync word
-        Buffer_Offset++;
-    if (Buffer_Offset<188 && CC1(Buffer+Buffer_Offset+188)==0x47 && CC1(Buffer+Buffer_Offset+188*2)==0x47 && CC1(Buffer+Buffer_Offset+188*3)==0x47)
-    {
-        Finished();
-        return true;
-    }
-    Buffer_Offset=0;
-
-    //Seems OK
-    return false;
 }
 
 //***************************************************************************

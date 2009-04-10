@@ -1,5 +1,5 @@
 // File__Analysze - Base for analyze files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -61,6 +61,8 @@ public :
     void    Open_Buffer_Init        (File__Analyze* Sub, int64u File_Size, int64u File_Offset=0);
     void    Open_Buffer_Continue    (                    const int8u* Buffer, size_t Buffer_Size);
     void    Open_Buffer_Continue    (File__Analyze* Sub, const int8u* Buffer, size_t Buffer_Size);
+    void    Open_Buffer_Fill        ();
+    void    Open_Buffer_Update      ();
     void    Open_Buffer_Finalize    (bool NoBufferModification=false);
     void    Open_Buffer_Finalize    (File__Analyze* Sub);
 
@@ -69,12 +71,30 @@ public :
     //***************************************************************************
 
     //In
+    int64u PTS; //In nanoseconds
+    int64u DTS; //In nanoseconds
 
     //Out
     size_t Frame_Count_InThisBlock;
 
 
 protected :
+    //***************************************************************************
+    // Streams management
+    //***************************************************************************
+
+    virtual void Streams_Fill()                                                 {};
+    virtual void Streams_Update()                                               {};
+
+    //***************************************************************************
+    // Synchro
+    //***************************************************************************
+
+    virtual bool Synchronize()    {Synched=true; return true;}; //Look for the synchro
+    virtual bool Synched_Test()   {return true;}; //Test is synchro is OK
+    virtual void Synched_Init()   {}; //When synched, we can Init data
+    bool Synchro_Manage();
+
     //***************************************************************************
     // Buffer
     //***************************************************************************
@@ -120,9 +140,10 @@ protected :
     virtual bool Header_Begin ()                                                {return true;};
 
     //Header - Parse
-    virtual void Header_Parse ()                                                {};
+    virtual void Header_Parse ();
 
     //Header - Info
+    void Header_Fill_Code (int64u Code);
     void Header_Fill_Code (int64u Code, const Ztring &Name);
     void Header_Fill_Size (int64u Size);
 
@@ -149,8 +170,11 @@ protected :
     bool EOF_AlreadyDetected;
 
     //Data - Helpers
-    void Data_Finished(const char* Message)                                    {Data_GoTo(File_Size, Message);};
-    void Data_GoTo     (int64u GoTo, const char* Message);
+    void Data_Accept        (const char* ParserName);
+    void Data_Reject        (const char* ParserName);
+    void Data_Finish        (const char* ParserName);
+    void Data_GoTo          (int64u GoTo, const char* ParserName);
+    void Data_GoToFromEnd   (int64u GoToFromEnd, const char* ParserName);
 
     //***************************************************************************
     // Elements
@@ -507,6 +531,7 @@ public :
     void Get_Flags (int64u ValueToPut,          int8u &Info, const char* Name);
     void Skip_Flags(int64u Flags, size_t Order,              const char* Name);
     void Skip_Flags(int64u ValueToPut,                       const char* Name);
+    #define Info_Flags(_FLAGS, _ORDER, _INFO, _NAME) bool _INFO; Get_Flags (_FLAGS, _ORDER, _INFO, _NAME)
 
     //***************************************************************************
     // BitStream
@@ -615,7 +640,7 @@ public :
 
     void NextCode_Add(int64u Code);
     void NextCode_Clear();
-    void NextCode_Test();
+    bool NextCode_Test();
 
     //***************************************************************************
     // Element trusting
@@ -686,7 +711,11 @@ public :
     //***************************************************************************
 
     //Actions
-    void Finished();
+    void Accept        (const char* ParserName=NULL);
+    void Reject        (const char* ParserName=NULL);
+    void Finish        (const char* ParserName=NULL);
+    void GoTo          (int64u GoTo, const char* ParserName=NULL);
+    void GoToFromEnd   (int64u GoToFromEnd, const char* ParserName=NULL);
     int64u Element_Code_Get (size_t Level);
     int64u Element_TotalSize_Get (size_t LevelLess=0);
     bool Element_IsComplete_Get ();
@@ -704,10 +733,25 @@ public :
     bool Element_IsWaitingForMoreData ();
 
     //Begin
-    #define FILLING_BEGIN() if (Element_IsOK()) {
+    #define FILLING_BEGIN() \
+        if (Element_IsOK()) \
+        {
+
+    #define FILLING_BEGIN_PRECISE() \
+        if (Element_Offset!=Element_Size) \
+            Trusted_IsNot("Size error"); \
+        else if (Element_IsOK()) \
+        {
+
+    //Else
+    #define FILLING_ELSE() \
+        } \
+        else \
+        { \
 
     //End
-    #define FILLING_END() }
+    #define FILLING_END() \
+        }
 
     //***************************************************************************
     // Merging
@@ -715,38 +759,48 @@ public :
 
     //Utils
 public :
-    size_t Merge(File__Base &ToAdd, bool Erase=true); //Merge 2 File_Base
-    size_t Merge(File__Base &ToAdd, stream_t StreamKind, size_t StreamPos_From, size_t StreamPos_To, bool Erase=true); //Merge 2 streams
+    size_t Merge(File__Analyze &ToAdd, bool Erase=true); //Merge 2 File_Base
+    size_t Merge(File__Analyze &ToAdd, stream_t StreamKind, size_t StreamPos_From, size_t StreamPos_To, bool Erase=true); //Merge 2 streams
 
     //***************************************************************************
     // Finalize
     //***************************************************************************
 
     //End
-    void Finalize();
+    void Finalize_Global();
 
 protected :
 
-    void Finalize__All      (stream_t StreamKind);
-    void Finalize__All      (stream_t StreamKind, size_t Pos);
-    void Finalize_General   (size_t Pos);
-    void Finalize_Video     (size_t Pos);
-    void Finalize_Audio     (size_t Pos);
-    void Finalize_Audio_BitRate (size_t Pos, audio Parameter);
-    void Finalize_Text      (size_t Pos);
-    void Finalize_Chapters  (size_t Pos);
-    void Finalize_Image     (size_t Pos);
-    void Finalize_Menu      (size_t Pos);
+    void Finalize_StreamOnly();
+    void Finalize_StreamOnly(stream_t StreamKid, size_t StreamPos);
+    void Finalize_StreamOnly_General(size_t StreamPos);
+    void Finalize_StreamOnly_Video(size_t StreamPos);
+    void Finalize_StreamOnly_Audio(size_t StreamPos);
+    void Finalize_StreamOnly_Text(size_t StreamPos);
+    void Finalize_StreamOnly_Chapters(size_t StreamPos);
+    void Finalize_StreamOnly_Image(size_t StreamPos);
+    void Finalize_StreamOnly_Menu(size_t StreamPos);
+    void Finalize_InterStreams();
+    void Finalize_Cosmetic();
+    void Finalize_Cosmetic(stream_t StreamKid, size_t StreamPos);
+    void Finalize_Cosmetic_General(size_t StreamPos);
+    void Finalize_Cosmetic_Video(size_t StreamPos);
+    void Finalize_Cosmetic_Audio(size_t StreamPos);
+    void Finalize_Cosmetic_Text(size_t StreamPos);
+    void Finalize_Cosmetic_Chapters(size_t StreamPos);
+    void Finalize_Cosmetic_Image(size_t StreamPos);
+    void Finalize_Cosmetic_Menu(size_t StreamPos);
+
     void Finalize_Tags      ();
-    void Finalize_Final     ();
-    void Finalize_Final_All (stream_t StreamKind);
-    void Finalize_Final_All (stream_t StreamKind, size_t Pos, Ztring &Codec_List, Ztring &Language_List, Ztring &Format_List, Ztring &Format_WithHint_List);
+    void Finalize_Video_FrameRate (size_t Pos, video Parameter);
+    void Finalize_Audio_BitRate (size_t Pos, audio Parameter);
 
     //Utils - Finalize
     void Duration_Duration123   (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
     void FileSize_FileSize123   (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
     void Kilo_Kilo123           (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
     void Value_Value123         (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
+    void AspectRatio_AspectRatio(size_t Pos, size_t DisplayAspectRatio, size_t PixelAspectRatio, size_t DisplayAspectRatio_String);
     void YesNo_YesNo            (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
     void CodecID_Fill           (const Ztring &Value, stream_t StreamKind, size_t StreamPos, infocodecid_format_t Format);
 
@@ -790,6 +844,7 @@ protected :
     const int8u* Buffer;
 public : //TO CHANGE
     size_t Buffer_Size;
+    int64u Buffer_TotalBytes_FirstSynched;
 protected :
     int8u* Buffer_Temp;
     size_t Buffer_Temp_Size;
@@ -798,8 +853,17 @@ protected :
     size_t Buffer_Offset_Temp; //Temporary usage in this parser
     size_t Buffer_MinimumSize;
     size_t Buffer_MaximumSize;
-    bool   Buffer_Init_Done;
+    int64u Buffer_TotalBytes;
+    int64u Buffer_TotalBytes_FirstSynched_Max;
     friend class File__Tags_Helper;
+
+    //***************************************************************************
+    // Helpers
+    //***************************************************************************
+
+    bool FileHeader_Begin_0x000001();
+    bool Synchronize_0x000001();
+
 private :
 
     //***************************************************************************
@@ -856,9 +920,15 @@ public :
     virtual bool BookMark_Needed()                                              {return false;};
 
     //Temp
-    bool NewFinnishMethod;
+    bool IsAccepted;
+    bool IsFilled;
+    bool IsUpdated;
     bool IsFinished;
+    bool IsFinalized;
     bool ShouldContinueParsing;
+
+    //Configuration
+    bool MustSynchronize;
 };
 #endif //MEDIAINFO_MINIMIZESIZE
 
@@ -997,5 +1067,12 @@ public :
             Skip_XX(Element_TotalSize_Get(), "Unknown"); \
     }} \
      \
+
+#define DATA_DEFAULT \
+        default : \
+
+#define DATA_END_DEFAULT \
+        } \
+    } \
 
 #endif

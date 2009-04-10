@@ -1,5 +1,5 @@
 // File_Ace - Info for ACE files
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -37,29 +37,43 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Functions
+// Static stuff
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+bool File_Ace::FileHeader_Begin()
+{
+    //Element_Size
+    if (Buffer_Size<7)
+        return false; //Must wait for more data
+
+    if (CC7(Buffer)!=0x2A2A4143452A2ALL) //"**ACE**"
+    {
+        Reject("Ace");
+        return false;
+    }
+
+    //All should be OK...
+    return true;
+}
+
+//***************************************************************************
+// Buffer - Global
 //***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_Ace::Read_Buffer_Continue()
 {
-    //Integrity
-    if (Buffer_Size<=14)
-        return;
+    //Parsing
+    Skip_B7(                                                    "Magic");
+    Skip_XX(File_Size-7,                                        "Data");
 
-    //Header
-    if (CC7(Buffer+7)!=CC7("**ACE**"))
-    {
-        Finished();
-        return;
-    }
-
-    //Filling
-    Stream_Prepare(Stream_General);
-    Fill(Stream_General, 0, General_Format, "ACE");
-
-    //No need of more
-    Finished();
+    FILLING_BEGIN();
+        Stream_Prepare(Stream_General);
+        Fill(Stream_General, 0, General_Format, "ACE");
+        Accept("Ace");
+        Finish("Ace");
+    FILLING_END();
 }
 
 } //NameSpace

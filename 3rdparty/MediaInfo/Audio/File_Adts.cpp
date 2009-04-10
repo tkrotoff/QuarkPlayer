@@ -1,5 +1,5 @@
 // File_Adts - Info for AAC (ADTS) files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -37,7 +37,7 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Constants
+// Infos
 //***************************************************************************
 
 //---------------------------------------------------------------------------
@@ -81,40 +81,87 @@ File_Adts::File_Adts()
     //File__Tags_Helper
     Base=this;
 
+    //Configuration
+    MustSynchronize=true;
+    Buffer_TotalBytes_FirstSynched_Max=64*1024;
+
     //In
     Frame_Count_Valid=32;
 
-    //Temp - Global
+    //Temp
     Frame_Count=0;
 }
 
 //***************************************************************************
-// Format
+// Buffer - Synchro
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Adts::Read_Buffer_Continue()
+bool File_Adts::Synchronize()
 {
     //Tags
-    if (!File__Tags_Helper::Read_Buffer_Continue())
-        return;
+    bool Tag_Found;
+    if (!File__Tags_Helper::Synchronize(Tag_Found))
+        return false;
+    if (Tag_Found)
+        return true;
+
+    //Synchronizing
+    while (Buffer_Offset+6<=Buffer_Size)
+    {
+         while (Buffer_Offset+6<=Buffer_Size
+             && (CC2(Buffer+Buffer_Offset)&0xFFF6)!=0xFFF0)
+            Buffer_Offset++;
+
+        if (Buffer_Offset+6<=Buffer_Size)//Testing if size is coherant
+        {
+            //Retrieving some info
+            int16u aac_frame_length =(CC3(Buffer+Buffer_Offset+3)>>5)&0x1FFF;
+            //Testing next start, to be sure
+            if (1)//File_Offset+Buffer_Offset+aac_frame_length!=File_Size-File_EndTagSize)
+            {
+                if (/*IsSub && */Buffer_Offset+aac_frame_length==Buffer_Size)
+                    break;
+
+                if (Buffer_Offset+aac_frame_length+2>Buffer_Size)
+                    return false; //Need more data
+
+                //Testing
+                if (aac_frame_length<=7 || (CC2(Buffer+Buffer_Offset+aac_frame_length)&0xFFF6)!=0xFFF0)
+                    Buffer_Offset++;
+                else
+                    break; //while()
+            }
+            else
+                Buffer_Offset++;
+        }
+    }
+
+    //Parsing last bytes if needed
+    if (Buffer_Offset+6>Buffer_Size)
+    {
+        if (Buffer_Offset+5==Buffer_Size && (CC2(Buffer+Buffer_Offset)&0xFFF6)!=0xFFF0)
+            Buffer_Offset++;
+        if (Buffer_Offset+4==Buffer_Size && (CC2(Buffer+Buffer_Offset)&0xFFF6)!=0xFFF0)
+            Buffer_Offset++;
+        if (Buffer_Offset+3==Buffer_Size && (CC2(Buffer+Buffer_Offset)&0xFFF6)!=0xFFF0)
+            Buffer_Offset++;
+        if (Buffer_Offset+2==Buffer_Size && (CC2(Buffer+Buffer_Offset)&0xFFF6)!=0xFFF0)
+            Buffer_Offset++;
+        if (Buffer_Offset+1==Buffer_Size && CC1(Buffer+Buffer_Offset)!=0xFF)
+            Buffer_Offset++;
+        return false;
+    }
+
+    //Synched is OK
+    return true;
 }
 
 //---------------------------------------------------------------------------
-void File_Adts::Read_Buffer_Finalize()
+bool File_Adts::Synched_Test()
 {
     //Tags
-    File__Tags_Helper::Read_Buffer_Finalize();
-}
-
-//***************************************************************************
-// Buffer
-//***************************************************************************
-
-//---------------------------------------------------------------------------
-bool File_Adts::Header_Begin()
-{
-    if (!File__Tags_Helper::Header_Begin())
+    if (!File__Tags_Helper::Synched_Test())
         return false;
 
     //Must have enough buffer for having header
@@ -122,19 +169,16 @@ bool File_Adts::Header_Begin()
         return false;
 
     //Quick test of synchro
-    if (Synched && (CC2(Buffer+Buffer_Offset)&0xFFF6)!=0xFFF0)
-    {
-        Trusted_IsNot("ADTS, Synchronisation lost");
+    if ((CC2(Buffer+Buffer_Offset)&0xFFF6)!=0xFFF0)
         Synched=false;
-    }
 
-    //Synchro
-    if (!Synched && !Synchronize())
-        return false;
-
-    //All should be OK...
+    //We continue
     return true;
 }
+
+//***************************************************************************
+// Buffer - Per element
+//***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_Adts::Header_Parse()
@@ -179,7 +223,7 @@ void File_Adts::Data_Parse()
     Skip_XX(Element_Size,                                       "Data");
 
     //Filling
-    if (Frame_Count>=Frame_Count_Valid && Count_Get(Stream_Audio)==0)
+    if (!IsAccepted && Frame_Count>=Frame_Count_Valid)
         Data_Parse_Fill();
 }
 
@@ -188,9 +232,9 @@ void File_Adts::Data_Parse_Fill()
 {
     //Filling
     int32u BitRate=(ADTS_SamplingRate[sampling_frequency_index]/1024)*aac_frame_length*8;
-    Stream_Prepare(Stream_General);
+    File__Tags_Helper::Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "ADTS");
-    Stream_Prepare(Stream_Audio);
+    File__Tags_Helper::Stream_Prepare(Stream_Audio);
     Fill(Stream_Audio, 0, Audio_Format, "AAC");
     Fill(Stream_Audio, 0, Audio_Format_Version, id?"Version 2":"Version 4");
     Fill(Stream_Audio, 0, Audio_Format_Profile, ADTS_Format_Profile[profile_ObjectType]);
@@ -207,82 +251,9 @@ void File_Adts::Data_Parse_Fill()
     }
     Fill(Stream_Audio, 0, Audio_Resolution, 16);
 
-    //Jumping if needed
-    if (File_Offset+Buffer_Size+File_EndTagSize<File_Size)
-    {
-        //No more need data
-        File__Tags_Helper::Data_GoTo(File_Size, "ADTS");
-    }
-}
-
-//***************************************************************************
-// Helpers
-//***************************************************************************
-
-//---------------------------------------------------------------------------
-bool File_Adts::Synchronize()
-{
-    //Synchronizing
-    while (Buffer_Offset+6<=Buffer_Size)
-    {
-         while (Buffer_Offset+6<=Buffer_Size
-             && (CC2(Buffer+Buffer_Offset)&0xFFF6)!=0xFFF0)
-            Buffer_Offset++;
-
-        if (Buffer_Offset+6<=Buffer_Size)//Testing if size is coherant
-        {
-            //Retrieving some info
-            aac_frame_length =(CC3(Buffer+Buffer_Offset+3)>>5)&0x1FFF;
-            //Testing next start, to be sure
-            if (File_Offset+Buffer_Offset+aac_frame_length!=File_Size-File_EndTagSize)
-            {
-                if (IsSub && Buffer_Offset+aac_frame_length==Buffer_Size)
-                    break;
-
-                if (Buffer_Offset+aac_frame_length+2>Buffer_Size)
-                    return false; //Need more data
-
-                //Testing
-                if ((CC2(Buffer+Buffer_Offset+aac_frame_length)&0xFFF6)!=0xFFF0)
-                    Buffer_Offset++;
-                else
-                    break; //while()
-            }
-            else
-                Buffer_Offset++;
-        }
-    }
-    if (Buffer_Offset+6>Buffer_Size)
-    {
-        //Parsing last bytes
-        if (Buffer_Offset+5==Buffer_Size)
-        {
-            if ((CC2(Buffer+Buffer_Offset)&0xFFF6)!=0xFFF0)
-            {
-                Buffer_Offset++;
-                if ((CC2(Buffer+Buffer_Offset)&0xFFF6)!=0xFFF0)
-                {
-                    Buffer_Offset++;
-                    if ((CC2(Buffer+Buffer_Offset)&0xFFF6)!=0xFFF0)
-                    {
-                        Buffer_Offset++;
-                        if ((CC2(Buffer+Buffer_Offset)&0xFFF6)!=0xFFF0)
-                        {
-                            Buffer_Offset++;
-                            if (CC1(Buffer+Buffer_Offset)!=0xFF)
-                                Buffer_Offset++;
-                        }
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    //Synched is OK
-    Synched=true;
-    return true;
+    //No more need data
+    File__Tags_Helper::Accept("ADTS");
+    File__Tags_Helper::Finish("ADTS");
 }
 
 } //NameSpace

@@ -1,5 +1,5 @@
 // File_Tiff - Info for TIFF files
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,8 +39,11 @@ namespace MediaInfoLib
 
 class File_Tiff : public File__Analyze
 {
-protected :
-    //Format
+private :
+    //Buffer - File header
+    bool FileHeader_Begin();
+
+    //Buffer - Global
     void Read_Buffer_Continue ();
 };
 

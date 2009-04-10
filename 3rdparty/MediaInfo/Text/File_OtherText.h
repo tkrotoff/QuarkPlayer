@@ -1,5 +1,5 @@
 // File_OtherText - Use magic number to detect only the format (Text)
-// Copyright (C) 2006-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,7 +39,7 @@ namespace MediaInfoLib
 
 class File_OtherText : public File__Analyze
 {
-    //Format
+    //Buffer - Global
     void Read_Buffer_Continue ();
 };
 

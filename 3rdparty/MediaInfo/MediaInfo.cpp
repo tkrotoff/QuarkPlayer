@@ -1,5 +1,5 @@
 // MediaInfo - All info about media files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -44,15 +44,21 @@ namespace MediaInfoLib
 //To clarify the code
 namespace MediaInfo_Debug_MediaInfo
 {
+
 #ifdef MEDIAINFO_DEBUG
     #define MEDIAINFO_DEBUG_WANTED
     #include <stdio.h>
     FILE* F;
     std::string Debug;
+    #ifdef WINDOWS
+        const char* MediaInfo_Debug_Name="MediaInfo_Debug.txt";
+    #else
+        const char* MediaInfo_Debug_Name="/tmp/MediaInfo_Debug.txt";
+    #endif
 
     #undef MEDIAINFO_DEBUG
     #define MEDIAINFO_DEBUG(_TOAPPEND) \
-        F=fopen("MediaInfo_Debug.txt", "a+t"); \
+        F=fopen(MediaInfo_Debug_Name, "a+t"); \
         Debug.clear(); \
         Debug+=ToString((size_t)this); \
         Debug.resize(11, ' '); \
@@ -66,7 +72,7 @@ namespace MediaInfo_Debug_MediaInfo
 
 #ifdef MEDIAINFO_DEBUG_WANTED
     #define MEDIAINFO_DEBUG_STATIC(_TOAPPEND) \
-        F=fopen("MediaInfo_Debug.txt", "a+t"); \
+        F=fopen(MediaInfo_Debug_Name, "a+t"); \
         Debug.clear(); \
         Debug.resize(11, ' '); \
         _TOAPPEND; \
@@ -108,8 +114,13 @@ namespace MediaInfo_Debug_MediaInfo
 
 #ifdef MEDIAINFO_DEBUG_BUFFER_SAVE
     #include <stdio.h>
-    FILE* Buffer_Stream=fopen("MediaInfo_Debug_Stream.raw", "a+b"); \
-    FILE* Buffer_Sizes=fopen("MediaInfo_Debug_Stream.sizes", "a+b"); \
+    #ifdef WINDOWS
+        FILE* Buffer_Stream=fopen("MediaInfo_Debug_Stream.raw", "a+b");
+        FILE* Buffer_Sizes=fopen("MediaInfo_Debug_Stream.sizes", "a+b");
+    #else
+        FILE* Buffer_Stream=fopen("/tmp/MediaInfo_Debug_Stream.raw", "a+b");
+        FILE* Buffer_Sizes=fopen("/tmp/MediaInfo_Debug_Stream.sizes", "a+b");
+    #endif
 
     #undef MEDIAINFO_DEBUG_BUFFER_SAVE
     #define MEDIAINFO_DEBUG_BUFFER_SAVE(_BUFFER, _SIZE) \
@@ -293,9 +304,8 @@ String MediaInfo::Option_Static (const String &Option, const String &Value)
     else if (Option==_T("Info_Version"))
     {
         Ztring ToReturn=MediaInfoLib::Config.Info_Version_Get();
-        #if defined(MediaInfo_Internal_VIDEO_NO) || defined(MediaInfo_Internal_AUDIO_NO) || defined(MediaInfo_Internal_RIFF_NO) || defined(MediaInfo_Internal_OGG_NO) || defined(MediaInfo_Internal_MPEGPS_NO) || defined(MediaInfo_Internal_MPEGA_NO) || defined(MediaInfo_Internal_WM_NO) || defined(MediaInfo_Internal_QT_NO) || defined(MediaInfo_Internal_RM_NO) || defined(MediaInfo_Internal_DVDIF_NO) || defined(MediaInfo_Internal_DVDV_NO) || defined(MediaInfo_Internal_AAC_NO) || defined(MediaInfo_Internal_MK_NO) || defined(MediaInfo_Internal_APE_NO) || defined(MediaInfo_Internal_FLAC_NO) || defined(MediaInfo_Internal_SNDFILE_NO) || defined(MediaInfo_Internal_FLV_NO) || defined(MediaInfo_Internal_SWF_NO)
+        if (MediaInfo_Internal::LibraryIsModified())
             ToReturn+=_T(" modified");
-        #endif
         return ToReturn;
     }
     else

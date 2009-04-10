@@ -114,7 +114,7 @@ else (KDE4_FOUND)
 	include(${QT_USE_FILE})
 
 	#Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
-	set(NEW_TITLE_CHAPTER_HANDLING 1)
+	#set(NEW_TITLE_CHAPTER_HANDLING 1)
 
 	message(STATUS "KDE4 support disabled")
 endif (KDE4_FOUND)

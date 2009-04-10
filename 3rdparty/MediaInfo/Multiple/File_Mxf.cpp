@@ -1,5 +1,5 @@
 // File_Mxf - Info for MXF files
-// Copyright (C) 2006-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -37,30 +37,38 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Format
+// Buffer - File header
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Mxf::Read_Buffer_Continue()
+bool File_Mxf::FileHeader_Begin()
 {
     if (Buffer_Size<4)
-        return;
-
-    //Header
+        return false;
     if (CC4(Buffer)!=0x060E2B34)
     {
-        Finished();
-        return;
+        Reject("MXF");
+        return false;
     }
+    return true;
+}
 
-    Stream_Prepare(Stream_General);
-    Fill(Stream_General, 0, General_Format, "MXF");
+//---------------------------------------------------------------------------
+void File_Mxf::FileHeader_Parse()
+{
+    Skip_C4(                                                    "Signature");
 
-    //No need of more
-    Finished();
+    FILLING_BEGIN();
+        Stream_Prepare(Stream_General);
+        Fill(Stream_General, 0, General_Format, "MXF");
+
+        //No need of more
+        Accept("MXF");
+        Finish("MXF");
+    FILLING_END();
 }
 
 } //NameSpace
 
-#endif //MEDIAINFO_AAC_*
+#endif //MEDIAINFO_MXF_*
 

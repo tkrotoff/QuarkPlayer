@@ -1,5 +1,5 @@
 // File__Base - Base for other files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -47,7 +47,9 @@ extern MediaInfo_Config Config;
 File__Base::File__Base ()
 {
     //Init pointers
-    Details=NULL;
+    #ifndef MEDIAINFO_MINIMIZESIZE
+        Details=NULL;
+    #endif //MEDIAINFO_MINIMIZESIZE
     Stream=NULL;
     Stream_More=NULL;
     Stream_MustBeDeleted=false;
@@ -57,7 +59,6 @@ File__Base::File__Base ()
     File_Offset=0;
     File_Offset_FirstSynched=(int64u)-1;
     File_GoTo=(int64u)-1;
-    File_MaximumOffset=MediaInfoLib::Config.FormatDetection_MaximumOffset_Get();
 
     //Optimization init
     StreamKind_Last=Stream_Max;
@@ -80,7 +81,11 @@ File__Base::~File__Base ()
 
 //---------------------------------------------------------------------------
 //Base
+#ifndef MEDIAINFO_MINIMIZESIZE
 void File__Base::Init (MediaInfo_Config_MediaInfo * Config_, Ztring* Details_, std::vector<std::vector<ZtringList> > * Stream_, std::vector<std::vector<ZtringListList> > * Stream_More_)
+#else //MEDIAINFO_MINIMIZESIZE
+void File__Base::Init (MediaInfo_Config_MediaInfo * Config_, std::vector<std::vector<ZtringList> > * Stream_, std::vector<std::vector<ZtringListList> > * Stream_More_)
+#endif //MEDIAINFO_MINIMIZESIZE
 {
     if (Config)
         return; //Already done
@@ -101,7 +106,9 @@ void File__Base::Init (MediaInfo_Config_MediaInfo * Config_, Ztring* Details_, s
     }
 
     Config=Config_;
-    Details=Details_;
+    #ifndef MEDIAINFO_MINIMIZESIZE
+        Details=Details_;
+    #endif //MEDIAINFO_MINIMIZESIZE
 }
 
 //***************************************************************************
@@ -147,29 +154,18 @@ const Ztring &File__Base::Get (stream_t StreamKind, size_t StreamNumber, size_t 
             return MediaInfoLib::Config.EmptyString_Get(); //This parameter is known, but not filled
     }
     else
-        return (*Stream_More)[StreamKind][StreamNumber][Parameter-MediaInfoLib::Config.Info_Get(StreamKind).size()][KindOfInfo];
+    {
+        if ((size_t)(Parameter-MediaInfoLib::Config.Info_Get(StreamKind).size())<(*Stream_More)[StreamKind][StreamNumber].size() && KindOfInfo<(*Stream_More)[StreamKind][StreamNumber][Parameter-MediaInfoLib::Config.Info_Get(StreamKind).size()].size())
+            return (*Stream_More)[StreamKind][StreamNumber][Parameter-MediaInfoLib::Config.Info_Get(StreamKind).size()][KindOfInfo];
+        else
+            return MediaInfoLib::Config.EmptyString_Get(); //Not filled
+    }
 }
 
 //---------------------------------------------------------------------------
 const Ztring &File__Base::Get (stream_t StreamKind, size_t StreamNumber, const Ztring &Parameter, info_t KindOfInfo, info_t KindOfSearch)
 {
     size_t ParameterI=0;
-
-    //Legacy
-    if (Parameter.find(_T("_String"))!=Error)
-    {
-        Ztring S1=Parameter;
-        S1.FindAndReplace(_T("_String"), _T("/String"));
-        return Get(StreamKind, StreamNumber, S1, KindOfInfo, KindOfSearch);
-    }
-    if (Parameter==_T("Channels"))
-        return Get(StreamKind, StreamNumber, _T("Channel(s)"), KindOfInfo, KindOfSearch);
-    if (Parameter==_T("Artist"))
-        return Get(StreamKind, StreamNumber, _T("Performer"), KindOfInfo, KindOfSearch);
-    if (Parameter==_T("AspectRatio"))
-        return Get(StreamKind, StreamNumber, _T("DisplayAspectRatio"), KindOfInfo, KindOfSearch);
-    if (Parameter==_T("AspectRatio/String"))
-        return Get(StreamKind, StreamNumber, _T("DisplayAspectRatio/String"), KindOfInfo, KindOfSearch);
 
     //Check integrity
     if (StreamKind>=Stream_Max || StreamNumber>=(*Stream)[StreamKind].size() || (ParameterI=MediaInfoLib::Config.Info_Get(StreamKind).Find(Parameter, KindOfSearch))==Error || KindOfInfo>=Info_Max)
@@ -195,38 +191,19 @@ int File__Base::Set (stream_t StreamKind, size_t StreamNumber, const Ztring &Par
     if (Count_Get(StreamKind)<=StreamNumber)
         return 0;
 
-    //Fill(StreamKind, StreamNumber, Parameter.To_Local().c_str(), ToSet);
-
     return Write(StreamKind, StreamNumber, Parameter, ToSet, OldValue);
 }
 
 //---------------------------------------------------------------------------
 void File__Base::Language_Set()
 {
-/*
-    for (size_t StreamKind=(size_t)Stream_General; StreamKind<(size_t)Stream_Max; StreamKind++)//Note : Optimisation, only the first (*Stream) is, so StreamNumber is only 0
-        for (size_t Pos=0; Pos<MediaInfoLib::Config.Info[StreamKind].size(); Pos++)
-        {
-             //Info_Name_Text
-             const Ztring &Z1=MediaInfoLib::Config.Language_Get(MediaInfoLib::Config.Info_Get((stream_t)StreamKind, Pos, Info_Name));
-             if (Z1.empty())
-                Set((stream_t)StreamKind, 0, Pos, Info_Name_Text, MediaInfoLib::Config.Info_Get((stream_t) StreamKind, Pos, Info_Name));
-             else
-                Set((stream_t)StreamKind, 0, Pos, Info_Name_Text, Z1);
-             //Info_Measure_Text
-             const Ztring Z2=MediaInfoLib::Config.Language_Get(MediaInfoLib::Config.Info_Get((stream_t)StreamKind, Pos, Info_Measure));
-             if (Z2.empty())
-                Set((stream_t)StreamKind, 0, Pos, Info_Measure_Text, MediaInfoLib::Config.Info_Get((stream_t)StreamKind, Pos, Info_Measure);
-             else
-                Set((stream_t)StreamKind, 0, Pos, Info_Measure_Text, Z2);
-        }
-*/
 }
 
 //***************************************************************************
 // Demux
 //***************************************************************************
 
+#ifndef MEDIAINFO_MINIMIZESIZE
 void File__Base::Demux (const int8u* Buffer, size_t Buffer_Size, const Ztring& StreamName, bool)
 {
     if (!MediaInfoLib::Config.Demux_Get())
@@ -239,6 +216,7 @@ void File__Base::Demux (const int8u* Buffer, size_t Buffer_Size, const Ztring& S
     F.Open(File_Name+_T('.')+StreamName, File::Access_Write_Append);
     F.Write(Buffer, Buffer_Size);
 }
+#endif //MEDIAINFO_MINIMIZESIZE
 
 //***************************************************************************
 // Divers
@@ -248,38 +226,6 @@ void File__Base::Clear()
 {
     for (size_t StreamKind=0; StreamKind<Stream_Max; StreamKind++)
         (*Stream)[StreamKind].clear();
-}
-
-//---------------------------------------------------------------------------
-void File__Base::Read_Buffer_Init()
-{
-}
-
-//---------------------------------------------------------------------------
-void File__Base::Read_Buffer_Unsynched()
-{
-}
-
-//---------------------------------------------------------------------------
-void File__Base::Read_Buffer_Continue()
-{
-    File_GoTo=File_Size;
-}
-
-//---------------------------------------------------------------------------
-void File__Base::Read_Buffer_Finalize()
-{
-}
-
-//---------------------------------------------------------------------------
-int File__Base::Write(stream_t, size_t, const Ztring &, const Ztring &, const Ztring &)
-{
-    return -1;
-}
-
-int File__Base::WriteToDisk()
-{
-    return -1;
 }
 
 } //NameSpace

@@ -1,5 +1,5 @@
-// File_Bdav - Info for BluRay Audio/Video files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// File_Speex - Info for Speex files
+// Copyright (C) 2008-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -14,54 +14,51 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this library. If not, see <http://www.gnu.org/licenses/>.
 //
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+//
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//
+// Information about Speex files
+//
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //---------------------------------------------------------------------------
-// Compilation conditions
-#include "MediaInfo/Setup.h"
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-//---------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------
-#if defined(MEDIAINFO_BDAV_YES)
+#ifndef MediaInfo_File_SpeexH
+#define MediaInfo_File_SpeexH
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-#include "MediaInfo/Multiple/File_Bdav.h"
-#include "MediaInfo/Multiple/File_MpegTs.h"
+#include "MediaInfo/File__Analyze.h"
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Constructor/Destructor
+// Class File_Speex
 //***************************************************************************
 
-//---------------------------------------------------------------------------
-File_Bdav::File_Bdav()
-: File_MpegTs()
+class File_Speex : public File__Analyze
 {
-    TS_Size=188+4;
-    BDAV_Size=4; //BDAV header
-}
+public :
+    File_Speex();
 
-//***************************************************************************
-// Base
-//***************************************************************************
+private :
+    //Buffer - Per element
+    void Header_Parse();
+    void Data_Parse();
 
-//---------------------------------------------------------------------------
-void File_Bdav::Read_Buffer_Finalize()
-{
-    File_MpegTs::Read_Buffer_Finalize();
+    //Elements
+    void Identification();
+    void Comment();
 
-    //Fill General
-    Fill(Stream_General, 0, General_Format, "BDAV", Unlimited, false, true);
-}
+    //Temp
+    int8u Identification_Done;
+};
 
 } //NameSpace
 
-#endif //MEDIAINFO_BDAV_YES
+#endif

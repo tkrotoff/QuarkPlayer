@@ -1,4 +1,4 @@
-# Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 #
 # This library is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -15,9 +15,8 @@ project(phonon-ds9)
 include(ConfigureChecks.cmake)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
 if (BUILD_PHONON_DS9)
-    find_package(OpenGL REQUIRED)
+    find_package(OPENGL REQUIRED)
 
     include_directories($ENV{DXDSDK_DIR}/include $ENV{DXSDK_DIR})
     set(phonon_ds9_SRCS
@@ -48,6 +47,10 @@ if (BUILD_PHONON_DS9)
     target_link_libraries(phonon_ds9
                 ${PHONON_LIBS}  ${QT_QTOPENGL_LIBRARY} ${OPENGL_gl_LIBRARY}
                 dxguid strmiids dmoguids msdmo ole32 oleaut32 uuid gdi32)
-    #install(TARGETS phonon_ds9 DESTINATION ${BIN_INSTALL_DIR}/phonon_backend)
-    #install(FILES ds9.desktop DESTINATION ${SERVICES_INSTALL_DIR}/phononbackends)
+    # 'MODULE' is treated as a LIBRARY
+    install(TARGETS phonon_ds9
+	    RUNTIME DESTINATION ${BIN_INSTALL_DIR}/phonon_backend
+	    LIBRARY DESTINATION ${BIN_INSTALL_DIR}/phonon_backend
+	    ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
+    install(FILES ds9.desktop DESTINATION ${SERVICES_INSTALL_DIR}/phononbackends)
 endif (BUILD_PHONON_DS9)

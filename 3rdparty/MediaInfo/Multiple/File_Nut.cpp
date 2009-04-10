@@ -1,5 +1,5 @@
 // File_Nut - Info for Nut files
-// Copyright (C) 2008-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2008-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -105,7 +105,7 @@ void File_Nut::FileHeader_Parse()
         //Integrity
         if (file_id_string!="nut/multimedia container")
         {
-            Finished();
+            Reject("Nut");
             return;
         }
 
@@ -113,7 +113,8 @@ void File_Nut::FileHeader_Parse()
         Stream_Prepare(Stream_General);
         Fill(Stream_General, 0, General_Format, "Nut");
 
-        Finished();
+        Accept("Nut");
+        Finish("Nut");
     FILLING_END();
 }
 

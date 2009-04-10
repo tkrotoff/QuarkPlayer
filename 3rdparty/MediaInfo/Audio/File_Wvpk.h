@@ -1,5 +1,5 @@
 // File_Wvpk - Info for WavePack files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -46,20 +46,24 @@ public :
     bool   FromMKV;
     bool   FromMKV_CodecPrivateParsed;
 
-protected :
-    //Format
-    void Read_Buffer_Continue ();
-    void Read_Buffer_Finalize ();
-
-public :
+    //Constructor - Destructor
     File_Wvpk();
 
 private :
-    //Buffer
-    bool Header_Begin();
+    //Buffer - Synchro
+    bool Synchronize();
+    bool Synched_Test();
+
+    //Buffer - Global
+    void Read_Buffer_Continue ();
+    void Read_Buffer_Finalize ();
+
+    //Buffer - Per element
     void Header_Parse();
     void Data_Parse();
     void Data_Parse_Fill();
+
+    //Elements
     void id_0D();
     void id_25();
 
@@ -83,9 +87,6 @@ private :
     int32u Size;
     int16u version;
     Ztring Encoded_Library_Settings;
-
-    //Helpers
-    bool Synchronize();
 };
 
 } //NameSpace

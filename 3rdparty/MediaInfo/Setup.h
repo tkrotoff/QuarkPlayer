@@ -1,5 +1,5 @@
 // Config - Config file for MediaInfo
-// Copyright (C) 2006-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -124,6 +124,12 @@
 #if !defined(MEDIAINFO_MULTI_NO) && !defined(MEDIAINFO_MPEGTS_NO) && !defined(MEDIAINFO_MPEGTS_YES)
     #define MEDIAINFO_MPEGTS_YES
 #endif
+#if defined(MEDIAINFO_MPEGTS_YES) && !defined(MEDIAINFO_MPEGTS_PCR_NO) && !defined(MEDIAINFO_MPEGTS_PCR_YES)
+    #define MEDIAINFO_MPEGTS_PCR_YES
+#endif
+#if defined(MEDIAINFO_MPEGTS_YES) && !defined(MEDIAINFO_MPEGTS_PESTIMESTAMP_NO) && !defined(MEDIAINFO_MPEGTS_PESTIMESTAMP_YES)
+    #define MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+#endif
 #if !defined(MEDIAINFO_MULTI_NO) && !defined(MEDIAINFO_MXF_NO) && !defined(MEDIAINFO_MXF_YES)
     #define MEDIAINFO_MXF_YES
 #endif
@@ -145,8 +151,14 @@
 #if !defined(MEDIAINFO_MULTI_NO) && !defined(MEDIAINFO_SWF_NO) && !defined(MEDIAINFO_SWF_YES)
     #define MEDIAINFO_SWF_YES
 #endif
+#if !defined(MEDIAINFO_MULTI_NO) && !defined(MEDIAINFO_TSP_NO) && !defined(MEDIAINFO_TSP_YES)
+    #define MEDIAINFO_TSP_YES
+#endif
 #if !defined(MEDIAINFO_MULTI_NO) && !defined(MEDIAINFO_WM_NO) && !defined(MEDIAINFO_WM_YES)
     #define MEDIAINFO_WM_YES
+#endif
+#if !defined(MEDIAINFO_MULTI_NO) && !defined(MEDIAINFO_DPG_NO) && !defined(MEDIAINFO_DPG_YES)
+    #define MEDIAINFO_DPG_YES
 #endif
 
 //---------------------------------------------------------------------------
@@ -171,6 +183,9 @@
 #endif
 #if !defined(MEDIAINFO_VIDEO_NO) && !defined(MEDIAINFO_AVSV_NO) && !defined(MEDIAINFO_AVSV_YES)
     #define MEDIAINFO_AVSV_YES
+#endif
+#if !defined(MEDIAINFO_VIDEO_NO) && !defined(MEDIAINFO_THORA_NO) && !defined(MEDIAINFO_THEORA_YES)
+    #define MEDIAINFO_THEORA_YES
 #endif
 
 //---------------------------------------------------------------------------
@@ -246,16 +261,28 @@
 #endif
 #if !defined(MEDIAINFO_AUDIO_NO) && !defined(MEDIAINFO_WVPK_NO) && !defined(MEDIAINFO_WVPK_YES)
     #define MEDIAINFO_WVPK_YES
+#endif
 #if !defined(MEDIAINFO_AUDIO_NO) && !defined(MEDIAINFO_XM_NO) && !defined(MEDIAINFO_XM_YES)
     #define MEDIAINFO_XM_YES
 #endif
 #if !defined(MEDIAINFO_AUDIO_NO) && !defined(MEDIAINFO_AES3_NO) && !defined(MEDIAINFO_AES3_YES)
     #define MEDIAINFO_AES3_YES
 #endif
+#if !defined(MEDIAINFO_AUDIO_NO) && !defined(MEDIAINFO_SPEEX_NO) && !defined(MEDIAINFO_SPEEX_YES)
+    #define MEDIAINFO_SPEEX_YES
+#endif
+#if !defined(MEDIAINFO_AUDIO_NO) && !defined(MEDIAINFO_PS2A_NO) && !defined(MEDIAINFO_PS2A_YES)
+    #define MEDIAINFO_PS2A_YES
 #endif
 
 //---------------------------------------------------------------------------
 // Text
+#if !defined(MEDIAINFO_TEXT_NO) && !defined(MEDIAINFO_CMML_NO) && !defined(MEDIAINFO_CMML_YES)
+    #define MEDIAINFO_CMML_YES
+#endif
+#if !defined(MEDIAINFO_TEXT_NO) && !defined(MEDIAINFO_KATE_NO) && !defined(MEDIAINFO_KATE_YES)
+    #define MEDIAINFO_KATE_YES
+#endif
 #if !defined(MEDIAINFO_TEXT_NO) && !defined(MEDIAINFO_PGS_NO) && !defined(MEDIAINFO_PGS_YES)
     #define MEDIAINFO_PGS_YES
 #endif
@@ -298,8 +325,14 @@
 #if !defined(MEDIAINFO_ARCHIVE_NO) && !defined(MEDIAINFO_BZIP2_NO) && !defined(MEDIAINFO_BZIP2_YES)
     #define MEDIAINFO_BZIP2_YES
 #endif
+#if !defined(MEDIAINFO_ARCHIVE_NO) && !defined(MEDIAINFO_ELF_NO) && !defined(MEDIAINFO_ELF_YES)
+    #define MEDIAINFO_ELF_YES
+#endif
 #if !defined(MEDIAINFO_ARCHIVE_NO) && !defined(MEDIAINFO_GZIP_NO) && !defined(MEDIAINFO_GZIP_YES)
     #define MEDIAINFO_GZIP_YES
+#endif
+#if !defined(MEDIAINFO_ARCHIVE_NO) && !defined(MEDIAINFO_MZ_NO) && !defined(MEDIAINFO_MZ_YES)
+    #define MEDIAINFO_MZ_YES
 #endif
 #if !defined(MEDIAINFO_ARCHIVE_NO) && !defined(MEDIAINFO_RAR_NO) && !defined(MEDIAINFO_RAR_YES)
     #define MEDIAINFO_RAR_YES
@@ -338,7 +371,7 @@
 //---------------------------------------------------------------------------
 // Other
 #if !defined(MEDIAINFO_DUMMY_NO)
-    #define MEDIAINFO_DUMMY_YES
+    //#define MEDIAINFO_DUMMY_YES
 #endif
 #if !defined(MEDIAINFO_OTHER_NO)
     #define MEDIAINFO_OTHER_YES

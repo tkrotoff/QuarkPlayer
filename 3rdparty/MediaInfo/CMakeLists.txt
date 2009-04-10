@@ -2,7 +2,7 @@ project(mediainfo)
 
 set(MEDIAINFO_MAJOR_VERSION 0)
 set(MEDIAINFO_MINOR_VERSION 7)
-set(MEDIAINFO_PATCH_VERSION 8)
+set(MEDIAINFO_PATCH_VERSION 9)
 set(MEDIAINFO_VERSION ${MEDIAINFO_MAJOR_VERSION}.${MEDIAINFO_MINOR_VERSION}.${MEDIAINFO_PATCH_VERSION})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
@@ -15,11 +15,9 @@ set(mediainfo_SRCS
 	File__Analyze.cpp
 	File__Analyze_Buffer.cpp
 	File__Analyze_Buffer_MinimizeSize.cpp
+	File__Analyze_Finalize.cpp
 	File__Analyze_Streams.cpp
 	File__Base.cpp
-	File__Base_Automatic.cpp
-	File__Base_Finalize.cpp
-	File__Base_Inform.cpp
 	File__MultipleParsing.cpp
 	File__Duplicate.cpp
 	File_Dummy.cpp
@@ -27,6 +25,7 @@ set(mediainfo_SRCS
 	File_Unknown.cpp
 	MediaInfo.cpp
 	MediaInfo_Config.cpp
+	MediaInfo_Config_Automatic.cpp
 	MediaInfo_Config_MediaInfo.cpp
 	MediaInfo_File.cpp
 	MediaInfo_Inform.cpp
@@ -36,7 +35,9 @@ set(mediainfo_SRCS
 	Archive/File_7z.cpp
 	Archive/File_Ace.cpp
 	Archive/File_Bzip2.cpp
+	Archive/File_Elf.cpp
 	Archive/File_Gzip.cpp
+	Archive/File_Mz.cpp
 	Archive/File_Rar.cpp
 	Archive/File_Tar.cpp
 	Archive/File_Zip.cpp
@@ -62,7 +63,9 @@ set(mediainfo_SRCS
 	Audio/File_Mpeg4_AudioSpecificConfig.cpp
 	Audio/File_Mpega.cpp
 	Audio/File_Pcm.cpp
+	Audio/File_Ps2Audio.cpp
 	Audio/File_ScreamTracker3.cpp
+	Audio/File_Speex.cpp
 	Audio/File_Tta.cpp
 	Audio/File_TwinVQ.cpp
 	Audio/File_Vorbis.cpp
@@ -77,8 +80,8 @@ set(mediainfo_SRCS
 	Image/File_Png.cpp
 	Image/File_Rle.cpp
 	Image/File_Tiff.cpp
-	Multiple/File_Bdav.cpp
 	Multiple/File_Cdxa.cpp
+	Multiple/File_Dpg.cpp
 	Multiple/File_DvDif.cpp
 	Multiple/File_Dvdv.cpp
 	Multiple/File_Flv.cpp
@@ -86,10 +89,12 @@ set(mediainfo_SRCS
 	Multiple/File_Mpeg4.cpp
 	Multiple/File_Mpeg4_Descriptors.cpp
 	Multiple/File_Mpeg4_Elements.cpp
+	Multiple/File_Mpeg4_TimeCode.cpp
 	Multiple/File_Mpeg_Descriptors.cpp
 	Multiple/File_Mpeg_Psi.cpp
 	Multiple/File_MpegPs.cpp
 	Multiple/File_MpegTs.cpp
+	Multiple/File_MpegTs_Duplicate.cpp
 	Multiple/File_Mxf.cpp
 	Multiple/File_Nut.cpp
 	Multiple/File_Ogg.cpp
@@ -108,14 +113,18 @@ set(mediainfo_SRCS
 	Tag/File_Lyrics3.cpp
 	Tag/File_Lyrics3v2.cpp
 	Tag/File_VorbisCom.cpp
+	Text/File_Cmml.cpp
+	Text/File_Kate.cpp
 	Text/File_OtherText.cpp
 	Text/File_Pgs.cpp
 	Video/File_Avc.cpp
+	Video/File_Avc_Duplicate.cpp
 	Video/File_AvsV.cpp
 	Video/File_Dirac.cpp
 	Video/File_Flic.cpp
 	Video/File_Mpeg4v.cpp
 	Video/File_Mpegv.cpp
+	Video/File_Theora.cpp
 	Video/File_Vc1.cpp
 	MediaInfoDLL.cpp
 	MediaInfoDLL.def

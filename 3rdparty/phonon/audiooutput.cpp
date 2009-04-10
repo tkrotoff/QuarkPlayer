@@ -15,7 +15,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
     Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public 
+    You should have received a copy of the GNU Lesser General Public
     License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 */
@@ -29,7 +29,7 @@
 #include "phononnamespace_p.h"
 #include "platform_p.h"
 
-#include <qmath.h>
+#include <QtCore/qmath.h>
 
 #define PHONON_CLASSNAME AudioOutput
 #define IFACES2 AudioOutputInterface42
@@ -67,7 +67,7 @@ AudioOutput::AudioOutput(Phonon::Category category, QObject *parent)
     d->init(category);
 }
 
-AudioOutput::AudioOutput(QObject *parent) 
+AudioOutput::AudioOutput(QObject *parent)
     : AbstractAudioOutput(*new AudioOutputPrivate, parent)
 {
     K_D(AudioOutput);

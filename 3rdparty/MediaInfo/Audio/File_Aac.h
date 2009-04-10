@@ -1,5 +1,5 @@
 // File_Aac - Info for AAC (Raw) files
-// Copyright (C) 2008-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2008-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -44,9 +44,8 @@ public :
     ZenLib::Ztring Codec;
 
 protected :
-    //Format
+    //Buffer - Global
     void Read_Buffer_Continue ();
-    void Read_Buffer_Finalize ();
 };
 
 } //NameSpace

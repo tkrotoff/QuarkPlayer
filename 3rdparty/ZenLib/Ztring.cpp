@@ -1,5 +1,5 @@
 // ZenLib::Ztring - std::(w)string is better
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -57,7 +57,6 @@
 #include <cmath>
 #include "ZenLib/Ztring.h"
 #include "ZenLib/OS_Utils.h"
-#include "ZenLib/ConvertUTF.h"
 using namespace std;
 //---------------------------------------------------------------------------
 
@@ -171,25 +170,30 @@ Ztring& Ztring::From_UTF8 (const char* S)
             #ifdef WINDOWS
                 if (IsWin9X())
                 {
-                    const UTF8*  S_Begin          =(const UTF8*)S;
-                    size_t       S_Size           =strlen(S);
-                    const UTF8*  S_End            =(const UTF8*)(S+S_Size+1);
-                    Char*        WideString       =new Char[S_Size+1];
-                                 WideString[0]    =_T('\0');
-                    Char*        WideString_Copy  =WideString;
-                    UTF16*       WideString_Begin =(UTF16*)WideString_Copy;
-                    UTF16*       WideString_End   =(UTF16*)(WideString+S_Size+1);
-                    if (sizeof(wchar_t)==2)
-                        ConvertUTF8toUTF16(&S_Begin, S_End, &WideString_Begin, WideString_End, lenientConversion);
-                    else
+                    clear();
+                    const int8u* Z=(const int8u*)S;
+                    while (*Z) //0 is end
                     {
-                        clear();
-                        return *this;
+                        //1 byte
+                        if (*Z<0x80)
+                        {
+                            operator += ((wchar_t)(*Z));
+                            Z++;
+                        }
+                        //2 bytes
+                        else if ((*Z&0xE0)==0xC0)
+                        {
+                            if ((*(Z+1)&0xC0)==0x80)
+                            {
+                                operator += ((((wchar_t)(*Z&0x1F))<<6)|(*(Z+1)&0x3F));
+                                Z+=2;
+                            }
+                            else
+                                break; //Bad character
+                        }
+                        else
+                            break; //Bad character (or to be encoded in UTF-16LE, not yet supported)
                     }
-                    size_t Size=wcslen(WideString);
-                    WideString[Size]=L'\0';
-                    assign (WideString);
-                    delete[] WideString; //WideString=NULL;
                 }
                 else
                 {
@@ -199,24 +203,59 @@ Ztring& Ztring::From_UTF8 (const char* S)
                         Char* WideString=new Char[Size+1];
                         MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, S, -1, WideString, Size);
                         WideString[Size]=L'\0';
-                        assign (WideString);
+                        assign (WideString+(WideString[0]==0xFEFF?1:0));
                         delete[] WideString; //WideString=NULL;
                     }
                     else
                         clear();
                 }
             #else //WINDOWS
-                size_t Size=mbstowcs(NULL, S, 0);
-                if (Size!=0 && Size!=(size_t)-1)
+                clear();
+                const int8u* Z=(const int8u*)S;
+                while (*Z) //0 is end
                 {
-                    wchar_t* WideString=new wchar_t[Size+1];
-                    Size=mbstowcs(WideString, S, strlen(S));
-                    WideString[Size]=L'\0';
-                    assign (WideString);
-                    delete[] WideString; //WideString=NULL;
+                    //1 byte
+                    if (*Z<0x80)
+                    {
+                        operator += ((wchar_t)(*Z));
+                        Z++;
+                    }
+                    //2 bytes
+                    else if ((*Z&0xE0)==0xC0)
+                    {
+                        if ((*(Z+1)&0xC0)==0x80)
+                        {
+                            operator += ((((wchar_t)(*Z&0x1F))<<6)|(*(Z+1)&0x3F));
+                            Z+=2;
+                        }
+                        else
+                            break; //Bad character
+                    }
+                    //3 bytes
+                    else if ((*Z&0xF0)==0xE0)
+                    {
+                        if ((*(Z+1)&0xC0)==0x80 && (*(Z+2)&0xC0)==0x80)
+                        {
+                            operator += ((((wchar_t)(*Z&0x0F))<<12)|((*(Z+1)&0x3F)<<6)|(*(Z+2)&0x3F));
+                            Z+=3;
+                        }
+                        else
+                            break; //Bad character
+                    }
+                    //4 bytes
+                    else if ((*Z&0xF8)==0xF0)
+                    {
+                        if ((*(Z+1)&0xC0)==0x80 && (*(Z+2)&0xC0)==0x80 && (*(Z+2)&0xC0)==0x80)
+                        {
+                            operator += ((((wchar_t)(*Z&0x0F))<<18)|((*(Z+1)&0x3F)<<12)||((*(Z+2)&0x3F)<<6)|(*(Z+3)&0x3F));
+                            Z+=4;
+                        }
+                        else
+                            break; //Bad character
+                    }
+                    else
+                        break; //Bad character
                 }
-                else
-                    clear();
             #endif
         #else
             assign(S); //Not implemented
@@ -302,7 +341,7 @@ Ztring& Ztring::From_UTF16BE (const char* S)
             size_t Pos=0;
             while (SW[Pos]!=_T('\0'))
             {
-                wchar_t Temp=(wchar_t)(((SW[Pos]&0xFF00)>>8)+((SW[Pos]&0x00FF)<<8));
+                Char Temp=(Char)(((SW[Pos]&0xFF00)>>8)+((SW[Pos]&0x00FF)<<8));
                 append(1, Temp);
                 Pos++;
             }
@@ -310,7 +349,7 @@ Ztring& Ztring::From_UTF16BE (const char* S)
             clear();
             while (S[0]!=0 || S[1]!=0)
             {
-                append(1, (wchar_t)BigEndian2int16u(S));
+                append(1, (Char)BigEndian2int16u(S));
                 S+=2;
             }
         #endif
@@ -367,7 +406,7 @@ Ztring& Ztring::From_UTF16LE (const char* S)
             clear();
             while (S[0]!=0 || S[1]!=0)
             {
-                append(1, (wchar_t)LittleEndian2int16u(S));
+                append(1, (Char)LittleEndian2int16u(S));
                 S+=2;
             }
         #endif
@@ -713,7 +752,7 @@ Ztring& Ztring::From_Number (const int128u I, int8u Radix)
 
 Ztring& Ztring::From_Number (const float32 F, int8u Precision, ztring_t Options)
 {
-    #ifdef __MINGW32__
+    #if defined(__MINGW32__) || defined(__mips__) || defined(__mipsel__)
         Char C1[100];
         #if defined (_UNICODE)
             snwprintf (C1, 99, (Ztring(_T("%."))+Ztring::ToZtring(Precision)+_T("f")).c_str(), F);
@@ -740,7 +779,7 @@ Ztring& Ztring::From_Number (const float32 F, int8u Precision, ztring_t Options)
 
 Ztring& Ztring::From_Number (const float64 F, int8u Precision, ztring_t Options)
 {
-    #ifdef __MINGW32__
+    #if defined(__MINGW32__) || defined(__mips__) || defined(__mipsel__)
         Char C1[100];
         #if defined (_UNICODE)
             snwprintf (C1, 99, (Ztring(_T("%."))+Ztring::ToZtring(Precision)+_T("f")).c_str(), F);
@@ -767,7 +806,7 @@ Ztring& Ztring::From_Number (const float64 F, int8u Precision, ztring_t Options)
 
 Ztring& Ztring::From_Number (const float80 F, int8u Precision, ztring_t Options)
 {
-    #ifdef __MINGW32__
+    #if defined(__MINGW32__) || defined(__mips__) || defined(__mipsel__)
         Char C1[100];
         #if defined (_UNICODE)
             snwprintf (C1, 99, (Ztring(_T("%."))+Ztring::ToZtring(Precision)+_T("f")).c_str(), F);
@@ -802,6 +841,15 @@ Ztring& Ztring::From_Number (const size_t I, int8u Radix)
     return *this;
 }
 #endif //NEED_SIZET
+
+Ztring& Ztring::From_BCD     (const int8u I)
+{
+    toStringStream SS;
+    SS << I/0x10*10;
+    SS << I%0x10;
+    assign(SS.str());
+    return *this;
+}
 
 //---------------------------------------------------------------------------
 Ztring& Ztring::Duration_From_Milliseconds (const int64u Value)
@@ -982,6 +1030,31 @@ Ztring& Ztring::Date_From_String (const char* Value, size_t Value_Size)
     return *this;
 }
 
+Ztring& Ztring::Date_From_Numbers (const int8u Year, const int8u Month, const int8u Day, const int8u Hour, const int8u Minute, const int8u Second)
+{
+    Ztring DateT;
+    Ztring Date=_T("UTC ");
+    DateT.From_Number(Year); if (DateT.size()<2){DateT=Ztring(_T("200"))+Ztring::ToZtring(Year);}; if (DateT.size()<3){DateT=Ztring(_T("20"))+Ztring::ToZtring(Year);}
+    Date+=DateT;
+    Date+=_T("-");
+    DateT.From_Number(Month); if (DateT.size()<2){DateT=Ztring(_T("0"))+Ztring::ToZtring(Month);}
+    Date+=DateT;
+    Date+=_T("-");
+    DateT.From_Number(Day); if (DateT.size()<2){DateT=Ztring(_T("0"))+Ztring::ToZtring(Day);}
+    Date+=DateT;
+    Date+=_T(" ");
+    DateT.From_Number(Hour); if (DateT.size()<2){DateT=Ztring(_T("0"))+Ztring::ToZtring(Hour);}
+    Date+=DateT;
+    Date+=_T(":");
+    DateT=Ztring::ToZtring(Minute); if (DateT.size()<2){DateT=Ztring(_T("0"))+Ztring::ToZtring(Minute);}
+    Date+=DateT;
+    Date+=_T(":");
+    DateT.From_Number(Second); if (DateT.size()<2){DateT=Ztring(_T("0"))+Ztring::ToZtring(Second);}
+    Date+=DateT;
+    assign (Date.c_str());
+    return *this;
+}
+
 #ifndef WSTRING_MISSING
 //---------------------------------------------------------------------------
 std::wstring Ztring::To_Unicode () const
@@ -1007,23 +1080,22 @@ std::string Ztring::To_UTF8 () const
             #ifdef WINDOWS
                 if (IsWin9X())
                 {
-                    const Char*   S                =c_str();
-                    const UTF16*  S_Begin          =(const UTF16*)S;
-                    size_t        S_Size           =size();
-                    const UTF16*  S_End            =(const UTF16*)(S+S_Size+1);
-                    char*         AnsiString       =new char[S_Size*4+1];
-                                  AnsiString[0]    ='\0';
-                    char*         AnsiString_Copy  =AnsiString;
-                    UTF8*         AnsiString_Begin =(UTF8*)AnsiString_Copy;
-                    UTF8*         AnsiString_End   =(UTF8*)(AnsiString+S_Size*4+1);
-                    if (sizeof(wchar_t)==2)
-                        ConvertUTF16toUTF8(&S_Begin, S_End, &AnsiString_Begin, AnsiString_End, lenientConversion);
-                    else
-                        return std::string();
-                    size_t Size=strlen(AnsiString);
-                    AnsiString[Size]='\0';
-                    std::string ToReturn(AnsiString);
-                    delete[] AnsiString; //AnsiString=NULL;
+                    std::string ToReturn;
+                    const wchar_t* Z=c_str();
+                    while (*Z) //0 is end
+                    {
+                        //1 byte
+                        if (*Z<0x80)
+                            ToReturn += (char)  (*Z);
+                        else if (*Z<0x1000)
+                        {
+                            ToReturn += (char)(((*Z)>> 6)&0x1F);
+                            ToReturn += (char)( (*Z)     &0x3F);
+                        }
+                        else
+                            break; //Bad character (or UTF-16LE, not yet supported)
+                        Z++;
+                    }
                     return ToReturn;
                 }
                 else
@@ -1042,18 +1114,36 @@ std::string Ztring::To_UTF8 () const
                         return std::string();
                 }
             #else //WINDOWS
-                size_t Size=wcstombs(NULL, c_str(), 0);
-                if (Size!=0 && Size!=(size_t)-1)
+                std::string ToReturn;
+                const wchar_t* Z=c_str();
+                while (*Z) //0 is end
                 {
-                    char* AnsiString=new char[Size+1];
-                    Size=wcstombs(AnsiString, c_str(), size());
-                    AnsiString[Size]='\0';
-                    std::string ToReturn(AnsiString, 0, Size);
-                    delete[] AnsiString; //AnsiString=NULL;
-                    return ToReturn;
+                    //1 byte
+                    if (*Z<0x80)
+                        ToReturn += (char)  (*Z);
+                    else if (*Z<0x1000)
+                    {
+                        ToReturn += (char)(((*Z)>> 6)&0x1F);
+                        ToReturn += (char)( (*Z)     &0x3F);
+                    }
+                    else if (*Z<0x40000)
+                    {
+                        ToReturn += (char)(((*Z)>>12)&0x0F);
+                        ToReturn += (char)(((*Z)>> 6)&0x3F);
+                        ToReturn += (char)( (*Z)     &0x3F);
+                    }
+                    else if (*Z<0x1000000)
+                    {
+                        ToReturn += (char)(((*Z)>>18)&0x07);
+                        ToReturn += (char)(((*Z)>>12)&0x3F);
+                        ToReturn += (char)(((*Z)>> 6)&0x3F);
+                        ToReturn += (char)( (*Z)     &0x3F);
+                    }
+                    else
+                        break; //Bad character
+                    Z++;
                 }
-                else
-                    return std::string();
+                return ToReturn;
             #endif
         #endif //ZENLIB_USEWX
     #else
@@ -1089,18 +1179,39 @@ std::string Ztring::To_Local () const
                 else
                     return std::string();
             #else //WINDOWS
+                if (empty())
+                    return std::string();
+
                 size_t Size=wcstombs(NULL, c_str(), 0);
                 if (Size!=0 && Size!=(size_t)-1)
                 {
                     char* AnsiString=new char[Size+1];
                     Size=wcstombs(AnsiString, c_str(), Size);
-                    AnsiString[Size]='\0';
-                    std::string ToReturn(AnsiString);
+                    if (Size!=0 && Size!=(size_t)-1)
+                    {
+                        AnsiString[Size]='\0';
+                        std::string ToReturn(AnsiString);
+                        delete[] AnsiString; //AnsiString=NULL;
+                        return ToReturn;
+                    }
+
+                    //Failed
                     delete[] AnsiString; //AnsiString=NULL;
-                    return ToReturn;
                 }
-                else
-                    return std::string();
+
+                //Trying with bad chars
+                char* Result=new char[MB_CUR_MAX];
+                std::string AnsiString;
+                for (size_t Pos=0; Pos<size(); Pos++)
+                {
+                    int Result_Size=wctomb(Result, operator[](Pos));
+                    if (Result_Size>=0)
+                        AnsiString.append(Result, Result_Size);
+                    else
+                        AnsiString+='?';
+                }
+                delete[] Result; //Result=NULL;
+                return AnsiString;
             #endif
         #endif //ZENLIB_USEWX
     #else
@@ -1110,7 +1221,7 @@ std::string Ztring::To_Local () const
 
 //---------------------------------------------------------------------------
 //Operateur ToInt
-int8s Ztring::To_int8s (ztring_t Options) const
+int8s Ztring::To_int8s (int8u Radix, ztring_t Options) const
 {
     //Integrity
     if (empty())
@@ -1122,7 +1233,7 @@ int8s Ztring::To_int8s (ztring_t Options) const
         I=_ttoi(c_str());
     #else
         tStringStream SS(*this);
-        SS >> I;
+        SS >> setbase(Radix) >> I;
         if (SS.fail())
             return 0;
     #endif
@@ -1141,7 +1252,7 @@ int8s Ztring::To_int8s (ztring_t Options) const
 
 //---------------------------------------------------------------------------
 //Operateur ToInt
-int8u Ztring::To_int8u (ztring_t Options) const
+int8u Ztring::To_int8u (int8u Radix, ztring_t Options) const
 {
     //Integrity
     if (empty())
@@ -1153,7 +1264,7 @@ int8u Ztring::To_int8u (ztring_t Options) const
         I=_ttoi64(c_str()); //TODO : I>0x7FFFFFFF - Replaced by i64 version to support, but not good
     #else
         tStringStream SS(*this);
-        SS >> I;
+        SS >> setbase(Radix) >> I;
         if (SS.fail())
             return 0;
     #endif
@@ -1172,7 +1283,7 @@ int8u Ztring::To_int8u (ztring_t Options) const
 
 //---------------------------------------------------------------------------
 //Operateur ToInt
-int16s Ztring::To_int16s (ztring_t Options) const
+int16s Ztring::To_int16s (int8u Radix, ztring_t Options) const
 {
     //Integrity
     if (empty())
@@ -1184,7 +1295,7 @@ int16s Ztring::To_int16s (ztring_t Options) const
         I=_ttoi(c_str());
     #else
         tStringStream SS(*this);
-        SS >> I;
+        SS >> setbase(Radix) >> I;
         if (SS.fail())
             return 0;
     #endif
@@ -1203,7 +1314,7 @@ int16s Ztring::To_int16s (ztring_t Options) const
 
 //---------------------------------------------------------------------------
 //Operateur ToInt
-int16u Ztring::To_int16u (ztring_t Options) const
+int16u Ztring::To_int16u (int8u Radix, ztring_t Options) const
 {
     //Integrity
     if (empty())
@@ -1215,7 +1326,7 @@ int16u Ztring::To_int16u (ztring_t Options) const
         I=_ttoi64(c_str()); //TODO : I>0x7FFFFFFF - Replaced by i64 version to support, but not good
     #else
         tStringStream SS(*this);
-        SS >> I;
+        SS >> setbase(Radix) >> I;
         if (SS.fail())
             return 0;
     #endif
@@ -1234,7 +1345,7 @@ int16u Ztring::To_int16u (ztring_t Options) const
 
 //---------------------------------------------------------------------------
 //Operateur ToInt
-int32s Ztring::To_int32s (ztring_t Options) const
+int32s Ztring::To_int32s (int8u Radix, ztring_t Options) const
 {
     //Integrity
     if (empty())
@@ -1246,7 +1357,7 @@ int32s Ztring::To_int32s (ztring_t Options) const
         I=_ttoi(c_str());
     #else
         tStringStream SS(*this);
-        SS >> I;
+        SS >> setbase(Radix) >> I;
         if (SS.fail())
             return 0;
     #endif
@@ -1265,7 +1376,7 @@ int32s Ztring::To_int32s (ztring_t Options) const
 
 //---------------------------------------------------------------------------
 //Operateur ToInt
-int32u Ztring::To_int32u (ztring_t Options) const
+int32u Ztring::To_int32u (int8u Radix, ztring_t Options) const
 {
     //Integrity
     if (empty())
@@ -1277,7 +1388,7 @@ int32u Ztring::To_int32u (ztring_t Options) const
         I=_ttoi64(c_str()); //TODO : I>0x7FFFFFFF - Replaced by i64 version to support, but not good
     #else
         tStringStream SS(*this);
-        SS >> I;
+        SS >> setbase(Radix) >> I;
         if (SS.fail())
             return 0;
     #endif
@@ -1296,7 +1407,7 @@ int32u Ztring::To_int32u (ztring_t Options) const
 
 //---------------------------------------------------------------------------
 //Operateur ToInt
-int64s Ztring::To_int64s (ztring_t Options) const
+int64s Ztring::To_int64s (int8u Radix, ztring_t Options) const
 {
     //Integrity
     if (empty())
@@ -1308,7 +1419,7 @@ int64s Ztring::To_int64s (ztring_t Options) const
         I=_ttoi64(c_str());
     #else
         tStringStream SS(*this);
-        SS >> I;
+        SS >> setbase(Radix) >> I;
         if (SS.fail())
             return 0;
     #endif
@@ -1327,7 +1438,7 @@ int64s Ztring::To_int64s (ztring_t Options) const
 
 //---------------------------------------------------------------------------
 //Operateur ToInt
-int64u Ztring::To_int64u (ztring_t Options) const
+int64u Ztring::To_int64u (int8u Radix, ztring_t Options) const
 {
     //Integrity
     if (empty())
@@ -1339,7 +1450,7 @@ int64u Ztring::To_int64u (ztring_t Options) const
         I=_ttoi64(c_str()); //TODO : I>0x7FFFFFFFFFFFFFFF
     #else
         tStringStream SS(*this);
-        SS >> I;
+        SS >> setbase(Radix) >> I;
         if (SS.fail())
             return 0;
     #endif
@@ -1520,7 +1631,7 @@ Ztring &Ztring::MakeUpperCase()
 Ztring &Ztring::TrimLeft(Char ToTrim)
 {
     size_type First=0;
-    while (operator[](First)==ToTrim)
+    while (First<size() && operator[](First)==ToTrim)
         First++;
     assign (c_str()+First);
     return *this;
@@ -1530,8 +1641,11 @@ Ztring &Ztring::TrimLeft(Char ToTrim)
 // Remove trailing whitespaces from a string
 Ztring &Ztring::TrimRight(Char ToTrim)
 {
+    if (size()==0)
+        return *this;
+
     size_type Last=size()-1;
-    while (operator[](Last)==ToTrim)
+    while (Last!=(size_type)-1 && operator[](Last)==ToTrim)
         Last--;
     assign (c_str(), Last+1);
     return *this;

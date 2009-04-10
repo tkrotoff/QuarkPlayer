@@ -1,5 +1,5 @@
 // File_Dummy - Fill with Name of tags
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -41,7 +41,7 @@ namespace MediaInfoLib
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Dummy::Read_Buffer_Init()
+void File_Dummy::FileHeader_Parse()
 {
     File_Name=_T("D:\\Example\\"); File_Name+=KindOfDummy;
          if (KindOfDummy==_T("Album"))
@@ -110,7 +110,7 @@ void File_Dummy::Read_Buffer_Init()
         Fill(Stream_Chapters, 0, Chapters_Language, "en");
     }
 
-    Finished();
+    Accept();
 }
 
 //***************************************************************************
@@ -192,7 +192,7 @@ void File_Dummy::Fill_Dummy_General()
     Fill(Stream_General, 0, General_Service_Url, "Service/URL");
     Fill(Stream_General, 0, General_ContentType, "ContentType");
     Fill(Stream_General, 0, General_Subject, "Subject");
-    Fill(Stream_General, 0, General_Synopsys, "Synopsys");
+    Fill(Stream_General, 0, General_Synopsis, "Synopsis");
     Fill(Stream_General, 0, General_Summary, "Summary");
     Fill(Stream_General, 0, General_Description, "Description");
     Fill(Stream_General, 0, General_Keywords, "Keywords");

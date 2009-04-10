@@ -1,5 +1,5 @@
 // File_Dirac - Info for Dirac files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -42,23 +42,30 @@ class File_Dirac : public File__Analyze
 public :
     //In
     size_t Frame_Count_Valid;
+    bool   Ignore_End_of_Sequence;
 
-protected :
-    //Format
-    void Read_Buffer_Continue ();
-    void Read_Buffer_Finalize ();
-
-public :
+    //Constructor/Destructor
     File_Dirac();
 
 private :
-    //Buffer
-    bool Header_Begin();
+    //Buffer - File header
+    bool FileHeader_Begin() {return FileHeader_Begin_0x000001();}
+
+    //Buffer - Synchro
+    bool Synchronize();
+    bool Synched_Test();
+    void Synched_Init();
+    
+    //Buffer - Global
+    void Read_Buffer_Finalize ();
+
+    //Buffer - Per element
     void Header_Parse();
-    bool Header_Parse_Fill_Size();
+    bool Header_Parser_QuickSearch();
+    bool Header_Parser_Fill_Size();
     void Data_Parse();
 
-    //Packets
+    //Elements
     void Sequence_header();
     void End_of_Sequence();
     void Auxiliary_data();
@@ -103,11 +110,6 @@ private :
     int32u clean_top_offset;
     float32 frame_rate;
     float32 pixel_aspect_ratio;
-
-    //Helpers
-    bool Synchronize();
-    bool Header_Parser_QuickSearch();
-    bool Detect_NonDirac();
 };
 
 } //NameSpace

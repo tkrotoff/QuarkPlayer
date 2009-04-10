@@ -1,5 +1,5 @@
 // File_Riff - Info for RIFF files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -67,7 +67,13 @@ namespace Elements
     const int32u ON2_=0x4F4E3220;
     const int32u ON2f=0x4F4E3266;
     const int32u RIFF=0x52494646;
+    const int32u RF64=0x52463634;
+    const int32u SMV0=0x534D5630;
+    const int32u SMV0_xxxx=0x534D563A;
     const int32u W3DI=0x57334449;
+    const int32u WAVE=0x57415645;
+    const int32u WAVE_data=0x64617461;
+    const int32u WAVE_ds64=0x64733634;
 }
 
 //***************************************************************************
@@ -88,11 +94,15 @@ File_Riff::File_Riff()
     Interleaved1_10=0;
 
     //Temp
+    WAVE_data_Size=0xFFFFFFFF;
+    WAVE_fact_samplesCount=0xFFFFFFFF;
     avih_FrameRate=0;
     avih_TotalFrame=0;
     dmlh_TotalFrame=0;
     Idx1_Offset=(int64u)-1;
     movi_Size=0;
+    TimeReference=(int64u)-1;
+    SMV_BlockSize=0;
     stream_Count=0;
     rec__Present=false;
     NeedOldIndex=true;
@@ -115,6 +125,9 @@ File_Riff::~File_Riff()
 //---------------------------------------------------------------------------
 void File_Riff::Read_Buffer_Finalize ()
 {
+    if (!IsAccepted)
+        return;
+
     //For each stream
     std::map<int32u, stream>::iterator Temp=Stream.begin();
     while (Temp!=Stream.end())
@@ -132,15 +145,11 @@ void File_Riff::Read_Buffer_Finalize ()
         {
             //Finalizing and Merging (except Video codec and 120 fps hack)
             Open_Buffer_Finalize(Temp->second.Parser);
-            Ztring Codec_Temp;
-            Ztring FrameRate_Temp;
 
             //Hack - Before
+            Ztring Codec_Temp;
             if (StreamKind_Last==Stream_Video)
-            {
                 Codec_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_Codec); //We want to keep the 4CC of AVI
-                FrameRate_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate); //We want to keep the FrameRate of AVI 120 fps
-            }
 
             //Merging
             Merge(*Temp->second.Parser, StreamKind_Last, 0, StreamPos_Last);
@@ -150,16 +159,12 @@ void File_Riff::Read_Buffer_Finalize ()
             {
                 if (!Codec_Temp.empty())
                     Fill(Stream_Video, StreamPos_Last, Video_Codec, Codec_Temp, true);
-                if (FrameRate_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate))
-                    Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Original, Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate), true);
-                if (!FrameRate_Temp.empty())
-                    Fill(Stream_Video, StreamPos_Last, Video_FrameRate, FrameRate_Temp, true);
 
                 //120 fps hack
-                int32u FrameRate=FrameRate_Temp.To_int32u();
-                if (FrameRate==120)
+                const Ztring &FrameRate=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate);
+                if (FrameRate.To_int32u()==120)
                 {
-                    Fill(Stream_Video, StreamPos_Last, Video_FrameRate_String, MediaInfoLib::Config.Language_Get(FrameRate_Temp+_T(" (24/30)"), _T(" fps")));
+                    Fill(Stream_Video, StreamPos_Last, Video_FrameRate_String, MediaInfoLib::Config.Language_Get(FrameRate+_T(" (24/30)"), _T(" fps")));
                     Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Minimum, 24, 10, true);
                     Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Maximum, 30, 10, true);
                     Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Mode, "VFR");
@@ -167,51 +172,44 @@ void File_Riff::Read_Buffer_Finalize ()
             }
 
             //Alignment
-            if (StreamKind_Last==Stream_Audio)
+            if (StreamKind_Last==Stream_Audio && Count_Get(Stream_Video)>0) //Only if this is not a WAV file
             {
-                if (Count_Get(Stream_Video)>0) //Only if this is not a WAV file
-                    Fill(Stream_Audio, StreamPos_Last, Audio_Alignment, Temp->second.ChunksAreComplete?"Aligned":"Split");
-                    Fill(Stream_Audio, StreamPos_Last, Audio_Alignment_String, MediaInfoLib::Config.Language_Get(Temp->second.ChunksAreComplete?_T("Alignment_Aligned"):_T("Alignment_Split")));
+                Fill(Stream_Audio, StreamPos_Last, Audio_Alignment, Temp->second.ChunksAreComplete?"Aligned":"Split");
+                Fill(Stream_Audio, StreamPos_Last, Audio_Alignment_String, MediaInfoLib::Config.Language_Get(Temp->second.ChunksAreComplete?_T("Alignment_Aligned"):_T("Alignment_Split")));
             }
 
             //Delay
             if (StreamKind_Last==Stream_Audio && Count_Get(Stream_Video)==1 && Temp->second.Rate!=0 && Temp->second.Parser->Count_Get(Stream_General)>0)
             {
-                int64u Delay=(int64u)-1;
-                #if defined(MEDIAINFO_MPEGA_YES)
-                    if (MediaInfoLib::Config.Codec_Get(Ztring().From_Number(Temp->second.Compression, 16), InfoCodec_KindofCodec).find(_T("MPEG-"))==0)
-                        Delay=((File_Mpega*)Temp->second.Parser)->Delay;
-                #endif
-                #if defined(MEDIAINFO_AC3_YES)
-                    if (Temp->second.Compression==0x2000)
-                        Delay=((File_Ac3*)Temp->second.Parser)->Delay;
-                #endif
-                #if defined(MEDIAINFO_DTS_YES)
-                    if (Temp->second.Compression==0x2001 || Temp->second.Compression==0x1)
-                        Delay=((File_Dts*)Temp->second.Parser)->Delay;
-                #endif
-                if (Delay==0)
+                float Delay;
+                bool Delay_IsValid=false;
+
+                     if (Temp->second.Parser->Buffer_TotalBytes_FirstSynched==0)
                 {
-                    Fill(Stream_Audio, StreamPos_Last, Audio_Delay, 0, 0, true);
-                    Fill(Stream_Video, 0, Video_Delay, 0, 10, true);
+                    Delay=0;
+                    Delay_IsValid=true;
                 }
-                else if (Delay!=(int64u)-1)
+                else if (Temp->second.Rate!=0)
                 {
-                    if (Temp->second.Rate!=0)
-                    {
-                        Fill(Stream_Audio, StreamPos_Last, Audio_Delay, ((float)Delay)*1000/Temp->second.Rate, 0, true);
-                        Fill(Stream_Video, 0, Video_Delay, 0, 10, true);
-                    }
-                    else if (Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate).To_int64u()!=0)
-                    {
-                        Fill(Stream_Audio, StreamPos_Last, Audio_Delay, ((float)Delay)*1000/Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate).To_int64u(), 0, true);
-                        Fill(Stream_Video, 0, Video_Delay, 0, 10, true);
-                    }
-                    else if (Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate_Nominal).To_int64u()!=0)
-                    {
-                        Fill(Stream_Audio, StreamPos_Last, Audio_Delay, ((float)Delay)*1000/Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate_Nominal).To_int64u(), 0, true);
-                        Fill(Stream_Video, 0, Video_Delay, 0, 10, true);
-                    }
+                    Delay=((float)Temp->second.Parser->Buffer_TotalBytes_FirstSynched)*1000/Temp->second.Rate;
+                    Delay_IsValid=true;
+                }
+                else if (Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate).To_int64u()!=0)
+                {
+                    Delay=((float)Temp->second.Parser->Buffer_TotalBytes_FirstSynched)*1000/Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate).To_int64u();
+                    Delay_IsValid=true;
+                }
+                else if (Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate_Nominal).To_int64u()!=0)
+                {
+                    Delay=((float)Temp->second.Parser->Buffer_TotalBytes_FirstSynched)*1000/Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate_Nominal).To_int64u();
+                    Delay_IsValid=true;
+                }
+
+                if (Delay_IsValid)
+                {
+                    Delay+=((float)Temp->second.Start)*1000/Temp->second.Rate;
+                    Fill(Stream_Audio, StreamPos_Last, Audio_Delay, Delay, 0, true);
+                    Fill(Stream_Video, 0, Video_Delay, 0, 10, true);
                 }
             }
 
@@ -241,7 +239,6 @@ void File_Riff::Read_Buffer_Finalize ()
                     for (size_t Pos=0; Pos<Temp->second.Parser->Count_Get(Stream_Audio); Pos++)
                     {
                         Stream_Prepare(Stream_Audio);
-                        Open_Buffer_Finalize(Temp->second.Parser);
                         Merge(*Temp->second.Parser, Stream_Audio, Pos, StreamPos_Last);
                     }
                 }
@@ -275,6 +272,7 @@ void File_Riff::Read_Buffer_Finalize ()
             {
                 //Duration in case it is missing from header (malformed header...)
                 int64u SamplingCount=0;
+                #if defined(MEDIAINFO_MPEGA_YES)
                 if (Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==_T("MPEG Audio"))
                 {
                     if (Temp->second.Parser && Temp->second.PacketPos==((File_Mpega*)Temp->second.Parser)->Frame_Count_Valid) //Only for stream with one frame per chunk
@@ -285,6 +283,7 @@ void File_Riff::Read_Buffer_Finalize ()
                             SamplingCount=Temp->second.PacketCount*1152; //Layer 2 and 3
                     }
                 }
+                #endif
                 if (Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==_T("PCM"))
                 {
                     int64u Resolution=Retrieve(Stream_Audio, StreamPos_Last, Audio_Resolution).To_int64u();
@@ -320,7 +319,17 @@ void File_Riff::Read_Buffer_Finalize ()
                     if (Retrieve(Stream_Video, 0, Video_FrameRate).To_float32())
                     {
                         Fill(Stream_Audio, StreamPos_Last, "Interleave_Duration", (float)Stream[0x30300000].PacketCount/Temp->second.PacketCount*1000/Retrieve(Stream_Video, 0, Video_FrameRate).To_float32(), 0);
-                        Fill(Stream_Audio, StreamPos_Last, "Interleave_Duration/String", Retrieve(Stream_Audio, StreamPos_Last, "Interleave_Duration")+_T(" ")+MediaInfoLib::Config.Language_Get(_T("ms"))+(Retrieve(Stream_Audio, StreamPos_Last, "Interleave_VideoFrames").empty()?Ztring():(_T(" (")+MediaInfoLib::Config.Language_Get(Retrieve(Stream_Audio, StreamPos_Last, "Interleave_VideoFrames"), _T(" video frames"))+_T(")"))), 0);
+                        Ztring Temp;
+                        Temp+=Retrieve(Stream_Audio, StreamPos_Last, "Interleave_Duration");
+                        Temp+=_T(" ");
+                        Temp+=MediaInfoLib::Config.Language_Get(_T("ms"));
+                        if (!Retrieve(Stream_Audio, StreamPos_Last, "Interleave_VideoFrames").empty())
+                        {
+                            Temp+=_T(" (");
+                            Temp+=MediaInfoLib::Config.Language_Get(Retrieve(Stream_Audio, StreamPos_Last, "Interleave_VideoFrames"), _T(" video frames"));
+                            Temp+=_T(")");
+                        }
+                        Fill(Stream_Audio, StreamPos_Last, "Interleave_Duration/String", Temp);
                     }
                     int64u Audio_FirstBytes=0;
                     for (std::map<int64u, stream_structure>::iterator Stream_Structure_Temp=Stream_Structure.begin(); Stream_Structure_Temp!=Stream_Structure.end(); Stream_Structure_Temp++)
@@ -396,9 +405,26 @@ void File_Riff::Header_Parse()
         }
     }
 
+    //Special case : SMV file detected
+    if (SMV_BlockSize)
+    {
+        //Filling
+        Header_Fill_Code(Elements::SMV0_xxxx, "SMV Block");
+        Header_Fill_Size(SMV_BlockSize);
+        return;
+    }
+
     //Parsing
     int32u Size, Name;
     Get_C4 (Name,                                               "Name");
+    if (Name==Elements::SMV0)
+    {
+        //SMV specific
+        //Filling
+        Header_Fill_Code(Elements::SMV0, "SMV header");
+        Header_Fill_Size(51);
+        return;
+    }
     if (Name==Elements::FORM
      || Name==Elements::MThd)
         IsBigEndian=true; //Swap from Little to Big Endian for "FORM" files (AIFF...)
@@ -406,8 +432,41 @@ void File_Riff::Header_Parse()
         Get_B4 (Size,                                           "Size");
     else
         Get_L4 (Size,                                           "Size");
+
+    //RF64
+    int64u Size_Complete=Size;
+    if (Size==0xFFFFFFFF)
+    {
+        if (Element_Size<0x1C)
+        {
+            Element_WaitForMoreData();
+            return;
+        }
+        if (Name==Elements::RF64 && CC4(Buffer+Buffer_Offset+0x0C)==Elements::WAVE_ds64)
+        {
+            Size_Complete=LittleEndian2int64u(Buffer+Buffer_Offset+0x14);
+            Param_Info(Size_Complete);
+        }
+        else if (Name==Elements::WAVE_data)
+        {
+            Size_Complete=WAVE_data_Size;
+            Param_Info(Size_Complete);
+        }
+    }
+
+    //Alignment
+    if (Size_Complete%2==1)
+    {
+        Size_Complete++; //Always 2-byte aligned
+        Alignement_ExtraByte=true;
+    }
+    else
+        Alignement_ExtraByte=false;
+
+    //Top level chunks
     if (Name==Elements::LIST
      || Name==Elements::RIFF
+     || Name==Elements::RF64
      || Name==Elements::ON2_
      || Name==Elements::FORM)
         Get_C4 (Name,                                           "Real Name");
@@ -428,14 +487,9 @@ void File_Riff::Header_Parse()
 
     //Filling
     Header_Fill_Code(Name, Ztring().From_CC4(Name));
-    int64u Size_Complete=Size;
-    if (Size_Complete%2==1)
-    {
-        Size_Complete++; //Always 2-byte aligned
-        Alignement_ExtraByte=true;
-    }
-    else
-        Alignement_ExtraByte=false;
+    if ((Name==Elements::WAVE || Name==Elements::WAVE_data)
+     && File_Offset+Buffer_Offset+8+Size==(File_Size%0x100000000LL))
+        Size_Complete=File_Size-(File_Offset+Buffer_Offset+8); //Non standard big files detection
     Header_Fill_Size(Size_Complete+8);
 }
 

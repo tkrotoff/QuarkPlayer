@@ -1,5 +1,5 @@
 // File_Mpeg_Descriptors - Info for MPEG files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -42,6 +42,29 @@ namespace MediaInfoLib
 
 //***************************************************************************
 // Constants
+//***************************************************************************
+
+namespace Elements
+{
+    const int32u AC_3=0x41432D33; //Exactly AC-3
+    const int32u BSSD=0x42535344; //PCM
+    const int32u CUEI=0x43554549; //SCTE
+    const int32u DTS1=0x44545331; //DTS
+    const int32u DTS2=0x44545332; //DTS
+    const int32u DTS3=0x44545333; //DTS
+    const int32u GA94=0x47413934; //ATSC - Terrestrial
+    const int32u HDMV=0x48444D56; //BluRay
+    const int32u S14A=0x53313441; //ATSC - Satellite
+    const int32u SCTE=0x53435445; //SCTE
+    const int32u TSHV=0x54534856; //TSHV
+    const int32u VC_1=0x56432D31; //Exactly VC-1
+    const int32u drac=0x64726163; //Dirac
+
+    const int32u DVB =0x00000001; //Forced value, does not exist is stream
+}
+
+//***************************************************************************
+// Infos
 //***************************************************************************
 
 //---------------------------------------------------------------------------
@@ -369,19 +392,26 @@ const char* Mpeg_Descriptors_dvb_service_type(int8u service_type)
 {
     switch (service_type)
     {
-        case 0x00 : return "reserved for future use";
-        case 0x01 : return "Digital television";
-        case 0x02 : return "Digital radio";
-        case 0x03 : return "Teletext";
+        case 0x01 : return "digital television";
+        case 0x02 : return "digital radio";
+        case 0x03 : return "teletext";
         case 0x04 : return "NVOD reference";
         case 0x05 : return "NVOD time-shifted";
         case 0x06 : return "Mosaic";
-        case 0x07 : return "PAL coded signal";
-        case 0x08 : return "SECAM coded signal";
-        case 0x09 : return "D/D2-MAC";
-        case 0x0A : return "FM Radio";
-        case 0x0B : return "NTSC coded signal";
-        case 0x0C : return "Data";
+        case 0x0A : return "advanced codec digital radio sound";
+        case 0x0B : return "advanced codec mosaic service";
+        case 0x0C : return "data broadcast";
+        case 0x0D : return "reserved for Common Interface Usage";
+        case 0x0E : return "RCS Map";
+        case 0x0F : return "RCS FLS";
+        case 0x10 : return "DVB MHP";
+        case 0x11 : return "MPEG-2 HD digital television";
+        case 0x16 : return "advanced codec SD digital television";
+        case 0x17 : return "advanced codec SD NVOD time-shifted";
+        case 0x18 : return "advanced codec SD NVOD reference";
+        case 0x19 : return "advanced codec HD digital television";
+        case 0x1A : return "advanced codec HD NVOD time-shifted";
+        case 0x1B : return "advanced codec HD NVOD reference";
         case 0xFF : return "reserved for future use";
         default   :
             if (service_type>=0x80)
@@ -578,22 +608,37 @@ const char* Mpeg_Descriptors_component_type(int8u stream_content, int8u componen
     }
 }
 
-const char* Mpeg_Descriptors_format_identifier(int32u format_identifier)
+const char* Mpeg_Descriptors_registration_format_identifier_Format(int32u format_identifier)
 {
     switch (format_identifier)
     {
-        case Mpeg_Descriptors::AC_3 : return "AC3";
-        case Mpeg_Descriptors::BSSD : return "PCM (AES3)";
-        case Mpeg_Descriptors::CUEI : return "SCTE 35 2003 - Digital Program Insertion Cueing Message for Cable";
-        case Mpeg_Descriptors::DTS1 : return "DTS (512)";
-        case Mpeg_Descriptors::DTS2 : return "DTS (1024)";
-        case Mpeg_Descriptors::DTS3 : return "DTS (2048)";
-        case Mpeg_Descriptors::GA94 : return "ATSC A/53 - Terrestrial";
-        case Mpeg_Descriptors::HDMV : return "Blu-ray";
-        case Mpeg_Descriptors::S14A : return "ATSC - Satellite";
-        case Mpeg_Descriptors::SCTE : return "SCTE 54 2003 - Digital Video Service Multiplex and Transport System for Cable Television";
-        case Mpeg_Descriptors::VC_1 : return "VC1";
+        case Elements::AC_3 : return "AC-3";
+        case Elements::BSSD : return "PCM"; //AES3
+        case Elements::CUEI : return "SCTE 35 2003 - Digital Program Insertion Cueing Message for Cable";
+        case Elements::DTS1 : return "DTS"; //512
+        case Elements::DTS2 : return "DTS"; //1024
+        case Elements::DTS3 : return "DTS"; //2048
+        case Elements::GA94 : return "ATSC - Terrestrial";
+        case Elements::HDMV : return "Blu-ray";
+        case Elements::S14A : return "ATSC - Satellite";
+        case Elements::SCTE : return "SCTE 54 2003 - Digital Video Service Multiplex and Transport System for Cable Television";
+        case Elements::TSHV : return "Digital Video";
+        case Elements::VC_1 : return "VC-1";
         default :                     return "";
+    }
+}
+
+stream_t Mpeg_Descriptors_registration_format_identifier_StreamKind(int32u format_identifier)
+{
+    switch (format_identifier)
+    {
+        case Elements::AC_3 : return Stream_Audio;
+        case Elements::BSSD : return Stream_Audio;
+        case Elements::DTS1 : return Stream_Audio;
+        case Elements::DTS2 : return Stream_Audio;
+        case Elements::DTS3 : return Stream_Audio;
+        case Elements::VC_1 : return Stream_Video;
+        default :             return Stream_Max;
     }
 }
 
@@ -611,21 +656,21 @@ const char* Mpeg_Descriptors_stream_Format(int8u descriptor_tag, int32u format_i
         default :
             switch (format_identifier)
             {
-                case Mpeg_Descriptors::CUEI :
-                case Mpeg_Descriptors::SCTE : //SCTE
-                case Mpeg_Descriptors::GA94 :
-                case Mpeg_Descriptors::S14A : //ATSC
+                case Elements::CUEI :
+                case Elements::SCTE : //SCTE
+                case Elements::GA94 :
+                case Elements::S14A : //ATSC
                         switch (descriptor_tag)
                         {
                             case 0x81 : return "AC-3";
                             default   : return "";
                         }
-                case Mpeg_Descriptors::AC_3 : return "AC-3";
-                case Mpeg_Descriptors::DTS1 : return "DTS";
-                case Mpeg_Descriptors::DTS2 : return "DTS";
-                case Mpeg_Descriptors::DTS3 : return "DTS";
-                case Mpeg_Descriptors::VC_1 : return "VC-1";
-                case Mpeg_Descriptors::drac : return "Dirac";
+                case Elements::AC_3 : return "AC-3";
+                case Elements::DTS1 : return "DTS";
+                case Elements::DTS2 : return "DTS";
+                case Elements::DTS3 : return "DTS";
+                case Elements::VC_1 : return "VC-1";
+                case Elements::drac : return "Dirac";
                 default                     :
                         switch (descriptor_tag)
                         {
@@ -656,21 +701,21 @@ const char* Mpeg_Descriptors_stream_Codec(int8u descriptor_tag, int32u format_id
         default :
             switch (format_identifier)
             {
-                case Mpeg_Descriptors::CUEI :
-                case Mpeg_Descriptors::SCTE : //SCTE
-                case Mpeg_Descriptors::GA94 :
-                case Mpeg_Descriptors::S14A : //ATSC
+                case Elements::CUEI :
+                case Elements::SCTE : //SCTE
+                case Elements::GA94 :
+                case Elements::S14A : //ATSC
                         switch (descriptor_tag)
                         {
                             case 0x81 : return "AC3";
                             default   : return "";
                         }
-                case Mpeg_Descriptors::AC_3 : return "AC3";
-                case Mpeg_Descriptors::DTS1 : return "DTS";
-                case Mpeg_Descriptors::DTS2 : return "DTS";
-                case Mpeg_Descriptors::DTS3 : return "DTS";
-                case Mpeg_Descriptors::VC_1 : return "VC-1";
-                case Mpeg_Descriptors::drac : return "Dirac";
+                case Elements::AC_3 : return "AC3";
+                case Elements::DTS1 : return "DTS";
+                case Elements::DTS2 : return "DTS";
+                case Elements::DTS3 : return "DTS";
+                case Elements::VC_1 : return "VC-1";
+                case Elements::drac : return "Dirac";
                 default                     :
                         switch (descriptor_tag)
                         {
@@ -701,21 +746,21 @@ stream_t Mpeg_Descriptors_stream_Kind(int8u descriptor_tag, int32u format_identi
         default :
             switch (format_identifier)
             {
-                case Mpeg_Descriptors::CUEI :
-                case Mpeg_Descriptors::SCTE : //SCTE
-                case Mpeg_Descriptors::GA94 :
-                case Mpeg_Descriptors::S14A : //ATSC
+                case Elements::CUEI :
+                case Elements::SCTE : //SCTE
+                case Elements::GA94 :
+                case Elements::S14A : //ATSC
                         switch (descriptor_tag)
                         {
                             case 0x81 : return Stream_Audio;
                             default   : return Stream_Max;
                         }
-                case Mpeg_Descriptors::AC_3 : return Stream_Audio;
-                case Mpeg_Descriptors::DTS1 : return Stream_Audio;
-                case Mpeg_Descriptors::DTS2 : return Stream_Audio;
-                case Mpeg_Descriptors::DTS3 : return Stream_Audio;
-                case Mpeg_Descriptors::VC_1 : return Stream_Video;
-                case Mpeg_Descriptors::drac : return Stream_Video;
+                case Elements::AC_3 : return Stream_Audio;
+                case Elements::DTS1 : return Stream_Audio;
+                case Elements::DTS2 : return Stream_Audio;
+                case Elements::DTS3 : return Stream_Audio;
+                case Elements::VC_1 : return Stream_Video;
+                case Elements::drac : return Stream_Video;
                 default                     :
                         switch (descriptor_tag)
                         {
@@ -741,6 +786,8 @@ extern const char*  Mpegv_profile_and_level_indication_level[]; //In Video/File_
 //---------------------------------------------------------------------------
 extern const char*  Mpega_Version[]; //In Audio/File_Mpega.cpp
 extern const char*  Mpega_Layer[]; //In Audio/File_Mpega.cpp
+extern const char*  Mpega_Format_Profile_Version[]; //In Audio/File_Mpega.cpp
+extern const char*  Mpega_Format_Profile_Layer[]; //In Audio/File_Mpega.cpp
 
 //---------------------------------------------------------------------------
 extern const int32u AC3_SamplingRate[]; //In Audio/File_Ac3.cpp
@@ -770,23 +817,294 @@ const char* Mpeg_Descriptors_AC3_Priority[]=
     "",
 };
 
+//---------------------------------------------------------------------------
+const char* Mpeg_Descriptors_bandwidth[]=
+{
+    "8 MHz",
+    "7 MHz",
+    "6 MHz",
+    "5 MHz",
+    "",
+    "",
+    "",
+    "",
+};
+
+//---------------------------------------------------------------------------
+const char* Mpeg_Descriptors_constellation[]=
+{
+    "QPSK",
+    "16-QAM",
+    "64-QAM",
+    "",
+};
+
+//---------------------------------------------------------------------------
+const char* Mpeg_Descriptors_hierarchy_information[]=
+{
+    "non-hierarchical, native interleaver",
+    "1, native interleaver",
+    "2, native interleaver",
+    "4, native interleaver",
+    "non-hierarchical, in-depth interleaver",
+    "1, in-depth interleaver",
+    "2, in-depth interleaver",
+    "4, in-depth interleaver",
+};
+
+//---------------------------------------------------------------------------
+const char* Mpeg_Descriptors_code_rate[]=
+{
+    "1/2",
+    "2/3",
+    "3/4",
+    "5/6",
+    "7/8",
+    "",
+    "",
+    "",
+};
+
+//---------------------------------------------------------------------------
+const char* Mpeg_Descriptors_guard_interval[]=
+{
+    "1/32",
+    "1/16",
+    "1/8",
+    "1/4",
+};
+
+//---------------------------------------------------------------------------
+const char* Mpeg_Descriptors_transmission_mode[]=
+{
+    "2k mode",
+    "8k mode",
+    "4k mode",
+    "",
+};
+
+//---------------------------------------------------------------------------
+const char* Mpeg_Descriptors_original_network_id(int16u original_network_id)
+{
+    switch (original_network_id)
+    {
+        case 0x0001 : return "Astra Satellite Network 19,2'E";
+        case 0x0002 : return "Astra Satellite Network 28,2'E";
+        case 0x0003 : return "Astra 1";
+        case 0x0004 : return "Astra 2";
+        case 0x0005 : return "Astra 3";
+        case 0x0006 : return "Astra 4";
+        case 0x0007 : return "Astra 5";
+        case 0x0008 : return "Astra 6";
+        case 0x0009 : return "Astra 7";
+        case 0x000A : return "Astra 8";
+        case 0x000B : return "Astra 9";
+        case 0x000C : return "Astra 10";
+        case 0x000D : return "Astra 11";
+        case 0x000E : return "Astra 12";
+        case 0x000F : return "Astra 13";
+        case 0x0010 : return "Astra 14";
+        case 0x0011 : return "Astra 15";
+        case 0x0012 : return "Astra 16";
+        case 0x0013 : return "Astra 17";
+        case 0x0014 : return "Astra 18";
+        case 0x0015 : return "Astra 19";
+        case 0x0016 : return "Astra 20";
+        case 0x0017 : return "Astra 21";
+        case 0x0018 : return "Astra 22";
+        case 0x0019 : return "Astra 23";
+        case 0x0020 : return "ASTRA";
+        case 0x0021 : return "Hispasat Network 1";
+        case 0x0022 : return "Hispasat Network 2";
+        case 0x0023 : return "Hispasat Network 3";
+        case 0x0024 : return "Hispasat Network 4";
+        case 0x0025 : return "Hispasat Network 5";
+        case 0x0026 : return "Hispasat Network 6";
+        case 0x0027 : return "Hispasat 30'W (FSS)";
+        case 0x0028 : return "Hispasat 30'W (DBS)";
+        case 0x0029 : return "Hispasat 30'W (America)";
+        case 0x0030 : return "Canal+ Satellite Network";
+        case 0x0031 : return "Hispasat – VIA DIGITAL";
+        case 0x0032 : return "Hispasat Network 7";
+        case 0x0033 : return "Hispasat Network 8";
+        case 0x0034 : return "Hispasat Network 9";
+        case 0x0035 : return "Nethold Main Mux System";
+        case 0x0037 : return "STENTOR";
+        case 0x0040 : return "HPT – Croatian Post and Telecommunications";
+        case 0x0041 : return "Mindport";
+        case 0x0046 : return "1 degree W (Telenor)";
+        case 0x0047 : return "1 degree W (Telenor)";
+        case 0x0050 : return "HRT – Croatian Radio and Television";
+        case 0x0051 : return "Havas";
+        case 0x0052 : return "Osaka Yusen Satellite";
+        case 0x0055 : return "Sirius Satellite System";
+        case 0x0058 : return "Thiacom 1 & 2 co-located 78.5'E (UBC Thailand)";
+        case 0x005E : return "Sirius Satellite System (Nordic Coverage)";
+        case 0x005F : return "Sirius Satellite System (FSS)";
+        case 0x0060 : return "Deutsche Telekom";
+        case 0x0069 : return "Optus B3 156'E";
+        case 0x0070 : return "BONUM1 36 Degrees East (NTV+)";
+        case 0x007E : return "Eutelsat Satellite System at 7'E";
+        case 0x0073 : return "PanAmSat 4 68.5'E";
+        case 0x0085 : return "BetaTechnik";
+        case 0x0090 : return "TDF";
+        case 0x00A0 : return "News Datacom";
+        case 0x00A1 : return "News Datacom";
+        case 0x00A2 : return "News Datacom";
+        case 0x00A3 : return "News Datacom";
+        case 0x00A4 : return "News Datacom";
+        case 0x00A5 : return "News Datacom";
+        case 0x00A6 : return "ART";
+        case 0x00A7 : return "Globecast";
+        case 0x00A8 : return "Foxtel";
+        case 0x00A9 : return "Sky New Zealand";
+        case 0x00B0 : return "TPS";
+        case 0x00B1 : return "TPS";
+        case 0x00B2 : return "TPS";
+        case 0x00B3 : return "TPS";
+        case 0x00B4 : return "Telesat 107.3'W";
+        case 0x00B5 : return "Telesat 111.1'W";
+        case 0x00BA : return "Satellite Express – 6 (80'E)";
+        case 0x00C0 : return "Canal+";
+        case 0x00C1 : return "Canal+";
+        case 0x00C2 : return "Canal+";
+        case 0x00C3 : return "Canal+";
+        case 0x00C4 : return "Canal+";
+        case 0x00C5 : return "Canal+";
+        case 0x00C6 : return "Canal+";
+        case 0x00C7 : return "Canal+";
+        case 0x00C8 : return "Canal+";
+        case 0x00C9 : return "Canal+";
+        case 0x00CA : return "Canal+";
+        case 0x00CB : return "Canal+";
+        case 0x00CC : return "Canal+";
+        case 0x00CD : return "Canal+";
+        case 0x0100 : return "ExpressVu Express";
+        case 0x010E : return "Eutelsat Satellite System at 10'E";
+        case 0x0110 : return "Mediaset";
+        case 0x013E : return "Eutelsat Satellite System at 13'E";
+        case 0x016E : return "Eutelsat Satellite System at 16'E";
+        case 0x029E : return "Eutelsat Satellite System at 29'E";
+        case 0x02BE : return "Arabsat Arabsat (Scientific Atlanta, Eutelsat)";
+        case 0x036E : return "Eutelsat Satellite System at 36'E";
+        case 0x03E8 : return "Telia";
+        case 0x048E : return "Eutelsat Satellite System at 48'E";
+        case 0x0800 : return "Nilesat 101";
+        case 0x0801 : return "Nilesat 101";
+        case 0x0880 : return "MEASAT 1, 91.5'E";
+        case 0x0882 : return "MEASAT 2, 91.5'E";
+        case 0x0883 : return "MEASAT 2, 148.0'E";
+        case 0x088F : return "MEASAT 3";
+        case 0x1000 : return "Optus B3 156'E Optus Communications";
+        case 0x1001 : return "DISH Network Echostar Communications";
+        case 0x1002 : return "Dish Network 61.5 W Echostar Communications";
+        case 0x1003 : return "Dish Network 83 W Echostar Communications";
+        case 0x1004 : return "Dish Network 119 W Echostar Communications";
+        case 0x1005 : return "Dish Network 121 W Echostar Communications";
+        case 0x1006 : return "Dish Network 148 W Echostar Communications";
+        case 0x1007 : return "Dish Network 175 W Echostar Communications";
+        case 0x1008 : return "Dish Network W Echostar Communications";
+        case 0x1009 : return "Dish Network X Echostar Communications";
+        case 0x100A : return "Dish Network Y Echostar Communications";
+        case 0x100B : return "Dish Network Z Echostar Communications";
+        case 0x2000 : return "Thiacom 1 & 2 co-located 78.5'E";
+        case 0x22D4 : return "Spanish Digital Terrestrial Television";
+        case 0x22F1 : return "Swedish Digital Terrestrial Television";
+        case 0x233A : return "UK Digital Terrestrial Television";
+        case 0x2024 : return "Australian Digital Terrestrial Television";
+        case 0x2114 : return "German Digital Terrestrial Television";
+        case 0x3000 : return "PanAmSat 4 68.5'E";
+        case 0x5000 : return "Irdeto Mux System";
+        case 0xF000 : return "Small Cable networks";
+        case 0xF001 : return "Deutsche Telekom";
+        case 0xF010 : return "Telefonica Cable";
+        case 0xF020 : return "Cable and Wireless Communication";
+        case 0xFBFC : return "MATAV";
+        case 0xFBFD : return "Telia Kabel-TV";
+        case 0xFBFE : return "TPS";
+        case 0xFBFF : return "Stream";
+        case 0xFC00 : return "France Telecom Cable";
+        case 0xFC10 : return "Rhone Vision Cable";
+        case 0xFD00 : return "Lyonnaise Communications";
+        case 0xFE00 : return "TeleDenmark Cable TV";
+        default     : return "";
+    }
+}
+
+//---------------------------------------------------------------------------
+const char* Mpeg_Descriptors_CA_system_ID(int16u CA_ID)
+{
+    switch (CA_ID)
+    {
+        case 0x0100 : return "Seca Mediaguard 1/2";
+        case 0x0101 : return "RusCrypto";
+        case 0x0464 : return "EuroDec";
+        case 0x0500 : return "TPS-Crypt  or Viaccess";
+        case 0x0602 :
+        case 0x0604 :
+        case 0x0606 :
+        case 0x0608 :
+        case 0x0622 :
+        case 0x0626 : return "Irdeto";
+        case 0x0700 : return "DigiCipher 2";
+        case 0x0911 :
+        case 0x0919 :
+        case 0x0960 :
+        case 0x0961 : return "NDS Videoguard 1/2";
+        case 0x0B00 : return "Conax CAS 5 /7";
+        case 0x0D00 :
+        case 0x0D02 :
+        case 0x0D03 :
+        case 0x0D05 :
+        case 0x0D07 :
+        case 0x0D20 : return "Cryptoworks";
+        case 0x0E00 : return "PowerVu";
+        case 0x1000 : return "RAS (Remote Authorisation System)";
+        case 0x1702 :
+        case 0x1722 :
+        case 0x1762 : return "BetaCrypt 1 or Nagravision";
+        case 0x1710 : return "BetaCrypt 2";
+        case 0x1800 :
+        case 0x1801 :
+        case 0x1810 :
+        case 0x1830 : return "Nagravision";
+        case 0x22F0 : return "Codicrypt";
+        case 0x2600 : return "BISS";
+        case 0x4800 : return "Accessgate";
+        case 0x4900 : return "China Crypt";
+        case 0x4A10 : return "EasyCas";
+        case 0x4A20 : return "AlphaCrypt";
+        case 0x4A60 :
+        case 0x4A61 :
+        case 0x4A63 : return "SkyCrypt or Neotioncrypt or Neotion SHL";
+        case 0x4A70 : return "DreamCrypt";
+        case 0x4A80 : return "ThalesCrypt";
+        case 0x4AA1 : return "KeyFly";
+        case 0x4ABF : return "DG-Crypt";
+        case 0x4AD0 :
+        case 0x4AD1 : return "X-Crypt";
+        case 0x4AD4 : return "OmniCrypt";
+        case 0x4AE0 : return "RossCrypt";
+        case 0x5500 : return "Z-Crypt or DRE-Crypt";
+        case 0x5501 : return "Griffin";
+        default     : return "Encrypted";
+    }
+}
+
 //***************************************************************************
 // Constructor/Destructor
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Mpeg_Descriptors::Read_Buffer_Init()
+File_Mpeg_Descriptors::File_Mpeg_Descriptors()
 {
     //In
-    format_identifier=0x00000000;
-    StreamKind=Stream_Max;
+    Complete_Stream=NULL;
+    transport_stream_id=0x0000;
     table_id=0x00;
-
-    //Out
-    registration_format_identifier=0x00000000;
-    descriptor_tag=0x00;
-    CA_PID=0x0000;
-    ES_ID=0x0000;
+    table_id_extension=0x0000;
+    xxx_id=0x0000;
+    xxx_id_IsValid=false;
 }
 
 //***************************************************************************
@@ -796,25 +1114,28 @@ void File_Mpeg_Descriptors::Read_Buffer_Init()
 //---------------------------------------------------------------------------
 void File_Mpeg_Descriptors::Header_Parse()
 {
-    if (Element_Offset+2>Element_Size)
-        return; //Not enough data
-    int8u descriptor_tag, descriptor_length;
+    int8u descriptor_tag=0, descriptor_length=0;
     Get_B1 (descriptor_tag,                                     "descriptor_tag");
     Get_B1 (descriptor_length,                                  "descriptor_length");
 
     //Size
+    if (Element_Size)
+        Header_Fill_Size(Element_Size);
+    if (Element_Offset)
+        Header_Fill_Size(Element_Offset);
+    if (descriptor_length)
+        Header_Fill_Size(descriptor_length);
+
     if (Element_Size<Element_Offset+descriptor_length)
     {
         Element_WaitForMoreData();
         return;
     }
-    //Element[Element_Level-1].IsComplete=true;
 
     //Filling
     Header_Fill_Code(descriptor_tag, Ztring().From_Number(descriptor_tag, 16));
     Header_Fill_Size(2+descriptor_length);
 }
-
 
 //---------------------------------------------------------------------------
 void File_Mpeg_Descriptors::Data_Parse()
@@ -1073,10 +1394,6 @@ void File_Mpeg_Descriptors::Data_Parse()
                      break;
         }
     }
-
-    //Info about format
-    if (Mpeg_Descriptors_stream_Kind((int8u)Element_Code, format_identifier)!=Stream_Max)
-        descriptor_tag=(int8u)Element_Code;
 }
 
 //***************************************************************************
@@ -1110,10 +1427,24 @@ void File_Mpeg_Descriptors::Descriptor_02()
 
     //Filling
     FILLING_BEGIN();
-        if (!multiple_frame_rate_flag && !frame_rate_extension_flag)
-            Infos["FrameRate"]=Ztring::ToZtring(Mpegv_frame_rate[frame_rate_code]);
-        Infos["Colorimetry"]=Mpegv_Colorimetry_format[chroma_format];
-        Infos["Codec_Profile"]=Ztring().From_Local(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile])+_T("@")+Ztring().From_Local(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]);
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                        {
+                            if (!multiple_frame_rate_flag && !frame_rate_extension_flag && frame_rate_code)
+                                Complete_Stream->Streams[xxx_id].Infos["FrameRate"]=Ztring::ToZtring(Mpegv_frame_rate[frame_rate_code]);
+                            Complete_Stream->Streams[xxx_id].Infos["Format_Version"]=MPEG_1_only_flag?_T("Version 1"):_T("Version 2");
+                            Complete_Stream->Streams[xxx_id].Infos["Colorimetry"]=Mpegv_Colorimetry_format[chroma_format];
+                            if (profile_and_level_indication_profile)
+                            {
+                                Complete_Stream->Streams[xxx_id].Infos["Format_Profile"]=Ztring().From_Local(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile])+_T("@")+Ztring().From_Local(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]);
+                                Complete_Stream->Streams[xxx_id].Infos["Codec_Profile"]=Ztring().From_Local(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile])+_T("@")+Ztring().From_Local(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]);
+                            }
+                        }
+                        break;
+            default    : ;
+        }
     FILLING_END();
 }
 
@@ -1131,29 +1462,39 @@ void File_Mpeg_Descriptors::Descriptor_03()
     Skip_S1(3,                                                  "reserved");
     BS_End();
 
-    //Filling
-    Infos["BitRate_Mode"]=variable_rate_audio_indicator?_T("VBR"):_T("CBR");
-    Infos["Codec"]=Ztring(Mpega_Version[ID])+Ztring(Mpega_Layer[layer]);
+    FILLING_BEGIN()
+        Complete_Stream->Streams[xxx_id].Infos["BitRate_Mode"]=variable_rate_audio_indicator?_T("VBR"):_T("CBR");
+        Complete_Stream->Streams[xxx_id].Infos["Codec"]=Ztring(Mpega_Version[ID])+Ztring(Mpega_Layer[layer]);
+        Complete_Stream->Streams[xxx_id].Infos["Format"]=_T("MPEG Audio");
+        Complete_Stream->Streams[xxx_id].Infos["Format_Version"]=Mpega_Format_Profile_Version[ID];
+        Complete_Stream->Streams[xxx_id].Infos["Format_Profile"]=Mpega_Format_Profile_Layer[layer];
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
 void File_Mpeg_Descriptors::Descriptor_05()
 {
     //Parsing
-    Get_B4 (registration_format_identifier,                     "format_identifier"); Element_Info(Mpeg_Descriptors_format_identifier(registration_format_identifier)); Param_Info(Mpeg_Descriptors_format_identifier(registration_format_identifier));
+    int32u format_identifier;
+    Get_B4 (format_identifier,                                  "format_identifier"); Element_Info(Mpeg_Descriptors_registration_format_identifier_Format(format_identifier)); Param_Info(Mpeg_Descriptors_registration_format_identifier_Format(format_identifier));
 
-    //Filling
-    switch (format_identifier)
-    {
-        case Mpeg_Descriptors::AC_3 : StreamKind=Stream_Audio; Infos["Codec"]=_T("AC3"); break;
-        case Mpeg_Descriptors::BSSD : StreamKind=Stream_Audio; Infos["Codec"]=_T("PCM"); break;
-        case Mpeg_Descriptors::DTS1 :
-        case Mpeg_Descriptors::DTS2 :
-        case Mpeg_Descriptors::DTS3 : StreamKind=Stream_Audio; Infos["Codec"]=_T("DTS"); break;
-        case Mpeg_Descriptors::VC_1 : StreamKind=Stream_Video; Infos["Codec"]=_T("VC-1"); break;
-        case Mpeg_Descriptors::drac : StreamKind=Stream_Video; Infos["Codec"]=_T("Dirac"); break;
-        default : ;
-    }
+    FILLING_BEGIN();
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        switch (xxx_id_IsValid)
+                        {
+                            case false : //Per program
+                                        Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].registration_format_identifier=format_identifier;
+                                        break;
+                            case true : //Per PES
+                                        Complete_Stream->Streams[xxx_id].registration_format_identifier=format_identifier;
+                                        break;
+                        }
+                        break;
+            default    : ;
+        }
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1189,13 +1530,42 @@ void File_Mpeg_Descriptors::Descriptor_08()
 void File_Mpeg_Descriptors::Descriptor_09()
 {
     //Parsing
-    Skip_B2(                                                    "CA_system_ID");
+    int16u CA_system_ID, CA_PID;
+    Get_B2 (CA_system_ID,                                       "CA_system_ID"); Param_Info(Mpeg_Descriptors_CA_system_ID(CA_system_ID));
     BS_Begin();
     Skip_S1( 3,                                                 "reserved");
     Get_S2 (13, CA_PID,                                         "CA_PID");
     BS_End();
     if (Element_Size-Element_Offset>0)
         Skip_XX(Element_Size-Element_Offset,                    "private_data_byte");
+
+    FILLING_BEGIN();
+        switch (table_id)
+        {
+            case 0x01 : //conditional_access_section
+                        if (Complete_Stream->Streams[CA_PID].Kind!=complete_stream::stream::psi)
+                        {
+                            Complete_Stream->Streams[CA_PID].Kind=complete_stream::stream::psi;
+                            #ifdef MEDIAINFO_MPEGTS_ALLSTREAMS_YES
+                                Complete_Stream->Streams[CA_PID].Searching_Payload_Start_Set(true);
+                            #endif
+                        }
+                        break;
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                        {
+                            if (Complete_Stream->Streams[CA_PID].Kind!=complete_stream::stream::psi)
+                            {
+                                Complete_Stream->Streams[CA_PID].Kind=complete_stream::stream::psi;
+                                #ifdef MEDIAINFO_MPEGTS_ALLSTREAMS_YES
+                                    Complete_Stream->Streams[CA_PID].Searching_Payload_Start_Set(true);
+                                #endif
+                            }
+                        }
+                        break;
+            default    : ;
+        }
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1207,10 +1577,20 @@ void File_Mpeg_Descriptors::Descriptor_0A()
     Get_Local(3, ISO_639_language_code,                         "ISO_639_language_code");
     Get_B1 (audio_type,                                         "audio_type"); Param_Info(Mpeg_Descriptors_audio_type(audio_type));
 
-    //Filling
-    Infos["Language"]=ISO_639_language_code;
-    if (audio_type)
-        Infos["Language_More"]=Mpeg_Descriptors_audio_type(audio_type);
+    FILLING_BEGIN();
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                        {
+                            Complete_Stream->Streams[xxx_id].Infos["Language"]=ISO_639_language_code;
+                            if (audio_type)
+                                Complete_Stream->Streams[xxx_id].Infos["Language_More"]=Mpeg_Descriptors_audio_type(audio_type);
+                        }
+                        break;
+            default    : ;
+        }
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1223,8 +1603,18 @@ void File_Mpeg_Descriptors::Descriptor_0E()
     Get_S3 (22, maximum_bitrate,                                "maximum_bitrate"); Param_Info(maximum_bitrate*400, " bps");
     BS_End();
 
-    //Filling
-    Infos["BitRate_Maximum"]=Ztring::ToZtring(maximum_bitrate*400);
+    FILLING_BEGIN();
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                            Complete_Stream->Streams[xxx_id].Infos["BitRate_Maximum"]=Ztring::ToZtring(maximum_bitrate*400);
+                        else
+                            Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].Infos["BitRate_Maximum"]=Ztring::ToZtring(maximum_bitrate*400);
+                        break;
+            default    : ;
+        }
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1260,18 +1650,20 @@ void File_Mpeg_Descriptors::Descriptor_11()
 void File_Mpeg_Descriptors::Descriptor_1D()
 {
     //Parsing
+    int8u IOD_label;
     Skip_B1(                                                    "Scope_of_IOD_label");
-    Skip_B1(                                                    "IOD_label");
-    #ifdef MEDIAINFO_MPEG4_YES
-        File_Mpeg4_Descriptors MI;
-        MI.Parser_DoNotFreeIt=true;
-        Open_Buffer_Init(&MI, File_Offset+Buffer_Offset+Element_Size, File_Offset+Buffer_Offset+Element_Offset);
-        Open_Buffer_Continue(&MI, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
-        Open_Buffer_Finalize(&MI);
+    Get_B1 (IOD_label,                                          "IOD_label");
 
-        //Parser from Descriptor
-        if (MI.Parser)
-            ES_Elements[MI.ES_ID].Parser=MI.Parser;
+    #ifdef MEDIAINFO_MPEG4_YES
+        if (Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].IOD_ESs.find(IOD_label)==Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].IOD_ESs.end())
+        {
+            File_Mpeg4_Descriptors MI;
+            MI.Parser_DoNotFreeIt=true;
+            Open_Buffer_Init(&MI);
+            Open_Buffer_Continue(&MI, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+            Open_Buffer_Finalize(&MI);
+            Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].IOD_ESs[MI.ES_ID].Parser=MI.Parser;
+        }
     #else
         Skip_XX(Element_Size-Element_Offset,                    "MPEG-4 Descriptor");
     #endif
@@ -1281,11 +1673,28 @@ void File_Mpeg_Descriptors::Descriptor_1D()
 void File_Mpeg_Descriptors::Descriptor_1F()
 {
     //Parsing
+    int16u ES_ID;
     while (Element_Offset<Element_Size)
     {
+        Element_Begin("FlexMux");
         Get_B2 (ES_ID,                                          "ES_ID");
         if (Element_Offset!=Element_Size)
             Skip_B1(                                            "FlexMuxChannel");
+        Element_End();
+
+        FILLING_BEGIN();
+            switch (table_id)
+            {
+                case 0x02 : //program_map_section
+                            if (xxx_id_IsValid)
+                            {
+                                Complete_Stream->Streams[xxx_id].FMC_ES_ID=ES_ID;
+                                Complete_Stream->Streams[xxx_id].FMC_ES_ID_IsValid=true;
+                            }
+                            break;
+                default    : ;
+            }
+        FILLING_END();
     }
 }
 
@@ -1314,9 +1723,19 @@ void File_Mpeg_Descriptors::Descriptor_28()
     Skip_S1(6,                                                  "reserved");
     BS_End();
 
-    //Filling
-    if (StreamKind!=Stream_General)
-        Infos["Format_Profile"]=Ztring().From_Local(Avc_profile_idc(profile_idc))+_T("@")+Ztring().From_Number(((float)level_idc)/10, 1);
+    FILLING_BEGIN();
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                        {
+                            Complete_Stream->Streams[xxx_id].Infos["Format"]=_T("AVC");
+                            Complete_Stream->Streams[xxx_id].Infos["Format_Profile"]=Ztring().From_Local(Avc_profile_idc(profile_idc))+_T("@")+Ztring().From_Number(((float)level_idc)/10, 1);
+                        }
+                        break;
+            default    : ;
+        }
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1330,6 +1749,63 @@ void File_Mpeg_Descriptors::Descriptor_2F()
 }
 
 //---------------------------------------------------------------------------
+void File_Mpeg_Descriptors::Descriptor_40()
+{
+    //Parsing
+    Ztring network_name;
+    Get_DVB_Text(Element_Size, network_name,                    "network_name");
+
+    FILLING_BEGIN();
+        Complete_Stream->network_name=network_name;
+    FILLING_END();
+}
+
+//---------------------------------------------------------------------------
+void File_Mpeg_Descriptors::Descriptor_41()
+{
+    //Parsing
+    while (Element_Offset<Element_Size)
+    {
+        Element_Begin("service");
+        int16u service_id;
+        int8u service_type;
+        Get_B2 (service_id,                                     "service_id"); Element_Info(Ztring::ToZtring(service_id, 16));
+        Get_B1 (service_type,                                   "service_type"); Param_Info(Mpeg_Descriptors_dvb_service_type(service_type));
+        Element_End(service_id);
+
+        FILLING_BEGIN();
+            Complete_Stream->Transport_Streams[table_id_extension].Programs[service_id].Infos["ServiceType"]=Mpeg_Descriptors_dvb_service_type(service_type);
+        FILLING_END();
+    }
+}
+
+//---------------------------------------------------------------------------
+void File_Mpeg_Descriptors::Descriptor_43()
+{
+    //Parsing
+    int32u frequency, symbol_rate;
+    int16u orbital_position;
+    int8u polarization, roll_off, modulation_type, FEC_inner;
+    bool west_east_flag, modulation_system;
+    Get_B4 (frequency,                                          "frequency"); Param_Info(Frequency_DVB__BCD(frequency));
+    Get_B2 (orbital_position,                                   "orbital_position"); Param_Info(OrbitalPosition_DVB__BCD(orbital_position));
+    BS_Begin();
+    Get_SB (    west_east_flag,                                 "west_east_flag"); Param_Info(west_east_flag?"E":"W");
+    Get_S1 ( 2, polarization,                                   "polarization");
+    Get_S1 ( 2, roll_off,                                       "roll_off");
+    Get_SB (    modulation_system,                              "modulation_system");
+    Get_S1 ( 2, modulation_type,                                "modulation_type");
+    Get_S4 (28, symbol_rate,                                    "symbol_rate");
+    Get_S1 ( 4, FEC_inner,                                      "FEC_inner");
+    BS_End();
+
+    FILLING_BEGIN();
+        Complete_Stream->Transport_Streams[transport_stream_id].Infos["Frequency"]=Frequency_DVB__BCD(frequency);
+        Complete_Stream->Transport_Streams[transport_stream_id].Infos["OrbitalPosition"]=OrbitalPosition_DVB__BCD(orbital_position)+(west_east_flag?_T('E'):_T('W'));
+    FILLING_END();
+}
+
+//---------------------------------------------------------------------------
 void File_Mpeg_Descriptors::Descriptor_48()
 {
     //Parsing
@@ -1337,15 +1813,15 @@ void File_Mpeg_Descriptors::Descriptor_48()
     int8u service_type, service_provider_name_length, service_name_length;
     Get_B1 (service_type,                                       "service_type"); Param_Info(Mpeg_Descriptors_dvb_service_type(service_type));
     Get_B1 (service_provider_name_length,                       "service_provider_name_length");
-    Get_Local (service_provider_name_length, service_provider_name, "service_provider_name");
+    Get_DVB_Text(service_provider_name_length, service_provider_name, "service_provider_name");
     Get_B1 (service_name_length,                                "service_name_length");
-    Get_Local(service_name_length, service_name,                "service_name");
+    Get_DVB_Text(service_name_length, service_name,             "service_name");
 
     //Filling
     FILLING_BEGIN();
-        Program.Infos["ServiceType"]=Mpeg_Descriptors_dvb_service_type(service_type);
-        Program.Infos["ServiceProvider"]=service_provider_name;
-        Program.Infos["ServiceName"]=service_name;
+        Complete_Stream->Transport_Streams[table_id_extension].Programs[xxx_id].Infos["ServiceName"]=service_name;
+        Complete_Stream->Transport_Streams[table_id_extension].Programs[xxx_id].Infos["ServiceProvider"]=service_provider_name;
+        Complete_Stream->Transport_Streams[table_id_extension].Programs[xxx_id].Infos["ServiceType"]=Mpeg_Descriptors_dvb_service_type(service_type);
     FILLING_END();
 }
 
@@ -1355,7 +1831,7 @@ void File_Mpeg_Descriptors::Descriptor_4A()
     //Parsing
     int8u linkage_type;
     Skip_B2(                                                    "transport_stream_id");
-    Skip_B2(                                                    "original_network_id");
+    Info_B2(original_network_id,                                "original_network_id"); Param_Info(Mpeg_Descriptors_original_network_id(original_network_id));
     Skip_B2(                                                    "service_id");
     Get_B1 (linkage_type,                                       "linkage_type"); Param_Info(Mpeg_Descriptors_linkage_type(linkage_type));
     if (Element_Size>7)
@@ -1366,13 +1842,26 @@ void File_Mpeg_Descriptors::Descriptor_4A()
 void File_Mpeg_Descriptors::Descriptor_4D()
 {
     //Parsing
-    Ztring event_name;
+    Ztring event_name, text;
     int8u event_name_length, text_length;
     Skip_Local(3,                                               "ISO_639_language_code");
     Get_B1 (event_name_length,                                  "event_name_length");
     Get_DVB_Text(event_name_length, event_name,                 "event_name"); Element_Info(event_name);
     Get_B1 (text_length,                                        "text_length");
-    Skip_DVB_Text(text_length,                                  "text");
+    Get_DVB_Text(text_length, text,                             "text");
+
+    FILLING_BEGIN();
+        if (table_id>=0x4E && table_id<=0x6F) //event_information_section
+        {
+            if (xxx_id_IsValid)
+            {
+                Complete_Stream->Transport_Streams[transport_stream_id].Programs[table_id_extension].DVB_EPG_Blocks[table_id].Events[xxx_id].short_event.event_name=event_name;
+                Complete_Stream->Transport_Streams[transport_stream_id].Programs[table_id_extension].DVB_EPG_Blocks[table_id].Events[xxx_id].short_event.text=text;
+                Complete_Stream->Transport_Streams[transport_stream_id].Programs[table_id_extension].DVB_EPG_Blocks_IsUpdated=true;
+                IsUpdated=true;
+            }
+        }
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1389,9 +1878,16 @@ void File_Mpeg_Descriptors::Descriptor_50()
     Get_Local(3, ISO_639_language_code,                         "ISO_639_language_code");
     Skip_DVB_Text(Element_Size-Element_Offset,                  "text");
 
-    //Filling
-    if (StreamKind!=Stream_General)
-        Infos["Language"]=ISO_639_language_code;
+    FILLING_BEGIN();
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                            Complete_Stream->Streams[xxx_id].Infos["Language"]=ISO_639_language_code;
+                        break;
+            default    : ;
+        }
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1413,7 +1909,22 @@ void File_Mpeg_Descriptors::Descriptor_54()
         Skip_S1(4,                                              "user_nibble");
         Skip_S1(4,                                              "user_nibble");
         BS_End();
+
+        FILLING_BEGIN();
+            Complete_Stream->Transport_Streams[transport_stream_id].Programs[table_id_extension].DVB_EPG_Blocks[table_id].Events[xxx_id].content=Ztring().From_UTF8(Mpeg_Descriptors_content_nibble_level_2(content_nibble_level_1, content_nibble_level_2))+_T(", ");
+            Complete_Stream->Transport_Streams[transport_stream_id].Programs[table_id_extension].DVB_EPG_Blocks_IsUpdated=true;
+            IsUpdated=true;
+        FILLING_END();
     }
+
+    FILLING_BEGIN();
+        if (!Complete_Stream->Transport_Streams[transport_stream_id].Programs[table_id_extension].DVB_EPG_Blocks[table_id].Events[xxx_id].content.empty())
+        {
+            Complete_Stream->Transport_Streams[transport_stream_id].Programs[table_id_extension].DVB_EPG_Blocks[table_id].Events[xxx_id].content.resize(Complete_Stream->Transport_Streams[transport_stream_id].Programs[table_id_extension].DVB_EPG_Blocks[table_id].Events[xxx_id].content.size()-2);
+            Complete_Stream->Transport_Streams[transport_stream_id].Programs[table_id_extension].DVB_EPG_Blocks_IsUpdated=true;
+            IsUpdated=true;
+        }
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1431,20 +1942,78 @@ void File_Mpeg_Descriptors::Descriptor_55()
 void File_Mpeg_Descriptors::Descriptor_56()
 {
     //Parsing
-    Ztring ISO_639_language_code;
+    Ztring Languages;
     while (Element_Offset<Element_Size)
     {
+        Element_Begin("teletext");
+        Ztring ISO_639_language_code;
         Get_Local(3, ISO_639_language_code,                         "ISO_639_language_code");
         BS_Begin();
-        Info_S1(5, teletext_type,                                   "teletext_type"); Param_Info(Mpeg_Descriptors_teletext_type(teletext_type));
-        Skip_S1(3,                                                  "teletext_magazine_number");
-        Skip_S1(4,                                                  "teletext_page_number_1");
-        Skip_S1(4,                                                  "teletext_page_number_2");
+        Info_S1(5, teletext_type,                               "teletext_type"); Param_Info(Mpeg_Descriptors_teletext_type(teletext_type));
+        Skip_S1(3,                                              "teletext_magazine_number");
+        Skip_S1(4,                                              "teletext_page_number_1");
+        Skip_S1(4,                                              "teletext_page_number_2");
         BS_End();
 
-        //Filling
-        Infos["Language"]=ISO_639_language_code;
-        //TODO: this stream is teletext. Be careful, multiple stream in a PID
+        FILLING_BEGIN();
+            switch (table_id)
+            {
+                case 0x02 : //program_map_section
+                            if (xxx_id_IsValid)
+                                Languages+=ISO_639_language_code+_T(" / ");
+                                //TODO: this stream is teletext. Be careful, multiple stream in a PID
+                            break;
+                default    : ;
+            }
+        FILLING_END();
+
+        Element_End();
+    }
+
+    FILLING_BEGIN();
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                        {
+                            Complete_Stream->Streams[xxx_id].StreamKind=Stream_Text;
+                            if (!Languages.empty())
+                                Languages.resize(Languages.size()-3);
+                            Complete_Stream->Streams[xxx_id].Infos["Language"]=Languages;
+                            Complete_Stream->Streams[xxx_id].Infos["Format"]=_T("Teletext");
+                            Complete_Stream->Streams[xxx_id].Infos["Codec"]=_T("Teletext");
+                        }
+                        break;
+            default    : ;
+        }
+    FILLING_END();
+}
+
+//---------------------------------------------------------------------------
+void File_Mpeg_Descriptors::Descriptor_58()
+{
+    //Parsing
+    while (Element_Offset<Element_Size)
+    {
+        int32u country_code;
+        int8u country_region_id;
+        Get_C3 (country_code,                                       "country_code");
+        BS_Begin();
+        Get_S1 (6, country_region_id,                               "country_region_id");
+        Skip_SB(                                                    "reserved");
+        Info_SB(local_time_offset_polarity,                         "local_time_offset_polarity"); Param_Info(local_time_offset_polarity?"-":"+");
+        BS_End();
+        Info_B2(local_time_offset,                                  "local_time_offset"); Param_Info(TimeHHMM_BCD(local_time_offset));
+        Info_B2(date,                                               "time_of_change (date)"); Param_Info(Date_MJD(date));
+        Info_B3(time,                                               "time_of_change (time)"); Param_Info(Time_BCD(time));
+        Info_B2(next_time_offset,                                   "next_time_offset"); Param_Info(TimeHHMM_BCD(next_time_offset));
+
+        FILLING_BEGIN();
+            Ztring Country; Country.From_CC3(country_code);
+            if (country_region_id)
+                Country+=_T(" (")+Ztring::ToZtring(country_region_id)+_T(")");
+            Complete_Stream->TimeZones[Country]=(local_time_offset_polarity?_T('-'):_T('+'))+TimeHHMM_BCD(local_time_offset);
+        FILLING_END();
     }
 }
 
@@ -1452,17 +2021,106 @@ void File_Mpeg_Descriptors::Descriptor_56()
 void File_Mpeg_Descriptors::Descriptor_59()
 {
     //Parsing
-    Ztring ISO_639_language_code;
+    Ztring Languages;
     while (Element_Offset<Element_Size)
     {
+        Element_Begin("subtitle");
+        Ztring ISO_639_language_code;
         Get_Local(3, ISO_639_language_code,                         "ISO_639_language_code");
         Info_B1(subtitling_type,                                    "subtitling_type"); Param_Info(Mpeg_Descriptors_component_type_O3(subtitling_type));
         Skip_B2(                                                    "composition_page_id");
         Skip_B2(                                                    "ancillary_page_id");
 
+        FILLING_BEGIN();
+            switch (table_id)
+            {
+                case 0x02 : //program_map_section
+                            if (xxx_id_IsValid)
+                            {
+                                Languages+=ISO_639_language_code+_T(" / ");
+                                //TODO: this stream is teletext. Be careful, multiple stream in a PID
+                            }
+                            break;
+                default    : ;
+            }
+        FILLING_END();
+        
+        Element_End();
+    }
+
+    FILLING_BEGIN();
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                        {
+                            Complete_Stream->Streams[xxx_id].StreamKind=Stream_Text;
+                            if (!Languages.empty())
+                                Languages.resize(Languages.size()-3);
+                            Complete_Stream->Streams[xxx_id].Infos["Language"]=Languages;
+                            Complete_Stream->Streams[xxx_id].Infos["Format"]=_T("DVB Subtitles");
+                            Complete_Stream->Streams[xxx_id].Infos["Codec"]=_T("DVB Subtitles");
+                        }
+                        break;
+            default    : ;
+        }
+    FILLING_END();
+}
+
+//---------------------------------------------------------------------------
+void File_Mpeg_Descriptors::Descriptor_5A()
+{
+    //Parsing
+    Info_B4(centre_frequency,                                   "centre_frequency"); Param_Info(((int64u)centre_frequency)*10, " Hz");
+    BS_Begin();
+    Info_S1(3, bandwidth,                                       "bandwidth"); Param_Info(Mpeg_Descriptors_bandwidth[bandwidth]);
+    Info_SB(   priority,                                        "priority"); Param_Info(priority?"HP":"LP");
+    Skip_SB(                                                    "Time_Slicing_indicator");
+    Skip_SB(                                                    "MPE-FEC_indicator");
+    Skip_S1(2,                                                  "reserved");
+    Info_S1(2, constellation,                                   "constellation"); Param_Info(Mpeg_Descriptors_constellation[constellation]);
+    Info_S1(3, hierarchy_information,                           "hierarchy_information"); Param_Info(Mpeg_Descriptors_hierarchy_information[hierarchy_information]);
+    Info_S1(3, code_rate_HP,                                    "code_rate-HP_stream"); Param_Info(Mpeg_Descriptors_code_rate[code_rate_HP]);
+    Info_S1(3, code_rate_LP,                                    "code_rate-LP_stream"); Param_Info(Mpeg_Descriptors_code_rate[code_rate_LP]);
+    Info_S1(2, guard_interval,                                  "guard_interval"); Param_Info(Mpeg_Descriptors_guard_interval[guard_interval]);
+    Info_S1(2, transmission_mode,                               "transmission_mode"); Param_Info(Mpeg_Descriptors_transmission_mode[transmission_mode]);
+    Skip_SB(                                                    "other_frequency_flag");
+    BS_End();
+    Skip_B4(                                                    "reserved");
+}
+
+//---------------------------------------------------------------------------
+void File_Mpeg_Descriptors::Descriptor_5D()
+{
+    //Parsing
+    Ztring ServiceProvider, ServiceName;
+    while (Element_Offset<Element_Size)
+    {
+        Ztring service_provider_name, service_name;
+        int32u ISO_639_language_code;
+        int8u  service_provider_name_length, service_name_length;
+        Get_C3 (ISO_639_language_code,                          "ISO_639_language_code");
+        Get_B1 (service_provider_name_length,                   "service_provider_name_length");
+        Get_DVB_Text(service_provider_name_length, service_provider_name, "service_provider_name");
+        Get_B1 (service_name_length,                            "service_name_length");
+        Get_DVB_Text(service_name_length, service_name,         "service_name");
+
         //Filling
-        Infos["Language"]=ISO_639_language_code;
-        //TODO: this stream is subtitle. Be careful, multiple stream in a PID
+        FILLING_BEGIN();
+            ServiceProvider+=Ztring().From_CC3(ISO_639_language_code)+_T(':')+service_provider_name+_T( " - ");
+            ServiceName+=Ztring().From_CC3(ISO_639_language_code)+_T(':')+service_name+_T( " - ");
+        FILLING_END();
+    }
+
+    if (!ServiceProvider.empty())
+    {
+        ServiceProvider.resize(ServiceProvider.size()-3);
+        Complete_Stream->Transport_Streams[table_id_extension].Programs[xxx_id].Infos["ServiceProvider"]=ServiceProvider;
+    }
+    if (!ServiceName.empty())
+    {
+        ServiceName.resize(ServiceName.size()-3);
+        Complete_Stream->Transport_Streams[table_id_extension].Programs[xxx_id].Infos["ServiceName"]=ServiceName;
     }
 }
 
@@ -1487,8 +2145,20 @@ void File_Mpeg_Descriptors::Descriptor_63()
     Skip_S2(14,                                                 "maximum_overall_smoothing_buffer");
     BS_End();
 
-    //Filling
-    Infos["OverallBitRate_Maximum"]=Ztring::ToZtring(peak_rate*400);
+    FILLING_BEGIN();
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                            Complete_Stream->Streams[xxx_id].Infos["OverallBitRate_Maximum"]=Ztring::ToZtring(peak_rate*400);
+                        break;
+            case 0x7F : //selection_information_section
+                        if (!xxx_id_IsValid)
+                            Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Infos["OverallBitRate_Maximum"]=Ztring::ToZtring(peak_rate*400);
+                        break;
+            default    : ;
+        }
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1511,7 +2181,7 @@ void File_Mpeg_Descriptors::Descriptor_6A()
 {
     //Parsing
     BS_Begin();
-    bool component_type_flag, bsid_flag, mainid_flag, asvc_flag;
+    bool component_type_flag, bsid_flag, mainid_flag, asvc_flag, enhanced_ac3=false;
     Get_SB (   component_type_flag,                             "component_type_flag");
     Get_SB (   bsid_flag,                                       "bsid_flag");
     Get_SB (   mainid_flag,                                     "mainid_flag");
@@ -1525,12 +2195,22 @@ void File_Mpeg_Descriptors::Descriptor_6A()
     {
         int8u service_type, number_of_channels;
         BS_Begin();
-        Skip_SB(                                                "enhanced AC-3");
+        Get_SB (   enhanced_ac3,                                "enhanced AC-3");
         Skip_SB(                                                "full_service");
         Get_S1 (3, service_type,                                "service_type"); Param_Info(AC3_Mode[service_type]);
         Get_S1 (3, number_of_channels,                          "number_of_channels"); Param_Info(Mpeg_Descriptors_AC3_Channels[number_of_channels], " channels");
         BS_End();
-        Infos["Channel(s)"]=Ztring().From_Local(Mpeg_Descriptors_AC3_Channels[number_of_channels]);
+
+        FILLING_BEGIN();
+            switch (table_id)
+            {
+                case 0x02 : //program_map_section
+                            if (xxx_id_IsValid)
+                                Complete_Stream->Streams[xxx_id].Infos["Channel(s)"]=Ztring().From_Local(Mpeg_Descriptors_AC3_Channels[number_of_channels]);
+                            break;
+                default    : ;
+            }
+        FILLING_END();
     }
     if (bsid_flag)
     {
@@ -1547,11 +2227,21 @@ void File_Mpeg_Descriptors::Descriptor_6A()
     {
         Skip_B1(                                                "asvc");
     }
-    //BS_End_CANBEMORE();
 
-    //Filling
-    StreamKind=Stream_Audio;
-    Infos["Codec"]=_T("AC3");
+    FILLING_BEGIN(); //Can be more
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                        {
+                            Complete_Stream->Streams[xxx_id].StreamKind=Stream_Audio;
+                            Complete_Stream->Streams[xxx_id].Infos["Format"]=enhanced_ac3?_T("E-AC-3"):_T("AC-3");
+                            Complete_Stream->Streams[xxx_id].Infos["Codec"]=_T("AC3+");
+                        }
+                        break;
+            default    : ;
+        }
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1577,7 +2267,16 @@ void File_Mpeg_Descriptors::Descriptor_7A()
         Skip_SB(                                               "full_service");
         Get_S1 (3, service_type,                               "service_type"); Param_Info(AC3_Mode[service_type]);
         Get_S1 (3, number_of_channels,                         "number_of_channels"); Param_Info(Mpeg_Descriptors_AC3_Channels[number_of_channels], " channels");
-        Infos["Channel(s)"]=Ztring().From_Local(Mpeg_Descriptors_AC3_Channels[number_of_channels]);
+        FILLING_BEGIN();
+            switch (table_id)
+            {
+                case 0x02 : //program_map_section
+                            if (xxx_id_IsValid)
+                                Complete_Stream->Streams[xxx_id].Infos["Channel(s)"]=Ztring().From_Local(Mpeg_Descriptors_AC3_Channels[number_of_channels]);
+                            break;
+                default    : ;
+            }
+        FILLING_END();
         BS_End();
     }
     if (bsid_flag)
@@ -1607,11 +2306,21 @@ void File_Mpeg_Descriptors::Descriptor_7A()
     {
         Skip_B1(                                                "substream3");
     }
-    //BS_End_CANBEMORE();
 
-    //Filling
-    StreamKind=Stream_Audio;
-    Infos["Codec"]=enhanced_ac3?_T("E-AC-3"):_T("AC-3");
+    FILLING_BEGIN(); //Can be more
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                        {
+                            Complete_Stream->Streams[xxx_id].StreamKind=Stream_Audio;
+                            Complete_Stream->Streams[xxx_id].Infos["Format"]=enhanced_ac3?_T("E-AC-3"):_T("AC-3");
+                            Complete_Stream->Streams[xxx_id].Infos["Codec"]=_T("AC3+");
+                        }
+                        break;
+            default    : ;
+        }
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1655,9 +2364,6 @@ void File_Mpeg_Descriptors::Descriptor_7C()
 //---------------------------------------------------------------------------
 void File_Mpeg_Descriptors::Descriptor_81()
 {
-    //if (format_identifier!=Mpeg_Descriptors::GA94);
-    //    return;
-
     //Parsing
     Ztring Text, Language1, Language2;
     int8u sample_rate_code, bit_rate_code, surround_mode, bsmod, num_channels, langcod, textlen, text_code;
@@ -1672,20 +2378,28 @@ void File_Mpeg_Descriptors::Descriptor_81()
     Skip_SB(                                                    "full_svc");
     BS_End();
 
-    //Filling
-    if (sample_rate_code<4)
-        Infos["SamplingRate"]=Ztring::ToZtring(AC3_SamplingRate[sample_rate_code]);
-    Infos["BitRate"]=Ztring::ToZtring(AC3_BitRate[bit_rate_code]*1000);
-    if (num_channels<8)
-        Infos["Channel(s)"]=Ztring::ToZtring(AC3_Channels[num_channels]);
+    FILLING_BEGIN();
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                        {
+                            if (sample_rate_code<4)
+                                Complete_Stream->Streams[xxx_id].Infos["SamplingRate"]=Ztring::ToZtring(AC3_SamplingRate[sample_rate_code]);
+                            Complete_Stream->Streams[xxx_id].Infos["BitRate"]=Ztring::ToZtring(AC3_BitRate[bit_rate_code]*1000);
+                            if (num_channels<8)
+                                Complete_Stream->Streams[xxx_id].Infos["Channel(s)"]=Ztring::ToZtring(AC3_Channels[num_channels]);
+                        }
+        }
+    FILLING_END();
 
     //Parsing
     if (Element_Offset==Element_Size) return;
-        Get_B1 (langcod,                                        "langcod");
+    Get_B1 (langcod,                                            "langcod");
 
     //Parsing
     if (Element_Offset==Element_Size) return;
-    if (num_channels==0)
+    if (num_channels==0) //1+1 mode
         Skip_B1(                                                "langcod2");
 
     //Parsing
@@ -1715,7 +2429,7 @@ void File_Mpeg_Descriptors::Descriptor_81()
     BS_Begin();
     Get_SB (   language_flag,                                   "language_flag");
     Get_SB (   language_flag_2,                                 "language_flag_2");
-    Skip_S4(6,                                                  "all is 1");
+    Skip_S1(6,                                                  "reserved");
     BS_End();
 
     //Parsing
@@ -1727,7 +2441,10 @@ void File_Mpeg_Descriptors::Descriptor_81()
     if (Element_Offset==Element_Size) return;
     if (language_flag_2)
         Get_Local(3, Language2,                                 "language2");
-    //BS_End_CANBEMORE();
+
+    //Parsing
+    if (Element_Offset==Element_Size) return;
+    Skip_XX(Element_Size-Element_Offset,                        "additional_info");
 }
 
 //---------------------------------------------------------------------------
@@ -1737,15 +2454,14 @@ void File_Mpeg_Descriptors::Descriptor_86()
     Ztring Text, Language1, Language2;
     int8u number_of_services;
     BS_Begin();
-    Mark_1();
-    Mark_1();
-    Mark_1();
+    Skip_S1(3,                                                  "reserved");
     Get_S1 (5, number_of_services,                              "number_of_services");
     BS_End();
     for (int8u Pos=0; Pos<number_of_services; Pos++)
     {
+        Element_Begin("service");
         bool digital_cc;
-        Skip_Local(3,                                           "language");
+        Skip_C3(                                                "language");
         BS_Begin();
         Get_SB (digital_cc,                                     "digital_cc");
         Skip_SB(                                                "reserved");
@@ -1758,22 +2474,38 @@ void File_Mpeg_Descriptors::Descriptor_86()
             Skip_S1(6,                                          "caption_service_number");
         Skip_SB(                                                "easy_reader");
         Skip_SB(                                                "wide_aspect_ratio");
-            Skip_S1(5,                                          "reserved");
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
+        Skip_S2(14,                                             "reserved");
         BS_End();
+        Element_End();
+    }
+}
+
+//---------------------------------------------------------------------------
+void File_Mpeg_Descriptors::Descriptor_87()
+{
+    //Parsing
+    int8u rating_region_count;
+    BS_Begin();
+    Skip_S1(2,                                                  "reserved");
+    Get_S1 (6, rating_region_count,                             "rating_region_count");
+    BS_End();
+    for (int8u Pos=0; Pos<rating_region_count; Pos++)
+    {
+        Element_Begin("rating_region");
+        int8u rated_dimensions;
+        Skip_B1(                                                "rating_region");
+        Get_B1 (rated_dimensions,                               "rated_dimensions");
+        for (int8u Pos=0; Pos<rated_dimensions; Pos++)
+        {
+            Element_Begin("rated_dimension");
+            Skip_B1(                                            "rating_dimension_j");
+            BS_Begin();
+            Skip_S1(4,                                          "reserved");
+            Skip_S1(4,                                          "rating_value");
+            BS_End();
+            Element_End();
+        }
+        Element_End();
     }
 }
 
@@ -1781,12 +2513,24 @@ void File_Mpeg_Descriptors::Descriptor_86()
 void File_Mpeg_Descriptors::Descriptor_A0()
 {
     //Parsing
-    Ztring Value;
-    ATSC_multiple_string_structure(Value);
+    Ztring title;
+    ATSC_multiple_string_structure(title,                       "title");
 
-    //Filling
-    if (!Value.empty())
-        Program.Infos["Title"]=Value;
+    FILLING_BEGIN(); //Can be more
+        switch (table_id)
+        {
+            case 0xC8 : //TVCT
+            case 0xC9 : //CVCT
+            case 0xDA : //SVCT
+                        if (xxx_id_IsValid)
+                            if (!title.empty())
+                                Complete_Stream->Transport_Streams[table_id_extension].Programs[xxx_id].Infos["ServiceName"]=title;
+                        break;
+            default    : ;
+        }
+    FILLING_END();
+    FILLING_BEGIN();
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1818,11 +2562,26 @@ void File_Mpeg_Descriptors::Descriptor_A3()
 {
     //Parsing
     Ztring Value;
-    ATSC_multiple_string_structure(Value);
+    ATSC_multiple_string_structure(Value,                       "name");
 
-    //Filling
-    if (!Value.empty())
-        Infos["Name"]=Value;
+    FILLING_BEGIN();
+        switch (table_id)
+        {
+            case 0x02 : //program_map_section
+                        if (xxx_id_IsValid)
+                            if (!Value.empty())
+                                Complete_Stream->Streams[xxx_id].Infos["Name"]=Value;
+                        break;
+            default    : ;
+        }
+    FILLING_END();
+}
+
+//---------------------------------------------------------------------------
+void File_Mpeg_Descriptors::Descriptor_AA()
+{
+    //Parsing
+    Skip_XX(Element_Size,                                       "rc_information");
 }
 
 //***************************************************************************
@@ -1830,34 +2589,63 @@ void File_Mpeg_Descriptors::Descriptor_A3()
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Mpeg_Descriptors::ATSC_multiple_string_structure(Ztring &Value)
+void File_Mpeg_Descriptors::ATSC_multiple_string_structure(Ztring &Value, const char* Info)
 {
     //Parsing
     Ztring string;
-    int8u number_strings, number_segments, compression_type, mode, number_bytes;
+    int8u number_strings, number_segments;
+    Element_Begin(Info);
     Get_B1(number_strings,                                      "number_strings");
     for (int8u Pos=0; Pos<number_strings; Pos++)
     {
         Element_Begin("String");
-        Skip_Local(3,                                           "ISO_639_language_code");
+        int32u ISO_639_language_code;
+        Get_C3(ISO_639_language_code,                           "ISO_639_language_code");
         Get_B1(number_segments,                                 "number_segments");
         for (int8u Pos=0; Pos<number_segments; Pos++)
         {
             Element_Begin("Segment");
+            Ztring segment;
+            int8u compression_type, mode, number_bytes;
             Get_B1 (compression_type,                           "compression_type");
             Get_B1 (mode,                                       "mode");
             Get_B1 (number_bytes,                               "number_bytes");
-            if (compression_type==0)
-                Get_Local(number_bytes, string,                 "string_bytes");
-            else
-                Skip_XX(number_bytes,                           "compressed_string_bytes");
-            Element_End();
+            switch (compression_type)
+            {
+                case 0x00 :
+                            switch (mode)
+                            {
+                                case 0x00 : Get_Local(number_bytes, segment, "string"); break;
+                                case 0x3F : Get_UTF16B(number_bytes, segment, "string"); break;
+                                default   : Skip_XX(number_bytes, "Unknown");
+                                            segment=_T("(Encoded with mode=0x")+Ztring::ToZtring(mode, 16)+_T(')');
+                            }
+                            break;
+                default   : Skip_XX(number_bytes,               "(Compressed)");
+                            segment=_T("(Compressed)");
+            }
+            Element_End(3+number_bytes);
+
+            FILLING_BEGIN();
+                string+=segment+_T(" - ");
+            FILLING_END();
         }
-        Element_End();
+
+        FILLING_BEGIN();
+            if (!string.empty())
+                string.resize(string.size()-3);
+            Value+=Ztring().From_CC3(ISO_639_language_code)+_T(':')+string+_T(" - ");
+        FILLING_END();
+
+        Element_Info(string);
+        Element_End("String");
     }
 
-    //Filling
-    Value=string;
+    if (!Value.empty())
+        Value.resize(Value.size()-3);
+
+    Element_Info(Value);
+    Element_End();
 }
 
 //---------------------------------------------------------------------------
@@ -1893,6 +2681,70 @@ void File_Mpeg_Descriptors::Get_DVB_Text(int64u Size, Ztring &Value, const char*
     }
     else
         Get_Local(Size, Value,                                  Info);
+}
+
+//---------------------------------------------------------------------------
+//Modified Julian Date
+Ztring File_Mpeg_Descriptors::Date_MJD(int16u Date_)
+{
+    //Calculating
+    float64 Date=Date_;
+    int Y2=(int)((Date-15078.2)/365.25);
+    int M2=(int)(((Date-14956.1) - ((int)(Y2*365.25))) /30.6001);
+    int D =(int)(Date-14956 - ((int)(Y2*365.25)) - ((int)(M2*30.6001)));
+    int K=0;
+    if (M2==14 || M2==15)
+        K=1;
+    int Y =Y2+K;
+    int M =M2-1-K*12;
+
+    //Formating
+    return                       Ztring::ToZtring(1900+Y)+_T("-")
+         + (M<10?_T("0"):_T(""))+Ztring::ToZtring(     M)+_T("-")
+         + (D<10?_T("0"):_T(""))+Ztring::ToZtring(     D);
+}
+
+//---------------------------------------------------------------------------
+//Form: HHMMSS, BCD
+Ztring File_Mpeg_Descriptors::Time_BCD(int32u Time)
+{
+    return (((Time>>16)&0xFF)<10?_T("0"):_T("")) + Ztring::ToZtring((Time>>16)&0xFF, 16)+_T(":") //BCD
+         + (((Time>> 8)&0xFF)<10?_T("0"):_T("")) + Ztring::ToZtring((Time>> 8)&0xFF, 16)+_T(":") //BCD
+         + (((Time    )&0xFF)<10?_T("0"):_T("")) + Ztring::ToZtring((Time    )&0xFF, 16);        //BCD
+}
+
+//---------------------------------------------------------------------------
+//Form: HHMM, BCD
+Ztring File_Mpeg_Descriptors::TimeHHMM_BCD(int16u Time)
+{
+    return (((Time>> 8)&0xFF)<10?_T("0"):_T("")) + Ztring::ToZtring((Time>> 8)&0xFF, 16)+_T(":") //BCD
+         + (((Time    )&0xFF)<10?_T("0"):_T("")) + Ztring::ToZtring((Time    )&0xFF, 16)+_T(":00"); //BCD
+}
+
+//---------------------------------------------------------------------------
+//Form: Frequency in 10 KHz
+Ztring File_Mpeg_Descriptors::Frequency_DVB__BCD(int32u Frequency)
+{
+    int64u ToReturn=((((int64u)Frequency)>>28)&0xF)*10000000
+                  + ((((int64u)Frequency)>>24)&0xF)* 1000000
+                  + ((((int64u)Frequency)>>20)&0xF)*  100000
+                  + ((((int64u)Frequency)>>16)&0xF)*   10000
+                  + ((((int64u)Frequency)>>12)&0xF)*    1000
+                  + ((((int64u)Frequency)>> 8)&0xF)*     100
+                  + ((((int64u)Frequency)>> 4)&0xF)*      10
+                  + ((((int64u)Frequency)    )&0xF)*       1;
+    return Ztring::ToZtring(ToReturn*10000);
+}
+
+//---------------------------------------------------------------------------
+//Form: Orbital Position
+Ztring File_Mpeg_Descriptors::OrbitalPosition_DVB__BCD(int32u OrbitalPosition)
+{
+    int64u ToReturn=((OrbitalPosition>>12)&0xF)*    1000
+                  + ((OrbitalPosition>> 8)&0xF)*     100
+                  + ((OrbitalPosition>> 4)&0xF)*      10
+                  + ((OrbitalPosition    )&0xF)         ;
+    return Ztring::ToZtring(((float)ToReturn)/10, 1);
 }
 
 //***************************************************************************

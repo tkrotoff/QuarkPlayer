@@ -1,5 +1,5 @@
 // ZenLib::Ztring - More methods for std::(w)string
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -170,7 +170,7 @@ public :
     Ztring& From_Number  (const int64u,   int8u Radix=10);
         /// @brief convert number into Ztring
     Ztring& From_Number  (const int128u,  int8u Radix=10);
-	/// @brief convert number into Ztring
+    /// @brief convert number into Ztring
     Ztring& From_Number  (const float32,  int8u AfterComma=3, ztring_t Options=Ztring_Nothing);
         /// @brief convert number into Ztring
     Ztring& From_Number  (const float64,  int8u AfterComma=3, ztring_t Options=Ztring_Nothing);
@@ -180,6 +180,8 @@ public :
         /// @brief convert number into Ztring
     Ztring& From_Number  (const size_t,   int8u Radix=10);
     #endif //NEED_SIZET
+        /// @brief convert number (BCD coded) into Ztring
+    Ztring& From_BCD     (const int8u);
         /// @brief convert count of milliseconds into a readable and sortable string
     Ztring& Duration_From_Milliseconds (const int64u Milliseconds);
         /// @brief convert count of seconds since 1601 into a readable and sortable string
@@ -192,6 +194,8 @@ public :
     Ztring& Date_From_Seconds_1970 (const int32u Seconds);
         /// @brief convert a free formated string into a readable and sortable string
     Ztring& Date_From_String (const char* Date, size_type Value_Size=Error);
+        /// @brief convert numbers into a readable and sortable string
+    Ztring& Date_From_Numbers (const int8u Year, const int8u Month, const int8u Day, const int8u Hour, const int8u Minute, const int8u Second);
 
     //Conversions - To
     #ifndef WSTRING_MISSING
@@ -208,35 +212,35 @@ public :
         /// @brief Convert into Int (8 bits)
         /// @return the value corresponding \n
         ///         0 if there is a problem
-    int8s       To_int8s    (ztring_t Options=Ztring_Rounded) const;
+    int8s       To_int8s    (int8u Radix=10, ztring_t Options=Ztring_Rounded) const;
         /// @brief Convert into unsigned Int (8 bits)
         /// @return the value corresponding
         ///         0 if there is a problem
-    int8u       To_int8u    (ztring_t Options=Ztring_Rounded) const;
+    int8u       To_int8u    (int8u Radix=10, ztring_t Options=Ztring_Rounded) const;
         /// @brief Convert into Int (16 bits)
         /// @return the value corresponding \n
         ///         0 if there is a problem
-    int16s      To_int16s   (ztring_t Options=Ztring_Rounded) const;
+    int16s      To_int16s   (int8u Radix=10, ztring_t Options=Ztring_Rounded) const;
         /// @brief Convert into unsigned Int (16 bits)
         /// @return the value corresponding
         ///         0 if there is a problem
-    int16u      To_int16u   (ztring_t Options=Ztring_Rounded) const;
+    int16u      To_int16u   (int8u Radix=10, ztring_t Options=Ztring_Rounded) const;
         /// @brief Convert into Int (32 bits)
         /// @return the value corresponding \n
         ///         0 if there is a problem
-    int32s      To_int32s   (ztring_t Options=Ztring_Rounded) const;
+    int32s      To_int32s   (int8u Radix=10, ztring_t Options=Ztring_Rounded) const;
         /// @brief Convert into unsigned Int (32 bits)
         /// @return the value corresponding
         ///         0 if there is a problem
-    int32u      To_int32u   (ztring_t Options=Ztring_Rounded) const;
+    int32u      To_int32u   (int8u Radix=10, ztring_t Options=Ztring_Rounded) const;
         /// @brief Convert into Int (64 bits)
         /// @return the value corresponding \n
         ///         0 if there is a problem
-    int64s      To_int64s   (ztring_t Options=Ztring_Rounded) const;
+    int64s      To_int64s   (int8u Radix=10, ztring_t Options=Ztring_Rounded) const;
         /// @brief Convert into unsigned Int (64 bits)
         /// @return the value corresponding \n
         ///         0 if there is a problem
-    int64u      To_int64u   (ztring_t Options=Ztring_Rounded) const;
+    int64u      To_int64u   (int8u Radix=10, ztring_t Options=Ztring_Rounded) const;
         /// @brief Convert into float
         /// @return the value corresponding \n
         ///         0 if there is a problem

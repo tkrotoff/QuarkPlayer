@@ -1,5 +1,5 @@
 // File_Au - Info for AU files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,8 +39,9 @@ namespace MediaInfoLib
 
 class File_Au : public File__Analyze
 {
-private :
-    //Buffer
+protected :
+    //Buffer - File header
+    bool FileHeader_Begin();
     void FileHeader_Parse ();
 };
 

@@ -1,5 +1,5 @@
 // File_Mpeg - Info for MPEG files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -47,18 +47,27 @@ public :
     int8u  descriptor_tag_FromTS;   //Descriptor from TS
     int32u format_identifier_FromTS;//Registration from TS
     int8u  MPEG_Version;            //MPEG_Version from TS
+    bool   Searching_TimeStamp_End;
 
-protected :
-    //Format
-    bool FileHeader_Begin ();
-    void Read_Buffer_Finalize ();
+    //Out
+    bool   HasTimeStamps;
 
-public :
+    //Constructor/Destructor
     File_MpegPs();
 
 private :
-    //Buffer
-    bool Header_Begin();
+    //Buffer - File header
+    bool FileHeader_Begin();
+
+    //Buffer - Synchro
+    bool Synchronize();
+    bool Synched_Test();
+    void Synched_Init();
+
+    //Buffer - Global
+    void Read_Buffer_Finalize ();
+
+    //Buffer - Per element
     void Header_Parse();
     bool Header_Parse_Fill_Size();
     void Header_Parse_PES_packet(int8u start_code);
@@ -84,14 +93,18 @@ private :
     //private_stream_1 specific
     void           private_stream_1_Choose_DVD_ID();
     File__Analyze* private_stream_1_ChooseParser();
-    ZenLib::Char*  private_stream_1_ChooseExtension();
+    const ZenLib::Char* private_stream_1_ChooseExtension();
     void           private_stream_1_Element_Info();
     int8u          private_stream_1_ID;
     size_t         private_stream_1_Offset;
     bool           private_stream_1_IsDvdVideo;
 
+    //private_stream_2 specific
+    void           private_stream_2_TSHV_A0();
+    void           private_stream_2_TSHV_A1();
+
     //extension_stream specific
-    ZenLib::Char*  extension_stream_ChooseExtension();
+    const ZenLib::Char*  extension_stream_ChooseExtension();
 
     //Count
     int8u video_stream_Count;
@@ -178,9 +191,7 @@ private :
     bool   Parsing_End_ForDTS;
 
     //Helpers
-    bool Synchronize();
     bool Header_Parser_QuickSearch();
-    bool Detect_NonMPEGPS();
 
     //Parsers
     File__Analyze* ChooseParser_Mpegv();
@@ -198,6 +209,7 @@ private :
     File__Analyze* ChooseParser_AES3();
     File__Analyze* ChooseParser_RLE();
     File__Analyze* ChooseParser_PGS();
+    File__Analyze* ChooseParser_PS2();
     File__Analyze* ChooseParser_NULL();
 
     //File__Analyze helpers
@@ -211,3 +223,4 @@ private :
 } //NameSpace
 
 #endif
+

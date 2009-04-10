@@ -1,5 +1,5 @@
 // File_VorbisCom - Info for VorbisComments tagged files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -37,7 +37,14 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Format
+// Infos
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+extern const char* Id3v2_PictureType(int8u Type); //In Tag/File_Id3v2.cpp
+
+//***************************************************************************
+// Constructor/Destructor
 //***************************************************************************
 
 //---------------------------------------------------------------------------
@@ -51,26 +58,24 @@ File_VorbisCom::File_VorbisCom()
 }
 
 //***************************************************************************
-// Buffer
+// Buffer - File header
 //***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_VorbisCom::FileHeader_Parse()
 {
     //Parsing
-    Element_Begin("Vorbis comment header");
-        Ztring vendor_string;
-        int32u vendor_length;
-        Get_L4 (vendor_length,                                  "vendor_length");
-        Get_Local(vendor_length, vendor_string,                 "vendor_string");
-        Get_L4 (user_comment_list_length,                       "user_comment_list_length");
-    Element_End();
+    Ztring vendor_string;
+    int32u vendor_length;
+    Get_L4 (vendor_length,                                      "vendor_length");
+    Get_Local(vendor_length, vendor_string,                     "vendor_string");
+    Get_L4 (user_comment_list_length,                           "user_comment_list_length");
 
     FILLING_BEGIN();
         Stream_Prepare(Stream_General);
         if (StreamKind_Specific!=Stream_General)
             Stream_Prepare(StreamKind_Specific);
-        if (StreamKind_Specific!=Stream_General && StreamKind_Multiple!=StreamKind_Specific)
+        if (StreamKind_Multiple!=Stream_General && StreamKind_Multiple!=StreamKind_Specific)
             Stream_Prepare(StreamKind_Multiple);
 
         //vendor_string
@@ -141,32 +146,36 @@ void File_VorbisCom::FileHeader_Parse()
         Fill(StreamKind_Specific, 0, "Encoded_Library/Version", Library_Version);
         Fill(StreamKind_Specific, 0, "Encoded_Library/Date", Library_Date);
 
-        //Comments
-        for (int32u Pos=0; Pos<user_comment_list_length; Pos++)
-            Comment();
-
-        //Positionning
-        Finished();
+        Accept("VorbisCom");
     FILLING_END();
 }
 
 //***************************************************************************
-// Elements
+// Buffer - Per element
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_VorbisCom::Comment()
+void File_VorbisCom::Header_Parse()
 {
     //Parsing
-    Ztring comment;
-    Element_Begin("Vorbis comment");
-        int32u user_comment_length;
-        Get_L4 (user_comment_length,                            "length");
-        Get_UTF8(user_comment_length, comment,                  "comment");
-        Element_Info(comment);
-    Element_End();
+    int32u user_comment_length;
+    Get_L4 (user_comment_length,                                "length");
 
-    FILLING_BEGIN();
+    //Filling
+    Header_Fill_Size(Element_Offset+user_comment_length);
+}
+
+//---------------------------------------------------------------------------
+void File_VorbisCom::Data_Parse()
+{
+    user_comment_list_length--;
+
+    //Parsing
+    Ztring comment;
+    Get_UTF8(Element_Size, comment,                             "comment");
+    Element_Name(comment);
+
+    FILLING_BEGIN_PRECISE();
         Ztring Key=comment.SubString(_T(""), _T("="));
         Key.MakeUpperCase();
         Ztring Value=comment.SubString(_T("="), _T(""));
@@ -174,22 +183,26 @@ void File_VorbisCom::Comment()
              if (Key==_T("ADDED_TIMESTAMP"))        Fill(StreamKind_Common,   0, "Added_Date", Ztring().Date_From_Milliseconds_1601(Value.To_int64u()/1000));
         else if (Key==_T("ALBUM ARTIST"))           {if (Value!=Retrieve(StreamKind_Common,   0, "Performer")) Fill(StreamKind_Common,   0, "Performer", Value);}
         else if (Key==_T("ALBUM"))                  Fill(StreamKind_Common,   0, "Album", Value);
+        else if (Key==_T("ALBUM_COMMENT"))          Fill(StreamKind_Common,   0, "Comment", Value);
+        else if (Key==_T("ALBUMARTIST"))            {if (Value!=Retrieve(StreamKind_Common,   0, "Performer")) Fill(StreamKind_Common,   0, "Performer", Value);}
         else if (Key==_T("ARTIST"))                 {if (Value!=Retrieve(StreamKind_Common,   0, "Performer")) Fill(StreamKind_Common,   0, "Performer", Value);}
         else if (Key==_T("AUTHOR"))                 Fill(StreamKind_Common,   0, "WrittenBy", Value);
+        else if (Key==_T("CLASS"))                  Fill(StreamKind_Common,   0, "ContentType", Value);
         else if (Key==_T("COMMENT"))                Fill(StreamKind_Common,   0, "Comment", Value);
         else if (Key==_T("COMMENTS"))               Fill(StreamKind_Common,   0, "Comment", Value);
         else if (Key==_T("CONTACT"))                Fill(StreamKind_Common,   0, "Publisher", Value);
         else if (Key==_T("COPYRIGHT"))              Fill(StreamKind_Common,   0, "Copyright", Value);
-        else if (Key==_T("DATE"))                   Fill(StreamKind_Common,   0, "Recorded_Date", Value);
+        else if (Key==_T("DATE"))                   Fill(StreamKind_Common,   0, "Recorded_Date", Value, true);
         else if (Key==_T("DESCRIPTION"))            Fill(StreamKind_Common,   0, "Description", Value);
+        else if (Key==_T("ENCODEDBY"))              Fill(StreamKind_Common,   0, "EncodedBy", Value);
         else if (Key==_T("ENCODER"))                Fill(StreamKind_Common,   0, "Encoded_Application", Value);
         else if (Key==_T("ENCODED_USING"))          Fill(StreamKind_Common,   0, "Encoded_Application", Value);
         else if (Key==_T("ENCODER_URL"))            Fill(StreamKind_Common,   0, "Encoded_Application/Url", Value);
-        else if (Key==_T("ENSEMBLE"))               Fill(StreamKind_Common,   0, "Accompaniment", Value);
+        else if (Key==_T("ENSEMBLE"))               {if (Value!=Retrieve(StreamKind_Common,   0, "Performer")) Fill(StreamKind_Common,   0, "Accompaniment", Value);}
         else if (Key==_T("GENRE"))                  Fill(StreamKind_Common,   0, "Genre", Value);
         else if (Key==_T("FIRST_PLAYED_TIMESTAMP")) Fill(StreamKind_Common,   0, "Played_First_Date", Ztring().Date_From_Milliseconds_1601(Value.To_int64u()/10000));
         else if (Key==_T("ISRC"))                   Fill(StreamKind_Multiple, 0, "ISRC", Value);
-        else if (Key==_T("LANGUAGE"))               Fill(StreamKind_Specific, 0, "Language", Value);
+        else if (Key==_T("LANGUAGE"))               {if (Value.find(_T("Director"))==0) Fill(StreamKind_Specific, 0, "Language_More", Value); else if (!Value.SubString(_T("["), _T("]")).empty()) Fill(StreamKind_Specific, 0, "Language", Value.SubString(_T("["), _T("]"))); else Fill(StreamKind_Specific, 0, "Language", Value);}
         else if (Key==_T("LAST_PLAYED_TIMESTAMP"))  Fill(StreamKind_Multiple, 0, "Played_Last_Date", Ztring().Date_From_Milliseconds_1601(Value.To_int64u()/10000));
         else if (Key==_T("LICENCE"))                Fill(StreamKind_Common,   0, "TermsOfUse", Value);
         else if (Key==_T("LYRICS"))                 Fill(StreamKind_Common,   0, "Lyrics", Value);
@@ -198,17 +211,35 @@ void File_VorbisCom::Comment()
         else if (Key==_T("ORGANIZATION"))           Fill(StreamKind_Common,   0, "Producer", Value);
         else if (Key==_T("PERFORMER"))              Fill(StreamKind_Common,   0, "Performer", Value);
         else if (Key==_T("PLAY_COUNT"))             Fill(StreamKind_Multiple, 0, "Played_Count", Value.To_int64u());
+        else if (Key==_T("RATING"))                 Fill(StreamKind_Multiple, 0, "Rating", Value);
         else if (Key==_T("REPLAYGAIN_ALBUM_GAIN"))  Fill(StreamKind_Common,   0, "Album_ReplayGain_Gain", Value.To_float64(), 2);
         else if (Key==_T("REPLAYGAIN_ALBUM_PEAK"))  Fill(StreamKind_Common,   0, "Album_ReplayGain_Peak", Value.To_float64(), 6);
         else if (Key==_T("REPLAYGAIN_TRACK_GAIN"))  Fill(StreamKind_Specific, 0, "ReplayGain_Gain",       Value.To_float64(), 2);
         else if (Key==_T("REPLAYGAIN_TRACK_PEAK"))  Fill(StreamKind_Specific, 0, "ReplayGain_Peak",       Value.To_float64(), 6);
         else if (Key==_T("TITLE"))                  Fill(StreamKind_Common,   0, "Title", Value);
-        else if (Key==_T("TRACKNUMBER"))            Fill(StreamKind_Common,   0, "Track/Position", Value);
+        else if (Key==_T("TOTALTRACKS"))            Fill(StreamKind_Common,   0, "Track/Position_Total", Value);
+        else if (Key==_T("TRACK_COMMENT"))          Fill(StreamKind_Multiple, 0, "Comment", Value);
+        else if (Key==_T("TRACKNUMBER"))            Fill(StreamKind_Multiple, 0, "Track/Position", Value);
         else if (Key==_T("VERSION"))                Fill(StreamKind_Common,   0, "Track/More", Value);
+        else if (Key==_T("YEAR"))                   {if (Value!=Retrieve(StreamKind_Common,   0, "Recorded_Date")) Fill(StreamKind_Common,   0, "Recorded_Date", Value);}
+        else if (Key.find(_T("COVERART"))==0)
+        {
+                 if (Key==_T("COVERARTCOUNT"))
+                ;
+            else if (Key.find(_T("COVERARTMIME"))==0)
+                Fill(Stream_General, 0, General_Cover_Mime, Value);
+            else if (Key.find(_T("COVERARTFILELINK"))==0)
+                Fill(Stream_General, 0, General_Cover_Data, _T("file://")+Value);
+            else if (Key.find(_T("COVERARTTYPE"))==0)
+                Fill(Stream_General, 0, General_Cover_Type, Id3v2_PictureType(Value.To_int8u()));
+        }
         else if (Key.find(_T("CHAPTER"))==0)
         {
-            if (Count_Get(Stream_Chapters)==0)
-                Stream_Prepare(Stream_Chapters);
+            if (Count_Get(Stream_Menu)==0)
+            {
+                Stream_Prepare(Stream_Menu);
+                Fill(Stream_Menu, StreamPos_Last, Menu_Chapters_Pos_Begin, Count_Get(Stream_Menu, StreamPos_Last), 10, true);
+            }
             if (Key.find(_T("NAME"))==Error)
             {
                 Chapter_Pos=Key.SubString(_T("CHAPTER"), _T(""));
@@ -219,11 +250,15 @@ void File_VorbisCom::Comment()
                 Value.FindAndReplace(_T("\n"), _T(""), Count_Get(Stream_Text)-1); //Some chapters names have extra characters, not needed
                 Value.FindAndReplace(_T("\r"), _T(""), Count_Get(Stream_Text)-1); //Some chapters names have extra characters, not needed
                 Value.FindAndReplace(_T(" "),  _T(""), Count_Get(Stream_Text)-1); //Some chapters names have extra characters, not needed
-                Fill(Stream_Chapters, 0, Chapter_Pos.To_Local().c_str(), Chapter_Time+_T(" ")+Value);
+                Fill(Stream_Menu, 0, Chapter_Time.To_UTF8().c_str(), Value);
             }
+            Fill(Stream_Menu, StreamPos_Last, Menu_Chapters_Pos_End, Count_Get(Stream_Menu, StreamPos_Last), 10, true);
         }
         else                                Fill(Stream_General, 0, comment.SubString(_T(""), _T("=")).To_Local().c_str(), Value);
     FILLING_END();
+
+    if (user_comment_list_length==0)
+        Finish("VorbisCom");
 }
 
 //***************************************************************************

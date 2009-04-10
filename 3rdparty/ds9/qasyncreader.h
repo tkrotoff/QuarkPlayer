@@ -1,6 +1,6 @@
 /*  This file is part of the KDE project.
 
-Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies).
+Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 
 This library is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,7 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QtCore/QWaitCondition>
 #include <QtCore/QQueue>
+#include <QtCore/QMutex>
 
 #include "qpin.h"
 
@@ -55,9 +56,8 @@ namespace Phonon
             virtual HRESULT read(LONGLONG pos, LONG length, BYTE *buffer, LONG *actual) = 0;
 
         private:
-            class AsyncRequest
+            struct AsyncRequest
             {
-            public:
                 AsyncRequest(IMediaSample *s = 0, DWORD_PTR u = 0) : sample(s), user(u) {}
                 IMediaSample *sample;
                 DWORD_PTR user;

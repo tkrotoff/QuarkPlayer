@@ -6,7 +6,6 @@ add_definitions(-DUNICODE)
 
 set(zenlib_SRCS
 	Conf.cpp
-	ConvertUTF.c
 	CriticalSection.cpp
 	Dir.cpp
 	File.cpp
@@ -24,6 +23,12 @@ set(zenlib_SRCS
 	ZtringList.cpp
 	ZtringListList.cpp
 	ZtringListListF.cpp
+	Format/Html/Html_Handler.cpp
+	Format/Html/Html_Request.cpp
+	Format/Http/Http_Cookies.cpp
+	Format/Http/Http_Handler.cpp
+	Format/Http/Http_Request.cpp
+	Format/Http/Http_Utils.cpp
 )
 
 add_library(zenlib STATIC ${zenlib_SRCS})

@@ -1,5 +1,5 @@
 // MediaInfo - All information about media files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -74,6 +74,11 @@ public :
         /// @brief Open a stream (Continue)
         /// @param Buffer pointer to the stream
         /// @param Buffer_Size Count of bytes to read
+        /// @return a bitfield \n
+        ///         bit 0: Is Accepted  (format is known)
+        ///         bit 1: Is Filled    (main data is collected)
+        ///         bit 2: Is Updated   (some data have beed updated, example: duration for a real time MPEG-TS stream)
+        ///         bit 3: Is Finalized (No more data is needed, will not use further data)
     size_t Open_Buffer_Continue (const ZenLib::int8u* Buffer, size_t Buffer_Size);
         /// Open a stream and collect information about it (technical information and tags)
         /// @brief Open a stream (Get the needed file Offset)

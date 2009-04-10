@@ -1,5 +1,5 @@
 // File_Jpeg - Info for NewFormat files
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -50,9 +50,10 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Const
+// Constants
 //***************************************************************************
 
+//---------------------------------------------------------------------------
 namespace Elements
 {
     const int16u TEM =0xFF01;
@@ -122,36 +123,49 @@ namespace Elements
 }
 
 //***************************************************************************
-// Buffer
+// Constructor/Destructor
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Jpeg::FileHeader_Parse()
+File_Jpeg::File_Jpeg()
 {
-    //Parsing
-    Element_Begin("FFD8 - Start Of Image", 10);
-    int16u identifier;
-    Get_B2 (identifier,                                         "identifier");
-    Element_End();
+    //In
+    StreamKind=Stream_Image;
 
-    FILLING_BEGIN();
-        if (identifier!=0xFFD8)
-        {
-            Finished();
-            return;
-        }
-    FILLING_END();
+    //Temp
+    Height_Multiplier=1;
 }
 
+//***************************************************************************
+// Static stuff
+//***************************************************************************
+
 //---------------------------------------------------------------------------
-// An Element
-// Size                             2 bytes, Pos=4
-// Code                             5 bytes, Pos=6
-//
+bool File_Jpeg::FileHeader_Begin()
+{
+    //Element_Size
+    if (Buffer_Size<2)
+        return false; //Must wait for more data
+
+    if (CC2(Buffer)!=0xFFD8) //SOI
+    {
+        Reject("JPEG");
+        return false;
+    }
+
+    //All should be OK...
+    return true;
+}
+
+//***************************************************************************
+// Buffer - Per element
+//***************************************************************************
+
+//---------------------------------------------------------------------------
 void File_Jpeg::Header_Parse()
 {
     //Parsing
-    int16u code, size=0;
+    int16u code, size;
     Get_B2 (code,                                               "code");
     switch (code)
     {
@@ -166,7 +180,7 @@ void File_Jpeg::Header_Parse()
         case Elements::RST7 :
         case Elements::SOI  :
         case Elements::EOI  :
-                    break; //Size=0
+                    size=0; break;
         default   : Get_B2 (size,                                  "size");
     }
 
@@ -176,80 +190,78 @@ void File_Jpeg::Header_Parse()
 }
 
 //---------------------------------------------------------------------------
-// Element parse
-//
 void File_Jpeg::Data_Parse()
 {
-    #define ELEMENT_CASE(_NAME, _DETAIL) \
-        case Elements::_NAME : Element_Info(_DETAIL); _NAME(); break;
+    #define CASE_INFO(_NAME, _DETAIL) \
+        case Elements::_NAME : Element_Info(#_NAME); Element_Info(_DETAIL); _NAME(); break;
 
     //Parsing
     switch (Element_Code)
     {
-        ELEMENT_CASE(TEM , "TEM");
-        ELEMENT_CASE(S0F0, "Baseline DCT (Huffman)");
-        ELEMENT_CASE(S0F1, "Extended sequential DCT (Huffman)");
-        ELEMENT_CASE(S0F2, "Progressive DCT (Huffman)");
-        ELEMENT_CASE(S0F3, "Lossless (sequential) (Huffman)");
-        ELEMENT_CASE(DHT , "Define Huffman Tables");
-        ELEMENT_CASE(S0F5, "Differential sequential DCT (Huffman)");
-        ELEMENT_CASE(S0F6, "Differential progressive DCT (Huffman)");
-        ELEMENT_CASE(S0F7, "Differential lossless (sequential) (Huffman)");
-        ELEMENT_CASE(JPG , "Reserved for JPEG extensions");
-        ELEMENT_CASE(S0F9, "Extended sequential DCT (Arithmetic)");
-        ELEMENT_CASE(S0FA, "Progressive DCT (Arithmetic)");
-        ELEMENT_CASE(S0FB, "Lossless (sequential) (Arithmetic)");
-        ELEMENT_CASE(DAC , "Define Arithmetic Coding");
-        ELEMENT_CASE(S0FD, "Differential sequential DCT (Arithmetic)");
-        ELEMENT_CASE(S0FE, "Differential progressive DCT (Arithmetic)");
-        ELEMENT_CASE(S0FF, "Differential lossless (sequential) (Arithmetic)");
-        ELEMENT_CASE(RST0, "Restart Interval Termination 0");
-        ELEMENT_CASE(RST1, "Restart Interval Termination 1");
-        ELEMENT_CASE(RST2, "Restart Interval Termination 2");
-        ELEMENT_CASE(RST3, "Restart Interval Termination 3");
-        ELEMENT_CASE(RST4, "Restart Interval Termination 4");
-        ELEMENT_CASE(RST5, "Restart Interval Termination 5");
-        ELEMENT_CASE(RST6, "Restart Interval Termination 6");
-        ELEMENT_CASE(RST7, "Restart Interval Termination 7");
-        ELEMENT_CASE(SOI , "Start Of Image");
-        ELEMENT_CASE(EOI , "End Of Image");
-        ELEMENT_CASE(SOS , "Start Of Scan");
-        ELEMENT_CASE(DQT , "Define Quantization Tables");
-        ELEMENT_CASE(DNL , "Define Number of Lines");
-        ELEMENT_CASE(DRI , "Define Restart Interval");
-        ELEMENT_CASE(DHP , "Define Hierarchical Progression");
-        ELEMENT_CASE(EXP , "Expand Reference Components");
-        ELEMENT_CASE(APP0, "Application-specific marker 0");
-        ELEMENT_CASE(APP1, "Application-specific marker 1");
-        ELEMENT_CASE(APP2, "Application-specific marker 2");
-        ELEMENT_CASE(APP3, "Application-specific marker 3");
-        ELEMENT_CASE(APP4, "Application-specific marker 4");
-        ELEMENT_CASE(APP5, "Application-specific marker 5");
-        ELEMENT_CASE(APP6, "Application-specific marker 6");
-        ELEMENT_CASE(APP7, "Application-specific marker 7");
-        ELEMENT_CASE(APP8, "Application-specific marker 8");
-        ELEMENT_CASE(APP9, "Application-specific marker 9");
-        ELEMENT_CASE(APPA, "Application-specific marker 10");
-        ELEMENT_CASE(APPB, "Application-specific marker 11");
-        ELEMENT_CASE(APPC, "Application-specific marker 12");
-        ELEMENT_CASE(APPD, "Application-specific marker 13");
-        ELEMENT_CASE(APPE, "Application-specific marker 14");
-        ELEMENT_CASE(APPF, "Application-specific marker 15");
-        ELEMENT_CASE(JPG0, "JPG");
-        ELEMENT_CASE(JPG1, "JPG");
-        ELEMENT_CASE(JPG2, "JPG");
-        ELEMENT_CASE(JPG3, "JPG");
-        ELEMENT_CASE(JPG4, "JPG");
-        ELEMENT_CASE(JPG5, "JPG");
-        ELEMENT_CASE(JPG6, "JPG");
-        ELEMENT_CASE(JPG7, "JPG");
-        ELEMENT_CASE(JPG8, "JPG");
-        ELEMENT_CASE(JPG9, "JPG");
-        ELEMENT_CASE(JPGA, "JPG");
-        ELEMENT_CASE(JPGB, "JPG");
-        ELEMENT_CASE(JPGC, "JPG");
-        ELEMENT_CASE(JPGD, "JPG");
-        ELEMENT_CASE(COM , "Comment");
+        CASE_INFO(TEM ,                                         "TEM");
+        CASE_INFO(S0F0,                                         "Baseline DCT (Huffman)");
+        CASE_INFO(S0F1,                                         "Extended sequential DCT (Huffman)");
+        CASE_INFO(S0F2,                                         "Progressive DCT (Huffman)");
+        CASE_INFO(S0F3,                                         "Lossless (sequential) (Huffman)");
+        CASE_INFO(DHT ,                                         "Define Huffman Tables");
+        CASE_INFO(S0F5,                                         "Differential sequential DCT (Huffman)");
+        CASE_INFO(S0F6,                                         "Differential progressive DCT (Huffman)");
+        CASE_INFO(S0F7,                                         "Differential lossless (sequential) (Huffman)");
+        CASE_INFO(JPG ,                                         "Reserved for JPEG extensions");
+        CASE_INFO(S0F9,                                         "Extended sequential DCT (Arithmetic)");
+        CASE_INFO(S0FA,                                         "Progressive DCT (Arithmetic)");
+        CASE_INFO(S0FB,                                         "Lossless (sequential) (Arithmetic)");
+        CASE_INFO(DAC ,                                         "Define Arithmetic Coding");
+        CASE_INFO(S0FD,                                         "Differential sequential DCT (Arithmetic)");
+        CASE_INFO(S0FE,                                         "Differential progressive DCT (Arithmetic)");
+        CASE_INFO(S0FF,                                         "Differential lossless (sequential) (Arithmetic)");
+        CASE_INFO(RST0,                                         "Restart Interval Termination 0");
+        CASE_INFO(RST1,                                         "Restart Interval Termination 1");
+        CASE_INFO(RST2,                                         "Restart Interval Termination 2");
+        CASE_INFO(RST3,                                         "Restart Interval Termination 3");
+        CASE_INFO(RST4,                                         "Restart Interval Termination 4");
+        CASE_INFO(RST5,                                         "Restart Interval Termination 5");
+        CASE_INFO(RST6,                                         "Restart Interval Termination 6");
+        CASE_INFO(RST7,                                         "Restart Interval Termination 7");
+        CASE_INFO(SOI ,                                         "Start Of Image");
+        CASE_INFO(EOI ,                                         "End Of Image");
+        CASE_INFO(SOS ,                                         "Start Of Scan");
+        CASE_INFO(DQT ,                                         "Define Quantization Tables");
+        CASE_INFO(DNL ,                                         "Define Number of Lines");
+        CASE_INFO(DRI ,                                         "Define Restart Interval");
+        CASE_INFO(DHP ,                                         "Define Hierarchical Progression");
+        CASE_INFO(EXP ,                                         "Expand Reference Components");
+        CASE_INFO(APP0,                                         "Application-specific marker 0");
+        CASE_INFO(APP1,                                         "Application-specific marker 1");
+        CASE_INFO(APP2,                                         "Application-specific marker 2");
+        CASE_INFO(APP3,                                         "Application-specific marker 3");
+        CASE_INFO(APP4,                                         "Application-specific marker 4");
+        CASE_INFO(APP5,                                         "Application-specific marker 5");
+        CASE_INFO(APP6,                                         "Application-specific marker 6");
+        CASE_INFO(APP7,                                         "Application-specific marker 7");
+        CASE_INFO(APP8,                                         "Application-specific marker 8");
+        CASE_INFO(APP9,                                         "Application-specific marker 9");
+        CASE_INFO(APPA,                                         "Application-specific marker 10");
+        CASE_INFO(APPB,                                         "Application-specific marker 11");
+        CASE_INFO(APPC,                                         "Application-specific marker 12");
+        CASE_INFO(APPD,                                         "Application-specific marker 13");
+        CASE_INFO(APPE,                                         "Application-specific marker 14");
+        CASE_INFO(APPF,                                         "Application-specific marker 15");
+        CASE_INFO(JPG0,                                         "JPG");
+        CASE_INFO(JPG1,                                         "JPG");
+        CASE_INFO(JPG2,                                         "JPG");
+        CASE_INFO(JPG3,                                         "JPG");
+        CASE_INFO(JPG4,                                         "JPG");
+        CASE_INFO(JPG5,                                         "JPG");
+        CASE_INFO(JPG6,                                         "JPG");
+        CASE_INFO(JPG7,                                         "JPG");
+        CASE_INFO(JPG8,                                         "JPG");
+        CASE_INFO(JPG9,                                         "JPG");
+        CASE_INFO(JPGA,                                         "JPG");
+        CASE_INFO(JPGB,                                         "JPG");
+        CASE_INFO(JPGC,                                         "JPG");
+        CASE_INFO(JPGD,                                         "JPG");
+        CASE_INFO(COM ,                                         "Comment");
         default : Element_Info("Reserved");
                   Skip_XX(Element_Size,                         "Data");
     }
@@ -276,16 +288,22 @@ void File_Jpeg::SOF_()
         Skip_B1(                                                "Quantization table destination selector");
     }
 
-    FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "JPEG");
-        Stream_Prepare(Stream_Image);
-        Fill(Stream_Image, 0, Image_Format, "JPEG");
-        Fill(Stream_Image, 0, Image_Codec, "JPEG");
-        Fill(Stream_Image, 0, Image_Codec_String, "JPEG"); //To Avoid automatic filling
-        Fill(Stream_Image, 0, Image_Resolution, Resolution);
-        Fill(Stream_Image, 0, Image_Height, Height);
-        Fill(Stream_Image, 0, Image_Width, Width);
+    FILLING_BEGIN_PRECISE();
+        if (!IsAccepted)
+        {
+            Stream_Prepare(Stream_General);
+            Fill(Stream_General, 0, General_Format, "JPEG");
+            if (Count_Get(StreamKind)==0)
+                Stream_Prepare(StreamKind);
+            Fill(StreamKind, 0, "Format", StreamKind==Stream_Image?"JPEG":"M-JPEG");
+            Fill(StreamKind, 0, "Codec", StreamKind==Stream_Image?"JPEG":"M-JPEG");
+            if (StreamKind==Stream_Image)
+                Fill(Stream_Image, 0, Image_Codec_String, "JPEG"); //To Avoid automatic filling
+            Fill(StreamKind, 0, "Resolution", Resolution*3);
+            Fill(StreamKind, 0, "Height", Height*Height_Multiplier);
+            Fill(StreamKind, 0, "Width", Width);
+            Accept("JPEG");
+        }
     FILLING_END();
 }
 
@@ -304,8 +322,9 @@ void File_Jpeg::SOS()
     Skip_B1(                                                    "End of spectral selection");
     Skip_B1(                                                    "Successive approximation bit position");
 
-    //Filling
-    Finished(); //No need of more
+    FILLING_BEGIN_PRECISE();
+        Finish("JPEG"); //No need of more
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -314,12 +333,13 @@ void File_Jpeg::APP0()
     //Parsing
     int32u Name;
     Get_C4(Name,                                                "Name");
-    if (Name==CC4("AVI1"))
-        APP0_AVI1();
-    if (Name==CC4("JFIF"))
-        APP0_JFIF();
-    if (Name==CC4("JFFF"))
-        APP0_JFXX();
+    switch (Name)
+    {
+        case 0x41564931 : APP0_AVI1(); break; //"AVI1"
+        case 0x4A464946 : APP0_JFIF(); break; //"JFIF"
+        case 0x4A464646 : APP0_JFFF(); break; //"JFFF"
+        default         : Skip_XX(Element_Size,                 "Data");
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -343,21 +363,18 @@ void File_Jpeg::APP0_AVI1()
     Element_End();
 
     FILLING_BEGIN();
-        if (Count_Get(Stream_General)==0 && File_Name.empty())
+        if (!IsAccepted)
         {
-            Stream_Prepare(Stream_General);
-            Fill(Stream_General, 0, General_Format, "JPEG");
-            Stream_Prepare(Stream_Video);
-            Fill(Stream_Video, 0, Video_Format, "M-JPEG");
-            Fill(Stream_Video, 0, Video_Codec, "M-JPEG");
-        }
+            if (Count_Get(Stream_Video)==0)
+                Stream_Prepare(Stream_Video);
 
-        switch (FieldOrder)
-        {
-            case 0x00 : Fill(Stream_Video, 0, Video_Interlacement, "PPF"); Fill(Stream_Video, 0, Video_ScanType, "Progressive"); break;
-            case 0x01 : Fill(Stream_Video, 0, Video_Interlacement, "TFF"); Fill(Stream_Video, 0, Video_ScanType, "Interlaced"); Fill(Stream_Video, 0, Video_ScanOrder, "TFF"); break;
-            case 0x02 : Fill(Stream_Video, 0, Video_Interlacement, "BFF"); Fill(Stream_Video, 0, Video_ScanType, "Interlaced"); Fill(Stream_Video, 0, Video_ScanOrder, "BFF"); break;
-            default   : ;
+            switch (FieldOrder)
+            {
+                case 0x00 : Fill(Stream_Video, 0, Video_Interlacement, "PPF"); Fill(Stream_Video, 0, Video_ScanType, "Progressive"); break;
+                case 0x01 : Fill(Stream_Video, 0, Video_Interlacement, "TFF"); Fill(Stream_Video, 0, Video_ScanType, "Interlaced"); Fill(Stream_Video, 0, Video_ScanOrder, "TFF"); Height_Multiplier=2; break;
+                case 0x02 : Fill(Stream_Video, 0, Video_Interlacement, "BFF"); Fill(Stream_Video, 0, Video_ScanType, "Interlaced"); Fill(Stream_Video, 0, Video_ScanOrder, "BFF"); Height_Multiplier=2; break;
+                default   : ;
+            }
         }
     FILLING_END();
 }
@@ -381,7 +398,7 @@ void File_Jpeg::APP0_JFIF()
 }
 
 //---------------------------------------------------------------------------
-void File_Jpeg::APP0_JFXX()
+void File_Jpeg::APP0_JFFF()
 {
     Skip_B1(                                                    "Zero");
     Element_Begin("Extension");
@@ -392,7 +409,7 @@ void File_Jpeg::APP0_JFXX()
 }
 
 //---------------------------------------------------------------------------
-void File_Jpeg::APP0_JFXX_JPEG()
+void File_Jpeg::APP0_JFFF_JPEG()
 {
     //Parsing
     Element_Begin("Thumbail JPEG");
@@ -402,7 +419,7 @@ void File_Jpeg::APP0_JFXX_JPEG()
 }
 
 //---------------------------------------------------------------------------
-void File_Jpeg::APP0_JFXX_1B()
+void File_Jpeg::APP0_JFFF_1B()
 {
     //Parsing
     Element_Begin("Thumbail 1 byte per pixel");
@@ -415,7 +432,7 @@ void File_Jpeg::APP0_JFXX_1B()
 }
 
 //---------------------------------------------------------------------------
-void File_Jpeg::APP0_JFXX_3B()
+void File_Jpeg::APP0_JFFF_3B()
 {
     //Parsing
     Element_Begin("Thumbail 3 bytes per pixel");
@@ -433,8 +450,11 @@ void File_Jpeg::APP1()
     int64u Name;
     Get_C6(Name,                                                "Name");
 
-    if (Name==CC6("Exif\0\0"))
-        APP1_EXIF();
+    switch (Name)
+    {
+        case 0x457869660000LL : APP1_EXIF(); break; //"Exif\0\0"
+        default               : Skip_XX(Element_Size,           "Data");
+    }
 }
 
 //---------------------------------------------------------------------------

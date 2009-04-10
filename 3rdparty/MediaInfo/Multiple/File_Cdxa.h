@@ -1,5 +1,5 @@
 // File_Cdxa - Info for CDXA files
-// Copyright (C) 2004-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2004-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -44,30 +44,25 @@ class MediaInfo_Internal;
 class File_Cdxa : public File__Analyze
 {
 public :
-    //Configuration
-    size_t Frame_Count_Valid;
-
-protected :
-    //Format
-    void Read_Buffer_Finalize ();
-
-public :
     //Constructor/Destructor
     File_Cdxa();
     ~File_Cdxa();
 
 private :
-    //Buffer
+    //Buffer - File header
+    bool FileHeader_Begin();
     void FileHeader_Parse();
-    bool Header_Begin();
+
+    //Buffer - Synchro
+    bool Synchronize();
+    bool Synched_Test();
+    
+    //Buffer - Global
+    void Read_Buffer_Finalize ();
+
+    //Buffer - Per element
     void Header_Parse();
     void Data_Parse();
-
-    //Temp - Global
-    size_t Frame_Count;
-
-    //Helpers
-    bool Synchronize();
 
     //Temp
     MediaInfo_Internal* MI;

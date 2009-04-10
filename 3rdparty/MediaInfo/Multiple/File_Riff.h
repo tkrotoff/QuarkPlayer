@@ -1,5 +1,5 @@
 // File_Riff - Info for RIFF files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -41,7 +41,7 @@ namespace MediaInfoLib
 class File_Riff : public File__Analyze
 {
 protected :
-    //Format
+    //Buffer - Global
     void Read_Buffer_Finalize ();
 
 public :
@@ -61,6 +61,7 @@ private :
         int32u                  fccType;
         int32u                  fccHandler;
         int32u                  Rate;
+        int32u                  Start;
         int32u                  Compression;
         stream_t                StreamKind;
         size_t                  StreamPos;
@@ -78,6 +79,7 @@ private :
             fccType=0x00000000;
             fccHandler=0x00000000;
             Rate=0;
+            Start=0;
             Compression=0x00000000;
             StreamKind=Stream_Max;
             StreamPos=0;
@@ -112,11 +114,16 @@ private :
     int64u Interleaved1_10;
 
     //Temp
+    int64u WAVE_data_Size;  //RF64 WAVE_data real chunk size
+    int64u WAVE_fact_samplesCount;  //RF64 WAVE_fact real samplesCount
     float64 avih_FrameRate; //FrameRate of the first video stream in one MOVI chunk
     int32u avih_TotalFrame; //Count of frames in one MOVI chunk
     int32u dmlh_TotalFrame; //Count of frames in the whole AVI file (with odml too)
     int64u Idx1_Offset;     //Pos of the data part (AVI) for Idx1 chunk
     int64u movi_Size;       //Size of the data part (AVI and AVIX)
+    int64u TimeReference;   //Only used by Brodcast extension
+    int32u SMV_BlockSize;   //Size of a SMV block, 0 if not SMV
+    int32u SMV_FrameCount;  //Frame count of a SMV block, 0 if not SMV
     int8u  stream_Count;    //How many stream we have to parse
     bool   rec__Present;    //True if synchro element is present
     bool   Alignement_ExtraByte;
@@ -159,6 +166,7 @@ private :
     void AVI__hdlr_strl_strf_auds_Aac();
     void AVI__hdlr_strl_strf_auds_Vorbis();
     void AVI__hdlr_strl_strf_auds_Vorbis2();
+    void AVI__hdlr_strl_strf_auds_ExtensibleWave();
     void AVI__hdlr_strl_strf_iavs ();
     void AVI__hdlr_strl_strf_mids ();
     void AVI__hdlr_strl_strf_txts ();
@@ -188,12 +196,16 @@ private :
     void AVI__movi_rec__xxxx ();
     void AVI__movi_StreamJump ();
     void AVI__GMET ();
+    void AVI__xxxx ();
     void AVIX ();
     void AVIX_idx1 ();
     void AVIX_movi ();
     void AVIX_movi_xxxx ();
     void AVIX_movi_rec_ ();
     void AVIX_movi_rec__xxxx ();
+    void CADP ();
+    void CMJP ();
+    void CMP4 ();
     void IDVX ();
     void JUNK ();
     void menu ();
@@ -211,10 +223,15 @@ private :
     void RMP3_INFO_IMP3() {AVI__INFO_IMP3();}
     void RMP3_INFO_JUNK() {AVI__INFO_JUNK ();}
     void RMP3_INFO_xxxx() {AVI__INFO_xxxx ();}
+    void SMV0 ();
+    void SMV0_xxxx ();
     void WAVE ();
+    void WAVE_bext ();
     void WAVE_data ();
+    void WAVE_ds64 ();
     void WAVE_fact ();
     void WAVE_fmt_ ();
+    void WAVE_ID3_ ();
     void W3DI();
 };
 

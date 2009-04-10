@@ -1,5 +1,5 @@
 // File_Rm - Info for Real Media files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -138,7 +138,7 @@ void File_Rm::Data_Parse()
             default           : ;
         }
 
-        Finished();
+        Finish("RealMedia");
         return;
     }
 
@@ -178,6 +178,7 @@ void File_Rm::Data_Parse()
 //---------------------------------------------------------------------------
 void File_Rm::RMF()
 {
+    Accept("RealMedia");
     NAME_VERSION("Real Media Format");
     INTEGRITY_VERSION(1);
 
@@ -224,7 +225,7 @@ void File_Rm::DATA()
     NAME_VERSION("Data");
 
     //Currently, we stop here, enough info
-    Finished();
+    Finish("RealMedia");
     return;
 
     /*
@@ -421,7 +422,7 @@ void File_Rm::MDPR_realvideo()
     Fill(Stream_Video, StreamPos_Last, Video_Width, Width); //Width
     Fill(Stream_Video, StreamPos_Last, Video_Height, Height); //Height
     Fill(Stream_Video, StreamPos_Last, Video_Resolution, Resolution); //Resolution
-    Fill(Stream_Video, StreamPos_Last, Video_FrameRate, FrameRate); //FrameRate
+    Fill(Stream_Video, StreamPos_Last, Video_FrameRate, (float)FrameRate); //FrameRate
 }
 
 //---------------------------------------------------------------------------

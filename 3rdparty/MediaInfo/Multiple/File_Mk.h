@@ -1,5 +1,5 @@
 // File_Mk - Info for Matroska Video/Audio files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -41,7 +41,7 @@ namespace MediaInfoLib
 class File_Mk : public File__Analyze
 {
 protected :
-    //Formats
+    //Buffer - Globals
     void Read_Buffer_Finalize ();
 
 public :
@@ -54,6 +54,7 @@ private :
     void Data_Parse();
 
     //Elements
+    void Zero();
     void CRC32();
     void Void();
     void Ebml();
@@ -174,6 +175,21 @@ private :
     void Segment_Tracks_TrackEntry_Audio_SamplingFrequency();
     void Segment_Tracks_TrackEntry_CodecDecodeAll();
     void Segment_Tracks_TrackEntry_CodecID();
+    void Segment_Tracks_TrackEntry_ContentEncodings() {};
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding() {};
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Order() {UInteger_Info();};
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Scope() {UInteger_Info();};
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Type() {UInteger_Info();};
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Compression() {};
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Compression_ContentCompAlgo();
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Compression_ContentCompSettings();
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption() {};
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentEncAlgo() {UInteger_Info();};
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentEncKeyID() {Skip_XX(Element_Size, "Data");};
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentSignature() {Skip_XX(Element_Size, "Data");};
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentSigKeyID() {Skip_XX(Element_Size, "Data");};
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentSigAlgo() {UInteger_Info();};
+    void Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentSigHashAlgo() {UInteger_Info();};
     void Segment_Tracks_TrackEntry_CodecName();
     void Segment_Tracks_TrackEntry_CodecPrivate();
     void Segment_Tracks_TrackEntry_CodecPrivate_auds();
@@ -213,28 +229,42 @@ private :
 
     struct stream
     {
+        std::vector<int64u>     TimeCodes;
+        int64u                  TimeCode_Start;
         File__Analyze*          Parser;
         stream_t                StreamKind;
         size_t                  StreamPos;
         size_t                  PacketCount;
         int32u                  AvgBytesPerSec; //Only used by x_MS/* codecIDs
         float32                 DisplayAspectRatio;
-        bool                    SearchingPayload;
+        bool                    Searching_Payload;
+        bool                    Searching_TimeStamps;
+        bool                    Searching_TimeStamp_Start;
+        int64u                  ContentCompAlgo;
+        size_t                  ContentCompSettings_Buffer_Size;
+        int8u*                  ContentCompSettings_Buffer;
 
         stream()
         {
+            TimeCode_Start=(int64u)-1;
             Parser=NULL;
             StreamKind=Stream_Max;
             StreamPos=0;
             PacketCount=0;
             AvgBytesPerSec=0;
             DisplayAspectRatio=0;
-            SearchingPayload=true;
+            Searching_Payload=false;
+            Searching_TimeStamps=false;
+            Searching_TimeStamp_Start=false;
+            ContentCompAlgo=(int32u)-1;
+            ContentCompSettings_Buffer_Size=0;
+            ContentCompSettings_Buffer=NULL;
         }
 
         ~stream()
         {
             delete Parser; //Parser=NULL;
+            delete ContentCompSettings_Buffer; //ContentCompSettings_Buffer=NULL;
         }
     };
     std::map<int64u, stream> Stream;
@@ -270,10 +300,33 @@ private :
     int64u  TrackVideoDisplayWidth;
     int64u  TrackVideoDisplayHeight;
     int32u  AvgBytesPerSec;
-    int64u  ChapterTimeStart;
-    Ztring  ChapterString;
-    int32u  Chapter_Pos;
+    int64u  Segment_Cluster_TimeCode_Value;
     bool    Cluster_AlreadyParsed;
+
+    //Chapters
+    struct chapterdisplay
+    {
+        Ztring ChapLanguage;
+        Ztring ChapString;
+    };
+    struct chapteratom
+    {
+        int64u ChapterTimeStart;
+        std::vector<chapterdisplay> ChapterDisplays;
+
+        chapteratom()
+        {
+            ChapterTimeStart=(int64u)-1;
+        }
+    };
+    struct editionentry
+    {
+        std::vector<chapteratom> ChapterAtoms;
+    };
+    std::vector<editionentry> EditionEntries;
+    size_t EditionEntries_Pos;
+    size_t ChapterAtoms_Pos;
+    size_t ChapterDisplays_Pos;
 };
 
 } //NameSpace

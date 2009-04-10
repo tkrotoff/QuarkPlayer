@@ -1,5 +1,5 @@
 // File_Mpc - Info for Musepack files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -29,16 +29,55 @@
 #endif
 //---------------------------------------------------------------------------
 
+//***************************************************************************
+// Infos (Common)
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+#if defined(MEDIAINFO_MPC_YES) || defined(MEDIAINFO_MPCSV8_YES)
+//---------------------------------------------------------------------------
+
+#include "ZenLib/Conf.h"
+using namespace ZenLib;
+
+namespace MediaInfoLib
+{
+
+//---------------------------------------------------------------------------
+extern const int16u Mpc_SampleFreq[]=
+{
+    44100, //CD
+    48000, //DAT, DVC, ADR
+    37800, //CD-ROM-XA
+    32000, //DSR, DAT-LP, DVC-LP
+};
+
+//---------------------------------------------------------------------------
+} //NameSpace
+
+//---------------------------------------------------------------------------
+#endif //...
+//---------------------------------------------------------------------------
+
+//***************************************************************************
+//
+//***************************************************************************
+
 //---------------------------------------------------------------------------
 #if defined(MEDIAINFO_MPC_YES)
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 #include "MediaInfo/Audio/File_Mpc.h"
+using namespace ZenLib;
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
 {
+
+//***************************************************************************
+// Infos
+//***************************************************************************
 
 //---------------------------------------------------------------------------
 const char* Mpc_Profile[]=
@@ -61,14 +100,7 @@ const char* Mpc_Profile[]=
     "Above BrainDead (q=10)",
 };
 
-extern const int16u Mpc_SampleFreq[]=
-{
-    44100, //CD
-    48000, //DAT, DVC, ADR
-    37800, //CD-ROM-XA
-    32000, //DSR, DAT-LP, DVC-LP
-};
-
+//---------------------------------------------------------------------------
 const char* Mpc_Link[]=
 {
     "Starts or ends with a very low level",
@@ -91,33 +123,25 @@ File_Mpc::File_Mpc()
 
 
 //***************************************************************************
-// Format
+// Buffer - File header
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Mpc::Read_Buffer_Continue()
+bool File_Mpc::FileHeader_Begin()
 {
     //Tags
-    if (!File__Tags_Helper::Read_Buffer_Continue())
-        return;
-}
-
-//---------------------------------------------------------------------------
-void File_Mpc::Read_Buffer_Finalize()
-{
-    //Tags
-    File__Tags_Helper::Read_Buffer_Finalize();
-}
-
-//***************************************************************************
-// Buffer
-//***************************************************************************
-
-//---------------------------------------------------------------------------
-bool File_Mpc::Header_Begin()
-{
-    if (!File__Tags_Helper::Header_Begin())
+    if (!File__Tags_Helper::FileHeader_Begin())
         return false;
+
+    if (Buffer_Offset+4>Buffer_Size)
+        return false;
+
+    //Test
+    if (CC3(Buffer)!=0x4D502B || (CC1(Buffer+3)&0x0F)!=7) //"MP+" version 7
+    {
+        File__Tags_Helper::Reject("Musepack SV7");
+        return false;
+    }
 
     return true;
 }
@@ -128,14 +152,14 @@ void File_Mpc::FileHeader_Parse()
     //Parsing
     Element_Begin("SV7 header", 21);
     Ztring Encoder;
-    int32u Signature, FrameCount;
+    int32u FrameCount;
     int16u TitleGain, AlbumGain;
-    int8u  Version, Profile, Link, SampleFreq, EncoderVersion;
+    int8u  Profile, Link, SampleFreq, EncoderVersion;
 
-    Get_C3 (Signature,                                          "Signature");
+    Skip_C3(                                                    "Signature");
     BS_Begin();
     Skip_S1(4,                                                  "PNS");
-    Get_S1 (4, Version,                                         "Version");
+    Skip_S1(4,                                                  "Version");
     BS_End();
 
     Get_L4 (FrameCount,                                         "FrameCount");
@@ -171,17 +195,9 @@ void File_Mpc::FileHeader_Parse()
     Element_End();
 
     FILLING_BEGIN();
-        //Integrity
-        if (Signature!=CC3("MP+") || Version!=7)
-        {
-            Finished();
-            return;
-        }
-
-        //Filling
-        Stream_Prepare(Stream_General);
+        File__Tags_Helper::Stream_Prepare(Stream_General);
         Fill(Stream_General, 0, General_Format, "MusePack SV7");
-        Stream_Prepare(Stream_Audio);
+        File__Tags_Helper::Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, 0, Audio_SamplingRate, Mpc_SampleFreq[SampleFreq]);
         Fill(Stream_Audio, 0, Audio_SamplingCount, FrameCount*1152);
         Fill(Stream_Audio, 0, Audio_Format, "MusePack SV7");
@@ -193,8 +209,9 @@ void File_Mpc::FileHeader_Parse()
         if (FrameCount)
             Fill(Stream_Audio, 0, Audio_BitRate, (File_Size-25)*8*Mpc_SampleFreq[SampleFreq]/FrameCount/1152);
 
-        //Jumping
-        File__Tags_Helper::Data_GoTo(File_Size, "MpcSv8");
+        //No more need data
+        File__Tags_Helper::Accept("Musepack SV7");
+        File__Tags_Helper::Finish("Musepack SV7");
     FILLING_END();
 }
 

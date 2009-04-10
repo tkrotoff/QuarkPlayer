@@ -1,5 +1,5 @@
 // File_Mk - Info for Matroska files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -80,10 +80,28 @@
     #include "MediaInfo/Audio/File_Pcm.h"
 #endif
 #include <cstring>
+#include <algorithm>
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
 {
+
+//***************************************************************************
+// Constants
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+const char* Mk_ContentCompAlgo(int64u Algo)
+{
+    switch (Algo)
+    {
+        case 0x00 : return "zlib";
+        case 0x01 : return "bzlib";
+        case 0x02 : return "lzo1x";
+        case 0x03 : return "Header stripping";
+        default   : return "";
+    }
+}
 
 //***************************************************************************
 // Constructor/Destructor
@@ -100,9 +118,6 @@ File_Mk::File_Mk()
     TimecodeScale=1000000; //Default value
     Duration=0;
     Cluster_AlreadyParsed=false;
-
-    //Stream
-    Stream_Count=0;
 
     //Helpers
     CodecPrivate=NULL;
@@ -127,72 +142,108 @@ void File_Mk::Read_Buffer_Finalize()
     {
         if (Temp->second.Parser)
         {
-            Ztring Codec_Temp, FrameRate_Temp;
+            Ztring Duration_Temp, Codec_Temp;
             StreamKind_Last=Temp->second.StreamKind;
             StreamPos_Last=Temp->second.StreamPos;
 
             if (Temp->second.StreamKind==Stream_Video)
             {
+                Duration_Temp=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Duration); //Duration from stream is sometimes false
                 Codec_Temp=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Codec); //We want to keep the 4CC
-                FrameRate_Temp=Retrieve(Stream_Video, Temp->second.StreamPos, Video_FrameRate); //We want to keep the FrameRate of AVI 120 fps
             }
             Open_Buffer_Finalize(Temp->second.Parser);
             Merge(*Temp->second.Parser, Temp->second.StreamKind, 0, Temp->second.StreamPos);
-            if (Temp->second.StreamKind==Stream_Video)
+            Fill(Stream_Video, StreamPos_Last, Video_Duration, Duration_Temp, true);
+            if (Temp->second.StreamKind==Stream_Video && !Codec_Temp.empty())
+                Fill(Stream_Video, StreamPos_Last, Video_Codec, Codec_Temp, true);
+
+            //Video specific
+            if (StreamKind_Last==Stream_Video)
             {
-                if (!Codec_Temp.empty())
-                    Fill(Stream_Video, Temp->second.StreamPos, Video_Codec, Codec_Temp, true);
-                if (!FrameRate_Temp.empty())
+                //FrameRate
+                if (Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate).empty()&& Temp->second.TimeCodes.size()>1)
                 {
-                    if (FrameRate_Temp!=Retrieve(Stream_Video, Temp->second.StreamPos, Video_FrameRate))
-                        Fill(Stream_Video, Temp->second.StreamPos, Video_FrameRate_Original, Retrieve(Stream_Video, 0, Video_FrameRate), true);
-                    Fill(Stream_Video, Temp->second.StreamPos, Video_FrameRate, FrameRate_Temp, true);
+                    //Trying to detect VFR
+                    std::vector<int64s> FrameRate_Between;
+                    std::sort(Temp->second.TimeCodes.begin(), Temp->second.TimeCodes.end()); //This is PTS, no DTS --> Some frames are out of order
+                    for (size_t Pos=1; Pos<Temp->second.TimeCodes.size(); Pos++)
+                        FrameRate_Between.push_back(Temp->second.TimeCodes[Pos]-Temp->second.TimeCodes[Pos-1]);
+                    if (FrameRate_Between.size()>31)
+                        FrameRate_Between.resize(31); //We peek 40 frames, and remove the last ones, because this is PTS, no DTS --> Some frames are out of order
+                    std::sort(FrameRate_Between.begin(), FrameRate_Between.end());
+                    if (FrameRate_Between[0]*0.9<FrameRate_Between[FrameRate_Between.size()-1]
+                     && FrameRate_Between[0]*1.1>FrameRate_Between[FrameRate_Between.size()-1])
+                    {
+                        float Time=0;
+                        if (Temp->second.TimeCodes.size()>30)
+                            Time=(float)(Temp->second.TimeCodes[30]-Temp->second.TimeCodes[0])/30; //30 frames for handling 30 fps rounding problems
+                        if (Time)
+                        {
+                            Fill(Stream_Video, StreamPos_Last, Video_FrameRate, 1000/Time);
+                            Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Mode, "CFR");
+                        }
+                    }
+                    else
+                        Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Mode, "VFR");
                 }
             }
 
             //Delay
-            if (StreamKind_Last==Stream_Audio && Count_Get(Stream_Video)==1 && Temp->second.Parser->Count_Get(Stream_General)>0)
+            if (Temp->second.TimeCode_Start!=(int64u)-1 && TimecodeScale)
             {
-                int64u Delay=(int64u)-1;
-                #if defined(MEDIAINFO_MPEGA_YES)
-                    if (Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==_T("MPEG Audio"))
-                        Delay=((File_Mpega*)Temp->second.Parser)->Delay;
-                #endif
-                #if defined(MEDIAINFO_AC3_YES)
-                    if (Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==_T("AC-3"))
-                        Delay=((File_Ac3*)Temp->second.Parser)->Delay;
-                #endif
-                #if defined(MEDIAINFO_DTS_YES)
-                    if (Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==_T("DTS"))
-                        Delay=((File_Dts*)Temp->second.Parser)->Delay;
-                #endif
-                if (Delay==0)
+                //From TimeCode
+                float64 Delay=Temp->second.TimeCode_Start*int64u_float64(TimecodeScale)/1000000.0;
+
+                //From stream format
+                if (StreamKind_Last==Stream_Audio && Count_Get(Stream_Video)==1 && Temp->second.Parser->Count_Get(Stream_General)>0)
                 {
-                    Fill(Stream_Audio, StreamPos_Last, Audio_Delay, 0, 0, true);
-                    Fill(Stream_Video, 0, Video_Delay, 0, 10, true);
-                }
-                else if (Delay!=(int64u)-1)
-                {
-                    if (Temp->second.AvgBytesPerSec!=0)
-                    {
-                        Fill(Stream_Audio, StreamPos_Last, Audio_Delay, ((float)Delay)*1000/Temp->second.AvgBytesPerSec, 0, true);
-                        Fill(Stream_Video, 0, Video_Delay, 0, 10, true);
-                    }
+                         if (Temp->second.Parser->Buffer_TotalBytes_FirstSynched==0)
+                        ;
+                    else if (Temp->second.AvgBytesPerSec!=0)
+                        Delay+=((float64)Temp->second.Parser->Buffer_TotalBytes_FirstSynched)*1000/Temp->second.AvgBytesPerSec;
                     else if (Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate).To_int64u()!=0)
-                    {
-                        Fill(Stream_Audio, StreamPos_Last, Audio_Delay, ((float)Delay)*1000/Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate).To_int64u(), 0, true);
-                        Fill(Stream_Video, 0, Video_Delay, 0, 10, true);
-                    }
+                        Delay+=((float64)Temp->second.Parser->Buffer_TotalBytes_FirstSynched)*1000/Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate).To_int64u();
                     else if (Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate_Nominal).To_int64u()!=0)
-                    {
-                        Fill(Stream_Audio, StreamPos_Last, Audio_Delay, ((float)Delay)*1000/Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate_Nominal).To_int64u(), 0, true);
-                        Fill(Stream_Video, 0, Video_Delay, 0, 10, true);
-                    }
+                        Delay+=((float64)Temp->second.Parser->Buffer_TotalBytes_FirstSynched)*1000/Temp->second.Parser->Retrieve(Stream_Audio, 0, Audio_BitRate_Nominal).To_int64u();
                 }
+
+                //Filling
+                Fill(StreamKind_Last, StreamPos_Last, "Delay", Delay, 0, true);
+                if (Retrieve(Stream_Video, 0, Video_Delay).empty())
+                    Fill(Stream_Video, 0, Video_Delay, 0, 10, true);
             }
         }
         if (Temp->second.DisplayAspectRatio!=0)
             Fill(Stream_Video, Temp->second.StreamPos, "DisplayAspectRatio", Temp->second.DisplayAspectRatio, 3, true);
+    }
+
+    //Chapters
+    if (TimecodeScale)
+    {
+        for (EditionEntries_Pos=0; EditionEntries_Pos<EditionEntries.size(); EditionEntries_Pos++)
+        {
+            Stream_Prepare(Stream_Menu);
+            Fill(Stream_Menu, StreamPos_Last, Menu_Chapters_Pos_Begin, Count_Get(Stream_Menu, StreamPos_Last), 10, true);
+            for (ChapterAtoms_Pos=0; ChapterAtoms_Pos<EditionEntries[EditionEntries_Pos].ChapterAtoms.size(); ChapterAtoms_Pos++)
+            {
+                if (EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterTimeStart!=(int64u)-1)
+                {
+                    Ztring Text;
+                    for (ChapterDisplays_Pos=0; ChapterDisplays_Pos<EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterDisplays.size(); ChapterDisplays_Pos++)
+                    {
+                        Ztring PerLanguage;
+                        if (!EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterDisplays[ChapterDisplays_Pos].ChapLanguage.empty())
+                            PerLanguage=MediaInfoLib::Config.Iso639_Get(EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterDisplays[ChapterDisplays_Pos].ChapLanguage)+_T(':');
+                        PerLanguage+=EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterDisplays[ChapterDisplays_Pos].ChapString;
+                        Text+=PerLanguage+_T(" - ");
+                    }
+                    if (Text.size())
+                        Text.resize(Text.size()-3);
+                    Fill(Stream_Menu, StreamPos_Last, Ztring().Duration_From_Milliseconds(EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterTimeStart/TimecodeScale).To_UTF8().c_str(), Text);
+                }
+            }
+            Fill(Stream_Menu, StreamPos_Last, Menu_Chapters_Pos_End, Count_Get(Stream_Menu, StreamPos_Last), 10, true);
+        }
     }
 
     //Purge what is not needed anymore
@@ -207,6 +258,17 @@ void File_Mk::Read_Buffer_Finalize()
 //---------------------------------------------------------------------------
 void File_Mk::Header_Parse()
 {
+    //Test of zero padding
+    int8u Null;
+    Peek_B1(Null);
+    if (Null==0x00)
+    {
+        Skip_B1(                                                "Zero byte");
+        Header_Fill_Code((int32u)-1); //Should be (int64u)-1 but Borland C++ does not like this
+        Header_Fill_Size(1);
+        return;
+    }
+
     //Parsing
     int64u Name, Size;
     Get_EB (Name,                                               "Name");
@@ -221,6 +283,7 @@ void File_Mk::Header_Parse()
 namespace Elements
 {
     //Common
+    const int64u Zero=(int32u)-1; //Should be (int64u)-1 but Borland C++ does not like this
     const int64u CRC32=0x3F;
     const int64u Void=0x6C;
 
@@ -345,6 +408,21 @@ namespace Elements
     const int64u Segment_Tracks_TrackEntry_Audio_SamplingFrequency=0x35;
     const int64u Segment_Tracks_TrackEntry_CodecDecodeAll=0x2A;
     const int64u Segment_Tracks_TrackEntry_CodecID=0x6;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings=0x2D80;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding=0x2240;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Order=0x1031;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Scope=0x1032;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Type=0x1033;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Compression=0x1034;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Compression_ContentCompAlgo=0x0254;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Compression_ContentCompSettings=0x0255;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption=0x1035;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentEncAlgo=0x07E1;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentEncKeyID=0x07E2;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentSignature=0x07E3;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentSigKeyID=0x07E4;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentSigAlgo=0x07E5;
+    const int64u Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentSigHashAlgo=0x07E6;
     const int64u Segment_Tracks_TrackEntry_CodecName=0x58688;
     const int64u Segment_Tracks_TrackEntry_CodecPrivate=0x23A2;
     const int64u Segment_Tracks_TrackEntry_DefaultDuration=0x3E383;
@@ -384,7 +462,34 @@ namespace Elements
 //---------------------------------------------------------------------------
 void File_Mk::Data_Parse()
 {
+    #define LIS2(_ATOM, _NAME) \
+        case Elements::_ATOM : \
+                if (Level==Element_Level) \
+                { \
+                    Element_Name(_NAME); \
+                    _ATOM(); \
+                    Element_ThisIsAList(); \
+                } \
+
+    #define ATO2(_ATOM, _NAME) \
+                case Elements::_ATOM : \
+                        if (Level==Element_Level) \
+                        { \
+                            if (Element_IsComplete_Get()) \
+                            { \
+                                Element_Name(_NAME); \
+                                _ATOM(); \
+                            } \
+                            else \
+                            { \
+                                Element_WaitForMoreData(); \
+                                return; \
+                            } \
+                        } \
+                        break; \
+
     #define ATOM_END_MK \
+        ATOM(Zero) \
         ATOM(CRC32) \
         ATOM(Void) \
         ATOM_END
@@ -586,6 +691,29 @@ void File_Mk::Data_Parse()
                     ATOM_END_MK
                 ATOM(Segment_Tracks_TrackEntry_CodecDecodeAll)
                 ATOM(Segment_Tracks_TrackEntry_CodecID)
+                LIS2(Segment_Tracks_TrackEntry_ContentEncodings, "ContentEncodings")
+                    ATOM_BEGIN
+                    LIS2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding, "ContentEncoding")
+                    ATOM_BEGIN
+                        ATO2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Order, "Order")
+                        ATO2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Scope, "Scope")
+                        ATO2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Type, "Type")
+                        LIS2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Compression, "Compression")
+                            ATOM_BEGIN
+                            ATO2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Compression_ContentCompAlgo, "Algo")
+                            ATO2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Compression_ContentCompSettings, "Settings")
+                            ATOM_END_MK
+                        LIS2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption, "Encryption")
+                            ATOM_BEGIN
+                            ATO2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentEncAlgo, "Algo")
+                            ATO2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentEncKeyID, "KeyID")
+                            ATO2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentSignature, "Signature")
+                            ATO2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentSigKeyID, "SigKeyID")
+                            ATO2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentSigAlgo, "SigAlgo")
+                            ATO2(Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Encryption_ContentSigHashAlgo, "SigHashAlgo")
+                            ATOM_END_MK
+                        ATOM_END_MK
+                    ATOM_END_MK
                 ATOM(Segment_Tracks_TrackEntry_CodecName)
                 ATOM(Segment_Tracks_TrackEntry_CodecPrivate)
                 ATOM(Segment_Tracks_TrackEntry_DefaultDuration)
@@ -627,12 +755,20 @@ void File_Mk::Data_Parse()
                 ATOM_END_MK
             ATOM_END_MK
         ATOM_END_MK
-    DATA_END
+    DATA_DEFAULT
+        Finish("Matroska");
+    DATA_END_DEFAULT
 }
 
 //***************************************************************************
 // Elements
 //***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_Mk::Zero()
+{
+    Element_Name("ZeroPadding");
+}
 
 //---------------------------------------------------------------------------
 void File_Mk::CRC32()
@@ -707,6 +843,8 @@ void File_Mk::Ebml_DocType()
     FILLING_BEGIN();
         Stream_Prepare(Stream_General);
         Fill(Stream_General, 0, General_Format, "Matroska");
+        Accept("Matroska");
+        Buffer_MaximumSize=4*1024*1024;
     FILLING_END();
 }
 
@@ -815,8 +953,8 @@ void File_Mk::Segment_Chapters_EditionEntry()
     Element_Name("EditionEntry");
 
     //Filling
-    Stream_Prepare(Stream_Chapters);
-    Chapter_Pos=0;
+    EditionEntries_Pos=EditionEntries.size();
+    EditionEntries.resize(EditionEntries_Pos+1);
 }
 
 //---------------------------------------------------------------------------
@@ -825,9 +963,8 @@ void File_Mk::Segment_Chapters_EditionEntry_ChapterAtom()
     Element_Name("ChapterAtom");
 
     //Filling
-    ChapterTimeStart=(int64u)-1;
-    ChapterString=(_T("XXXXXXXX"));
-    Chapter_Pos++;
+    ChapterAtoms_Pos=EditionEntries[EditionEntries_Pos].ChapterAtoms.size();
+    EditionEntries[EditionEntries_Pos].ChapterAtoms.resize(ChapterAtoms_Pos+1);
 }
 
 //---------------------------------------------------------------------------
@@ -882,6 +1019,10 @@ void File_Mk::Segment_Chapters_EditionEntry_ChapterAtom_ChapProcess_ChapProcessP
 void File_Mk::Segment_Chapters_EditionEntry_ChapterAtom_ChapterDisplay()
 {
     Element_Name("ChapterDisplay");
+
+    //Filling
+    ChapterDisplays_Pos=EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterDisplays.size();
+    EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterDisplays.resize(ChapterDisplays_Pos+1);
 }
 
 //---------------------------------------------------------------------------
@@ -902,7 +1043,7 @@ void File_Mk::Segment_Chapters_EditionEntry_ChapterAtom_ChapterDisplay_ChapLangu
     Ztring Data=Local_Get();
 
     FILLING_BEGIN();
-        Fill(StreamKind_Last, StreamPos_Last, "Language", Data, true);
+        EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterDisplays[ChapterDisplays_Pos].ChapLanguage=Data;
     FILLING_END();
 }
 
@@ -912,11 +1053,12 @@ void File_Mk::Segment_Chapters_EditionEntry_ChapterAtom_ChapterDisplay_ChapStrin
     Element_Name("ChapString");
 
     //Parsing
-    ChapterString=UTF8_Get();
+    Ztring Data=UTF8_Get();
 
     FILLING_BEGIN();
-        if (TimecodeScale!=0 && ChapterTimeStart!=(int64u)-1)
-            Fill(StreamKind_Last, StreamPos_Last, Ztring::ToZtring(Chapter_Pos).To_Local().c_str(), Ztring().Duration_From_Milliseconds(ChapterTimeStart/TimecodeScale)+_T(" - ")+ChapterString, true);
+        EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterDisplays[ChapterDisplays_Pos].ChapString=Data;
+        //if (TimecodeScale!=0 && ChapterTimeStart!=(int64u)-1)
+        //    Fill(StreamKind_Last, StreamPos_Last, Ztring::ToZtring(Chapter_Pos).To_Local().c_str(), Ztring().Duration_From_Milliseconds(ChapterTimeStart/TimecodeScale)+_T(" - ")+ChapterString, true);
     FILLING_END();
 }
 
@@ -980,11 +1122,10 @@ void File_Mk::Segment_Chapters_EditionEntry_ChapterAtom_ChapterTimeStart()
     Element_Name("ChapterTimeStart");
 
     //Parsing
-    ChapterTimeStart=UInteger_Get();
+    int64u Data=UInteger_Get();
 
     FILLING_BEGIN();
-        if (TimecodeScale!=0 && ChapterString!=_T("XXXXXXXX"))
-            Fill(StreamKind_Last, StreamPos_Last, Ztring::ToZtring(Chapter_Pos).To_Local().c_str(), Ztring().Duration_From_Milliseconds(ChapterTimeStart/TimecodeScale)+_T(" ")+ChapterString, true);
+        EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterTimeStart=Data;
     FILLING_END();
 }
 
@@ -1057,13 +1198,19 @@ void File_Mk::Segment_Cluster()
     std::map<int64u, stream>::iterator Temp=Stream.begin();
     if (!Cluster_AlreadyParsed)
     {
+        Stream_Count=0;
         while (Temp!=Stream.end())
         {
-            if (!Temp->second.Parser)
-            {
-                Temp->second.SearchingPayload=false;
-                Stream_Count--;
-            }
+            if (Temp->second.Parser)
+                Temp->second.Searching_Payload=true;
+            if (Temp->second.StreamKind==Stream_Video || Temp->second.StreamKind==Stream_Audio)
+                Temp->second.Searching_TimeStamp_Start=true;
+            if (Temp->second.StreamKind==Stream_Video && Retrieve(Stream_Video, Temp->second.StreamPos, Video_FrameRate).empty())
+                Temp->second.Searching_TimeStamps=true;
+            if (Temp->second.Searching_Payload
+             || Temp->second.Searching_TimeStamp_Start
+             || Temp->second.Searching_TimeStamps)
+                Stream_Count++;
             Temp++;
         }
 
@@ -1071,11 +1218,12 @@ void File_Mk::Segment_Cluster()
         if (Stream_Count==0)
         {
             //Jumping
-            Finished();//Skip_XX(Element_TotalSize_Get(),                        "Data");
+            Finish("Matroska");//Skip_XX(Element_TotalSize_Get(),                        "Data");
             return;
         }
     }
     Cluster_AlreadyParsed=true;
+    Segment_Cluster_TimeCode_Value=0; //Default
 }
 
 //---------------------------------------------------------------------------
@@ -1090,108 +1238,160 @@ void File_Mk::Segment_Cluster_BlockGroup_Block()
     Element_Name("Block");
 
     //Parsing
-    std::vector<int64u> Laces;
     int64u TrackNumber;
-    int32u Lacing;
     Get_EB (TrackNumber,                                        "TrackNumber");
 
     //Finished?
     Stream[TrackNumber].PacketCount++;
-    if (!Stream[TrackNumber].SearchingPayload)
+    if (!Stream[TrackNumber].Searching_Payload && !Stream[TrackNumber].Searching_TimeStamps && !Stream[TrackNumber].Searching_TimeStamp_Start)
     {
         Element_DoNotShow();
         return;
     }
 
-    Skip_B2(                                                    "TimeCode");
-    Element_Begin("Flags", 1);
-        BS_Begin();
-        Skip_BS(1,                                              "KeyFrame");
-        Skip_BS(3,                                              "Reserved");
-        Skip_BS(1,                                              "Invisible");
-        Get_BS (2, Lacing,                                      "Lacing");
-        Skip_BS(1,                                              "Discardable");
-        BS_End();
-    Element_End();
-    if (Lacing>0)
-    {
-        Element_Begin("Lacing");
-            int8u FrameCountMinus1;
-            Get_B1(FrameCountMinus1,                            "Frame count minus 1");
-            switch (Lacing)
-            {
-                case 1 : //Xiph lacing
-                        {
-                            int64u Element_Offset_Offset=0;
-                            for (int8u Pos=0; Pos<FrameCountMinus1; Pos++)
-                            {
-                                int32u Size=0;
-                                int8u Size8;
-                                do
-                                {
-                                    Get_B1 (Size8,              "Size");
-                                    Size+=Size8;
-                                }
-                                while (Size8==0xFF);
-                                Param_Info(Size);
-                                Element_Offset_Offset+=Size;
-                            }
-                            //Size=Element_Size-Element_Offset-Element_Offset_Offset; Param_Info(Size);
-                        }
-                        break;
-                case 2 : //Fixed-size lacing - No more data
-                        break;
-                case 3 : //EBML lacing
-                        {
-                            int64u Element_Offset_Offset=0, Size;
-                            Get_EB (Size,                       "Size");
-                            Element_Offset_Offset+=Size;
-                            for (int8u Pos=1; Pos<FrameCountMinus1; Pos++)
-                            {
-                                int64s Diff;
-                                Get_ES (Diff,                   "Difference");
-                                Size+=Diff; Param_Info(Size);
-                                Element_Offset_Offset+=Size;
-                            }
-                            //Size=Element_Size-Element_Offset-Element_Offset_Offset; Param_Info(Size);
-                        }
-                        break;
-                default : ; //Should never be here
-            }
-        Element_End();
-    }
-    else
-        Laces.push_back(Element_Size-Element_Offset);
+    //Parsing
+    int16u TimeCode;
+    Get_B2 (TimeCode,                                           "TimeCode");
 
     FILLING_BEGIN();
-        //Parsing
-        Open_Buffer_Init(Stream[TrackNumber].Parser, File_Size, File_Offset+Buffer_Offset+Element_Offset);
-        Open_Buffer_Continue(Stream[TrackNumber].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
-
-        //Filling
-        if (Stream[TrackNumber].Parser->File_Offset==File_Size
-         || Stream[TrackNumber].PacketCount>=300)
+        if (Stream[TrackNumber].Searching_TimeStamp_Start)
         {
-            Stream[TrackNumber].SearchingPayload=false;
-            Stream_Count--;
+            FILLING_BEGIN();
+                Stream[TrackNumber].TimeCode_Start=Segment_Cluster_TimeCode_Value+TimeCode;
+                Stream[TrackNumber].Searching_TimeStamp_Start=false;
+            FILLING_END();
         }
-
-        if (Stream_Count==0)
+        if (Stream[TrackNumber].Searching_TimeStamps)
         {
-            //Jumping
-            Element_Show();
-            Element_End(); //Block
-            Element_End(); //BlockGroup
-            Info("BlockGroup, Jumping to end of cluster");
-            Finished(); //File_GoTo=File_Offset+Buffer_Offset+Element_TotalSize_Get();
+            Stream[TrackNumber].TimeCodes.push_back(Segment_Cluster_TimeCode_Value+TimeCode);
+            if (Stream[TrackNumber].TimeCodes.size()>40)
+                Stream[TrackNumber].Searching_TimeStamps=false;
         }
-
-        //Demux
-        Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset), Ztring::ToZtring(TrackNumber, 16)+_T(".")+_T("raw"));
-
-        //Positionning
-        Element_Offset=Element_Size;
     FILLING_END();
+
+    if (Stream[TrackNumber].Searching_Payload)
+    {
+        std::vector<int64u> Laces;
+        int32u Lacing;
+        Element_Begin("Flags", 1);
+            BS_Begin();
+            Skip_BS(1,                                              "KeyFrame");
+            Skip_BS(3,                                              "Reserved");
+            Skip_BS(1,                                              "Invisible");
+            Get_BS (2, Lacing,                                      "Lacing");
+            Skip_BS(1,                                              "Discardable");
+            BS_End();
+        Element_End();
+        if (Lacing>0)
+        {
+            Element_Begin("Lacing");
+                int8u FrameCountMinus1;
+                Get_B1(FrameCountMinus1,                            "Frame count minus 1");
+                switch (Lacing)
+                {
+                    case 1 : //Xiph lacing
+                            {
+                                int64u Element_Offset_Virtual=0;
+                                for (int8u Pos=0; Pos<FrameCountMinus1; Pos++)
+                                {
+                                    int32u Size=0;
+                                    int8u Size8;
+                                    do
+                                    {
+                                        Get_B1 (Size8,              "Size");
+                                        Size+=Size8;
+                                    }
+                                    while (Size8==0xFF);
+                                    Param_Info(Size);
+                                    Element_Offset_Virtual+=Size;
+                                    Laces.push_back(Size);
+                                }
+                                Laces.push_back(Element_Size-Element_Offset-Element_Offset_Virtual); //last lace
+                            }
+                            break;
+                    case 2 : //Fixed-size lacing - No more data
+                            {
+                                int64u Size=(Element_Size-Element_Offset)/(FrameCountMinus1+1);
+                                Laces.resize(FrameCountMinus1+1, Size);
+                            }
+                            break;
+                    case 3 : //EBML lacing
+                            {
+                                int64u Element_Offset_Virtual=0, Size;
+                                Get_EB (Size,                       "Size");
+                                Laces.push_back(Size);
+                                Element_Offset_Virtual+=Size;
+                                for (int8u Pos=1; Pos<FrameCountMinus1; Pos++)
+                                {
+                                    int64s Diff;
+                                    Get_ES (Diff,                   "Difference");
+                                    Size+=Diff; Param_Info(Size);
+                                    Element_Offset_Virtual+=Size;
+                                    Laces.push_back(Size);
+                                }
+                                Laces.push_back(Element_Size-Element_Offset-Element_Offset_Virtual); Param_Info(Size); //last lace
+                            }
+                            break;
+                    default : ; //Should never be here
+                }
+            Element_End();
+        }
+        else
+            Laces.push_back(Element_Size-Element_Offset);
+
+        FILLING_BEGIN();
+            //Parsing
+            for (size_t Pos=0; Pos<Laces.size(); Pos++)
+            {
+                //Content compression
+                if (Stream[TrackNumber].ContentCompAlgo!=(int32u)-1 && Stream[TrackNumber].ContentCompAlgo!=3)
+                    Stream[TrackNumber].Searching_Payload=false; //Unsupported
+
+                if (Stream[TrackNumber].Searching_Payload)
+                {
+                    //Content compression
+                    if (Stream[TrackNumber].ContentCompAlgo==3) //Header Stripping
+                    {
+                        Element_Offset-=(size_t)Stream[TrackNumber].ContentCompSettings_Buffer_Size; //This is an extra array, not in the stream
+                        Open_Buffer_Continue(Stream[TrackNumber].Parser, Stream[TrackNumber].ContentCompSettings_Buffer, (size_t)Stream[TrackNumber].ContentCompSettings_Buffer_Size);
+                        Element_Offset+=(size_t)Stream[TrackNumber].ContentCompSettings_Buffer_Size;
+                        Demux(Stream[TrackNumber].ContentCompSettings_Buffer, (size_t)Stream[TrackNumber].ContentCompSettings_Buffer_Size, Ztring::ToZtring(TrackNumber, 16)+_T(".")+_T("raw"));
+                    }
+
+                    //Parsing
+                    Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset), Ztring::ToZtring(TrackNumber, 16)+_T(".")+_T("raw"));
+                    Open_Buffer_Continue(Stream[TrackNumber].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)Laces[Pos]);
+                    Element_Offset+=Laces[Pos];
+                    if (Stream[TrackNumber].Parser->IsFilled
+                     || Stream[TrackNumber].Parser->IsFinished
+                     || Stream[TrackNumber].PacketCount>=300)
+                        Stream[TrackNumber].Searching_Payload=false;
+                }
+                else
+                    Skip_XX(Laces[Pos],                         "Data");
+            }
+
+            //Positionning
+            Element_Offset=Element_Size;
+        FILLING_END();
+    }
+    else
+    {
+        Skip_XX(Element_Size-Element_Offset,                    "Data");
+    }
+
+    //Filling
+    if (!Stream[TrackNumber].Searching_Payload && !Stream[TrackNumber].Searching_TimeStamps && !Stream[TrackNumber].Searching_TimeStamp_Start)
+        Stream_Count--;
+    if (Stream_Count==0)
+    {
+        //Jumping
+        Element_Show();
+        Element_End(); //Block
+        Info("Cluster, no need of more");
+        Element_End(); //BlockGroup
+        Finish("Matroska"); //File_GoTo=File_Offset+Buffer_Offset+Element_TotalSize_Get();
+    }
 
     Element_Show(); //For debug
 }
@@ -1314,6 +1514,9 @@ void File_Mk::Segment_Cluster_SimpleBlock()
 void File_Mk::Segment_Cluster_Timecode()
 {
     Element_Name("Timecode");
+
+    //Parsing
+    Segment_Cluster_TimeCode_Value=UInteger_Get();
 }
 
 //---------------------------------------------------------------------------
@@ -1335,6 +1538,9 @@ void File_Mk::Segment_Cues_CuePoint()
 void File_Mk::Segment_Cues_CuePoint_CueTime()
 {
     Element_Name("CueTime");
+
+    //Parsing
+    UInteger_Info();
 }
 
 //---------------------------------------------------------------------------
@@ -1347,12 +1553,18 @@ void File_Mk::Segment_Cues_CuePoint_CueTrackPositions()
 void File_Mk::Segment_Cues_CuePoint_CueTrackPositions_CueTrack()
 {
     Element_Name("CueTrack");
+
+    //Parsing
+    UInteger_Info();
 }
 
 //---------------------------------------------------------------------------
 void File_Mk::Segment_Cues_CuePoint_CueTrackPositions_CueClusterPosition()
 {
     Element_Name("CueClusterPosition");
+
+    //Parsing
+    UInteger_Info();
 }
 
 //---------------------------------------------------------------------------
@@ -1365,6 +1577,9 @@ void File_Mk::Segment_Cues_CuePoint_CueTrackPositions_CueBlockNumber()
 void File_Mk::Segment_Info()
 {
     Element_Name("Info");
+
+    if (Cluster_AlreadyParsed)
+        Skip_XX(Element_TotalSize_Get(),                        "Alreadys parsed, skipping");
 }
 
 //---------------------------------------------------------------------------
@@ -1678,6 +1893,9 @@ void File_Mk::Segment_Tags_Tag_Targets_TrackUID()
 void File_Mk::Segment_Tracks()
 {
     Element_Name("Tracks");
+
+    if (Cluster_AlreadyParsed)
+        Skip_XX(Element_TotalSize_Get(),                        "Alreadys parsed, skipping");
 }
 
 //---------------------------------------------------------------------------
@@ -1792,6 +2010,30 @@ void File_Mk::Segment_Tracks_TrackEntry_CodecID()
 }
 
 //---------------------------------------------------------------------------
+void File_Mk::Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Compression_ContentCompAlgo()
+{
+    //Parsing
+    int64u Algo=UInteger_Get(); Param_Info(Mk_ContentCompAlgo(Algo));
+
+    FILLING_BEGIN();
+        Stream[TrackNumber].ContentCompAlgo=Algo;
+    FILLING_END();
+}
+
+//---------------------------------------------------------------------------
+void File_Mk::Segment_Tracks_TrackEntry_ContentEncodings_ContentEncoding_Compression_ContentCompSettings()
+{
+    //Parsing
+    Skip_XX(Element_Size,                                       "Data");
+
+    FILLING_BEGIN();
+        Stream[TrackNumber].ContentCompSettings_Buffer=new int8u[(size_t)Element_Size];
+        std::memcpy(Stream[TrackNumber].ContentCompSettings_Buffer, Buffer+Buffer_Offset, (size_t)Element_Size);
+        Stream[TrackNumber].ContentCompSettings_Buffer_Size=(size_t)Element_Size;
+    FILLING_END();
+}
+
+//---------------------------------------------------------------------------
 void File_Mk::Segment_Tracks_TrackEntry_CodecName()
 {
     Element_Name("CodecName");
@@ -1806,9 +2048,9 @@ void File_Mk::Segment_Tracks_TrackEntry_CodecPrivate()
     Element_Name("CodecPrivate");
 
     //Creating the parser
-    if (Stream[TrackNumber].Parser==NULL)
+    if (Stream.find(TrackNumber)==Stream.end() || Stream[TrackNumber].Parser==NULL)
     {
-        if (Retrieve(Stream[TrackNumber].StreamKind, Stream[TrackNumber].StreamPos, "CodecID").empty())
+        if (Stream.find(TrackNumber)==Stream.end() || Retrieve(Stream[TrackNumber].StreamKind, Stream[TrackNumber].StreamPos, "CodecID").empty())
         {
             //Codec not already known, saving CodecPrivate
             if (CodecPrivate)
@@ -1829,13 +2071,12 @@ void File_Mk::Segment_Tracks_TrackEntry_CodecPrivate()
     }
 
     //Parsing
-    Open_Buffer_Init(Stream[TrackNumber].Parser, File_Size, File_Offset+Buffer_Offset);
     Open_Buffer_Continue(Stream[TrackNumber].Parser, Buffer+Buffer_Offset, (size_t)Element_Size);
 
     //Filling
-    if (Stream[TrackNumber].Parser->File_Offset==File_Size) //Can be finnished here...
+    if (Stream[TrackNumber].Parser->IsFinished) //Can be finnished here...
     {
-        Stream[TrackNumber].SearchingPayload=false;
+        Stream[TrackNumber].Searching_Payload=false;
         Stream_Count--;
     }
 
@@ -2073,7 +2314,6 @@ void File_Mk::Segment_Tracks_TrackEntry_TrackNumber()
             Stream[TrackNumber].DisplayAspectRatio=((float)TrackVideoDisplayWidth)/(float)TrackVideoDisplayHeight;
         if (AvgBytesPerSec)
             Stream[TrackNumber].AvgBytesPerSec=AvgBytesPerSec;
-        Stream_Count++;
 
         CodecID_Manage();
         CodecPrivate_Manage();
@@ -2547,6 +2787,7 @@ void File_Mk::CodecID_Manage()
         ((File_Avc*)Stream[TrackNumber].Parser)->FrameIsAlwaysComplete=true;
         if (InfoCodecID_Format_Type==InfoCodecID_Format_Matroska)
         {
+            ((File_Avc*)Stream[TrackNumber].Parser)->MustSynchronize=false;
             ((File_Avc*)Stream[TrackNumber].Parser)->MustParse_SPS_PPS=true;
             ((File_Avc*)Stream[TrackNumber].Parser)->SizedBlocks=true;
         }
@@ -2579,6 +2820,7 @@ void File_Mk::CodecID_Manage()
     else if (Format==_T("Theora")  || Format==_T("Vorbis"))
     {
         Stream[TrackNumber].Parser=new File_Ogg;
+        Stream[TrackNumber].Parser->MustSynchronize=false;
         ((File_Ogg*)Stream[TrackNumber].Parser)->XiphLacing=true;
     }
     #endif
@@ -2590,15 +2832,17 @@ void File_Mk::CodecID_Manage()
     }
     #endif
     #if defined(MEDIAINFO_AC3_YES)
-    else if (Format==_T("AC-3") || Format==_T("E-AC-3"))
+    else if (Format==_T("AC-3") || Format==_T("E-AC-3") || Format==_T("TrueHD"))
     {
         Stream[TrackNumber].Parser=new File_Ac3;
+        ((File_Ac3*)Stream[TrackNumber].Parser)->Frame_Count_Valid=2;
     }
     #endif
     #if defined(MEDIAINFO_DTS_YES)
     else if (Format==_T("DTS"))
     {
         Stream[TrackNumber].Parser=new File_Dts;
+        ((File_Dts*)Stream[TrackNumber].Parser)->Frame_Count_Valid=2;
     }
     #endif
     #if defined(MEDIAINFO_MPEG4_YES)
@@ -2653,9 +2897,8 @@ void File_Mk::CodecID_Manage()
         ((File_Rm*)Stream[TrackNumber].Parser)->FromMKV_StreamType=Stream_Audio;
     }
     #endif
+    Open_Buffer_Init(Stream[TrackNumber].Parser);
 
-    if (Stream[TrackNumber].Parser)
-        Open_Buffer_Init(Stream[TrackNumber].Parser);
     CodecID.clear();
 }
 

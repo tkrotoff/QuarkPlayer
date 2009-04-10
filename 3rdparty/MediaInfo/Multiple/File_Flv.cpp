@@ -1,5 +1,5 @@
 // File_Flv - Info for Flash files
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -385,6 +385,7 @@ File_Flv::File_Flv()
     meta_filesize=(int64u)-1;
     meta_duration=0;
     LastFrame_Time=(int32u)-1;
+    LastFrame_Type=(int8u)-1;
 }
 
 //***************************************************************************
@@ -412,17 +413,18 @@ void File_Flv::Read_Buffer_Finalize()
         Fill(Stream_Audio, 0, Audio_Delay, Stream[Stream_Audio].Delay+Retrieve(Stream_Audio, 0, Audio_Delay).To_int32u(), 10, true);
 
     //Duration
-    if (meta_duration!=0 && LastFrame_Time!=(int32u)-1)
+    int64u Duration_Final=(int64u)meta_duration;
+    float64 FrameRate=Retrieve(Stream_Video, 0, Video_FrameRate).To_float64();
+    if (LastFrame_Time!=(int32u)-1)
+        Duration_Final=LastFrame_Time+((LastFrame_Type==9 && FrameRate)?((int64u)(1000/FrameRate)):0);
+    if (Duration_Final)
     {
-        if (meta_duration>=LastFrame_Time && meta_duration<=LastFrame_Time*1.02)
-            Fill(Stream_General, 0, General_Duration, meta_duration, 0);
-        else
-            Fill(Stream_General, 0, General_Duration, LastFrame_Time);
+        Fill(Stream_General, 0, General_Duration, Duration_Final);
+        if (Count_Get(Stream_Video))
+            Fill(Stream_Video, 0, Video_Duration, Duration_Final);
+        if (Count_Get(Stream_Audio))
+            Fill(Stream_Audio, 0, Audio_Duration, Duration_Final);
     }
-    else if (meta_duration!=0)
-        Fill(Stream_General, 0, General_Duration, meta_duration, 0);
-    else if (LastFrame_Time!=(int32u)-1)
-        Fill(Stream_General, 0, General_Duration, LastFrame_Time);
 
     //Purge what is not needed anymore
     if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
@@ -455,7 +457,7 @@ void File_Flv::FileHeader_Parse()
         //Integrity
         if (Signature!="FLV" || Version==0 || Size<9)
         {
-            Finished();
+            Reject("FLV");
             return;
         }
 
@@ -472,9 +474,10 @@ void File_Flv::FileHeader_Parse()
         if (audio_stream_Count)
             Stream_Prepare(Stream_Audio);
 
+        Accept("FLV");
         if (Version>1)
         {
-            Finished();
+            Finish("FLV");
             return; //Version more than 1 is not supported
         }
     FILLING_END();
@@ -518,7 +521,10 @@ void File_Flv::Header_Parse()
         //Filling
         Time=(((int32u)Timestamp_Extended)<<24)|Timestamp_Base;
         if (File_Offset+Buffer_Offset+Element_Offset+BodyLength+4==File_Size && Time!=0)
+        {
             LastFrame_Time=Time;
+            LastFrame_Type=Type;
+        }
     }
     else
     {
@@ -541,8 +547,9 @@ void File_Flv::Data_Parse()
         case 0x09 : video(); break;
         case 0x12 : meta(); break;
         case 0xFA : Rm(); break;
-        case (int64u)-1 : Data_GoTo(File_Size-PreviousTagSize-8, "FLV"); return; //When searching the last frame
-        default : if (Searching_Duration) Finished(); //This is surely a bad en of file, don't try anymore
+        case (int64u)-1 : GoTo(File_Size-PreviousTagSize-8, "FLV"); return; //When searching the last frame
+        default : if (Searching_Duration)
+                    Reject("FLV"); //This is surely a bad en of file, don't try anymore
 
     }
 
@@ -552,10 +559,10 @@ void File_Flv::Data_Parse()
         {
             //Trying to find the last frame for duration
             Searching_Duration=true;
-            Data_GoTo(File_Size-4, "FLV");
+            GoToFromEnd(4, "FLV");
         }
         else
-            Finished();
+            Finish("FLV");
     }
 }
 
@@ -790,12 +797,13 @@ void File_Flv::video_AVC()
                     if (Stream[Stream_Video].Parser==NULL)
                     {
                         Stream[Stream_Video].Parser=new File_Avc;
+                        Open_Buffer_Init(Stream[Stream_Video].Parser);
                         ((File_Avc*)Stream[Stream_Video].Parser)->MustParse_SPS_PPS=true;
                         ((File_Avc*)Stream[Stream_Video].Parser)->SizedBlocks=true;
+                        ((File_Avc*)Stream[Stream_Video].Parser)->MustSynchronize=false;
                     }
 
                     //Parsing
-                    Open_Buffer_Init(Stream[Stream_Video].Parser, File_Size, File_Offset+Buffer_Offset+Element_Offset);
                     Open_Buffer_Continue(Stream[Stream_Video].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
                 #else
                     Skip_XX(Element_Size-Element_Offset,        "AVC Data");
@@ -812,7 +820,6 @@ void File_Flv::video_AVC()
                     }
 
                     //Parsing
-                    Open_Buffer_Init(Stream[Stream_Video].Parser, File_Size, File_Offset+Buffer_Offset+Element_Offset);
                     Open_Buffer_Continue(Stream[Stream_Video].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
 
                     //Disabling this stream
@@ -915,11 +922,11 @@ void File_Flv::audio_MPEG()
         if (Stream[Stream_Audio].Parser==NULL)
         {
             Stream[Stream_Audio].Parser=new File_Mpega;
+            Open_Buffer_Init(Stream[Stream_Audio].Parser);
             ((File_Mpega*)Stream[Stream_Audio].Parser)->FrameIsAlwaysComplete=true;
         }
 
         //Parsing
-        Open_Buffer_Init(Stream[Stream_Audio].Parser, File_Size, File_Offset+Buffer_Offset+Element_Offset);
         Open_Buffer_Continue(Stream[Stream_Audio].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
 
         //Disabling this stream
@@ -941,10 +948,10 @@ void File_Flv::audio_AAC()
                     if (Stream[Stream_Audio].Parser==NULL)
                     {
                         Stream[Stream_Audio].Parser=new File_Mpeg4_AudioSpecificConfig;
+                        Open_Buffer_Init(Stream[Stream_Audio].Parser);
                     }
 
                     //Parsing
-                    Open_Buffer_Init(Stream[Stream_Audio].Parser, File_Size, File_Offset+Buffer_Offset+Element_Offset);
                     Open_Buffer_Continue(Stream[Stream_Audio].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
 
                     //Disabling this stream
@@ -1226,9 +1233,9 @@ void File_Flv::Rm()
 
     //Creating the parser
     File_Rm MI;
+    Open_Buffer_Init(&MI);
 
     //Parsing
-    Open_Buffer_Init(&MI);
     Open_Buffer_Continue(&MI, Buffer+Buffer_Offset, (size_t)Element_Size);
     Open_Buffer_Finalize(&MI);
 

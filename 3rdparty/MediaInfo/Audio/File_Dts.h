@@ -1,5 +1,5 @@
 // File_Dts - Info for DTS files
-// Copyright (C) 2004-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2004-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,19 +39,23 @@ public :
     //In
     size_t Frame_Count_Valid;
 
-    //Out
-    size_t Delay;
-
-protected :
-    //Format
-    void Read_Buffer_Continue ();
-
-public :
+    //Constructor/Destructor
     File_Dts();
+    ~File_Dts();
 
 private :
-    //Buffer
-    bool Header_Begin();
+    //Buffer - File header
+    bool FileHeader_Begin();
+
+    //Buffer - Synchro
+    bool Synchronize();
+    bool Synched_Test();
+
+    //Buffer - Global
+    void Read_Buffer_Finalize();
+    void Read_Buffer_Continue ();
+
+    //Buffer - Per element
     void Header_Parse();
     void Data_Parse();
     void Data_Parse_Fill();
@@ -69,15 +73,15 @@ private :
     void HD_XBR(int64u Size);
     void HD_XSA(int64u Size);
 
-    //Count
-    size_t Frame_Count;
-
-    //Temp - Technical info
+    //Temp
+    std::map<int32u, int64u> HD_Sizes;
     std::vector<ZenLib::int32u> Asset_Sizes;
     Ztring Profile;
-    int32u SyncCode;
-    int16u Primary_Frame_Byte_Size_minus_1;
+    File__Analyze* Parser; //14 bits or Little Endian
+    size_t Frame_Count;
     int32u HD_size;
+    int16u Primary_Frame_Byte_Size_minus_1;
+    int16u HD_SpeakerActivityMask;
     int8u  channel_arrangement;
     int8u  channel_arrangement_XCh;
     int8u  sample_frequency;
@@ -85,23 +89,15 @@ private :
     int8u  lfe_effects;
     int8u  bits_per_sample;
     int8u  ExtensionAudioDescriptor;
-    bool   ExtendedCoding;
-    bool   Word;
-    bool   BigEndian;
-    bool   ES;
-    std::map<int32u, int64u> HD_Sizes;
-
-    //Temp - HD
-    int16u HD_SpeakerActivityMask;
     int8u  HD_BitResolution;
     int8u  HD_MaximumSampleRate;
     int8u  HD_TotalNumberChannels;
     int8u  HD_ExSSFrameDurationCode;
+    bool   ExtendedCoding;
+    bool   Word;
+    bool   BigEndian;
+    bool   ES;
     bool   Core_Exists;
-
-    //Helpers
-    bool Synchronize();
-    bool Detect_NonDTS();
 };
 
 } //NameSpace

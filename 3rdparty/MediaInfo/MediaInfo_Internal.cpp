@@ -1,5 +1,5 @@
 // MediaInfo_Internal - All info about media files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -28,8 +28,9 @@
 //---------------------------------------------------------------------------
 #include "MediaInfo/MediaInfo_Internal.h"
 #include "MediaInfo/MediaInfo_Config.h"
-#include "MediaInfo/File__Base.h"
+#include "MediaInfo/File__Analyze.h"
 #include "MediaInfo/File__MultipleParsing.h"
+#include "MediaInfo/File_Unknown.h"
 #include "ZenLib/FileName.h"
 #include "ZenLib/File.h"
 #include "ZenLib/InfoMap.h"
@@ -41,7 +42,7 @@ using namespace ZenLib;
 namespace MediaInfoLib
 {
 
-const size_t Buffer_NormalSize=/*188*7;//*/32768;
+const size_t Buffer_NormalSize=/*188*7;//*/64*1024;
 
 //---------------------------------------------------------------------------
 extern MediaInfo_Config         Config;
@@ -131,6 +132,16 @@ size_t MediaInfo_Internal::Open(const String &File_Name_)
          return 1;
 
     //Extension is not the good one, parse with all formats
+    /*
+    delete Info; Info=new File__MultipleParsing;
+    if (Format_Test()>0)
+         return 1;
+
+    delete Info; Info=new File_Unknown;
+    if (Format_Test()>0)
+         return 1;
+    return 0;
+    */
     InternalMethod=1;
     size_t ToReturn=ListFormats();
 
@@ -144,7 +155,11 @@ int MediaInfo_Internal::Format_Test()
     //Integrity
     if (Info==NULL)
         return 0;
-    Info->Init(&Config, &Details, &Stream, &Stream_More);
+    #ifndef MEDIAINFO_MINIMIZESIZE
+        Info->Init(&Config, &Details, &Stream, &Stream_More);
+    #else //MEDIAINFO_MINIMIZESIZE
+        Info->Init(&Config, &Stream, &Stream_More);
+    #endif //MEDIAINFO_MINIMIZESIZE
     Info->File_Name=File_Name;
     
     //Test the format with buffer
@@ -165,23 +180,25 @@ int MediaInfo_Internal::Format_Test()
         else if (Info)
             Info->Open_Buffer_Continue(Buffer, Buffer_Size);
     }
-    while (Info && Info->File_Offset<File_Size);
+    while (Info && !Info->IsFinished);
 
     //-Close
     Format_Test_FillBuffer_Close();
 
-    //Finalize
-    if (Info && Info->Count_Get(Stream_General)>0)
+    //Is this file detected?
+    if (!Info->IsAccepted && Stream[Stream_General].empty())
     {
-        Info->Open_Buffer_Finalize();
-        Info->Finalize();
         delete Info; Info=NULL;
-        return 1;
+        return 0;
     }
 
-    //Cleanup if needed
+    //Finalize
+    Info->Open_Buffer_Finalize();
+    Info->Finalize_Global();
+
+    //Cleanup
     delete Info; Info=NULL;
-    return 0;
+    return 1;
 }
 
 //---------------------------------------------------------------------------
@@ -339,7 +356,11 @@ size_t MediaInfo_Internal::Open_Buffer_Init (int64u File_Size_, int64u File_Offs
         else
             Info=new File__MultipleParsing;
     }
-    Info->Init(&Config, &Details, &Stream, &Stream_More);
+    #ifndef MEDIAINFO_MINIMIZESIZE
+        Info->Init(&Config, &Details, &Stream, &Stream_More);
+    #else //MEDIAINFO_MINIMIZESIZE
+        Info->Init(&Config, &Stream, &Stream_More);
+    #endif //MEDIAINFO_MINIMIZESIZE
     Info->Open_Buffer_Init(File_Size_, File_Offset_);
 
     //Saving the real file size, in case the user provide the theoritical file size, to be used instead of the real file size
@@ -355,27 +376,47 @@ size_t MediaInfo_Internal::Open_Buffer_Continue (const int8u* ToAdd, size_t ToAd
     if (Info==NULL)
         return 0;
 
-    Info->Open_Buffer_Continue(Info, ToAdd, ToAdd_Size);
+    Info->Open_Buffer_Continue(ToAdd, ToAdd_Size);
 
-    if (!MultipleParsing_IsDetected && Info->Count_Get(Stream_General)>0)
+    if (!MultipleParsing_IsDetected && Info->IsAccepted)
     {
         //Found
-        File__Base* Info_ToDelete=Info;
+        File__Analyze* Info_ToDelete=Info;
         Info=((File__MultipleParsing*)Info)->Parser_Get();
         delete Info_ToDelete; //Info_ToDelete=NULL;
         MultipleParsing_IsDetected=true;
     }
 
+    #if 0 //temp, for old users
     //The parser wanted seek but the buffer is not seekable
     if (Info->File_GoTo!=(int64u)-1 && Config.File_IsSeekable_Get()==0)
     {
         Info->Open_Buffer_Finalize(true);
-        Info->Finalize();
+        Info->Finalize_Global();
         Info->File_GoTo=(int64u)-1;
         return 0;
     }
 
     return 1;
+    #else
+    //The parser wanted seek but the buffer is not seekable
+    if (Info->File_GoTo!=(int64u)-1 && Config.File_IsSeekable_Get()==0)
+    {
+        Info->Open_Buffer_Fill();
+        Info->Open_Buffer_Update();
+        Info->File_GoTo=(int64u)-1;
+    }
+
+    if (Info)
+    {
+        size_t ToReturn=Info->IsAccepted<< 0
+                      | Info->IsFilled  << 1
+                      | Info->IsUpdated << 2
+                      | Info->IsFinished<< 3;
+        return ToReturn;
+    }
+    return 0;
+    #endif
 }
 
 //---------------------------------------------------------------------------
@@ -395,7 +436,7 @@ size_t MediaInfo_Internal::Open_Buffer_Finalize ()
     if (Info!=NULL)
     {
         Info->Open_Buffer_Finalize();
-        Info->Finalize();
+        Info->Finalize_Global();
     }
     return 1;
 }
@@ -433,6 +474,10 @@ String MediaInfo_Internal::Inform(size_t)
 String MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamNumber, size_t Parameter, info_t KindOfInfo)
 {
     CriticalSectionLocker CSL(CS);
+
+    if (Info && Info->IsUpdated)
+        Info->Open_Buffer_Update();
+
     //Check integrity
     if (StreamKind>=Stream_Max || StreamNumber>=Stream[StreamKind].size() || Parameter>=MediaInfoLib::Config.Info_Get(StreamKind).size()+Stream_More[StreamKind][StreamNumber].size() || KindOfInfo>=Info_Max)
         return MediaInfoLib::Config.EmptyString_Get(); //Parameter is unknown
@@ -514,7 +559,9 @@ String MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamPos, const Stri
         CS.Leave();
         Ztring InformZtring=Inform(StreamKind, StreamPos);
         CS.Enter();
-        Stream[StreamKind][StreamPos](MediaInfoLib::Config.Info_Get(StreamKind).Find(_T("Inform")))=InformZtring;
+        size_t Pos=MediaInfoLib::Config.Info_Get(StreamKind).Find(_T("Inform"));
+        if (Pos!=Error)
+            Stream[StreamKind][StreamPos](Pos)=InformZtring;
     }
 
     //Case of specific info

@@ -1,5 +1,5 @@
 // File_Mpc - Info for Musepack files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -40,17 +40,17 @@ namespace MediaInfoLib
 
 class File_Mpc : public File__Analyze, public File__Tags_Helper
 {
-protected :
-    //Format
-    void Read_Buffer_Continue ();
-    void Read_Buffer_Finalize ();
-
 public :
+    //Constructor/Destructor
     File_Mpc();
 
 private :
-    //Buffer
-    bool Header_Begin();
+    //Buffer - Global
+    void Read_Buffer_Continue()                                                 {File__Tags_Helper::Read_Buffer_Continue();}
+    void Read_Buffer_Finalize()                                                 {File__Tags_Helper::Read_Buffer_Finalize();}
+
+    //Buffer - File header
+    bool FileHeader_Begin();
     void FileHeader_Parse();
 };
 

@@ -1,6 +1,6 @@
 /*  This file is part of the KDE project.
 
-Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies).
+Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 
 This library is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -19,6 +19,8 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #define PHONON_DS9_NAMESPACE_H
 
 #include <QtCore/qnamespace.h>
+
+#define FILTER_COUNT 2 //number of ds9 filters per object
 
 #ifndef QT_BEGIN_NAMESPACE
 #define QT_BEGIN_NAMESPACE

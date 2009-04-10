@@ -1,5 +1,5 @@
 // File_Ico - Info for Icon files
-// Copyright (C) 2005-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -39,9 +39,23 @@ namespace MediaInfoLib
 
 class File_Ico : public File__Analyze
 {
-protected :
-    //Format
-    void Read_Buffer_Continue ();
+public:
+    //Constructor/Destructor
+    File_Ico();
+
+private :
+    //Buffer - File header
+    bool FileHeader_Begin();
+    void FileHeader_Parse ();
+
+    //Buffer - Per element
+    void Header_Parse ();
+    void Data_Parse ();
+
+    //Temp
+    int64u IcoDataSize;
+    int16u Type;
+    int16u Count;
 };
 
 } //NameSpace

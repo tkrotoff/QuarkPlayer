@@ -1,5 +1,5 @@
 // File_Aac - Info for AAC (Raw) files
-// Copyright (C) 2008-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2008-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -37,7 +37,7 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Format
+// Buffer - Global
 //***************************************************************************
 
 //---------------------------------------------------------------------------
@@ -51,18 +51,9 @@ void File_Aac::Read_Buffer_Continue()
     Stream_Prepare(Stream_Audio);
     Fill(Stream_General, 0, Audio_Format, "AAC");
     Fill(Stream_General, 0, Audio_Codec, "AAC");
-
-    Finished();
-}
-
-//---------------------------------------------------------------------------
-void File_Aac::Read_Buffer_Finalize()
-{
-    //Filling
-    Ztring Profile, Settings;
+    Ztring Profile;
     int8u Version=0, SBR=2, PS=2;
-    if (0)
-        ;
+         if (0);
     else if (Codec==_T("A_AAC/MPEG2/MAIN"))     {Version=2; Profile=_T("Main");}
     else if (Codec==_T("A_AAC/MPEG2/LC"))       {Version=2; Profile=_T("LC");   SBR=0;}
     else if (Codec==_T("A_AAC/MPEG2/LC/SBR"))   {Version=2; Profile=_T("LC");   SBR=1;}
@@ -91,6 +82,9 @@ void File_Aac::Read_Buffer_Finalize()
             Fill(Stream_Audio, 0, Audio_Format_Settings, "PS");
         Fill(Stream_Audio, 0, Audio_Format_Settings_PS, PS?"Yes":"No");
     }
+
+    Accept("AAC");
+    Finish("AAC");
 }
 
 //***************************************************************************

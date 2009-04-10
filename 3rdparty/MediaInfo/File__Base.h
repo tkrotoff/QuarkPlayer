@@ -1,5 +1,5 @@
 // File__Base - Base for other files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -47,7 +47,12 @@ public :
     //Constructor/Destructor
     File__Base();
     virtual ~File__Base();
-    void Init(MediaInfo_Config_MediaInfo * Config, Ztring* Details, std::vector<std::vector<ZtringList> > * Stream_=NULL, std::vector<std::vector<ZtringListList> > * Stream_More=NULL);
+    #ifndef MEDIAINFO_MINIMIZESIZE
+        void Init(MediaInfo_Config_MediaInfo * Config, Ztring* Details, std::vector<std::vector<ZtringList> > * Stream_=NULL, std::vector<std::vector<ZtringListList> > * Stream_More=NULL);
+    #else //MEDIAINFO_MINIMIZESIZE
+        void Init(MediaInfo_Config_MediaInfo * Config, std::vector<std::vector<ZtringList> > * Stream_=NULL, std::vector<std::vector<ZtringListList> > * Stream_More=NULL);
+    #endif //MEDIAINFO_MINIMIZESIZE
+
     //Save
     int     Save ();
 
@@ -69,14 +74,14 @@ public :
 
 protected :
     //Read
-    virtual void Read_Buffer_Init     (); //To overload
-    virtual void Read_Buffer_Unsynched(); //To overload
-    virtual void Read_Buffer_Continue (); //To overload
-    virtual void Read_Buffer_Finalize (); //To overload
+    virtual void Read_Buffer_Init     () {} //To overload
+    virtual void Read_Buffer_Unsynched() {} //To overload
+    virtual void Read_Buffer_Continue () {} //To overload
+    virtual void Read_Buffer_Finalize () {} //To overload
 
     //Write
-    virtual int Write       (stream_t StreamKind, size_t StreamNumber, const Ztring &Parameter, const Ztring &ToSet, const Ztring &OldValue); //Write the value in memory
-    virtual int WriteToDisk (); //Write modified tags on disk
+    virtual int Write       (stream_t /*StreamKind*/, size_t /*StreamNumber*/, const Ztring &/*Parameter*/, const Ztring &/*ToSet*/, const Ztring &/*OldValue*/) {return -1;} //Write the value in memory
+    virtual int WriteToDisk () {return -1;} //Write modified tags on disk
 
     //Arrays
 private :
@@ -91,14 +96,22 @@ protected :
     MediaInfo_Config_MediaInfo* Config;
 
     //Details
-    Ztring* Details;
+    #ifndef MEDIAINFO_MINIMIZESIZE
+        Ztring* Details;
+    #endif //MEDIAINFO_MINIMIZESIZE
 
     //Demux
-    void Demux (const int8u* Buffer, size_t Buffer_Size, const Ztring& StreamName, bool Final=true);
+    #ifndef MEDIAINFO_MINIMIZESIZE
+        void Demux (const int8u* Buffer, size_t Buffer_Size, const Ztring& StreamName, bool Final=true);
+    #else //MEDIAINFO_MINIMIZESIZE
+        inline void Demux (const int8u*, size_t, const Ztring&, bool=true) {}
+    #endif //MEDIAINFO_MINIMIZESIZE
 
 public :
-    void   Details_Clear();
-    void   Details_Add(const char* Parameter);
+    #ifndef MEDIAINFO_MINIMIZESIZE
+        void   Details_Clear();
+        void   Details_Add(const char* Parameter);
+    #endif //MEDIAINFO_MINIMIZESIZE
     virtual void Option_Manage() {};
 
     //File
@@ -107,7 +120,6 @@ public :
     int64u File_Offset;
     int64u File_Offset_FirstSynched;
     int64u File_GoTo; //How many byte to skip?
-    int64u File_MaximumOffset;
 
     //Divers
     void Clear();

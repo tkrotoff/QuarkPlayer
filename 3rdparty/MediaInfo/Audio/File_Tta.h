@@ -1,5 +1,5 @@
 // File_Tta - Info for TTA files
-// Copyright (C) 2007-2008 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -40,19 +40,18 @@ namespace MediaInfoLib
 
 class File_Tta : public File__Analyze, public File__Tags_Helper
 {
-protected :
-    //Format
-    void Read_Buffer_Continue ();
-    void Read_Buffer_Finalize ();
-
 public :
+    //Constructor/Destructor
     File_Tta();
 
 private :
-    //Buffer
-    bool Header_Begin();
-    void Header_Parse();
-    void Data_Parse();
+    //Buffer - File header
+    bool FileHeader_Begin();
+    void FileHeader_Parse();
+
+    //Buffer - Global
+    void Read_Buffer_Continue()                                                 {File__Tags_Helper::Read_Buffer_Continue();}
+    void Read_Buffer_Finalize ();
 
     //Temp
     int64u Duration;

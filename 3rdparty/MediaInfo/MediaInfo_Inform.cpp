@@ -1,5 +1,5 @@
-// File__Base_Inform - Base for other files
-// Copyright (C) 2002-2008 Jerome Martinez, Zen@MediaArea.net
+// MediaInfo_Inform - Base for other files
+// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -32,6 +32,7 @@
 #include "ZenLib/Utils.h"
 #include "MediaInfo/MediaInfo_Internal.h"
 #include "MediaInfo/MediaInfo_Config.h"
+#include "MediaInfo/File__Analyze.h"
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -44,6 +45,9 @@ extern MediaInfo_Config Config;
 //---------------------------------------------------------------------------
 String MediaInfo_Internal::Inform()
 {
+    if (Info && Info->IsUpdated)
+        Info->Open_Buffer_Update();
+
     #ifndef MEDIAINFO_MINIMIZESIZE
         if (MediaInfoLib::Config.Details_Get())
             return Details;
@@ -139,7 +143,7 @@ String MediaInfo_Internal::Inform()
     if (MediaInfoLib::Config.Inform_Get()==_T("HTML"))
         HTML=true;
 
-    if (HTML) Retour+=_T("<html>\n\n<head>\n<META http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"></head>\n<body>\n");
+    if (HTML) Retour+=_T("<html>\n\n<head>\n<META http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /></head>\n<body>\n");
 
     for (size_t StreamKind=(size_t)Stream_General; StreamKind<Stream_Max; StreamKind++)
     {
@@ -163,6 +167,8 @@ String MediaInfo_Internal::Inform()
             Retour+=MediaInfoLib::Config.LineSeparator_Get();
         }
     }
+
+    if (HTML) Retour+=_T("\n</body>\n</html>\n");
 
     return Retour;
 }
@@ -194,9 +200,9 @@ String MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
             Ztring A=Get((stream_t)StreamKind, StreamPos, Champ_Pos, Info_Measure_Text); // TODO Bug sinon? voir Ztring
             if ((MediaInfoLib::Config.Complete_Get() || Get((stream_t)StreamKind, StreamPos, Champ_Pos, Info_Options)[InfoOption_ShowInInform]==_T('Y')) && Get((stream_t)StreamKind, StreamPos, Champ_Pos, Info_Text)!=_T(""))
             {
-                Ztring Nom=Get((stream_t)StreamKind, 0, Champ_Pos, Info_Name_Text);
+                Ztring Nom=Get((stream_t)StreamKind, StreamPos, Champ_Pos, Info_Name_Text);
                 if (Nom==_T(""))
-                    Nom=Get((stream_t)StreamKind, 0, Champ_Pos, Info_Name); //Texte n'existe pas
+                    Nom=Get((stream_t)StreamKind, StreamPos, Champ_Pos, Info_Name); //Texte n'existe pas
                 if (!HTML)
                 {
                      int8u Size=MediaInfoLib::Config.Language_Get(_T("  Config_Text_ColumnSize")).To_int8u();

@@ -60,6 +60,7 @@
 		#include <MediaInfo/MediaInfo.h>
 	#else
 		#include <MediaInfo/MediaInfoDLL.h>
+		#define MediaInfoLib MediaInfoDLL
 	#endif	//Q_OS_UNIX
 #endif	//MEDIAINFOLIB
 
