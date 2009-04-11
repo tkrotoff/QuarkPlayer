@@ -1,6 +1,6 @@
 #Mininum required CMake version
 cmake_minimum_required(VERSION 2.6)
-cmake_policy(VERSION 2.6.0)
+cmake_policy(VERSION 2.6.3)
 
 project(quarkplayer)
 
@@ -137,9 +137,6 @@ add_subdirectory(3rdparty/phonon)
 #Use Phonon from this repository instead (patched version)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
 set(QT_PHONON_LIBRARY phonon)
-
-#set(PHONON_LIBS phonon)
-#add_subdirectory(3rdparty/ds9)
 
 add_subdirectory(phonon-mplayer)
 ##

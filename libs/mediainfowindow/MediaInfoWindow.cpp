@@ -322,7 +322,7 @@ void MediaInfoWindow::updateMediaInfo() {
 				videoStream += ' ' + videoBitrate + ' ' + tr("kbps");
 			}
 			if (!videoWidth.isEmpty() && !videoHeight.isEmpty()) {
-				videoStream += ", " + videoWidth + "*" + videoHeight;
+				videoStream += ", " + videoWidth + '*' + videoHeight;
 			}
 			if (!videoFrameRate.isEmpty()) {
 				videoStream += ", " + videoFrameRate + ' ' + tr("FPS");
@@ -331,7 +331,7 @@ void MediaInfoWindow::updateMediaInfo() {
 				videoStream += ", " + videoFormat;
 			}
 			if (!videoCodec.isEmpty()) {
-				videoStream += " (" + videoCodec + ")";
+				videoStream += " (" + videoCodec + ')';
 			}
 			if (!videoEncodedLibrary.isEmpty()) {
 				videoStream += ", " + videoEncodedLibrary;
@@ -372,12 +372,17 @@ void MediaInfoWindow::updateMediaInfo() {
 	if (mediaInfo.fileType().name == FileType::WMA) {
 		moreInfo += tr("Warning:") + br +
 			tr("WMA is a proprietary, Windows specific audio codec that includes DRM and thus is not recommended") + br +
-			tr("Use instead a well supported standard audio codec like MP3 or Ogg/Vorbis");
-	}
-	else if (mediaInfo.fileType().name == FileType::WMV) {
+			tr("Use instead a well supported standard audio codec like ") +
+			"<a href=\"http://" + _language + ".wikipedia.org/wiki/MP3\">MP3</a>" +
+			tr(" or ") +
+			"<a href=\"http://" + _language + ".wikipedia.org/wiki/FLAC\">FLAC</a>";
+	} else if (mediaInfo.fileType().name == FileType::WMV) {
 		moreInfo += tr("Warning:") + br +
 			tr("WMV is a proprietary, Windows specific video codec that includes DRM and thus is not recommended") + br +
-			tr("Use instead a well supported standard video codec like Xvid or Ogg/Theora");
+			tr("Use instead a well supported standard video codec like ") +
+			"<a href=\"http://" + _language + ".wikipedia.org/wiki/Xvid\">Xvid</a>" +
+			tr(" or ") +
+			"<a href=\"http://" + _language + ".wikipedia.org/wiki/Theora\">Ogg/Theora</a>";
 	}
 	_ui->moreInfoLabel->setText(moreInfo);
 
