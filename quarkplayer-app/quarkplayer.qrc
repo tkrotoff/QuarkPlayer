@@ -1,11 +1,10 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-	<file>icons/hi16-app-quarkplayer.png</file>
-	<file>icons/hi32-app-quarkplayer.png</file>
-	<file>icons/hi48-app-quarkplayer.png</file>
-	<file>icons/hi64-app-quarkplayer.png</file>
-	<file>icons/hi128-app-quarkplayer.png</file>
-	<file>icons/hi300-app-quarkplayer.png</file>
-	<file>icons/hi16-emptyicon.png</file>
+	<file>icons/quarkplayer-16x16.png</file>
+	<file>icons/quarkplayer-32x32.png</file>
+	<file>icons/quarkplayer-48x48.png</file>
+	<file>icons/quarkplayer-64x64.png</file>
+	<file>icons/quarkplayer-128x128.png</file>
+	<file>icons/emptyicon-16x16.png</file>
 </qresource>
 </RCC>
