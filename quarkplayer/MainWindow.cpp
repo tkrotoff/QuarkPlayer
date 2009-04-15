@@ -172,7 +172,7 @@ void MainWindow::clearRecentFiles() {
 }
 
 void MainWindow::playFile() {
-	QString filename = TkFileDialog::getOpenFileName(
+	QStringList filenames = TkFileDialog::getOpenFileNames(
 		this, tr("Select Audio/Video File"), Config::instance().lastDirOpened(),
 		tr("Multimedia") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video, FileType::Audio)) + ";;" +
 		tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video)) +";;" +
@@ -181,10 +181,12 @@ void MainWindow::playFile() {
 		tr("All Files") + " (*)"
 	);
 
-	if (!filename.isEmpty()) {
-		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(filename).absolutePath());
+	if (!filenames.isEmpty()) {
+		QString fileToPlay(filenames[0]);
+		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(fileToPlay).absolutePath());
 
-		play(filename);
+		quarkPlayer().addFilesToPlaylist(filenames);
+		play(fileToPlay);
 	}
 }
 
@@ -443,7 +445,7 @@ void MainWindow::setupUi() {
 
 void MainWindow::retranslate() {
 	updateWindowTitle();
-	setWindowIcon(QIcon(":/icons/hi16-app-quarkplayer.png"));
+	setWindowIcon(QIcon(":/icons/quarkplayer-16x16.png"));
 
 	ActionCollection::action("MainWindow.OpenFile")->setText(tr("Play &File..."));
 	ActionCollection::action("MainWindow.OpenFile")->setIcon(TkIcon("document-open"));

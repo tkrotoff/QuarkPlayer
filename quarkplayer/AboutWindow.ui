@@ -16,7 +16,7 @@
    <item rowspan="5" row="0" column="0" >
     <widget class="QLabel" name="logoLabel" >
      <property name="pixmap" >
-      <pixmap resource="../quarkplayer-app/quarkplayer.qrc" >:/icons/hi48-app-quarkplayer.png</pixmap>
+      <pixmap resource="../quarkplayer-app/quarkplayer.qrc" >:/icons/quarkplayer-48x48.png</pixmap>
      </property>
      <property name="alignment" >
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

@@ -52,7 +52,7 @@ AboutWindow::AboutWindow(QWidget * parent)
 	QString mediaInfoLibVersion;
 #ifdef MEDIAINFOLIB
 	MediaInfoLib::MediaInfo mediaInfo;
-	mediaInfoLibVersion = QString::fromStdWString(mediaInfo.Option(_T("Info_Version"), _T('')));
+	mediaInfoLibVersion = QString::fromStdWString(mediaInfo.Option(_T("Info_Version"), _T("")));
 	mediaInfoLibVersion.remove("MediaInfoLib - v");
 #endif	//MEDIAINFOLIB
 
