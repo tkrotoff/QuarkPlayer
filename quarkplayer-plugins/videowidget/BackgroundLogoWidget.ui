@@ -22,7 +22,7 @@
       </size>
      </property>
      <property name="pixmap" >
-      <pixmap resource="../../quarkplayer-app/quarkplayer.qrc" >:/icons/hi128-app-quarkplayer.png</pixmap>
+      <pixmap resource="../../quarkplayer-app/quarkplayer.qrc" >:/icons/quarkplayer-128x128.png</pixmap>
      </property>
      <property name="scaledContents" >
       <bool>true</bool>
