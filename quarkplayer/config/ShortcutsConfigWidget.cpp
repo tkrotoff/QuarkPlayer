@@ -120,7 +120,7 @@ void ShortcutsConfigWidget::readConfig() {
 
 			QIcon icon = tkAction->icon();
 			if (icon.isNull()) {
-				icon = QIcon(":/icons/hi16-emptyicon.png");
+				icon = QIcon(":/icons/emptyicon-16x16.png");
 			}
 			item->setIcon(COLUMN_ACTION, icon);
 			item->setText(COLUMN_ACTION, name);
