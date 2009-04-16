@@ -92,8 +92,8 @@ void WinDefaultApplication::addFileAssociation(const QString & extension, bool a
 		return;
 	}
 
-#ifdef Q_OS_WIN
 	QString icon;
+#ifdef Q_OS_WIN
 	if (QSysInfo::windowsVersion() < QSysInfo::WV_VISTA) {
 		//Do this only under Windows versions inferior to Vista.
 		//Under Vista, mimetypes icons are fine, no need to change them
