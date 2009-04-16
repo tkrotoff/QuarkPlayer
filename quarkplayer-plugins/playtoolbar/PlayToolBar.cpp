@@ -255,7 +255,6 @@ void PlayToolBar::volumeIncrease10() {
 }
 
 void PlayToolBar::volumeChanged(qreal volume) {
-#ifdef NEW_TITLE_CHAPTER_HANDLING
 	if (volume <= 0.0) {
 		_volumeSlider->setVolumeIcon(TkIcon("audio-volume-muted"));
 	} else if (volume < 0.3) {
@@ -265,7 +264,6 @@ void PlayToolBar::volumeChanged(qreal volume) {
 	} else {
 		_volumeSlider->setVolumeIcon(TkIcon("audio-volume-medium"));
 	}
-#endif	//NEW_TITLE_CHAPTER_HANDLING
 }
 
 void PlayToolBar::createControlToolBar() {
@@ -295,12 +293,10 @@ void PlayToolBar::createControlToolBar() {
 void PlayToolBar::retranslate() {
 	setWindowTitle(tr("Play ToolBar"));
 
-#ifdef NEW_TITLE_CHAPTER_HANDLING
 	_volumeSlider->setVolumeIcon(TkIcon("player-volume"));
 	_volumeSlider->setMutedIcon(TkIcon("audio-volume-muted"));
 
 	//_seekSlider->setIcon(TkIcon("player-time"));
-#endif	//NEW_TITLE_CHAPTER_HANDLING
 
 	setMinimumSize(sizeHint());
 }
@@ -336,6 +332,6 @@ void PlayToolBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 
 	Phonon::AudioOutput * audioOutput = quarkPlayer().currentAudioOutput();
 	_volumeSlider->setAudioOutput(quarkPlayer().currentAudioOutput());
-	disconnect(0, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged(qreal)));
+	disconnect(audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged(qreal)));
 	connect(audioOutput, SIGNAL(volumeChanged(qreal)), SLOT(volumeChanged(qreal)));
 }

@@ -33,7 +33,7 @@ namespace Phonon {
 }
 
 /**
- * Toolbar containing play/pause/stop...
+ * Toolbar containing play/pause/stop buttons.
  *
  * @author Tanguy Krotoff
  */
