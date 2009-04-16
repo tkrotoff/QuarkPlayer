@@ -216,6 +216,7 @@ void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State ol
 	}
 }
 
+#ifdef TAGLIB
 QString parseID3v2_TXXX(const TagLib::ID3v2::FrameListMap & metadata, const QString & tagName) {
 	QString tmp;
 	TagLib::ID3v2::FrameList frameList = metadata["TXXX"];
@@ -242,6 +243,7 @@ QString parseID3v2_WXXX(const TagLib::ID3v2::FrameListMap & metadata) {
 	}
 	return tmp;
 }
+#endif	//TAGLIB
 
 void MediaInfoFetcher::startTagLibResolver() {
 #ifdef TAGLIB
