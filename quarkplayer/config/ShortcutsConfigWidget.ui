@@ -16,37 +16,6 @@
       <string>Keyboard Shortcuts</string>
      </property>
      <layout class="QGridLayout" name="gridLayout" >
-      <item row="0" column="0" >
-       <widget class="SearchLineEdit" name="searchLineEdit" />
-      </item>
-      <item row="1" column="0" >
-       <widget class="QTreeWidget" name="actionList" >
-        <property name="uniformRowHeights" >
-         <bool>true</bool>
-        </property>
-        <property name="sortingEnabled" >
-         <bool>true</bool>
-        </property>
-        <property name="columnCount" >
-         <number>3</number>
-        </property>
-        <column>
-         <property name="text" >
-          <string>Action</string>
-         </property>
-        </column>
-        <column>
-         <property name="text" >
-          <string>Label</string>
-         </property>
-        </column>
-        <column>
-         <property name="text" >
-          <string>Shortcut</string>
-         </property>
-        </column>
-       </widget>
-      </item>
       <item row="2" column="0" >
        <layout class="QHBoxLayout" >
         <item>
@@ -84,6 +53,37 @@
          </widget>
         </item>
        </layout>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QTreeWidget" name="actionList" >
+        <property name="uniformRowHeights" >
+         <bool>true</bool>
+        </property>
+        <property name="sortingEnabled" >
+         <bool>true</bool>
+        </property>
+        <property name="columnCount" >
+         <number>3</number>
+        </property>
+        <column>
+         <property name="text" >
+          <string>Action</string>
+         </property>
+        </column>
+        <column>
+         <property name="text" >
+          <string>Label</string>
+         </property>
+        </column>
+        <column>
+         <property name="text" >
+          <string>Shortcut</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+      <item row="0" column="0" >
+       <widget class="SearchLineEdit" name="searchLineEdit" />
       </item>
      </layout>
     </widget>
@@ -126,6 +126,11 @@
     </widget>
    </item>
   </layout>
+  <zorder>groupBox</zorder>
+  <zorder>keyGroupBox</zorder>
+  <zorder>searchLineEdit</zorder>
+  <zorder>actionList</zorder>
+  <zorder></zorder>
  </widget>
  <customwidgets>
   <customwidget>

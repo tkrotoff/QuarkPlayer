@@ -300,20 +300,8 @@ void PlaylistWidget::openPlaylist() {
 
 	if (!filename.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(filename).absolutePath());
-
-		PlaylistParser * parser = new PlaylistParser(filename, this);
-		connect(parser, SIGNAL(filesFound(const QStringList &)),
-			SLOT(parserFilesFound(const QStringList &)));
-		connect(parser, SIGNAL(finished(int)),
-			SLOT(playlistLoaded(int)));
-		connect(parser, SIGNAL(finished(int)),
-			_playlistModel, SLOT(saveCurrentPlaylist()));
-		parser->load();
+		_playlistModel->loadPlaylist(filename);
 	}
-}
-
-void PlaylistWidget::parserFilesFound(const QStringList & files) {
-	_playlistModel->addFiles(files);
 }
 
 void PlaylistWidget::playlistLoaded(int timeElapsed) {

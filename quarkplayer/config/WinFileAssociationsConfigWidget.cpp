@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 #include "ui_WinFileAssociationsConfigWidget.h"
 
 #include "Config.h"
+
+#include <quarkplayer/WinDefaultApplication.h>
 
 #include <filetypes/FileTypes.h>
 
@@ -72,16 +74,34 @@ void WinFileAssociationsConfigWidget::saveConfig() {
 			QTreeWidgetItem * item = topLevelItem->child(j);
 			if (item) {
 				QString extension(item->text(COLUMN_EXTENSION));
-				if (!extension.isEmpty()) {
-					if (item->checkState(COLUMN_EXTENSION) == Qt::Checked) {
-						_winFileAssociations->addAssociation(extension);
-					} else {
-						_winFileAssociations->deleteAssociation(extension);
-					}
+				if (item->checkState(COLUMN_EXTENSION) == Qt::Checked) {
+					WinDefaultApplication::addFileAssociation(
+						extension,
+						_ui->checkBoxPlayWith->checkState() == Qt::Checked,
+						_ui->checkBoxEnqueue->checkState() == Qt::Checked
+					);
+				} else {
+					_winFileAssociations->deleteAssociation(extension);
 				}
 			}
 		}
 	}
+
+	//File context menu
+	//Special case for right-clic on a directory
+	if (_ui->checkBoxPlayWith->checkState() == Qt::Checked) {
+		WinDefaultApplication::addPlayDirectoryContextMenu();
+	} else {
+		WinDefaultApplication::deletePlayDirectoryContextMenu();
+	}
+	if (_ui->checkBoxEnqueue->checkState() == Qt::Checked) {
+		WinDefaultApplication::addEnqueueDirectoryContextMenu();
+	} else {
+		WinDefaultApplication::deleteEnqueueDirectoryContextMenu();
+	}
+	///
+
+	WinFileAssociations::notifyFileAssociationChanged();
 }
 
 void WinFileAssociationsConfigWidget::readConfig() {
@@ -96,6 +116,9 @@ void WinFileAssociationsConfigWidget::readConfig() {
 	addItems(item, FileTypes::extensions(FileType::Audio));
 
 	item = new QTreeWidgetItem(QStringList(tr("Subtitle Files")));
+	//Disable the selection of subtitle file association
+	//Associates .txt or .srt with QuarkPlayer? well no
+	item->setDisabled(true);
 	_ui->treeWidget->addTopLevelItem(item);
 	addItems(item, FileTypes::extensions(FileType::Subtitle));
 
@@ -105,6 +128,16 @@ void WinFileAssociationsConfigWidget::readConfig() {
 
 	_ui->treeWidget->expandAll();
 	_ui->treeWidget->resizeColumnToContents(COLUMN_EXTENSION);
+
+	//FIXME fix a graphical bug under Windows XP: the extension column is not large enough
+	_ui->treeWidget->setColumnWidth(COLUMN_EXTENSION, _ui->treeWidget->columnWidth(COLUMN_EXTENSION) + 5);
+
+	if (_winFileAssociations->containsDirectoryCommand("QuarkPlayer.Play")) {
+		_ui->checkBoxPlayWith->setCheckState(Qt::Checked);
+	}
+	if (_winFileAssociations->containsDirectoryCommand("QuarkPlayer.Enqueue")) {
+		_ui->checkBoxEnqueue->setCheckState(Qt::Checked);
+	}
 }
 
 void WinFileAssociationsConfigWidget::retranslate() {
@@ -161,7 +194,7 @@ void WinFileAssociationsConfigWidget::selectButtonClicked(bool select) {
 
 		for (int j = 0; j < topLevelItem->childCount(); j++) {
 			QTreeWidgetItem * item = topLevelItem->child(j);
-			if (item) {
+			if (item && !item->isDisabled()) {
 				QString extension(item->text(COLUMN_EXTENSION));
 				if (!extension.isEmpty()) {
 					if (select) {

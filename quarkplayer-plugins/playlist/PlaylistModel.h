@@ -63,6 +63,7 @@ public:
 	 * Adds files to the model.
 	 *
 	 * Saves the new added files to the current playlist if needed.
+	 * A file can also be a playlist file (.m3u, .pls...)
 	 *
 	 * The list of files can contain directory, addFiles() will go recursive to find all the files.
 	 *
@@ -75,6 +76,11 @@ public:
 	 * Plays the file at the given position.
 	 */
 	void play(int position);
+
+	/**
+	 * Loads a playlist file (.m3u, .pls...).
+	 */
+	void loadPlaylist(const QString & filename);
 
 	/**
 	 * Enqueues the file at the given position.
@@ -93,6 +99,8 @@ public:
 	/** Gets the filename given its index. */
 	QString fileName(const QModelIndex & index) const;
 
+
+
 	//Inherited from QAbstractItemModel
 	int columnCount(const QModelIndex & parent = QModelIndex()) const;
 	QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
@@ -109,10 +117,14 @@ public:
 	QStringList mimeTypes() const;
 	Qt::DropActions supportedDropActions() const;
 
+
 public slots:
 
 	/** Clears the model. */
 	void clear();
+
+	/** Loads the current playlist. */
+	void loadCurrentPlaylist();
 
 	/** Saves the current playlist to a file. */
 	void saveCurrentPlaylist();
@@ -125,16 +137,17 @@ signals:
 
 private slots:
 
-	void updateMediaInfo();
+	void playInternal();
 
-	/** Loads the current playlist. */
-	void loadCurrentPlaylist();
+	void updateMediaInfo();
 
 	void filesFound(const QStringList & files);
 
 	void addFilesToCurrentPlaylist(const QStringList & files);
 
 	void searchfinished(int timeElapsed);
+
+	void allPluginsLoaded();
 
 private:
 
@@ -163,6 +176,7 @@ private:
 	 */
 	mutable int _mediaInfoFetcherRow;
 
+	/** Current item position: the item/row/file that is currenlty selected inside the model/playlist. */
 	int _position;
 
 	/**
@@ -191,6 +205,13 @@ private:
 	 * Necessary for loading and saving several playlist.
 	 */
 	QUuid _uuid;
+
+	/**
+	 * Position to play.
+	 *
+	 * @see playInternal()
+	 */
+	int _positionToPlay;
 };
 
 #endif	//PLAYLISTMODEL_H

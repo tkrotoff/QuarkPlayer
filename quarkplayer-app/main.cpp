@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,10 +90,10 @@ int main(int argc, char * argv[]) {
 	//Fix some ugly things under Windows XP
 	app.setStyle(QStyleFactory::create(Config::instance().style()));
 
-	//Translator
+	//Translate the application using the right language
 	Translator::instance().load(config.language());
 
-	//CommandLineParser
+	//Parse the command line arguments
 	CommandLineParser parser;
 
 	//Icons
@@ -102,12 +102,6 @@ int main(int argc, char * argv[]) {
 
 	QuarkPlayer quarkPlayer(&app);
 	PluginsManager::instance().loadAllPlugins(quarkPlayer);
-	if (!parser.fileToPlay().isEmpty()) {
-		quarkPlayer.play(parser.fileToPlay());
-	}
-	if (!parser.filesForPlaylist().isEmpty()) {
-		quarkPlayer.addFilesToPlaylist(parser.filesForPlaylist());
-	}
 
 	return app.exec();
 }

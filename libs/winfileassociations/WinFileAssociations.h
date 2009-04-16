@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,10 @@ public:
 	 *
 	 * @param extension file extension to associates with the application
 	 */
-	void addAssociation(const QString & extension);
+	void addCommand(const QString & extension, const QString & command, const QString & commandLine, const QString & description, const QString & icon);
+
+	/** Special case for right-clic on a directory. */
+	void addDirectoryCommand(const QString & command, const QString & commandLine, const QString & description);
 
 	/**
 	 * Removes a file association.
@@ -59,6 +62,9 @@ public:
 	 */
 	void deleteAssociation(const QString & extension);
 
+	/** Removes the right-clic on a directory. */
+	void deleteDirectoryCommand(const QString & command);
+
 	/**
 	 * Checks if the file extension is associated with the given application.
 	 *
@@ -66,12 +72,23 @@ public:
 	 */
 	bool isAssociated(const QString & extension);
 
+	/** Checks if the right-clic on a directory is present. */
+	bool containsDirectoryCommand(const QString & command) const;
+
+	/**
+	 * Notifies Windows that the file type associations have changed.
+	 *
+	 * This will update the Windows desktop file associations.
+	 * Call this method once the file associations have been changed.
+	 */
+	static void notifyFileAssociationChanged();
+
 private:
 
-	bool checkError();
+	bool checkError() const;
 
 	/** Code factorization. */
-	void updateNeededKeys(const QString & extension);
+	void updateKeysNeeded(const QString & extension);
 
 	/** Application name, example: QuarkPlayer. */
 	QString _applicationName;
@@ -81,12 +98,6 @@ private:
 
 	/** Application key, example: QuarkPlayer.mp3, QuarkPlayer.avi... */
 	QString _appKey;
-
-	/** Application play key, example: QuarkPlayer.mp3/shell/Play. */
-	QString _appKeyPlay;
-
-	/** Application default icon key, example: QuarkPlayer.mp3/DefaultIcon. */
-	QString _appKeyDefaultIcon;
 
 	/** Application backup key, example: .mp3/QuarkPlayer.backup.*/
 	QString _backupKey;

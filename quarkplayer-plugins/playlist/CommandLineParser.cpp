@@ -18,17 +18,17 @@
 
 #include "CommandLineParser.h"
 
-#include "CommandLineHelp.h"
-#include "WinDefaultApplication.h"
-#include "config/Config.h"
+#include "PlaylistModel.h"
 
+#include <QtCore/QUrl>
+#include <QtCore/QFileInfo>
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
-#include <iostream>
+CommandLineParser::CommandLineParser(PlaylistModel * playlistModel) {
+	_playlistModel = playlistModel;
 
-CommandLineParser::CommandLineParser() {
 	start();
 }
 
@@ -43,44 +43,33 @@ void CommandLineParser::start() {
 	//we don't care about this
 	args.removeAt(0);
 
-	qDebug() << __FUNCTION__ << "Arguments:" << args;
-
+	bool playlistEnqueue = false;
+	QStringList files;
+	QStringList playlists;
 	foreach (QString arg, args) {
-
-		if ((arg == "--help") || (arg == "-help") || (arg == "-h") || (arg == "-?")) {
-			CommandLineHelp help;
-			std::cout << help.toString().toUtf8().constData();
-
-			//Quits the application
-			exit(EXIT_SUCCESS);
-			//QCoreApplication::quit();
+		if (arg == "--playlist-enqueue") {
+			playlistEnqueue = true;
+		} else if (QFileInfo(arg).exists()) {
+			//This is a real file or directory:
+			//let's add it to the playlist
+			files += arg;
+		} else if (QUrl(arg).isValid()) {
+			//This is a real URL:
+			//let's add it to the playlist
+			files += arg;
 		}
+	}
 
-		else if (arg == "--delete-preferences") {
-			Config::instance().deleteConfig();
+	if (!files.isEmpty()) {
+		_playlistModel->clear();
+		_playlistModel->addFiles(files);
 
-			//Quits the application
-			exit(EXIT_SUCCESS);
-			//QCoreApplication::quit();
+		if (!playlistEnqueue) {
+			//Plays the first valid file/URL found from the command line arguments
+			_playlistModel->play(0);
 		}
-
-#ifdef Q_OS_WIN
-		else if (arg == "--windows-install") {
-			WinDefaultApplication::install();
-
-			//Quits the application
-			exit(EXIT_SUCCESS);
-			//QCoreApplication::quit();
-		}
-
-		else if (arg == "--windows-uninstall") {
-			WinDefaultApplication::uninstall();
-
-			//Quits the application
-			exit(EXIT_SUCCESS);
-			//QCoreApplication::quit();
-		}
-#endif	//Q_OS_WIN
-
+	} else {
+		//Normal start, loads the last playlist used
+		_playlistModel->loadCurrentPlaylist();
 	}
 }

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 #include <QtCore/QStringList>
 #include <QtCore/QUuid>
+#include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
@@ -93,6 +94,25 @@ Config::Config()
 }
 
 Config::~Config() {
+}
+
+void Config::deleteConfig() {
+	//Needs to remove all the files before to be able to remove the directory
+	//This is the way QDir::rmdir() works :/
+	//This code supposes that there is no directory inside the config directory
+	//FIXME switch to recursive code?
+
+	QDir configDir = QFileInfo(fileName()).absoluteDir();
+	QStringList configFiles = configDir.entryList();
+	foreach(QString file, configFiles) {
+		//Remove all the files
+		configDir.remove(file);
+	}
+
+	//The directory should be empty, let's remove it
+	QString tmp(configDir.dirName());
+	configDir.cdUp();
+	configDir.rmdir(tmp);
 }
 
 QStringList Config::backendList() const {

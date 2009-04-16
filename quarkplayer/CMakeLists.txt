@@ -35,6 +35,7 @@ set(quarkplayercore_SRCS
 	CommandLineHelp.cpp
 	CommandLineParser.cpp
 	Languages.cpp
+	WinDefaultApplication.cpp
 	config/Config.cpp
 	config/ConfigWindow.cpp
 	config/GeneralConfigWidget.cpp

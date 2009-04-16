@@ -19,23 +19,25 @@
 #ifndef COMMANDLINEPARSER_H
 #define COMMANDLINEPARSER_H
 
-#include <quarkplayer/quarkplayer_export.h>
+class PlaylistModel;
 
 /**
  * Parse command line arguments.
  *
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API CommandLineParser {
+class CommandLineParser {
 public:
 
-	CommandLineParser();
+	CommandLineParser(PlaylistModel * playlistModel);
 
 	~CommandLineParser();
 
 private:
 
 	void start();
+
+	PlaylistModel * _playlistModel;
 };
 
 #endif	//COMMANDLINEPARSER_H

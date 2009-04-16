@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,6 +53,9 @@ struct QUuid;
 class QUARKPLAYER_API Config : public TkConfig, public Singleton<Config> {
 	friend class Singleton<Config>;
 public:
+
+	/** Deletes all configuration files from the computer. */
+	void deleteConfig();
 
 	/** List of available backends + selected backend. */
 	static const char * BACKEND_KEY;

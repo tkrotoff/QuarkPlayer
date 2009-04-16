@@ -18,6 +18,8 @@
 
 #include "PlaylistModel.h"
 
+#include "CommandLineParser.h"
+
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config/PlaylistConfig.h>
@@ -62,8 +64,10 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const 
 
 	clearInternal();
 
+	//FIXME to remove when QuarkPlayer will get a real plugin API
 	connect(&quarkPlayer, SIGNAL(addFilesToCurrentPlaylist(const QStringList &)),
 		SLOT(addFilesToCurrentPlaylist(const QStringList &)));
+	///
 
 	//Info fetcher
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
@@ -71,11 +75,11 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const 
 
 	if (PluginsManager::instance().allPluginsAlreadyLoaded()) {
 		//If all the plugins are already loaded...
-		loadCurrentPlaylist();
+		allPluginsLoaded();
 	} else {
 		//Optimization: loads the playlist only when all plugins have been loaded
 		connect(&PluginsManager::instance(), SIGNAL(allPluginsLoaded()),
-			SLOT(loadCurrentPlaylist()), Qt::QueuedConnection);
+			SLOT(allPluginsLoaded()), Qt::QueuedConnection);
 	}
 
 	Config::instance().addKey(PLAYLIST_TRACK_DISPLAY_MODE_KEY, TrackDisplayModeNormal);
@@ -289,10 +293,13 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 	_rowWhereToInsertFiles = row;
 	QStringList filenameList;
 	foreach (QString filename, files) {
-		bool isMultimediaFile = FileTypes::extensions(FileType::Video, FileType::Audio).contains(
-					QFileInfo(filename).suffix(), Qt::CaseInsensitive);
+		QString extension(QFileInfo(filename).suffix());
+		bool isMultimediaFile =
+			FileTypes::extensions(FileType::Video, FileType::Audio).contains(extension, Qt::CaseInsensitive);
 		if (isMultimediaFile) {
 			filenameList << filename;
+		} else if (FileTypes::extensions(FileType::Playlist).contains(extension)) {
+			loadPlaylist(filename);
 		} else if (QFileInfo(filename).isDir()) {
 			_nbFindFiles++;
 			FindFiles * findFiles = new FindFiles(this);
@@ -323,12 +330,16 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 		int last = first + filenameList.size() - 1;
 		int currentRow = first;
 
+		//Insert rows inside the QModel
+		//This will tell to the Widget (view) that the model has changed
+		//and that the Widget (view) needs to be updated
 		beginInsertRows(QModelIndex(), first, last);
 		foreach (QString filename, filenameList) {
 			_filenames.insert(currentRow, MediaInfo(filename));
 			currentRow++;
 		}
 		endInsertRows();
+		///
 
 		//Change current playing position
 		bool positionAlreadyChanged = false;
@@ -399,15 +410,18 @@ QString PlaylistModel::currentPlaylist() const {
 	return "/playlist_" + _uuid.toString() + ".m3u";
 }
 
-void PlaylistModel::loadCurrentPlaylist() {
-	//Restore last current playlist
-	QString path(Config::instance().configDir());
-	PlaylistParser * parser = new PlaylistParser(path + currentPlaylist(), this);
+void PlaylistModel::loadPlaylist(const QString & filename) {
+	PlaylistParser * parser = new PlaylistParser(filename, this);
 	connect(parser, SIGNAL(filesFound(const QStringList &)),
 		SLOT(filesFound(const QStringList &)));
 	connect(parser, SIGNAL(finished(int)),
 		SIGNAL(playlistLoaded(int)));
 	parser->load();
+}
+
+void PlaylistModel::loadCurrentPlaylist() {
+	//Restore last current playlist
+	loadPlaylist(Config::instance().configDir() + currentPlaylist());
 }
 
 void PlaylistModel::saveCurrentPlaylist() {
@@ -533,13 +547,31 @@ void PlaylistModel::clear() {
 }
 
 void PlaylistModel::play(int position) {
-	setPosition(position);
-	if (_position != POSITION_INVALID) {
-		QString filename(_filenames[position].fileName());
-		qDebug() << __FUNCTION__ << "Play file:" << filename;
-		_quarkPlayer.play(filename);
+	_positionToPlay = position;
+	if (_positionToPlay < _filenames.count()) {
+		playInternal();
 	} else {
-		qCritical() << __FUNCTION__ << "Error: invalid position";
+		//We need to wait until the file has been added to the playlist/model
+		//before we can actually play it
+		connect(this, SIGNAL(rowsInserted(const QModelIndex &, int, int)), SLOT(playInternal()));
+	}
+}
+
+void PlaylistModel::playInternal() {
+	if (_positionToPlay < _filenames.count()) {
+
+		disconnect(SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SLOT(playInternal()));
+
+		setPosition(_positionToPlay);
+		if (_position != POSITION_INVALID) {
+			QString filename(_filenames[_positionToPlay].fileName());
+			qDebug() << __FUNCTION__ << "Play file:" << filename;
+			_quarkPlayer.play(filename);
+		} else {
+			qCritical() << __FUNCTION__ << "Error: invalid position";
+		}
+	} else {
+		//Still have to wait...
 	}
 }
 
@@ -574,4 +606,9 @@ void PlaylistModel::setPosition(int position) {
 
 int PlaylistModel::position() const {
 	return _position;
+}
+
+void PlaylistModel::allPluginsLoaded() {
+	//Parses the command line arguments
+	CommandLineParser(this);
 }

@@ -6,6 +6,7 @@ set(playlist_SRCS
 	PlaylistFilter.cpp
 	DragAndDropTreeView.cpp
 	UuidActionCollection.cpp
+	CommandLineParser.cpp
 )
 
 qt4_wrap_cpp(playlist_SRCS

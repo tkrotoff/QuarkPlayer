@@ -91,8 +91,6 @@ private slots:
 	 */
 	void createNewPlaylistWidget();
 
-	void parserFilesFound(const QStringList & files);
-
 	void playlistLoaded(int timeElapsed);
 
 	void playlistSaved(int timeElapsed);

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,12 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
+#ifdef Q_OS_WIN
+	#include <shlobj.h>
+#endif	//Q_OS_WIN
+
+static const QString defaultStr("/Default");
+
 WinFileAssociations::WinFileAssociations(const QString & applicationName) {
 	_hkcr = new QSettings("HKEY_CLASSES_ROOT", QSettings::NativeFormat);
 	_applicationName = applicationName;
@@ -31,99 +37,164 @@ WinFileAssociations::WinFileAssociations(const QString & applicationName) {
 WinFileAssociations::~WinFileAssociations() {
 }
 
-void WinFileAssociations::updateNeededKeys(const QString & extension) {
-	static const QString defaultStr("/Default");
-
+void WinFileAssociations::updateKeysNeeded(const QString & extension) {
 	//extension: mp3, avi...
 	QString ext(extension);
 	if (!ext.startsWith('.')) {
 		ext.prepend('.');
 	}
+
 	//.mp3, .avi
 	_extKey = ext + defaultStr;
 	//QuarkPlayer.mp3, QuarkPlayer.avi...
 	_appKey = _applicationName + ext;
-	//QuarkPlayer.mp3/shell/Play
-	_appKeyPlay = _appKey + "/shell/Play/command" + defaultStr;
-	//QuarkPlayer.mp3/DefaultIcon
-	_appKeyDefaultIcon = _appKey + "/DefaultIcon" + defaultStr;
+
 	//.mp3/QuarkPlayer.backup
 	_backupKey = ext + '/' + _applicationName + ".backup";
 }
 
-void WinFileAssociations::addAssociation(const QString & extension) {
+void WinFileAssociations::addCommand(const QString & extension, const QString & command, const QString & commandLine, const QString & description, const QString & icon) {
 	if (checkError()) {
-		//An error occured
 		return;
 	}
-
-	updateNeededKeys(extension);
+	if (extension.isEmpty()) {
+		qDebug() << __FUNCTION__ << "Error: the extension is empty";
+		return;
+	}
+	updateKeysNeeded(extension);
 
 	//Saves a backup key (QuarkPlayer.backup) if the key (extension: .mp3, .avi...) is already assigned
+	QString extValue(_hkcr->value(_extKey).toString());
 	QString backupValue(_hkcr->value(_extKey).toString());
-	if (!backupValue.isEmpty()) {
+	if (!backupValue.isEmpty() && extValue != _appKey) {
 		_hkcr->setValue(_backupKey, backupValue);
 	}
 
-	//Put a "link" to QuarkPlayer.extension as default
+	//Create a "link" from .extension to QuarkPlayer.extension
 	//Examples:
 	//.mp3 -> QuarkPlayer.mp3
 	//.avi -> QuarkPlayer.avi
 	_hkcr->setValue(_extKey, _appKey);
 
 	//Creates the needed key (or overwrite it)
-	//Play command + default icon of the application
-	static const QString quote("\"");
-	static const QString app(quote + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + quote);
-	_hkcr->setValue(_appKeyPlay, app + " \"%1\"");
+	//Example: QuarkPlayer.mp3/shell/Play
+	if (!description.isEmpty()) {
+		QString descriptionKey(_appKey + "/shell/" + command + defaultStr);
+		_hkcr->setValue(descriptionKey, description);
+	}
+	if (!commandLine.isEmpty()) {
+		QString commandKey(_appKey + "/shell/" + command + "/command" + defaultStr);
+		_hkcr->setValue(commandKey, commandLine);
+	}
+	if (!icon.isEmpty()) {
+		QString iconKey(_appKey + "/DefaultIcon" + defaultStr);
+		_hkcr->setValue(iconKey, icon);
+	}
+	//
+}
 
-	//Do not overwrite the default icon
-	//_hkcr->setValue(_appKeyDefaultIcon, app + ",0");
+void WinFileAssociations::addDirectoryCommand(const QString & command, const QString & commandLine, const QString & description) {
+	if (checkError()) {
+		return;
+	}
+	if (command.isEmpty()) {
+		qDebug() << __FUNCTION__ << "Error: the command is empty";
+		return;
+	}
+
+	if (!description.isEmpty()) {
+		QString descriptionKey("Directory/shell/" + command + defaultStr);
+		_hkcr->setValue(descriptionKey, description);
+	}
+	if (!commandLine.isEmpty()) {
+		QString commandKey("Directory/shell/" + command + "/command" + defaultStr);
+		_hkcr->setValue(commandKey, commandLine);
+	}
 }
 
 void WinFileAssociations::deleteAssociation(const QString & extension) {
 	if (checkError()) {
-		//An error occured
 		return;
 	}
-
-	updateNeededKeys(extension);
+	if (extension.isEmpty()) {
+		qDebug() << __FUNCTION__ << "Error: the extension is empty";
+		return;
+	}
+	updateKeysNeeded(extension);
 
 	//Looking for .mp3/QuarkPlayer.mp3
 	QString extValue(_hkcr->value(_extKey).toString());
 
-	if (!extValue.isEmpty() && _appKey == extValue) {
-		QString backupValue(_hkcr->value(_backupKey).toString());
-		if (!backupValue.isEmpty()) {
-			//Restores the previous association
-			_hkcr->setValue(_extKey, backupValue);
-		}
+	qDebug() << __FUNCTION__ << "extValue:" << extValue << "_appKey:" << _appKey;
 
-		//Removes .mp3/QuarkPlayer.backup
-		_hkcr->remove(_backupKey);
+	QString backupValue(_hkcr->value(_backupKey).toString());
+	if (backupValue != _appKey) {
+		//Normal case: restores the previous association
+		qDebug() << __FUNCTION__ << "_extKey:" << _extKey << "backupValue:" << backupValue;
+		_hkcr->setValue(_extKey, backupValue);
+	} else {
+		//backupValue == _appKey
+		//or backupValue is empty
+		//This means there were no other association with .mp3 from other application
+		//In this case, let's remove .mp3/Default
+		_hkcr->remove(_extKey);
 	}
 
-	if (_hkcr->contains(_appKeyPlay)) {
-		//Removes QuarkPlayer.mp3
-		_hkcr->remove(_appKey);
+	//Removes .mp3/QuarkPlayer.backup
+	_hkcr->remove(_backupKey);
+
+	//Removes QuarkPlayer.mp3
+	_hkcr->remove(_appKey);
+}
+
+void WinFileAssociations::deleteDirectoryCommand(const QString & command) {
+	if (checkError()) {
+		return;
 	}
+	if (command.isEmpty()) {
+		qDebug() << __FUNCTION__ << "Error: the command is empty";
+		return;
+	}
+
+	_hkcr->remove("Directory/shell/" + command);
 }
 
 bool WinFileAssociations::isAssociated(const QString & extension) {
-	updateNeededKeys(extension);
+	if (extension.isEmpty()) {
+		qDebug() << __FUNCTION__ << "Error: the extension is empty";
+		return false;
+	}
+	updateKeysNeeded(extension);
 
-	if (_hkcr->value(_extKey).toString() == _appKey) {
+	QString extValue(_hkcr->value(_extKey).toString());
+	if (extValue == _appKey) {
 		return true;
 	} else {
 		return false;
 	}
 }
 
-bool WinFileAssociations::checkError() {
+bool WinFileAssociations::containsDirectoryCommand(const QString & command) const {
+	if (!command.isEmpty()) {
+		return _hkcr->contains("Directory/shell/" + command + defaultStr);
+	} else {
+		return false;
+	}
+}
+
+bool WinFileAssociations::checkError() const {
 	if (_hkcr->isWritable() && _hkcr->status() == QSettings::NoError) {
 		return false;
 	} else {
 		qCritical() << __FUNCTION__ << "Error: the registry key couldn't be read/write";
 		return true;
 	}
+}
+
+void WinFileAssociations::notifyFileAssociationChanged() {
+#ifdef Q_OS_WIN
+	//Calling SHChangeNotify() will update the file association icons
+	//in case they had been reset.
+	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
+#endif	//Q_OS_WIN
 }
