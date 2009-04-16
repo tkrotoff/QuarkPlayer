@@ -92,6 +92,7 @@ void WinDefaultApplication::addFileAssociation(const QString & extension, bool a
 		return;
 	}
 
+#ifdef Q_OS_WIN
 	QString icon;
 	if (QSysInfo::windowsVersion() < QSysInfo::WV_VISTA) {
 		//Do this only under Windows versions inferior to Vista.
@@ -109,6 +110,7 @@ void WinDefaultApplication::addFileAssociation(const QString & extension, bool a
 			icon = QString();
 		}*/
 	}
+#endif	//Q_OS_WIN
 
 	//File association
 	winFileAssociations.addCommand(
