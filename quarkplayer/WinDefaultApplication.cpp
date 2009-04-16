@@ -98,12 +98,13 @@ void WinDefaultApplication::addFileAssociation(const QString & extension, bool a
 		//Under Vista, mimetypes icons are fine, no need to change them
 		//Under Windows XP it is better to change the mimetypes icons
 		//since they depend on the application icon
+		static const QString applicationDirPath(QDir::toNativeSeparators(QCoreApplication::applicationDirPath()));
 		if (FileTypes::extensions(FileType::Video).contains(extension, Qt::CaseInsensitive)) {
-			icon = applicationFilePath() + ",2";
+			icon = applicationDirPath + "\\icons\\mimetypes\\video-x-generic.ico";
 		} else if (FileTypes::extensions(FileType::Audio).contains(extension, Qt::CaseInsensitive)) {
-			icon = applicationFilePath() + ",1";
+			icon = applicationDirPath + "\\icons\\mimetypes\\audio-x-generic.ico";
 		} else if (FileTypes::extensions(FileType::Playlist).contains(extension, Qt::CaseInsensitive)) {
-			icon = applicationFilePath() + ",3";
+			icon = applicationDirPath + "\\icons\\mimetypes\\playlist-x-generic.ico";
 		}/* else if (FileTypes::extensions(FileType::Subtitle).contains(extension, Qt::CaseInsensitive)) {
 			icon = QString();
 		}*/
@@ -212,8 +213,9 @@ void WinDefaultApplication::deleteAllFileAssociations() {
 	WinFileAssociations::notifyFileAssociationChanged();
 }
 
+static const QString quote("\"");
+
 QString WinDefaultApplication::applicationFilePath() {
-	static const QString quote("\"");
-	static const QString app(quote + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + quote);
-	return app;
+	static const QString filePath(quote + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + quote);
+	return filePath;
 }

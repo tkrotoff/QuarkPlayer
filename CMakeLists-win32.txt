@@ -17,6 +17,12 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/COPYING.LESSER DESTINATION ${BIN_INSTA
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ChangeLog DESTINATION ${BIN_INSTALL_DIR})
 
 
+#Windows mimetypes icons
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer-app/icons/mimetypes/audio-x-generic.ico DESTINATION ${BIN_INSTALL_DIR}/icons/mimetypes)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer-app/icons/mimetypes/video-x-generic.ico DESTINATION ${BIN_INSTALL_DIR}/icons/mimetypes)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer-app/icons/mimetypes/playlist-x-generic.ico DESTINATION ${BIN_INSTALL_DIR}/icons/mimetypes)
+
+
 #Copy Qt toolkit dll
 set(QT_MIN_VERSION 4.4.0)
 find_package(Qt4 REQUIRED)

@@ -1,9 +1,6 @@
 #include <winresrc.h>
 
 IDI_ICON0 ICON "${CMAKE_CURRENT_SOURCE_DIR}/icons/quarkplayer.ico"
-IDI_ICON1 ICON "${CMAKE_CURRENT_SOURCE_DIR}/icons/mimetypes/audio-x-generic.ico"
-IDI_ICON2 ICON "${CMAKE_CURRENT_SOURCE_DIR}/icons/mimetypes/video-x-generic.ico"
-IDI_ICON3 ICON "${CMAKE_CURRENT_SOURCE_DIR}/icons/mimetypes/playlist-x-generic.ico"
 
 VS_VERSION_INFO VERSIONINFO
 	FILEVERSION @QUARKPLAYER_MAJOR_VERSION@,@QUARKPLAYER_MINOR_VERSION@,@QUARKPLAYER_PATCH_VERSION@,0
