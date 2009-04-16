@@ -53,7 +53,7 @@ signals:
 	void volumeChanged(qreal volume);
 
 	//FIXME not implemented yet
-	//void audioDeviceFailed();
+	void audioDeviceFailed();
 
 private:
 
