@@ -8,7 +8,7 @@
 #
 # Copyright (C) 2006-2007  Wengo
 # Copyright (C) 2006-2007  Andreas Schneider <mail@cynapses.org>
-# Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+# Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING file.
@@ -27,6 +27,8 @@ if (UNIX OR MINGW)
 	endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
 
 	if (GCC4)
+		# Better check against security problems
+		# for C functions like memcpy, strcpy, sprintf, gets...
 		# See http://www.cynapses.org/tmp/gcc/fortify_source
 		add_definitions(-D_FORTIFY_SOURCE=2)
 	endif (GCC4)
@@ -58,7 +60,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 
 	if (APPLE)
 		# Use dwarf-2 debugging format: it produces much smaller executables
-		# (from 372M to 37MB on my machine)
+		# (from 372MB to 37MB on my machine)
 		add_definitions(-gdwarf-2)
 	endif (APPLE)
 
@@ -91,6 +93,6 @@ if (CMAKE_VERBOSE_MAKEFILE)
 endif (CMAKE_VERBOSE_MAKEFILE)
 
 #ow_get_gcc_version(version)
-#message("GCC Version: ${version}")
-#message("CFLAGS: ${CMAKE_C_FLAGS}")
-#message("CXXFLAGS: ${CMAKE_CXX_FLAGS}")
+#message(STATUS "GCC Version: ${version}")
+message(STATUS "CFLAGS: ${CMAKE_C_FLAGS}")
+message(STATUS "CXXFLAGS: ${CMAKE_CXX_FLAGS}")

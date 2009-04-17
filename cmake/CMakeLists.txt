@@ -11,6 +11,7 @@ include(OWDetectSystem)
 include(OWDefaultCompilerFlags)
 
 include(OWGetSvnRevision)
+include(SvnExport)
 include(OWGetCurrentDateTime)
 include(LocCounter)
 

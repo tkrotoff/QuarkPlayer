@@ -1,6 +1,6 @@
 project(zlib)
 
-#Taken from the root Makefile
+# Taken from the root Makefile
 set(zlib_SRCS
 	adler32.c
 	compress.c
@@ -32,8 +32,13 @@ if (WIN32)
 
 	add_definitions(
 		-DZLIB_DLL
-		-DHAVE_VSNPRINTF
 	)
+
+	if (MSVC_VERSION GREATER 1310)
+		# If Visual C++ > .NET 2003 7.1
+		# otherwise vsnprintf is not defined
+		add_definitions(-DHAVE_VSNPRINTF)
+	endif (MSVC_VERSION GREATER 1310)
 endif (WIN32)
 
 add_library(zlib SHARED ${zlib_SRCS})

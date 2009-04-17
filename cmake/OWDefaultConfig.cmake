@@ -1,14 +1,11 @@
 # Defines general default CMake configuration options
 #
 # Copyright (C) 2006-2007  Wengo
-# Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+# Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING file.
 
-
-# Mininum required CMake version
-cmake_minimum_required(VERSION 2.6)
 
 # This option is OFF for optimization reasons (compilation time)
 # Always include srcdir and builddir in include path

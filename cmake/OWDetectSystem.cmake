@@ -8,16 +8,19 @@
 #   - LINUX
 #
 # - SYSTEM_NAME Operating system name as a string
-#   e.g Win32, UNIX, Cygwin, MacOS, Linux...
+#   (Win32, UNIX, Cygwin, MacOS, Linux...)
 #
 # Compilers:
 # - MSVC (Microsoft Visual C++)
-#   - MSVC60 (Visual C++ 6)
-#   - MSVC70 (Visual C++ .NET)
-#   - MSVC71 (Visual C++ 2003)
-#   - MSVC80 (Visual C++ 2005)
-#   - MSVC90 (Visual C++ 2008)
-# - GCC
+#   - MSVC60 (Visual C++ 6.0)             MSVC_VERSION=1200
+#   - MSVC60 (Visual C++ 6.0 SP1)         MSVC_VERSION=12??
+#   - MSVC70 (Visual C++ .NET 2002)       MSVC_VERSION=1300
+#   - MSVC71 (Visual C++ .NET 2003)       MSVC_VERSION=1310
+#   - MSVC71 (Visual C++ .NET 2003 SP1)   MSVC_VERSION=13??
+#   - MSVC80 (Visual C++ 2005)            MSVC_VERSION=1400
+#   - MSVC80 (Visual C++ 2005 SP1)        MSVC_VERSION=14??
+#   - MSVC90 (Visual C++ 2008)            MSVC_VERSION=1500
+# - GCC (GNU GCC)
 #   - MINGW (Native GCC under Windows)
 #   - GCC3 (GNU GCC 3.x)
 #   - GCC4 (GNU GCC 4.x)
@@ -25,14 +28,15 @@
 #     - GCC41 (GNU GCC 4.1.x)
 #     - GCC42 (GNU GCC 4.2.x)
 #     - GCC43 (GNU GCC 4.3.x)
+#     - GCC44 (GNU GCC 4.4.x)
 # - BORLAND (Borland C++)
 # - WATCOM (Watcom C/C++ Compiler)
 #
 # - COMPILER_NAME compiler name as a string
-#   e.g MSVC71, MinGW, GCC42, Borland, Watcom...)
+#   (MSVC71, MinGW, GCC42, Borland, Watcom...)
 #
 # Copyright (C) 2007  Wengo
-# Coptright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+# Coptright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING file.
@@ -64,6 +68,10 @@ if (version MATCHES "4\\.3.*")
 	set(GCC43 true)
 	set(COMPILER_NAME "GCC43")
 endif (version MATCHES "4\\.3.*")
+if (version MATCHES "4\\.4.*")
+	set(GCC44 true)
+	set(COMPILER_NAME "GCC44")
+endif (version MATCHES "4\\.4.*")
 
 # MinGW
 if (MINGW)

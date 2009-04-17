@@ -1,5 +1,8 @@
-#Mininum required CMake version
+# Mininum required CMake version
 cmake_minimum_required(VERSION 2.6)
+
+# CMake policy
+# Consider that Windows users always get the latest version
 if (WIN32)
 	cmake_policy(VERSION 2.6.3)
 else (WIN32)
@@ -8,13 +11,13 @@ endif (WIN32)
 
 project(quarkplayer)
 
-#Add options values
+# Add options values
 include(Options.cmake)
 
-#OWBuild
+# OWBuild
 include(CMakeLists-owbuild.txt)
 
-#Global variables about QuarkPlayer
+# Global variables about QuarkPlayer
 set(QUARKPLAYER_NAME "QuarkPlayer")
 set(QUARKPLAYER_MAJOR_VERSION 0)
 set(QUARKPLAYER_MINOR_VERSION 2)
@@ -25,6 +28,7 @@ set(QUARKPLAYER_VERSION
 if (WIN32)
 	set(QUARKPLAYER_BINARY_NAME quarkplayer.exe)
 endif (WIN32)
+#set(QUARKPLAYER_SVN_REPOSITORY "http://phonon-vlc-mplayer.googlecode.com/svn/trunk/")
 set(QUARKPLAYER_DESCRIPTION_SUMMARY "QuarkPlayer, a Phonon media player")
 set(QUARKPLAYER_DESCRIPTION
 " QuarkPlayer is a multimedia application that plays your music and videos.
@@ -47,12 +51,13 @@ set(QUARKPLAYER_PACKAGE_AUTHORS ${QUARKPLAYER_AUTHORS})
 # Make quarkplayer working with the targets install, deb and rpm
 set(CMAKE_INSTALL_RPATH .;/usr/lib/quarkplayer)
 
+#svn_export(${QUARKPLAYER_SVN_REPOSITORY} ${CMAKE_BINARY_DIR}/quarkplayer-svn-export)
 
-#CMake declarations order matters!
+# CMake declarations order matters!
 
 
-#Default installation path
-#and other platform specific installation instructions
+# Default installation path
+# and other platform specific installation instructions
 set(CMAKE_INSTALL_PREFIX ${BUILD_DIR})
 if (WIN32)
 	include(CMakeLists-win32.txt)
@@ -66,7 +71,7 @@ endif (APPLE)
 ##
 
 
-#3rdparty libraries with no Qt dependency
+# 3rdparty libraries with no Qt dependency
 if (ZLIB)
 	add_subdirectory(3rdparty/zlib)
 	set(ZLIB_FOUND 1)
@@ -74,7 +79,7 @@ if (ZLIB)
 	set(ZLIB_LIBRARY zlib)
 endif (ZLIB)
 
-#minizip
+# minizip
 add_subdirectory(3rdparty/zlib/contrib/minizip)
 set(MINIZIP_FOUND 1)
 set(MINIZIP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib/contrib/minizip)
@@ -92,16 +97,16 @@ endif (TAGLIB)
 ##
 
 
-#Qt/KDE libraries detection and initialization
+# Qt/KDE libraries detection and initialization
 if (NOT ENV{KDEDIRS})
 	#Ubuntu 8.04, if GNOME is runnng instead of KDE, KDEDIRS variable is not defined
 	#so let's define it
 	set(ENV{KDEDIRS} /usr/lib/kde4)
 endif (NOT ENV{KDEDIRS})
 
-#Desactivate KDE4 integration since it gives some troubles
-#will be changed in the future
-#cf http://code.google.com/p/phonon-vlc-mplayer/issues/detail?id=2
+# Disable KDE4 integration since it gives some troubles
+# will be changed in the future
+# cf http://code.google.com/p/phonon-vlc-mplayer/issues/detail?id=2
 #find_package(KDE4)
 
 if (KDE4_FOUND)
@@ -114,31 +119,31 @@ else (KDE4_FOUND)
 	set(QT_MIN_VERSION 4.4.0)
 	find_package(Qt4 REQUIRED)
 
-	#Includes all wanted definitions for Qt
+	# Includes all wanted definitions for Qt
 	include(${QT_USE_FILE})
 
-	#Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
+	# Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
 	#set(NEW_TITLE_CHAPTER_HANDLING 1)
 
 	message(STATUS "KDE4 support disabled")
 endif (KDE4_FOUND)
 
 
-#Optimization: remove all Qt modules from include path
+# Optimization: remove all Qt modules from include path
 reduce_qt_include_dirs()
 ##
 
 
-#3rdparty libraries with Qt dependency
+# 3rdparty libraries with Qt dependency
 add_subdirectory(3rdparty/quazip)
 ##
 
 
-#3rdparty libraries with Qt and Phonon dependency
+# 3rdparty libraries with Qt and Phonon dependency
 add_subdirectory(3rdparty/phonon)
 
-#Do not use Phonon from Qt or KDE4
-#Use Phonon from this repository instead (patched version)
+# Do not use Phonon from Qt or KDE4
+# Use Phonon from this repository instead (patched version)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
 set(QT_PHONON_LIBRARY phonon)
 
@@ -146,7 +151,7 @@ add_subdirectory(phonon-mplayer)
 ##
 
 
-#QuarkPlayer
+# QuarkPlayer
 clear_qt_translations()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)
@@ -159,7 +164,7 @@ add_subdirectory(quarkplayer-plugins)
 add_subdirectory(quarkplayer-app)
 ##
 
-#Tests
+# Tests
 #add_subdirectory(tests)
 ##
 
