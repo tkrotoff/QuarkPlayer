@@ -12,6 +12,7 @@ add_definitions(-DBUILD_MEDIAINFOWINDOW)
 # Otherwise QString::fromStdWString() is not defined
 # This happens when compiling using the KDE4 libraries
 remove_definitions(-DQT_NO_STL)
+remove_definitions(-DQT_NO_STL_WCHAR)
 
 set(mediainfowindow_SRCS
 	MediaInfoWindow.cpp
@@ -20,11 +21,14 @@ set(mediainfowindow_SRCS
 )
 
 if (MSVC)
-	# Do not treat wchar_t as built-in type otherwise QString::fromStdWString()
-	# and QString::toStdWString() get unresolved
-	set_source_files_properties(MediaInfoFetcher.cpp
-		PROPERTIES COMPILE_FLAGS "/Zc:wchar_t-"
-	)
+	if (MSVC_VERSION GREATER 1399)
+		# If using Visual C++ 2005 (MSVC80) and greater (MSVC_VERSION=1400)
+		# Do not treat wchar_t as built-in type otherwise QString::fromStdWString()
+		# and QString::toStdWString() get unresolved
+		set_source_files_properties(MediaInfoFetcher.cpp
+			PROPERTIES COMPILE_FLAGS "/Zc:wchar_t-"
+		)
+	endif (MSVC_VERSION GREATER 1399)
 endif (MSVC)
 
 qt4_wrap_cpp(mediainfowindow_SRCS

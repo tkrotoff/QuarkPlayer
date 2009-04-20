@@ -13,12 +13,12 @@
 # Compilers:
 # - MSVC (Microsoft Visual C++)
 #   - MSVC60 (Visual C++ 6.0)             MSVC_VERSION=1200
-#   - MSVC60 (Visual C++ 6.0 SP1)         MSVC_VERSION=12??
+#   - MSVC60 (Visual C++ 6.0 SP1)         MSVC_VERSION=1200
 #   - MSVC70 (Visual C++ .NET 2002)       MSVC_VERSION=1300
-#   - MSVC71 (Visual C++ .NET 2003)       MSVC_VERSION=1310
-#   - MSVC71 (Visual C++ .NET 2003 SP1)   MSVC_VERSION=13??
+#   - MSVC71 (Visual C++ .NET 2003)       MSVC_VERSION=1310 (Compiler Version 13.10.3077)
+#   - MSVC71 (Visual C++ .NET 2003 SP1)   MSVC_VERSION=1310 (Compiler Version 13.10.6030)
 #   - MSVC80 (Visual C++ 2005)            MSVC_VERSION=1400
-#   - MSVC80 (Visual C++ 2005 SP1)        MSVC_VERSION=14??
+#   - MSVC80 (Visual C++ 2005 SP1)        MSVC_VERSION=1400 (Compiler Version 14.00.50727.762)
 #   - MSVC90 (Visual C++ 2008)            MSVC_VERSION=1500
 # - GCC (GNU GCC)
 #   - MINGW (Native GCC under Windows)
