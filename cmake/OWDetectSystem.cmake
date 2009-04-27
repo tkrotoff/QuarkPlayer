@@ -13,13 +13,16 @@
 # Compilers:
 # - MSVC (Microsoft Visual C++)
 #   - MSVC60 (Visual C++ 6.0)             MSVC_VERSION=1200
-#   - MSVC60 (Visual C++ 6.0 SP1)         MSVC_VERSION=1200
+#   - MSVC60 (Visual C++ 6.0 SP5)         MSVC_VERSION=1200
+#   - MSVC60 (Visual C++ 6.0 SP6)         MSVC_VERSION=1200
 #   - MSVC70 (Visual C++ .NET 2002)       MSVC_VERSION=1300
+#   - MSVC70 (Visual C++ .NET 2002 SP1)   MSVC_VERSION=1300
 #   - MSVC71 (Visual C++ .NET 2003)       MSVC_VERSION=1310 (Compiler Version 13.10.3077)
 #   - MSVC71 (Visual C++ .NET 2003 SP1)   MSVC_VERSION=1310 (Compiler Version 13.10.6030)
 #   - MSVC80 (Visual C++ 2005)            MSVC_VERSION=1400
 #   - MSVC80 (Visual C++ 2005 SP1)        MSVC_VERSION=1400 (Compiler Version 14.00.50727.762)
-#   - MSVC90 (Visual C++ 2008)            MSVC_VERSION=1500
+#   - MSVC90 (Visual C++ 2008)            MSVC_VERSION=1500 (Compiler Version 15.00.21022.08)
+#   - MSVC90 (Visual C++ 2008 SP1)        MSVC_VERSION=1500 (Compiler Version 15.00.30729.01)
 # - GCC (GNU GCC)
 #   - MINGW (Native GCC under Windows)
 #   - GCC3 (GNU GCC 3.x)
@@ -31,6 +34,7 @@
 #     - GCC44 (GNU GCC 4.4.x)
 # - BORLAND (Borland C++)
 # - WATCOM (Watcom C/C++ Compiler)
+# - ICC (Intel C++ Compiler - not detected yet)
 #
 # - COMPILER_NAME compiler name as a string
 #   (MSVC71, MinGW, GCC42, Borland, Watcom...)
@@ -128,7 +132,13 @@ endif (APPLE)
 if (WIN32)
 	set(APPLE false)
 	set(LINUX false)
-	set(SYSTEM_NAME "Win32")
+	if (CMAKE_CL_64)
+		# Using the 64 bit compiler from Microsoft
+		set(WIN64 true)
+		set(SYSTEM_NAME "Win64")
+	else (CMAKE_CL_64)
+		set(SYSTEM_NAME "Win32")
+	endif (CMAKE_CL_64)
 endif (WIN32)
 
 if (CYGWIN)
