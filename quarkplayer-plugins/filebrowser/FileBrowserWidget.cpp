@@ -46,6 +46,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QAction>
 #include <QtGui/QStatusBar>
+#include <QtGui/QHeaderView>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
