@@ -37,8 +37,17 @@
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
-#include <QtGui/QtGui>
+#include "qfilesystemmodel.h"
+//#include <QtGui/QtGui>
 
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QDockWidget>
+#include <QtGui/QToolButton>
+#include <QtGui/QApplication>
+#include <QtGui/QAction>
+#include <QtGui/QStatusBar>
+
+#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 
 static const char * FILEBROWSER_SEARCH_HISTORY_KEY = "filebrowser_search_history";

@@ -1,11 +1,17 @@
 project(filebrowser)
 
+# Includes all wanted definitions for Qt
+include(${QT_USE_FILE})
+
 set(filebrowser_SRCS
 	FileBrowserWidget.cpp
 	FileBrowserTreeView.cpp
 	FileSearchModel.cpp
 	UuidActionCollection.cpp
 	config/FileBrowserConfigWidget.cpp
+
+	qfileinfogatherer.cpp
+	qfilesystemmodel.cpp
 )
 
 qt4_wrap_cpp(filebrowser_SRCS
@@ -13,7 +19,11 @@ qt4_wrap_cpp(filebrowser_SRCS
 	FileBrowserTreeView.h
 	FileSearchModel.h
 	config/FileBrowserConfigWidget.h
+
+	qfileinfogatherer_p.h
 )
+
+qt4_automoc(${filebrowser_SRCS})
 
 qt4_wrap_ui(filebrowser_SRCS
 	config/FileBrowserConfigWidget.ui

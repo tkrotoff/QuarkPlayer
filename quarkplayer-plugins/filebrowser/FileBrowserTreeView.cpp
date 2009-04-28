@@ -32,8 +32,13 @@
 
 #include <phonon/mediaobject.h>
 
-#include <QtGui/QtGui>
+#include "qfilesystemmodel.h"
+//#include <QtGui/QtGui>
 
+#include <QtGui/QAction>
+#include <QtGui/QApplication>
+
+#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
 FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
