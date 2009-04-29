@@ -30,7 +30,6 @@ class QuarkPlayer;
 class ConfigWindow;
 class FileSearchModel;
 
-class QFileSystemModel;
 class QDockWidget;
 
 /**
@@ -90,8 +89,6 @@ private:
 	void setWindowTitle(const QString & statusMessage);
 
 	QStringList nameFilters() const;
-
-	QFileSystemModel * _dirModel;
 
 	FileSearchModel * _fileSearchModel;
 

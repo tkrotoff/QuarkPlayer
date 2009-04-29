@@ -73,9 +73,16 @@ public:
 	void setExtensions(const QStringList & extensions);
 
 	/**
-	 * Set if we filter directories names aswell or not.
+	 * Sets if we filter directories names aswell or not.
 	 */
 	void setFindDirs(bool findDirs);
+
+	/**
+	 * Should the search be performed recursively or not.
+	 *
+	 * By default recursion is on.
+	 */
+	void setRecursiveSearch(bool recursiveSearch);
 
 	/**
 	 * Stops the thread.
@@ -143,6 +150,8 @@ private:
 	QStringList _extensions;
 
 	int _filesFoundLimit;
+
+	bool _recursiveSearch;
 
 	/**
 	 * From http://lists.trolltech.com/qt-interest/2007-03/thread00874-0.html

@@ -23,12 +23,12 @@
 #include <QtCore/QStringList>
 
 #include <QtGui/QIcon>
+#include <QtGui/QFileIconProvider>
 
 class FindFiles;
 class MediaInfoFetcher;
 class MediaInfo;
 
-class QFileIconProvider;
 class QFileInfo;
 class QRegExp;
 
@@ -66,14 +66,12 @@ public:
 
 	QFileInfo fileInfo(const QModelIndex & index) const;
 
-	void setIconProvider(QFileIconProvider * provider);
-
 	/**
 	 * Searches a path for files given a pattern and file extensions.
 	 *
 	 * @see FindFiles
 	 */
-	void search(const QString & path, const QRegExp & pattern, const QStringList & extensions);
+	void search(const QString & path, const QRegExp & pattern, const QStringList & extensions, bool recursiveSearch = true);
 
 	void stop();
 
@@ -86,6 +84,7 @@ public:
 	int rowCount(const QModelIndex & parent = QModelIndex()) const;
 
 	Qt::ItemFlags flags(const QModelIndex & index) const;
+	bool hasChildren(const QModelIndex & parent = QModelIndex()) const;
 
 	QMimeData * mimeData(const QModelIndexList & indexes) const;
 	QStringList mimeTypes() const;
@@ -121,7 +120,8 @@ private:
 	 */
 	mutable int _mediaInfoFetcherRow;
 
-	QFileIconProvider * _iconProvider;
+	/** Icon provider: gives us the icons matching a file extension. */
+	QFileIconProvider _iconProvider;
 
 	/**
 	 * Saves the icons inside a cache system given a filename extension (mp3, ogg, avi...).

@@ -37,7 +37,7 @@
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
-#include "qfilesystemmodel.h"
+//#include "qfilesystemmodel.h"
 //#include <QtGui/QtGui>
 
 #include <QtGui/QVBoxLayout>
@@ -63,7 +63,6 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 	: QWidget(quarkPlayer.mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
-	_dirModel = NULL;
 	_fileSearchModel = NULL;
 
 	//Short for UuidActionCollection::setUuid()
@@ -154,6 +153,7 @@ void FileBrowserWidget::populateActionCollection() {
 QStringList FileBrowserWidget::nameFilters() const {
 	static QStringList tmp;
 	if (tmp.isEmpty()) {
+		//Shows only files that have a "multimedia" extension (i.e .mp3, .avi, .flac...)
 		QStringList extensions;
 		extensions << FileTypes::extensions(FileType::Video);
 		extensions << FileTypes::extensions(FileType::Audio);
@@ -167,67 +167,64 @@ QStringList FileBrowserWidget::nameFilters() const {
 }
 
 void FileBrowserWidget::loadDirModel() {
-	_dirModel = new QFileSystemModel(this);
-	_dirModel->setNameFilters(nameFilters());
-	_dirModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+	_fileSearchModel = new FileSearchModel(this);
+	//_dirModel->setNameFilters(nameFilters());
+	//_dirModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
 	//_dirModel->setSorting(QDir::Name | QDir::DirsFirst);
-	_dirModel->setReadOnly(true);
-	_dirModel->setNameFilterDisables(false);
+	//_dirModel->setReadOnly(true);
+	//_dirModel->setNameFilterDisables(false);
 
-	_treeView->setHeaderHidden(true);
+	//_treeView->setHeaderHidden(true);
 
-	_treeView->setModel(_dirModel);
+	_treeView->setModel(_fileSearchModel);
 
-	QHeaderView * header = _treeView->header();
-	header->hideSection(1);
-	header->hideSection(2);
-	header->hideSection(3);
-	header->setResizeMode(QHeaderView::ResizeToContents);
-	header->setStretchLastSection(false);
-	header->setVisible(false);
+	//QHeaderView * header = _treeView->header();
+	//header->hideSection(1);
+	//header->hideSection(2);
+	//header->hideSection(3);
+	//header->setResizeMode(QHeaderView::ResizeToContents);
+	//header->setStretchLastSection(false);
+	//header->setVisible(false);
 
 	connect(&Config::instance(), SIGNAL(valueChanged(const QString &, const QVariant &)),
 		SLOT(musicDirChanged(const QString &, const QVariant &)));
-	_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir(uuid())));
-	_dirModel->setRootPath(Config::instance().musicDir(uuid()));
+	//_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir(uuid())));
+	//_dirModel->setRootPath(Config::instance().musicDir(uuid()));
 	_treeView->setDragEnabled(true);
+	_treeView->setRootIsDecorated(true);
+
+	//Ok show the content of the directory
+	search();
 }
 
 void FileBrowserWidget::search() {
+	//Shows only files that have a "multimedia" extension (i.e .mp3, .avi, .flac...)
+	static QStringList extensions;
+	if (extensions.isEmpty()) {
+		extensions << FileTypes::extensions(FileType::Video);
+		extensions << FileTypes::extensions(FileType::Audio);
+		extensions << FileTypes::extensions(FileType::Playlist);
+		extensions << FileTypes::extensions(FileType::Subtitle);
+	}
+
 	QString pattern(_searchLineEdit->text());
 	if (pattern.isEmpty()) {
 		setWindowTitle(QString());
-		_treeView->setRootIsDecorated(true);
 
-		_treeView->setModel(_dirModel);
-		_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir(uuid())));
-
-		if (_fileSearchModel) {
-			_fileSearchModel->stop();
-		}
-
+		_fileSearchModel->search(Config::instance().musicDir(uuid()),
+			QRegExp(QString(), Qt::CaseInsensitive, QRegExp::RegExp2),
+			extensions, false);
 	} else {
 		//Sets a busy mouse cursor since the search can take several seconds
 		unsetCursor();
 		setCursor(Qt::BusyCursor);
 
 		setWindowTitle(tr("Searching..."));
-		_treeView->setRootIsDecorated(false);
 
-		if (!_fileSearchModel) {
-			_fileSearchModel = new FileSearchModel(this);
-			connect(_fileSearchModel, SIGNAL(searchFinished(int)),
-				SLOT(searchFinished(int)));
-		}
-
-		_fileSearchModel->setIconProvider(_dirModel->iconProvider());
-		_treeView->setModel(_fileSearchModel);
-
-		QStringList extensions;
-		extensions << FileTypes::extensions(FileType::Video);
-		extensions << FileTypes::extensions(FileType::Audio);
-		extensions << FileTypes::extensions(FileType::Playlist);
-		extensions << FileTypes::extensions(FileType::Subtitle);
+		disconnect(_fileSearchModel, SIGNAL(searchFinished(int)),
+			this, SLOT(searchFinished(int)));
+		connect(_fileSearchModel, SIGNAL(searchFinished(int)),
+			SLOT(searchFinished(int)));
 
 		QString tmp;
 		QStringList words(pattern.split(' '));
@@ -279,7 +276,7 @@ void FileBrowserWidget::musicDirChanged(const QString & key, const QVariant & va
 	Q_UNUSED(value);
 
 	if (key == Config::MUSIC_DIR_KEY + uuid().toString()) {
-		_treeView->setRootIndex(_dirModel->index(Config::instance().musicDir(uuid())));
+		search();
 		setWindowTitle(QString());
 	}
 }

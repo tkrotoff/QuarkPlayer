@@ -102,19 +102,17 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	case Qt::DecorationRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			if (_iconProvider) {
-				//This is too slow:
-				//re-creates an icon for each file
-				//We want a cache system -> way faster!
-				//tmp = _iconProvider->icon(QFileInfo(filename));
+			//This is too slow:
+			//re-creates an icon for each file
+			//We want a cache system -> way faster!
+			//tmp = _iconProvider.icon(QFileInfo(filename));
 
-				QFileInfo fileInfo(filename);
-				QString ext(fileInfo.suffix());
-				if (!_iconsCache.contains(ext)) {
-					_iconsCache[ext] = _iconProvider->icon(fileInfo);
-				}
-				tmp = _iconsCache.value(ext);
+			QFileInfo fileInfo(filename);
+			QString ext(fileInfo.suffix());
+			if (!_iconsCache.contains(ext)) {
+				_iconsCache[ext] = _iconProvider.icon(fileInfo);
 			}
+			tmp = _iconsCache.value(ext);
 			break;
 		}
 		break;
@@ -123,7 +121,15 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	case Qt::ToolTipRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			if (!QFileInfo(filename).isDir()) {
+			//Shows only files that have a "multimedia" extension (i.e .mp3, .avi, .flac...)
+			static QStringList extensions;
+			if (extensions.isEmpty()) {
+				extensions << FileTypes::extensions(FileType::Video);
+				extensions << FileTypes::extensions(FileType::Audio);
+			}
+
+			QFileInfo fileInfo(filename);
+			if (!fileInfo.isDir() && extensions.contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
 				if (mediaInfo.fetched()) {
 					tmp = filename + "<br>" +
 						tr("Title:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Title) + "</b><br>" +
@@ -143,6 +149,8 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 				//If the filename is in fact a directory
 				//then we don't try to resolve the meta data
 				//since obviously there is none
+				//If the filename is a file without a "multimedia" extension (i.e .mp3, .avi, .flac...)
+				//then we don't try to resolve the meta data
 				tmp = filename;
 			}
 			break;
@@ -187,6 +195,19 @@ Qt::ItemFlags FileSearchModel::flags(const QModelIndex & index) const {
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 }
 
+bool FileSearchModel::hasChildren(const QModelIndex & parent) const {
+	if (parent.column() > 0) {
+		return false;
+	}
+
+	//Drives
+	if (!parent.isValid()) {
+		return true;
+	}
+
+	return fileInfo(parent).isDir();
+}
+
 QMimeData * FileSearchModel::mimeData(const QModelIndexList & indexes) const {
 	QMimeData * mimeData = new QMimeData();
 	QStringList files;
@@ -226,23 +247,21 @@ QFileInfo FileSearchModel::fileInfo(const QModelIndex & index) const {
 	return tmp;
 }
 
-void FileSearchModel::setIconProvider(QFileIconProvider * provider) {
-	_iconProvider = provider;
-}
-
 void FileSearchModel::clearInternal() {
 	_filenames.clear();
 	_mediaInfoFetcherRow = POSITION_INVALID;
 }
 
-void FileSearchModel::search(const QString & path, const QRegExp & pattern, const QStringList & extensions) {
+void FileSearchModel::search(const QString & path, const QRegExp & pattern, const QStringList & extensions, bool recursiveSearch) {
 	qDebug() << __FUNCTION__ << path;
 
-	//Uninitialize/remove/disconnect... previous _findFiles
-	disconnect(_findFiles, SIGNAL(filesFound(const QStringList &)), this,
-		SLOT(filesFound(const QStringList &)));
-	disconnect(_findFiles, SIGNAL(finished(int)), this,
-		SIGNAL(searchFinished(int)));
+	if (_findFiles) {
+		//Uninitialize/remove/disconnect... previous _findFiles
+		disconnect(_findFiles, SIGNAL(filesFound(const QStringList &)),
+			this, SLOT(filesFound(const QStringList &)));
+		disconnect(_findFiles, SIGNAL(finished(int)),
+			this, SIGNAL(searchFinished(int)));
+	}
 
 	//Stops the previous search
 	//Do it first (i.e before setPattern(), setExtensions()...) otherwise it can crash
@@ -260,13 +279,17 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, cons
 	//Starts a new file search
 	_findFiles->setSearchPath(path);
 
+	//This was true using Qt 4.4.3
 	//Way faster with INT_MAX because beginInsertRows() is slow
 	//It's better to call only once thus INT_MAX instead of 1 for example
-	_findFiles->setFilesFoundLimit(INT_MAX);
+	//_findFiles->setFilesFoundLimit(INT_MAX);
+	//Now with Qt 4.5.1, speed is really good :-)
+	_findFiles->setFilesFoundLimit(1);
 
 	_findFiles->setPattern(pattern);
 	_findFiles->setExtensions(extensions);
 	_findFiles->setFindDirs(true);
+	_findFiles->setRecursiveSearch(recursiveSearch);
 	connect(_findFiles, SIGNAL(filesFound(const QStringList &)),
 		SLOT(filesFound(const QStringList &)), Qt::QueuedConnection);
 	connect(_findFiles, SIGNAL(finished(int)),

@@ -35,6 +35,7 @@ FindFiles::FindFiles(QObject * parent)
 	: QThread(parent) {
 
 	_findDirs = false;
+	_recursiveSearch = true;
 	_filesFoundLimit = DEFAULT_FILES_FOUND_LIMIT;
 	_stop = false;
 }
@@ -61,6 +62,10 @@ void FindFiles::setExtensions(const QStringList & extensions) {
 
 void FindFiles::setFindDirs(bool findDirs) {
 	_findDirs = findDirs;
+}
+
+void FindFiles::setRecursiveSearch(bool recursiveSearch) {
+	_recursiveSearch = recursiveSearch;
 }
 
 void FindFiles::stop() {
@@ -120,8 +125,10 @@ void FindFiles::findAllFilesQt(const QString & path) {
 				_files << filename;
 			}
 
-			//Recurse
-			findAllFilesQt(filename);
+			if (_recursiveSearch) {
+				//Recurse
+				findAllFilesQt(filename);
+			}
 		}
 
 		else {
@@ -190,7 +197,10 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 						_files << filename;
 					}
 
-					findAllFilesWin32(filename);
+					if (_recursiveSearch) {
+						//Recurse
+						findAllFilesWin32(filename);
+					}
 				}
 			}
 
@@ -256,8 +266,10 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 						_files << filename;
 					}
 
-					//Recurse
-					findAllFilesUNIX(filename);
+					if (_recursiveSearch) {
+						//Recurse
+						findAllFilesUNIX(filename);
+					}
 				}
 
 				else {
