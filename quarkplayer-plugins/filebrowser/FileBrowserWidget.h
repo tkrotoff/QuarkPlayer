@@ -88,8 +88,6 @@ private:
 
 	void setWindowTitle(const QString & statusMessage);
 
-	QStringList nameFilters() const;
-
 	FileSearchModel * _fileSearchModel;
 
 	FileBrowserTreeView * _treeView;

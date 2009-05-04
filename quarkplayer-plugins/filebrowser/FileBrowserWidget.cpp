@@ -150,31 +150,29 @@ void FileBrowserWidget::populateActionCollection() {
 	addUuidAction("FileBrowser.New", new QAction(app));
 }
 
-QStringList FileBrowserWidget::nameFilters() const {
-	static QStringList tmp;
-	if (tmp.isEmpty()) {
-		//Shows only files that have a "multimedia" extension (i.e .mp3, .avi, .flac...)
-		QStringList extensions;
-		extensions << FileTypes::extensions(FileType::Video);
-		extensions << FileTypes::extensions(FileType::Audio);
-		extensions << FileTypes::extensions(FileType::Playlist);
-		extensions << FileTypes::extensions(FileType::Subtitle);
-		foreach (QString ext, extensions) {
-			tmp << "*." + ext;
-		}
-	}
-	return tmp;
-}
-
 void FileBrowserWidget::loadDirModel() {
 	_fileSearchModel = new FileSearchModel(this);
-	//_dirModel->setNameFilters(nameFilters());
+
+	//Shows only tooltips for files that have a "multimedia" extension (i.e .mp3, .avi, .flac...)
+	QStringList extensions;
+	extensions << FileTypes::extensions(FileType::Video);
+	extensions << FileTypes::extensions(FileType::Audio);
+	_fileSearchModel->setToolTipExtensions(extensions);
+
+	//Shows only files that can be handled by QuarkPlayer (i.e .mp3, .avi, .flac...)
+	extensions.clear();
+	extensions << FileTypes::extensions(FileType::Video);
+	extensions << FileTypes::extensions(FileType::Audio);
+	extensions << FileTypes::extensions(FileType::Playlist);
+	extensions << FileTypes::extensions(FileType::Subtitle);
+	_fileSearchModel->setSearchExtensions(extensions);
+
 	//_dirModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
 	//_dirModel->setSorting(QDir::Name | QDir::DirsFirst);
 	//_dirModel->setReadOnly(true);
 	//_dirModel->setNameFilterDisables(false);
 
-	//_treeView->setHeaderHidden(true);
+	_treeView->setHeaderHidden(true);
 
 	_treeView->setModel(_fileSearchModel);
 
@@ -198,22 +196,15 @@ void FileBrowserWidget::loadDirModel() {
 }
 
 void FileBrowserWidget::search() {
-	//Shows only files that have a "multimedia" extension (i.e .mp3, .avi, .flac...)
-	static QStringList extensions;
-	if (extensions.isEmpty()) {
-		extensions << FileTypes::extensions(FileType::Video);
-		extensions << FileTypes::extensions(FileType::Audio);
-		extensions << FileTypes::extensions(FileType::Playlist);
-		extensions << FileTypes::extensions(FileType::Subtitle);
-	}
+	//Resets the model and the view first before to perform a new search
+	_fileSearchModel->reset();
 
 	QString pattern(_searchLineEdit->text());
 	if (pattern.isEmpty()) {
 		setWindowTitle(QString());
 
 		_fileSearchModel->search(Config::instance().musicDir(uuid()),
-			QRegExp(QString(), Qt::CaseInsensitive, QRegExp::RegExp2),
-			extensions, false);
+			QRegExp(QString(), Qt::CaseInsensitive, QRegExp::RegExp2), false);
 	} else {
 		//Sets a busy mouse cursor since the search can take several seconds
 		unsetCursor();
@@ -237,8 +228,7 @@ void FileBrowserWidget::search() {
 		qDebug() << __FUNCTION__ << tmp;
 
 		_fileSearchModel->search(Config::instance().musicDir(uuid()),
-				QRegExp(tmp, Qt::CaseInsensitive, QRegExp::RegExp2),
-				extensions);
+				QRegExp(tmp, Qt::CaseInsensitive, QRegExp::RegExp2), true);
 	}
 }
 

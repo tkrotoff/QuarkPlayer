@@ -18,6 +18,8 @@
 
 #include "FileSearchModel.h"
 
+#include "FileSearchItem.h"
+
 #include <mediainfowindow/MediaInfoFetcher.h>
 
 #include <filetypes/FileTypes.h>
@@ -45,9 +47,12 @@ QHash<QString, QIcon> FileSearchModel::_iconsCache;
 FileSearchModel::FileSearchModel(QObject * parent)
 	: QAbstractItemModel(parent) {
 
-	_findFiles = NULL;
+	_rootItem = NULL;
+	_currentParentItem = NULL;
 
-	clearInternal();
+	reset();
+
+	_findFiles = NULL;
 
 	//Info fetcher
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
@@ -55,6 +60,15 @@ FileSearchModel::FileSearchModel(QObject * parent)
 }
 
 FileSearchModel::~FileSearchModel() {
+	reset();
+}
+
+void FileSearchModel::setSearchExtensions(const QStringList & extensions) {
+	_searchExtensions = extensions;
+}
+
+void FileSearchModel::setToolTipExtensions(const QStringList & extensions) {
+	_toolTipExtensions = extensions;
 }
 
 int FileSearchModel::columnCount(const QModelIndex & parent) const {
@@ -86,7 +100,12 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	int row = index.row();
 	int column = index.column();
 
-	MediaInfo mediaInfo = _filenames[row];
+	FileSearchItem * item = static_cast<FileSearchItem *>(index.internalPointer());
+	if (!item) {
+		qWarning() << __FUNCTION__ << "Error: item is NULL";
+		return tmp;
+	}
+	const MediaInfo & mediaInfo(item->mediaInfo());
 	QString filename(mediaInfo.fileName());
 
 	switch (role) {
@@ -121,15 +140,8 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	case Qt::ToolTipRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			//Shows only files that have a "multimedia" extension (i.e .mp3, .avi, .flac...)
-			static QStringList extensions;
-			if (extensions.isEmpty()) {
-				extensions << FileTypes::extensions(FileType::Video);
-				extensions << FileTypes::extensions(FileType::Audio);
-			}
-
 			QFileInfo fileInfo(filename);
-			if (!fileInfo.isDir() && extensions.contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
+			if (!fileInfo.isDir() && _toolTipExtensions.contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
 				if (mediaInfo.fetched()) {
 					tmp = filename + "<br>" +
 						tr("Title:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Title) + "</b><br>" +
@@ -163,40 +175,65 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 }
 
 QModelIndex FileSearchModel::index(int row, int column, const QModelIndex & parent) const {
-	if (parent.isValid()) {
-		return QModelIndex();
-	}
-
 	if (!hasIndex(row, column, parent)) {
 		return QModelIndex();
 	}
 
-	return createIndex(row, column);
+	FileSearchItem * parentItem = NULL;
+	if (!parent.isValid()) {
+		parentItem = _rootItem;
+	} else {
+		parentItem = static_cast<FileSearchItem *>(parent.internalPointer());
+	}
+
+	FileSearchItem * childItem = parentItem->child(row);
+	if (childItem) {
+		return createIndex(row, column, childItem);
+	} else {
+		return QModelIndex();
+	}
 }
 
 QModelIndex FileSearchModel::parent(const QModelIndex & index) const {
-	Q_UNUSED(index);
-	return QModelIndex();
+	if (!index.isValid()) {
+		return QModelIndex();
+	}
+
+	FileSearchItem * childItem = static_cast<FileSearchItem *>(index.internalPointer());
+	FileSearchItem * parentItem = childItem->parent();
+
+	if (parentItem == _rootItem) {
+		return QModelIndex();
+	}
+
+	return createIndex(parentItem->row(), COLUMN_FILENAME, parentItem);
 }
 
 int FileSearchModel::rowCount(const QModelIndex & parent) const {
-	if (parent.isValid()) {
-		return 0;
+	FileSearchItem * parentItem = NULL;
+	if (!parent.isValid()) {
+		parentItem = _rootItem;
+	} else {
+		parentItem = static_cast<FileSearchItem *>(parent.internalPointer());
 	}
 
-	return _filenames.size();
+	int childCount = 0;
+	if (parentItem) {
+		childCount = parentItem->childCount();
+	}
+	return childCount;
 }
 
 Qt::ItemFlags FileSearchModel::flags(const QModelIndex & index) const {
 	if (!index.isValid()) {
-		return Qt::ItemIsDropEnabled;
+		return 0;
 	}
 
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 }
 
 bool FileSearchModel::hasChildren(const QModelIndex & parent) const {
-	if (parent.column() > 0) {
+	if (parent.column() > COLUMN_FILENAME) {
 		return false;
 	}
 
@@ -208,18 +245,38 @@ bool FileSearchModel::hasChildren(const QModelIndex & parent) const {
 	return fileInfo(parent).isDir();
 }
 
+bool FileSearchModel::canFetchMore(const QModelIndex & parent) const {
+	FileSearchItem * item = static_cast<FileSearchItem *>(parent.internalPointer());
+	if (item && hasChildren(parent)) {
+		return !(item->populatedChildren());
+	} else {
+		return false;
+	}
+}
+
+void FileSearchModel::fetchMore(const QModelIndex & parent) {
+	_currentParentItem = static_cast<FileSearchItem *>(parent.internalPointer());
+
+	//_currentParentQModelIndex is a hack because of beginInsertRows()
+	_currentParentQModelIndex = parent;
+
+	QString path = fileInfo(parent).absoluteFilePath();
+	search(path, QRegExp(QString(), Qt::CaseInsensitive, QRegExp::RegExp2), false);
+}
+
 QMimeData * FileSearchModel::mimeData(const QModelIndexList & indexes) const {
 	QMimeData * mimeData = new QMimeData();
 	QStringList files;
 	foreach (QModelIndex index, indexes) {
-		//Number of index is the number of columns
-		//Here we have 5 columns, we only want to select 1 column per row
-		if (index.column() == COLUMN_FILENAME) {
-			int dragAndDropRow = index.row();
-			QString filename(_filenames[dragAndDropRow].fileName());
-			if (!filename.isEmpty()) {
-				files << filename;
-			}
+		FileSearchItem * item = static_cast<FileSearchItem *>(index.internalPointer());
+		if (!item) {
+			qWarning() << __FUNCTION__ << "Error: item is NULL";
+			continue;
+		}
+		const MediaInfo & mediaInfo(item->mediaInfo());
+		QString filename(mediaInfo.fileName());
+		if (!filename.isEmpty()) {
+			files << filename;
 		}
 	}
 
@@ -240,20 +297,49 @@ Qt::DropActions FileSearchModel::supportedDropActions() const {
 
 QFileInfo FileSearchModel::fileInfo(const QModelIndex & index) const {
 	QFileInfo tmp;
-	if (index.isValid()) {
-		int row = index.row();
-		tmp = QFileInfo(_filenames[row].fileName());
+
+	FileSearchItem * item = static_cast<FileSearchItem *>(index.internalPointer());
+	if (!item) {
+		qWarning() << __FUNCTION__ << "Error: item is NULL";
+		return tmp;
 	}
+	const MediaInfo & mediaInfo(item->mediaInfo());
+	tmp = QFileInfo(mediaInfo.fileName());
 	return tmp;
 }
 
-void FileSearchModel::clearInternal() {
-	_filenames.clear();
+void FileSearchModel::reset() {
+	if (_rootItem) {
+		//Deteles _rootItem + all its childs
+		//so everything is deleted
+		delete _rootItem;
+		_rootItem = NULL;
+	}
+
+	//No need to delete _currentParentItem since "delete _rootItem" will do it
+	_currentParentItem = NULL;
+	_currentParentQModelIndex = QModelIndex();
+
 	_mediaInfoFetcherRow = POSITION_INVALID;
+
+	//Resets the model
+	QAbstractItemModel::reset();
 }
 
-void FileSearchModel::search(const QString & path, const QRegExp & pattern, const QStringList & extensions, bool recursiveSearch) {
+void FileSearchModel::search(const QString & path, const QRegExp & pattern, bool recursiveSearch) {
 	qDebug() << __FUNCTION__ << path;
+
+	if (!_currentParentItem) {
+		if (!_rootItem) {
+			//Lazy initialization of _rootItem
+			_rootItem = new FileSearchItem(path, NULL);
+		}
+		_currentParentItem = _rootItem;
+	}
+
+	//Item is going to be populated, let's say it is already
+	//because population of an item is threaded
+	_currentParentItem->setPopulatedChildren(true);
 
 	if (_findFiles) {
 		//Uninitialize/remove/disconnect... previous _findFiles
@@ -269,8 +355,7 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, cons
 	stop();
 
 	//Clears the model before starting a new search
-	clearInternal();
-	reset();
+	//reset();
 
 	//Starts a new search
 	delete _findFiles;
@@ -279,7 +364,7 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, cons
 	//Starts a new file search
 	_findFiles->setSearchPath(path);
 
-	//This was true using Qt 4.4.3
+	//This was true with Qt 4.4.3
 	//Way faster with INT_MAX because beginInsertRows() is slow
 	//It's better to call only once thus INT_MAX instead of 1 for example
 	//_findFiles->setFilesFoundLimit(INT_MAX);
@@ -287,7 +372,7 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, cons
 	_findFiles->setFilesFoundLimit(1);
 
 	_findFiles->setPattern(pattern);
-	_findFiles->setExtensions(extensions);
+	_findFiles->setExtensions(_searchExtensions);
 	_findFiles->setFindDirs(true);
 	_findFiles->setRecursiveSearch(recursiveSearch);
 	connect(_findFiles, SIGNAL(filesFound(const QStringList &)),
@@ -310,14 +395,12 @@ void FileSearchModel::filesFound(const QStringList & files) {
 	}
 
 	//Append the files
-	int first = _filenames.size();
+	int first = _currentParentItem->childCount();
 	int last = first + files.size() - 1;
-	int currentRow = first;
 
-	beginInsertRows(QModelIndex(), first, last);
+	beginInsertRows(_currentParentQModelIndex, first, last);
 	foreach (QString filename, files) {
-		_filenames.insert(currentRow, MediaInfo(filename));
-		currentRow++;
+		_currentParentItem->appendChild(new FileSearchItem(filename, _currentParentItem));
 	}
 	endInsertRows();
 }
@@ -325,7 +408,7 @@ void FileSearchModel::filesFound(const QStringList & files) {
 void FileSearchModel::updateMediaInfo() {
 	if (_mediaInfoFetcherRow == POSITION_INVALID) {
 		qCritical() << __FUNCTION__ << "Error: _mediaInfoFetcherRow invalid";
-	} else {
+	} /*else {
 		if (_mediaInfoFetcherRow < _filenames.size()) {
 			MediaInfo mediaInfo = _filenames[_mediaInfoFetcherRow];
 
@@ -338,6 +421,6 @@ void FileSearchModel::updateMediaInfo() {
 				emit dataChanged(index(_mediaInfoFetcherRow, COLUMN_FIRST), index(_mediaInfoFetcherRow, COLUMN_LAST));
 			}
 		}
-	}
+	}*/
 	_mediaInfoFetcherRow = POSITION_INVALID;
 }

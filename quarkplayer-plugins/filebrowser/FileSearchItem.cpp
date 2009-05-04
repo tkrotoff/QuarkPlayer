@@ -19,13 +19,24 @@
 #include "FileSearchItem.h"
 
 #include <QtCore/QStringList>
+#include <QtCore/QDebug>
 
-FileSearchItem::FileSearchItem(FileSearchItem * parent) {
+FileSearchItem::FileSearchItem(const QString & filename, FileSearchItem * parent) {
+	_mediaInfo = MediaInfo(filename);
 	_parentItem = parent;
+	_populatedChildren = false;
 }
 
 FileSearchItem::~FileSearchItem() {
 	qDeleteAll(_childItems);
+}
+
+void FileSearchItem::setPopulatedChildren(bool populatedChildren) {
+	_populatedChildren = populatedChildren;
+}
+
+bool FileSearchItem::populatedChildren() const {
+	return _populatedChildren;
 }
 
 void FileSearchItem::appendChild(FileSearchItem * item) {
@@ -40,12 +51,8 @@ int FileSearchItem::childCount() const {
 	return _childItems.count();
 }
 
-int FileSearchItem::columnCount() const {
-	return 1;
-}
-
-QVariant FileSearchItem::data(int column) const {
-	return itemData.value(column);
+const MediaInfo & FileSearchItem::mediaInfo() const {
+	return _mediaInfo;
 }
 
 FileSearchItem * FileSearchItem::parent() {

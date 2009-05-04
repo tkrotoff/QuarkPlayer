@@ -19,31 +19,46 @@
 #ifndef FILESEARCHITEM_H
 #define FILESEARCHITEM_H
 
+#include <mediainfowindow/MediaInfo.h>
+
 #include <QtCore/QList>
-#include <QtCore/QVariant>
 
 /**
  * A container for items of data supplied by the simple tree model.
+ *
+ * Inspired by Qt example "simpletreemodel".
+ *
+ * @author Tanguy Krotoff
  */
 class FileSearchItem {
 public:
 
-	FileSearchItem(FileSearchItem * parent = 0);
+	FileSearchItem(const QString & filename, FileSearchItem * parent);
 	~FileSearchItem();
+
+	void setPopulatedChildren(bool populatedChildren);
+	bool populatedChildren() const;
 
 	void appendChild(FileSearchItem * child);
 
 	FileSearchItem * child(int row);
 	int childCount() const;
-	int columnCount() const;
-	QVariant data(int column) const;
+	const MediaInfo & mediaInfo() const;
 	int row() const;
 	FileSearchItem * parent();
 
 private:
 
+	/** Data (filename mostly) contained inside this item. */
+	MediaInfo _mediaInfo;
+
+	/** Child(s) of this item if any. */
 	QList<FileSearchItem *> _childItems;
+
+	/** Parent item of this item. */
 	FileSearchItem * _parentItem;
+
+	bool _populatedChildren;
 };
 
 #endif	//FILESEARCHITEM_H

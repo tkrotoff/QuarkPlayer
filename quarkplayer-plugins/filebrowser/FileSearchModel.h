@@ -21,13 +21,14 @@
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QStringList>
+#include <QtCore/QEventLoop>
 
 #include <QtGui/QIcon>
 #include <QtGui/QFileIconProvider>
 
 class FindFiles;
 class MediaInfoFetcher;
-class MediaInfo;
+class FileSearchItem;
 
 class QFileInfo;
 class QRegExp;
@@ -64,14 +65,41 @@ public:
 
 	~FileSearchModel();
 
+	/**
+	 * Sets the file extensions to match when the search is performed.
+	 *
+	 * The unmatching file will be discarsed.
+	 *
+	 * @see FindFiles::setExtensions()
+	 * @param extensions file extensions to match ex: "what is love.mp3" matches "mp3" extension
+	 */
+	void setSearchExtensions(const QStringList & extensions);
+
+	/**
+	 * Sets the file extensions for which "advanced" tooltips will be shown.
+	 *
+	 * Why?
+	 * .mp3, .flac, .avi files can get "advanced" informations, not the other files.
+	 *
+	 * @param extensions file extensions to match for "advanced" tooltips ex: "what is love.mp3" matches "mp3" extension
+	 */
+	void setToolTipExtensions(const QStringList & extensions);
+
 	QFileInfo fileInfo(const QModelIndex & index) const;
+
+	/**
+	 * Resets the model (and the view).
+	 *
+	 * @see QAbstractItemModel::reset()
+	 */
+	void reset();
 
 	/**
 	 * Searches a path for files given a pattern and file extensions.
 	 *
 	 * @see FindFiles
 	 */
-	void search(const QString & path, const QRegExp & pattern, const QStringList & extensions, bool recursiveSearch = true);
+	void search(const QString & path, const QRegExp & pattern, bool recursiveSearch);
 
 	void stop();
 
@@ -85,6 +113,9 @@ public:
 
 	Qt::ItemFlags flags(const QModelIndex & index) const;
 	bool hasChildren(const QModelIndex & parent = QModelIndex()) const;
+
+	bool canFetchMore(const QModelIndex & parent) const;
+	void fetchMore(const QModelIndex & parent);
 
 	QMimeData * mimeData(const QModelIndexList & indexes) const;
 	QStringList mimeTypes() const;
@@ -102,8 +133,6 @@ private slots:
 
 private:
 
-	void clearInternal();
-
 	FindFiles * _findFiles;
 
 	/** Resolves the list of pending files for metadata/info. */
@@ -112,7 +141,11 @@ private:
 	/**
 	 * List of all the media (filenames) available in this QAbstractItemModel.
 	 */
-	QList<MediaInfo> _filenames;
+	FileSearchItem * _rootItem;
+
+	FileSearchItem * _currentParentItem;
+	/** _currentParentQModelIndex is a hack because beginInsertRows() can't take a FileSearchItem. */
+	QModelIndex _currentParentQModelIndex;
 
 	/**
 	 * _mediaInfoFetcher is working or not (already resolving some metadatas or not).
@@ -133,6 +166,10 @@ private:
 	 * Value = icon matching the extension
 	 */
 	static QHash<QString, QIcon> _iconsCache;
+
+	QStringList _searchExtensions;
+
+	QStringList _toolTipExtensions;
 };
 
 #endif	//FILESEARCHMODEL_H
