@@ -43,9 +43,11 @@ public:
 
 	FileSearchItem * child(int row);
 	int childCount() const;
-	const MediaInfo & mediaInfo() const;
 	int row() const;
 	FileSearchItem * parent();
+
+	const MediaInfo & mediaInfo() const;
+	void setMediaInfo(const MediaInfo & mediaInfo);
 
 private:
 

@@ -19,6 +19,7 @@ set(tkutil_SRCS
 	Translator.cpp
 	TkStackedWidget.cpp
 	FindFiles.cpp
+	TkFile.cpp
 	Random.cpp
 	TkTextBrowser.cpp
 	SyncHttp.cpp

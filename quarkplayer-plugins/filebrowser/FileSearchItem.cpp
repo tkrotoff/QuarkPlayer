@@ -51,10 +51,6 @@ int FileSearchItem::childCount() const {
 	return _childItems.count();
 }
 
-const MediaInfo & FileSearchItem::mediaInfo() const {
-	return _mediaInfo;
-}
-
 FileSearchItem * FileSearchItem::parent() {
 	return _parentItem;
 }
@@ -65,4 +61,12 @@ int FileSearchItem::row() const {
 	}
 
 	return 0;
+}
+
+const MediaInfo & FileSearchItem::mediaInfo() const {
+	return _mediaInfo;
+}
+
+void FileSearchItem::setMediaInfo(const MediaInfo & mediaInfo) {
+	_mediaInfo = mediaInfo;
 }

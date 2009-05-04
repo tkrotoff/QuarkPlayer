@@ -32,14 +32,14 @@
 
 #include <phonon/mediaobject.h>
 
-#include "qfilesystemmodel.h"
-//#include <QtGui/QtGui>
-
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
+
+//For INT_MAX
+#include <climits>
 
 FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
 	: QTreeView(NULL),

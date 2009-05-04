@@ -99,7 +99,7 @@ public:
 	 *
 	 * @see FindFiles
 	 */
-	void search(const QString & path, const QRegExp & pattern, bool recursiveSearch);
+	void search(const QString & path, const QRegExp & pattern, int filesFoundLimit, bool recursiveSearch);
 
 	void stop();
 
@@ -149,9 +149,9 @@ private:
 
 	/**
 	 * _mediaInfoFetcher is working or not (already resolving some metadatas or not).
-	 * Pending row for meta data/info to be resolved.
+	 * Pending index (row + column) for meta data/info to be resolved.
 	 */
-	mutable int _mediaInfoFetcherRow;
+	mutable QModelIndex _mediaInfoFetcherIndex;
 
 	/** Icon provider: gives us the icons matching a file extension. */
 	QFileIconProvider _iconProvider;

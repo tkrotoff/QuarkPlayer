@@ -25,6 +25,7 @@
 #include <filetypes/FileTypes.h>
 
 #include <tkutil/FindFiles.h>
+#include <tkutil/TkFile.h>
 
 #include <QtGui/QtGui>
 
@@ -32,6 +33,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 
+//For INT_MAX
 #include <climits>
 
 const int FileSearchModel::COLUMN_FILENAME = 0;
@@ -152,8 +154,8 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 					tmp = filename;
 
 					//Resolve metadata file one by one
-					if (_mediaInfoFetcherRow == POSITION_INVALID) {
-						_mediaInfoFetcherRow = row;
+					if (_mediaInfoFetcherIndex == QModelIndex()) {
+						_mediaInfoFetcherIndex = index;
 						_mediaInfoFetcher->start(filename);
 					}
 				}
@@ -237,12 +239,16 @@ bool FileSearchModel::hasChildren(const QModelIndex & parent) const {
 		return false;
 	}
 
-	//Drives
-	if (!parent.isValid()) {
-		return true;
+	bool tmp = false;
+	FileSearchItem * item = static_cast<FileSearchItem *>(parent.internalPointer());
+	if (!item) {
+		qWarning() << __FUNCTION__ << "Error: item is NULL";
+	} else {
+		//Optimization: QFileInfo::isDir() is too slow, replaced by TkFile::isDir()
+		tmp = TkFile::isDir(item->mediaInfo().fileName());
 	}
 
-	return fileInfo(parent).isDir();
+	return tmp;
 }
 
 bool FileSearchModel::canFetchMore(const QModelIndex & parent) const {
@@ -261,7 +267,7 @@ void FileSearchModel::fetchMore(const QModelIndex & parent) {
 	_currentParentQModelIndex = parent;
 
 	QString path = fileInfo(parent).absoluteFilePath();
-	search(path, QRegExp(QString(), Qt::CaseInsensitive, QRegExp::RegExp2), false);
+	search(path, QRegExp(QString(), Qt::CaseInsensitive, QRegExp::RegExp2), INT_MAX, false);
 }
 
 QMimeData * FileSearchModel::mimeData(const QModelIndexList & indexes) const {
@@ -301,10 +307,9 @@ QFileInfo FileSearchModel::fileInfo(const QModelIndex & index) const {
 	FileSearchItem * item = static_cast<FileSearchItem *>(index.internalPointer());
 	if (!item) {
 		qWarning() << __FUNCTION__ << "Error: item is NULL";
-		return tmp;
+	} else {
+		tmp = QFileInfo(item->mediaInfo().fileName());
 	}
-	const MediaInfo & mediaInfo(item->mediaInfo());
-	tmp = QFileInfo(mediaInfo.fileName());
 	return tmp;
 }
 
@@ -320,13 +325,13 @@ void FileSearchModel::reset() {
 	_currentParentItem = NULL;
 	_currentParentQModelIndex = QModelIndex();
 
-	_mediaInfoFetcherRow = POSITION_INVALID;
+	_mediaInfoFetcherIndex = QModelIndex();
 
 	//Resets the model
 	QAbstractItemModel::reset();
 }
 
-void FileSearchModel::search(const QString & path, const QRegExp & pattern, bool recursiveSearch) {
+void FileSearchModel::search(const QString & path, const QRegExp & pattern, int filesFoundLimit, bool recursiveSearch) {
 	qDebug() << __FUNCTION__ << path;
 
 	if (!_currentParentItem) {
@@ -354,9 +359,6 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, bool
 	//inside FindFiles since there is no mutex
 	stop();
 
-	//Clears the model before starting a new search
-	//reset();
-
 	//Starts a new search
 	delete _findFiles;
 	_findFiles = new FindFiles(this);
@@ -369,7 +371,7 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, bool
 	//It's better to call only once thus INT_MAX instead of 1 for example
 	//_findFiles->setFilesFoundLimit(INT_MAX);
 	//Now with Qt 4.5.1, speed is really good :-)
-	_findFiles->setFilesFoundLimit(1);
+	_findFiles->setFilesFoundLimit(filesFoundLimit);
 
 	_findFiles->setPattern(pattern);
 	_findFiles->setExtensions(_searchExtensions);
@@ -390,7 +392,8 @@ void FileSearchModel::stop() {
 
 void FileSearchModel::filesFound(const QStringList & files) {
 	if (sender() != _findFiles) {
-		//filesFound() signal from a previous _findFiles
+		//filesFound() signal from a previous _findFiles,
+		//let's discards it
 		return;
 	}
 
@@ -406,21 +409,25 @@ void FileSearchModel::filesFound(const QStringList & files) {
 }
 
 void FileSearchModel::updateMediaInfo() {
-	if (_mediaInfoFetcherRow == POSITION_INVALID) {
-		qCritical() << __FUNCTION__ << "Error: _mediaInfoFetcherRow invalid";
-	} /*else {
-		if (_mediaInfoFetcherRow < _filenames.size()) {
-			MediaInfo mediaInfo = _filenames[_mediaInfoFetcherRow];
-
-			if (mediaInfo.fileName() == _mediaInfoFetcher->mediaInfo().fileName() &&
-				!mediaInfo.fetched()) {
-
-				_filenames[_mediaInfoFetcherRow] = _mediaInfoFetcher->mediaInfo();
-
-				//Update the row since the matching MediaSource has been modified
-				emit dataChanged(index(_mediaInfoFetcherRow, COLUMN_FIRST), index(_mediaInfoFetcherRow, COLUMN_LAST));
-			}
+	if (_mediaInfoFetcherIndex == QModelIndex() || !_mediaInfoFetcherIndex.isValid()) {
+		qCritical() << __FUNCTION__ << "Error: _mediaInfoFetcherIndex invalid";
+	} else {
+		FileSearchItem * item = static_cast<FileSearchItem *>(_mediaInfoFetcherIndex.internalPointer());
+		if (!item) {
+			qWarning() << __FUNCTION__ << "Error: item is NULL";
+			return;
 		}
-	}*/
-	_mediaInfoFetcherRow = POSITION_INVALID;
+
+		MediaInfo mediaInfo = item->mediaInfo();
+
+		if (mediaInfo.fileName() == _mediaInfoFetcher->mediaInfo().fileName() &&
+			!mediaInfo.fetched()) {
+
+			item->setMediaInfo(_mediaInfoFetcher->mediaInfo());
+
+			//Update the index since the matching MediaSource has been modified
+			emit dataChanged(_mediaInfoFetcherIndex, _mediaInfoFetcherIndex);
+		}
+	}
+	_mediaInfoFetcherIndex = QModelIndex();
 }
