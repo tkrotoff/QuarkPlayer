@@ -31,6 +31,7 @@
  *
  * Uses a QEventLoop to block until the request is completed,
  *
+ * @see http://www.erata.net/qt-boost/synchronous-http-request/
  * @see QHttp
  * @author Tanguy Krotoff <tkrotoff@gmail.com>
  * @author Iulian M <eti@erata.net>

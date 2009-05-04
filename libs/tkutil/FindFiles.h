@@ -68,6 +68,10 @@ public:
 	void setPattern(const QRegExp & pattern);
 
 	/**
+	 * Sets the file extensions to match.
+	 *
+	 * The unmatching file will be discarsed.
+	 *
 	 * @param extensions file extensions to match ex: "what is love.mp3" matches "mp3" extension
 	 */
 	void setExtensions(const QStringList & extensions);
