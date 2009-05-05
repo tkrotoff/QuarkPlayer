@@ -18,6 +18,8 @@
 
 #include "FileSearchItem.h"
 
+#include <tkutil/TkFile.h>
+
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
 
@@ -39,8 +41,27 @@ bool FileSearchItem::populatedChildren() const {
 	return _populatedChildren;
 }
 
-void FileSearchItem::appendChild(FileSearchItem * item) {
-	_childItems.append(item);
+void FileSearchItem::appendChild(FileSearchItem * newItem) {
+	static int firstFileItemAdded = -1;
+
+	if (_childItems.isEmpty()) {
+		_childItems.append(newItem);
+	} else {
+		const FileSearchItem * lastItem = _childItems.last();
+
+		if (!lastItem->isDir() && newItem->isDir()) {
+			//Insert before the first item of type "file"
+			_childItems.insert(firstFileItemAdded, newItem);
+		} else {
+			//Don't change the order
+			_childItems.append(newItem);
+		}
+
+		if (!newItem->isDir() && firstFileItemAdded != -1) {
+			//Saves the position of the first item of type "file"
+			firstFileItemAdded = _childItems.count() - 1;
+		}
+	}
 }
 
 FileSearchItem * FileSearchItem::child(int row) {
@@ -63,10 +84,27 @@ int FileSearchItem::row() const {
 	return 0;
 }
 
+QString FileSearchItem::fileName() const {
+	return _mediaInfo.fileName();
+}
+
 const MediaInfo & FileSearchItem::mediaInfo() const {
 	return _mediaInfo;
 }
 
 void FileSearchItem::setMediaInfo(const MediaInfo & mediaInfo) {
 	_mediaInfo = mediaInfo;
+}
+
+FileSearchItem::Type FileSearchItem::type() const {
+	bool isDir = TkFile::isDir(_mediaInfo.fileName());
+	if (isDir) {
+		return Dir;
+	} else {
+		return File;
+	}
+}
+
+bool FileSearchItem::isDir() const {
+	return type() == Dir;
 }

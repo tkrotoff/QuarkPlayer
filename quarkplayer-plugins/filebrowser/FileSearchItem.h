@@ -39,15 +39,28 @@ public:
 	void setPopulatedChildren(bool populatedChildren);
 	bool populatedChildren() const;
 
-	void appendChild(FileSearchItem * child);
+	void appendChild(FileSearchItem * newItem);
 
 	FileSearchItem * child(int row);
 	int childCount() const;
 	int row() const;
 	FileSearchItem * parent();
 
+	/** Helper function, equivalent to mediaInfo().fileName() */
+	QString fileName() const;
+
 	const MediaInfo & mediaInfo() const;
 	void setMediaInfo(const MediaInfo & mediaInfo);
+
+	enum Type {
+		Dir,
+		File
+	};
+
+	Type type() const;
+
+	/** Helper function, equivalent to type() == Dir */
+	bool isDir() const;
 
 private:
 

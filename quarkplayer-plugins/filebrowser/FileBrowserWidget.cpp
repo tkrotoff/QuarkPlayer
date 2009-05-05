@@ -199,6 +199,9 @@ void FileBrowserWidget::search() {
 	//Resets the model and the view first before to perform a new search
 	_fileSearchModel->reset();
 
+	disconnect(_fileSearchModel, SIGNAL(searchFinished(int)),
+		this, SLOT(searchFinished(int)));
+
 	QString pattern(_searchLineEdit->text());
 	if (pattern.isEmpty()) {
 		setWindowTitle(QString());
@@ -212,8 +215,6 @@ void FileBrowserWidget::search() {
 
 		setWindowTitle(tr("Searching..."));
 
-		disconnect(_fileSearchModel, SIGNAL(searchFinished(int)),
-			this, SLOT(searchFinished(int)));
 		connect(_fileSearchModel, SIGNAL(searchFinished(int)),
 			SLOT(searchFinished(int)));
 

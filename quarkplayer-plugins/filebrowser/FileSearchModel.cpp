@@ -25,7 +25,6 @@
 #include <filetypes/FileTypes.h>
 
 #include <tkutil/FindFiles.h>
-#include <tkutil/TkFile.h>
 
 #include <QtGui/QtGui>
 
@@ -41,8 +40,6 @@ const int FileSearchModel::COLUMN_FIRST = COLUMN_FILENAME;
 const int FileSearchModel::COLUMN_LAST = COLUMN_FILENAME;
 
 static const int COLUMN_COUNT = 1;
-
-static const int POSITION_INVALID = -1;
 
 QHash<QString, QIcon> FileSearchModel::_iconsCache;
 
@@ -235,17 +232,13 @@ Qt::ItemFlags FileSearchModel::flags(const QModelIndex & index) const {
 }
 
 bool FileSearchModel::hasChildren(const QModelIndex & parent) const {
-	if (parent.column() > COLUMN_FILENAME) {
-		return false;
-	}
-
 	bool tmp = false;
 	FileSearchItem * item = static_cast<FileSearchItem *>(parent.internalPointer());
 	if (!item) {
 		qWarning() << __FUNCTION__ << "Error: item is NULL";
 	} else {
 		//Optimization: QFileInfo::isDir() is too slow, replaced by TkFile::isDir()
-		tmp = TkFile::isDir(item->mediaInfo().fileName());
+		tmp = item->isDir();
 	}
 
 	return tmp;
@@ -308,7 +301,7 @@ QFileInfo FileSearchModel::fileInfo(const QModelIndex & index) const {
 	if (!item) {
 		qWarning() << __FUNCTION__ << "Error: item is NULL";
 	} else {
-		tmp = QFileInfo(item->mediaInfo().fileName());
+		tmp = QFileInfo(item->fileName());
 	}
 	return tmp;
 }
