@@ -11,6 +11,8 @@
 #                    QT_DONT_USE_QTGUI
 #                    QT_USE_QT3SUPPORT
 #                    QT_USE_QTASSISTANT
+#                    QT_USE_QAXCONTAINER
+#                    QT_USE_QAXSERVER
 #                    QT_USE_QTDESIGNER
 #                    QT_USE_QTMOTIF
 #                    QT_USE_QTMAIN
@@ -139,6 +141,8 @@
 #  QT_QTGUI_FOUND           True if QtGui was found.
 #  QT_QT3SUPPORT_FOUND      True if Qt3Support was found.
 #  QT_QTASSISTANT_FOUND     True if QtAssistant was found.
+#  QT_QAXCONTAINER_FOUND     True if QAxContainer was found (Windows only).
+#  QT_QAXSERVER_FOUND          True if QAxServer was found (Windows only).
 #  QT_QTDBUS_FOUND          True if QtDBus was found.
 #  QT_QTDESIGNER_FOUND      True if QtDesigner was found.
 #  QT_QTDESIGNERCOMPONENTS  True if QtDesignerComponents was found.
@@ -177,9 +181,10 @@
 #  You do not need to use these variables if you include QT_USE_FILE.
 #
 #  QT_INCLUDE_DIR              Path to "include" of Qt4
-#  QT_QT_INCLUDE_DIR           Path to "include/Qt" 
 #  QT_QT3SUPPORT_INCLUDE_DIR   Path to "include/Qt3Support" 
 #  QT_QTASSISTANT_INCLUDE_DIR  Path to "include/QtAssistant" 
+#  QT_QAXCONTAINER_INCLUDE_DIR  Path to "include/ActiveQt" (Windows only)
+#  QT_QAXSERVER_INCLUDE_DIR  Path to "include/ActiveQt" (Windows only)
 #  QT_QTCORE_INCLUDE_DIR       Path to "include/QtCore"         
 #  QT_QTDESIGNER_INCLUDE_DIR   Path to "include/QtDesigner" 
 #  QT_QTDESIGNERCOMPONENTS_INCLUDE_DIR   Path to "include/QtDesigner"
@@ -200,9 +205,12 @@
 #  QT_QTXMLPATTERNS_INCLUDE_DIR  Path to "include/QtXmlPatterns"
 #  QT_PHONON_INCLUDE_DIR       Path to "include/phonon"
 #                            
+#  QT_BINARY_DIR               Path to "bin" of Qt4
 #  QT_LIBRARY_DIR              Path to "lib" of Qt4
-# 
 #  QT_PLUGINS_DIR              Path to "plugins" for Qt4
+#  QT_TRANSLATIONS_DIR         Path to "translations" of Qt4
+#  QT_DOC_DIR                  Path to "doc" of Qt4
+#  QT_MKSPECS_DIR              Path to "mkspecs" of Qt4
 #                            
 #
 # The Qt toolkit may contain both debug and release libraries.
@@ -212,6 +220,8 @@
 #
 #  QT_QT3SUPPORT_LIBRARY            The Qt3Support library
 #  QT_QTASSISTANT_LIBRARY           The QtAssistant library
+#  QT_QAXCONTAINER_LIBRARY           The QAxContainer library (Windows only)
+#  QT_QAXSERVER_LIBRARY                The QAxServer library (Windows only)
 #  QT_QTCORE_LIBRARY                The QtCore library
 #  QT_QTDBUS_LIBRARY                The QtDBus library
 #  QT_QTDESIGNER_LIBRARY            The QtDesigner library
@@ -244,9 +254,6 @@
 #  QT_LUPDATE_EXECUTABLE      Where to find the lupdate tool.
 #  QT_LRELEASE_EXECUTABLE     Where to find the lrelease tool.
 #  
-#  QT_DOC_DIR                 Path to "doc" of Qt4
-#  QT_MKSPECS_DIR             Path to "mkspecs" of Qt4
-#
 #
 # These are around for backwards compatibility 
 # they will be set
@@ -321,6 +328,12 @@ FIND_PROGRAM(QT_QMAKE_EXECUTABLE NAMES qmake qmake4 qmake-qt4 PATHS
 
 IF (QT_QMAKE_EXECUTABLE)
 
+  IF(QT_QMAKE_EXECUTABLE_LAST)
+    STRING(COMPARE NOTEQUAL "${QT_QMAKE_EXECUTABLE_LAST}" "${QT_QMAKE_EXECUTABLE}" QT_QMAKE_CHANGED)
+  ENDIF(QT_QMAKE_EXECUTABLE_LAST)
+
+  SET(QT_QMAKE_EXECUTABLE_LAST "${QT_QMAKE_EXECUTABLE}" CACHE INTERNAL "" FORCE)
+
   SET(QT4_QMAKE_FOUND FALSE)
   
   EXEC_PROGRAM(${QT_QMAKE_EXECUTABLE} ARGS "-query QT_VERSION" OUTPUT_VARIABLE QTVERSION)
@@ -386,65 +399,65 @@ IF (QT4_QMAKE_FOUND)
 
   # ask qmake for the library dir
   # Set QT_LIBRARY_DIR
-  IF (NOT QT_LIBRARY_DIR)
+  IF (NOT QT_LIBRARY_DIR OR QT_QMAKE_CHANGED)
     EXEC_PROGRAM( ${QT_QMAKE_EXECUTABLE}
       ARGS "-query QT_INSTALL_LIBS"
       OUTPUT_VARIABLE QT_LIBRARY_DIR_TMP )
     # make sure we have / and not \ as qmake gives on windows
     FILE(TO_CMAKE_PATH "${QT_LIBRARY_DIR_TMP}" QT_LIBRARY_DIR_TMP)
     IF(EXISTS "${QT_LIBRARY_DIR_TMP}")
-      SET(QT_LIBRARY_DIR ${QT_LIBRARY_DIR_TMP} CACHE PATH "Qt library dir")
+      SET(QT_LIBRARY_DIR ${QT_LIBRARY_DIR_TMP} CACHE PATH "Qt library dir" FORCE)
     ELSE(EXISTS "${QT_LIBRARY_DIR_TMP}")
       MESSAGE("Warning: QT_QMAKE_EXECUTABLE reported QT_INSTALL_LIBS as ${QT_LIBRARY_DIR_TMP}")
       MESSAGE("Warning: ${QT_LIBRARY_DIR_TMP} does NOT exist, Qt must NOT be installed correctly.")
     ENDIF(EXISTS "${QT_LIBRARY_DIR_TMP}")
-  ENDIF(NOT QT_LIBRARY_DIR)
+  ENDIF(NOT QT_LIBRARY_DIR OR QT_QMAKE_CHANGED)
   
   IF (APPLE)
     IF (EXISTS ${QT_LIBRARY_DIR}/QtCore.framework)
       SET(QT_USE_FRAMEWORKS ON
-        CACHE BOOL "Set to ON if Qt build uses frameworks.")
+        CACHE BOOL "Set to ON if Qt build uses frameworks." FORCE)
     ELSE (EXISTS ${QT_LIBRARY_DIR}/QtCore.framework)
       SET(QT_USE_FRAMEWORKS OFF
-        CACHE BOOL "Set to ON if Qt build uses frameworks.")
+        CACHE BOOL "Set to ON if Qt build uses frameworks." FORCE)
     ENDIF (EXISTS ${QT_LIBRARY_DIR}/QtCore.framework)
     
     MARK_AS_ADVANCED(QT_USE_FRAMEWORKS)
   ENDIF (APPLE)
   
   # ask qmake for the binary dir
-  IF (QT_LIBRARY_DIR AND NOT QT_BINARY_DIR)
+  IF ((QT_LIBRARY_DIR AND NOT QT_BINARY_DIR) OR QT_QMAKE_CHANGED)
      EXEC_PROGRAM(${QT_QMAKE_EXECUTABLE}
        ARGS "-query QT_INSTALL_BINS"
        OUTPUT_VARIABLE qt_bins )
      # make sure we have / and not \ as qmake gives on windows
      FILE(TO_CMAKE_PATH "${qt_bins}" qt_bins)
-     SET(QT_BINARY_DIR ${qt_bins} CACHE INTERNAL "")
-  ENDIF (QT_LIBRARY_DIR AND NOT QT_BINARY_DIR)
+     SET(QT_BINARY_DIR ${qt_bins} CACHE INTERNAL "" FORCE)
+  ENDIF ((QT_LIBRARY_DIR AND NOT QT_BINARY_DIR) OR QT_QMAKE_CHANGED)
 
   # ask qmake for the include dir
-  IF (QT_LIBRARY_DIR AND NOT QT_HEADERS_DIR)
+  IF ((QT_LIBRARY_DIR AND NOT QT_HEADERS_DIR) OR QT_QMAKE_CHANGED)
       EXEC_PROGRAM( ${QT_QMAKE_EXECUTABLE}
         ARGS "-query QT_INSTALL_HEADERS" 
         OUTPUT_VARIABLE qt_headers ) 
       # make sure we have / and not \ as qmake gives on windows
       FILE(TO_CMAKE_PATH "${qt_headers}" qt_headers)
-      SET(QT_HEADERS_DIR ${qt_headers} CACHE INTERNAL "")
-  ENDIF(QT_LIBRARY_DIR AND NOT QT_HEADERS_DIR)
+      SET(QT_HEADERS_DIR ${qt_headers} CACHE INTERNAL "" FORCE)
+  ENDIF ((QT_LIBRARY_DIR AND NOT QT_HEADERS_DIR) OR QT_QMAKE_CHANGED)
 
 
   # ask qmake for the documentation directory
-  IF (QT_LIBRARY_DIR AND NOT QT_DOC_DIR)
+  IF ((QT_LIBRARY_DIR AND NOT QT_DOC_DIR) OR QT_QMAKE_CHANGED)
     EXEC_PROGRAM( ${QT_QMAKE_EXECUTABLE}
       ARGS "-query QT_INSTALL_DOCS"
       OUTPUT_VARIABLE qt_doc_dir )
     # make sure we have / and not \ as qmake gives on windows
     FILE(TO_CMAKE_PATH "${qt_doc_dir}" qt_doc_dir)
-    SET(QT_DOC_DIR ${qt_doc_dir} CACHE PATH "The location of the Qt docs")
-  ENDIF (QT_LIBRARY_DIR AND NOT QT_DOC_DIR)
+    SET(QT_DOC_DIR ${qt_doc_dir} CACHE PATH "The location of the Qt docs" FORCE)
+  ENDIF ((QT_LIBRARY_DIR AND NOT QT_DOC_DIR) OR QT_QMAKE_CHANGED)
 
   # ask qmake for the mkspecs directory
-  IF (QT_LIBRARY_DIR AND NOT QT_MKSPECS_DIR)
+  IF ((QT_LIBRARY_DIR AND NOT QT_MKSPECS_DIR) OR QT_QMAKE_CHANGED)
     EXEC_PROGRAM( ${QT_QMAKE_EXECUTABLE}
       ARGS "-query QMAKE_MKSPECS"
       OUTPUT_VARIABLE qt_mkspecs_dirs )
@@ -453,48 +466,140 @@ IF (QT4_QMAKE_FOUND)
     IF(UNIX)
       STRING(REPLACE ":" ";" qt_mkspecs_dirs "${qt_mkspecs_dirs}")
     ENDIF(UNIX)
+    SET(QT_MKSPECS_DIR NOTFOUND)
     FIND_PATH(QT_MKSPECS_DIR qconfig.pri PATHS ${qt_mkspecs_dirs}
       DOC "The location of the Qt mkspecs containing qconfig.pri"
       NO_DEFAULT_PATH )
-  ENDIF (QT_LIBRARY_DIR AND NOT QT_MKSPECS_DIR)
+  ENDIF ((QT_LIBRARY_DIR AND NOT QT_MKSPECS_DIR) OR QT_QMAKE_CHANGED)
 
   # ask qmake for the plugins directory
-  IF (QT_LIBRARY_DIR AND NOT QT_PLUGINS_DIR)
+  IF ((QT_LIBRARY_DIR AND NOT QT_PLUGINS_DIR) OR QT_QMAKE_CHANGED)
     EXEC_PROGRAM( ${QT_QMAKE_EXECUTABLE}
       ARGS "-query QT_INSTALL_PLUGINS"
       OUTPUT_VARIABLE qt_plugins_dir )
     # make sure we have / and not \ as qmake gives on windows
     FILE(TO_CMAKE_PATH "${qt_plugins_dir}" qt_plugins_dir)
-    SET(QT_PLUGINS_DIR ${qt_plugins_dir} CACHE PATH "The location of the Qt plugins")
-  ENDIF (QT_LIBRARY_DIR AND NOT QT_PLUGINS_DIR)
+    SET(QT_PLUGINS_DIR ${qt_plugins_dir} CACHE PATH "The location of the Qt plugins" FORCE)
+  ENDIF ((QT_LIBRARY_DIR AND NOT QT_PLUGINS_DIR) OR QT_QMAKE_CHANGED)
+
+  # ask qmake for the translations directory
+  IF ((QT_LIBRARY_DIR AND NOT QT_TRANSLATIONS_DIR) OR QT_QMAKE_CHANGED)
+    EXEC_PROGRAM( ${QT_QMAKE_EXECUTABLE}
+      ARGS "-query QT_INSTALL_TRANSLATIONS"
+      OUTPUT_VARIABLE qt_translations_dir )
+    # make sure we have / and not \ as qmake gives on windows
+    FILE(TO_CMAKE_PATH "${qt_translations_dir}" qt_translations_dir)
+    SET(QT_TRANSLATIONS_DIR ${qt_translations_dir} CACHE PATH "The location of the Qt translations" FORCE)
+  ENDIF ((QT_LIBRARY_DIR AND NOT QT_TRANSLATIONS_DIR) OR QT_QMAKE_CHANGED)
+
   ########################################
   #
   #       Setting the INCLUDE-Variables
   #
   ########################################
 
-  FIND_PATH(QT_QTCORE_INCLUDE_DIR QtGlobal
+  SET(QT_MODULES QtCore QtGui Qt3Support QtSvg QtScript QtTest QtUiTools 
+                 QtHelp QtWebKit QtXmlPatterns phonon QtMotif QtNetwork 
+                 QtNsPlugin QtOpenGL QtSql QtXml QtDesigner QtDBus)
+
+  IF(QT_QMAKE_CHANGED)
+    FOREACH(QT_MODULE ${QT_MODULES})
+      STRING(TOUPPER ${QT_MODULE} _upper_qt_module)
+      SET(QT_${_upper_qt_module}_INCLUDE_DIR NOTFOUND)
+      SET(QT_${_upper_qt_module}_LIBRARY_RELEASE NOTFOUND)
+      SET(QT_${_upper_qt_module}_LIBRARY_DEBUG NOTFOUND)
+    ENDFOREACH(QT_MODULE)
+    SET(QT_QTDESIGNERCOMPONENTS_INCLUDE_DIR NOTFOUND)
+    SET(QT_QTDESIGNERCOMPONENTS_LIBRARY_RELEASE NOTFOUND)
+    SET(QT_QTDESIGNERCOMPONENTS_LIBRARY_DEBUG NOTFOUND)
+    SET(QT_QTASSISTANTCLIENT_INCLUDE_DIR NOTFOUND)
+    SET(QT_QTASSISTANTCLIENT_LIBRARY_RELEASE NOTFOUND)
+    SET(QT_QTASSISTANTCLIENT_LIBRARY_DEBUG NOTFOUND)
+    SET(QT_QTASSISTANT_INCLUDE_DIR NOTFOUND)
+    SET(QT_QTASSISTANT_LIBRARY_RELEASE NOTFOUND)
+    SET(QT_QTASSISTANT_LIBRARY_DEBUG NOTFOUND)
+    SET(QT_QTCLUCENE_LIBRARY_RELEASE NOTFOUND)
+    SET(QT_QTCLUCENE_LIBRARY_DEBUG NOTFOUND)
+    SET(QT_QAXCONTAINER_INCLUDE_DIR NOTFOUND)
+    SET(QT_QAXCONTAINER_LIBRARY_RELEASE NOTFOUND)
+    SET(QT_QAXCONTAINER_LIBRARY_DEBUG NOTFOUND)
+    SET(QT_QAXSERVER_INCLUDE_DIR NOTFOUND)
+    SET(QT_QAXSERVER_LIBRARY_RELEASE NOTFOUND)
+    SET(QT_QAXSERVER_LIBRARY_DEBUG NOTFOUND)
+  ENDIF(QT_QMAKE_CHANGED)
+
+  FOREACH(QT_MODULE ${QT_MODULES})
+    STRING(TOUPPER ${QT_MODULE} _upper_qt_module)
+    FIND_PATH(QT_${_upper_qt_module}_INCLUDE_DIR ${QT_MODULE}
+              PATHS
+              ${QT_HEADERS_DIR}/${QT_MODULE}
+              ${QT_LIBRARY_DIR}/${QT_MODULE}.framework/Headers
+              NO_DEFAULT_PATH
+      )
+  ENDFOREACH(QT_MODULE)
+  
+  IF(WIN32)
+    SET(QT_MODULES ${QT_MODULES} QAxContainer QAxServer)
+    # Set QT_AXCONTAINER_INCLUDE_DIR and QT_AXSERVER_INCLUDE_DIR
+    FIND_PATH(QT_QAXCONTAINER_INCLUDE_DIR ActiveQt
+      PATHS
+      ${QT_HEADERS_DIR}/ActiveQt
+      NO_DEFAULT_PATH
+      )
+    FIND_PATH(QT_QAXSERVER_INCLUDE_DIR ActiveQt
+      PATHS
+      ${QT_HEADERS_DIR}/ActiveQt
+      NO_DEFAULT_PATH
+      )
+  ENDIF(WIN32)
+  
+  # Set QT_QTDESIGNERCOMPONENTS_INCLUDE_DIR
+  FIND_PATH(QT_QTDESIGNERCOMPONENTS_INCLUDE_DIR QDesignerComponents
     PATHS
-    ${QT_HEADERS_DIR}/QtCore
-    ${QT_LIBRARY_DIR}/QtCore.framework/Headers
+    ${QT_HEADERS_DIR}/QtDesigner
+    ${QT_LIBRARY_DIR}/QtDesigner.framework/Headers
     NO_DEFAULT_PATH
     )
-
+  
+  # Set QT_QTASSISTANT_INCLUDE_DIR
+  FIND_PATH(QT_QTASSISTANT_INCLUDE_DIR QAssistantClient
+    PATHS
+    ${QT_HEADERS_DIR}/QtAssistant
+    ${QT_LIBRARY_DIR}/QtAssistant.framework/Headers
+    NO_DEFAULT_PATH
+    )
+  
+  # Set QT_QTASSISTANTCLIENT_INCLUDE_DIR
+  FIND_PATH(QT_QTASSISTANTCLIENT_INCLUDE_DIR QAssistantClient
+    PATHS
+    ${QT_HEADERS_DIR}/QtAssistant
+    ${QT_LIBRARY_DIR}/QtAssistant.framework/Headers
+    NO_DEFAULT_PATH
+    )
+  
   # Set QT_INCLUDE_DIR by removine "/QtCore" in the string ${QT_QTCORE_INCLUDE_DIR}
   IF( QT_QTCORE_INCLUDE_DIR AND NOT QT_INCLUDE_DIR)
     IF (QT_USE_FRAMEWORKS)
       SET(QT_INCLUDE_DIR ${QT_HEADERS_DIR})
     ELSE (QT_USE_FRAMEWORKS)
       STRING( REGEX REPLACE "/QtCore$" "" qt4_include_dir ${QT_QTCORE_INCLUDE_DIR})
-      SET( QT_INCLUDE_DIR ${qt4_include_dir} CACHE PATH "")
+      SET( QT_INCLUDE_DIR ${qt4_include_dir})
     ENDIF (QT_USE_FRAMEWORKS)
   ENDIF( QT_QTCORE_INCLUDE_DIR AND NOT QT_INCLUDE_DIR)
 
   IF( NOT QT_INCLUDE_DIR)
     IF(Qt4_FIND_REQUIRED)
-      MESSAGE( FATAL_ERROR "Could NOT find QtGlobal header")
+      MESSAGE( FATAL_ERROR "Could NOT find QtCore header")
     ENDIF(Qt4_FIND_REQUIRED)
   ENDIF( NOT QT_INCLUDE_DIR)
+  
+  # Make variables changeble to the advanced user
+  MARK_AS_ADVANCED( QT_LIBRARY_DIR QT_INCLUDE_DIR QT_DOC_DIR QT_MKSPECS_DIR
+                    QT_PLUGINS_DIR QT_TRANSLATIONS_DIR)
+
+  # Set QT_INCLUDES
+  SET( QT_INCLUDES ${QT_MKSPECS_DIR}/default ${QT_INCLUDE_DIR} )
+
 
   #############################################
   #
@@ -515,6 +620,9 @@ IF (QT4_QMAKE_FOUND)
   CHECK_SYMBOL_EXISTS(Q_WS_WIN "QtCore/qglobal.h" Q_WS_WIN)
   CHECK_SYMBOL_EXISTS(Q_WS_QWS "QtCore/qglobal.h" Q_WS_QWS)
   CHECK_SYMBOL_EXISTS(Q_WS_MAC "QtCore/qglobal.h" Q_WS_MAC)
+  IF(Q_WS_MAC)
+    CHECK_SYMBOL_EXISTS(QT_MAC_USE_COCOA "QtCore/qconfig.h" QT_MAC_USE_COCOA)
+  ENDIF(Q_WS_MAC)
 
   IF (QT_QTCOPY_REQUIRED)
      CHECK_SYMBOL_EXISTS(QT_IS_QTCOPY "QtCore/qglobal.h" QT_KDE_QT_COPY)
@@ -529,251 +637,24 @@ IF (QT4_QMAKE_FOUND)
   #
   #############################################
 
-  # Set QT_QT3SUPPORT_INCLUDE_DIR
-  FIND_PATH(QT_QT3SUPPORT_INCLUDE_DIR Qt3Support
-    PATHS
-    ${QT_INCLUDE_DIR}/Qt3Support
-    ${QT_LIBRARY_DIR}/Qt3Support.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QT_INCLUDE_DIR
-  FIND_PATH(QT_QT_INCLUDE_DIR qglobal.h
-    PATHS
-    ${QT_INCLUDE_DIR}/Qt
-    ${QT_LIBRARY_DIR}/QtCore.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTGUI_INCLUDE_DIR
-  FIND_PATH(QT_QTGUI_INCLUDE_DIR QtGui
-    PATHS
-    ${QT_INCLUDE_DIR}/QtGui
-    ${QT_LIBRARY_DIR}/QtGui.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTSVG_INCLUDE_DIR
-  FIND_PATH(QT_QTSVG_INCLUDE_DIR QtSvg
-    PATHS
-    ${QT_INCLUDE_DIR}/QtSvg
-    ${QT_LIBRARY_DIR}/QtSvg.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTSCRIPT_INCLUDE_DIR
-  FIND_PATH(QT_QTSCRIPT_INCLUDE_DIR QtScript
-    PATHS
-    ${QT_INCLUDE_DIR}/QtScript
-    ${QT_LIBRARY_DIR}/QtScript.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTTEST_INCLUDE_DIR
-  FIND_PATH(QT_QTTEST_INCLUDE_DIR QtTest
-    PATHS
-    ${QT_INCLUDE_DIR}/QtTest
-    ${QT_LIBRARY_DIR}/QtTest.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTUITOOLS_INCLUDE_DIR
-  FIND_PATH(QT_QTUITOOLS_INCLUDE_DIR QtUiTools
-    PATHS
-    ${QT_INCLUDE_DIR}/QtUiTools
-    ${QT_LIBRARY_DIR}/QtUiTools.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTMOTIF_INCLUDE_DIR
-  IF(Q_WS_X11)
-    FIND_PATH(QT_QTMOTIF_INCLUDE_DIR QtMotif 
-      PATHS 
-      ${QT_INCLUDE_DIR}/QtMotif 
-      NO_DEFAULT_PATH )
-  ENDIF(Q_WS_X11)
-
-  # Set QT_QTNETWORK_INCLUDE_DIR
-  FIND_PATH(QT_QTNETWORK_INCLUDE_DIR QtNetwork
-    PATHS
-    ${QT_INCLUDE_DIR}/QtNetwork
-    ${QT_LIBRARY_DIR}/QtNetwork.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTNSPLUGIN_INCLUDE_DIR
-  FIND_PATH(QT_QTNSPLUGIN_INCLUDE_DIR QtNsPlugin
-    PATHS
-    ${QT_INCLUDE_DIR}/QtNsPlugin
-    ${QT_LIBRARY_DIR}/QtNsPlugin.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTOPENGL_INCLUDE_DIR
-  FIND_PATH(QT_QTOPENGL_INCLUDE_DIR QtOpenGL
-    PATHS
-    ${QT_INCLUDE_DIR}/QtOpenGL
-    ${QT_LIBRARY_DIR}/QtOpenGL.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTSQL_INCLUDE_DIR
-  FIND_PATH(QT_QTSQL_INCLUDE_DIR QtSql
-    PATHS
-    ${QT_INCLUDE_DIR}/QtSql
-    ${QT_LIBRARY_DIR}/QtSql.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTXML_INCLUDE_DIR
-  FIND_PATH(QT_QTXML_INCLUDE_DIR QtXml
-    PATHS
-    ${QT_INCLUDE_DIR}/QtXml
-    ${QT_LIBRARY_DIR}/QtXml.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTASSISTANT_INCLUDE_DIR
-  FIND_PATH(QT_QTASSISTANT_INCLUDE_DIR QtAssistant
-    PATHS
-    ${QT_INCLUDE_DIR}/QtAssistant
-    ${QT_LIBRARY_DIR}/QtAssistant.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTDESIGNER_INCLUDE_DIR
-  FIND_PATH(QT_QTDESIGNER_INCLUDE_DIR QDesignerComponents
-    PATHS
-    ${QT_INCLUDE_DIR}/QtDesigner
-    ${QT_LIBRARY_DIR}/QtDesigner.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTDESIGNERCOMPONENTS_INCLUDE_DIR
-  FIND_PATH(QT_QTDESIGNERCOMPONENTS_INCLUDE_DIR QDesignerComponents
-    PATHS
-    ${QT_INCLUDE_DIR}/QtDesigner
-    ${QT_LIBRARY_DIR}/QtDesigner.framework/Headers
-    NO_DEFAULT_PATH
-    )
-
-  # Set QT_QTDBUS_INCLUDE_DIR
-  FIND_PATH(QT_QTDBUS_INCLUDE_DIR QtDBus
-    PATHS
-    ${QT_INCLUDE_DIR}/QtDBus
-    ${QT_LIBRARY_DIR}/QtDBus.framework/Headers
-    NO_DEFAULT_PATH
-    )
   
-  # Set QT_QTASSISTANTCLIENT_INCLUDE_DIR
-  FIND_PATH(QT_QTASSISTANTCLIENT_INCLUDE_DIR QAssistantClient
-    PATHS
-    ${QT_INCLUDE_DIR}/QtAssistant
-    ${QT_LIBRARY_DIR}/QtAssistant.framework/Headers
-    NO_DEFAULT_PATH
-    )
-  
-  # Set QT_QTHELP_INCLUDE_DIR
-  FIND_PATH(QT_QTHELP_INCLUDE_DIR QtHelp
-    PATHS
-    ${QT_INCLUDE_DIR}/QtHelp
-    ${QT_LIBRARY_DIR}/QtHelp.framework/Headers
-    NO_DEFAULT_PATH
-    )
-  
-  # Set QT_QTWEBKIT_INCLUDE_DIR
-  FIND_PATH(QT_QTWEBKIT_INCLUDE_DIR QtWebKit
-    PATHS
-    ${QT_INCLUDE_DIR}/QtWebKit
-    ${QT_LIBRARY_DIR}/QtWebKit.framework/Headers
-    NO_DEFAULT_PATH
-    )
-  
-  # Set QT_QTXMLPATTERNS_INCLUDE_DIR
-  FIND_PATH(QT_QTXMLPATTERNS_INCLUDE_DIR QtXmlPatterns
-    PATHS
-    ${QT_INCLUDE_DIR}/QtXmlPatterns
-    ${QT_LIBRARY_DIR}/QtXmlPatterns.framework/Headers
-    NO_DEFAULT_PATH
-    )
-  
-  # Set QT_PHONON_INCLUDE_DIR
-  FIND_PATH(QT_PHONON_INCLUDE_DIR phonon
-    PATHS
-    ${QT_INCLUDE_DIR}/phonon
-    ${QT_LIBRARY_DIR}/phonon.framework/Headers
-    NO_DEFAULT_PATH
-    )
+  # find the libraries
+  FOREACH(QT_MODULE ${QT_MODULES})
+    STRING(TOUPPER ${QT_MODULE} _upper_qt_module)
+    FIND_LIBRARY(QT_${_upper_qt_module}_LIBRARY_RELEASE 
+                 NAMES ${QT_MODULE} ${QT_MODULE}4
+                 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH
+        )
+    FIND_LIBRARY(QT_${_upper_qt_module}_LIBRARY_DEBUG 
+                 NAMES ${QT_MODULE}_debug ${QT_MODULE}d ${QT_MODULE}d4
+                 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH
+        )
+  ENDFOREACH(QT_MODULE)
 
-  # Make variables changeble to the advanced user
-  MARK_AS_ADVANCED( QT_LIBRARY_DIR QT_INCLUDE_DIR QT_QT_INCLUDE_DIR QT_DOC_DIR QT_MKSPECS_DIR QT_PLUGINS_DIR)
-
-  # Set QT_INCLUDES
-  SET( QT_INCLUDES ${QT_QT_INCLUDE_DIR} ${QT_MKSPECS_DIR}/default ${QT_INCLUDE_DIR} )
-
-  # Set QT_QTCORE_LIBRARY by searching for a lib with "QtCore."  as part of the filename
-  FIND_LIBRARY(QT_QTCORE_LIBRARY_RELEASE NAMES QtCore QtCore4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH )
-  FIND_LIBRARY(QT_QTCORE_LIBRARY_DEBUG NAMES QtCore_debug QtCored QtCored4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QT3SUPPORT_LIBRARY
-  FIND_LIBRARY(QT_QT3SUPPORT_LIBRARY_RELEASE NAMES Qt3Support Qt3Support4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QT3SUPPORT_LIBRARY_DEBUG   NAMES Qt3Support_debug Qt3Supportd Qt3Supportd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QTGUI_LIBRARY
-  FIND_LIBRARY(QT_QTGUI_LIBRARY_RELEASE NAMES QtGui QtGui4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTGUI_LIBRARY_DEBUG   NAMES QtGui_debug QtGuid QtGuid4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QTMOTIF_LIBRARY
-  IF(Q_WS_X11)
-    FIND_LIBRARY(QT_QTMOTIF_LIBRARY_RELEASE NAMES QtMotif PATHS ${QT_LIBRARY_DIR}       NO_DEFAULT_PATH)
-    FIND_LIBRARY(QT_QTMOTIF_LIBRARY_DEBUG   NAMES QtMotif_debug PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-  ENDIF(Q_WS_X11)
-
-  # Set QT_QTNETWORK_LIBRARY
-  FIND_LIBRARY(QT_QTNETWORK_LIBRARY_RELEASE NAMES QtNetwork QtNetwork4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTNETWORK_LIBRARY_DEBUG   NAMES QtNetwork_debug QtNetworkd QtNetworkd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QTNSPLUGIN_LIBRARY
-  FIND_LIBRARY(QT_QTNSPLUGIN_LIBRARY_RELEASE NAMES QtNsPlugin PATHS ${QT_LIBRARY_DIR}       NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTNSPLUGIN_LIBRARY_DEBUG   NAMES QtNsPlugin_debug PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QTOPENGL_LIBRARY
-  FIND_LIBRARY(QT_QTOPENGL_LIBRARY_RELEASE NAMES QtOpenGL QtOpenGL4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTOPENGL_LIBRARY_DEBUG   NAMES QtOpenGL_debug QtOpenGLd QtOpenGLd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QTSQL_LIBRARY
-  FIND_LIBRARY(QT_QTSQL_LIBRARY_RELEASE NAMES QtSql QtSql4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTSQL_LIBRARY_DEBUG   NAMES QtSql_debug QtSqld QtSqld4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QTXML_LIBRARY
-  FIND_LIBRARY(QT_QTXML_LIBRARY_RELEASE NAMES QtXml QtXml4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTXML_LIBRARY_DEBUG   NAMES QtXml_debug QtXmld QtXmld4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QTSVG_LIBRARY
-  FIND_LIBRARY(QT_QTSVG_LIBRARY_RELEASE NAMES QtSvg QtSvg4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTSVG_LIBRARY_DEBUG   NAMES QtSvg_debug QtSvgd QtSvgd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QTUITOOLS_LIBRARY
-  FIND_LIBRARY(QT_QTUITOOLS_LIBRARY_RELEASE NAMES QtUiTools QtUiTools4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTUITOOLS_LIBRARY_DEBUG   NAMES QtUiTools_debug QtUiToolsd QtUiToolsd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
   # QtUiTools not with other frameworks with binary installation (in /usr/lib)
   IF(Q_WS_MAC AND QT_QTCORE_LIBRARY_RELEASE AND NOT QT_QTUITOOLS_LIBRARY_RELEASE)
     FIND_LIBRARY(QT_QTUITOOLS_LIBRARY_RELEASE NAMES QtUiTools PATHS ${QT_LIBRARY_DIR})
   ENDIF(Q_WS_MAC AND QT_QTCORE_LIBRARY_RELEASE AND NOT QT_QTUITOOLS_LIBRARY_RELEASE)
-
-  # Set QT_QTTEST_LIBRARY
-  FIND_LIBRARY(QT_QTTEST_LIBRARY_RELEASE NAMES QtTest QtTest4 PATHS ${QT_LIBRARY_DIR}                      NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTTEST_LIBRARY_DEBUG   NAMES QtTest_debug QtTestd QtTestd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QTDBUS_LIBRARY
-  # This was introduced with Qt 4.2, where also the naming scheme for debug libs was changed
-  # So does any of the debug lib names listed here actually exist ?
-  FIND_LIBRARY(QT_QTDBUS_LIBRARY_RELEASE NAMES QtDBus QtDBus4 PATHS ${QT_LIBRARY_DIR}                       NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTDBUS_LIBRARY_DEBUG   NAMES QtDBus_debug QtDBusd QtDBusd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QTSCRIPT_LIBRARY
-  FIND_LIBRARY(QT_QTSCRIPT_LIBRARY_RELEASE NAMES QtScript QtScript4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTSCRIPT_LIBRARY_DEBUG   NAMES QtScript_debug QtScriptd QtScriptd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
 
   IF( NOT QT_QTCORE_LIBRARY_DEBUG AND NOT QT_QTCORE_LIBRARY_RELEASE )
     
@@ -788,14 +669,6 @@ IF (QT4_QMAKE_FOUND)
       MESSAGE( FATAL_ERROR "Could NOT find QtCore. Check ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log for more details.")
     ENDIF(Qt4_FIND_REQUIRED)
   ENDIF( NOT QT_QTCORE_LIBRARY_DEBUG AND NOT QT_QTCORE_LIBRARY_RELEASE )
-
-  # Set QT_QTASSISTANT_LIBRARY
-  FIND_LIBRARY(QT_QTASSISTANT_LIBRARY_RELEASE NAMES QtAssistantClient QtAssistantClient4 QtAssistant QtAssistant4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTASSISTANT_LIBRARY_DEBUG   NAMES QtAssistantClientd QtAssistantClientd4 QtAssistantClient_debug QtAssistant_debug QtAssistantd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QTDESIGNER_LIBRARY
-  FIND_LIBRARY(QT_QTDESIGNER_LIBRARY_RELEASE NAMES QtDesigner QtDesigner4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTDESIGNER_LIBRARY_DEBUG   NAMES QtDesigner_debug QtDesignerd QtDesignerd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
 
   # Set QT_QTDESIGNERCOMPONENTS_LIBRARY
   FIND_LIBRARY(QT_QTDESIGNERCOMPONENTS_LIBRARY_RELEASE NAMES QtDesignerComponents QtDesignerComponents4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
@@ -812,28 +685,18 @@ IF (QT4_QMAKE_FOUND)
   # Set QT_QTASSISTANTCLIENT_LIBRARY
   FIND_LIBRARY(QT_QTASSISTANTCLIENT_LIBRARY_RELEASE NAMES QtAssistantClient QtAssistantClient4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
   FIND_LIBRARY(QT_QTASSISTANTCLIENT_LIBRARY_DEBUG   NAMES QtAssistantClient_debug QtAssistantClientd QtAssistantClientd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
+  
+  # Set QT_QTASSISTANT_LIBRARY
+  FIND_LIBRARY(QT_QTASSISTANT_LIBRARY_RELEASE NAMES QtAssistantClient QtAssistantClient4 QtAssistant QtAssistant4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
+  FIND_LIBRARY(QT_QTASSISTANT_LIBRARY_DEBUG   NAMES QtAssistantClient_debug QtAssistantClientd QtAssistantClientd4 QtAssistant_debug QtAssistantd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
 
   # Set QT_QTHELP_LIBRARY
-  FIND_LIBRARY(QT_QTHELP_LIBRARY_RELEASE NAMES QtHelp QtHelp4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTHELP_LIBRARY_DEBUG   NAMES QtHelp_debug QtHelpd QtHelpd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
   FIND_LIBRARY(QT_QTCLUCENE_LIBRARY_RELEASE NAMES QtCLucene QtCLucene4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
   FIND_LIBRARY(QT_QTCLUCENE_LIBRARY_DEBUG   NAMES QtCLucene_debug QtCLucened QtCLucened4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
   # QtCLucene not with other frameworks with binary installation (in /usr/lib)
   IF(Q_WS_MAC AND QT_QTCORE_LIBRARY_RELEASE AND NOT QT_QTCLUCENE_LIBRARY_RELEASE)
     FIND_LIBRARY(QT_QTCLUCENE_LIBRARY_RELEASE NAMES QtCLucene PATHS ${QT_LIBRARY_DIR})
   ENDIF(Q_WS_MAC AND QT_QTCORE_LIBRARY_RELEASE AND NOT QT_QTCLUCENE_LIBRARY_RELEASE)
-
-  # Set QT_QTWEBKIT_LIBRARY
-  FIND_LIBRARY(QT_QTWEBKIT_LIBRARY_RELEASE NAMES QtWebKit QtWebKit4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTWEBKIT_LIBRARY_DEBUG   NAMES QtWebKit_debug QtWebKitd QtWebKitd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-
-  # Set QT_QTXMLPATTERNS_LIBRARY
-  FIND_LIBRARY(QT_QTXMLPATTERNS_LIBRARY_RELEASE NAMES QtXmlPatterns QtXmlPatterns4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_QTXMLPATTERNS_LIBRARY_DEBUG   NAMES QtXmlPatterns_debug QtXmlPatternsd QtXmlPatternsd4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
-  
-  # Set QT_PHONON_LIBRARY
-  FIND_LIBRARY(QT_PHONON_LIBRARY_RELEASE NAMES phonon phonon4 PATHS ${QT_LIBRARY_DIR}        NO_DEFAULT_PATH)
-  FIND_LIBRARY(QT_PHONON_LIBRARY_DEBUG   NAMES phonon_debug phonond phonond4 PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH)
 
   ############################################
   #
@@ -871,7 +734,11 @@ IF (QT4_QMAKE_FOUND)
         SET(QT_${basename}_LIBRARIES       optimized ${QT_${basename}_LIBRARY_RELEASE} debug ${QT_${basename}_LIBRARY_DEBUG})
       ENDIF (QT_${basename}_LIBRARY_DEBUG AND QT_${basename}_LIBRARY_RELEASE)
 
-      SET(QT_${basename}_LIBRARY ${QT_${basename}_LIBRARY} CACHE FILEPATH "The Qt ${basename} library")
+      IF(QT_QMAKE_CHANGED)
+        SET(QT_${basename}_LIBRARY ${QT_${basename}_LIBRARY} CACHE FILEPATH "The Qt ${basename} library" FORCE)
+      ELSE(QT_QMAKE_CHANGED)
+        SET(QT_${basename}_LIBRARY ${QT_${basename}_LIBRARY} CACHE FILEPATH "The Qt ${basename} library")
+      ENDIF(QT_QMAKE_CHANGED)
 
       IF (QT_${basename}_LIBRARY)
         SET(QT_${basename}_FOUND 1)
@@ -913,13 +780,13 @@ IF (QT4_QMAKE_FOUND)
   _QT4_ADJUST_LIB_VARS(QTXMLPATTERNS)
   _QT4_ADJUST_LIB_VARS(PHONON)
   _QT4_ADJUST_LIB_VARS(QTCLUCENE)
+  _QT4_ADJUST_LIB_VARS(QTMOTIF)
 
   # platform dependent libraries
-  IF(Q_WS_X11)
-    _QT4_ADJUST_LIB_VARS(QTMOTIF)
-  ENDIF(Q_WS_X11)
   IF(WIN32)
     _QT4_ADJUST_LIB_VARS(QTMAIN)
+    _QT4_ADJUST_LIB_VARS(QAXSERVER)
+    _QT4_ADJUST_LIB_VARS(QAXCONTAINER)
   ENDIF(WIN32)
   
 
@@ -942,10 +809,26 @@ IF (QT4_QMAKE_FOUND)
   FILE(TO_CMAKE_PATH 
     "${QT_UIC_EXECUTABLE_INTERNAL}" QT_UIC_EXECUTABLE_INTERNAL)
 
-  SET(QT_MOC_EXECUTABLE 
-    ${QT_MOC_EXECUTABLE_INTERNAL} CACHE FILEPATH "The moc executable")
-  SET(QT_UIC_EXECUTABLE 
-    ${QT_UIC_EXECUTABLE_INTERNAL} CACHE FILEPATH "The uic executable")
+  IF(QT_QMAKE_CHANGED)
+    SET(QT_MOC_EXECUTABLE 
+      ${QT_MOC_EXECUTABLE_INTERNAL} CACHE FILEPATH "The moc executable" FORCE)
+    SET(QT_UIC_EXECUTABLE 
+      ${QT_UIC_EXECUTABLE_INTERNAL} CACHE FILEPATH "The uic executable" FORCE)
+  ELSE(QT_QMAKE_CHANGED)
+    SET(QT_MOC_EXECUTABLE 
+      ${QT_MOC_EXECUTABLE_INTERNAL} CACHE FILEPATH "The moc executable")
+    SET(QT_UIC_EXECUTABLE 
+      ${QT_UIC_EXECUTABLE_INTERNAL} CACHE FILEPATH "The uic executable")
+  ENDIF(QT_QMAKE_CHANGED)
+
+  IF(QT_QMAKE_CHANGED)
+    SET(QT_UIC3_EXECUTABLE NOTFOUND)
+    SET(QT_RCC_EXECUTABLE NOTFOUND)
+    SET(QT_DBUSCPP2XML_EXECUTABLE NOTFOUND)
+    SET(QT_DBUSXML2CPP_EXECUTABLE NOTFOUND)
+    SET(QT_LUPDATE_EXECUTABLE NOTFOUND)
+    SET(QT_LRELEASE_EXECUTABLE NOTFOUND)
+  ENDIF(QT_QMAKE_CHANGED)
 
   FIND_PROGRAM(QT_UIC3_EXECUTABLE
     NAMES uic3
@@ -1027,12 +910,14 @@ IF (QT4_QMAKE_FOUND)
     SET(_checkinfile ${CMAKE_CURRENT_SOURCE_DIR})
     IF(_infileLength GREATER _binlength)
       STRING(SUBSTRING "${infile}" 0 ${_binlength} _checkinfile)
-    ENDIF(_infileLength GREATER _binlength)
-    IF(CMAKE_CURRENT_BINARY_DIR MATCHES "${_checkinfile}")
-      FILE(RELATIVE_PATH rel ${CMAKE_CURRENT_BINARY_DIR} ${infile})
-    ELSE(CMAKE_CURRENT_BINARY_DIR MATCHES "${_checkinfile}")
+      IF(_checkinfile STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
+        FILE(RELATIVE_PATH rel ${CMAKE_CURRENT_BINARY_DIR} ${infile})
+      ELSE(_checkinfile STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
+        FILE(RELATIVE_PATH rel ${CMAKE_CURRENT_SOURCE_DIR} ${infile})
+      ENDIF(_checkinfile STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
+    ELSE(_infileLength GREATER _binlength)
       FILE(RELATIVE_PATH rel ${CMAKE_CURRENT_SOURCE_DIR} ${infile})
-    ENDIF(CMAKE_CURRENT_BINARY_DIR MATCHES "${_checkinfile}")
+    ENDIF(_infileLength GREATER _binlength)
     SET(_outfile "${CMAKE_CURRENT_BINARY_DIR}/${rel}")
     STRING(REPLACE ".." "__" _outfile ${_outfile})
     GET_FILENAME_COMPONENT(outpath ${_outfile} PATH)
@@ -1277,16 +1162,16 @@ IF (QT4_QMAKE_FOUND)
 
             GET_FILENAME_COMPONENT(_abs_PATH ${_abs_FILE} PATH)
 
-            STRING(REGEX MATCHALL "#include +([^ ]+\\.moc[\">])|(\"moc_+[^ ]+\\.cpp[\">])" _match "${_contents}")
+            STRING(REGEX MATCHALL "# *include +[^ ]+\\.moc[\">]" _match "${_contents}")
             IF(_match)
                FOREACH (_current_MOC_INC ${_match})
-                  STRING(REGEX MATCH "([^ <\"]+\\.moc)|([^ <\"]+\\.cpp)" _current_MOC "${_current_MOC_INC}")
+                  STRING(REGEX MATCH "[^ <\"]+\\.moc" _current_MOC "${_current_MOC_INC}")
                   GET_FILENAME_COMPONENT(_basename ${_current_MOC} NAME_WE)
-                  STRING(REPLACE "moc_" "" _basename ${_basename})
-                  SET(_header ${_abs_PATH}/${_basename}.h)
-                  IF(NOT EXISTS ${_header})
-                     SET(_header ${_abs_PATH}/${_basename}.cpp)
-                  ENDIF(NOT EXISTS ${_header})
+                  IF(EXISTS ${_abs_PATH}/${_basename}.hpp)
+                    SET(_header ${_abs_PATH}/${_basename}.hpp)
+                  ELSE(EXISTS ${_abs_PATH}/${_basename}.hpp)
+                    SET(_header ${_abs_PATH}/${_basename}.h)
+                  ENDIF(EXISTS ${_abs_PATH}/${_basename}.hpp)
                   SET(_moc    ${CMAKE_CURRENT_BINARY_DIR}/${_current_MOC})
                   QT4_CREATE_MOC_COMMAND(${_header} ${_moc} "${_moc_INCS}" "")
                   MACRO_ADD_FILE_DEPENDENCIES(${_abs_FILE} ${_moc})
@@ -1539,8 +1424,8 @@ IF (QT4_QMAKE_FOUND)
     ENDIF(OPENSSL_LIBRARIES)
   ENDIF(QT_QCONFIG MATCHES "openssl" AND NOT Q_WS_WIN)
   
-  ## qdbus
-  IF(QT_QCONFIG MATCHES "qdbus")
+  ## dbus
+  IF(QT_QCONFIG MATCHES "dbus")
 
     # if the dbus library isn't found, we'll assume its not required to build
     # shared Qt on Linux doesn't require it
@@ -1566,7 +1451,7 @@ IF (QT4_QMAKE_FOUND)
       MARK_AS_ADVANCED(QT_DBUS_LIBRARY)
     ENDIF(NOT QT_DBUS_LIBRARY)
 
-  ENDIF(QT_QCONFIG MATCHES "qdbus")
+  ENDIF(QT_QCONFIG MATCHES "dbus")
   
   ## glib
   IF(QT_QCONFIG MATCHES "glib")
@@ -1590,15 +1475,16 @@ IF (QT4_QMAKE_FOUND)
 
       FIND_LIBRARY(QT_GLIB_LIBRARY NAMES glib-2.0 PATHS ${_glib_query_output} )
       FIND_LIBRARY(QT_GTHREAD_LIBRARY NAMES gthread-2.0 PATHS ${_glib_query_output} )
-
-      IF(QT_GLIB_LIBRARY AND QT_GTHREAD_LIBRARY)
-        SET(QT_QTCORE_LIB_DEPENDENCIES ${QT_QTCORE_LIB_DEPENDENCIES}
-            ${QT_GTHREAD_LIBRARY} ${QT_GLIB_LIBRARY})
-      ENDIF(QT_GLIB_LIBRARY AND QT_GTHREAD_LIBRARY)
-
+    
       MARK_AS_ADVANCED(QT_GLIB_LIBRARY)
       MARK_AS_ADVANCED(QT_GTHREAD_LIBRARY)
     ENDIF(NOT QT_GLIB_LIBRARY OR NOT QT_GTHREAD_LIBRARY)
+
+    IF(QT_GLIB_LIBRARY AND QT_GTHREAD_LIBRARY)
+      SET(QT_QTCORE_LIB_DEPENDENCIES ${QT_QTCORE_LIB_DEPENDENCIES}
+          ${QT_GTHREAD_LIBRARY} ${QT_GLIB_LIBRARY})
+    ENDIF(QT_GLIB_LIBRARY AND QT_GTHREAD_LIBRARY)
+
   ENDIF(QT_QCONFIG MATCHES "glib")
   
   ## clock-monotonic, just see if we need to link with rt
