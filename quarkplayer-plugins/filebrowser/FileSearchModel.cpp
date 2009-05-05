@@ -232,6 +232,10 @@ Qt::ItemFlags FileSearchModel::flags(const QModelIndex & index) const {
 }
 
 bool FileSearchModel::hasChildren(const QModelIndex & parent) const {
+	if (!parent.isValid()) {
+		return false;
+	}
+
 	bool tmp = false;
 	FileSearchItem * item = static_cast<FileSearchItem *>(parent.internalPointer());
 	if (!item) {
@@ -364,6 +368,7 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 	//It's better to call only once thus INT_MAX instead of 1 for example
 	//_findFiles->setFilesFoundLimit(INT_MAX);
 	//Now with Qt 4.5.1, speed is really good :-)
+	//_findFiles->setFilesFoundLimit(1);
 	_findFiles->setFilesFoundLimit(filesFoundLimit);
 
 	_findFiles->setPattern(pattern);
