@@ -1,0 +1,16 @@
+Index: FindQt4.cmake
+===================================================================
+--- FindQt4.cmake	(revision 815)
++++ FindQt4.cmake	(working copy)
+@@ -1210,7 +1210,10 @@
+           # long for some systems
+           GET_FILENAME_COMPONENT(_ts_name ${_ts_file} NAME_WE)
+           SET(_ts_pro ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${_ts_name}_lupdate.pro)
+-          STRING(REPLACE ";" " " _pro_srcs "${_my_sources}")
++          FOREACH(_my_source ${_my_sources})
++            LIST(APPEND _pro_srcs \"${_my_source}\")
++          ENDFOREACH(_my_source)
++          STRING(REPLACE ";" " " _pro_srcs "${_pro_srcs}")
+           FILE(WRITE ${_ts_pro} "SOURCES = ${_pro_srcs}")
+         ENDIF(_my_sources)
+         ADD_CUSTOM_COMMAND(OUTPUT ${_ts_file}
