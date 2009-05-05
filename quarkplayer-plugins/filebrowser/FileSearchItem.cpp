@@ -27,6 +27,8 @@ FileSearchItem::FileSearchItem(const QString & filename, FileSearchItem * parent
 	_mediaInfo = MediaInfo(filename);
 	_parentItem = parent;
 	_populatedChildren = false;
+	_isDir = -1;
+	_firstFileItemAdded = -1;
 }
 
 FileSearchItem::~FileSearchItem() {
@@ -42,24 +44,22 @@ bool FileSearchItem::populatedChildren() const {
 }
 
 void FileSearchItem::appendChild(FileSearchItem * newItem) {
-	static int firstFileItemAdded = -1;
-
 	if (_childItems.isEmpty()) {
 		_childItems.append(newItem);
 	} else {
-		const FileSearchItem * lastItem = _childItems.last();
+		FileSearchItem * lastItem = _childItems.last();
 
 		if (!lastItem->isDir() && newItem->isDir()) {
 			//Insert before the first item of type "file"
-			_childItems.insert(firstFileItemAdded, newItem);
+			_childItems.insert(_firstFileItemAdded, newItem);
 		} else {
 			//Don't change the order
 			_childItems.append(newItem);
 		}
 
-		if (!newItem->isDir() && firstFileItemAdded != -1) {
+		if (!newItem->isDir() && _firstFileItemAdded == -1) {
 			//Saves the position of the first item of type "file"
-			firstFileItemAdded = _childItems.count() - 1;
+			_firstFileItemAdded = _childItems.count() - 1;
 		}
 	}
 }
@@ -96,15 +96,11 @@ void FileSearchItem::setMediaInfo(const MediaInfo & mediaInfo) {
 	_mediaInfo = mediaInfo;
 }
 
-FileSearchItem::Type FileSearchItem::type() const {
-	bool isDir = TkFile::isDir(_mediaInfo.fileName());
-	if (isDir) {
-		return Dir;
-	} else {
-		return File;
+bool FileSearchItem::isDir() {
+	if (_isDir == -1) {
+		//Avoid some computations
+		//since _isDir is an attribute of this class
+		_isDir = TkFile::isDir(_mediaInfo.fileName());
 	}
-}
-
-bool FileSearchItem::isDir() const {
-	return type() == Dir;
+	return _isDir;
 }

@@ -52,15 +52,7 @@ public:
 	const MediaInfo & mediaInfo() const;
 	void setMediaInfo(const MediaInfo & mediaInfo);
 
-	enum Type {
-		Dir,
-		File
-	};
-
-	Type type() const;
-
-	/** Helper function, equivalent to type() == Dir */
-	bool isDir() const;
+	bool isDir();
 
 private:
 
@@ -74,6 +66,10 @@ private:
 	FileSearchItem * _parentItem;
 
 	bool _populatedChildren;
+
+	int _isDir;
+
+	int _firstFileItemAdded;
 };
 
 #endif	//FILESEARCHITEM_H
