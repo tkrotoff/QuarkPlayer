@@ -37,8 +37,7 @@
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
-//#include "qfilesystemmodel.h"
-//#include <QtGui/QtGui>
+#include <modeltest/modeltest.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QDockWidget>
@@ -152,6 +151,7 @@ void FileBrowserWidget::populateActionCollection() {
 
 void FileBrowserWidget::loadDirModel() {
 	_fileSearchModel = new FileSearchModel(this);
+	//new ModelTest(_fileSearchModel, this);
 
 	//Shows only tooltips for files that have a "multimedia" extension (i.e .mp3, .avi, .flac...)
 	QStringList extensions;

@@ -28,7 +28,6 @@
 
 #include <QtGui/QtGui>
 
-#include <QtCore/QtConcurrentRun>
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 
@@ -40,8 +39,6 @@ const int FileSearchModel::COLUMN_FIRST = COLUMN_FILENAME;
 const int FileSearchModel::COLUMN_LAST = COLUMN_FILENAME;
 
 static const int COLUMN_COUNT = 1;
-
-QHash<QString, QIcon> FileSearchModel::_iconsCache;
 
 FileSearchModel::FileSearchModel(QObject * parent)
 	: QAbstractItemModel(parent) {
@@ -68,6 +65,20 @@ void FileSearchModel::setSearchExtensions(const QStringList & extensions) {
 
 void FileSearchModel::setToolTipExtensions(const QStringList & extensions) {
 	_toolTipExtensions = extensions;
+}
+
+FileSearchItem * FileSearchModel::item(const QModelIndex & index) const {
+	FileSearchItem * indexItem = static_cast<FileSearchItem *>(index.internalPointer());
+	Q_ASSERT(indexItem);
+	return indexItem;
+}
+
+QModelIndex FileSearchModel::index(const FileSearchItem * item) const {
+	Q_ASSERT(item);
+
+	FileSearchItem * parentItem = item->parent();
+	int row = parentItem->childRow(item->fileName());
+	return createIndex(row, COLUMN_FILENAME, const_cast<FileSearchItem *>(item));
 }
 
 int FileSearchModel::columnCount(const QModelIndex & parent) const {
@@ -99,12 +110,7 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	int row = index.row();
 	int column = index.column();
 
-	FileSearchItem * item = static_cast<FileSearchItem *>(index.internalPointer());
-	if (!item) {
-		qWarning() << __FUNCTION__ << "Error: item is NULL";
-		return tmp;
-	}
-	const MediaInfo & mediaInfo(item->mediaInfo());
+	const MediaInfo & mediaInfo(item(index)->mediaInfo());
 	QString filename(mediaInfo.fileName());
 
 	switch (role) {
@@ -120,6 +126,15 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	case Qt::DecorationRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
+			//Icon provider: gives us the icons matching a file extension
+			static QFileIconProvider iconProvider;
+
+			//Saves the icons inside a cache system given a filename extension (mp3, ogg, avi...)
+			//This is for optimization purpose
+			//Key = filename extension or empty if a directory
+			//Value = icon matching the extension
+			static QHash<QString, QIcon> iconsCache;
+
 			//This is too slow:
 			//re-creates an icon for each file
 			//We want a cache system -> way faster!
@@ -127,10 +142,10 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 
 			QFileInfo fileInfo(filename);
 			QString ext(fileInfo.suffix());
-			if (!_iconsCache.contains(ext)) {
-				_iconsCache[ext] = _iconProvider.icon(fileInfo);
+			if (!iconsCache.contains(ext)) {
+				iconsCache[ext] = iconProvider.icon(fileInfo);
 			}
-			tmp = _iconsCache.value(ext);
+			tmp = iconsCache.value(ext);
 			break;
 		}
 		break;
@@ -182,7 +197,7 @@ QModelIndex FileSearchModel::index(int row, int column, const QModelIndex & pare
 	if (!parent.isValid()) {
 		parentItem = _rootItem;
 	} else {
-		parentItem = static_cast<FileSearchItem *>(parent.internalPointer());
+		parentItem = item(parent);
 	}
 
 	FileSearchItem * childItem = parentItem->child(row);
@@ -198,7 +213,7 @@ QModelIndex FileSearchModel::parent(const QModelIndex & index) const {
 		return QModelIndex();
 	}
 
-	FileSearchItem * childItem = static_cast<FileSearchItem *>(index.internalPointer());
+	FileSearchItem * childItem = item(index);
 	FileSearchItem * parentItem = childItem->parent();
 
 	if (parentItem == _rootItem) {
@@ -213,7 +228,7 @@ int FileSearchModel::rowCount(const QModelIndex & parent) const {
 	if (!parent.isValid()) {
 		parentItem = _rootItem;
 	} else {
-		parentItem = static_cast<FileSearchItem *>(parent.internalPointer());
+		parentItem = item(parent);
 	}
 
 	int childCount = 0;
@@ -236,29 +251,20 @@ bool FileSearchModel::hasChildren(const QModelIndex & parent) const {
 		return false;
 	}
 
-	bool tmp = false;
-	FileSearchItem * item = static_cast<FileSearchItem *>(parent.internalPointer());
-	if (!item) {
-		qWarning() << __FUNCTION__ << "Error: item is NULL";
-	} else {
-		//Optimization: QFileInfo::isDir() is too slow, replaced by TkFile::isDir()
-		tmp = item->isDir();
-	}
-
-	return tmp;
+	//Optimization: QFileInfo::isDir() is too slow, replaced by TkFile::isDir()
+	return item(parent)->isDir();
 }
 
 bool FileSearchModel::canFetchMore(const QModelIndex & parent) const {
-	FileSearchItem * item = static_cast<FileSearchItem *>(parent.internalPointer());
-	if (item && hasChildren(parent)) {
-		return !(item->populatedChildren());
+	if (hasChildren(parent)) {
+		return !item(parent)->populatedChildren();
 	} else {
 		return false;
 	}
 }
 
 void FileSearchModel::fetchMore(const QModelIndex & parent) {
-	_currentParentItem = static_cast<FileSearchItem *>(parent.internalPointer());
+	_currentParentItem = item(parent);
 
 	//_currentParentQModelIndex is a hack because of beginInsertRows()
 	_currentParentQModelIndex = parent;
@@ -271,12 +277,7 @@ QMimeData * FileSearchModel::mimeData(const QModelIndexList & indexes) const {
 	QMimeData * mimeData = new QMimeData();
 	QStringList files;
 	foreach (QModelIndex index, indexes) {
-		FileSearchItem * item = static_cast<FileSearchItem *>(index.internalPointer());
-		if (!item) {
-			qWarning() << __FUNCTION__ << "Error: item is NULL";
-			continue;
-		}
-		const MediaInfo & mediaInfo(item->mediaInfo());
+		const MediaInfo & mediaInfo(item(index)->mediaInfo());
 		QString filename(mediaInfo.fileName());
 		if (!filename.isEmpty()) {
 			files << filename;
@@ -299,15 +300,7 @@ Qt::DropActions FileSearchModel::supportedDropActions() const {
 }
 
 QFileInfo FileSearchModel::fileInfo(const QModelIndex & index) const {
-	QFileInfo tmp;
-
-	FileSearchItem * item = static_cast<FileSearchItem *>(index.internalPointer());
-	if (!item) {
-		qWarning() << __FUNCTION__ << "Error: item is NULL";
-	} else {
-		tmp = QFileInfo(item->fileName());
-	}
-	return tmp;
+	return QFileInfo(item(index)->fileName());
 }
 
 void FileSearchModel::reset() {
@@ -349,6 +342,8 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 			this, SLOT(filesFound(const QStringList &)));
 		disconnect(_findFiles, SIGNAL(finished(int)),
 			this, SIGNAL(searchFinished(int)));
+		disconnect(_findFiles, SIGNAL(finished(int)),
+			this, SLOT(searchFinishedSlot(int)));
 	}
 
 	//Stops the previous search
@@ -379,6 +374,8 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 		SLOT(filesFound(const QStringList &)), Qt::QueuedConnection);
 	connect(_findFiles, SIGNAL(finished(int)),
 		SIGNAL(searchFinished(int)), Qt::QueuedConnection);
+	connect(_findFiles, SIGNAL(finished(int)),
+		SLOT(searchFinishedSlot(int)), Qt::QueuedConnection);
 	_findFiles->start();
 }
 
@@ -410,22 +407,44 @@ void FileSearchModel::updateMediaInfo() {
 	if (_mediaInfoFetcherIndex == QModelIndex() || !_mediaInfoFetcherIndex.isValid()) {
 		qCritical() << __FUNCTION__ << "Error: _mediaInfoFetcherIndex invalid";
 	} else {
-		FileSearchItem * item = static_cast<FileSearchItem *>(_mediaInfoFetcherIndex.internalPointer());
-		if (!item) {
-			qWarning() << __FUNCTION__ << "Error: item is NULL";
-			return;
-		}
+		FileSearchItem * searchItem = item(_mediaInfoFetcherIndex);
 
-		MediaInfo mediaInfo = item->mediaInfo();
+		MediaInfo mediaInfo = searchItem->mediaInfo();
 
 		if (mediaInfo.fileName() == _mediaInfoFetcher->mediaInfo().fileName() &&
 			!mediaInfo.fetched()) {
 
-			item->setMediaInfo(_mediaInfoFetcher->mediaInfo());
+			searchItem->setMediaInfo(_mediaInfoFetcher->mediaInfo());
 
 			//Update the index since the matching MediaSource has been modified
 			emit dataChanged(_mediaInfoFetcherIndex, _mediaInfoFetcherIndex);
 		}
 	}
 	_mediaInfoFetcherIndex = QModelIndex();
+}
+
+void FileSearchModel::searchFinishedSlot(int timeElapsed) {
+	/*if (_rootItem) {
+
+		emit layoutAboutToBeChanged();
+		QModelIndexList oldList = persistentIndexList();
+		QList<QPair<FileSearchItem *, int> > oldNodes;
+		for (int i = 0; i < oldList.count(); ++i) {
+			QPair<FileSearchItem *, int> pair(item(oldList.at(i)), oldList.at(i).column());
+			oldNodes.append(pair);
+		}
+
+		_rootItem->sortChildren();
+
+		QModelIndexList newList;
+		for (int i = 0; i < oldNodes.count(); ++i) {
+			QModelIndex idx = index(oldNodes.at(i).first);
+			idx = idx.sibling(idx.row(), oldNodes.at(i).second);
+			newList.append(idx);
+		}
+		qDebug() << __FUNCTION__ << oldList.size();
+		qDebug() << __FUNCTION__ << newList.size();
+		changePersistentIndexList(oldList, newList);
+		emit layoutChanged();
+	}*/
 }

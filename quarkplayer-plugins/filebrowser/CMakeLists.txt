@@ -31,6 +31,7 @@ target_link_libraries(filebrowser
 	filetypes
 	tkutil
 	mediainfowindow
+	modeltest
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )

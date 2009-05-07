@@ -131,7 +131,13 @@ private slots:
 
 	void updateMediaInfo();
 
+	void searchFinishedSlot(int timeElapsed);
+
 private:
+
+	FileSearchItem * item(const QModelIndex & index) const;
+
+	QModelIndex index(const FileSearchItem * item) const;
 
 	FindFiles * _findFiles;
 
@@ -152,20 +158,6 @@ private:
 	 * Pending index (row + column) for meta data/info to be resolved.
 	 */
 	mutable QModelIndex _mediaInfoFetcherIndex;
-
-	/** Icon provider: gives us the icons matching a file extension. */
-	QFileIconProvider _iconProvider;
-
-	/**
-	 * Saves the icons inside a cache system given a filename extension (mp3, ogg, avi...).
-	 *
-	 * This is for optimization purpose.
-	 * Used with QFileIconProvider.
-	 *
-	 * Key = filename extension or empty if a directory
-	 * Value = icon matching the extension
-	 */
-	static QHash<QString, QIcon> _iconsCache;
 
 	QStringList _searchExtensions;
 

@@ -44,24 +44,7 @@ bool FileSearchItem::populatedChildren() const {
 }
 
 void FileSearchItem::appendChild(FileSearchItem * newItem) {
-	if (_childItems.isEmpty()) {
-		_childItems.append(newItem);
-	} else {
-		FileSearchItem * lastItem = _childItems.last();
-
-		if (!lastItem->isDir() && newItem->isDir()) {
-			//Insert before the first item of type "file"
-			_childItems.insert(_firstFileItemAdded, newItem);
-		} else {
-			//Don't change the order
-			_childItems.append(newItem);
-		}
-
-		if (!newItem->isDir() && _firstFileItemAdded == -1) {
-			//Saves the position of the first item of type "file"
-			_firstFileItemAdded = _childItems.count() - 1;
-		}
-	}
+	_childItems.append(newItem);
 }
 
 FileSearchItem * FileSearchItem::child(int row) {
@@ -72,7 +55,7 @@ int FileSearchItem::childCount() const {
 	return _childItems.count();
 }
 
-FileSearchItem * FileSearchItem::parent() {
+FileSearchItem * FileSearchItem::parent() const {
 	return _parentItem;
 }
 
@@ -82,6 +65,18 @@ int FileSearchItem::row() const {
 	}
 
 	return 0;
+}
+
+int FileSearchItem::childRow(const QString & filename) const {
+	int row = 0;
+	foreach (FileSearchItem * item, _childItems) {
+		Q_ASSERT(item);
+		if (item->fileName() == filename) {
+			row++;
+			break;
+		}
+	}
+	return row;
 }
 
 QString FileSearchItem::fileName() const {
@@ -96,11 +91,34 @@ void FileSearchItem::setMediaInfo(const MediaInfo & mediaInfo) {
 	_mediaInfo = mediaInfo;
 }
 
-bool FileSearchItem::isDir() {
+bool FileSearchItem::isDir() const {
 	if (_isDir == -1) {
 		//Avoid some computations
 		//since _isDir is an attribute of this class
 		_isDir = TkFile::isDir(_mediaInfo.fileName());
 	}
 	return _isDir;
+}
+
+class FileSearchModelSorter {
+public:
+
+	bool operator()(const FileSearchItem * leftItem, const FileSearchItem * rightItem) const {
+		//Place directories before files
+		//FIXME Not under MacOS X ?
+		bool left = leftItem->isDir();
+		bool right = rightItem->isDir();
+		if (left ^ right) {
+			return left;
+		}
+		return false;
+	}
+
+private:
+
+};
+
+void FileSearchItem::sortChildren() {
+	FileSearchModelSorter modelSorter;
+	qStableSort(_childItems.begin(), _childItems.end(), modelSorter);
 }

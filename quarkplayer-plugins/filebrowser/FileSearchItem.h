@@ -44,7 +44,8 @@ public:
 	FileSearchItem * child(int row);
 	int childCount() const;
 	int row() const;
-	FileSearchItem * parent();
+	int childRow(const QString & filename) const;
+	FileSearchItem * parent() const;
 
 	/** Helper function, equivalent to mediaInfo().fileName() */
 	QString fileName() const;
@@ -52,7 +53,9 @@ public:
 	const MediaInfo & mediaInfo() const;
 	void setMediaInfo(const MediaInfo & mediaInfo);
 
-	bool isDir();
+	bool isDir() const;
+
+	void sortChildren();
 
 private:
 
@@ -67,7 +70,7 @@ private:
 
 	bool _populatedChildren;
 
-	int _isDir;
+	mutable int _isDir;
 
 	int _firstFileItemAdded;
 };

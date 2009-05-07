@@ -136,6 +136,7 @@ reduce_qt_include_dirs()
 
 # 3rdparty libraries with Qt dependency
 add_subdirectory(3rdparty/quazip)
+add_subdirectory(3rdparty/modeltest)
 ##
 
 
