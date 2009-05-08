@@ -251,8 +251,22 @@ bool FileSearchModel::hasChildren(const QModelIndex & parent) const {
 		return false;
 	}
 
-	//Optimization: QFileInfo::isDir() is too slow, replaced by TkFile::isDir()
-	return item(parent)->isDir();
+	bool tmp = false;
+	FileSearchItem * parentItem = item(parent);
+	if (parentItem) {
+		//Optimization: QFileInfo::isDir() is too slow, replaced by TkFile::isDir()
+		bool isDir = parentItem->isDir();
+		bool populated = parentItem->populatedChildren();
+		bool childCount = parentItem->childCount() > 0;
+		if (isDir && childCount) {
+			tmp = true;
+		}
+		if (isDir && !populated) {
+			tmp = true;
+		}
+	}
+
+	return tmp;
 }
 
 bool FileSearchModel::canFetchMore(const QModelIndex & parent) const {
