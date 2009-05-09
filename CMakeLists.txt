@@ -166,7 +166,7 @@ add_subdirectory(quarkplayer-app)
 ##
 
 # Tests (includes unit tests)
-#add_subdirectory(test)
+add_subdirectory(test)
 ##
 
 if (WIN32)

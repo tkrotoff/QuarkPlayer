@@ -19,6 +19,8 @@
 #ifndef PLAYLISTMODEL_H
 #define PLAYLISTMODEL_H
 
+#include <quarkplayer-plugins/playlist/playlist_export.h>
+
 #include <phonon/phononnamespace.h>
 
 #include <QtCore/QAbstractItemModel>
@@ -41,7 +43,7 @@ class MediaInfo;
  *
  * @author Tanguy Krotoff
  */
-class PlaylistModel : public QAbstractItemModel {
+class PLAYLIST_API PlaylistModel : public QAbstractItemModel {
 	Q_OBJECT
 public:
 

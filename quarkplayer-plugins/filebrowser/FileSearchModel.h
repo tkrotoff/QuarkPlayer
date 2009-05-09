@@ -19,6 +19,8 @@
 #ifndef FILESEARCHMODEL_H
 #define FILESEARCHMODEL_H
 
+#include <quarkplayer-plugins/filebrowser/filebrowser_export.h>
+
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QStringList>
 #include <QtCore/QEventLoop>
@@ -53,7 +55,7 @@ class QRegExp;
  * @see PlaylistModel
  * @author Tanguy Krotoff
  */
-class FileSearchModel : public QAbstractItemModel {
+class FILEBROWSER_API FileSearchModel : public QAbstractItemModel {
 	Q_OBJECT
 public:
 

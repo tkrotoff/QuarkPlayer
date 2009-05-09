@@ -1,5 +1,7 @@
 project(playlist)
 
+add_definitions(-DBUILD_PLAYLIST)
+
 set(playlist_SRCS
 	PlaylistWidget.cpp
 	PlaylistModel.cpp
@@ -16,7 +18,7 @@ qt4_wrap_cpp(playlist_SRCS
 	DragAndDropTreeView.h
 )
 
-add_library(playlist MODULE ${playlist_SRCS})
+add_library(playlist SHARED ${playlist_SRCS})
 
 target_link_libraries(playlist
 	quarkplayercore

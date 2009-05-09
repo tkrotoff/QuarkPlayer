@@ -1,7 +1,6 @@
 project(filebrowser)
 
-# Includes all wanted definitions for Qt
-include(${QT_USE_FILE})
+add_definitions(-DBUILD_FILEBROWSER)
 
 set(filebrowser_SRCS
 	FileBrowserWidget.cpp
@@ -24,7 +23,7 @@ qt4_wrap_ui(filebrowser_SRCS
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(filebrowser MODULE ${filebrowser_SRCS})
+add_library(filebrowser SHARED ${filebrowser_SRCS})
 
 target_link_libraries(filebrowser
 	quarkplayercore
@@ -39,4 +38,4 @@ target_link_libraries(filebrowser
 #Translations
 add_qt_translations(${filebrowser_SRCS})
 
-install(TARGETS filebrowser DESTINATION ${BIN_INSTALL_DIR}/plugins)
+install(TARGETS filebrowser RUNTIME DESTINATION ${BIN_INSTALL_DIR}/plugins)
