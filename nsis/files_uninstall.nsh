@@ -1,5 +1,6 @@
 Delete "$INSTDIR\icons\mimetypes\*.ico"
 RMDir "$INSTDIR\icons\mimetypes\"
+RMDir "$INSTDIR\icons\"
 
 Delete "$INSTDIR\imageformats\*.dll"
 RMDir "$INSTDIR\imageformats\"
