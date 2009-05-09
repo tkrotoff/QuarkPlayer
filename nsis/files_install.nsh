@@ -11,6 +11,7 @@ Delete "$INSTDIR\phonon_backend\*.dll"
 Delete "$INSTDIR\plugins\*.dll"
 Delete "$INSTDIR\styles\*.dll"
 Delete "$INSTDIR\translations\*.qm"
+Delete "$INSTDIR\icons\mimetypes\*.ico"
 
 
 SetOutPath "$INSTDIR"
@@ -58,6 +59,9 @@ ${If} ${COMPILER_NAME} == "MSVC90"
 		ExecWait '"$PLUGINSDIR\vcredist_x86.exe" /q:a /c:"msiexec /i vcredist.msi /quiet"'
 	${EndIf}
 ${EndIf}
+
+SetOutPath "$INSTDIR\icons\mimetypes\"
+File "${BUILD_DIR}\icons\mimetypes\*.ico"
 
 SetOutPath "$INSTDIR\imageformats\"
 File "${BUILD_DIR}\imageformats\*.dll"
