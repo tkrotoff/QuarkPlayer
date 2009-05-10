@@ -1,0 +1,2 @@
+?package(quarkplayer):needs="X11" section="Applications/Video"\
+  title="quarkplayer" command="/usr/bin/quarkplayer"

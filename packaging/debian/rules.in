@@ -1,0 +1,94 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+#
+# debian/rules file for QuarkPlayer
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir -P@DEB_BUILD_DIR@
+
+	# Add here commands to configure the package.
+	# Done by CMake
+	#$(MAKE) CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@ configure
+
+	touch configure-stamp
+
+build: build-stamp
+build-stamp: configure-stamp
+	dh_testdir -P@DEB_BUILD_DIR@
+
+	# Add here commands to compile the package.
+	$(MAKE) CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@
+	#docbook-to-man debian/quarkplayer.sgml > quarkplayer.1
+
+	touch $@
+
+clean:
+	dh_testdir -P@DEB_BUILD_DIR@
+	dh_testroot -P@DEB_BUILD_DIR@
+	rm -f build-stamp configure-stamp
+
+	# Add here commands to clean up after the build process.
+	# No clean since we are inside our source code directory
+	#$(MAKE) @CMAKE_BINARY_DIR@ clean
+
+	dh_clean -P@DEB_BUILD_DIR@
+
+install: build
+	dh_testdir -P@DEB_BUILD_DIR@
+	dh_testroot -P@DEB_BUILD_DIR@
+	dh_clean -k -P@DEB_BUILD_DIR@
+	dh_installdirs -P@DEB_BUILD_DIR@
+
+	# Add here commands to install the package.
+	$(MAKE) CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@ BUILD_DIR=@BUILD_DIR@ DESTDIR=@DEB_BUILD_DIR@ install
+
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir -P@DEB_BUILD_DIR@
+	dh_testroot -P@DEB_BUILD_DIR@
+	dh_installchangelogs -P@DEB_BUILD_DIR@
+	dh_installdocs -P@DEB_BUILD_DIR@
+	dh_installexamples -P@DEB_BUILD_DIR@
+#	dh_install -P@DEB_BUILD_DIR@
+	dh_installmenu -P@DEB_BUILD_DIR@
+#	dh_installdebconf -P@DEB_BUILD_DIR@
+#	dh_installlogrotate -P@DEB_BUILD_DIR@
+#	dh_installemacsen -P@DEB_BUILD_DIR@
+#	dh_installpam -P@DEB_BUILD_DIR@
+#	dh_installmime -P@DEB_BUILD_DIR@
+#	dh_python -P@DEB_BUILD_DIR@
+#	dh_installinit -P@DEB_BUILD_DIR@
+#	dh_installcron -P@DEB_BUILD_DIR@
+#	dh_installinfo -P@DEB_BUILD_DIR@
+	dh_installman -P@DEB_BUILD_DIR@
+	dh_link -P@DEB_BUILD_DIR@
+	dh_strip -P@DEB_BUILD_DIR@
+	dh_compress -P@DEB_BUILD_DIR@
+	dh_fixperms -P@DEB_BUILD_DIR@
+#	dh_perl -P@DEB_BUILD_DIR@
+#	dh_makeshlibs -P@DEB_BUILD_DIR@
+	dh_installdeb -P@DEB_BUILD_DIR@
+
+	# Takes a very long time!
+	dh_shlibdeps -P@DEB_BUILD_DIR@
+
+	dh_gencontrol -P@DEB_BUILD_DIR@
+	dh_md5sums -P@DEB_BUILD_DIR@
+	dh_builddeb -P@DEB_BUILD_DIR@ --destdir=@CMAKE_BINARY_DIR@ --filename=@QUARKPLAYER_PACKAGE_FILE@.deb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

@@ -1,0 +1,65 @@
+#
+# RPM spec file for QuarkPlayer
+#
+
+# Trick: _builddir links to the root source code directory
+# where the special Makefile is
+%define _builddir @CMAKE_SOURCE_DIR@
+
+# Output directory of the .rpm file
+%define _rpmdir @CMAKE_BINARY_DIR@
+
+# Define our own RPM filename so that we can add special informations to the name
+%define _rpmfilename @QUARKPLAYER_PACKAGE_FILE@.rpm
+
+Name:          quarkplayer
+License:       GPL
+Group:         Applications/Multimedia
+Summary:       @QUARKPLAYER_DESCRIPTION_SUMMARY@
+Version:       @QUARKPLAYER_VERSION@
+Release:       1
+URL:           @QUARKPLAYER_URL@
+BuildRoot:     %{_tmppath}/%{name}-%{version}-build
+
+# No source specified since we directly use _builddir
+#Source:        @QUARKPLAYER_SOURCE_PACKAGE_FILE@.tar.bz2
+
+# BuildRequires cannot work under non-RPM based distributions like Debian
+# Uncomment it under RPM based distributions
+#BuildRequires: libqt4-devel
+
+%description
+@QUARKPLAYER_DESCRIPTION@
+
+%prep
+# Extract the source and go into the root source directory
+# where the special Makefile is
+# This is a bit tricky: I don't want to download the source code,
+# to create a .tar.bz2 and then extract it: this is useless
+# Let's directly use the current source code directory
+# -D : do not delete the directory before unpacking sources
+# -T : do not perform default archive unpacking
+# -n : set the name of build directory
+%setup -D -T -n .
+
+%build
+# Build the source code
+# Done by CMake
+#make CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@ configure
+make CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@
+
+%install
+# Install all files into the BuildRoot
+make CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@ BUILD_DIR=@BUILD_DIR@ DESTDIR=%{buildroot} install
+
+%clean
+# Clean up the hard disc after build
+rm -rf %{buildroot}
+
+%files
+# Copy all the files that come with 'make install'
+%attr(-,root,root) /usr/*
+
+%changelog
+* Sun Jan 4 2009 Tanguy Krotoff <tkrotoff@gmail.com>
+  - First spec file
