@@ -169,18 +169,8 @@ add_subdirectory(quarkplayer-app)
 add_subdirectory(tests)
 ##
 
-if (WIN32)
-	#NSIS installer script
-	add_subdirectory(nsis)
-endif (WIN32)
+# Packaging (NSIS, RPM, Debian, src.tar.gz)
+add_subdirectory(packaging)
 
-if (LINUX)
-	#Debian installer script
-	add_subdirectory(debian)
-
-	#RPM installer script
-	add_subdirectory(rpm)
-endif (LINUX)
-
-#CPack instructions
+# CPack instructions
 include(CPackConfig.txt)
