@@ -1,0 +1,13 @@
+Index: qtlockedfile_win.cpp
+===================================================================
+--- qtlockedfile_win.cpp	(revision 836)
++++ qtlockedfile_win.cpp	(working copy)
+@@ -45,7 +45,7 @@
+ ****************************************************************************/
+ 
+ #include "qtlockedfile.h"
+-#include <qt_windows.h>
++#include <QtCore/qt_windows.h>
+ #include <QtCore/QFileInfo>
+ 
+ #define MUTEX_PREFIX "QtLockedFile mutex "
