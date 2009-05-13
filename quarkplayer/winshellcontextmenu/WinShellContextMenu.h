@@ -1,5 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
+ * Copyright (C) 2000-2008  Andre Burgaud <andre@burgaud.com>
  * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,9 +20,8 @@
 #ifndef QUARKPLAYERCONTEXTMENU_H
 #define QUARKPLAYERCONTEXTMENU_H
 
-//For the interfaces IContextMenu and IShellExtInit
+//IContextMenu and IShellExtInit
 #include <shlobj.h>
-
 
 /**
  * Context menu shell extension for QuarkPlayer.
@@ -29,10 +29,8 @@
  * DLL registration: "regsvr32 /s quarkplayercontextmenu.dll"
  * DLL unregistration: "regsvr32 /s /u quarkplayercontextmenu.dll"
  *
- * Source code taken from:
- * - Extension du Shell : menu contextuel, see http://www.cppfrance.com/codes/EXTENSION-SHELL-MENU-CONTEXTUEL-WIN32-API_48345.aspx
- * - Notepad++ Context Menu Component, see http://notepad-plus.svn.sourceforge.net/viewvc/notepad-plus/trunk/PowerEditor/src/tools/nppCM/
- * - Notepad++ Context Menu is based on SciTE Context Menu by André Burgaud, see http://www.burgaud.com/category/wscitecm/
+ * Original source code taken from:
+ * - SciTE Context Menu by Andre Burgaud, see http://www.burgaud.com/category/wscitecm/
  *
  * Documentation links:
  * Creating Shell Extension Handlers: http://msdn.microsoft.com/en-us/library/cc144067(VS.85).aspx
@@ -48,6 +46,7 @@
 //GUID of our shell extension, generated using guidgen.exe provided with Visual C++
 //{BC6D1C0E-ADF5-44a1-9940-978019DF7985}
 DEFINE_GUID(CLSID_ShellExtension, 0xbc6d1c0e, 0xadf5, 0x44a1, 0x99, 0x40, 0x97, 0x80, 0x19, 0xdf, 0x79, 0x85);
+
 
 class CClassFactory : public IClassFactory {
 public:

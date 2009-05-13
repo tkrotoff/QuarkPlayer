@@ -1,4 +1,4 @@
-LIBRARY "WinShellContextMenu"
+LIBRARY "QuarkPlayerContextMenu"
 DESCRIPTION 'QuarkPlayer Shell Extension'
 EXPORTS
 	DllCanUnloadNow PRIVATE
