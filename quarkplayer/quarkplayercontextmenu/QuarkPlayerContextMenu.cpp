@@ -17,7 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WinShellContextMenu.h"
+//IContextMenu and IShellExtInit
+#include <shlobj.h>
+
+//Otherwise we get: error LNK2001: unresolved external symbol _CLSID_ShellExtension
+#define INITGUID
+#include <initguid.h>
+#include <shlguid.h>
+
+#include "QuarkPlayerContextMenu.h"
+
+//QuarkPlayer icon
+#define IDB_QUARKPLAYER 102
 
 //Our DLL reference count
 UINT _dllCount = 0;
@@ -36,6 +47,7 @@ CContextMenu::CContextMenu() {
 	m_cRef = 0L;
 	m_pDataObj = NULL;
 	_dllCount++;
+	m_hQuarkPlayerBmp = LoadBitmap(_hModule, MAKEINTRESOURCE(IDB_QUARKPLAYER));
 }
 
 CContextMenu::~CContextMenu() {
@@ -89,7 +101,13 @@ HRESULT STDMETHODCALLTYPE CContextMenu::QueryContextMenu(HMENU hMenu, UINT index
 	//Right click on a normal file
 
 	UINT idCmd = idCmdFirst;
-	InsertMenu(hMenu, indexMenu++, MF_STRING | MF_BYPOSITION, idCmd++, "WinShellContextMenu Play");
+	UINT nIndex = indexMenu++;
+
+	InsertMenu(hMenu, nIndex, MF_STRING | MF_BYPOSITION, idCmd++, "Play with QuarkPlayer");
+
+	if (m_hQuarkPlayerBmp) {
+		SetMenuItemBitmaps(hMenu, nIndex, MF_BYPOSITION, m_hQuarkPlayerBmp, m_hQuarkPlayerBmp);
+	}
 
 	return MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, idCmd - idCmdFirst);
 }
@@ -115,7 +133,7 @@ HRESULT STDMETHODCALLTYPE CContextMenu::GetCommandString(UINT_PTR idCmd, UINT uF
 
 	switch (uFlags) {
 	case GCS_HELPTEXT:
-		lstrcpy(pszName, "Open with QuarkPlayer");
+		lstrcpy(pszName, "Play with QuarkPlayer");
 		break;
 	default:
 		break;
@@ -191,8 +209,6 @@ HRESULT STDMETHODCALLTYPE CContextMenu::invokeQuarkPlayer(HWND hParent) {
 		&startupInfo,	//LPSTARTUPINFO lpStartupInfo
 		&processInfo	//LPPROCESS_INFORMATION lpProcessInformation
 	);
-
-	MsgBoxError(hParent, commandLine);
 
 	CoTaskMemFree(commandLine);
 

@@ -20,9 +20,6 @@
 #ifndef QUARKPLAYERCONTEXTMENU_H
 #define QUARKPLAYERCONTEXTMENU_H
 
-//IContextMenu and IShellExtInit
-#include <shlobj.h>
-
 /**
  * Context menu shell extension for QuarkPlayer.
  *
@@ -44,6 +41,7 @@
  */
 
 //GUID of our shell extension, generated using guidgen.exe provided with Visual C++
+//Please do not copy-paste QuarkPlayer GUUID, but instead create your own to avoid conflicts
 //{BC6D1C0E-ADF5-44a1-9940-978019DF7985}
 DEFINE_GUID(CLSID_ShellExtension, 0xbc6d1c0e, 0xadf5, 0x44a1, 0x99, 0x40, 0x97, 0x80, 0x19, 0xdf, 0x79, 0x85);
 
@@ -95,6 +93,9 @@ private:
 
 	ULONG m_cRef;
 	LPDATAOBJECT m_pDataObj;
+
+	/** QuarkPlayer icon that will be show inside the context menu. */
+	HBITMAP m_hQuarkPlayerBmp;
 };
 
 #endif	//QUARKPLAYERCONTEXTMENU_H

@@ -1,11 +1,11 @@
-project(winshellcontextmenu)
+project(quarkplayercontextmenu)
 
-set(winshellcontextmenu_SRCS
-	WinShellContextMenu.cpp
-	WinShellContextMenu.def
-	WinShellContextMenu.rc
+set(quarkplayercontextmenu_SRCS
+	QuarkPlayerContextMenu.cpp
+	QuarkPlayerContextMenu.def
+	QuarkPlayerContextMenu.rc
 )
 
-add_library(winshellcontextmenu SHARED ${winshellcontextmenu_SRCS})
+add_library(quarkplayercontextmenu SHARED ${quarkplayercontextmenu_SRCS})
 
-install(TARGETS winshellcontextmenu RUNTIME DESTINATION ${BIN_INSTALL_DIR})
+install(TARGETS quarkplayercontextmenu ${INSTALL_TARGETS_DEFAULT_ARGS})
