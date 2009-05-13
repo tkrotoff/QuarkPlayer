@@ -18,178 +18,33 @@
 
 #include "WinShellContextMenu.h"
 
-//Compteur de référence de notre DLL
-UINT g_cRefDll = 0;
+//Our DLL reference count
+UINT _dllCount = 0;
+
+//HINSTANCE of our DLL
+HINSTANCE _hModule = NULL;
+
+void MsgBoxError(HWND hWnd, LPTSTR message) {
+	MessageBox(hWnd, message,
+		"QuarkPlayer Shell Extension",
+		MB_OK | MB_ICONSTOP
+	);
+}
 
 CContextMenu::CContextMenu() {
 	m_cRef = 0L;
 	m_pDataObj = NULL;
-	g_cRefDll++;
+	_dllCount++;
 }
 
 CContextMenu::~CContextMenu() {
 	if (m_pDataObj) {
 		m_pDataObj->Release();
 	}
-	g_cRefDll--;
+	_dllCount--;
 }
 
-HRESULT STDMETHODCALLTYPE CContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags) {
-	UINT idCmd = idCmdFirst;
-
-	// Ajouter notre sous-menu "Chemin":
-	HMENU hSubmenu = CreatePopupMenu();
-	InsertMenu(hSubmenu, 0, MF_BYPOSITION, idCmd++, "Copier");
-	InsertMenu(hSubmenu, 1, MF_BYPOSITION, idCmd++, "Afficher");
-	MENUITEMINFO mii = { sizeof(MENUITEMINFO) };
-	mii.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_ID;
-	mii.wID = idCmd++;
-	mii.hSubMenu = hSubmenu;
-	mii.dwTypeData = "Chemin";
-	InsertMenuItem(hMenu, indexMenu++, TRUE, &mii);
-
-	// bureau ou arrière-plan d'une fenêtre de l'explorateur
-	if (m_bBackGround) {
-		// Ajouter l'élément "Créer un fichier FCH":
-		InsertMenu(hMenu, indexMenu++, MF_BYPOSITION, idCmd++, "Créer un fichier FCH");
-		return MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, idCmd - idCmdFirst);
-	}
-
-	// fichier normal
-	else {
-		// le fichier sélectionné porte l'extension .fch
-		if (m_bIsFCH && ((uFlags & 0x000F) == CMF_NORMAL)) {
-			// Ajouter l'élément "Voir le fichier FCH":
-			InsertMenu(hMenu, indexMenu++, MF_BYPOSITION, idCmd++, "Voir le fichier FCH");
-		}
-		return MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, idCmd - idCmdFirst);
-	}
-	return S_OK;
-}
-
-HRESULT STDMETHODCALLTYPE CContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici) {
-	if (!HIWORD(pici->lpVerb)) {
-		UINT idCmd = LOWORD(pici->lpVerb);
-
-		switch (idCmd) {
-		case 0: {
-			//Copier dans le clipboard le chemin complet du fichier ou dossier sélectionné:
-			OpenClipboard(pici->hwnd);
-			UINT len = lstrlen(m_szPath)+1;
-			HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, len);
-			LPVOID lpText = GlobalLock(hGlobal);
-			memcpy(lpText, m_szPath, len);
-			EmptyClipboard();
-			GlobalUnlock(hGlobal);
-			SetClipboardData(CF_TEXT, hGlobal);
-			CloseClipboard();
-			GlobalFree(hGlobal);
-			return S_OK;
-		}
-
-		case 1:
-			// Afficher le chemin complet du fichier ou dossier sélectionné:
-			MessageBox(pici->hwnd, m_szPath, "RACPP Shell Extension", MB_OK);
-			return S_OK;
-
-		case 3:
-			if (!m_bBackGround) {
-				// Ouvrir le fichier FCH sélectionné:
-				ShellExecute(0, 0, m_szPath,0 ,0 ,1);
-			} else {
-				// Créer un nouveau fichier FCH vide:
-				lstrcat(m_szPath, "\\Nouveau fichier FCH.fch");
-				HANDLE hFile = CreateFile(m_szPath, GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, 0);
-				if (hFile != INVALID_HANDLE_VALUE) {
-					CloseHandle(hFile);
-				}
-				else {
-					MessageBox(pici->hwnd,"Echec de création du nouveau fichier FCH","RACPP Shell Extension",0);
-				}
-			}
-			return S_OK;
-		}
-	}
-	return E_INVALIDARG;
-}
-
-HRESULT STDMETHODCALLTYPE CContextMenu::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT FAR * pwReserved, LPSTR pszName, UINT cchMax) {
-	// Textes à afficher dans la barre d'état d'une fenêtre de l'explorateur quand
-	// l'un de nos éléments du menu contextuel est pointé par la souris:
-	PWCHAR helpstrW[] = {L"Copier le chemin complet dans le presse-papier",L"Afficher le chemin complet",L"Copier ou afficher le chemin complet",L"Ouvrir ce fichier avec le Bloc-notes",L"Créer un nouveau fichier FCH vide"};
-	PCHAR helpstrA[] = {"Copier le chemin complet dans le presse-papier","Afficher le chemin complet","Copier ou afficher le chemin complet","Ouvrir ce fichier avec le Bloc-notes","Créer un nouveau fichier FCH vide"};
-	int offset = 0;
-	if (m_bBackGround && idCmd == 3) {
-		offset++;
-	}
-	switch(uFlags) {
-	case GCS_HELPTEXTA:
-		lstrcpynA(pszName, helpstrA[idCmd + offset], cchMax);
-		break;
-	case GCS_HELPTEXTW:
-		lstrcpynW((LPWSTR) pszName, helpstrW[idCmd + offset], cchMax);
-		break;
-	case GCS_VERBA:
-		break;
-	case GCS_VERBW:
-		break;
-	case GCS_VALIDATEA:
-	case GCS_VALIDATEW:
-		if (idCmd < 0 || idCmd > 3) {
-			return S_FALSE;
-		}
-		break;
-	}
-	return S_OK;
-}
-
-//IShellExtInit::Initialize() implementation
-HRESULT STDMETHODCALLTYPE CContextMenu::Initialize(LPCITEMIDLIST pIDFolder, LPDATAOBJECT pDataObj, HKEY hRegKey) {
-	if (m_pDataObj) {
-		m_pDataObj->Release();
-	}
-	m_szPath[0] = 0;
-
-	//clic droit sur fichier
-	if (pDataObj) {
-		m_bBackGround = 0;
-		m_pDataObj = pDataObj;
-		pDataObj->AddRef();
-		STGMEDIUM medium;
-		FORMATETC fe = { CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
-		HRESULT hres = pDataObj->GetData(&fe, &medium);
-
-		// Obtenir le nombre de fichiers sélectionnés:
-		UINT nombre = DragQueryFile((HDROP) medium.hGlobal, 0xFFFFFFFF, 0, 0);
-		if (nombre != 1) {
-			ReleaseStgMedium(&medium);
-			return E_FAIL;
-		}
-
-		// Récupérer le chemin complet du fichier ou dossier sélectionné:
-		DragQueryFile((HDROP) medium.hGlobal, 0,  m_szPath,  MAX_PATH);
-		ReleaseStgMedium(&medium);
-
-		// Mettre le flag mbIsFCH à 1 si l'extension est .fch sinon à 0:
-		int len = lstrlen(m_szPath);
-		if (len > 4) {
-			m_bIsFCH =! lstrcmpi(m_szPath + (len - 4), ".fch");
-		} else {
-			m_bIsFCH=0;
-		}
-	}
-
-	// clic droit sur bureau ou arrière-plan d'une fenêtre de l'explorateur:
-	else {
-		m_bBackGround = 1;
-
-		// Récupérer le chemin complet du dossier courant:
-		SHGetPathFromIDList(pIDFolder, m_szPath);
-	}
-
-	return NOERROR;
-}
-
+//OK
 HRESULT STDMETHODCALLTYPE CContextMenu::QueryInterface(REFIID riid, LPVOID FAR * ppvObject) {
 	*ppvObject = NULL;
 	if (IsEqualGUID(riid, IID_IShellExtInit) || IsEqualGUID(riid, IID_IUnknown)) {
@@ -206,10 +61,12 @@ HRESULT STDMETHODCALLTYPE CContextMenu::QueryInterface(REFIID riid, LPVOID FAR *
 	return E_NOINTERFACE;
 }
 
+//OK
 ULONG STDMETHODCALLTYPE CContextMenu::AddRef() {
 	return ++m_cRef;
 }
 
+//OK
 ULONG STDMETHODCALLTYPE CContextMenu::Release() {
 	if (--m_cRef) {
 		return m_cRef;
@@ -218,15 +75,159 @@ ULONG STDMETHODCALLTYPE CContextMenu::Release() {
 	return 0L;
 }
 
+//OK
+//IShellExtInit::Initialize() implementation
+HRESULT STDMETHODCALLTYPE CContextMenu::Initialize(LPCITEMIDLIST pIDFolder, LPDATAOBJECT pDataObj, HKEY hRegKey) {
+	if (m_pDataObj) {
+		m_pDataObj->Release();
+	}
+	if (pDataObj) {
+		m_pDataObj = pDataObj;
+		pDataObj->AddRef();
+	}
+	return S_OK;
+}
+
+//~OK
+HRESULT STDMETHODCALLTYPE CContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags) {
+	//Right click on a normal file
+
+	UINT idCmd = idCmdFirst;
+	InsertMenu(hMenu, indexMenu++, MF_STRING | MF_BYPOSITION, idCmd++, "WinShellContextMenu Play");
+
+	return MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, idCmd - idCmdFirst);
+}
+
+//OK
+HRESULT STDMETHODCALLTYPE CContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi) {
+	HRESULT hres = E_INVALIDARG;
+
+	if (!HIWORD(lpcmi->lpVerb)) {
+		UINT idCmd = LOWORD(lpcmi->lpVerb);
+
+		switch (idCmd) {
+		case 0:
+			hres = invokeQuarkPlayer(lpcmi->hwnd);
+			break;
+		}
+	}
+	return hres;
+}
+
+//OK
+HRESULT STDMETHODCALLTYPE CContextMenu::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT FAR * pwReserved, LPSTR pszName, UINT cchMax) {
+	//Text fo show inside the Explorer status bar
+	//when the mouse points to an item from the context menu
+
+	switch (uFlags) {
+	case GCS_HELPTEXT:
+		lstrcpy(pszName, "Open with QuarkPlayer");
+		break;
+	default:
+		break;
+	}
+	return S_OK;
+}
+
+//~OK
+HRESULT STDMETHODCALLTYPE CContextMenu::invokeQuarkPlayer(HWND hParent) {
+	//Get the number of files selected by the user
+	UINT nbFilesSelected;
+	STGMEDIUM stgMedium;
+	FORMATETC fmte = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+	HRESULT hres = m_pDataObj->GetData(&fmte, &stgMedium);
+	if (SUCCEEDED(hres)) {
+		if (stgMedium.hGlobal) {
+			nbFilesSelected = DragQueryFile((HDROP) stgMedium.hGlobal, (UINT) -1, 0, 0);
+		}
+	}
+	///
+
+	//Module full path
+	TCHAR moduleFileName[MAX_PATH];
+	GetModuleFileName(_hModule, moduleFileName, MAX_PATH);
+	TCHAR * pDest = strrchr(moduleFileName, '\\');
+	pDest++;
+	pDest[0] = 0;
+
+	//quarkplayer.exe full path
+	LPTSTR commandLine;
+	UINT size = MAX_PATH * (nbFilesSelected + 1) * sizeof(TCHAR);
+	commandLine = (LPTSTR) CoTaskMemAlloc(size);
+	if (!commandLine) {
+		MsgBoxError(hParent, "Insufficient memory available.");
+		return E_OUTOFMEMORY;
+	}
+	lstrcpy(commandLine, "\"");
+	lstrcat(commandLine, moduleFileName);
+	lstrcat(commandLine, "quarkplayer.exe");
+	lstrcat(commandLine, "\"");
+
+	//Files selected by the user
+	TCHAR fileUserClickedOn[MAX_PATH];
+
+	for (UINT i = 0; i < nbFilesSelected; i++) {
+		DragQueryFile((HDROP) stgMedium.hGlobal, i, fileUserClickedOn, MAX_PATH);
+		lstrcat(commandLine, " \"");
+		lstrcat(commandLine, fileUserClickedOn);
+		lstrcat(commandLine, "\"");
+	}
+
+	//Launch quarkplayer.exe with the list of files as arguments
+	STARTUPINFO startupInfo;
+	ZeroMemory(&startupInfo, sizeof(startupInfo));
+	startupInfo.cb = sizeof(startupInfo);
+	//STARTF_USESHOWWINDOW: The wShowWindow member is valid
+	startupInfo.dwFlags = STARTF_USESHOWWINDOW;
+	//SW_RESTORE: Activates and displays the window.
+	//If the window is minimized or maximized, the system restores it to its original size and position.
+	startupInfo.wShowWindow = SW_RESTORE;
+
+	PROCESS_INFORMATION processInfo;
+
+	//See http://msdn.microsoft.com/en-us/library/ms682425.aspx
+	BOOL result = CreateProcess(
+		NULL,	//LPCTSTR lpApplicationName
+		commandLine,	//LPTSTR lpCommandLine
+		NULL,	//LPSECURITY_ATTRIBUTES lpProcessAttributes
+		NULL,	//LPSECURITY_ATTRIBUTES lpThreadAttributes
+		FALSE,	//BOOL bInheritHandles
+		0,	//DWORD dwCreationFlags
+		NULL,	//LPVOID lpEnvironment
+		NULL,	//LPCTSTR lpCurrentDirectory
+		&startupInfo,	//LPSTARTUPINFO lpStartupInfo
+		&processInfo	//LPPROCESS_INFORMATION lpProcessInformation
+	);
+
+	MsgBoxError(hParent, commandLine);
+
+	CoTaskMemFree(commandLine);
+
+	if (!result) {
+		MsgBoxError(hParent,
+			"Error creating process: quarpkayercontextmenu.dll needs to be in the same directory than quarkplayer.exe");
+		return E_FAIL;
+	}
+
+	return S_OK;
+}
+
+
+
+
+
+//OK
 CClassFactory::CClassFactory() {
 	m_cRef = 0L;
-	g_cRefDll++;
+	_dllCount++;
 }
 
+//OK
 CClassFactory::~CClassFactory() {
-	g_cRefDll--;
+	_dllCount--;
 }
 
+//OK
 HRESULT STDMETHODCALLTYPE CClassFactory::QueryInterface(REFIID riid, LPVOID FAR * ppvObject) {
 	*ppvObject = NULL;
 
@@ -239,10 +240,12 @@ HRESULT STDMETHODCALLTYPE CClassFactory::QueryInterface(REFIID riid, LPVOID FAR 
 	return E_NOINTERFACE;
 }
 
+//OK
 ULONG STDMETHODCALLTYPE CClassFactory::AddRef() {
 	return ++m_cRef;
 }
 
+//OK
 ULONG STDMETHODCALLTYPE CClassFactory::Release() {
 	if (--m_cRef) {
 		return m_cRef;
@@ -251,6 +254,7 @@ ULONG STDMETHODCALLTYPE CClassFactory::Release() {
 	return 0L;
 }
 
+//OK
 HRESULT STDMETHODCALLTYPE CClassFactory::CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, LPVOID * ppvObject) {
 	*ppvObject = NULL;
 	if (pUnkOuter) {
@@ -263,6 +267,7 @@ HRESULT STDMETHODCALLTYPE CClassFactory::CreateInstance(LPUNKNOWN pUnkOuter, REF
 	return pContextMenu->QueryInterface(riid, ppvObject);
 }
 
+//OK
 HRESULT STDMETHODCALLTYPE CClassFactory::LockServer(BOOL fLock) {
 	return S_OK;
 }
@@ -270,9 +275,17 @@ HRESULT STDMETHODCALLTYPE CClassFactory::LockServer(BOOL fLock) {
 
 
 
-//HINSTANCE de notre DLL
-HINSTANCE g_hmodDll = 0;
 
+//OK
+//Entrance function DllMain
+extern "C" int APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved) {
+	if (dwReason == DLL_PROCESS_ATTACH) {
+		_hModule = hInstance;
+	}
+	return 1;
+}
+
+//OK
 STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID * ppvOut) {
 	*ppvOut = NULL;
 	if (IsEqualGUID(rclsid, CLSID_ShellExtension)) {
@@ -282,89 +295,169 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID * ppvOut) {
 	return CLASS_E_CLASSNOTAVAILABLE;
 }
 
+//OK
 STDAPI DllCanUnloadNow(void) {
-	if (g_cRefDll == 0) {
+	if (_dllCount == 0) {
 		return S_OK;
 	}
 	return S_FALSE;
 }
 
+typedef struct {
+	HKEY hRootKey;
+	LPTSTR szSubKey;
+	LPTSTR lpszValueName;
+	LPTSTR szData;
+} DOREGSTRUCT;
+
+static const TCHAR shellExtensionTitle[] = "QuarkPlayer";
+
+static const UINT GUID_SIZE = 128;
+
+STDAPI DllRegisterServer(void) {
+	//Module full path
+	TCHAR moduleFileName[MAX_PATH];
+	GetModuleFileName(_hModule, moduleFileName, MAX_PATH);
+
+	LPOLESTR pwsz;
+	StringFromIID(CLSID_ShellExtension, &pwsz);
+	TCHAR szCLSID[GUID_SIZE + 1];
+	//lstrcpy(szCLSID, pwsz);
+	WideCharToMultiByte(CP_ACP, 0, pwsz, -1, szCLSID, ARRAYSIZE(szCLSID), NULL, NULL);
+	CoTaskMemFree(pwsz);
+
+	DOREGSTRUCT CLSIDEntries[] = {
+		HKEY_CLASSES_ROOT, "CLSID\\%s", NULL, (LPTSTR) shellExtensionTitle,
+		HKEY_CLASSES_ROOT, "CLSID\\%s\\InprocServer32", NULL, moduleFileName,
+		HKEY_CLASSES_ROOT, "CLSID\\%s\\InprocServer32", "ThreadingModel", "Apartment",
+		HKEY_CLASSES_ROOT, "*\\shellex\\ContextMenuHandlers\\QuarkPlayer", NULL, szCLSID,
+		NULL, NULL, NULL, NULL
+	};
+
+	for (UINT i = 0; CLSIDEntries[i].hRootKey; i++) {
+		//Create the sub key string - for this case, insert the file extension
+		TCHAR szSubKey[MAX_PATH];
+		wsprintf(szSubKey, CLSIDEntries[i].szSubKey, szCLSID);
+
+		HKEY hKey;
+		DWORD dwDisp;
+		LONG result = RegCreateKeyEx(CLSIDEntries[i].hRootKey, szSubKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
+
+		if (result == ERROR_SUCCESS) {
+			//If necessary, create the value string
+			TCHAR szData[MAX_PATH];
+			wsprintf(szData, CLSIDEntries[i].szData, moduleFileName);
+
+			RegSetValueEx(hKey, CLSIDEntries[i].lpszValueName, 0, REG_SZ, (LPBYTE) szData, (lstrlen(szData) + 1) * sizeof(TCHAR));
+			RegCloseKey(hKey);
+		} else {
+			return E_FAIL;
+		}
+	}
+
+	return S_OK;
+}
+
+STDAPI DllUnregisterServer(void) {
+	TCHAR szKeyTemp[MAX_PATH + GUID_SIZE];
+	wsprintf(szKeyTemp, "*\\shellex\\ContextMenuHandlers\\%s", shellExtensionTitle);
+	RegDeleteKey(HKEY_CLASSES_ROOT, szKeyTemp);
+
+	TCHAR szCLSIDKey[GUID_SIZE + 32];
+	lstrcpy(szCLSIDKey, "CLSID\\");
+
+	LPOLESTR pwsz;
+	StringFromIID(CLSID_ShellExtension, &pwsz);
+	TCHAR szCLSID[GUID_SIZE + 1];
+	//lstrcpy(szCLSID, pwsz);
+	WideCharToMultiByte(CP_ACP, 0, pwsz, -1, szCLSID, ARRAYSIZE(szCLSID), NULL, NULL);
+	CoTaskMemFree(pwsz);
+
+	lstrcat(szCLSIDKey, szCLSID);
+
+	wsprintf(szKeyTemp, "%s\\%s", szCLSIDKey, TEXT("InprocServer32"));
+	RegDeleteKey(HKEY_CLASSES_ROOT, szKeyTemp);
+	RegDeleteKey(HKEY_CLASSES_ROOT, szCLSIDKey);
+
+	return S_OK;
+}
+
+/*
 STDAPI DllRegisterServer(void) {
 	char buffer[MAX_PATH];
 	HKEY hKey;
+
 	// Ajouter le CLSID de notre DLL COM à la base de registres:
 	RegCreateKeyEx(HKEY_CLASSES_ROOT,"CLSID\\{DCD2E883-A2E4-11DD-B747-000D9D95332B}",0,0,0, KEY_WRITE, 0, &hKey,0);
 	lstrcpy(buffer,"RACPP Shell Extension");
 	RegSetValueEx(hKey,0,0,REG_SZ,(LPBYTE)buffer,lstrlen(buffer)+1);
 	RegCloseKey(hKey);
+
 	// Définir le chemin et les paramètres de notre DLL COM:
 	RegCreateKeyEx(HKEY_CLASSES_ROOT,"CLSID\\{DCD2E883-A2E4-11DD-B747-000D9D95332B}\\InProcServer32",0,0,0, KEY_WRITE, 0, &hKey,0);
-	GetModuleFileName(g_hmodDll,buffer,MAX_PATH);
+	GetModuleFileName(_hModule,buffer,MAX_PATH);
 	RegSetValueEx(hKey,0,0,REG_SZ,(LPBYTE)buffer,lstrlen(buffer)+1);
 	lstrcpy(buffer,"Apartment");
 	RegSetValueEx(hKey,"ThreadingModel",0,REG_SZ,(LPBYTE)buffer,lstrlen(buffer)+1);
 	RegCloseKey(hKey);
-	// Enregistrer notre "Extension Shell" pour tous les types de fichiers:
-	RegCreateKeyEx(HKEY_CLASSES_ROOT,"*\\shellex\\ContextMenuHandlers\\RACPPMenu",0,0,0, KEY_WRITE, 0, &hKey,0);
-	lstrcpy(buffer,"{DCD2E883-A2E4-11DD-B747-000D9D95332B}");
-	RegSetValueEx(hKey,0,0,REG_SZ,(LPBYTE)buffer,lstrlen(buffer)+1);
-	RegCloseKey(hKey);
+
 	// Enregistrer notre "Extension Shell" pour les dossiers:
 	RegCreateKeyEx(HKEY_CLASSES_ROOT,"Directory\\shellex\\ContextMenuHandlers\\RACPPMenu",0,0,0, KEY_WRITE, 0, &hKey,0);
 	lstrcpy(buffer,"{DCD2E883-A2E4-11DD-B747-000D9D95332B}");
 	RegSetValueEx(hKey,0,0,REG_SZ,(LPBYTE)buffer,lstrlen(buffer)+1);
 	RegCloseKey(hKey);
+
 	// Ajouter l'extenstion de notre type de fichier à la base de registres:
 	RegCreateKeyEx(HKEY_CLASSES_ROOT,".fch",0,0,0, KEY_WRITE, 0, &hKey,0);
 	lstrcpy(buffer,"FCHFile");
 	RegSetValueEx(hKey,0,0,REG_SZ,(LPBYTE)buffer,lstrlen(buffer)+1);
 	RegCloseKey(hKey);
+
 	// Ajouter la description de notre type de fichier:
 	RegCreateKeyEx(HKEY_CLASSES_ROOT,"FCHFile",0,0,0, KEY_WRITE, 0, &hKey,0);
 	lstrcpy(buffer,"Fichier FCH");
 	RegSetValueEx(hKey,0,0,REG_SZ,(LPBYTE)buffer,lstrlen(buffer)+1);
 	RegCloseKey(hKey);
+
 	// Définir l'icone par défaut de notre type de fichier:
 	RegCreateKeyEx(HKEY_CLASSES_ROOT,"FCHFile\\DefaultIcon",0,0,0, KEY_WRITE, 0, &hKey,0);
-	GetModuleFileName(g_hmodDll,buffer,MAX_PATH);
+	GetModuleFileName(_hModule,buffer,MAX_PATH);
 	lstrcat(buffer,",0");
 	RegSetValueEx(hKey,0,0,REG_SZ,(LPBYTE)buffer,lstrlen(buffer)+1);
 	RegCloseKey(hKey);
+
 	// Notifier le Shell pour qu'il prenne en compte la définition de l'icone par défaut:
 	SHChangeNotify(SHCNE_ASSOCCHANGED,0,0,0);
+
 	// Définir le Bloc-notes comme programme d'ouverture par défaut:
 	RegCreateKeyEx(HKEY_CLASSES_ROOT,"FCHFile\\Shell\\Open\\Command",0,0,0, KEY_WRITE, 0, &hKey,0);
 	lstrcpy(buffer,"%SystemRoot%\\System32\\notepad.exe %1");
 	RegSetValueEx(hKey,0,0,REG_EXPAND_SZ,(LPBYTE)buffer,lstrlen(buffer)+1);
 	RegCloseKey(hKey);
+
 	// Enregistrer notre "Extension Shell" pour notre type de fichier:
 	RegCreateKeyEx(HKEY_CLASSES_ROOT,"FCHFile\\shellex\\ContextMenuHandlers\\RACPPMenu",0,0,0, KEY_WRITE, 0, &hKey,0);
 	lstrcpy(buffer,"{DCD2E883-A2E4-11DD-B747-000D9D95332B}");
 	RegSetValueEx(hKey,0,0,REG_SZ,(LPBYTE)buffer,lstrlen(buffer)+1);
 	RegCloseKey(hKey);
-	// Enregistrer notre "Extension Shell" pour le bureau ou l'arrière-plan d'une fenêtre de l'explorateur:
-	RegCreateKeyEx(HKEY_CLASSES_ROOT,"Directory\\Background\\ShellEx\\ContextMenuHandlers\\RACPPMenu",0,0,0, KEY_WRITE, 0, &hKey,0);
-	lstrcpy(buffer,"{DCD2E883-A2E4-11DD-B747-000D9D95332B}");
-	RegSetValueEx(hKey,0,0,REG_SZ,(LPBYTE)buffer,lstrlen(buffer)+1);
-	RegCloseKey(hKey);
+
 	// Ajouter notre "Extension Shell" à la liste approuvée du système:
 	RegCreateKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved",0,0,0, KEY_WRITE, 0, &hKey,0);
 	lstrcpy(buffer,"RACPP Shell Extension");
 	RegSetValueEx(hKey,"{DCD2E883-A2E4-11DD-B747-000D9D95332B}",0,REG_SZ,(LPBYTE)buffer,lstrlen(buffer)+1);
 	RegCloseKey(hKey);
+
 	return S_OK;
 }
 
 STDAPI DllUnregisterServer(void) {
 	HKEY hKey;
+
 	// Retirer notre "Extension Shell" de la liste approuvée du système:
 	RegOpenKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved",0,DELETE,&hKey);
 	RegDeleteValue(hKey,"{DCD2E883-A2E4-11DD-B747-000D9D95332B}");
 	RegCloseKey(hKey);
-	// Retirer notre "Extension Shell" du bureau et de l'arrière-plan des fenêtres de l'explorateur:
-	RegOpenKeyEx(HKEY_CLASSES_ROOT,"Directory\\Background\\ShellEx\\ContextMenuHandlers",0,DELETE,&hKey);
-	RegDeleteKey(hKey,"RACPPMenu");
-	RegCloseKey(hKey);
+
 	// Retirer notre "Extension Shell" pour notre type de fichier:
 	RegOpenKeyEx(HKEY_CLASSES_ROOT,"FCHFile\\shellex\\ContextMenuHandlers",0,DELETE,&hKey);
 	RegDeleteKey(hKey,"RACPPMenu");
@@ -375,6 +468,7 @@ STDAPI DllUnregisterServer(void) {
 	RegOpenKeyEx(HKEY_CLASSES_ROOT,"FCHFile",0,DELETE,&hKey);
 	RegDeleteKey(hKey,"shellex");
 	RegCloseKey(hKey);
+
 	// Effacer les sous-clés de définition du programme d'ouverture par défaut de notre type de fichier:
 	RegOpenKeyEx(HKEY_CLASSES_ROOT,"FCHFile\\Shell\\Open",0,DELETE,&hKey);
 	RegDeleteKey(hKey,"Command");
@@ -385,12 +479,15 @@ STDAPI DllUnregisterServer(void) {
 	RegOpenKeyEx(HKEY_CLASSES_ROOT,"FCHFile",0,DELETE,&hKey);
 	RegDeleteKey(hKey,"Shell");
 	RegCloseKey(hKey);
+
 	// Effacer la sous-clé de définition de l'icone par défaut de notre type de fichier:
 	RegOpenKeyEx(HKEY_CLASSES_ROOT,"FCHFile",0,DELETE,&hKey);
 	RegDeleteKey(hKey,"DefaultIcon");
 	RegCloseKey(hKey);
+
 	// Notifier le Shell pour qu'il prenne en compte la suppression de l'icone par défaut:
 	SHChangeNotify(SHCNE_ASSOCCHANGED,0,0,0);
+
 	// Effacer notre type de fichier de la base de registres:
 	RegOpenKeyEx(HKEY_CLASSES_ROOT,0,0,DELETE,&hKey);
 	RegDeleteKey(hKey,"FCHFile");
@@ -398,14 +495,12 @@ STDAPI DllUnregisterServer(void) {
 	RegOpenKeyEx(HKEY_CLASSES_ROOT,0,0,DELETE,&hKey);
 	RegDeleteKey(hKey,".fch");
 	RegCloseKey(hKey);
+
 	// Retirer notre "Extension Shell" des dossiers:
 	RegOpenKeyEx(HKEY_CLASSES_ROOT,"Directory\\shellex\\ContextMenuHandlers",0,DELETE,&hKey);
 	RegDeleteKey(hKey,"RACPPMenu");
 	RegCloseKey(hKey);
-	// Retirer notre "Extension Shell" pour tous les types de fichiers:
-	RegOpenKeyEx(HKEY_CLASSES_ROOT,"*\\shellex\\ContextMenuHandlers",0,DELETE,&hKey);
-	RegDeleteKey(hKey,"RACPPMenu");
-	RegCloseKey(hKey);
+
 	// Retirer le CLSID de notre DLL COM de la base de registres:
 	RegOpenKeyEx(HKEY_CLASSES_ROOT,"CLSID\\{DCD2E883-A2E4-11DD-B747-000D9D95332B}",0,DELETE,&hKey);
 	RegDeleteKey(hKey,"InProcServer32");
@@ -413,13 +508,7 @@ STDAPI DllUnregisterServer(void) {
 	RegOpenKeyEx(HKEY_CLASSES_ROOT,"CLSID",0,DELETE,&hKey);
 	RegDeleteKey(hKey,"{DCD2E883-A2E4-11DD-B747-000D9D95332B}");
 	RegCloseKey(hKey);
+
 	return S_OK;
 }
-
-//Entrance function DllMain
-extern "C" int APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved) {
-	if (dwReason == DLL_PROCESS_ATTACH) {
-		g_hmodDll = hInstance;
-	}
-	return 1;
-}
+*/
