@@ -41,7 +41,7 @@
 #include <QtCore/QCryptographicHash>
 
 //Please don't copy this to another program; keys are free from aws.amazon.com
-static const QString AMAZON_WEB_SERVICE_KEY = "1BPZGMNT4PWSJS6NHG02";
+static const char * AMAZON_WEB_SERVICE_KEY = "1BPZGMNT4PWSJS6NHG02";
 
 MediaDataWidget::MediaDataWidget(QWidget * parent)
 	: QWidget(parent) {
@@ -153,7 +153,7 @@ void MediaDataWidget::updateMediaInfo() {
 		} else {
 			//filename + parent directory name, e.g:
 			// /home/tanguy/Music/DJ Vadim/Bluebird.mp3
-			// --> DJ Vadim/06 Bluebird.mp3
+			// --> DJ Vadim/Bluebird.mp3
 			filename = QDir::toNativeSeparators(filename);
 			int lastSlashPos = filename.lastIndexOf(QDir::separator()) - 1;
 			QString tmp(filename.mid(filename.lastIndexOf(QDir::separator(), lastSlashPos) + 1));
