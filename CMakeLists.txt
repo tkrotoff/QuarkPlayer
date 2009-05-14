@@ -72,7 +72,9 @@ endif (APPLE)
 
 
 # 3rdparty libraries with no Qt dependency
-add_subdirectory(quarkplayer/quarkplayercontextmenu)
+if (WIN32)
+	add_subdirectory(quarkplayer-plugins/contextmenu)
+endif (WIN32)
 
 if (ZLIB)
 	add_subdirectory(3rdparty/zlib)

@@ -21,3 +21,4 @@ include(OWEnsureOutOfSourceBuild)
 include(ReduceQtIncludeDirs)
 
 include(AddQtTranslations)
+include(Unix2Dos)
