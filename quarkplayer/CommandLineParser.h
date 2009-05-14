@@ -21,12 +21,20 @@
 
 #include <quarkplayer/quarkplayer_export.h>
 
+#include <quarkplayer/ICommandLineParser.h>
+
+#include <QtCore/QObject>
+
 /**
  * Parse command line arguments.
  *
+ * Inherits from QObject since this class contains translation
+ * for the command line help system.
+ *
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API CommandLineParser {
+class QUARKPLAYER_API CommandLineParser : public QObject, public ICommandLineParser {
+	Q_OBJECT
 public:
 
 	CommandLineParser();
@@ -35,7 +43,11 @@ public:
 
 private:
 
-	void start();
+	void argsReceived(const QStringList & args, bool usingQtSingleApplication);
+
+private:
+
+	QString help() const;
 };
 
 #endif	//COMMANDLINEPARSER_H

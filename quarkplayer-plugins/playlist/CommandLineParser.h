@@ -19,6 +19,8 @@
 #ifndef COMMANDLINEPARSER_H
 #define COMMANDLINEPARSER_H
 
+#include <quarkplayer/ICommandLineParser.h>
+
 class PlaylistModel;
 
 /**
@@ -26,7 +28,7 @@ class PlaylistModel;
  *
  * @author Tanguy Krotoff
  */
-class CommandLineParser {
+class CommandLineParser : public ICommandLineParser {
 public:
 
 	CommandLineParser(PlaylistModel * playlistModel);
@@ -35,7 +37,9 @@ public:
 
 private:
 
-	void start();
+	void argsReceived(const QStringList & args, bool usingQtSingleApplication);
+
+private:
 
 	PlaylistModel * _playlistModel;
 };

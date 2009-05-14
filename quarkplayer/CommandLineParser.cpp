@@ -18,38 +18,37 @@
 
 #include "CommandLineParser.h"
 
-#include "CommandLineHelp.h"
+#include "CommandLineManager.h"
+
 #include "WinDefaultApplication.h"
 #include "config/Config.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
 #include <iostream>
 
-CommandLineParser::CommandLineParser() {
-	start();
+CommandLineParser::CommandLineParser()
+	: ICommandLineParser() {
+
+	argsReceived(CommandLineManager::instance().argsReceived(), true);
+	CommandLineManager::instance().addCommandLineParser(this);
 }
 
 CommandLineParser::~CommandLineParser() {
+	CommandLineManager::instance().removeCommandLineParser(this);
 }
 
-void CommandLineParser::start() {
-	QStringList args(QCoreApplication::arguments());
-
-	//Delete the first one in the list,
-	//it is the name of the application
-	//we don't care about this
-	args.removeAt(0);
-
-	qDebug() << __FUNCTION__ << "Arguments:" << args;
+void CommandLineParser::argsReceived(const QStringList & args, bool usingQtSingleApplication) {
+	if (usingQtSingleApplication) {
+		return;
+	}
 
 	foreach (QString arg, args) {
-
 		if ((arg == "--help") || (arg == "-help") || (arg == "-h") || (arg == "-?")) {
-			CommandLineHelp help;
-			std::cout << help.toString().toUtf8().constData();
+			std::cout << help().toUtf8().constData();
 
 			//Quits the application
 			exit(EXIT_SUCCESS);
@@ -81,6 +80,31 @@ void CommandLineParser::start() {
 			//QCoreApplication::quit();
 		}
 #endif	//Q_OS_WIN
-
 	}
+}
+
+QString CommandLineParser::help() const {
+	QString appName = QFileInfo(QCoreApplication::instance()->applicationFilePath()).baseName();
+
+	QString commandLine;
+	commandLine += tr("Usage:");
+	commandLine += QString(
+			" %1 [-help] "
+			"[%2]")
+			.arg(appName)
+			.arg(tr("media"));
+
+	QString options;
+	options += tr("Options:") + "\n";
+	options += "-help\t\t" + tr("show this message and quit");
+
+	QString examples;
+	examples += tr("Examples:") + "\n";
+	examples += QString("%1 /home/myvideofile.avi").arg(appName) + "\n";
+	examples += QString("%1 /home/myaudiofile.mp3").arg(appName) + "\n";
+	examples += QString("%1 http://streamurl").arg(appName);
+
+	QString help(commandLine + "\n\n" + options + "\n\n" + examples);
+
+	return help;
 }

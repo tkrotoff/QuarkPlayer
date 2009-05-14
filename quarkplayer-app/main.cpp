@@ -17,7 +17,9 @@
  */
 
 #include <quarkplayer/QuarkPlayer.h>
+#include <quarkplayer/MainWindow.h>
 #include <quarkplayer/PluginsManager.h>
+#include <quarkplayer/CommandLineManager.h>
 #include <quarkplayer/CommandLineParser.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/style/QuarkPlayerStyle.h>
@@ -29,48 +31,29 @@
 
 #include <phonon/mediaobject.h>
 
-#ifdef KDE4_FOUND
-	#include <KApplication>
-	#include <KAboutData>
-	#include <KCmdLineArgs>
-#else
-	#include <QtGui/QApplication>
-#endif	//KDE4_FOUND
+#include <qtsingleapplication/QtSingleApplication>
 
 #include <QtGui/QStyleFactory>
 
 int main(int argc, char * argv[]) {
 	QuarkPlayer::registerMetaTypes();
 
-#ifdef KDE4_FOUND
-	KAboutData aboutData(
-			//appName
-			"quarkplayer",
-			//catalogName
-			NULL,
-			//programName
-			ki18n("QuarkPlayer"),
-			//version
-			QUARKPLAYER_VERSION,
-			//shortDescription
-			ki18n("QuarkPlayer, a Phonon media player"),
-			KAboutData::License_GPL,
-			//copyrightStatement
-			ki18n("Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>"),
-			//text
-			ki18n(""),
-			//homePageAddress
-			"http://phonon-vlc-mplayer.googlecode.com",
-			//bugsEmailAddress
-			"phonon-vlc-mplayer@googlegroups.com"
-	);
+	QtSingleApplication app(argc, argv);
 
-	KCmdLineArgs::init(argc, argv, &aboutData);
+	QStringList args = QCoreApplication::arguments();
+	//Delete the first one in the list,
+	//it is the name of the application
+	//we don't care about this
+	args.removeAt(0);
 
-	KApplication app;
-#else
-	QApplication app(argc, argv);
-#endif	//KDE4_FOUND
+	QString message = args.join(CommandLineManager::MESSAGE_SEPARATOR);
+	if (app.sendMessage(message)) {
+		//sendMessage() succeded, this means there is another
+		//QuarkPlayer instance running
+		//EXIT_SUCCESS evaluates to 0
+		//EXIT_FAILURE evaluates to a non-zero value
+		return EXIT_SUCCESS;
+	}
 
 	//General infos
  	app.setOrganizationName("QuarkPlayer");
@@ -101,6 +84,11 @@ int main(int argc, char * argv[]) {
 	TkIcon::setIconSize(16);
 
 	QuarkPlayer quarkPlayer(&app);
+	MainWindow * mainWindow = quarkPlayer.mainWindow();
+	qDebug() << __FUNCTION__ << mainWindow;
+	app.setActivationWindow(mainWindow);
+	app.activateWindow();
+
 	PluginsManager::instance().loadAllPlugins(quarkPlayer);
 
 	return app.exec();

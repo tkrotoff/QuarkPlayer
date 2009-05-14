@@ -27,6 +27,8 @@
 #include <QtCore/QList>
 #include <QtCore/QUuid>
 
+class CommandLineParser;
+
 class QuarkPlayer;
 class MediaInfoFetcher;
 class MediaInfo;
@@ -214,6 +216,8 @@ private:
 	 * @see playInternal()
 	 */
 	int _positionToPlay;
+
+	CommandLineParser * _commandLineParser;
 };
 
 #endif	//PLAYLISTMODEL_H

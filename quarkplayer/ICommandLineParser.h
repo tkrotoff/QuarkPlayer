@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,29 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMANDLINEHELP_H
-#define COMMANDLINEHELP_H
+#ifndef ICOMMANDLINEPARSER_H
+#define ICOMMANDLINEPARSER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
+class QStringList;
 
 /**
- * Provides help about the command line options.
+ * Interface for parsing command line arguments.
+ *
+ * Works like a Java listener.
  *
  * @author Tanguy Krotoff
  */
-class CommandLineHelp : public QObject {
-	Q_OBJECT
-public:
+class ICommandLineParser {
+	friend class CommandLineManager;
+protected:
 
-	CommandLineHelp();
-
-	~CommandLineHelp();
-
-	QString toString() const;
-
-private:
-
+	virtual void argsReceived(const QStringList & args, bool usingQtSingleApplication) = 0;
 };
 
-#endif	//COMMANDLINEHELP_H
+#endif	//ICOMMANDLINEPARSER_H

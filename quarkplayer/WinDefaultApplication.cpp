@@ -211,11 +211,14 @@ void WinDefaultApplication::deleteAllFileAssociations() {
 		winFileAssociations.deleteAssociation(extension);
 	}
 
+	deletePlayDirectoryContextMenu();
+	deleteEnqueueDirectoryContextMenu();
+
 	//Update Windows file associations
 	WinFileAssociations::notifyFileAssociationChanged();
 }
 
-static const QString quote("\"");
+static const char * quote = "\"";
 
 QString WinDefaultApplication::applicationFilePath() {
 	static const QString filePath(quote + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + quote);

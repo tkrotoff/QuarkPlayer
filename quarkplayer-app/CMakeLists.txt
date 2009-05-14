@@ -1,5 +1,7 @@
 project(quarkplayer)
 
+add_definitions(-DQT_QTSINGLEAPPLICATION_IMPORT)
+
 set(quarkplayer_SRCS
 	main.cpp
 )
@@ -31,7 +33,7 @@ set(TS_FILES
 	translations/quarkplayer_es.ts
 )
 
-#Pretty slow :/
+# Pretty slow :/
 set(QM_FILES "")
 qt4_create_translation(QM_FILES ${SRCS_TRANSLATIONS} ${TS_FILES})
 ##
@@ -47,6 +49,7 @@ endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 target_link_libraries(quarkplayer
 	quarkplayercore
 	tkutil
+	qtsingleapplication
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 	${QT_PHONON_LIBRARY}

@@ -27,7 +27,7 @@
 	#include <shlobj.h>
 #endif	//Q_OS_WIN
 
-static const QString defaultStr("/Default");
+static const char * defaultStr = "/Default";
 
 WinFileAssociations::WinFileAssociations(const QString & applicationName) {
 	_hkcr = new QSettings("HKEY_CLASSES_ROOT", QSettings::NativeFormat);

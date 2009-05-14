@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,21 +24,21 @@
 
 Q_EXPORT_PLUGIN2(quarkplayerstyle, QuarkPlayerStylePlugin)
 
-static const QString QUARKPLAYERSTYLE_NAME = "QuarkPlayerStyle";
-
-//Saves the last valid system style name (i.e valid means different than QuarkPlayerStyle)
-//This permit to avoid a crash when applying QuarkPlayerStyle on QuarkPlayerStyle
-static QString _lastValidSystemStyleName;
+static const char * QUARKPLAYERSTYLE_NAME = "QuarkPlayerStyle";
 
 QuarkPlayerStyle::QuarkPlayerStyle() {
+	//Saves the last valid system style name (i.e valid means different than QuarkPlayerStyle)
+	//This permit to avoid a crash when applying QuarkPlayerStyle on QuarkPlayerStyle
+	static QString lastValidSystemStyleName;
+
 	QString styleName = QApplication::style()->objectName();
 
-	if (styleName != QUARKPLAYERSTYLE_NAME.toLower()) {
-		_lastValidSystemStyleName = styleName;
-		_systemStyle = QStyleFactory::create(_lastValidSystemStyleName);
+	if (styleName != QString(QUARKPLAYERSTYLE_NAME).toLower()) {
+		lastValidSystemStyleName = styleName;
+		_systemStyle = QStyleFactory::create(lastValidSystemStyleName);
 	} else {
 		//If styleName == QUARKPLAYERSTYLE_NAME, then we end up in recursion
-		_systemStyle = QStyleFactory::create(_lastValidSystemStyleName);
+		_systemStyle = QStyleFactory::create(lastValidSystemStyleName);
 	}
 
 	if (!_systemStyle) {
@@ -80,7 +80,7 @@ QStringList QuarkPlayerStylePlugin::keys() const {
 }
 
 QStyle * QuarkPlayerStylePlugin::create(const QString & key) {
-	if (key.toLower() == QUARKPLAYERSTYLE_NAME.toLower()) {
+	if (key.toLower() == QString(QUARKPLAYERSTYLE_NAME).toLower()) {
 		return new QuarkPlayerStyle();
 	}
 	return NULL;

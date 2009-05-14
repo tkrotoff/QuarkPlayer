@@ -16,6 +16,7 @@ qt4_wrap_cpp(playlist_SRCS
 	PlaylistModel.h
 	PlaylistFilter.h
 	DragAndDropTreeView.h
+	CommandLineParser.h
 )
 
 add_library(playlist SHARED ${playlist_SRCS})

@@ -20,32 +20,33 @@
 
 #include "PlaylistModel.h"
 
+#include <quarkplayer/CommandLineManager.h>
+
 #include <QtCore/QUrl>
-#include <QtCore/QFileInfo>
 #include <QtCore/QStringList>
-#include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
-CommandLineParser::CommandLineParser(PlaylistModel * playlistModel) {
+CommandLineParser::CommandLineParser(PlaylistModel * playlistModel)
+	: ICommandLineParser() {
+
 	_playlistModel = playlistModel;
 
-	start();
+	argsReceived(CommandLineManager::instance().argsReceived(), true);
+	CommandLineManager::instance().addCommandLineParser(this);
 }
 
 CommandLineParser::~CommandLineParser() {
+	CommandLineManager::instance().removeCommandLineParser(this);
 }
 
-void CommandLineParser::start() {
-	QStringList args(QCoreApplication::arguments());
-
-	//Delete the first one in the list,
-	//it is the name of the application
-	//we don't care about this
-	args.removeAt(0);
+void CommandLineParser::argsReceived(const QStringList & args, bool usingQtSingleApplication) {
+	Q_UNUSED(usingQtSingleApplication);
 
 	bool playlistEnqueue = false;
 	QStringList files;
 	QStringList playlists;
+
 	foreach (QString arg, args) {
 		if (arg == "--playlist-enqueue") {
 			playlistEnqueue = true;
@@ -61,9 +62,10 @@ void CommandLineParser::start() {
 	}
 
 	if (!files.isEmpty()) {
-		_playlistModel->clear();
+		if (!playlistEnqueue) {
+			_playlistModel->clear();
+		}
 		_playlistModel->addFiles(files);
-
 		if (!playlistEnqueue) {
 			//Plays the first valid file/URL found from the command line arguments
 			_playlistModel->play(0);

@@ -1,4 +1,4 @@
-#Default paths
+# Default paths
 set(INCLUDE_INSTALL_DIR include)
 set(BIN_INSTALL_DIR ".")
 set(LIB_INSTALL_DIR lib)
@@ -6,6 +6,23 @@ set(PLUGIN_INSTALL_DIR ${BIN_INSTALL_DIR}/plugins)
 set(INSTALL_TARGETS_DEFAULT_ARGS
 	RUNTIME DESTINATION ${BIN_INSTALL_DIR}
 )
+
+
+# Converts from UNIX file format to DOS file format
+#unix2dos(${CMAKE_CURRENT_SOURCE_DIR}/AUTHORS ${CMAKE_CURRENT_BINARY_DIR}/Authors.txt)
+#unix2dos(${CMAKE_CURRENT_SOURCE_DIR}/README ${CMAKE_CURRENT_BINARY_DIR}/Readme.txt)
+#unix2dos(${CMAKE_CURRENT_SOURCE_DIR}/THANKS ${CMAKE_CURRENT_BINARY_DIR}/Thanks.txt)
+#unix2dos(${CMAKE_CURRENT_SOURCE_DIR}/COPYING ${CMAKE_CURRENT_BINARY_DIR}/Copying.txt)
+#unix2dos(${CMAKE_CURRENT_SOURCE_DIR}/COPYING.LESSER ${CMAKE_CURRENT_BINARY_DIR}/CopyingLesser.txt)
+#unix2dos(${CMAKE_CURRENT_SOURCE_DIR}/ChangeLog ${CMAKE_CURRENT_BINARY_DIR}/ChangeLog.txt)
+
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Authors.txt DESTINATION ${BIN_INSTALL_DIR})
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Readme.txt DESTINATION ${BIN_INSTALL_DIR})
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Thanks.txt DESTINATION ${BIN_INSTALL_DIR})
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Copying.txt DESTINATION ${BIN_INSTALL_DIR})
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CopyingLesser.txt DESTINATION ${BIN_INSTALL_DIR})
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ChangeLog.txt DESTINATION ${BIN_INSTALL_DIR})
+
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/AUTHORS DESTINATION ${BIN_INSTALL_DIR})
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/README DESTINATION ${BIN_INSTALL_DIR})
@@ -15,13 +32,13 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/COPYING.LESSER DESTINATION ${BIN_INSTA
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ChangeLog DESTINATION ${BIN_INSTALL_DIR})
 
 
-#Windows mimetypes icons
+# Windows mimetypes icons
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer-app/icons/mimetypes/audio-x-generic.ico DESTINATION ${BIN_INSTALL_DIR}/icons/mimetypes)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer-app/icons/mimetypes/video-x-generic.ico DESTINATION ${BIN_INSTALL_DIR}/icons/mimetypes)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer-app/icons/mimetypes/playlist-x-generic.ico DESTINATION ${BIN_INSTALL_DIR}/icons/mimetypes)
 
 
-#Copy Qt toolkit dll
+# Copy Qt toolkit dlls
 set(QT_MIN_VERSION 4.4.0)
 find_package(Qt4 REQUIRED)
 
@@ -31,7 +48,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	install(FILES ${QT_BINARY_DIR}/QtNetworkd4.dll DESTINATION ${BIN_INSTALL_DIR})
 	install(FILES ${QT_BINARY_DIR}/QtXmld4.dll DESTINATION ${BIN_INSTALL_DIR})
 
-	#For phonon_ds9.dll (the DirectShow backend)
+	# Needed by phonon_ds9.dll (the DirectShow backend)
 	install(FILES ${QT_BINARY_DIR}/QtOpenGLd4.dll DESTINATION ${BIN_INSTALL_DIR})
 
 	install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qjpegd4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
@@ -42,24 +59,24 @@ else (CMAKE_BUILD_TYPE STREQUAL Debug)
 	install(FILES ${QT_BINARY_DIR}/QtNetwork4.dll DESTINATION ${BIN_INSTALL_DIR})
 	install(FILES ${QT_BINARY_DIR}/QtXml4.dll DESTINATION ${BIN_INSTALL_DIR})
 
-	#For phonon_ds9.dll (the DirectShow backend)
+	# Needed by phonon_ds9.dll (the DirectShow backend)
 	install(FILES ${QT_BINARY_DIR}/QtOpenGL4.dll DESTINATION ${BIN_INSTALL_DIR})
 
 	install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qjpeg4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
 	install(FILES ${QT_BINARY_DIR}/../plugins/imageformats/qgif4.dll DESTINATION ${BIN_INSTALL_DIR}/imageformats)
 endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
-#Copy Qt toolkit translations
+# Copy Qt toolkit translations
 install(FILES ${QT_BINARY_DIR}/../translations/qt_fr.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
 install(FILES ${QT_BINARY_DIR}/../translations/qt_de.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
 install(FILES ${QT_BINARY_DIR}/../translations/qt_es.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
 install(FILES ${QT_BINARY_DIR}/../translations/qt_uk.qm DESTINATION ${BIN_INSTALL_DIR}/translations)
 
-#Copy MPlayer build from SMPlayer
-#Used by MPlayer Phonon backend
-#SMPlayer' MPlayer build can be found at:
-#http://smplayer.sourceforge.net/
-#just install SMPlayer inside C:/Program Files/SMPlayer
+# Copy MPlayer build from SMPlayer
+# Used by MPlayer Phonon backend
+# SMPlayer' MPlayer build can be found at:
+# http://smplayer.sourceforge.net/
+# just install SMPlayer inside C:/Program Files/SMPlayer
 set(MPLAYER_INSTALL_DIR "C:/Program Files/SMPlayer/mplayer")
 if (EXISTS ${MPLAYER_INSTALL_DIR})
 	install(DIRECTORY ${MPLAYER_INSTALL_DIR} DESTINATION ${BIN_INSTALL_DIR})
@@ -68,11 +85,11 @@ else (EXISTS ${MPLAYER_INSTALL_DIR})
 endif (EXISTS ${MPLAYER_INSTALL_DIR})
 
 if (MINGW)
-	#When compiled with MinGW, we need mingwm10.dll
+	# When compiled with MinGW, we need mingwm10.dll
 	install(FILES "${QT_BINARY_DIR}/mingwm10.dll" DESTINATION ${BIN_INSTALL_DIR})
 
-	#For Visual C++ dlls (msvcr*d.dll, msvcp*d.dll), no need to copy these files now
-	#They are already inside the PATH on the dev platform,
-	#so this step is done inside the NSIS installer script instead,
-	#via the special Microsoft package: vcredist_x86.exe
+	# For Visual C++ dlls (msvcr*d.dll, msvcp*d.dll), no need to copy these files now
+	# They are already inside the PATH on the dev platform,
+	# so this step is done inside the NSIS installer script instead,
+	# via the special Microsoft package: vcredist_x86.exe
 endif (MINGW)

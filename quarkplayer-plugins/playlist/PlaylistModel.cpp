@@ -60,6 +60,7 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const 
 	: QAbstractItemModel(parent),
 	_quarkPlayer(quarkPlayer) {
 
+	_commandLineParser = NULL;
 	_uuid = uuid;
 
 	clearInternal();
@@ -86,6 +87,7 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const 
 }
 
 PlaylistModel::~PlaylistModel() {
+	delete _commandLineParser;
 }
 
 int PlaylistModel::columnCount(const QModelIndex & parent) const {
@@ -610,5 +612,6 @@ int PlaylistModel::position() const {
 
 void PlaylistModel::allPluginsLoaded() {
 	//Parses the command line arguments
-	CommandLineParser(this);
+	//new CommandLineParser() is needed since CommandLineParser waits for the argsReceived() signal
+	_commandLineParser = new CommandLineParser(this);
 }

@@ -72,6 +72,8 @@ endif (APPLE)
 
 
 # 3rdparty libraries with no Qt dependency
+add_subdirectory(quarkplayer/quarkplayercontextmenu)
+
 if (ZLIB)
 	add_subdirectory(3rdparty/zlib)
 	set(ZLIB_FOUND 1)
@@ -137,6 +139,7 @@ reduce_qt_include_dirs()
 # 3rdparty libraries with Qt dependency
 add_subdirectory(3rdparty/quazip)
 add_subdirectory(3rdparty/modeltest)
+add_subdirectory(3rdparty/qtsingleapplication)
 ##
 
 

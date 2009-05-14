@@ -6,7 +6,7 @@ project(quarkplayercore)
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 configure_file(version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
 
-add_definitions(-DBUILD_QUARKPLAYER)
+add_definitions(-DBUILD_QUARKPLAYER -DQT_QTSINGLEAPPLICATION_IMPORT)
 
 # Otherwise QString::fromStdWString() is not defined
 # This happens when compiling using the KDE4 libraries
@@ -32,7 +32,7 @@ set(quarkplayercore_SRCS
 	PluginsConfig.cpp
 	MainWindow.cpp
 	AboutWindow.cpp
-	CommandLineHelp.cpp
+	CommandLineManager.cpp
 	CommandLineParser.cpp
 	Languages.cpp
 	WinDefaultApplication.cpp
@@ -70,7 +70,8 @@ qt4_wrap_cpp(quarkplayercore_SRCS
 	QuarkPlayer.h
 	MainWindow.h
 	PluginsManager.h
-	CommandLineHelp.h
+	CommandLineManager.h
+	CommandLineParser.h
 	config/Config.h
 	config/ConfigWindow.h
 	config/IConfigWidget.h
@@ -102,6 +103,7 @@ target_link_libraries(quarkplayercore
 	tkutil
 	winfileassociations
 	filetypes
+	qtsingleapplication
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 	${QT_QTXML_LIBRARY}
