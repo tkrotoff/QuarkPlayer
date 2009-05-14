@@ -3,9 +3,9 @@ project(quarkplayercontextmenu)
 add_definitions(-DUNICODE)
 
 set(quarkplayercontextmenu_SRCS
-	QuarkPlayerContextMenu.cpp
-	QuarkPlayerContextMenu.def
-	QuarkPlayerContextMenu.rc
+	WinContextMenu.cpp
+	WinContextMenu.def
+	WinContextMenu.rc
 )
 
 add_library(quarkplayercontextmenu SHARED ${quarkplayercontextmenu_SRCS})

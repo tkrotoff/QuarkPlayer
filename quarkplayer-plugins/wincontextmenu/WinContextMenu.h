@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QUARKPLAYERCONTEXTMENU_H
-#define QUARKPLAYERCONTEXTMENU_H
+#ifndef WINCONTEXTMENU_H
+#define WINCONTEXTMENU_H
 
 /**
  * Context menu shell extension for QuarkPlayer.
@@ -99,4 +99,4 @@ private:
 	HBITMAP m_hQuarkPlayerBmp;
 };
 
-#endif	//QUARKPLAYERCONTEXTMENU_H
+#endif	//WINCONTEXTMENU_H

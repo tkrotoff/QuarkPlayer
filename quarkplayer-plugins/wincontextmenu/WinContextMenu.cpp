@@ -25,7 +25,7 @@
 #include <initguid.h>
 #include <shlguid.h>
 
-#include "QuarkPlayerContextMenu.h"
+#include "WinContextMenu.h"
 
 //Defines IDB_QUARKPLAYER
 #include "resource.h"
