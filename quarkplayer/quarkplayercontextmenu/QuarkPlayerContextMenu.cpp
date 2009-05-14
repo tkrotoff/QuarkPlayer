@@ -27,8 +27,8 @@
 
 #include "QuarkPlayerContextMenu.h"
 
-//QuarkPlayer icon
-#define IDB_QUARKPLAYER 102
+//Defines IDB_QUARKPLAYER
+#include "resource.h"
 
 //Our DLL reference count
 UINT _dllCount = 0;
@@ -36,9 +36,19 @@ UINT _dllCount = 0;
 //HINSTANCE of our DLL
 HINSTANCE _hModule = NULL;
 
+static const LPTSTR menuItems[] = {
+	TEXT("Play"),
+	TEXT("Enqueue")
+};
+
+static const LPTSTR menuItemsHelp[] = {
+	TEXT("Play with QuarkPlayer"),
+	TEXT("Enqueue in QuarkPlayer")
+};
+
 void MsgBoxError(HWND hWnd, LPTSTR message) {
 	MessageBox(hWnd, message,
-		"QuarkPlayer Shell Extension",
+		TEXT("QuarkPlayer Shell Extension"),
 		MB_OK | MB_ICONSTOP
 	);
 }
@@ -85,7 +95,6 @@ ULONG STDMETHODCALLTYPE CContextMenu::Release() {
 	return 0L;
 }
 
-//IShellExtInit::Initialize() implementation
 HRESULT STDMETHODCALLTYPE CContextMenu::Initialize(LPCITEMIDLIST pIDFolder, LPDATAOBJECT pDataObj, HKEY hRegKey) {
 	if (m_pDataObj) {
 		m_pDataObj->Release();
@@ -98,16 +107,55 @@ HRESULT STDMETHODCALLTYPE CContextMenu::Initialize(LPCITEMIDLIST pIDFolder, LPDA
 }
 
 HRESULT STDMETHODCALLTYPE CContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags) {
-	//Right click on a normal file
 
+	//
+	//If the flags include CMF_DEFAULTONLY then we shouldn't do anything
+	//
+	//CMF_DEFAULTONLY: This flag is set when the user is activating the default action,
+	//typically by double-clicking.
+	//This flag provides a hint for the shortcut menu extension to add nothing
+	//if it does not modify the default item in the menu.
+	//A shortcut menu extension or drag-and-drop handler should not add any menu items
+	//if this value is specified.
+	//A namespace extension should add only the default item (if any).
+	//See http://msdn.microsoft.com/en-us/library/bb776097.aspx
+	//
+	//If a file class has a context menu associated with it,
+	//double-clicking an object normally launches the default command.
+	//The handler's IContextMenu::QueryContextMenu method is not called.
+	//To specify that the handler's IContextMenu::QueryContextMenu method should be called when an object is double-clicked,
+	//create a shellex\MayChangeDefaultMenu  subkey under the handler's CLSID key.
+	//When an object associated with the handler is double-clicked,
+	//IContextMenu::QueryContextMenu will be called with the CMF_DEFAULTONLY flag set in the uFlags parameter.
+	//
+	//Note: Setting the MayChangeDefaultMenu key forces the system to load the handler's DLL when an associated item is double-clicked.
+	//If your handler does not change the default verb, you should not set MayChangeDefaultMenu.
+	//Doing so causes the system to load your DLL unnecessarily.
+	//Context menu handlers should set this key only if they might need to change the context menu's default verb.
+	//See http://msdn.microsoft.com/en-us/library/bb776881(VS.85).aspx
+	//
+	/*if (uFlags & CMF_DEFAULTONLY) {
+		return MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, 0);
+	}*/
+
+	//idCmdFirst is always equal to 0 ?
 	UINT idCmd = idCmdFirst;
-	UINT nIndex = indexMenu++;
 
-	InsertMenu(hMenu, nIndex, MF_STRING | MF_BYPOSITION, idCmd++, "Play with QuarkPlayer");
+	//nIndex is always equal to 0 ?
+	UINT nIndex = indexMenu;
 
-	if (m_hQuarkPlayerBmp) {
+	InsertMenu(hMenu, nIndex, MF_STRING | MF_BYPOSITION, idCmd++, menuItems[nIndex]);
+	/*if (m_hQuarkPlayerBmp) {
 		SetMenuItemBitmaps(hMenu, nIndex, MF_BYPOSITION, m_hQuarkPlayerBmp, m_hQuarkPlayerBmp);
-	}
+	}*/
+	//Change the default menu item and make it at the top of the menu
+	SetMenuDefaultItem(hMenu, nIndex, TRUE);
+
+	nIndex++;
+	InsertMenu(hMenu, nIndex, MF_STRING | MF_BYPOSITION, idCmd++, menuItems[nIndex]);
+	/*if (m_hQuarkPlayerBmp) {
+		SetMenuItemBitmaps(hMenu, nIndex, MF_BYPOSITION, m_hQuarkPlayerBmp, m_hQuarkPlayerBmp);
+	}*/
 
 	return MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, idCmd - idCmdFirst);
 }
@@ -120,7 +168,11 @@ HRESULT STDMETHODCALLTYPE CContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO lpcm
 
 		switch (idCmd) {
 		case 0:
-			hres = invokeQuarkPlayer(lpcmi->hwnd);
+		case 1:
+			hres = invokeQuarkPlayer(lpcmi->hwnd, TEXT(""));
+			break;
+		case 2:
+			hres = invokeQuarkPlayer(lpcmi->hwnd, TEXT("--playlist-enqueue"));
 			break;
 		}
 	}
@@ -128,20 +180,22 @@ HRESULT STDMETHODCALLTYPE CContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO lpcm
 }
 
 HRESULT STDMETHODCALLTYPE CContextMenu::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT FAR * pwReserved, LPSTR pszName, UINT cchMax) {
-	//Text fo show inside the Explorer status bar
+	//Text to show inside the Explorer status bar
 	//when the mouse points to an item from the context menu
 
+	//See http://msdn.microsoft.com/en-us/library/bb431714.aspx
+	//There is no need to deal with the different uFlags, just GCS_HELPTEXT
 	switch (uFlags) {
 	case GCS_HELPTEXT:
-		lstrcpy(pszName, "Play with QuarkPlayer");
+		lstrcpyn((LPWSTR) pszName, menuItemsHelp[idCmd], cchMax);
 		break;
 	default:
-		break;
+		return E_INVALIDARG;
 	}
 	return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE CContextMenu::invokeQuarkPlayer(HWND hParent) {
+HRESULT STDMETHODCALLTYPE CContextMenu::invokeQuarkPlayer(HWND hParent, LPTSTR args) {
 	//Get the number of files selected by the user
 	UINT nbFilesSelected;
 	STGMEDIUM stgMedium;
@@ -157,31 +211,38 @@ HRESULT STDMETHODCALLTYPE CContextMenu::invokeQuarkPlayer(HWND hParent) {
 	//Module full path
 	TCHAR moduleFileName[MAX_PATH];
 	GetModuleFileName(_hModule, moduleFileName, MAX_PATH);
-	TCHAR * pDest = strrchr(moduleFileName, '\\');
-	pDest++;
-	pDest[0] = 0;
+	//Get folder name
+	TCHAR moduleDrive[_MAX_DRIVE];
+	TCHAR modulePath[MAX_PATH];
+#ifdef UNICODE
+	_wsplitpath(moduleFileName, moduleDrive, modulePath, NULL, NULL);
+#else
+	_splitpath(moduleFileName, moduleDrive, modulePath, NULL, NULL);
+#endif
 
 	//quarkplayer.exe full path
 	LPTSTR commandLine;
 	UINT commandLineSize = MAX_PATH * (nbFilesSelected + 1) * sizeof(TCHAR);
 	commandLine = (LPTSTR) CoTaskMemAlloc(commandLineSize);
 	if (!commandLine) {
-		MsgBoxError(hParent, "Insufficient memory available.");
+		MsgBoxError(hParent, TEXT("Insufficient memory available."));
 		return E_OUTOFMEMORY;
 	}
-	lstrcpy(commandLine, "\"");
-	lstrcat(commandLine, moduleFileName);
-	lstrcat(commandLine, "quarkplayer.exe");
-	lstrcat(commandLine, "\"");
+	lstrcpy(commandLine, TEXT("\""));
+	lstrcat(commandLine, moduleDrive);
+	lstrcat(commandLine, modulePath);
+	lstrcat(commandLine, TEXT("quarkplayer.exe"));
+	lstrcat(commandLine, TEXT("\" "));
+	lstrcat(commandLine, args);
 
 	//Files selected by the user
 	TCHAR fileUserClickedOn[MAX_PATH];
 
 	for (UINT i = 0; i < nbFilesSelected; i++) {
 		DragQueryFile((HDROP) stgMedium.hGlobal, i, fileUserClickedOn, MAX_PATH);
-		lstrcat(commandLine, " \"");
+		lstrcat(commandLine, TEXT(" \""));
 		lstrcat(commandLine, fileUserClickedOn);
-		lstrcat(commandLine, "\"");
+		lstrcat(commandLine, TEXT("\""));
 	}
 
 	//Launch quarkplayer.exe with the list of files as arguments
@@ -210,11 +271,13 @@ HRESULT STDMETHODCALLTYPE CContextMenu::invokeQuarkPlayer(HWND hParent) {
 		&processInfo	//LPPROCESS_INFORMATION lpProcessInformation
 	);
 
+	//MsgBoxError(hParent, commandLine);
+
 	CoTaskMemFree(commandLine);
 
 	if (!result) {
 		MsgBoxError(hParent,
-			"Error creating process: quarpkayercontextmenu.dll needs to be in the same directory as quarkplayer.exe");
+			TEXT("Error creating process: quarpkayercontextmenu.dll needs to be in the same directory as quarkplayer.exe"));
 		return E_FAIL;
 	}
 
@@ -305,7 +368,7 @@ typedef struct {
 	LPTSTR szData;
 } DOREGSTRUCT;
 
-static const TCHAR shellExtensionTitle[] = "QuarkPlayer";
+static const TCHAR shellExtensionTitle[] = TEXT("QuarkPlayer");
 
 static const UINT GUID_SIZE = 128;
 
@@ -314,22 +377,28 @@ STDAPI DllRegisterServer(void) {
 	TCHAR moduleFileName[MAX_PATH];
 	GetModuleFileName(_hModule, moduleFileName, MAX_PATH);
 
+	//
 	LPOLESTR pwsz;
 	StringFromIID(CLSID_ShellExtension, &pwsz);
 	TCHAR szCLSID[GUID_SIZE + 1];
+#ifdef UNICODE
+	lstrcpy(szCLSID, pwsz);
+#else
 	WideCharToMultiByte(CP_ACP, 0, pwsz, -1, szCLSID, ARRAYSIZE(szCLSID), NULL, NULL);
+#endif
 	CoTaskMemFree(pwsz);
+	///
 
 	DOREGSTRUCT CLSIDEntries[] = {
-		HKEY_CLASSES_ROOT, "CLSID\\%s", NULL, (LPTSTR) shellExtensionTitle,
-		HKEY_CLASSES_ROOT, "CLSID\\%s\\InprocServer32", NULL, moduleFileName,
-		HKEY_CLASSES_ROOT, "CLSID\\%s\\InprocServer32", "ThreadingModel", "Apartment",
-		HKEY_CLASSES_ROOT, "*\\shellex\\ContextMenuHandlers\\QuarkPlayer", NULL, szCLSID,
+		HKEY_CLASSES_ROOT, TEXT("CLSID\\%s"), NULL, (LPTSTR) shellExtensionTitle,
+		HKEY_CLASSES_ROOT, TEXT("CLSID\\%s\\InprocServer32"), NULL, moduleFileName,
+		HKEY_CLASSES_ROOT, TEXT("CLSID\\%s\\InprocServer32"), TEXT("ThreadingModel"), TEXT("Apartment"),
+		HKEY_CLASSES_ROOT, TEXT("CLSID\\%s\\shellex\\MayChangeDefaultMenu"), NULL, NULL,
 		NULL, NULL, NULL, NULL
 	};
 
 	for (UINT i = 0; CLSIDEntries[i].hRootKey; i++) {
-		//Create the sub key string - for this case, insert the file extension
+		//Create the sub key string
 		TCHAR szSubKey[MAX_PATH];
 		wsprintf(szSubKey, CLSIDEntries[i].szSubKey, szCLSID);
 
@@ -338,11 +407,14 @@ STDAPI DllRegisterServer(void) {
 		LONG result = RegCreateKeyEx(CLSIDEntries[i].hRootKey, szSubKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp);
 
 		if (result == ERROR_SUCCESS) {
-			//If necessary, create the value string
-			TCHAR szData[MAX_PATH];
-			wsprintf(szData, CLSIDEntries[i].szData, moduleFileName);
-
-			RegSetValueEx(hKey, CLSIDEntries[i].lpszValueName, 0, REG_SZ, (LPBYTE) szData, (lstrlen(szData) + 1) * sizeof(TCHAR));
+			if (CLSIDEntries[i].szData) {
+				//If necessary, create the value string
+				RegSetValueEx(hKey,
+					CLSIDEntries[i].lpszValueName, 0, REG_SZ,
+					(const BYTE *) CLSIDEntries[i].szData,
+					(lstrlen(CLSIDEntries[i].szData) + 1) * sizeof(TCHAR)
+				);
+			}
 			RegCloseKey(hKey);
 		} else {
 			return E_FAIL;
@@ -353,24 +425,27 @@ STDAPI DllRegisterServer(void) {
 }
 
 STDAPI DllUnregisterServer(void) {
-	TCHAR szKeyTemp[MAX_PATH + GUID_SIZE];
-	wsprintf(szKeyTemp, "*\\shellex\\ContextMenuHandlers\\%s", shellExtensionTitle);
-	RegDeleteKey(HKEY_CLASSES_ROOT, szKeyTemp);
-
-	TCHAR szCLSIDKey[GUID_SIZE + 32];
-	lstrcpy(szCLSIDKey, "CLSID\\");
-
+	//
 	LPOLESTR pwsz;
 	StringFromIID(CLSID_ShellExtension, &pwsz);
 	TCHAR szCLSID[GUID_SIZE + 1];
+#ifdef UNICODE
+	lstrcpy(szCLSID, pwsz);
+#else
 	WideCharToMultiByte(CP_ACP, 0, pwsz, -1, szCLSID, ARRAYSIZE(szCLSID), NULL, NULL);
+#endif
 	CoTaskMemFree(pwsz);
+	///
 
-	lstrcat(szCLSIDKey, szCLSID);
-
-	wsprintf(szKeyTemp, "%s\\%s", szCLSIDKey, TEXT("InprocServer32"));
+	TCHAR szKeyTemp[MAX_PATH + GUID_SIZE];
+	wsprintf(szKeyTemp, TEXT("CLSID\\%s\\InprocServer32"), szCLSID);
 	RegDeleteKey(HKEY_CLASSES_ROOT, szKeyTemp);
-	RegDeleteKey(HKEY_CLASSES_ROOT, szCLSIDKey);
+	wsprintf(szKeyTemp, TEXT("CLSID\\%s\\shellex\\MayChangeDefaultMenu"), szCLSID);
+	RegDeleteKey(HKEY_CLASSES_ROOT, szKeyTemp);
+	wsprintf(szKeyTemp, TEXT("CLSID\\%s\\shellex"), szCLSID);
+	RegDeleteKey(HKEY_CLASSES_ROOT, szKeyTemp);
+	wsprintf(szKeyTemp, TEXT("CLSID\\%s"), szCLSID);
+	RegDeleteKey(HKEY_CLASSES_ROOT, szKeyTemp);
 
 	return S_OK;
 }

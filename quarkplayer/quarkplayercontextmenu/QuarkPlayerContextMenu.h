@@ -30,6 +30,7 @@
  * - SciTE Context Menu by Andre Burgaud, see http://www.burgaud.com/category/wscitecm/
  *
  * Documentation links:
+ * The Complete Idiot's Guite to Writing Shell Extensions, Part I: http://www.codeproject.com/KB/shell/shellextguide1.aspx
  * Creating Shell Extension Handlers: http://msdn.microsoft.com/en-us/library/cc144067(VS.85).aspx
  * Introduction to COM by Adrian Perez : http://www.flipcode.com/documents/doccom.html
  * Mike Panitz's Introduction to COM: http://faculty.cascadia.edu/mpanitz/com_tutorial/
@@ -41,7 +42,7 @@
  */
 
 //GUID of our shell extension, generated using guidgen.exe provided with Visual C++
-//Please do not copy-paste QuarkPlayer GUUID, but instead create your own to avoid conflicts
+//Please do not copy-paste QuarkPlayer GUUID, just create your own to avoid conflicts
 //{BC6D1C0E-ADF5-44a1-9940-978019DF7985}
 DEFINE_GUID(CLSID_ShellExtension, 0xbc6d1c0e, 0xadf5, 0x44a1, 0x99, 0x40, 0x97, 0x80, 0x19, 0xdf, 0x79, 0x85);
 
@@ -89,7 +90,7 @@ public:
 private:
 
 	/** Execute quarkplayer.exe. */
-	HRESULT STDMETHODCALLTYPE invokeQuarkPlayer(HWND hParent);
+	HRESULT STDMETHODCALLTYPE invokeQuarkPlayer(HWND hParent, LPTSTR args);
 
 	ULONG m_cRef;
 	LPDATAOBJECT m_pDataObj;

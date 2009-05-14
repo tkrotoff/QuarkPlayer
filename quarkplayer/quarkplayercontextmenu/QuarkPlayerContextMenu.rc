@@ -1,1 +1,4 @@
-IDB_QUARKPLAYER BITMAP DISCARDABLE "quarkplayer.bmp"
+#include "resource.h"
+
+//Should be 13x13 pixels
+IDB_QUARKPLAYER BITMAP DISCARDABLE "quarkplayer-13x13.bmp"

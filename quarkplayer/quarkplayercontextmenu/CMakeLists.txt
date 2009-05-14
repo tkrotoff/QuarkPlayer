@@ -1,5 +1,7 @@
 project(quarkplayercontextmenu)
 
+add_definitions(-DUNICODE)
+
 set(quarkplayercontextmenu_SRCS
 	QuarkPlayerContextMenu.cpp
 	QuarkPlayerContextMenu.def
