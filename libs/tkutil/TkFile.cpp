@@ -23,31 +23,16 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifndef S_ISDIR
-	#ifdef S_IFDIR
-		//Using MSVC
-		#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
-	#else
-		#define S_ISDIR(mode) 0
-	#endif	//S_IFDIR
-#endif	//!S_ISDIR
-
-#ifndef lstat
-	//Using MSVC
-	#define lstat _wstat
-#endif	//!lstat
-
-#ifndef _stat
-	//Using MSVC
-	#define _stat stat
-#endif	//!_stat
-
 bool TkFile::isDir(const QString & path) {
-	struct _stat statbuf;
-
 	const wchar_t * encodedName = reinterpret_cast<const wchar_t *>(path.utf16());
 
+#ifdef Q_CC_MSVC
+	struct _stat statbuf;
+	_wstat(encodedName, &statbuf);
+	return ((statbuf.st_mode & S_IFMT) == S_IFDIR);
+#else
+	struct stat statbuf;
 	lstat(encodedName, &statbuf);
-
 	return S_ISDIR(statbuf.st_mode);
+#endif	//Q_CC_MSVC
 }

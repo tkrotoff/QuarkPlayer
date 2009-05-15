@@ -37,26 +37,34 @@
 class WinDefaultApplication : public QObject {
 public:
 
-	/** Adds a QuarkPlayer file association given a file extension. */
-	static void addFileAssociation(const QString & extension, bool addPlayContextMenu, bool addEnqueueContextMenu);
-
-	/** Adds a QuarkPlayer play context menu on a directory (right-clic on a directory). */
-	static void addPlayDirectoryContextMenu();
-
-	/** Removes a QuarkPlayer play context menu on a directory (right-clic on a directory). */
-	static void deletePlayDirectoryContextMenu();
-
-	/** Adds a QuarkPlayer enqueue context menu on a directory (right-clic on a directory). */
-	static void addEnqueueDirectoryContextMenu();
-
-	/** Removes a QuarkPlayer enqueue context menu on a directory (right-clic on a directory). */
-	static void deleteEnqueueDirectoryContextMenu();
-
 	/** Makes QuarkPlayer the default Windows application. */
 	static void install();
 
 	/** Unsets QuarkPlayer as the default Windows application, revert to the previous one. */
 	static void uninstall();
+
+	/** Adds a QuarkPlayer file association given a file extension. */
+	static void addFileAssociation(const QString & extension);
+
+	/** Deletes a QuarkPlayer file association given a file extension. */
+	static void deleteFileAssociation(const QString & extension);
+
+	/** Contains a QuarkPlayer file association given a file extension. */
+	static bool containsFileAssociation(const QString & extension);
+
+	/** Adds QuarkPlayer context menu on a directory (right-clic on a directory). */
+	static void addDirectoryContextMenu();
+
+	/** Removes QuarkPlayer context menu on a directory (right-clic on a directory). */
+	static void deleteDirectoryContextMenu();
+
+	/**
+	 * Notifies Windows that the file type associations have changed.
+	 *
+	 * This will update the Windows desktop file associations.
+	 * Call this method once the file associations have been changed.
+	 */
+	static void notifyFileAssociationChanged();
 
 private:
 
@@ -76,8 +84,9 @@ private:
 	/** Deletes all QuarkPlayer file associations. */
 	static void deleteAllFileAssociations();
 
-	/** Internal code factorization. */
-	static QString applicationFilePath();
+	static void registerShellExDLL();
+	static void unregisterShellExDLL();
+	static bool isShellExDLLRegistered();
 };
 
 #endif	//WINDEFAULTAPPLICATION_H

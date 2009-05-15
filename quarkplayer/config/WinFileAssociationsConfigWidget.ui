@@ -1,69 +1,70 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>WinFileAssociationsConfigWidget</class>
- <widget class="QWidget" name="WinFileAssociationsConfigWidget" >
-  <property name="geometry" >
+ <widget class="QWidget" name="WinFileAssociationsConfigWidget">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>389</width>
-    <height>445</height>
+    <width>333</width>
+    <height>278</height>
    </rect>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3" >
-   <item row="0" column="0" >
-    <widget class="QGroupBox" name="groupBox_2" >
-     <property name="title" >
+  <layout class="QGridLayout" name="gridLayout_3">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
       <string>File Associations</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2" >
-      <item row="0" column="0" >
-       <widget class="QTreeWidget" name="treeWidget" >
-        <property name="sortingEnabled" >
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QTreeWidget" name="treeWidget">
+        <property name="sortingEnabled">
          <bool>true</bool>
         </property>
         <column>
-         <property name="text" >
+         <property name="text">
           <string>Extension</string>
          </property>
         </column>
         <column>
-         <property name="text" >
+         <property name="text">
           <string>Name</string>
          </property>
         </column>
        </widget>
       </item>
-      <item row="1" column="0" >
-       <layout class="QHBoxLayout" name="horizontalLayout" >
+      <item row="1" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QPushButton" name="selectAllButton" >
-          <property name="text" >
+         <widget class="QPushButton" name="selectAllButton">
+          <property name="text">
            <string>Select &amp;All</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="selectNoneButton" >
-          <property name="text" >
+         <widget class="QPushButton" name="selectNoneButton">
+          <property name="text">
            <string>Select &amp;None</string>
           </property>
          </widget>
         </item>
         <item>
-         <layout class="QFormLayout" name="formLayout" >
-          <property name="formAlignment" >
+         <layout class="QFormLayout" name="formLayout">
+          <property name="formAlignment">
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
           </property>
-          <item row="0" column="0" >
-           <widget class="QLabel" name="wikipediaLabel" >
-            <property name="text" >
+          <item row="0" column="0">
+           <widget class="QLabel" name="wikipediaLabel">
+            <property name="text">
              <string>Wikipedia Link:</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1" >
-           <widget class="QLabel" name="wikipediaArticleLabel" >
-            <property name="openExternalLinks" >
+          <item row="0" column="1">
+           <widget class="QLabel" name="wikipediaArticleLabel">
+            <property name="openExternalLinks">
              <bool>true</bool>
             </property>
            </widget>
@@ -71,11 +72,11 @@
          </layout>
         </item>
         <item>
-         <spacer name="horizontalSpacer" >
-          <property name="orientation" >
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="sizeHint" stdset="0" >
+          <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
             <height>20</height>
@@ -84,29 +85,6 @@
          </spacer>
         </item>
        </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0" >
-    <widget class="QGroupBox" name="groupBox" >
-     <property name="title" >
-      <string>File Context Menu</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout" >
-      <item row="0" column="0" >
-       <widget class="QCheckBox" name="checkBoxPlayWith" >
-        <property name="text" >
-         <string>Add Context Menu "Play with QuarkPlayer"</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" >
-       <widget class="QCheckBox" name="checkBoxEnqueue" >
-        <property name="text" >
-         <string>Add Context Menu "Enqueue in QuarkPlayer"</string>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>

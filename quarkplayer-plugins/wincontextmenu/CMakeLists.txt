@@ -1,6 +1,6 @@
 project(quarkplayercontextmenu)
 
-add_definitions(-DUNICODE)
+#add_definitions(-DUNICODE)
 
 set(quarkplayercontextmenu_SRCS
 	WinContextMenu.cpp

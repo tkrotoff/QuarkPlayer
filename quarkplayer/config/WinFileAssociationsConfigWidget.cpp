@@ -26,8 +26,6 @@
 
 #include <filetypes/FileTypes.h>
 
-#include <winfileassociations/WinFileAssociations.h>
-
 #include <QtGui/QtGui>
 
 #include <QtCore/QPluginLoader>
@@ -49,13 +47,10 @@ WinFileAssociationsConfigWidget::WinFileAssociationsConfigWidget() {
 
 	connect(_ui->selectAllButton, SIGNAL(clicked()), SLOT(selectAllButtonClicked()));
 	connect(_ui->selectNoneButton, SIGNAL(clicked()), SLOT(selectNoneButtonClicked()));
-
-	_winFileAssociations = new WinFileAssociations(QCoreApplication::applicationName());
 }
 
 WinFileAssociationsConfigWidget::~WinFileAssociationsConfigWidget() {
 	delete _ui;
-	delete _winFileAssociations;
 }
 
 QString WinFileAssociationsConfigWidget::name() const {
@@ -67,6 +62,8 @@ QString WinFileAssociationsConfigWidget::iconName() const {
 }
 
 void WinFileAssociationsConfigWidget::saveConfig() {
+	bool atLeastOneFileAssociated = false;
+
 	for (int i = 0; i < _ui->treeWidget->topLevelItemCount(); i++) {
 		QTreeWidgetItem * topLevelItem = _ui->treeWidget->topLevelItem(i);
 
@@ -75,13 +72,10 @@ void WinFileAssociationsConfigWidget::saveConfig() {
 			if (item) {
 				QString extension(item->text(COLUMN_EXTENSION));
 				if (item->checkState(COLUMN_EXTENSION) == Qt::Checked) {
-					WinDefaultApplication::addFileAssociation(
-						extension,
-						_ui->checkBoxPlayWith->checkState() == Qt::Checked,
-						_ui->checkBoxEnqueue->checkState() == Qt::Checked
-					);
+					atLeastOneFileAssociated = true;
+					WinDefaultApplication::addFileAssociation(extension);
 				} else {
-					_winFileAssociations->deleteAssociation(extension);
+					WinDefaultApplication::deleteFileAssociation(extension);
 				}
 			}
 		}
@@ -89,19 +83,16 @@ void WinFileAssociationsConfigWidget::saveConfig() {
 
 	//File context menu
 	//Special case for right-clic on a directory
-	if (_ui->checkBoxPlayWith->checkState() == Qt::Checked) {
-		WinDefaultApplication::addPlayDirectoryContextMenu();
+	if (atLeastOneFileAssociated) {
+		WinDefaultApplication::addDirectoryContextMenu();
 	} else {
-		WinDefaultApplication::deletePlayDirectoryContextMenu();
-	}
-	if (_ui->checkBoxEnqueue->checkState() == Qt::Checked) {
-		WinDefaultApplication::addEnqueueDirectoryContextMenu();
-	} else {
-		WinDefaultApplication::deleteEnqueueDirectoryContextMenu();
+		//There is no file association at all
+		//so let's uninstall all QuarkPlayer associations + the shellex
+		WinDefaultApplication::uninstall();
 	}
 	///
 
-	WinFileAssociations::notifyFileAssociationChanged();
+	WinDefaultApplication::notifyFileAssociationChanged();
 }
 
 void WinFileAssociationsConfigWidget::readConfig() {
@@ -131,13 +122,6 @@ void WinFileAssociationsConfigWidget::readConfig() {
 
 	//FIXME fix a graphical bug under Windows XP: the extension column is not large enough
 	_ui->treeWidget->setColumnWidth(COLUMN_EXTENSION, _ui->treeWidget->columnWidth(COLUMN_EXTENSION) + 5);
-
-	if (_winFileAssociations->containsDirectoryCommand("QuarkPlayer.Play")) {
-		_ui->checkBoxPlayWith->setCheckState(Qt::Checked);
-	}
-	if (_winFileAssociations->containsDirectoryCommand("QuarkPlayer.Enqueue")) {
-		_ui->checkBoxEnqueue->setCheckState(Qt::Checked);
-	}
 }
 
 void WinFileAssociationsConfigWidget::retranslate() {
@@ -152,7 +136,7 @@ void WinFileAssociationsConfigWidget::addItems(QTreeWidgetItem * parent, const Q
 		item->setText(COLUMN_EXTENSION, extension);
 		item->setText(COLUMN_NAME, FileTypes::fileType(extension).fullName);
 
-		if (_winFileAssociations->isAssociated(extension)) {
+		if (WinDefaultApplication::containsFileAssociation(extension)) {
 			item->setCheckState(COLUMN_EXTENSION, Qt::Checked);
 		} else {
 			item->setCheckState(COLUMN_EXTENSION, Qt::Unchecked);

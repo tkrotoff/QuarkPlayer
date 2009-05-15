@@ -37,11 +37,6 @@ UINT _dllCount = 0;
 HINSTANCE _hModule = NULL;
 
 static const LPTSTR menuItems[] = {
-	TEXT("Play"),
-	TEXT("Enqueue")
-};
-
-static const LPTSTR menuItemsHelp[] = {
 	TEXT("Play with QuarkPlayer"),
 	TEXT("Enqueue in QuarkPlayer")
 };
@@ -51,6 +46,18 @@ void MsgBoxError(HWND hWnd, LPTSTR message) {
 		TEXT("QuarkPlayer Shell Extension"),
 		MB_OK | MB_ICONSTOP
 	);
+}
+
+#include <sys/stat.h>
+
+BOOL IsDir(LPTSTR path) {
+	struct _stat statbuf;
+#ifdef UNICODE
+	_wstat(path, &statbuf);
+#else
+	_stat(path, &statbuf);
+#endif
+	return ((statbuf.st_mode & S_IFMT) == S_IFDIR);
 }
 
 CContextMenu::CContextMenu() {
@@ -107,6 +114,24 @@ HRESULT STDMETHODCALLTYPE CContextMenu::Initialize(LPCITEMIDLIST pIDFolder, LPDA
 }
 
 HRESULT STDMETHODCALLTYPE CContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags) {
+	//Check if the first file selected by the user
+	//is a directory or not
+	//Depending on that we won't show the same menu
+	BOOL isDir = FALSE;
+	STGMEDIUM stgMedium;
+	FORMATETC fmte = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+	HRESULT hres = m_pDataObj->GetData(&fmte, &stgMedium);
+	if (SUCCEEDED(hres)) {
+		if (stgMedium.hGlobal) {
+			//First file selected by the user
+			TCHAR fileUserClickedOn[MAX_PATH];
+			DragQueryFile((HDROP) stgMedium.hGlobal, 0, fileUserClickedOn, MAX_PATH);
+			isDir = IsDir(fileUserClickedOn);
+		}
+	}
+	ReleaseStgMedium(&stgMedium);
+	///
+
 
 	//
 	//If the flags include CMF_DEFAULTONLY then we shouldn't do anything
@@ -134,9 +159,11 @@ HRESULT STDMETHODCALLTYPE CContextMenu::QueryContextMenu(HMENU hMenu, UINT index
 	//Context menu handlers should set this key only if they might need to change the context menu's default verb.
 	//See http://msdn.microsoft.com/en-us/library/bb776881(VS.85).aspx
 	//
-	/*if (uFlags & CMF_DEFAULTONLY) {
-		return MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, 0);
-	}*/
+	if (isDir) {
+		if (uFlags & CMF_DEFAULTONLY) {
+			return MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, 0);
+		}
+	}
 
 	//idCmdFirst is always equal to 0 ?
 	UINT idCmd = idCmdFirst;
@@ -148,8 +175,10 @@ HRESULT STDMETHODCALLTYPE CContextMenu::QueryContextMenu(HMENU hMenu, UINT index
 	/*if (m_hQuarkPlayerBmp) {
 		SetMenuItemBitmaps(hMenu, nIndex, MF_BYPOSITION, m_hQuarkPlayerBmp, m_hQuarkPlayerBmp);
 	}*/
-	//Change the default menu item and make it at the top of the menu
-	SetMenuDefaultItem(hMenu, nIndex, TRUE);
+	if (!isDir) {
+		//Change the default menu item and make it at the top of the menu
+		SetMenuDefaultItem(hMenu, nIndex, TRUE);
+	}
 
 	nIndex++;
 	InsertMenu(hMenu, nIndex, MF_STRING | MF_BYPOSITION, idCmd++, menuItems[nIndex]);
@@ -187,7 +216,11 @@ HRESULT STDMETHODCALLTYPE CContextMenu::GetCommandString(UINT_PTR idCmd, UINT uF
 	//There is no need to deal with the different uFlags, just GCS_HELPTEXT
 	switch (uFlags) {
 	case GCS_HELPTEXT:
-		lstrcpyn((LPWSTR) pszName, menuItemsHelp[idCmd], cchMax);
+#ifdef UNICODE
+		lstrcpyn((LPWSTR) pszName, menuItems[idCmd], cchMax);
+#else
+		lstrcpyn(pszName, menuItems[idCmd], cchMax);
+#endif
 		break;
 	default:
 		return E_INVALIDARG;
@@ -237,13 +270,14 @@ HRESULT STDMETHODCALLTYPE CContextMenu::invokeQuarkPlayer(HWND hParent, LPTSTR a
 
 	//Files selected by the user
 	TCHAR fileUserClickedOn[MAX_PATH];
-
 	for (UINT i = 0; i < nbFilesSelected; i++) {
 		DragQueryFile((HDROP) stgMedium.hGlobal, i, fileUserClickedOn, MAX_PATH);
 		lstrcat(commandLine, TEXT(" \""));
 		lstrcat(commandLine, fileUserClickedOn);
 		lstrcat(commandLine, TEXT("\""));
 	}
+
+	ReleaseStgMedium(&stgMedium);
 
 	//Launch quarkplayer.exe with the list of files as arguments
 	STARTUPINFO startupInfo;
