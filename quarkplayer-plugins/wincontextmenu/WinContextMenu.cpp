@@ -197,10 +197,9 @@ HRESULT STDMETHODCALLTYPE CContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO lpcm
 
 		switch (idCmd) {
 		case 0:
-		case 1:
 			hres = invokeQuarkPlayer(lpcmi->hwnd, TEXT(""));
 			break;
-		case 2:
+		case 1:
 			hres = invokeQuarkPlayer(lpcmi->hwnd, TEXT("--playlist-enqueue"));
 			break;
 		}
