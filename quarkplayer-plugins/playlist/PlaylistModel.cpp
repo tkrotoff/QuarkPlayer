@@ -409,7 +409,7 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent) {
 }
 
 QString PlaylistModel::currentPlaylist() const {
-	return "/playlist_" + _uuid.toString() + ".m3u";
+	return "/playlist_" + _uuid.toString() + ".m3u8";
 }
 
 void PlaylistModel::loadPlaylist(const QString & filename) {
