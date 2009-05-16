@@ -23,7 +23,7 @@
 
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
-#include <QtCore/QtDebug>
+#include <QtCore/QDebug>
 
 #ifdef Q_OS_WIN
 	//Under Windows, mplayer.exe should be inside a subdirectory named mplayer
@@ -66,6 +66,39 @@ void MPlayerProcess::init() {
 	_currentTitleId = 0;
 }
 
+#ifdef Q_OS_WIN
+	//Needed by shortPathName()
+	#include <QtCore/QFileInfo>
+	#include <QtCore/QDir>
+	#include <QtCore/QSysInfo>
+	#include <windows.h>
+#endif	//Q_OS_WIN
+
+//Taken from Scribus
+//See http://docs.scribus.net/devel/util_8cpp-source.html#l00112
+//See http://scribus.info/svn/Scribus/trunk/Scribus/scribus/util.cpp
+//Converts a normal filename to a short filename (8+3 format)
+//Needed by
+QString shortPathName(const QString & longPath) {
+	QString shortPath(longPath);
+
+#ifdef Q_OS_WIN
+	QFileInfo fileInfo(longPath);
+	if (fileInfo.exists() && (QSysInfo::WindowsVersion >= QSysInfo::WV_NT)) {
+		WCHAR shortName[MAX_PATH + 1];
+		//An error should not be blocking as ERROR_INVALID_PARAMETER can simply mean
+		//that volume does not support 8.3 filenames, so return longPath in this case
+		QString nativePath = QDir::convertSeparators(longPath);
+		int ret = GetShortPathNameW((LPCWSTR) nativePath.utf16(), shortName, MAX_PATH);
+		if (ret != ERROR_INVALID_PARAMETER && ret < MAX_PATH) {
+			shortPath = QString::fromUtf16((const ushort *) shortName);
+		}
+	}
+#endif	//Q_OS_WIN
+
+	return shortPath;
+}
+
 bool MPlayerProcess::start(const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek) {
 	//Stop MPlayerProcess if it is already running
 	if (isRunning()) {
@@ -92,8 +125,10 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 	}
 
 	//File to play
-	_mediaData.filename = filename;
-	args << filename;
+	//MPlayer can't open filenames which contain characters outside the local codepage
+	//By converting them to short filenames (8+3 format) MPlayer can open them
+	_mediaData.filename = shortPathName(filename);
+	args << _mediaData.filename;
 
 	MyProcess::start(MPLAYER_EXE, args);
 	return waitForStarted();
