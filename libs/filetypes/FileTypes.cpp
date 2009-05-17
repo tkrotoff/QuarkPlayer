@@ -83,7 +83,7 @@ static const FileType FILETYPELIST[FILETYPELIST_SIZE] = {
 
 	//Playlist
 	//See http://en.wikipedia.org/wiki/List_of_file_formats#Playlist_formats
-	{ FileType::Playlist, FileType::ASX, "Advanced Stream Redirector (ASX)", "Advanced_Stream_Redirector", "asx", "video/x-ms-asf" },
+	{ FileType::Playlist, FileType::ASX, "Advanced Stream Redirector (ASX)", "Advanced_Stream_Redirector", "asx,wax,wvx", "video/x-ms-asf" },
 	{ FileType::Playlist, FileType::M3U, "M3U", "M3U", "m3u,m3u8", "audio/x-mpegurl" },
 	{ FileType::Playlist, FileType::PLS, "PLS", "PLS_(file_format)", "pls", "audio/x-scpls" },
 	{ FileType::Playlist, FileType::XSPF, "XML Shareable Playlist Format (XSPF)", "XML_Shareable_Playlist_Format", "xspf", "application/xspf+xml" },

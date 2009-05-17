@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "M3UParser.h"
+#include "PLSParser.h"
 
 #include "Util.h"
 
@@ -32,29 +32,28 @@
 #include <QtCore/QTime>
 #include <QtCore/QDebug>
 
-M3UParser::M3UParser(const QString & filename, QObject * parent)
+PLSParser::PLSParser(const QString & filename, QObject * parent)
 	: IPlaylistParser(filename, parent) {
 
 	_filename = filename;
 	_stop = false;
 }
 
-M3UParser::~M3UParser() {
+PLSParser::~PLSParser() {
 	stop();
 }
 
-QStringList M3UParser::fileExtensions() const {
+QStringList PLSParser::fileExtensions() const {
 	QStringList extensions;
-	extensions << "m3u";
-	extensions << "m3u8";
+	extensions << "pls";
 	return extensions;
 }
 
-void M3UParser::stop() {
+void PLSParser::stop() {
 	_stop = true;
 }
 
-void M3UParser::load() {
+void PLSParser::load() {
 	QTime timeElapsed;
 	timeElapsed.start();
 
@@ -64,8 +63,10 @@ void M3UParser::load() {
 
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
-	static QRegExp rx_extm3u("^#EXTM3U|^#M3U");
-	static QRegExp rx_extinf("^#EXTINF:(\\d+),(.*) - (.*)");
+	static QRegExp rx_playlist("^[playlist]");
+	static QRegExp rx_file("^File(\\d+)=(.*)");
+	static QRegExp rx_title("^Title(\\d+)=(.*) - (.*)");
+	static QRegExp rx_length("^Length(\\d+)=(\\d+)");
 
 	QFile file(_filename);
 	if (file.open(QIODevice::ReadOnly)) {
@@ -73,49 +74,46 @@ void M3UParser::load() {
 
 		QTextStream stream(&file);
 
-		if (isUtf8()) {
-			stream.setCodec("UTF-8");
-		} else {
-			stream.setCodec(QTextCodec::codecForLocale());
-		}
-
 		MediaInfo mediaInfo;
 
 		while (!stream.atEnd() && !_stop) {
 			//Line of text excluding '\n'
 			QString line(stream.readLine());
 
-			if (rx_extm3u.indexIn(line) != -1) {
-				//#EXTM3U line, ignored
+			//Winamp inserts some ugly CR character inside .pls files
+			//Let's ignore them
+			line.remove("\r");
+
+			if (rx_playlist.indexIn(line) != -1) {
+				//[playlist] line, ignored
 			}
 
-			else if (rx_extinf.indexIn(line) != -1) {
-				//#EXTINF line
-				QString length(rx_extinf.cap(1));
-				if (!length.isEmpty()) {
-					mediaInfo.setLength(length.toInt());
-				}
-				QString artist(rx_extinf.cap(2));
+			else if (rx_file.indexIn(line) != -1) {
+				QString filename(rx_file.cap(2));
+				mediaInfo.setFileName(Util::canonicalFilePath(path, filename));
+			}
+
+			else if (rx_title.indexIn(line) != -1) {
+				QString artist(rx_title.cap(2));
 				if (!artist.isEmpty()) {
 					mediaInfo.insertMetadata(MediaInfo::Artist, artist);
 				}
-				QString title(rx_extinf.cap(3));
+				QString title(rx_title.cap(3));
 				if (!title.isEmpty()) {
 					mediaInfo.insertMetadata(MediaInfo::Title, title);
 				}
 			}
 
-			else if (line.startsWith('#')) {
-				//# line, comment, ignored
-			}
-
-			else {
-				mediaInfo.setFileName(Util::canonicalFilePath(path, line));
+			else if (rx_length.indexIn(line) != -1) {
+				QString length(rx_length.cap(2));
+				if (!length.isEmpty()) {
+					mediaInfo.setLength(length.toInt());
+				}
 
 				//Add file to the list of files
 				files << mediaInfo;
 
-				//Clear the MediaInfo for the next 2 lines from the m3u playlist
+				//Clear the MediaInfo for the next lines
 				mediaInfo.clear();
 
 				if (files.size() > FILES_FOUND_LIMIT) {
@@ -138,7 +136,7 @@ void M3UParser::load() {
 	emit finished(timeElapsed.elapsed());
 }
 
-void M3UParser::save(const QList<MediaInfo> & files) {
+void PLSParser::save(const QList<MediaInfo> & files) {
 	QTime timeElapsed;
 	timeElapsed.start();
 
@@ -156,29 +154,32 @@ void M3UParser::save(const QList<MediaInfo> & files) {
 	if (file.open(QIODevice::WriteOnly)) {
 		QTextStream stream(&file);
 
-		if (isUtf8()) {
-			stream.setCodec("UTF-8");
-		} else {
-			stream.setCodec(QTextCodec::codecForLocale());
-		}
-
 		QString filename;
 
-		stream << "#EXTM3U\n";
+		//Winamp inserts some ugly CR character inside .pls files
+		//To be compatible with Winamp, each end of line should be "\r\n"
+		//Tested with Winamp 5.531 (april 2008)
+		static QString winampEndOfLine("\r\r\n");
 
+		stream << "[playlist]" << winampEndOfLine;
+
+		int count = 0;
 		foreach (MediaInfo mediaInfo, files) {
+			count++;
+
 			if (_stop) {
 				break;
 			}
 
-			stream << "#EXTINF:";
-			int length = mediaInfo.lengthSeconds();
-			if (length > -1) {
-				stream << length;
-			}
+			//Try to save the filename as relative instead of absolute
+			QString filename(Util::relativeFilePath(path, mediaInfo.fileName()));
+			stream << "File" << count << '=';
+			stream << Util::pathToNativeSeparators(filename);
+			stream << winampEndOfLine;
+
+			stream << "Title" << count << '=';
 			QString artist(mediaInfo.metadataValue(MediaInfo::Artist));
 			if (!artist.isEmpty()) {
-				stream << ',';
 				stream << artist;
 			}
 			QString title(mediaInfo.metadataValue(MediaInfo::Title));
@@ -186,11 +187,14 @@ void M3UParser::save(const QList<MediaInfo> & files) {
 				stream << " - ";
 				stream << mediaInfo.metadataValue(MediaInfo::Title);
 			}
-			stream << "\n";
+			stream << winampEndOfLine;
 
-			//Try to save the filename as relative instead of absolute
-			QString filename(Util::relativeFilePath(path, mediaInfo.fileName()));
-			stream << Util::pathToNativeSeparators(filename) << "\n";
+			stream << "Length" << count << '=';
+			int length = mediaInfo.lengthSeconds();
+			if (length > -1) {
+				stream << length;
+			}
+			stream << winampEndOfLine;
 		}
 	}
 
@@ -198,8 +202,4 @@ void M3UParser::save(const QList<MediaInfo> & files) {
 
 	//Emits the last signal
 	emit finished(timeElapsed.elapsed());
-}
-
-bool M3UParser::isUtf8() const {
-	return QFileInfo(_filename).suffix().toLower() == "m3u8";
 }

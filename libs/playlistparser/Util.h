@@ -16,41 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef M3UPARSER_H
-#define M3UPARSER_H
+#ifndef UTIL_H
+#define UTIL_H
 
-#include "PlaylistParser.h"
-
-#include <QtCore/QString>
+class QString;
 
 /**
- * Parses a M3U/M3U8 playlist (Moving Picture Experts Group Audio Layer 3 Uniform Resource Locator, MP3 URL).
+ * Utility functions for the different parsers.
  *
- * @see http://en.wikipedia.org/wiki/M3u
  * @author Tanguy Krotoff
  */
-class M3UParser : public IPlaylistParser {
+class Util {
 public:
 
-	M3UParser(const QString & filename, QObject * parent);
+	static QString pathToNativeSeparators(const QString & path);
 
-	~M3UParser();
+	static QString canonicalFilePath(const QString & path, const QString & filename);
 
-	QStringList fileExtensions() const;
-
-	void load();
-
-	void save(const QList<MediaInfo> & files);
-
-	void stop();
+	static QString relativeFilePath(const QString & path, const QString & filename);
 
 private:
 
-	bool isUtf8() const;
+	Util();
 
-	QString _filename;
-
-	volatile bool _stop;
+	~Util();
 };
 
-#endif	//M3UPARSER_H
+#endif	//UTIL_H

@@ -21,6 +21,8 @@
 #include "PlaylistParserThread.h"
 
 #include "M3UParser.h"
+#include "WPLParser.h"
+#include "PLSParser.h"
 
 #include <mediainfowindow/MediaInfo.h>
 
@@ -38,7 +40,8 @@ PlaylistParser::PlaylistParser(const QString & filename, QObject * parent)
 	_parserThread = NULL;
 
 	_parserList += new M3UParser(filename, this);
-	//_parserList += new PLSParser(filename, this);
+	_parserList += new PLSParser(filename, this);
+	_parserList += new WPLParser(filename, this);
 
 	QString extension(QFileInfo(filename).suffix().toLower());
 

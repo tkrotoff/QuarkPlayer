@@ -16,25 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef M3UPARSER_H
-#define M3UPARSER_H
+#ifndef PLSPARSER_H
+#define PLSPARSER_H
 
 #include "PlaylistParser.h"
 
 #include <QtCore/QString>
 
 /**
- * Parses a M3U/M3U8 playlist (Moving Picture Experts Group Audio Layer 3 Uniform Resource Locator, MP3 URL).
+ * Parses a PLS playlist.
  *
- * @see http://en.wikipedia.org/wiki/M3u
+ * @see http://en.wikipedia.org/wiki/PLS_(file_format)
  * @author Tanguy Krotoff
  */
-class M3UParser : public IPlaylistParser {
+class PLSParser : public IPlaylistParser {
 public:
 
-	M3UParser(const QString & filename, QObject * parent);
+	PLSParser(const QString & filename, QObject * parent);
 
-	~M3UParser();
+	~PLSParser();
 
 	QStringList fileExtensions() const;
 
@@ -46,11 +46,9 @@ public:
 
 private:
 
-	bool isUtf8() const;
-
 	QString _filename;
 
 	volatile bool _stop;
 };
 
-#endif	//M3UPARSER_H
+#endif	//PLSPARSER_H

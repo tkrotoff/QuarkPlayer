@@ -40,6 +40,9 @@ class PLAYLISTPARSER_API IPlaylistParser : public QObject {
 	Q_OBJECT
 public:
 
+	/** Files found limit before to send the signal filesFound(). */
+	static const int FILES_FOUND_LIMIT = 1000;
+
 	/**
 	 * Parses (load/save) a given playlist file.
 	 *

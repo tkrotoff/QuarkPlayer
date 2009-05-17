@@ -16,25 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef M3UPARSER_H
-#define M3UPARSER_H
+#ifndef WPLPARSER_H
+#define WPLPARSER_H
 
 #include "PlaylistParser.h"
 
 #include <QtCore/QString>
 
 /**
- * Parses a M3U/M3U8 playlist (Moving Picture Experts Group Audio Layer 3 Uniform Resource Locator, MP3 URL).
+ * Parses a WPL playlist (Windows Media Player Playlist).
  *
- * @see http://en.wikipedia.org/wiki/M3u
+ * WPL is UTF-8 encoded.
+ *
+ * @see http://en.wikipedia.org/wiki/WPL
  * @author Tanguy Krotoff
  */
-class M3UParser : public IPlaylistParser {
+class WPLParser : public IPlaylistParser {
 public:
 
-	M3UParser(const QString & filename, QObject * parent);
+	WPLParser(const QString & filename, QObject * parent);
 
-	~M3UParser();
+	~WPLParser();
 
 	QStringList fileExtensions() const;
 
@@ -46,11 +48,9 @@ public:
 
 private:
 
-	bool isUtf8() const;
-
 	QString _filename;
 
 	volatile bool _stop;
 };
 
-#endif	//M3UPARSER_H
+#endif	//WPLPARSER_H
