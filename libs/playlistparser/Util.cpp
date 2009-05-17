@@ -59,8 +59,9 @@ QString Util::relativeFilePath(const QString & path, const QString & filename) {
 
 	QString tmp(filename);
 
-	if (tmp.startsWith(path)) {
-		tmp = tmp.mid(path.length());
+	QString pathTmp(path + '/');
+	if (tmp.startsWith(pathTmp)) {
+		tmp = tmp.mid(pathTmp.length());
 	}
 
 	return tmp;

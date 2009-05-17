@@ -144,11 +144,7 @@ void PLSParser::save(const QList<MediaInfo> & files) {
 
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
-	QString path = QFileInfo(_filename).path();
-	if (!path.endsWith(QDir::separator())) {
-		path += QDir::separator();
-	}
-	path = Util::pathToNativeSeparators(path);
+	QString path(QFileInfo(_filename).path());
 
 	QFile file(_filename);
 	if (file.open(QIODevice::WriteOnly)) {
