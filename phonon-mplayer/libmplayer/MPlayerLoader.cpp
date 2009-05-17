@@ -96,12 +96,15 @@ void MPlayerLoader::startMPlayerVersion(QObject * parent) {
 	MPlayerProcess * process = createNewMPlayerProcess(parent);
 
 	QStringList args;
-	QString filename("--help");
+	QString filename("quarkplayerfakename");
 
 	if (!process->start(args, filename, 0, 0)) {
 		//Error handling
 		qCritical() << __FUNCTION__ << "Error: MPlayer process couldn't start";
 	}
+
+	//Blocks until the command is done
+	process->waitForFinished();
 }
 
 void MPlayerLoader::loadMedia(MPlayerProcess * process, const QString & filename) {

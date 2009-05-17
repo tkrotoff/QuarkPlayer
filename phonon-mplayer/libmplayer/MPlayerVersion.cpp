@@ -50,6 +50,9 @@ int MPlayerVersion::parse(const QString & line) {
 	//openSUSE 11.1:
 	//MPlayer dev-SVN-r27637-4.3-openSUSE Linux 11.1 (i686)-Packman (C) 2000-2008 MPlayerTeam
 	//
+	//Windows, http://sourceforge.net/projects/mplayer-win32/ build:
+	//MPlayer Sherpya-SVN-r28311-4.2.5 (C) 2000-2009 MPlayer Team
+	//
 	static QRegExp rx_mplayer_revision("^MPlayer (.*)-r(\\d+)(.*)");
 	static QRegExp rx_mplayer_version("^MPlayer ([a-z,0-9,.]+)-(.*)");
 
