@@ -76,6 +76,8 @@ public:
 	 */
 	void addFiles(const QStringList & files, int row = APPEND_FILES);
 
+	void addFiles(const QList<MediaInfo> & files, int row = APPEND_FILES);
+
 	/**
 	 * Plays the file at the given position.
 	 */
@@ -97,12 +99,11 @@ public:
 	/** Gets the current item position inside the model. */
 	int position() const;
 
-	/** Returns the files displayed in the playlist. */
-	QStringList fileNames() const;
+	/** Returns the files inside the playlist. */
+	const QList<MediaInfo> & files() const;
 
 	/** Gets the filename given its index. */
 	QString fileName(const QModelIndex & index) const;
-
 
 
 	//Inherited from QAbstractItemModel
@@ -120,7 +121,7 @@ public:
 	QMimeData * mimeData(const QModelIndexList & indexes) const;
 	QStringList mimeTypes() const;
 	Qt::DropActions supportedDropActions() const;
-
+	///
 
 public slots:
 
@@ -147,6 +148,8 @@ private slots:
 
 	void filesFound(const QStringList & files);
 
+	void filesFound(const QList<MediaInfo> & files);
+
 	void addFilesToCurrentPlaylist(const QStringList & files);
 
 	void searchfinished(int timeElapsed);
@@ -154,6 +157,8 @@ private slots:
 	void allPluginsLoaded();
 
 private:
+
+	void insertFilesInsideTheModel(const QList<MediaInfo> & files, int row);
 
 	enum TrackDisplayMode {
 		TrackDisplayModeNormal,

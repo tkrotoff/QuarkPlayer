@@ -18,6 +18,8 @@
 
 #include "M3UParser.h"
 
+#include <mediainfowindow/MediaInfo.h>
+
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
 #include <QtCore/QFile>
@@ -58,12 +60,12 @@ void M3UParser::load() {
 
 	_stop = false;
 
-	QStringList files;
+	QList<MediaInfo> files;
 
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
 	QRegExp extm3u("^#EXTM3U|^#M3U");
-	QRegExp extinf("^#EXTINF:(.*),(.*)");
+	QRegExp extinf("^#EXTINF:(.*),(.*) - (.*)");
 
 	QFile file(_filename);
 	if (file.open(QIODevice::ReadOnly)) {
@@ -76,6 +78,8 @@ void M3UParser::load() {
 		} else {
 			stream.setCodec(QTextCodec::codecForLocale());
 		}
+
+		MediaInfo mediaInfo;
 
 		while (!stream.atEnd() && !_stop) {
 			//qDebug() << __FUNCTION__ << "Parsing...";
@@ -91,10 +95,18 @@ void M3UParser::load() {
 
 			else if (extinf.indexIn(line) != -1) {
 				//#EXTINF line
-				//Do nothing with these informations
-				//double duration = extinf.cap(1).toDouble();
-				//QString name = extinf.cap(2);
-				//qDebug() << __FUNCTION__ << "Name:" << name << "duration:" << duration;
+				QString length(extinf.cap(1));
+				if (!length.isEmpty()) {
+					mediaInfo.setLength(length.toInt());
+				}
+				QString artist(extinf.cap(2));
+				if (!artist.isEmpty()) {
+					mediaInfo.insertMetadata(MediaInfo::Artist, artist);
+				}
+				QString title(extinf.cap(3));
+				if (!title.isEmpty()) {
+					mediaInfo.insertMetadata(MediaInfo::Title, title);
+				}
 			}
 
 			else if (line.startsWith('#')) {
@@ -102,7 +114,7 @@ void M3UParser::load() {
 			}
 
 			else {
-				QString filename = line;
+				QString filename(line);
 				QFileInfo fileInfo(filename);
 				if (fileInfo.exists()) {
 					filename = fileInfo.absoluteFilePath();
@@ -112,9 +124,13 @@ void M3UParser::load() {
 						filename = path + QDir::separator() + filename;
 					}
 				}
+				mediaInfo.setFileName(filename);
 
 				//Add file to the list of files
-				files << filename;
+				files << mediaInfo;
+
+				//Clear the MediaInfo for the next 2 lines from the m3u playlist
+				mediaInfo.clear();
 
 				if (files.size() > FILES_FOUND_LIMIT) {
 					//Emits the signal every FILES_FOUND_LIMIT files found
@@ -136,7 +152,7 @@ void M3UParser::load() {
 	emit finished(timeElapsed.elapsed());
 }
 
-void M3UParser::save(const QStringList & files) {
+void M3UParser::save(const QList<MediaInfo> & files) {
 	QTime timeElapsed;
 	timeElapsed.start();
 
@@ -169,26 +185,36 @@ void M3UParser::save(const QStringList & files) {
 
 		stream << "#EXTM3U" << "\n";
 
-		foreach (QString filename, files) {
+		foreach (MediaInfo mediaInfo, files) {
 			if (_stop) {
 				break;
 			}
 
-			/*
 			stream << "#EXTINF:";
-			stream << duration << ',';
-			stream << name << "\n";
-			*/
-
-#ifdef Q_OS_WIN
-			filename = changeSlashes(filename);
-#endif
+			int length = mediaInfo.lengthSeconds();
+			if (length > -1) {
+				stream << length;
+			}
+			QString artist(mediaInfo.metadataValue(MediaInfo::Artist));
+			if (!artist.isEmpty()) {
+				stream << ',';
+				stream << artist;
+			}
+			QString title(mediaInfo.metadataValue(MediaInfo::Title));
+			if (!title.isEmpty()) {
+				stream << " - ";
+				stream << mediaInfo.metadataValue(MediaInfo::Title);
+			}
+			stream << "\n";
 
 			//Try to save the filename as relative instead of absolute
+			QString filename(mediaInfo.fileName());
 			if (filename.startsWith(path)) {
 				filename = filename.mid(path.length());
 			}
-			stream << filename << "\n";
+#ifdef Q_OS_WIN
+			stream << changeSlashes(filename) << "\n";
+#endif	//Q_OS_WIN
 		}
 
 		file.close();
@@ -201,7 +227,7 @@ void M3UParser::save(const QStringList & files) {
 QString M3UParser::changeSlashes(const QString & filename) {
 	QString tmp(filename);
 
-	//Only change if file exists (it's a local file)
+	//Only change if the file or path exists (it's a local file)
 	if (QFileInfo(tmp).exists()) {
 		tmp = QDir::toNativeSeparators(tmp);
 	}

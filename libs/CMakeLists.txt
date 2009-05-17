@@ -1,7 +1,7 @@
+add_subdirectory(mediainfowindow)
 add_subdirectory(playlistparser)
 add_subdirectory(contentfetcher)
 add_subdirectory(webbrowser)
 add_subdirectory(tkutil)
-add_subdirectory(mediainfowindow)
 add_subdirectory(thumbnailview)
 add_subdirectory(filetypes)

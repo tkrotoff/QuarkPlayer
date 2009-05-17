@@ -29,7 +29,7 @@ class PlaylistParserThread;
  * Parses a playlist file.
  *
  * A playlist file can be a .m3u, m3u8, .pls, .wpl...
- * Prefered format is m3u "The most popular format, M3U, is also the simplest."
+ * Prefered format is m3u8 (8 means UTF-8) "The most popular format, M3U, is also the simplest"
  *
  * @see http://en.wikipedia.org/wiki/M3u
  * @see http://gonze.com/playlists/playlist-format-survey.html
@@ -46,7 +46,7 @@ public:
 
 	void load();
 
-	void save(const QStringList & files);
+	void save(const QList<MediaInfo> & files);
 
 	void stop();
 

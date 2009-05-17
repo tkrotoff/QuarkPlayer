@@ -328,7 +328,7 @@ void PlaylistWidget::updateWindowTitle(const QString & statusMessage) {
 }
 
 void PlaylistWidget::savePlaylist() {
-	static const char * PLAYLIST_DEFAULT_EXTENSION = "m3u";
+	static const char * PLAYLIST_DEFAULT_EXTENSION = "m3u8";
 
 	QString filename = TkFileDialog::getSaveFileName(
 		this, tr("Save Playlist File"), Config::instance().lastDirOpened(),
@@ -342,7 +342,7 @@ void PlaylistWidget::savePlaylist() {
 		PlaylistParser * parser = new PlaylistParser(filename, this);
 		connect(parser, SIGNAL(finished(int)),
 			SLOT(playlistSaved(int)));
-		parser->save(_playlistModel->fileNames());
+		parser->save(_playlistModel->files());
 	}
 }
 

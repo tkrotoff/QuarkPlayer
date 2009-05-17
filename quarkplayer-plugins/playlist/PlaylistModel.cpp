@@ -135,71 +135,68 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 	if (role == Qt::DisplayRole) {
 		MediaInfo mediaInfo = _filenames[row];
 		QString filename(mediaInfo.fileName());
-		if (mediaInfo.fetched()) {
-			switch (column) {
-			case COLUMN_TRACK: {
-				TrackDisplayMode trackDisplayMode = static_cast<TrackDisplayMode>(Config::instance().value(PLAYLIST_TRACK_DISPLAY_MODE_KEY).toInt());
-				switch (trackDisplayMode) {
-				case TrackDisplayModeNormal:
-					tmp = mediaInfo.metadataValue(MediaInfo::TrackNumber);
-					break;
-				case TrackDisplayModeWinamp:
-					//Display track numbers like Winamp
-					tmp = QString::number(row);
-					break;
-				default:
-					qCritical() << __FUNCTION__ << "Error: unknown TrackDisplayMode:" << trackDisplayMode;
-				}
+
+		switch (column) {
+		case COLUMN_TRACK: {
+			TrackDisplayMode trackDisplayMode = static_cast<TrackDisplayMode>(Config::instance().value(PLAYLIST_TRACK_DISPLAY_MODE_KEY).toInt());
+			switch (trackDisplayMode) {
+			case TrackDisplayModeNormal:
+				tmp = mediaInfo.metadataValue(MediaInfo::TrackNumber);
 				break;
-			}
-			case COLUMN_TITLE: {
-				QString title = mediaInfo.metadataValue(MediaInfo::Title);
-				if (title.isEmpty()) {
-					//Not the fullpath, only the filename
-					title = QFileInfo(filename).fileName();
-				}
-				tmp = title;
-				break;
-			}
-			case COLUMN_ARTIST:
-				tmp = mediaInfo.metadataValue(MediaInfo::Artist);
-				break;
-			case COLUMN_ALBUM:
-				tmp = mediaInfo.metadataValue(MediaInfo::Album);
-				break;
-			case COLUMN_LENGTH:
-				tmp = mediaInfo.length();
+			case TrackDisplayModeWinamp:
+				//Display track numbers like Winamp
+				tmp = QString::number(row);
 				break;
 			default:
-				qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
+				qCritical() << __FUNCTION__ << "Error: unknown TrackDisplayMode:" << trackDisplayMode;
 			}
+			break;
 		}
-
-		else {
-			switch (column) {
-			case COLUMN_TITLE:
-				if (!QUrl(filename).host().isEmpty()) {
-					//A filename that contains a host/server name is a remote/network media
-					//So let's keep the complete filename
-					tmp = filename;
+		case COLUMN_TITLE: {
+			QString title = mediaInfo.metadataValue(MediaInfo::Title);
+			if (title.isEmpty()) {
+				if (mediaInfo.fetched()) {
+					//Not the fullpath, only the filename
+					title = QFileInfo(filename).fileName();
 				} else {
-					//filename + parent directory name, e.g:
-					// /home/tanguy/Music/DJ Vadim/Bluebird.mp3
-					// --> DJ Vadim/06 Bluebird.mp3
-					//This allow to search within file and directory names without
-					//resolving yet all the metadatas
-					filename = QDir::toNativeSeparators(filename);
-					int lastSlashPos = filename.lastIndexOf(QDir::separator()) - 1;
-					tmp = filename.mid(filename.lastIndexOf(QDir::separator(), lastSlashPos) + 1);
-
-					//Resolve meta data file one by one
-					//Cannot do that for remote/network media, i.e URLs
-					if (_mediaInfoFetcherRow == POSITION_INVALID) {
-						_mediaInfoFetcherRow = row;
-						_mediaInfoFetcher->start(filename);
+					if (!QUrl(filename).host().isEmpty()) {
+						//A filename that contains a host/server name is a remote/network media
+						//So let's keep the complete filename
+						title = filename;
+					} else {
+						//filename + parent directory name, e.g:
+						// /home/tanguy/Music/DJ Vadim/Bluebird.mp3
+						// --> DJ Vadim/Bluebird.mp3
+						//This allow to search within file and directory names without
+						//resolving yet all the metadatas
+						filename = QDir::toNativeSeparators(filename);
+						int lastSlashPos = filename.lastIndexOf(QDir::separator()) - 1;
+						title = filename.mid(filename.lastIndexOf(QDir::separator(), lastSlashPos) + 1);
 					}
 				}
-				break;
+			}
+			tmp = title;
+			break;
+		}
+		case COLUMN_ARTIST:
+			tmp = mediaInfo.metadataValue(MediaInfo::Artist);
+			break;
+		case COLUMN_ALBUM:
+			tmp = mediaInfo.metadataValue(MediaInfo::Album);
+			break;
+		case COLUMN_LENGTH:
+			tmp = mediaInfo.lengthFormatted();
+			break;
+		default:
+			qCritical() << __FUNCTION__ << "Error: unknown column:" << column;
+		}
+
+		if (!mediaInfo.fetched()) {
+			//Resolve meta data file one by one
+			//Cannot do that for remote/network media, i.e URLs
+			if (_mediaInfoFetcherRow == POSITION_INVALID) {
+				_mediaInfoFetcherRow = row;
+				_mediaInfoFetcher->start(filename);
 			}
 		}
 	}
@@ -291,15 +288,25 @@ void PlaylistModel::filesFound(const QStringList & files) {
 	addFiles(files, _rowWhereToInsertFiles);
 }
 
+void PlaylistModel::filesFound(const QList<MediaInfo> & files) {
+	addFiles(files, _rowWhereToInsertFiles);
+}
+
+void PlaylistModel::addFiles(const QList<MediaInfo> & files, int row) {
+	_rowWhereToInsertFiles = row;
+	insertFilesInsideTheModel(files, row);
+}
+
 void PlaylistModel::addFiles(const QStringList & files, int row) {
 	_rowWhereToInsertFiles = row;
-	QStringList filenameList;
+
+	QList<MediaInfo> fileList;
 	foreach (QString filename, files) {
 		QString extension(QFileInfo(filename).suffix());
 		bool isMultimediaFile =
 			FileTypes::extensions(FileType::Video, FileType::Audio).contains(extension, Qt::CaseInsensitive);
 		if (isMultimediaFile) {
-			filenameList << filename;
+			fileList << filename;
 		} else if (FileTypes::extensions(FileType::Playlist).contains(extension)) {
 			loadPlaylist(filename);
 		} else if (QFileInfo(filename).isDir()) {
@@ -316,11 +323,15 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 		} else if (!QUrl(filename).host().isEmpty()) {
 			//A filename that contains a host/server name is a remote/network media
 			//So it should be added to the playlist
-			filenameList << filename;
+			fileList << filename;
 		}
 	}
 
-	if (!filenameList.isEmpty()) {
+	insertFilesInsideTheModel(fileList, row);
+}
+
+void PlaylistModel::insertFilesInsideTheModel(const QList<MediaInfo> & files, int row) {
+	if (!files.isEmpty()) {
 		int first = 0;
 		if (row == APPEND_FILES) {
 			//row == APPEND_FILES means append the files
@@ -329,15 +340,15 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 			//row != APPEND_FILES means we have a specific row location where to add the files
 			first = row;
 		}
-		int last = first + filenameList.size() - 1;
+		int last = first + files.size() - 1;
 		int currentRow = first;
 
 		//Insert rows inside the QModel
 		//This will tell to the Widget (view) that the model has changed
 		//and that the Widget (view) needs to be updated
 		beginInsertRows(QModelIndex(), first, last);
-		foreach (QString filename, filenameList) {
-			_filenames.insert(currentRow, MediaInfo(filename));
+		foreach (MediaInfo mediaInfo, files) {
+			_filenames.insert(currentRow, mediaInfo);
 			currentRow++;
 		}
 		endInsertRows();
@@ -357,7 +368,7 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 			}
 		}
 		if (!positionAlreadyChanged) {
-			int count = filenameList.size();
+			int count = files.size();
 			if (_position != POSITION_INVALID && row != APPEND_FILES) {
 				if (_position >= row) {
 					_position += count;
@@ -414,8 +425,8 @@ QString PlaylistModel::currentPlaylist() const {
 
 void PlaylistModel::loadPlaylist(const QString & filename) {
 	PlaylistParser * parser = new PlaylistParser(filename, this);
-	connect(parser, SIGNAL(filesFound(const QStringList &)),
-		SLOT(filesFound(const QStringList &)));
+	connect(parser, SIGNAL(filesFound(const QList<MediaInfo> &)),
+		SLOT(filesFound(const QList<MediaInfo> &)));
 	connect(parser, SIGNAL(finished(int)),
 		SIGNAL(playlistLoaded(int)));
 	parser->load();
@@ -448,27 +459,16 @@ void PlaylistModel::saveCurrentPlaylist() {
 	else if (!saveCurrentPlaylistTimer->isActive()) {
 		timerAlreadyStarted = false;
 
-		//Optimization:
-		//saves the playlist only if the playlist has been changed
-		static QStringList lastPlaylistSaved("this string should be unique");
-		QStringList newPlaylist = fileNames();
-		if (newPlaylist != lastPlaylistSaved) {
-			lastPlaylistSaved = newPlaylist;
-			QString path(Config::instance().configDir());
-			PlaylistParser * parser = new PlaylistParser(path + currentPlaylist(), this);
-			connect(parser, SIGNAL(finished(int)),
-				SIGNAL(playlistSaved(int)));
-			parser->save(newPlaylist);
-		}
+		QString path(Config::instance().configDir());
+		PlaylistParser * parser = new PlaylistParser(path + currentPlaylist(), this);
+		connect(parser, SIGNAL(finished(int)),
+			SIGNAL(playlistSaved(int)));
+		parser->save(_filenames);
 	}
 }
 
-QStringList PlaylistModel::fileNames() const {
-	QStringList files;
-	foreach (MediaInfo mediaInfo, _filenames) {
-		files << mediaInfo.fileName();
-	}
-	return files;
+const QList<MediaInfo> & PlaylistModel::files() const {
+	return _filenames;
 }
 
 QMimeData * PlaylistModel::mimeData(const QModelIndexList & indexes) const {

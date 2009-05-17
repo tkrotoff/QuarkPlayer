@@ -26,10 +26,10 @@ MediaInfo::MediaInfo() {
 	clear();
 }
 
-MediaInfo::MediaInfo(const QString & fileName) {
+MediaInfo::MediaInfo(const QString & filename) {
 	clear();
 
-	setFileName(fileName);
+	setFileName(filename);
 }
 
 MediaInfo::~MediaInfo() {
@@ -113,12 +113,16 @@ void MediaInfo::setFileSize(int fileSize) {
 	_fileSize = fileSize;
 }
 
-QString MediaInfo::length() const {
+QString MediaInfo::lengthFormatted() const {
 	if (_length > 0) {
 		return TkTime::convertSeconds(_length);
 	} else {
 		return QString();
 	}
+}
+
+int MediaInfo::lengthSeconds() const {
+	return _length;
 }
 
 void MediaInfo::setLength(int length) {

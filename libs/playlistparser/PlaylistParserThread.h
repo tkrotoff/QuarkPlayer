@@ -24,6 +24,8 @@
 
 class IPlaylistParser;
 
+class MediaInfo;
+
 /**
  *
  * @author Tanguy Krotoff
@@ -38,7 +40,7 @@ public:
 
 	void load();
 
-	void save(const QStringList & files);
+	void save(const QList<MediaInfo> & files);
 
 	void stop();
 
@@ -48,7 +50,7 @@ private:
 
 	IPlaylistParser * _parser;
 
-	QStringList _files;
+	QList<MediaInfo> _files;
 
 	bool _save;
 	bool _load;

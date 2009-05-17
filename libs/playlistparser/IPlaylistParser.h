@@ -23,6 +23,8 @@
 
 #include <QtCore/QObject>
 
+class MediaInfo;
+
 class QString;
 class QStringList;
 
@@ -67,7 +69,7 @@ public:
 	 *
 	 * @param files files to add to the playlist file
 	 */
-	virtual void save(const QStringList & files) = 0;
+	virtual void save(const QList<MediaInfo> & files) = 0;
 
 	/**
 	 * Stops the thread.
@@ -81,7 +83,7 @@ signals:
 	 *
 	 * @param files list of files (full path filename) contained inside the playlist
 	 */
-	void filesFound(const QStringList & files);
+	void filesFound(const QList<MediaInfo> & files);
 
 	/**
 	 * Sends the signal after all filesFound() signals, this is the last signal sent.

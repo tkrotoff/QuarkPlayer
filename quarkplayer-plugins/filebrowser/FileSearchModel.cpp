@@ -161,7 +161,7 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 						tr("Title:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Title) + "</b><br>" +
 						tr("Artist:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Artist) + "</b><br>" +
 						tr("Album:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Album) + "</b><br>" +
-						tr("Length:") + "</b> <b>" + mediaInfo.length() + "</b>";
+						tr("Length:") + "</b> <b>" + mediaInfo.lengthFormatted() + "</b>";
 				} else {
 					tmp = filename;
 

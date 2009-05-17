@@ -45,7 +45,7 @@ public:
 
 	MediaInfo();
 
-	MediaInfo(const QString & fileName);
+	MediaInfo(const QString & filename);
 
 	~MediaInfo();
 
@@ -71,8 +71,11 @@ public:
 	QString fileSize() const;
 	void setFileSize(int fileSize);
 
-	/** Returns the length of the file in seconds. */
-	QString length() const;
+	/** Returns the length of the file in a nice formatted way (i.e 03:45:02). */
+	QString lengthFormatted() const;
+	/** Returns the length of the file in seconds, or -1. */
+	int lengthSeconds() const;
+	/** Sets the length of the file in seconds. */
 	void setLength(int length);
 
 	/** Gets the overall bitrate = audio bitrate + video bitrate if any. */

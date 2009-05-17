@@ -22,12 +22,17 @@
 
 #include "M3UParser.h"
 
+#include <mediainfowindow/MediaInfo.h>
+
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
+#include <QtCore/QMetaType>
 #include <QtCore/QDebug>
 
 PlaylistParser::PlaylistParser(const QString & filename, QObject * parent)
 	: IPlaylistParser(filename, parent) {
+
+	qRegisterMetaType<QList<MediaInfo> >("QList<MediaInfo>");
 
 	_parser = NULL;
 	_parserThread = NULL;
@@ -43,8 +48,8 @@ PlaylistParser::PlaylistParser(const QString & filename, QObject * parent)
 			_parser = parser;
 			_parserThread = new PlaylistParserThread(_parser);
 
-			connect(_parser, SIGNAL(filesFound(const QStringList &)),
-				SIGNAL(filesFound(const QStringList &)));
+			connect(_parser, SIGNAL(filesFound(const QList<MediaInfo> &)),
+				SIGNAL(filesFound(const QList<MediaInfo> &)));
 			connect(_parser, SIGNAL(finished(int)),
 				SIGNAL(finished(int)));
 			break;
@@ -76,7 +81,7 @@ void PlaylistParser::load() {
 	}
 }
 
-void PlaylistParser::save(const QStringList & files) {
+void PlaylistParser::save(const QList<MediaInfo> & files) {
 	if (_parserThread) {
 		_parserThread->save(files);
 	}

@@ -216,7 +216,7 @@ void MediaInfoWindow::updateMediaInfo() {
 	//General
 	QString fileInfo;
 	QString fileSize = mediaInfo.fileSize();
-	QString length = mediaInfo.length();
+	QString length = mediaInfo.lengthFormatted();
 	QString bitrate = mediaInfo.bitrate();
 	if (!fileSize.isEmpty() || !length.isEmpty() || !bitrate.isEmpty()) {
 		QString fileTypeWikipedia(mediaInfo.fileType().wikipediaArticle);

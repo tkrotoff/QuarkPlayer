@@ -5,11 +5,7 @@
 == MPlayer backend ==
 
 == NSIS ==
-- remove CPack support as it is not enough powerful (even for RPM and Debian)
-- add file association to NSIS installer via a QuarkPlayer command line
 - fix unworking uninstall when QuarkPlayer is running
-- make icons (desktop + quick toolbar) optionnal
-- remove QuarkPlayer user datas
 
 == Windows ==
 - test under Win2k?
@@ -68,3 +64,6 @@
 - add Deezer support
 - add IPod support and others
 - fully configurable playlist (change headers order, sorting...)
+- add DLNA support
+  see http://xbmc.org/wiki/index.php?title=UPnP_Sharing
+  see http://sourceforge.net/projects/platinum

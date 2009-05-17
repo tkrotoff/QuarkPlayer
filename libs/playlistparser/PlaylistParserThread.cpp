@@ -20,6 +20,8 @@
 
 #include "IPlaylistParser.h"
 
+#include <mediainfowindow/MediaInfo.h>
+
 #include <QtCore/QDebug>
 
 PlaylistParserThread::PlaylistParserThread(IPlaylistParser * parser) {
@@ -38,7 +40,7 @@ void PlaylistParserThread::load() {
 	start();
 }
 
-void PlaylistParserThread::save(const QStringList & files) {
+void PlaylistParserThread::save(const QList<MediaInfo> & files) {
 	_save = true;
 	_files = files;
 	stop();
