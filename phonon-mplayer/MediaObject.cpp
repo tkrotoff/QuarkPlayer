@@ -111,7 +111,7 @@ void MediaObject::play() {
 		//Clear subtitles/chapters...
 		clearMediaController();
 
-		MPlayerLoader::start(_process, _fileName, _videoWidgetId);
+		MPlayerLoader::start(_process, _filename, _videoWidgetId);
 	}
 }
 
@@ -167,7 +167,7 @@ void MediaObject::tickInternal(qint64 currentTime) {
 	}
 }
 
-void MediaObject::loadMedia(const QString & fileName) {
+void MediaObject::loadMedia(const QString & filename) {
 	//Default MediaObject state should be Phonon::LoadingState
 	if (_process->currentState() != Phonon::LoadingState) {
 		qCritical() << __FUNCTION__ << "Current state is not Phonon::LoadingState:" << _process->currentState();
@@ -176,9 +176,9 @@ void MediaObject::loadMedia(const QString & fileName) {
 	//Loads the media
 	_playRequestReached = false;
 
-	_fileName = fileName;
+	_filename = filename;
 
-	qDebug() << __FUNCTION__ << _fileName;
+	qDebug() << __FUNCTION__ << _filename;
 
 	//Optimization:
 	//wait to see if play() is run just after loadMedia()
@@ -199,7 +199,7 @@ void MediaObject::loadMediaInternal() {
 	//If <append> is nonzero playback continues and the file/URL is
 	//appended to the current playlist instead.
 
-	MPlayerLoader::loadMedia(_process, _fileName);
+	MPlayerLoader::loadMedia(_process, _filename);
 }
 
 qint32 MediaObject::tickInterval() const {
@@ -274,7 +274,7 @@ MediaSource MediaObject::source() const {
 }
 
 QString MediaObject::sourceFileName(const MediaSource & source) {
-	QString fileName;
+	QString filename;
 
 	MediaSource::Type type = source.type();
 
@@ -283,10 +283,10 @@ QString MediaObject::sourceFileName(const MediaSource & source) {
 		qCritical() << __FUNCTION__ << "Error: invalid/empty MediaSource";
 		break;
 	case MediaSource::LocalFile:
-		fileName = source.fileName();
+		filename = source.fileName();
 		break;
 	case MediaSource::Url:
-		fileName = source.url().toString();
+		filename = source.url().toString();
 		break;
 
 	case MediaSource::Disc: {
@@ -306,21 +306,21 @@ QString MediaObject::sourceFileName(const MediaSource & source) {
 			if (title == 0) {
 				title = MPLAYER_DEFAULT_CDAUDIO_TITLE;
 			}
-			fileName = "cdda://" + QString::number(title);
+			filename = "cdda://" + QString::number(title);
 			break;
 		case Phonon::Dvd:
 			if (title == 0) {
 				title = MPLAYER_DEFAULT_DVD_TITLE;
 			}
 			//FIXME
-			//fileName = "dvd://" + QString::number(title);
-			fileName = "dvd://" + QString::number(MPLAYER_DEFAULT_DVD_TITLE);
+			//filename = "dvd://" + QString::number(title);
+			filename = "dvd://" + QString::number(MPLAYER_DEFAULT_DVD_TITLE);
 			break;
 		case Phonon::Vcd:
 			if (title == 0) {
 				title = MPLAYER_DEFAULT_VCD_TITLE;
 			}
-			fileName = "vcd://" + QString::number(title);
+			filename = "vcd://" + QString::number(title);
 			break;
 		default:
 			qCritical() << __FUNCTION__ << "Error: unknown MediaSource::Disc:" << discType;
@@ -336,17 +336,17 @@ QString MediaObject::sourceFileName(const MediaSource & source) {
 		break;
 	}
 
-	return fileName;
+	return filename;
 }
 
 void MediaObject::setSource(const MediaSource & source) {
 	_source = source;
-	QString fileName(sourceFileName(_source));
+	QString filename(sourceFileName(_source));
 
-	if (!fileName.isEmpty()) {
-		qDebug() << __FUNCTION__ << "Source:" << fileName;
+	if (!filename.isEmpty()) {
+		qDebug() << __FUNCTION__ << "Source:" << filename;
 
-		loadMedia(fileName);
+		loadMedia(filename);
 
 		emit currentSourceChanged(source);
 	} else {
@@ -356,15 +356,15 @@ void MediaObject::setSource(const MediaSource & source) {
 
 void MediaObject::setNextSource(const MediaSource & source) {
 	_nextSource = source;
-	QString fileName(sourceFileName(_nextSource));
+	QString filename(sourceFileName(_nextSource));
 
-	if (!fileName.isEmpty()) {
-		qDebug() << __FUNCTION__ << "Next source:" << fileName;
+	if (!filename.isEmpty()) {
+		qDebug() << __FUNCTION__ << "Next source:" << filename;
 
 		QString quote("\"");
 		if (_process->isRunning()) {
 			//If MPlayerProcess is already running then use loadfile slave command
-			_process->sendCommand("loadfile " + quote + fileName + quote + ' ' + QString::number(1));
+			_process->sendCommand("loadfile " + quote + filename + quote + ' ' + QString::number(1));
 		} else {
 			//Otherwise back to create a new MPlayerProcess with the given media source
 			setSource(source);

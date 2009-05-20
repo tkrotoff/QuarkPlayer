@@ -65,7 +65,7 @@ void M3UParser::load() {
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
 	static QRegExp rx_extm3u("^#EXTM3U|^#M3U");
-	static QRegExp rx_extinf("^#EXTINF:(\\d+),(.*) - (.*)");
+	static QRegExp rx_extinf("^#EXTINF:(\\d+),(.*)");
 
 	QFile file(_filename);
 	if (file.open(QIODevice::ReadOnly)) {
@@ -85,7 +85,11 @@ void M3UParser::load() {
 			//Line of text excluding '\n'
 			QString line(stream.readLine());
 
-			if (rx_extm3u.indexIn(line) != -1) {
+			if (line.isEmpty()) {
+				//Do nothing
+			}
+
+			else if (rx_extm3u.indexIn(line) != -1) {
 				//#EXTM3U line, ignored
 			}
 
@@ -95,11 +99,7 @@ void M3UParser::load() {
 				if (!length.isEmpty()) {
 					mediaInfo.setLength(length.toInt());
 				}
-				QString artist(rx_extinf.cap(2));
-				if (!artist.isEmpty()) {
-					mediaInfo.insertMetadata(MediaInfo::Artist, artist);
-				}
-				QString title(rx_extinf.cap(3));
+				QString title(rx_extinf.cap(2));
 				if (!title.isEmpty()) {
 					mediaInfo.insertMetadata(MediaInfo::Title, title);
 				}

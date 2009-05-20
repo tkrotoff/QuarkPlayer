@@ -103,7 +103,7 @@ public:
 	const QList<MediaInfo> & files() const;
 
 	/** Gets the filename given its index. */
-	QString fileName(const QModelIndex & index) const;
+	MediaInfo mediaInfo(const QModelIndex & index) const;
 
 
 	//Inherited from QAbstractItemModel

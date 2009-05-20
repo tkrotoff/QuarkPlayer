@@ -63,10 +63,9 @@ void PLSParser::load() {
 
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
-	static QRegExp rx_playlist("^[playlist]");
 	static QRegExp rx_file("^File(\\d+)=(.*)");
-	static QRegExp rx_title("^Title(\\d+)=(.*) - (.*)");
-	static QRegExp rx_length("^Length(\\d+)=(\\d+)");
+	static QRegExp rx_title("^Title(\\d+)=(.*)");
+	static QRegExp rx_length("^Length(\\d+)=(.*)");
 
 	QFile file(_filename);
 	if (file.open(QIODevice::ReadOnly)) {
@@ -84,21 +83,13 @@ void PLSParser::load() {
 			//Let's ignore them
 			line.remove("\r");
 
-			if (rx_playlist.indexIn(line) != -1) {
-				//[playlist] line, ignored
-			}
-
-			else if (rx_file.indexIn(line) != -1) {
+			if (rx_file.indexIn(line) != -1) {
 				QString filename(rx_file.cap(2));
 				mediaInfo.setFileName(Util::canonicalFilePath(path, filename));
 			}
 
 			else if (rx_title.indexIn(line) != -1) {
-				QString artist(rx_title.cap(2));
-				if (!artist.isEmpty()) {
-					mediaInfo.insertMetadata(MediaInfo::Artist, artist);
-				}
-				QString title(rx_title.cap(3));
+				QString title(rx_title.cap(2));
 				if (!title.isEmpty()) {
 					mediaInfo.insertMetadata(MediaInfo::Title, title);
 				}

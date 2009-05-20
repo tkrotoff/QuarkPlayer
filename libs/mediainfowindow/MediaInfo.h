@@ -45,7 +45,7 @@ public:
 
 	MediaInfo();
 
-	MediaInfo(const QString & filename);
+	explicit MediaInfo(const QString & filename);
 
 	~MediaInfo();
 

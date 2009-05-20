@@ -66,7 +66,7 @@ void WPLParser::load() {
 
 	QFile file(_filename);
 	if (file.open(QIODevice::ReadOnly)) {
-		QString path = QFileInfo(_filename).path();
+		QString path(QFileInfo(_filename).path());
 
 		QXmlStreamReader xml(&file);
 		while (!xml.atEnd() && !_stop) {
@@ -74,7 +74,7 @@ void WPLParser::load() {
 
 			if (xml.isStartElement()) {
 				if (xml.name() == "media") {
-					QString filename = xml.attributes().value("src").toString();
+					QString filename(xml.attributes().value("src").toString());
 
 					//Add file to the list of files
 					files << MediaInfo(Util::canonicalFilePath(path, filename));

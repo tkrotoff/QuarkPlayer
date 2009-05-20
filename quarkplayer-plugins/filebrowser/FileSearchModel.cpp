@@ -168,7 +168,7 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 					//Resolve metadata file one by one
 					if (_mediaInfoFetcherIndex == QModelIndex()) {
 						_mediaInfoFetcherIndex = index;
-						_mediaInfoFetcher->start(filename);
+						_mediaInfoFetcher->start(MediaInfo(filename));
 					}
 				}
 			} else {

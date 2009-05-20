@@ -84,9 +84,10 @@ private:
 	/** Deletes all QuarkPlayer file associations. */
 	static void deleteAllFileAssociations();
 
+	static QString shellExDLLFilename();
+	static QString shellExDLLRegistryFilename();
 	static void registerShellExDLL();
-	static void unregisterShellExDLL();
-	static bool isShellExDLLRegistered();
+	static void unregisterShellExDLL(const QString & shellExDLLFilename);
 };
 
 #endif	//WINDEFAULTAPPLICATION_H

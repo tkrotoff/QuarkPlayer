@@ -42,15 +42,6 @@ MPlayerProcess::MPlayerProcess(QObject * parent)
 	: MyProcess(parent) {
 
 	init();
-
-	connect(this, SIGNAL(lineAvailable(const QString &)),
-		SLOT(parseLine(const QString &)));
-
-	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
-		SLOT(finished(int, QProcess::ExitStatus)));
-
-	connect(this, SIGNAL(error(QProcess::ProcessError)),
-		SLOT(error(QProcess::ProcessError)));
 }
 
 MPlayerProcess::~MPlayerProcess() {
@@ -99,6 +90,30 @@ QString shortPathName(const QString & longPath) {
 	return shortPath;
 }
 
+void MPlayerProcess::connectAllSignals() {
+	disconnectAllSignals();
+
+	connect(this, SIGNAL(lineAvailable(const QString &)),
+		SLOT(parseLine(const QString &)));
+
+	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+		SLOT(finished(int, QProcess::ExitStatus)));
+
+	connect(this, SIGNAL(error(QProcess::ProcessError)),
+		SLOT(error(QProcess::ProcessError)));
+}
+
+void MPlayerProcess::disconnectAllSignals() {
+	disconnect(this, SIGNAL(lineAvailable(const QString &)),
+		this, SLOT(parseLine(const QString &)));
+
+	disconnect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+		this, SLOT(finished(int, QProcess::ExitStatus)));
+
+	disconnect(this, SIGNAL(error(QProcess::ProcessError)),
+		this, SLOT(error(QProcess::ProcessError)));
+}
+
 bool MPlayerProcess::start(const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek) {
 	//Stop MPlayerProcess if it is already running
 	if (isRunning()) {
@@ -130,11 +145,19 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 	_mediaData.filename = shortPathName(filename);
 	args << _mediaData.filename;
 
+	//By calling connectAllSignals() and disconnectAllSignals() each time a new QProcess is created,
+	//we are sure to get only signals from the current and working QProcess. This is a protective behavior.
+	connectAllSignals();
+
 	MyProcess::start(MPLAYER_EXE, args);
 	return waitForStarted();
 }
 
 void MPlayerProcess::stop() {
+	//By calling disconnectAllSignals() each time the QProcess ends, we are sure to get only
+	//signals from the current and working QProcess. This is a protective behavior.
+	disconnectAllSignals();
+
 	if (!isRunning()) {
 		qWarning() << __FUNCTION__ << "MPlayer not running";
 		return;
@@ -144,7 +167,9 @@ void MPlayerProcess::stop() {
 
 	qDebug() << __FUNCTION__ << "Finishing MPlayer...";
 	if (!waitForFinished(5000)) {
+		qDebug() << __FUNCTION__ << "Killing MPlayer...";
 		kill();
+		qDebug() << __FUNCTION__ << "MPlayer killed";
 	}
 
 	qDebug() << __FUNCTION__ << "MPlayer finished";

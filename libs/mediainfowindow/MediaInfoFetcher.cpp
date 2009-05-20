@@ -84,10 +84,13 @@ MediaInfo MediaInfoFetcher::mediaInfo() const {
 	return _mediaInfo;
 }
 
-void MediaInfoFetcher::start(const Phonon::MediaSource & mediaSource, ReadStyle readStyle) {
-	_mediaInfo.clear();
+void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
+	//By using an already existing MediaInfo as a parameter, if informations are found inside
+	//a .m3u playlist about this track, these informations won't be replaced by nothing but only
+	//with non-empty informations
+	_mediaInfo = mediaInfo;
 
-	_mediaSource = mediaSource;
+	_mediaSource = mediaInfo.fileName();
 	_readStyle = readStyle;
 
 	if (_mediaSource.type() == Phonon::MediaSource::Url) {
@@ -263,6 +266,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 	}
 
 	//Taken from Amarok, file: CollectionScanner.cpp
+	//See http://websvn.kde.org/trunk/extragear/multimedia/amarok/utilities/collectionscanner/CollectionScanner.cpp?view=markup
 #ifdef Q_OS_WIN
 	const wchar_t * encodedName = reinterpret_cast<const wchar_t *>(_mediaInfo.fileName().utf16());
 #else
@@ -274,6 +278,18 @@ void MediaInfoFetcher::startTagLibResolver() {
 	if (fileRef.isNull()) {
 		qCritical() << __FUNCTION__ << "Error: the FileRef is null:" << _mediaInfo.fileName();
 	} else {
+
+		TagLib::Tag * tag = fileRef.tag();
+		if (tag) {
+			//Do it before anything else, very generic, can contains ID3v1 tags I guess
+			_mediaInfo.insertMetadata(MediaInfo::TrackNumber, QString::number(tag->track()));
+			_mediaInfo.insertMetadata(MediaInfo::Title, TStringToQString(tag->title()).trimmed());
+			_mediaInfo.insertMetadata(MediaInfo::Artist, TStringToQString(tag->artist()).trimmed());
+			_mediaInfo.insertMetadata(MediaInfo::Album, TStringToQString(tag->album()).trimmed());
+			_mediaInfo.insertMetadata(MediaInfo::Year, QString::number(tag->year()));
+			_mediaInfo.insertMetadata(MediaInfo::Genre, TStringToQString(tag->genre()).trimmed());
+			_mediaInfo.insertMetadata(MediaInfo::Comment, TStringToQString(tag->comment()).trimmed());
+		}
 
 		if (TagLib::MPEG::File * file = dynamic_cast<TagLib::MPEG::File *>(fileRef.file())) {
 			_mediaInfo.setFileType(FileTypes::fileType(FileType::MP3));
@@ -304,7 +320,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 				}
 				if (!metadata["TCMP"].isEmpty()) {
 					//TODO
-					qDebug() << "Compilation:" << TStringToQString(metadata["TCMP"].front()->toString()).trimmed();
+					qDebug() << "TODO Compilation:" << TStringToQString(metadata["TCMP"].front()->toString()).trimmed();
 				}
 				if (!metadata["TPB"].isEmpty()) {
 					_mediaInfo.insertMetadata(MediaInfo::Publisher, TStringToQString(metadata["TPB"].front()->toString()).trimmed());
@@ -356,7 +372,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 				}
 				if (!metadata["COMPILATION"].isEmpty()) {
 					//TODO
-					qDebug() << "Compilation:" << TStringToQString(metadata["COMPILATION"].front()).trimmed();
+					qDebug() << "TODO Compilation:" << TStringToQString(metadata["COMPILATION"].front()).trimmed();
 				}
 			}
 
@@ -375,7 +391,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 				}
 				if (!metadata["COMPILATION"].isEmpty()) {
 					//TODO
-					qDebug() << "Compilation:" << TStringToQString(metadata["COMPILATION"].front()).trimmed();
+					qDebug() << "TODO Compilation:" << TStringToQString(metadata["COMPILATION"].front()).trimmed();
 				}
 			}
 
@@ -398,20 +414,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 			_mediaInfo.setFileType(FileTypes::fileType(FileType::AAC));
 		}
 
-
 		_mediaInfo.setFileSize(fileRef.file()->length());
-		TagLib::Tag * tag = fileRef.tag();
-		if (tag) {
-			if (!tag->isEmpty()) {
-				_mediaInfo.insertMetadata(MediaInfo::TrackNumber, QString::number(tag->track()));
-				_mediaInfo.insertMetadata(MediaInfo::Title, TStringToQString(tag->title()).trimmed());
-				_mediaInfo.insertMetadata(MediaInfo::Artist, TStringToQString(tag->artist()).trimmed());
-				_mediaInfo.insertMetadata(MediaInfo::Album, TStringToQString(tag->album()).trimmed());
-				_mediaInfo.insertMetadata(MediaInfo::Year, QString::number(tag->year()));
-				_mediaInfo.insertMetadata(MediaInfo::Genre, TStringToQString(tag->genre()).trimmed());
-				_mediaInfo.insertMetadata(MediaInfo::Comment, TStringToQString(tag->comment()).trimmed());
-			}
-		}
 
 		TagLib::AudioProperties * audioProperties = fileRef.audioProperties();
 		if (audioProperties) {

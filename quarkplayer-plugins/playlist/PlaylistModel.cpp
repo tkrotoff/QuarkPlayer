@@ -153,7 +153,7 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 			break;
 		}
 		case COLUMN_TITLE: {
-			QString title = mediaInfo.metadataValue(MediaInfo::Title);
+			QString title(mediaInfo.metadataValue(MediaInfo::Title));
 			if (title.isEmpty()) {
 				if (mediaInfo.fetched()) {
 					//Not the fullpath, only the filename
@@ -162,6 +162,7 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 					if (!QUrl(filename).host().isEmpty()) {
 						//A filename that contains a host/server name is a remote/network media
 						//So let's keep the complete filename
+						mediaInfo.setUrl(true);
 						title = filename;
 					} else {
 						//filename + parent directory name, e.g:
@@ -196,7 +197,7 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 			//Cannot do that for remote/network media, i.e URLs
 			if (_mediaInfoFetcherRow == POSITION_INVALID) {
 				_mediaInfoFetcherRow = row;
-				_mediaInfoFetcher->start(filename);
+				_mediaInfoFetcher->start(mediaInfo);
 			}
 		}
 	}
@@ -306,7 +307,7 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 		bool isMultimediaFile =
 			FileTypes::extensions(FileType::Video, FileType::Audio).contains(extension, Qt::CaseInsensitive);
 		if (isMultimediaFile) {
-			fileList << filename;
+			fileList << MediaInfo(filename);
 		} else if (FileTypes::extensions(FileType::Playlist).contains(extension)) {
 			loadPlaylist(filename);
 		} else if (QFileInfo(filename).isDir()) {
@@ -323,7 +324,9 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 		} else if (!QUrl(filename).host().isEmpty()) {
 			//A filename that contains a host/server name is a remote/network media
 			//So it should be added to the playlist
-			fileList << filename;
+			MediaInfo mediaInfo(filename);
+			mediaInfo.setUrl(true);
+			fileList << mediaInfo;
 		}
 	}
 
@@ -523,11 +526,11 @@ void PlaylistModel::updateMediaInfo() {
 	_mediaInfoFetcherRow = POSITION_INVALID;
 }
 
-QString PlaylistModel::fileName(const QModelIndex & index) const {
-	QString tmp;
+MediaInfo PlaylistModel::mediaInfo(const QModelIndex & index) const {
+	MediaInfo tmp;
 	if (index.isValid()) {
 		int row = index.row();
-		tmp = _filenames[row].fileName();
+		tmp = _filenames[row];
 	}
 	return tmp;
 }

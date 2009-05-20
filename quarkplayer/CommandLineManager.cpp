@@ -52,8 +52,11 @@ void CommandLineManager::addCommandLineParser(ICommandLineParser * parser) {
 
 	if (!args.isEmpty()) {
 		qDebug() << __FUNCTION__ << "Command line arguments:" << args;
-		parser->argsReceived(args, false);
 	}
+
+	//Call each CommandLineParser even with an empty list of arguments,
+	//so every CommandLineParser is being called at least once
+	parser->argsReceived(args, false);
 }
 
 void CommandLineManager::removeCommandLineParser(ICommandLineParser * parser) {

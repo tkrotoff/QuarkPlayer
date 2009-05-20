@@ -74,7 +74,8 @@ void MediaDataWidget::startMediaInfoFetcher(Phonon::MediaObject * mediaObject) {
 	} else {
 		//MediaSource is not a URL
 		//so everything is fine
-		_mediaInfoFetcher->start(mediaSource, MediaInfoFetcher::ReadStyleAccurate);
+		_mediaInfoFetcher->start(MediaInfo(mediaSource.fileName()),
+			MediaInfoFetcher::ReadStyleAccurate);
 	}
 	_mediaInfoWindow->setMediaInfoFetcher(_mediaInfoFetcher);
 	_mediaInfoWindow->setLanguage(Config::instance().language());

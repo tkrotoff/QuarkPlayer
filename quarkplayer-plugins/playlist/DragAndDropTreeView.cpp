@@ -227,7 +227,7 @@ void DragAndDropTreeView::viewMediaInfo() {
 	if (!indexList.isEmpty()) {
 		QModelIndex index(indexList.at(0));
 		QModelIndex sourceIndex(_playlistFilter->mapToSource(index));
-		mediaInfoFetcher->start(_playlistModel->fileName(sourceIndex), MediaInfoFetcher::ReadStyleAccurate);
+		mediaInfoFetcher->start(_playlistModel->mediaInfo(sourceIndex), MediaInfoFetcher::ReadStyleAccurate);
 	}
 	_mediaInfoWindow->setMediaInfoFetcher(mediaInfoFetcher);
 	_mediaInfoWindow->setLanguage(Config::instance().language());

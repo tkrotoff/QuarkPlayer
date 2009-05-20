@@ -29,11 +29,11 @@
 #include <QtCore/QDebug>
 
 //See GUUID from quarplayer-plugins/wincontextmenu/WinContextMenu.h
-static const char * shellexGUUID = "{BC6D1C0E-ADF5-44a1-9940-978019DF7985}";
+static const char * SHELLEX_GUUID = "{BC6D1C0E-ADF5-44a1-9940-978019DF7985}";
 
-static const char * defaultStr = "/Default";
+static const char * DEFAULT_STR = "/Default";
 
-static const char * quote = "\"";
+static const char * QUOTE = "\"";
 
 WinDefaultApplication::WinDefaultApplication() {
 }
@@ -41,42 +41,50 @@ WinDefaultApplication::WinDefaultApplication() {
 WinDefaultApplication::~WinDefaultApplication() {
 }
 
-void WinDefaultApplication::registerShellExDLL() {
-	static const QString shellExDLLPath(
-		quote
-		+ QDir::toNativeSeparators(QCoreApplication::applicationDirPath())
-		+  "/quarkplayercontextmenu.dll"
-		+ quote
+QString WinDefaultApplication::shellExDLLFilename() {
+	static const QString filename(
+		QDir::toNativeSeparators(QCoreApplication::applicationDirPath())
+		+ "\\quarkplayercontextmenu.dll"
 	);
 
-	if (!isShellExDLLRegistered()) {
+	return filename;
+}
+
+QString WinDefaultApplication::shellExDLLRegistryFilename() {
+	QSettings hkcr("HKEY_CLASSES_ROOT", QSettings::NativeFormat);
+	QString shellExDLLFilenameKey("CLSID/" + QString(SHELLEX_GUUID) + "/InprocServer32" + DEFAULT_STR);
+	return hkcr.value(shellExDLLFilenameKey).toString();
+}
+
+void WinDefaultApplication::registerShellExDLL() {
+	QString previousShellEx(shellExDLLRegistryFilename());
+	QString ourShellEx(shellExDLLFilename());
+	Q_ASSERT(!ourShellEx.isEmpty());
+
+	if (ourShellEx != previousShellEx) {
+
+		//Unregister the previous shellex DLL
+		unregisterShellExDLL(previousShellEx);
+
 		QProcess regsvr32;
 		QStringList args;
-		args << shellExDLLPath;
+		//args << "/s";	//silent
+		args << ourShellEx;
 		regsvr32.start("regsvr32", args);
 		regsvr32.waitForFinished();
 	}
 }
 
-void WinDefaultApplication::unregisterShellExDLL() {
-	static const QString shellExDLLPath(
-		quote
-		+ QDir::toNativeSeparators(QCoreApplication::applicationDirPath())
-		+  "/quarkplayercontextmenu.dll"
-		+ quote
-	);
-
-	QProcess regsvr32;
-	QStringList args;
-	args << "/u";
-	args << shellExDLLPath;
-	regsvr32.start("regsvr32", args);
-	regsvr32.waitForFinished();
-}
-
-bool WinDefaultApplication::isShellExDLLRegistered() {
-	QSettings hkcr("HKEY_CLASSES_ROOT", QSettings::NativeFormat);
-	return hkcr.contains("CLSID/" + QString(shellexGUUID) + defaultStr);
+void WinDefaultApplication::unregisterShellExDLL(const QString & shellExDLLFilename) {
+	if (!shellExDLLFilename.isEmpty()) {
+		QProcess regsvr32;
+		QStringList args;
+		//args << "/s";	//silent
+		args << "/u";	//uninstall
+		args << shellExDLLFilename;
+		regsvr32.start("regsvr32", args);
+		regsvr32.waitForFinished();
+	}
 }
 
 void WinDefaultApplication::install() {
@@ -89,7 +97,7 @@ void WinDefaultApplication::uninstall() {
 	qDebug() << __FUNCTION__ << "Uninstall QuarkPlayer as the default media application";
 	unregisterAsDefaultMediaPlayer();
 	deleteAllFileAssociations();
-	unregisterShellExDLL();
+	unregisterShellExDLL(shellExDLLFilename());
 }
 
 void WinDefaultApplication::registerAsDefaultMediaPlayer() {
@@ -115,13 +123,12 @@ void WinDefaultApplication::registerAsDefaultMediaPlayer() {
 		//hklm = QSettings("HKEY_CURRENT_USER", QSettings::NativeFormat);
 	}
 
-	static const QString appFilePath(quote + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + quote);
+	static const QString appFilePath(QUOTE + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + QUOTE);
 	static const QString defaultMediaPlayerKey("Software/Clients/Media/" + QCoreApplication::applicationName());
 
-	static const QString defaultStr("/Default");
-	hklm.setValue(defaultMediaPlayerKey + defaultStr, QCoreApplication::applicationName());
-	hklm.setValue(defaultMediaPlayerKey + "/DefaultIcon" + defaultStr, appFilePath + ",0");
-	hklm.setValue(defaultMediaPlayerKey + "/shell/open/command" + defaultStr, appFilePath);
+	hklm.setValue(defaultMediaPlayerKey + DEFAULT_STR, QCoreApplication::applicationName());
+	hklm.setValue(defaultMediaPlayerKey + "/DefaultIcon" + DEFAULT_STR, appFilePath + ",0");
+	hklm.setValue(defaultMediaPlayerKey + "/shell/open/command" + DEFAULT_STR, appFilePath);
 	static const QString unregisterCmd(appFilePath + " --windows-uninstall");
 	hklm.setValue(defaultMediaPlayerKey + "/InstallInfo/HideIconsCommand", unregisterCmd);
 	static const QString registerCmd(appFilePath + " --windows-install");
@@ -181,7 +188,7 @@ void WinDefaultApplication::addFileAssociation(const QString & extension) {
 	//QuarkPlayer.mp3
 	QString appKey = QCoreApplication::applicationName() + ext;
 	//.mp3
-	QString extKey = ext + defaultStr;
+	QString extKey = ext + DEFAULT_STR;
 	//.mp3/QuarkPlayer.backup
 	QString backupKey = ext + '/' + QCoreApplication::applicationName() + ".backup";
 	//.mp3/Default
@@ -189,9 +196,9 @@ void WinDefaultApplication::addFileAssociation(const QString & extension) {
 	///
 
 	if (!icon.isEmpty()) {
-		hkcr.setValue(appKey + "/DefaultIcon" + defaultStr, icon);
+		hkcr.setValue(appKey + "/DefaultIcon" + DEFAULT_STR, icon);
 	}
-	hkcr.setValue(appKey + "/shellex/ContextMenuHandlers/QuarkPlayer" + defaultStr, shellexGUUID);
+	hkcr.setValue(appKey + "/shellex/ContextMenuHandlers/QuarkPlayer" + DEFAULT_STR, SHELLEX_GUUID);
 
 	//Saves a backup key (QuarkPlayer.backup) if the key (extension: .mp3, .avi...) is already assigned
 	if (!extValue.isEmpty() && extValue != appKey) {
@@ -211,7 +218,7 @@ void WinDefaultApplication::deleteFileAssociation(const QString & extension) {
 	//QuarkPlayer.mp3
 	QString appKey = QCoreApplication::applicationName() + ext;
 	//.mp3
-	QString extKey = ext + defaultStr;
+	QString extKey = ext + DEFAULT_STR;
 	//.mp3/QuarkPlayer.backup
 	QString backupKey = ext + '/' + QCoreApplication::applicationName() + ".backup";
 	//.mp3/Default
@@ -246,7 +253,7 @@ bool WinDefaultApplication::containsFileAssociation(const QString & extension) {
 	//QuarkPlayer.mp3
 	QString appKey = QCoreApplication::applicationName() + ext;
 	//.mp3
-	QString extKey = ext + defaultStr;
+	QString extKey = ext + DEFAULT_STR;
 	//.mp3/QuarkPlayer.backup
 	QString backupKey = ext + '/' + QCoreApplication::applicationName() + ".backup";
 	//.mp3/Default
@@ -258,7 +265,7 @@ bool WinDefaultApplication::containsFileAssociation(const QString & extension) {
 
 void WinDefaultApplication::addDirectoryContextMenu() {
 	QSettings hkcr("HKEY_CLASSES_ROOT", QSettings::NativeFormat);
-	hkcr.setValue("Directory/shellex/ContextMenuHandlers/QuarkPlayer" + QString(defaultStr), shellexGUUID);
+	hkcr.setValue("Directory/shellex/ContextMenuHandlers/QuarkPlayer" + QString(DEFAULT_STR), SHELLEX_GUUID);
 }
 
 void WinDefaultApplication::deleteDirectoryContextMenu() {

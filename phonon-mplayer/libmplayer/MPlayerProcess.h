@@ -339,6 +339,28 @@ private:
 
 	void changeState(Phonon::State newState);
 
+	/**
+	 * Connects to all signals from QProcess.
+	 *
+	 * Internally call disconnectAllSignals() before to connect again all the signals.
+	 *
+	 * By calling connectAllSignals() and disconnectAllSignals() each time a new QProcess is created,
+	 * we are sure to get only signals from the current and working QProcess. This is a protective behavior.
+	 *
+	 * @see disconnectAllSignals()
+	 */
+	void connectAllSignals();
+
+	/**
+	 * Disconnects from all signals from QProcess.
+	 *
+	 * By calling disconnectAllSignals() each time the QProcess ends, we are sure to get only
+	 * signals from the current and working QProcess. This is a protective behavior.
+	 *
+	 * @see connectAllSignals()
+	 */
+	void disconnectAllSignals();
+
 	bool _endOfFileReached;
 
 	MediaData _mediaData;

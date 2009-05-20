@@ -32,6 +32,15 @@ class ICommandLineParser {
 	friend class CommandLineManager;
 protected:
 
+	/**
+	 * New command line arguments have been sent to QuarkPlayer.
+	 *
+	 * This method gets called at least once, even if no command line arguments are present.
+	 *
+	 * @param args command line arguments, can be an empty list
+	 * @param usingQtSingleApplication if the command line arguments were sent via QtSingleApplication
+	 *        this means that the arguments were sent via another instance of QuarkPlayer
+	 */
 	virtual void argsReceived(const QStringList & args, bool usingQtSingleApplication) = 0;
 };
 

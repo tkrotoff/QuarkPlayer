@@ -300,6 +300,7 @@ void PlaylistWidget::openPlaylist() {
 
 	if (!filename.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(filename).absolutePath());
+		_playlistModel->clear();
 		_playlistModel->loadPlaylist(filename);
 	}
 }
@@ -358,6 +359,8 @@ void PlaylistWidget::connectToMediaObject(Phonon::MediaObject * mediaObject) {
 		return;
 	}
 
+	//FIXME this code should be moved inside PlaylistModel
+
 	//Next track
 	connect(ActionCollection::action("MainWindow.NextTrack"), SIGNAL(triggered()),
 		_playlistFilter, SLOT(playNextTrack()));
@@ -393,6 +396,8 @@ void PlaylistWidget::disconnectFromMediaObjectList() {
 
 void PlaylistWidget::currentSourceChanged(const Phonon::MediaSource & source) {
 	Q_UNUSED(source);
+
+	//FIXME this code should be moved inside PlaylistModel
 
 	if (PlaylistConfig::instance().activePlaylist() == uuid()) {
 		//Each time the track changes, we enqueue the next track
@@ -482,6 +487,7 @@ void PlaylistWidget::search() {
 	//Force the treeView to launch files tags fetching
 	//FIXME Does not work
 	//_treeView->repaint();
+	///
 
 	if (!pattern.isEmpty()) {
 		updateWindowTitle(tr("Search finished:") + ' ' + QString::number((float) timeElapsed.elapsed() / 1000) + ' ' + tr("seconds") +

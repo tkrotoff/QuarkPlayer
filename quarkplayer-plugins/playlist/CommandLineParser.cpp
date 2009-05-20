@@ -32,7 +32,6 @@ CommandLineParser::CommandLineParser(PlaylistModel * playlistModel)
 
 	_playlistModel = playlistModel;
 
-	argsReceived(CommandLineManager::instance().argsReceived(), true);
 	CommandLineManager::instance().addCommandLineParser(this);
 }
 

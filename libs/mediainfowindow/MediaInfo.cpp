@@ -41,8 +41,10 @@ void MediaInfo::clear() {
 	//General
 	_fileName.clear();
 	_isUrl = false;
+	//_fileType
 	_fileSize = -1;
 	_length = -1;
+	_bitrate = -1;
 	_encodedApplication.clear();
 
 	//metaData
@@ -155,11 +157,7 @@ QString MediaInfo::metadataValue(Metadata metadata) const {
 }
 
 void MediaInfo::insertMetadata(Metadata metadata, const QString & value) {
-	if (!_metadataHash.contains(metadata)) {
-		_metadataHash.insert(metadata, value);
-	} else {
-		qCritical() << __FUNCTION__ << "Error: key already inserted:" << metadata;
-	}
+	_metadataHash.insert(metadata, value);
 }
 
 //Audio
@@ -186,11 +184,7 @@ void MediaInfo::insertAudioStream(int audioStreamId, AudioStream audioStream, co
 	//key = 19, not 1 + 9 = 10!
 	int key = QString(QString::number(audioStreamId) + QString::number(audioStream)).toInt();
 
-	if (!_audioStreamHash.contains(key)) {
-		_audioStreamHash.insert(key, value);
-	} else {
-		qCritical() << __FUNCTION__ << "Error: key already inserted:" << key;
-	}
+	_audioStreamHash.insert(key, value);
 }
 
 //Video
@@ -217,11 +211,7 @@ void MediaInfo::insertVideoStream(int videoStreamId, VideoStream videoStream, co
 	//key = 19, not 1 + 9 = 10!
 	int key = QString(QString::number(videoStreamId) + QString::number(videoStream)).toInt();
 
-	if (!_videoStreamHash.contains(key)) {
-		_videoStreamHash.insert(key, value);
-	} else {
-		qCritical() << __FUNCTION__ << "Error: key already inserted:" << key;
-	}
+	_videoStreamHash.insert(key, value);
 }
 
 //Text
@@ -248,11 +238,7 @@ void MediaInfo::insertTextStream(int textStreamId, TextStream textStream, const 
 	//key = 19, not 1 + 9 = 10!
 	int key = QString(QString::number(textStreamId) + QString::number(textStream)).toInt();
 
-	if (!_textStreamHash.contains(key)) {
-		_textStreamHash.insert(key, value);
-	} else {
-		qCritical() << __FUNCTION__ << "Error: key already inserted:" << key;
-	}
+	_textStreamHash.insert(key, value);
 }
 
 //Network stream
@@ -261,9 +247,5 @@ QString MediaInfo::networkStreamValue(NetworkStream networkStream) const {
 }
 
 void MediaInfo::insertNetworkStream(NetworkStream networkStream, const QString & value) {
-	if (!_networkStreamHash.contains(networkStream)) {
-		_networkStreamHash.insert(networkStream, value);
-	} else {
-		qCritical() << __FUNCTION__ << "Error: key already inserted:" << networkStream;
-	}
+	_networkStreamHash.insert(networkStream, value);
 }

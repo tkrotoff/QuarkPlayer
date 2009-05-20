@@ -33,7 +33,6 @@
 CommandLineParser::CommandLineParser()
 	: ICommandLineParser() {
 
-	argsReceived(CommandLineManager::instance().argsReceived(), true);
 	CommandLineManager::instance().addCommandLineParser(this);
 }
 

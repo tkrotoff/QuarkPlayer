@@ -90,7 +90,7 @@ public:
 	 *
 	 * @param mediaSource Phonon media source
 	 */
-	void start(const Phonon::MediaSource & mediaSource, ReadStyle readStyle = ReadStyleAverage);
+	void start(const MediaInfo & mediaInfo, ReadStyle readStyle = ReadStyleAverage);
 
 	/**
 	 * Starts info fetching given a media object.
