@@ -26,7 +26,7 @@ build-stamp: configure-stamp
 	dh_testdir -P@DEB_BUILD_DIR@
 
 	# Add here commands to compile the package.
-	$(MAKE) CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@
+	$(MAKE) -f @CMAKE_SOURCE_DIR@/Makefile CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@
 	#docbook-to-man debian/quarkplayer.sgml > quarkplayer.1
 
 	touch $@
@@ -49,7 +49,7 @@ install: build
 	dh_installdirs -P@DEB_BUILD_DIR@
 
 	# Add here commands to install the package.
-	$(MAKE) CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@ BUILD_DIR=@BUILD_DIR@ DESTDIR=@DEB_BUILD_DIR@ install
+	$(MAKE) -f @CMAKE_SOURCE_DIR@/Makefile CMAKE_SOURCE_DIR=@CMAKE_SOURCE_DIR@ CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@ BUILD_DIR=@BUILD_DIR@ DESTDIR=@DEB_BUILD_DIR@ install
 
 
 # Build architecture-independent files here.
@@ -60,7 +60,7 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir -P@DEB_BUILD_DIR@
 	dh_testroot -P@DEB_BUILD_DIR@
-	dh_installchangelogs -P@DEB_BUILD_DIR@
+	dh_installchangelogs -P@DEB_BUILD_DIR@ @CMAKE_SOURCE_DIR@/ChangeLog
 	dh_installdocs -P@DEB_BUILD_DIR@
 	dh_installexamples -P@DEB_BUILD_DIR@
 #	dh_install -P@DEB_BUILD_DIR@
@@ -84,7 +84,7 @@ binary-arch: build install
 	dh_installdeb -P@DEB_BUILD_DIR@
 
 	# Takes a very long time!
-	dh_shlibdeps -P@DEB_BUILD_DIR@
+#	dh_shlibdeps -P@DEB_BUILD_DIR@
 
 	dh_gencontrol -P@DEB_BUILD_DIR@
 	dh_md5sums -P@DEB_BUILD_DIR@

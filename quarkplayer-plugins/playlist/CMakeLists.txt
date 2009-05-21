@@ -30,7 +30,7 @@ target_link_libraries(playlist
 	${QT_QTGUI_LIBRARY}
 )
 
-#Translations
+# Translations
 add_qt_translations(${playlist_SRCS})
 
-install(TARGETS playlist DESTINATION ${BIN_INSTALL_DIR}/plugins)
+install(TARGETS playlist ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})

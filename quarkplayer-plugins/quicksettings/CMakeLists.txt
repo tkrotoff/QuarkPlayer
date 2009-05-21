@@ -21,7 +21,7 @@ target_link_libraries(quicksettings
 	${QT_QTGUI_LIBRARY}
 )
 
-#Translations
+# Translations
 add_qt_translations(${quicksettings_SRCS})
 
-install(TARGETS quicksettings DESTINATION ${BIN_INSTALL_DIR}/plugins)
+install(TARGETS quicksettings ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})

@@ -35,7 +35,7 @@ target_link_libraries(filebrowser
 	${QT_QTGUI_LIBRARY}
 )
 
-#Translations
+# Translations
 add_qt_translations(${filebrowser_SRCS})
 
-install(TARGETS filebrowser RUNTIME DESTINATION ${BIN_INSTALL_DIR}/plugins)
+install(TARGETS filebrowser ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})

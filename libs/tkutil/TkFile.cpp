@@ -24,14 +24,15 @@
 #include <sys/stat.h>
 
 bool TkFile::isDir(const QString & path) {
-	const wchar_t * encodedName = reinterpret_cast<const wchar_t *>(path.utf16());
-
 #ifdef Q_CC_MSVC
+	const wchar_t * encodedName = reinterpret_cast<const wchar_t *>(path.utf16());
 	struct _stat statbuf;
 	_wstat(encodedName, &statbuf);
 	return ((statbuf.st_mode & S_IFMT) == S_IFDIR);
 #else
+	const char * encodedName = path.toUtf8().constData();
 	struct stat statbuf;
+	//lstat() works with symbolic links, stat() does not
 	lstat(encodedName, &statbuf);
 	return S_ISDIR(statbuf.st_mode);
 #endif	//Q_CC_MSVC

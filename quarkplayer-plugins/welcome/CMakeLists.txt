@@ -16,7 +16,7 @@ target_link_libraries(welcome
 	${QT_QTGUI_LIBRARY}
 )
 
-#Translations
+# Translations
 add_qt_translations(${welcome_SRCS})
 
-install(TARGETS welcome DESTINATION ${BIN_INSTALL_DIR}/plugins)
+install(TARGETS welcome ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})

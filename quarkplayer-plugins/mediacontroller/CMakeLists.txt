@@ -19,7 +19,7 @@ target_link_libraries(mediacontroller
 	${QT_QTGUI_LIBRARY}
 )
 
-#Translations
+# Translations
 add_qt_translations(${mediacontroller_SRCS})
 
-install(TARGETS mediacontroller DESTINATION ${BIN_INSTALL_DIR}/plugins)
+install(TARGETS mediacontroller ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})

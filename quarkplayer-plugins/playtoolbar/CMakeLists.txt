@@ -16,7 +16,7 @@ target_link_libraries(playtoolbar
 	${QT_QTGUI_LIBRARY}
 )
 
-#Translations
+# Translations
 add_qt_translations(${playtoolbar_SRCS})
 
-install(TARGETS playtoolbar DESTINATION ${BIN_INSTALL_DIR}/plugins)
+install(TARGETS playtoolbar ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})

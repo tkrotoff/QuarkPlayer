@@ -16,7 +16,7 @@ target_link_libraries(statusbar
 	${QT_QTGUI_LIBRARY}
 )
 
-#Translations
+# Translations
 add_qt_translations(${statusbar_SRCS})
 
-install(TARGETS statusbar DESTINATION ${BIN_INSTALL_DIR}/plugins)
+install(TARGETS statusbar ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})

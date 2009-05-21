@@ -46,11 +46,11 @@ BuildRoot:     %{_tmppath}/%{name}-%{version}-build
 # Build the source code
 # Done by CMake
 #make CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@ configure
-make CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@
+make  -f @CMAKE_SOURCE_DIR@/Makefile CMAKE_SOURCE_DIR=@CMAKE_SOURCE_DIR@ CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@
 
 %install
 # Install all files into the BuildRoot
-make CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@ BUILD_DIR=@BUILD_DIR@ DESTDIR=%{buildroot} install
+make  -f @CMAKE_SOURCE_DIR@/Makefile CMAKE_SOURCE_DIR=@CMAKE_SOURCE_DIR@ CMAKE_BINARY_DIR=@CMAKE_BINARY_DIR@ BUILD_DIR=@BUILD_DIR@ DESTDIR=%{buildroot} install
 
 %clean
 # Clean up the hard disc after build
