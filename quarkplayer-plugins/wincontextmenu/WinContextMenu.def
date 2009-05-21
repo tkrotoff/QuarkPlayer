@@ -1,5 +1,4 @@
 LIBRARY "QuarkPlayerContextMenu"
-DESCRIPTION 'QuarkPlayer Shell Extension'
 EXPORTS
 	DllCanUnloadNow PRIVATE
 	DllGetClassObject PRIVATE
