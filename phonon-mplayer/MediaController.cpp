@@ -425,6 +425,7 @@ void MediaController::titleAdded(int id, qint64 length) {
 
 	_availableTitles << Phonon::TitleDescription(id, properties);
 #else
+	Q_UNUSED(length);
 	if (_availableTitles < id) {
 		_availableTitles = id;
 	}
@@ -592,6 +593,9 @@ void MediaController::chapterAdded(int titleId, int chapters) {
 }
 
 void MediaController::mkvChapterAdded(int id, const QString & title, const QString & from, const QString & to) {
+	Q_UNUSED(from);
+	Q_UNUSED(to);
+
 	//Matroska chapter added
 	if (_availableChapters < id) {
 		_availableChapters = id;

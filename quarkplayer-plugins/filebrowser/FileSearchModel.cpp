@@ -107,7 +107,6 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 		return tmp;
 	}
 
-	int row = index.row();
 	int column = index.column();
 
 	const MediaInfo & mediaInfo(item(index)->mediaInfo());
