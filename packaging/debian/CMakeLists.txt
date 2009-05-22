@@ -14,6 +14,7 @@ if (FAKEROOT_EXECUTABLE AND DH_EXECUTABLE)
 	configure_file(control.in ${CMAKE_CURRENT_SOURCE_DIR}/control @ONLY)
 	configure_file(rules.in ${CMAKE_CURRENT_SOURCE_DIR}/rules @ONLY)
 	configure_file(changelog.in ${CMAKE_CURRENT_SOURCE_DIR}/changelog @ONLY)
+	configure_file(docs.in ${CMAKE_CURRENT_SOURCE_DIR}/docs @ONLY)
 
 	# -b : binary-only, do not build source
 	# -us : unsigned source
