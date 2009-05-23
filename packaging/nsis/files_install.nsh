@@ -1,3 +1,4 @@
+; Needed when installing QuarkPlayer above an existing installation
 Delete "$INSTDIR\*"
 Delete "$INSTDIR\README"
 Delete "$INSTDIR\ChangeLog"
@@ -67,7 +68,7 @@ SetOutPath "$INSTDIR\imageformats\"
 File "${BUILD_DIR}\imageformats\*.dll"
 
 SetOutPath "$INSTDIR\mplayer\"
-File "${BUILD_DIR}\mplayer\*"
+File /r "${BUILD_DIR}\mplayer\*"
 
 SetOutPath "$INSTDIR\phonon_backend\"
 File "${BUILD_DIR}\phonon_backend\*.dll"
