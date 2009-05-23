@@ -52,7 +52,7 @@ class CClassFactory : public IClassFactory {
 public:
 
 	CClassFactory();
-	~CClassFactory();
+	virtual ~CClassFactory();
 
 	//Inherited from interface IUnknown
 	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, LPVOID FAR * ppvObject);
@@ -73,7 +73,7 @@ class CContextMenu : public IContextMenu, IShellExtInit {
 public:
 
 	CContextMenu();
-	~CContextMenu();
+	virtual ~CContextMenu();
 
 	//Inherited from interface IUnknown
 	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, LPVOID FAR * ppvObject);

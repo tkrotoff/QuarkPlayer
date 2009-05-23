@@ -229,7 +229,7 @@ HRESULT STDMETHODCALLTYPE CContextMenu::GetCommandString(UINT_PTR idCmd, UINT uF
 
 HRESULT STDMETHODCALLTYPE CContextMenu::invokeQuarkPlayer(HWND hParent, LPTSTR args) {
 	//Get the number of files selected by the user
-	UINT nbFilesSelected;
+	UINT nbFilesSelected = 0;
 	STGMEDIUM stgMedium;
 	FORMATETC fmte = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 	HRESULT hres = m_pDataObj->GetData(&fmte, &stgMedium);
