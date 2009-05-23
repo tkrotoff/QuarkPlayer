@@ -29,4 +29,4 @@ target_link_libraries(multiplevideoplayer
 	${QT_PHONON_LIBRARY}
 )
 
-install(TARGETS multiplevideoplayer DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS multiplevideoplayer ${INSTALL_TARGETS_DEFAULT_ARGS})

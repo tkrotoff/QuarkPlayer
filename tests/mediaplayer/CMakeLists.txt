@@ -28,4 +28,4 @@ target_link_libraries(mediaplayer
 	${QT_PHONON_LIBRARY}
 )
 
-install(TARGETS mediaplayer DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS mediaplayer ${INSTALL_TARGETS_DEFAULT_ARGS})

@@ -43,4 +43,4 @@ endif (WIN32)
 
 add_library(zlib SHARED ${zlib_SRCS})
 
-install(TARGETS zlib DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS zlib ${INSTALL_TARGETS_DEFAULT_ARGS})

@@ -19,4 +19,4 @@ target_link_libraries(capabilities
 	${QT_PHONON_LIBRARY}
 )
 
-install(TARGETS capabilities DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS capabilities ${INSTALL_TARGETS_DEFAULT_ARGS})

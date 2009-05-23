@@ -2,7 +2,11 @@ project(zenlib)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 
-add_definitions(-DUNICODE)
+if (NOT MINGW)
+	# MinGW STL does not support wide characters (wchar_t)
+	# see http://www.mingw.org/wiki/wide_characters
+	add_definitions(-DUNICODE)
+endif (NOT MINGW)
 
 set(zenlib_SRCS
 	Conf.cpp

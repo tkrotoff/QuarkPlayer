@@ -9,7 +9,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 include_directories(${ZLIB_INCLUDE_DIR})
 
-add_definitions(-DUNICODE -DMEDIAINFO_MINIMIZESIZE)
+add_definitions(-DMEDIAINFO_MINIMIZESIZE)
+if (NOT MINGW)
+	# MinGW STL does not support wide characters (wchar_t)
+	# see http://www.mingw.org/wiki/wide_characters
+	add_definitions(-DUNICODE)
+endif (NOT MINGW)
 
 set(mediainfo_SRCS
 	File__Analyze.cpp
@@ -149,4 +154,4 @@ set_target_properties(mediainfo PROPERTIES
 	SOVERSION ${MEDIAINFO_MAJOR_VERSION}
 )
 
-install(TARGETS mediainfo DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS mediainfo ${INSTALL_TARGETS_DEFAULT_ARGS})

@@ -123,4 +123,4 @@ endif (MEDIAINFOLIB)
 # Translations
 add_qt_translations(${quarkplayercore_SRCS})
 
-install(TARGETS quarkplayercore DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS quarkplayercore ${INSTALL_TARGETS_DEFAULT_ARGS})

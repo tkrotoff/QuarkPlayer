@@ -26,4 +26,4 @@ target_link_libraries(videoplayer
 	${QT_PHONON_LIBRARY}
 )
 
-install(TARGETS videoplayer DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS videoplayer ${INSTALL_TARGETS_DEFAULT_ARGS})

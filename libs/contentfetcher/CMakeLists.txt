@@ -24,4 +24,4 @@ target_link_libraries(contentfetcher
 	${QT_QTGUI_LIBRARY}
 )
 
-install(TARGETS contentfetcher DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS contentfetcher ${INSTALL_TARGETS_DEFAULT_ARGS})

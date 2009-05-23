@@ -78,4 +78,4 @@ endif (MEDIAINFOLIB)
 # Translations
 add_qt_translations(${mediainfowindow_SRCS})
 
-install(TARGETS mediainfowindow DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS mediainfowindow ${INSTALL_TARGETS_DEFAULT_ARGS})

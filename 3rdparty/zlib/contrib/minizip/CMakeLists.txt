@@ -28,4 +28,4 @@ target_link_libraries(minizip
 	${ZLIB_LIBRARY}
 )
 
-#install(TARGETS minizip DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+#install(TARGETS minizip ${INSTALL_TARGETS_DEFAULT_ARGS})

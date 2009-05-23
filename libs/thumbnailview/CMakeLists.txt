@@ -23,4 +23,4 @@ target_link_libraries(thumbnailview
 	${QT_QTGUI_LIBRARY}
 )
 
-install(TARGETS thumbnailview DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS thumbnailview ${INSTALL_TARGETS_DEFAULT_ARGS})

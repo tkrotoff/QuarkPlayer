@@ -12,4 +12,4 @@ target_link_libraries(filetypes
 	${QT_QTCORE_LIBRARY}
 )
 
-install(TARGETS filetypes DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS filetypes ${INSTALL_TARGETS_DEFAULT_ARGS})

@@ -22,4 +22,4 @@ target_link_libraries(webbrowser
 #Translations
 add_qt_translations(${webbrowser_SRCS})
 
-install(TARGETS webbrowser DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS webbrowser ${INSTALL_TARGETS_DEFAULT_ARGS})

@@ -22,4 +22,4 @@ target_link_libraries(qtsingleapplication
 	${QT_QTNETWORK_LIBRARY}
 )
 
-install(TARGETS qtsingleapplication DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS qtsingleapplication ${INSTALL_TARGETS_DEFAULT_ARGS})

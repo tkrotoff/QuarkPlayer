@@ -9,4 +9,4 @@ target_link_libraries(testQGraphicsProxyWidget
 	${QT_QTMAIN_LIBRARY}
 )
 
-install(TARGETS testQGraphicsProxyWidget DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS testQGraphicsProxyWidget ${INSTALL_TARGETS_DEFAULT_ARGS})

@@ -26,4 +26,4 @@ target_link_libraries(playlistparser
 	${QT_QTXML_LIBRARY}
 )
 
-install(TARGETS playlistparser DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS playlistparser ${INSTALL_TARGETS_DEFAULT_ARGS})

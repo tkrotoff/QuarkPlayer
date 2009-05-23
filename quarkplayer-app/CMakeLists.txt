@@ -56,7 +56,7 @@ target_link_libraries(quarkplayer
 	${QT_QTMAIN_LIBRARY}
 )
 
-install(TARGETS quarkplayer DESTINATION ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS quarkplayer ${INSTALL_TARGETS_DEFAULT_ARGS})
 if (UNIX)
 	install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer.sh DESTINATION ${BIN_INSTALL_DIR})
 endif (UNIX)
