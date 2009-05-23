@@ -23,6 +23,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifndef lstat
+	//Under MinGW, lstat() does not exist
+	#define lstat stat
+#endif	//!lstat
+
 bool TkFile::isDir(const QString & path) {
 #ifdef Q_CC_MSVC
 	const wchar_t * encodedName = reinterpret_cast<const wchar_t *>(path.utf16());
