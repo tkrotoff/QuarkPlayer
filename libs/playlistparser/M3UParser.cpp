@@ -21,6 +21,7 @@
 #include "Util.h"
 
 #include <mediainfowindow/MediaInfo.h>
+#include <tkutil/TkFile.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
@@ -185,7 +186,7 @@ void M3UParser::save(const QList<MediaInfo> & files) {
 			stream << "\n";
 
 			//Try to save the filename as relative instead of absolute
-			QString filename(Util::relativeFilePath(path, mediaInfo.fileName()));
+			QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
 			stream << Util::pathToNativeSeparators(filename) << "\n";
 		}
 	}

@@ -199,12 +199,14 @@ void FileBrowserWidget::search() {
 	disconnect(_fileSearchModel, SIGNAL(searchFinished(int)),
 		this, SLOT(searchFinished(int)));
 
+	QString rootSearchPath(Config::instance().musicDir(uuid()));
+	_fileSearchModel->setRootSearchPath(rootSearchPath);
+
 	QString pattern(_searchLineEdit->text());
 	if (pattern.isEmpty()) {
 		setWindowTitle(QString());
 
-		_fileSearchModel->search(Config::instance().musicDir(uuid()),
-			QRegExp(QString(), Qt::CaseInsensitive, QRegExp::RegExp2), INT_MAX, false);
+		_fileSearchModel->search(rootSearchPath, QRegExp(QString(), Qt::CaseInsensitive, QRegExp::RegExp2), INT_MAX, false);
 	} else {
 		//Sets a busy mouse cursor since the search can take several seconds
 		unsetCursor();
@@ -225,8 +227,7 @@ void FileBrowserWidget::search() {
 		}
 		qDebug() << __FUNCTION__ << tmp;
 
-		_fileSearchModel->search(Config::instance().musicDir(uuid()),
-				QRegExp(tmp, Qt::CaseInsensitive, QRegExp::RegExp2), 1, true);
+		_fileSearchModel->search(rootSearchPath, QRegExp(tmp, Qt::CaseInsensitive, QRegExp::RegExp2), 1, true);
 	}
 }
 

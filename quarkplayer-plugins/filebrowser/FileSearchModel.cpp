@@ -25,6 +25,7 @@
 #include <filetypes/FileTypes.h>
 
 #include <tkutil/FindFiles.h>
+#include <tkutil/TkFile.h>
 
 #include <QtGui/QtGui>
 
@@ -65,6 +66,10 @@ void FileSearchModel::setSearchExtensions(const QStringList & extensions) {
 
 void FileSearchModel::setToolTipExtensions(const QStringList & extensions) {
 	_toolTipExtensions = extensions;
+}
+
+void FileSearchModel::setRootSearchPath(const QString & rootSearchPath) {
+	_rootSearchPath = rootSearchPath;
 }
 
 FileSearchItem * FileSearchModel::item(const QModelIndex & index) const {
@@ -154,15 +159,20 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 		switch (column) {
 		case COLUMN_FILENAME:
 			QFileInfo fileInfo(filename);
+
+			//Make the filename relative to the search path
+			//This way the tooltip is more readable because it is shorter
+			QString relativeFilename(TkFile::relativeFilePath(_rootSearchPath, filename));
+
 			if (!fileInfo.isDir() && _toolTipExtensions.contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
 				if (mediaInfo.fetched()) {
-					tmp = filename + "<br>" +
+					tmp = relativeFilename + "<br>" +
 						tr("Title:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Title) + "</b><br>" +
 						tr("Artist:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Artist) + "</b><br>" +
 						tr("Album:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Album) + "</b><br>" +
 						tr("Length:") + "</b> <b>" + mediaInfo.lengthFormatted() + "</b>";
 				} else {
-					tmp = filename;
+					tmp = relativeFilename;
 
 					//Resolve metadata file one by one
 					if (_mediaInfoFetcherIndex == QModelIndex()) {
@@ -176,7 +186,7 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 				//since obviously there is none
 				//If the filename is a file without a "multimedia" extension (i.e .mp3, .avi, .flac...)
 				//then we don't try to resolve the meta data
-				tmp = filename;
+				tmp = relativeFilename;
 			}
 			break;
 		}
@@ -282,7 +292,7 @@ void FileSearchModel::fetchMore(const QModelIndex & parent) {
 	//_currentParentQModelIndex is a hack because of beginInsertRows()
 	_currentParentQModelIndex = parent;
 
-	QString path = fileInfo(parent).absoluteFilePath();
+	QString path(fileInfo(parent).absoluteFilePath());
 	search(path, QRegExp(QString(), Qt::CaseInsensitive, QRegExp::RegExp2), INT_MAX, false);
 }
 

@@ -49,20 +49,3 @@ QString Util::canonicalFilePath(const QString & path, const QString & filename) 
 
 	return tmp;
 }
-
-QString Util::relativeFilePath(const QString & path, const QString & filename) {
-	//FIXME Yes this can be improved
-	//Does not handle this case for example:
-	//path = "C:\Documents and Settings\tanguy_k\My Documents\My Music\My Playlists\"
-	//filename = "C:/Documents and Settings/tanguy_k/My Documents/Downloads/Cindy Sander - Papillon de lumiere 3'37.mp3"
-	//result = "..\..\Downloads\Cindy Sander - Papillon de lumiere 3'37.mp3"
-
-	QString tmp(filename);
-
-	QString pathTmp(path + '/');
-	if (tmp.startsWith(pathTmp)) {
-		tmp = tmp.mid(pathTmp.length());
-	}
-
-	return tmp;
-}

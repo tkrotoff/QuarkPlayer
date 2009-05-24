@@ -46,6 +46,16 @@ public:
 	 */
 	static bool isDir(const QString & path);
 
+	/**
+	 * Returns the relative file path of a file given a path.
+	 *
+	 * Example:
+	 * path = "C:\Documents and Settings\tanguy_k\My Documents\My Music"
+	 * filename = "C:/Documents and Settings/tanguy_k/My Documents/My Music/Cindy Sander - Papillon de lumiere 3'37.mp3"
+	 * result = "Cindy Sander - Papillon de lumiere 3'37.mp3"
+	 */
+	static QString relativeFilePath(const QString & path, const QString & filename);
+
 private:
 
 	TkFile();

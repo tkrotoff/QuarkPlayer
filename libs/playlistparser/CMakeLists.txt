@@ -22,6 +22,7 @@ add_library(playlistparser SHARED ${playlistparser_SRCS})
 
 target_link_libraries(playlistparser
 	mediainfowindow
+	tkutil
 	${QT_QTCORE_LIBRARY}
 	${QT_QTXML_LIBRARY}
 )

@@ -87,6 +87,13 @@ public:
 	 */
 	void setToolTipExtensions(const QStringList & extensions);
 
+	/**
+	 * Sets the root search path.
+	 *
+	 * Nothing fancy here, only used internally for the tooltips.
+	 */
+	void setRootSearchPath(const QString & rootSearchPath);
+
 	QFileInfo fileInfo(const QModelIndex & index) const;
 
 	/**
@@ -164,6 +171,9 @@ private:
 	QStringList _searchExtensions;
 
 	QStringList _toolTipExtensions;
+
+	/** Used internally for tooltips. */
+	QString _rootSearchPath;
 };
 
 #endif	//FILESEARCHMODEL_H

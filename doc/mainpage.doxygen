@@ -9,7 +9,7 @@ Mailing-list: http://groups.google.com/group/quarkplayer
 <h2>Source code organization</h2>
 
 %QuarkPlayer source code is organized in 4 parts:
-- QuarkPlayer-app: contains main.cpp, translations and icons .quarkplayer-app
+- QuarkPlayer-app: contains %main.cpp, translations and icons .quarkplayer-app
 - QuarkPlayer-core: QuarkPlayer's core that contains the API for developping plugins quarkplayer
 - QuarkPlayer-plugins: contains the plugins developped using QuarkPlayer-core quarkplayer-plugins
 - libs: libraries that helps developping QuarkPlayer-core and QuarkPlayer-plugins libs

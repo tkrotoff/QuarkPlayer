@@ -21,6 +21,7 @@
 #include "Util.h"
 
 #include <mediainfowindow/MediaInfo.h>
+#include <tkutil/TkFile.h>
 
 #include <QtXml/QXmlStreamReader>
 #include <QtXml/QXmlStreamWriter>
@@ -144,7 +145,7 @@ void WPLParser::save(const QList<MediaInfo> & files) {
 						xml.writeStartElement("media");
 
 						//Try to save the filename as relative instead of absolute
-						QString filename(Util::relativeFilePath(path, mediaInfo.fileName()));
+						QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
 						filename = Util::pathToNativeSeparators(filename);
 						xml.writeAttribute("src", filename);
 

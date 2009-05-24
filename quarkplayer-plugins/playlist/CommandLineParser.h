@@ -33,7 +33,7 @@ public:
 
 	CommandLineParser(PlaylistModel * playlistModel);
 
-	~CommandLineParser();
+	virtual ~CommandLineParser();
 
 private:
 

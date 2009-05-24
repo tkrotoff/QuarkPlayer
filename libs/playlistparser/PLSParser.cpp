@@ -21,6 +21,7 @@
 #include "Util.h"
 
 #include <mediainfowindow/MediaInfo.h>
+#include <tkutil/TkFile.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
@@ -159,7 +160,7 @@ void PLSParser::save(const QList<MediaInfo> & files) {
 			}
 
 			//Try to save the filename as relative instead of absolute
-			QString filename(Util::relativeFilePath(path, mediaInfo.fileName()));
+			QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
 			stream << "File" << count << '=';
 			stream << Util::pathToNativeSeparators(filename);
 			stream << winampEndOfLine;

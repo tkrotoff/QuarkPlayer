@@ -29,11 +29,17 @@ class QString;
 class Util {
 public:
 
+	/** Converts every / or \ to native separators. */
 	static QString pathToNativeSeparators(const QString & path);
 
+	/**
+	 * Returns the canonical path including the file name, i.e. an absolute path without symbolic links or redundant "." or ".." elements.
+	 *
+	 * If the file does not exist, canonicalFilePath() returns an empty string.
+	 *
+	 * @see QFileInfo::canonicalFilePath()
+	 */
 	static QString canonicalFilePath(const QString & path, const QString & filename);
-
-	static QString relativeFilePath(const QString & path, const QString & filename);
 
 private:
 

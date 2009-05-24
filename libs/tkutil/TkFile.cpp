@@ -18,6 +18,7 @@
 
 #include "TkFile.h"
 
+#include <QtCore/QDir>
 #include <QtCore/QDebug>
 
 #include <sys/types.h>
@@ -41,4 +42,23 @@ bool TkFile::isDir(const QString & path) {
 	lstat(encodedName, &statbuf);
 	return S_ISDIR(statbuf.st_mode);
 #endif	//Q_CC_MSVC
+}
+
+QString TkFile::relativeFilePath(const QString & path, const QString & filename) {
+	//FIXME Yes this can be improved
+	//Does not handle this case for example:
+	//path = "C:\Documents and Settings\tanguy_k\My Documents\My Music\My Playlists\"
+	//filename = "C:/Documents and Settings/tanguy_k/My Documents/Downloads/Cindy Sander - Papillon de lumiere 3'37.mp3"
+	//result = "..\..\Downloads\Cindy Sander - Papillon de lumiere 3'37.mp3"
+
+	QString tmp(filename);
+	tmp = QDir::toNativeSeparators(tmp);
+
+	QString pathTmp(path + '/');
+	pathTmp = QDir::toNativeSeparators(pathTmp);
+	if (tmp.startsWith(pathTmp)) {
+		tmp = tmp.mid(pathTmp.length());
+	}
+
+	return tmp;
 }
