@@ -42,9 +42,12 @@ int Random::randomInt(int min, int max) {
 		if (min > max) {
 			//number = max + (int) (qrand() * (min - max + 1) / (RAND_MAX + 1.0));
 			number = max + ((float) qrand() / (float) RAND_MAX) * (min + 1);
-		} else {
+		} else if (min < max) {
 			//number = min + (int) (qrand() * (max - min + 1) / (RAND_MAX + 1.0));
 			number = min + ((float) qrand() / (float) RAND_MAX) * (max + 1);
+		} else {
+			number = min;
+			break;
 		}
 	} while (number == lastNumber);
 	lastNumber = number;
