@@ -43,6 +43,10 @@
 
 Q_EXPORT_PLUGIN2(mediacontroller, MediaControllerFactory);
 
+QString MediaControllerFactory::pluginName() const {
+	return "mediacontroller";
+}
+
 PluginInterface * MediaControllerFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new MediaController(quarkPlayer, uuid);
 }

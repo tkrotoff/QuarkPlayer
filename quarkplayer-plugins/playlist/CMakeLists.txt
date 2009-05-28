@@ -2,13 +2,16 @@ project(playlist)
 
 add_definitions(-DBUILD_PLAYLIST)
 
+if (STATICPLUGINS)
+	add_definitions(-DQT_STATICPLUGIN)
+endif (STATICPLUGINS)
+
 set(playlist_SRCS
 	PlaylistWidget.cpp
 	PlaylistModel.cpp
 	PlaylistFilter.cpp
 	DragAndDropTreeView.cpp
-	UuidActionCollection.cpp
-	CommandLineParser.cpp
+	PlaylistCommandLineParser.cpp
 )
 
 qt4_wrap_cpp(playlist_SRCS
@@ -16,10 +19,14 @@ qt4_wrap_cpp(playlist_SRCS
 	PlaylistModel.h
 	PlaylistFilter.h
 	DragAndDropTreeView.h
-	CommandLineParser.h
+	PlaylistCommandLineParser.h
 )
 
-add_library(playlist SHARED ${playlist_SRCS})
+if (STATICPLUGINS)
+	add_library(playlist STATIC ${playlist_SRCS})
+else (STATICPLUGINS)
+	add_library(playlist SHARED ${playlist_SRCS})
+endif (STATICPLUGINS)
 
 target_link_libraries(playlist
 	quarkplayercore
@@ -33,4 +40,6 @@ target_link_libraries(playlist
 # Translations
 add_qt_translations(${playlist_SRCS})
 
-install(TARGETS playlist ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+if (NOT STATICPLUGINS)
+	install(TARGETS playlist ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+endif (NOT STATICPLUGINS)

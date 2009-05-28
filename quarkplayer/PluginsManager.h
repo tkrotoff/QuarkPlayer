@@ -76,7 +76,7 @@ public:
 	PluginData::PluginList plugins() const;
 
 	/** Gets the list of plugins that matches the given filename. */
-	PluginData::PluginList pluginDataList(const QString & fileName) const;
+	PluginData::PluginList pluginDataList(const QString & filename) const;
 
 	bool allPluginsAlreadyLoaded() const;
 

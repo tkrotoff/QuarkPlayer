@@ -18,7 +18,7 @@
 
 #include "PlaylistModel.h"
 
-#include "CommandLineParser.h"
+#include "PlaylistCommandLineParser.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
@@ -615,6 +615,6 @@ int PlaylistModel::position() const {
 
 void PlaylistModel::allPluginsLoaded() {
 	//Parses the command line arguments
-	//new CommandLineParser() is needed since CommandLineParser waits for the argsReceived() signal
-	_commandLineParser = new CommandLineParser(this);
+	//new PlaylistCommandLineParser() is needed since PlaylistCommandLineParser waits for the argsReceived() signal
+	_commandLineParser = new PlaylistCommandLineParser(this);
 }

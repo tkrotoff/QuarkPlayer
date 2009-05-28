@@ -29,7 +29,11 @@
 
 #include <QtCore/QDebug>
 
-Q_EXPORT_PLUGIN2(welcomewindow, WelcomeWindowFactory);
+Q_EXPORT_PLUGIN2(welcome, WelcomeWindowFactory);
+
+QString WelcomeWindowFactory::pluginName() const {
+	return "welcome";
+}
 
 PluginInterface * WelcomeWindowFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new WelcomeWindow(quarkPlayer, uuid);

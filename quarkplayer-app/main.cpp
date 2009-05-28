@@ -35,6 +35,22 @@
 
 #include <QtGui/QStyleFactory>
 
+#include <QtCore/QtPlugin>
+
+#ifdef STATICPLUGINS
+	//Import the static plugins
+	//Static plugins are faster than dynamic plugins:
+	//it takes almost no time to load them
+	Q_IMPORT_PLUGIN(filebrowser)
+	Q_IMPORT_PLUGIN(findsubtitles)
+	Q_IMPORT_PLUGIN(mediacontroller)
+	Q_IMPORT_PLUGIN(playlist)
+	Q_IMPORT_PLUGIN(playtoolbar)
+	Q_IMPORT_PLUGIN(quicksettings)
+	Q_IMPORT_PLUGIN(statusbar)
+	Q_IMPORT_PLUGIN(videowidget)
+#endif	//STATICPLUGINS
+
 int main(int argc, char * argv[]) {
 	QuarkPlayer::registerMetaTypes();
 

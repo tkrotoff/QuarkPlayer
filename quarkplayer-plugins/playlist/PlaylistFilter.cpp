@@ -18,6 +18,7 @@
 
 #include "PlaylistFilter.h"
 
+#include "PlaylistWidget.h"
 #include "PlaylistModel.h"
 
 #include <tkutil/Random.h>
@@ -27,9 +28,10 @@
 
 static const int POSITION_INVALID = -1;
 
-PlaylistFilter::PlaylistFilter(QObject * parent, PlaylistModel * playlistModel)
-	: QSortFilterProxyModel(parent),
-	_playlistModel(playlistModel) {
+PlaylistFilter::PlaylistFilter(PlaylistWidget * playlistWidget)
+	: QSortFilterProxyModel(playlistWidget->playlistModel()) {
+
+	_playlistModel = playlistWidget->playlistModel();
 
 	_shuffle = false;
 	_repeat = false;

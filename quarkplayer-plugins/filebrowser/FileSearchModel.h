@@ -21,12 +21,12 @@
 
 #include <quarkplayer-plugins/filebrowser/filebrowser_export.h>
 
+#include <QtGui/QIcon>
+#include <QtGui/QFileIconProvider>
+
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QStringList>
 #include <QtCore/QEventLoop>
-
-#include <QtGui/QIcon>
-#include <QtGui/QFileIconProvider>
 
 class FindFiles;
 class MediaInfoFetcher;

@@ -13,7 +13,7 @@
 # http://www.cmake.org/Wiki/CMake_Useful_Variables/Get_Variables_From_CMake_Dashboards
 #
 # Copyright (C) 2006-2007  Wengo
-# Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+# Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING file.
@@ -32,12 +32,13 @@ endif (NOT CMAKE_BUILD_TYPE)
 
 # Directory where compiled files (install target) will be copied
 # In lower case
-# Use the system name (Linux, Windows, MacOS...) and compiler name (MSVC, GCC...)
-set(BUILD_NAME ${SYSTEM_NAME}-${COMPILER_NAME}-${CMAKE_BUILD_TYPE})
+# Use the system name (Linux, Windows, MacOS...), processor architecture (i686, x86, x86_64)
+# and compiler name (MSVC, GCC...)
+set(BUILD_NAME ${SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${COMPILER_NAME}-${CMAKE_BUILD_TYPE})
 string(TOLOWER ${BUILD_NAME} BUILD_NAME)
 set(BUILD_DIR
 	${CMAKE_BINARY_DIR}/${BUILD_NAME}
-	CACHE PATH "Build directory, depends on build type, system name and OS name" FORCE
+	CACHE PATH "Build directory, depends on build type, processor name, system name and OS name" FORCE
 )
 
 # Gets svn revision

@@ -1,5 +1,9 @@
 project(quicksettings)
 
+if (STATICPLUGINS)
+	add_definitions(-DQT_STATICPLUGIN)
+endif (STATICPLUGINS)
+
 set(quicksettings_SRCS
 	QuickSettingsWindow.cpp
 )
@@ -13,7 +17,11 @@ qt4_wrap_ui(quicksettings_SRCS
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(quicksettings MODULE ${quicksettings_SRCS})
+if (STATICPLUGINS)
+	add_library(quicksettings STATIC ${quicksettings_SRCS})
+else (STATICPLUGINS)
+	add_library(quicksettings MODULE ${quicksettings_SRCS})
+endif (STATICPLUGINS)
 
 target_link_libraries(quicksettings
 	quarkplayercore
@@ -24,4 +32,6 @@ target_link_libraries(quicksettings
 # Translations
 add_qt_translations(${quicksettings_SRCS})
 
-install(TARGETS quicksettings ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+if (NOT STATICPLUGINS)
+	install(TARGETS quicksettings ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+endif (NOT STATICPLUGINS)

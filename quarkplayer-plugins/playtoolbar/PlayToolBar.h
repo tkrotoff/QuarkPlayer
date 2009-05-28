@@ -116,6 +116,8 @@ class PlayToolBarFactory : public QObject, public PluginFactory {
 	Q_INTERFACES(PluginFactory)
 public:
 
+	QString pluginName() const;
+
 	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };
 

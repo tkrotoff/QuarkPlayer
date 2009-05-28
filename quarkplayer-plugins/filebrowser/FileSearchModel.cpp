@@ -73,9 +73,7 @@ void FileSearchModel::setRootSearchPath(const QString & rootSearchPath) {
 }
 
 FileSearchItem * FileSearchModel::item(const QModelIndex & index) const {
-	FileSearchItem * indexItem = static_cast<FileSearchItem *>(index.internalPointer());
-	Q_ASSERT(indexItem);
-	return indexItem;
+	return static_cast<FileSearchItem *>(index.internalPointer());
 }
 
 QModelIndex FileSearchModel::index(const FileSearchItem * item) const {
@@ -256,12 +254,14 @@ Qt::ItemFlags FileSearchModel::flags(const QModelIndex & index) const {
 }
 
 bool FileSearchModel::hasChildren(const QModelIndex & parent) const {
+	FileSearchItem * parentItem = NULL;
 	if (!parent.isValid()) {
-		return false;
+		parentItem = _rootItem;
+	} else {
+		parentItem = item(parent);
 	}
 
 	bool tmp = false;
-	FileSearchItem * parentItem = item(parent);
 	if (parentItem) {
 		//Optimization: QFileInfo::isDir() is too slow, replaced by TkFile::isDir()
 		bool isDir = parentItem->isDir();
@@ -280,13 +280,25 @@ bool FileSearchModel::hasChildren(const QModelIndex & parent) const {
 
 bool FileSearchModel::canFetchMore(const QModelIndex & parent) const {
 	if (hasChildren(parent)) {
-		return !item(parent)->populatedChildren();
+		FileSearchItem * parentItem = NULL;
+		if (!parent.isValid()) {
+			parentItem = _rootItem;
+		} else {
+			parentItem = item(parent);
+		}
+
+		return !parentItem->populatedChildren();
 	} else {
 		return false;
 	}
 }
 
 void FileSearchModel::fetchMore(const QModelIndex & parent) {
+	if (!parent.isValid()) {
+		return;
+	}
+
+	qDebug() << __FUNCTION__;
 	_currentParentItem = item(parent);
 
 	//_currentParentQModelIndex is a hack because of beginInsertRows()
@@ -365,8 +377,8 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 			this, SLOT(filesFound(const QStringList &)));
 		disconnect(_findFiles, SIGNAL(finished(int)),
 			this, SIGNAL(searchFinished(int)));
-		disconnect(_findFiles, SIGNAL(finished(int)),
-			this, SLOT(searchFinishedSlot(int)));
+		//disconnect(_findFiles, SIGNAL(finished(int)),
+			//this, SLOT(searchFinishedSlot(int)));
 	}
 
 	//Stops the previous search

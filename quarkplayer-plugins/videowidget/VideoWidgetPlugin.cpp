@@ -38,6 +38,10 @@
 
 Q_EXPORT_PLUGIN2(videowidget, VideoWidgetPluginFactory);
 
+QString VideoWidgetPluginFactory::pluginName() const {
+	return "videowidget";
+}
+
 PluginInterface * VideoWidgetPluginFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new VideoWidgetPlugin(quarkPlayer, uuid);
 }

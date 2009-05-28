@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,29 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UUIDACTIONCOLLECTION_H
-#define UUIDACTIONCOLLECTION_H
+#ifndef PLAYLISTCOMMANDLINEPARSER_H
+#define PLAYLISTCOMMANDLINEPARSER_H
 
-struct QUuid;
-class QAction;
-class QString;
+#include <quarkplayer/ICommandLineParser.h>
+
+class PlaylistModel;
 
 /**
- * UUID ActionCollection.
+ * Parse command line arguments.
  *
- * Code factorization when using ActionCollection with UUID.
- *
- * Standard C functions instead of a class UuidActionCollection with static methods
- * in order to make syntax as short as possible.
- *
- * @see ActionCollection
  * @author Tanguy Krotoff
  */
+class PlaylistCommandLineParser : public ICommandLineParser {
+public:
 
-void setUuid(const QUuid & uuid);
+	PlaylistCommandLineParser(PlaylistModel * playlistModel);
 
-QAction * uuidAction(const QString & name);
+	virtual ~PlaylistCommandLineParser();
 
-void addUuidAction(const QString & name, QAction * action);
+private:
 
-#endif	//UUIDACTIONCOLLECTION_H
+	void argsReceived(const QStringList & args, bool usingQtSingleApplication);
+
+private:
+
+	PlaylistModel * _playlistModel;
+};
+
+#endif	//PLAYLISTCOMMANDLINEPARSER_H

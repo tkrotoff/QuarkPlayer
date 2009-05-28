@@ -27,7 +27,6 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QStringList>
-#include <QtCore/QPluginLoader>
 #include <QtCore/QDebug>
 
 PluginData::PluginData(const QString & fileName, const QUuid & uuid, bool enabled) {
@@ -35,7 +34,7 @@ PluginData::PluginData(const QString & fileName, const QUuid & uuid, bool enable
 	_uuid = uuid;
 	_enabled = enabled;
 
-	_loader = NULL;
+	_factory = NULL;
 	_interface = NULL;
 }
 
@@ -46,7 +45,7 @@ PluginData::PluginData(const PluginData & pluginData) {
 PluginData::PluginData() {
 	_enabled = false;
 
-	_loader = NULL;
+	_factory = NULL;
 	_interface = NULL;
 }
 
@@ -57,8 +56,9 @@ void PluginData::copy(const PluginData & pluginData) {
 	_fileName = pluginData._fileName;
 	_uuid = pluginData._uuid;
 	_enabled = pluginData._enabled;
-	_loader = pluginData._loader;
+
 	_interface = pluginData._interface;
+	_factory = pluginData._factory;
 }
 
 PluginData & PluginData::operator=(const PluginData & right) {
@@ -91,22 +91,12 @@ void PluginData::setEnabled(bool enabled) {
 	_enabled = enabled;
 }
 
-QPluginLoader * PluginData::loader() const {
-	return _loader;
+PluginFactory * PluginData::factory() const {
+	return _factory;
 }
 
-void PluginData::setLoader(QPluginLoader * loader) {
-	_loader = loader;
-}
-
-void PluginData::deleteLoader() {
-	if (_loader) {
-		_loader->unload();
-		delete _loader;
-		_loader = NULL;
-	} else {
-		qCritical() << __FUNCTION__ << "Error: _loader is NULL";
-	}
+void PluginData::setFactory(PluginFactory * factory) {
+	_factory = factory;
 }
 
 PluginInterface * PluginData::interface() const {

@@ -19,14 +19,14 @@
 #include "filebrowser/FileSearchModelTest.h"
 #include "playlist/PlaylistModelTest.h"
 
-#include <QtCore/QCoreApplication>
+#include <QtGui/QApplication>
 
 int main(int argc, char * argv[]) {
-	QCoreApplication app(argc, argv);
+	QApplication app(argc, argv);
 
-	QTest::qExec(&FileSearchModelTest());
+	QTest::qExec(new FileSearchModelTest());
 
-	QTest::qExec(&PlaylistModelTest());
+	QTest::qExec(new PlaylistModelTest());
 
 	return app.exec();
 }

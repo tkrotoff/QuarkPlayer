@@ -21,7 +21,7 @@
 
 #include <QtGui/QTreeView>
 
-class QuarkPlayer;
+class FileBrowserWidget;
 
 class QMouseEvent;
 class QFileInfo;
@@ -35,7 +35,7 @@ class FileBrowserTreeView : public QTreeView {
 	Q_OBJECT
 public:
 
-	FileBrowserTreeView(QuarkPlayer & quarkPlayer);
+	FileBrowserTreeView(FileBrowserWidget * fileBrowserWidget);
 
 	~FileBrowserTreeView();
 
@@ -57,7 +57,7 @@ private:
 
 	QFileInfo fileInfo(const QModelIndex & index) const;
 
-	QuarkPlayer & _quarkPlayer;
+	FileBrowserWidget * _fileBrowserWidget;
 };
 
 #endif	//FILEBROWSERTREEVIEW_H

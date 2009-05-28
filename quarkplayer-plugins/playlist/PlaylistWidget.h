@@ -66,6 +66,15 @@ public:
 	QString license() const { return "GNU GPLv3+"; }
 	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
 
+	PlaylistModel * playlistModel() const;
+
+	PlaylistFilter * playlistFilter() const;
+
+	//FIXME should be factorized
+	QAction * uuidAction(const QString & name);
+	void addUuidAction(const QString & name, QAction * action);
+	///
+
 private slots:
 
 	void addDir();
@@ -142,6 +151,8 @@ class PlaylistWidgetFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)
 public:
+
+	QString pluginName() const;
 
 	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };

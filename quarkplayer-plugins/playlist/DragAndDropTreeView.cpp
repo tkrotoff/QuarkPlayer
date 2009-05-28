@@ -18,9 +18,9 @@
 
 #include "DragAndDropTreeView.h"
 
+#include "PlaylistWidget.h"
 #include "PlaylistModel.h"
 #include "PlaylistFilter.h"
-#include "UuidActionCollection.h"
 
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config/PlaylistConfig.h>
@@ -37,12 +37,12 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
-DragAndDropTreeView::DragAndDropTreeView(PlaylistModel * playlistModel, PlaylistFilter * playlistFilter, const QUuid & uuid) {
-	_playlistModel = playlistModel;
-	_playlistFilter = playlistFilter;
+DragAndDropTreeView::DragAndDropTreeView(PlaylistWidget * playlistWidget) {
+	_playlistWidget = playlistWidget;
+	_playlistModel = _playlistWidget->playlistModel();
+	_playlistFilter = _playlistWidget->playlistFilter();
 
 	_mediaInfoWindow = NULL;
-	_uuid = uuid;
 
 	setUniformRowHeights(true);
 	setDragEnabled(true);
@@ -59,16 +59,16 @@ DragAndDropTreeView::DragAndDropTreeView(PlaylistModel * playlistModel, Playlist
 
 	populateActionCollection();
 
-	connect(uuidAction("Playlist.PlayItem"), SIGNAL(triggered()), SLOT(playItem()));
-	addAction(uuidAction("Playlist.PlayItem"));
-	connect(uuidAction("Playlist.SendTo"), SIGNAL(triggered()), SLOT(sendTo()));
-	//addAction(uuidAction("Playlist.SendTo"));
-	connect(uuidAction("Playlist.DeleteItem"), SIGNAL(triggered()), SLOT(clearSelection()));
-	addAction(uuidAction("Playlist.DeleteItem"));
-	connect(uuidAction("Playlist.RateItem"), SIGNAL(triggered()), SLOT(rateItem()));
-	//addAction(uuidAction("Playlist.RateItem"));
-	connect(uuidAction("Playlist.ViewMediaInfo"), SIGNAL(triggered()), SLOT(viewMediaInfo()));
-	addAction(uuidAction("Playlist.ViewMediaInfo"));
+	connect(_playlistWidget->uuidAction("Playlist.PlayItem"), SIGNAL(triggered()), SLOT(playItem()));
+	addAction(_playlistWidget->uuidAction("Playlist.PlayItem"));
+	connect(_playlistWidget->uuidAction("Playlist.SendTo"), SIGNAL(triggered()), SLOT(sendTo()));
+	//addAction(_playlistWidget->uuidAction("Playlist.SendTo"));
+	connect(_playlistWidget->uuidAction("Playlist.DeleteItem"), SIGNAL(triggered()), SLOT(clearSelection()));
+	addAction(_playlistWidget->uuidAction("Playlist.DeleteItem"));
+	connect(_playlistWidget->uuidAction("Playlist.RateItem"), SIGNAL(triggered()), SLOT(rateItem()));
+	//addAction(_playlistWidget->uuidAction("Playlist.RateItem"));
+	connect(_playlistWidget->uuidAction("Playlist.ViewMediaInfo"), SIGNAL(triggered()), SLOT(viewMediaInfo()));
+	addAction(_playlistWidget->uuidAction("Playlist.ViewMediaInfo"));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -79,7 +79,7 @@ DragAndDropTreeView::~DragAndDropTreeView() {
 
 void DragAndDropTreeView::mousePressEvent(QMouseEvent * event) {
 	//When the user clicks on this playlist, it becomes the only active one
-	PlaylistConfig::instance().setActivePlaylist(_uuid);
+	PlaylistConfig::instance().setActivePlaylist(_playlistWidget->uuid());
 
 	if (event->button() == Qt::RightButton) {
 		QModelIndex index(indexAt(event->pos()));
@@ -124,30 +124,30 @@ void DragAndDropTreeView::dragMoveEvent(QDragMoveEvent * event) {
 void DragAndDropTreeView::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
-	addUuidAction("Playlist.PlayItem", new QAction(app));
-	addUuidAction("Playlist.SendTo", new QAction(app));
-	addUuidAction("Playlist.DeleteItem", new QAction(app));
-	addUuidAction("Playlist.RateItem", new QAction(app));
+	_playlistWidget->addUuidAction("Playlist.PlayItem", new QAction(app));
+	_playlistWidget->addUuidAction("Playlist.SendTo", new QAction(app));
+	_playlistWidget->addUuidAction("Playlist.DeleteItem", new QAction(app));
+	_playlistWidget->addUuidAction("Playlist.RateItem", new QAction(app));
 	TkAction * action = new TkAction(app, tr("Ctrl+I"), tr("Alt+3"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	addUuidAction("Playlist.ViewMediaInfo", action);
+	_playlistWidget->addUuidAction("Playlist.ViewMediaInfo", action);
 }
 
 void DragAndDropTreeView::retranslate() {
-	uuidAction("Playlist.PlayItem")->setText(tr("Play"));
-	uuidAction("Playlist.PlayItem")->setIcon(TkIcon("media-playback-start"));
+	_playlistWidget->uuidAction("Playlist.PlayItem")->setText(tr("Play"));
+	_playlistWidget->uuidAction("Playlist.PlayItem")->setIcon(TkIcon("media-playback-start"));
 
-	uuidAction("Playlist.SendTo")->setText(tr("Sent To"));
-	uuidAction("Playlist.SendTo")->setIcon(TkIcon("text-x-script"));
+	_playlistWidget->uuidAction("Playlist.SendTo")->setText(tr("Sent To"));
+	_playlistWidget->uuidAction("Playlist.SendTo")->setIcon(TkIcon("text-x-script"));
 
-	uuidAction("Playlist.DeleteItem")->setText(tr("Delete from Playlist"));
-	uuidAction("Playlist.DeleteItem")->setIcon(TkIcon("edit-delete"));
+	_playlistWidget->uuidAction("Playlist.DeleteItem")->setText(tr("Delete from Playlist"));
+	_playlistWidget->uuidAction("Playlist.DeleteItem")->setIcon(TkIcon("edit-delete"));
 
-	uuidAction("Playlist.RateItem")->setText(tr("Rate"));
-	uuidAction("Playlist.RateItem")->setIcon(TkIcon("rating"));
+	_playlistWidget->uuidAction("Playlist.RateItem")->setText(tr("Rate"));
+	_playlistWidget->uuidAction("Playlist.RateItem")->setIcon(TkIcon("rating"));
 
-	uuidAction("Playlist.ViewMediaInfo")->setText(tr("View Media Info..."));
-	uuidAction("Playlist.ViewMediaInfo")->setIcon(TkIcon("document-properties"));
+	_playlistWidget->uuidAction("Playlist.ViewMediaInfo")->setText(tr("View Media Info..."));
+	_playlistWidget->uuidAction("Playlist.ViewMediaInfo")->setIcon(TkIcon("document-properties"));
 
 	if (_mediaInfoWindow) {
 		_mediaInfoWindow->setLanguage(Config::instance().language());

@@ -33,6 +33,10 @@ static const char * STATUSBAR_TIME_DIPLAY_MODE_KEY = "statusbar_time_display_mod
 
 Q_EXPORT_PLUGIN2(statusbar, StatusBarFactory);
 
+QString StatusBarFactory::pluginName() const {
+	return "statusbar";
+}
+
 PluginInterface * StatusBarFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new StatusBar(quarkPlayer, uuid);
 }

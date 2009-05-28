@@ -26,8 +26,7 @@
 #include <QtCore/QTextStream>
 
 class PluginInterface;
-
-class QPluginLoader;
+class PluginFactory;
 
 /**
  * Informations about a plugin.
@@ -78,15 +77,8 @@ public:
 	bool isEnabled() const;
 	void setEnabled(bool enabled);
 
-	QPluginLoader * loader() const;
-	void setLoader(QPluginLoader * loader);
-
-	/**
-	 * Unloads the plugin and deletes the QPluginLoader.
-	 *
-	 * This is dangerous: it crashes.
-	 */
-	void deleteLoader();
+	PluginFactory * factory() const;
+	void setFactory(PluginFactory * factory);
 
 	PluginInterface * interface() const;
 	void setInterface(PluginInterface * interface);
@@ -104,9 +96,9 @@ private:
 
 	bool _enabled;
 
-	QPluginLoader * _loader;
-
 	PluginInterface * _interface;
+
+	PluginFactory * _factory;
 };
 
 QDataStream & operator<<(QDataStream & stream, const PluginData::PluginList & plugins);

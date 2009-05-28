@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,10 @@
 #include <QtCore/QDebug>
 
 Q_EXPORT_PLUGIN2(quicksettings, QuickSettingsWindowFactory);
+
+QString QuickSettingsWindowFactory::pluginName() const {
+	return "quicksettings";
+}
 
 PluginInterface * QuickSettingsWindowFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new QuickSettingsWindow(quarkPlayer, uuid);

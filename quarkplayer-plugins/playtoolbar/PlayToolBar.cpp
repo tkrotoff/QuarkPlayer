@@ -34,6 +34,10 @@
 
 Q_EXPORT_PLUGIN2(playtoolbar, PlayToolBarFactory);
 
+QString PlayToolBarFactory::pluginName() const {
+	return "playtoolbar";
+}
+
 PluginInterface * PlayToolBarFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new PlayToolBar(quarkPlayer, uuid);
 }

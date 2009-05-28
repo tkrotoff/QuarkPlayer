@@ -18,8 +18,8 @@
 
 #include "FileBrowserTreeView.h"
 
+#include "FileBrowserWidget.h"
 #include "FileSearchModel.h"
-#include "UuidActionCollection.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
@@ -41,9 +41,10 @@
 //For INT_MAX
 #include <climits>
 
-FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
-	: QTreeView(NULL),
-	_quarkPlayer(quarkPlayer) {
+FileBrowserTreeView::FileBrowserTreeView(FileBrowserWidget * fileBrowserWidget)
+	: QTreeView(NULL) {
+
+	_fileBrowserWidget = fileBrowserWidget;
 
 	populateActionCollection();
 
@@ -56,19 +57,19 @@ FileBrowserTreeView::FileBrowserTreeView(QuarkPlayer & quarkPlayer)
 		SLOT(activated(const QModelIndex &)));
 
 	//Add to playlist
-	connect(uuidAction("FileBrowser.AddToPlaylist"), SIGNAL(triggered()),
+	connect(_fileBrowserWidget->uuidAction("FileBrowser.AddToPlaylist"), SIGNAL(triggered()),
 		SLOT(addToPlaylist()));
-	addAction(uuidAction("FileBrowser.AddToPlaylist"));
+	addAction(_fileBrowserWidget->uuidAction("FileBrowser.AddToPlaylist"));
 
 	//Play
-	connect(uuidAction("FileBrowser.Play"), SIGNAL(triggered()),
+	connect(_fileBrowserWidget->uuidAction("FileBrowser.Play"), SIGNAL(triggered()),
 		SLOT(play()));
-	addAction(uuidAction("FileBrowser.Play"));
+	addAction(_fileBrowserWidget->uuidAction("FileBrowser.Play"));
 
 	//View Media Info...
-	connect(uuidAction("FileBrowser.ViewMediaInfo"), SIGNAL(triggered()),
+	connect(_fileBrowserWidget->uuidAction("FileBrowser.ViewMediaInfo"), SIGNAL(triggered()),
 		SLOT(viewMediaInfo()));
-	addAction(uuidAction("FileBrowser.ViewMediaInfo"));
+	addAction(_fileBrowserWidget->uuidAction("FileBrowser.ViewMediaInfo"));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -80,9 +81,9 @@ FileBrowserTreeView::~FileBrowserTreeView() {
 void FileBrowserTreeView::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
-	addUuidAction("FileBrowser.AddToPlaylist", new QAction(app));
-	addUuidAction("FileBrowser.Play", new QAction(app));
-	addUuidAction("FileBrowser.ViewMediaInfo", new QAction(app));
+	_fileBrowserWidget->addUuidAction("FileBrowser.AddToPlaylist", new QAction(app));
+	_fileBrowserWidget->addUuidAction("FileBrowser.Play", new QAction(app));
+	_fileBrowserWidget->addUuidAction("FileBrowser.ViewMediaInfo", new QAction(app));
 }
 
 void FileBrowserTreeView::activated(const QModelIndex & index) {
@@ -99,39 +100,39 @@ void FileBrowserTreeView::addToPlaylist() {
 	QStringList filenames;
 	QModelIndexList indexList = selectionModel()->selectedRows();
 	foreach (QModelIndex index, indexList) {
-		QFileInfo fileInfo = this->fileInfo(index);
+		QFileInfo fileInfo(this->fileInfo(index));
 		//Sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
 		filenames += fileInfo.absoluteFilePath().replace("//", "/");
 	}
 	if (!filenames.isEmpty()) {
-		_quarkPlayer.addFilesToPlaylist(filenames);
+		_fileBrowserWidget->quarkPlayer().addFilesToPlaylist(filenames);
 	}
 }
 
 void FileBrowserTreeView::play() {
-	QModelIndexList indexList = selectionModel()->selectedRows();
+	QModelIndexList indexList(selectionModel()->selectedRows());
 	if (!indexList.isEmpty()) {
-		QModelIndex index = indexList.at(0);
+		QModelIndex index(indexList.at(0));
 		if (index.isValid()) {
-			QFileInfo fileInfo = this->fileInfo(index);
+			QFileInfo fileInfo(this->fileInfo(index));
 			if (fileInfo.isFile()) {
 				//Sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
-				QString slashSlashBugFix = fileInfo.absoluteFilePath().replace("//", "/");
-				_quarkPlayer.play(slashSlashBugFix);
+				QString slashSlashBugFix(fileInfo.absoluteFilePath().replace("//", "/"));
+				_fileBrowserWidget->quarkPlayer().play(slashSlashBugFix);
 			}
 		}
 	}
 }
 
 void FileBrowserTreeView::retranslate() {
-	uuidAction("FileBrowser.AddToPlaylist")->setText(tr("Add to Playlist"));
-	uuidAction("FileBrowser.AddToPlaylist")->setIcon(TkIcon("list-add"));
+	_fileBrowserWidget->uuidAction("FileBrowser.AddToPlaylist")->setText(tr("Add to Playlist"));
+	_fileBrowserWidget->uuidAction("FileBrowser.AddToPlaylist")->setIcon(TkIcon("list-add"));
 
-	uuidAction("FileBrowser.Play")->setText(tr("Play"));
-	uuidAction("FileBrowser.Play")->setIcon(TkIcon("media-playback-start"));
+	_fileBrowserWidget->uuidAction("FileBrowser.Play")->setText(tr("Play"));
+	_fileBrowserWidget->uuidAction("FileBrowser.Play")->setIcon(TkIcon("media-playback-start"));
 
-	uuidAction("FileBrowser.ViewMediaInfo")->setText(tr("View Media Info..."));
-	uuidAction("FileBrowser.ViewMediaInfo")->setIcon(TkIcon("document-properties"));
+	_fileBrowserWidget->uuidAction("FileBrowser.ViewMediaInfo")->setText(tr("View Media Info..."));
+	_fileBrowserWidget->uuidAction("FileBrowser.ViewMediaInfo")->setIcon(TkIcon("document-properties"));
 }
 
 QFileInfo FileBrowserTreeView::fileInfo(const QModelIndex & index) const {

@@ -21,7 +21,6 @@
 #include "DragAndDropTreeView.h"
 #include "PlaylistModel.h"
 #include "PlaylistFilter.h"
-#include "UuidActionCollection.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/MainWindow.h>
@@ -50,7 +49,11 @@
 
 static const char * PLAYLIST_SEARCH_HISTORY_KEY = "playlist_search_history";
 
-Q_EXPORT_PLUGIN2(PlaylistWidget, PlaylistWidgetFactory);
+Q_EXPORT_PLUGIN2(playlist, PlaylistWidgetFactory);
+
+QString PlaylistWidgetFactory::pluginName() const {
+	return "playlist";
+}
 
 PluginInterface * PlaylistWidgetFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new PlaylistWidget(quarkPlayer, uuid);
@@ -59,10 +62,6 @@ PluginInterface * PlaylistWidgetFactory::create(QuarkPlayer & quarkPlayer, const
 PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QWidget(quarkPlayer.mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
-
-	//Short for UuidActionCollection::setUuid()
-	setUuid(uuid);
-	///
 
 	//Model
 	_playlistModel = new PlaylistModel(this, quarkPlayer, uuid);
@@ -76,10 +75,10 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 		SLOT(playlistSaved(int)));
 
 	//Filter
-	_playlistFilter = new PlaylistFilter(this, _playlistModel);
+	_playlistFilter = new PlaylistFilter(this);
 
 	//TreeView
-	_treeView = new DragAndDropTreeView(_playlistModel, _playlistFilter, uuid);
+	_treeView = new DragAndDropTreeView(this);
 	connect(_treeView, SIGNAL(activated(const QModelIndex &)),
 		_playlistFilter, SLOT(play(const QModelIndex &)));
 	_treeView->setModel(_playlistFilter);
@@ -123,6 +122,14 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 PlaylistWidget::~PlaylistWidget() {
 	quarkPlayer().mainWindow()->removeDockWidget(_dockWidget);
 	quarkPlayer().mainWindow()->resetPlaylistDockWidget();
+}
+
+PlaylistModel * PlaylistWidget::playlistModel() const {
+	return _playlistModel;
+}
+
+PlaylistFilter * PlaylistWidget::playlistFilter() const {
+	return _playlistFilter;
 }
 
 void PlaylistWidget::createToolBar() {
@@ -562,3 +569,19 @@ void PlaylistWidget::activePlaylistChanged(const QUuid & _uuid) {
 		}
 	}
 }
+
+//FIXME should be factorized
+#include <tkutil/ActionCollection.h>
+QAction * PlaylistWidget::uuidAction(const QString & name) {
+	if (uuid().isNull()) {
+		qCritical() << __FUNCTION__ << "Error: UUID is null";
+	}
+	return ActionCollection::action(name + '_' + uuid().toString());
+}
+void PlaylistWidget::addUuidAction(const QString & name, QAction * action) {
+	if (uuid().isNull()) {
+		qCritical() << __FUNCTION__ << "Error: UUID is null";
+	}
+	return ActionCollection::addAction(name + '_' + uuid().toString(), action);
+}
+///

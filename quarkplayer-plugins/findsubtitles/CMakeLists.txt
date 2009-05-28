@@ -2,6 +2,10 @@ project(findsubtitles)
 
 include_directories(${ZLIB_INCLUDE_DIR})
 
+if (STATICPLUGINS)
+	add_definitions(-DQT_STATICPLUGIN)
+endif (STATICPLUGINS)
+
 set(findsubtitles_SRCS
 	FindSubtitles.cpp
 	FindSubtitlesWindow.cpp
@@ -21,7 +25,11 @@ qt4_wrap_ui(findsubtitles_SRCS
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(findsubtitles MODULE ${findsubtitles_SRCS})
+if (STATICPLUGINS)
+	add_library(findsubtitles STATIC ${findsubtitles_SRCS})
+else (STATICPLUGINS)
+	add_library(findsubtitles MODULE ${findsubtitles_SRCS})
+endif (STATICPLUGINS)
 
 target_link_libraries(findsubtitles
 	${QT_QTCORE_LIBRARY}
@@ -36,5 +44,6 @@ target_link_libraries(findsubtitles
 # Translations
 add_qt_translations(${findsubtitles_SRCS})
 
-install(TARGETS findsubtitles ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
-install(FILES findsubtitles.pluginspec DESTINATION ${PLUGIN_INSTALL_DIR})
+if (NOT STATICPLUGINS)
+	install(TARGETS findsubtitles ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+endif (NOT STATICPLUGINS)

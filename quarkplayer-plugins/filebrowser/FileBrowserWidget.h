@@ -42,6 +42,7 @@ class QDockWidget;
  */
 class FileBrowserWidget : public QWidget, public PluginInterface {
 	Q_OBJECT
+	friend class FileBrowserTreeView;
 public:
 
 	FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid);
@@ -56,6 +57,11 @@ public:
 	QString authors() const { return "Tanguy Krotoff"; }
 	QString license() const { return "GNU GPLv3+"; }
 	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
+
+	//FIXME should be factorized
+	QAction * uuidAction(const QString & name);
+	void addUuidAction(const QString & name, QAction * action);
+	///
 
 private slots:
 
@@ -103,6 +109,8 @@ class FileBrowserWidgetFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)
 public:
+
+	QString pluginName() const;
 
 	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };

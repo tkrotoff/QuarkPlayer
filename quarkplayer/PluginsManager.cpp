@@ -33,6 +33,8 @@
 PluginsManager::PluginsManager() {
 	_quarkPlayer = NULL;
 	_allPluginsAlreadyLoaded = false;
+
+	//Gets the plugins configuration
 	_plugins = PluginsConfig::instance().plugins();
 }
 
@@ -40,10 +42,10 @@ PluginsManager::~PluginsManager() {
 	deleteAllPlugins();
 }
 
-PluginData::PluginList PluginsManager::pluginDataList(const QString & fileName) const {
+PluginData::PluginList PluginsManager::pluginDataList(const QString & filename) const {
 	PluginData::PluginList pluginDataList;
 	foreach(PluginData pluginData, _plugins) {
-		if (pluginData.fileName() == fileName) {
+		if (pluginData.fileName() == filename) {
 			pluginDataList += pluginData;
 		}
 	}
@@ -51,8 +53,8 @@ PluginData::PluginList PluginsManager::pluginDataList(const QString & fileName) 
 }
 
 QString PluginsManager::findPluginDir() const {
-	QStringList pluginDirList = Config::instance().pluginDirList();
-	QString appDir = QCoreApplication::applicationDirPath();
+	QStringList pluginDirList(Config::instance().pluginDirList());
+	QString appDir(QCoreApplication::applicationDirPath());
 
 	QString tmp;
 	foreach (QString pluginDir, pluginDirList) {
@@ -61,12 +63,12 @@ QString PluginsManager::findPluginDir() const {
 		//Order matters!!! See Config.cpp
 		//Check if we have:
 		//applicationDirPath/quarkplayer.exe
-		//applicationDirPath/plugins/*.dll
+		//applicationDirPath/plugins/*.pluginspec
 		//Then applicationDirPath/plugins/ is the plugin directory
 		//
 		//Check if we have:
 		//applicationDirPath/quarkplayer.exe
-		//usr/lib/quarkplayer/plugins/*.dll
+		//usr/lib/quarkplayer/plugins/*.pluginspec
 
 		qDebug() << "Checking for plugins:" << pluginDir;
 
@@ -99,13 +101,33 @@ void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	_quarkPlayer = &quarkPlayer;
 	///
 
-	_pluginDir = findPluginDir();
-	QStringList fileNameListTmp = QDir(_pluginDir).entryList(QDir::Files);
+	//Creates the list of static plugins
+	QStringList staticPlugins;
+	foreach (QObject * plugin, QPluginLoader::staticInstances()) {
+		if (plugin) {
+			PluginFactory * factory = qobject_cast<PluginFactory *>(plugin);
+			if (factory) {
+				staticPlugins += factory->pluginName();
+			}
+		}
+	}
+	///
 
-	//Removes duplicated items from the list of plugins
+	_pluginDir = findPluginDir();
+
+	//List of all the potential plugins
+	QStringList filenameListTmp;
+	//Dynamic plugins
+	filenameListTmp += QDir(_pluginDir).entryList(QDir::Files);
+	//Static plugins
+	filenameListTmp += staticPlugins;
+
+	//Removes obsolete items from the list of plugins
+	//Some plugin files might has been deleted
+	//We need to cleanup our list of available plugins
 	PluginData::PluginList newPluginList;
 	foreach(PluginData pluginData, _plugins) {
-		if (fileNameListTmp.contains(pluginData.fileName())) {
+		if (filenameListTmp.contains(pluginData.fileName())) {
 			//Let's keep it
 			newPluginList += pluginData;
 		}
@@ -113,12 +135,13 @@ void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	_plugins = newPluginList;
 	///
 
+
 	//Randomizes the list of plugins, this allows
 	//to easily detect crashes/bugs
-	QStringList fileNameList = Random::randomize(fileNameListTmp);
+	QStringList filenameList(Random::randomize(filenameListTmp));
 
-	foreach (QString fileName, fileNameList) {
-		PluginData::PluginList list = pluginDataList(fileName);
+	foreach (QString filename, filenameList) {
+		PluginData::PluginList list(pluginDataList(filename));
 		if (!list.isEmpty()) {
 			foreach (PluginData pluginData, list) {
 				if (pluginData.isEnabled()) {
@@ -131,7 +154,7 @@ void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 		} else {
 			//No plugin matching the given filename in database
 			//Let's create it for the first time
-			PluginData pluginData(fileName, QUuid::createUuid(), true);
+			PluginData pluginData(filename, QUuid::createUuid(), true);
 			loadPlugin(pluginData);
 		}
 	}
@@ -142,25 +165,26 @@ void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 
 bool PluginsManager::loadDisabledPlugin(const PluginData & pluginData) {
 	bool loaded = false;
-	PluginData::PluginList list = pluginDataList(pluginData.fileName());
+
+	QString filename(pluginData.fileName());
+
+	PluginData::PluginList list(pluginDataList(filename));
 	if (!list.isEmpty()) {
 		foreach (PluginData data, list) {
 			if (!data.isEnabled()) {
-				//Loads a plugin that already exist in the past
+				//Loads a plugin that have already existed in the past
 				//instead of creating a new one
-				loadPlugin(data);
-				loaded = true;
+				loaded = loadPlugin(data);
 				break;
 			}
 		}
 	}
 
 	if (!loaded) {
-		//Plugin does not already exist in database
+		//Plugin does not already exist in database, nor is a static plugin
 		//Let's create it for the first time
-		PluginData newPluginData(pluginData.fileName(), QUuid::createUuid(), true);
-		loadPlugin(newPluginData);
-		loaded = true;
+		PluginData newPluginData(filename, QUuid::createUuid(), true);
+		loaded = loadPlugin(newPluginData);
 	}
 
 	return loaded;
@@ -171,29 +195,62 @@ bool PluginsManager::loadPlugin(PluginData & pluginData) {
 
 	pluginData.setEnabled(true);
 
-	if (!pluginData.loader()) {
-		//Not already loaded
-		pluginData.setLoader(new QPluginLoader(_pluginDir + QDir::separator() + pluginData.fileName()));
-	}
+	QString filename(pluginData.fileName());
 
-	QObject * plugin = pluginData.loader()->instance();
-	if (plugin) {
-		PluginFactory * factory = qobject_cast<PluginFactory *>(plugin);
+	//Create the PluginFactory
+	PluginFactory * factory = pluginData.factory();
+	if (factory) {
+		//Typically, case of a static plugin
+	} else {
+		QPluginLoader loader(_pluginDir + QDir::separator() + filename);
+		QObject * plugin = loader.instance();
+		if (plugin) {
+			PluginFactory * factory = qobject_cast<PluginFactory *>(plugin);
+			if (factory) {
+				pluginData.setFactory(factory);
+			} else {
+				qCritical() << __FUNCTION__ << "Error: this is not a QuarkPlayer plugin:" << pluginData.fileName();
+			}
+		} else {
+			//Check if it is a static plugin
+			bool staticPluginFound = false;
+			foreach (QObject * plugin, QPluginLoader::staticInstances()) {
+				if (plugin) {
+					PluginFactory * factory = qobject_cast<PluginFactory *>(plugin);
+					if (factory) {
+						if (filename == factory->pluginName()) {
+							//Yes this is a static plugin!
+							pluginData.setFactory(factory);
+							staticPluginFound = true;
+							break;
+						}
+					}
+				}
+			}
+			if (!staticPluginFound) {
+				qCritical() << __FUNCTION__ << "Error: plugin couldn't be loaded:" << pluginData.fileName() << loader.errorString();
+			}
+		}
+	}
+	///
+
+	//Use the PluginFactory and create the PluginInterface
+	if (pluginData.interface()) {
+		//Plugin already loaded
+		loaded = true;
+	} else {
+		factory = pluginData.factory();
 		if (factory) {
-			pluginData.setInterface(factory->create(*_quarkPlayer, pluginData.uuid()));
+			PluginInterface * interface = factory->create(*_quarkPlayer, pluginData.uuid());
+			pluginData.setInterface(interface);
 
 			qDebug() << __FUNCTION__ << "Plugin loaded:" << pluginData.fileName();
 			loaded = true;
 		} else {
-			qCritical() << __FUNCTION__ << "Error: this is not a QuarkPlayer plugin:" << pluginData.fileName();
+			loaded = false;
 		}
-	} else {
-		qCritical() << __FUNCTION__ << "Error: plugin couldn't be loaded:" << pluginData.fileName() << pluginData.loader()->errorString();
 	}
-
-	if (!loaded) {
-		pluginData.deleteLoader();
-	}
+	///
 
 	updatePluginData(pluginData);
 
@@ -229,9 +286,6 @@ bool PluginsManager::deletePlugin(PluginData & pluginData) {
 	//some threads are still running
 	//I guess this line should do it...
 	QCoreApplication::processEvents();
-
-	//This is too dangerous: it crashes
-	//pluginData.deleteLoader();
 
 	return ret;
 }

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 class PluginInterface;
 class QuarkPlayer;
 
+class QString;
 struct QUuid;
 
 /**
@@ -31,15 +32,17 @@ struct QUuid;
  *
  * Creates a new Plugin using Qt way to deal with plugins.
  *
- * For an simple example of how to use this class, check WelcomePlugin.
+ * For a simple example of how to use this class, check WelcomeWindow.
  *
  * @see PluginInterface
- * @see WelcomePlugin
+ * @see WelcomeWindow
  * @see http://doc.trolltech.com/main-snapshot/plugins-howto.html
  * @author Tanguy Krotoff
  */
 class PluginFactory {
 public:
+
+	virtual QString pluginName() const = 0;
 
 	virtual PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const = 0;
 

@@ -21,6 +21,7 @@
 
 #include <QtGui/QSortFilterProxyModel>
 
+class PlaylistWidget;
 class PlaylistModel;
 
 /**
@@ -32,7 +33,7 @@ class PlaylistFilter : public QSortFilterProxyModel {
 	Q_OBJECT
 public:
 
-	PlaylistFilter(QObject * parent, PlaylistModel * playlistModel);
+	PlaylistFilter(PlaylistWidget * playlistWidget);
 
 	QModelIndex currentIndex() const;
 

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CommandLineParser.h"
+#include "PlaylistCommandLineParser.h"
 
 #include "PlaylistModel.h"
 
@@ -27,7 +27,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
-CommandLineParser::CommandLineParser(PlaylistModel * playlistModel)
+PlaylistCommandLineParser::PlaylistCommandLineParser(PlaylistModel * playlistModel)
 	: ICommandLineParser() {
 
 	_playlistModel = playlistModel;
@@ -35,11 +35,11 @@ CommandLineParser::CommandLineParser(PlaylistModel * playlistModel)
 	CommandLineManager::instance().addCommandLineParser(this);
 }
 
-CommandLineParser::~CommandLineParser() {
+PlaylistCommandLineParser::~PlaylistCommandLineParser() {
 	CommandLineManager::instance().removeCommandLineParser(this);
 }
 
-void CommandLineParser::argsReceived(const QStringList & args, bool usingQtSingleApplication) {
+void PlaylistCommandLineParser::argsReceived(const QStringList & args, bool usingQtSingleApplication) {
 	Q_UNUSED(usingQtSingleApplication);
 
 	bool playlistEnqueue = false;

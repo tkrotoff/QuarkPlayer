@@ -20,7 +20,6 @@
 
 #include "FileBrowserTreeView.h"
 #include "FileSearchModel.h"
-#include "UuidActionCollection.h"
 
 #include "config/FileBrowserConfigWidget.h"
 
@@ -37,6 +36,8 @@
 #include <tkutil/TkFileDialog.h>
 #include <tkutil/LanguageChangeEventFilter.h>
 
+#include <modeltest/modeltest.h>
+
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QDockWidget>
 #include <QtGui/QToolButton>
@@ -52,6 +53,10 @@ static const char * FILEBROWSER_SEARCH_HISTORY_KEY = "filebrowser_search_history
 
 Q_EXPORT_PLUGIN2(filebrowser, FileBrowserWidgetFactory);
 
+QString FileBrowserWidgetFactory::pluginName() const {
+	return "filebrowser";
+}
+
 PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new FileBrowserWidget(quarkPlayer, uuid);
 }
@@ -62,10 +67,6 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 
 	_fileSearchModel = NULL;
 
-	//Short for UuidActionCollection::setUuid()
-	setUuid(uuid);
-	///
-
 	QVBoxLayout * layout = new QVBoxLayout();
 	setLayout(layout);
 	layout->setMargin(0);
@@ -75,7 +76,7 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 	createToolBar();
 
 	//TreeView
-	_treeView = new FileBrowserTreeView(quarkPlayer);
+	_treeView = new FileBrowserTreeView(this);
 	layout->addWidget(_treeView);
 
 	//Add to the main window
@@ -149,6 +150,7 @@ void FileBrowserWidget::populateActionCollection() {
 
 void FileBrowserWidget::loadDirModel() {
 	_fileSearchModel = new FileSearchModel(this);
+	//new ModelTest(_fileSearchModel, this);
 
 	//Shows only tooltips for files that have a "multimedia" extension (i.e .mp3, .avi, .flac...)
 	QStringList extensions;
@@ -310,3 +312,19 @@ void FileBrowserWidget::configWindowCreated(ConfigWindow * configWindow) {
 	//Add to config window
 	configWindow->addConfigWidget(new FileBrowserConfigWidget(uuid()));
 }
+
+//FIXME should be factorized
+#include <tkutil/ActionCollection.h>
+QAction * FileBrowserWidget::uuidAction(const QString & name) {
+	if (uuid().isNull()) {
+		qCritical() << __FUNCTION__ << "Error: UUID is null";
+	}
+	return ActionCollection::action(name + '_' + uuid().toString());
+}
+void FileBrowserWidget::addUuidAction(const QString & name, QAction * action) {
+	if (uuid().isNull()) {
+		qCritical() << __FUNCTION__ << "Error: UUID is null";
+	}
+	return ActionCollection::addAction(name + '_' + uuid().toString(), action);
+}
+///

@@ -22,9 +22,13 @@
 
 #include <modeltest/modeltest.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
 void FileSearchModelTest::runModelTest() {
 	FileSearchModel * model = new FileSearchModel(this);
 	new ModelTest(model, this);
+
+	QString testPath(QCoreApplication::applicationDirPath() + "/dir");
+	model->search(testPath, QRegExp(QString(), Qt::CaseInsensitive, QRegExp::RegExp2), INT_MAX, false);
 }
