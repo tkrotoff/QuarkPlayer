@@ -20,7 +20,7 @@
 
 #include "ui_GeneralConfigWidget.h"
 
-#include "Config.h"
+#include <quarkplayer/config/Config.h>
 
 #include <quarkplayer/config.h>
 #include <quarkplayer/Languages.h>

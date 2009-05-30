@@ -23,6 +23,9 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
+#include <quarkplayer/PluginManager.h>
+
+#include <quarkplayer-plugins/playlist/PlaylistWidget.h>
 
 #include <mediainfowindow/MediaInfoWindow.h>
 #include <mediainfowindow/MediaInfoFetcher.h>
@@ -40,6 +43,12 @@
 
 //For INT_MAX
 #include <climits>
+
+static PlaylistWidget * getPlaylistWidget() {
+	PlaylistWidget * playlistWidget = dynamic_cast<PlaylistWidget *>(PluginManager::instance().pluginInterface("playlist"));
+	Q_ASSERT(playlistWidget);
+	return playlistWidget;
+}
 
 FileBrowserTreeView::FileBrowserTreeView(FileBrowserWidget * fileBrowserWidget)
 	: QTreeView(NULL) {
@@ -105,7 +114,7 @@ void FileBrowserTreeView::addToPlaylist() {
 		filenames += fileInfo.absoluteFilePath().replace("//", "/");
 	}
 	if (!filenames.isEmpty()) {
-		_fileBrowserWidget->quarkPlayer().addFilesToPlaylist(filenames);
+		getPlaylistWidget()->addFilesToCurrentPlaylist(filenames);
 	}
 }
 

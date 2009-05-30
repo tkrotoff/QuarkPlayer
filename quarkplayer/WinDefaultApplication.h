@@ -19,6 +19,8 @@
 #ifndef WINDEFAULTAPPLICATION_H
 #define WINDEFAULTAPPLICATION_H
 
+#include <quarkplayer/quarkplayer_export.h>
+
 //Needed for the Qt translation feature
 #include <QtCore/QObject>
 
@@ -34,7 +36,7 @@
  * @see http://msdn.microsoft.com/en-us/library/cc144162(VS.85).aspx
  * @author Tanguy Krotoff
  */
-class WinDefaultApplication : public QObject {
+class QUARKPLAYER_API WinDefaultApplication : public QObject {
 public:
 
 	/** Makes QuarkPlayer the default Windows application. */

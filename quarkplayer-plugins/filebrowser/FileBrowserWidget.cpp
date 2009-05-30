@@ -25,10 +25,11 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
-#include <quarkplayer/config/ConfigWindow.h>
 #include <quarkplayer/PluginManager.h>
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/configwindow/ConfigWindowPlugin.h>
+#include <quarkplayer-plugins/configwindow/ConfigWindow.h>
 
 #include <filetypes/FileTypes.h>
 
@@ -61,6 +62,7 @@ QString FileBrowserWidgetFactory::pluginName() const {
 QStringList FileBrowserWidgetFactory::dependencies() const {
 	QStringList tmp;
 	tmp += "mainwindow";
+	tmp += "configwindow";
 	return tmp;
 }
 
@@ -69,7 +71,15 @@ PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer, co
 }
 
 static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
+	MainWindow * mainWindow = dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
+	Q_ASSERT(mainWindow);
+	return mainWindow;
+}
+
+static ConfigWindowPlugin * getConfigWindowPlugin() {
+	ConfigWindowPlugin * configWindowPlugin = dynamic_cast<ConfigWindowPlugin *>(PluginManager::instance().pluginInterface("configwindow"));
+	Q_ASSERT(configWindowPlugin);
+	return configWindowPlugin;
 }
 
 FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
@@ -104,11 +114,11 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 			SLOT(loadDirModel()), Qt::QueuedConnection);
 	}
 
-	ConfigWindow * configWindow = getMainWindow()->configWindow();
+	ConfigWindow * configWindow = getConfigWindowPlugin()->configWindow();
 	if (configWindow) {
 		configWindowCreated(configWindow);
 	} else {
-		connect(getMainWindow(), SIGNAL(configWindowCreated(ConfigWindow *)),
+		connect(getConfigWindowPlugin(), SIGNAL(configWindowCreated(ConfigWindow *)),
 			SLOT(configWindowCreated(ConfigWindow *)));
 	}
 

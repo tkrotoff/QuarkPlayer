@@ -34,6 +34,7 @@ endif (STATICPLUGINS)
 
 target_link_libraries(filebrowser
 	quarkplayercore
+	configwindow
 	filetypes
 	tkutil
 	mediainfowindow

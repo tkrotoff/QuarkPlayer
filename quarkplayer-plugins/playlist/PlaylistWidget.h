@@ -75,6 +75,15 @@ public:
 	void addUuidAction(const QString & name, QAction * action);
 	///
 
+public slots:
+
+	/**
+	 * Adds a list of files to the current playlist.
+	 *
+	 * @param files files to add to the current playlist
+	 */
+	void addFilesToCurrentPlaylist(const QStringList & files);
+
 private slots:
 
 	void addDir();

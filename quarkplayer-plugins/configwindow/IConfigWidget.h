@@ -16,37 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SHORTCUTSCONFIG_H
-#define SHORTCUTSCONFIG_H
+#ifndef ICONFIGWIDGET_H
+#define ICONFIGWIDGET_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <QtGui/QWidget>
 
-#include <tkutil/Singleton.h>
-
-class QAction;
 class QString;
 
 /**
- * Load and save QuarkPlayer shortcuts configuration using QSettings.
+ * Interface for settings panel from the configuration window.
  *
- * @see Config
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API ShortcutsConfig : public Singleton<ShortcutsConfig> {
-	friend class Singleton<ShortcutsConfig>;
+class IConfigWidget : public QWidget {
+	Q_OBJECT
 public:
 
-	void load() const;
+	virtual ~IConfigWidget() { }
 
-	void save();
+	virtual QString name() const = 0;
 
-private:
+	virtual QString iconName() const = 0;
 
-	QAction * findAction(const QString & name) const;
+	virtual void readConfig() = 0;
 
-	ShortcutsConfig();
+	virtual void saveConfig() = 0;
 
-	~ShortcutsConfig();
+	virtual void retranslate() = 0;
 };
 
-#endif	//SHORTCUTSCONFIG_H
+#endif	//ICONFIGWIDGET_H

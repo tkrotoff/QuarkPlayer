@@ -41,6 +41,7 @@
 	//Static plugins are faster than dynamic plugins:
 	//it takes almost no time to load them
 	Q_IMPORT_PLUGIN(mainwindow)
+	Q_IMPORT_PLUGIN(configwindow)
 	Q_IMPORT_PLUGIN(filebrowser)
 	Q_IMPORT_PLUGIN(findsubtitles)
 	Q_IMPORT_PLUGIN(mediacontroller)
@@ -52,8 +53,6 @@
 #endif	//STATICPLUGINS
 
 int main(int argc, char * argv[]) {
-	QuarkPlayer::registerMetaTypes();
-
 	QtSingleApplication app(argc, argv);
 
 	QStringList args = QCoreApplication::arguments();

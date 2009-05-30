@@ -27,7 +27,6 @@
 #include <QtGui/QMainWindow>
 
 class QuarkPlayer;
-class ConfigWindow;
 
 namespace Phonon {
 	class MediaSource;
@@ -75,9 +74,6 @@ public:
 	void addPlaylistDockWidget(QDockWidget * dockWidget);
 	void resetPlaylistDockWidget();
 
-	/** Returns the ConfigWindow or NULL if not yet created. */
-	ConfigWindow * configWindow() const;
-
 
 	QString name() const { return tr("Main window"); }
 	QString description() const { return tr("Main window"); }
@@ -90,6 +86,19 @@ public:
 
 signals:
 
+	/**
+	 * Signal emitted when files should be added to the current playlist.
+	 *
+	 * This signal should be catched by a playlist plugin if any exist.
+	 *
+	 * @param files list of files to be added
+	 * @see playFile()
+	 */
+	void addFilesToCurrentPlaylist(const QStringList & files);
+
+	/**
+	 * A subtitle file has been dropped inside the main window.
+	 */
 	void subtitleFileDropped(const QString & subtitle);
 
 	/**
@@ -111,32 +120,6 @@ signals:
 	 */
 	void statusBarAdded(QStatusBar * statusBar);
 
-	/**
-	 * The ConfigWindow has been created, meaning user asked for the configuration window to be showed.
-	 *
-	 * This usefull for plugins with ConfigWidget inside the ConfigWindow.
-	 * This signal is only sent once (configuration window is constructed only once and then
-	 * show and hide each time the user wants it).
-	 *
-	 * Example:
-	 * <pre>
-	 * #include <quarkplayer/config/ConfigWindow.h>
-	 * #include <quarkplayer/MainWindow.h>
-	 *
-	 * TotoPlugin::TotoPlugin(QuarkPlayer & quarkPlayer) {
-	 * 	connect(&quarkPlayer.mainWindow(), SIGNAL(configWindowCreated(ConfigWindow *)),
-	 * 		SLOT(configWindowCreated(ConfigWindow *)));
-	 * }
-	 *
-	 * TotoPlugin::configWindowCreated(ConfigWindow * configWindow) {
-	 * 	configWindow->addConfigWidget(new TotoPluginConfigWidget());
-	 * }
-	 * </pre>
-	 *
-	 * @param configWindow the configuration window that has been created
-	 */
-	void configWindowCreated(ConfigWindow * configWindow);
-
 public slots:
 
 	/**
@@ -155,8 +138,6 @@ private slots:
 	void showMailingList();
 
 	void about();
-
-	void showConfigWindow();
 
 	void playFile();
 	void playDVD();
@@ -195,10 +176,6 @@ private:
 
 	void closeEvent(QCloseEvent * event);
 
-	void loadSettings();
-
-	void saveSettings();
-
 	TkToolBar * _mainToolBar;
 	QMenu * _menuRecentFiles;
 	QMenu * _menuFile;
@@ -209,8 +186,6 @@ private:
 
 	QToolBar * _playToolBar;
 	QStatusBar * _statusBar;
-
-	ConfigWindow * _configWindow;
 };
 
 #include <quarkplayer/PluginFactory.h>

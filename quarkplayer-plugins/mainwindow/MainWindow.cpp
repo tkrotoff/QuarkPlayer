@@ -23,8 +23,6 @@
 #include <quarkplayer/QuarkPlayer.h>
 
 #include <quarkplayer/config/Config.h>
-#include <quarkplayer/config/ConfigWindow.h>
-#include <quarkplayer/config/ShortcutsConfig.h>
 #include <quarkplayer/version.h>
 
 #include <tkutil/ActionCollection.h>
@@ -84,14 +82,12 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	_playToolBar = NULL;
 	_statusBar = NULL;
-	_configWindow = NULL;
 
 	connect(ActionCollection::action("MainWindow.OpenFile"), SIGNAL(triggered()), SLOT(playFile()));
 	connect(ActionCollection::action("MainWindow.OpenDVD"), SIGNAL(triggered()), SLOT(playDVD()));
 	connect(ActionCollection::action("MainWindow.OpenURL"), SIGNAL(triggered()), SLOT(playURL()));
 	connect(ActionCollection::action("MainWindow.OpenVCD"), SIGNAL(triggered()), SLOT(playVCD()));
 	connect(ActionCollection::action("MainWindow.NewMediaObject"), SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
-	connect(ActionCollection::action("MainWindow.Configure"), SIGNAL(triggered()), SLOT(showConfigWindow()));
 	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), SLOT(close()));
 	connect(ActionCollection::action("MainWindow.ReportBug"), SIGNAL(triggered()), SLOT(reportBug()));
 	connect(ActionCollection::action("MainWindow.ShowMailingList"), SIGNAL(triggered()), SLOT(showMailingList()));
@@ -110,8 +106,6 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	RETRANSLATE(this);
 	retranslate();
-
-	loadSettings();
 
 	show();
 }
@@ -209,7 +203,8 @@ void MainWindow::playFile() {
 		QString fileToPlay(filenames[0]);
 		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(fileToPlay).absolutePath());
 
-		quarkPlayer().addFilesToPlaylist(filenames);
+		emit addFilesToCurrentPlaylist(filenames);
+
 		play(fileToPlay);
 	}
 }
@@ -285,21 +280,6 @@ void MainWindow::updateWindowTitle() {
 	} else {
 		setWindowTitle(title + " - " + QCoreApplication::applicationName());
 	}
-}
-
-void MainWindow::showConfigWindow() {
-	if (!_configWindow) {
-		_configWindow = new ConfigWindow(this);
-
-		//Emits the signal just once, not each time the ConfigWindow is being showed
-		emit configWindowCreated(_configWindow);
-	}
-
-	_configWindow->show();
-}
-
-ConfigWindow * MainWindow::configWindow() const {
-	return _configWindow;
 }
 
 void MainWindow::reportBug() {
@@ -646,8 +626,6 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 
 	TkMainWindow::closeEvent(event);
 
-	saveSettings();
-
 	event->accept();
 
 	//Quits the application
@@ -715,14 +693,6 @@ void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 		disconnect(audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(mutedChanged(bool)));
 		connect(audioOutput, SIGNAL(mutedChanged(bool)), SLOT(mutedChanged(bool)));
 	}
-}
-
-void MainWindow::loadSettings() {
-	ShortcutsConfig::instance().load();
-}
-
-void MainWindow::saveSettings() {
-	ShortcutsConfig::instance().save();
 }
 
 void MainWindow::mutedChanged(bool muted) {

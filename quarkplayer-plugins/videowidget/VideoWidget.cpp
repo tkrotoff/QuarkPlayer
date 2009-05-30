@@ -18,7 +18,7 @@
 
 #include "VideoWidget.h"
 
-#include <quarkplayer/MainWindow.h>
+#include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
 #include <tkutil/ActionCollection.h>
 #include <tkutil/ScreenSaver.h>

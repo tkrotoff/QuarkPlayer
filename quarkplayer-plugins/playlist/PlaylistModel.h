@@ -150,8 +150,6 @@ private slots:
 
 	void filesFound(const QList<MediaInfo> & files);
 
-	void addFilesToCurrentPlaylist(const QStringList & files);
-
 	void searchfinished(int timeElapsed);
 
 	void allPluginsLoaded();

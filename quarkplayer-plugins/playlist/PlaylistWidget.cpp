@@ -24,10 +24,10 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
-#include <quarkplayer/config/PlaylistConfig.h>
 #include <quarkplayer/PluginManager.h>
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/configwindow/PlaylistConfig.h>
 
 #include <tkutil/TkIcon.h>
 #include <tkutil/TkAction.h>
@@ -59,6 +59,7 @@ QString PlaylistWidgetFactory::pluginName() const {
 QStringList PlaylistWidgetFactory::dependencies() const {
 	QStringList tmp;
 	tmp += "mainwindow";
+	tmp += "configwindow";
 	return tmp;
 }
 
@@ -67,7 +68,9 @@ PluginInterface * PlaylistWidgetFactory::create(QuarkPlayer & quarkPlayer, const
 }
 
 static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
+	MainWindow * mainWindow = dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
+	Q_ASSERT(mainWindow);
+	return mainWindow;
 }
 
 PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
@@ -84,9 +87,11 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 		SLOT(playlistLoaded(int)));
 	connect(_playlistModel, SIGNAL(playlistSaved(int)),
 		SLOT(playlistSaved(int)));
+	///
 
 	//Filter
 	_playlistFilter = new PlaylistFilter(this);
+	///
 
 	//TreeView
 	_treeView = new DragAndDropTreeView(this);
@@ -97,6 +102,7 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	setLayout(layout);
 	layout->setMargin(0);
 	layout->setSpacing(0);
+	///
 
 	//Default column sizes
 	_treeView->resizeColumnToContents(PlaylistModel::COLUMN_TRACK);
@@ -104,6 +110,7 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	_treeView->setColumnWidth(PlaylistModel::COLUMN_ARTIST, 150);
 	_treeView->setColumnWidth(PlaylistModel::COLUMN_ALBUM, 150);
 	_treeView->resizeColumnToContents(PlaylistModel::COLUMN_LENGTH);
+	///
 
 	populateActionCollection();
 	createToolBar();
@@ -116,6 +123,11 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 		SLOT(dockWidgetVisibilityChanged(bool)));
 	getMainWindow()->addPlaylistDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
+
+	//Files have been opened from the MainWindow
+	connect(getMainWindow(), SIGNAL(addFilesToCurrentPlaylist(const QStringList &)),
+		SLOT(addFilesToCurrentPlaylist(const QStringList &)));
+	///
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
@@ -282,8 +294,17 @@ void PlaylistWidget::addFiles() {
 	if (!files.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(files[0]).absolutePath());
 
-		_playlistModel->addFiles(files);
-		_playlistModel->saveCurrentPlaylist();
+		addFilesToCurrentPlaylist(files);
+	}
+}
+
+
+void PlaylistWidget::addFilesToCurrentPlaylist(const QStringList & files) {
+	if (!files.isEmpty()) {
+		if (uuid() == PlaylistConfig::instance().activePlaylist()) {
+			_playlistModel->addFiles(files);
+			_playlistModel->saveCurrentPlaylist();
+		}
 	}
 }
 

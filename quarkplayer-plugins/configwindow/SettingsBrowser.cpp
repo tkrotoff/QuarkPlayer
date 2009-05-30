@@ -20,7 +20,7 @@
 
 #include "ui_SettingsBrowser.h"
 
-#include "Config.h"
+#include <quarkplayer/config/Config.h>
 
 #include <QtGui/QtGui>
 

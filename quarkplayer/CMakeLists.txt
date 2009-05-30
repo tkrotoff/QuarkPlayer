@@ -20,16 +20,6 @@ set(quarkplayercore_SRCS
 	Languages.cpp
 	WinDefaultApplication.cpp
 	config/Config.cpp
-	config/ConfigWindow.cpp
-	config/GeneralConfigWidget.cpp
-	config/SettingsBrowser.cpp
-	config/BackendCapabilitiesWidget.cpp
-	config/PluginConfigWidget.cpp
-	config/WinFileAssociationsConfigWidget.cpp
-	config/PlaylistConfig.cpp
-	config/ShortcutsConfigWidget.cpp
-	config/ShortcutsFileParser.cpp
-	config/ShortcutsConfig.cpp
 )
 
 qt4_wrap_cpp(quarkplayercore_SRCS
@@ -38,28 +28,7 @@ qt4_wrap_cpp(quarkplayercore_SRCS
 	CommandLineManager.h
 	CommandLineParser.h
 	config/Config.h
-	config/ConfigWindow.h
-	config/IConfigWidget.h
-	config/GeneralConfigWidget.h
-	config/SettingsBrowser.h
-	config/BackendCapabilitiesWidget.h
-	config/PluginConfigWidget.h
-	config/WinFileAssociationsConfigWidget.h
-	config/PlaylistConfig.h
-	config/ShortcutsConfigWidget.h
-	config/ShortcutsConfig.h
 )
-
-qt4_wrap_ui(quarkplayercore_SRCS
-	config/ConfigWindow.ui
-	config/GeneralConfigWidget.ui
-	config/SettingsBrowser.ui
-	config/BackendCapabilitiesWidget.ui
-	config/PluginConfigWidget.ui
-	config/WinFileAssociationsConfigWidget.ui
-	config/ShortcutsConfigWidget.ui
-)
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(quarkplayercore SHARED ${quarkplayercore_SRCS})
 

@@ -19,7 +19,7 @@
 #ifndef FILEBROWSERCONFIGWIDGET_H
 #define FILEBROWSERCONFIGWIDGET_H
 
-#include <quarkplayer/config/IConfigWidget.h>
+#include <quarkplayer-plugins/configwindow/IConfigWidget.h>
 
 #include <QtCore/QUuid>
 

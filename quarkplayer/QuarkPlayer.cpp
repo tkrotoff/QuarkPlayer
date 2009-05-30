@@ -45,9 +45,6 @@ QuarkPlayer::~QuarkPlayer() {
 	Config::instance().deleteInstance();
 }
 
-void QuarkPlayer::registerMetaTypes() {
-}
-
 void QuarkPlayer::setCurrentMediaObject(Phonon::MediaObject * mediaObject) {
 	if (_currentMediaObject != mediaObject) {
 		_currentMediaObject = mediaObject;
@@ -120,10 +117,6 @@ void QuarkPlayer::play(const Phonon::MediaSource & mediaSource) {
 	} else {
 		qCritical() << __FUNCTION__ << "Error: no MediaObject available";
 	}
-}
-
-void QuarkPlayer::addFilesToPlaylist(const QStringList & files) {
-	emit addFilesToCurrentPlaylist(files);
 }
 
 Phonon::AudioOutput * QuarkPlayer::currentAudioOutput() const {

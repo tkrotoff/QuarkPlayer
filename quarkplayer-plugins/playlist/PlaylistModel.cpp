@@ -22,8 +22,9 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
-#include <quarkplayer/config/PlaylistConfig.h>
 #include <quarkplayer/PluginManager.h>
+
+#include <quarkplayer-plugins/configwindow/PlaylistConfig.h>
 
 #include <mediainfowindow/MediaInfoFetcher.h>
 
@@ -64,11 +65,6 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const 
 	_uuid = uuid;
 
 	clearInternal();
-
-	//FIXME to remove when QuarkPlayer will get a real plugin API
-	connect(&quarkPlayer, SIGNAL(addFilesToCurrentPlaylist(const QStringList &)),
-		SLOT(addFilesToCurrentPlaylist(const QStringList &)));
-	///
 
 	//Info fetcher
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
@@ -378,13 +374,6 @@ void PlaylistModel::insertFilesInsideTheModel(const QList<MediaInfo> & files, in
 				}
 			}
 		}
-	}
-}
-
-void PlaylistModel::addFilesToCurrentPlaylist(const QStringList & files) {
-	if (_uuid == PlaylistConfig::instance().activePlaylist()) {
-		addFiles(files);
-		saveCurrentPlaylist();
 	}
 }
 

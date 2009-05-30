@@ -23,7 +23,8 @@
 #include "PlaylistFilter.h"
 
 #include <quarkplayer/config/Config.h>
-#include <quarkplayer/config/PlaylistConfig.h>
+
+#include <quarkplayer-plugins/configwindow/PlaylistConfig.h>
 
 #include <mediainfowindow/MediaInfoWindow.h>
 #include <mediainfowindow/MediaInfoFetcher.h>

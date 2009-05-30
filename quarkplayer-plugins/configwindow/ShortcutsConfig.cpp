@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,8 @@
 #include "ShortcutsConfig.h"
 
 #include "ShortcutsConfigWidget.h"
-#include "Config.h"
+
+#include <quarkplayer/config/Config.h>
 
 #include <tkutil/TkAction.h>
 #include <tkutil/ActionCollection.h>

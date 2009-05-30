@@ -20,8 +20,7 @@
 
 #include "ui_WinFileAssociationsConfigWidget.h"
 
-#include "Config.h"
-
+#include <quarkplayer/config/Config.h>
 #include <quarkplayer/WinDefaultApplication.h>
 
 #include <filetypes/FileTypes.h>

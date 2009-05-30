@@ -22,7 +22,7 @@
 
 #include "ShortcutsFileParser.h"
 
-#include "Config.h"
+#include <quarkplayer/config/Config.h>
 
 #include <tkutil/TkIcon.h>
 #include <tkutil/TkAction.h>

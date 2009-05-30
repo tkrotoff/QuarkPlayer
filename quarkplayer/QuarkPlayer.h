@@ -68,16 +68,6 @@ public:
 	~QuarkPlayer();
 
 	/**
-	 * Registers all the QMetaType needed by QuarkPlayer.
-	 *
-	 * First thing to do inside main.cpp.
-	 *
-	 * @see qRegisterMetaType()
-	 * @see qRegisterMetaTypeStreamOperators()
-	 */
-	static void registerMetaTypes();
-
-	/**
 	 * Changes the current media object to be used when playing a media.
 	 *
 	 * @param mediaObject new media object to be used
@@ -125,17 +115,6 @@ public:
 	 * @param mediaSource media to play
 	 */
 	void play(const Phonon::MediaSource & mediaSource);
-
-	/**
-	 * Adds a list of files to the current playlist.
-	 *
-	 * This is a function that will send a signal to the
-	 * playlist plugin if any exist.
-	 *
-	 * @param files files to add to the current playlist
-	 * @see addFilesToCurrentPlaylist()
-	 */
-	void addFilesToPlaylist(const QStringList & files);
 
 	/**
 	 * Returns the current audio output associated with the current media object.
@@ -200,16 +179,6 @@ signals:
 	 */
 	void mediaObjectAdded(Phonon::MediaObject * mediaObject);
 
-	/**
-	 * Signal emitted when files should be added to the current playlist.
-	 *
-	 * This signal should be catched by a playlist plugin if any exist.
-	 *
-	 * @param files list of files to be added
-	 * @see addFilesToPlaylist()
-	 */
-	void addFilesToCurrentPlaylist(const QStringList & files);
-
 private slots:
 
 	/**
@@ -235,6 +204,7 @@ private:
 	/** List of available media objects. */
 	QList<Phonon::MediaObject *> _mediaObjectList;
 
+	/** Current media controller object, can be NULL if none. */
 	Phonon::MediaController * _currentMediaController;
 };
 

@@ -30,6 +30,7 @@ endif (STATICPLUGINS)
 
 target_link_libraries(playlist
 	quarkplayercore
+	configwindow
 	tkutil
 	playlistparser
 	mediainfowindow

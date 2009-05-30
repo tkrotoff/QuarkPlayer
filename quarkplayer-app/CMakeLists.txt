@@ -66,6 +66,7 @@ if (STATICPLUGINS)
 	# it takes almost no time to load them
 	target_link_libraries(quarkplayer
 		mainwindow
+		configwindow
 		filebrowser
 		findsubtitles
 		mediacontroller
