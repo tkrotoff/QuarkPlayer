@@ -23,7 +23,7 @@
 #include "GeneralConfigWidget.h"
 #include "SettingsBrowser.h"
 #include "BackendCapabilitiesWidget.h"
-#include "PluginsConfigWidget.h"
+#include "PluginConfigWidget.h"
 #include "WinFileAssociationsConfigWidget.h"
 #include "ShortcutsConfigWidget.h"
 
@@ -49,7 +49,7 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	_lastConfigWindowOpenedIndex = 0;
 
 	//Add all config panels/widgets to the list
-	_configWidgetList.prepend(ConfigWidget(new PluginsConfigWidget()));
+	_configWidgetList.prepend(ConfigWidget(new PluginConfigWidget()));
 	_configWidgetList.prepend(ConfigWidget(new SettingsBrowser()));
 
 #ifdef Q_OS_WIN
@@ -122,10 +122,10 @@ void ConfigWindow::populateStackedWidget() {
 		item->setText(NAME_COLUMN, tmp.configWidget->name());
 		item->setText(PRIVATE_POINTER_COLUMN, QString::number(quintptr(tmp.configWidget)));
 
-		if (qobject_cast<PluginsConfigWidget *>(tmp.configWidget)) {
+		if (qobject_cast<PluginConfigWidget *>(tmp.configWidget)) {
 			//Saves the QTreeWidgetItem for plugins
 			//then we can add plugins to this item
-			//This works because PluginsConfigWidget is added to the list before the plugins
+			//This works because PluginConfigWidget is added to the list before the plugins
 			pluginsItem = item;
 		}
 

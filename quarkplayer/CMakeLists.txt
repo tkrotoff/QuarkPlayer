@@ -24,7 +24,7 @@ set(quarkplayercore_SRCS
 	config/GeneralConfigWidget.cpp
 	config/SettingsBrowser.cpp
 	config/BackendCapabilitiesWidget.cpp
-	config/PluginsConfigWidget.cpp
+	config/PluginConfigWidget.cpp
 	config/WinFileAssociationsConfigWidget.cpp
 	config/PlaylistConfig.cpp
 	config/ShortcutsConfigWidget.cpp
@@ -43,7 +43,7 @@ qt4_wrap_cpp(quarkplayercore_SRCS
 	config/GeneralConfigWidget.h
 	config/SettingsBrowser.h
 	config/BackendCapabilitiesWidget.h
-	config/PluginsConfigWidget.h
+	config/PluginConfigWidget.h
 	config/WinFileAssociationsConfigWidget.h
 	config/PlaylistConfig.h
 	config/ShortcutsConfigWidget.h
@@ -55,7 +55,7 @@ qt4_wrap_ui(quarkplayercore_SRCS
 	config/GeneralConfigWidget.ui
 	config/SettingsBrowser.ui
 	config/BackendCapabilitiesWidget.ui
-	config/PluginsConfigWidget.ui
+	config/PluginConfigWidget.ui
 	config/WinFileAssociationsConfigWidget.ui
 	config/ShortcutsConfigWidget.ui
 )

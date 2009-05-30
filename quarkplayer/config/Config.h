@@ -35,7 +35,7 @@ struct QUuid;
  * Transform it to CRTP pattern?
  * So one can inherit from this class
  * See http://en.wikipedia.org/wiki/Curiously_Recurring_Template_Pattern
- * See PluginsConfig for an example of how to extend Config
+ * See PluginConfig for an example of how to extend Config
  *
  * <pre>
  * //Example for key PLUGINS_DISABLED_KEY

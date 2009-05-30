@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>PluginsConfigWidget</class>
- <widget class="QWidget" name="PluginsConfigWidget" >
+ <class>PluginConfigWidget</class>
+ <widget class="QWidget" name="PluginConfigWidget" >
   <property name="geometry" >
    <rect>
     <x>0</x>

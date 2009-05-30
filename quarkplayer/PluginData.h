@@ -47,7 +47,7 @@ class PluginFactory;
  * at runtime without having the user to restart the application after modifying the plugins configuration.
  *
  * @see PluginManager
- * @see PluginsConfig
+ * @see PluginConfig
  * @author Tanguy Krotoff
  */
 class QUARKPLAYER_API PluginData {

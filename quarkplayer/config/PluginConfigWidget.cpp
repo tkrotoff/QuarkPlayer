@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PluginsConfigWidget.h"
+#include "PluginConfigWidget.h"
 
-#include "ui_PluginsConfigWidget.h"
+#include "ui_PluginConfigWidget.h"
 
 #include <quarkplayer/PluginManager.h>
 #include <quarkplayer/PluginInterface.h>
@@ -35,8 +35,8 @@ static const int VERSION_COLUMN = 3;
 static const int STATE_COLUMN = 4;
 static const int UUID_COLUMN = 5;
 
-PluginsConfigWidget::PluginsConfigWidget() {
-	_ui = new Ui::PluginsConfigWidget();
+PluginConfigWidget::PluginConfigWidget() {
+	_ui = new Ui::PluginConfigWidget();
 	_ui->setupUi(this);
 
 	_ui->tableWidget->setColumnWidth(STATE_COLUMN, 100);
@@ -46,19 +46,19 @@ PluginsConfigWidget::PluginsConfigWidget() {
 		SLOT(currentCellChanged(int, int)));
 }
 
-PluginsConfigWidget::~PluginsConfigWidget() {
+PluginConfigWidget::~PluginConfigWidget() {
 	delete _ui;
 }
 
-QString PluginsConfigWidget::name() const {
+QString PluginConfigWidget::name() const {
 	return tr("Plugins");
 }
 
-QString PluginsConfigWidget::iconName() const {
+QString PluginConfigWidget::iconName() const {
 	return "preferences-plugin";
 }
 
-void PluginsConfigWidget::readConfig() {
+void PluginConfigWidget::readConfig() {
 	PluginDataList plugins(PluginManager::instance().availablePlugins());
 
 	for (int i = 0; i < plugins.size(); i++) {
@@ -108,7 +108,7 @@ void PluginsConfigWidget::readConfig() {
 	_ui->tableWidget->resizeRowsToContents();
 }
 
-void PluginsConfigWidget::saveConfig() {
+void PluginConfigWidget::saveConfig() {
 	for (int row = 0; row < _ui->tableWidget->rowCount(); row++) {
 		QCheckBox * checkBox = qobject_cast<QCheckBox *>(_ui->tableWidget->cellWidget(row, CHECKBOX_COLUMN));
 		if (!checkBox) {
@@ -135,11 +135,11 @@ void PluginsConfigWidget::saveConfig() {
 	}
 }
 
-void PluginsConfigWidget::retranslate() {
+void PluginConfigWidget::retranslate() {
 	_ui->retranslateUi(this);
 }
 
-void PluginsConfigWidget::currentCellChanged(int row, int column) {
+void PluginConfigWidget::currentCellChanged(int row, int column) {
 	Q_UNUSED(column);
 
 	QTableWidgetItem * item = _ui->tableWidget->item(row, UUID_COLUMN);

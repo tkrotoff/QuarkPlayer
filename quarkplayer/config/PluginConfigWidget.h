@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLUGINSCONFIGWIDGET_H
-#define PLUGINSCONFIGWIDGET_H
+#ifndef PLUGINCONFIGWIDGET_H
+#define PLUGINCONFIGWIDGET_H
 
 #include "IConfigWidget.h"
 
-namespace Ui { class PluginsConfigWidget; }
+namespace Ui { class PluginConfigWidget; }
 
 /**
  * Plugins configuration widget.
@@ -30,13 +30,13 @@ namespace Ui { class PluginsConfigWidget; }
  * @see PluginData
  * @author Tanguy Krotoff
  */
-class PluginsConfigWidget : public IConfigWidget {
+class PluginConfigWidget : public IConfigWidget {
 	Q_OBJECT
 public:
 
-	PluginsConfigWidget();
+	PluginConfigWidget();
 
-	~PluginsConfigWidget();
+	~PluginConfigWidget();
 
 	QString name() const;
 
@@ -54,7 +54,7 @@ private slots:
 
 private:
 
-	Ui::PluginsConfigWidget * _ui;
+	Ui::PluginConfigWidget * _ui;
 };
 
-#endif	//PLUGINSCONFIGWIDGET_H
+#endif	//PLUGINCONFIGWIDGET_H
