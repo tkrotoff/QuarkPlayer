@@ -20,7 +20,7 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
-#include <quarkplayer/PluginsManager.h>
+#include <quarkplayer/PluginManager.h>
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
@@ -50,7 +50,7 @@ PluginInterface * StatusBarFactory::create(QuarkPlayer & quarkPlayer, const QUui
 }
 
 static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
 }
 
 StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)

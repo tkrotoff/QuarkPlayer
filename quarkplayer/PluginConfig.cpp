@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,22 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PluginsConfig.h"
+#include "PluginConfig.h"
 
 #include "config/Config.h"
 
 #include <QtCore/QDebug>
 
-const char * PluginsConfig::PLUGINS_KEY = "plugins";
+const char * PluginConfig::PLUGINS_KEY = "plugins";
 
-PluginsConfig::PluginsConfig() {
+PluginConfig::PluginConfig() {
 	Config::instance().addKey(PLUGINS_KEY, QString());
 }
 
-PluginsConfig::~PluginsConfig() {
+PluginConfig::~PluginConfig() {
 }
 
-PluginDataList PluginsConfig::plugins() const {
+PluginDataList PluginConfig::plugins() const {
 	//Version working with QDataStream
 	/*
 	QVariant tmp = Config::instance().value(PLUGINS_KEY);
@@ -47,7 +47,7 @@ PluginDataList PluginsConfig::plugins() const {
 	return pluginList;
 }
 
-void PluginsConfig::setPlugins(const PluginDataList & plugins) {
+void PluginConfig::setPlugins(const PluginDataList & plugins) {
 	//Version working with QDataStream
 	/*
 	QVariant tmp;

@@ -13,8 +13,8 @@ set(quarkplayercore_SRCS
 	QuarkPlayer.cpp
 	PluginInterface.cpp
 	PluginData.cpp
-	PluginsManager.cpp
-	PluginsConfig.cpp
+	PluginManager.cpp
+	PluginConfig.cpp
 	CommandLineManager.cpp
 	CommandLineParser.cpp
 	Languages.cpp
@@ -34,7 +34,7 @@ set(quarkplayercore_SRCS
 
 qt4_wrap_cpp(quarkplayercore_SRCS
 	QuarkPlayer.h
-	PluginsManager.h
+	PluginManager.h
 	CommandLineManager.h
 	CommandLineParser.h
 	config/Config.h

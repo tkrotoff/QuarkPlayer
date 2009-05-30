@@ -19,7 +19,7 @@
 #include "PlayToolBar.h"
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/PluginsManager.h>
+#include <quarkplayer/PluginManager.h>
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
@@ -51,7 +51,7 @@ PluginInterface * PlayToolBarFactory::create(QuarkPlayer & quarkPlayer, const QU
 }
 
 static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
 }
 
 PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)

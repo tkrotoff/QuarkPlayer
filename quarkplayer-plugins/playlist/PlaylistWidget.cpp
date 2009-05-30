@@ -25,7 +25,7 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config/PlaylistConfig.h>
-#include <quarkplayer/PluginsManager.h>
+#include <quarkplayer/PluginManager.h>
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
@@ -67,7 +67,7 @@ PluginInterface * PlaylistWidgetFactory::create(QuarkPlayer & quarkPlayer, const
 }
 
 static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
 }
 
 PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
@@ -465,8 +465,8 @@ void PlaylistWidget::stateChanged(Phonon::State newState) {
 }
 
 void PlaylistWidget::createNewPlaylistWidget() {
-	PluginData pluginData = PluginsManager::instance().pluginData(uuid());
-	PluginsManager::instance().loadDisabledPlugin(pluginData);
+	PluginData pluginData = PluginManager::instance().pluginData(uuid());
+	PluginManager::instance().loadDisabledPlugin(pluginData);
 }
 
 void PlaylistWidget::jumpToCurrent() {

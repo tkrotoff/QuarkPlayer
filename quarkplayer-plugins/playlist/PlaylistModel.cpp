@@ -23,7 +23,7 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config/PlaylistConfig.h>
-#include <quarkplayer/PluginsManager.h>
+#include <quarkplayer/PluginManager.h>
 
 #include <mediainfowindow/MediaInfoFetcher.h>
 
@@ -74,12 +74,12 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const 
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
 	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
 
-	if (PluginsManager::instance().allPluginsAlreadyLoaded()) {
+	if (PluginManager::instance().allPluginsAlreadyLoaded()) {
 		//If all the plugins are already loaded...
 		allPluginsLoaded();
 	} else {
 		//Optimization: loads the playlist only when all plugins have been loaded
-		connect(&PluginsManager::instance(), SIGNAL(allPluginsLoaded()),
+		connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
 			SLOT(allPluginsLoaded()), Qt::QueuedConnection);
 	}
 

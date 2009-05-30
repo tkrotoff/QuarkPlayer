@@ -23,7 +23,7 @@
 #include "MediaDataWidget.h"
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/PluginsManager.h>
+#include <quarkplayer/PluginManager.h>
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
@@ -55,7 +55,7 @@ PluginInterface * VideoWidgetPluginFactory::create(QuarkPlayer & quarkPlayer, co
 }
 
 static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
 }
 
 VideoWidgetPlugin::VideoWidgetPlugin(QuarkPlayer & quarkPlayer, const QUuid & uuid)

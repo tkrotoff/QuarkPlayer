@@ -20,7 +20,7 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/version.h>
-#include <quarkplayer/PluginsManager.h>
+#include <quarkplayer/PluginManager.h>
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
@@ -47,7 +47,7 @@ PluginInterface * WelcomeWindowFactory::create(QuarkPlayer & quarkPlayer, const 
 }
 
 static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
 }
 
 WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
@@ -91,9 +91,9 @@ void WelcomeWindow::quitPlugin() {
 	//Unloads and disables the plugin
 	//We don't want the welcome plugin at every QuarkPlayer start
 	//just at the very first start
-	PluginData pluginData = PluginsManager::instance().pluginData(uuid());
+	PluginData pluginData = PluginManager::instance().pluginData(uuid());
 	pluginData.setEnabled(false);
-	PluginsManager::instance().deletePlugin(pluginData);
+	PluginManager::instance().deletePlugin(pluginData);
 }
 
 void WelcomeWindow::playWebRadio() {

@@ -21,7 +21,7 @@
 #include "ui_QuickSettingsWindow.h"
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/PluginsManager.h>
+#include <quarkplayer/PluginManager.h>
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
@@ -60,7 +60,7 @@ static const int SLIDER_RANGE = 8;
 static const int TICK_INTERVAL = 4;
 
 static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
 }
 
 QuickSettingsWindow::QuickSettingsWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)

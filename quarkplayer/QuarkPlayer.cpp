@@ -18,7 +18,7 @@
 
 #include "QuarkPlayer.h"
 
-#include "PluginsManager.h"
+#include "PluginManager.h"
 
 #include "config/Config.h"
 
@@ -37,11 +37,11 @@ QuarkPlayer::QuarkPlayer(QObject * parent)
 	_currentMediaObject = NULL;
 	_currentMediaController = NULL;
 
-	connect(&PluginsManager::instance(), SIGNAL(allPluginsLoaded()), SLOT(allPluginsLoaded()));
+	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()), SLOT(allPluginsLoaded()));
 }
 
 QuarkPlayer::~QuarkPlayer() {
-	PluginsManager::instance().deleteInstance();
+	PluginManager::instance().deleteInstance();
 	Config::instance().deleteInstance();
 }
 

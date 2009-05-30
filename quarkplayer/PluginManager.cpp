@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PluginsManager.h"
+#include "PluginManager.h"
 
 #include "PluginFactory.h"
 #include "PluginInterface.h"
-#include "PluginsConfig.h"
+#include "PluginConfig.h"
 #include "config/Config.h"
 
 #include <tkutil/Random.h>
@@ -30,19 +30,19 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
-PluginsManager::PluginsManager() {
+PluginManager::PluginManager() {
 	_quarkPlayer = NULL;
 	_allPluginsLoaded = false;
 }
 
-PluginsManager::~PluginsManager() {
+PluginManager::~PluginManager() {
 	//Saves the plugin list
-	PluginsConfig::instance().setPlugins(availablePlugins());
+	PluginConfig::instance().setPlugins(availablePlugins());
 
 	deleteAllPlugins();
 }
 
-QString PluginsManager::findPluginDir() const {
+QString PluginManager::findPluginDir() const {
 	QStringList pluginDirList(Config::instance().pluginDirList());
 	QString appDir(QCoreApplication::applicationDirPath());
 
@@ -86,7 +86,7 @@ QString PluginsManager::findPluginDir() const {
 	return tmp;
 }
 
-void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
+void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	Q_ASSERT(!_allPluginsLoaded);
 
 	//Stupid hack, see loadPlugin()
@@ -130,7 +130,7 @@ void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 
 		//Compare to the configuration:
 		//this will tell us if we can load the plugin or not
-		PluginDataList list(PluginsConfig::instance().plugins().values(filename));
+		PluginDataList list(PluginConfig::instance().plugins().values(filename));
 		foreach (PluginData pluginData, list) {
 			if (pluginData.isEnabled()) {
 				//This plugin is enabled => let's load it
@@ -154,7 +154,7 @@ void PluginsManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	emit allPluginsLoaded();
 }
 
-bool PluginsManager::loadDisabledPlugin(const PluginData & pluginData) {
+bool PluginManager::loadDisabledPlugin(const PluginData & pluginData) {
 	bool loaded = false;
 
 	QString filename(pluginData.fileName());
@@ -177,7 +177,7 @@ bool PluginsManager::loadDisabledPlugin(const PluginData & pluginData) {
 	return loaded;
 }
 
-bool PluginsManager::loadPlugin(PluginData & pluginData) {
+bool PluginManager::loadPlugin(PluginData & pluginData) {
 	bool loaded = false;
 
 	pluginData.setEnabled(true);
@@ -307,31 +307,31 @@ bool PluginsManager::loadPlugin(PluginData & pluginData) {
 	return loaded;
 }
 
-void PluginsManager::deleteAllPlugins() {
+void PluginManager::deleteAllPlugins() {
 	foreach (PluginData pluginData, _loadedPlugins) {
 		qDebug() << __FUNCTION__ << "Delete plugin:" << pluginData.fileName();
 		deletePluginWithoutSavingConfig(pluginData);
 	}
 }
 
-bool PluginsManager::allPluginsAlreadyLoaded() const {
+bool PluginManager::allPluginsAlreadyLoaded() const {
 	return _allPluginsLoaded;
 }
 
-bool PluginsManager::deletePlugin(PluginData & pluginData) {
+bool PluginManager::deletePlugin(PluginData & pluginData) {
 	bool ret = deletePluginWithoutSavingConfig(pluginData);
 	if (ret) {
 		//Update and saves the plugins configuration
 		//Use pluginData.uuid()
 		_loadedPlugins.removeAll(pluginData);
 		_disabledPlugins.append(pluginData);
-		PluginsConfig::instance().setPlugins(availablePlugins());
+		PluginConfig::instance().setPlugins(availablePlugins());
 		///
 	}
 	return ret;
 }
 
-bool PluginsManager::deletePluginWithoutSavingConfig(PluginData & pluginData) {
+bool PluginManager::deletePluginWithoutSavingConfig(PluginData & pluginData) {
 	bool ret = true;
 
 	if (!pluginData.interface()) {
@@ -350,7 +350,7 @@ bool PluginsManager::deletePluginWithoutSavingConfig(PluginData & pluginData) {
 	return ret;
 }
 
-PluginData PluginsManager::pluginData(const QUuid & uuid) const {
+PluginData PluginManager::pluginData(const QUuid & uuid) const {
 	Q_ASSERT(!uuid.isNull());
 
 	PluginData data;
@@ -370,7 +370,7 @@ PluginData PluginsManager::pluginData(const QUuid & uuid) const {
 	return data;
 }
 
-PluginInterface * PluginsManager::pluginInterface(const QString & filename) const {
+PluginInterface * PluginManager::pluginInterface(const QString & filename) const {
 	PluginInterface * interface = NULL;
 	foreach (PluginData pluginData, _loadedPlugins) {
 		if (pluginData.fileName() == filename) {
@@ -381,7 +381,7 @@ PluginInterface * PluginsManager::pluginInterface(const QString & filename) cons
 	return interface;
 }
 
-PluginDataList PluginsManager::availablePlugins() const {
+PluginDataList PluginManager::availablePlugins() const {
 	PluginDataList availablePlugins;
 	availablePlugins += _loadedPlugins;
 	availablePlugins += _disabledPlugins;

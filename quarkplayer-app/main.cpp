@@ -17,7 +17,7 @@
  */
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/PluginsManager.h>
+#include <quarkplayer/PluginManager.h>
 #include <quarkplayer/CommandLineManager.h>
 #include <quarkplayer/CommandLineParser.h>
 #include <quarkplayer/config/Config.h>
@@ -101,7 +101,7 @@ int main(int argc, char * argv[]) {
 
 	QuarkPlayer quarkPlayer(&app);
 
-	PluginsManager::instance().loadAllPlugins(quarkPlayer);
+	PluginManager::instance().loadAllPlugins(quarkPlayer);
 
 	return app.exec();
 }

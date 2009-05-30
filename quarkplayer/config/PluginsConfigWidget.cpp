@@ -20,7 +20,7 @@
 
 #include "ui_PluginsConfigWidget.h"
 
-#include <quarkplayer/PluginsManager.h>
+#include <quarkplayer/PluginManager.h>
 #include <quarkplayer/PluginInterface.h>
 
 #include <QtGui/QtGui>
@@ -59,7 +59,7 @@ QString PluginsConfigWidget::iconName() const {
 }
 
 void PluginsConfigWidget::readConfig() {
-	PluginDataList plugins(PluginsManager::instance().availablePlugins());
+	PluginDataList plugins(PluginManager::instance().availablePlugins());
 
 	for (int i = 0; i < plugins.size(); i++) {
 		PluginData pluginData(plugins[i]);
@@ -120,17 +120,17 @@ void PluginsConfigWidget::saveConfig() {
 		QTableWidgetItem * item = _ui->tableWidget->item(row, UUID_COLUMN);
 		QString uuid(item->text());
 
-		PluginData pluginData = PluginsManager::instance().pluginData(uuid);
+		PluginData pluginData = PluginManager::instance().pluginData(uuid);
 
 		bool loaded = pluginData.interface();
 		if (checkBox->isChecked() && !loaded) {
 			//Loads the plugin
 			pluginData.setEnabled(true);
-			PluginsManager::instance().loadPlugin(pluginData);
+			PluginManager::instance().loadPlugin(pluginData);
 		} else if (!checkBox->isChecked() && loaded) {
 			//Unloads the plugin
 			pluginData.setEnabled(false);
-			PluginsManager::instance().deletePlugin(pluginData);
+			PluginManager::instance().deletePlugin(pluginData);
 		}
 	}
 }
@@ -145,7 +145,7 @@ void PluginsConfigWidget::currentCellChanged(int row, int column) {
 	QTableWidgetItem * item = _ui->tableWidget->item(row, UUID_COLUMN);
 	QString uuid(item->text());
 
-	PluginData pluginData = PluginsManager::instance().pluginData(uuid);
+	PluginData pluginData = PluginManager::instance().pluginData(uuid);
 	PluginInterface * interface = pluginData.interface();
 
 	if (interface) {

@@ -76,7 +76,7 @@ Config::Config()
 
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
 
-	//Order matters!!! See PluginsManager.cpp
+	//Order matters!!! See PluginManager.cpp
 	//All possible plugin directories
 	QStringList pluginDirList;
 	pluginDirList << QCoreApplication::applicationDirPath() + "/plugins";

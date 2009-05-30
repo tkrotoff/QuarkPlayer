@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLUGINSCONFIG_H
-#define PLUGINSCONFIG_H
+#ifndef PLUGINCONFIG_H
+#define PLUGINCONFIG_H
 
 #include <quarkplayer/PluginData.h>
 
@@ -40,8 +40,8 @@
  * @see PluginData
  * @author Tanguy Krotoff
  */
-class PluginsConfig : public Singleton<PluginsConfig> {
-	friend class Singleton<PluginsConfig>;
+class PluginConfig : public Singleton<PluginConfig> {
+	friend class Singleton<PluginConfig>;
 public:
 
 	/**
@@ -57,9 +57,9 @@ public:
 
 private:
 
-	PluginsConfig();
+	PluginConfig();
 
-	~PluginsConfig();
+	~PluginConfig();
 };
 
-#endif	//PLUGINSCONFIG_H
+#endif	//PLUGINCONFIG_H

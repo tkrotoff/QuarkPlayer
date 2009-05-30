@@ -26,7 +26,7 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config/ConfigWindow.h>
-#include <quarkplayer/PluginsManager.h>
+#include <quarkplayer/PluginManager.h>
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
@@ -69,7 +69,7 @@ PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer, co
 }
 
 static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
 }
 
 FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
@@ -97,10 +97,10 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 
 	setMaximumSize(static_cast<int>(1.5 * sizeHint().width()), maximumSize().height());
 
-	if (PluginsManager::instance().allPluginsAlreadyLoaded()) {
+	if (PluginManager::instance().allPluginsAlreadyLoaded()) {
 		loadDirModel();
 	} else {
-		connect(&PluginsManager::instance(), SIGNAL(allPluginsLoaded()),
+		connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
 			SLOT(loadDirModel()), Qt::QueuedConnection);
 	}
 
@@ -284,8 +284,8 @@ void FileBrowserWidget::musicDirChanged(const QString & key, const QVariant & va
 }
 
 void FileBrowserWidget::createNewFileBrowserWidget() {
-	PluginData pluginData = PluginsManager::instance().pluginData(uuid());
-	PluginsManager::instance().loadDisabledPlugin(pluginData);
+	PluginData pluginData = PluginManager::instance().pluginData(uuid());
+	PluginManager::instance().loadDisabledPlugin(pluginData);
 }
 
 void FileBrowserWidget::retranslate() {

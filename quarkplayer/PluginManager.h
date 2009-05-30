@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLUGINSMANAGER_H
-#define PLUGINSMANAGER_H
+#ifndef PLUGINMANAGER_H
+#define PLUGINMANAGER_H
 
 #include <quarkplayer/quarkplayer_export.h>
 #include <quarkplayer/PluginData.h>
@@ -37,8 +37,8 @@ class QuarkPlayer;
  * @see QPluginLoader
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API PluginsManager : public QObject, public Singleton<PluginsManager> {
-	friend class Singleton<PluginsManager>;
+class QUARKPLAYER_API PluginManager : public QObject, public Singleton<PluginManager> {
+	friend class Singleton<PluginManager>;
 	Q_OBJECT
 public:
 
@@ -56,8 +56,8 @@ public:
 	 *
 	 * Way it should be used:
 	 * <pre>
-	 * PluginData pluginData = PluginsManager::instance().pluginData(uuid());
-	 * PluginsManager::instance().loadDisabledPlugin(pluginData);
+	 * PluginData pluginData = PluginManager::instance().pluginData(uuid());
+	 * PluginManager::instance().loadDisabledPlugin(pluginData);
 	 * </pre>
 	 *
 	 * FIXME one could think about just giving a QString filename
@@ -116,15 +116,15 @@ signals:
 
 private:
 
-	PluginsManager();
+	PluginManager();
 
 	/** @see deleteAllPlugins() */
-	~PluginsManager();
+	~PluginManager();
 
 	/**
 	 * Deletes all the available plugins.
 	 *
-	 * Call by PluginsManager destructor.
+	 * Call by PluginManager destructor.
 	 */
 	void deleteAllPlugins();
 
@@ -158,4 +158,4 @@ private:
 	QString _pluginDir;
 };
 
-#endif	//PLUGINSMANAGER_H
+#endif	//PLUGINMANAGER_H

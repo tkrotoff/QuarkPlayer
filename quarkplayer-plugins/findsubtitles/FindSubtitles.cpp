@@ -21,7 +21,7 @@
 #include "FindSubtitlesWindow.h"
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/PluginsManager.h>
+#include <quarkplayer/PluginManager.h>
 #include <quarkplayer/config/Config.h>
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
@@ -51,7 +51,7 @@ PluginInterface * FindSubtitlesFactory::create(QuarkPlayer & quarkPlayer, const 
 }
 
 static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
 }
 
 FindSubtitles::FindSubtitles(QuarkPlayer & quarkPlayer, const QUuid & uuid)
