@@ -40,13 +40,11 @@
 
 Q_EXPORT_PLUGIN2(videowidget, VideoWidgetPluginFactory);
 
-QString VideoWidgetPluginFactory::pluginName() const {
-	return "videowidget";
-}
+const char * VideoWidgetPluginFactory::PLUGIN_NAME = "videowidget";
 
 QStringList VideoWidgetPluginFactory::dependencies() const {
 	QStringList tmp;
-	tmp += "mainwindow";
+	tmp += MainWindowFactory::PLUGIN_NAME;
 	return tmp;
 }
 
@@ -54,12 +52,8 @@ PluginInterface * VideoWidgetPluginFactory::create(QuarkPlayer & quarkPlayer, co
 	return new VideoWidgetPlugin(quarkPlayer, uuid);
 }
 
-static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
-}
-
 VideoWidgetPlugin::VideoWidgetPlugin(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QObject(getMainWindow()),
+	: QObject(MainWindowFactory::mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	connect(&quarkPlayer, SIGNAL(mediaObjectAdded(Phonon::MediaObject *)),
@@ -77,9 +71,9 @@ VideoWidgetPlugin::~VideoWidgetPlugin() {
 		it.next();
 
 		VideoContainer * container = it.value();
-		getMainWindow()->removeDockWidget(container->videoDockWidget);
+		MainWindowFactory::mainWindow()->removeDockWidget(container->videoDockWidget);
 	}
-	getMainWindow()->resetVideoDockWidget();
+	MainWindowFactory::mainWindow()->resetVideoDockWidget();
 }
 
 void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldState) {
@@ -160,13 +154,13 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	container->mediaDataWidget = new MediaDataWidget(NULL);
 
 	//videoWidget
-	container->videoWidget = new VideoWidget(container->videoDockWidget, getMainWindow());
+	container->videoWidget = new VideoWidget(container->videoDockWidget, MainWindowFactory::mainWindow());
 	Phonon::createPath(mediaObject, container->videoWidget);
 
 	_mediaObjectHash[mediaObject] = container;
 
 	//Add to the main window
-	getMainWindow()->addVideoDockWidget(container->videoDockWidget);
+	MainWindowFactory::mainWindow()->addVideoDockWidget(container->videoDockWidget);
 
 	//Stop the current media object
 	container->videoDockWidget->installEventFilter(new CloseEventFilter(mediaObject, SLOT(stop())));

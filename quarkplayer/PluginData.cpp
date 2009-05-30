@@ -29,8 +29,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
 
-PluginData::PluginData(const QString & fileName, const QUuid & uuid, bool enabled) {
-	_fileName = fileName;
+PluginData::PluginData(const QString & filename, const QUuid & uuid, bool enabled) {
+	_filename = filename;
 	_uuid = uuid;
 	_enabled = enabled;
 
@@ -53,7 +53,7 @@ PluginData::~PluginData() {
 }
 
 void PluginData::copy(const PluginData & pluginData) {
-	_fileName = pluginData._fileName;
+	_filename = pluginData._filename;
 	_uuid = pluginData._uuid;
 	_enabled = pluginData._enabled;
 
@@ -76,7 +76,7 @@ int PluginData::operator==(const PluginData & right) {
 }
 
 QString PluginData::fileName() const {
-	return _fileName;
+	return _filename;
 }
 
 QUuid PluginData::uuid() const {

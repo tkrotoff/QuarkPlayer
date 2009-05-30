@@ -36,13 +36,11 @@
 
 Q_EXPORT_PLUGIN2(playtoolbar, PlayToolBarFactory);
 
-QString PlayToolBarFactory::pluginName() const {
-	return "playtoolbar";
-}
+const char * PlayToolBarFactory::PLUGIN_NAME = "playtoolbar";
 
 QStringList PlayToolBarFactory::dependencies() const {
 	QStringList tmp;
-	tmp += "mainwindow";
+	tmp += MainWindowFactory::PLUGIN_NAME;
 	return tmp;
 }
 
@@ -50,12 +48,8 @@ PluginInterface * PlayToolBarFactory::create(QuarkPlayer & quarkPlayer, const QU
 	return new PlayToolBar(quarkPlayer, uuid);
 }
 
-static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
-}
-
 PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QToolBar(getMainWindow()),
+	: QToolBar(MainWindowFactory::mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_volumeSlider = NULL;
@@ -82,7 +76,7 @@ PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	setToolBarEnabled(false);
 
 	//Add to the main window
-	getMainWindow()->setPlayToolBar(this);
+	MainWindowFactory::mainWindow()->setPlayToolBar(this);
 
 	if (quarkPlayer.currentMediaObject()) {
 		//The current MediaObject has been already created

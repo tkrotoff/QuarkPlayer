@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +26,14 @@
 
 class QuarkPlayer;
 
+class QAction;
+
 /**
  * Interface for a QuarkPlayer plugin.
  *
  * You should inherit from this interface in order to create a plugin for QuarkPlayer.
  *
- * For an simple example of how to use this class, check WelcomePlugin.
+ * For a simple example of how to use this class, check WelcomePlugin.
  *
  * @see PluginFactory
  * @see QuarkPlayer
@@ -72,78 +74,22 @@ public:
 	QUuid uuid() const;
 
 	/**
-	 * Gets the name of the plugin.
+	 * Gets a QAction given a name and the uuid of the plugin.
 	 *
-	 * FIXME All these functions might be moved to a new
-	 * class PluginInfoInterface if the need comes.
+	 * Helper/factorization function.
 	 *
-	 * @return plugin name
+	 * @see ActionCollection
 	 */
-	virtual QString name() const = 0;
+	QAction * uuidAction(const QString & name);
 
 	/**
-	 * Gets a short description of what does the plugin.
+	 * Adds a QAction given a name and the uuid of the plugin.
 	 *
-	 * @return plugin short description
+	 * Helper/factorization function.
+	 *
+	 * @see ActionCollection
 	 */
-	virtual QString description() const = 0;
-
-	/**
-	 * Gets the version number of the plugin (example: "1.1.4").
-	 *
-	 * @return plugin version number
-	 */
-	virtual QString version() const = 0;
-
-	/**
-	 * Gets the plugin webpage.
-	 *
-	 * Example: "http://quarkplayer.googlecode.com/"
-	 * Don't forget the "http://" string
-	 *
-	 * FIXME should return a QUrl?
-	 *
-	 * @return plugin webpage
-	 */
-	virtual QString webpage() const = 0;
-
-	/**
-	 * Gets the email address associated with the plugin.
-	 *
-	 * Can be the email address of the author or a mailing-list email address.
-	 * Example: quarkplayer@googlegroups.com
-	 *
-	 * @return plugin email address
-	 */
-	virtual QString email() const = 0;
-
-	/**
-	 * Gets the list of authors for the plugin.
-	 *
-	 * FIXME should return a QStringList?
-	 *
-	 * @return plugin author list
-	 */
-	virtual QString authors() const = 0;
-
-	/**
-	 * Gets the license of the plugin.
-	 *
-	 * Example: "GNU GPLv3+"
-	 *
-	 * @return plugin license
-	 */
-	virtual QString license() const = 0;
-
-	/**
-	 * Gets the copyright associated with the plugin.
-	 *
-	 * In general it will be:
-	 * "Copyright (C) AuthorFirstname AuthoLastname"
-	 *
-	 * @return plugin copyright
-	 */
-	virtual QString copyright() const = 0;
+	void addUuidAction(const QString & name, QAction * action);
 
 protected:
 

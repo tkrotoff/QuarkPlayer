@@ -35,13 +35,11 @@ static const char * STATUSBAR_TIME_DIPLAY_MODE_KEY = "statusbar_time_display_mod
 
 Q_EXPORT_PLUGIN2(statusbar, StatusBarFactory);
 
-QString StatusBarFactory::pluginName() const {
-	return "statusbar";
-}
+const char * StatusBarFactory::PLUGIN_NAME = "statusbar";
 
 QStringList StatusBarFactory::dependencies() const {
 	QStringList tmp;
-	tmp += "mainwindow";
+	tmp += MainWindowFactory::PLUGIN_NAME;
 	return tmp;
 }
 
@@ -49,12 +47,8 @@ PluginInterface * StatusBarFactory::create(QuarkPlayer & quarkPlayer, const QUui
 	return new StatusBar(quarkPlayer, uuid);
 }
 
-static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
-}
-
 StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QStatusBar(getMainWindow()),
+	: QStatusBar(MainWindowFactory::mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_timeLabel = new QLabel(this);
@@ -73,7 +67,7 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	setStyleSheet("background-color: rgb(0, 0, 0);color: rgb(255, 255, 255);");
 
 	//Add the statusbar to the main window
-	getMainWindow()->setStatusBar(this);
+	MainWindowFactory::mainWindow()->setStatusBar(this);
 
 	Config::instance().addKey(STATUSBAR_TIME_DIPLAY_MODE_KEY, TimeDisplayModeElapsed);
 
@@ -83,7 +77,7 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 StatusBar::~StatusBar() {
 	//Remove the statusbar from the main window
-	getMainWindow()->setStatusBar(NULL);
+	MainWindowFactory::mainWindow()->setStatusBar(NULL);
 }
 
 void StatusBar::tick(qint64 time) {

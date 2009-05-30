@@ -32,13 +32,11 @@
 
 Q_EXPORT_PLUGIN2(welcome, WelcomeWindowFactory);
 
-QString WelcomeWindowFactory::pluginName() const {
-	return "welcome";
-}
+const char * WelcomeWindowFactory::PLUGIN_NAME = "welcome";
 
 QStringList WelcomeWindowFactory::dependencies() const {
 	QStringList tmp;
-	tmp += "mainwindow";
+	tmp += MainWindowFactory::PLUGIN_NAME;
 	return tmp;
 }
 
@@ -46,12 +44,8 @@ PluginInterface * WelcomeWindowFactory::create(QuarkPlayer & quarkPlayer, const 
 	return new WelcomeWindow(quarkPlayer, uuid);
 }
 
-static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
-}
-
 WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QObject(getMainWindow()),
+	: QObject(MainWindowFactory::mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	qDebug() << __FUNCTION__ << "Welcome plugin created";
@@ -67,7 +61,7 @@ WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 		connect(&quarkPlayer, SIGNAL(mediaObjectAdded(Phonon::MediaObject *)), SLOT(playWebRadio()));
 	}
 
-	QMessageBox * msgBox = new QMessageBox(getMainWindow());
+	QMessageBox * msgBox = new QMessageBox(MainWindowFactory::mainWindow());
 	connect(msgBox, SIGNAL(finished(int)), SLOT(quitPlugin()));
 	msgBox->setWindowTitle(tr("Welcome!"));
 	msgBox->setIcon(QMessageBox::Information);

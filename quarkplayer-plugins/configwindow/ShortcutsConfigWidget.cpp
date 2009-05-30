@@ -71,11 +71,11 @@ ShortcutsConfigWidget::ShortcutsConfigWidget() {
 }
 
 ShortcutsConfigWidget::~ShortcutsConfigWidget() {
-	delete _ui;
-
 	qDeleteAll(_shortcutItems);
 	_shortcutItems.clear();
 	_ui->actionList->clear();
+
+	delete _ui;
 }
 
 QString ShortcutsConfigWidget::name() const {

@@ -53,7 +53,7 @@ class PluginFactory;
 class QUARKPLAYER_API PluginData {
 public:
 
-	PluginData(const QString & fileName, const QUuid & uuid, bool enabled);
+	PluginData(const QString & filename, const QUuid & uuid, bool enabled);
 
 	PluginData(const PluginData & pluginData);
 
@@ -87,7 +87,7 @@ private:
 
 	void copy(const PluginData & pluginData);
 
-	QString _fileName;
+	QString _filename;
 
 	QUuid _uuid;
 

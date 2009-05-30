@@ -33,13 +33,11 @@
 
 Q_EXPORT_PLUGIN2(configwindow, ConfigWindowPluginFactory);
 
-QString ConfigWindowPluginFactory::pluginName() const {
-	return "configwindow";
-}
+const char * ConfigWindowPluginFactory::PLUGIN_NAME = "configwindow";
 
 QStringList ConfigWindowPluginFactory::dependencies() const {
 	QStringList tmp;
-	tmp += "mainwindow";
+	tmp += MainWindowFactory::PLUGIN_NAME;
 	return tmp;
 }
 
@@ -47,10 +45,11 @@ PluginInterface * ConfigWindowPluginFactory::create(QuarkPlayer & quarkPlayer, c
 	return new ConfigWindowPlugin(quarkPlayer, uuid);
 }
 
-static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
+ConfigWindowPlugin * ConfigWindowPluginFactory::configWindowPlugin() {
+	ConfigWindowPlugin * configWindowPlugin = dynamic_cast<ConfigWindowPlugin *>(PluginManager::instance().pluginInterface(PLUGIN_NAME));
+	Q_ASSERT(configWindowPlugin);
+	return configWindowPlugin;
 }
-
 
 ConfigWindowPlugin::ConfigWindowPlugin(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: PluginInterface(quarkPlayer, uuid) {
@@ -77,7 +76,7 @@ void ConfigWindowPlugin::saveSettings() const {
 
 void ConfigWindowPlugin::showConfigWindow() {
 	if (!_configWindow) {
-		_configWindow = new ConfigWindow(getMainWindow());
+		_configWindow = new ConfigWindow(MainWindowFactory::mainWindow());
 
 		//Emits the signal just once, not each time the ConfigWindow is being showed
 		emit configWindowCreated(_configWindow);

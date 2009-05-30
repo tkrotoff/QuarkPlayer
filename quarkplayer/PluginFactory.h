@@ -19,6 +19,8 @@
 #ifndef PLUGINFACTORY_H
 #define PLUGINFACTORY_H
 
+#include <quarkplayer/PluginInfo.h>
+
 #include <QtCore/QObject>
 
 class PluginInterface;
@@ -39,12 +41,8 @@ struct QUuid;
  * @see http://doc.trolltech.com/main-snapshot/plugins-howto.html
  * @author Tanguy Krotoff
  */
-class PluginFactory {
+class PluginFactory : public PluginInfo {
 public:
-
-	virtual QString pluginName() const = 0;
-
-	virtual QStringList dependencies() const = 0;
 
 	virtual PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const = 0;
 

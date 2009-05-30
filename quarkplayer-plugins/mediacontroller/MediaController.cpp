@@ -45,13 +45,11 @@
 
 Q_EXPORT_PLUGIN2(mediacontroller, MediaControllerFactory);
 
-QString MediaControllerFactory::pluginName() const {
-	return "mediacontroller";
-}
+const char * MediaControllerFactory::PLUGIN_NAME = "mediacontroller";
 
 QStringList MediaControllerFactory::dependencies() const {
 	QStringList tmp;
-	tmp += "mainwindow";
+	tmp += MainWindowFactory::PLUGIN_NAME;
 	return tmp;
 }
 
@@ -59,17 +57,13 @@ PluginInterface * MediaControllerFactory::create(QuarkPlayer & quarkPlayer, cons
 	return new MediaController(quarkPlayer, uuid);
 }
 
-static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
-}
-
 MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QWidget(getMainWindow()),
+	: QWidget(MainWindowFactory::mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	populateActionCollection();
 
-	_mainWindow = getMainWindow();
+	_mainWindow = MainWindowFactory::mainWindow();
 	connect(_mainWindow, SIGNAL(subtitleFileDropped(const QString &)),
 		SLOT(openSubtitleFile(const QString &)));
 

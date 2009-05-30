@@ -42,13 +42,11 @@
 
 Q_EXPORT_PLUGIN2(quicksettings, QuickSettingsWindowFactory);
 
-QString QuickSettingsWindowFactory::pluginName() const {
-	return "quicksettings";
-}
+const char * QuickSettingsWindowFactory::PLUGIN_NAME = "quicksettings";
 
 QStringList QuickSettingsWindowFactory::dependencies() const {
 	QStringList tmp;
-	tmp += "mainwindow";
+	tmp += MainWindowFactory::PLUGIN_NAME;
 	return tmp;
 }
 
@@ -59,12 +57,8 @@ PluginInterface * QuickSettingsWindowFactory::create(QuarkPlayer & quarkPlayer, 
 static const int SLIDER_RANGE = 8;
 static const int TICK_INTERVAL = 4;
 
-static MainWindow * getMainWindow() {
-	return dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
-}
-
 QuickSettingsWindow::QuickSettingsWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QDialog(getMainWindow()),
+	: QDialog(MainWindowFactory::mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_audioOutput = NULL;

@@ -21,7 +21,7 @@
 #include "AboutWindow.h"
 
 #include <quarkplayer/QuarkPlayer.h>
-
+#include <quarkplayer/PluginManager.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/version.h>
 
@@ -47,9 +47,7 @@
 
 Q_EXPORT_PLUGIN2(mainwindow, MainWindowFactory);
 
-QString MainWindowFactory::pluginName() const {
-	return "mainwindow";
-}
+const char * MainWindowFactory::PLUGIN_NAME = "mainwindow";
 
 QStringList MainWindowFactory::dependencies() const {
 	QStringList tmp;
@@ -58,6 +56,12 @@ QStringList MainWindowFactory::dependencies() const {
 
 PluginInterface * MainWindowFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new MainWindow(quarkPlayer, uuid);
+}
+
+MainWindow * MainWindowFactory::mainWindow() {
+	MainWindow * mainWindow = dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface(PLUGIN_NAME));
+	Q_ASSERT(mainWindow);
+	return mainWindow;
 }
 
 MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)

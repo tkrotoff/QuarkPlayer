@@ -53,15 +53,6 @@ public:
 
 	~QuickSettingsWindow();
 
-	QString name() const { return tr("Quick settings"); }
-	QString description() const { return tr("Window to configure the backend (equalizer, effects...)"); }
-	QString version() const { return "0.0.1"; }
-	QString webpage() const { return "http://quarkplayer.googlecode.com/"; }
-	QString email() const { return "quarkplayer@googlegroups.com"; }
-	QString authors() const { return "Tanguy Krotoff"; }
-	QString license() const { return "GNU GPLv3+"; }
-	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
-
 private slots:
 
 	void show();
@@ -111,9 +102,16 @@ class QuickSettingsWindowFactory : public QObject, public PluginFactory {
 	Q_INTERFACES(PluginFactory)
 public:
 
-	QString pluginName() const;
+	static const char * PLUGIN_NAME;
 
+	QString name() const { return PLUGIN_NAME; }
 	QStringList dependencies() const;
+	QString description() const { return tr("Window to configure the backend (equalizer, effects...)"); }
+	QString version() const { return "0.0.1"; }
+	QString url() const { return "http://quarkplayer.googlecode.com/"; }
+	QString vendor() const { return "Tanguy Krotoff"; }
+	QString license() const { return "GNU GPLv3+"; }
+	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
 
 	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };

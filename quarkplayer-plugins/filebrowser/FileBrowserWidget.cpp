@@ -55,14 +55,12 @@ static const char * FILEBROWSER_SEARCH_HISTORY_KEY = "filebrowser_search_history
 
 Q_EXPORT_PLUGIN2(filebrowser, FileBrowserWidgetFactory);
 
-QString FileBrowserWidgetFactory::pluginName() const {
-	return "filebrowser";
-}
+const char * FileBrowserWidgetFactory::PLUGIN_NAME = "filebrowser";
 
 QStringList FileBrowserWidgetFactory::dependencies() const {
 	QStringList tmp;
-	tmp += "mainwindow";
-	tmp += "configwindow";
+	tmp += MainWindowFactory::PLUGIN_NAME;
+	tmp += ConfigWindowPluginFactory::PLUGIN_NAME;
 	return tmp;
 }
 
@@ -70,20 +68,14 @@ PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer, co
 	return new FileBrowserWidget(quarkPlayer, uuid);
 }
 
-static MainWindow * getMainWindow() {
-	MainWindow * mainWindow = dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
-	Q_ASSERT(mainWindow);
-	return mainWindow;
-}
-
-static ConfigWindowPlugin * getConfigWindowPlugin() {
-	ConfigWindowPlugin * configWindowPlugin = dynamic_cast<ConfigWindowPlugin *>(PluginManager::instance().pluginInterface("configwindow"));
-	Q_ASSERT(configWindowPlugin);
-	return configWindowPlugin;
+FileBrowserWidget * FileBrowserWidgetFactory::fileBrowserWidget() {
+	FileBrowserWidget * fileBrowserWidget = dynamic_cast<FileBrowserWidget *>(PluginManager::instance().pluginInterface(PLUGIN_NAME));
+	Q_ASSERT(fileBrowserWidget);
+	return fileBrowserWidget;
 }
 
 FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QWidget(getMainWindow()),
+	: QWidget(MainWindowFactory::mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_fileSearchModel = NULL;
@@ -102,7 +94,7 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 
 	//Add to the main window
 	_dockWidget = new QDockWidget();
-	getMainWindow()->addBrowserDockWidget(_dockWidget);
+	MainWindowFactory::mainWindow()->addBrowserDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
 
 	setMaximumSize(static_cast<int>(1.5 * sizeHint().width()), maximumSize().height());
@@ -114,11 +106,12 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 			SLOT(loadDirModel()), Qt::QueuedConnection);
 	}
 
-	ConfigWindow * configWindow = getConfigWindowPlugin()->configWindow();
+	ConfigWindowPlugin * configWindowPlugin = ConfigWindowPluginFactory::configWindowPlugin();
+	ConfigWindow * configWindow = configWindowPlugin->configWindow();
 	if (configWindow) {
 		configWindowCreated(configWindow);
 	} else {
-		connect(getConfigWindowPlugin(), SIGNAL(configWindowCreated(ConfigWindow *)),
+		connect(configWindowPlugin, SIGNAL(configWindowCreated(ConfigWindow *)),
 			SLOT(configWindowCreated(ConfigWindow *)));
 	}
 
@@ -131,8 +124,8 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 }
 
 FileBrowserWidget::~FileBrowserWidget() {
-	getMainWindow()->removeDockWidget(_dockWidget);
-	getMainWindow()->resetBrowserDockWidget();
+	MainWindowFactory::mainWindow()->removeDockWidget(_dockWidget);
+	MainWindowFactory::mainWindow()->resetBrowserDockWidget();
 }
 
 void FileBrowserWidget::createToolBar() {
@@ -322,7 +315,7 @@ void FileBrowserWidget::setWindowTitle(const QString & statusMessage) {
 		_dockWidget->setWindowTitle(Config::instance().musicDir(uuid()));
 	} else {
 		_dockWidget->setWindowTitle(statusMessage);
-		QStatusBar * statusBar = getMainWindow()->statusBar();
+		QStatusBar * statusBar = MainWindowFactory::mainWindow()->statusBar();
 		if (statusBar) {
 			statusBar->showMessage(statusMessage);
 		}
@@ -333,19 +326,3 @@ void FileBrowserWidget::configWindowCreated(ConfigWindow * configWindow) {
 	//Add to config window
 	configWindow->addConfigWidget(new FileBrowserConfigWidget(uuid()));
 }
-
-//FIXME should be factorized
-#include <tkutil/ActionCollection.h>
-QAction * FileBrowserWidget::uuidAction(const QString & name) {
-	if (uuid().isNull()) {
-		qCritical() << __FUNCTION__ << "Error: UUID is null";
-	}
-	return ActionCollection::action(name + '_' + uuid().toString());
-}
-void FileBrowserWidget::addUuidAction(const QString & name, QAction * action) {
-	if (uuid().isNull()) {
-		qCritical() << __FUNCTION__ << "Error: UUID is null";
-	}
-	return ActionCollection::addAction(name + '_' + uuid().toString(), action);
-}
-///

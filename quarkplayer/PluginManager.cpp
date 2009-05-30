@@ -99,7 +99,7 @@ void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 		if (plugin) {
 			PluginFactory * factory = qobject_cast<PluginFactory *>(plugin);
 			if (factory) {
-				staticPlugins += factory->pluginName();
+				staticPlugins += factory->name();
 			}
 		}
 	}
@@ -116,8 +116,6 @@ void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	//Randomizes the list of available plugins, this allows
 	//to easily detect crashes/bugs due to order processing
 	QStringList filenames(Random::randomize(_availablePlugins));
-
-	qDebug() << __FUNCTION__ << "filenames:" << filenames;
 
 	foreach (QString filename, filenames) {
 
@@ -206,7 +204,7 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 		foreach (QObject * plugin, QPluginLoader::staticInstances()) {
 			factory = qobject_cast<PluginFactory *>(plugin);
 			if (factory) {
-				if (filename == factory->pluginName()) {
+				if (filename == factory->name()) {
 					//Ok, this is a static plugin
 					pluginData.setFactory(factory);
  					pluginFound = true;

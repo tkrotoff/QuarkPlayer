@@ -41,16 +41,6 @@ public:
 	/** Returns the ConfigWindow or NULL if not yet created. */
 	ConfigWindow * configWindow() const;
 
-
-	QString name() const { return tr("Config window"); }
-	QString description() const { return tr("Config window"); }
-	QString version() const { return "0.0.1"; }
-	QString webpage() const { return "http://quarkplayer.googlecode.com/"; }
-	QString email() const { return "quarkplayer@googlegroups.com"; }
-	QString authors() const { return "Tanguy Krotoff"; }
-	QString license() const { return "GNU GPLv3"; }
-	QString copyright() const { return "Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>"; }
-
 signals:
 
 	/**
@@ -99,11 +89,20 @@ class ConfigWindowPluginFactory : public QObject, public PluginFactory {
 	Q_INTERFACES(PluginFactory)
 public:
 
-	QString pluginName() const;
+	static const char * PLUGIN_NAME;
 
+	QString name() const { return PLUGIN_NAME; }
 	QStringList dependencies() const;
+	QString description() const { return tr("Config window"); }
+	QString version() const { return "0.0.1"; }
+	QString url() const { return "http://quarkplayer.googlecode.com/"; }
+	QString vendor() const { return "Tanguy Krotoff"; }
+	QString license() const { return "GNU GPLv3+"; }
+	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
 
 	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
+
+	static ConfigWindowPlugin * configWindowPlugin();
 };
 
 #endif	//CONFIGWINDOWPLUGIN_H

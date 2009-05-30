@@ -27,6 +27,7 @@
 #include <quarkplayer/PluginManager.h>
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/configwindow/ConfigWindowPlugin.h>
 #include <quarkplayer-plugins/configwindow/PlaylistConfig.h>
 
 #include <tkutil/TkIcon.h>
@@ -52,14 +53,12 @@ static const char * PLAYLIST_SEARCH_HISTORY_KEY = "playlist_search_history";
 
 Q_EXPORT_PLUGIN2(playlist, PlaylistWidgetFactory);
 
-QString PlaylistWidgetFactory::pluginName() const {
-	return "playlist";
-}
+const char * PlaylistWidgetFactory::PLUGIN_NAME = "playlist";
 
 QStringList PlaylistWidgetFactory::dependencies() const {
 	QStringList tmp;
-	tmp += "mainwindow";
-	tmp += "configwindow";
+	tmp += MainWindowFactory::PLUGIN_NAME;
+	tmp += ConfigWindowPluginFactory::PLUGIN_NAME;
 	return tmp;
 }
 
@@ -67,14 +66,14 @@ PluginInterface * PlaylistWidgetFactory::create(QuarkPlayer & quarkPlayer, const
 	return new PlaylistWidget(quarkPlayer, uuid);
 }
 
-static MainWindow * getMainWindow() {
-	MainWindow * mainWindow = dynamic_cast<MainWindow *>(PluginManager::instance().pluginInterface("mainwindow"));
-	Q_ASSERT(mainWindow);
-	return mainWindow;
+PlaylistWidget * PlaylistWidgetFactory::playlistWidget() {
+	PlaylistWidget * playlistWidget = dynamic_cast<PlaylistWidget *>(PluginManager::instance().pluginInterface(PLUGIN_NAME));
+	Q_ASSERT(playlistWidget);
+	return playlistWidget;
 }
 
 PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QWidget(getMainWindow()),
+	: QWidget(MainWindowFactory::mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	//Model
@@ -121,11 +120,11 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	_dockWidget = new QDockWidget();
 	connect(_dockWidget, SIGNAL(visibilityChanged(bool)),
 		SLOT(dockWidgetVisibilityChanged(bool)));
-	getMainWindow()->addPlaylistDockWidget(_dockWidget);
+	MainWindowFactory::mainWindow()->addPlaylistDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
 
 	//Files have been opened from the MainWindow
-	connect(getMainWindow(), SIGNAL(addFilesToCurrentPlaylist(const QStringList &)),
+	connect(MainWindowFactory::mainWindow(), SIGNAL(addFilesToCurrentPlaylist(const QStringList &)),
 		SLOT(addFilesToCurrentPlaylist(const QStringList &)));
 	///
 
@@ -143,8 +142,8 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 }
 
 PlaylistWidget::~PlaylistWidget() {
-	getMainWindow()->removeDockWidget(_dockWidget);
-	getMainWindow()->resetPlaylistDockWidget();
+	MainWindowFactory::mainWindow()->removeDockWidget(_dockWidget);
+	MainWindowFactory::mainWindow()->resetPlaylistDockWidget();
 }
 
 PlaylistModel * PlaylistWidget::playlistModel() const {
@@ -361,7 +360,7 @@ void PlaylistWidget::updateWindowTitle(const QString & statusMessage) {
 		windowTitle += " - " + statusMessage;
 	}
 	_dockWidget->setWindowTitle(windowTitle);
-	QStatusBar * statusBar = getMainWindow()->statusBar();
+	QStatusBar * statusBar = MainWindowFactory::mainWindow()->statusBar();
 	if (statusBar) {
 		statusBar->showMessage(statusMessage);
 	}
@@ -601,19 +600,3 @@ void PlaylistWidget::activePlaylistChanged(const QUuid & _uuid) {
 		}
 	}
 }
-
-//FIXME should be factorized
-#include <tkutil/ActionCollection.h>
-QAction * PlaylistWidget::uuidAction(const QString & name) {
-	if (uuid().isNull()) {
-		qCritical() << __FUNCTION__ << "Error: UUID is null";
-	}
-	return ActionCollection::action(name + '_' + uuid().toString());
-}
-void PlaylistWidget::addUuidAction(const QString & name, QAction * action) {
-	if (uuid().isNull()) {
-		qCritical() << __FUNCTION__ << "Error: UUID is null";
-	}
-	return ActionCollection::addAction(name + '_' + uuid().toString(), action);
-}
-///

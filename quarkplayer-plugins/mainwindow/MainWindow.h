@@ -74,16 +74,6 @@ public:
 	void addPlaylistDockWidget(QDockWidget * dockWidget);
 	void resetPlaylistDockWidget();
 
-
-	QString name() const { return tr("Main window"); }
-	QString description() const { return tr("Main window"); }
-	QString version() const { return "0.0.1"; }
-	QString webpage() const { return "http://quarkplayer.googlecode.com/"; }
-	QString email() const { return "quarkplayer@googlegroups.com"; }
-	QString authors() const { return "Tanguy Krotoff"; }
-	QString license() const { return "GNU GPLv3"; }
-	QString copyright() const { return "Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>"; }
-
 signals:
 
 	/**
@@ -195,11 +185,20 @@ class MainWindowFactory : public QObject, public PluginFactory {
 	Q_INTERFACES(PluginFactory)
 public:
 
-	QString pluginName() const;
+	static const char * PLUGIN_NAME;
 
+	QString name() const { return PLUGIN_NAME; }
 	QStringList dependencies() const;
+	QString description() const { return tr("Main window"); }
+	QString version() const { return "0.0.1"; }
+	QString url() const { return "http://quarkplayer.googlecode.com/"; }
+	QString vendor() const { return "Tanguy Krotoff"; }
+	QString license() const { return "GNU GPLv3+"; }
+	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
 
 	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
+
+	static MainWindow * mainWindow();
 };
 
 #endif	//MAINWINDOW_H

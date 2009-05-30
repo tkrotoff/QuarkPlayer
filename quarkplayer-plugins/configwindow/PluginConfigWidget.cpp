@@ -22,6 +22,7 @@
 
 #include <quarkplayer/PluginManager.h>
 #include <quarkplayer/PluginInterface.h>
+#include <quarkplayer/PluginFactory.h>
 
 #include <QtGui/QtGui>
 
@@ -30,10 +31,9 @@
 
 static const int CHECKBOX_COLUMN = 0;
 static const int FILENAME_COLUMN = 1;
-static const int NAME_COLUMN = 2;
-static const int VERSION_COLUMN = 3;
-static const int STATE_COLUMN = 4;
-static const int UUID_COLUMN = 5;
+static const int VERSION_COLUMN = 2;
+static const int STATE_COLUMN = 3;
+static const int UUID_COLUMN = 4;
 
 PluginConfigWidget::PluginConfigWidget() {
 	_ui = new Ui::PluginConfigWidget();
@@ -70,12 +70,10 @@ void PluginConfigWidget::readConfig() {
 
 		_ui->tableWidget->setItem(i, FILENAME_COLUMN, new QTableWidgetItem(pluginData.fileName()));
 
-		PluginInterface * interface = pluginData.interface();
-		if (interface) {
-			_ui->tableWidget->setItem(i, NAME_COLUMN, new QTableWidgetItem(interface->name()));
-			_ui->tableWidget->setItem(i, VERSION_COLUMN, new QTableWidgetItem(interface->version()));
+		PluginFactory * factory = pluginData.factory();
+		if (factory) {
+			_ui->tableWidget->setItem(i, VERSION_COLUMN, new QTableWidgetItem(factory->version()));
 		} else {
-			_ui->tableWidget->setItem(i, NAME_COLUMN, new QTableWidgetItem(QString()));
 			_ui->tableWidget->setItem(i, VERSION_COLUMN, new QTableWidgetItem(QString()));
 		}
 
@@ -87,6 +85,7 @@ void PluginConfigWidget::readConfig() {
 			checkBox->setChecked(false);
 			_ui->tableWidget->setItem(i, STATE_COLUMN, new QTableWidgetItem(tr("Disabled")));
 		} else {
+			PluginInterface * interface = pluginData.interface();
 			if (interface) {
 				checkBox->setChecked(true);
 				_ui->tableWidget->setItem(i, STATE_COLUMN, new QTableWidgetItem(tr("Enabled")));
@@ -101,7 +100,6 @@ void PluginConfigWidget::readConfig() {
 
 	_ui->tableWidget->resizeColumnToContents(CHECKBOX_COLUMN);
 	_ui->tableWidget->resizeColumnToContents(FILENAME_COLUMN);
-	_ui->tableWidget->resizeColumnToContents(NAME_COLUMN);
 	_ui->tableWidget->resizeColumnToContents(VERSION_COLUMN);
 	_ui->tableWidget->resizeColumnToContents(STATE_COLUMN);
 	_ui->tableWidget->resizeColumnToContents(UUID_COLUMN);
@@ -146,24 +144,21 @@ void PluginConfigWidget::currentCellChanged(int row, int column) {
 	QString uuid(item->text());
 
 	PluginData pluginData = PluginManager::instance().pluginData(uuid);
-	PluginInterface * interface = pluginData.interface();
+	PluginFactory * factory = pluginData.factory();
 
-	if (interface) {
-		_ui->descriptionGroupBox->setTitle(interface->name());
-		_ui->descriptionLabel->setText(interface->description());
-		_ui->webpageLabel->setText("<a href=\"" + interface->webpage() + "\">" + interface->webpage() + "</a>");
-		_ui->emailLabel->setText("<a href=\"mailto:" + interface->email() +
-				"?subject=[QuarkPlayer plugin] " + pluginData.fileName() + "\">" + interface->email() + "</a>");
-		_ui->authorsLabel->setText(interface->authors());
-		_ui->licenseLabel->setText(interface->license());
-		_ui->copyrightLabel->setText(interface->copyright());
+	if (factory) {
+		_ui->descriptionGroupBox->setTitle(factory->name());
+		_ui->descriptionLabel->setText(factory->description());
+		_ui->urlLabel->setText("<a href=\"" + factory->url() + "\">" + factory->url() + "</a>");
+		_ui->vendorLabel->setText(factory->vendor());
+		_ui->licenseLabel->setText(factory->license());
+		_ui->copyrightLabel->setText(factory->copyright());
 	} else {
 		_ui->descriptionGroupBox->setTitle(pluginData.fileName() + tr(": plugin not loaded"));
-		_ui->descriptionLabel->setText("");
-		_ui->webpageLabel->setText("");
-		_ui->emailLabel->setText("");
-		_ui->authorsLabel->setText("");
-		_ui->licenseLabel->setText("");
-		_ui->copyrightLabel->setText("");
+		_ui->descriptionLabel->setText(QString());
+		_ui->urlLabel->setText(QString());
+		_ui->vendorLabel->setText(QString());
+		_ui->licenseLabel->setText(QString());
+		_ui->copyrightLabel->setText(QString());
 	}
 }

@@ -12,6 +12,9 @@ add_library(welcome MODULE ${welcome_SRCS})
 
 target_link_libraries(welcome
 	quarkplayercore
+
+	mainwindow
+
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )
