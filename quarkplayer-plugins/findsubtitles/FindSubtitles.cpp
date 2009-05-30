@@ -21,8 +21,10 @@
 #include "FindSubtitlesWindow.h"
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/MainWindow.h>
+#include <quarkplayer/PluginsManager.h>
 #include <quarkplayer/config/Config.h>
+
+#include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
 #include <tkutil/ActionCollection.h>
 
@@ -38,12 +40,22 @@ QString FindSubtitlesFactory::pluginName() const {
 	return "findsubtitles";
 }
 
+QStringList FindSubtitlesFactory::dependencies() const {
+	QStringList tmp;
+	tmp += "mainwindow";
+	return tmp;
+}
+
 PluginInterface * FindSubtitlesFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new FindSubtitles(quarkPlayer, uuid);
 }
 
+static MainWindow * getMainWindow() {
+	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+}
+
 FindSubtitles::FindSubtitles(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QObject(quarkPlayer.mainWindow()),
+	: QObject(getMainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
@@ -67,7 +79,7 @@ void FindSubtitles::findSubtitles() {
 
 		static FindSubtitlesWindow * findSubtitlesWindow = NULL;
 		if (!findSubtitlesWindow) {
-			findSubtitlesWindow = new FindSubtitlesWindow(quarkPlayer().mainWindow());
+			findSubtitlesWindow = new FindSubtitlesWindow(getMainWindow());
 			connect(findSubtitlesWindow, SIGNAL(subtitleDownloaded(const QString &)),
 				SLOT(loadSubtitle(const QString &)));
 		}

@@ -23,10 +23,11 @@
 #include "PlaylistFilter.h"
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/MainWindow.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config/PlaylistConfig.h>
 #include <quarkplayer/PluginsManager.h>
+
+#include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
 #include <tkutil/TkIcon.h>
 #include <tkutil/TkAction.h>
@@ -55,12 +56,22 @@ QString PlaylistWidgetFactory::pluginName() const {
 	return "playlist";
 }
 
+QStringList PlaylistWidgetFactory::dependencies() const {
+	QStringList tmp;
+	tmp += "mainwindow";
+	return tmp;
+}
+
 PluginInterface * PlaylistWidgetFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new PlaylistWidget(quarkPlayer, uuid);
 }
 
+static MainWindow * getMainWindow() {
+	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+}
+
 PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QWidget(quarkPlayer.mainWindow()),
+	: QWidget(getMainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	//Model
@@ -103,7 +114,7 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	_dockWidget = new QDockWidget();
 	connect(_dockWidget, SIGNAL(visibilityChanged(bool)),
 		SLOT(dockWidgetVisibilityChanged(bool)));
-	quarkPlayer.mainWindow()->addPlaylistDockWidget(_dockWidget);
+	getMainWindow()->addPlaylistDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
@@ -120,8 +131,8 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 }
 
 PlaylistWidget::~PlaylistWidget() {
-	quarkPlayer().mainWindow()->removeDockWidget(_dockWidget);
-	quarkPlayer().mainWindow()->resetPlaylistDockWidget();
+	getMainWindow()->removeDockWidget(_dockWidget);
+	getMainWindow()->resetPlaylistDockWidget();
 }
 
 PlaylistModel * PlaylistWidget::playlistModel() const {
@@ -329,7 +340,7 @@ void PlaylistWidget::updateWindowTitle(const QString & statusMessage) {
 		windowTitle += " - " + statusMessage;
 	}
 	_dockWidget->setWindowTitle(windowTitle);
-	QStatusBar * statusBar = quarkPlayer().mainWindow()->statusBar();
+	QStatusBar * statusBar = getMainWindow()->statusBar();
 	if (statusBar) {
 		statusBar->showMessage(statusMessage);
 	}

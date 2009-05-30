@@ -113,6 +113,8 @@ public:
 
 	QString pluginName() const;
 
+	QStringList dependencies() const;
+
 	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };
 

@@ -31,23 +31,23 @@ PluginsConfig::PluginsConfig() {
 PluginsConfig::~PluginsConfig() {
 }
 
-PluginData::PluginList PluginsConfig::plugins() const {
+PluginDataList PluginsConfig::plugins() const {
 	//Version working with QDataStream
 	/*
 	QVariant tmp = Config::instance().value(PLUGINS_KEY);
-	PluginData::PluginList pluginList = tmp.value<PluginData::PluginList>();
+	PluginDataList pluginList = tmp.value<PluginDataList>();
 	return pluginList;
 	*/
 
 	//Version working with QTextStream
 	QString tmp(Config::instance().value(PLUGINS_KEY).toString());
 	QTextStream stream(&tmp);
-	PluginData::PluginList pluginList;
+	PluginDataList pluginList;
 	stream >> pluginList;
 	return pluginList;
 }
 
-void PluginsConfig::setPlugins(const PluginData::PluginList & plugins) {
+void PluginsConfig::setPlugins(const PluginDataList & plugins) {
 	//Version working with QDataStream
 	/*
 	QVariant tmp;

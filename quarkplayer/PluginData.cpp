@@ -116,10 +116,21 @@ void PluginData::deleteInterface() {
 	}
 }
 
+PluginDataList PluginDataList::values(const QString & filename) const {
+	PluginDataList pluginDataList;
+	foreach(PluginData pluginData, *this) {
+		if (pluginData.fileName() == filename) {
+			pluginDataList += pluginData;
+		}
+	}
+	return pluginDataList;
+}
+
+
 static const quint32 PLUGINLIST_HEADER_MAGIC = 0xA0B0C0D0;
 static const quint32 PLUGINLIST_HEADER_VERSION = 1;
 
-QDataStream & operator<<(QDataStream & stream, const PluginData::PluginList & plugins) {
+QDataStream & operator<<(QDataStream & stream, const PluginDataList & plugins) {
 	//Write a header with a "magic number" and a version
 	stream << PLUGINLIST_HEADER_MAGIC;
 	stream << PLUGINLIST_HEADER_VERSION;
@@ -138,7 +149,7 @@ QDataStream & operator<<(QDataStream & stream, const PluginData::PluginList & pl
 	return stream;
 }
 
-QDataStream & operator>>(QDataStream & stream, PluginData::PluginList & plugins) {
+QDataStream & operator>>(QDataStream & stream, PluginDataList & plugins) {
 	if (stream.atEnd()) {
 		//Empty stream
 		return stream;
@@ -181,7 +192,7 @@ QDataStream & operator>>(QDataStream & stream, PluginData::PluginList & plugins)
 	return stream;
 }
 
-QTextStream & operator<<(QTextStream & stream, const PluginData::PluginList & plugins) {
+QTextStream & operator<<(QTextStream & stream, const PluginDataList & plugins) {
 	//Write a header with a "magic number" and a version
 	stream << PLUGINLIST_HEADER_MAGIC << endl;
 	stream << PLUGINLIST_HEADER_VERSION << endl;
@@ -200,7 +211,7 @@ QTextStream & operator<<(QTextStream & stream, const PluginData::PluginList & pl
 	return stream;
 }
 
-QTextStream & operator>>(QTextStream & stream, PluginData::PluginList & plugins) {
+QTextStream & operator>>(QTextStream & stream, PluginDataList & plugins) {
 	if (stream.atEnd()) {
 		//Empty stream
 		return stream;
@@ -226,7 +237,7 @@ QTextStream & operator>>(QTextStream & stream, PluginData::PluginList & plugins)
 		//FIXME this is buggy if the filename contains whitespaces
 		//I don't know how to make QTextStream aware about string spaces :/
 		//See http://doc.trolltech.com/main-snapshot/qtextstream.html#operator-gt-gt-4
-		//Anyway, plugin filenames should not contain whitespaces anyway
+		//Anyway, plugin filenames should not contain whitespaces
 		QString filename;
 		stream >> filename;
 		///
@@ -237,7 +248,7 @@ QTextStream & operator>>(QTextStream & stream, PluginData::PluginList & plugins)
 		stream >> enabled;
 
 		if (filename.isEmpty()) {
-			//FIXME don't why, stream can contain empty datas
+			//FIXME don't know why, stream can contain empty datas
 			//even if we didn't put empty datas in it (!)
 		} else {
 			PluginData pluginData(filename, uuid, enabled);

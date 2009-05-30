@@ -2,6 +2,10 @@ project(quarkplayer)
 
 add_definitions(-DQT_QTSINGLEAPPLICATION_IMPORT)
 
+if (STATICPLUGINS)
+	add_definitions(-DSTATICPLUGINS)
+endif (STATICPLUGINS)
+
 set(quarkplayer_SRCS
 	main.cpp
 )
@@ -61,6 +65,7 @@ if (STATICPLUGINS)
 	# Static plugins are faster than dynamic plugins:
 	# it takes almost no time to load them
 	target_link_libraries(quarkplayer
+		mainwindow
 		filebrowser
 		findsubtitles
 		mediacontroller

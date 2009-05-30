@@ -52,8 +52,8 @@ public:
 	 * @see PluginManager
 	 */
 	static const char * PLUGINS_KEY;
-	PluginData::PluginList plugins() const;
-	void setPlugins(const PluginData::PluginList & plugins);
+	PluginDataList plugins() const;
+	void setPlugins(const PluginDataList & plugins);
 
 private:
 

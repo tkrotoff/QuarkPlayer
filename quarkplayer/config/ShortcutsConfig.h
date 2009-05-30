@@ -19,6 +19,8 @@
 #ifndef SHORTCUTSCONFIG_H
 #define SHORTCUTSCONFIG_H
 
+#include <quarkplayer/quarkplayer_export.h>
+
 #include <tkutil/Singleton.h>
 
 class QAction;
@@ -30,7 +32,7 @@ class QString;
  * @see Config
  * @author Tanguy Krotoff
  */
-class ShortcutsConfig : public Singleton<ShortcutsConfig> {
+class QUARKPLAYER_API ShortcutsConfig : public Singleton<ShortcutsConfig> {
 	friend class Singleton<ShortcutsConfig>;
 public:
 

@@ -24,10 +24,11 @@
 #include "config/FileBrowserConfigWidget.h"
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/MainWindow.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config/ConfigWindow.h>
 #include <quarkplayer/PluginsManager.h>
+
+#include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
 #include <filetypes/FileTypes.h>
 
@@ -57,12 +58,22 @@ QString FileBrowserWidgetFactory::pluginName() const {
 	return "filebrowser";
 }
 
+QStringList FileBrowserWidgetFactory::dependencies() const {
+	QStringList tmp;
+	tmp += "mainwindow";
+	return tmp;
+}
+
 PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new FileBrowserWidget(quarkPlayer, uuid);
 }
 
+static MainWindow * getMainWindow() {
+	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+}
+
 FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QWidget(quarkPlayer.mainWindow()),
+	: QWidget(getMainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_fileSearchModel = NULL;
@@ -81,7 +92,7 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 
 	//Add to the main window
 	_dockWidget = new QDockWidget();
-	quarkPlayer.mainWindow()->addBrowserDockWidget(_dockWidget);
+	getMainWindow()->addBrowserDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
 
 	setMaximumSize(static_cast<int>(1.5 * sizeHint().width()), maximumSize().height());
@@ -93,11 +104,11 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 			SLOT(loadDirModel()), Qt::QueuedConnection);
 	}
 
-	ConfigWindow * configWindow = quarkPlayer.mainWindow()->configWindow();
+	ConfigWindow * configWindow = getMainWindow()->configWindow();
 	if (configWindow) {
 		configWindowCreated(configWindow);
 	} else {
-		connect(quarkPlayer.mainWindow(), SIGNAL(configWindowCreated(ConfigWindow *)),
+		connect(getMainWindow(), SIGNAL(configWindowCreated(ConfigWindow *)),
 			SLOT(configWindowCreated(ConfigWindow *)));
 	}
 
@@ -110,8 +121,8 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 }
 
 FileBrowserWidget::~FileBrowserWidget() {
-	quarkPlayer().mainWindow()->removeDockWidget(_dockWidget);
-	quarkPlayer().mainWindow()->resetBrowserDockWidget();
+	getMainWindow()->removeDockWidget(_dockWidget);
+	getMainWindow()->resetBrowserDockWidget();
 }
 
 void FileBrowserWidget::createToolBar() {
@@ -301,7 +312,7 @@ void FileBrowserWidget::setWindowTitle(const QString & statusMessage) {
 		_dockWidget->setWindowTitle(Config::instance().musicDir(uuid()));
 	} else {
 		_dockWidget->setWindowTitle(statusMessage);
-		QStatusBar * statusBar = quarkPlayer().mainWindow()->statusBar();
+		QStatusBar * statusBar = getMainWindow()->statusBar();
 		if (statusBar) {
 			statusBar->showMessage(statusMessage);
 		}

@@ -19,7 +19,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <quarkplayer/quarkplayer_export.h>
 #include <quarkplayer/PluginInterface.h>
 
 #include <tkutil/TkMainWindow.h>
@@ -47,11 +46,11 @@ class QDockWidget;
  * @see http://en.wikipedia.org/wiki/Facade_pattern
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API MainWindow : public TkMainWindow, public PluginInterface {
+class MainWindow : public TkMainWindow, public PluginInterface {
 	Q_OBJECT
 public:
 
-	MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * parent);
+	MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid);
 
 	~MainWindow();
 
@@ -212,6 +211,20 @@ private:
 	QStatusBar * _statusBar;
 
 	ConfigWindow * _configWindow;
+};
+
+#include <quarkplayer/PluginFactory.h>
+
+class MainWindowFactory : public QObject, public PluginFactory {
+	Q_OBJECT
+	Q_INTERFACES(PluginFactory)
+public:
+
+	QString pluginName() const;
+
+	QStringList dependencies() const;
+
+	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
 };
 
 #endif	//MAINWINDOW_H

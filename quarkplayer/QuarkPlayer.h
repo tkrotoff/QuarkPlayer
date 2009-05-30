@@ -27,7 +27,6 @@
 #include <phonon/phononnamespace.h>
 #include <phonon/path.h>
 
-class MainWindow;
 class Config;
 
 namespace Phonon {
@@ -77,19 +76,6 @@ public:
 	 * @see qRegisterMetaTypeStreamOperators()
 	 */
 	static void registerMetaTypes();
-
-	/**
-	 * Gets QuarkPlayer main window.
-	 *
-	 * MainWindow always exists and thus this method cannot return NULL.
-	 * One could think about returning a reference (&) but I prefer to return
-	 * a pointer since Qt works this way regarding widgets.
-	 *
-	 * @return QuarkPlayer main window (cannot be NULL or there is a bug somewhere...)
-	 * @see MainWindow
-	 * @see QMainWindow
-	 */
-	MainWindow * mainWindow() const;
 
 	/**
 	 * Changes the current media object to be used when playing a media.
@@ -242,14 +228,6 @@ private slots:
 	void allPluginsLoaded();
 
 private:
-
-	/**
-	 * QuarkPlayer main window.
-	 *
-	 * @see MainWindow
-	 * @see QMainWindow
-	 */
-	MainWindow * _mainWindow;
 
 	/** Current media object, can be NULL if none. */
 	Phonon::MediaObject * _currentMediaObject;

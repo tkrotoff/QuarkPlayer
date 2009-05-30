@@ -53,9 +53,6 @@ class PluginFactory;
 class QUARKPLAYER_API PluginData {
 public:
 
-	typedef QList<PluginData> PluginList;
-
-
 	PluginData(const QString & fileName, const QUuid & uuid, bool enabled);
 
 	PluginData(const PluginData & pluginData);
@@ -101,12 +98,24 @@ private:
 	PluginFactory * _factory;
 };
 
-QDataStream & operator<<(QDataStream & stream, const PluginData::PluginList & plugins);
 
-QDataStream & operator>>(QDataStream & stream, PluginData::PluginList & plugins);
+/**
+ * List of PluginData.
+ */
+class PluginDataList : public QList<PluginData> {
+public:
 
-QTextStream & operator<<(QTextStream & stream, const PluginData::PluginList & plugins);
+	/** Gets the sublist of plugins matching the given filename. */
+	PluginDataList values(const QString & filename) const;
+};
 
-QTextStream & operator>>(QTextStream & stream, PluginData::PluginList & plugins);
+
+QDataStream & operator<<(QDataStream & stream, const PluginDataList & plugins);
+
+QDataStream & operator>>(QDataStream & stream, PluginDataList & plugins);
+
+QTextStream & operator<<(QTextStream & stream, const PluginDataList & plugins);
+
+QTextStream & operator>>(QTextStream & stream, PluginDataList & plugins);
 
 #endif	//PLUGINDATA_H

@@ -18,12 +18,14 @@
 
 #include "MainWindow.h"
 
-#include "QuarkPlayer.h"
 #include "AboutWindow.h"
-#include "config/Config.h"
-#include "config/ConfigWindow.h"
-#include "config/ShortcutsConfig.h"
-#include "version.h"
+
+#include <quarkplayer/QuarkPlayer.h>
+
+#include <quarkplayer/config/Config.h>
+#include <quarkplayer/config/ConfigWindow.h>
+#include <quarkplayer/config/ShortcutsConfig.h>
+#include <quarkplayer/version.h>
 
 #include <tkutil/ActionCollection.h>
 #include <tkutil/TkAction.h>
@@ -33,20 +35,40 @@
 
 #include <filetypes/FileTypes.h>
 
+#include <qtsingleapplication/QtSingleApplication>
+
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>
 #include <phonon/audiooutput.h>
 
 #include <QtCore/QSignalMapper>
-#include <QtCore/QCoreApplication>
 
 #include <QtGui/QtGui>
 
 #include <cstdio>
 
-MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * parent)
-	: TkMainWindow(parent),
+Q_EXPORT_PLUGIN2(mainwindow, MainWindowFactory);
+
+QString MainWindowFactory::pluginName() const {
+	return "mainwindow";
+}
+
+QStringList MainWindowFactory::dependencies() const {
+	QStringList tmp;
+	return tmp;
+}
+
+PluginInterface * MainWindowFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
+	return new MainWindow(quarkPlayer, uuid);
+}
+
+MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
+	: TkMainWindow(NULL),
 	PluginInterface(quarkPlayer, uuid) {
+
+	QtSingleApplication * app = qobject_cast<QtSingleApplication *>(QCoreApplication::instance());
+	app->setActivationWindow(this);
+	app->activateWindow();
 
 	populateActionCollection();
 
@@ -90,6 +112,8 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * 
 	retranslate();
 
 	loadSettings();
+
+	show();
 }
 
 MainWindow::~MainWindow() {

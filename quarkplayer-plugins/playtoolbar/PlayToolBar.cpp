@@ -18,8 +18,10 @@
 
 #include "PlayToolBar.h"
 
-#include <quarkplayer/MainWindow.h>
 #include <quarkplayer/QuarkPlayer.h>
+#include <quarkplayer/PluginsManager.h>
+
+#include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
 #include <tkutil/ActionCollection.h>
 #include <tkutil/TkIcon.h>
@@ -38,12 +40,22 @@ QString PlayToolBarFactory::pluginName() const {
 	return "playtoolbar";
 }
 
+QStringList PlayToolBarFactory::dependencies() const {
+	QStringList tmp;
+	tmp += "mainwindow";
+	return tmp;
+}
+
 PluginInterface * PlayToolBarFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new PlayToolBar(quarkPlayer, uuid);
 }
 
+static MainWindow * getMainWindow() {
+	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+}
+
 PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QToolBar(quarkPlayer.mainWindow()),
+	: QToolBar(getMainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_volumeSlider = NULL;
@@ -70,7 +82,7 @@ PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	setToolBarEnabled(false);
 
 	//Add to the main window
-	quarkPlayer.mainWindow()->setPlayToolBar(this);
+	getMainWindow()->setPlayToolBar(this);
 
 	if (quarkPlayer.currentMediaObject()) {
 		//The current MediaObject has been already created

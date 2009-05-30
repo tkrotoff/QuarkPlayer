@@ -1,3 +1,4 @@
+add_subdirectory(mainwindow)
 add_subdirectory(filebrowser)
 add_subdirectory(mediacontroller)
 add_subdirectory(playlist)

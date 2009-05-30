@@ -44,6 +44,8 @@ public:
 
 	virtual QString pluginName() const = 0;
 
+	virtual QStringList dependencies() const = 0;
+
 	virtual PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const = 0;
 
 	virtual ~PluginFactory() { }

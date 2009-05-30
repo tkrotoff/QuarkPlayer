@@ -21,9 +21,11 @@
 #include "MediaControllerToolBar.h"
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/MainWindow.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/config.h>
+#include <quarkplayer/PluginsManager.h>
+
+#include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
 #include <filetypes/FileTypes.h>
 
@@ -47,17 +49,27 @@ QString MediaControllerFactory::pluginName() const {
 	return "mediacontroller";
 }
 
+QStringList MediaControllerFactory::dependencies() const {
+	QStringList tmp;
+	tmp += "mainwindow";
+	return tmp;
+}
+
 PluginInterface * MediaControllerFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new MediaController(quarkPlayer, uuid);
 }
 
+static MainWindow * getMainWindow() {
+	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+}
+
 MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QWidget(quarkPlayer.mainWindow()),
+	: QWidget(getMainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	populateActionCollection();
 
-	_mainWindow = quarkPlayer.mainWindow();
+	_mainWindow = getMainWindow();
 	connect(_mainWindow, SIGNAL(subtitleFileDropped(const QString &)),
 		SLOT(openSubtitleFile(const QString &)));
 

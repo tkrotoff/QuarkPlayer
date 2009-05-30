@@ -19,9 +19,10 @@
 #include "WelcomeWindow.h"
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/MainWindow.h>
 #include <quarkplayer/version.h>
 #include <quarkplayer/PluginsManager.h>
+
+#include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
 #include <phonon/mediasource.h>
 
@@ -35,12 +36,22 @@ QString WelcomeWindowFactory::pluginName() const {
 	return "welcome";
 }
 
+QStringList WelcomeWindowFactory::dependencies() const {
+	QStringList tmp;
+	tmp += "mainwindow";
+	return tmp;
+}
+
 PluginInterface * WelcomeWindowFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new WelcomeWindow(quarkPlayer, uuid);
 }
 
+static MainWindow * getMainWindow() {
+	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+}
+
 WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QObject(quarkPlayer.mainWindow()),
+	: QObject(getMainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	qDebug() << __FUNCTION__ << "Welcome plugin created";
@@ -56,7 +67,7 @@ WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 		connect(&quarkPlayer, SIGNAL(mediaObjectAdded(Phonon::MediaObject *)), SLOT(playWebRadio()));
 	}
 
-	QMessageBox * msgBox = new QMessageBox(quarkPlayer.mainWindow());
+	QMessageBox * msgBox = new QMessageBox(getMainWindow());
 	connect(msgBox, SIGNAL(finished(int)), SLOT(quitPlugin()));
 	msgBox->setWindowTitle(tr("Welcome!"));
 	msgBox->setIcon(QMessageBox::Information);

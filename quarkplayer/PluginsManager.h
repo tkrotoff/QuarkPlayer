@@ -25,6 +25,7 @@
 #include <tkutil/Singleton.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QStringList>
 
 class QuarkPlayer;
 
@@ -66,18 +67,23 @@ public:
 	 */
 	bool loadDisabledPlugin(const PluginData & pluginData);
 
-	/** Deletes/unloads a given plugin. */
+	/** Deletes/unloads a given plugin and saves the plugins configuration. */
 	bool deletePlugin(PluginData & pluginData);
 
 	/** Gets a plugin given a unique ID. */
 	PluginData pluginData(const QUuid & uuid) const;
 
-	/** Gets the list of available plugins. */
-	PluginData::PluginList plugins() const;
+	/** Gets the first loaded plugin interface matching the given filename. */
+	PluginInterface * pluginInterface(const QString & filename) const;
 
-	/** Gets the list of plugins that matches the given filename. */
-	PluginData::PluginList pluginDataList(const QString & filename) const;
+	/** Gets the list of all available plugins. */
+	PluginDataList availablePlugins() const;
 
+	/**
+	 * @see allPluginsLoaded()
+	 *
+	 * Cannot not be named allPluginsLoaded() that's why already has been added to the name.
+	 */
 	bool allPluginsAlreadyLoaded() const;
 
 signals:
@@ -112,6 +118,7 @@ private:
 
 	PluginsManager();
 
+	/** @see deleteAllPlugins() */
 	~PluginsManager();
 
 	/**
@@ -121,17 +128,33 @@ private:
 	 */
 	void deleteAllPlugins();
 
-	/** Updates and synchronizes the given plugin with the list of plugins. */
-	void updatePluginData(const PluginData & pluginData);
+	/** Deletes/unloads a given plugin without savinf the plugins configuration. */
+	bool deletePluginWithoutSavingConfig(PluginData & pluginData);
 
+	/** Finds the directory where dynamic plugins are located. */
 	QString findPluginDir() const;
 
 	QuarkPlayer * _quarkPlayer;
 
-	bool _allPluginsAlreadyLoaded;
+	bool _allPluginsLoaded;
 
-	PluginData::PluginList _plugins;
+	/** List of all the available plugins, i.e all the static and dynamic plugins available on the system. */
+	QStringList _availablePlugins;
 
+	/**
+	 * The list of loaded/enabled plugins.
+	 *
+	 * This is needed when we will delete all the plugins.
+	 * @see deleteAllPlugins()
+	 */
+	PluginDataList _loadedPlugins;
+
+	/**
+	 * The list of disabled plugins.
+	 */
+	PluginDataList _disabledPlugins;
+
+	/** Directory where dynamic plugins are located. */
 	QString _pluginDir;
 };
 

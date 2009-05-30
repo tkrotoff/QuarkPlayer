@@ -18,7 +18,6 @@
 
 #include "QuarkPlayer.h"
 
-#include "MainWindow.h"
 #include "PluginsManager.h"
 
 #include "config/Config.h"
@@ -38,11 +37,6 @@ QuarkPlayer::QuarkPlayer(QObject * parent)
 	_currentMediaObject = NULL;
 	_currentMediaController = NULL;
 
-	//mainWindow is an internal plugin in fact...
-	//FIXME I cannot manage to make it a real external plugin
-	_mainWindow = new MainWindow(*this, QUuid::createUuid(), NULL);
-	_mainWindow->show();
-
 	connect(&PluginsManager::instance(), SIGNAL(allPluginsLoaded()), SLOT(allPluginsLoaded()));
 }
 
@@ -52,10 +46,6 @@ QuarkPlayer::~QuarkPlayer() {
 }
 
 void QuarkPlayer::registerMetaTypes() {
-}
-
-MainWindow * QuarkPlayer::mainWindow() const {
-	return _mainWindow;
 }
 
 void QuarkPlayer::setCurrentMediaObject(Phonon::MediaObject * mediaObject) {

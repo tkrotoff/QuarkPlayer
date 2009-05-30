@@ -21,7 +21,9 @@
 #include "ui_QuickSettingsWindow.h"
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/MainWindow.h>
+#include <quarkplayer/PluginsManager.h>
+
+#include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
 #include <tkutil/LanguageChangeEventFilter.h>
 #include <tkutil/ActionCollection.h>
@@ -44,6 +46,12 @@ QString QuickSettingsWindowFactory::pluginName() const {
 	return "quicksettings";
 }
 
+QStringList QuickSettingsWindowFactory::dependencies() const {
+	QStringList tmp;
+	tmp += "mainwindow";
+	return tmp;
+}
+
 PluginInterface * QuickSettingsWindowFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
 	return new QuickSettingsWindow(quarkPlayer, uuid);
 }
@@ -51,8 +59,12 @@ PluginInterface * QuickSettingsWindowFactory::create(QuarkPlayer & quarkPlayer, 
 static const int SLIDER_RANGE = 8;
 static const int TICK_INTERVAL = 4;
 
+static MainWindow * getMainWindow() {
+	return dynamic_cast<MainWindow *>(PluginsManager::instance().pluginInterface("mainwindow"));
+}
+
 QuickSettingsWindow::QuickSettingsWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QDialog(quarkPlayer.mainWindow()),
+	: QDialog(getMainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_audioOutput = NULL;

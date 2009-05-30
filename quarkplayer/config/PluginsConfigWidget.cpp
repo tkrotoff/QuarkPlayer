@@ -59,7 +59,7 @@ QString PluginsConfigWidget::iconName() const {
 }
 
 void PluginsConfigWidget::readConfig() {
-	PluginData::PluginList plugins = PluginsManager::instance().plugins();
+	PluginDataList plugins(PluginsManager::instance().availablePlugins());
 
 	for (int i = 0; i < plugins.size(); i++) {
 		PluginData pluginData(plugins[i]);
@@ -72,12 +72,11 @@ void PluginsConfigWidget::readConfig() {
 
 		PluginInterface * interface = pluginData.interface();
 		if (interface) {
-			qDebug() << __FUNCTION__ << "interface:" << interface;
 			_ui->tableWidget->setItem(i, NAME_COLUMN, new QTableWidgetItem(interface->name()));
 			_ui->tableWidget->setItem(i, VERSION_COLUMN, new QTableWidgetItem(interface->version()));
 		} else {
-			_ui->tableWidget->setItem(i, NAME_COLUMN, new QTableWidgetItem(""));
-			_ui->tableWidget->setItem(i, VERSION_COLUMN, new QTableWidgetItem(""));
+			_ui->tableWidget->setItem(i, NAME_COLUMN, new QTableWidgetItem(QString()));
+			_ui->tableWidget->setItem(i, VERSION_COLUMN, new QTableWidgetItem(QString()));
 		}
 
 		QCheckBox * checkBox = new QCheckBox();

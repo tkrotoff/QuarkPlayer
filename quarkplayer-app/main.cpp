@@ -17,7 +17,6 @@
  */
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/MainWindow.h>
 #include <quarkplayer/PluginsManager.h>
 #include <quarkplayer/CommandLineManager.h>
 #include <quarkplayer/CommandLineParser.h>
@@ -41,6 +40,7 @@
 	//Import the static plugins
 	//Static plugins are faster than dynamic plugins:
 	//it takes almost no time to load them
+	Q_IMPORT_PLUGIN(mainwindow)
 	Q_IMPORT_PLUGIN(filebrowser)
 	Q_IMPORT_PLUGIN(findsubtitles)
 	Q_IMPORT_PLUGIN(mediacontroller)
@@ -100,10 +100,6 @@ int main(int argc, char * argv[]) {
 	TkIcon::setIconSize(16);
 
 	QuarkPlayer quarkPlayer(&app);
-	MainWindow * mainWindow = quarkPlayer.mainWindow();
-	qDebug() << __FUNCTION__ << mainWindow;
-	app.setActivationWindow(mainWindow);
-	app.activateWindow();
 
 	PluginsManager::instance().loadAllPlugins(quarkPlayer);
 

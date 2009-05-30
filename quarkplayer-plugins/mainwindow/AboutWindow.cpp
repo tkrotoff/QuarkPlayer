@@ -20,9 +20,10 @@
 
 #include "ui_AboutWindow.h"
 
-#include "version.h"
 #include "metrics.h"
-#include "config.h"
+
+#include <quarkplayer/version.h>
+#include <quarkplayer/config.h>
 
 #include <phonon/phononnamespace.h>
 
