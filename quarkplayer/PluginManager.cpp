@@ -91,6 +91,11 @@ QString PluginManager::findPluginDir() const {
 void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	Q_ASSERT(!_allPluginsLoaded);
 
+	//Windows specific code
+	PluginManagerWin32::setErrorMode();
+	PluginManagerWin32::setDllDirectory();
+	///
+
 	//Stupid hack, see loadPlugin()
 	_quarkPlayer = &quarkPlayer;
 	///
@@ -108,9 +113,6 @@ void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	///
 
 	_pluginDir = findPluginDir();
-
-	PluginManagerWin32::setErrorMode();
-	PluginManagerWin32::setDllDirectory(_pluginDir.toUtf8().constData());
 
 	//List of all the available plugins
 	//Dynamic plugins

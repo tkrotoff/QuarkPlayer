@@ -37,11 +37,12 @@ public:
 	 * Equivalent to rpath under Windows.
 	 *
 	 * Adds a directory to the search path used to locate DLLs for the application.
-	 * SetDllDirectory is supported under XP SP1 and later.
+	 * SetDllDirectory is supported under Windows XP SP1 and later.
+	 * Service Pack 1 (SP1) for Windows XP was released on 9 September 2002.
 	 *
 	 * @see http://msdn.microsoft.com/en-us/library/ms686203.aspx
 	 */
-	static void setDllDirectory(const char * path);
+	static void setDllDirectory();
 };
 
 #endif	//PLUGINMANAGERWIN32_H

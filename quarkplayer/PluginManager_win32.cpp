@@ -31,8 +31,11 @@ void PluginManagerWin32::setErrorMode() {
 #endif	//Q_WS_WIN
 }
 
-void PluginManagerWin32::setDllDirectory(const char * path) {
+void PluginManagerWin32::setDllDirectory() {
 #ifdef Q_WS_WIN
-	SetDllDirectoryA(path);
+	//Use SetEnvironmentVariable() ?
+	//See http://msdn.microsoft.com/en-us/library/ms686206.aspx
+	//See http://www.google.com/codesearch/p?hl=en#k_74qd9ASEQ/trunk/psycle/src/psycle/host/Plugin.cpp&q=SetDllDirectory
+	SetDllDirectoryA(".\\plugins");
 #endif	//Q_WS_WIN
 }
