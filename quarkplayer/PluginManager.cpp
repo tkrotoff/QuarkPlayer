@@ -195,7 +195,7 @@ QString getPluginFileNameWithExtension(const QString & filename) {
 	if (!QLibrary::isLibrary(tmp)) {
 #ifdef Q_WS_WIN
 		tmp += ".dll";
-#elif Q_WS_X11
+#elif defined(Q_WS_X11)
 		tmp += ".so";
 #else
 		qCritical() << __FUNCTION__ << "Platform not supported";
