@@ -44,12 +44,6 @@
 //For INT_MAX
 #include <climits>
 
-static PlaylistWidget * getPlaylistWidget() {
-	PlaylistWidget * playlistWidget = dynamic_cast<PlaylistWidget *>(PluginManager::instance().pluginInterface("playlist"));
-	Q_ASSERT(playlistWidget);
-	return playlistWidget;
-}
-
 FileBrowserTreeView::FileBrowserTreeView(FileBrowserWidget * fileBrowserWidget)
 	: QTreeView(NULL) {
 
@@ -114,7 +108,7 @@ void FileBrowserTreeView::addToPlaylist() {
 		filenames += fileInfo.absoluteFilePath().replace("//", "/");
 	}
 	if (!filenames.isEmpty()) {
-		getPlaylistWidget()->addFilesToCurrentPlaylist(filenames);
+		PlaylistWidgetFactory::playlistWidget()->addFilesToCurrentPlaylist(filenames);
 	}
 }
 

@@ -18,6 +18,8 @@
 
 #include "PluginManager.h"
 
+#include "PluginManager_win32.h"
+
 #include "PluginFactory.h"
 #include "PluginInterface.h"
 #include "PluginConfig.h"
@@ -107,9 +109,17 @@ void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 
 	_pluginDir = findPluginDir();
 
+	PluginManagerWin32::setErrorMode();
+	PluginManagerWin32::setDllDirectory(_pluginDir.toUtf8().constData());
+
 	//List of all the available plugins
 	//Dynamic plugins
-	_availablePlugins += QDir(_pluginDir).entryList(QDir::Files);
+	QFileInfoList fileInfoList(QDir(_pluginDir).entryInfoList(QDir::Files));
+	foreach (QFileInfo fileInfo, fileInfoList) {
+		//Take only the base name, i.e without the extension since this part is platform dependent
+		_availablePlugins += fileInfo.baseName();
+	}
+	//_availablePlugins += QDir(_pluginDir).entryList(QDir::Files);
 	//Static plugins
 	_availablePlugins += staticPlugins;
 
@@ -175,6 +185,23 @@ bool PluginManager::loadDisabledPlugin(const PluginData & pluginData) {
 	return loaded;
 }
 
+//QPluginLoader needs the file extension unlike QLibrary who does not need it
+QString getPluginFileNameWithExtension(const QString & filename) {
+	QString tmp(filename);
+	Q_ASSERT(!tmp.isEmpty());
+
+	if (!QLibrary::isLibrary(tmp)) {
+#ifdef Q_WS_WIN
+		tmp += ".dll";
+#elif Q_WS_X11
+		tmp += ".so";
+#else
+		qCritical() << __FUNCTION__ << "Platform not supported";
+#endif
+	}
+	return tmp;
+}
+
 bool PluginManager::loadPlugin(PluginData & pluginData) {
 	bool loaded = false;
 
@@ -188,7 +215,7 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 	//2 cases: dynamic plugin and static plugin
 	PluginFactory * factory = NULL;
 	bool pluginFound = false;
-	QPluginLoader loader(_pluginDir + QDir::separator() + filename);
+	QPluginLoader loader(getPluginFileNameWithExtension(_pluginDir + QDir::separator() + filename));
 	QObject * plugin = loader.instance();
 	if (plugin) {
 		//Ok, this is a dynamic plugin

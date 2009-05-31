@@ -14,6 +14,7 @@ set(quarkplayercore_SRCS
 	PluginInterface.cpp
 	PluginData.cpp
 	PluginManager.cpp
+	PluginManager_win32.cpp
 	PluginConfig.cpp
 	CommandLineManager.cpp
 	CommandLineParser.cpp

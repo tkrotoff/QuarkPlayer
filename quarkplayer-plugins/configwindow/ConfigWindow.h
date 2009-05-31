@@ -19,6 +19,8 @@
 #ifndef CONFIGWINDOW_H
 #define CONFIGWINDOW_H
 
+#include <quarkplayer-plugins/configwindow/configwindow_export.h>
+
 #include <QtGui/QDialog>
 
 #include <QtCore/QList>
@@ -35,7 +37,7 @@ class QTreeWidgetItem;
  *
  * @author Tanguy Krotoff
  */
-class ConfigWindow : public QDialog {
+class CONFIGWINDOW_API ConfigWindow : public QDialog {
 	Q_OBJECT
 public:
 

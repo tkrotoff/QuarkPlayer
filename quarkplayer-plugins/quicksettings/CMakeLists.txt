@@ -25,6 +25,9 @@ endif (STATICPLUGINS)
 
 target_link_libraries(quicksettings
 	quarkplayercore
+
+	mainwindow
+
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )

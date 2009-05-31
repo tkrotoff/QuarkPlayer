@@ -19,6 +19,8 @@
 #ifndef PLAYLISTWIDGET_H
 #define PLAYLISTWIDGET_H
 
+#include <quarkplayer-plugins/playlist/playlist_export.h>
+
 #include <quarkplayer/PluginInterface.h>
 
 #include <QtGui/QWidget>
@@ -49,7 +51,7 @@ class QDockWidget;
  * @see FileBrowserWidget
  * @author Tanguy Krotoff
  */
-class PlaylistWidget : public QWidget, public PluginInterface {
+class PLAYLIST_API PlaylistWidget : public QWidget, public PluginInterface {
 	Q_OBJECT
 public:
 
@@ -142,7 +144,7 @@ private:
 
 #include <quarkplayer/PluginFactory.h>
 
-class PlaylistWidgetFactory : public QObject, public PluginFactory {
+class PLAYLIST_API PlaylistWidgetFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)
 public:

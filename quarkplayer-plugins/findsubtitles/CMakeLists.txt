@@ -32,13 +32,17 @@ else (STATICPLUGINS)
 endif (STATICPLUGINS)
 
 target_link_libraries(findsubtitles
+	quarkplayercore
+
+	mainwindow
+
+	tkutil
+	quazip
+
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 	${QT_QTNETWORK_LIBRARY}
 	${QT_QTXML_LIBRARY}
-	tkutil
-	quazip
-	quarkplayercore
 )
 
 # Translations

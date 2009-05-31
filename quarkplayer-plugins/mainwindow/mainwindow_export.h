@@ -16,35 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ICONFIGWIDGET_H
-#define ICONFIGWIDGET_H
+#ifndef MAINWINDOWEXPORT_H
+#define MAINWINDOWEXPORT_H
 
-#include <quarkplayer-plugins/configwindow/configwindow_export.h>
+#include <QtCore/QtGlobal>
 
-#include <QtGui/QWidget>
+#ifdef BUILD_MAINWINDOW
+	//We are building this library
+	#define MAINWINDOW_API Q_DECL_EXPORT
+#else
+	//We are using this library
+	#define MAINWINDOW_API Q_DECL_IMPORT
+#endif
 
-class QString;
-
-/**
- * Interface for settings panel from the configuration window.
- *
- * @author Tanguy Krotoff
- */
-class CONFIGWINDOW_API IConfigWidget : public QWidget {
-	Q_OBJECT
-public:
-
-	virtual ~IConfigWidget() { }
-
-	virtual QString name() const = 0;
-
-	virtual QString iconName() const = 0;
-
-	virtual void readConfig() = 0;
-
-	virtual void saveConfig() = 0;
-
-	virtual void retranslate() = 0;
-};
-
-#endif	//ICONFIGWIDGET_H
+#endif	//MAINWINDOWEXPORT_H

@@ -30,10 +30,14 @@ endif (STATICPLUGINS)
 
 target_link_libraries(playlist
 	quarkplayercore
+
+	mainwindow
 	configwindow
+
 	tkutil
 	playlistparser
 	mediainfowindow
+
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )

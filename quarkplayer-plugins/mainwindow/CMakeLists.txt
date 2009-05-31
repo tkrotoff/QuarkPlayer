@@ -1,6 +1,6 @@
 project(mainwindow)
 
-add_definitions(-DQT_QTSINGLEAPPLICATION_IMPORT)
+add_definitions(-DBUILD_MAINWINDOW -DQT_QTSINGLEAPPLICATION_IMPORT)
 
 if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
@@ -60,7 +60,9 @@ endif (STATICPLUGINS)
 
 target_link_libraries(mainwindow
 	quarkplayercore
+
 	qtsingleapplication
+
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 	${QT_PHONON_LIBRARY}

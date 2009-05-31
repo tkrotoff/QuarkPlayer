@@ -19,6 +19,8 @@
 #ifndef PLAYLISTCONFIG_H
 #define PLAYLISTCONFIG_H
 
+#include <quarkplayer-plugins/configwindow/configwindow_export.h>
+
 #include <tkutil/Singleton.h>
 
 #include <QtCore/QObject>
@@ -37,7 +39,7 @@
  *
  * @author Tanguy Krotoff
  */
-class PlaylistConfig : public QObject, public Singleton<PlaylistConfig> {
+class CONFIGWINDOW_API PlaylistConfig : public QObject, public Singleton<PlaylistConfig> {
 	Q_OBJECT
 	friend class Singleton<PlaylistConfig>;
 public:

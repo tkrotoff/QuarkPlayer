@@ -22,7 +22,11 @@ endif (STATICPLUGINS)
 
 target_link_libraries(mediacontroller
 	quarkplayercore
+
+	mainwindow
+
 	filetypes
+
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )

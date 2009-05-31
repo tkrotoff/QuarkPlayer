@@ -19,6 +19,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <quarkplayer-plugins/mainwindow/mainwindow_export.h>
+
 #include <quarkplayer/PluginInterface.h>
 
 #include <tkutil/TkMainWindow.h>
@@ -45,7 +47,7 @@ class QDockWidget;
  * @see http://en.wikipedia.org/wiki/Facade_pattern
  * @author Tanguy Krotoff
  */
-class MainWindow : public TkMainWindow, public PluginInterface {
+class MAINWINDOW_API MainWindow : public TkMainWindow, public PluginInterface {
 	Q_OBJECT
 public:
 
@@ -180,7 +182,7 @@ private:
 
 #include <quarkplayer/PluginFactory.h>
 
-class MainWindowFactory : public QObject, public PluginFactory {
+class MAINWINDOW_API MainWindowFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)
 public:

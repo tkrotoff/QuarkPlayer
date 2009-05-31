@@ -1,6 +1,6 @@
 project(configwindow)
 
-add_definitions(-DQT_QTSINGLEAPPLICATION_IMPORT)
+add_definitions(-DBUILD_CONFIGWINDOW -DQT_QTSINGLEAPPLICATION_IMPORT)
 
 if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
@@ -53,6 +53,9 @@ endif (STATICPLUGINS)
 
 target_link_libraries(configwindow
 	quarkplayercore
+
+	mainwindow
+
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )

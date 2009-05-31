@@ -16,35 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ICONFIGWIDGET_H
-#define ICONFIGWIDGET_H
+#include "PluginManager_win32.h"
 
-#include <quarkplayer-plugins/configwindow/configwindow_export.h>
+#include <QtCore/QtGlobal>
 
-#include <QtGui/QWidget>
+#ifdef Q_WS_WIN
+	#define _WIN32_WINNT 0x0502
+	#include <QtCore/qt_windows.h>
+#endif	//Q_WS_WIN
 
-class QString;
+void PluginManagerWin32::setErrorMode() {
+#ifdef Q_WS_WIN
+	SetErrorMode(0);
+#endif	//Q_WS_WIN
+}
 
-/**
- * Interface for settings panel from the configuration window.
- *
- * @author Tanguy Krotoff
- */
-class CONFIGWINDOW_API IConfigWidget : public QWidget {
-	Q_OBJECT
-public:
-
-	virtual ~IConfigWidget() { }
-
-	virtual QString name() const = 0;
-
-	virtual QString iconName() const = 0;
-
-	virtual void readConfig() = 0;
-
-	virtual void saveConfig() = 0;
-
-	virtual void retranslate() = 0;
-};
-
-#endif	//ICONFIGWIDGET_H
+void PluginManagerWin32::setDllDirectory(const char * path) {
+#ifdef Q_WS_WIN
+	SetDllDirectoryA(path);
+#endif	//Q_WS_WIN
+}

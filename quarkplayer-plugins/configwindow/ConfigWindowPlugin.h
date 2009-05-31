@@ -19,6 +19,8 @@
 #ifndef CONFIGWINDOWPLUGIN_H
 #define CONFIGWINDOWPLUGIN_H
 
+#include <quarkplayer-plugins/configwindow/configwindow_export.h>
+
 #include <quarkplayer/PluginInterface.h>
 
 #include <QtCore/QObject>
@@ -30,7 +32,7 @@ class ConfigWindow;
  *
  * @author Tanguy Krotoff
  */
-class ConfigWindowPlugin : public QObject, public PluginInterface {
+class CONFIGWINDOW_API ConfigWindowPlugin : public QObject, public PluginInterface {
 	Q_OBJECT
 public:
 
@@ -84,7 +86,7 @@ private:
 
 #include <quarkplayer/PluginFactory.h>
 
-class ConfigWindowPluginFactory : public QObject, public PluginFactory {
+class CONFIGWINDOW_API ConfigWindowPluginFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)
 public:
