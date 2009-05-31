@@ -127,6 +127,7 @@ else (KDE4_FOUND)
 	message(STATUS "KDE4 support disabled")
 endif (KDE4_FOUND)
 
+message(STATUS "Qt Directory: ${QT_BINARY_DIR}")
 
 # Optimization: remove all Qt modules from include path
 reduce_qt_include_dirs()
