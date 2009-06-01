@@ -1,0 +1,11 @@
+<ASX VERSION="3.0">
+<ABSTRACT>Europe 1 LIVE</ABSTRACT>
+<TITLE>Europe 1 LIVE</TITLE>
+<AUTHOR>YACAST FRANCE</AUTHOR>
+<COPYRIGHT>2006, Europe 1</COPYRIGHT>
+<MoreInfo href = "http://www.europe1.fr"/> 
+   <ENTRY>
+	   <REF HREF="mms://viplagardere.yacast.net/encodereurope1" />
+	   <REF HREF="mms://viplagardere.yacast.net/encodereurope1" />
+   </ENTRY>
+</ASX>

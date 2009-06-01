@@ -1,0 +1,36 @@
+<ASX VERSION="3.0">
+	<Title>SLAM!FM - Powered by True</Title>
+
+	<Entry>
+		<title>SLAM!FM - Stream03</title>
+        	<ref href="http://stream03.slamfm.trueserver.nl/slamfm"/>
+		<COPYRIGHT>(c)2008 TrueServer B.V.</COPYRIGHT>
+	</Entry>
+
+	<Entry>
+		<title>SLAM!FM - Stream01</title>
+		<ref href="http://stream01.slamfm.trueserver.nl:8080/slamfm"/>
+	</Entry>
+
+	<Entry>
+		<title>SLAM!FM - Stream01</title>
+		<ref href="http://stream01.slamfm.trueserver.nl:8000/slamfm"/>
+	</Entry>
+
+	<Entry>
+		<title>SLAM!FM - Stream02</title>
+		<ref href="http://stream02.slamfm.trueserver.nl:8000/slamfm"/>
+	</Entry>
+
+	<Entry>
+		<ref href="http://stream02.slamfm.trueserver.nl:8080/slamfm"/>
+	</Entry>
+
+	<Entry>
+		<ref href="http://stream03.slamfm.trueserver.nl:8000/slamfm"/>
+	</Entry>
+
+	<Entry>
+		<ref href="http://stream03.slamfm.trueserver.nl:8080/slamfm"/>
+	</Entry>
+</ASX>
