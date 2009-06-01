@@ -35,9 +35,9 @@ class PluginFactory;
  * This is the case for plugins 'filebrowser' and 'playlist'
  * Example:
  * <pre>
- * filebrowser.dll => UUID={fb4ec4ac-5483-4bb2-96ad-807d1ec04f24} | enabled=1
- * filebrowser.dll => UUID={6d44588d-a374-41f8-b8f7-1d5c3f072384} | enabled=1
- * filebrowser.dll => UUID={8cd6c48b-3b8e-405c-853e-e25e6ca693c5} | enabled=0
+ * filebrowser => UUID={fb4ec4ac-5483-4bb2-96ad-807d1ec04f24} | enabled=1
+ * filebrowser => UUID={6d44588d-a374-41f8-b8f7-1d5c3f072384} | enabled=1
+ * filebrowser => UUID={8cd6c48b-3b8e-405c-853e-e25e6ca693c5} | enabled=0
  * </pre>
  * We have 2 different filebrowser plugins (with different UUID i.e unique ID) that are enabled (i.e displayed)
  * and a third filebrowser plugin that is disabled.
@@ -61,10 +61,10 @@ public:
 
 	~PluginData();
 
-	PluginData & operator=(const PluginData & right);
+	PluginData & operator=(const PluginData & pluginData);
 
 	/** Comparison based on UUID. */
-	int operator==(const PluginData & right);
+	int operator==(const PluginData & pluginData);
 
 	QString fileName() const;
 

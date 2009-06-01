@@ -287,8 +287,7 @@ void FileBrowserWidget::musicDirChanged(const QString & key, const QVariant & va
 }
 
 void FileBrowserWidget::createNewFileBrowserWidget() {
-	PluginData pluginData = PluginManager::instance().pluginData(uuid());
-	PluginManager::instance().loadDisabledPlugin(pluginData);
+	PluginManager::instance().loadDisabledPlugin(FileBrowserWidgetFactory::PLUGIN_NAME);
 }
 
 void FileBrowserWidget::retranslate() {

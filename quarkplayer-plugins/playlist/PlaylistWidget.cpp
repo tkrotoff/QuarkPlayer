@@ -485,8 +485,7 @@ void PlaylistWidget::stateChanged(Phonon::State newState) {
 }
 
 void PlaylistWidget::createNewPlaylistWidget() {
-	PluginData pluginData = PluginManager::instance().pluginData(uuid());
-	PluginManager::instance().loadDisabledPlugin(pluginData);
+	PluginManager::instance().loadDisabledPlugin(PlaylistWidgetFactory::PLUGIN_NAME);
 }
 
 void PlaylistWidget::jumpToCurrent() {

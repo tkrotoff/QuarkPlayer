@@ -61,18 +61,18 @@ void PluginData::copy(const PluginData & pluginData) {
 	_factory = pluginData._factory;
 }
 
-PluginData & PluginData::operator=(const PluginData & right) {
+PluginData & PluginData::operator=(const PluginData & pluginData) {
 	//Handle self-assignment
-	if (this == &right) {
+	if (this == &pluginData) {
 		return *this;
 	}
 
-	copy(right);
+	copy(pluginData);
 	return *this;
 }
 
-int PluginData::operator==(const PluginData & right) {
-	return _uuid == right._uuid;
+int PluginData::operator==(const PluginData & pluginData) {
+	return _uuid == pluginData._uuid;
 }
 
 QString PluginData::fileName() const {
@@ -181,7 +181,7 @@ QDataStream & operator>>(QDataStream & stream, PluginDataList & plugins) {
 		stream >> enabled;
 
 		if (filename.isEmpty()) {
-			//FIXME don't why, stream can contain empty datas
+			//FIXME don't know why, stream can contain empty datas
 			//even if we didn't put empty datas in it (!)
 		} else {
 			PluginData pluginData(filename, uuid, enabled);

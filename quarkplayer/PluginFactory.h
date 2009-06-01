@@ -36,6 +36,9 @@ struct QUuid;
  *
  * For a simple example of how to use this class, check WelcomeWindow.
  *
+ * PluginFactory inherits from PluginInfo because a plugin can be static
+ * and in this case we use QPluginLoader::staticInstances() that gives use a list of PluginFactory.
+ *
  * @see PluginInterface
  * @see WelcomeWindow
  * @see http://doc.trolltech.com/main-snapshot/plugins-howto.html

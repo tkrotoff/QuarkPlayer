@@ -49,40 +49,34 @@ public:
 	bool loadPlugin(PluginData & pluginData);
 
 	/**
-	 * Loads/reloads a previously disabled plugin that matches the given PluginData filename.
+	 * Loads/reloads a previously disabled plugin that matches the given plugin filename.
 	 *
-	 * If no previously disabled PluginData exists then a new one will be created.
-	 * Matches the given PluginData means a plugin with the same name.
+	 * If no previously disabled plugin exists then a new one will be created.
 	 *
-	 * Way it should be used:
 	 * <pre>
-	 * PluginData pluginData = PluginManager::instance().pluginData(uuid());
-	 * PluginManager::instance().loadDisabledPlugin(pluginData);
+	 * PluginManager::instance().loadDisabledPlugin("name_of_my_plugin_without_file_extension");
 	 * </pre>
 	 *
-	 * FIXME one could think about just giving a QString filename
-	 * as a parameter but I think it can lead to misuse.
-	 *
-	 * @param pluginData plugin to reload
+	 * @param filename plugin to reload
 	 */
-	bool loadDisabledPlugin(const PluginData & pluginData);
+	bool loadDisabledPlugin(const QString & filename);
 
 	/** Deletes/unloads a given plugin and saves the plugins configuration. */
 	bool deletePlugin(PluginData & pluginData);
 
-	/** Gets a plugin given a unique ID. */
-	PluginData pluginData(const QUuid & uuid) const;
-
 	/** Gets the first loaded plugin interface matching the given filename. */
 	PluginInterface * pluginInterface(const QString & filename) const;
 
-	/** Gets the list of all available plugins. */
+	/** Gets a plugin given a unique ID, search among all the available plugins (loaded + disabled). */
+	PluginData pluginData(const QUuid & uuid) const;
+
+	/** Gets the list of all available plugins (loaded + disabled plugins). */
 	PluginDataList availablePlugins() const;
 
 	/**
 	 * @see allPluginsLoaded()
 	 *
-	 * Cannot not be named allPluginsLoaded() that's why already has been added to the name.
+	 * Cannot be named allPluginsLoaded() that's why "already" has been added to the name.
 	 */
 	bool allPluginsAlreadyLoaded() const;
 
@@ -133,6 +127,9 @@ private:
 
 	/** Finds the directory where dynamic plugins are located. */
 	QString findPluginDir() const;
+
+	/** QPluginLoader needs the plugin file extension unlike QLibrary who does not need it. */
+	QString appendPluginFileExtension(const QString & filename);
 
 	QuarkPlayer * _quarkPlayer;
 

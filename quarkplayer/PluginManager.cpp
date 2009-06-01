@@ -121,7 +121,6 @@ void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 		//Take only the base name, i.e without the extension since this part is platform dependent
 		_availablePlugins += fileInfo.baseName();
 	}
-	//_availablePlugins += QDir(_pluginDir).entryList(QDir::Files);
 	//Static plugins
 	_availablePlugins += staticPlugins;
 
@@ -164,16 +163,14 @@ void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	emit allPluginsLoaded();
 }
 
-bool PluginManager::loadDisabledPlugin(const PluginData & pluginData) {
+bool PluginManager::loadDisabledPlugin(const QString & filename) {
 	bool loaded = false;
 
-	QString filename(pluginData.fileName());
-
-	PluginDataList list(_disabledPlugins.values(filename));
-	foreach (PluginData data, list) {
+	PluginDataList disabledPlugins(_disabledPlugins.values(filename));
+	foreach (PluginData pluginData, disabledPlugins) {
 		//Loads a plugin that has already existed in the past
 		//instead of creating a new one
-		loaded = loadPlugin(data);
+		loaded = loadPlugin(pluginData);
 		break;
 	}
 
@@ -187,8 +184,7 @@ bool PluginManager::loadDisabledPlugin(const PluginData & pluginData) {
 	return loaded;
 }
 
-//QPluginLoader needs the file extension unlike QLibrary who does not need it
-QString getPluginFileNameWithExtension(const QString & filename) {
+QString PluginManager::appendPluginFileExtension(const QString & filename) {
 	QString tmp(filename);
 	Q_ASSERT(!tmp.isEmpty());
 
@@ -198,7 +194,7 @@ QString getPluginFileNameWithExtension(const QString & filename) {
 #elif defined(Q_WS_X11)
 		tmp += ".so";
 #else
-		qCritical() << __FUNCTION__ << "Platform not supported";
+		qFatal() << __FUNCTION__ << "Platform not supported";
 #endif
 	}
 	return tmp;
@@ -217,7 +213,7 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 	//2 cases: dynamic plugin and static plugin
 	PluginFactory * factory = NULL;
 	bool pluginFound = false;
-	QPluginLoader loader(getPluginFileNameWithExtension(_pluginDir + QDir::separator() + filename));
+	QPluginLoader loader(appendPluginFileExtension(_pluginDir + QDir::separator() + filename));
 	QObject * plugin = loader.instance();
 	if (plugin) {
 		//Ok, this is a dynamic plugin
@@ -272,7 +268,7 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 				foreach (PluginData data, disabledPlugins) {
 					//If we are here, it means the dependency plugin is a disabled plugin
 					//FIXME load it?
-					loadDisabledPlugin(data);
+					loadDisabledPlugin(data.fileName());
 					dependencySolved = true;
 					break;
 				}
@@ -336,7 +332,6 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 
 void PluginManager::deleteAllPlugins() {
 	foreach (PluginData pluginData, _loadedPlugins) {
-		qDebug() << __FUNCTION__ << "Delete plugin:" << pluginData.fileName();
 		deletePluginWithoutSavingConfig(pluginData);
 	}
 }
@@ -362,9 +357,11 @@ bool PluginManager::deletePluginWithoutSavingConfig(PluginData & pluginData) {
 	bool ret = true;
 
 	if (!pluginData.interface()) {
-		//qCritical() << __FUNCTION__ << "Error: couldn't delete the plugin:" << filename;
+		qCritical() << __FUNCTION__ << "Error: couldn't delete the plugin:" << pluginData.fileName();
 		ret = false;
 	} else {
+		qDebug() << __FUNCTION__ << "Delete plugin:" << pluginData.fileName();
+
 		//Unloads the plugin
 		pluginData.deleteInterface();
 	}
@@ -382,7 +379,7 @@ PluginData PluginManager::pluginData(const QUuid & uuid) const {
 
 	PluginData data;
 
-	foreach (PluginData pluginData, _loadedPlugins) {
+	foreach (PluginData pluginData, availablePlugins()) {
 		if (pluginData.uuid() == uuid) {
 			data = pluginData;
 			break;
