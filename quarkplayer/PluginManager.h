@@ -129,7 +129,7 @@ private:
 	QString findPluginDir() const;
 
 	/** QPluginLoader needs the plugin file extension unlike QLibrary who does not need it. */
-	QString appendPluginFileExtension(const QString & filename);
+	QString getRealPluginFileName(const QString & filename);
 
 	QuarkPlayer * _quarkPlayer;
 

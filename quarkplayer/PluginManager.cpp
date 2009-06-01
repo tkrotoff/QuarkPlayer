@@ -119,7 +119,14 @@ void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	QFileInfoList fileInfoList(QDir(_pluginDir).entryInfoList(QDir::Files));
 	foreach (QFileInfo fileInfo, fileInfoList) {
 		//Take only the base name, i.e without the extension since this part is platform dependent
-		_availablePlugins += fileInfo.baseName();
+		QString baseName(fileInfo.baseName());
+#ifdef Q_WS_X11
+		if (baseName.startsWith("lib")) {
+			//Remove the "lib" prefix under UNIX
+			baseName.remove(QRegExp("^lib"));
+		}
+#endif	//Q_WS_X11
+		_availablePlugins += baseName;
 	}
 	//Static plugins
 	_availablePlugins += staticPlugins;
@@ -184,7 +191,7 @@ bool PluginManager::loadDisabledPlugin(const QString & filename) {
 	return loaded;
 }
 
-QString PluginManager::appendPluginFileExtension(const QString & filename) {
+QString PluginManager::getRealPluginFileName(const QString & filename) {
 	QString tmp(filename);
 	Q_ASSERT(!tmp.isEmpty());
 
@@ -192,11 +199,14 @@ QString PluginManager::appendPluginFileExtension(const QString & filename) {
 #ifdef Q_WS_WIN
 		tmp += ".dll";
 #elif defined(Q_WS_X11)
+		//Add the lib prefix under UNIX
+		tmp.prepend("lib");
 		tmp += ".so";
 #else
 		qFatal() << __FUNCTION__ << "Platform not supported";
 #endif
 	}
+
 	return tmp;
 }
 
@@ -213,7 +223,7 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 	//2 cases: dynamic plugin and static plugin
 	PluginFactory * factory = NULL;
 	bool pluginFound = false;
-	QPluginLoader loader(appendPluginFileExtension(_pluginDir + QDir::separator() + filename));
+	QPluginLoader loader(_pluginDir + QDir::separator() + getRealPluginFileName(filename));
 	QObject * plugin = loader.instance();
 	if (plugin) {
 		//Ok, this is a dynamic plugin
