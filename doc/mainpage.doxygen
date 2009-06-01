@@ -1,28 +1,28 @@
 /**
  * @mainpage
-
-%QuarkPlayer is a Phonon media player.<br>
-<br>
-Website: http://quarkplayer.googlecode.com<br>
-Mailing-list: http://groups.google.com/group/quarkplayer
-
-<h2>Source code organization</h2>
-
-%QuarkPlayer source code is organized in <a href="dirs.html">4 parts</a>:
-- QuarkPlayer-app: contains %main.cpp, translations and icons
-- QuarkPlayer-core: QuarkPlayer's core that contains the API for developping plugins
-- QuarkPlayer-plugins: contains the plugins developped using QuarkPlayer-core
-- libs: libraries that helps developping QuarkPlayer-core and QuarkPlayer-plugins
-
-For a simple example of a %QuarkPlayer plugin, check quarkplayer-plugins/WelcomeWindow.cpp
-
-<h2>Code Conventions</h2>
-
-If you want to code on %QuarkPlayer, please read and respect the
-<a href="http://quarkplayer.googlecode.com/wiki/CodeConventions">Code Conventions</a>.
-
-<h2>License</h2>
-
-%QuarkPlayer is licensed under the <a href="http://www.fsf.org/licensing/licenses/gpl.html">GNU GPLv3+</a>.
-
+ *
+ * %QuarkPlayer is a Phonon media player.<br>
+ * <br>
+ * Website: http://quarkplayer.googlecode.com<br>
+ * Mailing-list: http://groups.google.com/group/quarkplayer
+ *
+ * <h2>Source code organization</h2>
+ *
+ * %QuarkPlayer source code is organized in <a href="dirs.html">4 parts</a>:
+ * - QuarkPlayer-app: contains %main.cpp, translations and icons
+ * - QuarkPlayer-core: QuarkPlayer's core that contains the API for developping plugins
+ * - QuarkPlayer-plugins: contains the plugins developped using QuarkPlayer-core
+ * - libs: libraries that helps developping QuarkPlayer-core and QuarkPlayer-plugins
+ *
+ * For a simple %QuarkPlayer plugin example, check WelcomeWindow.
+ *
+ * <h2>Code Conventions</h2>
+ *
+ * If you want to code on %QuarkPlayer, please read and respect the
+ * <a href="http://quarkplayer.googlecode.com/wiki/CodeConventions">Code Conventions</a>.
+ *
+ * <h2>License</h2>
+ *
+ * %QuarkPlayer is licensed under the <a href="http://www.fsf.org/licensing/licenses/gpl.html">GNU GPLv3+</a>.
+ *
  */
