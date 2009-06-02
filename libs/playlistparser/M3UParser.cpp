@@ -161,7 +161,9 @@ void M3UParser::save(const QList<MediaInfo> & files) {
 
 		QString filename;
 
-		stream << "#EXTM3U\n";
+		if (!files.isEmpty()) {
+			stream << "#EXTM3U\n";
+		}
 
 		foreach (MediaInfo mediaInfo, files) {
 			if (_stop) {
@@ -180,14 +182,21 @@ void M3UParser::save(const QList<MediaInfo> & files) {
 			}
 			QString title(mediaInfo.metadataValue(MediaInfo::Title));
 			if (!title.isEmpty()) {
-				stream << " - ";
-				stream << mediaInfo.metadataValue(MediaInfo::Title);
+				if (!artist.isEmpty()) {
+					stream << " - ";
+				}
+				stream << title;
 			}
 			stream << "\n";
 
-			//Try to save the filename as relative instead of absolute
-			QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
-			stream << Util::pathToNativeSeparators(filename) << "\n";
+			if (mediaInfo.isUrl()) {
+				stream << mediaInfo.fileName();
+			} else {
+				//Try to save the filename as relative instead of absolute
+				QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
+				stream << Util::pathToNativeSeparators(filename);
+			}
+			stream << "\n";
 		}
 	}
 

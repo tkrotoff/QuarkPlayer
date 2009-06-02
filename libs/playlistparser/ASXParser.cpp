@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WPLParser.h"
+#include "ASXParser.h"
 
 #include "Util.h"
 
@@ -34,28 +34,30 @@
 #include <QtCore/QTime>
 #include <QtCore/QDebug>
 
-WPLParser::WPLParser(const QString & filename, QObject * parent)
+ASXParser::ASXParser(const QString & filename, QObject * parent)
 	: IPlaylistParser(filename, parent) {
 
 	_filename = filename;
 	_stop = false;
 }
 
-WPLParser::~WPLParser() {
+ASXParser::~ASXParser() {
 	stop();
 }
 
-QStringList WPLParser::fileExtensions() const {
+QStringList ASXParser::fileExtensions() const {
 	QStringList extensions;
-	extensions << "wpl";
+	extensions << "asx";
+	extensions << "wax";
+	extensions << "wvx";
 	return extensions;
 }
 
-void WPLParser::stop() {
+void ASXParser::stop() {
 	_stop = true;
 }
 
-void WPLParser::load() {
+void ASXParser::load() {
 	QTime timeElapsed;
 	timeElapsed.start();
 
@@ -69,6 +71,8 @@ void WPLParser::load() {
 	if (file.open(QIODevice::ReadOnly)) {
 		QString path(QFileInfo(_filename).path());
 
+		MediaInfo mediaInfo;
+
 		QXmlStreamReader xml(&file);
 		while (!xml.atEnd() && !_stop) {
 			xml.readNext();
@@ -76,12 +80,33 @@ void WPLParser::load() {
 			switch (xml.tokenType()) {
 			case QXmlStreamReader::StartElement: {
 				QString element(xml.name().toString());
-
-				if (element.compare("media", Qt::CaseInsensitive) == 0) {
-					QString filename(xml.attributes().value("src").toString().trimmed());
-
+				if (element.compare("title", Qt::CaseInsensitive) == 0) {
+					QString title(xml.readElementText().trimmed());
+					if (!title.isEmpty()) {
+						mediaInfo.insertMetadata(MediaInfo::Title, title);
+					}
+				} else if (element.compare("ref", Qt::CaseInsensitive) == 0) {
+					QString url(xml.attributes().value("href").toString().trimmed());
+					if (!url.isEmpty()) {
+						mediaInfo.setFileName(url);
+						mediaInfo.setUrl(true);
+					}
+				} else if (element.compare("copyright", Qt::CaseInsensitive) == 0) {
+					QString copyright(xml.readElementText().trimmed());
+					if (!copyright.isEmpty()) {
+						mediaInfo.insertMetadata(MediaInfo::Copyright, copyright);
+					}
+				}
+				}
+				break;
+			case QXmlStreamReader::EndElement: {
+				QString element(xml.name().toString());
+				if (element.compare("entry", Qt::CaseInsensitive) == 0) {
 					//Add file to the list of files
-					files << MediaInfo(Util::canonicalFilePath(path, filename));
+					files << mediaInfo;
+
+					//Clear the MediaInfo
+					mediaInfo.clear();
 
 					if (files.size() > FILES_FOUND_LIMIT) {
 						//Emits the signal every FILES_FOUND_LIMIT files found
@@ -110,7 +135,7 @@ void WPLParser::load() {
 	emit finished(timeElapsed.elapsed());
 }
 
-void WPLParser::save(const QList<MediaInfo> & files) {
+void ASXParser::save(const QList<MediaInfo> & files) {
 	QTime timeElapsed;
 	timeElapsed.start();
 
@@ -125,45 +150,34 @@ void WPLParser::save(const QList<MediaInfo> & files) {
 
 		QXmlStreamWriter xml(&file);
 		xml.setAutoFormatting(true);
-		xml.writeStartDocument();
 
-		xml.writeStartElement("smil");
-			xml.writeStartElement("head");
-				xml.writeStartElement("meta");
-					xml.writeAttribute("name", "Generator");
-					xml.writeAttribute("content", QCoreApplication::applicationName());
-				xml.writeEndElement();
+		xml.writeStartElement("asx");
+		xml.writeAttribute("version", "3.0");
+			xml.writeTextElement("title", QFileInfo(_filename).baseName());
 
-				xml.writeStartElement("author");
-				xml.writeEndElement();
+			foreach (MediaInfo mediaInfo, files) {
+				if (_stop) {
+					break;
+				}
 
-				xml.writeTextElement("title", QFileInfo(_filename).baseName());
-			xml.writeEndElement();	//head
-
-			xml.writeStartElement("body");
-				xml.writeStartElement("seq");
-
-					foreach (MediaInfo mediaInfo, files) {
-						if (_stop) {
-							break;
-						}
-						xml.writeStartElement("media");
-
-						if (mediaInfo.isUrl()) {
-							xml.writeAttribute("src", mediaInfo.fileName());
-						} else {
-							//Try to save the filename as relative instead of absolute
-							QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
-							filename = Util::pathToNativeSeparators(filename);
-							xml.writeAttribute("src", filename);
-						}
-
-						xml.writeEndElement();	//media
+				xml.writeStartElement("entry");
+					QString title(mediaInfo.metadataValue(MediaInfo::Title));
+					if (!title.isEmpty()) {
+						xml.writeTextElement("title", title);
 					}
 
-				xml.writeEndElement();	//seq
-			xml.writeEndElement();	//body
-		xml.writeEndElement();	//smil
+					xml.writeStartElement("ref");
+						QString filename(mediaInfo.fileName());
+						xml.writeAttribute("href", filename);
+					xml.writeEndElement();	//ref
+
+					QString copyright(mediaInfo.metadataValue(MediaInfo::Copyright));
+					if (!copyright.isEmpty()) {
+						xml.writeTextElement("copyright", copyright);
+					}
+				xml.writeEndElement();	//entry
+			}
+		xml.writeEndElement();	//asx
 	}
 
 	file.close();

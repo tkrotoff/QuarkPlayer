@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include "M3UParser.h"
 #include "WPLParser.h"
 #include "PLSParser.h"
+#include "ASXParser.h"
 
 #include <mediainfowindow/MediaInfo.h>
 
@@ -39,9 +40,11 @@ PlaylistParser::PlaylistParser(const QString & filename, QObject * parent)
 	_parser = NULL;
 	_parserThread = NULL;
 
+	//When to delete _parserList ?
 	_parserList += new M3UParser(filename, this);
 	_parserList += new PLSParser(filename, this);
 	_parserList += new WPLParser(filename, this);
+	_parserList += new ASXParser(filename, this);
 
 	QString extension(QFileInfo(filename).suffix().toLower());
 

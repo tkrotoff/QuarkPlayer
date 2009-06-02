@@ -159,10 +159,14 @@ void PLSParser::save(const QList<MediaInfo> & files) {
 				break;
 			}
 
-			//Try to save the filename as relative instead of absolute
-			QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
 			stream << "File" << count << '=';
-			stream << Util::pathToNativeSeparators(filename);
+			if (mediaInfo.isUrl()) {
+				stream << mediaInfo.fileName();
+			} else {
+				//Try to save the filename as relative instead of absolute
+				QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
+				stream << Util::pathToNativeSeparators(filename);
+			}
 			stream << winampEndOfLine;
 
 			stream << "Title" << count << '=';
