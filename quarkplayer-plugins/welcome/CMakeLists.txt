@@ -1,5 +1,9 @@
 project(welcome)
 
+if (STATICPLUGINS)
+	add_definitions(-DQT_STATICPLUGIN)
+endif (STATICPLUGINS)
+
 set(welcome_SRCS
 	WelcomeWindow.cpp
 )
@@ -8,7 +12,11 @@ qt4_wrap_cpp(welcome_SRCS
 	WelcomeWindow.h
 )
 
-add_library(welcome MODULE ${welcome_SRCS})
+if (STATICPLUGINS)
+	add_library(welcome STATIC ${welcome_SRCS})
+else (STATICPLUGINS)
+	add_library(welcome MODULE ${welcome_SRCS})
+endif (STATICPLUGINS)
 
 target_link_libraries(welcome
 	quarkplayercore
@@ -22,4 +30,6 @@ target_link_libraries(welcome
 # Translations
 add_qt_translations(${welcome_SRCS})
 
-install(TARGETS welcome ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+if (NOT STATICPLUGINS)
+	install(TARGETS welcome ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+endif (NOT STATICPLUGINS)

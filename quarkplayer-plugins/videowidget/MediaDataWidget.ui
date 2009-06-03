@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>MediaDataWidget</class>
- <widget class="QWidget" name="MediaDataWidget" >
-  <property name="geometry" >
+ <widget class="QWidget" name="MediaDataWidget">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,51 +10,47 @@
     <height>100</height>
    </rect>
   </property>
-  <layout class="QGridLayout" name="gridLayout" >
-   <property name="margin" >
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="margin">
     <number>2</number>
    </property>
-   <item row="0" column="0" >
-    <widget class="QToolButton" name="coverArtButton" >
-     <property name="icon" >
-      <iconset resource="../../quarkplayer-app/quarkplayer.qrc" >
-       <normaloff>:/icons/hi128-app-quarkplayer.png</normaloff>:/icons/quarkplayer-128x128.png</iconset>
+   <item row="0" column="0">
+    <widget class="QToolButton" name="coverArtButton">
+     <property name="icon">
+      <iconset>
+       <normaloff>:/icons/hi128-app-quarkplayer.png</normaloff>:/icons/hi128-app-quarkplayer.png</iconset>
      </property>
-     <property name="iconSize" >
+     <property name="iconSize">
       <size>
        <width>90</width>
        <height>90</height>
       </size>
      </property>
-     <property name="autoRaise" >
+     <property name="autoRaise">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="0" column="1" >
-    <layout class="QFormLayout" name="formLayout" >
-     <property name="labelAlignment" >
+   <item row="0" column="1">
+    <layout class="QFormLayout" name="formLayout">
+     <property name="labelAlignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
-     <property name="formAlignment" >
+     <property name="formAlignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
-     <property name="verticalSpacing" >
+     <property name="verticalSpacing">
       <number>0</number>
      </property>
-     <item row="0" column="0" >
-      <widget class="QLabel" name="pushTheCoverArtOnTheLeftLabel" >
-       <property name="text" >
-        <string/>
-       </property>
-      </widget>
+     <item row="0" column="0">
+      <widget class="QLabel" name="pushTheCoverArtOnTheLeftLabel"/>
      </item>
     </layout>
    </item>
   </layout>
  </widget>
  <resources>
-  <include location="../../quarkplayer-app/quarkplayer.qrc" />
+  <include location="../../quarkplayer-app/quarkplayer.qrc"/>
  </resources>
  <connections/>
 </ui>

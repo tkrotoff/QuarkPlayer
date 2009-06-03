@@ -21,12 +21,17 @@
 
 #include <QtCore/QtGlobal>
 
-#ifdef BUILD_MAINWINDOW
-	//We are building this library
-	#define MAINWINDOW_API Q_DECL_EXPORT
+#ifdef QT_STATICPLUGIN
+	//This library is a static plugin
+	#define MAINWINDOW_API
 #else
-	//We are using this library
-	#define MAINWINDOW_API Q_DECL_IMPORT
+	#ifdef BUILD_MAINWINDOW
+		//We are building this library
+		#define MAINWINDOW_API Q_DECL_EXPORT
+	#else
+		//We are using this library
+		#define MAINWINDOW_API Q_DECL_IMPORT
+	#endif
 #endif
 
 #endif	//MAINWINDOWEXPORT_H
