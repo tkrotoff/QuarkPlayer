@@ -55,6 +55,7 @@ target_link_libraries(mediainfowindow
 	webbrowser
 	thumbnailview
 	filetypes
+
 	${QT_QTCORE_LIBRARY}
 	${QT_QTNETWORK_LIBRARY}
 	${QT_QTGUI_LIBRARY}

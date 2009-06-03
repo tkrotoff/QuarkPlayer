@@ -25,8 +25,6 @@
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>
 
-#include <QtCore/QFileInfo>
-
 #ifdef TAGLIB
 	#include <taglib/fileref.h>
 	#include <taglib/tag.h>
@@ -64,6 +62,7 @@
 	#endif	//Q_OS_UNIX
 #endif	//MEDIAINFOLIB
 
+#include <QtCore/QFileInfo>
 #include <QtCore/QUrl>
 #include <QtCore/QFile>
 #include <QtCore/QtConcurrentRun>
@@ -86,29 +85,23 @@ MediaInfo MediaInfoFetcher::mediaInfo() const {
 
 void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
 	//By using an already existing MediaInfo as a parameter, if informations are found inside
-	//a .m3u playlist about this track, these informations won't be replaced by nothing but only
-	//with non-empty informations
+	//a .m3u playlist about this track, these informations won't be replaced by empty informations
 	_mediaInfo = mediaInfo;
 
-	_mediaSource = mediaInfo.fileName();
 	_readStyle = readStyle;
 
-	if (_mediaSource.type() == Phonon::MediaSource::Url) {
-		_mediaInfo.setFileName(_mediaSource.url().toString());
-		_mediaInfo.setUrl(true);
-
+	QString filename(_mediaInfo.fileName());
+	bool isUrl = MediaInfo::isUrl(filename);
+	_mediaInfo.setUrl(isUrl);
+	if (isUrl) {
 		//Cannot solve meta data from a stream/remote media
-		qCritical() << __FUNCTION__ << "Error: mediaSource is a URL";
-
-		//This might be caused also by an invalid filename
+		//This might be caused also by an invalid filename?
+		qCritical() << __FUNCTION__ << "Error: mediaInfo is a URL";
 
 		//Sends the fetched() signal
 		_mediaInfo.setFetched(true);
 		emit fetched();
 	} else {
-		_mediaInfo.setFileName(_mediaSource.fileName());
-		_mediaInfo.setUrl(false);
-
 		determineFileTypeFromExtension();
 
 		bool resolverLaunched = false;
@@ -133,6 +126,7 @@ void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
 		if (!resolverLaunched) {
 			//If TagLib or MediaInfoLib are not used, let's use
 			//the backend for resolving the metadata
+			_mediaSource = filename;
 			startPhononResolver();
 			resolverLaunched = true;
 		}
@@ -144,15 +138,16 @@ void MediaInfoFetcher::start(Phonon::MediaObject * mediaObject) {
 
 	_mediaSource = mediaObject->currentSource();
 
-	if (_mediaSource.type() == Phonon::MediaSource::Url) {
+	bool isUrl = (_mediaSource.type() == Phonon::MediaSource::Url);
+	_mediaInfo.setUrl(isUrl);
+	if (isUrl) {
 		_mediaInfo.setFileName(_mediaSource.url().toString());
-		_mediaInfo.setUrl(true);
 	} else {
 		_mediaInfo.setFileName(_mediaSource.fileName());
-		_mediaInfo.setUrl(false);
+		qCritical() << __FUNCTION__ << "Error: mediaSource is not a URL";
 	}
 
-	//Cannot solve meta data from a stream/remote media if we have only the MediaSource
+	//Cannot solve metadata from a stream/remote media if we have only the MediaSource
 	//We need the MediaObject
 	//Use the given mediaObject to get the meta data
 	//So when using MediaInfoFetcher you must check if the source is a url
@@ -165,6 +160,8 @@ void MediaInfoFetcher::start(Phonon::MediaObject * mediaObject) {
 	//Use the given mediaObject
 	_metaObjectInfoResolver = mediaObject;
 
+	//Trick: the given mediaObject is already playing thus we have already
+	//all the metadata from the stream, we just need to read them
 	metaStateChanged(Phonon::StoppedState, Phonon::StoppedState);
 
 	//Back to normal

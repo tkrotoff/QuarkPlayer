@@ -145,7 +145,7 @@ void MediaInfoWindow::updateMediaInfo() {
 	_ui->filenameLineEdit->setText(mediaInfo.fileName());
 
 	//Metadata
-	QString tmp = mediaInfo.metadataValue(MediaInfo::TrackNumber);
+	QString tmp(mediaInfo.metadataValue(MediaInfo::TrackNumber));
 	_ui->trackLineEdit->setText(tmp);
 	tmp = mediaInfo.metadataValue(MediaInfo::DiscNumber);
 	_ui->discLineEdit->setText(tmp);
@@ -215,27 +215,36 @@ void MediaInfoWindow::updateMediaInfo() {
 
 	//General
 	QString fileInfo;
-	QString fileSize = mediaInfo.fileSize();
-	QString length = mediaInfo.lengthFormatted();
-	QString bitrate = mediaInfo.bitrate();
+	QString fileSize(mediaInfo.fileSize());
+	QString length(mediaInfo.lengthFormatted());
+	QString bitrate(mediaInfo.bitrate());
 	if (!fileSize.isEmpty() || !length.isEmpty() || !bitrate.isEmpty()) {
 		QString fileTypeWikipedia(mediaInfo.fileType().wikipediaArticle);
-		QString fileTypeName = mediaInfo.fileType().fullName;
+		QString fileTypeName(mediaInfo.fileType().fullName);
 		if (!fileTypeWikipedia.isEmpty()) {
 			fileInfo += "<a href=\"http://" + _language + ".wikipedia.org/wiki/" + fileTypeWikipedia + "\">" + fileTypeName + "</a>";
 		} else {
 			fileInfo += fileTypeName;
 		}
 		if (!fileSize.isEmpty()) {
-			fileInfo += ", " + fileSize + ' ' + tr("MB");
+			if (!fileInfo.isEmpty()) {
+				fileInfo += ", ";
+			}
+			fileInfo += fileSize + ' ' + tr("MB");
 		}
 		if (!length.isEmpty()) {
-			fileInfo += ", " + length;
+			if (!fileInfo.isEmpty()) {
+				fileInfo += ", ";
+			}
+			fileInfo += length;
 		}
 		if (!bitrate.isEmpty() && mediaInfo.videoStreamCount() > 0) {
 			//Don't show the overall bitrate if there is no video stream
 			//in this case the overall bitrate has no interest
-			fileInfo += ", " + bitrate + ' ' + tr("kbps");
+			if (!fileInfo.isEmpty()) {
+				fileInfo += ", ";
+			}
+			fileInfo += bitrate + ' ' + tr("kbps");
 		}
 	}
 	QString encodedApplication;
@@ -247,15 +256,15 @@ void MediaInfoWindow::updateMediaInfo() {
 	QString audioStream;
 	int audioStreamCount = mediaInfo.audioStreamCount();
 	for (int audioStreamId = 0; audioStreamId < audioStreamCount; audioStreamId++) {
-		QString audioBitrate = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioBitrate);
-		QString audioBitrateMode = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioBitrateMode);
-		QString audioSampleRate = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioSampleRate);
-		QString audioBitsPerSample = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioBitsPerSample);
-		QString audioChannelCount = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioChannelCount);
-		QString audioCodecProfile = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioCodecProfile);
-		QString audioCodec = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioCodec);
-		QString audioLanguage = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioLanguage);
-		QString audioEncodedLibrary = mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioEncodedLibrary);
+		QString audioBitrate(mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioBitrate));
+		QString audioBitrateMode(mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioBitrateMode));
+		QString audioSampleRate(mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioSampleRate));
+		QString audioBitsPerSample(mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioBitsPerSample));
+		QString audioChannelCount(mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioChannelCount));
+		QString audioCodecProfile(mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioCodecProfile));
+		QString audioCodec(mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioCodec));
+		QString audioLanguage(mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioLanguage));
+		QString audioEncodedLibrary(mediaInfo.audioStreamValue(audioStreamId, MediaInfo::AudioEncodedLibrary));
 
 		if (!audioBitrate.isEmpty() || !audioBitrateMode.isEmpty() || !audioSampleRate.isEmpty() ||
 			!audioBitsPerSample.isEmpty() || !audioChannelCount.isEmpty() ||
@@ -301,13 +310,13 @@ void MediaInfoWindow::updateMediaInfo() {
 	QString videoStream;
 	int videoStreamCount = mediaInfo.videoStreamCount();
 	for (int videoStreamId = 0; videoStreamId < videoStreamCount; videoStreamId++) {
-		QString videoBitrate = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoBitrate);
-		QString videoWidth = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoWidth);
-		QString videoHeight = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoHeight);
-		QString videoFrameRate = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoFrameRate);
-		QString videoFormat = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoFormat);
-		QString videoCodec = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoCodec);
-		QString videoEncodedLibrary = mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoEncodedLibrary);
+		QString videoBitrate(mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoBitrate));
+		QString videoWidth(mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoWidth));
+		QString videoHeight(mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoHeight));
+		QString videoFrameRate(mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoFrameRate));
+		QString videoFormat(mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoFormat));
+		QString videoCodec(mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoCodec));
+		QString videoEncodedLibrary(mediaInfo.videoStreamValue(videoStreamId, MediaInfo::VideoEncodedLibrary));
 
 		if (!videoBitrate.isEmpty() || !videoWidth.isEmpty() || !videoHeight.isEmpty() ||
 			!videoFrameRate.isEmpty() || !videoCodec.isEmpty() ||
@@ -343,8 +352,8 @@ void MediaInfoWindow::updateMediaInfo() {
 	QString textStream;
 	int textStreamCount = mediaInfo.textStreamCount();
 	for (int textStreamId = 0; textStreamId < textStreamCount; textStreamId++) {
-		QString textLanguage = mediaInfo.textStreamValue(textStreamId, MediaInfo::TextLanguage);
-		QString textFormat = mediaInfo.textStreamValue(textStreamId, MediaInfo::TextFormat);
+		QString textLanguage(mediaInfo.textStreamValue(textStreamId, MediaInfo::TextLanguage));
+		QString textFormat(mediaInfo.textStreamValue(textStreamId, MediaInfo::TextFormat));
 
 		if (!textFormat.isEmpty() || !textLanguage.isEmpty()) {
 
@@ -435,7 +444,7 @@ void MediaInfoWindow::networkError(QNetworkReply::NetworkError errorCode) {
 void MediaInfoWindow::lyricsFound(const QByteArray & lyrics, bool accurate) {
 	Q_UNUSED(accurate);
 
-	QString text = QString::fromUtf8(lyrics);
+	QString text(QString::fromUtf8(lyrics));
 	if (!text.isEmpty()) {
 		_ui->lyricsTextEdit->setHtml(text);
 	} else {

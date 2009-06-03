@@ -21,7 +21,7 @@
 
 #include <QtCore/QtGlobal>
 
-#ifdef BUILD_MEDIAINFOWINDOW
+#ifdef BUILD_MEDIAINFO
 	//We are building this library
 	#define MEDIAINFO_API Q_DECL_EXPORT
 #else

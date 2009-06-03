@@ -20,6 +20,7 @@
 
 #include <tkutil/TkTime.h>
 
+#include <QtCore/QUrl>
 #include <QtCore/QDebug>
 
 MediaInfo::MediaInfo() {
@@ -78,13 +79,14 @@ QString MediaInfo::fileName() const {
 	return _fileName;
 }
 
-void MediaInfo::setFileName(const QString & fileName) {
-	_fileName = fileName;
+void MediaInfo::setFileName(const QString & filename) {
+	_fileName = filename;
 
 	//This avoid a stupid bug: comparing a filename with \ separator and another with /
 	//By replacing any \ by /, we don't have any comparison problem
 	//This is needed by FileSearchModel.cpp
-	_fileName.replace("\\", "/");
+	//and PlaylistModel::updateMediaInfo()
+	//_fileName.replace("\\", "/");
 }
 
 bool MediaInfo::isUrl() const {
@@ -93,6 +95,11 @@ bool MediaInfo::isUrl() const {
 
 void MediaInfo::setUrl(bool url) {
 	_isUrl = url;
+}
+
+bool MediaInfo::isUrl(const QString & filename) {
+	//A filename that contains a host/server name is a remote/network media
+	return !QUrl(filename).host().isEmpty();
 }
 
 FileType MediaInfo::fileType() const {
@@ -125,6 +132,10 @@ QString MediaInfo::lengthFormatted() const {
 
 int MediaInfo::lengthSeconds() const {
 	return _length;
+}
+
+int MediaInfo::lengthMilliseconds() const {
+	return (_length * 1000);
 }
 
 void MediaInfo::setLength(int length) {

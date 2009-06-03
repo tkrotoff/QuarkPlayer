@@ -83,22 +83,26 @@ public:
 	};
 
 	/**
-	 * Starts info fetching given a media source.
+	 * Starts info fetching given a media filename.
 	 *
-	 * mediaSource cannot be a URL, only a file.
-	 * If mediaSource is a URL then use start(Phonon::MediaObject * mediaObject)
+	 * mediaInfo cannot be a URL, only a file.
+	 * If mediaInfo is a URL then use start(Phonon::MediaObject *)
 	 *
-	 * @param mediaSource Phonon media source
+	 * @see start(Phonon::MediaObject *)
+	 * @see MediaInfo
+	 * @param mediaInfo the media filename
+	 * @param readStyle accuracy of the metadata search
 	 */
 	void start(const MediaInfo & mediaInfo, ReadStyle readStyle = ReadStyleAverage);
 
 	/**
-	 * Starts info fetching given a media object.
+	 * Starts info fetching given the current playing mediaObject.
 	 *
-	 * If mediaSource is not a URL, use start(const Phonon::MediaSource & mediaSource)
-	 * If mediaSource is a URL then use this method.
+	 * If mediaInfo is not a URL, use start(const MediaInfo &, ReadStyle)
+	 * If mediaInfo is a URL then use this method with the current playing mediaObject used by Phonon.
 	 *
-	 * @param mediaObject media object, use MediaObject::currentMediaSource() internally
+	 * @see start(const MediaInfo &, ReadStyle)
+	 * @param mediaObject current mediaObject playing, use MediaObject::currentMediaSource() internally
 	 */
 	void start(Phonon::MediaObject * mediaObject);
 
@@ -121,9 +125,7 @@ private slots:
 
 private:
 
-	/**
-	 * Use Phonon to find metadata.
-	 */
+	/** Use Phonon to find metadata. */
 	void startPhononResolver();
 
 	/**
@@ -138,9 +140,7 @@ private:
 	 */
 	void startTagLibResolver();
 
-	/**
-	 * Use MediaInfoLib to find metadata and other informations.
-	 */
+	/** Use MediaInfoLib to find metadata and other informations. */
 	void startMediaInfoLibResolver();
 
 	/** Determines file type from the file extension. */
@@ -148,13 +148,14 @@ private:
 
 	ReadStyle _readStyle;
 
+	/** Contains all the metadata. */
+	MediaInfo _mediaInfo;
+
+	/** Only used in the case of startPhononResolver(). */
 	Phonon::MediaSource _mediaSource;
 
 	/** Resolves media metadata/info. */
 	Phonon::MediaObject * _metaObjectInfoResolver;
-
-	/** Contains all the metadata. */
-	MediaInfo _mediaInfo;
 };
 
 #endif	//MEDIAINFOFETCHER_H

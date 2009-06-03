@@ -45,6 +45,11 @@ public:
 
 	MediaInfo();
 
+	/**
+	 * Constructs a MediaInfo given a filename or a URL.
+	 *
+	 * @param filename a media filename or a URL
+	 */
 	explicit MediaInfo(const QString & filename);
 
 	~MediaInfo();
@@ -55,13 +60,16 @@ public:
 	bool fetched() const;
 	void setFetched(bool fetched);
 
-	/** FileName. */
+	/** MediaInfo filename, can also be a URL. */
 	QString fileName() const;
-	void setFileName(const QString & fileName);
+	void setFileName(const QString & filename);
 
-	/** If the fileName is a URL or not. */
+	/** If the filename is a URL or not. */
 	bool isUrl() const;
 	void setUrl(bool url);
+
+	/** Helper function: determine if a given filename is a URL or not. */
+	static bool isUrl(const QString & filename);
 
 	/** Gets the file type. */
 	FileType fileType() const;
@@ -75,6 +83,8 @@ public:
 	QString lengthFormatted() const;
 	/** Returns the length of the file in seconds, or -1. */
 	int lengthSeconds() const;
+	/** Returns the length of the file in milliseconds, or -1. */
+	int lengthMilliseconds() const;
 	/** Sets the length of the file in seconds. */
 	void setLength(int length);
 
