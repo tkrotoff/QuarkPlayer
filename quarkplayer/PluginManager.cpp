@@ -55,12 +55,12 @@ QString PluginManager::findPluginDir() const {
 		//Order matters!!! See Config.cpp
 		//Check if we have:
 		//applicationDirPath/quarkplayer.exe
-		//applicationDirPath/plugins/*.pluginspec
+		//applicationDirPath/plugins/*.dll
 		//Then applicationDirPath/plugins/ is the plugin directory
 		//
 		//Check if we have:
 		//applicationDirPath/quarkplayer.exe
-		//usr/lib/quarkplayer/plugins/*.pluginspec
+		//usr/lib/quarkplayer/plugins/*.dll
 
 		qDebug() << "Checking for plugins:" << pluginDir;
 
@@ -80,21 +80,17 @@ QString PluginManager::findPluginDir() const {
 	}
 
 	if (tmp.isEmpty()) {
-		qCritical() << __FUNCTION__ << "Error: couldn't find the plugin directory";
-	} else {
-		qDebug() << __FUNCTION__ << "Plugin directory:" << tmp;
+		qCritical() << __FUNCTION__ << "Error: couldn't find the plugin directory, back to the default one";
+		tmp = Config::instance().pluginDirList().first();
 	}
+
+	qDebug() << __FUNCTION__ << "Plugin directory:" << tmp;
 
 	return tmp;
 }
 
 void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	Q_ASSERT(!_allPluginsLoaded);
-
-	//Windows specific code
-	PluginManagerWin32::setErrorMode();
-	PluginManagerWin32::setDllDirectory();
-	///
 
 	//Stupid hack, see loadPlugin()
 	_quarkPlayer = &quarkPlayer;
@@ -113,6 +109,11 @@ void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	///
 
 	_pluginDir = findPluginDir();
+
+	//Windows specific code
+	PluginManagerWin32::setErrorMode();
+	PluginManagerWin32::setDllDirectory(_pluginDir.toUtf8().constData());
+	///
 
 	//List of all the available plugins
 	//Dynamic plugins
@@ -136,8 +137,6 @@ void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	QStringList filenames(Random::randomize(_availablePlugins));
 
 	foreach (QString filename, filenames) {
-
-		qDebug() << __FUNCTION__ << "filename:" << filename;
 
 		//Check if the plugin has been already loaded
 		if (!(_loadedPlugins.values(filename).isEmpty())) {
@@ -217,42 +216,45 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 
 	QString filename(pluginData.fileName());
 
-	qDebug() << __FUNCTION__ << "Load plugin:" << filename << "...";
-
 	//Creates the factory
 	//2 cases: dynamic plugin and static plugin
-	PluginFactory * factory = NULL;
 	bool pluginFound = false;
-	QPluginLoader loader(_pluginDir + QDir::separator() + getRealPluginFileName(filename));
-	QObject * plugin = loader.instance();
-	if (plugin) {
-		//Ok, this is a dynamic plugin
+	PluginFactory * factory = NULL;
+
+	//First check if it is a static plugin
+	//By default we prefer to first load static plugins
+	foreach (QObject * plugin, QPluginLoader::staticInstances()) {
 		factory = qobject_cast<PluginFactory *>(plugin);
 		if (factory) {
-			pluginData.setFactory(factory);
-			pluginFound = true;
-		} else {
-			qCritical() << __FUNCTION__ << "Error: this is not a QuarkPlayer plugin:" << filename;
-		}
-	} else {
-		//QPluginLoader failed, let's check if it is a static plugin
-		foreach (QObject * plugin, QPluginLoader::staticInstances()) {
-			factory = qobject_cast<PluginFactory *>(plugin);
-			if (factory) {
-				if (filename == factory->name()) {
-					//Ok, this is a static plugin
-					pluginData.setFactory(factory);
- 					pluginFound = true;
-					break;
-				}
+			if (filename == factory->name()) {
+				//Ok, this is a static plugin
+				pluginData.setFactory(factory);
+				pluginFound = true;
+				qDebug() << __FUNCTION__ << "Loading static plugin:" << filename << "...";
+				break;
 			}
 		}
 	}
+
 	if (!pluginFound) {
-		qCritical() << __FUNCTION__ << "Error: plugin couldn't be loaded:" << filename << loader.errorString();
+		//The static plugin was not found, let's check for a dynamic plugin
+		QPluginLoader loader(_pluginDir + QDir::separator() + getRealPluginFileName(filename));
+		QObject * plugin = loader.instance();
+		if (plugin) {
+			//Ok, this is a dynamic plugin
+			factory = qobject_cast<PluginFactory *>(plugin);
+			if (factory) {
+				pluginData.setFactory(factory);
+				pluginFound = true;
+				qDebug() << __FUNCTION__ << "Loading dynamic plugin:" << filename << "...";
+			} else {
+				qCritical() << __FUNCTION__ << "Error: this is not a QuarkPlayer plugin:" << filename;
+			}
+		} else {
+			qCritical() << __FUNCTION__ << "Error: plugin couldn't be loaded:" << filename << loader.errorString();
+		}
 	}
 	///
-
 
 	//Check plugin dependencies and load them
 	//before to load the actual plugin

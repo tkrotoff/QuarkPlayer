@@ -19,7 +19,13 @@
 #ifndef PLUGINMANAGERWIN32_H
 #define PLUGINMANAGERWIN32_H
 
-//In a separate file since it fails to compile otherwise :/
+/**
+ * Specific Windows functions for PluginManager.
+ *
+ * In a separate file since it fails to compile otherwise :/
+ *
+ * @author Tanguy Krotoff
+ */
 class PluginManagerWin32 {
 public:
 
@@ -42,7 +48,7 @@ public:
 	 *
 	 * @see http://msdn.microsoft.com/en-us/library/ms686203.aspx
 	 */
-	static void setDllDirectory();
+	static void setDllDirectory(const char * path);
 };
 
 #endif	//PLUGINMANAGERWIN32_H
