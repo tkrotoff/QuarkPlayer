@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<playlist xmlns="http://xspf.org/ns/0/" xml:base="file://C:/Documents%20and%20Settings/tanguy_k/My%20Documents/Downloads/">
+
+  <title>foobar2000 Generated XSPF Playlist</title>
+
+  <trackList>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/01-Do%20Whats%20Good%20For%20Me.mp3</location>
+      <title>Do What's Good For Me</title>
+      <creator>2 Unlimited</creator>
+      <annotation>ThuGGinOutLaW</annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>1</trackNum>
+      <duration>01622505</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/02-No%20Limit.mp3</location>
+      <title>No Limit</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>2</trackNum>
+      <duration>01486799</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/03-Get%20Ready%20For%20This.mp3</location>
+      <title>Get Ready For This</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>3</trackNum>
+      <duration>01567230</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/04-Twilight%20Zone.mp3</location>
+      <title>Twilight Zone</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>4</trackNum>
+      <duration>01771638</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/05-No%20One.mp3</location>
+      <title>No One</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited : The Story So Far</album>
+      <trackNum>5</trackNum>
+      <duration>01462165</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/06-Jump%20For%20Joy.mp3</location>
+      <title>Jump For Joy</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>6</trackNum>
+      <duration>01569947</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/07-Tribal%20Dance.mp3</location>
+      <title>Tribal Dance</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited : The Story So Far</album>
+      <trackNum>7</trackNum>
+      <duration>01554822</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/08-Magic%20Friend.mp3</location>
+      <title>Magic Friend</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>8</trackNum>
+      <duration>01595285</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/09-Workaholic.mp3</location>
+      <title>Workaholic</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>9</trackNum>
+      <duration>01509787</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/10-Let%20The%20Beat%20Control%20Your%20Body.mp3</location>
+      <title>Let The Beat Control Your Body</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>10</trackNum>
+      <duration>01540820</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/11-Nothing%20Like%20The%20Rain.mp3</location>
+      <title>Nothing Like The Rain</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>11</trackNum>
+      <duration>01695047</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/12-Spread%20Your%20Love.mp3</location>
+      <title>Spread Your Love</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>12</trackNum>
+      <duration>02004729</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/13-The%20Real%20Thing.mp3</location>
+      <title>The Real Thing</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>13</trackNum>
+      <duration>01547011</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/14-Here%20I%20Go.mp3</location>
+      <title>Here I Go</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>14</trackNum>
+      <duration>01388526</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/15-Maximum%20Overdrive.mp3</location>
+      <title>Maximum Overdrive</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>15</trackNum>
+      <duration>01561718</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>2%20Unlimited%20-%20The%20Very%20Best%20Of%202%20Unlimited/16-Faces.mp3</location>
+      <title>Faces</title>
+      <creator>2 Unlimited</creator>
+      <annotation></annotation>
+      <album>The Very Best Of 2 Unlimited</album>
+      <trackNum>16</trackNum>
+      <duration>01492128</duration>
+      <meta rel="date">2006</meta>
+      <meta rel="genre">Dance</meta>
+    </track>
+    <track>
+      <location>Blondie%20-%20The%20Best%20of/01%20Blondie%20-%20Heart%20Of%20Glass.mp3</location>
+      <title>Heart Of Glass</title>
+      <creator>Blondie</creator>
+      <annotation></annotation>
+      <album>The Best of Blondie</album>
+      <trackNum>01</trackNum>
+      <duration>00275733</duration>
+      <meta rel="band">Blondie</meta>
+      <meta rel="date">1981</meta>
+    </track>
+    <track>
+      <location>Blondie%20-%20The%20Best%20of/02%20Blondie%20-%20Dreaming.mp3</location>
+      <title>Dreaming</title>
+      <creator>Blondie</creator>
+      <annotation></annotation>
+      <album>The Best of Blondie</album>
+      <trackNum>02</trackNum>
+      <duration>00188133</duration>
+      <meta rel="band">Blondie</meta>
+      <meta rel="date">1981</meta>
+    </track>
+    <track>
+      <location>Blondie%20-%20The%20Best%20of/03%20Blondie%20-%20The%20Tide%20Is%20High.mp3</location>
+      <title>The Tide Is High</title>
+      <creator>Blondie</creator>
+      <annotation></annotation>
+      <album>The Best of Blondie</album>
+      <trackNum>03</trackNum>
+      <duration>00282133</duration>
+      <meta rel="band">Blondie</meta>
+      <meta rel="date">1981</meta>
+    </track>
+    <track>
+      <location>Blondie%20-%20The%20Best%20of/04%20Blondie%20-%20In%20The%20Flesh.mp3</location>
+      <title>In The Flesh</title>
+      <creator>Blondie</creator>
+      <annotation></annotation>
+      <album>The Best of Blondie</album>
+      <trackNum>04</trackNum>
+      <duration>00152133</duration>
+      <meta rel="band">Blondie</meta>
+      <meta rel="date">1981</meta>
+    </track>
+    <track>
+      <location>Blondie%20-%20The%20Best%20of/05%20Blondie%20-%20Sunday%20Girl.mp3</location>
+      <title>Sunday Girl</title>
+      <creator>Blondie</creator>
+      <annotation></annotation>
+      <album>The Best of Blondie</album>
+      <trackNum>05</trackNum>
+      <duration>00185066</duration>
+      <meta rel="band">Blondie</meta>
+      <meta rel="date">1981</meta>
+    </track>
+    <track>
+      <location>Blondie%20-%20The%20Best%20of/06%20Blondie%20-%20Hanging%20On%20The%20Telephone.mp3</location>
+      <title>Hanging On The Telephone</title>
+      <creator>Blondie</creator>
+      <annotation></annotation>
+      <album>The Best of Blondie</album>
+      <trackNum>06</trackNum>
+      <duration>00153066</duration>
+      <meta rel="band">Blondie</meta>
+      <meta rel="date">1981</meta>
+    </track>
+    <track>
+      <location>Blondie%20-%20The%20Best%20of/07%20Blondie%20-%20Rapture.mp3</location>
+      <title>Rapture</title>
+      <creator>Blondie</creator>
+      <annotation></annotation>
+      <album>The Best of Blondie</album>
+      <trackNum>07</trackNum>
+      <duration>00336933</duration>
+      <meta rel="band">Blondie</meta>
+      <meta rel="date">1981</meta>
+    </track>
+    <track>
+      <location>Blondie%20-%20The%20Best%20of/08%20Blondie%20-%20One%20Way%20Or%20Another.mp3</location>
+      <title>One Way Or Another</title>
+      <creator>Blondie</creator>
+      <annotation></annotation>
+      <album>The Best of Blondie</album>
+      <trackNum>08</trackNum>
+      <duration>00216400</duration>
+      <meta rel="band">Blondie</meta>
+      <meta rel="date">1981</meta>
+    </track>
+    <track>
+      <location>Blondie%20-%20The%20Best%20of/09%20Blondie%20-%20(I'm%20Always%20Touched%20By%20Your)%20Presence%20Dear.mp3</location>
+      <title>(I'm Always Touched By Your) Presence Dear</title>
+      <creator>Blondie</creator>
+      <annotation></annotation>
+      <album>The Best of Blondie</album>
+      <trackNum>09</trackNum>
+      <duration>00162866</duration>
+      <meta rel="band">Blondie</meta>
+      <meta rel="date">1981</meta>
+    </track>
+    <track>
+      <location>Blondie%20-%20The%20Best%20of/10%20Blondie%20-%20Call%20Me%20(Theme%20From%20American%20Gigolo).mp3</location>
+      <title>Call Me (Theme From American Gigolo)</title>
+      <creator>Blondie</creator>
+      <annotation></annotation>
+      <album>The Best of Blondie</album>
+      <trackNum>10</trackNum>
+      <duration>00212893</duration>
+      <meta rel="band">Blondie</meta>
+      <meta rel="date">1981</meta>
+    </track>
+    <track>
+      <location>Blondie%20-%20The%20Best%20of/11%20Blondie%20-%20Atomic.mp3</location>
+      <title>Atomic</title>
+      <creator>Blondie</creator>
+      <annotation></annotation>
+      <album>The Best of Blondie</album>
+      <trackNum>11</trackNum>
+      <duration>00282240</duration>
+      <meta rel="band">Blondie</meta>
+      <meta rel="date">1981</meta>
+    </track>
+    <track>
+      <location>Blondie%20-%20The%20Best%20of/12%20Blondie%20-%20Rip%20Her%20To%20Shreds.mp3</location>
+      <title>Rip Her To Shreds</title>
+      <creator>Blondie</creator>
+      <annotation></annotation>
+      <album>The Best of Blondie</album>
+      <trackNum>12</trackNum>
+      <duration>00202933</duration>
+      <meta rel="band">Blondie</meta>
+      <meta rel="date">1981</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/01%20%20Madcon%20-%20Beggin'.mp3</location>
+      <title>Beggin'</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>1</trackNum>
+      <duration>00216163</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/02%20%20Madcon%20-%20Back%20On%20The%20Road%20[With%20Paperboys].mp3</location>
+      <title>Back On The Road [With Paperboys]</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>2</trackNum>
+      <duration>00215275</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/03%20%20Madcon%20-%20Liar.mp3</location>
+      <title>Liar</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>3</trackNum>
+      <duration>00186592</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/04%20%20Madcon%20-%20Hard%20To%20Read%20[With%20Noora].mp3</location>
+      <title>Hard To Read [With Noora]</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>4</trackNum>
+      <duration>00181707</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/05%20%20Madcon%20-%20Life's%20Too%20Short.mp3</location>
+      <title>Life's Too Short</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>5</trackNum>
+      <duration>00199053</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/06%20%20Madcon%20-%20The%20Way%20We%20Do%20Thangs%20[With%20Timbuktu].mp3</location>
+      <title>The Way We Do Thangs [With Timbuktu]</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>6</trackNum>
+      <duration>00238132</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/07%20%20Madcon%20-%20Blessed.mp3</location>
+      <title>Blessed</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>7</trackNum>
+      <duration>00177057</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/08%20%20Madcon%20-%20Suda%20Suda%20[With%20El%20Axel].mp3</location>
+      <title>Suda Suda [With El Axel]</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>8</trackNum>
+      <duration>00208875</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/09%20%20Madcon%20-%20Let%20It%20Be%20Known.mp3</location>
+      <title>Let It Be Known</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>9</trackNum>
+      <duration>00216111</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/10%20%20Madcon%20-%20Let's%20Dance%20Instead.mp3</location>
+      <title>Let's Dance Instead</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>10</trackNum>
+      <duration>00165433</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/11%20%20Madcon%20-%20Dandelion.mp3</location>
+      <title>Dandelion</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>11</trackNum>
+      <duration>00236695</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/12%20%20Madcon%20-%20Pride%20And%20Prejudice%20[With%20Sofian].mp3</location>
+      <title>Pride And Prejudice [With Sofian]</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>12</trackNum>
+      <duration>00182595</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/13%20%20Madcon%20-%20Me%20And%20My%20Brother.mp3</location>
+      <title>Me And My Brother</title>
+      <creator>Madcon</creator>
+      <annotation></annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>13</trackNum>
+      <duration>00320287</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+    <track>
+      <location>Madcon-So%20Dark%20The%20Con%20Of%20Man[2008][CD+SkidVid_XviD+Cov]/14%20%20Madcon%20-%20Loose%20[Bonus].mp3</location>
+      <title>Loose [Bonus]</title>
+      <creator>Madcon</creator>
+      <annotation>Bonus Track</annotation>
+      <album>So Dark The Con Of Man</album>
+      <trackNum>14</trackNum>
+      <duration>00210207</duration>
+      <meta rel="date">2008</meta>
+      <meta rel="genre">Hip-Hop</meta>
+    </track>
+  </trackList>
+
+</playlist>
