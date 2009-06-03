@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/css" href="blank.css"?>
+<playlist version="0" xmlns="http://xspf.org/ns/0/">
+  <title>Lista 09</title>
+  <annotation>http://www.hideout.com</annotation>
+  <creator>danivalentin</creator>
+  <info>http://webjay.org/by/danivalentin/lista09</info>
+  <location>http://webjay.org/by/danivalentin/lista09.xspf</location>
+  <license>http://creativecommons.org/licenses/by-sa/1.0/</license>
+  <trackList>    
+<track>
+<location>http://www.rocktheadored.com/audio/TheAdored-TVRiot.mp3</location>
+<image>http://images.amazon.com/images/P/B00070EBGM.01._AA240_SCLZZZZZZZ_.jpg</image>
+<annotation>The Adored - TV Riot</annotation>
+<info>http://www.rocktheadored.com/</info>
+
+</track>			  
+<track>
+<location>http://www.fatwreck.com/audio_track/the_audio_file/39/Bracket_Sour.mp3</location>
+<image>http://www.fatwreck.com/release/record_cover/68/559-large.jpg</image>
+<annotation>Bracket - Sour</annotation>
+<info>http://www.fatwreck.com/</info>
+
+</track>			  
+<track>
+<location>http://www.killrockstars.com/bands/bikinikill/audio/NewRadio.mp3</location>
+<image>http://ec1.images-amazon.com/images/P/B0000064AF.01._AA240_SCLZZZZZZZ_.jpg</image>
+<annotation>Bikini kill - New Radio</annotation>
+<info>http://www.killrockstars.com/</info>
+
+</track>			  
+<track>
+<location>http://mp3.insound.com/download.cfm?mp3id=2626</location>
+<image>http://images.amazon.com/images/P/B000A78Z8C.01._AA240_SCLZZZZZZZ_.jpg</image>
+<annotation>Calla - It dawned on me</annotation>
+<info>http://mp3.insound.com/</info>
+
+</track>			  
+<track>
+<location>http://www.teganandsara.com/audio4/sojealous/speakslow.mp3</location>
+<image>http://images.amazon.com/images/P/B0002MSCBK.01._AA240_SCLZZZZZZZ_.jpg</image>
+<annotation>Tegan and Sara - Speak slow</annotation>
+<info>http://www.teganandsara.com/</info>
+
+</track>			  
+<track>
+<location>http://theapparitions.net/media/electricity_and_drums.mp3</location>
+<image>http://images.amazon.com/images/P/B000CS45CO.01._AA240_SCLZZZZZZZ_.jpg</image>
+<annotation>The Apparitions: Electricity and drums</annotation>
+<info>http://theapparitions.net/</info>
+
+</track>			  
+<track>
+<location>http://download.wbr.com/oc/subways_rockandrollqueen.mp3</location>
+<image>http://images.amazon.com/images/P/B000CRR3JM.01._AA240_SCLZZZZZZZ_.jpg</image>
+<annotation>The Subways -- Rock and Roll Queen</annotation>
+<info>http://download.wbr.com/</info>
+
+</track>			  
+<track>
+<location>http://ahollywoodrecords.go.com/elefant/audio/Elefant_The_Clown.mp3</location>
+<image>http://images.amazon.com/images/P/B00008NRL3.01._AA240_SCLZZZZZZZ_.jpg</image>
+<annotation>Elefant - The Clown</annotation>
+<info>http://ahollywoodrecords.go.com/</info>
+
+</track>			  
+<track>
+<location>http://www.barfly.net/gtf/Barfly-Another_Club_Girl.mp3</location>
+<image>http://ec1.images-amazon.com/images/P/B000067V19.01._AA240_SCLZZZZZZZ_.jpg</image>
+<annotation>Barfly - Another Club Girl</annotation>
+<info>http://www.barfly.net/</info>
+
+</track>			  
+<track>
+<location>http://mp3.insound.com/download.cfm?mp3id=2587</location>
+<image>http://ec1.images-amazon.com/images/P/B0007Z9R8Y.01._AA240_SCLZZZZZZZ_.jpg</image>
+<annotation>Gang of Four - Damaged Goods</annotation>
+<info>http://mp3.insound.com/</info>
+
+</track>			  
+
+  </trackList>
+</playlist>

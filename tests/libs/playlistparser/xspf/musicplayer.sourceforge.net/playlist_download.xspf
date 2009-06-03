@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<playlist version="1" xmlns="http://xspf.org/ns/0/">
+	
+		<!-- title of the playlist -->
+        <title>Indidginus MP3 Downloads</title>
+
+        <!-- name of the author -->
+        <creator>Michael Martin</creator>
+
+        <!-- homepage of the author -->
+        <info>http://www.deviantdidg.com/</info>
+		
+        <trackList>
+			<track>
+                <location>http://freedownloads.last.fm/download/133894855/Transgenesis.mp3</location>
+
+                <!-- artist or band name -->
+                <creator>Indidginus</creator>
+
+                <!-- album title -->
+                <album>Align</album>
+
+                <!-- name of the song -->
+                <title>Transgenesis (Saxophone by Nic Le Roux)</title>
+
+                <!-- album art -->
+                <image>http://www.deviantdidg.com/images/jukebox/healing_ananda.jpg</image>
+				
+				<!-- info link under art -->
+				<info>http://www.psyshop.com/shop/CDs/gai/gai2cd001.html</info>
+
+            </track>
+			<track>
+                <location>http://freedownloads.last.fm/download/8854247/Superstring.mp3</location>
+
+                <!-- artist or band name -->
+                <creator>Indidginus</creator>
+
+                <!-- album title -->
+                <album>Psytelligence</album>
+
+                <!-- name of the song -->
+                <title>Superstring</title>
+
+                <!-- album art -->
+                <image>http://www.deviantdidg.com/images/jukebox/psytelligence.jpg</image>
+				
+				<!-- info link under art -->
+				<info>http://www.discogs.com/release/311510</info>
+
+            </track>
+			<track>
+                <location>http://freedownloads.last.fm/download/4741263/Nimbus.mp3</location>
+
+                <!-- artist or band name -->
+                <creator>Indidginus</creator>
+
+                <!-- album title -->
+                <album>Gateway to the Sun</album>
+
+                <!-- name of the song -->
+                <title>Nimbus (Guitar by Joe Weinstock)</title>
+
+                <!-- album art -->
+                <image>http://www.deviantdidg.com/images/jukebox/gateway_to_the_sun.jpg</image>
+				
+				<!-- info link under art -->
+				<info>http://www.discogs.com/release/293754</info>
+
+            </track>
+			<track>
+                <location>http://freedownloads.last.fm/download/4741646/Dubliminal.mp3</location>
+
+                <!-- artist or band name -->
+                <creator>Indidginus</creator>
+
+                <!-- album title -->
+                <album>Gateway to the Sun</album>
+
+                <!-- name of the song -->
+                <title>Dubliminal (Guitar by Joe Weinstock)</title>
+
+                <!-- album art -->
+                <image>http://www.deviantdidg.com/images/jukebox/gateway_to_the_sun.jpg</image>
+				
+				<!-- info link under art -->
+				<info>http://www.discogs.com/release/293754</info>
+
+            </track>
+			<track>
+                <location>http://freedownloads.last.fm/download/3563041/Spiritual%2BSpearmints.mp3</location>
+
+                <!-- artist or band name -->
+                <creator>Indidginus</creator>
+
+                <!-- album title -->
+                <album>Mountain High</album>
+
+                <!-- name of the song -->
+                <title>Spiritual Spearmints</title>
+
+                <!-- album art -->
+                <image>http://www.deviantdidg.com/images/jukebox/mountain_high.jpg</image>
+				
+				<!-- info link under art -->
+				<info>http://www.discogs.com/release/238063</info>
+
+            </track>
+			<track>
+                <location>http://freedownloads.last.fm/download/4814032/Myriad.mp3</location>
+
+                <!-- artist or band name -->
+                <creator>Indidginus</creator>
+
+                <!-- album title -->
+                <album>Angelic Science</album>
+
+                <!-- name of the song -->
+                <title>Myriad</title>
+
+                <!-- album art -->
+                <image>http://www.deviantdidg.com/images/jukebox/angelic_science.jpg</image>
+				
+				<!-- info link under art -->
+				<info>http://www.discogs.com/release/223664</info>
+
+            </track>
+			<track>
+                <location>http://freedownloads.last.fm/download/114817853/Unstuck.mp3</location>
+
+                <!-- artist or band name -->
+                <creator>Indidginus</creator>
+
+                <!-- album title -->
+                <album>Unreleased - As featured on Cooked in Africa TV series</album>
+
+                <!-- name of the song -->
+                <title>Unstuck (Vocals by Jacqui Roche) - Unreleased</title>
+
+                <!-- album art -->
+                <image>http://www.deviantdidg.com/images/jukebox/cooked.jpg</image>
+				
+				<!-- info link under art -->
+				<info>http://www.cookedinafrica.co.za</info>
+
+            </track>
+			<track>
+                <location>http://freedownloads.last.fm/download/125228665/Schweppes%2BAd%2B%2528Jukebox%2529%2B-%2BLowe%2B%2526%2BBull%2BAd%2BAgency.mp3</location>
+
+                <!-- artist or band name -->
+                <creator>Indidginus</creator>
+
+                <!-- album title -->
+                <album>Unreleased - Schweppes TV Ad Soundtrack</album>
+
+                <!-- name of the song -->
+                <title>Yes Papa (feat Freshly Ground) - Unreleased</title>
+
+                <!-- album art -->
+                <image>http://www.deviantdidg.com/images/jukebox/schweppes.jpg</image>
+				
+				<!-- info link under art -->
+				<info>http://www.lowebull.com/</info>
+
+            </track>
+        </trackList>
+		
+</playlist>
+

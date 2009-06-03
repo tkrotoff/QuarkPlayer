@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<playlist version="1" xmlns = "http://xspf.org/ns/0/">
+  <title>Avi Granite</title>
+  <trackList>
+   <track>
+    <location>http://www.avigranite6.com/tunes/I Don't Know New York.mp3</location>
+    <image>http://www.avigranite6.com/redtreecover150.jpg</image>
+    <annotation>AG:6 "I Don't Know New York"</annotation>
+    <info>http://www.cdbaby.com/cd/avigranite6</info>
+   </track>
+   <track>
+    <location>http://www.avigranite.com/hortezmaster_mobass48_r8b.mp3</location>
+    <image>http://www.avigranite.com/AG5thumb.jpg</image>
+    <annotation>AG:5 "Hortez the Chihuahua"</annotation>
+    <info>http://www.cdbaby.com/cd/avigranite5</info>
+   </track>
+   <track>
+    <location>http://www.avigranite.com/zurichIn4scenes.mp3</location>
+    <image>http://www.avigranite.com/allmend.jpg</image>
+    <annotation>AG:4 Live in Zurich "In 4 Scenes"</annotation>
+    <info>http://www.avigranite.com/ag4.html</info>
+   </track>
+   <track>
+    <location>http://www.avigranite.com/8mm_lina_mas2.mp3</location>
+    <image>http://www.avigranite.com/avi_lenaprintmini.jpg</image>
+    <annotation>8mm Lina Allemano + Avi Granite "Cowboy Romance/Death Cartoon"</annotation>
+    <info>http://www.avigranite.com/8mm.htm</info>
+   </track>
+   <track>
+    <location>http://www.avigranite.com/ViewFinder - 07 - Ancestral Noise.mp3</location>
+    <image>http://www.avigranite.com/VFcoverartmini.jpg</image>
+    <annotation>Viewfinder "Ancestral Noise"</annotation>
+    <info>http://www.viewfindermusic.com</info>
+  </track>
+   <track>
+    <location>http://www.avigranite.com/3cil11 - Track 11.mp3</location>
+    <image>http://www.petmantisrecords.com/nautiluscoverthumb.jpg</image>
+    <annotation>Nautilus "Intro"</annotation>
+    <info>http://www.cdbaby.com/cd/nautilus</info>
+   </track>
+   <track>
+    <location>http://www.avigranite.com/Vitamin P - Elevator.mp3</location>
+    <image>http://www.avigranite.com/vitaminplogoweb.jpg</image>
+    <annotation>Vitamin P "Elevator"</annotation>
+   </track>
+
+</playlist>

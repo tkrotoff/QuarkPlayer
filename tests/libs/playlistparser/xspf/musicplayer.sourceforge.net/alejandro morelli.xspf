@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<playlist version="0" xmlns = "http://xspf.org/ns/0/">
+ <trackList>
+   
+  <track>
+   <location>carpeta\Alejandro morelli - If I Ever See You Again.mp3</location>3
+    <image>pic1.jpg</image>
+    <annotation>If I Ever See You Again</annotation>
+   </track>
+
+   <track>
+    <location>carpeta\Alejandro Morelli - Desde Que Te Fuiste.mp3</location>
+    <image>pic1.jpg</image>
+    <annotation>Desde Que Te Fuiste</annotation>
+   </track>   
+   
+   <track>
+    <location>carpeta\Alejandro Morelli - No se porque.mp3</location>
+    <image>pic1.jpg</image>
+    <annotation>No se porque</annotation>
+   </track>      
+   
+   <track>
+    <location>carpeta\Alejandro Morelli - Hoy.mp3</location>
+    <image>pic1.jpg</image>
+    <annotation>Hoy</annotation>
+   </track>   
+
+   <track>
+    <location>carpeta\Alejandro Morelli - Only God Knows Why.mp3</location>
+    <image>pic1.jpg</image>
+    <annotation>Only God Knows Why</annotation>
+   </track>
+
+  </trackList>
+</playlist>

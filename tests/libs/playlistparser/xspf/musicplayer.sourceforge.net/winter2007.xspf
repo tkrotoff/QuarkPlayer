@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<playlist version="1" xmlns="http://xspf.org/ns/0/">
+	<title>Winter 2007</title>
+	<creator>Hillsdale Wind Symphony</creator>
+	<info>http://www.hillsdalewindsymphony.org</info>
+	
+	<trackList>
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/winter2007/01%20Track%201.mp3</location>
+			<title>Children's March</title>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/winter2007/02%20Track%202.mp3</location>
+			<title>Almost One Morning</title>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/winter2007/03%20Track%203.mp3</location>
+			<title>Pegasus</title>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/winter2007/04%20Track%204.mp3</location>
+			<title>The Heart of the Morn</title>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/winter2007/05%20Track%205.mp3</location>
+			<title>Russian Christmas Music</title>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/winter2007/06%20Track%206.mp3</location>
+			<title>Southern Star</title>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/winter2007/07%20Track%207.mp3</location>
+			<title>Greensleeves</title>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/winter2007/08%20Track%208.mp3</location>
+			<title>It Came Upon A Midnight Clear</title>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/winter2007/09%20Track%209.mp3</location>
+			<title>A Christmas Celebration</title>
+		</track>
+	</trackList>
+</playlist>

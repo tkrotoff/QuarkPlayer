@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<playlist version="0" xmlns="http://xspf.org/ns/0/">
+  <title>Hideout46</title>
+  <annotation>Hideout Show #46</annotation>
+  <creator>Ivan</creator>
+  <info>http://webjay.org/by/Ivan/hideout46</info>
+  <location>http://webjay.org/by/Ivan/hideout46.xspf</location>
+  <license>http://creativecommons.org/licenses/by-sa/1.0/</license>
+  <trackList>    
+<track>
+<location>http://www.startimerecords.com/mp3s/supercuts/ambulance_countrygentleman.mp3</location>
+<image>http://ec1.images-amazon.com/images/P/B000E8N8ZW.01._AA240_SCLZZZZZZZ_.jpg</image>
+<annotation>Ambulance LTD - Country Gentleman</annotation>
+<info>http://indoorfireworks.blogspot.com/2005_05_01_indoorfireworks_archive.html</info>
+</track>			  
+<track>
+<location>http://www.figurines.dk/files/figurines%20-%20rivalry.mp3</location>
+<image>http://www.figurines.dk/images/disco_skeleton_us.jpg</image>
+<annotation>Figurines - Rivalry</annotation>
+<info>http://www.figurines.dk/downloads.php</info>
+
+</track>			  
+<track>
+<location>http://audio.sxsw.com/2006/mp3/Laura_Veirs-Galaxies.mp3</location>
+<image>http://ec3.images-amazon.com/images/P/B000A14OEC.01._AA240_SCLZZZZZZZ_.jpg</image>
+<annotation>Laura Veirs - Galaxies</annotation>
+<info>http://audio.sxsw.com/2006</info>
+
+</track>			  
+<track>
+<location>http://mp3.insound.com/download.cfm?mp3id=1131</location>
+<image>http://ec3.images-amazon.com/images/G/01/ciu/61/91/c49f224128a08a6668619010._AA240_.L.jpg</image>
+<annotation>Dismemberment Plan - The Face of the Earth</annotation>
+<info>http://www.insound.com/mp3/</info>
+
+</track>			  
+<track>
+<location>http://www.cocteautwins.com/html/media/audio/heaven_or_las_vegas_edit.mp3</location>
+<image>http://www.amazon.com/gp/product/images/B00006L5PM/ref=dp_image_0/103-0444880-9564653?ie=UTF8&#38;n=5174&#38;s=music</image>
+<annotation>Cocteau Twins - Heaven Or Las Vegas (Video edit)</annotation>
+<info>http://www.cocteautwins.com</info>
+
+</track>			  
+<track>
+<location>http://www.apparat.net/songs/komponent_video_edit.mp3</location>
+<image>http://www.nuloop.com/real/ShitKatapult/Strike53cd.jpg</image>
+<annotation>Apparat - Komponent (Video edit)</annotation>
+<info>http://www.apparat.net/</info>
+
+</track>			  
+<track>
+<location>http://aurevoirsimone.com/music/aurevoirsimone_backyards.mp3</location>
+<image>http://www.neoplex.co.jp/img_j/simone_j.jpg</image>
+<annotation>Au Revoir Simone - Through The Backyards</annotation>
+<info>http://aurevoirsimone.com/</info>
+
+</track>			  
+
+  </trackList>
+</playlist>
