@@ -34,6 +34,15 @@
 #include <QtCore/QTime>
 #include <QtCore/QDebug>
 
+static const char * ASX_TITLE = "title";
+static const char * ASX_ENTRY = "entry";
+static const char * ASX_REF = "ref";
+static const char * ASX_HREF = "href";
+static const char * ASX_COPYRIGHT = "copyright";
+static const char * ASX_ASX = "asx";
+static const char * ASX_VERSION = "version";
+static const char * ASX_3DOT0 = "3.0";
+
 ASXParser::ASXParser(const QString & filename, QObject * parent)
 	: IPlaylistParser(filename, parent) {
 
@@ -78,44 +87,56 @@ void ASXParser::load() {
 			xml.readNext();
 
 			switch (xml.tokenType()) {
+
 			case QXmlStreamReader::StartElement: {
 				QString element(xml.name().toString());
-				if (element.compare("title", Qt::CaseInsensitive) == 0) {
+				if (element.compare(ASX_TITLE, Qt::CaseInsensitive) == 0) {
 					QString title(xml.readElementText().trimmed());
 					if (!title.isEmpty()) {
 						mediaInfo.insertMetadata(MediaInfo::Title, title);
 					}
-				} else if (element.compare("ref", Qt::CaseInsensitive) == 0) {
-					QString url(xml.attributes().value("href").toString().trimmed());
+				} else if (element.compare(ASX_REF, Qt::CaseInsensitive) == 0) {
+					QString url(xml.attributes().value(ASX_HREF).toString().trimmed());
+					if (url.isEmpty()) {
+						//Yes ASX format is shit
+						//Let's try with uppercase
+						QString uppercase(ASX_HREF);
+						uppercase = uppercase.toUpper();
+						url = xml.attributes().value(uppercase).toString().trimmed();
+					}
 					if (!url.isEmpty()) {
 						mediaInfo.setFileName(url);
 						mediaInfo.setUrl(true);
 					}
-				} else if (element.compare("copyright", Qt::CaseInsensitive) == 0) {
+				} else if (element.compare(ASX_COPYRIGHT, Qt::CaseInsensitive) == 0) {
 					QString copyright(xml.readElementText().trimmed());
 					if (!copyright.isEmpty()) {
 						mediaInfo.insertMetadata(MediaInfo::Copyright, copyright);
 					}
 				}
-				}
 				break;
+			}
+
 			case QXmlStreamReader::EndElement: {
 				QString element(xml.name().toString());
-				if (element.compare("entry", Qt::CaseInsensitive) == 0) {
-					//Add file to the list of files
-					files << mediaInfo;
+				if (element.compare(ASX_ENTRY, Qt::CaseInsensitive) == 0) {
+					if (!mediaInfo.fileName().isEmpty()) {
+						//Add file to the list of files
+						files << mediaInfo;
 
-					//Clear the MediaInfo
-					mediaInfo.clear();
+						//Clear the MediaInfo
+						mediaInfo.clear();
 
-					if (files.size() > FILES_FOUND_LIMIT) {
-						//Emits the signal every FILES_FOUND_LIMIT files found
-						emit filesFound(files);
-						files.clear();
+						if (files.size() > FILES_FOUND_LIMIT) {
+							//Emits the signal every FILES_FOUND_LIMIT files found
+							emit filesFound(files);
+							files.clear();
+						}
 					}
 				}
 				break;
 			}
+
 			}
 		}
 
@@ -150,30 +171,33 @@ void ASXParser::save(const QList<MediaInfo> & files) {
 
 		QXmlStreamWriter xml(&file);
 		xml.setAutoFormatting(true);
+		//Don't write <?xml version="1.0" encoding="UTF-8"?>
+		//ASX playlist format is not a real XML file!
+		//xml.writeStartDocument();
 
-		xml.writeStartElement("asx");
-		xml.writeAttribute("version", "3.0");
-			xml.writeTextElement("title", QFileInfo(_filename).baseName());
+		xml.writeStartElement(ASX_ASX);
+		xml.writeAttribute(ASX_VERSION, ASX_3DOT0);
+			xml.writeTextElement(ASX_TITLE, QFileInfo(_filename).baseName());
 
 			foreach (MediaInfo mediaInfo, files) {
 				if (_stop) {
 					break;
 				}
 
-				xml.writeStartElement("entry");
+				xml.writeStartElement(ASX_ENTRY);
 					QString title(mediaInfo.metadataValue(MediaInfo::Title));
 					if (!title.isEmpty()) {
-						xml.writeTextElement("title", title);
+						xml.writeTextElement(ASX_TITLE, title);
 					}
 
-					xml.writeStartElement("ref");
+					xml.writeStartElement(ASX_REF);
 						QString filename(mediaInfo.fileName());
-						xml.writeAttribute("href", filename);
+						xml.writeAttribute(ASX_HREF, filename);
 					xml.writeEndElement();	//ref
 
 					QString copyright(mediaInfo.metadataValue(MediaInfo::Copyright));
 					if (!copyright.isEmpty()) {
-						xml.writeTextElement("copyright", copyright);
+						xml.writeTextElement(ASX_COPYRIGHT, copyright);
 					}
 				xml.writeEndElement();	//entry
 			}

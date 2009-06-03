@@ -26,7 +26,10 @@
 /**
  * Parses a WPL playlist (Windows Media Player Playlist).
  *
- * WPL is UTF-8 encoded.
+ * Developed by Microsoft.
+ *
+ * WPL is UTF-8 encoded and should only contains local files.
+ * Is it real XML?
  *
  * @see http://en.wikipedia.org/wiki/WPL
  * @author Tanguy Krotoff

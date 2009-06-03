@@ -24,6 +24,7 @@
 #include "WPLParser.h"
 #include "PLSParser.h"
 #include "ASXParser.h"
+#include "XSPFParser.h"
 
 #include <mediainfowindow/MediaInfo.h>
 
@@ -45,6 +46,7 @@ PlaylistParser::PlaylistParser(const QString & filename, QObject * parent)
 	_parserList += new PLSParser(filename, this);
 	_parserList += new WPLParser(filename, this);
 	_parserList += new ASXParser(filename, this);
+	_parserList += new XSPFParser(filename, this);
 
 	QString extension(QFileInfo(filename).suffix().toLower());
 

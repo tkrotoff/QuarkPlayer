@@ -33,6 +33,17 @@
 #include <QtCore/QTime>
 #include <QtCore/QDebug>
 
+static const char * PLS_PLAYLIST = "[playlist]";
+static const char * PLS_FILE = "File";
+static const char * PLS_TITLE = "Title";
+static const char * PLS_LENGTH = "Length";
+
+//Winamp inserts some ugly CR character inside .pls files
+//To be compatible with Winamp, each end of line should be "\r\n"
+//Tested with Winamp 5.531 (april 2008)
+static const char * PLS_WINAMP_EOL = "\r\r\n";
+static const char * PLS_EOL = "\r";
+
 PLSParser::PLSParser(const QString & filename, QObject * parent)
 	: IPlaylistParser(filename, parent) {
 
@@ -64,9 +75,12 @@ void PLSParser::load() {
 
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
-	static QRegExp rx_file("^File(\\d+)=(.*)");
-	static QRegExp rx_title("^Title(\\d+)=(.*)");
-	static QRegExp rx_length("^Length(\\d+)=(.*)");
+	//See http://regexlib.com/DisplayPatterns.aspx
+	static QRegExp rx_file("^File(\\d+)=(.*)$");
+	static QRegExp rx_title("^Title(\\d+)=(.*)$");
+	static QRegExp rx_length("^Length(\\d+)=(.*)$");
+
+	MediaInfo mediaInfo;
 
 	QFile file(_filename);
 	if (file.open(QIODevice::ReadOnly)) {
@@ -74,50 +88,62 @@ void PLSParser::load() {
 
 		QTextStream stream(&file);
 
-		MediaInfo mediaInfo;
-
 		while (!stream.atEnd() && !_stop) {
+
 			//Line of text excluding '\n'
-			QString line(stream.readLine());
+			QString line(stream.readLine().trimmed());
 
 			//Winamp inserts some ugly CR character inside .pls files
 			//Let's ignore them
-			line.remove("\r");
+			line.remove(PLS_EOL);
 
 			if (rx_file.indexIn(line) != -1) {
-				QString filename(rx_file.cap(2));
-				mediaInfo.setFileName(Util::canonicalFilePath(path, filename));
+				if (!mediaInfo.fileName().isEmpty()) {
+					//Add file to the list of files
+					files << mediaInfo;
+
+					//Clear the MediaInfo for the next lines
+					mediaInfo.clear();
+
+					if (files.size() > FILES_FOUND_LIMIT) {
+						//Emits the signal every FILES_FOUND_LIMIT files found
+						emit filesFound(files);
+						files.clear();
+					}
+				}
+
+				QString filename(rx_file.cap(2).trimmed());
+				bool isUrl = MediaInfo::isUrl(filename);
+				mediaInfo.setUrl(isUrl);
+				if (isUrl) {
+					mediaInfo.setFileName(filename);
+				} else {
+					mediaInfo.setFileName(Util::canonicalFilePath(path, filename));
+				}
 			}
 
 			else if (rx_title.indexIn(line) != -1) {
-				QString title(rx_title.cap(2));
+				QString title(rx_title.cap(2).trimmed());
 				if (!title.isEmpty()) {
 					mediaInfo.insertMetadata(MediaInfo::Title, title);
 				}
 			}
 
 			else if (rx_length.indexIn(line) != -1) {
-				QString length(rx_length.cap(2));
+				QString length(rx_length.cap(2).trimmed());
 				if (!length.isEmpty()) {
 					mediaInfo.setLength(length.toInt());
-				}
-
-				//Add file to the list of files
-				files << mediaInfo;
-
-				//Clear the MediaInfo for the next lines
-				mediaInfo.clear();
-
-				if (files.size() > FILES_FOUND_LIMIT) {
-					//Emits the signal every FILES_FOUND_LIMIT files found
-					emit filesFound(files);
-					files.clear();
 				}
 			}
 		}
 	}
 
 	file.close();
+
+	if (!mediaInfo.fileName().isEmpty()) {
+		//Add the last file to the list of files
+		files << mediaInfo;
+	}
 
 	if (!files.isEmpty()) {
 		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
@@ -144,12 +170,7 @@ void PLSParser::save(const QList<MediaInfo> & files) {
 
 		QString filename;
 
-		//Winamp inserts some ugly CR character inside .pls files
-		//To be compatible with Winamp, each end of line should be "\r\n"
-		//Tested with Winamp 5.531 (april 2008)
-		static QString winampEndOfLine("\r\r\n");
-
-		stream << "[playlist]" << winampEndOfLine;
+		stream << PLS_PLAYLIST << PLS_WINAMP_EOL;
 
 		int count = 0;
 		foreach (MediaInfo mediaInfo, files) {
@@ -159,7 +180,7 @@ void PLSParser::save(const QList<MediaInfo> & files) {
 				break;
 			}
 
-			stream << "File" << count << '=';
+			stream << PLS_FILE << count << '=';
 			if (mediaInfo.isUrl()) {
 				stream << mediaInfo.fileName();
 			} else {
@@ -167,26 +188,25 @@ void PLSParser::save(const QList<MediaInfo> & files) {
 				QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
 				stream << Util::pathToNativeSeparators(filename);
 			}
-			stream << winampEndOfLine;
+			stream << PLS_WINAMP_EOL;
 
-			stream << "Title" << count << '=';
+			stream << PLS_TITLE << count << '=';
 			QString artist(mediaInfo.metadataValue(MediaInfo::Artist));
 			if (!artist.isEmpty()) {
 				stream << artist;
 			}
 			QString title(mediaInfo.metadataValue(MediaInfo::Title));
 			if (!title.isEmpty()) {
-				stream << " - ";
+				if (!artist.isEmpty()) {
+					stream << " - ";
+				}
 				stream << mediaInfo.metadataValue(MediaInfo::Title);
 			}
-			stream << winampEndOfLine;
+			stream << PLS_WINAMP_EOL;
 
-			stream << "Length" << count << '=';
-			int length = mediaInfo.lengthSeconds();
-			if (length > -1) {
-				stream << length;
-			}
-			stream << winampEndOfLine;
+			stream << PLS_LENGTH << count << '=';
+			stream << mediaInfo.lengthSeconds();
+			stream << PLS_WINAMP_EOL;
 		}
 	}
 

@@ -33,6 +33,8 @@
 #include <QtCore/QTime>
 #include <QtCore/QDebug>
 
+static const char * M3U_EOL = "\n";
+
 M3UParser::M3UParser(const QString & filename, QObject * parent)
 	: IPlaylistParser(filename, parent) {
 
@@ -65,8 +67,11 @@ void M3UParser::load() {
 
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
-	static QRegExp rx_extm3u("^#EXTM3U|^#M3U");
-	static QRegExp rx_extinf("^#EXTINF:(\\d+),(.*)");
+	//See http://regexlib.com/DisplayPatterns.aspx
+	static QRegExp rx_extm3u("^#EXTM3U$|^#M3U$");
+	static QRegExp rx_extinf("^#EXTINF:([-+]?\\d+),(.*)$");
+	static QRegExp rx_extinf_title("^#EXTINF:(.*)$");
+	static QRegExp rx_comment("^#.*$");
 
 	QFile file(_filename);
 	if (file.open(QIODevice::ReadOnly)) {
@@ -84,7 +89,7 @@ void M3UParser::load() {
 
 		while (!stream.atEnd() && !_stop) {
 			//Line of text excluding '\n'
-			QString line(stream.readLine());
+			QString line(stream.readLine().trimmed());
 
 			if (line.isEmpty()) {
 				//Do nothing
@@ -96,22 +101,35 @@ void M3UParser::load() {
 
 			else if (rx_extinf.indexIn(line) != -1) {
 				//#EXTINF line
-				QString length(rx_extinf.cap(1));
+				QString length(rx_extinf.cap(1).trimmed());
 				if (!length.isEmpty()) {
 					mediaInfo.setLength(length.toInt());
 				}
-				QString title(rx_extinf.cap(2));
+				QString title(rx_extinf.cap(2).trimmed());
 				if (!title.isEmpty()) {
 					mediaInfo.insertMetadata(MediaInfo::Title, title);
 				}
 			}
 
-			else if (line.startsWith('#')) {
+			else if (rx_extinf_title.indexIn(line) != -1) {
+				QString title(rx_extinf_title.cap(1).trimmed());
+				if (!title.isEmpty()) {
+					mediaInfo.insertMetadata(MediaInfo::Title, title);
+				}
+			}
+
+			else if (rx_comment.indexIn(line) != -1) {
 				//# line, comment, ignored
 			}
 
 			else {
-				mediaInfo.setFileName(Util::canonicalFilePath(path, line));
+				bool isUrl = MediaInfo::isUrl(line);
+				mediaInfo.setUrl(isUrl);
+				if (isUrl) {
+					mediaInfo.setFileName(line);
+				} else {
+					mediaInfo.setFileName(Util::canonicalFilePath(path, line));
+				}
 
 				//Add file to the list of files
 				files << mediaInfo;
@@ -171,13 +189,11 @@ void M3UParser::save(const QList<MediaInfo> & files) {
 			}
 
 			stream << "#EXTINF:";
-			int length = mediaInfo.lengthSeconds();
-			if (length > -1) {
-				stream << length;
-			}
+			stream << mediaInfo.lengthSeconds();
+			stream << ',';
+
 			QString artist(mediaInfo.metadataValue(MediaInfo::Artist));
 			if (!artist.isEmpty()) {
-				stream << ',';
 				stream << artist;
 			}
 			QString title(mediaInfo.metadataValue(MediaInfo::Title));
@@ -187,7 +203,7 @@ void M3UParser::save(const QList<MediaInfo> & files) {
 				}
 				stream << title;
 			}
-			stream << "\n";
+			stream << M3U_EOL;
 
 			if (mediaInfo.isUrl()) {
 				stream << mediaInfo.fileName();
@@ -196,7 +212,7 @@ void M3UParser::save(const QList<MediaInfo> & files) {
 				QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
 				stream << Util::pathToNativeSeparators(filename);
 			}
-			stream << "\n";
+			stream << M3U_EOL;
 		}
 	}
 
@@ -207,5 +223,5 @@ void M3UParser::save(const QList<MediaInfo> & files) {
 }
 
 bool M3UParser::isUtf8() const {
-	return QFileInfo(_filename).suffix().toLower() == "m3u8";
+	return (QFileInfo(_filename).suffix().toLower() == "m3u8");
 }

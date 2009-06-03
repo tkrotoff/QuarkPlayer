@@ -24,9 +24,18 @@
 #include <QtCore/QString>
 
 /**
- * Parses a ASX playlist (Advanced Stream Redirector).
+ * Parses a ASX (+ WAX and WVX) playlist (Advanced Stream Redirector).
  *
- * ASX is UTF-8 encoded?
+ * Developed by Microsoft.
+ *
+ * ASX playlists should only contain urls.
+ * With the introduction of the WMA and WMV container formats,
+ * WAX and WVX extensions have also been introduced by Microsoft respectively.
+ *
+ * ASX format is not real XML but pseudo XML, there is no <pre><?xml version="1.0" encoding="UTF-8"?></pre>
+ * at the beginning of the file.
+ *
+ * Is ASX UTF-8 encoded? This implementation is UTF-8 encoded.
  *
  * @see http://en.wikipedia.org/wiki/Advanced_Stream_Redirector
  * @author Tanguy Krotoff

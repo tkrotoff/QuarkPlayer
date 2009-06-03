@@ -34,6 +34,19 @@
 #include <QtCore/QTime>
 #include <QtCore/QDebug>
 
+static const char * WPL_TITLE = "title";
+static const char * WPL_SMIL = "smil";
+static const char * WPL_HEAD = "head";
+static const char * WPL_META = "meta";
+static const char * WPL_NAME = "name";
+static const char * WPL_GENERATOR = "generator";
+static const char * WPL_CONTENT = "content";
+static const char * WPL_AUTHOR = "author";
+static const char * WPL_BODY = "body";
+static const char * WPL_SEQ = "seq";
+static const char * WPL_MEDIA = "media";
+static const char * WPL_SRC = "src";
+
 WPLParser::WPLParser(const QString & filename, QObject * parent)
 	: IPlaylistParser(filename, parent) {
 
@@ -74,23 +87,27 @@ void WPLParser::load() {
 			xml.readNext();
 
 			switch (xml.tokenType()) {
+
 			case QXmlStreamReader::StartElement: {
 				QString element(xml.name().toString());
 
-				if (element.compare("media", Qt::CaseInsensitive) == 0) {
-					QString filename(xml.attributes().value("src").toString().trimmed());
+				if (element.compare(WPL_MEDIA, Qt::CaseInsensitive) == 0) {
+					QString filename(xml.attributes().value(WPL_SRC).toString().trimmed());
 
-					//Add file to the list of files
-					files << MediaInfo(Util::canonicalFilePath(path, filename));
+					if (!filename.isEmpty()) {
+						//Add file to the list of files
+						files << MediaInfo(Util::canonicalFilePath(path, filename));
 
-					if (files.size() > FILES_FOUND_LIMIT) {
-						//Emits the signal every FILES_FOUND_LIMIT files found
-						emit filesFound(files);
-						files.clear();
+						if (files.size() > FILES_FOUND_LIMIT) {
+							//Emits the signal every FILES_FOUND_LIMIT files found
+							emit filesFound(files);
+							files.clear();
+						}
 					}
 				}
 				break;
 			}
+
 			}
 		}
 
@@ -127,35 +144,35 @@ void WPLParser::save(const QList<MediaInfo> & files) {
 		xml.setAutoFormatting(true);
 		xml.writeStartDocument();
 
-		xml.writeStartElement("smil");
-			xml.writeStartElement("head");
-				xml.writeStartElement("meta");
-					xml.writeAttribute("name", "Generator");
-					xml.writeAttribute("content", QCoreApplication::applicationName());
+		xml.writeStartElement(WPL_SMIL);
+			xml.writeStartElement(WPL_HEAD);
+				xml.writeStartElement(WPL_META);
+					xml.writeAttribute(WPL_NAME, WPL_GENERATOR);
+					xml.writeAttribute(WPL_CONTENT, QCoreApplication::applicationName());
 				xml.writeEndElement();
 
-				xml.writeStartElement("author");
+				xml.writeStartElement(WPL_AUTHOR);
 				xml.writeEndElement();
 
-				xml.writeTextElement("title", QFileInfo(_filename).baseName());
+				xml.writeTextElement(WPL_TITLE, QFileInfo(_filename).baseName());
 			xml.writeEndElement();	//head
 
-			xml.writeStartElement("body");
-				xml.writeStartElement("seq");
+			xml.writeStartElement(WPL_BODY);
+				xml.writeStartElement(WPL_SEQ);
 
 					foreach (MediaInfo mediaInfo, files) {
 						if (_stop) {
 							break;
 						}
-						xml.writeStartElement("media");
+						xml.writeStartElement(WPL_MEDIA);
 
 						if (mediaInfo.isUrl()) {
-							xml.writeAttribute("src", mediaInfo.fileName());
+							xml.writeAttribute(WPL_SRC, mediaInfo.fileName());
 						} else {
 							//Try to save the filename as relative instead of absolute
 							QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
 							filename = Util::pathToNativeSeparators(filename);
-							xml.writeAttribute("src", filename);
+							xml.writeAttribute(WPL_SRC, filename);
 						}
 
 						xml.writeEndElement();	//media
