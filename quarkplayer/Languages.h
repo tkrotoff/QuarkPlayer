@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,9 @@
  * and their corresponding names translated. QLocale only gives
  * english language names.
  *
+ * Last update from Wikipedia: 20090609
+ *
+ * @see http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
  * @see QLocale
  * @author Tanguy Krotoff
  */
@@ -60,6 +63,11 @@ public:
 	 * @see iso639_1_list()
 	 */
 	static QMap<QString, QString> availableTranslations();
+
+	/**
+	 * Gets the flag icon given a ISO639-1 language string ("en", "fr", "de"...).
+	 */
+	static flagIcon(const QString & iso639_1);
 
 private:
 
