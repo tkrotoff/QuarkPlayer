@@ -65,6 +65,8 @@ namespace Phonon
         EffectType,
         AudioChannelType,
         SubtitleType,
+        ChapterType,
+        TitleType,
 
         /**
          * Audio capture devices. This can be soundcards (with different drivers), soundservers or
@@ -310,11 +312,18 @@ typedef ObjectDescription<EffectType> EffectDescription;
 #ifndef QT_NO_PHONON_MEDIACONTROLLER
 typedef ObjectDescription<AudioChannelType> AudioChannelDescription;
 typedef ObjectDescription<SubtitleType> SubtitleDescription;
+typedef ObjectDescription<ChapterType> ChapterDescription;
+typedef ObjectDescription<TitleType> TitleDescription;
 #endif //QT_NO_PHONON_MEDIACONTROLLER
 
 } //namespace Phonon
 
 QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(Phonon::ChapterDescription)
+Q_DECLARE_METATYPE(Phonon::TitleDescription)
+Q_DECLARE_METATYPE(QList<Phonon::ChapterDescription>)
+Q_DECLARE_METATYPE(QList<Phonon::TitleDescription>)
 
 Q_DECLARE_METATYPE(Phonon::AudioOutputDevice)
 Q_DECLARE_METATYPE(QList<Phonon::AudioOutputDevice>)
