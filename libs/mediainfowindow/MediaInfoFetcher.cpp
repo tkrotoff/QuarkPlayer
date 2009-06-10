@@ -440,6 +440,7 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 		return;
 	}
 
+	//TODO check for errors
 	mediaInfo.Open(_mediaInfo.fileName().toStdWString());
 
 	//Info_Parameters: gets all usefull MediaInfoLib parameters names
@@ -514,6 +515,6 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 }
 
 void MediaInfoFetcher::determineFileTypeFromExtension() {
-	QString extension(QFileInfo(_mediaInfo.fileName()).suffix());
+	QString extension(QFileInfo(_mediaInfo.fileName()).suffix().toLower());
 	_mediaInfo.setFileType(FileTypes::fileType(extension));
 }
