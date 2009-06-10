@@ -20,6 +20,7 @@
 
 #include <tkutil/TkTime.h>
 
+#include <QtCore/QStringList>
 #include <QtCore/QUrl>
 #include <QtCore/QDebug>
 
@@ -47,6 +48,9 @@ void MediaInfo::clear() {
 	_length = -1;
 	_bitrate = -1;
 	_encodedApplication.clear();
+	_cueStartIndex = CUE_INDEX_INVALID;
+	_cueEndIndex = CUE_INDEX_INVALID;
+	_privateData.clear();
 
 	//metaData
 	_metadataHash.clear();
@@ -80,7 +84,7 @@ QString MediaInfo::fileName() const {
 }
 
 void MediaInfo::setFileName(const QString & filename) {
-	_fileName = filename;
+	_fileName = filename.trimmed();
 
 	//This avoid a stupid bug: comparing a filename with \ separator and another with /
 	//By replacing any \ by /, we don't have any comparison problem
@@ -142,6 +146,70 @@ void MediaInfo::setLength(int length) {
 	_length = length;
 }
 
+qint64 MediaInfo::parseCueIndexString(const QString & cueIndexString) {
+	//Format: [mm:ss:ff]
+	//mm:ss:ff - Starting time in minutes, seconds, and frames (75 frames/second)
+	//Example:
+	//00:00:00
+	//02:34:50
+
+	qint64 cueIndex = CUE_INDEX_INVALID;
+	QStringList tmp(cueIndexString.split(':', QString::SkipEmptyParts));
+	if (tmp.size() == 3) {
+		int minutes = tmp[0].toInt();
+		int seconds = tmp[1].toInt();
+		int frames = tmp[2].toInt();
+		cueIndex = (minutes * 60 * 1000) + (seconds * 1000) + ((frames / 75.0) * 1000);
+		//There is an approximation since _cueIndex is a qint64 and not a double
+	} else {
+		qCritical() << __FUNCTION__ << "Error: incorrect CUE sheet index string:" << cueIndex;
+	}
+	return cueIndex;
+}
+
+void MediaInfo::setCueStartIndex(const QString & cueIndex) {
+	_cueStartIndex = parseCueIndexString(cueIndex);
+}
+
+void MediaInfo::setCueEndIndex(const QString & cueIndex) {
+	_cueEndIndex = parseCueIndexString(cueIndex);
+}
+
+qint64 MediaInfo::cueStartIndex() const {
+	return _cueStartIndex;
+}
+
+qint64 MediaInfo::cueEndIndex() const {
+	return _cueEndIndex;
+}
+
+QString MediaInfo::cueIndexFormatted(qint64 cueIndex) {
+	//If cueIndex is invalid, then it will return an empty string
+	QString str;
+	if (cueIndex != CUE_INDEX_INVALID) {
+		int minutes = (cueIndex / 60 / 1000) % 60;
+		int seconds = (cueIndex / 1000) % 60;
+		int frames = ((cueIndex * 75) / 1000) % 75;
+
+		int fieldWidth = 2;
+		int base = 10;
+		QLatin1Char fillChar('0');
+		str = QString("%1:%2:%3")
+			.arg(minutes, fieldWidth, base, fillChar)
+			.arg(seconds, fieldWidth, base, fillChar)
+			.arg(frames, fieldWidth, base, fillChar);
+	}
+	return str;
+}
+
+QString MediaInfo::cueStartIndexFormatted() const {
+	return cueIndexFormatted(_cueStartIndex);
+}
+
+QString MediaInfo::cueEndIndexFormatted() const {
+	return cueIndexFormatted(_cueEndIndex);
+}
+
 QString MediaInfo::bitrate() const {
 	if (_bitrate > 0) {
 		return QString::number(_bitrate);
@@ -159,7 +227,7 @@ QString MediaInfo::encodedApplication() const {
 }
 
 void MediaInfo::setEncodedApplication(const QString & encodedApplication) {
-	_encodedApplication = encodedApplication;
+	_encodedApplication = encodedApplication.trimmed();
 }
 
 //Metadata
@@ -168,7 +236,7 @@ QString MediaInfo::metadataValue(Metadata metadata) const {
 }
 
 void MediaInfo::insertMetadata(Metadata metadata, const QString & value) {
-	_metadataHash.insert(metadata, value);
+	_metadataHash.insert(metadata, value.trimmed());
 }
 
 //Audio
@@ -195,7 +263,7 @@ void MediaInfo::insertAudioStream(int audioStreamId, AudioStream audioStream, co
 	//key = 19, not 1 + 9 = 10!
 	int key = QString(QString::number(audioStreamId) + QString::number(audioStream)).toInt();
 
-	_audioStreamHash.insert(key, value);
+	_audioStreamHash.insert(key, value.trimmed());
 }
 
 //Video
@@ -222,7 +290,7 @@ void MediaInfo::insertVideoStream(int videoStreamId, VideoStream videoStream, co
 	//key = 19, not 1 + 9 = 10!
 	int key = QString(QString::number(videoStreamId) + QString::number(videoStream)).toInt();
 
-	_videoStreamHash.insert(key, value);
+	_videoStreamHash.insert(key, value.trimmed());
 }
 
 //Text
@@ -249,7 +317,7 @@ void MediaInfo::insertTextStream(int textStreamId, TextStream textStream, const 
 	//key = 19, not 1 + 9 = 10!
 	int key = QString(QString::number(textStreamId) + QString::number(textStream)).toInt();
 
-	_textStreamHash.insert(key, value);
+	_textStreamHash.insert(key, value.trimmed());
 }
 
 //Network stream
@@ -258,5 +326,13 @@ QString MediaInfo::networkStreamValue(NetworkStream networkStream) const {
 }
 
 void MediaInfo::insertNetworkStream(NetworkStream networkStream, const QString & value) {
-	_networkStreamHash.insert(networkStream, value);
+	_networkStreamHash.insert(networkStream, value.trimmed());
+}
+
+void MediaInfo::setPrivateData(const QString & privateData) {
+	_privateData = privateData;
+}
+
+QString MediaInfo::privateData() const {
+	return _privateData;
 }

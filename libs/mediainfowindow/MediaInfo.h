@@ -88,6 +88,29 @@ public:
 	/** Sets the length of the file in seconds. */
 	void setLength(int length);
 
+	/**
+	 * CUE start/end INDEX info.
+	 *
+	 * Inside a CUE sheet file, INDEX is the position where the media should start to play.
+	 *
+	 * Numbers given are in milliseconds.
+	 * Strings given are of the format:
+	 * Format: [mm:ss:ff]
+	 * mm:ss:ff - Starting time in minutes, seconds, and frames (75 frames/second)
+	 * Example:
+	 * 00:00:00
+	 * 02:34:50
+	 *
+	 * @see http://digitalx.org/cuesheetsyntax.php#indx
+	 */
+	static const int CUE_INDEX_INVALID = -1;
+	void setCueStartIndex(const QString & cueIndex);
+	void setCueEndIndex(const QString & cueIndex);
+	QString cueStartIndexFormatted() const;
+	QString cueEndIndexFormatted() const;
+	qint64 cueStartIndex() const;
+	qint64 cueEndIndex() const;
+
 	/** Gets the overall bitrate = audio bitrate + video bitrate if any. */
 	QString bitrate() const;
 	void setBitrate(int bitrate);
@@ -220,35 +243,61 @@ public:
 	QString networkStreamValue(NetworkStream networkStream) const;
 	void insertNetworkStream(NetworkStream networkStream, const QString & value);
 
+	/**
+	 * Associates a private QString with MediaInfo.
+	 *
+	 * This function was added in order to easily extend MediaInfo
+	 * without inheriting from it (overly complex).
+	 *
+	 * @param privateData the meaning of privateData is up to the user.
+	 */
+	void setPrivateData(const QString & privateData);
+	QString privateData() const;
+
 private:
 
-	bool _fetched;
+	/** Factorization code: parses a CUE index string. */
+	static qint64 parseCueIndexString(const QString & cueIndexString);
 
-	//General
+	/** Factorization code: generates a CUE index string given a CUE index number. */
+	static QString cueIndexFormatted(qint64 cueIndex);
+
+	bool _fetched;
 	QString _fileName;
 	bool _isUrl;
 	FileType _fileType;
 	int _fileSize;
+
+	/** Length of the file in seconds. */
 	int _length;
+
 	int _bitrate;
 	QString _encodedApplication;
+	QString _privateData;
 
-	//Metadata
+	/**
+	 * CUE feature: position in milliseconds where to start the file.
+	 * CUE_INDEX_INVALID if unset.
+	 */
+	qint64 _cueStartIndex;
+	qint64 _cueEndIndex;
+
+	/** Metadata. */
 	QHash<Metadata, QString> _metadataHash;
 
-	//Audio
+	/** Audio. */
 	int _audioStreamCount;
 	QHash<int, QString> _audioStreamHash;
 
-	//Video
+	/** Video. */
 	int _videoStreamCount;
 	QHash<int, QString> _videoStreamHash;
 
-	//Text
+	/** Text. */
 	int _textStreamCount;
 	QHash<int, QString> _textStreamHash;
 
-	//Network stream metadata
+	/** Network stream metadata. */
 	QHash<NetworkStream, QString> _networkStreamHash;
 };
 
