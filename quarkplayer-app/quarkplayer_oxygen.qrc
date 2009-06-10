@@ -71,5 +71,7 @@
 	<file alias="16x16/media-playlist-repeat">icons/oxygen/16x16/status/media-playlist-repeat.png</file>
 	<file alias="16x16/media-playlist-shuffle">icons/oxygen/16x16/status/media-playlist-shuffle.png</file>
 
+	<file alias="16x16/dialog-warning">icons/oxygen/16x16/status/dialog-warning.png</file>
+
 </qresource>
 </RCC>

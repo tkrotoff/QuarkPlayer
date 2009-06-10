@@ -55,21 +55,6 @@
 int main(int argc, char * argv[]) {
 	QtSingleApplication app(argc, argv);
 
-	QStringList args = QCoreApplication::arguments();
-	//Delete the first one in the list,
-	//it is the name of the application
-	//we don't care about this
-	args.removeAt(0);
-
-	QString message = args.join(CommandLineManager::MESSAGE_SEPARATOR);
-	if (app.sendMessage(message)) {
-		//sendMessage() succeded, this means there is another
-		//QuarkPlayer instance running
-		//EXIT_SUCCESS evaluates to 0
-		//EXIT_FAILURE evaluates to a non-zero value
-		return EXIT_SUCCESS;
-	}
-
 	//General infos
  	app.setOrganizationName("QuarkPlayer");
 	app.setOrganizationDomain("quarkplayer.org");
@@ -83,6 +68,26 @@ int main(int argc, char * argv[]) {
 
 	//Do it now, otherwise organizationName and applicationName are not set
 	Config & config = Config::instance();
+
+	//QtSingleApplication
+	QStringList args = QCoreApplication::arguments();
+	//Delete the first one in the list,
+	//it is the name of the application
+	//we don't care about this
+	args.removeAt(0);
+
+	QString message = args.join(CommandLineManager::MESSAGE_SEPARATOR);
+	if (app.sendMessage(message)) {
+		//sendMessage() succeded, this means there is another
+		//QuarkPlayer instance running
+
+		if (!Config::instance().allowMultipleInstances()) {
+			//EXIT_SUCCESS evaluates to 0
+			//EXIT_FAILURE evaluates to a non-zero value
+			return EXIT_SUCCESS;
+		}
+	}
+	///
 
 	//By default QuarkPlayerStyle: specific style for QuarkPlayer
 	//Fix some ugly things under Windows XP

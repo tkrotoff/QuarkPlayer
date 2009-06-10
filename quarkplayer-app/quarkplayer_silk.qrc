@@ -71,5 +71,7 @@
 	<file alias="16x16/media-playlist-repeat">icons/silk/control_repeat_blue.png</file>
 	<file alias="16x16/media-playlist-shuffle">icons/silk/arrow_switch.png</file>
 
+	<file alias="16x16/dialog-warning">icons/silk/bullet_error.png</file>
+
 </qresource>
 </RCC>
