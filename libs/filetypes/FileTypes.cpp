@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #include <QtCore/QSet>
 #include <QtCore/QDebug>
 
-static const int FILETYPELIST_SIZE = 57;
+static const int FILETYPELIST_SIZE = 58;
 
 //See http://en.wikipedia.org/wiki/List_of_file_formats
 static const FileType FILETYPELIST[FILETYPELIST_SIZE] = {
@@ -88,6 +88,7 @@ static const FileType FILETYPELIST[FILETYPELIST_SIZE] = {
 	{ FileType::Playlist, FileType::PLS, "PLS", "PLS_(file_format)", "pls", "audio/x-scpls" },
 	{ FileType::Playlist, FileType::XSPF, "XML Shareable Playlist Format (XSPF)", "XML_Shareable_Playlist_Format", "xspf", "application/xspf+xml" },
 	{ FileType::Playlist, FileType::WPL, "Windows Media Player Playlist (WPL)", "WPL", "wpl", "application/vnd.ms-wpl" },
+	{ FileType::Playlist, FileType::CUE, "CUE Sheet", ".cue", "cue", "application/x-cue" },
 
 	//Subtitle
 	//See http://en.wikipedia.org/wiki/Subtitle_(captioning)#Subtitle_formats
