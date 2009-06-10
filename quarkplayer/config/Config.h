@@ -116,6 +116,14 @@ public:
 	static const char * MAINWINDOW_GEOMETRY_KEY;
 	QByteArray mainWindowGeometry() const;
 
+	/**
+	 * Multiple QuarkPlayer instances.
+	 *
+	 * @see QtSingleApplication
+	 */
+	static const char * ALLOW_MULTIPLE_INSTANCES_KEY;
+	bool allowMultipleInstances() const;
+
 private:
 
 	Config();

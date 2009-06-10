@@ -37,6 +37,7 @@
  *
  * @see http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
  * @see QLocale
+ * @see Translator
  * @author Tanguy Krotoff
  */
 class QUARKPLAYER_API Languages : public QObject {
@@ -63,11 +64,6 @@ public:
 	 * @see iso639_1_list()
 	 */
 	static QMap<QString, QString> availableTranslations();
-
-	/**
-	 * Gets the flag icon given a ISO639-1 language string ("en", "fr", "de"...).
-	 */
-	static flagIcon(const QString & iso639_1);
 
 private:
 

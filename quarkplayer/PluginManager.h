@@ -61,7 +61,11 @@ public:
 	 */
 	bool loadDisabledPlugin(const QString & filename);
 
-	/** Deletes/unloads a given plugin and saves the plugins configuration. */
+	/**
+	 * Deletes/unloads a given plugin and saves the plugins configuration.
+	 *
+	 * This will delete/unload all the plugins depending on the plugin asked to be deleted/unloaded.
+	 */
 	bool deletePlugin(PluginData & pluginData);
 
 	/** Gets the first loaded plugin interface matching the given filename. */
@@ -70,7 +74,12 @@ public:
 	/** Gets a plugin given a unique ID, search among all the available plugins (loaded + disabled). */
 	PluginData pluginData(const QUuid & uuid) const;
 
-	/** Gets the list of all available plugins (loaded + disabled plugins). */
+	/**
+	 * Gets the list of all available plugins (loaded + disabled plugins).
+	 *
+	 * Used by PluginConfigWidget in order to configure the plugins.
+	 * @see PluginConfigWidget
+	 */
 	PluginDataList availablePlugins() const;
 
 	/**

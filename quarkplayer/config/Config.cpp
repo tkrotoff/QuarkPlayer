@@ -47,6 +47,8 @@ const char * Config::VOLUME_MUTED_KEY = "volume_muted";
 
 const char * Config::MAINWINDOW_GEOMETRY_KEY = "mainwindow_geometry";
 
+const char * Config::ALLOW_MULTIPLE_INSTANCES_KEY = "allow_multiple_instances";
+
 Config::Config()
 	: TkConfig() {
 
@@ -208,4 +210,8 @@ bool Config::volumeMuted() const {
 
 QByteArray Config::mainWindowGeometry() const {
 	return value(MAINWINDOW_GEOMETRY_KEY).toByteArray();
+}
+
+bool Config::allowMultipleInstances() const {
+	return value(ALLOW_MULTIPLE_INSTANCES_KEY).toBool();
 }
