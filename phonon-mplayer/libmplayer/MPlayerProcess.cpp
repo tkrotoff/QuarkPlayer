@@ -41,6 +41,15 @@ int MPlayerProcess::_mplayerVersion = MPlayerProcess::MPLAYER_VERSION_NOTFOUND;
 MPlayerProcess::MPlayerProcess(QObject * parent)
 	: MyProcess(parent) {
 
+	connect(this, SIGNAL(lineAvailable(const QString &)),
+		SLOT(parseLine(const QString &)));
+
+	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+		SLOT(finished(int, QProcess::ExitStatus)));
+
+	connect(this, SIGNAL(error(QProcess::ProcessError)),
+		SLOT(error(QProcess::ProcessError)));
+
 	init();
 }
 
@@ -55,6 +64,8 @@ void MPlayerProcess::init() {
 	_errorString.clear();
 	_errorType = Phonon::NoError;
 	_currentTitleId = 0;
+	_audioChannelList.clear();
+	_subtitleList.clear();
 }
 
 #ifdef Q_OS_WIN
@@ -65,11 +76,10 @@ void MPlayerProcess::init() {
 	#include <windows.h>
 #endif	//Q_OS_WIN
 
+//Converts a normal filename to a short filename (8+3 format)
 //Taken from Scribus
 //See http://docs.scribus.net/devel/util_8cpp-source.html#l00112
 //See http://scribus.info/svn/Scribus/trunk/Scribus/scribus/util.cpp
-//Converts a normal filename to a short filename (8+3 format)
-//Needed by
 QString shortPathName(const QString & longPath) {
 	QString shortPath(longPath);
 
@@ -88,30 +98,6 @@ QString shortPathName(const QString & longPath) {
 #endif	//Q_OS_WIN
 
 	return shortPath;
-}
-
-void MPlayerProcess::connectAllSignals() {
-	disconnectAllSignals();
-
-	connect(this, SIGNAL(lineAvailable(const QString &)),
-		SLOT(parseLine(const QString &)));
-
-	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
-		SLOT(finished(int, QProcess::ExitStatus)));
-
-	connect(this, SIGNAL(error(QProcess::ProcessError)),
-		SLOT(error(QProcess::ProcessError)));
-}
-
-void MPlayerProcess::disconnectAllSignals() {
-	disconnect(this, SIGNAL(lineAvailable(const QString &)),
-		this, SLOT(parseLine(const QString &)));
-
-	disconnect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
-		this, SLOT(finished(int, QProcess::ExitStatus)));
-
-	disconnect(this, SIGNAL(error(QProcess::ProcessError)),
-		this, SLOT(error(QProcess::ProcessError)));
 }
 
 bool MPlayerProcess::start(const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek) {
@@ -145,19 +131,11 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 	_mediaData.filename = shortPathName(filename);
 	args << _mediaData.filename;
 
-	//By calling connectAllSignals() and disconnectAllSignals() each time a new QProcess is created,
-	//we are sure to get only signals from the current and working QProcess. This is a protective behavior.
-	connectAllSignals();
-
 	MyProcess::start(MPLAYER_EXE, args);
 	return waitForStarted();
 }
 
 void MPlayerProcess::stop() {
-	//By calling disconnectAllSignals() each time the QProcess ends, we are sure to get only
-	//signals from the current and working QProcess. This is a protective behavior.
-	disconnectAllSignals();
-
 	if (!isRunning()) {
 		qWarning() << __FUNCTION__ << "MPlayer not running";
 		return;
@@ -235,6 +213,9 @@ Phonon::ErrorType MPlayerProcess::errorType() const {
 	return _errorType;
 }
 
+//FIXME Dangerous to have static QRegExp like this, never know how they are initialized...
+
+//See http://regexlib.com/DisplayPatterns.aspx
 //General
 static QRegExp rx_av("^[AV]: *([0-9,:.-]+)");
 static QRegExp rx_frame("^[AV]:.* (\\d+)\\/.\\d+");
@@ -242,12 +223,13 @@ static QRegExp rx_generic("^(.*)=(.*)");
 static QRegExp rx_audio_mat("^ID_AID_(\\d+)_(LANG|NAME)=(.*)");
 static QRegExp rx_winresolution("^VO: \\[(.*)\\] (\\d+)x(\\d+) => (\\d+)x(\\d+)");
 static QRegExp rx_ao("^AO: \\[(.*)\\]");
-static QRegExp rx_paused("^ID_PAUSED");
+static QRegExp rx_paused("^ID_PAUSED$");
 static QRegExp rx_novideo("^Video: no video");
 static QRegExp rx_play("^Starting playback...");
 static QRegExp rx_playing("^Playing");	//"Playing" does not mean the file is actually playing but only loading
 static QRegExp rx_file_not_found("^File not found:");
 static QRegExp rx_endoffile("^Exiting... \\(End of file\\)");
+static QRegExp rx_slowsystem("Your system is too SLOW to play this!");
 
 //Streaming
 static QRegExp rx_connecting("^Connecting to server (.*)...");
@@ -255,6 +237,7 @@ static QRegExp rx_resolving("^Resolving (.*)...");
 static QRegExp rx_resolving_failed("^Couldn't resolve name for ");
 static QRegExp rx_cache_fill("^Cache fill: (.*)%");
 static QRegExp rx_read_failed("^Read failed.");	//"Read failed" for a streaming media
+static QRegExp rx_stream_not_found("^No stream found to handle url ");
 
 //Screenshot
 static QRegExp rx_screenshot("^\\*\\*\\* screenshot '(.*)'");
@@ -345,6 +328,15 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		//File not found
 		else if (rx_file_not_found.indexIn(line) > -1) {
 			_errorString = "File not found";
+			_errorType = Phonon::FatalError;
+			//Wait until MPlayer ends
+			//changeState(Phonon::ErrorState);
+		}
+
+		//Slow system
+		else if (rx_slowsystem.indexIn(line) > -1) {
+			qDebug() << __FUNCTION__ << "Slow system detected";
+			_errorString = "System too slow to play the media";
 			_errorType = Phonon::NormalError;
 			changeState(Phonon::ErrorState);
 		}
@@ -365,9 +357,9 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			//available titles. So if we received the end of file
 			//first let's pretend the file has started so the GUI can have
 			//the data.
-			if (_currentState != Phonon::PlayingState) {
+			/*if (_currentState != Phonon::PlayingState) {
 				changeState(Phonon::PlayingState);
-			}
+			}*/
 
 			//Sends the endOfFileReached() signal once the process is finished, not now!
 			_endOfFileReached = true;
@@ -512,21 +504,29 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		//Subtitle
 		//static QRegExp rx_sid("^ID_(SID|VSID)_(\\d+)_(LANG|NAME)=(.*)");
 		else if (rx_sid.indexIn(line) > -1) {
-			int id = rx_sid.cap(2).toInt();
-			const QString lang = rx_sid.cap(4);
-			const QString attr = rx_sid.cap(3);
 			const QString type = rx_sid.cap(1);
-			qDebug() << __FUNCTION__ << "Subtitle id:" << id << "lang:" << lang << "type:" << type << "attr:" << attr;
+			int id = rx_sid.cap(2).toInt();
+			const QString attr = rx_sid.cap(3);
+			const QString value = rx_sid.cap(4);
 
 			if (type == "VSID") {
 			} else if (type == "SID") {
 			}
 
+			SubtitleData subtitleData = _subtitleList[id];
 			if (attr == "NAME") {
+				//name=audio channel name/description
+				subtitleData.name = value;
 			} else if (attr == "LANG") {
+				//lang=en, fr...
+				subtitleData.lang = value;
 			}
+			subtitleData.type = type;
+			_subtitleList[id] = subtitleData;
 
-			emit subtitleAdded(id, lang, type);
+			qDebug() << __FUNCTION__ << "Subtitle id:" << id << "value:" << value << "type:" << type << "attr:" << attr;
+
+			emit subtitleAdded(id, subtitleData);
 		}
 
 		//Subtitle
@@ -535,10 +535,15 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			//MPlayer make the id start at number 1,
 			//we want it to start at number 0
 			int id = rx_subtitle_file.cap(1).toInt() - 1;
-			const QString fileName = rx_subtitle_file.cap(2);
-			qDebug() << __FUNCTION__ << "Subtitle id:" << id << "file:" << fileName;
+			const QString filename = rx_subtitle_file.cap(2);
+			qDebug() << __FUNCTION__ << "Subtitle id:" << id << "file:" << filename;
 
-			emit subtitleAdded(id, fileName, "file");
+			SubtitleData subtitleData = _subtitleList[id];
+			subtitleData.name = filename;
+			subtitleData.type = "file";
+			_subtitleList[id] = subtitleData;
+
+			emit subtitleAdded(id, subtitleData);
 
 			if (id == 0) {
 				qDebug() << __FUNCTION__ << "Current subtitle changed:" << id;
@@ -577,20 +582,55 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 			//Matroska file format detected.
 			//VIDEO:  [RV40]  704x296  24bpp  25.000 fps    0.0 kbps ( 0.0 kbyte/s)
 
-			int id = rx_audio_mat.cap(1).toInt();
-			QString lang = rx_audio_mat.cap(3);
-			QString attr = rx_audio_mat.cap(2);
-			qDebug() << __FUNCTION__ << "Audio id:" << id << "lang:" << lang << "attr:" << attr;
+			//Another Mastroska example:
+			//ID_VID_0_NAME=Futurama - Ep01
+			//[mkv] Track ID 1: video (V_REAL/RV40) Futurama - Ep01, -vid 0
+			//ID_AUDIO_ID=0
+			//ID_AID_0_NAME=audio fre
+			//ID_AID_0_LANG=fre
+			//[mkv] Track ID 2: audio (A_AAC/MPEG2/LC/SBR) audio fre, -aid 0, -alang fre
+			//ID_AUDIO_ID=1
+			//ID_AID_1_NAME=audio eng
+			//ID_AID_1_LANG=eng
+			//[mkv] Track ID 3: audio (A_AAC/MPEG2/LC/SBR) audio eng, -aid 1, -alang eng
+			//ID_AUDIO_ID=2
+			//ID_AID_2_NAME=audio comment fre
+			//ID_AID_2_LANG=fre
+			//[mkv] Track ID 4: audio (A_AAC/MPEG2/LC/SBR) audio comment fre, -aid 2, -alang fre
+			//ID_SUBTITLE_ID=0
+			//ID_SID_0_NAME=st eng
+			//ID_SID_0_LANG=eng
+			//[mkv] Track ID 5: subtitles (S_VOBSUB) st eng, -sid 0, -slang eng
+			//ID_SUBTITLE_ID=1
+			//ID_SID_1_NAME=st fre
+			//ID_SID_1_LANG=fre
+			//[mkv] Track ID 6: subtitles (S_VOBSUB) st fre, -sid 1, -slang fre
+			//ID_SUBTITLE_ID=2
+			//ID_SID_2_NAME=st fre forced
+			//ID_SID_2_LANG=fre
+			//[mkv] Track ID 7: subtitles (S_VOBSUB) st fre forced, -sid 2, -slang fre
+			//ID_SUBTITLE_ID=3
+			//ID_SID_3_NAME=st comment fre
+			//ID_SID_3_LANG=fre
+			//[mkv] Track ID 8: subtitles (S_VOBSUB) st comment fre, -sid 3, -slang fre
 
+			int id = rx_audio_mat.cap(1).toInt();
+			QString attr = rx_audio_mat.cap(2);
+			QString value = rx_audio_mat.cap(3);
+
+			AudioChannelData audioChannelData = _audioChannelList[id];
 			if (attr == "NAME") {
-				//lang=english, spanish...
-				//_mediaData.audioTrackList.addName(id, lang);
+				//name=audio channel name/description
+				audioChannelData.name = value;
 			} else if (attr == "LANG") {
 				//lang=en, fr...
-				//_mediaData.audioTrackList.addLang(id, lang);
+				audioChannelData.lang = value;
 			}
+			_audioChannelList[id] = audioChannelData;
 
-			emit audioChannelAdded(id, lang);
+			qDebug() << __FUNCTION__ << "Audio id:" << id << "attr:" << attr << "value:" << value;
+
+			emit audioChannelAdded(id, audioChannelData);
 		}
 
 		//static QRegExp rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from (.*) to (.*), (.*)");
@@ -695,8 +735,17 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		//Catch resolving failed
 		else if (rx_resolving_failed.indexIn(line) > -1) {
 			_errorString = line;
-			_errorType = Phonon::NormalError;
-			changeState(Phonon::ErrorState);
+			_errorType = Phonon::FatalError;
+			//Wait until MPlayer ends
+			//changeState(Phonon::ErrorState);
+		}
+
+		//No stream found to handle url
+		else if (rx_stream_not_found.indexIn(line) > -1) {
+			_errorString = line;
+			_errorType = Phonon::FatalError;
+			//Wait until MPlayer ends
+			//changeState(Phonon::ErrorState);
 		}
 
 		//Catch connecting message
@@ -709,8 +758,9 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 
 		else if (rx_read_failed.indexIn(line) > -1) {
 			_errorString = "Cannot read the network stream";
-			_errorType = Phonon::NormalError;
-			changeState(Phonon::ErrorState);
+			_errorType = Phonon::FatalError;
+			//Wait until MPlayer ends
+			//changeState(Phonon::ErrorState);
 		}
 
 		//Catch cache messages
@@ -931,9 +981,14 @@ void MPlayerProcess::finished(int exitCode, QProcess::ExitStatus exitStatus) {
 		switch (exitStatus) {
 		case QProcess::NormalExit:
 			qDebug() << __FUNCTION__ << "MPlayer process exited normally";
-			changeState(Phonon::StoppedState);
-			if (_endOfFileReached) {
-				emit endOfFileReached();
+
+			if (_errorType == Phonon::NoError) {
+				changeState(Phonon::StoppedState);
+				if (_endOfFileReached) {
+					emit endOfFileReached();
+				}
+			} else {
+				changeState(Phonon::ErrorState);
 			}
 			break;
 		case QProcess::CrashExit:
@@ -981,11 +1036,11 @@ void MPlayerProcess::error(QProcess::ProcessError error) {
 		break;
 	case QProcess::WriteError:
 		_errorString = "An error occurred when attempting to write to MPlayer."
-					"For example, MPlayer may not be running, or it may have closed its input channel";
+				"For example, MPlayer may not be running, or it may have closed its input channel";
 		break;
 	case QProcess::ReadError:
 		_errorString = "An error occurred when attempting to read from MPlayer."
-					"For example, the process may not be running";
+				"For example, the process may not be running";
 		break;
 	case QProcess::UnknownError:
 		_errorString = "An unknown error occurred";

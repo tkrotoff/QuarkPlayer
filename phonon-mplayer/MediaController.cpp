@@ -38,10 +38,10 @@ MediaController::MediaController(QObject * parent)
 	//1 MediaObject = 1 MPlayerProcess
 	_process = MPlayerLoader::createNewMPlayerProcess(this);
 
-	connect(_process, SIGNAL(audioChannelAdded(int, const QString &)),
-		SLOT(audioChannelAdded(int, const QString &)));
-	connect(_process, SIGNAL(subtitleAdded(int, const QString &, const QString &)),
-		SLOT(subtitleAdded(int, const QString &, const QString &)));
+	connect(_process, SIGNAL(audioChannelAdded(int, const AudioChannelData &)),
+		SLOT(audioChannelAdded(int, const AudioChannelData &)));
+	connect(_process, SIGNAL(subtitleAdded(int, const SubtitleData &)),
+		SLOT(subtitleAdded(int, const SubtitleData &)));
 	connect(_process, SIGNAL(subtitleChanged(int)),
 		SLOT(subtitleChanged(int)));
 	connect(_process, SIGNAL(titleAdded(int, qint64)),
@@ -98,7 +98,10 @@ void MediaController::clearMediaController() {
 	//Hack:
 	//Create a fake subtitle called "None" with -1 for value
 	//This special subtitle let's the user turn off subtitles cf ("sub_demux -1")
-	subtitleAdded(-1, "None", "SID");
+	SubtitleData subtitleData;
+	subtitleData.name = "None";
+	subtitleData.type = "SID";
+	subtitleAdded(-1, subtitleData);
 	subtitleChanged(-1);
 }
 
@@ -295,14 +298,39 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 }
 
 //AudioChannel
-void MediaController::audioChannelAdded(int id, const QString & lang) {
+void MediaController::audioChannelAdded(int id, const AudioChannelData & audioChannelData) {
 	qDebug() << __FUNCTION__;
 
-	QHash<QByteArray, QVariant> properties;
-	properties.insert("name", lang);
-	properties.insert("description", "");
+	//This callback can get called 1 or several times,
 
-	_availableAudioChannels << Phonon::AudioChannelDescription(id, properties);
+	//The display string that will see the user
+	QString displayString;
+	displayString = audioChannelData.name;
+	if (!audioChannelData.lang.isEmpty()) {
+		if (displayString.isEmpty()) {
+			displayString += audioChannelData.lang;
+		} else {
+			displayString += " [" + audioChannelData.lang + ']';
+		}
+	}
+	///
+	QHash<QByteArray, QVariant> properties;
+	properties.insert("name", displayString);
+	properties.insert("description", QString());
+	Phonon::AudioChannelDescription audioChannel(id, properties);
+
+	//Check if the index already exist
+	int existingIndex = -1;
+	for (int i = 0; i < _availableAudioChannels.size(); i++) {
+		if (_availableAudioChannels[i].index() == id) {
+			existingIndex = i;
+		}
+	}
+	if (existingIndex == -1) {
+		_availableAudioChannels << audioChannel;
+	} else {
+		_availableAudioChannels.replace(existingIndex, audioChannel);
+	}
 }
 
 void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription & audioChannel) {
@@ -321,15 +349,40 @@ Phonon::AudioChannelDescription MediaController::currentAudioChannel() const {
 }
 
 //Subtitle
-void MediaController::subtitleAdded(int id, const QString & name, const QString & type) {
+void MediaController::subtitleAdded(int id, const SubtitleData & subtitleData) {
 	qDebug() << __FUNCTION__;
 
-	QHash<QByteArray, QVariant> properties;
-	properties.insert("name", name);
-	properties.insert("description", QString());
-	properties.insert("type", type);
+	//This callback can get called 1 or several times,
 
-	_availableSubtitles << Phonon::SubtitleDescription(id, properties);
+	//The display string that will see the user
+	QString displayString;
+	displayString = subtitleData.name;
+	if (!subtitleData.lang.isEmpty()) {
+		if (displayString.isEmpty()) {
+			displayString += subtitleData.lang;
+		} else {
+			displayString += " [" + subtitleData.lang + ']';
+		}
+	}
+	///
+	QHash<QByteArray, QVariant> properties;
+	properties.insert("name", displayString);
+	properties.insert("description", QString());
+	properties.insert("type", subtitleData.type);
+	Phonon::SubtitleDescription subtitle(id, properties);
+
+	//Check if the index already exist
+	int existingIndex = -1;
+	for (int i = 0; i < _availableSubtitles.size(); i++) {
+		if (_availableSubtitles[i].index() == id) {
+			existingIndex = i;
+		}
+	}
+	if (existingIndex == -1) {
+		_availableSubtitles << subtitle;
+	} else {
+		_availableSubtitles.replace(existingIndex, subtitle);
+	}
 }
 
 void MediaController::subtitleChanged(int id) {
@@ -522,7 +575,7 @@ void MediaController::chapterAdded(int titleId, int chapters) {
 		for (int i = 0; i < chapters; i++) {
 			QHash<QByteArray, QVariant> properties;
 			properties.insert("name", i + 1);
-			properties.insert("description", "");
+			properties.insert("description", QString());
 
 			_availableChapters << Phonon::ChapterDescription(i, properties);
 		}
@@ -596,10 +649,13 @@ void MediaController::mkvChapterAdded(int id, const QString & title, const QStri
 	Q_UNUSED(from);
 	Q_UNUSED(to);
 
+	//HACK
+	//id + 1 since MPlayer starts from 1
+
 	//Matroska chapter added
-	if (_availableChapters < id) {
-		_availableChapters = id;
-		qDebug() << __FUNCTION__ << "Chapter id: " << _availableChapters << "title:" << title;
+	if (_availableChapters < id + 1) {
+		_availableChapters = id + 1;
+		qDebug() << __FUNCTION__ << "Chapter id: " << id << "title:" << title;
 	}
 }
 
@@ -607,7 +663,10 @@ void MediaController::setCurrentChapter(int chapterNumber) {
 	qDebug() << __FUNCTION__;
 
 	_currentChapter = chapterNumber;
-	_process->sendCommand("seek_chapter " + QString::number(_currentChapter) + " 1");
+	//HACK
+	//_currentChapter + 1
+	//MPlayer seems to be buggy on this with .mkv files
+	_process->sendCommand("seek_chapter " + QString::number(_currentChapter + 1) + " 1");
 }
 
 int MediaController::availableChapters() const {

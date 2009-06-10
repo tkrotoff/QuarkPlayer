@@ -123,6 +123,7 @@ public:
 	QString streamWebsite;
 	QString streamUrl;
 
+
 	//Other datas not really useful for us,
 	//just to show info to the user
 	//Please try to respect the declarations order: should match MPlayer stdout

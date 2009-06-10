@@ -27,6 +27,8 @@
 #include <QtCore/QObject>
 
 class MPlayerProcess;
+class AudioChannelData;
+class SubtitleData;
 
 namespace Phonon
 {
@@ -60,7 +62,7 @@ public:
 
 signals:
 
-	//MediaController signals
+	//MediaController signals, emitted inside MediaObject
 	void availableSubtitlesChanged();
 	void availableAudioChannelsChanged();
 
@@ -84,8 +86,10 @@ signals:
 
 private slots:
 
-	void audioChannelAdded(int id, const QString & lang);
-	void subtitleAdded(int id, const QString & name, const QString & type);
+	//Call 1 or more times due to MPlayer
+	void audioChannelAdded(int id, const AudioChannelData & audioChannelData);
+	//Call 1 or more times due to MPlayer
+	void subtitleAdded(int id, const SubtitleData & subtitleData);
 	void subtitleChanged(int id);
 	void titleAdded(int id, qint64 length);
 	void chapterAdded(int titleId, int chapters);

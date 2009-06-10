@@ -26,9 +26,30 @@
 #include <QtGui/QWidget>
 
 #include <QtCore/QString>
+#include <QtCore/QMap>
 
 #include "MyProcess.h"
 #include "MediaData.h"
+
+/**
+ * Stores AudioChannel informations/datas.
+ * Hack because MPlayer sends several audio channel infos instead of everything
+ * at the same time.
+ *
+ * @author Tanguy Krotoff
+ */
+class AudioChannelData {
+public:
+	QString lang;
+	QString name;
+};
+
+class SubtitleData {
+public:
+	QString lang;
+	QString name;
+	QString type;
+};
 
 /**
  * Creates a new MPlayer process.
@@ -41,6 +62,13 @@
  * Permits to receive events from the MPlayer process
  *
  * Check the MPlayer slave mode documentation: http://www.mplayerhq.hu/DOCS/tech/slave.txt
+ *
+ * URL to test:
+ * - Quicktime H.264: http://www.podtrac.com/pts/redirect.mov/zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.mov
+ * - Video IPod: http://www.podtrac.com/pts/redirect.mp4/zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.i.mp4
+ * - Windows Media Player: http://www.podtrac.com/pts/redirect.wmv/zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.wmv
+ * - MPEG4: http://zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.mp4
+ * - MP3 (audio only): http://www.podtrac.com/pts/redirect.mp3/zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.mp3
  *
  * This code is from SMPlayer http://smplayer.sourceforge.net/
  * Ricardo Villalba did the hard work, I came later on to clean/refactor it.
@@ -59,13 +87,6 @@ public:
 
 	/**
 	 * Starts the MPlayer process.
-	 *
-	 * URL to test:
-	 * - Quicktime H.264: http://www.podtrac.com/pts/redirect.mov/zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.mov
-	 * - Video IPod: http://www.podtrac.com/pts/redirect.mp4/zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.i.mp4
-	 * - Windows Media Player: http://www.podtrac.com/pts/redirect.wmv/zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.wmv
-	 * - MPEG4: http://zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.mp4
-	 * - MP3 (audio only): http://www.podtrac.com/pts/redirect.mp3/zdpub.vo.llnwd.net/o2/crankygeeks/episode111/crankygeeks.111.mp3
 	 *
 	 * @param arguments options to give to the MPlayer process
 	 * @param filename file/media/stream to play, can be an URL or dvd://
@@ -232,9 +253,10 @@ signals:
 	 *
 	 * @see http://en.wikipedia.org/wiki/Matroska
 	 * @param id audio id to select if we choose this lang
-	 * @param lang fr, en... / french, english...
+	 * @param name name/desciption of the audio channel
+	 * @param lang fr, en... / fre, eng... / french, english...
 	 */
-	void audioChannelAdded(int id, const QString & lang);
+	void audioChannelAdded(int id, const AudioChannelData & audioChannelData);
 
 	/**
 	 * A new subtitle has been detected from the media/file/stream.
@@ -246,11 +268,8 @@ signals:
 	 * @param id subtitle id to select, start at number 0
 	 * @param name can be the filename or the subtitle
 	 *        language (fr, en... / french, english...) or anything else
-	 * @param type subtitle type:
-	 *        - file
-	 *        - FIXME still to be done
 	 */
-	void subtitleAdded(int id, const QString & name, const QString & type);
+	void subtitleAdded(int id, const SubtitleData & subtitleData);
 
 	/**
 	 * Current subtitle has changed.
@@ -339,28 +358,6 @@ private:
 
 	void changeState(Phonon::State newState);
 
-	/**
-	 * Connects to all signals from QProcess.
-	 *
-	 * Internally call disconnectAllSignals() before to connect again all the signals.
-	 *
-	 * By calling connectAllSignals() and disconnectAllSignals() each time a new QProcess is created,
-	 * we are sure to get only signals from the current and working QProcess. This is a protective behavior.
-	 *
-	 * @see disconnectAllSignals()
-	 */
-	void connectAllSignals();
-
-	/**
-	 * Disconnects from all signals from QProcess.
-	 *
-	 * By calling disconnectAllSignals() each time the QProcess ends, we are sure to get only
-	 * signals from the current and working QProcess. This is a protective behavior.
-	 *
-	 * @see connectAllSignals()
-	 */
-	void disconnectAllSignals();
-
 	bool _endOfFileReached;
 
 	MediaData _mediaData;
@@ -382,6 +379,12 @@ private:
 
 	/** Current DVD/MKV title id. */
 	int _currentTitleId;
+
+	/** Audio channel list, int = audio channel id/index. */
+	QMap<int, AudioChannelData> _audioChannelList;
+
+	/** Subtitle list, int = subtitle id/index. */
+	QMap<int, SubtitleData> _subtitleList;
 };
 
 #endif	//MPLAYERPROCESS_H

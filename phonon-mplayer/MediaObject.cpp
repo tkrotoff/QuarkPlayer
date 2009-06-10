@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -51,14 +51,6 @@ MediaObject::MediaObject(QObject * parent)
 
 	qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 
-	//Run an empty MPlayerProcess in order to get the MPlayer version number
-	//Using the MPlayer version number, we performs some tests (see MPlayerLoader.cpp)
-	//and thus we need to know the MPlayer version number as soon as possible
-	if (MPlayerProcess::getMPlayerVersion() == MPlayerProcess::MPLAYER_VERSION_NOTFOUND) {
-		MPlayerLoader::startMPlayerVersion(this);
-	}
-	///
-
 	connect(_process, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(stateChangedInternal(Phonon::State, Phonon::State)));
 
@@ -99,6 +91,16 @@ void MediaObject::setVideoWidgetId(WId videoWidgetId) {
 }
 
 void MediaObject::play() {
+	_aboutToFinishEmitted = false;
+
+	//Run an empty MPlayerProcess in order to get the MPlayer version number
+	//Using the MPlayer version number, we performs some tests (see MPlayerLoader.cpp)
+	//and thus we need to know the MPlayer version number as soon as possible
+	if (MPlayerProcess::getMPlayerVersion() == MPlayerProcess::MPLAYER_VERSION_NOTFOUND) {
+		MPlayerLoader::startMPlayerVersion(this);
+	}
+	///
+
 	qDebug() << __FUNCTION__;
 
 	if (_process->currentState() == Phonon::PausedState) {
@@ -192,12 +194,6 @@ void MediaObject::loadMediaInternal() {
 		//so there no need to load it
 		return;
 	}
-
-	//See http://www.mplayerhq.hu/DOCS/tech/slave.txt
-	//loadfile <file|url> <append>
-	//Load the given file/URL, stopping playback of the current file/URL.
-	//If <append> is nonzero playback continues and the file/URL is
-	//appended to the current playlist instead.
 
 	MPlayerLoader::loadMedia(_process, _filename);
 }
