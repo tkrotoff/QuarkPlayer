@@ -25,6 +25,7 @@
 #include "PLSParser.h"
 #include "ASXParser.h"
 #include "XSPFParser.h"
+#include "CUEParser.h"
 
 #include <mediainfowindow/MediaInfo.h>
 
@@ -41,12 +42,13 @@ PlaylistParser::PlaylistParser(const QString & filename, QObject * parent)
 	_parser = NULL;
 	_parserThread = NULL;
 
-	//When to delete _parserList ?
+	//FIXME memory leak: when to delete _parserList ?
 	_parserList += new M3UParser(filename, this);
 	_parserList += new PLSParser(filename, this);
 	_parserList += new WPLParser(filename, this);
 	_parserList += new ASXParser(filename, this);
 	_parserList += new XSPFParser(filename, this);
+	_parserList += new CUEParser(filename, this);
 
 	QString extension(QFileInfo(filename).suffix().toLower());
 
@@ -71,6 +73,11 @@ PlaylistParser::PlaylistParser(const QString & filename, QObject * parent)
 
 PlaylistParser::~PlaylistParser() {
 	stop();
+	//FIXME memory leak: when to delete _parserList ?
+	foreach (IPlaylistParser * parser, _parserList) {
+		//This is dangerous
+		//delete parser;
+	}
 }
 
 QStringList PlaylistParser::fileExtensions() const {

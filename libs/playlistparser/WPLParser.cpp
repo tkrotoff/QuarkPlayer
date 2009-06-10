@@ -92,17 +92,15 @@ void WPLParser::load() {
 				QString element(xml.name().toString());
 
 				if (element.compare(WPL_MEDIA, Qt::CaseInsensitive) == 0) {
-					QString filename(xml.attributes().value(WPL_SRC).toString().trimmed());
+					QString filename(xml.attributes().value(WPL_SRC).toString());
 
-					if (!filename.isEmpty()) {
-						//Add file to the list of files
-						files << MediaInfo(Util::canonicalFilePath(path, filename));
+					//Add file to the list of files
+					files << MediaInfo(Util::canonicalFilePath(path, filename));
 
-						if (files.size() > FILES_FOUND_LIMIT) {
-							//Emits the signal every FILES_FOUND_LIMIT files found
-							emit filesFound(files);
-							files.clear();
-						}
+					if (files.size() > FILES_FOUND_LIMIT) {
+						//Emits the signal every FILES_FOUND_LIMIT files found
+						emit filesFound(files);
+						files.clear();
 					}
 				}
 				break;

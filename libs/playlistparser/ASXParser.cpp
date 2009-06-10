@@ -91,28 +91,22 @@ void ASXParser::load() {
 			case QXmlStreamReader::StartElement: {
 				QString element(xml.name().toString());
 				if (element.compare(ASX_TITLE, Qt::CaseInsensitive) == 0) {
-					QString title(xml.readElementText().trimmed());
-					if (!title.isEmpty()) {
-						mediaInfo.insertMetadata(MediaInfo::Title, title);
-					}
+					QString title(xml.readElementText());
+					mediaInfo.insertMetadata(MediaInfo::Title, title);
 				} else if (element.compare(ASX_REF, Qt::CaseInsensitive) == 0) {
-					QString url(xml.attributes().value(ASX_HREF).toString().trimmed());
+					QString url(xml.attributes().value(ASX_HREF).toString());
 					if (url.isEmpty()) {
 						//Yes ASX format is shit
 						//Let's try with uppercase
 						QString uppercase(ASX_HREF);
 						uppercase = uppercase.toUpper();
-						url = xml.attributes().value(uppercase).toString().trimmed();
+						url = xml.attributes().value(uppercase).toString();
 					}
-					if (!url.isEmpty()) {
-						mediaInfo.setFileName(url);
-						mediaInfo.setUrl(true);
-					}
+					mediaInfo.setFileName(url);
+					mediaInfo.setUrl(true);
 				} else if (element.compare(ASX_COPYRIGHT, Qt::CaseInsensitive) == 0) {
-					QString copyright(xml.readElementText().trimmed());
-					if (!copyright.isEmpty()) {
-						mediaInfo.insertMetadata(MediaInfo::Copyright, copyright);
-					}
+					QString copyright(xml.readElementText());
+					mediaInfo.insertMetadata(MediaInfo::Copyright, copyright);
 				}
 				break;
 			}

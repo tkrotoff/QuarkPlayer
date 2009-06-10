@@ -13,6 +13,7 @@ set(playlistparser_SRCS
 	PLSParser.cpp
 	ASXParser.cpp
 	XSPFParser.cpp
+	CUEParser.cpp
 )
 
 qt4_wrap_cpp(playlistparser_SRCS

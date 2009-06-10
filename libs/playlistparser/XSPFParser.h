@@ -65,6 +65,8 @@ private:
 
 	static void writeTextElement(QXmlStreamWriter & xml, const QString & qualifiedName, const QString & text);
 
+	static void writeTextElementWithNamespace(QXmlStreamWriter & xml, const QString & namespaceUri, const QString & qualifiedName, const QString & text);
+
 	static void writeIntElement(QXmlStreamWriter & xml, const QString & qualifiedName, int text);
 
 	static void writeTrack(QXmlStreamWriter & xml, const MediaInfo & mediaInfo);

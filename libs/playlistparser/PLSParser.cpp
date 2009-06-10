@@ -76,8 +76,12 @@ void PLSParser::load() {
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
 	//See http://regexlib.com/DisplayPatterns.aspx
+
+	//File1=http://streamexample.com:80
 	static QRegExp rx_file("^File(\\d+)=(.*)$");
+	//Title1=My Favorite Online Radio
 	static QRegExp rx_title("^Title(\\d+)=(.*)$");
+	//Length1=-1
 	static QRegExp rx_length("^Length(\\d+)=(.*)$");
 
 	MediaInfo mediaInfo;
@@ -112,7 +116,7 @@ void PLSParser::load() {
 					}
 				}
 
-				QString filename(rx_file.cap(2).trimmed());
+				QString filename(rx_file.cap(2));
 				bool isUrl = MediaInfo::isUrl(filename);
 				mediaInfo.setUrl(isUrl);
 				if (isUrl) {
@@ -123,17 +127,17 @@ void PLSParser::load() {
 			}
 
 			else if (rx_title.indexIn(line) != -1) {
-				QString title(rx_title.cap(2).trimmed());
-				if (!title.isEmpty()) {
-					mediaInfo.insertMetadata(MediaInfo::Title, title);
-				}
+				QString title(rx_title.cap(2));
+				mediaInfo.insertMetadata(MediaInfo::Title, title);
 			}
 
 			else if (rx_length.indexIn(line) != -1) {
-				QString length(rx_length.cap(2).trimmed());
-				if (!length.isEmpty()) {
-					mediaInfo.setLength(length.toInt());
-				}
+				QString length(rx_length.cap(2));
+				mediaInfo.setLength(length.toInt());
+			}
+
+			else {
+				//Syntax error
 			}
 		}
 	}

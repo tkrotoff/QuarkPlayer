@@ -68,9 +68,14 @@ void M3UParser::load() {
 	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
 	//See http://regexlib.com/DisplayPatterns.aspx
+
+	//#EXTM3U
 	static QRegExp rx_extm3u("^#EXTM3U$|^#M3U$");
+	//#EXTINF:123,Sample title
 	static QRegExp rx_extinf("^#EXTINF:([-+]?\\d+),(.*)$");
+	//#EXTINF:Sample title
 	static QRegExp rx_extinf_title("^#EXTINF:(.*)$");
+	//#Just a comment
 	static QRegExp rx_comment("^#.*$");
 
 	QFile file(_filename);
@@ -101,18 +106,18 @@ void M3UParser::load() {
 
 			else if (rx_extinf.indexIn(line) != -1) {
 				//#EXTINF line
-				QString length(rx_extinf.cap(1).trimmed());
+				QString length(rx_extinf.cap(1));
 				if (!length.isEmpty()) {
 					mediaInfo.setLength(length.toInt());
 				}
-				QString title(rx_extinf.cap(2).trimmed());
+				QString title(rx_extinf.cap(2));
 				if (!title.isEmpty()) {
 					mediaInfo.insertMetadata(MediaInfo::Title, title);
 				}
 			}
 
 			else if (rx_extinf_title.indexIn(line) != -1) {
-				QString title(rx_extinf_title.cap(1).trimmed());
+				QString title(rx_extinf_title.cap(1));
 				if (!title.isEmpty()) {
 					mediaInfo.insertMetadata(MediaInfo::Title, title);
 				}
