@@ -31,10 +31,13 @@ public:
 
 	~TkTime();
 
+	/** Converts from milliseconds to a string like hh:mm:ss or mm:ss depending if hour > 0. */
 	static QString convertMilliseconds(qint64 milliseconds);
 
+	/** Converts from seconds to a string like hh:mm:ss or mm:ss depending if hour > 0. */
 	static QString convertSeconds(int seconds);
 
+	/** Converts from milliseconds to a string like hh:mm:ss / hh:mm:ss or mm:ss / mm:ss depending if hour > 0. */
 	static QString convertMilliseconds(qint64 currentTime, qint64 totalTime);
 
 private:
