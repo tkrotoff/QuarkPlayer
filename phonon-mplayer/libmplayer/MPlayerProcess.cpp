@@ -228,7 +228,7 @@ static QRegExp rx_novideo("^Video: no video");
 static QRegExp rx_play("^Starting playback...");
 static QRegExp rx_playing("^Playing");	//"Playing" does not mean the file is actually playing but only loading
 static QRegExp rx_file_not_found("^File not found:");
-static QRegExp rx_endoffile("^Exiting... \\(End of file\\)");
+static QRegExp rx_endoffile("^ID_EXIT=EOF$");
 static QRegExp rx_slowsystem("Your system is too SLOW to play this!");
 
 //Streaming
