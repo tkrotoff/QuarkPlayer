@@ -67,6 +67,7 @@ namespace Elements
     const int32u ON2_=0x4F4E3220;
     const int32u ON2f=0x4F4E3266;
     const int32u RIFF=0x52494646;
+    const int32u riff=0x72696666;
     const int32u RF64=0x52463634;
     const int32u SMV0=0x534D5630;
     const int32u SMV0_xxxx=0x534D563A;
@@ -107,6 +108,7 @@ File_Riff::File_Riff()
     rec__Present=false;
     NeedOldIndex=true;
     IsBigEndian=false;
+    IsWave64=false;
     SecondPass=false;
     DV_FromHeader=NULL;
 
@@ -153,6 +155,7 @@ void File_Riff::Read_Buffer_Finalize ()
 
             //Merging
             Merge(*Temp->second.Parser, StreamKind_Last, 0, StreamPos_Last);
+            Fill(StreamKind_Last, StreamPos_Last, "ID", ((Temp->first>>24)-'0')*10+(((Temp->first>>16)&0xFF)-'0'));
 
             //Hacks - After
             if (StreamKind_Last==Stream_Video)
@@ -181,7 +184,7 @@ void File_Riff::Read_Buffer_Finalize ()
             //Delay
             if (StreamKind_Last==Stream_Audio && Count_Get(Stream_Video)==1 && Temp->second.Rate!=0 && Temp->second.Parser->Count_Get(Stream_General)>0)
             {
-                float Delay;
+                float Delay=0;
                 bool Delay_IsValid=false;
 
                      if (Temp->second.Parser->Buffer_TotalBytes_FirstSynched==0)
@@ -236,11 +239,25 @@ void File_Riff::Read_Buffer_Finalize ()
                 {
                     if (Retrieve(Stream_General, 0, General_Recorded_Date).empty())
                         Fill(Stream_General, 0, General_Recorded_Date, Temp->second.Parser->Retrieve(Stream_General, 0, General_Recorded_Date));
-                    for (size_t Pos=0; Pos<Temp->second.Parser->Count_Get(Stream_Audio); Pos++)
+
+                    //Video and Audio are together
+                    size_t Audio_Count=Temp->second.Parser->Count_Get(Stream_Audio);
+                    for (size_t Audio_Pos=0; Audio_Pos<Audio_Count; Audio_Pos++)
                     {
+                        Fill_Flush();
                         Stream_Prepare(Stream_Audio);
-                        Merge(*Temp->second.Parser, Stream_Audio, Pos, StreamPos_Last);
+                        size_t Pos=Count_Get(Stream_Audio)-1;
+                        Merge(*Temp->second.Parser, Stream_Audio, Audio_Pos, StreamPos_Last);
+                        Fill(Stream_Audio, Pos, Audio_MuxingMode, "DV");
+                        Fill(Stream_Audio, Pos, Audio_Duration, Retrieve(Stream_Video, Temp->second.StreamPos, Video_Duration));
+                        Fill(Stream_Audio, Pos, "MuxingMode_MoreInfo", _T("Muxed in Video #")+Ztring().From_Number(Temp->second.StreamPos+1));
+                        Fill(Stream_Audio, Pos, Audio_StreamSize, "0"); //Included in the DV stream size
+                        Ztring ID=Retrieve(Stream_Audio, Pos, Audio_ID);
+                        Fill(Stream_Audio, Pos, Audio_ID, Retrieve(Stream_Video, Temp->second.StreamPos, Video_ID)+_T("-")+ID, true);
                     }
+
+                    StreamKind_Last=Stream_Video;
+                    StreamPos_Last=Temp->second.StreamPos;
                 }
             #endif
         }
@@ -425,6 +442,36 @@ void File_Riff::Header_Parse()
         Header_Fill_Size(51);
         return;
     }
+    if (Name==Elements::riff)
+        IsWave64=true;
+    if (IsWave64)
+    {
+        //Wave64 specific
+        int64u Size_Complete;
+        Skip_XX(12,                                             "Name (GUID)");
+        Get_L8 (Size_Complete,                                  "Size");
+
+        //Alignment
+        if (Name!=Elements::riff && Size_Complete%8)
+        {
+            Alignement_ExtraByte=Size_Complete%8;
+            Size_Complete+=Alignement_ExtraByte; //Always 8-byte aligned
+        }
+        else
+            Alignement_ExtraByte=0;
+
+        //Top level chunks
+        if (Name==Elements::riff)
+        {
+            Get_C4 (Name,                                       "Real Name");
+            Skip_XX(12,                                         "Real Name (GUID)");
+        }
+
+        //Filling
+        Header_Fill_Code(Name, Ztring().From_CC4(Name));
+        Header_Fill_Size(Size_Complete);
+        return;
+    }
     if (Name==Elements::FORM
      || Name==Elements::MThd)
         IsBigEndian=true; //Swap from Little to Big Endian for "FORM" files (AIFF...)
@@ -455,13 +502,13 @@ void File_Riff::Header_Parse()
     }
 
     //Alignment
-    if (Size_Complete%2==1)
+    if (Size_Complete%2)
     {
         Size_Complete++; //Always 2-byte aligned
-        Alignement_ExtraByte=true;
+        Alignement_ExtraByte=1;
     }
     else
-        Alignement_ExtraByte=false;
+        Alignement_ExtraByte=0;
 
     //Top level chunks
     if (Name==Elements::LIST
@@ -469,7 +516,11 @@ void File_Riff::Header_Parse()
      || Name==Elements::RF64
      || Name==Elements::ON2_
      || Name==Elements::FORM)
+    {
+        if (Name==Elements::RF64)
+            Fill(Stream_General, 0, General_Format_Profile, "RF64");
         Get_C4 (Name,                                           "Real Name");
+    }
 
     //Integrity
     if (Name==0x00000000)

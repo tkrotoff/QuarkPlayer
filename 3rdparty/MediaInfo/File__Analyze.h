@@ -61,6 +61,7 @@ public :
     void    Open_Buffer_Init        (File__Analyze* Sub, int64u File_Size, int64u File_Offset=0);
     void    Open_Buffer_Continue    (                    const int8u* Buffer, size_t Buffer_Size);
     void    Open_Buffer_Continue    (File__Analyze* Sub, const int8u* Buffer, size_t Buffer_Size);
+    void    Open_Buffer_Unsynch     ();
     void    Open_Buffer_Fill        ();
     void    Open_Buffer_Update      ();
     void    Open_Buffer_Finalize    (bool NoBufferModification=false);
@@ -103,7 +104,7 @@ protected :
     virtual void Read_Buffer_Init ()          {}; //Temp, should be in File__Base caller
     virtual void Read_Buffer_Continue ()      {}; //Temp, should be in File__Base caller
     virtual void Read_Buffer_Continue_Once () {}; //Temp, should be in File__Base caller
-    virtual void Read_Buffer_Unsynched ()       ; //Temp, should be in File__Base caller
+    virtual void Read_Buffer_Unsynched ()     {}; //Temp, should be in File__Base caller
     virtual void Read_Buffer_Finalize ()      {}; //Temp, should be in File__Base caller
     bool Buffer_Parse();
 
@@ -261,9 +262,9 @@ public :
     #ifdef NEED_SIZET
     inline void Param      (const char*   Parameter, size_t Value, intu Radix=16) {Param(Parameter, Ztring::ToZtring(Value, Radix).MakeUpperCase()+_T(" (")+Ztring::ToZtring(Value, 10).MakeUpperCase()+_T(")"));}
     #endif //NEED_SIZET
-    inline void Param      (const char*   Parameter, float32 Value, intu AfterComma=3) {Param(Parameter, Ztring::ToZtring(Value, AfterComma));}
-    inline void Param      (const char*   Parameter, float64 Value, intu AfterComma=3) {Param(Parameter, Ztring::ToZtring(Value, AfterComma));}
-    inline void Param      (const char*   Parameter, float80 Value, intu AfterComma=3) {Param(Parameter, Ztring::ToZtring(Value, AfterComma));}
+    inline void Param      (const char*   Parameter, float32 Value, int8u AfterComma=3) {Param(Parameter, Ztring::ToZtring(Value, AfterComma));}
+    inline void Param      (const char*   Parameter, float64 Value, int8u AfterComma=3) {Param(Parameter, Ztring::ToZtring(Value, AfterComma));}
+    inline void Param      (const char*   Parameter, float80 Value, int8u AfterComma=3) {Param(Parameter, Ztring::ToZtring(Value, AfterComma));}
     inline void Param      (const int32u  Parameter, const Ztring& Value) {Param(Ztring().From_CC4(Parameter), Value);};
     inline void Param      (const int16u  Parameter, const Ztring& Value) {Param(Ztring().From_CC2(Parameter), Value);};
 
@@ -568,7 +569,9 @@ public :
     void Skip_S7(size_t Bits,                const char* Name);
     void Skip_S8(size_t Bits,                const char* Name);
     void Mark_0 ();
+    void Mark_0_NoTrustError (); //Use it for providing a warning instead of a non-trusting error
     void Mark_1 ();
+    void Mark_1_NoTrustError (); //Use it for providing a warning instead of a non-trusting error
     #define Info_BS(_BITS, _INFO, _NAME) int32u  _INFO; Get_BS(_BITS, _INFO, _NAME)
     #define Info_SB(_INFO, _NAME)        bool    _INFO; Get_SB(       _INFO, _NAME)
     #define Info_S1(_BITS, _INFO, _NAME) int8u   _INFO; Get_S1(_BITS, _INFO, _NAME)

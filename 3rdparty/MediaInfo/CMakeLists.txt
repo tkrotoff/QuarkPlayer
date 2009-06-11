@@ -120,6 +120,8 @@ set(mediainfo_SRCS
 	Tag/File_VorbisCom.cpp
 	Text/File_Cmml.cpp
 	Text/File_Kate.cpp
+	Text/File_Eia608.cpp
+	Text/File_Eia708.cpp
 	Text/File_OtherText.cpp
 	Text/File_Pgs.cpp
 	Video/File_Avc.cpp

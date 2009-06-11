@@ -966,6 +966,7 @@ void File_Avc::sei_message_pic_timing(int32u payloadSize)
         return;   
     }
 
+    /*
     //Parsing
     BS_Begin();
     if (CpbDpbDelaysPresentFlag)
@@ -1037,6 +1038,7 @@ void File_Avc::sei_message_pic_timing(int32u payloadSize)
         if (pic_struct_FirstDetected==(int8u)-1)
             pic_struct_FirstDetected=pic_struct;
     FILLING_END();
+    */
 }
 
 //---------------------------------------------------------------------------
@@ -1092,11 +1094,19 @@ void File_Avc::sei_message_user_data_unregistered_x264(int32u payloadSize)
                 Ztring option;
                 Get_Local (Options_Pos-Options_Pos_Before, option, "option");
                 Options_Pos_Before=Options_Pos;
-                if (Options_Pos_Before+3<=Data.size())
+                do
                 {
-                    Skip_Local(1,                               "separator");
-                    Options_Pos_Before+=1;
+                    Ztring Separator;
+                    Peek_Local(1, Separator);
+                    if (Separator==_T(" "))
+                    {
+                        Skip_Local(1,                               "separator");
+                        Options_Pos_Before+=1;
+                    }
+                    else
+                        break;
                 }
+                while (Options_Pos_Before!=Data.size());
 
                 //Filling
                 if (option!=_T("options:"))
@@ -1293,6 +1303,15 @@ void File_Avc::seq_parameter_set()
         if (ToTest==0x98)
             Skip_B1(                                            "Unknown");
 
+    }
+
+    //Hack for : There is a trailing data, why?
+    if (Element_Offset+4==Element_Size)
+    {
+        int32u ToTest;
+        Peek_B4(ToTest);
+        if (ToTest==0xE30633C0)
+            Skip_B4(                                            "Unknown");
     }
 
     FILLING_BEGIN_PRECISE();

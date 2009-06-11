@@ -35,6 +35,9 @@
 
 //---------------------------------------------------------------------------
 #include "MediaInfo/Multiple/File_Riff.h"
+#if defined(MEDIAINFO_DVDIF_YES)
+    #include "MediaInfo/Multiple/File_DvDif.h"
+#endif
 #if defined(MEDIAINFO_OGG_YES)
     #include "MediaInfo/Multiple/File_Ogg.h"
     #include "MediaInfo/Multiple/File_Ogg_SubElement.h"
@@ -78,9 +81,6 @@
 #if defined(MEDIAINFO_ID3V2_YES)
     #include "MediaInfo/Tag/File_Id3v2.h"
 #endif
-#if defined(MEDIAINFO_DVDIF_YES)
-    #include "MediaInfo/Multiple/File_DvDif.h"
-#endif
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -103,12 +103,21 @@ std::string ExtensibleWave_ChannelMask (int32u ChannelMask)
     if (ChannelMask&0x0002)
         Text+=(ChannelMask&0x0003)?", R":" R";
 
-    if ((ChannelMask&0x0030)!=0x0000)
-        Text+="/";
+    if ((ChannelMask&0x0600)!=0x0000)
+        Text+=", Middle:";
+    if (ChannelMask&0x0200)
+        Text+=" L";
+    if (ChannelMask&0x0400)
+        Text+=(ChannelMask&0x0200)?", R":" R";
+
+    if ((ChannelMask&0x0130)!=0x0000)
+        Text+=", Surround:";
     if (ChannelMask&0x0010)
         Text+=" L";
+    if (ChannelMask&0x0100)
+        Text+=(ChannelMask&0x0010)?", C":" C";
     if (ChannelMask&0x0020)
-        Text+=(ChannelMask&0x0010)?", R":" R";
+        Text+=(ChannelMask&0x0110)?", R":" R";
 
     if ((ChannelMask&0x0008)!=0x0000)
         Text+=", LFE";
@@ -133,7 +142,19 @@ std::string ExtensibleWave_ChannelMask2 (int32u ChannelMask)
         Count=0;
     }
 
+    if (ChannelMask&0x0200)
+        Count++;
+    if (ChannelMask&0x0400)
+        Count++;
+    if (Count)
+    {
+        Text+="/"+Ztring::ToZtring(Count).To_UTF8();
+        Count=0;
+    }
+
     if (ChannelMask&0x0010)
+        Count++;
+    if (ChannelMask&0x0100)
         Count++;
     if (ChannelMask&0x0020)
         Count++;
@@ -303,6 +324,9 @@ namespace Elements
     const int32u WAVE_fact=0x66616374;
     const int32u WAVE_fmt_=0x666D7420;
     const int32u WAVE_ID3_=0x49443320;
+    const int32u wave=0x77617665;
+    const int32u wave_data=0x64617461;
+    const int32u wave_fmt_=0x666D7420;
     const int32u W3DI=0x57334449;
 }
 
@@ -313,9 +337,8 @@ namespace Elements
 //---------------------------------------------------------------------------
 void File_Riff::Data_Parse()
 {
-    //alignement specific
-    if (Alignement_ExtraByte)
-        Element_Size--;
+    //Alignement specific
+    Element_Size-=Alignement_ExtraByte;
 
     DATA_BEGIN
     LIST(AIFC)
@@ -436,13 +459,19 @@ void File_Riff::Data_Parse()
         ATOM(WAVE_fmt_)
         ATOM(WAVE_ID3_)
         ATOM_END
+    LIST(wave)
+        ATOM_BEGIN
+        LIST(wave_data)
+            break;
+        ATOM(wave_fmt_)
+        ATOM_END
     DATA_END
 
     if (Alignement_ExtraByte)
     {
-        Element_Size++;
+        Element_Size+=Alignement_ExtraByte;
         if (File_GoTo==(size_t)-1)
-            Skip_XX(1,                                          "Alignement");
+            Skip_XX(Alignement_ExtraByte,                       "Alignement");
     }
 }
 
@@ -872,7 +901,7 @@ void File_Riff::AVI__hdlr_strl_indx_StandardIndex(int32u Entry_Count, int32u Chu
         Element_Offset+=8;
 
         //Stream Position and size
-        if (Pos<300)
+        if (Pos<300 || MediaInfoLib::Config.ParseSpeed_Get()==1.00)
         {
             Stream_Structure[BaseOffset+Offset-8].Name=ChunkId&0xFFFF0000;
             Stream_Structure[BaseOffset+Offset-8].Size=Size;
@@ -996,7 +1025,7 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
     CodecID_Fill(Codec, Stream_Audio, StreamPos_Last, InfoCodecID_Format_Riff);
     Fill(Stream_Audio, StreamPos_Last, Audio_Codec, Codec); //May be replaced by codec parser
     Fill(Stream_Audio, StreamPos_Last, Audio_Codec_CC, Codec);
-    Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, Channels!=5?Channels:6);
+    Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, (Channels!=5 || FormatTag==0xFFFE)?Channels:6);
     Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, SamplesPerSec);
     Fill(Stream_Audio, StreamPos_Last, Audio_BitRate, AvgBytesPerSec*8);
     if (BitsPerSample) Fill(Stream_Audio, StreamPos_Last, Audio_Resolution, BitsPerSample);
@@ -1443,7 +1472,7 @@ void File_Riff::AVI__hdlr_strl_strf_vids()
     else if (MediaInfoLib::Config.Codec_Get(Ztring().From_CC4(Compression), InfoCodec_KindofCodec).find(_T("DV"))==0)
     {
         Stream[Stream_ID].Parser=new File_DvDif;
-        ((File_DvDif*)Stream[Stream_ID].Parser)->Frame_Count_Valid=1;
+        ((File_DvDif*)Stream[Stream_ID].Parser)->Frame_Count_Valid=2;
         ((File_DvDif*)Stream[Stream_ID].Parser)->IgnoreAudio=true;
     }
     #endif
@@ -1983,7 +2012,7 @@ void File_Riff::AVI__movi_xxxx___dc()
      || Stream[Stream_ID].Specific_IsMpeg4v && ((File_Mpeg4v*)Stream[Stream_ID].Parser)->Frame_Count_InThisBlock>1 //Searching Packet bitstream, no more need if found
     #endif
      || Stream[Stream_ID].Parser->IsFinished
-     || Stream[Stream_ID].PacketPos>=300)
+     || (Stream[Stream_ID].PacketPos>=300 && MediaInfoLib::Config.ParseSpeed_Get()<1.00))
     {
         Stream[Stream_ID].SearchingPayload=false;
         stream_Count--;
@@ -2017,7 +2046,7 @@ void File_Riff::AVI__movi_xxxx___wb()
     if ( Stream[Stream_ID].PacketPos>=4 //For having the chunk alignement
      && (Stream[Stream_ID].Parser==NULL
       || Stream[Stream_ID].Parser->IsFilled
-      || Stream[Stream_ID].PacketPos>=300)
+      || (Stream[Stream_ID].PacketPos>=300 && MediaInfoLib::Config.ParseSpeed_Get()<1.00))
       || Element_Size>50000) //For PCM, we disable imediatly
     {
         Stream[Stream_ID].SearchingPayload=false;
@@ -2574,6 +2603,17 @@ void File_Riff::WAVE_ID3_()
         Open_Buffer_Finalize(&MI);
         Merge(MI, Stream_General, 0, 0);
     #endif
+}
+
+//---------------------------------------------------------------------------
+void File_Riff::wave()
+{
+    Data_Accept("Wave64");
+    Element_Name("Format: Wave64");
+
+    //Filling
+    Stream_Prepare(Stream_General);
+    Fill(Stream_General, 0, General_Format, "Wave64");
 }
 
 //---------------------------------------------------------------------------

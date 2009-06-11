@@ -119,6 +119,7 @@ File_MpegTs::File_MpegTs()
     //Data
     MpegTs_JumpTo_Begin=MediaInfoLib::Config.MpegTs_MaximumOffset_Get();
     MpegTs_JumpTo_End=8*1024*1024;
+    Searching_TimeStamp_Start=true;
     Complete_Stream=NULL;
 }
 
@@ -207,6 +208,13 @@ void File_MpegTs::Streams_Fill()
             //More info
             if (StreamKind_Last!=Stream_Max) //Found by the Parser or stream_type
             {
+                //Special cases
+                if (StreamKind_Last==Stream_Text && Complete_Stream->Streams[StreamID].Parser && Complete_Stream->Streams[StreamID].Parser->Count_Get(Stream_Video))
+                {
+                    StreamKind_Last=Stream_Video;
+                    StreamPos_Last=Count_Get(Stream_Video)-1;
+                }
+
                 Complete_Stream->Streams[StreamID].StreamKind=StreamKind_Last;
                 Complete_Stream->Streams[StreamID].StreamPos=StreamPos_Last;
 
@@ -228,6 +236,44 @@ void File_MpegTs::Streams_Fill()
                 {
                     Fill(StreamKind_Last, StreamPos_Last, "MenuID", Complete_Stream->Streams[StreamID].program_numbers[Pos], 10, Pos==0);
                     Fill(StreamKind_Last, StreamPos_Last, "MenuID/String", Decimal_Hexa(Complete_Stream->Streams[StreamID].program_numbers[Pos]), Pos==0);
+                }
+
+                //Special cases
+                if (StreamKind_Last==Stream_Video && Complete_Stream->Streams[StreamID].Parser && Complete_Stream->Streams[StreamID].Parser->Count_Get(Stream_Text))
+                {
+                    //Video and Text are together
+                    size_t Text_Count=Complete_Stream->Streams[StreamID].Parser->Count_Get(Stream_Text);
+                    for (size_t Text_Pos=0; Text_Pos<Text_Count; Text_Pos++)
+                    {
+                        size_t Pos=Count_Get(Stream_Text)-Text_Count+Text_Pos;
+                        Fill(Stream_Text, Pos, "MuxingMode_MoreInfo", _T("Muxed in Video #")+Ztring().From_Number(StreamPos_Last+1), true);
+                        Fill(Stream_Text, Pos, Text_StreamSize, 0);
+                        Ztring ID=Retrieve(Stream_Text, Pos, Text_ID);
+                        if (ID.find(_T('-'))!=string::npos)
+                            ID.erase(ID.begin(), ID.begin()+ID.find(_T('-'))+1);
+                        Fill(Stream_Text, Pos, Text_ID, Retrieve(Stream_Video, StreamPos_Last, Video_ID)+_T('-')+ID, true);
+                        Fill(Stream_Text, Pos, Text_ID_String, Retrieve(Stream_Video, StreamPos_Last, Video_ID_String)+ID, true);
+                        Fill(Stream_Text, Pos, Text_MenuID, Retrieve(Stream_Video, StreamPos_Last, Video_MenuID), true);
+                        Fill(Stream_Text, Pos, Text_MenuID_String, Retrieve(Stream_Video, StreamPos_Last, Video_MenuID_String), true);
+                        Fill(Stream_Text, Pos, Text_Duration, Retrieve(Stream_Video, StreamPos_Last, Video_Duration), true);
+
+                        //Language from ATSC EIT
+                        size_t ID_Pos;
+                        if (ID==_T("608-0"))
+                            ID_Pos=0;
+                        else if (ID==_T("608-1"))
+                            ID_Pos=1;
+                        else
+                        {
+                            ID_Pos=ID.To_int8u();
+                            if (ID_Pos==0)
+                                ID_Pos=(size_t)-1;
+                            else
+                                ID_Pos--; //EIA-708 begins at 1
+                        }
+                        if (ID_Pos<Complete_Stream->Streams[StreamID].Captions_Language.size())
+                            Fill(Stream_Text, Pos, Text_Language, Complete_Stream->Streams[StreamID].Captions_Language[ID_Pos]);
+                    }
                 }
             }
 
@@ -1109,6 +1155,7 @@ void File_MpegTs::PES()
             Complete_Stream->Streams[pid].Searching_Payload_Continue_Set(false);
             #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
                 Complete_Stream->Streams[pid].Searching_ParserTimeStamp_Start_Set(false);
+                Complete_Stream->Streams[pid].Searching_ParserTimeStamp_End_Set(false);
             #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
             Complete_Stream->Streams_NotParsedCount--;
             return;
@@ -1117,10 +1164,13 @@ void File_MpegTs::PES()
         //Allocating an handle if needed
         #if defined(MEDIAINFO_MPEGPS_YES)
             Complete_Stream->Streams[pid].Parser=new File_MpegPs;
+            if (Searching_TimeStamp_Start)
+                Complete_Stream->Streams[pid].Searching_ParserTimeStamp_Start_Set(true);
             ((File_MpegPs*)Complete_Stream->Streams[pid].Parser)->FromTS=true;
             ((File_MpegPs*)Complete_Stream->Streams[pid].Parser)->stream_type_FromTS=Complete_Stream->Streams[pid].stream_type;
             ((File_MpegPs*)Complete_Stream->Streams[pid].Parser)->format_identifier_FromTS=Complete_Stream->Streams[pid].registration_format_identifier;
             ((File_MpegPs*)Complete_Stream->Streams[pid].Parser)->MPEG_Version=2;
+            ((File_MpegPs*)Complete_Stream->Streams[pid].Parser)->Searching_TimeStamp_Start=Complete_Stream->Streams[pid].Searching_ParserTimeStamp_Start;
             Complete_Stream->Streams[pid].Parser->ShouldContinueParsing=true;
             Complete_Stream->Streams[pid].Searching_Payload_Continue_Set(true);
         #else
@@ -1210,6 +1260,7 @@ void File_MpegTs::Detect_EOF()
             Complete_Stream->Streams_NotParsedCount=(size_t)-1;
             Complete_Stream->Streams[StreamID].Kind=complete_stream::stream::pes;
             Complete_Stream->Streams[StreamID].Searching_Payload_Start_Set(true);
+            Complete_Stream->Streams[StreamID].Searching_Payload_Continue_Set(false);
             #ifndef MEDIAINFO_MINIMIZESIZE
                 Complete_Stream->Streams[StreamID].Element_Info="PES";
             #endif //MEDIAINFO_MINIMIZESIZE
@@ -1218,7 +1269,7 @@ void File_MpegTs::Detect_EOF()
                 Complete_Stream->Streams[StreamID].Searching_TimeStamp_End_Set(false);
             #endif //MEDIAINFO_MPEGTS_PCR_YES
             #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
-                //Complete_Stream->Streams[StreamID].Searching_ParserTimeStamp_Start_Set(true);
+                Complete_Stream->Streams[StreamID].Searching_ParserTimeStamp_Start_Set(true);
                 Complete_Stream->Streams[StreamID].Searching_ParserTimeStamp_End_Set(false);
             #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
         }
@@ -1245,9 +1296,17 @@ void File_MpegTs::Detect_EOF()
                     for (size_t StreamID=0; StreamID<0x2000; StreamID++)//std::map<int64u, stream>::iterator Stream=Streams.begin(); Stream!=Streams.end(); Stream++)
                     {
                         //End timestamp is out of date
+                        Complete_Stream->Streams[StreamID].Searching_TimeStamp_Start_Set(false); //No more searching start
                         Complete_Stream->Streams[StreamID].TimeStamp_End=(int64u)-1;
                         if (Complete_Stream->Streams[StreamID].TimeStamp_Start!=(int64u)-1)
                             Complete_Stream->Streams[StreamID].Searching_TimeStamp_End_Set(true); //Searching only for a start found
+                        if (Complete_Stream->Streams[StreamID].Parser)
+                        {
+                            Complete_Stream->Streams[StreamID].Searching_ParserTimeStamp_Start_Set(false); //No more searching start
+                            if (((File_MpegPs*)Complete_Stream->Streams[StreamID].Parser)->HasTimeStamps)
+                                Complete_Stream->Streams[StreamID].Searching_ParserTimeStamp_End_Set(true); //Searching only for a start found
+                            Complete_Stream->Streams[StreamID].Parser->Open_Buffer_Unsynch();
+                        }
                     }
                 }
                 Complete_Stream->End_Time.clear();
@@ -1260,6 +1319,7 @@ void File_MpegTs::Detect_EOF()
             GoToFromEnd(47, "MPEG-TS"); //TODO: Should be changed later (when Finalize stuff will be split) 
         #else //!defined(MEDIAINFO_MPEGTS_PCR_YES) && !defined(MEDIAINFO_MPEGTS_PESTIMESTAMP_YES)
             GoToFromEnd(MpegTs_JumpTo_End, "MPEG-TS");
+            Searching_TimeStamp_Start=false;
         #endif //!defined(MEDIAINFO_MPEGTS_PCR_YES) && !defined(MEDIAINFO_MPEGTS_PESTIMESTAMP_YES)
     }
 }

@@ -1,5 +1,5 @@
-// File_Pcm - Info for PCM files
-// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
+// File_Eia608 - Info for EIA-608 files
+// Copyright (C) 2009-2009 Jerome Martinez, Zen@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -17,13 +17,13 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-// Information about PCM files
+// Information about PGS files
 //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //---------------------------------------------------------------------------
-#ifndef MediaInfo_File_PcmH
-#define MediaInfo_File_PcmH
+#ifndef MediaInfo_File_Eia608H
+#define MediaInfo_File_Eia608H
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -34,27 +34,18 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Class File_Pcm
+// Class File_Eia608
 //***************************************************************************
 
-class File_Pcm : public File__Analyze
+class File_Eia608 : public File__Analyze
 {
-public :
-    //In
-    ZenLib::Ztring Codec;
-
 private :
     //Buffer - Global
-    void Read_Buffer_Continue ();
-    void Read_Buffer_Finalize ();
+    void Read_Buffer_Continue();
+    void Read_Buffer_Finalize();
 
-    //Buffer - Per element
-    void Header_Parse();
-    void Data_Parse();
-
-    //Elements
-    void VOB();
-    void M2TS();
+    //Temp
+    std::wstring Captions;
 };
 
 } //NameSpace

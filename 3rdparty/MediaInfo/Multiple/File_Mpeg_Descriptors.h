@@ -179,6 +179,7 @@ struct complete_stream
         typedef std::vector<table_id*>              table_ids;
         table_ids                                   Table_IDs; //Key is table_id
         std::map<std::string, Ztring>               Infos;
+        std::vector<Ztring>                         Captions_Language;
         #ifndef MEDIAINFO_MINIMIZESIZE
             Ztring Element_Info;
         #endif //MEDIAINFO_MINIMIZESIZE
@@ -190,7 +191,7 @@ struct complete_stream
             int64u                                  TimeStamp_End;
         #endif //MEDIAINFO_MPEGTS_PCR_YES
         int32u                                      registration_format_identifier;
-        int32u                                      FMC_ES_ID;
+        int16u                                      FMC_ES_ID;
         int16u                                      table_type; //ATSC
         int8u                                       stream_type;
         bool                                        FMC_ES_ID_IsValid;

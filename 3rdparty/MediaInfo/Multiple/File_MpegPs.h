@@ -47,7 +47,7 @@ public :
     int8u  descriptor_tag_FromTS;   //Descriptor from TS
     int32u format_identifier_FromTS;//Registration from TS
     int8u  MPEG_Version;            //MPEG_Version from TS
-    bool   Searching_TimeStamp_End;
+    bool   Searching_TimeStamp_Start;
 
     //Out
     bool   HasTimeStamps;
@@ -65,6 +65,7 @@ private :
     void Synched_Init();
 
     //Buffer - Global
+    void Read_Buffer_Unsynched();
     void Read_Buffer_Finalize ();
 
     //Buffer - Per element
@@ -125,13 +126,11 @@ private :
             {
                 int64u File_Pos;
                 int64u TimeStamp;
-                int64u Is_Valid;
 
                 Mpeg_TimeStamp_TS()
                 {
                     File_Pos=(int64u)-1;
                     TimeStamp=(int64u)-1;
-                    Is_Valid=false;
                 }
             };
 

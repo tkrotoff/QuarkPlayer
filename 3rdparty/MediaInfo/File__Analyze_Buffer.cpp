@@ -953,9 +953,9 @@ void File__Analyze::Get_SE(int32s &Info, const char* Name)
     while(BS->Remain()>0 && BS->Get(1)==0)
         LeadingZeroBits++;
     INTEGRITY(LeadingZeroBits<=32, "(Problem)", 0)
-    double InfoD=pow(2, (float)LeadingZeroBits)-1+BS->Get(LeadingZeroBits);
+    double InfoD=pow((float)2, (float)LeadingZeroBits)-1+BS->Get(LeadingZeroBits);
     INTEGRITY(InfoD<int32u(-1), "(Problem)", 0)
-    Info=(int32s)(pow(-1, InfoD+1)*(int32u)ceil(InfoD/2));
+    Info=(int32s)(pow((double)-1, InfoD+1)*(int32u)ceil(InfoD/2));
 
     if (Config_Details>0)
         Param(Name, Info);
@@ -971,7 +971,7 @@ void File__Analyze::Skip_SE(const char* Name)
     if (Config_Details>0)
     {
         INTEGRITY(LeadingZeroBits<=32, "(Problem)", 0)
-        double InfoD=pow(2, (float)LeadingZeroBits)-1+BS->Get(LeadingZeroBits);
+        double InfoD=pow((float)2, (float)LeadingZeroBits)-1+BS->Get(LeadingZeroBits);
         INTEGRITY(InfoD<int32u(-1), "(Problem)", 0)
         Param(Name, (int32s)(pow(-1, InfoD+1)*(int32u)ceil(InfoD/2)));
     }
@@ -1160,7 +1160,7 @@ void File__Analyze::Get_C4(int32u &Info, const char* Name)
 {
     INTEGRITY_SIZE_ATLEAST_INT(4);
     Info=CC4(Buffer+Buffer_Offset+(size_t)Element_Offset);
-    if (Config_Details>0) Param(Name, Buffer+Buffer_Offset+(size_t)Element_Offset, 4);
+    if (Config_Details>0) Param(Name, Buffer+Buffer_Offset+(size_t)Element_Offset, 4, false);
     Element_Offset+=4;
 }
 
@@ -1706,6 +1706,18 @@ void File__Analyze::Mark_0()
 }
 
 //---------------------------------------------------------------------------
+void File__Analyze::Mark_0_NoTrustError()
+{
+    INTEGRITY(1<=BS->Remain(), "Size is wrong", BS->Offset_Get())
+    bool Info=BS->GetB();
+    if (Info)
+    {
+        Param("0", Info);
+        Param_Info("Warning: should be 0");
+    }
+}
+
+//---------------------------------------------------------------------------
 void File__Analyze::Mark_1()
 {
     INTEGRITY(1<=BS->Remain(), "Size is wrong", BS->Offset_Get())
@@ -1714,6 +1726,18 @@ void File__Analyze::Mark_1()
     {
         Param("1", Info);
         Element_DoNotTrust("Mark bit is wrong");
+    }
+}
+
+//---------------------------------------------------------------------------
+void File__Analyze::Mark_1_NoTrustError()
+{
+    INTEGRITY(1<=BS->Remain(), "Size is wrong", BS->Offset_Get())
+    bool Info=BS->GetB();
+    if (!Info)
+    {
+        Param("1", Info);
+        Param_Info("Warning: should be 1");
     }
 }
 

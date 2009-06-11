@@ -184,15 +184,15 @@ const int16u AC3_FrameSize[27][4]=
 };
 
 //---------------------------------------------------------------------------
-int16u AC3_FrameSize_Get(int32u frmsizecod, int32u fscod)
+int16u AC3_FrameSize_Get(int8u frmsizecod, int8u fscod)
 {
     bool Padding=(frmsizecod%2)?true:false;
-    int32u frame_size_id=frmsizecod/2;
+    int16u frame_size_id=frmsizecod/2;
 
     if (frame_size_id>26 || fscod>3)
         return 0;
 
-    int32u FrameSize=AC3_FrameSize[frame_size_id][fscod];
+    int16u FrameSize=AC3_FrameSize[frame_size_id][fscod];
     if (fscod==1 && Padding)
         FrameSize+=2; // frame lengths are padded by 1 word (16 bits) at 44100 Hz
     return FrameSize;
@@ -279,10 +279,36 @@ File_Ac3::File_Ac3()
 //***************************************************************************
 
 //---------------------------------------------------------------------------
+bool File_Ac3::FileHeader_Begin()
+{
+    //Specific cases
+    if (MustParse_dac3 || MustParse_dec3)
+        return true;
+
+    //Must have enough buffer for having header
+    if (Buffer_Size<4)
+        return false; //Must wait for more data
+
+    //False positives detection: detect Matroska files, AC-3 parser is not smart enough
+    if (CC4(Buffer)==0x1A45DFA3) //EBML
+    {
+        IsFinished=true;
+        return false;
+    }
+
+    //All should be OK...
+    return true;
+}
+
+//***************************************************************************
+// Buffer - Synchro
+//***************************************************************************
+
+//---------------------------------------------------------------------------
 bool File_Ac3::Synchronize()
 {
     //Specific cases
-    if (MustParse_dac3 || dxc3_Parsed)
+    if (MustParse_dac3 || MustParse_dec3)
         return true;
 
     //Synchronizing
@@ -353,7 +379,7 @@ bool File_Ac3::Synchronize()
 bool File_Ac3::Synched_Test()
 {
     //Specific cases
-    if (MustParse_dac3 || dxc3_Parsed)
+    if (MustParse_dac3 || MustParse_dec3)
         return true;
 
     //Must have enough buffer for having header
@@ -398,7 +424,7 @@ void File_Ac3::Read_Buffer_Continue()
 void File_Ac3::Read_Buffer_Finalize()
 {
     //In case of partial data, and finalizing is forced
-    if (!IsAccepted && (MustParse_dac3 || dxc3_Parsed))
+    if (!IsAccepted && dxc3_Parsed)
         Data_Parse_Fill();
 }
 
@@ -657,6 +683,9 @@ void File_Ac3::dec3()
         Element_End();
     }
     BS_End();
+
+    MustParse_dec3=false;
+    dxc3_Parsed=true;
 }
 
 } //NameSpace

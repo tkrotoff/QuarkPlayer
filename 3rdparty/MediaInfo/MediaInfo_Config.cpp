@@ -41,7 +41,7 @@ namespace MediaInfoLib
 {
 
 //---------------------------------------------------------------------------
-const Char*  MediaInfo_Version=_T("MediaInfoLib - v0.7.14BETA");
+const Char*  MediaInfo_Version=_T("MediaInfoLib - v0.7.17BETA");
 const Char*  MediaInfo_Url=_T("http://mediainfo.sourceforge.net");
       Ztring EmptyZtring;       //Use it when we can't return a reference to a true Ztring
 const Ztring EmptyZtring_Const; //Use it when we can't return a reference to a true Ztring, const version
@@ -114,7 +114,8 @@ void MediaInfo_Config::Init()
     ShowFiles_AudioOnly=1;
     ShowFiles_TextOnly=1;
     ParseSpeed=(float32)0.01;
-    Details=0;
+    Verbosity=(float32)0.5;
+    Details=(float32)0.0;
     Language_Raw=false;
     ReadByHuman=true;
     Demux=0;
@@ -276,6 +277,24 @@ Ztring MediaInfo_Config::Option (const String &Option, const String &Value_Raw)
     else if (Option_Lower==_T("readbyhuman_get"))
     {
         return ReadByHuman_Get()?_T("1"):_T("0");
+    }
+    else if (Option_Lower==_T("parsespeed"))
+    {
+        ParseSpeed_Set(Value.To_float32());
+        return _T("");
+    }
+    else if (Option_Lower==_T("parsespeed_get"))
+    {
+        return Ztring::ToZtring(ParseSpeed_Get(), 3);
+    }
+    else if (Option_Lower==_T("verbosity"))
+    {
+        Verbosity_Set(Value.To_float32());
+        return _T("");
+    }
+    else if (Option_Lower==_T("verbosity_get"))
+    {
+        return Ztring::ToZtring(Verbosity_Get(), 3);
     }
     else if (Option_Lower==_T("lineseparator"))
     {
@@ -560,6 +579,19 @@ float32 MediaInfo_Config::ParseSpeed_Get ()
 }
 
 //---------------------------------------------------------------------------
+void MediaInfo_Config::Verbosity_Set (float32 NewValue)
+{
+    CriticalSectionLocker CSL(CS);
+    Verbosity=NewValue;
+}
+
+float32 MediaInfo_Config::Verbosity_Get ()
+{
+    CriticalSectionLocker CSL(CS);
+    return Verbosity;
+}
+
+//---------------------------------------------------------------------------
 void MediaInfo_Config::ReadByHuman_Set (bool NewValue)
 {
     CriticalSectionLocker CSL(CS);;
@@ -579,7 +611,7 @@ void MediaInfo_Config::Details_Set (float NewValue)
     Details=NewValue;
 }
 
-float MediaInfo_Config::Details_Get ()
+float32 MediaInfo_Config::Details_Get ()
 {
     CriticalSectionLocker CSL(CS);;
     return Details;

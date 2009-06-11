@@ -164,7 +164,11 @@ void File__Analyze::Open_Buffer_Init (int64u File_Size_, int64u File_Offset_)
 
     //Jump handling
     if (File_GoTo!=(int64u)-1)
-        Read_Buffer_Unsynched();
+    {
+        Synched=false;
+        File_GoTo=(int64u)-1;
+        Buffer_Clear();
+    }
 
     //Configuring
     if (MediaInfoLib::Config.FormatDetection_MaximumOffset_Get())
@@ -412,7 +416,7 @@ void File__Analyze::Open_Buffer_Continue_Loop ()
     while (Buffer_Parse());
 
     //Jumping to the end of the file if needed
-    if (!EOF_AlreadyDetected && Count_Get(Stream_General))
+    if (!IsSub && !EOF_AlreadyDetected && Count_Get(Stream_General))
     {
         Element[Element_Level].WaitForMoreData=false;
         Detect_EOF();
@@ -422,6 +426,12 @@ void File__Analyze::Open_Buffer_Continue_Loop ()
             return;
         }
     }
+}
+
+//---------------------------------------------------------------------------
+void File__Analyze::Open_Buffer_Unsynch ()
+{
+    Read_Buffer_Unsynched();
 }
 
 //---------------------------------------------------------------------------
@@ -490,14 +500,6 @@ void File__Analyze::Open_Buffer_Finalize (File__Analyze* Sub)
 //***************************************************************************
 // Buffer
 //***************************************************************************
-
-//---------------------------------------------------------------------------
-void File__Analyze::Read_Buffer_Unsynched()
-{
-    Synched=false;
-    File_GoTo=(int64u)-1;
-    Buffer_Clear();
-}
 
 //---------------------------------------------------------------------------
 bool File__Analyze::Buffer_Parse()
@@ -602,6 +604,19 @@ bool File__Analyze::FileHeader_Begin_0x000001()
     {
         Reject();
         return false;
+    }
+
+    //Detecting MPEG-4 files (ftyp/mdat/skip/free)
+    Magic4=CC4(Buffer+4);
+    switch (Magic4)
+    {
+        case 0x66747970 : //ftyp
+        case 0x6D646174 : //mdat
+        case 0x736B6970 : //skip
+        case 0x66726565 : //free
+                            Reject();
+                            return false;
+        default         :   break;
     }
 
     //Detect TS files, and the parser is not enough precise to detect them later
@@ -862,7 +877,12 @@ void File__Analyze::Header_Fill_Size(int64u Size)
         Size=Element_Offset; //At least what we read before!!!
         
     //Filling
-    Element[Element_Level-1].Next=(File_Offset+Buffer_Offset+Size>Element[Element_Level-2].Next)?Element[Element_Level-2].Next:File_Offset+Buffer_Offset+Size;
+    if (Element_Level==1)
+        Element[0].Next=File_Offset+Buffer_Offset+Size;
+    else if (File_Offset+Buffer_Offset+Size>Element[Element_Level-2].Next)
+        Element[Element_Level-1].Next=Element[Element_Level-2].Next;
+    else
+        Element[Element_Level-1].Next=File_Offset+Buffer_Offset+Size;
     Element[Element_Level-1].IsComplete=true;
 
     //ToShow

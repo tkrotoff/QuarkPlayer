@@ -82,8 +82,10 @@ namespace Elements
     const int64u moov_meta___wrn=0xA977726E;
     const int64u moov_meta___wrt=0xA9777274;
     const int64u moov_meta__aART=0x61415254;
+    const int64u moov_meta__albm=0x616C626D;
     const int64u moov_meta__auth=0x61757468;
     const int64u moov_meta__cpil=0x6370696C;
+    const int64u moov_meta__cprt=0x63707274;
     const int64u moov_meta__covr=0x636F7672;
     const int64u moov_meta__disk=0x6469736B;
     const int64u moov_meta__dscp=0x64736370;
@@ -160,7 +162,68 @@ void File_Mpeg4::Read_Buffer_Finalize()
                         Merge(*Temp->second.Parser, Target->second.StreamKind, 0, Target->second.StreamPos);
             }
             else
+            {
+                //Hacks - Before
+                Ztring FrameRate_Temp, FrameRate_Mode_Temp;
+                if (StreamKind_Last==Stream_Video)
+                {
+                    FrameRate_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate);
+                    FrameRate_Mode_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate_Mode);
+                }
+
                 Merge(*Temp->second.Parser, StreamKind_Last, 0, StreamPos_Last);
+
+                //Hacks - After
+                if (StreamKind_Last==Stream_Video)
+                {
+                    if (!FrameRate_Temp.empty() && FrameRate_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate))
+                        Fill(Stream_Video, StreamPos_Last, Video_FrameRate, FrameRate_Temp, true);
+                    if (!FrameRate_Mode_Temp.empty() && FrameRate_Mode_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate_Mode))
+                        Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Mode, FrameRate_Mode_Temp, true);
+                }
+
+                //TimeCode specific
+                if (StreamKind_Last==Stream_Video && Retrieve(Stream_Menu, StreamPos_Last, Menu_Format)==_T("TimeCode"))
+                {
+                    Clear(Stream_Menu, StreamPos_Last, "Duration");
+                    Clear(Stream_Menu, StreamPos_Last, "StreamSize");
+                }
+
+                //Special case: DV with Audio or/and Text in the video stream
+                if (StreamKind_Last==Stream_Video && Temp->second.Parser && (Temp->second.Parser->Count_Get(Stream_Audio) || Temp->second.Parser->Count_Get(Stream_Text)))
+                {
+                    //Video and Audio are together
+                    size_t Audio_Count=Temp->second.Parser->Count_Get(Stream_Audio);
+                    for (size_t Audio_Pos=0; Audio_Pos<Audio_Count; Audio_Pos++)
+                    {
+                        Fill_Flush();
+                        Stream_Prepare(Stream_Audio);
+                        size_t Pos=Count_Get(Stream_Audio)-1;
+                        Merge(*Temp->second.Parser, Stream_Audio, Audio_Pos, StreamPos_Last);
+                        Fill(Stream_Audio, Pos, Audio_MuxingMode, "DV");
+                        Fill(Stream_Audio, Pos, Audio_Duration, Retrieve(Stream_Video, Temp->second.StreamPos, Video_Duration));
+                        Fill(Stream_Audio, Pos, "MuxingMode_MoreInfo", _T("Muxed in Video #")+Ztring().From_Number(Temp->second.StreamPos+1));
+                        Fill(Stream_Audio, Pos, Audio_StreamSize, "0"); //Included in the DV stream size
+                        Ztring ID=Retrieve(Stream_Audio, Pos, Audio_ID);
+                        Fill(Stream_Audio, Pos, Audio_ID, Retrieve(Stream_Video, Temp->second.StreamPos, Video_ID)+_T("-")+ID, true);
+                    }
+
+                    //Video and Text are together
+                    size_t Text_Count=Temp->second.Parser->Count_Get(Stream_Text);
+                    for (size_t Text_Pos=0; Text_Pos<Text_Count; Text_Pos++)
+                    {
+                        Fill_Flush();
+                        Stream_Prepare(Stream_Text);
+                        size_t Pos=Count_Get(Stream_Text)-1;
+                        Merge(*Temp->second.Parser, Stream_Text, Text_Pos, StreamPos_Last);
+                        Fill(Stream_Text, Pos, "MuxingMode", "MPEG Video");
+                        Fill(Stream_Text, Pos, "MuxingMode_MoreInfo", _T("Muxed in Video #")+Ztring().From_Number(Temp->second.StreamPos+1));
+                        Fill(Stream_Text, Pos, Text_StreamSize, 0); //Included in the DV stream size
+                        Ztring ID=Retrieve(Stream_Text, Pos, Text_ID);
+                        Fill(Stream_Text, Pos, Text_ID, Retrieve(Stream_Video, Temp->second.StreamPos, Video_ID)+_T("-")+ID, true);
+                    }
+                }
+            }
         }
 
         Temp++;
@@ -183,7 +246,7 @@ void File_Mpeg4::Read_Buffer_Finalize()
 //---------------------------------------------------------------------------
 bool File_Mpeg4::Header_Begin()
 {
-    if (!mdat_Pos.empty() && Element_Level==0)
+    if (IsParsing_mdat && Element_Level==0)
         Element_Begin();
 
     return true;
@@ -193,10 +256,9 @@ bool File_Mpeg4::Header_Begin()
 void File_Mpeg4::Header_Parse()
 {
     //mdat
-    if (!mdat_Pos.empty())
+    if (IsParsing_mdat)
     {
         //Filling
-        IsParsing_mdat=true;
         Header_Fill_Code(mdat_Pos.begin()->second.StreamID, Ztring::ToZtring(mdat_Pos.begin()->second.StreamID));
         Header_Fill_Size(mdat_Pos.begin()->second.Size);
         if (Buffer_Offset+mdat_Pos.begin()->second.Size<=Buffer_Size)
@@ -310,8 +372,10 @@ File_Mpeg4::method File_Mpeg4::Metadata_Get(std::string &Parameter, int64u Meta)
         case Elements::moov_meta___wrn : Parameter="Warning"; return Method_String;
         case Elements::moov_meta___wrt : Parameter="ScreenplayBy"; return Method_String;
         case Elements::moov_meta__auth : Parameter="Performer"; return Method_String2;
+        case Elements::moov_meta__albm : Parameter="Album"; return Method_String2; //Has a optional track number after the NULL byte
         case Elements::moov_meta__aART : Parameter="Performer"; return Method_String2;
         case Elements::moov_meta__cpil : Parameter.clear(); return Method_None;
+        case Elements::moov_meta__cprt : Parameter="Copyright"; return Method_String2;
         case Elements::moov_meta__disk : Parameter="Part"; return Method_Binary;
         case Elements::moov_meta__dscp : Parameter="Title/More"; return Method_String2;
         case Elements::moov_meta__gnre : Parameter="Genre"; return Method_String2;
