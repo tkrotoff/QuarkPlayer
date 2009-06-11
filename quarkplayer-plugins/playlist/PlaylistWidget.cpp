@@ -68,7 +68,7 @@ PluginInterface * PlaylistWidgetFactory::create(QuarkPlayer & quarkPlayer, const
 
 PlaylistWidget * PlaylistWidgetFactory::playlistWidget() {
 	PlaylistWidget * playlistWidget = dynamic_cast<PlaylistWidget *>(PluginManager::instance().pluginInterface(PLUGIN_NAME));
-	Q_ASSERT(playlistWidget);
+	//Q_ASSERT(playlistWidget);
 	return playlistWidget;
 }
 
@@ -89,8 +89,10 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	///
 
 	//Filter
-	_playlistFilter = new PlaylistFilter(this);
+	_playlistFilter = new PlaylistFilter(_playlistModel);
 	///
+
+	_playlistModel->setPlaylistFilter(_playlistFilter);
 
 	//TreeView
 	_treeView = new DragAndDropTreeView(this);
@@ -104,6 +106,8 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	///
 
 	//Default column sizes
+	_treeView->setColumnWidth(PlaylistModel::COLUMN_INFO, 18);
+	//_treeView->resizeColumnToContents(PlaylistModel::COLUMN_INFO);
 	_treeView->resizeColumnToContents(PlaylistModel::COLUMN_TRACK);
 	_treeView->setColumnWidth(PlaylistModel::COLUMN_TITLE, 200);
 	_treeView->setColumnWidth(PlaylistModel::COLUMN_ARTIST, 150);
@@ -122,11 +126,6 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 		SLOT(dockWidgetVisibilityChanged(bool)));
 	MainWindowFactory::mainWindow()->addPlaylistDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
-
-	//Files have been opened from the MainWindow
-	connect(MainWindowFactory::mainWindow(), SIGNAL(addFilesToCurrentPlaylist(const QStringList &)),
-		SLOT(addFilesToCurrentPlaylist(const QStringList &)));
-	///
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
@@ -297,7 +296,6 @@ void PlaylistWidget::addFiles() {
 	}
 }
 
-
 void PlaylistWidget::addFilesToCurrentPlaylist(const QStringList & files) {
 	if (!files.isEmpty()) {
 		if (uuid() == PlaylistConfig::instance().activePlaylist()) {
@@ -397,8 +395,6 @@ void PlaylistWidget::connectToMediaObject(Phonon::MediaObject * mediaObject) {
 		return;
 	}
 
-	//FIXME this code should be moved inside PlaylistModel
-
 	//Next track
 	connect(ActionCollection::action("MainWindow.NextTrack"), SIGNAL(triggered()),
 		_playlistFilter, SLOT(playNextTrack()));
@@ -406,17 +402,6 @@ void PlaylistWidget::connectToMediaObject(Phonon::MediaObject * mediaObject) {
 	//Previous track
 	connect(ActionCollection::action("MainWindow.PreviousTrack"), SIGNAL(triggered()),
 		_playlistFilter, SLOT(playPreviousTrack()));
-
-	//FIXME aboutToFinish does not work properly with DS9 backend???
-	//aboutToFinish -> let's queue/play the next track
-	connect(mediaObject, SIGNAL(aboutToFinish()),
-		_playlistFilter, SLOT(enqueueNextTrack()));
-
-	connect(mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
-		SLOT(currentSourceChanged(const Phonon::MediaSource &)));
-
-	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
-		SLOT(stateChanged(Phonon::State)));
 }
 
 void PlaylistWidget::disconnectFromMediaObjectList() {
@@ -430,58 +415,6 @@ void PlaylistWidget::disconnectFromMediaObjectList() {
 
 	//Previous track
 	ActionCollection::action("MainWindow.PreviousTrack")->disconnect(_playlistFilter);
-}
-
-void PlaylistWidget::currentSourceChanged(const Phonon::MediaSource & source) {
-	Q_UNUSED(source);
-
-	//FIXME this code should be moved inside PlaylistModel
-
-	if (PlaylistConfig::instance().activePlaylist() == uuid()) {
-		//Each time the track changes, we enqueue the next track
-		//currentSourceChanged() is the only signal that we get when we queue tracks
-		_playlistFilter->setPositionAsNextTrack();
-	}
-}
-
-void PlaylistWidget::stateChanged(Phonon::State newState) {
-	switch (newState) {
-	case Phonon::ErrorState: {
-		Phonon::ErrorType errorType = quarkPlayer().currentMediaObject()->errorType();
-		switch (errorType) {
-		case Phonon::NoError:
-		case Phonon::NormalError:
-			//Jump to the next track if possible since the current one is not playable
-			_playlistFilter->playNextTrack();
-			//TODO add parameter to not repeat again and again the whole playlist
-			break;
-		case Phonon::FatalError:
-			//Do not jump to the next track
-			break;
-		default:
-			qCritical() << "Error: unknown errorType:" << errorType;
-		}
-		break;
-	}
-
-	case Phonon::PlayingState:
-		break;
-
-	case Phonon::StoppedState:
-		break;
-
-	case Phonon::PausedState:
-		break;
-
-	case Phonon::LoadingState:
-		break;
-
-	case Phonon::BufferingState:
-		break;
-
-	default:
-		qCritical() << "Error: unknown newState:" << newState;
-	}
 }
 
 void PlaylistWidget::createNewPlaylistWidget() {

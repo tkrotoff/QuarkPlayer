@@ -28,10 +28,16 @@
 #include <QtCore/QUuid>
 
 class PlaylistCommandLineParser;
+class PlaylistFilter;
 
 class QuarkPlayer;
 class MediaInfoFetcher;
 class MediaInfo;
+
+namespace Phonon {
+	class MediaObject;
+	class MediaSource;
+}
 
 /**
  * Playlist model.
@@ -49,6 +55,7 @@ class PLAYLIST_API PlaylistModel : public QAbstractItemModel {
 	Q_OBJECT
 public:
 
+	static const int COLUMN_INFO;
 	static const int COLUMN_TRACK;
 	static const int COLUMN_TITLE;
 	static const int COLUMN_ARTIST;
@@ -60,6 +67,8 @@ public:
 	PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const QUuid & uuid);
 
 	~PlaylistModel();
+
+	void setPlaylistFilter(PlaylistFilter * playlistFilter);
 
 	static const int APPEND_FILES;
 
@@ -134,6 +143,16 @@ public slots:
 	/** Saves the current playlist to a file. */
 	void saveCurrentPlaylist();
 
+	/**
+	 * Hack to fix a bug with QObject::connect().
+	 *
+	 * FIXME Huston, we've got a very strange bug.
+	 * We have to create a slot inside PlaylistModel
+	 * instead of using directly the slot inside _playlistFilter
+	 * otherwise QObject::connect() only works half of the time :/
+	 */
+	void enqueueNextTrack();
+
 signals:
 
 	void playlistLoaded(int timeElapsed);
@@ -143,6 +162,14 @@ signals:
 private slots:
 
 	void playInternal();
+
+	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
+
+	void currentSourceChanged(const Phonon::MediaSource & source);
+
+	void stateChanged(Phonon::State newState);
+
+	void tick(qint64 time);
 
 	void updateMediaInfo();
 
@@ -156,6 +183,8 @@ private slots:
 
 private:
 
+	void connectToMediaObject(Phonon::MediaObject * mediaObject);
+
 	void insertFilesInsideTheModel(const QList<MediaInfo> & files, int row);
 
 	enum TrackDisplayMode {
@@ -166,6 +195,8 @@ private:
 	void clearInternal();
 
 	QString currentPlaylist() const;
+
+	PlaylistFilter * _playlistFilter;
 
 	QuarkPlayer & _quarkPlayer;
 

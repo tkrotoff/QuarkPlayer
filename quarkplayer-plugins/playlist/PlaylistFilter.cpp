@@ -18,7 +18,6 @@
 
 #include "PlaylistFilter.h"
 
-#include "PlaylistWidget.h"
 #include "PlaylistModel.h"
 
 #include <tkutil/Random.h>
@@ -28,10 +27,10 @@
 
 static const int POSITION_INVALID = -1;
 
-PlaylistFilter::PlaylistFilter(PlaylistWidget * playlistWidget)
-	: QSortFilterProxyModel(playlistWidget->playlistModel()) {
+PlaylistFilter::PlaylistFilter(PlaylistModel * playlistModel)
+	: QSortFilterProxyModel(playlistModel) {
 
-	_playlistModel = playlistWidget->playlistModel();
+	_playlistModel = playlistModel;
 
 	_shuffle = false;
 	_repeat = false;
@@ -82,9 +81,8 @@ void PlaylistFilter::play(const QModelIndex & index) {
 	_playlistModel->play(position);
 }
 
-void PlaylistFilter::playNextTrack() {
-	qDebug() << __FUNCTION__;
-	play(nextTrack());
+void PlaylistFilter::playNextTrack(bool repeatPlaylist) {
+	play(nextTrack(repeatPlaylist));
 }
 
 void PlaylistFilter::playPreviousTrack() {
@@ -92,11 +90,11 @@ void PlaylistFilter::playPreviousTrack() {
 }
 
 void PlaylistFilter::enqueueNextTrack() {
-	_nextPosition = convertToModelPosition(nextTrack(true));
+	_nextPosition = convertToModelPosition(nextTrack(false));
 	_playlistModel->enqueue(_nextPosition);
 }
 
-QModelIndex PlaylistFilter::nextTrack(bool enqueueMode) const {
+QModelIndex PlaylistFilter::nextTrack(bool repeatPlaylist) const {
 	int position = convertCurrentModelToFilterPosition();
 
 	if (_shuffle) {
@@ -106,7 +104,9 @@ QModelIndex PlaylistFilter::nextTrack(bool enqueueMode) const {
 	}
 
 	if (position < 0 || position >= rowCount()) {
-		if (!enqueueMode || (enqueueMode && _repeat)) {
+		//Limits of the playlist have been reached
+
+		if (repeatPlaylist || (!repeatPlaylist && _repeat)) {
 			//Back to the top of the playlist
 			position = 0;
 		}

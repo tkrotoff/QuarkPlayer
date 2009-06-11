@@ -21,7 +21,6 @@
 
 #include <QtGui/QSortFilterProxyModel>
 
-class PlaylistWidget;
 class PlaylistModel;
 
 /**
@@ -33,7 +32,7 @@ class PlaylistFilter : public QSortFilterProxyModel {
 	Q_OBJECT
 public:
 
-	PlaylistFilter(PlaylistWidget * playlistWidget);
+	PlaylistFilter(PlaylistModel * playlistModel);
 
 	QModelIndex currentIndex() const;
 
@@ -41,7 +40,13 @@ public slots:
 
 	void play(const QModelIndex & index);
 
-	void playNextTrack();
+	/**
+	 * Plays the next track inside the playlist.
+	 *
+	 * @param repeatPlaylist if true, repeat the playlist from the
+	 *                       beginning if needed (infinite loop)
+	 */
+	void playNextTrack(bool repeatPlaylist = true);
 
 	void playPreviousTrack();
 
@@ -49,13 +54,21 @@ public slots:
 
 	void setPositionAsNextTrack();
 
+	/** Plays tracks randomly inside the playlist. */
 	void setShuffle(bool shuffle);
 
+	/** Repeats or not the playlist, infinite loop. */
 	void setRepeat(bool repeat);
 
 private:
 
-	QModelIndex nextTrack(bool enqueueMode = false) const;
+	/**
+	 * Gets the next track inside the playlist.
+	 *
+	 * @param repeatPlaylist if true, repeat the playlist from the
+	 *                       beginning if needed (infinite loop)
+	 */
+	QModelIndex nextTrack(bool repeatPlaylist) const;
 
 	QModelIndex previousTrack() const;
 
@@ -71,6 +84,7 @@ private:
 
 	bool _shuffle;
 
+	/** Repeat the playlist, infinite loop. */
 	bool _repeat;
 };
 

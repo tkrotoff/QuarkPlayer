@@ -108,10 +108,6 @@ private slots:
 
 	void addWordToWordList();
 
-	void currentSourceChanged(const Phonon::MediaSource & source);
-
-	void stateChanged(Phonon::State newState);
-
 	void dockWidgetVisibilityChanged(bool visible);
 
 	void activePlaylistChanged(const QUuid & uuid);
