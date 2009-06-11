@@ -311,7 +311,8 @@ void FileBrowserWidget::retranslate() {
 
 void FileBrowserWidget::setWindowTitle(const QString & statusMessage) {
 	if (statusMessage.isEmpty()) {
-		_dockWidget->setWindowTitle(Config::instance().musicDir(uuid()));
+		QString title(Config::instance().musicDir(uuid()));
+		_dockWidget->setWindowTitle(tr("Files:") + ' ' + QFileInfo(title).completeBaseName());
 	} else {
 		_dockWidget->setWindowTitle(statusMessage);
 		QStatusBar * statusBar = MainWindowFactory::mainWindow()->statusBar();

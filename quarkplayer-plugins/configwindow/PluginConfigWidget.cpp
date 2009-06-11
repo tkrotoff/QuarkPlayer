@@ -107,6 +107,8 @@ void PluginConfigWidget::readConfig() {
 }
 
 void PluginConfigWidget::saveConfig() {
+	PluginDataList pluginsToDelete;
+
 	for (int row = 0; row < _ui->tableWidget->rowCount(); row++) {
 		QCheckBox * checkBox = qobject_cast<QCheckBox *>(_ui->tableWidget->cellWidget(row, CHECKBOX_COLUMN));
 		if (!checkBox) {
@@ -126,10 +128,20 @@ void PluginConfigWidget::saveConfig() {
 			pluginData.setEnabled(true);
 			PluginManager::instance().loadPlugin(pluginData);
 		} else if (!checkBox->isChecked() && loaded) {
-			//Unloads the plugin
-			pluginData.setEnabled(false);
-			PluginManager::instance().deletePlugin(pluginData);
+			//Differ the unload/deleting of the plugins after the loop is over
+			//This code is contained inside the "configwindow" plugin
+			//Maybe the "configwindow" plugin is inside the list of plugins we want to delete,
+			//this can lead to a crash
+			//PluginManager::instance().deletePlugin(pluginData);
+			///
+			pluginsToDelete += pluginData;
 		}
+	}
+
+	foreach (PluginData pluginData, pluginsToDelete) {
+		//Unloads/deletes the plugin
+		pluginData.setEnabled(false);
+		PluginManager::instance().deletePlugin(pluginData);
 	}
 }
 

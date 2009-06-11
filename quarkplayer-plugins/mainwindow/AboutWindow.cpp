@@ -59,12 +59,12 @@ AboutWindow::AboutWindow(QWidget * parent)
 
 	_ui->versionLabel->setText(
 		"Version: " + quarkPlayerFullVersion()
-		+ "<br>Qt: " + QString(qVersion())
+		+ "<br>Qt: " + QString(qVersion()) + " (" + QT_VERSION_STR + ')'
 		+ "<br>Phonon: " + QString(Phonon::phononVersion())
 #ifdef TAGLIB
-		+ "<br>TagLib: " + QString::number(TAGLIB_MAJOR_VERSION) + '.' +
-			QString::number(TAGLIB_MINOR_VERSION) + '.' +
-			QString::number(TAGLIB_PATCH_VERSION)
+		+ "<br>TagLib: " + QString::number(TAGLIB_MAJOR_VERSION) + '.'
+				+ QString::number(TAGLIB_MINOR_VERSION) + '.'
+				+ QString::number(TAGLIB_PATCH_VERSION)
 #endif	//TAGLIB
 
 #ifdef MEDIAINFOLIB

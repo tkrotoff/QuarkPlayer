@@ -168,7 +168,10 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 						tr("Title:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Title) + "</b><br>" +
 						tr("Artist:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Artist) + "</b><br>" +
 						tr("Album:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Album) + "</b><br>" +
-						tr("Length:") + "</b> <b>" + mediaInfo.lengthFormatted() + "</b>";
+						tr("Length:") + "</b> <b>" + mediaInfo.lengthFormatted() + "</b><br>" +
+						tr("Bitrate:") + "</b> <b>"
+								+ mediaInfo.bitrate() + ' ' + tr("kbps") + ' '
+								+ mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrateMode) + "</b>";
 				} else {
 					tmp = relativeFilename;
 
@@ -433,6 +436,7 @@ void FileSearchModel::filesFound(const QStringList & files) {
 
 	beginInsertRows(_currentParentQModelIndex, first, last);
 	foreach (QString filename, files) {
+		filename = QDir::toNativeSeparators(filename);
 		_currentParentItem->appendChild(new FileSearchItem(filename, _currentParentItem));
 	}
 	endInsertRows();

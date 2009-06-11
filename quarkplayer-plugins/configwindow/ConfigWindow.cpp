@@ -77,6 +77,10 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 }
 
 ConfigWindow::~ConfigWindow() {
+	//Fix a crash: if the "configwindow" plugin is deleted/unloaded
+	//from this very same config window
+	//Let's disconnect saveConfig() if we are in this case
+	disconnect(_ui->buttonBox, SIGNAL(accepted()), this, SLOT(saveConfig()));
 }
 
 void ConfigWindow::addConfigWidget(IConfigWidget * configWidget) {
