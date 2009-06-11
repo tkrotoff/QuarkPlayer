@@ -68,7 +68,7 @@ void WinDefaultApplication::registerShellExDLL() {
 
 		QProcess regsvr32;
 		QStringList args;
-		//args << "/s";	//silent
+		args << "/s";	//silent
 		args << ourShellEx;
 		regsvr32.start("regsvr32", args);
 		regsvr32.waitForFinished();
@@ -79,7 +79,7 @@ void WinDefaultApplication::unregisterShellExDLL(const QString & shellExDLLFilen
 	if (!shellExDLLFilename.isEmpty()) {
 		QProcess regsvr32;
 		QStringList args;
-		//args << "/s";	//silent
+		args << "/s";	//silent
 		args << "/u";	//uninstall
 		args << shellExDLLFilename;
 		regsvr32.start("regsvr32", args);
