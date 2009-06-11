@@ -25,6 +25,9 @@
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/version.h>
 
+#include <quarkplayer-plugins/playlist/PlaylistWidget.h>
+#include <quarkplayer-plugins/playlist/PlaylistModel.h>
+
 #include <tkutil/ActionCollection.h>
 #include <tkutil/TkAction.h>
 #include <tkutil/TkIcon.h>
@@ -115,6 +118,9 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 }
 
 MainWindow::~MainWindow() {
+	//If the MainWindow is destroyed, it's reasonable to say
+	//that we can quit the entire application
+	QCoreApplication::quit();
 }
 
 void MainWindow::setPlayToolBar(QToolBar * playToolBar) {
@@ -207,9 +213,13 @@ void MainWindow::playFile() {
 		QString fileToPlay(filenames[0]);
 		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(fileToPlay).absolutePath());
 
-		emit addFilesToCurrentPlaylist(filenames);
-
-		play(fileToPlay);
+		PlaylistWidget * playlistWidget = PlaylistWidgetFactory::playlistWidget();
+		if (playlistWidget) {
+			playlistWidget->addFilesToCurrentPlaylist(filenames);
+			playlistWidget->playlistModel()->play(0);
+		} else {
+			play(fileToPlay);
+		}
 	}
 }
 

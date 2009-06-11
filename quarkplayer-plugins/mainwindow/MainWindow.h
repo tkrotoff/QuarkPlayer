@@ -79,16 +79,6 @@ public:
 signals:
 
 	/**
-	 * Signal emitted when files should be added to the current playlist.
-	 *
-	 * This signal should be catched by a playlist plugin if any exist.
-	 *
-	 * @param files list of files to be added
-	 * @see playFile()
-	 */
-	void addFilesToCurrentPlaylist(const QStringList & files);
-
-	/**
 	 * A subtitle file has been dropped inside the main window.
 	 */
 	void subtitleFileDropped(const QString & subtitle);
