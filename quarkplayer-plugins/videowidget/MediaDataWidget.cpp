@@ -108,7 +108,7 @@ void MediaDataWidget::updateMediaInfo() {
 	QString streamGenre(mediaInfo.networkStreamValue(MediaInfo::StreamGenre));
 	QString streamWebsite(mediaInfo.networkStreamValue(MediaInfo::StreamWebsite));
 	QString streamUrl(mediaInfo.networkStreamValue(MediaInfo::StreamURL));
-	QString bitrate(mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrate));
+	QString bitrate(mediaInfo.bitrate());
 	QString bitrateMode(mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrateMode));
 
 	_currentCoverArtIndex = 0;
@@ -193,7 +193,7 @@ void MediaDataWidget::updateMediaInfo() {
 		_ui->formLayout->addRow(tr("URL:"), label);
 	}
 
-	if (bitrate != 0) {
+	if (!bitrate.isEmpty()) {
 		_ui->formLayout->addRow(tr("Bitrate:"),
 			new SqueezeLabel(font + bitrate + ' ' + tr("kbps") + ' ' + bitrateMode + endfont));
 	}
