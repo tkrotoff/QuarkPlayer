@@ -1,0 +1,132 @@
+Index: CMakeLists.txt
+===================================================================
+--- CMakeLists.txt	(revision 933)
++++ CMakeLists.txt	(working copy)
+@@ -6,19 +6,19 @@
+ OPTION(BUILD_EXAMPLES "Build the examples"  OFF)
+ 
+ OPTION(NO_ITUNES_HACKS "Disable workarounds for iTunes bugs"  OFF)
+-OPTION(WITH_ASF "Enable ASF tag reading/writing code"  OFF)
+-OPTION(WITH_MP4 "Enable MP4 tag reading/writing code"  OFF)
++OPTION(WITH_ASF "Enable ASF tag reading/writing code"  ON)
++OPTION(WITH_MP4 "Enable MP4 tag reading/writing code"  ON)
+ 
+ add_definitions(-DHAVE_CONFIG_H)
+ 
+ #add some KDE specific stuff
+-set(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
+-set(EXEC_INSTALL_PREFIX  ${CMAKE_INSTALL_PREFIX}       CACHE PATH  "Base directory for executables and libraries" FORCE)
++#set(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
++#set(EXEC_INSTALL_PREFIX  ${CMAKE_INSTALL_PREFIX}       CACHE PATH  "Base directory for executables and libraries" FORCE)
+ #
+ ## the following are directories where stuff will be installed to
+-set(BIN_INSTALL_DIR          "${EXEC_INSTALL_PREFIX}/bin"    CACHE PATH "The subdirectory to the binaries prefix (default prefix/bin)" FORCE)
+-set(LIB_INSTALL_DIR          "${EXEC_INSTALL_PREFIX}/lib${LIB_SUFFIX}"     CACHE PATH "The subdirectory relative to the install prefix where libraries will be installed (default is /lib${LIB_SUFFIX})" FORCE)
+-set(INCLUDE_INSTALL_DIR      "${CMAKE_INSTALL_PREFIX}/include"             CACHE PATH "The subdirectory to the header prefix" FORCE)
++#set(BIN_INSTALL_DIR          "${EXEC_INSTALL_PREFIX}/bin"    CACHE PATH "The subdirectory to the binaries prefix (default prefix/bin)" FORCE)
++#set(LIB_INSTALL_DIR          "${EXEC_INSTALL_PREFIX}/lib${LIB_SUFFIX}"     CACHE PATH "The subdirectory relative to the install prefix where libraries will be installed (default is /lib${LIB_SUFFIX})" FORCE)
++#set(INCLUDE_INSTALL_DIR      "${CMAKE_INSTALL_PREFIX}/include"             CACHE PATH "The subdirectory to the header prefix" FORCE)
+ 
+ if (CMAKE_COMPILER_IS_GNUCXX)
+    if (CMAKE_SYSTEM_NAME MATCHES Linux)
+@@ -51,16 +51,16 @@
+ include_directories(${CMAKE_CURRENT_BINARY_DIR})
+ configure_file(config-taglib.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h )
+ 
+-ADD_SUBDIRECTORY( taglib ) 
++ADD_SUBDIRECTORY( taglib )
+ 
+-ADD_SUBDIRECTORY(tests)
+-ADD_SUBDIRECTORY(examples)
++#ADD_SUBDIRECTORY(tests)
++#ADD_SUBDIRECTORY(examples)
+ 
+-ADD_SUBDIRECTORY(bindings)
+-if(NOT WIN32)
+-  install( FILES  ${CMAKE_CURRENT_BINARY_DIR}/taglib.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig )
+-endif(NOT WIN32)
++#ADD_SUBDIRECTORY(bindings)
++#if(NOT WIN32)
++#  install( FILES  ${CMAKE_CURRENT_BINARY_DIR}/taglib.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig )
++#endif(NOT WIN32)
++#
++#INSTALL( PROGRAMS  ${CMAKE_CURRENT_BINARY_DIR}/taglib-config DESTINATION ${BIN_INSTALL_DIR})
+ 
+-INSTALL( PROGRAMS  ${CMAKE_CURRENT_BINARY_DIR}/taglib-config DESTINATION ${BIN_INSTALL_DIR})
+ 
+-
+Index: ConfigureChecks.cmake
+===================================================================
+--- ConfigureChecks.cmake	(revision 933)
++++ ConfigureChecks.cmake	(working copy)
+@@ -20,9 +20,9 @@
+ 	SET(HAVE_ZLIB 0)
+ ENDIF(ZLIB_FOUND)
+ 
+-SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
+-FIND_PACKAGE(CppUnit)
+-IF (NOT CppUnit_FOUND AND BUILD_TESTS)
+-	MESSAGE(STATUS "CppUnit not found, disabling tests.")
+-	SET(BUILD_TESTS OFF)
+-ENDIF(NOT CppUnit_FOUND AND BUILD_TESTS)
++#SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
++#FIND_PACKAGE(CppUnit)
++#IF (NOT CppUnit_FOUND AND BUILD_TESTS)
++#	MESSAGE(STATUS "CppUnit not found, disabling tests.")
++#	SET(BUILD_TESTS OFF)
++#ENDIF(NOT CppUnit_FOUND AND BUILD_TESTS)
+Index: taglib/CMakeLists.txt
+===================================================================
+--- taglib/CMakeLists.txt	(revision 933)
++++ taglib/CMakeLists.txt	(working copy)
+@@ -26,17 +26,17 @@
+     INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
+ endif(ZLIB_FOUND)
+ 
+-ADD_SUBDIRECTORY( toolkit )
+-ADD_SUBDIRECTORY( asf )
+-ADD_SUBDIRECTORY( mpeg )
+-ADD_SUBDIRECTORY( ogg )
+-ADD_SUBDIRECTORY( flac )
+-ADD_SUBDIRECTORY( ape )
+-ADD_SUBDIRECTORY( mpc )
+-ADD_SUBDIRECTORY( mp4 )
+-ADD_SUBDIRECTORY( wavpack )
+-ADD_SUBDIRECTORY( trueaudio )
+-ADD_SUBDIRECTORY( riff )
++#ADD_SUBDIRECTORY( toolkit )
++#ADD_SUBDIRECTORY( asf )
++#ADD_SUBDIRECTORY( mpeg )
++#ADD_SUBDIRECTORY( ogg )
++#ADD_SUBDIRECTORY( flac )
++#ADD_SUBDIRECTORY( ape )
++#ADD_SUBDIRECTORY( mpc )
++#ADD_SUBDIRECTORY( mp4 )
++#ADD_SUBDIRECTORY( wavpack )
++#ADD_SUBDIRECTORY( trueaudio )
++#ADD_SUBDIRECTORY( riff )
+ 
+ ########### next target ###############
+ 
+@@ -194,13 +194,14 @@
+ SET_TARGET_PROPERTIES(tag PROPERTIES
+         VERSION ${TAGLIB_LIB_MAJOR_VERSION}.${TAGLIB_LIB_MINOR_VERSION}.${TAGLIB_LIB_PATCH_VERSION}
+         SOVERSION ${TAGLIB_LIB_MAJOR_VERSION}
+-        INSTALL_NAME_DIR ${LIB_INSTALL_DIR}
++#        INSTALL_NAME_DIR ${LIB_INSTALL_DIR}
+         DEFINE_SYMBOL MAKE_TAGLIB_LIB
+ )
+-INSTALL(TARGETS tag
+-	LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+-	RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+-	ARCHIVE DESTINATION  ${LIB_INSTALL_DIR}
+-)
++#INSTALL(TARGETS tag
++#	LIBRARY DESTINATION ${LIB_INSTALL_DIR}
++#	RUNTIME DESTINATION ${BIN_INSTALL_DIR}
++#	ARCHIVE DESTINATION  ${LIB_INSTALL_DIR}
++#)
++install(TARGETS tag ${INSTALL_TARGETS_DEFAULT_ARGS})
+ 
+-INSTALL( FILES  tag.h fileref.h audioproperties.h taglib_export.h DESTINATION ${INCLUDE_INSTALL_DIR}/taglib)
++#INSTALL( FILES  tag.h fileref.h audioproperties.h taglib_export.h DESTINATION ${INCLUDE_INSTALL_DIR}/taglib)
