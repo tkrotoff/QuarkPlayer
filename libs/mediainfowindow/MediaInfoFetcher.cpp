@@ -203,6 +203,7 @@ void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State ol
 		_mediaInfo.setLength(static_cast<int>(metadata.value("LENGTH").toInt() / 1000.0));
 		//Converts from bps to kbps
 		_mediaInfo.insertAudioStream(0, MediaInfo::AudioBitrate, QString::number(metadata.value("BITRATE").trimmed().toInt() / 1000));
+		_mediaInfo.setBitrate(metadata.value("BITRATE").trimmed().toInt() / 1000);
 		_mediaInfo.insertAudioStream(0, MediaInfo::AudioSampleRate, metadata.value("SAMPLERATE").trimmed());
 		_mediaInfo.insertAudioStream(0, MediaInfo::AudioChannelCount, metadata.value("CHANNELS").trimmed());
 
@@ -417,6 +418,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 		if (audioProperties) {
 			_mediaInfo.setLength(audioProperties->length());
 			_mediaInfo.insertAudioStream(0, MediaInfo::AudioBitrate, QString::number(audioProperties->bitrate()));
+			_mediaInfo.setBitrate(audioProperties->bitrate());
 			_mediaInfo.insertAudioStream(0, MediaInfo::AudioSampleRate, QString::number(audioProperties->sampleRate()));
 			_mediaInfo.insertAudioStream(0, MediaInfo::AudioChannelCount, QString::number(audioProperties->channels()));
 		}
