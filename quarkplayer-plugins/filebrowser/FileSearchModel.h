@@ -27,6 +27,7 @@
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QStringList>
 #include <QtCore/QEventLoop>
+#include <QtCore/QUuid>
 
 class FindFiles;
 class MediaInfoFetcher;
@@ -136,7 +137,7 @@ signals:
 
 private slots:
 
-	void filesFound(const QStringList & files);
+	void filesFound(const QStringList & files, const QUuid & uuid);
 
 	void updateMediaInfo();
 
@@ -174,6 +175,20 @@ private:
 
 	/** Used internally for tooltips. */
 	QString _rootSearchPath;
+
+	QUuid _currentSearchUuid;
+
+	/** Icon provider: gives us the icons matching a file extension. */
+	QFileIconProvider _iconProvider;
+
+	/**
+	 * Saves the icons inside a cache system given a filename extension (mp3, ogg, avi...).
+	 *
+	 * This is for optimization purpose
+	 * Key = filename extension or empty if a directory
+	 * Value = icon matching the extension
+	 */
+	static QHash<QString, QIcon> _iconsCache;
 };
 
 #endif	//FILESEARCHMODEL_H

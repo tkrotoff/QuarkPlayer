@@ -360,14 +360,14 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 		} else if (QFileInfo(filename).isDir()) {
 			_nbFindFiles++;
 			FindFiles * findFiles = new FindFiles(this);
-			connect(findFiles, SIGNAL(filesFound(const QStringList &)),
+			connect(findFiles, SIGNAL(filesFound(const QStringList &, const QUuid &)),
 				SLOT(filesFound(const QStringList &)));
-			connect(findFiles, SIGNAL(finished(int)),
+			connect(findFiles, SIGNAL(finished(int, const QUuid &)),
 				SLOT(searchfinished(int)));
 			findFiles->setSearchPath(filename);
 			findFiles->setFilesFoundLimit(500);
 			findFiles->setFindDirs(false);
-			findFiles->start();
+			findFiles->start(QUuid::createUuid());
 		} else if (MediaInfo::isUrl(filename)) {
 			//A filename that contains a host/server name is a remote/network media
 			//So it should be added to the playlist

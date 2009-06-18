@@ -41,6 +41,8 @@ const int FileSearchModel::COLUMN_LAST = COLUMN_FILENAME;
 
 static const int COLUMN_COUNT = 1;
 
+QHash<QString, QIcon> FileSearchModel::_iconsCache;
+
 FileSearchModel::FileSearchModel(QObject * parent)
 	: QAbstractItemModel(parent) {
 
@@ -128,15 +130,6 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	case Qt::DecorationRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			//Icon provider: gives us the icons matching a file extension
-			static QFileIconProvider iconProvider;
-
-			//Saves the icons inside a cache system given a filename extension (mp3, ogg, avi...)
-			//This is for optimization purpose
-			//Key = filename extension or empty if a directory
-			//Value = icon matching the extension
-			static QHash<QString, QIcon> iconsCache;
-
 			//This is too slow:
 			//re-creates an icon for each file
 			//We want a cache system -> way faster!
@@ -144,10 +137,16 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 
 			QFileInfo fileInfo(filename);
 			QString ext(fileInfo.suffix());
-			if (!iconsCache.contains(ext)) {
-				iconsCache[ext] = iconProvider.icon(fileInfo);
+			if (fileInfo.isDir()) {
+				ext = "Directory";
 			}
-			tmp = iconsCache.value(ext);
+			if (ext.isEmpty()) {
+				ext = filename;
+			}
+			if (!_iconsCache.contains(ext)) {
+				_iconsCache[ext] = _iconProvider.icon(fileInfo);
+			}
+			tmp = _iconsCache.value(ext);
 			break;
 		}
 		break;
@@ -164,14 +163,17 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 
 			if (!fileInfo.isDir() && _toolTipExtensions.contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
 				if (mediaInfo.fetched()) {
+					QString bitrate;
+					if (!mediaInfo.bitrate().isEmpty()) {
+						bitrate =  mediaInfo.bitrate() + ' ' + tr("kbps") + ' '
+							+ mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrateMode);
+					}
 					tmp = relativeFilename + "<br>" +
-						tr("Title:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Title) + "</b><br>" +
-						tr("Artist:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Artist) + "</b><br>" +
-						tr("Album:") + "</b> <b>" + mediaInfo.metadataValue(MediaInfo::Album) + "</b><br>" +
-						tr("Length:") + "</b> <b>" + mediaInfo.lengthFormatted() + "</b><br>" +
-						tr("Bitrate:") + "</b> <b>"
-								+ mediaInfo.bitrate() + ' ' + tr("kbps") + ' '
-								+ mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrateMode) + "</b>";
+						tr("Title:") + " <b>" + mediaInfo.metadataValue(MediaInfo::Title) + "</b><br>" +
+						tr("Artist:") + " <b>" + mediaInfo.metadataValue(MediaInfo::Artist) + "</b><br>" +
+						tr("Album:") + " <b>" + mediaInfo.metadataValue(MediaInfo::Album) + "</b><br>" +
+						tr("Length:") + " <b>" + mediaInfo.lengthFormatted() + "</b><br>" +
+						tr("Bitrate:") + " <b>" + bitrate + "</b>";
 				} else {
 					tmp = relativeFilename;
 
@@ -374,27 +376,22 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 	//because population of an item is threaded
 	_currentParentItem->setPopulatedChildren(true);
 
-	if (_findFiles) {
-		//Uninitialize/remove/disconnect... previous _findFiles
-		disconnect(_findFiles, SIGNAL(filesFound(const QStringList &)),
-			this, SLOT(filesFound(const QStringList &)));
-		disconnect(_findFiles, SIGNAL(finished(int)),
-			this, SIGNAL(searchFinished(int)));
-		//disconnect(_findFiles, SIGNAL(finished(int)),
-			//this, SLOT(searchFinishedSlot(int)));
-	}
-
-	//Stops the previous search
+	//Stops the previous search if any
 	//Do it first (i.e before setPattern(), setExtensions()...) otherwise it can crash
 	//inside FindFiles since there is no mutex
 	stop();
 
-	//Starts a new search
-	delete _findFiles;
-	_findFiles = new FindFiles(this);
+	if (!_findFiles) {
+		//Lazy initialization
+		_findFiles = new FindFiles(this);
 
-	//Starts a new file search
-	_findFiles->setSearchPath(path);
+		connect(_findFiles, SIGNAL(filesFound(const QStringList &, const QUuid &)),
+			SLOT(filesFound(const QStringList &, const QUuid &)), Qt::QueuedConnection);
+		connect(_findFiles, SIGNAL(finished(int, const QUuid &)),
+			SIGNAL(searchFinished(int)), Qt::QueuedConnection);
+		//connect(_findFiles, SIGNAL(finished(int)),
+			//SLOT(searchFinishedSlot(int)), Qt::QueuedConnection);
+	}
 
 	//This was true with Qt 4.4.3
 	//Way faster with INT_MAX because beginInsertRows() is slow
@@ -403,18 +400,17 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 	//Now with Qt 4.5.1, speed is really good :-)
 	//_findFiles->setFilesFoundLimit(1);
 	_findFiles->setFilesFoundLimit(filesFoundLimit);
+	///
 
+	_findFiles->setSearchPath(path);
 	_findFiles->setPattern(pattern);
 	_findFiles->setExtensions(_searchExtensions);
 	_findFiles->setFindDirs(true);
 	_findFiles->setRecursiveSearch(recursiveSearch);
-	connect(_findFiles, SIGNAL(filesFound(const QStringList &)),
-		SLOT(filesFound(const QStringList &)), Qt::QueuedConnection);
-	connect(_findFiles, SIGNAL(finished(int)),
-		SIGNAL(searchFinished(int)), Qt::QueuedConnection);
-	connect(_findFiles, SIGNAL(finished(int)),
-		SLOT(searchFinishedSlot(int)), Qt::QueuedConnection);
-	_findFiles->start();
+
+	//Starts a new search
+	_currentSearchUuid = QUuid::createUuid();
+	_findFiles->start(_currentSearchUuid);
 }
 
 void FileSearchModel::stop() {
@@ -423,10 +419,9 @@ void FileSearchModel::stop() {
 	}
 }
 
-void FileSearchModel::filesFound(const QStringList & files) {
-	if (sender() != _findFiles) {
-		//filesFound() signal from a previous _findFiles,
-		//let's discards it
+void FileSearchModel::filesFound(const QStringList & files, const QUuid & uuid) {
+	if (_currentSearchUuid != uuid) {
+		//filesFound() signal from a previous _findFiles, let's discards it
 		return;
 	}
 
@@ -436,6 +431,7 @@ void FileSearchModel::filesFound(const QStringList & files) {
 
 	beginInsertRows(_currentParentQModelIndex, first, last);
 	foreach (QString filename, files) {
+		//Later filenames comparisons can fail if we don't convert / or \
 		filename = QDir::toNativeSeparators(filename);
 		_currentParentItem->appendChild(new FileSearchItem(filename, _currentParentItem));
 	}

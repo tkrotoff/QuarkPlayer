@@ -220,6 +220,9 @@ void FileBrowserWidget::search() {
 
 	QString pattern(_searchLineEdit->text());
 	if (pattern.isEmpty()) {
+		//Restores the mouse cursor from busy to normal
+		unsetCursor();
+
 		setWindowTitle(QString());
 
 		_fileSearchModel->search(rootSearchPath, QRegExp(QString(), Qt::CaseInsensitive, QRegExp::RegExp2), INT_MAX, false);

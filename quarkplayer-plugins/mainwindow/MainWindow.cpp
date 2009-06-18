@@ -327,7 +327,7 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("MainWindow.ClearRecentFiles", new QAction(app));
 	ActionCollection::addAction("MainWindow.EmptyMenu", new QAction(app));
 
-	TkAction * action = new TkAction(app, tr("Space"), Qt::Key_MediaPlay);
+	TkAction * action = new TkAction(app, tr("Space"), Qt::Key_MediaPlay, Qt::Key_Pause);
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	ActionCollection::addAction("MainWindow.PlayPause", action);
 	action = new TkAction(app, Qt::Key_MediaStop);
