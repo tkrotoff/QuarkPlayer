@@ -22,6 +22,7 @@
 #include <tkutil/tkutil_export.h>
 
 #include <QtCore/QThread>
+#include <QtCore/QUuid>
 #include <QtCore/QStringList>
 #include <QtCore/QRegExp>
 
@@ -93,6 +94,10 @@ public:
 	 */
 	void stop();
 
+public slots:
+
+	void start(const QUuid & uuid);
+
 signals:
 
 	/**
@@ -100,14 +105,14 @@ signals:
 	 *
 	 * @param files list of files (full path filename)
 	 */
-	void filesFound(const QStringList & files);
+	void filesFound(const QStringList & files, const QUuid & uuid);
 
 	/**
 	 * Sends the signal after all filesFound() signals, this is the last signal sent.
 	 *
 	 * Guaranteed to be sent only once.
 	 */
-	void finished(int timeElapsed);
+	void finished(int timeElapsed, const QUuid & uuid);
 
 private:
 
@@ -166,6 +171,8 @@ private:
 	 * rather use a local copy, fetched on entry into your while loop.
 	 */
 	volatile bool _stop;
+
+	QUuid _uuid;
 };
 
 #endif	//FINDFILES_H

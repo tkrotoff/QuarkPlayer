@@ -23,6 +23,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTime>
+#include <QtCore/QMetaType>
 #include <QtCore/QDebug>
 
 #ifdef Q_OS_WIN
@@ -35,6 +36,8 @@ static const int DEFAULT_FILES_FOUND_LIMIT = 500;
 
 FindFiles::FindFiles(QObject * parent)
 	: QThread(parent) {
+
+	qRegisterMetaType<QUuid>("QUuid");
 
 	_findDirs = false;
 	_recursiveSearch = true;
@@ -75,13 +78,16 @@ void FindFiles::stop() {
 	wait();
 }
 
-void FindFiles::run() {
-	_stop = false;
+void FindFiles::start(const QUuid & uuid) {
+	_uuid = uuid;
+	QThread::start();
+}
 
-	if (_path.isEmpty()) {
-		qCritical() << __FUNCTION__ << "Error: empty path";
-		return;
-	}
+void FindFiles::run() {
+	Q_ASSERT(!_path.isEmpty());
+
+	_stop = false;
+	_files.clear();
 
 	QTime timeElapsed;
 	timeElapsed.start();
@@ -96,12 +102,12 @@ void FindFiles::run() {
 	if (!_stop) {
 		//Emits the signal for the remaining files found
 		if (!_files.isEmpty()) {
-			emit filesFound(_files);
+			emit filesFound(_files, _uuid);
 			_files.clear();
 		}
 
 		//Emits the last signal
-		emit finished(timeElapsed.elapsed());
+		emit finished(timeElapsed.elapsed(), _uuid);
 	}
 }
 
@@ -142,7 +148,7 @@ void FindFiles::findAllFilesQt(const QString & path) {
 			if (_files.size() > _filesFoundLimit) {
 				//Emits the signal every _filesFoundLimit files found
 				if (!_stop) {
-					emit filesFound(_files);
+					emit filesFound(_files, _uuid);
 				}
 				_files.clear();
 			}
@@ -215,7 +221,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 				if (_files.size() > _filesFoundLimit) {
 					//Emits the signal every _filesFoundLimit files found
 					if (!_stop) {
-						emit filesFound(_files);
+						emit filesFound(_files, _uuid);
 					}
 					_files.clear();
 				}
@@ -283,7 +289,7 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 					if (_files.size() > _filesFoundLimit) {
 						//Emits the signal every _filesFoundLimit files found
 						if (!_stop) {
-							emit filesFound(_files);
+							emit filesFound(_files, _uuid);
 						}
 						_files.clear();
 					}
