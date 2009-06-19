@@ -19,6 +19,8 @@ qt4_wrap_cpp(contentfetcher_SRCS
 add_library(contentfetcher SHARED ${contentfetcher_SRCS})
 
 target_link_libraries(contentfetcher
+	hmac
+
 	${QT_QTCORE_LIBRARY}
 	${QT_QTNETWORK_LIBRARY}
 	${QT_QTGUI_LIBRARY}

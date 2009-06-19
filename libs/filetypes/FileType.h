@@ -52,6 +52,10 @@ struct FileType {
 		DivX,
 		Xvid,
 		NUT,
+		Smacker,
+		Bink,
+		VOB,
+		EVO,
 
 		//Audio
 
@@ -66,6 +70,7 @@ struct FileType {
 		TTA,
 		WavPack,
 		WMA,
+		OptimFROG,
 
 		//Lossy audio
 		MP2,

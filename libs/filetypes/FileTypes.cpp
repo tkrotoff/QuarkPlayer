@@ -22,7 +22,7 @@
 #include <QtCore/QSet>
 #include <QtCore/QDebug>
 
-static const int FILETYPELIST_SIZE = 58;
+static const int FILETYPELIST_SIZE = 63;
 
 //See http://en.wikipedia.org/wiki/List_of_file_formats
 static const FileType FILETYPELIST[FILETYPELIST_SIZE] = {
@@ -43,14 +43,18 @@ static const FileType FILETYPELIST[FILETYPELIST_SIZE] = {
 	{ FileType::Video, FileType::MOV, "QuickTime Movie (MOV)", ".mov", "mov,qt", "video/quicktime" },
 	{ FileType::Video, FileType::MP4, "MPEG-4 Part 14 (MP4)", "MPEG-4_Part_14", "mp4", "video/mp4" },
 	{ FileType::Video, FileType::NSV, "Nullsoft Streaming Video (NSV)", "Nullsoft_Streaming_Video", "nsv", "" },
-	{ FileType::Video, FileType::OGM, "Ogg Media (OGM)", "Ogg_Media", "ogm", "" },
+	{ FileType::Video, FileType::OGM, "Ogg Media (OGM)", "Ogg_Media", "ogm", "application/ogg,application/x-ogg,video/x-ogg" },
 	{ FileType::Video, FileType::Tarkin, "Tarkin", "Tarkin_(codec)", "", "" },
 	{ FileType::Video, FileType::Theora, "Theora", "Theora", "ogv", "video/ogg,video/x-ogg" },
-	{ FileType::Video, FileType::RealMedia, "RealMedia", "RealMedia", "rv,rmvb", "" },
+	{ FileType::Video, FileType::RealMedia, "RealMedia", "RealMedia", "rv,rmvb", "application/vnd.rn-realmedia" },
 	{ FileType::Video, FileType::WMV, "Windows Media Video (WMV)", "Windows_Media_Video", "wmv", "video/x-ms-wmv" },
 	{ FileType::Video, FileType::DivX, "DivX Media Format (DMF)", ".divx", "divx", "video/divx" },
-	{ FileType::Video, FileType::Xvid, "Xvid", "Xvid", "avi,xvid", "" },
+	{ FileType::Video, FileType::Xvid, "Xvid", "Xvid", "avi,xvid", "video/x-xvid" },
 	{ FileType::Video, FileType::NUT, "NUT", "NUT_Container", "nut", "" },
+	{ FileType::Video, FileType::Smacker, "Smacker", "Smacker_video", "smk", "video/x-smacker" },
+	{ FileType::Video, FileType::Bink, "Bink", "Bink_Video", "bik", "video/x-bink" },
+	{ FileType::Video, FileType::VOB, "VOB (DVD Video)", "VOB", "VOB", "video/vob,video/mp2t" },
+	{ FileType::Video, FileType::EVO, "EVO (HD DVD Video)", "Enhanced_VOB", "EVO", "" },
 
 	//Audio
 	//See http://en.wikipedia.org/wiki/List_of_file_formats#Sound_and_music
@@ -67,6 +71,7 @@ static const FileType FILETYPELIST[FILETYPELIST_SIZE] = {
 	{ FileType::Audio, FileType::TTA, "True Audio (TTA)", "TTA_(codec)", "tta", "" },
 	{ FileType::Audio, FileType::WavPack, "WavPack (WV)", "WavPack", "wv", "" },
 	{ FileType::Audio, FileType::WMA, "Windows Media Audio (WMA)", "Windows_Media_Audio", "wma", "audio/x-ms-wma" },
+	{ FileType::Audio, FileType::OptimFROG, "OptimFROG", "OptimFROG", "ofr", "application/octet-stream" },
 
 	//Lossy audio
 	//See http://en.wikipedia.org/wiki/List_of_file_formats#Lossy_audio

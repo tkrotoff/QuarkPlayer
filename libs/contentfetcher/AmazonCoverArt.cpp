@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 
 #include "AmazonCoverArt.h"
 
+#include <hmac/hmac_sha2.h>
+
 #include <QtGui/QDesktopServices>
 
 #include <QtNetwork/QNetworkAccessManager>
@@ -27,11 +29,17 @@
 #include <QtCore/QtGlobal>
 #include <QtCore/QRegExp>
 #include <QtCore/QByteArray>
+#include <QtCore/QDateTime>
+#include <QtCore/QStringList>
+#include <QtCore/QCryptographicHash>
 
-AmazonCoverArt::AmazonCoverArt(const QString & amazonWebServiceKey, QObject * parent)
+#include <cstring>
+
+AmazonCoverArt::AmazonCoverArt(const QString & amazonWebServiceAccessKeyId, const QString & amazonWebServiceSecretKey, QObject * parent)
 	: ContentFetcher(parent) {
 
-	_amazonWebServiceKey = amazonWebServiceKey;
+	_amazonWebServiceAccessKeyId = amazonWebServiceAccessKeyId;
+	_amazonWebServiceSecretKey = amazonWebServiceSecretKey;
 	_coverArtDownloader = new QNetworkAccessManager(this);
 	_accurate = true;
 }
@@ -39,35 +47,108 @@ AmazonCoverArt::AmazonCoverArt(const QString & amazonWebServiceKey, QObject * pa
 AmazonCoverArt::~AmazonCoverArt() {
 }
 
+QByteArray hmacDigestToHex(unsigned char * digest, unsigned int digest_size) {
+	//Cannot use digest_size, use the maximum possible instead: SHA512_DIGEST_SIZE
+	unsigned char output[2 * SHA512_DIGEST_SIZE + 1];
+
+	output[2 * digest_size] = '\0';
+
+	for (int i = 0; i < digest_size ; i++) {
+		sprintf((char *) output + 2 * i, "%02x", digest[i]);
+	}
+
+	return (const char *) output;
+}
+
+QString AmazonCoverArt::urlSignature(const QMap<QString, QString> & params) const {
+	//See http://docs.amazonwebservices.com/AWSECommerceService/latest/DG/index.html?rest-signature.html
+
+	//With QMap, the items are always sorted by key as asked by Amazon
+
+	//Make the params a string
+	QString paramsStr;
+	QMapIterator<QString, QString> it(params);
+	while (it.hasNext()) {
+		it.next();
+		if (!paramsStr.isEmpty()) {
+			paramsStr += '&';
+		}
+		paramsStr += it.key() + '=' + it.value();
+	}
+	QString webserver = "GET\nwebservices.amazon.com\n/onca/xml\n";
+	paramsStr.prepend(webserver);
+	///
+
+	//URL encode the params
+	paramsStr.replace(":", "%3A");
+	paramsStr.replace(",", "%2C");
+	qDebug() << __FUNCTION__ << paramsStr;
+
+	//HMAC SHA256
+	unsigned char digest[SHA256_DIGEST_SIZE];
+	hmac_sha256((unsigned char *) _amazonWebServiceSecretKey.toUtf8().constData(), _amazonWebServiceSecretKey.size(),
+			(unsigned char *) paramsStr.toUtf8().constData(), paramsStr.size(),
+			digest, SHA256_DIGEST_SIZE);
+	QByteArray tmp = QByteArray::fromHex(hmacDigestToHex(digest, SHA256_DIGEST_SIZE));
+	QString hash = tmp.toBase64();
+	///
+
+	//URL encode the digest
+	hash.replace("+", "%2B");
+	hash.replace("=", "%3D");
+	qDebug() << __FUNCTION__ << hash;
+	///
+
+	return hash;
+}
+
 QUrl AmazonCoverArt::amazonUrl(const Track & track) const {
-	QUrl url;
+	//See http://docs.amazonwebservices.com/AWSECommerceService/latest/DG/index.html?rest-signature.html
+
+	QUrl url("http://webservices.amazon.com/onca/xml");
+
+	QMap<QString, QString> params;
+	params["Service"] = "AWSECommerceService";
+	params["ResponseGroup"] = "Images";
+	params["AWSAccessKeyId"] = _amazonWebServiceAccessKeyId;
+	params["Timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+
 	if (track.amazonASIN.isEmpty()) {
-		url = QUrl("http://webservices.amazon.com/onca/xml/");
-		url.addQueryItem("Service", "AWSECommerceService");
-		url.addQueryItem("Operation", "ItemSearch");
-		url.addQueryItem("ResponseGroup", "Images");
-		url.addQueryItem("SearchIndex", "Music");
-		url.addQueryItem("AWSAccessKeyId", _amazonWebServiceKey);
+		params["Operation"] = "ItemSearch";
+		params["SearchIndex"] = "Music";
+
 		if (!track.artist.isEmpty()) {
-			url.addQueryItem("Artist", track.artist);
+			params["Artist"] = track.artist;
 		} else {
 			_accurate = false;
 		}
 		if (!track.album.isEmpty()) {
-			url.addQueryItem("Title", track.album);
+			params["Title"] = track.album;
 		} else {
 			_accurate = false;
 		}
 	} else {
 		//We have the amazon id (ASIN) so for sure we will find the images!
-		url = QUrl("http://webservices.amazon.com/onca/xml/");
-		url.addQueryItem("Service", "AWSECommerceService");
-		url.addQueryItem("Operation", "ItemLookup");
-		url.addQueryItem("ResponseGroup", "Images");
-		url.addQueryItem("AWSAccessKeyId", _amazonWebServiceKey);
-		url.addQueryItem("IdType", "ASIN");
-		url.addQueryItem("ItemId", track.amazonASIN);
+
+		params["Operation"] = "ItemLookup";
+		params["IdType"] = "ASIN";
+		params["ItemId"] = track.amazonASIN;
 	}
+
+	//The signature
+	//FIXME disable the signature since there is a bug inside Qt-4.5.1
+	//A bug report has been filed about this at http://www.qtsoftware.com/developer/task-tracker
+	//with subject: Method QNetworkManager::get() url encode character % to %25 and should not
+	//params["Signature"] = AmazonCoverArt::urlSignature(params);
+	///
+
+	QMapIterator<QString, QString> it(params);
+	while (it.hasNext()) {
+		it.next();
+		url.addQueryItem(it.key(), it.value());
+	}
+
+	qDebug() << __FUNCTION__ << "Amazon URL:" << url;
 	return url;
 }
 
@@ -98,12 +179,13 @@ bool AmazonCoverArt::start(const Track & track, const QString & language) {
 }
 
 void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
-	//qDebug() << __FUNCTION__ << reply->url();
+	qDebug() << __FUNCTION__ << reply->url();
 
 	QNetworkReply::NetworkError error = reply->error();
 	QByteArray data(reply->readAll());
 
 	if (error != QNetworkReply::NoError) {
+		qDebug() << __FUNCTION__ << "Network error:" << data;
 		emit networkError(error);
 		return;
 	}
@@ -135,7 +217,7 @@ void AmazonCoverArt::gotCoverArt(QNetworkReply * reply) {
 		return;
 	}
 
-	//qDebug() << __FUNCTION__ << "URL:" << reply->url();
+	qDebug() << __FUNCTION__ << "Got Amazon cover art";
 
 	//We've got the cover art
 	emit found(data, _accurate);
