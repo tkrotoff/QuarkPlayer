@@ -41,7 +41,10 @@
 #include <QtCore/QCryptographicHash>
 
 //Please don't copy this to another program; keys are free from aws.amazon.com
-static const char * AMAZON_WEB_SERVICE_KEY = "1BPZGMNT4PWSJS6NHG02";
+//Your Access Key ID:
+static const char * AMAZON_WEB_SERVICE_ACCESS_KEY_ID = "1BPZGMNT4PWSJS6NHG02";
+//Your Secret Access Key:
+static const char * AMAZON_WEB_SERVICE_SECRET_KEY = "RfD3RoKwZ+5GpJa/i03jhoiDZM26OAc+TPpXMps0";
 
 MediaDataWidget::MediaDataWidget(QWidget * parent)
 	: QWidget(parent) {
@@ -246,12 +249,14 @@ void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist
 		amazonCoverArtFilename.replace('>', space);
 		amazonCoverArtFilename.replace('|', space);
 
-		_amazonCoverArtPath = coverArtDir + QDir::separator() + amazonCoverArtFilename;
+		//Do not use QDir::separator() since _coverArtList contains / separators
+		//even under Windows
+		_amazonCoverArtPath = coverArtDir + '/' + amazonCoverArtFilename;
 
 		bool amazonCoverArtAlreadyDownloaded = _coverArtList.contains(_amazonCoverArtPath);
 		if (!amazonCoverArtAlreadyDownloaded) {
 			//Download the cover art
-			AmazonCoverArt * coverArtFetcher = new AmazonCoverArt(AMAZON_WEB_SERVICE_KEY, this);
+			AmazonCoverArt * coverArtFetcher = new AmazonCoverArt(AMAZON_WEB_SERVICE_ACCESS_KEY_ID, AMAZON_WEB_SERVICE_SECRET_KEY, this);
 			connect(coverArtFetcher, SIGNAL(found(const QByteArray &, bool)),
 				SLOT(coverArtFound(const QByteArray &, bool)));
 			ContentFetcher::Track track;
@@ -274,6 +279,8 @@ void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist
 }
 
 void MediaDataWidget::coverArtFound(const QByteArray & coverArt, bool accurate) {
+	//FIXME There is a bug here
+
 	if (accurate) {
 		//Saves the downloaded cover art to a file
 		QFile coverArtFile(_amazonCoverArtPath);

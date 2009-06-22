@@ -472,12 +472,13 @@ void MediaObject::stateChangedInternal(Phonon::State newState, Phonon::State old
 	case Phonon::PlayingState:
 		qDebug() << __FUNCTION__ << "PlayingState";
 
-		//HACK Bug inside MPlayer, the previous volume is not set again after the "loadfile" command
-		//This should be removed when next version of MPlayer will be released
-		if (MPlayerLoader::settings.volume >= 0) {
-			_process->sendCommand("volume " + QString::number(MPlayerLoader::settings.volume) + " 1");
+		if (MPlayerProcess::getMPlayerVersion() < 27872) {
+			//HACK Bug inside MPlayer, the previous volume is not set again after the "loadfile" command
+			//This should be removed when next versions of MPlayer will be released
+			if (MPlayerLoader::settings.volume >= 0) {
+				_process->sendCommand("volume " + QString::number(MPlayerLoader::settings.volume) + " 1");
+			}
 		}
-		///
 
 		break;
 	case Phonon::BufferingState:

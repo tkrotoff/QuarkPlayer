@@ -78,6 +78,8 @@ if (ZLIB)
 	set(ZLIB_LIBRARY zlib)
 endif (ZLIB)
 
+add_subdirectory(3rdparty/hmac)
+
 # minizip
 add_subdirectory(3rdparty/zlib/contrib/minizip)
 set(MINIZIP_FOUND 1)
@@ -122,7 +124,7 @@ else (KDE4_FOUND)
 	include(${QT_USE_FILE})
 
 	# Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
-	#set(NEW_TITLE_CHAPTER_HANDLING 1)
+	set(NEW_TITLE_CHAPTER_HANDLING 1)
 
 	message(STATUS "KDE4 support disabled")
 endif (KDE4_FOUND)

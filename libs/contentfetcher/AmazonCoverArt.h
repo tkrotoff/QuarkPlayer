@@ -32,13 +32,12 @@ class QByteArray;
  *
  * Cover arts are jpeg files.
  *
- * The use of Amazon Web Service starts to be quite complex:
- * http://docs.amazonwebservices.com/AWSECommerceService/latest/DG/index.html?rest-signature.html
+ * The use of Amazon Web Service starts to be quite complex.
  * June 2009: now we have to sign the request!
  * Tired to spend time on stupid things...
  *
+ * @see http://docs.amazonwebservices.com/AWSECommerceService/latest/DG/index.html?rest-signature.html
  * @see http://wiki.musicbrainz.org/XMLWebService
- * @see http://amazon.com
  * @author Tanguy Krotoff
  */
 class CONTENTFETCHER_API AmazonCoverArt : public ContentFetcher {
@@ -53,13 +52,14 @@ public:
 
 private slots:
 
-	/** Amazon web service cover art. */
+	/** Handles Amazon Web Service XML reply. */
 	void gotCoverArtAmazonXML(QNetworkReply * reply);
 
 	void gotCoverArt(QNetworkReply * reply);
 
 private:
 
+	/** Amazon Web Service url signature using the Access Key ID and the Secret Access Key. */
 	QString urlSignature(const QMap<QString, QString> & params) const;
 
 	/** Constructs the right Amazon request URL. */

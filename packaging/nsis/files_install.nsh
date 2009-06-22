@@ -74,7 +74,7 @@ SetOutPath "$INSTDIR\phonon_backend\"
 File "${BUILD_DIR}\phonon_backend\*.dll"
 
 SetOutPath "$INSTDIR\plugins\"
-File "${BUILD_DIR}\plugins\*.dll"
+File /nonfatal "${BUILD_DIR}\plugins\*.dll"
 
 SetOutPath "$INSTDIR\styles\"
 File "${BUILD_DIR}\styles\*.dll"

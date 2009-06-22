@@ -228,7 +228,8 @@ static QRegExp rx_novideo("^Video: no video");
 static QRegExp rx_play("^Starting playback...");
 static QRegExp rx_playing("^Playing");	//"Playing" does not mean the file is actually playing but only loading
 static QRegExp rx_file_not_found("^File not found:");
-static QRegExp rx_endoffile("^ID_EXIT=EOF$");
+//static QRegExp rx_endoffile("^ID_EXIT=EOF$");
+static QRegExp rx_endoffile("^Exiting... \\(End of file\\)");
 static QRegExp rx_slowsystem("Your system is too SLOW to play this!");
 
 //Streaming
@@ -661,7 +662,7 @@ void MPlayerProcess::parseLine(const QString & tmp) {
 		else
 
 		//Audio CD titles
-		if (rx_cdda.indexIn(line) > -1) {
+		else if (rx_cdda.indexIn(line) > -1) {
 			int ID = rx_cdda.cap(1).toInt();
 			QString length = rx_cdda.cap(2);
 			double duration = 0;

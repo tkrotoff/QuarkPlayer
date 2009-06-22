@@ -96,7 +96,6 @@ void QuarkPlayer::play(const Phonon::MediaSource & mediaSource) {
 
 	if (_currentMediaObject) {
 
-#ifdef Q_OS_WIN
 		//Detects audio CD tracks under Windows
 		//They have a special name: "D:/Track01.cda" means track 1 of the audio CD
 		//from device D:/
@@ -110,7 +109,6 @@ void QuarkPlayer::play(const Phonon::MediaSource & mediaSource) {
 			tmp = Phonon::MediaSource(Phonon::Cd, deviceName);
 		}
 		///
-#endif	//Q_OS_WIN
 
 		_currentMediaObject->setCurrentSource(tmp);
 		_currentMediaObject->play();
