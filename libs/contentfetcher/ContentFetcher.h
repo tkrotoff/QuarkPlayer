@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +24,21 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
-//Included only for the enum QNetworkReply::NetworkError
-//Maybe duplicate this enum to avoid this include?
+//Included because of enum QNetworkReply::NetworkError
 #include <QtNetwork/QNetworkReply>
+
+/**
+ * A simple track structure.
+ *
+ * @see ContentFetcher::start()
+ */
+class ContentFetcherTrack {
+public:
+	QString title;
+	QString artist;
+	QString album;
+	QString amazonASIN;
+};
 
 /**
  * Interface for getting content relative to a track.
@@ -41,13 +53,6 @@ public:
 
 	virtual ~ContentFetcher();
 
-	struct Track {
-		QString title;
-		QString artist;
-		QString album;
-		QString amazonASIN;
-	};
-
 	/**
 	 * Starts looking for the content given track informations.
 	 *
@@ -58,7 +63,9 @@ public:
 	 * @param language language/locale (en, fr, de...)
 	 * @return true if everything is OK; false otherwise
 	 */
-	virtual bool start(const Track & track, const QString & language = QString()) = 0;
+	virtual bool start(const ContentFetcherTrack & track, const QString & language = QString()) = 0;
+
+	static QString errorString(QNetworkReply::NetworkError errorCode);
 
 signals:
 
@@ -67,10 +74,15 @@ signals:
 	 *
 	 * @param errorCode the code of the error that was detected
 	 */
-	void networkError(QNetworkReply::NetworkError errorCode);
+	void networkError(QNetworkReply::NetworkError errorCode, const ContentFetcherTrack & track);
 
-	/** The content have been retrieved. */
-	void found(const QByteArray & content, bool accurate);
+	/** No error occured: the content have been retrieved. */
+	void contentFound(const QByteArray & content, bool accurate, const ContentFetcherTrack & track);
+
+protected:
+
+	/** Can be reused by subclasses. */
+	ContentFetcherTrack _track;
 
 private:
 

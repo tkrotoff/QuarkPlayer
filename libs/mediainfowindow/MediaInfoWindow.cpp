@@ -38,6 +38,7 @@ MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 	: QDialog(parent) {
 
 	_mediaInfoFetcher = NULL;
+	_lyricsFetcher = NULL;
 
 	_ui = new Ui::MediaInfoWindow();
 	_ui->setupUi(this);
@@ -404,7 +405,7 @@ void MediaInfoWindow::updateMediaInfo() {
 	}
 	_ui->thumbnailView->refresh();
 
-	ContentFetcher::Track track;
+	ContentFetcherTrack track;
 	track.artist = mediaInfo.metadataValue(MediaInfo::Artist);
 	track.title = mediaInfo.metadataValue(MediaInfo::Title);
 
@@ -425,29 +426,26 @@ void MediaInfoWindow::updateMediaInfo() {
 
 	//Download the lyrics
 	_ui->lyricsTextEdit->setHtml(tr("Looking for the lyrics..."));
-	LyricsFetcher * lyricsFetcher = new LyricsFetcher(this);
-	connect(lyricsFetcher, SIGNAL(found(const QByteArray &, bool)),
-		SLOT(lyricsFound(const QByteArray &, bool)));
-	connect(lyricsFetcher, SIGNAL(networkError(QNetworkReply::NetworkError)),
-		SLOT(networkError(QNetworkReply::NetworkError)));
 
-	//Clear lyrics tab
-	lyricsFound(QByteArray(), true);
+	if (!_lyricsFetcher) {
+		//Lazy initialization
+		_lyricsFetcher = new LyricsFetcher(this);
+		connect(_lyricsFetcher, SIGNAL(contentFound(const QByteArray &, bool, const ContentFetcherTrack &)),
+			SLOT(lyricsFound(const QByteArray &, bool, const ContentFetcherTrack &)));
+		connect(_lyricsFetcher, SIGNAL(networkError(QNetworkReply::NetworkError, const ContentFetcherTrack &)),
+			SLOT(lyricsNetworkError(QNetworkReply::NetworkError, const ContentFetcherTrack &)));
+	}
 
-	lyricsFetcher->start(track);
+	_lyricsFetcher->start(track);
 }
 
-void MediaInfoWindow::networkError(QNetworkReply::NetworkError errorCode) {
-	_ui->lyricsTextEdit->setHtml("Network error: " + QString::number(errorCode));
-}
-
-void MediaInfoWindow::lyricsFound(const QByteArray & lyrics, bool accurate) {
+void MediaInfoWindow::lyricsFound(const QByteArray & lyrics, bool accurate, const ContentFetcherTrack & track) {
 	Q_UNUSED(accurate);
 
 	QString text(QString::fromUtf8(lyrics));
-	if (!text.isEmpty()) {
-		_ui->lyricsTextEdit->setHtml(text);
-	} else {
-		_ui->lyricsTextEdit->setHtml(tr("Error: no lyrics found"));
-	}
+	_ui->lyricsTextEdit->setHtml(text);
+}
+
+void MediaInfoWindow::lyricsNetworkError(QNetworkReply::NetworkError errorCode, const ContentFetcherTrack & track) {
+	_ui->lyricsTextEdit->setHtml(tr("Error: ") + ContentFetcher::errorString(errorCode));
 }

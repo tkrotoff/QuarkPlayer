@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,14 +47,14 @@ QUrl LyricsFetcher::lyricWikiUrl(const QString & artist, const QString & title) 
 	return url;
 }
 
-bool LyricsFetcher::start(const Track & track, const QString & language) {
+bool LyricsFetcher::start(const ContentFetcherTrack & track, const QString & language) {
 	if (!ContentFetcher::start(track, language)) {
 		return false;
 	}
 
 	qDebug() << __FUNCTION__ << "Looking up for the lyrics";
 
-	_lyricsDownloader->get(QNetworkRequest(lyricWikiUrl(track.artist, track.title)));
+	_lyricsDownloader->get(QNetworkRequest(lyricWikiUrl(_track.artist, _track.title)));
 
 	return true;
 }
@@ -66,12 +66,12 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 	QByteArray data(reply->readAll());
 
 	if (error != QNetworkReply::NoError) {
-		emit networkError(error);
+		emit networkError(error, _track);
 		return;
 	}
 
 	if (data == "Not found") {
-		emit found(QByteArray(), true);
+		emit networkError(QNetworkReply::ContentNotFoundError, _track);
 		return;
 	}
 
@@ -106,7 +106,7 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 	lyrics.replace(QRegExp("''([^']+)''"), "<i>\\1</i>");
 
 	//We've got the lyrics
-	emit found(lyrics.toUtf8(), true);
+	emit contentFound(lyrics.toUtf8(), true, _track);
 
 	/*mLyrics.open(QIODevice::WriteOnly);
 	mLyrics.write(lyrics.toUtf8());

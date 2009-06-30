@@ -23,12 +23,17 @@
 
 #include <QtCore/QList>
 
+//Included because of enum QNetworkReply::NetworkError
+#include <QtNetwork/QNetworkReply>
+
 namespace Ui {
 	class MediaDataWidget;
 }
 
 class MediaInfoWindow;
 class MediaInfoFetcher;
+class AmazonCoverArt;
+class ContentFetcherTrack;
 
 namespace Phonon {
 	class MediaObject;
@@ -60,7 +65,9 @@ private slots:
 
 	void retranslate();
 
-	void coverArtFound(const QByteArray & coverArt, bool accurate);
+	void coverArtFound(const QByteArray & coverArt, bool accurate, const ContentFetcherTrack & track);
+
+	void coverArtNetworkError(QNetworkReply::NetworkError errorCode, const ContentFetcherTrack & track);
 
 	void updateCoverArtPixmap();
 
@@ -70,16 +77,29 @@ private:
 
 	void setCoverArtPixmap(const QFile & coverArtFile);
 
+	/** Shows a status message about the cover art downloading. */
+	void showCoverArtStatusMessage(const QString & message) const;
+
 	Ui::MediaDataWidget * _ui;
 
 	MediaInfoWindow * _mediaInfoWindow;
 
 	MediaInfoFetcher * _mediaInfoFetcher;
 
+	AmazonCoverArt * _coverArtFetcher;
+
 	QTimer * _coverArtSwitchTimer;
 
 	QList<QString> _coverArtList;
 	int _currentCoverArtIndex;
+
+	/**
+	 * Current album.
+	 *
+	 * Used to avoid a bug: writing a cover art inside the wrong
+	 * directory due to network lag.
+	 */
+	QString _currentAlbum;
 
 	QString _amazonCoverArtPath;
 };

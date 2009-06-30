@@ -25,15 +25,15 @@
 
 #include <QtCore/QString>
 
-//Included only for the enum QNetworkReply::NetworkError
-//Maybe duplicate this enum to avoid this include?
+//Included because of enum QNetworkReply::NetworkError
 #include <QtNetwork/QNetworkReply>
 
 namespace Ui {
 	class MediaInfoWindow;
 }
 class MediaInfoFetcher;
-
+class LyricsFetcher;
+class ContentFetcherTrack;
 class WebBrowser;
 
 class QUrl;
@@ -79,9 +79,9 @@ public slots:
 
 private slots:
 
-	void networkError(QNetworkReply::NetworkError errorCode);
+	void lyricsFound(const QByteArray & lyrics, bool accurate, const ContentFetcherTrack & track);
 
-	void lyricsFound(const QByteArray & lyrics, bool accurate);
+	void lyricsNetworkError(QNetworkReply::NetworkError errorCode, const ContentFetcherTrack & track);
 
 	void updateMediaInfo();
 
@@ -95,6 +95,8 @@ private slots:
 private:
 
 	MediaInfoFetcher * _mediaInfoFetcher;
+
+	LyricsFetcher * _lyricsFetcher;
 
 	Ui::MediaInfoWindow * _ui;
 

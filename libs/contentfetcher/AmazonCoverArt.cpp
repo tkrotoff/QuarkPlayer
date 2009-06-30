@@ -34,6 +34,7 @@
 #include <QtCore/QCryptographicHash>
 
 #include <cstring>
+#include <cstdio>
 
 AmazonCoverArt::AmazonCoverArt(const QString & amazonWebServiceAccessKeyId, const QString & amazonWebServiceSecretKey, QObject * parent)
 	: ContentFetcher(parent) {
@@ -49,15 +50,19 @@ AmazonCoverArt::~AmazonCoverArt() {
 
 QByteArray hmacDigestToHex(unsigned char * digest, unsigned int digest_size) {
 	//Cannot use digest_size, use the maximum possible instead: SHA512_DIGEST_SIZE
-	unsigned char output[2 * SHA512_DIGEST_SIZE + 1];
+	static const size_t output_size = 2 * SHA512_DIGEST_SIZE + 1;
+	char output[output_size];
+
+	Q_ASSERT((2 * digest_size) < output_size);
 
 	output[2 * digest_size] = '\0';
 
-	for (int i = 0; i < digest_size ; i++) {
-		sprintf((char *) output + 2 * i, "%02x", digest[i]);
+	for (unsigned i = 0; i < digest_size ; i++) {
+		//Visual C++ does not support C99, so no snprintf()
+		sprintf(output + 2 * i, "%02x", digest[i]);
 	}
 
-	return (const char *) output;
+	return output;
 }
 
 QString AmazonCoverArt::urlSignature(const QMap<QString, QString> & params) const {
@@ -81,8 +86,10 @@ QString AmazonCoverArt::urlSignature(const QMap<QString, QString> & params) cons
 
 	//URL encode the params
 	paramsStr.replace(":", "%3A");
+	paramsStr.replace(";", "%3B");
 	paramsStr.replace(",", "%2C");
 	qDebug() << __FUNCTION__ << paramsStr;
+	///
 
 	//HMAC SHA256
 	unsigned char digest[SHA256_DIGEST_SIZE];
@@ -94,16 +101,17 @@ QString AmazonCoverArt::urlSignature(const QMap<QString, QString> & params) cons
 	///
 
 	//URL encode the digest
-	hash.replace("+", "%2B");
-	hash.replace("=", "%3D");
+	//RFC 3986 percent encoding
+	hash = QUrl::toPercentEncoding(hash.toUtf8()).constData();
 	qDebug() << __FUNCTION__ << hash;
 	///
 
 	return hash;
 }
 
-QUrl AmazonCoverArt::amazonUrl(const Track & track) const {
+QUrl AmazonCoverArt::amazonUrl(const ContentFetcherTrack & track) const {
 	//See http://docs.amazonwebservices.com/AWSECommerceService/latest/DG/index.html?rest-signature.html
+	//See http://en.wikipedia.org/wiki/Percent-encoding
 
 	QUrl url("http://webservices.amazon.com/onca/xml");
 
@@ -117,13 +125,19 @@ QUrl AmazonCoverArt::amazonUrl(const Track & track) const {
 		params["Operation"] = "ItemSearch";
 		params["SearchIndex"] = "Music";
 
-		if (!track.artist.isEmpty()) {
-			params["Artist"] = track.artist;
+		QString artist(track.artist);
+		if (!artist.isEmpty()) {
+			//RFC 3986 percent encoding
+			artist = QUrl::toPercentEncoding(artist.toUtf8()).constData();
+			params["Artist"] = artist;
 		} else {
 			_accurate = false;
 		}
-		if (!track.album.isEmpty()) {
-			params["Title"] = track.album;
+		QString album(track.album);
+		if (!album.isEmpty()) {
+			//RFC 3986 percent encoding
+			album = QUrl::toPercentEncoding(album.toUtf8()).constData();
+			params["Title"] = album;
 		} else {
 			_accurate = false;
 		}
@@ -136,28 +150,26 @@ QUrl AmazonCoverArt::amazonUrl(const Track & track) const {
 	}
 
 	//The signature
-	//FIXME disable the signature since there is a bug inside Qt-4.5.1
-	//A bug report has been filed about this at http://www.qtsoftware.com/developer/task-tracker
-	//with subject: Method QNetworkManager::get() url encode character % to %25 and should not
-	//params["Signature"] = AmazonCoverArt::urlSignature(params);
+	params["Signature"] = AmazonCoverArt::urlSignature(params);
 	///
 
 	QMapIterator<QString, QString> it(params);
 	while (it.hasNext()) {
 		it.next();
-		url.addQueryItem(it.key(), it.value());
+
+		//Everything is already URL encoded
+		url.addEncodedQueryItem(it.key().toUtf8(), it.value().toUtf8());
 	}
 
 	qDebug() << __FUNCTION__ << "Amazon URL:" << url;
 	return url;
 }
 
-bool AmazonCoverArt::start(const Track & track, const QString & language) {
+bool AmazonCoverArt::start(const ContentFetcherTrack & track, const QString & language) {
 	if (!ContentFetcher::start(track, language)) {
 		return false;
 	}
 
-	_track = track;
 	_track.album.replace(QRegExp("[[(<{].+"), QString());
 	_track.album.replace("-", QString());
 	_track.album = _track.album.trimmed();
@@ -186,7 +198,7 @@ void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
 
 	if (error != QNetworkReply::NoError) {
 		qDebug() << __FUNCTION__ << "Network error:" << data;
-		emit networkError(error);
+		emit networkError(error, _track);
 		return;
 	}
 
@@ -213,12 +225,12 @@ void AmazonCoverArt::gotCoverArt(QNetworkReply * reply) {
 	QByteArray data(reply->readAll());
 
 	if (error != QNetworkReply::NoError) {
-		emit networkError(error);
+		emit networkError(error, _track);
 		return;
 	}
 
 	qDebug() << __FUNCTION__ << "Got Amazon cover art";
 
 	//We've got the cover art
-	emit found(data, _accurate);
+	emit contentFound(data, _accurate, _track);
 }

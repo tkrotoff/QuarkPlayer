@@ -23,7 +23,6 @@
 
 #include <QtCore/QUrl>
 
-class QNetworkReply;
 class QNetworkAccessManager;
 class QByteArray;
 
@@ -48,7 +47,7 @@ public:
 
 	~AmazonCoverArt();
 
-	bool start(const Track & track, const QString & language = QString());
+	bool start(const ContentFetcherTrack & track, const QString & language = QString());
 
 private slots:
 
@@ -63,7 +62,7 @@ private:
 	QString urlSignature(const QMap<QString, QString> & params) const;
 
 	/** Constructs the right Amazon request URL. */
-	QUrl amazonUrl(const Track & track) const;
+	QUrl amazonUrl(const ContentFetcherTrack & track) const;
 
 	/**
 	 * Access Key ID.
@@ -95,8 +94,6 @@ private:
 	 * It is important to keep your Secret Access Key confidential to protect your account.
 	 */
 	QString _amazonWebServiceSecretKey;
-
-	Track _track;
 
 	QNetworkAccessManager * _coverArtDownloader;
 	mutable bool _accurate;
