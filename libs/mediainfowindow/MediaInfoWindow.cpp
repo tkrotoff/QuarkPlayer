@@ -425,7 +425,7 @@ void MediaInfoWindow::updateMediaInfo() {
 	}
 
 	//Download the lyrics
-	_ui->lyricsTextEdit->setHtml(tr("Looking for the lyrics..."));
+	_ui->lyricsTextBrowser->setHtml(tr("Looking for the lyrics..."));
 
 	if (!_lyricsFetcher) {
 		//Lazy initialization
@@ -443,9 +443,9 @@ void MediaInfoWindow::lyricsFound(const QByteArray & lyrics, bool accurate, cons
 	Q_UNUSED(accurate);
 
 	QString text(QString::fromUtf8(lyrics));
-	_ui->lyricsTextEdit->setHtml(text);
+	_ui->lyricsTextBrowser->setHtml(text);
 }
 
 void MediaInfoWindow::lyricsNetworkError(QNetworkReply::NetworkError errorCode, const ContentFetcherTrack & track) {
-	_ui->lyricsTextEdit->setHtml(tr("Error: ") + ContentFetcher::errorString(errorCode));
+	_ui->lyricsTextBrowser->setHtml(tr("Error: ") + ContentFetcher::errorString(errorCode));
 }

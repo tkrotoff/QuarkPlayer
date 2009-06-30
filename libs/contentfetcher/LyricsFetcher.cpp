@@ -23,10 +23,6 @@
 #include <QtNetwork/QNetworkRequest>
 
 #include <QtCore/QDebug>
-#include <QtCore/QtGlobal>
-#include <QtCore/QRegExp>
-#include <QtCore/QStringList>
-#include <QtCore/QMutableStringListIterator>
 
 LyricsFetcher::LyricsFetcher(QObject * parent)
 	: ContentFetcher(parent) {
@@ -41,7 +37,8 @@ LyricsFetcher::~LyricsFetcher() {
 
 QUrl LyricsFetcher::lyricWikiUrl(const QString & artist, const QString & title) const {
 	QUrl url("http://lyricwiki.org/api.php");
-	url.addQueryItem("fmt", "text");
+	//url.addQueryItem("fmt", "text");
+	url.addQueryItem("fmt", "html");
 	url.addQueryItem("artist", artist);
 	url.addQueryItem("song", title);
 	return url;
@@ -74,41 +71,5 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 		emit networkError(QNetworkReply::ContentNotFoundError, _track);
 		return;
 	}
-
-	//Remove HTML comments + trim the resulting string
-	//This is due to malformed lyricwiki page
-	QString tmp(QString::fromUtf8(data));
-	tmp.replace(QRegExp("<!--.*-->"), QString());
-	tmp = tmp.trimmed();
-
-	QStringList lines(tmp.split("\n"));
-	QMutableStringListIterator it(lines);
-	bool inLyrics = true;
-	while (it.hasNext()) {
-		QString line(it.next().trimmed());
-		if (inLyrics && line == "</lyric>") {
-			inLyrics = false;
-			it.remove();
-		}
-		else if (!inLyrics) {
-			if (line == "<lyric>") {
-				inLyrics = true;
-			}
-			if (line.left(2) == "==" && it.peekNext().trimmed() == "<lyric>") {
-				it.setValue("<br /><b>" + it.value().replace("=", QString()) + "</b>");
-				continue;
-			}
-			it.remove();
-		}
-	}
-	QString lyrics(lines.join("<br />\n"));
-	lyrics.replace(QRegExp("'''([^']+)'''"), "<b>\\1</b>");
-	lyrics.replace(QRegExp("''([^']+)''"), "<i>\\1</i>");
-
-	//We've got the lyrics
-	emit contentFound(lyrics.toUtf8(), true, _track);
-
-	/*mLyrics.open(QIODevice::WriteOnly);
-	mLyrics.write(lyrics.toUtf8());
-	mLyrics.close();*/
+	emit contentFound(data, true, _track);
 }

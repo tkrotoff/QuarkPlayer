@@ -478,22 +478,6 @@
        <item row="0" column="0">
         <widget class="ThumbnailView" name="thumbnailView" native="true"/>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="amazonCoverArtLabel">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Covert Art from &lt;a href=&quot;http://amazon.com&quot;&gt;Amazon&lt;/a&gt;</string>
-         </property>
-         <property name="openExternalLinks">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="artistTab">
@@ -514,19 +498,7 @@
         <number>0</number>
        </property>
        <item row="0" column="0">
-        <widget class="QTextEdit" name="lyricsTextEdit"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="lyricWikiLabel">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Lyrics from &lt;a href=&quot;http://lyricwiki.org&quot;&gt;LyricWiki&lt;/a&gt;</string>
-         </property>
+        <widget class="QTextBrowser" name="lyricsTextBrowser">
          <property name="openExternalLinks">
           <bool>true</bool>
          </property>
