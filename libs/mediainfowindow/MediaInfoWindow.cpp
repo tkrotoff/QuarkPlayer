@@ -19,7 +19,8 @@
 #include "MediaInfoWindow.h"
 
 #include "ui_MediaInfoWindow.h"
-#include "MediaInfoFetcher.h"
+
+#include <mediainfofetcher/MediaInfoFetcher.h>
 
 #include <contentfetcher/LyricsFetcher.h>
 #include <contentfetcher/WikipediaArticle.h>

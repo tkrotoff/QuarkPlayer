@@ -16,17 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEDIAINFOEXPORT_H
-#define MEDIAINFOEXPORT_H
+#ifndef MEDIAINFOFETCHEREXPORT_H
+#define MEDIAINFOFETCHEREXPORT_H
 
 #include <QtCore/QtGlobal>
 
-#ifdef BUILD_MEDIAINFO
+#ifdef BUILD_MEDIAINFOFETCHE
 	//We are building this library
-	#define MEDIAINFO_API Q_DECL_EXPORT
+	#define MEDIAINFOFETCHER_API Q_DECL_EXPORT
 #else
 	//We are using this library
-	#define MEDIAINFO_API Q_DECL_IMPORT
+	#define MEDIAINFOFETCHER_API Q_DECL_IMPORT
 #endif
 
-#endif	//MEDIAINFOEXPORT_H
+#endif	//MEDIAINFOFETCHEREXPORT_H

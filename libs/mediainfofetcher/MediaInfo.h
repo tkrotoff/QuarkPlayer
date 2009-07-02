@@ -19,7 +19,7 @@
 #ifndef MEDIAINFO_H
 #define MEDIAINFO_H
 
-#include <mediainfowindow/mediainfowindow_export.h>
+#include <mediainfofetcher/mediainfofetcher_export.h>
 
 #include <filetypes/FileType.h>
 
@@ -40,7 +40,7 @@
  * @see MediaInfoFetcher
  * @author Tanguy Krotoff
  */
-class MEDIAINFOWINDOW_API MediaInfo {
+class MEDIAINFOFETCHER_API MediaInfo {
 public:
 
 	MediaInfo();

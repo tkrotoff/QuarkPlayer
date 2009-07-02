@@ -19,9 +19,7 @@
 #ifndef MEDIAINFOFETCHER_H
 #define MEDIAINFOFETCHER_H
 
-#include <mediainfowindow/mediainfowindow_export.h>
-
-#include <mediainfowindow/MediaInfo.h>
+#include <mediainfofetcher/MediaInfo.h>
 
 #include <phonon/phononnamespace.h>
 #include <phonon/mediasource.h>
@@ -48,7 +46,7 @@ namespace Phonon {
  * @see MediaInfo
  * @author Tanguy Krotoff
  */
-class MEDIAINFOWINDOW_API MediaInfoFetcher : public QObject {
+class MEDIAINFOFETCHER_API MediaInfoFetcher : public QObject {
 	Q_OBJECT
 public:
 

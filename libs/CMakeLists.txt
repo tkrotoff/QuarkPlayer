@@ -1,3 +1,4 @@
+add_subdirectory(mediainfofetcher)
 add_subdirectory(mediainfowindow)
 add_subdirectory(playlistparser)
 add_subdirectory(contentfetcher)
