@@ -41,7 +41,11 @@ AmazonCoverArt::AmazonCoverArt(const QString & amazonWebServiceAccessKeyId, cons
 
 	_amazonWebServiceAccessKeyId = amazonWebServiceAccessKeyId;
 	_amazonWebServiceSecretKey = amazonWebServiceSecretKey;
+
 	_coverArtDownloader = new QNetworkAccessManager(this);
+	connect(_coverArtDownloader, SIGNAL(finished(QNetworkReply *)),
+		SLOT(gotCoverArtAmazonXML(QNetworkReply *)));
+
 	_accurate = true;
 }
 
@@ -165,9 +169,9 @@ QUrl AmazonCoverArt::amazonUrl(const ContentFetcherTrack & track) const {
 	return url;
 }
 
-bool AmazonCoverArt::start(const ContentFetcherTrack & track, const QString & language) {
-	if (!ContentFetcher::start(track, language)) {
-		return false;
+void AmazonCoverArt::start(const ContentFetcherTrack & track, const QString & language) {
+	if (ContentFetcher::isTrackEmpty(track, language)) {
+		return;
 	}
 
 	_track.album.replace(QRegExp("[[(<{].+"), QString());
@@ -180,25 +184,17 @@ bool AmazonCoverArt::start(const ContentFetcherTrack & track, const QString & la
 
 	qDebug() << __FUNCTION__ << "Looking up for the album cover art";
 
-	disconnect(_coverArtDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
-	connect(_coverArtDownloader, SIGNAL(finished(QNetworkReply *)),
-		SLOT(gotCoverArtAmazonXML(QNetworkReply *)));
-
 	//Try with both artist and album name
 	_coverArtDownloader->get(QNetworkRequest(amazonUrl(_track)));
-
-	return true;
 }
 
 void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
-	qDebug() << __FUNCTION__ << reply->url();
-
 	QNetworkReply::NetworkError error = reply->error();
 	QByteArray data(reply->readAll());
 
 	if (error != QNetworkReply::NoError) {
 		qDebug() << __FUNCTION__ << "Network error:" << data;
-		emit networkError(error, _track);
+		emitNetworkError(QNetworkReply::OperationCanceledError, QUrl());
 		return;
 	}
 
@@ -225,12 +221,12 @@ void AmazonCoverArt::gotCoverArt(QNetworkReply * reply) {
 	QByteArray data(reply->readAll());
 
 	if (error != QNetworkReply::NoError) {
-		emit networkError(error, _track);
+		emitNetworkError(error, reply->url());
 		return;
 	}
 
 	qDebug() << __FUNCTION__ << "Got Amazon cover art";
 
 	//We've got the cover art
-	emit contentFound(data, _accurate, _track);
+	emitContentFoundWithoutError(reply->url(), data, _accurate);
 }

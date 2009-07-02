@@ -20,8 +20,6 @@
 #ifndef SYNCHTTP_H
 #define SYNCHTTP_H
 
-#include <tkutil/tkutil_export.h>
-
 #include <QtNetwork/QHttp>
 
 #include <QtCore/QEventLoop>
@@ -36,7 +34,7 @@
  * @author Tanguy Krotoff <tkrotoff@gmail.com>
  * @author Iulian M <eti@erata.net>
  */
-class TKUTIL_API SyncHttp : public QHttp {
+class SyncHttp : public QHttp {
 	Q_OBJECT
 public:
 

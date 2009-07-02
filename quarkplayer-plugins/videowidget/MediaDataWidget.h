@@ -61,13 +61,14 @@ public:
 
 private slots:
 
+	void showMediaInfoWindow();
+
 	void updateMediaInfo();
 
 	void retranslate();
 
-	void coverArtFound(const QByteArray & coverArt, bool accurate, const ContentFetcherTrack & track);
-
-	void coverArtNetworkError(QNetworkReply::NetworkError errorCode, const ContentFetcherTrack & track);
+	void coverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & coverArt,
+		bool accurate, const ContentFetcherTrack & track);
 
 	void updateCoverArtPixmap();
 

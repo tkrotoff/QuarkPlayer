@@ -22,6 +22,7 @@
 #include "MediaInfoFetcher.h"
 
 #include <contentfetcher/LyricsFetcher.h>
+#include <contentfetcher/WikipediaArticle.h>
 
 #include <webbrowser/WebBrowser.h>
 
@@ -39,6 +40,7 @@ MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 
 	_mediaInfoFetcher = NULL;
 	_lyricsFetcher = NULL;
+	_wikipediaArticle = NULL;
 
 	_ui = new Ui::MediaInfoWindow();
 	_ui->setupUi(this);
@@ -82,6 +84,13 @@ MediaInfoWindow::~MediaInfoWindow() {
 }
 
 void MediaInfoWindow::setMediaInfoFetcher(MediaInfoFetcher * mediaInfoFetcher) {
+	//Disconnect MediaInfoWindow from the previous MediaInfoFetcher if any
+	if (_mediaInfoFetcher) {
+		disconnect(_mediaInfoFetcher, SIGNAL(fetched()),
+			this, SLOT(updateMediaInfo()));
+	}
+
+	//New MediaInfoFetcher
 	_mediaInfoFetcher = mediaInfoFetcher;
 	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
 }
@@ -410,42 +419,57 @@ void MediaInfoWindow::updateMediaInfo() {
 	track.title = mediaInfo.metadataValue(MediaInfo::Title);
 
 	//Download the Wikipedia article
-	tmp = track.artist;
-	tmp.replace(' ', '_');
-	tmp = QUrl::toPercentEncoding(tmp);
-	if (!tmp.isEmpty()) {
-		if (_language.isEmpty()) {
-			//Back to english
-			_language = "en";
-		}
-		_webBrowser->setSource("http://" + _language + ".wikipedia.org/wiki/" + tmp);
-	} else {
-		//Clears the webBrowser content
-		_webBrowser->clear();
+	_webBrowser->setHtml(tr("Looking for content..."));
+	if (!_wikipediaArticle) {
+		//Lazy initialization
+		_wikipediaArticle = new WikipediaArticle(this);
+		connect(_wikipediaArticle,
+			SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, bool, const ContentFetcherTrack &)),
+			SLOT(wikipediaArticleFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, bool, const ContentFetcherTrack &))
+		);
 	}
+	_wikipediaArticle->start(track, _language);
+	///
 
 	//Download the lyrics
-	_ui->lyricsTextBrowser->setHtml(tr("Looking for the lyrics..."));
-
+	_ui->lyricsTextBrowser->setHtml(tr("Looking for content..."));
 	if (!_lyricsFetcher) {
 		//Lazy initialization
 		_lyricsFetcher = new LyricsFetcher(this);
-		connect(_lyricsFetcher, SIGNAL(contentFound(const QByteArray &, bool, const ContentFetcherTrack &)),
-			SLOT(lyricsFound(const QByteArray &, bool, const ContentFetcherTrack &)));
-		connect(_lyricsFetcher, SIGNAL(networkError(QNetworkReply::NetworkError, const ContentFetcherTrack &)),
-			SLOT(lyricsNetworkError(QNetworkReply::NetworkError, const ContentFetcherTrack &)));
+		connect(_lyricsFetcher,
+			SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, bool, const ContentFetcherTrack &)),
+			SLOT(lyricsFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, bool, const ContentFetcherTrack &))
+		);
 	}
-
 	_lyricsFetcher->start(track);
+	///
 }
 
-void MediaInfoWindow::lyricsFound(const QByteArray & lyrics, bool accurate, const ContentFetcherTrack & track) {
+void MediaInfoWindow::lyricsFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & lyrics,
+	bool accurate, const ContentFetcherTrack & track) {
+
 	Q_UNUSED(accurate);
 
-	QString text(QString::fromUtf8(lyrics));
-	_ui->lyricsTextBrowser->setHtml(text);
+	if (error == QNetworkReply::NoError) {
+		QString text(QString::fromUtf8(lyrics));
+		_ui->lyricsTextBrowser->setHtml(text
+				+ "<br><br><a href src=" + url.toString() + ">" + url.toString() + "</a>");
+	} else {
+		_ui->lyricsTextBrowser->setHtml(tr("Error: ") + ContentFetcher::errorString(error)
+				+ "<br><br><a href src=" + url.toString() + ">" + url.toString() + "</a>");
+	}
 }
 
-void MediaInfoWindow::lyricsNetworkError(QNetworkReply::NetworkError errorCode, const ContentFetcherTrack & track) {
-	_ui->lyricsTextBrowser->setHtml(tr("Error: ") + ContentFetcher::errorString(errorCode));
+void MediaInfoWindow::wikipediaArticleFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & wikipediaArticle,
+	bool accurate, const ContentFetcherTrack & track) {
+
+	Q_UNUSED(accurate);
+
+	if (error == QNetworkReply::NoError) {
+		_webBrowser->setSourceWithoutLoading(url);
+		_webBrowser->setHtml(QString::fromUtf8(wikipediaArticle));
+	} else {
+		_webBrowser->setSourceWithoutLoading(url);
+		_webBrowser->setHtml(tr("Error: ") + ContentFetcher::errorString(error));
+	}
 }

@@ -27,17 +27,24 @@ ContentFetcher::ContentFetcher(QObject * parent)
 ContentFetcher::~ContentFetcher() {
 }
 
-bool ContentFetcher::start(const ContentFetcherTrack & track, const QString & language) {
-	Q_UNUSED(language);
-
+bool ContentFetcher::isTrackEmpty(const ContentFetcherTrack & track, const QString & language) {
 	_track = track;
+	_language = language;
 
 	if (track.title.isEmpty() && track.artist.isEmpty() && track.album.isEmpty()) {
-		qCritical() << __FUNCTION__ << "Error: Track informations are empty";
-		return false;
-	} else {
+		emitNetworkError(QNetworkReply::OperationCanceledError, QUrl());
 		return true;
+	} else {
+		return false;
 	}
+}
+
+void ContentFetcher::emitNetworkError(QNetworkReply::NetworkError error, const QUrl & url) {
+	emit contentFound(error, url, QByteArray(), true, _track);
+}
+
+void ContentFetcher::emitContentFoundWithoutError(const QUrl & url, const QByteArray & content, bool accurate) {
+	emit contentFound(QNetworkReply::NoError, url, content, accurate, _track);
 }
 
 QString ContentFetcher::errorString(QNetworkReply::NetworkError errorCode) {
@@ -73,6 +80,7 @@ QString ContentFetcher::errorString(QNetworkReply::NetworkError errorCode) {
 		break;
 	case QNetworkReply::ProxyNotFoundError:
 		tmp = tr("The proxy host name was not found (invalid proxy hostname)");
+		break;
 	case QNetworkReply::ProxyTimeoutError:
 		tmp = tr("The connection to the proxy timed out");
 		break;

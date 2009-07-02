@@ -4,10 +4,14 @@ add_definitions(-DBUILD_WEBBROWSER)
 
 set(webbrowser_SRCS
 	WebBrowser.cpp
+	TkTextBrowser.cpp
+	SyncHttp.cpp
 )
 
 qt4_wrap_cpp(webbrowser_SRCS
 	WebBrowser.h
+	TkTextBrowser.h
+	SyncHttp.h
 )
 
 add_library(webbrowser SHARED ${webbrowser_SRCS})

@@ -32,78 +32,124 @@
 WikipediaArticle::WikipediaArticle(QObject * parent)
 	: ContentFetcher(parent) {
 
-	_wikipediaDownloader = new QHttp(this);
-	connect(_wikipediaDownloader, SIGNAL(done(bool)),
-		SLOT(gotWikipediaArticle(bool)));
+	_wikipediaSearchDownloader = new QNetworkAccessManager(this);
+	connect(_wikipediaSearchDownloader, SIGNAL(finished(QNetworkReply *)),
+		SLOT(gotWikipediaSearchAnswer(QNetworkReply *)));
+
+	_wikipediaArticleDownloader = new QNetworkAccessManager(this);
+	connect(_wikipediaArticleDownloader, SIGNAL(finished(QNetworkReply *)),
+		SLOT(gotWikipediaArticle(QNetworkReply *)));
 }
 
 WikipediaArticle::~WikipediaArticle() {
 }
 
-bool WikipediaArticle::start(const ContentFetcherTrack & track, const QString & language) {
-	if (!ContentFetcher::start(track, language)) {
-		return false;
+QUrl WikipediaArticle::wikipediaSearchUrl(const QString & searchTerm, const QString & language) {
+	if (language.isEmpty()) {
+		//Default language is english
+		_wikipediaHostName = "http://en.wikipedia.org";
+	} else {
+		_wikipediaHostName = QString("http://%1.wikipedia.org").arg(language);
+	}
+
+	QUrl url(_wikipediaHostName + "/w/api.php");
+	url.addQueryItem("action", "opensearch");
+	url.addQueryItem("search", searchTerm);
+	return url;
+}
+
+void WikipediaArticle::start(const ContentFetcherTrack & track, const QString & language) {
+	if (ContentFetcher::isTrackEmpty(track, language)) {
+		return;
 	}
 
 	qDebug() << __FUNCTION__ << "Looking up for the Wikipedia article";
 
-	if (language.isEmpty()) {
-		//Default language
-		_wikipediaHostName = "en.wikipedia.org";
-	} else {
-		_wikipediaHostName = QString("%1.wikipedia.org").arg(language);
-	}
-	_wikipediaDownloader->setHost(_wikipediaHostName);
-	QString tmp("/wiki/" + track.artist);
-	tmp = tmp.replace(" ", "_");
-
-	QByteArray path = QUrl::toPercentEncoding(tmp, "!$&'()*+,;=:@/_");
-
-	QHttpRequestHeader header("GET", path);
-	header.setValue("Host", _wikipediaHostName);
-	header.setValue("User-Agent", QCoreApplication::applicationName());
-	header.setContentType("application/x-www-form-urlencoded");
-	_wikipediaDownloader->request(header);
-
-	//qDebug() << __FUNCTION__ << _wikipediaHostName << QString(path);
-
-	//_wikipediaDownloader->get(QNetworkRequest(wikipediaUrl(track.artist, language)));
-
-	return true;
+	_wikipediaSearchDownloader->get(QNetworkRequest(wikipediaSearchUrl(_track.artist, _language)));
 }
 
-void WikipediaArticle::gotWikipediaArticle(bool error) {
-	//qDebug() << __FUNCTION__ << "URL:" << reply->url();
+void WikipediaArticle::gotWikipediaSearchAnswer(QNetworkReply * reply) {
+	QNetworkReply::NetworkError error = reply->error();
+	QString data(reply->readAll());
 
-	if (error) {
-		qDebug() << __FUNCTION__ << "Error: could not find Wikipedia article" << _wikipediaDownloader->errorString();
-		//return;
+	if (error != QNetworkReply::NoError) {
+		emitNetworkError(error, reply->url());
+		return;
 	}
 
-	QString article(QString::fromUtf8(_wikipediaDownloader->readAll()));
-	article = cleanWikipediaArticle(article);
-	article = cleanWikipediaArticle2(article);
+	//Some parsing
+	data.remove("[");
+	data.remove("]]");
+	data.remove("\"");
+	QStringList tmp = data.split(",");
+	///
+
+	QRegExp * rx_artist = NULL;
+	static QRegExp rx_artist_en("^.*(band|musician|singer).*$");
+	static QRegExp rx_artist_fr("^.*(groupe|musicien|chanteur|chanteuse).*$");
+	static QRegExp rx_artist_es("^.*(banda).*$");
+	static QRegExp rx_artist_de("^.*(Band|Musiker).*$");
+	static QRegExp rx_artist_pl("^.*(grupa muzyczna).*$");
+
+	if (_language == "fr") {
+		rx_artist = &rx_artist_fr;
+	} else if (_language == "es") {
+		rx_artist = &rx_artist_es;
+	} else if (_language == "de") {
+		rx_artist = &rx_artist_de;
+	} else if (_language == "pl") {
+		rx_artist = &rx_artist_pl;
+	} else {
+		//Default language is english
+		rx_artist = &rx_artist_en;
+	}
+
+	qDebug() << __FUNCTION__ << tmp;
+	QString wikipediaUrl;
+	int index = tmp.indexOf(*rx_artist);
+	if (index == -1) {
+		//Search just failed
+		//let's take the first Wikipedia article from the list
+		//tmp[0] contains our search term not the answers
+		wikipediaUrl = _wikipediaHostName + "/wiki/" + tmp[1];
+	} else {
+		wikipediaUrl = _wikipediaHostName + "/wiki/" + tmp[index];
+	}
+	wikipediaUrl.replace(" ", "_");
+
+	if (!wikipediaUrl.isEmpty()) {
+		//We've got the Wikipedia article URL
+		_wikipediaArticleDownloader->get(QNetworkRequest(wikipediaUrl));
+	} else {
+		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
+	}
+}
+
+void WikipediaArticle::gotWikipediaArticle(QNetworkReply * reply) {
+	QNetworkReply::NetworkError error = reply->error();
+	QString data(QString::fromUtf8(reply->readAll()));
+
+	if (error != QNetworkReply::NoError) {
+		emitNetworkError(error, reply->url());
+		return;
+	}
+
+	simplifyAndFixWikipediaArticle(data);
 
 	qDebug() << __FUNCTION__;
 
 	//We've got the Wikipedia article
-	emit contentFound(article.toUtf8(), true, _track);
+	emitContentFoundWithoutError(reply->url(), data.toUtf8(), true);
 }
 
-QString WikipediaArticle::cleanWikipediaArticle2(const QString & article) const {
-	QString wiki(article);
-	wiki.replace("src=\"/", "src=\"http://" + _wikipediaHostName + "/");
-	wiki.replace("href=\"/", "href=\"http://" + _wikipediaHostName + "/");
+void WikipediaArticle::simplifyAndFixWikipediaArticle(QString & wiki) const {
+	//Source code taken and adapted from Amarok2 src/context/engines/WikipediaEngine.cpp
+	//method QString wikipediaEngine::wikiParse()
+	//Date: 2009/07/01
 
-	return wiki;
-}
-
-QString WikipediaArticle::cleanWikipediaArticle(const QString & article) const {
-	QString wiki(article);
-
-	//Remove the new-lines and tabs(replace with spaces IS needed).
-	wiki.replace("\n", " ");
-	wiki.replace("\t", " ");
+	//remove the new-lines and tabs(replace with spaces IS needed).
+	wiki.replace('\n', ' ');
+	wiki.replace('\t', ' ');
 
 	QString wikiLanguages;
 	//Get the available language list
@@ -118,49 +164,72 @@ QString WikipediaArticle::cleanWikipediaArticle(const QString & article) const {
 	if (wiki.indexOf(copyrightMark) != -1) {
 		copyright = wiki.mid(wiki.indexOf(copyrightMark) + copyrightMark.length());
 		copyright = copyright.mid(0, copyright.indexOf("</li>"));
-		copyright.replace("<br />", QString());
-		//Only one br at the beginning
+		copyright.remove("<br />");
+		//only one br at the beginning
 		copyright.prepend("<br />");
 	}
 
 	//Ok lets remove the top and bottom parts of the page
-	wiki = wiki.mid(wiki.indexOf("<h1 class=\"firstHeading\">"));
+	wiki = wiki.mid(wiki.indexOf("<!-- start content -->"));
 	wiki = wiki.mid(0, wiki.indexOf("<div class=\"printfooter\">"));
-	//Adding back license information
+
+	//Lets remove the warning box
+	QString mbox = "<table class=\"metadata plainlinks ambox";
+	QString mboxend = "</table>";
+	while (wiki.indexOf(mbox) != -1) {
+		wiki.remove(wiki.indexOf(mbox), wiki.mid(wiki.indexOf(mbox)).indexOf(mboxend) + mboxend.size());
+	}
+
+	QString protec = "<div><a href=\"/wiki/Wikipedia:Protection_policy" ;
+	QString protecend = "</a></div>" ;
+	while (wiki.indexOf(protec) != -1) {
+		wiki.remove(wiki.indexOf(protec), wiki.mid(wiki.indexOf(protec)).indexOf(protecend) + protecend.size());
+	}
+
+	//Adding back style and license information
+	wiki = "<div id=\"bodyContent\"" + wiki;
 	wiki += copyright;
 	wiki.append("</div>");
-	wiki.replace(QRegExp("<h3 id=\"siteSub\">[^<]*</h3>"), QString());
+	wiki.remove(QRegExp("<h3 id=\"siteSub\">[^<]*</h3>"));
 
-	wiki.replace(QRegExp("<span class=\"editsection\"[^>]*>[^<]*<[^>]*>[^<]*<[^>]*>[^<]*</span>"), QString());
+	wiki.remove(QRegExp("<span class=\"editsection\"[^>]*>[^<]*<[^>]*>[^<]*<[^>]*>[^<]*</span>"));
 
 	wiki.replace(QRegExp("<a href=\"[^\"]*\" class=\"new\"[^>]*>([^<]*)</a>"), "\\1");
 
 	//Remove anything inside of a class called urlexpansion, as it's pointless for us
-	wiki.replace(QRegExp("<span class= *'urlexpansion'>[^(]*[(][^)]*[)]</span>"), QString());
+	wiki.remove(QRegExp("<span class= *'urlexpansion'>[^(]*[(][^)]*[)]</span>"));
 
 	//Remove hidden table rows as well
 	QRegExp hidden("<tr *class= *[\"\']hiddenStructure[\"\']>.*</tr>", Qt::CaseInsensitive);
 	hidden.setMinimal(true); //greedy behaviour wouldn't be any good!
-	wiki.replace(hidden, QString());
+	wiki.remove(hidden);
 
 	//We want to keep our own style (we need to modify the stylesheet a bit to handle things nicely)
-	wiki.replace(QRegExp("style= *\"[^\"]*\""), QString());
-	wiki.replace(QRegExp("class= *\"[^\"]*\""), QString());
+	wiki.remove(QRegExp("style= *\"[^\"]*\""));
+	//We need to leave the classes behind, otherwise styling it ourselves gets really nasty
+	//and tedious and roughly impossible to do in a sane maner
+	//wiki.replace(QRegExp("class= *\"[^\"]*\""), QString());
 	//Let's remove the form elements, we don't want them.
-	wiki.replace(QRegExp("<input[^>]*>"), QString());
-	wiki.replace(QRegExp("<select[^>]*>"), QString());
-	wiki.replace("</select>\n", QString());
-	wiki.replace(QRegExp("<option[^>]*>"), QString());
-	wiki.replace("</option>\n", QString());
-	wiki.replace(QRegExp("<textarea[^>]*>"), QString());
-	wiki.replace("</textarea>", QString());
+	wiki.remove(QRegExp("<input[^>]*>"));
+	wiki.remove(QRegExp("<select[^>]*>"));
+	wiki.remove("</select>\n");
+	wiki.remove(QRegExp("<option[^>]*>"));
+	wiki.remove("</option>\n");
+	wiki.remove(QRegExp("<textarea[^>]*>"));
+	wiki.remove("</textarea>");
+
+	//Make sure that the relative links inside the wikipedia HTML is forcibly made
+	//into absolute links (yes, this is deep linking,
+	//but we're showing wikipedia data as wikipedia data, not stealing any credz here)
+	wiki.replace(QRegExp("href= *\"/"), "href=\"" + _wikipediaHostName + "/");
+	wiki.replace(QRegExp("src= *\"/"), "src=\"" + _wikipediaHostName + "/");
 
 	QString wikiHTMLSource = "<html><body>\n";
 	wikiHTMLSource.append(wiki);
 	if (!wikiLanguages.isEmpty()) {
-		wikiHTMLSource.append(tr("Wikipedia Other Languages: <br/>") + wikiLanguages);
+		wikiHTMLSource.append("<br/><div id=\"wiki_otherlangs\" >" + tr("Wikipedia Other Languages: <br/>") + wikiLanguages + " </div>");
 	}
 	wikiHTMLSource.append("</body></html>\n");
 
-	return wikiHTMLSource;
+	wiki = wikiHTMLSource;
 }

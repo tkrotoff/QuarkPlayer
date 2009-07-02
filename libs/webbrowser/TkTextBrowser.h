@@ -19,8 +19,6 @@
 #ifndef TKTEXTBROWSER_H
 #define TKTEXTBROWSER_H
 
-#include <tkutil/tkutil_export.h>
-
 #include <QtGui/QTextBrowser>
 
 class SyncHttp;
@@ -34,7 +32,7 @@ class QHttpResponseHeader;
  * @see QTextBrowser
  * @author Tanguy Krotoff
  */
-class TKUTIL_API TkTextBrowser : public QTextBrowser {
+class TkTextBrowser : public QTextBrowser {
 	Q_OBJECT
 public:
 

@@ -24,15 +24,11 @@
 #include <QtCore/QUrl>
 
 class QNetworkAccessManager;
-class QNetworkReply;
-class QHttp;
 
 /**
- * Gets a Wikipedia article.
+ * Gets a Wikipedia artist article.
  *
  * Uses MediaWiki search API.
- *
- * FIXME Impossible to make this work using QNetworkAccessManager, using QHttp it works fine.
  *
  * @see http://wikipedia.org
  * @see http://en.wikipedia.org/w/api.php
@@ -47,21 +43,25 @@ public:
 
 	~WikipediaArticle();
 
-	bool start(const ContentFetcherTrack & track, const QString & language);
+	void start(const ContentFetcherTrack & track, const QString & language);
 
 private slots:
 
-	void gotWikipediaArticle(bool error);
+	void gotWikipediaSearchAnswer(QNetworkReply * reply);
+
+	void gotWikipediaArticle(QNetworkReply * reply);
 
 private:
 
-	QString cleanWikipediaArticle2(const QString & article) const;
+	QUrl wikipediaSearchUrl(const QString & searchTerm, const QString & language);
 
-	QString cleanWikipediaArticle(const QString & article) const;
+	void simplifyAndFixWikipediaArticle(QString & wiki) const;
+
+	QNetworkAccessManager * _wikipediaSearchDownloader;
+
+	QNetworkAccessManager * _wikipediaArticleDownloader;
 
 	QString _wikipediaHostName;
-
-	QHttp * _wikipediaDownloader;
 };
 
 #endif	//WIKIPEDIAARTICLE_H

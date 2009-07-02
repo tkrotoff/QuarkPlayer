@@ -26,6 +26,7 @@
 #include <quarkplayer/PluginManager.h>
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/playlist/PlaylistWidget.h>
 
 #include <filetypes/FileTypes.h>
 
@@ -50,6 +51,7 @@ const char * MediaControllerFactory::PLUGIN_NAME = "mediacontroller";
 QStringList MediaControllerFactory::dependencies() const {
 	QStringList tmp;
 	tmp += MainWindowFactory::PLUGIN_NAME;
+	tmp += PlaylistWidgetFactory::PLUGIN_NAME;
 	return tmp;
 }
 
@@ -201,17 +203,17 @@ void MediaController::openSubtitleFile() {
 	}
 	///
 
-	QString fileName = TkFileDialog::getOpenFileName(
+	QString filename = TkFileDialog::getOpenFileName(
 		_mainWindow, tr("Select Subtitle File"), dir,
 		tr("Subtitle") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Subtitle)) + ";;" +
 		tr("All Files") + " (*.*)"
 	);
 
-	if (!fileName.isEmpty()) {
+	if (!filename.isEmpty()) {
 		if (updateLastDirOpened) {
-			Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(fileName).absolutePath());
+			Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(filename).absolutePath());
 		}
-		openSubtitleFile(fileName);
+		openSubtitleFile(filename);
 	}
 }
 
@@ -379,12 +381,13 @@ void MediaController::availableTitlesChanged() {
 
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 	QList<Phonon::TitleDescription> titles = _currentMediaController->availableTitles2();
+	int nbTitles = titles.size();
 	removeAllAction(_menuTitles);
 	if (titles.isEmpty()) {
 		_menuTitles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	}
 
-	for (int i = 0; i < titles.size(); i++) {
+	for (int i = 0; i < nbTitles; i++) {
 		QAction * action = _menuTitles->addAction(titles[i].name() + ' ' + titles[i].description(), signalMapper, SLOT(map()));
 		connect(action, SIGNAL(triggered(bool)), action, SLOT(setChecked(bool)));
 		action->setCheckable(true);
@@ -393,12 +396,13 @@ void MediaController::availableTitlesChanged() {
 	}
 #else
 	int titles = _currentMediaController->availableTitles();
+	int nbTitles = titles;
 	removeAllAction(_menuTitles);
 	if (titles == 0) {
 		_menuTitles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	}
 
-	for (int i = 0; i < titles; i++) {
+	for (int i = 0; i < nbTitles; i++) {
 		QAction * action = _menuTitles->addAction(QString::number(i), signalMapper, SLOT(map()));
 		connect(action, SIGNAL(triggered(bool)), action, SLOT(setChecked(bool)));
 		action->setCheckable(true);
@@ -420,6 +424,28 @@ void MediaController::availableTitlesChanged() {
 		_menuTitles->actions()[0]->setChecked(true);
 	}
 #endif	//NEW_TITLE_CHAPTER_HANDLING
+
+
+	Phonon::MediaSource mediaSource = quarkPlayer().currentMediaObject()->currentSource();
+
+	int currentTitle = quarkPlayer().currentMediaController()->currentTitle();
+	qDebug() << __FUNCTION__ << currentTitle;
+	Phonon::DiscType discType = mediaSource.discType();
+
+	//if (discType == Phonon::Dvd
+	//	&&
+
+	//HACK this is a hack in order to add titles to the playlist
+	//Yes MPlayer demands a lot of hacks :/
+	static QRegExp rx_dvd("^dvd://(\\d+)$");
+
+	QStringList files;
+	for (int i = 0; i < nbTitles; i++) {
+		files += "internal=dvd://" + QString::number(i);
+	}
+	PlaylistWidget * playlistWidget = PlaylistWidgetFactory::playlistWidget();
+	playlistWidget->addFilesToCurrentPlaylist(files);
+	///
 }
 
 void MediaController::actionTitleTriggered(int id) {

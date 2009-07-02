@@ -33,6 +33,7 @@ namespace Ui {
 }
 class MediaInfoFetcher;
 class LyricsFetcher;
+class WikipediaArticle;
 class ContentFetcherTrack;
 class WebBrowser;
 
@@ -79,9 +80,11 @@ public slots:
 
 private slots:
 
-	void lyricsFound(const QByteArray & lyrics, bool accurate, const ContentFetcherTrack & track);
+	void lyricsFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & lyrics,
+		bool accurate, const ContentFetcherTrack & track);
 
-	void lyricsNetworkError(QNetworkReply::NetworkError errorCode, const ContentFetcherTrack & track);
+	void wikipediaArticleFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & wikipediaArticle,
+		bool accurate, const ContentFetcherTrack & track);
 
 	void updateMediaInfo();
 
@@ -97,6 +100,8 @@ private:
 	MediaInfoFetcher * _mediaInfoFetcher;
 
 	LyricsFetcher * _lyricsFetcher;
+
+	WikipediaArticle * _wikipediaArticle;
 
 	Ui::MediaInfoWindow * _ui;
 

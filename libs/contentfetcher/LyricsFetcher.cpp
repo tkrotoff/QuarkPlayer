@@ -37,39 +37,37 @@ LyricsFetcher::~LyricsFetcher() {
 
 QUrl LyricsFetcher::lyricWikiUrl(const QString & artist, const QString & title) const {
 	QUrl url("http://lyricwiki.org/api.php");
-	//url.addQueryItem("fmt", "text");
-	url.addQueryItem("fmt", "html");
+	url.addQueryItem("fmt", "text");
 	url.addQueryItem("artist", artist);
 	url.addQueryItem("song", title);
 	return url;
 }
 
-bool LyricsFetcher::start(const ContentFetcherTrack & track, const QString & language) {
-	if (!ContentFetcher::start(track, language)) {
-		return false;
+void LyricsFetcher::start(const ContentFetcherTrack & track, const QString & language) {
+	if (ContentFetcher::isTrackEmpty(track, language)) {
+		return;
 	}
 
 	qDebug() << __FUNCTION__ << "Looking up for the lyrics";
 
 	_lyricsDownloader->get(QNetworkRequest(lyricWikiUrl(_track.artist, _track.title)));
-
-	return true;
 }
 
 void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
-	//qDebug() << __FUNCTION__ << "URL:" << reply->url();
-
 	QNetworkReply::NetworkError error = reply->error();
-	QByteArray data(reply->readAll());
+	QString data(QString::fromUtf8(reply->readAll()));
 
 	if (error != QNetworkReply::NoError) {
-		emit networkError(error, _track);
+		emitNetworkError(error, reply->url());
 		return;
 	}
 
 	if (data == "Not found") {
-		emit networkError(QNetworkReply::ContentNotFoundError, _track);
+		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
 		return;
 	}
-	emit contentFound(data, true, _track);
+
+	data.replace("\n", "<br/>");
+
+	emitContentFoundWithoutError(reply->url(), data.toUtf8(), true);
 }

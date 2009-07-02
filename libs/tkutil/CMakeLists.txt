@@ -21,8 +21,6 @@ set(tkutil_SRCS
 	FindFiles.cpp
 	TkFile.cpp
 	Random.cpp
-	TkTextBrowser.cpp
-	SyncHttp.cpp
 	TkTime.cpp
 	FileChooserWidget.cpp
 	ScreenSaver.cpp
@@ -36,8 +34,6 @@ qt4_wrap_cpp(tkutil_SRCS
 	EventFilter.h
 	TkConfig.h
 	FindFiles.h
-	TkTextBrowser.h
-	SyncHttp.h
 	FileChooserWidget.h
 	SearchLineEdit.h
 	LineEdit.h

@@ -47,7 +47,7 @@ public:
 
 	~AmazonCoverArt();
 
-	bool start(const ContentFetcherTrack & track, const QString & language = QString());
+	void start(const ContentFetcherTrack & track, const QString & language = QString());
 
 private slots:
 

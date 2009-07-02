@@ -57,14 +57,24 @@ MediaDataWidget::MediaDataWidget(QWidget * parent)
 	_ui = new Ui::MediaDataWidget();
 	_ui->setupUi(this);
 
-	_mediaInfoWindow = new MediaInfoWindow(QApplication::activeWindow());
-	connect(_ui->coverArtButton, SIGNAL(clicked()), _mediaInfoWindow, SLOT(show()));
+	_mediaInfoWindow = NULL;
+	connect(_ui->coverArtButton, SIGNAL(clicked()), SLOT(showMediaInfoWindow()));
 
 	RETRANSLATE(this);
 	retranslate();
 }
 
 MediaDataWidget::~MediaDataWidget() {
+}
+
+void MediaDataWidget::showMediaInfoWindow() {
+	if (!_mediaInfoWindow) {
+		//Lazy initialization
+		_mediaInfoWindow = new MediaInfoWindow(QApplication::activeWindow());
+	}
+	_mediaInfoWindow->setMediaInfoFetcher(_mediaInfoFetcher);
+	_mediaInfoWindow->setLanguage(Config::instance().language());
+	_mediaInfoWindow->show();
 }
 
 void MediaDataWidget::startMediaInfoFetcher(Phonon::MediaObject * mediaObject) {
@@ -82,8 +92,6 @@ void MediaDataWidget::startMediaInfoFetcher(Phonon::MediaObject * mediaObject) {
 		_mediaInfoFetcher->start(MediaInfo(mediaSource.fileName()),
 			MediaInfoFetcher::ReadStyleAccurate);
 	}
-	_mediaInfoWindow->setMediaInfoFetcher(_mediaInfoFetcher);
-	_mediaInfoWindow->setLanguage(Config::instance().language());
 	if (_mediaInfoFetcher->mediaInfo().fetched()) {
 		updateMediaInfo();
 	}
@@ -263,10 +271,10 @@ void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist
 			if (!_coverArtFetcher) {
 				//Lazy initialization
 				_coverArtFetcher = new AmazonCoverArt(AMAZON_WEB_SERVICE_ACCESS_KEY_ID, AMAZON_WEB_SERVICE_SECRET_KEY, this);
-				connect(_coverArtFetcher, SIGNAL(contentFound(const QByteArray &, bool, const ContentFetcherTrack &)),
-					SLOT(coverArtFound(const QByteArray &, bool, const ContentFetcherTrack &)));
-				connect(_coverArtFetcher, SIGNAL(networkError(QNetworkReply::NetworkError, const ContentFetcherTrack &)),
-					SLOT(coverArtNetworkError(QNetworkReply::NetworkError, const ContentFetcherTrack &)));
+				connect(_coverArtFetcher,
+					SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, bool, const ContentFetcherTrack &)),
+					SLOT(coverArtFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, bool, const ContentFetcherTrack &))
+				);
 			}
 			ContentFetcherTrack track;
 			track.artist = artist;
@@ -287,41 +295,43 @@ void MediaDataWidget::loadCoverArt(const QString & album, const QString & artist
 	updateCoverArtPixmap();
 }
 
-void MediaDataWidget::coverArtFound(const QByteArray & coverArt, bool accurate, const ContentFetcherTrack & track) {
-	//Check if the cover art received does match the current album playing
-	//network replies can be too long
-	if ((_currentAlbum != track.album) || !accurate) {
-		return;
-	}
+void MediaDataWidget::coverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & coverArt,
+	bool accurate, const ContentFetcherTrack & track) {
 
-	//Saves the downloaded cover art to a file
-	QFile coverArtFile(_amazonCoverArtPath);
-	if (coverArtFile.open(QIODevice::WriteOnly)) {
-		//The file could be opened
-		qint64 ret = coverArtFile.write(coverArt);
-		if (ret != -1) {
-			//The file could be written
-			coverArtFile.close();
+	if (error == QNetworkReply::NoError) {
+		//Check if the cover art received does match the current album playing
+		//network replies can be too long
+		if ((_currentAlbum != track.album) || !accurate) {
+			return;
+		}
 
-			showCoverArtStatusMessage(tr("Amazon cover art downloaded: ") + _amazonCoverArtPath);
+		//Saves the downloaded cover art to a file
+		QFile coverArtFile(_amazonCoverArtPath);
+		if (coverArtFile.open(QIODevice::WriteOnly)) {
+			//The file could be opened
+			qint64 ret = coverArtFile.write(coverArt);
+			if (ret != -1) {
+				//The file could be written
+				coverArtFile.close();
 
-			_coverArtList << _amazonCoverArtPath;
+				showCoverArtStatusMessage(tr("Amazon cover art downloaded: ") + _amazonCoverArtPath + " " + url.toString());
+
+				_coverArtList << _amazonCoverArtPath;
+			} else {
+				qCritical() << __FUNCTION__ << "Error: cover art file couldn't be written:" << _amazonCoverArtPath;
+			}
 		} else {
-			qCritical() << __FUNCTION__ << "Error: cover art file couldn't be written:" << _amazonCoverArtPath;
+			qCritical() << __FUNCTION__ << "Error: cover art file couldn't be opened:" << _amazonCoverArtPath;
 		}
 	} else {
-		qCritical() << __FUNCTION__ << "Error: cover art file couldn't be opened:" << _amazonCoverArtPath;
-	}
-}
+		//Check if the cover art received does match the current album playing
+		//network replies can be too long
+		if ((_currentAlbum != track.album)) {
+			return;
+		}
 
-void MediaDataWidget::coverArtNetworkError(QNetworkReply::NetworkError errorCode, const ContentFetcherTrack & track) {
-	//Check if the cover art received does match the current album playing
-	//network replies can be too long
-	if ((_currentAlbum != track.album)) {
-		return;
+		showCoverArtStatusMessage(tr("Amazon cover art error: ") + ContentFetcher::errorString(error) + " " + url.toString());
 	}
-
-	showCoverArtStatusMessage(tr("Amazon cover art error: ") + ContentFetcher::errorString(errorCode));
 }
 
 void MediaDataWidget::showCoverArtStatusMessage(const QString & message) const {

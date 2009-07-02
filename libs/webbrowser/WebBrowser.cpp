@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,8 @@
 
 #include "WebBrowser.h"
 
-#include <tkutil/TkTextBrowser.h>
+#include "TkTextBrowser.h"
+
 #include <tkutil/ActionCollection.h>
 
 #include <QtGui/QtGui>
@@ -112,6 +113,10 @@ void WebBrowser::setHtml(const QString & text) {
 
 void WebBrowser::setSource(const QUrl & name) {
 	_textBrowser->setSource(name);
+}
+
+void WebBrowser::setSourceWithoutLoading(const QUrl & name) {
+	_lineEdit->setText(name.toString());
 }
 
 void WebBrowser::clear() {
