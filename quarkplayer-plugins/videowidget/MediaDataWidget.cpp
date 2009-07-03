@@ -28,7 +28,8 @@
 #include <tkutil/SqueezeLabel.h>
 
 #include <mediainfowindow/MediaInfoWindow.h>
-#include <mediainfowindow/MediaInfoFetcher.h>
+
+#include <mediainfofetcher/MediaInfoFetcher.h>
 
 #include <contentfetcher/AmazonCoverArt.h>
 

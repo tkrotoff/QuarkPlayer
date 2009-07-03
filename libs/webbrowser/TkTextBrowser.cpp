@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,32 @@ TkTextBrowser::TkTextBrowser(QWidget * parent)
 }
 
 TkTextBrowser::~TkTextBrowser() {
+	clearCache();
+}
+
+void TkTextBrowser::setHtml(const QString & text) {
+	clearCache();
+	QTextBrowser::setHtml(text);
+}
+
+void TkTextBrowser::setPlainText(const QString & text) {
+	clearCache();
+	QTextBrowser::setPlainText(text);
+}
+
+void TkTextBrowser::setText(const QString & text) {
+	clearCache();
+	QTextBrowser::setText(text);
+}
+
+void TkTextBrowser::setSource(const QUrl & name) {
+	clearCache();
+	QTextBrowser::setSource(name);
+}
+
+void TkTextBrowser::clearCache() {
+	_resourceMap.clear();
+	_cacheMap.clear();
 }
 
 void TkTextBrowser::setCSSEnabled(bool enabled) {

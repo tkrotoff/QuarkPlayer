@@ -28,7 +28,8 @@
 #include <quarkplayer-plugins/playlist/PlaylistWidget.h>
 
 #include <mediainfowindow/MediaInfoWindow.h>
-#include <mediainfowindow/MediaInfoFetcher.h>
+
+#include <mediainfofetcher/MediaInfoFetcher.h>
 
 #include <tkutil/LanguageChangeEventFilter.h>
 #include <tkutil/TkIcon.h>

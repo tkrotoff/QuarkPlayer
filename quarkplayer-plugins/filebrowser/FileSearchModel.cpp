@@ -20,7 +20,7 @@
 
 #include "FileSearchItem.h"
 
-#include <mediainfowindow/MediaInfoFetcher.h>
+#include <mediainfofetcher/MediaInfoFetcher.h>
 
 #include <filetypes/FileTypes.h>
 

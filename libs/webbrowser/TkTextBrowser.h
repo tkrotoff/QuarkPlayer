@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,13 @@ public:
 
 	void setCSSEnabled(bool enabled);
 
+public slots:
+
+	void setHtml(const QString & text);
+	void setPlainText(const QString & text);
+	void setText(const QString & text);
+	void setSource(const QUrl & name);
+
 private slots:
 
 	void requestFinished(int id, bool error);
@@ -53,6 +60,9 @@ private slots:
 private:
 
 	bool requestAlreadyLaunched(const QUrl & resourceName) const;
+
+	/** Clears _resourceMap and _cacheMap. */
+	void clearCache();
 
 	/** Performs asynchronous downloads. */
 	QHttp * _httpDownloader;

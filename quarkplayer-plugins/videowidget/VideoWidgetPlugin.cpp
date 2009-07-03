@@ -27,7 +27,7 @@
 
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
-#include <mediainfowindow/MediaInfoFetcher.h>
+#include <mediainfofetcher/MediaInfoFetcher.h>
 
 #include <tkutil/MouseEventFilter.h>
 #include <tkutil/CloseEventFilter.h>
@@ -81,17 +81,18 @@ void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldSt
 
 	VideoContainer * container = _mediaObjectHash.value(quarkPlayer().currentMediaObject());
 
-	//Remove the background logo, not needed anymore
-	if (container->backgroundLogoWidget) {
-		delete container->backgroundLogoWidget;
-		container->backgroundLogoWidget = NULL;
-	}
-
 	if (oldState == Phonon::LoadingState) {
 		//Resize the main window to the size of the video
 		//i.e increase or decrease main window size if needed
 		hasVideoChanged(quarkPlayer().currentMediaObject()->hasVideo());
 	}
+}
+
+void VideoWidgetPlugin::finished() {
+	VideoContainer * container = _mediaObjectHash.value(quarkPlayer().currentMediaObject());
+	container->videoWidget->leaveFullScreenSlot();
+	container->videoDockWidget->setWidget(container->backgroundLogoWidget);
+	qDebug() << __FUNCTION__ << container->backgroundLogoWidget;
 }
 
 void VideoWidgetPlugin::hasVideoChanged(bool hasVideo) {
@@ -101,6 +102,12 @@ void VideoWidgetPlugin::hasVideoChanged(bool hasVideo) {
 	//i.e increase or decrease main window size if needed
 	if (hasVideo) {
 		container->videoWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+		QSize maxSize = container->videoWidget->maximumSize();
+		QRect availableGeometry = QApplication::desktop()->availableGeometry();
+		//container->videoWidget->setMaximumSize(200, 200);
+		//availableGeometry.width(), availableGeometry.height());
+
 		if (container->videoDockWidget->widget() != container->videoWidget) {
 			container->videoDockWidget->setWidget(container->videoWidget);
 		}
@@ -135,6 +142,7 @@ void VideoWidgetPlugin::metaDataChanged() {
 void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(stateChanged(Phonon::State, Phonon::State)));
+	connect(mediaObject, SIGNAL(finished()), SLOT(finished()));
 	connect(mediaObject, SIGNAL(hasVideoChanged(bool)), SLOT(hasVideoChanged(bool)));
 	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
 
@@ -149,6 +157,7 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	logo->setupUi(container->backgroundLogoWidget);
 	container->backgroundLogoWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 	container->videoDockWidget->setWidget(container->backgroundLogoWidget);
+	///
 
 	//mediaDataWidget
 	container->mediaDataWidget = new MediaDataWidget(NULL);

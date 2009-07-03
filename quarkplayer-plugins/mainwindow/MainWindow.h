@@ -111,9 +111,6 @@ public slots:
 	 */
 	void play(const Phonon::MediaSource & mediaSource);
 
-	/** Adds a file to the list of recent files that have been played. */
-	void addFileToRecentFilesMenu(const Phonon::MediaSource & mediaSource);
-
 private slots:
 
 	void reportBug();
@@ -125,10 +122,6 @@ private slots:
 	void playDVD();
 	void playURL();
 	void playVCD();
-
-	void addRecentFilesToMenu();
-	void playRecentFile(int id);
-	void clearRecentFiles();
 
 	void updateWindowTitle();
 
@@ -159,7 +152,6 @@ private:
 	void closeEvent(QCloseEvent * event);
 
 	TkToolBar * _mainToolBar;
-	QMenu * _menuRecentFiles;
 	QMenu * _menuFile;
 	QMenu * _menuPlay;
 	QMenu * _menuAudio;

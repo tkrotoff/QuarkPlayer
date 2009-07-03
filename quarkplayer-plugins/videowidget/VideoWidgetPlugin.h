@@ -55,7 +55,15 @@ public:
 
 private slots:
 
+	/** The MediaObject changed its state. */
 	void stateChanged(Phonon::State newState, Phonon::State oldState);
+
+	/**
+	 * The MediaObject finished to play.
+	 *
+	 * Leave the fullscreen mode if any.
+	 */
+	void finished();
 
 	void hasVideoChanged(bool hasVideo);
 

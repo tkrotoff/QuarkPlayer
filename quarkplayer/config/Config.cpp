@@ -93,6 +93,8 @@ Config::Config()
 	addKey(LAST_VOLUME_USED_KEY, 1.0f);
 	addKey(VOLUME_MUTED_KEY, false);
 	addKey(MAINWINDOW_GEOMETRY_KEY, QByteArray());
+
+	addKey(ALLOW_MULTIPLE_INSTANCES_KEY, false);
 }
 
 Config::~Config() {

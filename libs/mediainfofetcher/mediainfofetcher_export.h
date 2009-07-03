@@ -21,7 +21,7 @@
 
 #include <QtCore/QtGlobal>
 
-#ifdef BUILD_MEDIAINFOFETCHE
+#ifdef BUILD_MEDIAINFOFETCHER
 	//We are building this library
 	#define MEDIAINFOFETCHER_API Q_DECL_EXPORT
 #else

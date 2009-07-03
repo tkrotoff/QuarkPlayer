@@ -26,8 +26,9 @@
 
 #include <quarkplayer-plugins/configwindow/PlaylistConfig.h>
 
+#include <mediainfofetcher/MediaInfoFetcher.h>
+
 #include <mediainfowindow/MediaInfoWindow.h>
-#include <mediainfowindow/MediaInfoFetcher.h>
 
 #include <tkutil/TkIcon.h>
 #include <tkutil/TkAction.h>

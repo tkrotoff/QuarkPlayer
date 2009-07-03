@@ -20,7 +20,7 @@
 
 #include "IPlaylistParser.h"
 
-#include <mediainfowindow/MediaInfo.h>
+#include <mediainfofetcher/MediaInfo.h>
 
 #include <QtCore/QDebug>
 

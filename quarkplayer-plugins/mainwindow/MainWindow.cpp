@@ -85,8 +85,6 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	//DockWidgets tabs are vertical like in Amarok
 	setDockOptions(QMainWindow::VerticalTabs);
 
-	addRecentFilesToMenu();
-
 	_playToolBar = NULL;
 	_statusBar = NULL;
 
@@ -150,55 +148,6 @@ QStatusBar * MainWindow::statusBar() const {
 	return _statusBar;
 }
 
-void MainWindow::addRecentFilesToMenu() {
-	connect(ActionCollection::action("MainWindow.ClearRecentFiles"), SIGNAL(triggered()), SLOT(clearRecentFiles()));
-
-	QStringList recentFiles = Config::instance().recentFiles();
-	if (!recentFiles.isEmpty()) {
-
-		_menuRecentFiles->clear();
-
-		QSignalMapper * signalMapper = new QSignalMapper(this);
-
-		for (int i = 0; i < recentFiles.size(); i++) {
-			QString filename = recentFiles[i];
-			QUrl url(filename);
-			if (url.host().isEmpty()) {
-				//Then we have a local file and not a real url (i.e "http://blabla")
-				filename = QFileInfo(filename).fileName();
-				filename = filename.right(filename.length() - filename.lastIndexOf(QDir::separator()) - 1);
-			}
-
-			QAction * action = _menuRecentFiles->addAction(filename, signalMapper, SLOT(map()));
-			signalMapper->setMapping(action, i);
-		}
-
-		connect(signalMapper, SIGNAL(mapped(int)),
-			SLOT(playRecentFile(int)));
-	} else {
-		_menuRecentFiles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
-	}
-
-	_menuRecentFiles->addSeparator();
-	_menuRecentFiles->addAction(ActionCollection::action("MainWindow.ClearRecentFiles"));
-}
-
-void MainWindow::playRecentFile(int id) {
-	QStringList recentFiles = Config::instance().recentFiles();
-	play(recentFiles[id]);
-}
-
-void MainWindow::clearRecentFiles() {
-	//Clear recent files menu
-	_menuRecentFiles->clear();
-	_menuRecentFiles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
-	_menuRecentFiles->addSeparator();
-	_menuRecentFiles->addAction(ActionCollection::action("MainWindow.ClearRecentFiles"));
-
-	//Clear recent files configuration
-	Config::instance().setValue(Config::RECENT_FILES_KEY, QStringList());
-}
-
 void MainWindow::playFile() {
 	QStringList filenames = TkFileDialog::getOpenFileNames(
 		this, tr("Select Audio/Video File"), Config::instance().lastDirOpened(),
@@ -252,38 +201,8 @@ void MainWindow::playVCD() {
 }
 
 void MainWindow::play(const Phonon::MediaSource & mediaSource) {
-	addFileToRecentFilesMenu(mediaSource);
 	quarkPlayer().play(mediaSource);
 	//_statusBar->showMessage(tr("Processing") + " " + filename + "...");
-}
-
-void MainWindow::addFileToRecentFilesMenu(const Phonon::MediaSource & mediaSource) {
-	static const int MAX_RECENT_FILES = 10;
-
-	QString filename = mediaSource.fileName();
-	if (filename.isEmpty()) {
-		//filename is not a local file, so maybe an url
-		//it can be a DVD too, but then we don't add it the list of recent files
-		filename = mediaSource.url().toString();
-	}
-
-	//Add the file to the list of recent files opened
-	if (!filename.isEmpty()) {
-		//filename is either a local file or an url
-		//We don't add other types of media inside the list of recent files opened
-		QStringList recentFiles = Config::instance().recentFiles();
-		if (recentFiles.contains(filename)) {
-			recentFiles.removeAll(filename);
-		}
-		recentFiles.prepend(filename);
-		if (recentFiles.size() > MAX_RECENT_FILES) {
-			recentFiles.removeLast();
-		}
-
-		Config::instance().setValue(Config::RECENT_FILES_KEY, recentFiles);
-
-		addRecentFilesToMenu();
-	}
 }
 
 void MainWindow::updateWindowTitle() {
@@ -324,7 +243,6 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("MainWindow.NewMediaObject", new QAction(app));
 	ActionCollection::addAction("MainWindow.Equalizer", new TkAction(app, tr("Ctrl+E")));
 	ActionCollection::addAction("MainWindow.Configure", new QAction(app));
-	ActionCollection::addAction("MainWindow.ClearRecentFiles", new QAction(app));
 	ActionCollection::addAction("MainWindow.EmptyMenu", new QAction(app));
 
 	TkAction * action = new TkAction(app, tr("Space"), Qt::Key_MediaPlay, Qt::Key_Pause);
@@ -402,8 +320,6 @@ void MainWindow::setupUi() {
 	_menuFile = new QMenu();
 	menuBar()->addMenu(_menuFile);
 	_menuFile->addAction(ActionCollection::action("MainWindow.OpenFile"));
-	_menuRecentFiles = new QMenu();
-	_menuFile->addMenu(_menuRecentFiles);
 	_menuFile->addAction(ActionCollection::action("MainWindow.OpenDVD"));
 	_menuFile->addAction(ActionCollection::action("MainWindow.OpenURL"));
 	_menuFile->addAction(ActionCollection::action("MainWindow.OpenVCD"));
@@ -501,17 +417,11 @@ void MainWindow::retranslate() {
 	ActionCollection::action("MainWindow.Configure")->setText(tr("&Configure QuarkPlayer..."));
 	ActionCollection::action("MainWindow.Configure")->setIcon(TkIcon("preferences-system"));
 
-	ActionCollection::action("MainWindow.ClearRecentFiles")->setText(tr("&Clear"));
-	ActionCollection::action("MainWindow.ClearRecentFiles")->setIcon(TkIcon("edit-delete"));
-
 	ActionCollection::action("MainWindow.EmptyMenu")->setText(tr("<empty>"));
 	ActionCollection::action("MainWindow.EmptyMenu")->setEnabled(false);
 
 	_mainToolBar->setWindowTitle(tr("Main ToolBar"));
 	_mainToolBar->setMinimumSize(_mainToolBar->sizeHint());
-
-	_menuRecentFiles->setTitle(tr("&Recent Files"));
-	_menuRecentFiles->setIcon(TkIcon("document-open-recent"));
 
 	_menuFile->setTitle(tr("&File"));
 	_menuPlay->setTitle(tr("&Play"));

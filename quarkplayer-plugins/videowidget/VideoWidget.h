@@ -51,11 +51,14 @@ public:
 
 	~VideoWidget();
 
+public slots:
+
+	void leaveFullScreenSlot();
+
 private slots:
 
 	void setFullScreenSlot(bool fullScreen);
 	void enterFullScreenSlot();
-	void leaveFullScreenSlot();
 
 	void playToolBarAdded(QToolBar * playToolBar);
 	void statusBarAdded(QStatusBar * statusBar);
