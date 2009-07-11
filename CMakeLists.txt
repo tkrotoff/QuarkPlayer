@@ -23,7 +23,7 @@ set(QUARKPLAYER_VERSION
 if (WIN32)
 	set(QUARKPLAYER_BINARY_NAME quarkplayer.exe)
 endif (WIN32)
-#set(QUARKPLAYER_SVN_REPOSITORY "http://phonon-vlc-mplayer.googlecode.com/svn/trunk/")
+#set(QUARKPLAYER_SVN_REPOSITORY "http://quarkplayer.googlecode.com/svn/trunk/")
 set(QUARKPLAYER_DESCRIPTION_SUMMARY "QuarkPlayer, a Phonon media player")
 set(QUARKPLAYER_DESCRIPTION
 " QuarkPlayer is a multimedia application that plays your music and videos.
@@ -33,7 +33,7 @@ set(QUARKPLAYER_DESCRIPTION
  Linux and soon Mac OS X."
 )
 set(QUARKPLAYER_AUTHORS "QuarkPlayer Team")
-set(QUARKPLAYER_URL "http://phonon-vlc-mplayer.googlecode.com/")
+set(QUARKPLAYER_URL "http://quarkplayer.googlecode.com/")
 set(QUARKPLAYER_COPYRIGHT "Copyright (C) 2008-2009  Tanguy Krotoff")
 set(QUARKPLAYER_LICENSE_FILE ${CMAKE_SOURCE_DIR}/COPYING)
 set(QUARKPLAYER_PACKAGE_FILE quarkplayer-${QUARKPLAYER_VERSION}-rev${SVN_REVISION}-${BUILD_NAME})

@@ -25,7 +25,7 @@
  * End of line character should be LF (UNIX) instead of CR LF (Windows) or CR (MacOS).
  * Code documentation should be inside header files using the javadoc standard.
  *
- * @see http://code.google.com/p/phonon-vlc-mplayer/wiki/CodeConventions
+ * @see http://code.google.com/p/quarkplayer/wiki/CodeConventions
  * @author Tanguy Krotoff
  */
 class LGPLHeaderTemplate {

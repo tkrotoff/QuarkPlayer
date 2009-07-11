@@ -13,7 +13,7 @@
 ;!define BINARY_NAME "quarkplayer.exe"
 ;!define PRODUCT_DESCRIPTION "QuarkPlayer, a Phonon media player"
 ;!define PRODUCT_PUBLISHER "QuarkPlayer Team"
-;!define PRODUCT_URL "http://phonon-vlc-mplayer.googlecode.com/"
+;!define PRODUCT_URL "http://quarkplayer.googlecode.com/"
 ;!define PRODUCT_COPYRIGHT "Copyright (C) 2008-2009 Tanguy Krotoff"
 ;!define PRODUCT_LICENSE_FILE "../COPYING"
 ;!define COMPILER_NAME "MSVC80"

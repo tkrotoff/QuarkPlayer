@@ -216,11 +216,11 @@ void MainWindow::updateWindowTitle() {
 }
 
 void MainWindow::reportBug() {
-	QDesktopServices::openUrl(QUrl("http://code.google.com/p/phonon-vlc-mplayer/issues/list"));
+	QDesktopServices::openUrl(QUrl("http://code.google.com/p/quarkplayer/issues/list"));
 }
 
 void MainWindow::showMailingList() {
-	QDesktopServices::openUrl(QUrl("http://groups.google.com/group/phonon-vlc-mplayer"));
+	QDesktopServices::openUrl(QUrl("http://groups.google.com/group/quarkplayer"));
 }
 
 void MainWindow::about() {

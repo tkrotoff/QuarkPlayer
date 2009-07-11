@@ -5,7 +5,7 @@
 # if you don't have it already
 #
 # Example:
-# svn_export(http://phonon-vlc-mplayer.googlecode.com/svn/trunk/ ${CMAKE_BINARY_DIR}/quarkplayer-svn-export)
+# svn_export(http://quarkplayer.googlecode.com/svn/trunk/ ${CMAKE_BINARY_DIR}/quarkplayer-svn-export)
 #
 # Copyright (C) 2009  Tanguy Krotoff <tkrotoff@gmail.com>
 #
