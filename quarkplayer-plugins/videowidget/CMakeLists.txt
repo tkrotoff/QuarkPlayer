@@ -18,7 +18,6 @@ qt4_wrap_cpp(videowidget_SRCS
 
 qt4_wrap_ui(videowidget_SRCS
 	BackgroundLogoWidget.ui
-	MediaDataWidget.ui
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 

@@ -23,8 +23,7 @@
 
 #include <QtGui/QDialog>
 
-namespace Ui { class OSDWidget; }
-
+class MediaInfoWidget;
 class MediaInfoFetcher;
 
 namespace Phonon {
@@ -59,24 +58,15 @@ private slots:
 
 	void mediaObjectAdded(Phonon::MediaObject * mediaObject);
 
-	void updateCoverArtPixmap();
-
 private:
+
+	void setupUi();
 
 	void startMediaInfoFetcher(Phonon::MediaObject * mediaObject);
 
-	void loadCoverArts();
-
-	Ui::OSDWidget * _ui;
+	MediaInfoWidget * _mediaInfoWidget;
 
 	MediaInfoFetcher * _mediaInfoFetcher;
-
-	/** Timer to switch the cover art picture. */
-	QTimer * _coverArtSwitchTimer;
-
-	/** List of cover art filenames. */
-	QList<QString> _coverArtList;
-	int _currentCoverArtIndex;
 };
 
 #include <quarkplayer/PluginFactory.h>

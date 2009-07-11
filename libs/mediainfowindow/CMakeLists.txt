@@ -4,10 +4,12 @@ add_definitions(-DBUILD_MEDIAINFOWINDOW)
 
 set(mediainfowindow_SRCS
 	MediaInfoWindow.cpp
+	MediaInfoWidget.cpp
 )
 
 qt4_wrap_cpp(mediainfowindow_SRCS
 	MediaInfoWindow.h
+	MediaInfoWidget.h
 )
 
 qt4_wrap_ui(mediainfowindow_SRCS

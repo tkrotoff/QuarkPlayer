@@ -19,17 +19,14 @@
 #ifndef MEDIADATAWIDGET_H
 #define MEDIADATAWIDGET_H
 
-#include <QtGui/QWidget>
+#include <mediainfowindow/MediaInfoWidget.h>
 
 #include <QtCore/QList>
 
 //Included because of enum QNetworkReply::NetworkError
 #include <QtNetwork/QNetworkReply>
 
-namespace Ui {
-	class MediaDataWidget;
-}
-
+class MediaInfo;
 class MediaInfoWindow;
 class MediaInfoFetcher;
 class AmazonCoverArt;
@@ -49,7 +46,7 @@ class QTimer;
  *
  * @author Tanguy Krotoff
  */
-class MediaDataWidget : public QWidget {
+class MediaDataWidget : public MediaInfoWidget {
 	Q_OBJECT
 public:
 
@@ -70,16 +67,12 @@ private slots:
 	void coverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & coverArt,
 		bool accurate, const ContentFetcherTrack & track);
 
-	void updateCoverArtPixmap();
-
 private:
 
-	void loadCoverArt(const QString & album, const QString & artist, const QString & amazonASIN);
+	void downloadAmazonCoverArt(const MediaInfo & mediaInfo);
 
 	/** Shows a status message about the cover art downloading. */
 	void showCoverArtStatusMessage(const QString & message) const;
-
-	Ui::MediaDataWidget * _ui;
 
 	MediaInfoWindow * _mediaInfoWindow;
 
@@ -87,18 +80,11 @@ private:
 
 	AmazonCoverArt * _coverArtFetcher;
 
-	/** Timer to switch the cover art picture. */
-	QTimer * _coverArtSwitchTimer;
-
-	/** List of cover art filenames. */
-	QList<QString> _coverArtList;
-	int _currentCoverArtIndex;
-
 	/**
 	 * Current album.
 	 *
 	 * Used to avoid a bug: writing a cover art inside the wrong
-	 * directory due to network lag.
+	 * directory due to network lag since HTTP requests are asynchronous.
 	 */
 	QString _currentAlbum;
 

@@ -12,11 +12,6 @@ qt4_wrap_cpp(osd_SRCS
 	OSDWidget.h
 )
 
-qt4_wrap_ui(osd_SRCS
-	OSDWidget.ui
-)
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
 if (STATICPLUGINS)
 	add_library(osd STATIC ${osd_SRCS})
 else (STATICPLUGINS)
