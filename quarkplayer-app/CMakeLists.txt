@@ -75,6 +75,7 @@ if (STATICPLUGINS)
 		quicksettings
 		statusbar
 		videowidget
+		osd
 	)
 endif (STATICPLUGINS)
 

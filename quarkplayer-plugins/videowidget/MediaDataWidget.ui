@@ -17,8 +17,8 @@
    <item row="0" column="0">
     <widget class="QToolButton" name="coverArtButton">
      <property name="icon">
-      <iconset>
-       <normaloff>:/icons/hi128-app-quarkplayer.png</normaloff>:/icons/hi128-app-quarkplayer.png</iconset>
+      <iconset resource="../../quarkplayer-app/quarkplayer.qrc">
+       <normaloff>:/icons/quarkplayer-128x128.png</normaloff>:/icons/quarkplayer-128x128.png</iconset>
      </property>
      <property name="iconSize">
       <size>

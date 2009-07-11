@@ -23,15 +23,14 @@
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer-plugins/mainwindow/MainWindow.h>
 
-#include <tkutil/MouseEventFilter.h>
-#include <tkutil/LanguageChangeEventFilter.h>
-#include <tkutil/SqueezeLabel.h>
-
 #include <mediainfowindow/MediaInfoWindow.h>
-
 #include <mediainfofetcher/MediaInfoFetcher.h>
 
 #include <contentfetcher/AmazonCoverArt.h>
+
+#include <tkutil/MouseEventFilter.h>
+#include <tkutil/LanguageChangeEventFilter.h>
+#include <tkutil/SqueezeLabel.h>
 
 #include <phonon/mediaobject.h>
 

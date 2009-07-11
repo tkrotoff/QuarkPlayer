@@ -1,0 +1,23 @@
+<ASX version="3.0">
+<repeat>
+
+	<entry>
+		<ref href="http://205.188.214.184:8420" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?lush"/>
+		<Abstract>Loading: Lush from SomaFM.com</abstract> 
+		<Title>SomaFM: Lush</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://voxsc1.somafm.com:8800" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?lush"/>
+		<Abstract>Loading: Lush from SomaFM.com</abstract> 
+		<Title>SomaFM: Lush</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+</repeat>
+</ASX>

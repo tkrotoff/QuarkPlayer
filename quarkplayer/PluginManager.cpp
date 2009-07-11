@@ -340,7 +340,8 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 	}
 	///
 
-	QCoreApplication::processEvents();
+	//Wait for the plugin to be completely loaded graphically
+	//QCoreApplication::processEvents();
 
 	return loaded;
 }

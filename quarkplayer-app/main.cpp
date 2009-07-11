@@ -50,6 +50,7 @@
 	Q_IMPORT_PLUGIN(quicksettings)
 	Q_IMPORT_PLUGIN(statusbar)
 	Q_IMPORT_PLUGIN(videowidget)
+	Q_IMPORT_PLUGIN(osd)
 #endif	//STATICPLUGINS
 
 int main(int argc, char * argv[]) {

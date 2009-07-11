@@ -82,5 +82,4 @@ AboutWindow::AboutWindow(QWidget * parent)
 }
 
 AboutWindow::~AboutWindow() {
-	delete _ui;
 }

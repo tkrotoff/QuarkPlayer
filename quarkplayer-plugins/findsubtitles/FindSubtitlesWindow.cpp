@@ -204,8 +204,8 @@ void FindSubtitlesWindow::download(const QUrl & url) {
 	QNetworkReply * reply = _networkManager->get(QNetworkRequest(url));
 	connect(reply, SIGNAL(downloadProgress(qint64, qint64)),
 		SLOT(downloadProgress(qint64, qint64)));
-	connect(reply, SIGNAL(finished()),
-		SLOT(downloadFinished()));
+	connect(_networkManager, SIGNAL(finished(QNetworkReply *)),
+		SLOT(downloadFinished(QNetworkReply *)));
 }
 
 void FindSubtitlesWindow::currentItemChanged(const QModelIndex & current, const QModelIndex & /*previous*/) {
@@ -242,9 +242,7 @@ void FindSubtitlesWindow::downloadProgress(qint64 bytesReceived, qint64 bytesTot
 	_ui->progressBar->show();
 }
 
-void FindSubtitlesWindow::downloadFinished() {
-	QNetworkReply * reply = qobject_cast<QNetworkReply *>(sender());
-
+void FindSubtitlesWindow::downloadFinished(QNetworkReply * reply) {
 	QNetworkReply::NetworkError error = reply->error();
 	QUrl url = reply->url();
 
@@ -272,7 +270,7 @@ void FindSubtitlesWindow::downloadFinished() {
 	}
 
 	default:
-		_ui->statusLabel->setText(tr("Error: download failed: %1").arg(error));
+		_ui->statusLabel->setText(tr("Error: download failed, network error: %1").arg(error));
 		qCritical() << __FUNCTION__ << "Network error:" << error;
 		break;
 	}
@@ -321,7 +319,7 @@ void FindSubtitlesWindow::parseXml(const QByteArray & xml) {
 		_model->sort(_ui->treeView->header()->sortIndicatorSection(),
 			_ui->treeView->header()->sortIndicatorOrder());
 	} else {
-		_ui->statusLabel->setText(tr("Failed to parse the received data."));
+		_ui->statusLabel->setText(tr("Failed to parse the received data"));
 	}
 }
 

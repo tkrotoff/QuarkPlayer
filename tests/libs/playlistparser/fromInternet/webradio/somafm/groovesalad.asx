@@ -1,0 +1,167 @@
+<ASX version="3.0">
+<repeat>
+
+	<entry>
+		<ref href="http://streamer-ntc-aa01.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-ntc-aa04.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-mtc-aa02.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-mtc-aa04.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-dtc-aa03.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-ntc-aa06.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-dtc-aa02.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-dtc-aa01.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-mtc-aa01.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-dtc-aa05.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-mtc-aa05.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-dtc-aa04.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-ntc-aa05.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-ntc-aa02.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-ntc-aa07.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-ntc-aa03.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://streamer-mtc-aa03.somafm.com:80/stream/1018" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+	<entry>
+		<ref href="http://voxsc1.somafm.com:8032" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?groovesalad"/>
+		<Abstract>Loading: Groove Salad from SomaFM.com</abstract> 
+		<Title>SomaFM: Groove Salad</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+</repeat>
+</ASX>

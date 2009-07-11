@@ -76,8 +76,6 @@ private:
 
 	void loadCoverArt(const QString & album, const QString & artist, const QString & amazonASIN);
 
-	void setCoverArtPixmap(const QFile & coverArtFile);
-
 	/** Shows a status message about the cover art downloading. */
 	void showCoverArtStatusMessage(const QString & message) const;
 
@@ -89,8 +87,10 @@ private:
 
 	AmazonCoverArt * _coverArtFetcher;
 
+	/** Timer to switch the cover art picture. */
 	QTimer * _coverArtSwitchTimer;
 
+	/** List of cover art filenames. */
 	QList<QString> _coverArtList;
 	int _currentCoverArtIndex;
 

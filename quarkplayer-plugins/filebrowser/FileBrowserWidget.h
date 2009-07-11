@@ -100,7 +100,7 @@ public:
 
 	QString name() const { return PLUGIN_NAME; }
 	QStringList dependencies() const;
-	QString description() const { return tr("Add a left file browser panel"); }
+	QString description() const { return tr("File browser panel"); }
 	QString version() const { return "0.0.1"; }
 	QString url() const { return "http://quarkplayer.googlecode.com/"; }
 	QString vendor() const { return "Tanguy Krotoff"; }

@@ -1,0 +1,14 @@
+<ASX version="3.0">
+<repeat>
+
+	<entry>
+		<ref href="http://voxsc1.somafm.com:8900" />
+		<PARAM name="HTMLView" value="http://somafm.com/wma128/?digitalis"/>
+		<Abstract>Loading: Digitalis from SomaFM.com</abstract> 
+		<Title>SomaFM: Digitalis</Title> 
+		<Author>Support SomaFM at http://somafm.com/support and keep commercial free radio alive.</Author>
+	</entry>
+
+
+</repeat>
+</ASX>

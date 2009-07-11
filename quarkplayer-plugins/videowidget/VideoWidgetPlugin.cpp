@@ -102,12 +102,6 @@ void VideoWidgetPlugin::hasVideoChanged(bool hasVideo) {
 	//i.e increase or decrease main window size if needed
 	if (hasVideo) {
 		container->videoWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-
-		QSize maxSize = container->videoWidget->maximumSize();
-		QRect availableGeometry = QApplication::desktop()->availableGeometry();
-		//container->videoWidget->setMaximumSize(200, 200);
-		//availableGeometry.width(), availableGeometry.height());
-
 		if (container->videoDockWidget->widget() != container->videoWidget) {
 			container->videoDockWidget->setWidget(container->videoWidget);
 		}
