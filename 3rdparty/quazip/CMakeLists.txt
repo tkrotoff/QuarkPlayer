@@ -16,7 +16,8 @@ qt4_wrap_cpp(quazip_SRCS
 add_library(quazip STATIC ${quazip_SRCS})
 
 target_link_libraries(quazip
-	${QT_QTCORE_LIBRARY}
 	${ZLIB_LIBRARY}
 	${MINIZIP_LIBRARY}
+
+	${QT_QTCORE_LIBRARY}
 )

@@ -1,6 +1,7 @@
 project(findsubtitles)
 
 include_directories(${ZLIB_INCLUDE_DIR})
+include_directories(${MINIZIP_INCLUDE_DIR})
 
 if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
@@ -33,9 +34,7 @@ endif (STATICPLUGINS)
 
 target_link_libraries(findsubtitles
 	quarkplayercore
-
 	mainwindow
-
 	tkutil
 	quazip
 

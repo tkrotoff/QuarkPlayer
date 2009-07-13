@@ -37,6 +37,7 @@ target_link_libraries(quarkplayercore
 	tkutil
 	filetypes
 	qtsingleapplication
+
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 	${QT_QTXML_LIBRARY}
