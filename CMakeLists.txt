@@ -6,11 +6,11 @@ cmake_policy(VERSION 2.6.3)
 
 project(quarkplayer)
 
-# Add options values
-include(Options.cmake)
-
 # OWBuild
 include(CMakeLists-owbuild.txt)
+
+# Add options values
+include(Options.cmake)
 
 # Global variables about QuarkPlayer
 set(QUARKPLAYER_NAME "QuarkPlayer")
@@ -53,7 +53,7 @@ set(CMAKE_INSTALL_RPATH .;/usr/lib/quarkplayer)
 
 # Default installation path
 # and other platform specific installation instructions
-set(CMAKE_INSTALL_PREFIX ${BUILD_DIR})
+set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/build/${BUILD_NAME})
 if (WIN32)
 	include(CMakeLists-win32.txt)
 endif (WIN32)

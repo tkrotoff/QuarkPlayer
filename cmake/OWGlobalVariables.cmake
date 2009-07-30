@@ -1,11 +1,8 @@
 # Defines global public variables
 #
-# CMAKE_BUILD_TYPE = set to Debug by default
-# BUILD_TYPE = same as CMAKE_BUILD_TYPE but lowercase (debug, release, minsizerel...)
-# BUILD_NAME = build name used by BUILD_DIR
-# BUILD_DIR = directory where compiled files will be copied, ${CMAKE_BINARY_DIR}/${BUILD_NAME} by default
+# BUILD_NAME = build name in lower case (ex: win32-x86-msvc90-debug)
 # SVN_REVISION = subversion revision number, see ow_get_svn_revision()
-# CURRENT_DATE_TIME = current date time: 20070323121316 (e.g 2007-03-23 12:13:16)
+# BUILD_DATE = current date time: 20070323121316 (e.g 2007-03-23 12:13:16), see ow_get_current_date_time()
 #
 # Useful CMake variables:
 # http://www.cmake.org/Wiki/CMake_Useful_Variables
@@ -22,24 +19,12 @@
 # Sets a global variable to test if OWBuild is already included or not in the build system
 set(OWBUILD_INCLUDED TRUE)
 
-# Sets the default build type to Debug if not already done
-if (NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE
-		Debug
-		CACHE STRING "Choose the build type, options are: None Debug Release RelWithDebInfo MinSizeRel" FORCE
-	)
-endif (NOT CMAKE_BUILD_TYPE)
-
-# Directory where compiled files (install target) will be copied
-# In lower case
+# Build name in lower case, ex: win32-x86-msvc90-debug
+# Should be used for the directory name where binary files will be copied
 # Use the system name (Linux, Windows, MacOS...), processor architecture (i686, x86, x86_64)
 # and compiler name (MSVC, GCC...)
 set(BUILD_NAME ${SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${COMPILER_NAME}-${CMAKE_BUILD_TYPE})
 string(TOLOWER ${BUILD_NAME} BUILD_NAME)
-set(BUILD_DIR
-	${CMAKE_BINARY_DIR}/${BUILD_NAME}
-	CACHE PATH "Build directory, depends on build type, processor name, system name and OS name" FORCE
-)
 
 # Gets svn revision
 set(SVN_REVISION "")
@@ -51,5 +36,5 @@ if (SVN_REVISION)
 endif (SVN_REVISION)
 
 # Gets current date time
-set(CMAKE_BUILD_DATE "0")
-ow_get_current_date_time(CMAKE_BUILD_DATE)
+set(BUILD_DATE "0")
+ow_get_current_date_time(BUILD_DATE)

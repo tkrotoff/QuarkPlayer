@@ -1,18 +1,20 @@
-#Always create a project first, otherwise some CMake variables are not defined
+# Warning: always create a project first using project(projectName), otherwise some CMake variables are not defined
 
 if (NOT OWBUILD_INCLUDED)
-	#Where to look first for CMake modules, before ${CMAKE_ROOT}/Modules/ is checked
+
+	# Where to look first for CMake modules, before ${CMAKE_ROOT}/Modules/ is checked
 	set(CMAKE_MODULE_PATH
 		${CMAKE_SOURCE_DIR}/cmake
 		${CMAKE_SOURCE_DIR}/cmake/modules
 	)
 
-	#Add OWBuild macros
+	# Add OWBuild macros
 	include(cmake/CMakeLists.txt)
 
-	#Disallow in-source build
+	# Disallow in-source build
 	ow_ensure_out_of_source_build()
 
-	#Show general informations to the user
+	# Show general informations to the user
 	include(cmake/OWInitializationInfo.cmake)
+
 endif (NOT OWBUILD_INCLUDED)

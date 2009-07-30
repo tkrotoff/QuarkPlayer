@@ -49,7 +49,7 @@
 	Q_IMPORT_PLUGIN(playtoolbar)
 	Q_IMPORT_PLUGIN(quicksettings)
 	Q_IMPORT_PLUGIN(statusbar)
-	Q_IMPORT_PLUGIN(videowidget)
+	Q_IMPORT_PLUGIN(videowidget) 
 	Q_IMPORT_PLUGIN(osd)
 #endif	//STATICPLUGINS
 
@@ -57,7 +57,7 @@ int main(int argc, char * argv[]) {
 	QtSingleApplication app(argc, argv);
 
 	//General infos
- 	app.setOrganizationName("QuarkPlayer");
+	app.setOrganizationName("QuarkPlayer");
 	app.setOrganizationDomain("quarkplayer.org");
 	app.setApplicationName("QuarkPlayer");
 	app.setApplicationVersion(QUARKPLAYER_VERSION);
