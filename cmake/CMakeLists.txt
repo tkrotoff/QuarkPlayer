@@ -1,23 +1,20 @@
 # Warning!!! order matters
 
-# Needed for the Phonon DS9 backend
-include(MacroPushRequiredVars)
+include(DefaultConfig)
 
-include(OWDefaultConfig)
+include(GetGCCVersion)
+include(DetectSystem)
 
-include(OWGetGCCVersion)
-include(OWDetectSystem)
+include(DefaultCompilerFlags)
 
-include(OWDefaultCompilerFlags)
-
-include(OWGetSvnRevision)
+include(GetSvnRevision)
 #include(SvnExport)
-include(OWGetCurrentDateTime)
+include(GetCurrentDateTime)
 include(LocCounter)
 
-include(OWGlobalVariables)
+include(GlobalVariables)
 
-include(OWEnsureOutOfSourceBuild)
+include(EnsureOutOfSourceBuild)
 include(ReduceQtIncludeDirs)
 
 include(AddQtTranslations)

@@ -92,7 +92,7 @@ if (CMAKE_VERBOSE_MAKEFILE)
 	endif (NOT MSVC)
 endif (CMAKE_VERBOSE_MAKEFILE)
 
-#ow_get_gcc_version(version)
+#get_gcc_version(version)
 #message(STATUS "GCC Version: ${version}")
 message(STATUS "CFLAGS: ${CMAKE_C_FLAGS}")
 message(STATUS "CXXFLAGS: ${CMAKE_CXX_FLAGS}")

@@ -22,7 +22,7 @@
 #
 # add_executable(myapp ${myapp_SRCS} ${QM_FILES})
 #
-# Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+# Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING file.

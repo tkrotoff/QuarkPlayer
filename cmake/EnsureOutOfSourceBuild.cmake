@@ -1,4 +1,4 @@
-# - ow_ensure_out_of_source_build()
+# - ensure_out_of_source_build()
 # Ensures build directory is different from source directory
 #
 # If the build directory is the source directory then it will bump
@@ -11,11 +11,11 @@
 # For details see the accompanying COPYING file.
 
 
-macro (ow_ensure_out_of_source_build)
+macro (ensure_out_of_source_build)
 
 	string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" inSource)
 	if (inSource)
 		message(FATAL_ERROR "A separate build directory is required, please create one and run cmake from this directory")
 	endif (inSource)
 
-endmacro (ow_ensure_out_of_source_build)
+endmacro (ensure_out_of_source_build)

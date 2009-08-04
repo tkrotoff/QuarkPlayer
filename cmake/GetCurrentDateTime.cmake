@@ -1,8 +1,8 @@
-# - ow_get_current_date_time(time)
+# - get_current_date_time(time)
 # Gets the current date time
 #
 # Example:
-# ow_get_current_date_time(time)
+# get_current_date_time(time)
 # message(${time})
 #
 # Output generated:
@@ -11,13 +11,13 @@
 # which means: 2007-03-23 12:13:16 (YYYY-MM-DD HH:MM:SS)
 #
 # Copyright (C) 2006-2007  Wengo
-# Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+# Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING file.
 
 
-macro (ow_get_current_date_time time)
+macro (get_current_date_time time)
 
 	if (UNIX AND NOT WIN32)
 		set(flags "-DLINK_LIBRARIES=stdc++")
@@ -39,4 +39,4 @@ macro (ow_get_current_date_time time)
 	#message("runResult="${runResult})
 	#message("runOutput="${${time}})
 
-endmacro (ow_get_current_date_time)
+endmacro (get_current_date_time)

@@ -53,7 +53,7 @@ set(CMAKE_INSTALL_RPATH .;/usr/lib/quarkplayer)
 
 # Default installation path
 # and other platform specific installation instructions
-set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/build/${BUILD_NAME})
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/${BUILD_NAME})
 if (WIN32)
 	include(CMakeLists-win32.txt)
 endif (WIN32)
@@ -100,8 +100,8 @@ endif (TAGLIB)
 
 # Qt/KDE libraries detection and initialization
 if (NOT ENV{KDEDIRS})
-	#Ubuntu 8.04, if GNOME is runnng instead of KDE, KDEDIRS variable is not defined
-	#so let's define it
+	# Ubuntu 8.04, if GNOME is runnng instead of KDE, KDEDIRS variable is not defined
+	# so let's define it
 	set(ENV{KDEDIRS} /usr/lib/kde4)
 endif (NOT ENV{KDEDIRS})
 

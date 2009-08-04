@@ -1,14 +1,14 @@
-# - ow_get_svn_revision(revision)
+# - get_svn_revision(revision)
 # Gets current subversion revision number
 #
 # Performs a svnversion command line on ${CMAKE_SOURCE_DIR} directory
 # You need to install the subversion command line, check http://subversion.tigris.org/
 # if you don't have it already
-# ow_get_svn_revision() is being called by OWInitializationInfo.cmake that sets
-# SVN_REVSION variable already thus you don't need to call ow_get_svn_revision()
+# get_svn_revision() is being called by InitializationInfo.cmake that sets
+# SVN_REVSION variable already thus you don't need to call get_svn_revision()
 #
 # Example:
-# ow_get_svn_revision(SVN_REVISION)
+# get_svn_revision(SVN_REVISION)
 # message(STATUS "SVN Revision: " ${SVN_REVISION})
 #
 # Copyright (C) 2006  Andreas Schneider <mail@cynapses.org>
@@ -18,7 +18,7 @@
 # For details see the accompanying COPYING file.
 
 
-macro (ow_get_svn_revision revision)
+macro (get_svn_revision revision)
 
 	if (NOT Subversion_FOUND)
 		find_package(Subversion)
@@ -34,4 +34,4 @@ macro (ow_get_svn_revision revision)
 		set(${revision} 0)
 	endif (Subversion_FOUND)
 
-endmacro (ow_get_svn_revision)
+endmacro (get_svn_revision)

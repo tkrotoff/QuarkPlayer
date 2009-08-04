@@ -32,7 +32,7 @@ const char * QUARKPLAYER_SYSTEM = "@SYSTEM_NAME@";
 
 const char * QUARKPLAYER_BUILD_TYPE = "@CMAKE_BUILD_TYPE@";
 
-const char * QUARKPLAYER_BUILD_DATE = "@CMAKE_BUILD_DATE@";
+const char * QUARKPLAYER_BUILD_DATE = "@BUILD_DATE@";
 
 QString quarkPlayerFullVersion() {
 	QString rev;

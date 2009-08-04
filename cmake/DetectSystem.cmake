@@ -48,7 +48,7 @@
 
 # GCC
 set(GCC ${CMAKE_COMPILER_IS_GNUCC})
-ow_get_gcc_version(version)
+get_gcc_version(version)
 if (version MATCHES "3.*")
 	set(GCC3 true)
 	set(COMPILER_NAME "GCC3")

@@ -7,7 +7,7 @@
 # The modules were automatically added to the include path by file UseQt4.cmake
 # Inspired by UseQt4.cmake
 #
-# Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+# Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING file.
