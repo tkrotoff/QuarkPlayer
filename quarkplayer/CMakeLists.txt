@@ -6,6 +6,21 @@ project(quarkplayercore)
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 configure_file(version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
 
+# Counts the lines of code (LOC)
+set(QUARKPLAYER_CORE_LOC 0)
+set(QUARKPLAYER_PLUGINS_LOC 0)
+set(QUARKPLAYER_LIBS_LOC 0)
+set(QUARKPLAYER_3RDPARTY_LOC 0)
+if (NOT CMAKE_BUILD_TYPE STREQUAL Debug)
+	# Takes a lot of time :/
+	loc_counter(${CMAKE_SOURCE_DIR}/quarkplayer QUARKPLAYER_CORE_LOC 1)
+	loc_counter(${CMAKE_SOURCE_DIR}/quarkplayer-plugins QUARKPLAYER_PLUGINS_LOC 1)
+	loc_counter(${CMAKE_SOURCE_DIR}/libs QUARKPLAYER_LIBS_LOC 1)
+	loc_counter(${CMAKE_SOURCE_DIR}/3rdparty QUARKPLAYER_3RDPARTY_LOC 1)
+endif (NOT CMAKE_BUILD_TYPE STREQUAL Debug)
+configure_file(metrics.h.in ${CMAKE_CURRENT_SOURCE_DIR}/metrics.h)
+##
+
 add_definitions(-DBUILD_QUARKPLAYER -DQT_QTSINGLEAPPLICATION_IMPORT)
 
 set(quarkplayercore_SRCS

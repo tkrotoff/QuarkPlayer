@@ -4,4 +4,5 @@
 #add_subdirectory(videoplayer)
 #add_subdirectory(qgraphicsproxywidget)
 
+add_subdirectory(libs)
 add_subdirectory(quarkplayer-plugins)

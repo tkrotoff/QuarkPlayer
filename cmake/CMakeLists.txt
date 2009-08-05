@@ -18,4 +18,4 @@ include(EnsureOutOfSourceBuild)
 include(ReduceQtIncludeDirs)
 
 include(AddQtTranslations)
-include(Unix2Dos)
+#include(Unix2Dos)

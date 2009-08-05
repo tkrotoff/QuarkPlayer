@@ -35,12 +35,11 @@ set(QUARKPLAYER_DESCRIPTION
 set(QUARKPLAYER_AUTHORS "QuarkPlayer Team")
 set(QUARKPLAYER_URL "http://quarkplayer.googlecode.com/")
 set(QUARKPLAYER_COPYRIGHT "Copyright (C) 2008-2009  Tanguy Krotoff")
-set(QUARKPLAYER_LICENSE_FILE ${CMAKE_SOURCE_DIR}/COPYING)
+set(QUARKPLAYER_LICENSE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/COPYING)
 set(QUARKPLAYER_PACKAGE_FILE quarkplayer-${QUARKPLAYER_VERSION}-rev${SVN_REVISION}-${BUILD_NAME})
 set(QUARKPLAYER_SOURCE_PACKAGE_FILE quarkplayer-${QUARKPLAYER_VERSION}-rev${SVN_REVISION}-src)
 set(QUARKPLAYER_PACKAGE_AUTHORS ${QUARKPLAYER_AUTHORS})
 ##
-
 
 # RPATH handling, see http://www.vtk.org/Wiki/CMake_RPATH_handling
 # Make quarkplayer working with the targets install, deb and rpm
@@ -48,8 +47,8 @@ set(CMAKE_INSTALL_RPATH .;/usr/lib/quarkplayer)
 
 #svn_export(${QUARKPLAYER_SVN_REPOSITORY} ${CMAKE_BINARY_DIR}/quarkplayer-svn-export)
 
-# CMake declarations order matters!
 
+# CMake declarations order matters!
 
 # Default installation path
 # and other platform specific installation instructions
@@ -115,7 +114,7 @@ if (KDE4_FOUND)
 	#include(MacroLibrary)
 
 	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS})
-	include_directories(${QDBUS_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
+	include_directories(${QDBUS_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
 else (KDE4_FOUND)
 	set(QT_MIN_VERSION 4.4.0)
 	find_package(Qt4 REQUIRED)
