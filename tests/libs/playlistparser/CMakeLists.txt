@@ -9,6 +9,7 @@ qt4_wrap_cpp(playlistparsertest_SRCS
 )
 
 add_executable(playlistparsertest ${playlistparsertest_SRCS})
+add_test(PlaylistParserTest playlistparsertest)
 
 target_link_libraries(playlistparsertest
 	playlistparser

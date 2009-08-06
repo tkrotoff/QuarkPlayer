@@ -27,7 +27,7 @@
  * @see PlaylistParser
  * @author Tanguy Krotoff
  */
-class PlaylistParserTest public QObject {
+class PlaylistParserTest : public QObject {
 	Q_OBJECT
 private slots:
 

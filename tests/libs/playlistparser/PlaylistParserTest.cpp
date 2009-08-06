@@ -20,6 +20,8 @@
 
 #include <playlistparser/PlaylistParser.h>
 
+QTEST_MAIN(PlaylistParserTest)
+
 void PlaylistParserTest::initTestCase() {
 }
 

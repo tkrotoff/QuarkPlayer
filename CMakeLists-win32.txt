@@ -41,8 +41,10 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/quarkplayer-app/icons/mimetypes/playli
 
 
 # Copy Qt toolkit dlls
-set(QT_MIN_VERSION 4.4.0)
-find_package(Qt4 REQUIRED)
+if (NOT QT4_FOUND)
+	set(QT_MIN_VERSION 4.4.0)
+	find_package(Qt4 REQUIRED)
+endif (NOT QT4_FOUND)
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	install(FILES ${QT_BINARY_DIR}/QtCored4.dll DESTINATION ${BIN_INSTALL_DIR})

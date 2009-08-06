@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 # CMake policy
-cmake_policy(VERSION 2.6.3)
+cmake_policy(VERSION 2.6.4)
 
 project(quarkplayer)
 
@@ -116,8 +116,10 @@ if (KDE4_FOUND)
 	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS})
 	include_directories(${QDBUS_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
 else (KDE4_FOUND)
-	set(QT_MIN_VERSION 4.4.0)
-	find_package(Qt4 REQUIRED)
+	if (NOT QT4_FOUND)
+		set(QT_MIN_VERSION 4.4.0)
+		find_package(Qt4 REQUIRED)
+	endif (NOT QT4_FOUND)
 
 	# Includes all wanted definitions for Qt
 	include(${QT_USE_FILE})
