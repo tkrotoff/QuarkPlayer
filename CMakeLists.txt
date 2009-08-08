@@ -12,6 +12,9 @@ include(CMakeLists-owbuild.txt)
 # Add options values
 include(Options.cmake)
 
+# CTest, see http://www.vtk.org/Wiki/CMake_Testing_With_CTest
+enable_testing()
+
 # Global variables about QuarkPlayer
 set(QUARKPLAYER_NAME "QuarkPlayer")
 set(QUARKPLAYER_MAJOR_VERSION 0)

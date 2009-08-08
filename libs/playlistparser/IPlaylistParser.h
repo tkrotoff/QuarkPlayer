@@ -46,6 +46,9 @@ public:
 	/**
 	 * Parses (load/save) a given playlist file.
 	 *
+	 * You must do a <pre>new PlaylistParser</pre> since PlaylistParser is threaded
+	 * and sends signals.
+	 *
 	 * @param filename playlist file (full path) to parse.
 	 */
 	IPlaylistParser(const QString & filename, QObject * parent)

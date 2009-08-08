@@ -1,6 +1,0 @@
-Capabilities example taken from Qt source code.
-See QTDIR/examples/phonon/capabilities
-
-This is a plain copy to do some hacking if needed
-
-qmake project has been converted to CMake

@@ -1,21 +1,15 @@
 # Warning!!! order matters
 
 include(DefaultConfig)
-
 include(GetGCCVersion)
 include(DetectSystem)
-
-include(DefaultCompilerFlags)
-
+#include(DefaultCompilerFlags)
 include(GetSvnRevision)
 #include(SvnExport)
 include(GetCurrentDateTime)
 include(LocCounter)
-
 include(GlobalVariables)
-
 include(EnsureOutOfSourceBuild)
 include(ReduceQtIncludeDirs)
-
 include(AddQtTranslations)
 #include(Unix2Dos)
