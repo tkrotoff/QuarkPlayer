@@ -21,7 +21,7 @@
 
 #include "MediaController.h"
 
-#include <libmplayer/MPlayerProcess.h>
+#include "libmplayer/MPlayerProcess.h"
 
 #include <phonon/mediaobjectinterface.h>
 

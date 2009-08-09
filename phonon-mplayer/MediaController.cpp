@@ -18,8 +18,8 @@
 
 #include "MediaController.h"
 
-#include <libmplayer/MPlayerLoader.h>
-#include <libmplayer/MPlayerProcess.h>
+#include "libmplayer/MPlayerLoader.h"
+#include "libmplayer/MPlayerProcess.h"
 
 #include <QtCore/QTime>
 

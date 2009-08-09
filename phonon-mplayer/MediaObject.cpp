@@ -20,10 +20,10 @@
 
 #include "SeekStack.h"
 
-#include <libmplayer/MPlayerLoader.h>
+#include "libmplayer/MPlayerLoader.h"
 
 //HACK for loadfile and volume commands
-#include <libmplayer/MediaSettings.h>
+#include "libmplayer/MediaSettings.h"
 
 #include <QtCore/QUrl>
 #include <QtCore/QMetaType>

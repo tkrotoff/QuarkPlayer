@@ -20,8 +20,8 @@
 
 #include "MediaObject.h"
 
-#include <libmplayer/MPlayerLoader.h>
-#include <libmplayer/MediaSettings.h>
+#include "libmplayer/MPlayerLoader.h"
+#include "libmplayer/MediaSettings.h"
 
 namespace Phonon
 {

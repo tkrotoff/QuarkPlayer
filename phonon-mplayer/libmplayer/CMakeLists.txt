@@ -15,9 +15,3 @@ qt4_wrap_cpp(libmplayer_SRCS
 )
 
 add_library(libmplayer STATIC ${libmplayer_SRCS})
-
-target_link_libraries(libmplayer
-	${QT_QTCORE_LIBRARY}
-	${QT_QTGUI_LIBRARY}
-	${QT_PHONON_LIBRARY}
-)
