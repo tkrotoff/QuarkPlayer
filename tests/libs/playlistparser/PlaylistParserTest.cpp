@@ -20,6 +20,8 @@
 
 #include <playlistparser/PlaylistParser.h>
 
+QTEST_MAIN(PlaylistParserTest)
+
 void PlaylistParserTest::initTestCase() {
 }
 
@@ -33,7 +35,8 @@ void PlaylistParserTest::cleanup() {
 }
 
 void PlaylistParserTest::loadM3U() {
-	PlaylistParser * playlistParser = new PlaylistParser();
+	PlaylistParser * playlistParser = new PlaylistParser("foobar2000-0.9.6.7/test.m3u", this);
+	playlistParser->load();
 }
 
 void PlaylistParserTest::loadPLS() {

@@ -12,9 +12,6 @@ include(CMakeLists-owbuild.txt)
 # Add options values
 include(Options.cmake)
 
-# CTest, see http://www.vtk.org/Wiki/CMake_Testing_With_CTest
-enable_testing()
-
 # Global variables about QuarkPlayer
 set(QUARKPLAYER_NAME "QuarkPlayer")
 set(QUARKPLAYER_MAJOR_VERSION 0)
@@ -119,16 +116,24 @@ if (KDE4_FOUND)
 	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS})
 	include_directories(${QDBUS_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
 else (KDE4_FOUND)
-	if (NOT QT4_FOUND)
-		set(QT_MIN_VERSION 4.4.0)
-		find_package(Qt4 REQUIRED)
-	endif (NOT QT4_FOUND)
+	set(QT_MIN_VERSION 4.4.0)
+	find_package(Qt4 REQUIRED)
 
-	# Includes all wanted definitions for Qt
-	include(${QT_USE_FILE})
+	# Do not use Phonon from Qt or KDE4
+	# Use Phonon from this repository instead (patched version)
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
+	set(QT_PHONON_LIBRARY phonon)
+	set(PHONON_LIBS
+		${QT_PHONON_LIBRARY}
+		${QT_QTCORE_LIBRARY}
+		${QT_QTGUI_LIBRARY}
+	)
 
 	# Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
 	set(NEW_TITLE_CHAPTER_HANDLING 1)
+
+	# Includes all wanted definitions for Qt
+	include(${QT_USE_FILE})
 
 	message(STATUS "KDE4 support disabled")
 endif (KDE4_FOUND)
@@ -139,25 +144,16 @@ message(STATUS "Qt Directory: ${QT_BINARY_DIR}")
 reduce_qt_include_dirs()
 ##
 
-
 # 3rdparty libraries with Qt dependency
 add_subdirectory(3rdparty/quazip)
 add_subdirectory(3rdparty/modeltest)
 add_subdirectory(3rdparty/qtsingleapplication)
 ##
 
-
 # 3rdparty libraries with Qt and Phonon dependency
 add_subdirectory(3rdparty/phonon)
-
-# Do not use Phonon from Qt or KDE4
-# Use Phonon from this repository instead (patched version)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
-set(QT_PHONON_LIBRARY phonon)
-
 add_subdirectory(phonon-mplayer)
 ##
-
 
 # QuarkPlayer
 clear_qt_translations()
@@ -172,9 +168,12 @@ add_subdirectory(quarkplayer-plugins)
 add_subdirectory(quarkplayer-app)
 ##
 
-# Tests (includes unit tests)
-add_subdirectory(tests)
-##
+if (BUILD_TESTS)
+	# Tests (includes unit tests)
+	# CTest, see http://www.vtk.org/Wiki/CMake_Testing_With_CTest
+	enable_testing()
+	add_subdirectory(tests)
+endif (BUILD_TESTS)
 
 # Packaging (NSIS, RPM, Debian, src.tar.gz)
 add_subdirectory(packaging)
