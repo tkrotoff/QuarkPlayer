@@ -3,7 +3,7 @@
 include(DefaultConfig)
 include(GetGCCVersion)
 include(DetectSystem)
-#include(DefaultCompilerFlags)
+include(DefaultCompilerFlags)
 include(GetSvnRevision)
 #include(SvnExport)
 include(GetCurrentDateTime)

@@ -2,7 +2,7 @@ project(tkutil)
 
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 
-add_definitions(-DBUILD_TKUTIL -DUNICODE)
+add_definitions(-DBUILD_TKUTIL)
 
 set(tkutil_SRCS
 	TkFileDialog.cpp

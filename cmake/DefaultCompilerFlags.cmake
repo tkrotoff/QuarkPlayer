@@ -13,34 +13,25 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING file.
 
-
+include(DetectSystem)
 include(CheckCXXCompilerFlag)
 
 # With -fPIC, CMake-2.6 should fix this, does not seem to be the case :/
 # cf http://code.google.com/p/phonon-vlc-mplayer/issues/detail?id=1
-if (UNIX OR MINGW)
+if (GCC)
 	if (CMAKE_SIZEOF_VOID_P MATCHES "8")
 		check_cxx_compiler_flag("-fPIC" WITH_FPIC)
 		if (WITH_FPIC)
 			add_definitions(-fPIC)
 		endif (WITH_FPIC)
 	endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
-
-	if (GCC4)
-		# Better check against security problems
-		# for C functions like memcpy, strcpy, sprintf, gets...
-		# See http://www.cynapses.org/tmp/gcc/fortify_source
-		add_definitions(-D_FORTIFY_SOURCE=2)
-	endif (GCC4)
-endif (UNIX OR MINGW)
+endif (GCC)
 
 # Enable warnings
 if (MSVC)
 	#add_definitions(/W4)
 else (MSVC)
-	add_definitions(-Wall -Wstrict-aliasing -Wno-unused-parameter)
-	# Only for C language, not valid for C++
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-prototypes")
+	add_definitions(-Wall)
 
 	if (NOT MINGW)
 		# Otherwise Qt-4.4.0 makes a lot of warnings with MinGW
@@ -49,50 +40,43 @@ else (MSVC)
 		endif (GCC4)
 	endif (NOT MINGW)
 endif (MSVC)
+##
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
-	if (MSVC)
-		# No MSVCRT.LIB linking under Visual C++ when in debug mode
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT.LIB")
-		set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT.LIB")
-		set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT.LIB")
-	endif (MSVC)
-
 	if (APPLE)
-		# Use dwarf-2 debugging format: it produces much smaller executables
-		# (from 372MB to 37MB on my machine)
+		# Use dwarf-2 debugging format: it produces ~10x smaller executables
 		add_definitions(-gdwarf-2)
 	endif (APPLE)
 
 	# Defines DEBUG when in debug mode
 	add_definitions(-DDEBUG)
-else (CMAKE_BUILD_TYPE STREQUAL Debug)
-	if (MSVC)
-		# No MSVCRTD.LIB linking under Visual C++ when in release mode
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRTD.LIB")
-		set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:MSVCRTD.LIB")
-		set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRTD.LIB")
-	endif (MSVC)
 endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
 if (CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
-	if (MSVC)
-		# /O2 Creates fast code
-		# /O1 Creates small code
-		string(REPLACE "/O2" "/O1" CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
-		string(REPLACE "/O2" "/O1" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
-	endif (MSVC)
-
 	add_definitions(-DDEBUG)
 endif (CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
 
-if (CMAKE_VERBOSE_MAKEFILE)
-	if (NOT MSVC)
-		add_definitions(-fmessage-length=0)
-	endif (NOT MSVC)
-endif (CMAKE_VERBOSE_MAKEFILE)
+# UNICODE support enabled
+# See Visual C++ Unicode Programming Summary
+# http://msdn.microsoft.com/en-us/library/dybsewaf%28VS.100%29.aspx
+if (NOT MINGW)
+	# MinGW STL does not support wide characters (wchar_t)
+	# see http://www.mingw.org/wiki/wide_characters
+	add_definitions(-DUNICODE)
+endif (NOT MINGW)
+##
+
+if (MSVC)
+	if (MSVC_VERSION GREATER 1399)
+		# If using Visual C++ 2005 (MSVC80) and greater (MSVC_VERSION=1400)
+		# Disable Visual C++ Security Enhancements in the CRT
+		# See http://msdn.microsoft.com/en-us/library/8ef0s5kh%28VS.100%29.aspx
+		# This is non standard and Microsoft specific
+		add_definitions(/D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE)
+	endif (MSVC_VERSION GREATER 1399)
+endif (MSVC)
 
 #get_gcc_version(version)
 #message(STATUS "GCC Version: ${version}")
-message(STATUS "CFLAGS: ${CMAKE_C_FLAGS}")
-message(STATUS "CXXFLAGS: ${CMAKE_CXX_FLAGS}")
+#message(STATUS "CFLAGS: ${CMAKE_C_FLAGS}")
+#message(STATUS "CXXFLAGS: ${CMAKE_CXX_FLAGS}")
