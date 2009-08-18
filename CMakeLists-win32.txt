@@ -49,6 +49,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	install(FILES ${QT_BINARY_DIR}/QtGuid4.dll DESTINATION ${BIN_INSTALL_DIR})
 	install(FILES ${QT_BINARY_DIR}/QtNetworkd4.dll DESTINATION ${BIN_INSTALL_DIR})
 	install(FILES ${QT_BINARY_DIR}/QtXmld4.dll DESTINATION ${BIN_INSTALL_DIR})
+	install(FILES ${QT_BINARY_DIR}/QtTestd4.dll DESTINATION ${BIN_INSTALL_DIR})
 
 	# Sometimes Windows complain about QtSvg missing, don't know why
 	install(FILES ${QT_BINARY_DIR}/QtSvgd4.dll DESTINATION ${BIN_INSTALL_DIR})
@@ -63,6 +64,7 @@ else (CMAKE_BUILD_TYPE STREQUAL Debug)
 	install(FILES ${QT_BINARY_DIR}/QtGui4.dll DESTINATION ${BIN_INSTALL_DIR})
 	install(FILES ${QT_BINARY_DIR}/QtNetwork4.dll DESTINATION ${BIN_INSTALL_DIR})
 	install(FILES ${QT_BINARY_DIR}/QtXml4.dll DESTINATION ${BIN_INSTALL_DIR})
+	install(FILES ${QT_BINARY_DIR}/QtTest4.dll DESTINATION ${BIN_INSTALL_DIR})
 
 	# Sometimes Windows complain about QtSvg missing, don't know why
 	install(FILES ${QT_BINARY_DIR}/QtSvg4.dll DESTINATION ${BIN_INSTALL_DIR})
