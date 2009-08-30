@@ -42,23 +42,17 @@ bool OpenSubtitlesParser::parseXml(const QByteArray & xml) {
 	}
 
 	QDomNode root = _doc.documentElement();
-	//qDebug("tagname: '%s'", root.toElement().tagName().toLatin1().constData());
 
-	QString base_url = root.firstChildElement("base").text();
-	//qDebug("base_url: '%s'", base_url.toLatin1().constData());
+	QString baseUrl = root.firstChildElement("base").text();
 
 	QDomNode child = root.firstChildElement("results");
 	if (!child.isNull()) {
-		//qDebug("items: %s", child.toElement().attribute("items").toLatin1().constData());
 		QDomNode subtitle = child.firstChildElement("subtitle");
 		while (!subtitle.isNull()) {
-			//qDebug("tagname: '%s'", subtitle.tagName().toLatin1().constData());
-			qDebug("OpenSubtitlesParser::parseXml: text: '%s'", subtitle.toElement().text().toLatin1().constData());
-
 			OpenSubtitlesSubtitle sub;
 
 			sub.releasename = subtitle.firstChildElement("releasename").text();
-			sub.link = base_url + subtitle.firstChildElement("download").text();
+			sub.link = baseUrl + subtitle.firstChildElement("download").text();
 			sub.detail = subtitle.firstChildElement("detail").text();
 			sub.date = subtitle.firstChildElement("subadddate").text();
 			sub.rating = subtitle.firstChildElement("subrating").text();
