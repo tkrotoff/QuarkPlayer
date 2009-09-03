@@ -22,8 +22,9 @@ target_link_libraries(contentfetcher
 	hmac
 
 	${QT_QTCORE_LIBRARY}
-	${QT_QTNETWORK_LIBRARY}
 	${QT_QTGUI_LIBRARY}
+	${QT_QTNETWORK_LIBRARY}
+	${QT_QTXML_LIBRARY}
 )
 
 install(TARGETS contentfetcher ${INSTALL_TARGETS_DEFAULT_ARGS})

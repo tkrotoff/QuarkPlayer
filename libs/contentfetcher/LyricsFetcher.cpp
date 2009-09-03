@@ -22,6 +22,8 @@
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
 
+#include <QtXml/QDomDocument>
+
 #include <QtCore/QDebug>
 
 LyricsFetcher::LyricsFetcher(QObject * parent)
@@ -29,7 +31,7 @@ LyricsFetcher::LyricsFetcher(QObject * parent)
 
 	_lyricsDownloader = new QNetworkAccessManager(this);
 	connect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)),
-		SLOT(gotLyrics(QNetworkReply *)));
+		SLOT(gotLyricsUrl(QNetworkReply *)));
 }
 
 LyricsFetcher::~LyricsFetcher() {
@@ -37,7 +39,7 @@ LyricsFetcher::~LyricsFetcher() {
 
 QUrl LyricsFetcher::lyricWikiUrl(const QString & artist, const QString & title) const {
 	QUrl url("http://lyricwiki.org/api.php");
-	url.addQueryItem("fmt", "text");
+	url.addQueryItem("fmt", "xml");
 	url.addQueryItem("artist", artist);
 	url.addQueryItem("song", title);
 	return url;
@@ -53,6 +55,49 @@ void LyricsFetcher::start(const ContentFetcherTrack & track, const QString & lan
 	_lyricsDownloader->get(QNetworkRequest(lyricWikiUrl(_track.artist, _track.title)));
 }
 
+void LyricsFetcher::gotLyricsUrl(QNetworkReply * reply) {
+	QNetworkReply::NetworkError error = reply->error();
+	QString data(QString::fromUtf8(reply->readAll()));
+
+	if (error != QNetworkReply::NoError) {
+		emitNetworkError(error, reply->url());
+		return;
+	}
+
+	//Example of the XML response from LyricWiki:
+	//<?xml version="1.0" encoding="UTF-8"?>
+	//<LyricsResult>
+	//	<artist>Kurtis Blow</artist>
+	//	<song>The Breaks</song>
+	//	<lyrics>Unfortunately, due to licensing restrictions from some of the major music publishers we can no longer return lyrics through the LyricWiki API (where this application gets some or all of its lyrics).
+	//
+	//The lyrics for this song can be found at the following URL:
+	//http://lyricwiki.org/Kurtis_Blow:The_Breaks
+	//
+	//&lt;a href=&#039;http://lyricwiki.org/Kurtis_Blow:The_Breaks&#039;&gt;Kurtis Blow:The Breaks&lt;/a&gt;
+	//
+	//
+	//(Please note: this is not the fault of the developer who created this application, but is a restriction imposed by the music publishers themselves.)</lyrics>
+	//	<url>http://lyricwiki.org/Kurtis_Blow:The_Breaks</url>
+	//</LyricsResult>
+
+	//Get the real URL, example: <url>http://lyricwiki.org/Kurtis_Blow:The_Breaks</url>
+	QDomDocument doc;
+	doc.setContent(data);
+	QString url = doc.elementsByTagName("url").at(0).toElement().text();
+	///
+
+	//Avoid a redirection, lyricwiki.org is in fact lyrics.wikia.com
+	url = url.replace("lyricwiki.org/", "lyrics.wikia.com/index.php?title=");
+
+	qDebug() << __FUNCTION__ << "Real LyricWiki URL:" << url;
+
+	disconnect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
+	connect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)),
+		SLOT(gotLyrics(QNetworkReply *)));
+	_lyricsDownloader->get(QNetworkRequest(QUrl::fromEncoded(url.toAscii(), QUrl::StrictMode)));
+}
+
 void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 	QNetworkReply::NetworkError error = reply->error();
 	QString data(QString::fromUtf8(reply->readAll()));
@@ -62,12 +107,13 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 		return;
 	}
 
-	if (data == "Not found") {
-		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
-		return;
-	}
+	//Keep only the lyrics, not all the HTML from the webpage
+	int beginLyrics = data.indexOf("<div class='lyricbox' >");
+	int endLyrics = data.indexOf("</div>", beginLyrics);
+	QString lyrics = data.mid(beginLyrics, endLyrics - beginLyrics);
+	///
 
-	data.replace("\n", "<br/>");
+	qDebug() << __FUNCTION__ << "Lyrics:" << lyrics;
 
-	emitContentFoundWithoutError(reply->url(), data.toUtf8(), true);
+	emitContentFoundWithoutError(reply->url(), lyrics.toUtf8(), true);
 }

@@ -33,7 +33,9 @@ public:
 	static QString pathToNativeSeparators(const QString & path);
 
 	/**
-	 * Returns the canonical path including the file name, i.e. an absolute path without symbolic links or redundant "." or ".." elements.
+	 * Returns the canonical path including the file name.
+	 *
+	 * A canonical path is an absolute path without symbolic links or redundant "." or ".." elements.
 	 *
 	 * If the file does not exist, canonicalFilePath() returns an empty string.
 	 *

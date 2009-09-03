@@ -43,6 +43,8 @@ public:
 
 private slots:
 
+	void gotLyricsUrl(QNetworkReply * reply);
+
 	void gotLyrics(QNetworkReply * reply);
 
 private:
