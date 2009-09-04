@@ -24,14 +24,13 @@
 
 #include <QtXml/QDomDocument>
 
+#include <QtCore/QRegExp>
 #include <QtCore/QDebug>
 
 LyricsFetcher::LyricsFetcher(QObject * parent)
 	: ContentFetcher(parent) {
 
 	_lyricsDownloader = new QNetworkAccessManager(this);
-	connect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)),
-		SLOT(gotLyricsUrl(QNetworkReply *)));
 }
 
 LyricsFetcher::~LyricsFetcher() {
@@ -51,6 +50,10 @@ void LyricsFetcher::start(const ContentFetcherTrack & track, const QString & lan
 	}
 
 	qDebug() << __FUNCTION__ << "Looking up for the lyrics";
+
+	disconnect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
+	connect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)),
+		SLOT(gotLyricsUrl(QNetworkReply *)));
 
 	_lyricsDownloader->get(QNetworkRequest(lyricWikiUrl(_track.artist, _track.title)));
 }
@@ -81,9 +84,15 @@ void LyricsFetcher::gotLyricsUrl(QNetworkReply * reply) {
 	//	<url>http://lyricwiki.org/Kurtis_Blow:The_Breaks</url>
 	//</LyricsResult>
 
-	//Get the real URL, example: <url>http://lyricwiki.org/Kurtis_Blow:The_Breaks</url>
 	QDomDocument doc;
 	doc.setContent(data);
+	QString lyrics = doc.elementsByTagName("lyrics").at(0).toElement().text();
+	if (lyrics == "Not found") {
+		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
+		return;
+	}
+
+	//Get the real URL, example: <url>http://lyricwiki.org/Kurtis_Blow:The_Breaks</url>
 	QString url = doc.elementsByTagName("url").at(0).toElement().text();
 	///
 
@@ -108,12 +117,15 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 	}
 
 	//Keep only the lyrics, not all the HTML from the webpage
-	int beginLyrics = data.indexOf("<div class='lyricbox' >");
-	int endLyrics = data.indexOf("</div>", beginLyrics);
-	QString lyrics = data.mid(beginLyrics, endLyrics - beginLyrics);
+	QString beginLyrics("<div class='lyricbox' >");
+	QString endLyrics("</div>");
+	int beginLyricsIndex = data.indexOf(beginLyrics) + beginLyrics.size();
+	int endLyricsIndex = data.indexOf(endLyrics, beginLyricsIndex);
+	QString lyrics = data.mid(beginLyricsIndex, endLyricsIndex - beginLyricsIndex);
+	lyrics.remove(QRegExp("<!--.*-->"));
 	///
 
-	qDebug() << __FUNCTION__ << "Lyrics:" << lyrics;
+	//qDebug() << __FUNCTION__ << "Lyrics:" << lyrics;
 
 	emitContentFoundWithoutError(reply->url(), lyrics.toUtf8(), true);
 }
