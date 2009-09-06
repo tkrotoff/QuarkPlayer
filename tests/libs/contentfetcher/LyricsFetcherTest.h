@@ -24,6 +24,7 @@
 #include <QtNetwork/QNetworkReply>
 
 class ContentFetcherTrack;
+class LyricsFetcher;
 
 /**
  * Test for LyricsFetcher.
@@ -35,16 +36,20 @@ class LyricsFetcherTest : public QObject {
 	Q_OBJECT
 private slots:
 
+	/** Called before the first testfunction is executed. */
+	void initTestCase();
+
+	/** Called after the last testfunction was executed. */
+	void cleanupTestCase();
+
+	void fetch_data();
 	void fetch();
 
-	void jacksonLyricsFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & lyrics,
-		bool accurate, const ContentFetcherTrack & track);
+	void lyricsFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & lyrics, const ContentFetcherTrack & track);
 
-	void noirDesirLyricsFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & lyrics,
-		bool accurate, const ContentFetcherTrack & track);
+private:
 
-	void noContentFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & lyrics,
-		bool accurate, const ContentFetcherTrack & track);
+	LyricsFetcher * _lyricsFetcher;
 };
 
 #endif	//LYRICSFETCHERTEST_H

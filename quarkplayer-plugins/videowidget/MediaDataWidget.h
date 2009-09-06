@@ -64,8 +64,7 @@ private slots:
 
 	void retranslate();
 
-	void coverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & coverArt,
-		bool accurate, const ContentFetcherTrack & track);
+	void coverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & coverArt, const ContentFetcherTrack & track);
 
 private:
 

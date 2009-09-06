@@ -49,13 +49,15 @@ void LyricsFetcher::start(const ContentFetcherTrack & track, const QString & lan
 		return;
 	}
 
-	qDebug() << __FUNCTION__ << "Looking up for the lyrics";
-
 	disconnect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
 	connect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)),
 		SLOT(gotLyricsUrl(QNetworkReply *)));
 
-	_lyricsDownloader->get(QNetworkRequest(lyricWikiUrl(_track.artist, _track.title)));
+	QUrl url = lyricWikiUrl(_track.artist, _track.title);
+
+	qDebug() << __FUNCTION__ << "Looking up for the lyrics:" << url;
+
+	_lyricsDownloader->get(QNetworkRequest(url));
 }
 
 void LyricsFetcher::gotLyricsUrl(QNetworkReply * reply) {
@@ -87,7 +89,7 @@ void LyricsFetcher::gotLyricsUrl(QNetworkReply * reply) {
 	QDomDocument doc;
 	doc.setContent(data);
 	QString lyrics = doc.elementsByTagName("lyrics").at(0).toElement().text();
-	if (lyrics == "Not found") {
+	if (lyrics == "Not found" || lyrics.isEmpty()) {
 		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
 		return;
 	}
@@ -127,5 +129,5 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 
 	//qDebug() << __FUNCTION__ << "Lyrics:" << lyrics;
 
-	emitContentFoundWithoutError(reply->url(), lyrics.toUtf8(), true);
+	emitContentFoundWithoutError(reply->url(), lyrics.toUtf8());
 }

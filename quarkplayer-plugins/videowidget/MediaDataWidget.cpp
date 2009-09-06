@@ -138,8 +138,8 @@ void MediaDataWidget::downloadAmazonCoverArt(const MediaInfo & mediaInfo) {
 				//Lazy initialization
 				_coverArtFetcher = new AmazonCoverArt(AMAZON_WEB_SERVICE_ACCESS_KEY_ID, AMAZON_WEB_SERVICE_SECRET_KEY, this);
 				connect(_coverArtFetcher,
-					SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, bool, const ContentFetcherTrack &)),
-					SLOT(coverArtFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, bool, const ContentFetcherTrack &))
+					SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
+					SLOT(coverArtFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &))
 				);
 			}
 			ContentFetcherTrack track;
@@ -151,13 +151,11 @@ void MediaDataWidget::downloadAmazonCoverArt(const MediaInfo & mediaInfo) {
 	}
 }
 
-void MediaDataWidget::coverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & coverArt,
-	bool accurate, const ContentFetcherTrack & track) {
-
+void MediaDataWidget::coverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & coverArt, const ContentFetcherTrack & track) {
 	if (error == QNetworkReply::NoError) {
 		//Check if the cover art received does match the current album playing
 		//Network replies can be too long since HTTP requests are asynchronous
-		if ((_currentAlbum != track.album) || !accurate) {
+		if (_currentAlbum != track.album) {
 			return;
 		}
 
@@ -184,7 +182,7 @@ void MediaDataWidget::coverArtFound(QNetworkReply::NetworkError error, const QUr
 	} else {
 		//Check if the cover art received does match the current album playing
 		//Network replies can be too long since HTTP requests are asynchronous
-		if ((_currentAlbum != track.album)) {
+		if (_currentAlbum != track.album) {
 			return;
 		}
 

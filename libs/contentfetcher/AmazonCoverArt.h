@@ -64,6 +64,9 @@ private:
 	/** Constructs the right Amazon request URL. */
 	QUrl amazonUrl(const ContentFetcherTrack & track) const;
 
+	/** Converts the HMAC digest to hexadecimal. */
+	static QByteArray hmacDigestToHex(unsigned char * digest, unsigned digestSize);
+
 	/**
 	 * Access Key ID.
 	 *
@@ -96,7 +99,6 @@ private:
 	QString _amazonWebServiceSecretKey;
 
 	QNetworkAccessManager * _coverArtDownloader;
-	mutable bool _accurate;
 };
 
 #endif	//AMAZONCOVERART_H

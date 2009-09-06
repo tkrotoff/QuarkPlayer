@@ -45,23 +45,21 @@ AmazonCoverArt::AmazonCoverArt(const QString & amazonWebServiceAccessKeyId, cons
 	_coverArtDownloader = new QNetworkAccessManager(this);
 	connect(_coverArtDownloader, SIGNAL(finished(QNetworkReply *)),
 		SLOT(gotCoverArtAmazonXML(QNetworkReply *)));
-
-	_accurate = true;
 }
 
 AmazonCoverArt::~AmazonCoverArt() {
 }
 
-QByteArray hmacDigestToHex(unsigned char * digest, unsigned int digest_size) {
-	//Cannot use digest_size, use the maximum possible instead: SHA512_DIGEST_SIZE
-	static const size_t output_size = 2 * SHA512_DIGEST_SIZE + 1;
-	char output[output_size];
+QByteArray AmazonCoverArt::hmacDigestToHex(unsigned char * digest, unsigned digestSize) {
+	//Cannot use digestSize, use the maximum possible instead: SHA512_DIGEST_SIZE
+	static const size_t outputSize = 2 * SHA512_DIGEST_SIZE + 1;
+	char output[outputSize];
 
-	Q_ASSERT((2 * digest_size) < output_size);
+	Q_ASSERT((2 * digestSize) < outputSize);
 
-	output[2 * digest_size] = '\0';
+	output[2 * digestSize] = '\0';
 
-	for (unsigned i = 0; i < digest_size ; i++) {
+	for (unsigned i = 0; i < digestSize ; i++) {
 		//Visual C++ does not support C99, so no snprintf()
 		sprintf(output + 2 * i, "%02x", digest[i]);
 	}
@@ -134,16 +132,12 @@ QUrl AmazonCoverArt::amazonUrl(const ContentFetcherTrack & track) const {
 			//RFC 3986 percent encoding
 			artist = QUrl::toPercentEncoding(artist.toUtf8()).constData();
 			params["Artist"] = artist;
-		} else {
-			_accurate = false;
 		}
 		QString album(track.album);
 		if (!album.isEmpty()) {
 			//RFC 3986 percent encoding
 			album = QUrl::toPercentEncoding(album.toUtf8()).constData();
 			params["Title"] = album;
-		} else {
-			_accurate = false;
 		}
 	} else {
 		//We have the amazon id (ASIN) so for sure we will find the images!
@@ -228,5 +222,5 @@ void AmazonCoverArt::gotCoverArt(QNetworkReply * reply) {
 	qDebug() << __FUNCTION__ << "Got Amazon cover art";
 
 	//We've got the cover art
-	emitContentFoundWithoutError(reply->url(), data, _accurate);
+	emitContentFoundWithoutError(reply->url(), data);
 }

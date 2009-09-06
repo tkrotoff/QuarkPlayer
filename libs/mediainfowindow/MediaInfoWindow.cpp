@@ -425,8 +425,8 @@ void MediaInfoWindow::updateMediaInfo() {
 		//Lazy initialization
 		_wikipediaArticle = new WikipediaArticle(this);
 		connect(_wikipediaArticle,
-			SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, bool, const ContentFetcherTrack &)),
-			SLOT(wikipediaArticleFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, bool, const ContentFetcherTrack &))
+			SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
+			SLOT(wikipediaArticleFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &))
 		);
 	}
 	_wikipediaArticle->start(track, _language);
@@ -438,19 +438,15 @@ void MediaInfoWindow::updateMediaInfo() {
 		//Lazy initialization
 		_lyricsFetcher = new LyricsFetcher(this);
 		connect(_lyricsFetcher,
-			SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, bool, const ContentFetcherTrack &)),
-			SLOT(lyricsFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, bool, const ContentFetcherTrack &))
+			SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
+			SLOT(lyricsFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &))
 		);
 	}
 	_lyricsFetcher->start(track);
 	///
 }
 
-void MediaInfoWindow::lyricsFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & lyrics,
-	bool accurate, const ContentFetcherTrack & track) {
-
-	Q_UNUSED(accurate);
-
+void MediaInfoWindow::lyricsFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & lyrics, const ContentFetcherTrack & track) {
 	if (error == QNetworkReply::NoError) {
 		QString text(QString::fromUtf8(lyrics));
 		_ui->lyricsTextBrowser->setHtml(text
@@ -461,11 +457,7 @@ void MediaInfoWindow::lyricsFound(QNetworkReply::NetworkError error, const QUrl 
 	}
 }
 
-void MediaInfoWindow::wikipediaArticleFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & wikipediaArticle,
-	bool accurate, const ContentFetcherTrack & track) {
-
-	Q_UNUSED(accurate);
-
+void MediaInfoWindow::wikipediaArticleFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & wikipediaArticle, const ContentFetcherTrack & track) {
 	if (error == QNetworkReply::NoError) {
 		_webBrowser->setSourceWithoutLoading(url);
 		_webBrowser->setHtml(QString::fromUtf8(wikipediaArticle));

@@ -72,11 +72,10 @@ signals:
 	 * @param error the error code that was detected
 	 * @param url of the content
 	 * @param content the reply
-	 * @param accurate if we are sure that the content matches the request or not
 	 * @param track track informations used by the user to get the reply
 	 */
 	void contentFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & content,
-		bool accurate, const ContentFetcherTrack & track);
+		const ContentFetcherTrack & track);
 
 protected:
 
@@ -90,7 +89,7 @@ protected:
 	/**
 	 * Code factorization: send signal, the content has been retrieved without error.
 	 */
-	void emitContentFoundWithoutError(const QUrl & url, const QByteArray & content, bool accurate);
+	void emitContentFoundWithoutError(const QUrl & url, const QByteArray & content);
 
 	/**
 	 * Checks if the track informations are OK.

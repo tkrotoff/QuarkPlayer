@@ -80,11 +80,9 @@ public slots:
 
 private slots:
 
-	void lyricsFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & lyrics,
-		bool accurate, const ContentFetcherTrack & track);
+	void lyricsFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & lyrics, const ContentFetcherTrack & track);
 
-	void wikipediaArticleFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & wikipediaArticle,
-		bool accurate, const ContentFetcherTrack & track);
+	void wikipediaArticleFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & wikipediaArticle, const ContentFetcherTrack & track);
 
 	void updateMediaInfo();
 
