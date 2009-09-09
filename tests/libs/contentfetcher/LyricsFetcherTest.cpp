@@ -20,8 +20,6 @@
 
 #include <contentfetcher/LyricsFetcher.h>
 
-QTEST_MAIN(LyricsFetcherTest)
-
 void LyricsFetcherTest::initTestCase() {
 	_lyricsFetcher = new LyricsFetcher(this);
 	connect(_lyricsFetcher,

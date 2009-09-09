@@ -1,21 +1,24 @@
-project(lyricsfetchertest)
+project(contentfetchertest)
 
-set(lyricsfetchertest_SRCS
+set(contentfetchertest_SRCS
 	LyricsFetcherTest.cpp
+	WikipediaArticleTest.cpp
+	main.cpp
 )
 
-qt4_wrap_cpp(lyricsfetchertest_SRCS
+qt4_wrap_cpp(contentfetchertest_SRCS
 	LyricsFetcherTest.h
+	WikipediaArticleTest.h
 )
 
-add_executable(lyricsfetchertest ${lyricsfetchertest_SRCS})
-add_test(LyricsFetcherTest lyricsfetchertest)
+add_executable(contentfetchertest ${contentfetchertest_SRCS})
+add_test(contentfetchertest contentfetchertest)
 
-target_link_libraries(lyricsfetchertest
+target_link_libraries(contentfetchertest
 	contentfetcher
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTTEST_LIBRARY}
 )
 
-install(TARGETS lyricsfetchertest ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS contentfetchertest ${INSTALL_TARGETS_DEFAULT_ARGS})
