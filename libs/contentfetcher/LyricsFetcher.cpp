@@ -45,9 +45,7 @@ QUrl LyricsFetcher::lyricWikiUrl(const QString & artist, const QString & title) 
 }
 
 void LyricsFetcher::start(const ContentFetcherTrack & track, const QString & language) {
-	if (ContentFetcher::isTrackEmpty(track, language)) {
-		return;
-	}
+	_track = track;
 
 	disconnect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
 	connect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)),

@@ -27,18 +27,6 @@ ContentFetcher::ContentFetcher(QObject * parent)
 ContentFetcher::~ContentFetcher() {
 }
 
-bool ContentFetcher::isTrackEmpty(const ContentFetcherTrack & track, const QString & language) {
-	_track = track;
-	_language = language;
-
-	if (track.title.isEmpty() && track.artist.isEmpty() && track.album.isEmpty()) {
-		emitNetworkError(QNetworkReply::OperationCanceledError, QUrl());
-		return true;
-	} else {
-		return false;
-	}
-}
-
 void ContentFetcher::emitNetworkError(QNetworkReply::NetworkError error, const QUrl & url) {
 	emit contentFound(error, url, QByteArray(), _track);
 }

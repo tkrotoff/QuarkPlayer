@@ -22,12 +22,13 @@
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
 
-#include <QtNetwork/QHttp>
+#include <QtXml/QXmlStreamReader>
 
-#include <QtCore/QDebug>
+#include <QtCore/QStringList>
 #include <QtCore/QtGlobal>
 #include <QtCore/QRegExp>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDebug>
 
 WikipediaArticle::WikipediaArticle(QObject * parent)
 	: ContentFetcher(parent) {
@@ -55,13 +56,13 @@ QUrl WikipediaArticle::wikipediaSearchUrl(const QString & searchTerm, const QStr
 	QUrl url(_wikipediaHostName + "/w/api.php");
 	url.addQueryItem("action", "opensearch");
 	url.addQueryItem("search", searchTerm);
+	url.addQueryItem("format", "xml");
 	return url;
 }
 
 void WikipediaArticle::start(const ContentFetcherTrack & track, const QString & language) {
-	if (ContentFetcher::isTrackEmpty(track, language)) {
-		return;
-	}
+	_track = track;
+	_language = language;
 
 	qDebug() << __FUNCTION__ << "Looking up for the Wikipedia article";
 
@@ -70,20 +71,33 @@ void WikipediaArticle::start(const ContentFetcherTrack & track, const QString & 
 
 void WikipediaArticle::gotWikipediaSearchAnswer(QNetworkReply * reply) {
 	QNetworkReply::NetworkError error = reply->error();
-	QString data(reply->readAll());
+	QString data = QString::fromUtf8(reply->readAll());
+
+	qDebug() << __FUNCTION__ << reply->url();
 
 	if (error != QNetworkReply::NoError) {
 		emitNetworkError(error, reply->url());
 		return;
 	}
 
-	//Some parsing
-	data.remove("[");
-	data.remove("]]");
-	data.remove("\"");
-	QStringList tmp = data.split(",");
+	//Parse the XML and only keep the URLs
+	QStringList urls;
+	QXmlStreamReader xml(data);
+	while (!xml.atEnd()) {
+		xml.readNext();
+		switch (xml.tokenType()) {
+		case QXmlStreamReader::StartElement: {
+			QString element(xml.name().toString());
+			if (element == "Url") {
+				urls += xml.readElementText();
+			}
+			break;
+		}
+		}
+	}
 	///
 
+	//For each language, keywords specific to music
 	QRegExp * rx_artist = NULL;
 	static QRegExp rx_artist_en("^.*(band|musician|singer).*$");
 	static QRegExp rx_artist_fr("^.*(groupe|musicien|chanteur|chanteuse).*$");
@@ -103,19 +117,19 @@ void WikipediaArticle::gotWikipediaSearchAnswer(QNetworkReply * reply) {
 		//Default language is english
 		rx_artist = &rx_artist_en;
 	}
+	///
 
-	qDebug() << __FUNCTION__ << tmp;
 	QString wikipediaUrl;
-	int index = tmp.indexOf(*rx_artist);
+	int index = urls.indexOf(*rx_artist);
 	if (index == -1) {
 		//Search just failed
 		//let's take the first Wikipedia article from the list
-		//tmp[0] contains our search term not the answers
-		wikipediaUrl = _wikipediaHostName + "/wiki/" + tmp[1];
+		if (!urls.isEmpty()) {
+			wikipediaUrl = urls[0];
+		}
 	} else {
-		wikipediaUrl = _wikipediaHostName + "/wiki/" + tmp[index];
+		wikipediaUrl = urls[index];
 	}
-	wikipediaUrl.replace(" ", "_");
 
 	if (!wikipediaUrl.isEmpty()) {
 		//We've got the Wikipedia article URL
@@ -129,14 +143,14 @@ void WikipediaArticle::gotWikipediaArticle(QNetworkReply * reply) {
 	QNetworkReply::NetworkError error = reply->error();
 	QString data(QString::fromUtf8(reply->readAll()));
 
+	qDebug() << __FUNCTION__ << reply->url();
+
 	if (error != QNetworkReply::NoError) {
 		emitNetworkError(error, reply->url());
 		return;
 	}
 
 	simplifyAndFixWikipediaArticle(data);
-
-	qDebug() << __FUNCTION__;
 
 	//We've got the Wikipedia article
 	emitContentFoundWithoutError(reply->url(), data.toUtf8());

@@ -164,9 +164,7 @@ QUrl AmazonCoverArt::amazonUrl(const ContentFetcherTrack & track) const {
 }
 
 void AmazonCoverArt::start(const ContentFetcherTrack & track, const QString & language) {
-	if (ContentFetcher::isTrackEmpty(track, language)) {
-		return;
-	}
+	_track = track;
 
 	_track.album.replace(QRegExp("[[(<{].+"), QString());
 	_track.album.replace("-", QString());

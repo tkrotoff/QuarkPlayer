@@ -91,19 +91,6 @@ protected:
 	 */
 	void emitContentFoundWithoutError(const QUrl & url, const QByteArray & content);
 
-	/**
-	 * Checks if the track informations are OK.
-	 *
-	 * This is code factorization.
-	 * When implementing a ContentFetcher subclass, call this function
-	 * and check the returned value.
-	 *
-	 * @param track track informations
-	 * @param language language/locale (en, fr, de...)
-	 * @return true if everything is OK; false otherwise
-	 */
-	bool isTrackEmpty(const ContentFetcherTrack & track, const QString & language);
-
 	/** Can be reused by subclasses, code factorization. */
 	ContentFetcherTrack _track;
 
