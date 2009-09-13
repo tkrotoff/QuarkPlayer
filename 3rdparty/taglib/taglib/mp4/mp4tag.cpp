@@ -33,6 +33,7 @@
 #include <tstring.h>
 #include "mp4atom.h"
 #include "mp4tag.h"
+#include "id3v1genres.h"
 
 using namespace TagLib;
 
@@ -72,6 +73,9 @@ MP4::Tag::Tag(File *file, MP4::Atoms *atoms)
     }
     else if(atom->name == "tmpo") {
       parseInt(atom, file);
+    }
+    else if(atom->name == "gnre") {
+      parseGnre(atom, file);
     }
     else {
       parseText(atom, file);
@@ -131,6 +135,18 @@ MP4::Tag::parseInt(MP4::Atom *atom, TagLib::File *file)
 }
 
 void
+MP4::Tag::parseGnre(MP4::Atom *atom, TagLib::File *file)
+{
+  ByteVectorList data = parseData(atom, file);
+  if(data.size()) {
+    int idx = (int)data[0].toShort();
+    if(!d->items.contains("\251gen")) {
+      d->items.insert("\251gen", StringList(ID3v1::genre(idx)));
+    }
+  }
+}
+
+void
 MP4::Tag::parseIntPair(MP4::Atom *atom, TagLib::File *file)
 {
   ByteVectorList data = parseData(atom, file);
@@ -146,7 +162,8 @@ MP4::Tag::parseBool(MP4::Atom *atom, TagLib::File *file)
 {
   ByteVectorList data = parseData(atom, file);
   if(data.size()) {
-    d->items.insert(atom->name, data[0][0] != '\0');
+    bool value = data[0].size() ? data[0][0] != '\0' : false;
+    d->items.insert(atom->name, value);
   }
 }
 
@@ -314,9 +331,20 @@ MP4::Tag::updateParents(AtomList &path, long delta, int ignore)
 {
   for(unsigned int i = 0; i < path.size() - ignore; i++) {
     d->file->seek(path[i]->offset);
-    long size = d->file->readBlock(4).toUInt() + delta;
-    d->file->seek(path[i]->offset);
-    d->file->writeBlock(ByteVector::fromUInt(size));
+    long size = d->file->readBlock(4).toUInt();
+    // 64-bit
+    if (size == 1) {
+      d->file->seek(4, File::Current); // Skip name
+      long long longSize = d->file->readBlock(8).toLongLong();
+      // Seek the offset of the 64-bit size
+      d->file->seek(path[i]->offset + 8);
+      d->file->writeBlock(ByteVector::fromLongLong(longSize + delta));
+    }
+    // 32-bit
+    else {
+      d->file->seek(path[i]->offset);
+      d->file->writeBlock(ByteVector::fromUInt(size + delta));
+    }
   }
 }
 
