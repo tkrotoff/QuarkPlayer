@@ -41,8 +41,8 @@ namespace MediaInfoLib
 class File_Mk : public File__Analyze
 {
 protected :
-    //Buffer - Globals
-    void Read_Buffer_Finalize ();
+    //Streams management
+    void Streams_Finish();
 
 public :
     File_Mk();
@@ -293,6 +293,7 @@ private :
     int64u   TrackType;
 
     //Temp
+    std::vector<Ztring> AttachedFiles;
     int64u  TimecodeScale;
     float64 Duration;
     int64u  TrackNumber;

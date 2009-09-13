@@ -39,6 +39,8 @@
 #if defined(MEDIAINFO_MPEGPS_YES)
     #include "MediaInfo/Multiple/File_MpegPs.h"
 #endif
+#include "ZenLib/FileName.h"
+#include "MediaInfo/MediaInfo_Internal.h"
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -129,18 +131,21 @@ File_Mpeg4::File_Mpeg4()
     mdat_MustParse=false;
     moov_Done=false;
     moov_trak_mdia_mdhd_TimeScale=0;
+    MajorBrand=0x00000000;
     TimeScale=1;
     Vendor=0x00000000;
     IsParsing_mdat=false;
 }
 
 //***************************************************************************
-// Format
+// Streams management
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Mpeg4::Read_Buffer_Finalize()
+void File_Mpeg4::Streams_Finish()
 {
+    int64u File_Size_Total=File_Size;
+
     //For each stream
     std::map<int32u, stream>::iterator Temp=Stream.begin();
     while (Temp!=Stream.end())
@@ -153,7 +158,7 @@ void File_Mpeg4::Read_Buffer_Finalize()
         if (Temp->second.Parser)
         {
             //Finalizing and Merging
-            Open_Buffer_Finalize(Temp->second.Parser);
+            Finish(Temp->second.Parser);
             if (StreamKind_Last==Stream_General)
             {
                 //Special case for TimeCode without link
@@ -171,6 +176,7 @@ void File_Mpeg4::Read_Buffer_Finalize()
                     FrameRate_Mode_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate_Mode);
                 }
 
+                //Temp->second.Parser->Clear(StreamKind_Last, StreamPos_Last, "Delay"); //DV TimeCode is removed
                 Merge(*Temp->second.Parser, StreamKind_Last, 0, StreamPos_Last);
 
                 //Hacks - After
@@ -199,6 +205,7 @@ void File_Mpeg4::Read_Buffer_Finalize()
                         Fill_Flush();
                         Stream_Prepare(Stream_Audio);
                         size_t Pos=Count_Get(Stream_Audio)-1;
+                        //Temp->second.Parser->Clear(Stream_Audio, Audio_Pos, Audio_Delay); //DV TimeCode is removed
                         Merge(*Temp->second.Parser, Stream_Audio, Audio_Pos, StreamPos_Last);
                         Fill(Stream_Audio, Pos, Audio_MuxingMode, "DV");
                         Fill(Stream_Audio, Pos, Audio_Duration, Retrieve(Stream_Video, Temp->second.StreamPos, Video_Duration));
@@ -226,10 +233,96 @@ void File_Mpeg4::Read_Buffer_Finalize()
             }
         }
 
+        //External file name specific
+        if (!Temp->second.File_Name.empty())
+        {
+            //Configuring file name
+            Ztring AbsoluteName=ZenLib::FileName::Path_Get(File_Name);
+            if (!AbsoluteName.empty())
+                AbsoluteName+=ZenLib::PathSeparator;
+            AbsoluteName+=Temp->second.File_Name;
+
+            MediaInfo_Internal MI;
+            MI.Option(_T("File_IsSub"), _T("1"));
+            Fill(Temp->second.StreamKind, Temp->second.StreamPos, "Source", Temp->second.File_Name);
+
+            if (MI.Open(AbsoluteName))
+            {
+                //Preparing
+                StreamKind_Last=Temp->second.StreamKind;
+                StreamPos_Last=Temp->second.StreamPos;
+
+                //Hacks - Before
+                Ztring CodecID=Retrieve(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_CodecID));
+
+                Merge(*(MI.Info), Temp->second.StreamKind, 0, Temp->second.StreamPos);
+                File_Size_Total+=Ztring(MI.Get(Stream_General, 0, General_FileSize)).To_int64u();
+
+                //Hacks - After
+                if (CodecID!=Retrieve(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_CodecID)))
+                {
+                    CodecID+=_T(" / ");
+                    CodecID+=Retrieve(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_CodecID));
+                    Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_CodecID), CodecID, true);
+                }
+
+                //Special case: DV with Audio or/and Text in the video stream
+                if (StreamKind_Last==Stream_Video && MI.Info && (MI.Info->Count_Get(Stream_Audio) || MI.Info->Count_Get(Stream_Text)))
+                {
+                    //Video and Audio are together
+                    size_t Audio_Count=MI.Info->Count_Get(Stream_Audio);
+                    for (size_t Audio_Pos=0; Audio_Pos<Audio_Count; Audio_Pos++)
+                    {
+                        Fill_Flush();
+                        Stream_Prepare(Stream_Audio);
+                        size_t Pos=Count_Get(Stream_Audio)-1;
+                        Merge(*MI.Info, Stream_Audio, Audio_Pos, StreamPos_Last);
+                        Fill(Stream_Audio, Pos, Audio_MuxingMode, "DV");
+                        Fill(Stream_Audio, Pos, Audio_Duration, Retrieve(Stream_Video, Temp->second.StreamPos, Video_Duration));
+                        Fill(Stream_Audio, Pos, "MuxingMode_MoreInfo", _T("Muxed in Video #")+Ztring().From_Number(Temp->second.StreamPos+1));
+                        Fill(Stream_Audio, Pos, Audio_StreamSize, "0"); //Included in the DV stream size
+                        Ztring ID=Retrieve(Stream_Audio, Pos, Audio_ID);
+                        Fill(Stream_Audio, Pos, Audio_ID, Retrieve(Stream_Video, Temp->second.StreamPos, Video_ID)+_T("-")+ID, true);
+                    }
+
+                    //Video and Text are together
+                    size_t Text_Count=MI.Info->Count_Get(Stream_Text);
+                    for (size_t Text_Pos=0; Text_Pos<Text_Count; Text_Pos++)
+                    {
+                        Fill_Flush();
+                        Stream_Prepare(Stream_Text);
+                        size_t Pos=Count_Get(Stream_Text)-1;
+                        Merge(*MI.Info, Stream_Text, Text_Pos, StreamPos_Last);
+                        Fill(Stream_Text, Pos, "MuxingMode", "MPEG Video");
+                        Fill(Stream_Text, Pos, "MuxingMode_MoreInfo", _T("Muxed in Video #")+Ztring().From_Number(Temp->second.StreamPos+1));
+                        Fill(Stream_Text, Pos, Text_StreamSize, 0); //Included in the DV stream size
+                        Ztring ID=Retrieve(Stream_Text, Pos, Text_ID);
+                        Fill(Stream_Text, Pos, Text_ID, Retrieve(Stream_Video, Temp->second.StreamPos, Video_ID)+_T("-")+ID, true);
+                    }
+                }
+            }
+            else
+                Fill(Temp->second.StreamKind, Temp->second.StreamPos, "Source_Info", "Missing");
+
+        }
+
         Temp++;
     }
     if (Vendor!=0x00000000 && Vendor!=0xFFFFFFFF)
-        Fill(Stream_General, 0, General_Encoded_Library, Mpeg4_Encoded_Library(Vendor));
+    {
+        Ztring VendorS=Mpeg4_Encoded_Library(Vendor);
+        if (!Vendor_Version.empty())
+        {
+            VendorS+=_T(' ');
+            VendorS+=Vendor_Version;
+        }
+        Fill(Stream_General, 0, General_Encoded_Library, VendorS);
+        Fill(Stream_General, 0, General_Encoded_Library_Name, Mpeg4_Encoded_Library(Vendor));
+        Fill(Stream_General, 0, General_Encoded_Library_Version, Vendor_Version);
+    }
+
+    if (File_Size_Total!=File_Size)
+        Fill(Stream_General, 0, General_FileSize, File_Size_Total, 10, true);
 
     //Purge what is not needed anymore
     if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
@@ -263,6 +356,8 @@ void File_Mpeg4::Header_Parse()
         Header_Fill_Size(mdat_Pos.begin()->second.Size);
         if (Buffer_Offset+mdat_Pos.begin()->second.Size<=Buffer_Size)
             mdat_Pos.erase(mdat_Pos.begin()); //Only if we will not need it later (in case of partial data, this function will be called again for the same chunk)
+        else
+            Element_WaitForMoreData();
         return;
     }
 
@@ -418,14 +513,15 @@ void File_Mpeg4::Descriptors()
     //Preparing
     File_Mpeg4_Descriptors MI;
     MI.KindOfStream=StreamKind_Last;
+    MI.MajorBrand=MajorBrand;
     MI.Parser_DoNotFreeIt=true;
     Open_Buffer_Init(&MI);
 
     //Parsing
     Open_Buffer_Continue(&MI, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
-    Open_Buffer_Finalize(&MI);
 
     //Filling
+    Finish(&MI);
     Merge(MI, StreamKind_Last, 0, StreamPos_Last);
 
     //Position

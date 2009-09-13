@@ -78,6 +78,26 @@ File__Tags_Helper::File__Tags_Helper()
 }
 
 //***************************************************************************
+// Streams management
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File__Tags_Helper::Streams_Fill()
+{
+}
+
+//---------------------------------------------------------------------------
+void File__Tags_Helper::Streams_Finish()
+{
+    if (!Base->IsSub)
+    {
+        Base->Fill(Stream_General, 0, General_StreamSize, TagsSize+Base->Retrieve(Stream_General, 0, General_StreamSize).To_int64u(), 10, true);
+        if (Base->Retrieve(Stream_Audio, 0, Audio_StreamSize).empty())
+            Base->Fill(Stream_Audio, 0, Audio_StreamSize, Base->File_Size-TagsSize);
+    }
+}
+
+//***************************************************************************
 // Buffer - Global
 //***************************************************************************
 
@@ -94,13 +114,6 @@ bool File__Tags_Helper::Read_Buffer_Continue()
 //---------------------------------------------------------------------------
 void File__Tags_Helper::Read_Buffer_Finalize()
 {
-    if (!Base->IsSub)
-    {
-        if (Base->Retrieve(Stream_Audio, 0, General_StreamSize).empty())
-            Base->Fill(Stream_General, 0, General_StreamSize, TagsSize);
-        if (Base->Retrieve(Stream_Audio, 0, Audio_StreamSize).empty())
-            Base->Fill(Stream_Audio, 0, Audio_StreamSize, Base->File_Size-TagsSize);
-    }
 }
 
 //***************************************************************************
@@ -111,9 +124,6 @@ void File__Tags_Helper::Read_Buffer_Finalize()
 bool File__Tags_Helper::Synchronize(bool &Tag_Found, size_t Synchro_Offset)
 {
     //Buffer size
-    if (Base->Buffer_Offset+Synchro_Offset+3>Base->Buffer_Size)
-        return false;
-
     if (Parser)
     {
         Synched_Test();
@@ -128,6 +138,8 @@ bool File__Tags_Helper::Synchronize(bool &Tag_Found, size_t Synchro_Offset)
     }
 
     //ID
+    if (Base->Buffer_Offset+Synchro_Offset+3>Base->Buffer_Size)
+        return false;
     switch (CC3(Base->Buffer+Base->Buffer_Offset+Synchro_Offset))
     {
         case 0x494433 : //"ID3"
@@ -249,7 +261,7 @@ bool File__Tags_Helper::Synched_Test()
             Base->Buffer_Offset+=(size_t)Size_ToParse;
             TagsSize+=Size_ToParse;
             Parser_Buffer_Size-=(size_t)Size_ToParse;
-            if (Parser->IsFinished || Parser_Buffer_Size==0)
+            if (Parser->Status[File__Analyze::IsFinished] || Parser_Buffer_Size==0)
             {
                 if (Parser->Count_Get(Stream_General)>0)
                 {

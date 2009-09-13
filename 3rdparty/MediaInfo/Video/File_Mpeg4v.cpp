@@ -25,6 +25,106 @@
 #endif
 //---------------------------------------------------------------------------
 
+//***************************************************************************
+// Constants (Common)
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+#if defined(MEDIAINFO_MPEG4V_YES) || defined(MEDIAINFO_MPEG4_YES)
+//---------------------------------------------------------------------------
+
+#include "ZenLib/Conf.h"
+#include "ZenLib/Utils.h"
+using namespace ZenLib;
+
+namespace MediaInfoLib
+{
+
+//---------------------------------------------------------------------------
+const char* Mpeg4v_Profile_Level(int32u Profile_Level)
+{
+    switch (Profile_Level)
+    {
+        case B8(00000001) : return "Simple@L1";
+        case B8(00000010) : return "Simple@L2";
+        case B8(00000011) : return "Simple@L3";
+        case B8(00000100) : return "Simple@L4a";
+        case B8(00000101) : return "Simple@L5";
+        case B8(00000110) : return "Simple@L6";
+        case B8(00001000) : return "Simple@L0";
+        case B8(00001001) : return "Simple@L0b";
+        case B8(00010000) : return "SimpleScalable@L0";
+        case B8(00010001) : return "SimpleScalable@L1";
+        case B8(00010010) : return "SimpleScalable@L2";
+        case B8(00010101) : return "AVC"; //For descriptors
+        case B8(00100001) : return "Core@L1";
+        case B8(00100010) : return "Core@L2";
+        case B8(00110010) : return "Main@L2";
+        case B8(00110011) : return "Main@L3";
+        case B8(00110100) : return "Main@L4";
+        case B8(01000010) : return "N-bit@L2";
+        case B8(01010001) : return "ScalableTexture@L1";
+        case B8(01100001) : return "SimpleFaceAnimation@L1";
+        case B8(01100010) : return "SimpleFaceAnimation@L2";
+        case B8(01100011) : return "SimpleFBA@L1";
+        case B8(01100100) : return "SimpleFBA@L2";
+        case B8(01110001) : return "BasicAnimatedTexture@L1";
+        case B8(01110010) : return "BasicAnimatedTexture@L2";
+        case B8(01111111) : return "AVC"; //For descriptors
+        case B8(10000001) : return "Hybrid@L1";
+        case B8(10000010) : return "Hybrid@L2";
+        case B8(10010001) : return "AdvancedRealTimeSimple@L1";
+        case B8(10010010) : return "AdvancedRealTimeSimple@L2";
+        case B8(10010011) : return "AdvancedRealTimeSimple@L3";
+        case B8(10010100) : return "AdvancedRealTimeSimple@L4";
+        case B8(10100001) : return "CoreScalable@L1";
+        case B8(10100010) : return "CoreScalable@L2";
+        case B8(10100011) : return "CoreScalable@L3";
+        case B8(10110001) : return "AdvancedCodingEfficiency@L1";
+        case B8(10110010) : return "AdvancedCodingEfficiency@L2";
+        case B8(10110011) : return "AdvancedCodingEfficiency@L3";
+        case B8(10110100) : return "AdvancedCodingEfficiency@L4";
+        case B8(11000001) : return "AdvancedCore@L1";
+        case B8(11000010) : return "AdvancedCore@L2";
+        case B8(11010001) : return "AdvancedScalableTexture@L1";
+        case B8(11010010) : return "AdvancedScalableTexture@L2";
+        case B8(11010011) : return "AdvancedScalableTexture@L3";
+        case B8(11100001) : return "SimpleStudio@L1";
+        case B8(11100010) : return "SimpleStudio@L2";
+        case B8(11100011) : return "SimpleStudio@L3";
+        case B8(11100100) : return "SimpleStudio@L4";
+        case B8(11100101) : return "CoreStudio@L1";
+        case B8(11100110) : return "CoreStudio@L2";
+        case B8(11100111) : return "CoreStudio@L3";
+        case B8(11101000) : return "CoreStudio@L4";
+        case B8(11110000) : return "AdvancedSimple@L1";
+        case B8(11110001) : return "AdvancedSimple@L1";
+        case B8(11110010) : return "AdvancedSimple@L2";
+        case B8(11110011) : return "AdvancedSimple@L3";
+        case B8(11110100) : return "AdvancedSimple@L4";
+        case B8(11110101) : return "AdvancedSimple@L5";
+        case B8(11110111) : return "AdvancedSimple@L3b";
+        case B8(11111000) : return "FineGranularityScalable@L0";
+        case B8(11111001) : return "FineGranularityScalable@L1";
+        case B8(11111010) : return "FineGranularityScalable@L2";
+        case B8(11111011) : return "FineGranularityScalable@L3";
+        case B8(11111100) : return "FineGranularityScalable@L4";
+        case B8(11111101) : return "FineGranularityScalable@L5";
+        default :           return "";
+    }
+}
+
+//---------------------------------------------------------------------------
+} //NameSpace
+
+//---------------------------------------------------------------------------
+#endif //...
+//---------------------------------------------------------------------------
+
+//***************************************************************************
+//
+//***************************************************************************
+
 //---------------------------------------------------------------------------
 #if defined(MEDIAINFO_MPEG4V_YES)
 //---------------------------------------------------------------------------
@@ -40,7 +140,7 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
-// Infos
+// Constants
 //***************************************************************************
 
 //---------------------------------------------------------------------------
@@ -123,68 +223,6 @@ const char* Mpeg4v_vop_coding_type[]=
     "B",
     "S",
 };
-
-//---------------------------------------------------------------------------
-const char* Mpeg4v_Profile_Level(int32u Profile_Level)
-{
-    switch (Profile_Level)
-    {
-        case B8(00000001) : return "Simple@L1";
-        case B8(00000010) : return "Simple@L2";
-        case B8(00000011) : return "Simple@L3";
-        case B8(00010001) : return "Simple Scalable@L1";
-        case B8(00010010) : return "Simple Scalable@L2";
-        case B8(00100001) : return "Core@L1";
-        case B8(00100010) : return "Core@L2";
-        case B8(00110010) : return "Main@L2";
-        case B8(00110011) : return "Main@L3";
-        case B8(00110100) : return "Main@L4";
-        case B8(01000010) : return "N-bit@L2";
-        case B8(01010001) : return "Scalable Texture@L1";
-        case B8(01100001) : return "Simple Face Animation@L1";
-        case B8(01100010) : return "Simple Face Animation@L2";
-        case B8(01100011) : return "Simple FBA@L1";
-        case B8(01100100) : return "Simple FBA@L2";
-        case B8(01110001) : return "Basic Animated Texture@L1";
-        case B8(01110010) : return "Basic Animated Texture@L2";
-        case B8(10000001) : return "Hybrid@L1";
-        case B8(10000010) : return "Hybrid@L2";
-        case B8(10010001) : return "Advanced Real Time Simple@L1";
-        case B8(10010010) : return "Advanced Real Time Simple@L2";
-        case B8(10010011) : return "Advanced Real Time Simple@L3";
-        case B8(10010100) : return "Advanced Real Time Simple@L4";
-        case B8(10100001) : return "Core Scalable@L1";
-        case B8(10100010) : return "Core Scalable@L2";
-        case B8(10100011) : return "Core Scalable@L3";
-        case B8(10110001) : return "Advanced Coding Efficiency@L1";
-        case B8(10110010) : return "Advanced Coding Efficiency@L2";
-        case B8(10110011) : return "Advanced Coding Efficiency@L3";
-        case B8(10110100) : return "Advanced Coding Efficiency@L4";
-        case B8(11000001) : return "Advanced Core@L1";
-        case B8(11000010) : return "Advanced Core@L2";
-        case B8(11010001) : return "Advanced Scalable Texture@L1";
-        case B8(11010010) : return "Advanced Scalable Texture@L2";
-        case B8(11010011) : return "Advanced Scalable Texture@L3";
-        case B8(11100001) : return "Simple Studio@L1";
-        case B8(11100010) : return "Simple Studio@L2";
-        case B8(11100011) : return "Simple Studio@L3";
-        case B8(11100100) : return "Simple Studio@L4";
-        case B8(11100101) : return "Core Studio@L1";
-        case B8(11100110) : return "Core Studio@L2";
-        case B8(11100111) : return "Core Studio@L3";
-        case B8(11101000) : return "Core Studio@L4";
-        case B8(11110001) : return "Simple Streaming Video@L1";
-        case B8(11110010) : return "Simple Streaming Video@L2";
-        case B8(11110011) : return "Simple Streaming Video@L3";
-        case B8(11110100) : return "Simple Streaming Video@L4";
-        case B8(11110101) : return "Streaming Video@L1";
-        case B8(11110110) : return "Streaming Video@L2";
-        case B8(11110111) : return "Streaming Video@L3";
-        case B8(11111000) : return "Streaming Video@L4";
-        case B8(11111111) : return "";
-        default :           return "";
-    }
-}
 
 //***************************************************************************
 // Constructor/Destructor
@@ -314,21 +352,163 @@ void File_Mpeg4v::Synched_Init()
     Streams[0xB0].Searching_Payload=true; //visual_object_sequence_start
     Streams[0xB5].Searching_Payload=true; //visual_object_start
     NextCode_Add(0x20); //video_object_layer_start
-    for (int8u Pos=0xB7; Pos!=0x00; Pos++)
-        Streams[Pos].Searching_Payload=true; //Testing other mpeg4v elements and MPEG-PS
+    for (int8u Pos=0xFF; Pos>=0xB9; Pos--)
+        Streams[Pos].Searching_Payload=true; //Testing MPEG-PS
 }
 
 //***************************************************************************
-// Buffer - Global
+// Streams management
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Mpeg4v::Read_Buffer_Finalize()
+void File_Mpeg4v::Streams_Fill()
 {
-    //In case of partial data, and finalizing is forced (example: DecConfig in .mp4), but with at least one frame
-    if (!IsFilled && video_object_layer_start_IsParsed)
-        vop_start_Fill();
+    //Filling
+    Stream_Prepare(Stream_General);
+    Fill(Stream_General, 0, General_Format, "MPEG-4 Visual");
+    Stream_Prepare(Stream_Video);
+    Fill(Stream_Video, 0, Video_Format, "MPEG-4 Visual");
+    Fill(Stream_Video, 0, Video_Codec, "MPEG-4V");
 
+    if (profile_and_level_indication>0)
+    {
+        Fill(Stream_Video, 0, Video_Format_Profile, Mpeg4v_Profile_Level(profile_and_level_indication));
+        Fill(Stream_Video, 0, Video_Codec_Profile, Mpeg4v_Profile_Level(profile_and_level_indication));
+    }
+
+    if (fixed_vop_time_increment && vop_time_increment_resolution)
+        Fill(Stream_Video, StreamPos_Last, Video_FrameRate, ((float)vop_time_increment_resolution)/fixed_vop_time_increment);
+    if (object_layer_height)
+    {
+        Fill(Stream_Video, StreamPos_Last, Video_Width, object_layer_width);
+        Fill(Stream_Video, StreamPos_Last, Video_Height, object_layer_height);
+        float32 PixelAspectRatio_Value=1.0;
+             if (aspect_ratio_info==0x01) PixelAspectRatio_Value=(float32)1;
+             if (aspect_ratio_info==0x02) PixelAspectRatio_Value=(float32)12/(float32)11;
+        else if (aspect_ratio_info==0x03) PixelAspectRatio_Value=(float32)10/(float32)11;
+        else if (aspect_ratio_info==0x04) PixelAspectRatio_Value=(float32)16/(float32)11;
+        else if (aspect_ratio_info==0x05) PixelAspectRatio_Value=(float32)40/(float32)13;
+        else if (aspect_ratio_info==0x0F && par_height) PixelAspectRatio_Value=((float32)par_width)/par_height;
+        Fill(Stream_Video, 0, Video_PixelAspectRatio, PixelAspectRatio_Value, 3, true);
+        Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, ((float)object_layer_width)/object_layer_height*PixelAspectRatio_Value, 3, true);
+    }
+    Fill(Stream_Video, 0, Video_Resolution, bits_per_pixel*3);
+    if (chroma_format<4)
+        Fill(Stream_Video, 0, Video_Colorimetry, Mpeg4v_Colorimetry[chroma_format]);
+    if (low_delay)
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings_BVOP, "No");
+        Fill(Stream_Video, 0, Video_Codec_Settings_BVOP, "No");
+    }
+    else
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings, "BVOP");
+        Fill(Stream_Video, 0, Video_Format_Settings_BVOP, "Yes");
+        Fill(Stream_Video, 0, Video_Codec_Settings, "BVOP");
+        Fill(Stream_Video, 0, Video_Codec_Settings_BVOP, "Yes");
+    }
+    if (no_of_sprite_warping_points)
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings, Ztring(_T("GMC"))+Ztring::ToZtring(no_of_sprite_warping_points));
+        Fill(Stream_Video, 0, Video_Format_Settings_GMC, no_of_sprite_warping_points);
+        Fill(Stream_Video, 0, Video_Codec_Settings, Ztring(_T("GMC"))+Ztring::ToZtring(no_of_sprite_warping_points));
+        Fill(Stream_Video, 0, Video_Codec_Settings_GMC, no_of_sprite_warping_points);
+    }
+    else
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings_GMC, 0);
+        Fill(Stream_Video, 0, Video_Codec_Settings_GMC, 0);
+    }
+    if (quarter_sample)
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings, "QPel");
+        Fill(Stream_Video, 0, Video_Format_Settings_QPel, "Yes");
+        Fill(Stream_Video, 0, Video_Codec_Settings, "QPel");
+        Fill(Stream_Video, 0, Video_Codec_Settings_QPel, "Yes");
+    }
+    else
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings_QPel, "No");
+        Fill(Stream_Video, 0, Video_Codec_Settings_QPel, "No");
+    }
+    if (!quant_type)
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings_Matrix, "Default (H.263)");
+        Fill(Stream_Video, 0, Video_Codec_Settings_Matrix, "Default (H.263)");
+    }
+    else if (load_intra_quant_mat_grayscale || load_nonintra_quant_mat_grayscale)
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings, "Custom Matrix (Gray)");
+        Fill(Stream_Video, 0, Video_Format_Settings_Matrix, "Custom (Gray)");
+        Fill(Stream_Video, 0, Video_Codec_Settings, "Custom Matrix (Gray)");
+        Fill(Stream_Video, 0, Video_Codec_Settings_Matrix, "Custom (Gray)");
+    }
+    else if (load_intra_quant_mat || load_nonintra_quant_mat)
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings, "Custom Matrix");
+        Fill(Stream_Video, 0, Video_Format_Settings_Matrix, "Custom");
+        Fill(Stream_Video, 0, Video_Format_Settings_Matrix_Data, Matrix_intra);
+        Fill(Stream_Video, 0, Video_Format_Settings_Matrix_Data, Matrix_nonintra);
+        Fill(Stream_Video, 0, Video_Codec_Settings, "Custom Matrix");
+        Fill(Stream_Video, 0, Video_Codec_Settings_Matrix, "Custom");
+    }
+    else
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings_Matrix, "Default (MPEG)");
+        Fill(Stream_Video, 0, Video_Codec_Settings_Matrix, "Default (MPEG)");
+    }
+    if (interlaced)
+    {
+        Fill(Stream_Video, 0, Video_ScanType, "Interlaced");
+        if ((Interlaced_Top && Interlaced_Bottom) || (!Interlaced_Top && !Interlaced_Bottom))
+            Fill(Stream_Video, 0, Video_Interlacement, "Interlaced");
+        else
+        {
+            Fill(Stream_Video, 0, Video_ScanOrder, Interlaced_Top?"TFF":"BFF");
+            Fill(Stream_Video, 0, Video_Interlacement, Interlaced_Top?"TFF":"BFF");
+        }
+    }
+    else
+    {
+        Fill(Stream_Video, 0, Video_ScanType, "Progressive");
+        Fill(Stream_Video, 0, Video_Interlacement, "PPF");
+    }
+    if (!Library.empty())
+    {
+        Fill(Stream_Video, 0, Video_Encoded_Library, Library);
+        Fill(Stream_Video, 0, Video_Encoded_Library_Name, Library_Name);
+        Fill(Stream_Video, 0, Video_Encoded_Library_Version, Library_Version);
+        Fill(Stream_Video, 0, Video_Encoded_Library_Date, Library_Date);
+    }
+    for (size_t Pos=0; Pos<user_data_start_SNC_Data.size(); Pos++)
+    {
+        if (user_data_start_SNC_Data[Pos][0]==_T("CamTim"))
+            Fill(Stream_General, 0, General_Recorded_Date, Ztring().Date_From_String(user_data_start_SNC_Data[Pos][1].To_UTF8().c_str()));
+        if (user_data_start_SNC_Data[Pos][0]==_T("FrmRate"))
+            Fill(Stream_Video, 0, Video_FrameRate, user_data_start_SNC_Data[Pos][1].To_float32(), 3);
+        if (user_data_start_SNC_Data[Pos][0]==_T("TimStamp"))
+            Fill(Stream_Video, 0, Video_Delay, user_data_start_SNC_Data[Pos][1].To_int64u());
+        Ztring A=user_data_start_SNC_Data[Pos][0];
+        if (user_data_start_SNC_Data[Pos][0]==_T("CamPos") && user_data_start_SNC_Data[Pos][1].size()==16)
+        {
+            Fill(Stream_Video, 0, "Pan / Tilt / Zoom / Status", Ztring(user_data_start_SNC_Data[Pos][1].substr( 3, 4)).To_int8u(16));
+            Fill(Stream_Video, 0, "Pan / Tilt / Zoom / Status", Ztring(user_data_start_SNC_Data[Pos][1].substr( 7, 4)).To_int8u(16));
+            Fill(Stream_Video, 0, "Pan / Tilt / Zoom / Status", Ztring(user_data_start_SNC_Data[Pos][1].substr(11, 4)).To_int8u(16));
+            if (user_data_start_SNC_Data[Pos][1][15]==_T('M'))
+                Fill(Stream_Video, 0, "Pan / Tilt / Zoom / Status", _T("Move"));
+            else if (user_data_start_SNC_Data[Pos][1][15]==_T('S'))
+                Fill(Stream_Video, 0, "Pan / Tilt / Zoom / Status", _T("Stop"));
+            else
+                Fill(Stream_Video, 0, "Pan / Tilt / Zoom / Status", Ztring(1, user_data_start_SNC_Data[Pos][1][15]));
+        }
+        if (user_data_start_SNC_Data[Pos][0]==_T("AlmEvent") && user_data_start_SNC_Data[Pos][1].size()==16)
+            Fill(Stream_Video, 0, "Alarm event", user_data_start_SNC_Data[Pos][1]);
+    }
+}
+
+//---------------------------------------------------------------------------
+void File_Mpeg4v::Streams_Finish()
+{
     //Purge what is not needed anymore
     if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
         Streams.clear();
@@ -389,8 +569,10 @@ bool File_Mpeg4v::Header_Parser_Fill_Size()
 //---------------------------------------------------------------------------
 bool File_Mpeg4v::Header_Parser_QuickSearch()
 {
-    while (           Buffer_Offset+4<=Buffer_Size
-      &&   CC3(Buffer+Buffer_Offset)==0x000001)
+    while (       Buffer_Offset+4<=Buffer_Size
+      &&   Buffer[Buffer_Offset  ]==0x00
+      &&   Buffer[Buffer_Offset+1]==0x00
+      &&   Buffer[Buffer_Offset+2]==0x01)
     {
         //Getting start_code
         int8u start_code=CC1(Buffer+Buffer_Offset+3);
@@ -399,21 +581,16 @@ bool File_Mpeg4v::Header_Parser_QuickSearch()
         if (Streams[start_code].Searching_Payload)
             return true;
 
-        //Getting size
+        //Synchronizing
         Buffer_Offset+=4;
-        while(Buffer_Offset+4<=Buffer_Size && CC3(Buffer+Buffer_Offset)!=0x000001)
-        {
-            Buffer_Offset+=2;
-            while(Buffer_Offset<Buffer_Size && Buffer[Buffer_Offset]!=0x00)
-                Buffer_Offset+=2;
-            if (Buffer_Offset<Buffer_Size && Buffer[Buffer_Offset-1]==0x00 || Buffer_Offset>=Buffer_Size)
-                Buffer_Offset--;
-        }
+        Synched=false;
+        if (!Synchronize_0x000001())
+            return false;
     }
 
-    if (Buffer_Offset+4<=Buffer_Size)
-        Trusted_IsNot("Mpeg4v, Synchronisation lost");
-    Synched=false;
+    if (Buffer_Offset+3==Buffer_Size)
+        return false; //Sync is OK, but start_code is not available
+    Trusted_IsNot("MPEG-4 Visual, Synchronisation lost");
     return Synchronize();
 }
 
@@ -479,6 +656,10 @@ void File_Mpeg4v::video_object_layer_start()
 {
     Element_Name("video_object_layer_start");
 
+    //Default
+    Matrix_intra.clear();
+    Matrix_nonintra.clear();
+
     //Parsing
     int8u  video_object_layer_verid=visual_object_verid;
     int8u  shape_extension=0;
@@ -516,9 +697,26 @@ void File_Mpeg4v::video_object_layer_start()
     Get_S1 (2, shape,                                           "video_object_layer_shape");
     if (shape==3 && video_object_layer_verid!=1) //Shape=GrayScale
         Get_S1 (4, shape_extension,                             "video_object_layer_shape_extension");
-    if (shape_extension==0 && shape_extension==1 && shape_extension==5 && shape_extension==7 && shape_extension==8) aux_comp_count=1;
-    if (shape_extension==2 && shape_extension==3 && shape_extension==6 && shape_extension==9 && shape_extension==11) aux_comp_count=2;
-    if (shape_extension==4 && shape_extension==10 && shape_extension==12) aux_comp_count=3;
+    switch (shape_extension)
+    {
+        case  0 :
+        case  1 :
+        case  5 :
+        case  7 :
+        case  8 :
+                    aux_comp_count=1; break;
+        case  2 :
+        case  3 :
+        case  6 :
+        case  9 :
+        case 11 :
+                    aux_comp_count=2; break;
+        case  4 :
+        case 10 :
+        case 12 :
+                    aux_comp_count=3; break;
+        default : ;
+    }
     Mark_1 ();
     Get_S2 (16, vop_time_increment_resolution,                  "vop_time_increment_resolution");
     int32u PowerOf2=1;
@@ -630,7 +828,7 @@ void File_Mpeg4v::video_object_layer_start()
                 Matrix_nonintra="Default";
             if(shape==3) //Shape=GrayScale
             {
-                for(size_t Pos=0; Pos<aux_comp_count; Pos++)
+                for(size_t aux_comp_Pos=0; aux_comp_Pos<aux_comp_count; aux_comp_Pos++)
                 {
                     Get_SB (load_intra_quant_mat_grayscale,     "load_intra_quant_mat_grayscale");
                     if(load_intra_quant_mat_grayscale)
@@ -639,7 +837,7 @@ void File_Mpeg4v::video_object_layer_start()
                             int8u intra_quant_mat_grayscale;
                             Get_S1 (8, intra_quant_mat_grayscale, "intra_quant_mat_grayscale");
                             if (!intra_quant_mat_grayscale)
-                                Pos=64;
+                                break;
                         }
                     Get_SB (load_nonintra_quant_mat_grayscale,  "load_nonintra_quant_mat_grayscale");
                     if(load_nonintra_quant_mat_grayscale)
@@ -648,7 +846,7 @@ void File_Mpeg4v::video_object_layer_start()
                             int8u nonintra_quant_mat_grayscale;
                             Get_S1 (8, nonintra_quant_mat_grayscale, "nonintra_quant_mat_grayscale");
                             if (!nonintra_quant_mat_grayscale)
-                                Pos=64;
+                                break;
                         }
                 }
             }
@@ -776,6 +974,8 @@ void File_Mpeg4v::video_object_layer_start()
 
         //Setting as OK
         video_object_layer_start_IsParsed=true;
+        if (!Status[IsAccepted])
+            Accept("MPEG-4 Visual");
     FILLING_END()
 }
 
@@ -835,26 +1035,59 @@ void File_Mpeg4v::user_data_start()
 {
     Element_Name("user_data_start");
 
-    //Rejecting junk from the end
-    size_t Library_End_Offset=(size_t)Element_Size;
-    while (Library_End_Offset>0
-        && (Buffer[Buffer_Offset+Library_End_Offset-1]<0x20
-         || Buffer[Buffer_Offset+Library_End_Offset-1]>0x7D
-         || (Buffer[Buffer_Offset+Library_End_Offset-1]>=0x3A
-          && Buffer[Buffer_Offset+Library_End_Offset-1]<=0x40)))
-        Library_End_Offset--;
-    if (Library_End_Offset==0)
+    //Sony SNC files (security video)
+    if (Element_Size>=120 && Element_Size<=140)
+    {
+        int64u SNC_Identifier;
+        Peek_B8(SNC_Identifier);
+        if (SNC_Identifier==0x43616D54696D3A20ULL)
+        {
+            user_data_start_SNC();
+            return;
+        }
+    }
+
+    //Rejecting junk at the begin
+    size_t Library_Start_Offset=0;
+    while (Library_Start_Offset+4<=Element_Size)
+    {
+        bool OK=true;
+        for (size_t Pos=0; Pos<4; Pos++)
+        {
+            if (!(Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x20 && Pos
+               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x22
+               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x27
+               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x28
+               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x29 && Pos
+               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]>=0x30
+               && Buffer[Buffer_Offset+Library_Start_Offset+Pos]<=0x3F
+               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]>=0x41
+               && Buffer[Buffer_Offset+Library_Start_Offset+Pos]<=0x7D))
+            {
+                OK=false;
+                break;
+            }
+        }
+        if (OK)
+            break;
+        Library_Start_Offset++;
+    }
+    if (Library_Start_Offset+4>Element_Size)
+    {
+        Skip_XX(Element_Size,                                   "junk");
         return; //No good info
+    }
 
     //Accepting good data after junk
-    size_t Library_Start_Offset=Library_End_Offset-1;
-    while (Library_Start_Offset>0 && (Buffer[Buffer_Offset+Library_Start_Offset-1]>=0x20 && Buffer[Buffer_Offset+Library_Start_Offset-1]<=0x7D))
-        Library_Start_Offset--;
-
-    //But don't accept non-alpha caracters at the beginning (except for "3ivx")
-    if (Library_End_Offset-Library_Start_Offset!=4 || CC4(Buffer+Buffer_Offset+Library_Start_Offset)!=0x33697678) //3ivx
-        while (Library_Start_Offset<Element_Size && Buffer[Buffer_Offset+Library_Start_Offset]<=0x40)
-            Library_Start_Offset++;
+    size_t Library_End_Offset=Library_Start_Offset+4;
+    while (Library_End_Offset<Element_Size
+        && (Buffer[Buffer_Offset+Library_End_Offset]==0x0D
+         || Buffer[Buffer_Offset+Library_End_Offset]==0x0A
+         || Buffer[Buffer_Offset+Library_End_Offset]>=0x20
+         && Buffer[Buffer_Offset+Library_End_Offset]<=0x3F
+         || Buffer[Buffer_Offset+Library_End_Offset]>=0x41
+         && Buffer[Buffer_Offset+Library_End_Offset]<=0x7D))
+        Library_End_Offset++;
 
     //Parsing
     Ztring Temp;
@@ -864,6 +1097,12 @@ void File_Mpeg4v::user_data_start()
         Get_Local(Library_End_Offset-Library_Start_Offset, Temp,"data");
     if (Element_Offset<Element_Size)
         Skip_XX(Element_Size-Element_Offset,                    "junk");
+
+    //Cleanup
+    while(Temp.size()>3 && Temp[1]==_T('e') && Temp[2]==_T('n') && Temp[3]==_T('c'))
+        Temp.erase(0, 1);
+    while(Temp.size()>5 && Temp[3]==_T('M') && Temp[4]==_T('P') && Temp[5]==_T('E'))
+        Temp.erase(0, 1);
 
     FILLING_BEGIN();
         if (Temp.size()>=4)
@@ -914,6 +1153,32 @@ void File_Mpeg4v::user_data_start()
             }
         }
     FILLING_END();
+}
+
+//---------------------------------------------------------------------------
+// Packet "B2", SNC (From Sony SNC surveillance video)
+void File_Mpeg4v::user_data_start_SNC()
+{
+    Element_Info("Sony SNC");
+
+    if (!user_data_start_SNC_Data.empty())
+    {
+        Skip_XX(Element_Size,                                   "Value");
+        return;
+    }
+
+    //Parsing
+    Ztring Value;
+    Get_Local(Element_Size, Value,                              "Value");
+    ZtringListList List;
+    List.Separator_Set(0, _T("\r\n"));
+    List.Separator_Set(1, _T(": "));
+    List.Write(Value);
+    for (size_t Pos=0; Pos<List.size(); Pos++)
+    {
+        if (List[Pos].size()==2)
+            user_data_start_SNC_Data(List[Pos][0])=List[Pos][1];
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -997,7 +1262,7 @@ void File_Mpeg4v::vop_start()
 {
     //Counting
     if (File_Offset+Buffer_Offset+Element_Size==File_Size)
-        Frame_Count_Valid=Frame_Count; //Finalize frames in case of there are less than Frame_Count_Valid frames
+        Frame_Count_Valid=Frame_Count; //Finish frames in case of there are less than Frame_Count_Valid frames
     Frame_Count++;
     Frame_Count_InThisBlock++;
 
@@ -1020,6 +1285,20 @@ void File_Mpeg4v::vop_start()
     }
     while (modulo_time_base_Continue);
     Mark_1 ();
+
+    FILLING_BEGIN();
+        if (time_size==0)
+        {
+            //Filling only if not already done
+            if (Frame_Count>=Frame_Count_Valid && Count_Get(Stream_Video)==0)
+            {
+                Accept("MPEG-4 Visual");
+                Finish("MPEG-4 Visual");
+            }
+            return;
+        }
+    FILLING_END();
+
     Info_S4(time_size, vop_time_increment,                      "vop_time_increment"); if (vop_time_increment_resolution) Param_Info(vop_time_increment*1000/vop_time_increment_resolution, " ms");
     Mark_1 ();
     Get_SB (vop_coded,                                          "vop_coded");
@@ -1195,137 +1474,12 @@ void File_Mpeg4v::vop_start()
         NextCode_Add(0xB6); //vop_start
 
         //Filling only if not already done
+        if (Frame_Count==2 && !Status[IsAccepted])
+            Accept("MPEG-4 Visual");
         if (Frame_Count>=Frame_Count_Valid && Count_Get(Stream_Video)==0)
-            vop_start_Fill();
+            Finish("MPEG-4 Visual");
 
     FILLING_END();
-}
-
-//---------------------------------------------------------------------------
-void File_Mpeg4v::vop_start_Fill()
-{
-    //Filling
-    Stream_Prepare(Stream_General);
-    Fill(Stream_General, 0, General_Format, "MPEG-4 Visual");
-    Stream_Prepare(Stream_Video);
-    Fill(Stream_Video, 0, Video_Format, "MPEG-4 Visual");
-    Fill(Stream_Video, 0, Video_Codec, "MPEG-4V");
-
-    if (profile_and_level_indication>0)
-    {
-        Fill(Stream_Video, 0, Video_Format_Profile, Mpeg4v_Profile_Level(profile_and_level_indication));
-        Fill(Stream_Video, 0, Video_Codec_Profile, Mpeg4v_Profile_Level(profile_and_level_indication));
-    }
-
-    if (fixed_vop_time_increment && vop_time_increment_resolution)
-        Fill(Stream_Video, StreamPos_Last, Video_FrameRate, ((float)vop_time_increment_resolution)/fixed_vop_time_increment);
-    if (object_layer_height)
-    {
-        Fill(Stream_Video, StreamPos_Last, Video_Width, object_layer_width);
-        Fill(Stream_Video, StreamPos_Last, Video_Height, object_layer_height);
-        float32 PixelAspectRatio_Value=1.0;
-             if (aspect_ratio_info==0x01) PixelAspectRatio_Value=(float32)1;
-             if (aspect_ratio_info==0x02) PixelAspectRatio_Value=(float32)12/(float32)11;
-        else if (aspect_ratio_info==0x03) PixelAspectRatio_Value=(float32)10/(float32)11;
-        else if (aspect_ratio_info==0x04) PixelAspectRatio_Value=(float32)16/(float32)11;
-        else if (aspect_ratio_info==0x05) PixelAspectRatio_Value=(float32)40/(float32)13;
-        else if (aspect_ratio_info==0x0F && par_height) PixelAspectRatio_Value=((float32)par_width)/par_height;
-        Fill(Stream_Video, 0, Video_PixelAspectRatio, PixelAspectRatio_Value);
-        Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, ((float)object_layer_width)/object_layer_height*PixelAspectRatio_Value);
-    }
-    Fill(Stream_Video, 0, Video_Resolution, bits_per_pixel*3);
-    if (chroma_format<4)
-        Fill(Stream_Video, 0, Video_Colorimetry, Mpeg4v_Colorimetry[chroma_format]);
-    if (low_delay)
-    {
-        Fill(Stream_Video, 0, Video_Format_Settings_BVOP, "No");
-        Fill(Stream_Video, 0, Video_Codec_Settings_BVOP, "No");
-    }
-    else
-    {
-        Fill(Stream_Video, 0, Video_Format_Settings, "BVOP");
-        Fill(Stream_Video, 0, Video_Format_Settings_BVOP, "Yes");
-        Fill(Stream_Video, 0, Video_Codec_Settings, "BVOP");
-        Fill(Stream_Video, 0, Video_Codec_Settings_BVOP, "Yes");
-    }
-    if (no_of_sprite_warping_points)
-    {
-        Fill(Stream_Video, 0, Video_Format_Settings, Ztring(_T("GMC"))+Ztring::ToZtring(no_of_sprite_warping_points));
-        Fill(Stream_Video, 0, Video_Format_Settings_GMC, no_of_sprite_warping_points);
-        Fill(Stream_Video, 0, Video_Codec_Settings, Ztring(_T("GMC"))+Ztring::ToZtring(no_of_sprite_warping_points));
-        Fill(Stream_Video, 0, Video_Codec_Settings_GMC, no_of_sprite_warping_points);
-    }
-    else
-    {
-        Fill(Stream_Video, 0, Video_Format_Settings_GMC, 0);
-        Fill(Stream_Video, 0, Video_Codec_Settings_GMC, 0);
-    }
-    if (quarter_sample)
-    {
-        Fill(Stream_Video, 0, Video_Format_Settings, "QPel");
-        Fill(Stream_Video, 0, Video_Format_Settings_QPel, "Yes");
-        Fill(Stream_Video, 0, Video_Codec_Settings, "QPel");
-        Fill(Stream_Video, 0, Video_Codec_Settings_QPel, "Yes");
-    }
-    else
-    {
-        Fill(Stream_Video, 0, Video_Format_Settings_QPel, "No");
-        Fill(Stream_Video, 0, Video_Codec_Settings_QPel, "No");
-    }
-    if (!quant_type)
-    {
-        Fill(Stream_Video, 0, Video_Format_Settings_Matrix, "Default (H.263)");
-        Fill(Stream_Video, 0, Video_Codec_Settings_Matrix, "Default (H.263)");
-    }
-    else if (load_intra_quant_mat_grayscale || load_nonintra_quant_mat_grayscale)
-    {
-        Fill(Stream_Video, 0, Video_Format_Settings, "Custom Matrix (Gray)");
-        Fill(Stream_Video, 0, Video_Format_Settings_Matrix, "Custom (Gray)");
-        Fill(Stream_Video, 0, Video_Codec_Settings, "Custom Matrix (Gray)");
-        Fill(Stream_Video, 0, Video_Codec_Settings_Matrix, "Custom (Gray)");
-    }
-    else if (load_intra_quant_mat || load_nonintra_quant_mat)
-    {
-        Fill(Stream_Video, 0, Video_Format_Settings, "Custom Matrix");
-        Fill(Stream_Video, 0, Video_Format_Settings_Matrix, "Custom");
-        Fill(Stream_Video, 0, Video_Format_Settings_Matrix_Data, Matrix_intra);
-        Fill(Stream_Video, 0, Video_Format_Settings_Matrix_Data, Matrix_nonintra);
-        Fill(Stream_Video, 0, Video_Codec_Settings, "Custom Matrix");
-        Fill(Stream_Video, 0, Video_Codec_Settings_Matrix, "Custom");
-    }
-    else
-    {
-        Fill(Stream_Video, 0, Video_Format_Settings_Matrix, "Default (MPEG)");
-        Fill(Stream_Video, 0, Video_Codec_Settings_Matrix, "Default (MPEG)");
-    }
-    if (interlaced)
-    {
-        Fill(Stream_Video, 0, Video_ScanType, "Interlaced");
-        if ((Interlaced_Top && Interlaced_Bottom) || (!Interlaced_Top && !Interlaced_Bottom))
-            Fill(Stream_Video, 0, Video_Interlacement, "Interlaced");
-        else
-        {
-            Fill(Stream_Video, 0, Video_ScanOrder, Interlaced_Top?"TFF":"BFF");
-            Fill(Stream_Video, 0, Video_Interlacement, Interlaced_Top?"TFF":"BFF");
-        }
-    }
-    else
-    {
-        Fill(Stream_Video, 0, Video_ScanType, "Progressive");
-        Fill(Stream_Video, 0, Video_Interlacement, "PPF");
-    }
-    if (!Library.empty())
-    {
-        Fill(Stream_Video, 0, Video_Encoded_Library, Library);
-        Fill(Stream_Video, 0, Video_Encoded_Library_Name, Library_Name);
-        Fill(Stream_Video, 0, Video_Encoded_Library_Version, Library_Version);
-        Fill(Stream_Video, 0, Video_Encoded_Library_Date, Library_Date);
-    }
-
-    //Jumping
-    Accept("MPEG-4 Visual");
-    IsFilled=true;
-    Finish("MPEG-4 Visual");
 }
 
 //---------------------------------------------------------------------------

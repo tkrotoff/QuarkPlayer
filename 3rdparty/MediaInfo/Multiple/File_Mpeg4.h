@@ -38,8 +38,8 @@ namespace MediaInfoLib
 class File_Mpeg4 : public File__Analyze
 {
 protected :
-    //Buffer - Global
-    void Read_Buffer_Finalize();
+    //Streams management
+    void Streams_Finish();
 
 public :
     File_Mpeg4();
@@ -260,15 +260,19 @@ private :
     float32                                 moov_trak_tkhd_Width;
     float32                                 moov_trak_tkhd_Height;
     float32                                 moov_trak_tkhd_DisplayAspectRatio;
+    float32                                 moov_trak_tkhd_Rotation;
     std::vector<std::string>                moov_udta_meta_keys_List;
     size_t                                  moov_udta_meta_keys_ilst_Pos;
     char                                    Language_Result[4];
+    int32u                                  MajorBrand;
     int32u                                  TimeScale;
     int32u                                  Vendor;
+    Ztring                                  Vendor_Version;
 
     //Data
     struct stream
     {
+        Ztring                  File_Name;
         File__Analyze*          Parser;
         stream_t                StreamKind;
         size_t                  StreamPos;

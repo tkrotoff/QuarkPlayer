@@ -57,7 +57,7 @@ void File_Theora::Header_Parse()
 void File_Theora::Data_Parse()
 {
     //Parsing
-    if (IsAccepted)
+    if (Status[IsAccepted])
         Setup();
     else
         Identification();
@@ -107,13 +107,14 @@ void File_Theora::Identification()
         Fill(Stream_Video, StreamPos_Last, Video_Codec, "Theora");
         if ((Version&0x030200)!=0x030200) //Version 3.2.x
             return;
-        Fill(Stream_Video, StreamPos_Last, Video_FrameRate, ((float)FRN)/FRD, 3);
+        if (FRN && FRD)
+            Fill(Stream_Video, StreamPos_Last, Video_FrameRate, ((float)FRN)/FRD, 3);
         float PixelRatio=1;
-        if (PARN && PARN)
-            PixelRatio=((float)PARN)/(float)PARN;
+        if (PARN && PARD)
+            PixelRatio=((float)PARN)/(float)PARD;
         Fill(Stream_Video, StreamPos_Last, Video_Width, PICW);
         Fill(Stream_Video, StreamPos_Last, Video_Height, PICH);
-        Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, ((float)PICW)/((float)PICH)*PixelRatio, 3);
+        Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, ((float)PICW)/((float)PICH)*PixelRatio, 3, true);
         if (NOMBR)
             Fill(Stream_Video, StreamPos_Last, Video_BitRate_Nominal, NOMBR);
     FILLING_END();

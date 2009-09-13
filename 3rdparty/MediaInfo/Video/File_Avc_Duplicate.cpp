@@ -28,6 +28,11 @@
     #pragma hdrstop
 #endif
 //---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+#if defined(MEDIAINFO_AVC_YES)
+//---------------------------------------------------------------------------
+
 //---------------------------------------------------------------------------
 #include "MediaInfo/Video/File_Avc.h"
 #include "MediaInfo/MediaInfo_Config.h"
@@ -55,7 +60,6 @@ void File_Avc::Option_Manage()
         //Autorisation of other streams
         Streams[0x07].ShouldDuplicate=true;
     }
-
 }
 
 //***************************************************************************
@@ -240,16 +244,18 @@ void File_Avc::File__Duplicate_Write (int64u Element_Code, int32u frame_num)
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-size_t File_Avc::Output_Buffer_Get (const String &Code_)
+size_t File_Avc::Output_Buffer_Get (const String &)
 {
     return Writer.Output_Buffer_Get();
 }
 
 //---------------------------------------------------------------------------
-size_t File_Avc::Output_Buffer_Get (size_t Pos)
+size_t File_Avc::Output_Buffer_Get (size_t)
 {
     return Writer.Output_Buffer_Get();
 }
 
 } //NameSpace
+
+#endif //MEDIAINFO_AVC_YES
 

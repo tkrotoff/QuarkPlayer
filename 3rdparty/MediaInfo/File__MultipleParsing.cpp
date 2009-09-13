@@ -116,6 +116,9 @@
 #if defined(MEDIAINFO_ADTS_YES)
     #include "MediaInfo/Audio/File_Adts.h"
 #endif
+#if defined(MEDIAINFO_ALS_YES)
+    #include "MediaInfo/Audio/File_Als.h"
+#endif
 #if defined(MEDIAINFO_AMR_YES)
     #include "MediaInfo/Audio/File_Amr.h"
 #endif
@@ -140,6 +143,9 @@
 #if defined(MEDIAINFO_IT_YES)
     #include "MediaInfo/Audio/File_ImpulseTracker.h"
 #endif
+#if defined(MEDIAINFO_LA_YES)
+    #include "MediaInfo/Audio/File_La.h"
+#endif
 #if defined(MEDIAINFO_MIDI_YES)
     #include "MediaInfo/Audio/File_Midi.h"
 #endif
@@ -160,6 +166,9 @@
 #endif
 #if defined(MEDIAINFO_S3M_YES)
     #include "MediaInfo/Audio/File_ScreamTracker3.h"
+#endif
+#if defined(MEDIAINFO_TAK_YES)
+    #include "MediaInfo/Audio/File_Tak.h"
 #endif
 #if defined(MEDIAINFO_TTA_YES)
     #include "MediaInfo/Audio/File_Tta.h"
@@ -353,6 +362,9 @@ File__MultipleParsing::File__MultipleParsing()
     #if defined(MEDIAINFO_ADTS_YES)
         Temp=new File_Adts(); Parser.push_back(Temp);
     #endif
+    #if defined(MEDIAINFO_ALS_YES)
+        Temp=new File_Als(); Parser.push_back(Temp);
+    #endif
     #if defined(MEDIAINFO_AMR_YES)
         Temp=new File_Amr(); Parser.push_back(Temp);
     #endif
@@ -368,14 +380,14 @@ File__MultipleParsing::File__MultipleParsing()
     #if defined(MEDIAINFO_DTS_YES)
         Temp=new File_Dts(); Parser.push_back(Temp);
     #endif
-    #if defined(MEDIAINFO_XM_YES)
-        Temp=new File_ExtendedModule(); Parser.push_back(Temp);
+    #if defined(MEDIAINFO_FLAC_YES)
+        Temp=new File_Flac(); Parser.push_back(Temp);
     #endif
     #if defined(MEDIAINFO_IT_YES)
         Temp=new File_ImpulseTracker(); Parser.push_back(Temp);
     #endif
-    #if defined(MEDIAINFO_FLAC_YES)
-        Temp=new File_Flac(); Parser.push_back(Temp);
+    #if defined(MEDIAINFO_LA_YES)
+        Temp=new File_La(); Parser.push_back(Temp);
     #endif
     #if defined(MEDIAINFO_MIDI_YES)
         Temp=new File_Midi(); Parser.push_back(Temp);
@@ -395,6 +407,9 @@ File__MultipleParsing::File__MultipleParsing()
     #if defined(MEDIAINFO_S3M_YES)
         Temp=new File_ScreamTracker3(); Parser.push_back(Temp);
     #endif
+    #if defined(MEDIAINFO_TAK_YES)
+        Temp=new File_Tak(); Parser.push_back(Temp);
+    #endif
     #if defined(MEDIAINFO_TTA_YES)
         Temp=new File_Tta(); Parser.push_back(Temp);
     #endif
@@ -403,6 +418,9 @@ File__MultipleParsing::File__MultipleParsing()
     #endif
     #if defined(MEDIAINFO_WVPK_YES)
         Temp=new File_Wvpk(); Parser.push_back(Temp);
+    #endif
+    #if defined(MEDIAINFO_XM_YES)
+        Temp=new File_ExtendedModule(); Parser.push_back(Temp);
     #endif
 
     // Text
@@ -501,7 +519,7 @@ void File__MultipleParsing::Read_Buffer_Continue()
         Parser[Pos]->Open_Buffer_Continue(Buffer+Buffer_Offset, (size_t)Element_Size);
 
         //Testing if the parser failed
-        if (Parser[Pos]->IsFinished && !Parser[Pos]->IsAccepted)
+        if (Parser[Pos]->Status[IsFinished] && !Parser[Pos]->Status[IsAccepted])
         {
             delete Parser[Pos];
             Parser.erase(Parser.begin()+Pos);
@@ -513,7 +531,7 @@ void File__MultipleParsing::Read_Buffer_Continue()
         else
         {
             //If Parser is found, erasing all the other parsers
-            if (Parser[Pos]->IsAccepted)
+            if (Parser[Pos]->Status[IsAccepted])
             {
                 if (Parser.size()>1)
                 {
@@ -525,7 +543,7 @@ void File__MultipleParsing::Read_Buffer_Continue()
                     Parser.push_back(Temp);
                     Pos=0;
                 }
-                IsAccepted=true;
+                Status[IsAccepted]=true;
             }
 
             //Positionning if requested
@@ -533,7 +551,7 @@ void File__MultipleParsing::Read_Buffer_Continue()
                File_GoTo=Parser[0]->File_GoTo;
 
             //Ending if requested
-            if (Parser.size()==1 && Parser[Pos]->IsFinished)
+            if (Parser.size()==1 && Parser[Pos]->Status[IsFinished])
                Accept();
         }
     }
@@ -548,8 +566,8 @@ void File__MultipleParsing::Read_Buffer_Finalize()
         Parser[Pos]->Open_Buffer_Finalize();
         Merge(*(Parser[Pos]));
         Merge(*(Parser[Pos]), Stream_General, 0, 0);
-        if (Parser[Pos]->IsAccepted)
-            IsAccepted=true;
+        if (Parser[Pos]->Status[IsAccepted])
+            Status[IsAccepted]=true;
     }
 }
 

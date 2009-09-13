@@ -115,14 +115,12 @@ bool File_Adts::Synchronize()
 
         if (Buffer_Offset+6<=Buffer_Size)//Testing if size is coherant
         {
-            //Retrieving some info
-            int16u aac_frame_length =(CC3(Buffer+Buffer_Offset+3)>>5)&0x1FFF;
             //Testing next start, to be sure
-            if (1)//File_Offset+Buffer_Offset+aac_frame_length!=File_Size-File_EndTagSize)
+            int16u aac_frame_length=(CC3(Buffer+Buffer_Offset+3)>>5)&0x1FFF;
+            if (IsSub && Buffer_Offset+aac_frame_length==Buffer_Size)
+                break;
+            if (File_Offset+Buffer_Offset+aac_frame_length!=File_Size-File_EndTagSize)
             {
-                if (/*IsSub && */Buffer_Offset+aac_frame_length==Buffer_Size)
-                    break;
-
                 if (Buffer_Offset+aac_frame_length+2>Buffer_Size)
                     return false; //Need more data
 
@@ -130,10 +128,26 @@ bool File_Adts::Synchronize()
                 if (aac_frame_length<=7 || (CC2(Buffer+Buffer_Offset+aac_frame_length)&0xFFF6)!=0xFFF0)
                     Buffer_Offset++;
                 else
-                    break; //while()
+                {
+                    //Testing next start, to be sure
+                    int16u aac_frame_length2=(CC3(Buffer+Buffer_Offset+aac_frame_length+3)>>5)&0x1FFF;
+                    if (File_Offset+Buffer_Offset+aac_frame_length+aac_frame_length2!=File_Size-File_EndTagSize)
+                    {
+                        if (Buffer_Offset+aac_frame_length+aac_frame_length2+2>Buffer_Size)
+                            return false; //Need more data
+
+                        //Testing
+                        if (aac_frame_length<=7 || (CC2(Buffer+Buffer_Offset+aac_frame_length+aac_frame_length2)&0xFFF6)!=0xFFF0)
+                            Buffer_Offset++;
+                        else
+                            break; //while()
+                    }
+                    else
+                        break; //while()
+                }
             }
             else
-                Buffer_Offset++;
+                break; //while()
         }
     }
 
@@ -213,7 +227,7 @@ void File_Adts::Data_Parse()
 {
     //Counting
     if (File_Offset+Buffer_Offset+Element_Size==File_Size)
-        Frame_Count_Valid=Frame_Count; //Finalize frames in case of there are less than Frame_Count_Valid frames
+        Frame_Count_Valid=Frame_Count; //Finish frames in case of there are less than Frame_Count_Valid frames
     Frame_Count++;
 
     //Name
@@ -223,13 +237,17 @@ void File_Adts::Data_Parse()
     Skip_XX(Element_Size,                                       "Data");
 
     //Filling
-    if (!IsAccepted && Frame_Count>=Frame_Count_Valid)
+    if (!Status[IsAccepted] && Frame_Count>=Frame_Count_Valid)
         Data_Parse_Fill();
 }
 
 //---------------------------------------------------------------------------
 void File_Adts::Data_Parse_Fill()
 {
+    //Handling implicit SBR and PS
+    bool sbrPresentFlag=ADTS_SamplingRate[sampling_frequency_index]<=24000;
+    bool psPresentFlag=channel_configuration<=1; //1 channel
+
     //Filling
     int32u BitRate=(ADTS_SamplingRate[sampling_frequency_index]/1024)*aac_frame_length*8;
     File__Tags_Helper::Stream_Prepare(Stream_General);
@@ -238,9 +256,10 @@ void File_Adts::Data_Parse_Fill()
     Fill(Stream_Audio, 0, Audio_Format, "AAC");
     Fill(Stream_Audio, 0, Audio_Format_Version, id?"Version 2":"Version 4");
     Fill(Stream_Audio, 0, Audio_Format_Profile, ADTS_Format_Profile[profile_ObjectType]);
-    Fill(Stream_Audio, 0, Audio_Codec, ADTS_Profile[profile_ObjectType]);
-    Fill(Stream_Audio, 0, Audio_SamplingRate, ADTS_SamplingRate[sampling_frequency_index]);
-    Fill(Stream_Audio, 0, Audio_Channel_s_, channel_configuration);
+    if (!sbrPresentFlag && !psPresentFlag)
+        Fill(Stream_Audio, 0, Audio_Codec, ADTS_Profile[profile_ObjectType]);
+    Fill(Stream_Audio, 0, Audio_SamplingRate, ADTS_SamplingRate[sampling_frequency_index]*(sbrPresentFlag?2:1));
+    Fill(Stream_Audio, 0, Audio_Channel_s_, psPresentFlag?2:channel_configuration);
     Fill(Stream_Audio, 0, Audio_MuxingMode, "ADTS");
     if (adts_buffer_fullness==0x7FF)
         Fill(Stream_Audio, 0, Audio_BitRate_Mode, "VBR");
@@ -250,6 +269,22 @@ void File_Adts::Data_Parse_Fill()
         Fill(Stream_Audio, 0, Audio_BitRate, BitRate);
     }
     Fill(Stream_Audio, 0, Audio_Resolution, 16);
+    if (sbrPresentFlag)
+    {
+        Fill(Stream_Audio, StreamPos_Last, Audio_Format_Settings, "SBR");
+        Fill(Stream_Audio, StreamPos_Last, Audio_Format_Settings_SBR, "Yes", Unlimited, true, true);
+        Fill(Stream_Audio, StreamPos_Last, Audio_Format_Settings_PS, "No");
+        Ztring Codec=Ztring().From_Local(ADTS_Profile[profile_ObjectType])+_T("/SBR");
+        Fill(Stream_Audio, StreamPos_Last, Audio_Codec, Codec, true);
+    }
+    if (psPresentFlag)
+    {
+        Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, 2, 10, true);
+        Fill(Stream_Audio, StreamPos_Last, Audio_Format_Settings, "PS");
+        Fill(Stream_Audio, StreamPos_Last, Audio_Format_Settings_PS, "Yes", Unlimited, true, true);
+        Ztring Codec=Ztring().From_Local(ADTS_Profile[profile_ObjectType])+(sbrPresentFlag?_T("/SBR"):_T(""))+_T("/PS");
+        Fill(Stream_Audio, StreamPos_Last, Audio_Codec, Codec, true);
+    }
 
     //No more need data
     File__Tags_Helper::Accept("ADTS");

@@ -30,7 +30,7 @@
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-#if defined(MEDIAINFO_MPEGV_YES) || defined(MEDIAINFO_MPEGTS_YES) || defined(MEDIAINFO_MPEGPS_YES)
+#if defined(MEDIAINFO_MPEGV_YES) || defined(MEDIAINFO_MPEGTS_YES) || defined(MEDIAINFO_MPEGPS_YES) || defined(MEDIAINFO_MXF_YES)
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -301,6 +301,241 @@ File_Mpegv::~File_Mpegv()
 
 
 //***************************************************************************
+// Streams management
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_Mpegv::Streams_Fill()
+{
+    //Filling
+    if (Count_Get(Stream_General)==0)
+        Stream_Prepare(Stream_General);
+    Stream_Prepare(Stream_Video);
+
+    //Version
+    if (MPEG_Version==2)
+    {
+        Fill(Stream_General, 0, General_Format, "MPEG Video");
+        Fill(Stream_General, 0, General_Format_Version, "Version 2");
+        Fill(Stream_Video, 0, Video_Format, "MPEG Video");
+        Fill(Stream_Video, 0, Video_Format_Version, "Version 2");
+        Fill(Stream_Video, 0, Video_Codec, "MPEG-2V");
+        Fill(Stream_Video, 0, Video_Codec_String, "MPEG-2 Video", Unlimited, true, true);
+    }
+    else
+    {
+        Fill(Stream_General, 0, General_Format, "MPEG Video");
+        Fill(Stream_General, 0, General_Format_Version, "Version 1");
+        Fill(Stream_Video, 0, Video_Format, "MPEG Video");
+        Fill(Stream_Video, 0, Video_Format_Version, "Version 1");
+        Fill(Stream_Video, 0, Video_Codec, "MPEG-1V");
+        Fill(Stream_Video, 0, Video_Codec_String, "MPEG-1 Video", Unlimited, true, true);
+    }
+
+    Fill(Stream_Video, 0, Video_Width, 0x1000*horizontal_size_extension+horizontal_size_value);
+    Fill(Stream_Video, 0, Video_Height, 0x1000*vertical_size_extension+vertical_size_value);
+    Fill(Stream_Video, 0, Video_Colorimetry, Mpegv_Colorimetry_format[chroma_format]);
+
+    //AspectRatio
+    if (MPEG_Version==2)
+    {
+        if (aspect_ratio_information==0)
+            ;//Forbidden
+        else if (aspect_ratio_information==1)
+            Fill(Stream_Video, 0, Video_PixelAspectRatio, 1.000, 3, true);
+        else if (display_horizontal_size && display_vertical_size)
+        {
+            if (vertical_size_value && Mpegv_aspect_ratio2[aspect_ratio_information])
+                Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, (float)(0x1000*horizontal_size_extension+horizontal_size_value)/(0x1000*vertical_size_extension+vertical_size_value)
+                                                                             *Mpegv_aspect_ratio2[aspect_ratio_information]/((float)display_horizontal_size/display_vertical_size), 3, true);
+        }
+        else if (Mpegv_aspect_ratio2[aspect_ratio_information])
+            Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, Mpegv_aspect_ratio2[aspect_ratio_information], 3, true);
+    }
+    else //Version 1
+    {
+        if (vertical_size_value && Mpegv_aspect_ratio1[aspect_ratio_information])
+            Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, (float)(0x1000*horizontal_size_extension+horizontal_size_value)/(0x1000*vertical_size_extension+vertical_size_value)/Mpegv_aspect_ratio1[aspect_ratio_information], 3, true);
+    }
+
+    //FrameRate
+    if (frame_rate_extension_d!=0)
+        Fill(Stream_Video, StreamPos_Last, Video_FrameRate, (float)frame_rate_extension_n/frame_rate_extension_d);
+    else
+        Fill(Stream_Video, StreamPos_Last, Video_FrameRate, Mpegv_frame_rate[frame_rate_code]);
+
+    //BitRate
+    if (vbv_delay==0xFFFF || (MPEG_Version==1 && bit_rate_value==0x3FFFF))
+        Fill(Stream_Video, 0, Video_BitRate_Mode, "VBR");
+    else if ((MPEG_Version==1 && bit_rate_value!=0x3FFFF) || MPEG_Version==2)
+        Fill(Stream_Video, 0, Video_BitRate_Mode, "CBR");
+    if (bit_rate_value_IsValid && bit_rate_value!=0x3FFFF)
+        Fill(Stream_Video, 0, Video_BitRate_Nominal, bit_rate_value*400);
+
+    //Interlacement
+    if (MPEG_Version==1)
+    {
+        Fill(Stream_Video, 0, Video_ScanType, "Progressive");
+        Fill(Stream_Video, 0, Video_Interlacement, "PPF");
+    }
+    else if (progressive_frame_Count && progressive_frame_Count!=Frame_Count)
+    {
+        //This is mixed
+    }
+    else if (Frame_Count>0) //Only if we have at least one progressive_frame definition
+    {
+        if (progressive_sequence || progressive_frame_Count==Frame_Count)
+        {
+            Fill(Stream_Video, 0, Video_ScanType, "Progressive");
+            Fill(Stream_Video, 0, Video_Interlacement, "PPF");
+            if (!progressive_sequence && !(Interlaced_Top && Interlaced_Bottom) && !(!Interlaced_Top && !Interlaced_Bottom))
+                Fill(Stream_Video, 0, Video_ScanOrder, Interlaced_Top?"TFF":"BFF");
+        }
+        else
+        {
+            Fill(Stream_Video, 0, Video_ScanType, "Interlaced");
+            if ((Interlaced_Top && Interlaced_Bottom) || (!Interlaced_Top && !Interlaced_Bottom))
+                Fill(Stream_Video, 0, Video_Interlacement, "Interlaced");
+            else
+            {
+                Fill(Stream_Video, 0, Video_ScanOrder, Interlaced_Top?"TFF":"BFF");
+                Fill(Stream_Video, 0, Video_Interlacement, Interlaced_Top?"TFF":"BFF");
+            }
+        }
+        std::string TempRef;
+        for (size_t Pos=0; Pos<TemporalReference.size(); Pos++)
+            if (TemporalReference[Pos].HasPictureCoding)
+            {
+                TempRef+=TemporalReference[Pos].top_field_first?"T":"B";
+                TempRef+=TemporalReference[Pos].repeat_first_field?"3":"2";
+            }
+        if (TempRef.find('3')!=std::string::npos)
+        {
+            if (TempRef.find("T2T3B2B3T2T3B2B3")!=std::string::npos
+             || TempRef.find("B2B3T2T3B2B3T2T3")!=std::string::npos)
+            {
+                Fill(Stream_Video, 0, Video_ScanOrder, "2:3 Pulldown", Unlimited, true, true);
+                Fill(Stream_Video, 0, Video_FrameRate, FrameRate*24/30, 3, true); //Real framerate
+                Fill(Stream_Video, 0, Video_ScanType, "Progressive", Unlimited, true, true);
+                Fill(Stream_Video, 0, Video_Interlacement, "PPF", Unlimited, true, true);
+            }
+            if (TempRef.find("T2T2T2T2T2T2T2T2T2T2T2T3B2B2B2B2B2B2B2B2B2B2B2B3")!=std::string::npos
+             || TempRef.find("B2B2B2B2B2B2B2B2B2B2B2B3T2T2T2T2T2T2T2T2T2T2T2T3")!=std::string::npos)
+            {
+                Fill(Stream_Video, 0, Video_ScanOrder, "2:2:2:2:2:2:2:2:2:2:2:3 Pulldown", Unlimited, true, true);
+                Fill(Stream_Video, 0, Video_FrameRate, FrameRate*24/25, 3, true); //Real framerate
+                Fill(Stream_Video, 0, Video_ScanType, "Progressive", Unlimited, true, true);
+                Fill(Stream_Video, 0, Video_Interlacement, "PPF", Unlimited, true, true);
+            }
+        }
+    }
+
+    //Profile
+    if (profile_and_level_indication_profile && profile_and_level_indication_level)
+    {
+        Fill(Stream_Video, 0, Video_Format_Profile, Ztring().From_Local(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile])+_T("@")+Ztring().From_Local(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]));
+        Fill(Stream_Video, 0, Video_Codec_Profile, Ztring().From_Local(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile])+_T("@")+Ztring().From_Local(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]));
+    }
+
+    //Standard
+    Fill(Stream_Video, 0, Video_Standard, Mpegv_video_format[video_format]);
+
+    //Matrix
+    if (load_intra_quantiser_matrix || load_non_intra_quantiser_matrix)
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings, "CustomMatrix");
+        Fill(Stream_Video, 0, Video_Format_Settings_Matrix, "Custom");
+        Fill(Stream_Video, 0, Video_Format_Settings_Matrix_Data, Matrix_intra);
+        Fill(Stream_Video, 0, Video_Format_Settings_Matrix_Data, Matrix_nonintra);
+        Fill(Stream_Video, 0, Video_Codec_Settings, "CustomMatrix");
+        Fill(Stream_Video, 0, Video_Codec_Settings_Matrix, "Custom");
+    }
+    else
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings_Matrix, "Default");
+        Fill(Stream_Video, 0, Video_Codec_Settings_Matrix, "Default");
+    }
+
+    //library
+    if (Library.size()>=8)
+    {
+        Fill(Stream_Video, 0, Video_Encoded_Library, Library);
+        Fill(Stream_Video, 0, Video_Encoded_Library_Name, Library_Name);
+        Fill(Stream_Video, 0, Video_Encoded_Library_Version, Library_Version);
+        Fill(Stream_Video, 0, General_Encoded_Library, Library);
+        Fill(Stream_Video, 0, General_Encoded_Library_Name, Library_Name);
+        Fill(Stream_Video, 0, General_Encoded_Library_Version, Library_Version);
+    }
+
+    //Delay
+    if (group_start_IsParsed)
+    {
+        size_t Time_Begin=Time_Begin_Seconds*1000;
+        if (FrameRate)
+            Time_Begin+=(size_t)(Time_Begin_Frames*1000/FrameRate);
+        Fill(Stream_Video, 0, Video_Delay, Time_Begin);
+        Fill(Stream_Video, 0, Video_Delay_Settings, Ztring(_T("drop_frame_flag="))+(group_start_drop_frame_flag?_T("1"):_T("0")));
+        Fill(Stream_Video, 0, Video_Delay_Settings, Ztring(_T("closed_gop="))+(group_start_closed_gop?_T("1"):_T("0")));
+        Fill(Stream_Video, 0, Video_Delay_Settings, Ztring(_T("broken_link="))+(group_start_broken_link?_T("1"):_T("0")));
+    }
+
+    //Autorisation of other streams
+    NextCode_Clear();
+    NextCode_Add(0x00);
+    NextCode_Add(0xB8);
+    for (int8u Pos=0x00; Pos<=0xB9; Pos++)
+        Streams[Pos].Searching_Payload=false;
+    Streams[0xB8].Searching_TimeStamp_End=true;
+    if (IsSub)
+        Streams[0x00].Searching_TimeStamp_End=true;
+}
+
+//---------------------------------------------------------------------------
+void File_Mpegv::Streams_Finish()
+{
+    //Duration
+    if (Time_End_NeedComplete && MediaInfoLib::Config.ParseSpeed_Get()!=1)
+        Time_End_Seconds=Error;
+    if (Time_End_Seconds!=Error)
+    {
+        size_t Time_Begin=Time_Begin_Seconds*1000;
+        size_t Time_End =Time_End_Seconds*1000;
+        if (FrameRate)
+        {
+            Time_Begin+=(size_t)(Time_Begin_Frames*1000/FrameRate);
+            Time_End  +=(size_t)(Time_End_Frames  *1000/FrameRate);
+        }
+        if (Time_End>Time_Begin)
+            Fill(Stream_Video, 0, Video_Duration, Time_End-Time_Begin);
+    }
+
+    //DVD captions
+    for (size_t Pos=0; Pos<DVD_CC_Parsers.size(); Pos++)
+        if (DVD_CC_Parsers[Pos] && !DVD_CC_Parsers[Pos]->Status[IsFinished] && DVD_CC_Parsers[Pos]->Status[IsFilled])
+        {
+            Finish(DVD_CC_Parsers[Pos]);
+            Merge(*DVD_CC_Parsers[Pos]);
+            Fill(Stream_Text, StreamPos_Last, Text_ID, _T("DVD-")+Ztring::ToZtring(Pos));
+            Fill(Stream_Text, StreamPos_Last, "MuxingMode", _T("DVD-Video"));
+        }
+
+    //GA94 captions
+    for (size_t Pos=0; Pos<GA94_03_CC_Parsers.size(); Pos++)
+        if (GA94_03_CC_Parsers[Pos] && !GA94_03_CC_Parsers[Pos]->Status[IsFinished] && GA94_03_CC_Parsers[Pos]->Status[IsFilled])
+        {
+            Finish(GA94_03_CC_Parsers[Pos]);
+            Merge(*GA94_03_CC_Parsers[Pos]);
+            if (Pos<2)
+                Fill(Stream_Text, StreamPos_Last, Text_ID, _T("608-")+Ztring::ToZtring(Pos));
+            Fill(Stream_Text, StreamPos_Last, "MuxingMode", _T("EIA-708"));
+        }
+
+    //Purge what is not needed anymore
+    if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
+        Streams.clear();
+}
+
+//***************************************************************************
 // Buffer - Synchro
 //***************************************************************************
 
@@ -312,7 +547,9 @@ bool File_Mpegv::Synched_Test()
         Buffer_Offset++;
 
     //Trailing 0x00
-    while(Buffer_Offset+3<=Buffer_Size && Buffer[Buffer_Offset]==0x00 && CC3(Buffer+Buffer_Offset)!=0x000001)
+    while(Buffer_Offset+3<=Buffer_Size && Buffer[Buffer_Offset+2]==0x00
+                                       && Buffer[Buffer_Offset+1]==0x00
+                                       && Buffer[Buffer_Offset  ]==0x00)
         Buffer_Offset++;
 
     //Must have enough buffer for having header
@@ -320,7 +557,9 @@ bool File_Mpegv::Synched_Test()
         return false;
 
     //Quick test of synchro
-    if (CC3(Buffer+Buffer_Offset)!=0x000001)
+    if (Buffer[Buffer_Offset  ]!=0x00
+     || Buffer[Buffer_Offset+1]!=0x00
+     || Buffer[Buffer_Offset+2]!=0x01)
         Synched=false;
 
     //Quick search
@@ -374,11 +613,12 @@ void File_Mpegv::Synched_Init()
     repeat_first_field=false;
     FirstFieldFound=false;
     group_start_IsParsed=false;
+    bit_rate_value_IsValid=false;
 
     //Default stream values
     Streams.resize(0x100);
     Streams[0xB3].Searching_Payload=true;
-    for (int8u Pos=0xBA; Pos!=0x00; Pos++)
+    for (int8u Pos=0xFF; Pos>=0xB9; Pos--)
         Streams[Pos].Searching_Payload=true; //Testing MPEG-PS
 }
 
@@ -387,72 +627,19 @@ void File_Mpegv::Synched_Init()
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Mpegv::Read_Buffer_Finalize()
+void File_Mpegv::Read_Buffer_Unsynched()
 {
-    if (Trusted==0
-     || !sequence_header_IsParsed
-     || !IsSub && Frame_Count==0)
-        return;
-        
-    //In case of partial data, and finalizing is forced (example: DecConfig in .mp4), but with at least one frame
-    if (!IsFilled && sequence_header_IsParsed)
-    {
-        Time_End_Seconds=Error;
-        slice_start_Fill();
-    }
+    Time_End_Seconds=Error;
+    Time_End_Frames=(int8u)-1;
 
-    //Duration
-    if (Time_End_NeedComplete && MediaInfoLib::Config.ParseSpeed_Get()!=1)
-        Time_End_Seconds=Error;
-    if (Time_End_Seconds!=Error)
-    {
-        size_t Time_Begin=Time_Begin_Seconds*1000;
-        size_t Time_End =Time_End_Seconds*1000;
-        if (FrameRate)
-        {
-            Time_Begin+=(size_t)(Time_Begin_Frames*1000/FrameRate);
-            Time_End  +=(size_t)(Time_End_Frames  *1000/FrameRate);
-        }
-        if (Time_End>Time_Begin)
-            Fill(Stream_Video, 0, Video_Duration, Time_End-Time_Begin);
-    }
+    TemporalReference.clear();
+    TemporalReference_Offset=0;
+    TemporalReference_GA94_03_CC_Offset=0;
 
-    //Delay
-    if (group_start_IsParsed)
-    {
-        size_t Time_Begin=Time_Begin_Seconds*1000;
-        if (FrameRate)
-            Time_Begin+=(size_t)(Time_Begin_Frames*1000/FrameRate);
-        Fill(Stream_Video, 0, Video_Delay, Time_Begin);
-        Fill(Stream_Video, 0, Video_Delay_Settings, Ztring(_T("drop_frame_flag="))+(group_start_drop_frame_flag?_T("1"):_T("0")));
-        Fill(Stream_Video, 0, Video_Delay_Settings, Ztring(_T("closed_gop="))+(group_start_closed_gop?_T("1"):_T("0")));
-        Fill(Stream_Video, 0, Video_Delay_Settings, Ztring(_T("broken_link="))+(group_start_broken_link?_T("1"):_T("0")));
-    }
-
-    //DVD captions
-    for (size_t Pos=0; Pos<DVD_CC_Parsers.size(); Pos++)
-        if (DVD_CC_Parsers[Pos] && DVD_CC_Parsers[Pos]->IsAccepted)
-        {
-            Open_Buffer_Finalize(DVD_CC_Parsers[Pos]);
-            Merge(*DVD_CC_Parsers[Pos]);
-            Fill(Stream_Text, StreamPos_Last, Text_ID, _T("DVD-")+Ztring::ToZtring(Pos));
-            Fill(Stream_Text, StreamPos_Last, "MuxingMode", _T("DVD-Video"));
-        }
-
-    //GA94 captions
-    for (size_t Pos=0; Pos<GA94_03_CC_Parsers.size(); Pos++)
-        if (GA94_03_CC_Parsers[Pos] && GA94_03_CC_Parsers[Pos]->IsAccepted)
-        {
-            Open_Buffer_Finalize(GA94_03_CC_Parsers[Pos]);
-            Merge(*GA94_03_CC_Parsers[Pos]);
-            if (Pos<2)
-                Fill(Stream_Text, StreamPos_Last, Text_ID, _T("608-")+Ztring::ToZtring(Pos));
-            Fill(Stream_Text, StreamPos_Last, "MuxingMode", _T("EIA-708"));
-        }
-
-    //Purge what is not needed anymore
-    if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
-        Streams.clear();
+    //NextCode
+    NextCode_Clear();
+    NextCode_Add(0x00);
+    NextCode_Add(0xB8);
 }
 
 //***************************************************************************
@@ -510,8 +697,10 @@ bool File_Mpegv::Header_Parser_Fill_Size()
 //---------------------------------------------------------------------------
 bool File_Mpegv::Header_Parser_QuickSearch()
 {
-    while (           Buffer_Offset+4<=Buffer_Size
-      &&   CC3(Buffer+Buffer_Offset)==0x000001)
+    while (       Buffer_Offset+4<=Buffer_Size
+      &&   Buffer[Buffer_Offset  ]==0x00
+      &&   Buffer[Buffer_Offset+1]==0x00
+      &&   Buffer[Buffer_Offset+2]==0x01)
     {
         //Getting start_code
         int8u start_code=Buffer[Buffer_Offset+3];
@@ -522,25 +711,27 @@ bool File_Mpegv::Header_Parser_QuickSearch()
          || Streams[start_code].Searching_TimeStamp_End)
             return true;
 
-        //Getting size
+        //Synchronizing
         Buffer_Offset+=4;
-        while (Buffer_Offset+4<=Buffer_Size)
+        Synched=false;
+        if (!Synchronize_0x000001())
         {
-            while (Buffer_Offset+4<=Buffer_Size && Buffer[Buffer_Offset]!=0x00)
-                Buffer_Offset++;
-            if (Buffer_Offset+4<=Buffer_Size && Buffer[Buffer_Offset+1]==0x00)
-                if (Buffer[Buffer_Offset+2]==0x01)
-                    break;
-            Buffer_Offset++;
+            if (!IsSub && File_Offset+Buffer_Size==File_Size && !Status[IsFilled] && Frame_Count>=1)
+            {
+                //End of file, and we have some frames
+                Accept("MPEG Video");
+                Fill("MPEG Video");
+                Detect_EOF();
+                return false;
+            }
         }
     }
 
-    if(File_Offset+Buffer_Size==File_Size && !IsFilled && Frame_Count>=1)
-        slice_start_Fill(); //End of file, and we have some frames
-    else if (Buffer_Offset+4<=Buffer_Size)
-        Trusted_IsNot("MPEG Video, Synchronisation lost");
-
-    Synched=false;
+    if (Buffer_Offset+3==Buffer_Size)
+        return false; //Sync is OK, but start_code is not available
+    if (!Synched)
+        return false;
+    Trusted_IsNot("MPEG Video, Synchronisation lost");
     return Synchronize();
 }
 
@@ -572,11 +763,11 @@ void File_Mpegv::Data_Parse()
 //---------------------------------------------------------------------------
 void File_Mpegv::Detect_EOF()
 {
-    if (IsFilled
-     && (File_Size>SizeToAnalyse_Begin+SizeToAnalyse_End && File_Offset+Buffer_Offset+Element_Offset>SizeToAnalyse_Begin && File_Offset+Buffer_Offset+Element_Offset<File_Size-SizeToAnalyse_End && MediaInfoLib::Config.ParseSpeed_Get()<=0.01
-      || IsSub))
+    if (IsSub && Status[IsFilled]
+     || (!IsSub && File_Size>SizeToAnalyse_Begin+SizeToAnalyse_End && File_Offset+Buffer_Offset+Element_Offset>SizeToAnalyse_Begin && File_Offset+Buffer_Offset+Element_Offset<File_Size-SizeToAnalyse_End && MediaInfoLib::Config.ParseSpeed_Get()<=0.01))
     {
-        if ((GA94_03_CC_IsPresent || DVD_CC_IsPresent) && Frame_Count<Frame_Count_Valid*10) //10 times the normal test
+        if ((GA94_03_CC_IsPresent || DVD_CC_IsPresent) && Frame_Count<Frame_Count_Valid*10 //10 times the normal test
+         && !(!IsSub && File_Size>SizeToAnalyse_Begin*10+SizeToAnalyse_End*10 && File_Offset+Buffer_Offset+Element_Offset>SizeToAnalyse_Begin*10 && File_Offset+Buffer_Offset+Element_Offset<File_Size-SizeToAnalyse_End*10))
         {
             Streams[0x00].Searching_Payload=GA94_03_CC_IsPresent;
             Streams[0xB2].Searching_Payload=true;
@@ -593,7 +784,10 @@ void File_Mpegv::Detect_EOF()
             Streams[0x00].Searching_TimeStamp_End=false;
 
         //Jumping
-        GoToFromEnd(SizeToAnalyse_End, "MPEG Video");
+        if (!Status[IsFilled])
+            Fill("MPEG Video");
+
+        GoToFromEnd(SizeToAnalyse_End*2, "MPEG Video");
         EOF_AlreadyDetected=true; //Sometimes called from Filling
     }
 }
@@ -649,7 +843,7 @@ void File_Mpegv::picture_start()
 
     //Counting
     if (File_Offset+Buffer_Offset+Element_Size==File_Size)
-        Frame_Count_Valid=Frame_Count; //Finalize frames in case of there are less than Frame_Count_Valid frames
+        Frame_Count_Valid=Frame_Count; //Finish frames in case of there are less than Frame_Count_Valid frames
     Frame_Count++;
     Frame_Count_InThisBlock++;
 
@@ -666,7 +860,7 @@ void File_Mpegv::picture_start()
 
     //Parsing
     BS_Begin();
-    Get_S2 (10, temporal_reference,                             "temporal_reference");
+    Get_S2 (10, temporal_reference,                             "temporal_reference"); Element_Info(temporal_reference);
     Get_S1 ( 3, picture_coding_type,                            "picture_coding_type"); Param_Info(Mpegv_picture_coding_type[picture_coding_type]);
     Element_Info(Mpegv_picture_coding_type[picture_coding_type]);
     Get_S2 (16, vbv_delay,                                      "vbv_delay");
@@ -694,12 +888,10 @@ void File_Mpegv::picture_start()
     BS_End();
     
     FILLING_BEGIN();
+        //Temporal reference
         if (TemporalReference_Offset+temporal_reference>=TemporalReference.size())
             TemporalReference.resize(TemporalReference_Offset+temporal_reference+1);
         TemporalReference[TemporalReference_Offset+temporal_reference].IsValid=true;
-
-        //if (GA94_03_IsPresent && Frame_Count>Frame_Count_Valid)
-        //    return;
 
         //NextCode
         NextCode_Clear();
@@ -738,187 +930,11 @@ void File_Mpegv::slice_start()
             Streams[Pos].Searching_Payload=false;
 
         //Filling only if not already done
-        if (!IsFilled && (!DVD_CC_IsPresent && !GA94_03_CC_IsPresent && Frame_Count>=Frame_Count_Valid || Frame_Count>=Frame_Count_Valid*10))
-            slice_start_Fill();
+        if (Frame_Count==2 && !Status[IsAccepted])
+            Accept("MPEG Video");
+        if (!Status[IsFilled] && (!DVD_CC_IsPresent && !GA94_03_CC_IsPresent && Frame_Count>=Frame_Count_Valid || Frame_Count>=Frame_Count_Valid*10))
+            Fill("MPEG Video");
     FILLING_END();
-}
-
-//---------------------------------------------------------------------------
-void File_Mpegv::slice_start_Fill()
-{
-    //Filling
-    Stream_Prepare(Stream_General);
-    Stream_Prepare(Stream_Video);
-
-    //Version
-    if (MPEG_Version==2)
-    {
-        Fill(Stream_General, 0, General_Format, "MPEG Video");
-        Fill(Stream_General, 0, General_Format_Version, "Version 2");
-        Fill(Stream_Video, 0, Video_Format, "MPEG Video");
-        Fill(Stream_Video, 0, Video_Format_Version, "Version 2");
-        Fill(Stream_Video, 0, Video_Codec, "MPEG-2V");
-        Fill(Stream_Video, 0, Video_Codec_String, "MPEG-2 Video");
-    }
-    else
-    {
-        Fill(Stream_General, 0, General_Format, "MPEG Video");
-        Fill(Stream_General, 0, General_Format_Version, "Version 1");
-        Fill(Stream_Video, 0, Video_Format, "MPEG Video");
-        Fill(Stream_Video, 0, Video_Format_Version, "Version 1");
-        Fill(Stream_Video, 0, Video_Codec, "MPEG-1V");
-        Fill(Stream_Video, 0, Video_Codec_String, "MPEG-1 Video");
-    }
-
-    Fill(Stream_Video, 0, Video_Width, 0x1000*horizontal_size_extension+horizontal_size_value);
-    Fill(Stream_Video, 0, Video_Height, 0x1000*vertical_size_extension+vertical_size_value);
-    Fill(Stream_Video, 0, Video_Colorimetry, Mpegv_Colorimetry_format[chroma_format]);
-
-    //AspectRatio
-    if (MPEG_Version==2)
-    {
-        if (aspect_ratio_information==0)
-            ;//Forbidden
-        else if (aspect_ratio_information==1)
-            Fill(Stream_Video, 0, Video_PixelAspectRatio, 1.000);
-        else if (display_horizontal_size && display_vertical_size)
-        {
-            if (vertical_size_value && Mpegv_aspect_ratio2[aspect_ratio_information])
-                Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, (float)(0x1000*horizontal_size_extension+horizontal_size_value)/(0x1000*vertical_size_extension+vertical_size_value)
-                                                                             *Mpegv_aspect_ratio2[aspect_ratio_information]/((float)display_horizontal_size/display_vertical_size));
-        }
-        else if (Mpegv_aspect_ratio2[aspect_ratio_information])
-            Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, Mpegv_aspect_ratio2[aspect_ratio_information]);
-    }
-    else //Version 1
-    {
-        if (vertical_size_value && Mpegv_aspect_ratio1[aspect_ratio_information])
-            Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, (float)(0x1000*horizontal_size_extension+horizontal_size_value)/(0x1000*vertical_size_extension+vertical_size_value)/Mpegv_aspect_ratio1[aspect_ratio_information]);
-    }
-
-    //FrameRate
-    if (frame_rate_extension_d!=0)
-        Fill(Stream_Video, StreamPos_Last, Video_FrameRate, (float)frame_rate_extension_n/frame_rate_extension_d);
-    else
-        Fill(Stream_Video, StreamPos_Last, Video_FrameRate, Mpegv_frame_rate[frame_rate_code]);
-
-    //BitRate
-    if (vbv_delay==0xFFFF || (MPEG_Version==1 && bit_rate_value==0x3FFFF))
-        Fill(Stream_Video, 0, Video_BitRate_Mode, "VBR");
-    else if ((MPEG_Version==1 && bit_rate_value!=0x3FFFF) || MPEG_Version==2)
-        Fill(Stream_Video, 0, Video_BitRate_Mode, "CBR");
-    if (bit_rate_value!=0x3FFFF)
-        Fill(Stream_Video, 0, Video_BitRate_Nominal, bit_rate_value*400);
-
-    //Interlacement
-    if (MPEG_Version==1)
-    {
-        Fill(Stream_Video, 0, Video_ScanType, "Progressive");
-        Fill(Stream_Video, 0, Video_Interlacement, "PPF");
-    }
-    else if (progressive_frame_Count && progressive_frame_Count!=Frame_Count)
-    {
-        //This is mixed
-    }
-    else if (Frame_Count>0) //Only if we have at least one progressive_frame definition
-    {
-        if (progressive_sequence || progressive_frame_Count==Frame_Count)
-        {
-            Fill(Stream_Video, 0, Video_ScanType, "Progressive");
-            Fill(Stream_Video, 0, Video_Interlacement, "PPF");
-            if (!progressive_sequence && !(Interlaced_Top && Interlaced_Bottom) && !(!Interlaced_Top && !Interlaced_Bottom))
-                Fill(Stream_Video, 0, Video_ScanOrder, Interlaced_Top?"TFF":"BFF");
-        }
-        else
-        {
-            Fill(Stream_Video, 0, Video_ScanType, "Interlaced");
-            if ((Interlaced_Top && Interlaced_Bottom) || (!Interlaced_Top && !Interlaced_Bottom))
-                Fill(Stream_Video, 0, Video_Interlacement, "Interlaced");
-            else
-            {
-                Fill(Stream_Video, 0, Video_ScanOrder, Interlaced_Top?"TFF":"BFF");
-                Fill(Stream_Video, 0, Video_Interlacement, Interlaced_Top?"TFF":"BFF");
-            }
-        }
-        std::string TempRef;
-        for (size_t Pos=0; Pos<TemporalReference.size(); Pos++)
-            if (TemporalReference[Pos].IsValid)
-            {
-                TempRef+=TemporalReference[Pos].top_field_first?"T":"B";
-                TempRef+=TemporalReference[Pos].repeat_first_field?"3":"2";
-            }
-        if (TempRef.find('3')!=std::string::npos)
-        {
-            if (TempRef.find("T2T3B2B3T2T3B2B3")!=std::string::npos
-             || TempRef.find("B2B3T2T3B2B3T2T3")!=std::string::npos)
-            {
-                Fill(Stream_Video, 0, Video_ScanOrder, "2:3 Pulldown", Unlimited, true, true);
-                Fill(Stream_Video, 0, Video_FrameRate, Retrieve(Stream_Video, 0, Video_FrameRate).To_float32()*24/30, 3, true); //Real framerate
-                Fill(Stream_Video, 0, Video_ScanType, "Progressive", Unlimited, true, true);
-                Fill(Stream_Video, 0, Video_Interlacement, "PPF", Unlimited, true, true);
-            }
-            if (TempRef.find("T2T2T2T2T2T2T2T2T2T2T2T3B2B2B2B2B2B2B2B2B2B2B2B3")!=std::string::npos
-             || TempRef.find("B2B2B2B2B2B2B2B2B2B2B2B3T2T2T2T2T2T2T2T2T2T2T2T3")!=std::string::npos)
-            {
-                Fill(Stream_Video, 0, Video_ScanOrder, "2:2:2:2:2:2:2:2:2:2:2:3 Pulldown", Unlimited, true, true);
-                Fill(Stream_Video, 0, Video_FrameRate, Retrieve(Stream_Video, 0, Video_FrameRate).To_float32()*24/25, 3, true); //Real framerate
-                Fill(Stream_Video, 0, Video_ScanType, "Progressive", Unlimited, true, true);
-                Fill(Stream_Video, 0, Video_Interlacement, "PPF", Unlimited, true, true);
-            }
-        }
-    }
-
-    //Profile
-    if (profile_and_level_indication_profile>0 && profile_and_level_indication_profile<8 && profile_and_level_indication_level>0 && profile_and_level_indication_level<16)
-    {
-        Fill(Stream_Video, 0, Video_Format_Profile, Ztring().From_Local(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile])+_T("@")+Ztring().From_Local(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]));
-        Fill(Stream_Video, 0, Video_Codec_Profile, Ztring().From_Local(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile])+_T("@")+Ztring().From_Local(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]));
-    }
-
-    //Standard
-    Fill(Stream_Video, 0, Video_Standard, Mpegv_video_format[video_format]);
-
-    //Matrix
-    if (load_intra_quantiser_matrix || load_intra_quantiser_matrix)
-    {
-        Fill(Stream_Video, 0, Video_Format_Settings, "CustomMatrix");
-        Fill(Stream_Video, 0, Video_Format_Settings_Matrix, "Custom");
-        Fill(Stream_Video, 0, Video_Format_Settings_Matrix_Data, Matrix_intra);
-        Fill(Stream_Video, 0, Video_Format_Settings_Matrix_Data, Matrix_nonintra);
-        Fill(Stream_Video, 0, Video_Codec_Settings, "CustomMatrix");
-        Fill(Stream_Video, 0, Video_Codec_Settings_Matrix, "Custom");
-    }
-    else
-    {
-        Fill(Stream_Video, 0, Video_Format_Settings_Matrix, "Default");
-        Fill(Stream_Video, 0, Video_Codec_Settings_Matrix, "Default");
-    }
-
-    //library
-    if (Library.size()>=8)
-    {
-        Fill(Stream_Video, 0, Video_Encoded_Library, Library);
-        Fill(Stream_Video, 0, Video_Encoded_Library_Name, Library_Name);
-        Fill(Stream_Video, 0, Video_Encoded_Library_Version, Library_Version);
-        Fill(Stream_Video, 0, General_Encoded_Library, Library);
-        Fill(Stream_Video, 0, General_Encoded_Library_Name, Library_Name);
-        Fill(Stream_Video, 0, General_Encoded_Library_Version, Library_Version);
-    }
-
-    //Autorisation of other streams
-    NextCode_Clear();
-    NextCode_Add(0x00);
-    NextCode_Add(0xB8);
-    for (int8u Pos=0x00; Pos<=0xB9; Pos++)
-        Streams[Pos].Searching_Payload=false;
-    Streams[0xB8].Searching_TimeStamp_End=true;
-    if (IsSub)
-        Streams[0x00].Searching_TimeStamp_End=true;
-
-    //Detected
-    Accept("MPEG Video");
-    IsFilled=true;
-    Detect_EOF();
 }
 
 //---------------------------------------------------------------------------
@@ -940,26 +956,47 @@ void File_Mpegv::user_data_start()
         }
     }
 
-    //Rejecting junk from the end
-    size_t Library_End_Offset=(size_t)Element_Size;
-    while (Library_End_Offset>0
-        && (Buffer[Buffer_Offset+Library_End_Offset-1]<0x20
-         || Buffer[Buffer_Offset+Library_End_Offset-1]>0x7D
-         || (Buffer[Buffer_Offset+Library_End_Offset-1]>=0x3A
-          && Buffer[Buffer_Offset+Library_End_Offset-1]<=0x40)))
-        Library_End_Offset--;
-    if (Library_End_Offset==0)
+    //Rejecting junk at the begin
+    size_t Library_Start_Offset=0;
+    while (Library_Start_Offset+4<=Element_Size)
+    {
+        bool OK=true;
+        for (size_t Pos=0; Pos<4; Pos++)
+        {
+            if (!(Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x20 && Pos
+               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x22
+               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x27
+               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x28
+               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x29 && Pos
+               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]>=0x30
+               && Buffer[Buffer_Offset+Library_Start_Offset+Pos]<=0x3F
+               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]>=0x41
+               && Buffer[Buffer_Offset+Library_Start_Offset+Pos]<=0x7D))
+            {
+                OK=false;
+                break;
+            }
+        }
+        if (OK)
+            break;
+        Library_Start_Offset++;
+    }
+    if (Library_Start_Offset+4>Element_Size)
+    {
+        Skip_XX(Element_Size,                                   "junk");
         return; //No good info
+    }
 
     //Accepting good data after junk
-    size_t Library_Start_Offset=Library_End_Offset-1;
-    while (Library_Start_Offset>0 && (Buffer[Buffer_Offset+Library_Start_Offset-1]>=0x20 && Buffer[Buffer_Offset+Library_Start_Offset-1]<=0x7D))
-        Library_Start_Offset--;
-
-    //But don't accept non-alpha caracters at the beginning (except for "3ivx")
-    if (Library_End_Offset-Library_Start_Offset!=4 || CC4(Buffer+Buffer_Offset+Library_Start_Offset)!=0x33697678) //3ivx
-        while (Library_Start_Offset<Element_Size && Buffer[Buffer_Offset+Library_Start_Offset]<=0x40)
-            Library_Start_Offset++;
+    size_t Library_End_Offset=Library_Start_Offset+4;
+    while (Library_End_Offset<Element_Size
+        && (Buffer[Buffer_Offset+Library_End_Offset]==0x0D
+         || Buffer[Buffer_Offset+Library_End_Offset]==0x0A
+         || Buffer[Buffer_Offset+Library_End_Offset]>=0x20
+         && Buffer[Buffer_Offset+Library_End_Offset]<=0x3F
+         || Buffer[Buffer_Offset+Library_End_Offset]>=0x41
+         && Buffer[Buffer_Offset+Library_End_Offset]<=0x7D))
+        Library_End_Offset++;
 
     //Parsing
     Ztring Temp;
@@ -969,6 +1006,16 @@ void File_Mpegv::user_data_start()
         Get_Local(Library_End_Offset-Library_Start_Offset, Temp,"data");
     if (Element_Offset<Element_Size)
         Skip_XX(Element_Size-Element_Offset,                    "junk");
+
+    //Cleanup
+    while(Temp.size()>3 && Temp[1]==_T('e') && Temp[2]==_T('n') && Temp[3]==_T('c'))
+        Temp.erase(0, 1);
+    while(Temp.size()>5 && Temp[3]==_T('M') && Temp[4]==_T('P') && Temp[5]==_T('E'))
+        Temp.erase(0, 1);
+
+    //Cleanup
+    while(!Temp.empty() && Temp[0]==_T('0'))
+        Temp.erase(0, 1);
 
     FILLING_BEGIN();
         if (!Temp.empty())
@@ -1024,48 +1071,65 @@ void File_Mpegv::user_data_start()
 // Packet "B2", CC (From DVD)
 void File_Mpegv::user_data_start_CC()
 {
-    DVD_CC_IsPresent=true;
+    #if defined(MEDIAINFO_EIA608_YES)
+        DVD_CC_IsPresent=true;
 
-    Element_Info("DVD captioning");
+        Element_Info("DVD captioning");
 
-    if (Count_Get(Stream_Text))
-        return;
+        if (Count_Get(Stream_Text))
+            return;
 
-    //Parsing
-    int8u cc_count;
-    Skip_B4(                                                    "identifier");
-    BS_Begin();
-    Skip_SB(                                                    "field 1 then field 2");
-    Get_S1 (7, cc_count,                                        "count");
-    BS_End();
-    for (int8u Pos=0; Pos<cc_count; Pos++)
-    {
-        Element_Begin("cc");
-        int8u cc_type, cc_data_1, cc_data_2;
+        //Parsing
+        int8u cc_count;
+        Skip_B4(                                                    "identifier");
         BS_Begin();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Get_S1 (1, cc_type,                                     "cc_type");
+        Skip_SB(                                                    "field 1 then field 2");
+        Get_S1 (7, cc_count,                                        "count");
         BS_End();
+        for (int8u Pos=0; Pos<cc_count; Pos++)
+        {
+            Element_Begin("cc");
+            int8u cc_type;
+            BS_Begin();
+            Mark_1();
+            Mark_1();
+            Mark_1();
+            Mark_1();
+            Mark_1();
+            Mark_1();
+            Mark_1();
+            Get_S1 (1, cc_type,                                     "cc_type");
+            BS_End();
 
-        while (cc_type>=DVD_CC_Parsers.size())
-            DVD_CC_Parsers.push_back(NULL);
-        if (DVD_CC_Parsers[cc_type]==NULL)
-            DVD_CC_Parsers[cc_type]=new File_Eia608();
-        Open_Buffer_Init(DVD_CC_Parsers[cc_type]);
-        Open_Buffer_Continue(DVD_CC_Parsers[cc_type], Buffer+Buffer_Offset+(size_t)Element_Offset, 2);
+            while (cc_type>=DVD_CC_Parsers.size())
+                DVD_CC_Parsers.push_back(NULL);
+            if (DVD_CC_Parsers[cc_type]==NULL)
+                DVD_CC_Parsers[cc_type]=new File_Eia608();
+            if (!DVD_CC_Parsers[cc_type]->Status[IsFinished])
+            {
+                Open_Buffer_Init(DVD_CC_Parsers[cc_type]);
+                Open_Buffer_Continue(DVD_CC_Parsers[cc_type], Buffer+Buffer_Offset+(size_t)Element_Offset, 2);
 
-        //Demux
-        Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, 2, Ztring::ToZtring(cc_type)+_T(".eia608"));
+                //Finish
+                if (DVD_CC_Parsers[cc_type]->Status[IsFinished])
+                {
+                    if (Count_Get(Stream_General)==0)
+                        Stream_Prepare(Stream_General);
+                    Merge(*DVD_CC_Parsers[cc_type]);
+                    Fill(Stream_Text, StreamPos_Last, Text_ID, _T("DVD-")+Ztring::ToZtring(cc_type));
+                    Fill(Stream_Text, StreamPos_Last, "MuxingMode", _T("DVD-Video"));
+                }
+            }
 
-        Element_Offset+=2;
-        Element_End();
-    }
+            //Demux
+            Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, 2, Ztring::ToZtring(cc_type)+_T(".eia608"));
+
+            Element_Offset+=2;
+            Element_End();
+        }
+    #else
+        Skip_XX(Element_Size-Element_Offset,                    "EIA-608 data");
+    #endif
 }
 
 //---------------------------------------------------------------------------
@@ -1076,7 +1140,7 @@ void File_Mpegv::user_data_start_DTG1()
 
     //Parsing
     bool active_format_flag;
-    Skip_B4(                                                    "afd_identifier");
+    Skip_C4(                                                    "afd_identifier");
     BS_Begin();
     Mark_0();
     Get_SB (active_format_flag,                                 "active_format_flag");
@@ -1094,6 +1158,7 @@ void File_Mpegv::user_data_start_DTG1()
         Mark_1_NoTrustError();
         Info_S1(4, active_format,                               "active_format"); Param_Info(Mpegv_user_data_DTG1_active_format[active_format]);
     }
+    BS_End();
 }
 
 //---------------------------------------------------------------------------
@@ -1116,100 +1181,132 @@ void File_Mpegv::user_data_start_GA94()
 // Packet "B2", GA94 0x03 (styled captioning)
 void File_Mpegv::user_data_start_GA94_03()
 {
-    GA94_03_CC_IsPresent=true;
+    #if defined(MEDIAINFO_EIA608_YES)
+        GA94_03_CC_IsPresent=true;
 
-    Element_Info("Styled captioning");
+        Element_Info("Styled captioning");
 
-    //Parsing
-    int8u  cc_count;
-    bool   process_em_data_flag, process_cc_data_flag, additional_data_flag;
-    BS_Begin();
-    Get_SB (process_em_data_flag,                               "process_em_data_flag");
-    Get_SB (process_cc_data_flag,                               "process_cc_data_flag");
-    Get_SB (additional_data_flag,                               "additional_data_flag");
-    Get_S1 (5, cc_count,                                        "cc_count");
-    BS_End();
-    Skip_B1(                                                    process_em_data_flag?"em_data":"junk"); //Emergency message
-    if (TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC.size()<cc_count)
-        TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC.resize(cc_count);
-    if (process_cc_data_flag)
-    {
-        for (int8u Pos=0; Pos<cc_count; Pos++)
+        //Coherency
+        if (TemporalReference_Offset+temporal_reference>=TemporalReference.size())
+            return;
+
+        //Purging too old orphelins
+        if (TemporalReference_GA94_03_CC_Offset+8<TemporalReference_Offset+temporal_reference)
         {
-            Element_Begin("cc");
-            int8u cc_type, cc_data_1, cc_data_2;
-            bool   cc_valid;
-            BS_Begin();
-            Mark_1();
-            Mark_1();
-            Mark_1();
-            Mark_1();
-            Mark_1();
-            Get_SB (   cc_valid,                                    "cc_valid");
-            Get_S1 (2, cc_type,                                     "cc_type");
-            BS_End();
-            Get_B1 (cc_data_1,                                      "cc_data_1");
-            Get_B1 (cc_data_2,                                      "cc_data_2");
-            TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC[Pos].cc_valid=cc_valid;
-            TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC[Pos].cc_type=cc_type;
-            TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC[Pos].cc_data[0]=cc_data_1;
-            TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC[Pos].cc_data[1]=cc_data_2;
-            Element_End();
+            size_t Pos=TemporalReference_Offset+temporal_reference;
+            for(; Pos<TemporalReference.size(); Pos++)
+                if (!TemporalReference[Pos].IsValid)
+                    break;
+            TemporalReference_GA94_03_CC_Offset=Pos+1;
         }
-    }
-    else
-        Skip_XX(cc_count*2,                                         "Junk");
 
-    //Parsing Captions after reordering
-    bool CanBeParsed=true;
-    for (size_t GA94_03_CC_Pos=TemporalReference_GA94_03_CC_Offset; GA94_03_CC_Pos<TemporalReference.size(); GA94_03_CC_Pos++)
-        if (!TemporalReference[GA94_03_CC_Pos].IsValid)
-            CanBeParsed=false; //There is a missing field/frame
-    if (CanBeParsed)
-    {
-       for (size_t GA94_03_CC_Pos=TemporalReference_GA94_03_CC_Offset; GA94_03_CC_Pos<TemporalReference.size(); GA94_03_CC_Pos++)
+        //Parsing
+        int8u  cc_count;
+        bool   process_em_data_flag, process_cc_data_flag, additional_data_flag;
+        BS_Begin();
+        Get_SB (process_em_data_flag,                               "process_em_data_flag");
+        Get_SB (process_cc_data_flag,                               "process_cc_data_flag");
+        Get_SB (additional_data_flag,                               "additional_data_flag");
+        Get_S1 (5, cc_count,                                        "cc_count");
+        BS_End();
+        Skip_B1(                                                    process_em_data_flag?"em_data":"junk"); //Emergency message
+        if (TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC.size()<cc_count)
+            TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC.resize(cc_count);
+        if (process_cc_data_flag)
+        {
             for (int8u Pos=0; Pos<cc_count; Pos++)
             {
-                if (Pos<TemporalReference[GA94_03_CC_Pos].GA94_03_CC.size() && TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_valid)
-                {
-                    int8u cc_type=TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_type;
-                    size_t Parser_Pos=cc_type;
-                    if (Parser_Pos==3)
-                        Parser_Pos=2; //cc_type 2 and 3 are for the same text
-
-                    while (Parser_Pos>=GA94_03_CC_Parsers.size())
-                        GA94_03_CC_Parsers.push_back(NULL);
-                    if (GA94_03_CC_Parsers[Parser_Pos]==NULL)
-                        GA94_03_CC_Parsers[Parser_Pos]=cc_type<2?(File__Analyze*)new File_Eia608():(File__Analyze*)new File_Eia708();
-                    if (cc_type>=2)
-                        ((File_Eia708*)GA94_03_CC_Parsers[2])->cc_type=cc_type;
-                    Open_Buffer_Init(GA94_03_CC_Parsers[Parser_Pos]);
-                    Open_Buffer_Continue(GA94_03_CC_Parsers[Parser_Pos], TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_data, 2);
-
-                    //Demux
-                    if (cc_type<2)
-                        Demux(TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_data, 2, Ztring::ToZtring(cc_type)+_T(".eia608"));
-                    else
-                        Demux(TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_data, 2, _T("eia708"));
-                }
+                Element_Begin("cc");
+                int8u cc_type, cc_data_1, cc_data_2;
+                bool  cc_valid;
+                BS_Begin();
+                Mark_1();
+                Mark_1();
+                Mark_1();
+                Mark_1();
+                Mark_1();
+                Get_SB (   cc_valid,                                    "cc_valid");
+                Get_S1 (2, cc_type,                                     "cc_type");
+                BS_End();
+                Get_B1 (cc_data_1,                                      "cc_data_1");
+                Get_B1 (cc_data_2,                                      "cc_data_2");
+                TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC[Pos].cc_valid=cc_valid;
+                TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC[Pos].cc_type=cc_type;
+                TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC[Pos].cc_data[0]=cc_data_1;
+                TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC[Pos].cc_data[1]=cc_data_2;
+                Element_End();
             }
+        }
+        else
+            Skip_XX(cc_count*2,                                         "Junk");
 
-        TemporalReference_GA94_03_CC_Offset=TemporalReference.size();
-    }
+        //Parsing Captions after reordering
+        bool CanBeParsed=true;
+        for (size_t GA94_03_CC_Pos=TemporalReference_GA94_03_CC_Offset; GA94_03_CC_Pos<TemporalReference.size(); GA94_03_CC_Pos++)
+            if (!TemporalReference[GA94_03_CC_Pos].IsValid)
+                CanBeParsed=false; //There is a missing field/frame
+        if (CanBeParsed)
+        {
+           for (size_t GA94_03_CC_Pos=TemporalReference_GA94_03_CC_Offset; GA94_03_CC_Pos<TemporalReference.size(); GA94_03_CC_Pos++)
+                for (int8u Pos=0; Pos<cc_count; Pos++)
+                {
+                    if (Pos<TemporalReference[GA94_03_CC_Pos].GA94_03_CC.size() && TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_valid)
+                    {
+                        int8u cc_type=TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_type;
+                        size_t Parser_Pos=cc_type;
+                        if (Parser_Pos==3)
+                            Parser_Pos=2; //cc_type 2 and 3 are for the same text
 
-    BS_Begin();
-    Mark_1();
-    Mark_1();
-    Mark_1();
-    Mark_1();
-    Mark_1();
-    Mark_1();
-    Mark_1();
-    Mark_1();
-    BS_End();
+                        while (Parser_Pos>=GA94_03_CC_Parsers.size())
+                            GA94_03_CC_Parsers.push_back(NULL);
+                        if (GA94_03_CC_Parsers[Parser_Pos]==NULL)
+                            GA94_03_CC_Parsers[Parser_Pos]=cc_type<2?(File__Analyze*)new File_Eia608():(File__Analyze*)new File_Eia708();
+                        if (!GA94_03_CC_Parsers[Parser_Pos]->Status[IsFinished])
+                        {
+                            if (cc_type>=2)
+                                ((File_Eia708*)GA94_03_CC_Parsers[2])->cc_type=cc_type;
+                            Open_Buffer_Init(GA94_03_CC_Parsers[Parser_Pos]);
+                            Open_Buffer_Continue(GA94_03_CC_Parsers[Parser_Pos], TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_data, 2);
 
-    if (additional_data_flag)
-        Skip_XX(Element_Size-Element_Offset,                    "additional_user_data");
+                            //Finish
+                            if (GA94_03_CC_Parsers[Parser_Pos]->Status[IsFinished])
+                            {
+                                if (Count_Get(Stream_General)==0)
+                                    Stream_Prepare(Stream_General);
+                                Merge(*GA94_03_CC_Parsers[Parser_Pos]);
+                                if (Parser_Pos<2)
+                                    Fill(Stream_Text, StreamPos_Last, Text_ID, _T("608-")+Ztring::ToZtring(Parser_Pos));
+                                Fill(Stream_Text, StreamPos_Last, "MuxingMode", _T("EIA-708"));
+                            }
+                        }
+
+                        //Demux
+                        if (cc_type<2)
+                            Demux(TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_data, 2, Ztring::ToZtring(cc_type)+_T(".eia608"));
+                        else
+                            Demux(TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_data, 2, _T("eia708"));
+                    }
+                }
+
+            TemporalReference_GA94_03_CC_Offset=TemporalReference.size();
+        }
+
+        BS_Begin();
+        Mark_1();
+        Mark_1();
+        Mark_1();
+        Mark_1();
+        Mark_1();
+        Mark_1();
+        Mark_1();
+        Mark_1();
+        BS_End();
+
+        if (additional_data_flag)
+            Skip_XX(Element_Size-Element_Offset,                    "additional_user_data");
+    #else
+        Skip_XX(Element_Size-Element_Offset,                    "EIA-608 data");
+    #endif
 }
 
 //---------------------------------------------------------------------------
@@ -1275,13 +1372,14 @@ void File_Mpegv::sequence_header()
     Element_Name("sequence_header");
 
     //Reading
+    int32u bit_rate_value_temp;
     bool  load_intra_quantiser_matrix, load_non_intra_quantiser_matrix;
     BS_Begin();
     Get_S2 (12, horizontal_size_value,                          "horizontal_size_value");
     Get_S2 (12, vertical_size_value,                            "vertical_size_value");
     Get_S1 ( 4, aspect_ratio_information,                       "aspect_ratio_information"); if (vertical_size_value && Mpegv_aspect_ratio1[aspect_ratio_information]) Param_Info((float)horizontal_size_value/vertical_size_value/Mpegv_aspect_ratio1[aspect_ratio_information]); Param_Info(Mpegv_aspect_ratio2[aspect_ratio_information]);
     Get_S1 ( 4, frame_rate_code,                                "frame_rate_code"); Param_Info(Mpegv_frame_rate[frame_rate_code]);
-    Get_S3 (18, bit_rate_value,                                 "bit_rate_value"); Param_Info(bit_rate_value*400);
+    Get_S3 (18, bit_rate_value_temp,                            "bit_rate_value"); Param_Info(bit_rate_value*400);
     Mark_1 ();
     Info_S2(10, vbv_buffer_size_value,                          "vbv_buffer_size_value"); Param_Info(16*1024*vbv_buffer_size_value);
     Skip_SB(                                                    "constrained_parameters_flag");
@@ -1309,14 +1407,40 @@ void File_Mpegv::sequence_header()
     TEST_SB_END();
     BS_End();
 
-    FILLING_BEGIN();
+    //0x00 at the end
+    if (Element_Offset<Element_Size)
+    {
+        int64u NullBytes_Begin=Element_Size-1;
+        while (NullBytes_Begin>Element_Offset && Buffer[Buffer_Offset+(size_t)NullBytes_Begin]==0x00)
+            NullBytes_Begin--;
+
+        if (NullBytes_Begin==Element_Offset)
+            Skip_XX(Element_Size-Element_Offset,                "Padding");
+    }
+
+    FILLING_BEGIN_PRECISE();
         //Temporal reference
         TemporalReference_Offset=TemporalReference.size();
         if (TemporalReference_Offset>=0x800)
         {
             TemporalReference.erase(TemporalReference.begin(), TemporalReference.begin()+0x400);
-            TemporalReference_Offset-=0x400;
-            TemporalReference_GA94_03_CC_Offset-=0x400;
+            if (0x400<TemporalReference_Offset)
+                TemporalReference_Offset-=0x400;
+            else
+                TemporalReference_Offset=0;
+            if (0x400<TemporalReference_GA94_03_CC_Offset)
+                TemporalReference_GA94_03_CC_Offset-=0x400;
+            else
+                TemporalReference_GA94_03_CC_Offset=0;
+        }
+
+        //Bit_rate
+        if (bit_rate_value_IsValid && bit_rate_value_temp!=bit_rate_value)
+            bit_rate_value_IsValid=false; //two bit_rate_values, not handled.
+        else if (bit_rate_value==0)
+        {
+            bit_rate_value=bit_rate_value_temp;
+            bit_rate_value_IsValid=true;
         }
 
         if (sequence_header_IsParsed)
@@ -1447,7 +1571,7 @@ void File_Mpegv::extension_start()
                                 TemporalReference[TemporalReference_Offset+temporal_reference].progressive_frame=progressive_frame;
                                 TemporalReference[TemporalReference_Offset+temporal_reference].top_field_first=top_field_first;
                                 TemporalReference[TemporalReference_Offset+temporal_reference].repeat_first_field=repeat_first_field;
-                                TemporalReference[TemporalReference_Offset+temporal_reference].IsValid=true;
+                                TemporalReference[TemporalReference_Offset+temporal_reference].HasPictureCoding=true;
                             }
                             else                                //Field
                             {
@@ -1475,7 +1599,7 @@ void File_Mpegv::extension_start()
                                 TemporalReference[TemporalReference_Offset+temporal_reference].progressive_frame=progressive_frame;
                                 TemporalReference[TemporalReference_Offset+temporal_reference].top_field_first=top_field_first;
                                 TemporalReference[TemporalReference_Offset+temporal_reference].repeat_first_field=repeat_first_field;
-                                TemporalReference[TemporalReference_Offset+temporal_reference].IsValid=true;
+                                TemporalReference[TemporalReference_Offset+temporal_reference].HasPictureCoding=true;
                             }
                         }
 
@@ -1499,8 +1623,12 @@ void File_Mpegv::sequence_end()
 {
     Element_Name("sequence_end");
 
-    if (!IsFilled && sequence_header_IsParsed)
-        slice_start_Fill();
+    if (!Status[IsFilled] && sequence_header_IsParsed)
+    {
+        //End of file, and we have some frames
+        Accept("MPEG Video");
+        Finish("MPEG Video");
+    }
 }
 
 //---------------------------------------------------------------------------

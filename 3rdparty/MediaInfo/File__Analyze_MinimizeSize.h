@@ -23,8 +23,6 @@ public :
     void    Open_Buffer_Continue    (                    const int8u* Buffer, size_t Buffer_Size);
     void    Open_Buffer_Continue    (File__Analyze* Sub, const int8u* Buffer, size_t Buffer_Size);
     void    Open_Buffer_Unsynch     ();
-    void    Open_Buffer_Fill        ();
-    void    Open_Buffer_Update      ();
     void    Open_Buffer_Finalize    (bool NoBufferModification=false);
     void    Open_Buffer_Finalize    (File__Analyze* Sub);
 
@@ -33,6 +31,7 @@ public :
     //***************************************************************************
 
     //In
+    bool   PTS_DTS_Needed;
     int64u PTS; //In nanoseconds
     int64u DTS; //In nanoseconds
 
@@ -45,7 +44,7 @@ protected :
     //***************************************************************************
 
     virtual void Streams_Fill()                                                 {};
-    virtual void Streams_Update()                                               {};
+    virtual void Streams_Finish()                                               {};
 
     //***************************************************************************
     // Synchro
@@ -153,8 +152,7 @@ protected :
     inline void Element_Begin (const char *, int64u Size=(int64u)-1) {Element_Begin(Size);}
 
     //Elements - Name
-    inline void Element_Name (const Ztring &) {}
-    inline void Element_Name (const char*) {}
+    #define Element_Name(_A)
 
     //Elements - Info
     inline void Element_Info (const Ztring &) {}
@@ -174,7 +172,7 @@ protected :
     #endif //NEED_SIZET
     inline void Element_Info (float32    , int8u =3, const char* =NULL) {}
     inline void Element_Info (float64    , int8u =3, const char* =NULL) {}
-    inline void Element_Info_From_Milliseconds (int64u) {}
+    #define Element_Info_From_Milliseconds(_A)
 
     //Elements - End
     void Element_End ();
@@ -222,6 +220,7 @@ public :
     inline void Param      (const char*, int64u) {}
     inline void Param      (const char*, int64s) {}
     inline void Param      (const char*, int128u) {}
+    inline void Param_GUID (const char*, int128u) {}
     inline void Param_UUID (const char*, int128u) {}
     #ifdef NEED_SIZET
     inline void Param      (const char*, size_t Value, intu Radix=16) {}
@@ -386,6 +385,16 @@ public :
     #define Info_L16(_INFO, _NAME) int128u _INFO; Get_L16(_INFO, _NAME)
     #define Info_LF4(_INFO, _NAME) float32 _INFO; Get_LF4(_INFO, _NAME)
     #define Info_LF8(_INFO, _NAME) float64 _INFO; Get_LF8(_INFO, _NAME)
+
+    //***************************************************************************
+    // GUID
+    //***************************************************************************
+
+    void Get_GUID (int128u &Info);
+    inline void Get_GUID (int128u &Info, const char*) {Get_GUID(Info);}
+    void Peek_GUID(int128u &Info);
+    inline void Skip_GUID(               const char*) {if (Element_Offset+16>Element_Size) {Trusted_IsNot(); return;} Element_Offset+=16;}
+    #define Info_GUID(_INFO, _NAME) int128u _INFO; Get_GUID(_INFO, _NAME)
 
     //***************************************************************************
     // UUID
@@ -562,6 +571,7 @@ public :
 
     void Get_BS (size_t Bits, int32u  &Info);
     void Get_SB (             bool    &Info);
+    bool Get_SB ()                                              {bool Temp; Get_SB(Temp); return Temp;}
     void Get_S1 (size_t Bits, int8u   &Info);
     void Get_S2 (size_t Bits, int16u  &Info);
     void Get_S3 (size_t Bits, int32u  &Info);
@@ -582,6 +592,7 @@ public :
     inline void Get_S8 (size_t Bits, int64u  &Info, const char*) {Get_S8(Bits, Info);}
     void Peek_BS(size_t Bits, int32u  &Info);
     void Peek_SB(              bool    &Info);
+    bool Peek_SB()                                              {bool Temp; Peek_SB(Temp); return Temp;}
     void Peek_S1(size_t Bits, int8u   &Info);
     void Peek_S2(size_t Bits, int16u  &Info);
     void Peek_S3(size_t Bits, int32u  &Info);
@@ -637,9 +648,7 @@ public :
 
     #define TEST_SB_SKIP(_NAME) \
         { \
-            bool Temp; \
-            Peek_SB(Temp); \
-            if (!Temp) \
+            if (!Peek_SB()) \
                 Skip_SB(                                        _NAME); \
             else \
             { \
@@ -656,9 +665,7 @@ public :
 
     #define TESTELSE_SB_SKIP(_NAME) \
         { \
-            bool Temp; \
-            Peek_SB(Temp); \
-            if (Temp) \
+            if (Peek_SB()) \
             { \
                 Element_Begin(_NAME); \
                 Skip_SB(                                        _NAME); \
@@ -742,6 +749,7 @@ public :
     #endif //NEED_SIZET
     ZtringListList Fill_Temp;
     void Fill_Flush ();
+    size_t Fill_Parameter(stream_t StreamKind, generic StreamPos);
 
     const Ztring &Retrieve (stream_t StreamKind, size_t StreamPos, size_t Parameter, info_t KindOfInfo=Info_Text);
     const Ztring &Retrieve (stream_t StreamKind, size_t StreamPos, const char* Parameter, info_t KindOfInfo=Info_Text);
@@ -759,10 +767,16 @@ public :
     //Actions
     void Accept        (const char*)                                            {Accept();}
     void Accept        ();
+    void Accept        (File__Analyze* Parser);
     void Reject        (const char*)                                            {Reject();}
     void Reject        ();
+    void Reject        (File__Analyze* Parser);
+    void Fill          (const char*)                                            {Fill();}
+    void Fill          ();
+    void Fill          (File__Analyze* Parser);
     void Finish        (const char*)                                            {Finish();}
     void Finish        ();
+    void Finish        (File__Analyze* Parser);
     void GoTo          (int64u GoTo_, const char*)                              {GoTo(GoTo_);}
     void GoTo          (int64u GoTo);
     void GoToFromEnd   (int64u GoToFromEnd_, const char*)                       {GoToFromEnd(GoToFromEnd_);}
@@ -811,6 +825,8 @@ public :
 
     //Utils
 public :
+    size_t Merge(MediaInfo_Internal &ToAdd, bool Erase=true); //Merge 2 File_Base
+    size_t Merge(MediaInfo_Internal &ToAdd, stream_t StreamKind, size_t StreamPos_From, size_t StreamPos_To, bool Erase=true); //Merge 2 streams
     size_t Merge(File__Analyze &ToAdd, bool Erase=true); //Merge 2 File_Base
     size_t Merge(File__Analyze &ToAdd, stream_t StreamKind, size_t StreamPos_From, size_t StreamPos_To, bool Erase=true); //Merge 2 streams
 
@@ -819,41 +835,39 @@ public :
     //***************************************************************************
 
     //End
-    void Finalize_Global();
+    void Streams_Finish_Global();
 
 protected :
+    void Streams_Finish_StreamOnly();
+    void Streams_Finish_StreamOnly(stream_t StreamKid, size_t StreamPos);
+    void Streams_Finish_StreamOnly_General(size_t StreamPos);
+    void Streams_Finish_StreamOnly_Video(size_t StreamPos);
+    void Streams_Finish_StreamOnly_Audio(size_t StreamPos);
+    void Streams_Finish_StreamOnly_Text(size_t StreamPos);
+    void Streams_Finish_StreamOnly_Chapters(size_t StreamPos);
+    void Streams_Finish_StreamOnly_Image(size_t StreamPos);
+    void Streams_Finish_StreamOnly_Menu(size_t StreamPos);
+    void Streams_Finish_InterStreams();
+    void Streams_Finish_Cosmetic();
+    void Streams_Finish_Cosmetic(stream_t StreamKid, size_t StreamPos);
+    void Streams_Finish_Cosmetic_General(size_t StreamPos);
+    void Streams_Finish_Cosmetic_Video(size_t StreamPos);
+    void Streams_Finish_Cosmetic_Audio(size_t StreamPos);
+    void Streams_Finish_Cosmetic_Text(size_t StreamPos);
+    void Streams_Finish_Cosmetic_Chapters(size_t StreamPos);
+    void Streams_Finish_Cosmetic_Image(size_t StreamPos);
+    void Streams_Finish_Cosmetic_Menu(size_t StreamPos);
 
-    void Finalize_StreamOnly();
-    void Finalize_StreamOnly(stream_t StreamKid, size_t StreamPos);
-    void Finalize_StreamOnly_General(size_t StreamPos);
-    void Finalize_StreamOnly_Video(size_t StreamPos);
-    void Finalize_StreamOnly_Audio(size_t StreamPos);
-    void Finalize_StreamOnly_Text(size_t StreamPos);
-    void Finalize_StreamOnly_Chapters(size_t StreamPos);
-    void Finalize_StreamOnly_Image(size_t StreamPos);
-    void Finalize_StreamOnly_Menu(size_t StreamPos);
-    void Finalize_InterStreams();
-    void Finalize_Cosmetic();
-    void Finalize_Cosmetic(stream_t StreamKid, size_t StreamPos);
-    void Finalize_Cosmetic_General(size_t StreamPos);
-    void Finalize_Cosmetic_Video(size_t StreamPos);
-    void Finalize_Cosmetic_Audio(size_t StreamPos);
-    void Finalize_Cosmetic_Text(size_t StreamPos);
-    void Finalize_Cosmetic_Chapters(size_t StreamPos);
-    void Finalize_Cosmetic_Image(size_t StreamPos);
-    void Finalize_Cosmetic_Menu(size_t StreamPos);
-
-    void Finalize_Tags      ();
-    void Finalize_Video_FrameRate (size_t Pos, video Parameter);
-    void Finalize_Audio_BitRate (size_t Pos, audio Parameter);
+    void Tags ();
+    void Video_FrameRate_Rounding (size_t Pos, video Parameter);
+    void Audio_BitRate_Rounding (size_t Pos, audio Parameter);
 
     //Utils - Finalize
-    void Duration_Duration123   (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
-    void FileSize_FileSize123   (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
-    void Kilo_Kilo123           (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
-    void Value_Value123         (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
-    void AspectRatio_AspectRatio(size_t Pos, size_t DisplayAspectRatio, size_t PixelAspectRatio, size_t DisplayAspectRatio_String);
-    void YesNo_YesNo            (const Ztring &Value, stream_t StreamKind, size_t StreamPos);
+    void Duration_Duration123   (stream_t StreamKind, size_t StreamPos, size_t Parameter);
+    void FileSize_FileSize123   (stream_t StreamKind, size_t StreamPos, size_t Parameter);
+    void Kilo_Kilo123           (stream_t StreamKind, size_t StreamPos, size_t Parameter);
+    void Value_Value123         (stream_t StreamKind, size_t StreamPos, size_t Parameter);
+    void YesNo_YesNo            (stream_t StreamKind, size_t StreamPos, size_t Parameter);
     void CodecID_Fill           (const Ztring &Value, stream_t StreamKind, size_t StreamPos, infocodecid_format_t Format);
 
     //***************************************************************************
@@ -924,9 +938,6 @@ private :
     // Elements
     //***************************************************************************
 
-    //Data
-    size_t Data_Level;              //Current level for Data ("Top level")
-
     //Element
     BitStream* BS;                  //For conversion from bytes to bitstream
 public : //TO CHANGE
@@ -944,7 +955,6 @@ public : //For very quick access, to not use except if you know what you do
         bool    WaitForMoreData;    //This element is not complete, we need more data
         bool    UnTrusted;          //This element has a problem
         bool    IsComplete;         //This element is fully buffered, no need of more
-        bool    InLoop;             //This element is in a parsing loop
     };
     std::vector<element_details> Element;
 
@@ -965,14 +975,34 @@ public :
     virtual bool BookMark_Needed()                                              {return false;};
 
     //Temp
-    bool IsAccepted;
-    bool IsFilled;
-    bool IsUpdated;
-    bool IsFinished;
-    bool IsFinalized;
+    std::bitset<32> Status;
+    enum status
+    {
+        IsAccepted,
+        IsFilled,
+        IsUpdated,
+        IsFinished,
+        Reserved_04,
+        Reserved_05,
+        Reserved_06,
+        Reserved_07,
+        Reserved_08,
+        Reserved_09,
+        Reserved_10,
+        Reserved_11,
+        Reserved_12,
+        Reserved_13,
+        Reserved_14,
+        Reserved_15,
+        User_16,
+        User_17,
+        User_18,
+    };
     bool ShouldContinueParsing;
 
     //Configuration
     bool MustSynchronize;
 };
 
+//Helpers
+#define DETAILS_INFO(_DATA)

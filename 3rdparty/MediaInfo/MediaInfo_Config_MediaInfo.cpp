@@ -42,10 +42,13 @@ namespace MediaInfoLib
 MediaInfo_Config_MediaInfo::MediaInfo_Config_MediaInfo()
 {
     FileIsSeekable=true;
+    FileIsSub=false;
     File_Filter_HasChanged_=false;
 
     //Specific
     File_MpegTs_ForceMenu=false;
+    File_Bdmv_ParseTargetedFile=true;
+    File_DvDif_Analysis=false;
 }
 
 //***************************************************************************
@@ -68,6 +71,15 @@ Ztring MediaInfo_Config_MediaInfo::Option (const String &Option, const String &V
     else if (Option_Lower==_T("file_isseekable_get"))
     {
         return File_IsSeekable_Get()?"1":"0";
+    }
+    if (Option_Lower==_T("file_issub"))
+    {
+        File_IsSub_Set(!(Value==_T("0") || Value.empty()));
+        return _T("");
+    }
+    else if (Option_Lower==_T("file_issub_get"))
+    {
+        return File_IsSub_Get()?"1":"0";
     }
     else if (Option_Lower==_T("file_forceparser"))
     {
@@ -107,6 +119,24 @@ Ztring MediaInfo_Config_MediaInfo::Option (const String &Option, const String &V
     {
         return File_MpegTs_ForceMenu_Get()?"1":"0";
     }
+    else if (Option_Lower==_T("file_bdmv_parsetargetedfile"))
+    {
+        File_Bdmv_ParseTargetedFile_Set(!(Value==_T("0") || Value.empty()));
+        return _T("");
+    }
+    else if (Option_Lower==_T("file_bdmv_parsetargetedfile_get"))
+    {
+        return File_Bdmv_ParseTargetedFile_Get()?"1":"0";
+    }
+    else if (Option_Lower==_T("file_dvdif_analysis"))
+    {
+        File_DvDif_Analysis_Set(!(Value==_T("0") || Value.empty()));
+        return _T("");
+    }
+    else if (Option_Lower==_T("file_dvdif_analysis_get"))
+    {
+        return File_DvDif_Analysis_Get()?"1":"0";
+    }
     else
         return _T("Option not known");
 }
@@ -126,6 +156,23 @@ bool MediaInfo_Config_MediaInfo::File_IsSeekable_Get ()
 {
     CriticalSectionLocker CSL(CS);
     return FileIsSeekable;
+}
+
+//***************************************************************************
+// File Is Sub
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void MediaInfo_Config_MediaInfo::File_IsSub_Set (bool NewValue)
+{
+    CriticalSectionLocker CSL(CS);
+    FileIsSub=NewValue;
+}
+
+bool MediaInfo_Config_MediaInfo::File_IsSub_Get ()
+{
+    CriticalSectionLocker CSL(CS);
+    return FileIsSub;
 }
 
 //***************************************************************************
@@ -188,15 +235,15 @@ bool MediaInfo_Config_MediaInfo::File_Filter_HasChanged ()
 // Duplicate
 //***************************************************************************
 
-Ztring MediaInfo_Config_MediaInfo::File_Duplicate_Set (const Ztring &Value)
+Ztring MediaInfo_Config_MediaInfo::File_Duplicate_Set (const Ztring &Value_In)
 {
     //Preparing for File__Duplicate...
     CS.Enter();
-    File__Duplicate_List.push_back(Value);
+    File__Duplicate_List.push_back(Value_In);
 
     //Handling Memory index
     Ztring ToReturn;
-    ZtringList List=Value;
+    ZtringList List=Value_In;
     for (size_t Pos=0; Pos<List.size(); Pos++)
     {
         //Form= "(-)Data", if "-" the value will be removed
@@ -290,6 +337,34 @@ bool MediaInfo_Config_MediaInfo::File_MpegTs_ForceMenu_Get ()
 {
     CriticalSectionLocker CSL(CS);
     bool Temp=File_MpegTs_ForceMenu;
+    return Temp;
+}
+
+//---------------------------------------------------------------------------
+void MediaInfo_Config_MediaInfo::File_Bdmv_ParseTargetedFile_Set (bool NewValue)
+{
+    CriticalSectionLocker CSL(CS);
+    File_Bdmv_ParseTargetedFile=NewValue;
+}
+
+bool MediaInfo_Config_MediaInfo::File_Bdmv_ParseTargetedFile_Get ()
+{
+    CriticalSectionLocker CSL(CS);
+    bool Temp=File_Bdmv_ParseTargetedFile;
+    return Temp;
+}
+
+//---------------------------------------------------------------------------
+void MediaInfo_Config_MediaInfo::File_DvDif_Analysis_Set (bool NewValue)
+{
+    CriticalSectionLocker CSL(CS);
+    File_DvDif_Analysis=NewValue;
+}
+
+bool MediaInfo_Config_MediaInfo::File_DvDif_Analysis_Get ()
+{
+    CriticalSectionLocker CSL(CS);
+    bool Temp=File_DvDif_Analysis;
     return Temp;
 }
 

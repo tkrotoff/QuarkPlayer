@@ -142,11 +142,7 @@ namespace Elements
 
 const char* Wm_StreamType(int128u Kind)
 {
-    #ifndef __BORLANDC__
-        switch (Kind.hi)
-    #else //__BORLANDC__
-        switch (Kind.hi&0xFFFFFFFF) //Borland does not like int64u for const?
-    #endif //__BORLANDC__
+    switch (Kind.hi)
     {
         case Elements::Header_StreamProperties_Audio :          return "Audio";
         case Elements::Header_StreamProperties_Video :          return "Video";
@@ -161,11 +157,7 @@ const char* Wm_StreamType(int128u Kind)
 
 const char* Wm_ExclusionType(int128u ExclusionType)
 {
-    #ifndef __BORLANDC__
-        switch (ExclusionType.hi)
-    #else //__BORLANDC__
-        switch (ExclusionType.hi&0xFFFFFFFF) //Borland does not like int64u for const?
-    #endif //__BORLANDC__
+    switch (ExclusionType.hi)
     {
         case Elements::Header_StreamProperties_Audio :          return "Language";
         case Elements::Header_StreamProperties_Video :          return "Bitrate";
@@ -258,7 +250,7 @@ void File_Wm::Header_FileProperties()
     //Parsing
     int64u CreationDate, PlayDuration, SendDuration, Preroll;
     int32u Flags, MaximumBitRate;
-    Skip_UUID(                                                  "File ID");
+    Skip_GUID(                                                  "File ID");
     Skip_L8(                                                    "File Size");
     Get_L8 (CreationDate,                                       "Creation Date"); Param_Info(Ztring().Date_From_Milliseconds_1601(CreationDate/10000));
     Skip_L8(                                                    "Data Packets Count");
@@ -293,8 +285,8 @@ void File_Wm::Header_StreamProperties ()
     //Parsing
     int128u StreamType;
     int32u StreamTypeLength, ErrorCorrectionTypeLength;
-    Get_UUID(StreamType,                                        "StreamType"); Param_Info(Wm_StreamType(StreamType)); Element_Info(Wm_StreamType(StreamType));
-    Skip_UUID(                                                  "Error Correction Type");
+    Get_GUID(StreamType,                                        "StreamType"); Param_Info(Wm_StreamType(StreamType)); Element_Info(Wm_StreamType(StreamType));
+    Skip_GUID(                                                  "Error Correction Type");
     Skip_L8(                                                    "Time Offset");
     Get_L4 (StreamTypeLength,                                   "Type-Specific Data Length");
     Get_L4 (ErrorCorrectionTypeLength,                          "Error Correction Data Length");
@@ -307,11 +299,7 @@ void File_Wm::Header_StreamProperties ()
     Stream_Number&=0x007F; //Only 7bits
     Element_Info(Stream_Number);
     Skip_L4(                                                    "Reserved");
-    #ifndef __BORLANDC__
-        switch (StreamType.hi)
-    #else //__BORLANDC__
-        switch (StreamType.hi&0xFFFFFFFF) //Borland does not like int64u for const?
-    #endif //__BORLANDC__
+    switch (StreamType.hi)
     {
         case Elements::Header_StreamProperties_Audio :          Element_Begin(StreamTypeLength);
                                                                 Header_StreamProperties_Audio();
@@ -469,10 +457,10 @@ void File_Wm::Header_StreamProperties_Video ()
         if (Data_Size>40)
         {
             Open_Buffer_Continue(Stream[Stream_Number].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Data_Size-40));
-            if (Stream[Stream_Number].Parser->IsFinished)
+            if (Stream[Stream_Number].Parser->Status[IsFinished])
             {
-                Open_Buffer_Finalize(Stream[Stream_Number].Parser);
-                Merge (*Stream[Stream_Number].Parser, Stream_Video, 0, StreamPos_Last);
+                Finish(Stream[Stream_Number].Parser);
+                Merge(*Stream[Stream_Number].Parser, Stream_Video, 0, StreamPos_Last);
                 delete Stream[Stream_Number].Parser; Stream[Stream_Number].Parser=NULL;
             }
             else
@@ -548,12 +536,12 @@ void File_Wm::Header_StreamProperties_Binary ()
 
     //Parsing
     int32u FormatDataLength;
-    Skip_UUID(                                                  "Major media type");
-    Skip_UUID(                                                  "Media subtype");
+    Skip_GUID(                                                  "Major media type");
+    Skip_GUID(                                                  "Media subtype");
     Skip_L4(                                                    "Fixed-size samples");
     Skip_L4(                                                    "Temporal compression");
     Skip_L4(                                                    "Sample size");
-    Skip_UUID(                                                  "Format type");
+    Skip_GUID(                                                  "Format type");
     Get_L4 (FormatDataLength,                                   "Format data size");
     if (FormatDataLength>0)
         Skip_XX(FormatDataLength,                               "Format data");
@@ -566,7 +554,7 @@ void File_Wm::Header_HeaderExtension()
 
     //Parsing
     int32u Size;
-    Skip_UUID(                                                  "ClockType");
+    Skip_GUID(                                                  "ClockType");
     Skip_L2(                                                    "ClockSize");
     Get_L4 (Size,                                               "Extension Data Size");
 }
@@ -613,7 +601,7 @@ void File_Wm::Header_HeaderExtension_ExtendedStreamProperties()
         Element_Begin("Payload Extension System");
         stream::payload_extension_system Payload_Extension_System;
         int32u ExtensionSystemInfoLength;
-        Get_UUID(Payload_Extension_System.ID,                   "Extension System ID");
+        Get_GUID(Payload_Extension_System.ID,                   "Extension System ID");
         Get_L2 (Payload_Extension_System.Size,                  "Extension Data Size");
         Get_L4 (ExtensionSystemInfoLength,                      "Extension System Info Length");
         if (ExtensionSystemInfoLength>0)
@@ -632,16 +620,12 @@ void File_Wm::Header_HeaderExtension_ExtendedStreamProperties()
         int64u Size;
         Element_Begin("Stream Properties Object", Element_Size-Element_Offset);
         Element_Begin("Header", 24);
-            Get_UUID(Name,                                      "Name");
+            Get_GUID(Name,                                      "Name");
             Get_L8 (Size,                                       "Size");
         Element_End();
         if (Size>=24 && Element_Offset+Size-24==Element_Size)
         {
-            #ifndef __BORLANDC__
-                switch (Name.hi)
-            #else //__BORLANDC__
-                switch (Name.hi&0xFFFFFFFF) //Borland does not like int64u for const?
-            #endif //__BORLANDC__
+            switch (Name.hi)
             {
                 case Elements::Header_StreamProperties :    Header_StreamProperties(); break;
                 default :                                   Skip_XX(Size-24, "Unknown");
@@ -665,7 +649,7 @@ void File_Wm::Header_HeaderExtension_AdvancedMutualExclusion()
 
     //Parsing
     int16u Count;
-    Info_UUID(ExclusionType,                                    "Exclusion Type"); Param_Info(Wm_ExclusionType(ExclusionType));
+    Info_GUID(ExclusionType,                                    "Exclusion Type"); Param_Info(Wm_ExclusionType(ExclusionType));
     Get_L2 (Count,                                              "Stream Numbers Count");
     for (int16u Pos=0; Pos<Count; Pos++)
     {
@@ -869,7 +853,7 @@ void File_Wm::Header_CodecList()
     Ztring CodecName, CodecDescription;
     int32u Count32;
     int16u Count, Type, CodecNameLength, CodecDescriptionLength, CodecInformationLength;
-    Skip_UUID(                                                  "Reserved");
+    Skip_GUID(                                                  "Reserved");
     Get_L4 (Count32,                                            "Codec Entries Count");
     Count=(int16u)Count32;
     CodecInfos.resize(Count);
@@ -909,7 +893,7 @@ void File_Wm::Header_ScriptCommand()
     Element_Name("Script Command");
 
     //Parsing
-    Skip_UUID(                                                  "Reserved");
+    Skip_GUID(                                                  "Reserved");
     int16u Commands_Count, CommandTypes_Count;
     Get_L2 (Commands_Count,                                     "Commands Count");
     Get_L2 (CommandTypes_Count,                                 "Command Types Count");
@@ -937,41 +921,38 @@ void File_Wm::Header_ScriptCommand()
 //---------------------------------------------------------------------------
 void File_Wm::Header_Marker()
 {
-    Element_Name("Marker");
+    Element_Name("Markers");
 
     //Parsing
-    Skip_UUID(                                                  "Reserved");
-    int32u Count;
-    int16u Length;
-    Get_L4 (Count,                                              "Markers Count");
+    Skip_GUID(                                                  "Reserved");
+    int32u Markers_Count;
+    int16u Name_Length;
+    Get_L4 (Markers_Count,                                      "Markers Count");
     Skip_L2(                                                    "Reserved");
-    Get_L2 (Length,                                             "Name Length");
-    if (Length>0)
-        Skip_UTF16L(Length,                                     "Name");
+    Get_L2 (Name_Length,                                        "Name Length");
+    if (Name_Length>0)
+        Skip_UTF16L(Name_Length,                                "Name");
     
     //Filling
-    if (Count>0)
+    if (Markers_Count>0)
         Stream_Prepare(Stream_Menu);
 
     //Parsing
-    for (int32u Pos=0; Pos<Count; Pos++)
+    for (int32u Pos=0; Pos<Markers_Count; Pos++)
     {
         Element_Begin("Marker");
         Ztring Marker;
-        int32u Length;
+        int32u Marker_Length;
         Skip_L8(                                                "Offset");
         Info_L8(PresentationTime,                               "Presentation Time"); Param_Info_From_Milliseconds(PresentationTime/10000);
         Skip_L2(                                                "Entry Length");
         Info_L4(SendTime,                                       "Send Time"); Param_Info_From_Milliseconds(SendTime);
         Skip_L4(                                                "Flags");
-        Get_L4 (Length,                                         "Marker Description Length");
-        if (Length>0)
-            Get_UTF16L(Length*2, Marker,                        "Marker Description");
+        Get_L4 (Marker_Length,                                  "Marker Description Length");
+        if (Marker_Length>0)
+            Get_UTF16L(Marker_Length*2, Marker,                 "Marker Description");
         Element_End();
-
-        //Fill(
     }
-
 }
 
 //---------------------------------------------------------------------------
@@ -981,7 +962,7 @@ void File_Wm::Header_BitRateMutualExclusion()
 
     //Parsing
     int16u Count;
-    Skip_UUID(                                                  "Exclusion Type");
+    Skip_GUID(                                                  "Exclusion Type");
     Get_L2 (Count,                                              "Stream Numbers Count");
     for (int16u Pos=0; Pos<Count; Pos++)
         Skip_L2(                                                "Stream Number");
@@ -1282,7 +1263,7 @@ void File_Wm::Data()
     Element_Name("Data");
 
     //Parsing
-    Skip_UUID(                                                  "File ID");
+    Skip_GUID(                                                  "File ID");
     Skip_L8(                                                    "Total Data Packets");
     Skip_L1(                                                    "Alignment");
     Skip_L1(                                                    "Packet Alignment");
@@ -1386,10 +1367,10 @@ void File_Wm::Data_Packet()
     {
         //Parsing
         Element_Begin("Multiple Payloads additional flags");
-            int8u Flags;
-            Get_L1 (Flags,                                          "Flags");
-                Get_Flags ( Flags    &0x3F, NumberPayloads,         "Number of Payloads"); //6 bits
-                Get_Flags ((Flags>>6)&0x03, PayloadLengthType,      "Payload Length Type"); //bits 6 and 7
+            int8u AdditionalFlags;
+            Get_L1 (AdditionalFlags,                                     "Flags");
+                Get_Flags ( AdditionalFlags    &0x3F, NumberPayloads,    "Number of Payloads"); //6 bits
+                Get_Flags ((AdditionalFlags>>6)&0x03, PayloadLengthType, "Payload Length Type"); //bits 6 and 7
         Element_End();
     }
     else
@@ -1506,14 +1487,15 @@ void File_Wm::Data_Packet()
 
             //Codec specific
             #if defined(MEDIAINFO_VC1_YES)
-            if (Retrieve(Stream[Stream_Number].StreamKind, Stream[Stream_Number].StreamPos, "Format")==_T("VC-1"))
+            if (Retrieve(Stream[Stream_Number].StreamKind, Stream[Stream_Number].StreamPos, Fill_Parameter(Stream[Stream_Number].StreamKind, Generic_Format))==_T("VC-1"))
                 ((File_Vc1*)Stream[Stream_Number].Parser)->FrameIsAlwaysComplete=FrameIsAlwaysComplete;
             #endif
 
             Open_Buffer_Continue(Stream[Stream_Number].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)PayloadLength);
-            if (Stream[Stream_Number].Parser->IsFinished
+            if (Stream[Stream_Number].Parser->Status[IsFinished]
              || Stream[Stream_Number].PresentationTime_Count>=300)
             {
+                Stream[Stream_Number].Parser->Open_Buffer_Unsynch();
                 Stream[Stream_Number].SearchingPayload=false;
                 Streams_Count--;
             }
@@ -1556,11 +1538,7 @@ void File_Wm::Data_Packet_ReplicatedData(int32u Size)
     for (size_t Pos=0; Pos<Stream[Stream_Number].Payload_Extension_Systems.size(); Pos++)
     {
         Element_Begin();
-        #ifndef __BORLANDC__
-            switch (Stream[Stream_Number].Payload_Extension_Systems[Pos].ID.hi)
-        #else //__BORLANDC__
-            switch (Stream[Stream_Number].Payload_Extension_Systems[Pos].ID.hi&0xFFFFFFFF) //Borland does not like int64u for const?
-        #endif //__BORLANDC__
+        switch (Stream[Stream_Number].Payload_Extension_Systems[Pos].ID.hi)
         {
             case Elements::Payload_Extension_System_TimeStamp :     Data_Packet_ReplicatedData_TimeStamp(); break;
             default :                                               //Not enough info to validate this algorithm
@@ -1612,7 +1590,7 @@ void File_Wm::SimpleIndex()
     //Parsing
     /*
     int32u Count;
-    Skip_UUID(                                                  "File ID");
+    Skip_GUID(                                                  "File ID");
     Skip_L8(                                                    "Index Entry Time Interval");
     Skip_L4(                                                    "Maximum Packet Count");
     Get_L4 (Count,                                              "Index Entries Count");

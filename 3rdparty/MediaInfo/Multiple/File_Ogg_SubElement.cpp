@@ -143,6 +143,36 @@ File_Ogg_SubElement::~File_Ogg_SubElement()
 }
 
 //***************************************************************************
+// Streams management
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_Ogg_SubElement::Streams_Fill()
+{
+    if (Parser==NULL)
+        return;
+
+    Fill(Parser);
+    Merge(*Parser, Stream_Video,    0, 0);
+    Merge(*Parser, Stream_Audio,    0, 0);
+    Merge(*Parser, Stream_Text,     0, 0);
+    Merge(*Parser, Stream_Image,    0, 0);
+}
+
+//---------------------------------------------------------------------------
+void File_Ogg_SubElement::Streams_Finish()
+{
+    if (Parser==NULL)
+        return;
+
+    Finish(Parser);
+    Merge(*Parser, Stream_Video,    0, 0);
+    Merge(*Parser, Stream_Audio,    0, 0);
+    Merge(*Parser, Stream_Text,     0, 0);
+    Merge(*Parser, Stream_Image,    0, 0);
+}
+
+//***************************************************************************
 // Format
 //***************************************************************************
 
@@ -150,17 +180,6 @@ File_Ogg_SubElement::~File_Ogg_SubElement()
 void File_Ogg_SubElement::FileHeader_Parse()
 {
     Stream_Prepare(Stream_General);
-}
-
-//---------------------------------------------------------------------------
-void File_Ogg_SubElement::Read_Buffer_Finalize()
-{
-    Open_Buffer_Finalize(Parser);
-    Merge(*Parser, Stream_General,  0, 0);
-    Merge(*Parser, Stream_Video,    0, 0);
-    Merge(*Parser, Stream_Audio,    0, 0);
-    Merge(*Parser, Stream_Text,     0, 0);
-    Merge(*Parser, Stream_Image,    0, 0);
 }
 
 //***************************************************************************
@@ -756,15 +775,15 @@ void File_Ogg_SubElement::Comment()
 
     //Parsing
     Open_Buffer_Continue(&Vorbis, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
-    Open_Buffer_Finalize(&Vorbis);
 
     //Filling
+    Finish(&Vorbis);
     Merge(Vorbis, Stream_General,  0, 0);
     Merge(Vorbis, StreamKind,      0, 0);
     Merge(Vorbis, Stream_Menu,     0, 0);
 
     //Testing if we must continue
-    if (Identified && (Parser==NULL || Parser->IsFinished))
+    if (Identified && (Parser==NULL || Parser->Status[IsFinished]))
         Finish("OggSubElement");
 }
 
@@ -776,7 +795,7 @@ void File_Ogg_SubElement::Default()
     if (Parser)
     {
         Open_Buffer_Continue(Parser, Buffer+Buffer_Offset, (size_t)Element_Size);
-        if (Identified && Parser->IsFinished)
+        if (Identified && Parser->Status[IsFinished])
             Finish("OggSubElement");
     }
     else if (Element_Offset<Element_Size)

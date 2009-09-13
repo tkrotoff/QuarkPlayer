@@ -28,6 +28,7 @@
 
 //---------------------------------------------------------------------------
 #include "MediaInfo/File__Analyze.h"
+#include "MediaInfo/Multiple/File_Mpeg4_Descriptors.h"
 #include "MediaInfo/Duplicate/File__Duplicate_MpegTs.h"
 #include <map>
 //---------------------------------------------------------------------------
@@ -46,9 +47,9 @@ struct complete_stream
     bool   transport_stream_id_IsValid; //The processed transport_stream_id
     Ztring original_network_name;
     Ztring network_name;
-    Ztring Start_Time;
-    Ztring End_Time;
-    bool   End_Time_IsUpdated;
+    Ztring Duration_Start;
+    Ztring Duration_End;
+    bool   Duration_End_IsUpdated;
     std::map<Ztring, Ztring> TimeZones; //Key is country code
 
     //Per transport_stream
@@ -116,17 +117,29 @@ struct complete_stream
         //Per IOD
         struct iod_es
         {
-            File__Analyze*                              Parser;
+            File__Analyze*                                  Parser;
+            #ifdef MEDIAINFO_MPEG4_YES
+                File_Mpeg4_Descriptors::decspecificinfotag* DecSpecificInfoTag;
+                File_Mpeg4_Descriptors::slconfig*           SLConfig;
+            #endif
 
             //Constructor/Destructor
             iod_es()
             {
                 Parser=NULL;
+                #ifdef MEDIAINFO_MPEG4_YES
+                    DecSpecificInfoTag=NULL;
+                    SLConfig=NULL;
+                #endif
             }
 
             ~iod_es()
             {
                 delete Parser; //Parser=NULL;
+                #ifdef MEDIAINFO_MPEG4_YES
+                    delete DecSpecificInfoTag; //DecSpecificInfoTag=NULL;
+                    delete SLConfig; //SLConfig=NULL;
+                #endif
             }
         };
         typedef std::map<int16u, iod_es> iod_ess; //Key is ES_ID
@@ -155,7 +168,6 @@ struct complete_stream
             //MPEG
             unknown,
             pes,
-            pcr,
             psi,
         };
         std::vector<int16u>                         program_numbers;
@@ -186,6 +198,7 @@ struct complete_stream
         stream_t                                    StreamKind;
         size_t                                      StreamPos;
         ts_kind                                     Kind;
+        bool                                        IsPCR;
         #ifdef MEDIAINFO_MPEGTS_PCR_YES
             int64u                                  TimeStamp_Start;
             int64u                                  TimeStamp_End;
@@ -218,6 +231,7 @@ struct complete_stream
             StreamKind=Stream_Max;
             StreamPos=0;
             Kind=unknown;
+            IsPCR=false;
             #ifdef MEDIAINFO_MPEGTS_PCR_YES
                 TimeStamp_Start=(int64u)-1;
                 TimeStamp_End=(int64u)-1;
@@ -336,6 +350,8 @@ struct complete_stream
     };
     typedef std::map<int16u, source> sources; //Key is source_id
     sources Sources; //Key is source_id
+    bool Sources_IsUpdated; //For EPG ATSC
+    bool Programs_IsUpdated; //For EPG DVB
 
     //File__Duplicate
     bool                                                File__Duplicate_HasChanged_;
@@ -355,11 +371,23 @@ struct complete_stream
     {
         transport_stream_id=0;
         transport_stream_id_IsValid=false;
-        End_Time_IsUpdated=false;
+        Duration_End_IsUpdated=false;
         Streams_NotParsedCount=0;
         Streams_With_StartTimeStampCount=0;
         Streams_With_EndTimeStampMoreThanxSecondsCount=0;
         GPS_UTC_offset=0;
+        Sources_IsUpdated=false;
+        Programs_IsUpdated=false;
+    }
+
+    ~complete_stream()
+    {
+        std::map<const String, File__Duplicate_MpegTs*>::iterator Duplicates_Temp=Duplicates.begin();
+        while (Duplicates_Temp!=Duplicates.end())
+        {
+            delete Duplicates_Temp->second; //Duplicates_Temp->second=NULL
+            Duplicates_Temp++;
+        }
     }
 };
 

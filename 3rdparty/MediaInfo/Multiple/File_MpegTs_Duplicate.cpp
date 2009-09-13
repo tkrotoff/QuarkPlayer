@@ -28,6 +28,11 @@
     #pragma hdrstop
 #endif
 //---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+#if defined(MEDIAINFO_MPEGTS_YES)
+//---------------------------------------------------------------------------
+
 //---------------------------------------------------------------------------
 #include "MediaInfo/Multiple/File_MpegTs.h"
 #include "MediaInfo/MediaInfo_Config.h"
@@ -40,24 +45,6 @@ using namespace std;
 
 namespace MediaInfoLib
 {
-
-//***************************************************************************
-// Constructor/Destructor
-//***************************************************************************
-
-void File_MpegTs::File__Duplicate_Delete ()
-{
-    if (Complete_Stream)
-    {
-        std::map<const String, File__Duplicate_MpegTs*>::iterator Duplicates_Temp=Complete_Stream->Duplicates.begin();
-        while (Duplicates_Temp!=Complete_Stream->Duplicates.end())
-        {
-            delete Duplicates_Temp->second; //Duplicates_Temp->second=NULL
-            Duplicates_Temp++;
-        }
-        Complete_Stream->Duplicates.clear();
-    }
-}
 
 //***************************************************************************
 // Format
@@ -265,9 +252,9 @@ void File_MpegTs::File__Duplicate_Write (int16u PID)
     size_t ToAdd_Size=(size_t)(Element_Size+Header_Size);
 
     std::vector<File__Duplicate_MpegTs*> &Dup_FromPID=Complete_Stream->Duplicates_Speed_FromPID[PID];
-    size_t Size=Complete_Stream->Duplicates_Speed_FromPID[PID].size();
+    size_t Duplicates_Speed_FromPID_Size=Complete_Stream->Duplicates_Speed_FromPID[PID].size();
     bool ToUpdate=false;
-    for (size_t Pos=0; Pos<Size; Pos++)
+    for (size_t Pos=0; Pos<Duplicates_Speed_FromPID_Size; Pos++)
         if (Dup_FromPID[Pos] && Dup_FromPID[Pos]->Write(PID, ToAdd, ToAdd_Size))
             ToUpdate=true;
     if (ToUpdate)
@@ -275,8 +262,8 @@ void File_MpegTs::File__Duplicate_Write (int16u PID)
         Complete_Stream->Duplicates_Speed_FromPID.clear();
         Complete_Stream->Duplicates_Speed_FromPID.resize(0x2000);
         Complete_Stream->Duplicates_Speed_FromPID[0x0000]=Complete_Stream->Duplicates_Speed;
-        size_t Size=Complete_Stream->Duplicates_Speed.size();
-        for (size_t Pos=0; Pos<Size; Pos++)
+        size_t Duplicates_Speed_Size=Complete_Stream->Duplicates_Speed.size();
+        for (size_t Pos=0; Pos<Duplicates_Speed_Size; Pos++)
         {
             File__Duplicate_MpegTs* Dup=Complete_Stream->Duplicates_Speed[Pos];
             size_t program_map_PIDs_Size=Complete_Stream->Duplicates_Speed[Pos]->program_map_PIDs.size();
@@ -345,4 +332,6 @@ size_t File_MpegTs::Output_Buffer_Get (size_t Pos)
 }
 
 } //NameSpace
+
+#endif //MEDIAINFO_MPEGTS_YES
 

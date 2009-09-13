@@ -249,10 +249,12 @@ void File__Analyze::Get_BFP4(size_t Bits, float32 &Info, const char* Name)
 {
     INTEGRITY_SIZE_ATLEAST_INT(4);
     BS_Begin();
-    int32u Integer=BS->Get4(Bits);
+    int32s Integer=(int32s)BS->Get4(Bits);
     int32u Fraction=BS->Get4(32-Bits);
     BS_End();
     Element_Offset-=4; //Because of BS_End()
+    if (Integer>=(1<<Bits)/2)
+        Integer-=1<<Bits;
     Info=Integer+((float32)Fraction)/(1<<(32-Bits));
     if (Config_Details>0) Param(Name, Info);
     Element_Offset+=4;
@@ -312,6 +314,13 @@ void File__Analyze::Peek_B8(int64u &Info)
 {
     INTEGRITY_SIZE_ATLEAST_INT(8);
     Info=BigEndian2int64u(Buffer+Buffer_Offset+(size_t)Element_Offset);
+}
+
+//---------------------------------------------------------------------------
+void File__Analyze::Peek_B16(int128u &Info)
+{
+    INTEGRITY_SIZE_ATLEAST_INT(16);
+    Info=BigEndian2int128u(Buffer+Buffer_Offset+(size_t)Element_Offset);
 }
 
 //---------------------------------------------------------------------------
@@ -641,6 +650,28 @@ void File__Analyze::Skip_L16(const char* Name)
 }
 
 //***************************************************************************
+// GUID
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File__Analyze::Get_GUID(int128u &Info, const char* Name)
+{
+    INTEGRITY_SIZE_ATLEAST_INT(16);
+    Info.hi=LittleEndian2int64u(Buffer+Buffer_Offset+(size_t)Element_Offset);
+    Info.lo=BigEndian2int64u   (Buffer+Buffer_Offset+(size_t)Element_Offset+8);
+    if (Config_Details>0) Param_GUID(Name, Info);
+    Element_Offset+=16;
+}
+
+//---------------------------------------------------------------------------
+void File__Analyze::Skip_GUID(const char* Name)
+{
+    INTEGRITY_SIZE_ATLEAST(16);
+    if (Config_Details>0) Param_GUID(Name, BigEndian2int128u(Buffer+Buffer_Offset+(size_t)Element_Offset));
+    Element_Offset+=16;
+}
+
+//***************************************************************************
 // UUID
 //***************************************************************************
 
@@ -648,8 +679,8 @@ void File__Analyze::Skip_L16(const char* Name)
 void File__Analyze::Get_UUID(int128u &Info, const char* Name)
 {
     INTEGRITY_SIZE_ATLEAST_INT(16);
-    Info.hi=LittleEndian2int64u(Buffer+Buffer_Offset+(size_t)Element_Offset);
-    Info.lo=BigEndian2int64u   (Buffer+Buffer_Offset+(size_t)Element_Offset+8);
+    Info.hi=BigEndian2int64u(Buffer+Buffer_Offset+(size_t)Element_Offset);
+    Info.lo=BigEndian2int64u(Buffer+Buffer_Offset+(size_t)Element_Offset+8);
     if (Config_Details>0) Param_UUID(Name, Info);
     Element_Offset+=16;
 }
@@ -1385,7 +1416,7 @@ void File__Analyze::Skip_PA(const char* Name)
 {
     INTEGRITY_SIZE_ATLEAST(1);
     int8u Size=Buffer[Buffer_Offset+(size_t)Element_Offset];
-    int8u Pad=Size%2?0:1;
+    int8u Pad=(Size%2)?0:1;
     INTEGRITY_SIZE_ATLEAST(1+Size+Pad);
     if (Config_Details>0 && Size) Param(Name, Ztring().From_Local((const char*)(Buffer+Buffer_Offset+(size_t)Element_Offset+1), (size_t)Size));
     Element_Offset+=1+Size+Pad;

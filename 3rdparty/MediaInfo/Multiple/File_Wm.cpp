@@ -71,8 +71,12 @@ File_Wm::File_Wm()
     IsDvrMs=false;
 }
 
+//***************************************************************************
+// Streams management
+//***************************************************************************
+
 //---------------------------------------------------------------------------
-void File_Wm::Read_Buffer_Finalize()
+void File_Wm::Streams_Finish()
 {
     //Encryption management
     /*const Ztring& Encryption=Retrieve(Stream_General, 0, General_Encryption);
@@ -165,10 +169,10 @@ void File_Wm::Read_Buffer_Finalize()
                     Temp->second.StreamKind=StreamKind_Last;
                     Temp->second.StreamPos=StreamPos_Last;
                 }
-            Open_Buffer_Finalize(Temp->second.Parser);
             Ztring Format_Profile;
             if (Temp->second.StreamKind==Stream_Video)
                 Format_Profile=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Format_Profile);
+            Finish(Temp->second.Parser);
             Merge(*Temp->second.Parser, Temp->second.StreamKind, 0, Temp->second.StreamPos);
             if (!Format_Profile.empty() && Format_Profile.find(Retrieve(Stream_Video, Temp->second.StreamPos, Video_Format_Profile))==0)
                 Fill(Stream_Video, Temp->second.StreamPos, Video_Format_Profile, Format_Profile, true);
@@ -206,15 +210,11 @@ void File_Wm::Header_Parse()
         //Parsing
         int128u Name;
         int64u Size;
-        Get_UUID(Name,                                              "Name");
+        Get_GUID(Name,                                              "Name");
         Get_L8 (Size,                                               "Size");
 
         //Filling
-        #ifndef __BORLANDC__
-            Header_Fill_Code(Name.hi, Ztring().From_UUID(Name));
-        #else //__BORLANDC__
-            Header_Fill_Code(Name.hi&0xFFFFFFFF, Ztring().From_UUID(Name)); //Borland does not like int64u for const?
-        #endif //__BORLANDC__
+        Header_Fill_Code(Name.hi, Ztring().From_GUID(Name));
         Header_Fill_Size(Size);
     }
     else

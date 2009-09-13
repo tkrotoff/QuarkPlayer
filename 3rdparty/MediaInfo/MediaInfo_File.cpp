@@ -37,6 +37,9 @@
 
 //---------------------------------------------------------------------------
 // Multiple
+#if defined(MEDIAINFO_BDMV_YES)
+    #include "MediaInfo/Multiple/File_Bdmv.h"
+#endif
 #if defined(MEDIAINFO_CDXA_YES)
     #include "MediaInfo/Multiple/File_Cdxa.h"
 #endif
@@ -124,6 +127,9 @@
 #if defined(MEDIAINFO_ADTS_YES)
     #include "MediaInfo/Audio/File_Adts.h"
 #endif
+#if defined(MEDIAINFO_ALS_YES)
+    #include "MediaInfo/Audio/File_Als.h"
+#endif
 #if defined(MEDIAINFO_AMR_YES)
     #include "MediaInfo/Audio/File_Amr.h"
 #endif
@@ -145,6 +151,9 @@
 #if defined(MEDIAINFO_IT_YES)
     #include "MediaInfo/Audio/File_ImpulseTracker.h"
 #endif
+#if defined(MEDIAINFO_LA_YES)
+    #include "MediaInfo/Audio/File_La.h"
+#endif
 #if defined(MEDIAINFO_MIDI_YES)
     #include "MediaInfo/Audio/File_Midi.h"
 #endif
@@ -165,6 +174,9 @@
 #endif
 #if defined(MEDIAINFO_S3M_YES)
     #include "MediaInfo/Audio/File_ScreamTracker3.h"
+#endif
+#if defined(MEDIAINFO_TAK_YES)
+    #include "MediaInfo/Audio/File_Tak.h"
 #endif
 #if defined(MEDIAINFO_TTA_YES)
     #include "MediaInfo/Audio/File_Tta.h"
@@ -269,6 +281,9 @@ void MediaInfo_Internal::SelectFromExtension (const String &Parser)
     #if defined(MEDIAINFO_BDAV_YES)
         else if (Parser==_T("Bdav"))       {Info=new File_MpegTs(); ((File_MpegTs*)Info)->BDAV_Size=4;}
     #endif
+    #if defined(MEDIAINFO_BDMV_YES)
+        else if (Parser==_T("Bdmv"))        Info=new File_Bdmv();
+    #endif
     #if defined(MEDIAINFO_CDXA_YES)
         else if (Parser==_T("Cdxa"))        Info=new File_Cdxa();
     #endif
@@ -345,11 +360,14 @@ void MediaInfo_Internal::SelectFromExtension (const String &Parser)
     #endif
 
     // Audio
+    #if defined(MEDIAINFO_ADTS_YES)
+        else if (Parser==_T("Aac"))         Info=new File_Adts();
+    #endif
     #if defined(MEDIAINFO_AC3_YES)
         else if (Parser==_T("Ac3"))         Info=new File_Ac3();
     #endif
-    #if defined(MEDIAINFO_ADTS_YES)
-        else if (Parser==_T("Aac"))         Info=new File_Adts();
+    #if defined(MEDIAINFO_ALS_YES)
+        else if (Parser==_T("Als"))         Info=new File_Als();
     #endif
     #if defined(MEDIAINFO_AMR_YES)
         else if (Parser==_T("Amr"))         Info=new File_Amr();
@@ -369,8 +387,17 @@ void MediaInfo_Internal::SelectFromExtension (const String &Parser)
     #if defined(MEDIAINFO_FLAC_YES)
         else if (Parser==_T("Flac"))        Info=new File_Flac();
     #endif
+    #if defined(MEDIAINFO_IT_YES)
+        else if (Parser==_T("It"))          Info=new File_ImpulseTracker();
+    #endif
+    #if defined(MEDIAINFO_LA_YES)
+        else if (Parser==_T("La"))          Info=new File_La();
+    #endif
     #if defined(MEDIAINFO_MIDI_YES)
         else if (Parser==_T("Midi"))        Info=new File_Midi();
+    #endif
+    #if defined(MEDIAINFO_MOD_YES)
+        else if (Parser==_T("Mod"))         Info=new File_Module();
     #endif
     #if defined(MEDIAINFO_MPC_YES)
         else if (Parser==_T("Mpc"))         Info=new File_Mpc();
@@ -387,6 +414,12 @@ void MediaInfo_Internal::SelectFromExtension (const String &Parser)
     #if defined(MEDIAINFO_AU_YES)
         else if (Parser==_T("Au"))          Info=new File_Au();
     #endif
+    #if defined(MEDIAINFO_S3M_YES)
+        else if (Parser==_T("S3m"))         Info=new File_ScreamTracker3();
+    #endif
+    #if defined(MEDIAINFO_TAK_YES)
+        else if (Parser==_T("Tak"))         Info=new File_Tak();
+    #endif
     #if defined(MEDIAINFO_TTA_YES)
         else if (Parser==_T("Tta"))         Info=new File_Tta();
     #endif
@@ -398,15 +431,6 @@ void MediaInfo_Internal::SelectFromExtension (const String &Parser)
     #endif
     #if defined(MEDIAINFO_XM_YES)
         else if (Parser==_T("Xm"))          Info=new File_ExtendedModule();
-    #endif
-    #if defined(MEDIAINFO_MOD_YES)
-        else if (Parser==_T("Mod"))         Info=new File_Module();
-    #endif
-    #if defined(MEDIAINFO_S3M_YES)
-        else if (Parser==_T("S3m"))         Info=new File_ScreamTracker3();
-    #endif
-    #if defined(MEDIAINFO_IT_YES)
-        else if (Parser==_T("It"))          Info=new File_ImpulseTracker();
     #endif
 
     // Text
@@ -478,6 +502,9 @@ int MediaInfo_Internal::ListFormats()
     #if defined(MEDIAINFO_BDAV_YES)
         delete Info; Info=new File_MpegTs(); ((File_MpegTs*)Info)->BDAV_Size=4; if (ApplyMethod()>0) return 1;
     #endif
+    #if defined(MEDIAINFO_BDMV_YES)
+        delete Info; Info=new File_Bdmv();               if (ApplyMethod()>0) return 1;
+    #endif
     #if defined(MEDIAINFO_CDXA_YES)
         delete Info; Info=new File_Cdxa();               if (ApplyMethod()>0) return 1;
     #endif
@@ -501,6 +528,9 @@ int MediaInfo_Internal::ListFormats()
     #endif
     #if defined(MEDIAINFO_MPEGTS_YES)
         delete Info; Info=new File_MpegTs();             if (ApplyMethod()>0) return 1;
+    #endif
+    #if defined(MEDIAINFO_MPLI_YES)
+        delete Info; Info=new File_Mpli();               if (ApplyMethod()>0) return 1;
     #endif
     #if defined(MEDIAINFO_MXF_YES)
         delete Info; Info=new File_Mxf();                if (ApplyMethod()>0) return 1;
@@ -566,6 +596,9 @@ int MediaInfo_Internal::ListFormats()
     #if defined(MEDIAINFO_ADTS_YES)
         delete Info; Info=new File_Adts();               if (ApplyMethod()>0) return 1;
     #endif
+    #if defined(MEDIAINFO_ALS_YES)
+        delete Info; Info=new File_Als();                if (ApplyMethod()>0) return 1;
+    #endif
     #if defined(MEDIAINFO_AMR_YES)
         delete Info; Info=new File_Amr();                if (ApplyMethod()>0) return 1;
     #endif
@@ -584,8 +617,17 @@ int MediaInfo_Internal::ListFormats()
     #if defined(MEDIAINFO_FLAC_YES)
         delete Info; Info=new File_Flac();               if (ApplyMethod()>0) return 1;
     #endif
+    #if defined(MEDIAINFO_IT_YES)
+        delete Info; Info=new File_ImpulseTracker();     if (ApplyMethod()>0) return 1;
+    #endif
+    #if defined(MEDIAINFO_LA_YES)
+        delete Info; Info=new File_La();                 if (ApplyMethod()>0) return 1;
+    #endif
     #if defined(MEDIAINFO_MIDI_YES)
         delete Info; Info=new File_Midi();               if (ApplyMethod()>0) return 1;
+    #endif
+    #if defined(MEDIAINFO_MOD_YES)
+        delete Info; Info=new File_Module();             if (ApplyMethod()>0) return 1;
     #endif
     #if defined(MEDIAINFO_MPC_YES)
         delete Info; Info=new File_Mpc();                if (ApplyMethod()>0) return 1;
@@ -599,6 +641,12 @@ int MediaInfo_Internal::ListFormats()
     #if defined(MEDIAINFO_PCM_YES)
       //delete Info; Info=new File_Pcm();                if (ApplyMethod()>0) return 1;
     #endif
+    #if defined(MEDIAINFO_TAK_YES)
+        delete Info; Info=new File_Tak();                if (ApplyMethod()>0) return 1;
+    #endif
+    #if defined(MEDIAINFO_S3M_YES)
+        delete Info; Info=new File_ScreamTracker3();     if (ApplyMethod()>0) return 1;
+    #endif
     #if defined(MEDIAINFO_TTA_YES)
         delete Info; Info=new File_Tta();                if (ApplyMethod()>0) return 1;
     #endif
@@ -610,15 +658,6 @@ int MediaInfo_Internal::ListFormats()
     #endif
     #if defined(MEDIAINFO_XM_YES)
         delete Info; Info=new File_ExtendedModule();     if (ApplyMethod()>0) return 1;
-    #endif
-    #if defined(MEDIAINFO_MOD_YES)
-        delete Info; Info=new File_Module();             if (ApplyMethod()>0) return 1;
-    #endif
-    #if defined(MEDIAINFO_S3M_YES)
-        delete Info; Info=new File_ScreamTracker3();      if (ApplyMethod()>0) return 1;
-    #endif
-    #if defined(MEDIAINFO_IT_YES)
-        delete Info; Info=new File_ImpulseTracker();     if (ApplyMethod()>0) return 1;
     #endif
 
     // Text
@@ -697,7 +736,7 @@ bool MediaInfo_Internal::LibraryIsModified ()
     #if defined(MEDIAINFO_MULTI_NO) || defined(MEDIAINFO_VIDEO_NO) || defined(MEDIAINFO_AUDIO_NO) || defined(MEDIAINFO_TEXT_NO) || defined(MEDIAINFO_IMAGE_NO) || defined(MEDIAINFO_ARCHIVE_NO) \
      || defined(MEDIAINFO_BDAV_NO) || defined(MEDIAINFO_MK_NO) || defined(MEDIAINFO_OGG_NO) || defined(MEDIAINFO_RIFF_NO) || defined(MEDIAINFO_MPEG4_NO) || defined(MEDIAINFO_MPEGPS_NO) || defined(MEDIAINFO_MPEGTS_NO) || defined(MEDIAINFO_FLV_NO) || defined(MEDIAINFO_SWF_NO) || defined(MEDIAINFO_MXF_NO) || defined(MEDIAINFO_NUT_NO) || defined(MEDIAINFO_WM_NO) || defined(MEDIAINFO_QT_NO) || defined(MEDIAINFO_RM_NO) || defined(MEDIAINFO_DVDIF_NO) || defined(MEDIAINFO_DVDV_NO) || defined(MEDIAINFO_CDXA_NO) || defined(MEDIAINFO_DPG_NO) || defined(MEDIAINFO_TSP_NO) \
      || defined(MEDIAINFO_AVC_NO) || defined(MEDIAINFO_MPEG4V_NO) || defined(MEDIAINFO_MPEGV_NO) || defined(MEDIAINFO_FLIC_NO) || defined(MEDIAINFO_THEORA_NO) \
-     || defined(MEDIAINFO_AC3_NO) || defined(MEDIAINFO_ADIF_NO) || defined(MEDIAINFO_ADTS_NO) || defined(MEDIAINFO_AMR_NO) || defined(MEDIAINFO_DTS_NO) || defined(MEDIAINFO_FLAC_NO) || defined(MEDIAINFO_APE_NO) || defined(MEDIAINFO_MPC_NO) || defined(MEDIAINFO_MPCSV8_NO) || defined(MEDIAINFO_MPEGA_NO) || defined(MEDIAINFO_TWINVQ_NO) || defined(MEDIAINFO_XM_NO) || defined(MEDIAINFO_MOD_NO) || defined(MEDIAINFO_S3M_NO) || defined(MEDIAINFO_IT_NO) || defined(MEDIAINFO_AES3_NO) || defined(MEDIAINFO_SPEEX_NO) || defined(MEDIAINFO_PS2A_NO) \
+     || defined(MEDIAINFO_AC3_NO) || defined(MEDIAINFO_ADIF_NO) || defined(MEDIAINFO_ADTS_NO) || defined(MEDIAINFO_AMR_NO) || defined(MEDIAINFO_DTS_NO) || defined(MEDIAINFO_FLAC_NO) || defined(MEDIAINFO_APE_NO) || defined(MEDIAINFO_MPC_NO) || defined(MEDIAINFO_MPCSV8_NO) || defined(MEDIAINFO_MPEGA_NO) || defined(MEDIAINFO_TWINVQ_NO) || defined(MEDIAINFO_XM_NO) || defined(MEDIAINFO_MOD_NO) || defined(MEDIAINFO_S3M_NO) || defined(MEDIAINFO_IT_NO) || defined(MEDIAINFO_AES3_NO) || defined(MEDIAINFO_SPEEX_NO) || defined(MEDIAINFO_TAK_NO) || defined(MEDIAINFO_PS2A_NO) \
      || defined(MEDIAINFO_CMML_NO)  || defined(MEDIAINFO_KATE_NO)  || defined(MEDIAINFO_PGS_NO) || defined(MEDIAINFO_OTHERTEXT_NO) \
      || defined(MEDIAINFO_PNG_NO) || defined(MEDIAINFO_JPEG_NO) || defined(MEDIAINFO_BMP_NO) || defined(MEDIAINFO_ICO_NO) || defined(MEDIAINFO_GIF_NO) || defined(MEDIAINFO_TIFF_NO) \
      || defined(MEDIAINFO_7Z_NO) || defined(MEDIAINFO_ZIP_NO) || defined(MEDIAINFO_RAR_NO) || defined(MEDIAINFO_ACE_NO) || defined(MEDIAINFO_ELF_NO) || defined(MEDIAINFO_MZ_NO) \
@@ -709,7 +748,7 @@ bool MediaInfo_Internal::LibraryIsModified ()
 }
 
 //---------------------------------------------------------------------------
-void MediaInfo_Internal::CreateDummy (const String& Value)
+void MediaInfo_Internal::CreateDummy (const String&)
 {
     #if defined(MEDIAINFO_DUMMY_YES)
         Info=new File_Dummy();

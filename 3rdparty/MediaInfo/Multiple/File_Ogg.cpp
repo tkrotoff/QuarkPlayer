@@ -65,6 +65,66 @@ File_Ogg::File_Ogg()
 }
 
 //***************************************************************************
+// Streams management
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_Ogg::Streams_Fill()
+{
+    std::map<int64u, stream>::iterator Stream_Temp=Stream.begin();
+    while (Stream_Temp!=Stream.end())
+    {
+        //Filling
+        if (Stream_Temp->second.Parser)
+        {
+            Stream_Temp->second.Parser->Fill();
+            Merge(*Stream_Temp->second.Parser);
+            Merge(*Stream_Temp->second.Parser, Stream_General, 0, 0);
+            Stream_Temp->second.StreamKind=((File_Ogg_SubElement*)Stream_Temp->second.Parser)->StreamKind;
+            Stream_Temp->second.StreamPos=Count_Get(Stream_Temp->second.StreamKind)-1;
+            if (!SizedBlocks && !XiphLacing)
+                Stream_Temp->second.absolute_granule_position_Resolution=((File_Ogg_SubElement*)Stream_Temp->second.Parser)->absolute_granule_position_Resolution;
+            if (Stream_Temp->second.StreamKind==Stream_Audio, Stream_Temp->second.absolute_granule_position_Resolution==0)
+                Stream_Temp->second.absolute_granule_position_Resolution=Retrieve(Stream_Audio, Stream_Temp->second.StreamPos, Audio_SamplingRate).To_int64u();
+            if (!IsSub && Stream_Temp->second.absolute_granule_position && Stream_Temp->second.absolute_granule_position_Resolution)
+            {
+                if (Stream_Temp->second.StreamKind==Stream_Audio)
+                    Fill(Stream_Temp->second.StreamKind, Stream_Temp->second.StreamPos, Fill_Parameter(Stream_Temp->second.StreamKind, Generic_Duration), float64_int64s(((float64)(Stream_Temp->second.absolute_granule_position))*1000/Stream_Temp->second.absolute_granule_position_Resolution), 10, true);
+            }
+            if (!IsSub)
+            {
+                Fill(Stream_Temp->second.StreamKind, Stream_Temp->second.StreamPos, General_ID, Stream_Temp->first);
+                Fill(Stream_Temp->second.StreamKind, Stream_Temp->second.StreamPos, General_ID_String, Ztring::ToZtring(Stream_Temp->first)+_T(" (0x")+Ztring::ToZtring(Stream_Temp->first, 16)+_T(')'), true);
+            }
+        }
+        Stream_Temp++;
+    }
+
+    Fill(Stream_General, 0, General_Format, "OGG", Unlimited, true, true);
+}
+
+//---------------------------------------------------------------------------
+void File_Ogg::Streams_Finish()
+{
+    std::map<int64u, stream>::iterator Stream_Temp=Stream.begin();
+    while (Stream_Temp!=Stream.end())
+    {
+        //Filling
+        if (Stream_Temp->second.Parser)
+        {
+            Finish(Stream_Temp->second.Parser);
+            Merge(*Stream_Temp->second.Parser, Stream_Temp->second.StreamKind, 0, Stream_Temp->second.StreamPos);
+            Merge(*Stream_Temp->second.Parser, Stream_General, 0, 0);
+        }
+        Stream_Temp++;
+    }
+
+    //No more need
+    if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
+        Stream.clear();
+}
+
+//***************************************************************************
 // Buffer - File header
 //***************************************************************************
 
@@ -78,7 +138,7 @@ bool File_Ogg::FileHeader_Begin()
     //False positives detection: Detect AVI files, or the parser can synchronize with OggS stream in a AVI chunk
     if (CC4(Buffer)==0x52494646) //"RIFF"
     {
-        IsFinished=true;
+        Finish("OGG");
         return false;
     }
 
@@ -154,49 +214,6 @@ bool File_Ogg::Synched_Test()
 
     //We continue
     return true;
-}
-
-//***************************************************************************
-// Buffer - Global
-//***************************************************************************
-
-//---------------------------------------------------------------------------
-void File_Ogg::Read_Buffer_Finalize()
-{
-    std::map<int64u, stream>::iterator Stream_Temp=Stream.begin();
-    while (Stream_Temp!=Stream.end())
-    {
-        //Filling
-        if (Stream_Temp->second.Parser)
-        {
-            Open_Buffer_Finalize(Stream_Temp->second.Parser);
-            Merge(*Stream_Temp->second.Parser);
-            Merge(*Stream_Temp->second.Parser, Stream_General, 0, 0);
-            Stream_Temp->second.StreamKind=((File_Ogg_SubElement*)Stream_Temp->second.Parser)->StreamKind;
-            Stream_Temp->second.StreamPos=Count_Get(Stream_Temp->second.StreamKind)-1;
-            if (!SizedBlocks && !XiphLacing)
-                Stream_Temp->second.absolute_granule_position_Resolution=((File_Ogg_SubElement*)Stream_Temp->second.Parser)->absolute_granule_position_Resolution;
-            if (Stream_Temp->second.StreamKind==Stream_Audio, Stream_Temp->second.absolute_granule_position_Resolution==0)
-                Stream_Temp->second.absolute_granule_position_Resolution=Retrieve(Stream_Audio, Stream_Temp->second.StreamPos, Audio_SamplingRate).To_int64u();
-            if (!IsSub && Stream_Temp->second.absolute_granule_position && Stream_Temp->second.absolute_granule_position_Resolution)
-            {
-                if (Stream_Temp->second.StreamKind==Stream_Audio)
-                    Fill(Stream_Temp->second.StreamKind, Stream_Temp->second.StreamPos, "Duration", float64_int64s(((float64)(Stream_Temp->second.absolute_granule_position))*1000/Stream_Temp->second.absolute_granule_position_Resolution), 10, true);
-            }
-            if (!IsSub)
-            {
-                Fill(Stream_Temp->second.StreamKind, Stream_Temp->second.StreamPos, "ID", Stream_Temp->first);
-                Fill(Stream_Temp->second.StreamKind, Stream_Temp->second.StreamPos, "ID/String", Ztring::ToZtring(Stream_Temp->first)+_T(" (0x")+Ztring::ToZtring(Stream_Temp->first, 16)+_T(')'));
-            }
-        }
-        Stream_Temp++;
-    }
-
-    Fill(Stream_General, 0, General_Format, "OGG", Unlimited, true, true);
-
-    //No more need
-    if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
-        Stream.clear();
 }
 
 //***************************************************************************
@@ -331,9 +348,9 @@ void File_Ogg::Data_Parse()
             if (Parser->File_GoTo!=(int64u)-1)
                 Chunk_Sizes_Pos=Chunk_Sizes.size();
 
-            if (!IsAccepted && Parser->IsAccepted)
+            if (!Status[IsAccepted] && Parser->Status[IsAccepted])
                 Accept("OGG");
-            if (Parser->IsFinished || (Element_Offset==Element_Size && eos))
+            if (Parser->Status[IsFinished] || (Element_Offset==Element_Size && eos))
             {
                 if (Count_Get(Stream_General)==0)
                     Stream_Prepare(Stream_General);

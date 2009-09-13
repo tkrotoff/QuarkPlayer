@@ -37,6 +37,20 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
+// Streams management
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_Eia608::Streams_Fill()
+{
+    Stream_Prepare(Stream_General);
+    Stream_Prepare(Stream_Text);
+    Fill(Stream_Text, 0, Text_Format, "EIA-608");
+    Fill(Stream_Text, 0, Text_StreamSize, 0);
+    //Fill(Stream_Text, 0, "xxx", Ztring::Ztring().From_Unicode(Captions));
+}
+
+//***************************************************************************
 // Buffer - Global
 //***************************************************************************
 
@@ -133,7 +147,7 @@ void File_Eia608::Read_Buffer_Continue()
                                     case 0x2A : break; //Text Restart
                                     case 0x2B : break; //Resume Text Display.
                                     case 0x2C : break; //Erase Displayed Memory
-                                    case 0x2D : Captions+=_T(" / "); break; //Carriage Return
+                                    case 0x2D : Captions+=L" / "; break; //Carriage Return
                                     case 0x2E : break; //Erase Non-Displayed Memory
                                     case 0x2F : break; //End of Caption
                                     default   : ;
@@ -254,19 +268,11 @@ void File_Eia608::Read_Buffer_Continue()
         }
     }
 
-    if (!IsAccepted && !Captions.empty())
+    if (!Status[IsAccepted] && !Captions.empty())
     {
         Accept("EIA-608");
-        Stream_Prepare(Stream_General);
-        Stream_Prepare(Stream_Text);
-        Fill(Stream_Text, 0, "Format", "EIA-608");
+        Finish("EIA-608");
     }
-}
-
-//---------------------------------------------------------------------------
-void File_Eia608::Read_Buffer_Finalize()
-{
-    //Fill(Stream_Text, 0, "xxx", Ztring::Ztring().From_Unicode(Captions));
 }
 
 //***************************************************************************

@@ -70,7 +70,7 @@ void File_Vorbis::Header_Parse()
 void File_Vorbis::Data_Parse()
 {
     //Parsing
-    if (IsAccepted)
+    if (Status[IsAccepted])
         Setup();
     else
         Identification();
@@ -153,7 +153,7 @@ void File_Vorbis::Setup()
         {
             int32u sparse;
             Get_BS (1, sparse,                                  "sparse");
-            for (int32u Pos=0; Pos<codebook_entries; Pos++)
+            for (int32u Pos2=0; Pos2<codebook_entries; Pos2++)
             {
                 if (sparse)
                 {
@@ -232,8 +232,8 @@ void File_Vorbis::Setup()
     for (int32u Pos=0; Pos<vorbis_floor_count; Pos++)
     {
         Info_BS(16, vorbis_floor_types,                         "vorbis_floor_types");
-        if (Retrieve(Stream_Audio, 0, Audio_Format_Settings_Floor).empty())
-        {
+
+        FILLING_BEGIN();
             Fill(Stream_Audio, 0, Audio_Format_Settings_Floor, vorbis_floor_types);
             Fill(Stream_Audio, 0, Audio_Codec_Settings_Floor, vorbis_floor_types);
             if (vorbis_floor_types==0)
@@ -241,7 +241,7 @@ void File_Vorbis::Setup()
                 Fill(Stream_Audio, 0, Audio_Format_Settings, "Floor0");
                 Fill(Stream_Audio, 0, Audio_Codec_Settings, "Floor0");
             }
-        }
+        FILLING_END();
         //Must continue parsing...
     }
     BS_End_LE();

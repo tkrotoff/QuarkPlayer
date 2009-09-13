@@ -41,8 +41,8 @@ namespace MediaInfoLib
 class File_Riff : public File__Analyze
 {
 protected :
-    //Buffer - Global
-    void Read_Buffer_Finalize ();
+    //Streams management
+    void Streams_Finish();
 
 public :
     File_Riff();
@@ -227,12 +227,15 @@ private :
     void SMV0 ();
     void SMV0_xxxx ();
     void WAVE ();
+    void WAVE__pmx ();
+    void WAVE_aXML ();
     void WAVE_bext ();
     void WAVE_data ();
     void WAVE_ds64 ();
     void WAVE_fact ();
     void WAVE_fmt_ ();
     void WAVE_ID3_ ();
+    void WAVE_iXML ();
     void wave ();
     void wave_data () {WAVE_data();}
     void wave_fmt_ () {WAVE_fmt_();}

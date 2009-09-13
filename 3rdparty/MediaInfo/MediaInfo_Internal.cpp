@@ -36,8 +36,8 @@
 #include "ZenLib/InfoMap.h"
 #include <vector>
 #include <cstring>
-#if defined(MEDIAINFO_EIA708_YES)
-    #include "MediaInfo/Text/File_Eia708.h"
+#if defined(MEDIAINFO_BDMV_YES)
+    #include "MediaInfo/Multiple/File_Bdmv.h"
 #endif
 using namespace ZenLib;
 //---------------------------------------------------------------------------
@@ -101,7 +101,30 @@ size_t MediaInfo_Internal::Open(const String &File_Name_)
     //Test existence of the file
     File_Name=File_Name_;
     if (!File::Exists(File_Name))
+    {
+        #ifdef MEDIAINFO_BDMV_YES
+            if (File_Name.find(Ztring(1, PathSeparator)+_T("BDMV"))+5==File_Name.size())
+            {
+                //Blu-ray stuff
+                delete Info; Info=new File_Bdmv();
+
+                CriticalSectionLocker CSL(CS);
+                //Test the theorical format
+                #ifndef MEDIAINFO_MINIMIZESIZE
+                    Info->Init(&Config, &Details, &Stream, &Stream_More);
+                #else //MEDIAINFO_MINIMIZESIZE
+                    Info->Init(&Config, &Stream, &Stream_More);
+                #endif //MEDIAINFO_MINIMIZESIZE
+                Info->File_Name=File_Name;
+                ((File_Bdmv*)Info)->BDMV();
+                Info->Open_Buffer_Finalize();
+                Info->Fill();
+                Info->Finish();
+                return 1;
+            }
+        #endif //MEDIAINFO_BDMV_YES
         return 0;
+    }
 
     //Get the Extension
     Ztring Extension=FileName::Extension_Get(File_Name);
@@ -128,7 +151,6 @@ size_t MediaInfo_Internal::Open(const String &File_Name_)
         const Ztring &Parser=Format->second(InfoFormat_Parser);
         SelectFromExtension(Parser);
     }
-    //Info=new File_Eia708;
 
     CriticalSectionLocker CSL(CS);
     //Test the theorical format
@@ -184,13 +206,13 @@ int MediaInfo_Internal::Format_Test()
         else if (Info)
             Info->Open_Buffer_Continue(Buffer, Buffer_Size);
     }
-    while (Info && !Info->IsFinished);
+    while (Info && !Info->Status[File__Analyze::IsFinished]);
 
     //-Close
     Format_Test_FillBuffer_Close();
 
     //Is this file detected?
-    if (!Info->IsAccepted)
+    if (!Info->Status[File__Analyze::IsAccepted])
     {
         delete Info; Info=NULL;
         return 0;
@@ -198,10 +220,14 @@ int MediaInfo_Internal::Format_Test()
 
     //Finalize
     Info->Open_Buffer_Finalize();
-    Info->Finalize_Global();
+    Info->Fill();
+    Info->Finish();
 
     //Cleanup
-    delete Info; Info=NULL;
+    if (Config.Option(_T("File_IsSub_Get"))==_T("0")) //We need info for the calling parser
+    {
+        delete Info; Info=NULL;
+    }
     return 1;
 }
 
@@ -282,19 +308,27 @@ int MediaInfo_Internal::Format_Test_FillBuffer_Continue()
     }
 
     //Seek (if needed)
-    if (Info->File_GoTo!=(int64u)-1 && Info->File_GoTo<File_Size)
+    if (Info->File_GoTo!=(int64u)-1)
     {
-        if (Info->File_GoTo>=((File*)File_Handle)->Size_Get())
-            //Seek requested, but on a file bigger in theory than what is in the real file, we can't do this
-            return -1;
-        if (((File*)File_Handle)->GoTo(Info->File_GoTo))
+        if (Info->File_GoTo<File_Size)
         {
-            File_Offset=Info->File_GoTo;
-            Info->Open_Buffer_Init(File_Size, File_Offset);
+            if (Info->File_GoTo>=((File*)File_Handle)->Size_Get())
+                //Seek requested, but on a file bigger in theory than what is in the real file, we can't do this
+                return -1;
+            if (((File*)File_Handle)->GoTo(Info->File_GoTo))
+            {
+                File_Offset=Info->File_GoTo;
+                Info->Open_Buffer_Init(File_Size, File_Offset);
+            }
+            else
+                //File is not seekable
+                return -1;
         }
         else
-            //File is not seekable
+        {
+            Info->Open_Buffer_Finalize();
             return -1;
+        }
     }
 
     //Buffering
@@ -382,7 +416,7 @@ size_t MediaInfo_Internal::Open_Buffer_Continue (const int8u* ToAdd, size_t ToAd
 
     Info->Open_Buffer_Continue(ToAdd, ToAdd_Size);
 
-    if (!MultipleParsing_IsDetected && Info->IsAccepted)
+    if (!MultipleParsing_IsDetected && Info->Status[File__Analyze::IsAccepted])
     {
         //Found
         File__Analyze* Info_ToDelete=Info;
@@ -396,7 +430,6 @@ size_t MediaInfo_Internal::Open_Buffer_Continue (const int8u* ToAdd, size_t ToAd
     if (Info->File_GoTo!=(int64u)-1 && Config.File_IsSeekable_Get()==0)
     {
         Info->Open_Buffer_Finalize(true);
-        Info->Finalize_Global();
         Info->File_GoTo=(int64u)-1;
         return 0;
     }
@@ -406,18 +439,15 @@ size_t MediaInfo_Internal::Open_Buffer_Continue (const int8u* ToAdd, size_t ToAd
     //The parser wanted seek but the buffer is not seekable
     if (Info->File_GoTo!=(int64u)-1 && Config.File_IsSeekable_Get()==0)
     {
-        Info->Open_Buffer_Fill();
-        Info->Open_Buffer_Update();
+        Info->Fill();
         Info->File_GoTo=(int64u)-1;
     }
 
     if (Info)
     {
-        size_t ToReturn=Info->IsAccepted<< 0
-                      | Info->IsFilled  << 1
-                      | Info->IsUpdated << 2
-                      | Info->IsFinished<< 3;
-        return ToReturn;
+        if (!Info->Status[File__Analyze::IsFilled] && Info->Status[File__Analyze::IsUpdated])
+            Info->Status[File__Analyze::IsUpdated]=false; //No updated info until IsFilled is set
+        return Info->Status.to_ulong();
     }
     return 0;
     #endif
@@ -440,7 +470,8 @@ size_t MediaInfo_Internal::Open_Buffer_Finalize ()
     if (Info!=NULL)
     {
         Info->Open_Buffer_Finalize();
-        Info->Finalize_Global();
+        Info->Fill();
+        Info->Finish();
     }
     return 1;
 }
@@ -479,8 +510,12 @@ String MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamNumber, size_t 
 {
     CriticalSectionLocker CSL(CS);
 
-    if (Info && Info->IsUpdated)
-        Info->Open_Buffer_Update();
+    if (Info)
+    {
+        Info->Status[File__Analyze::IsUpdated]=false;
+        for (size_t Pos=File__Analyze::User_16; Pos<File__Analyze::User_16+16; Pos++)
+            Info->Status[Pos]=false;
+    }
 
     //Check integrity
     if (StreamKind>=Stream_Max || StreamNumber>=Stream[StreamKind].size() || Parameter>=MediaInfoLib::Config.Info_Get(StreamKind).size()+Stream_More[StreamKind][StreamNumber].size() || KindOfInfo>=Info_Max)
@@ -548,6 +583,13 @@ String MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamPos, const Stri
         return Get(Stream_General, StreamPos, _T("OverallBitRate_Maximum/String"), KindOfInfo, KindOfSearch);
 
     CS.Enter();
+
+    if (Info)
+    {
+        Info->Status[File__Analyze::IsUpdated]=false;
+        for (size_t Pos=File__Analyze::User_16; Pos<File__Analyze::User_16+16; Pos++)
+            Info->Status[Pos]=false;
+    }
 
     //Check integrity
     if (StreamKind>=Stream_Max || StreamPos>=Stream[StreamKind].size() || KindOfInfo>=Info_Max)
@@ -731,5 +773,4 @@ int MediaInfo_Internal::ApplyMethod()
 }
 
 } //NameSpace
-
 

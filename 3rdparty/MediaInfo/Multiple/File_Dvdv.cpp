@@ -32,7 +32,13 @@
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
 #include <vector>
+#ifdef SS
+   #undef SS //Solaris defines this somewhere
+#endif
 using namespace std;
 //---------------------------------------------------------------------------
 
@@ -86,12 +92,12 @@ const char*  IFO_Standard[]=
     "",
 };
 
-const char*  IFO_AspectRatio[]=
+float32  IFO_AspectRatio[]=
 {
-    "1.333",
-    "",
-    "",
-    "1.778",
+    (float32)1.333,
+    (float32)0.000,
+    (float32)0.000,
+    (float32)1.778,
 };
 
 const char*  IFO_BitRate_Mode[]=
@@ -278,11 +284,11 @@ File_Dvdv::File_Dvdv()
 }
 
 //***************************************************************************
-// Format
+// Streams management
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Dvdv::Read_Buffer_Finalize()
+void File_Dvdv::Streams_Finish()
 {
     //Purge what is not needed anymore
     if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
@@ -310,6 +316,10 @@ void File_Dvdv::FileHeader_Parse()
             return;
         }
 
+        Accept("DVD Video");
+        Stream_Prepare(Stream_General);
+        Fill(Stream_General, 0, General_Format, "DVD Video");
+
         //Versions
         switch (Type)
         {
@@ -319,7 +329,6 @@ void File_Dvdv::FileHeader_Parse()
                         Reject("DVD Video");
                         return;
         }
-        Accept("DVD Video");
     FILLING_END();
 }
 
@@ -407,8 +416,6 @@ void File_Dvdv::VMG()
 
     //Filling
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "DVD Video");
         Fill(Stream_General, 0, General_Format_Profile, "Menu");
 
         if (Version>0x001F)
@@ -538,8 +545,6 @@ void File_Dvdv::VTS()
 
     //Filling
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "DVD Video");
         Fill(Stream_General, 0, General_Format_Profile, "Program");
 
         if (Version>0x001F)
@@ -591,13 +596,13 @@ void File_Dvdv::Video()
             Fill(Stream_Video, StreamPos_Last, Video_Format, IFO_Format_V[Codec]);
             Fill(Stream_Video, StreamPos_Last, Video_Format_Version, IFO_Format_Version_V[Codec]);
             Fill(Stream_Video, StreamPos_Last, Video_Codec, IFO_CodecV[Codec]);
-            Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, IFO_AspectRatio[AspectRatio]);
+            Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, IFO_AspectRatio[AspectRatio], 3, true);
             Fill(Stream_Video, StreamPos_Last, Video_Width, IFO_Width[Resolution]);
             Fill(Stream_Video, StreamPos_Last, Video_Height, IFO_Height[Standard][Resolution]);
             Fill(Stream_Video, StreamPos_Last, Video_FrameRate, IFO_FrameRate[Standard]);
             Fill(Stream_Video, StreamPos_Last, Video_BitRate_Mode, IFO_BitRate_Mode[BitRate_Mode]);
-            Fill(Stream_Video, StreamPos_Last, "ID", _T("0xE0"));
-            Fill(Stream_Video, StreamPos_Last, "ID/String", _T("0xE0"));
+            Fill(Stream_Video, StreamPos_Last, General_ID, _T("0xE0"));
+            Fill(Stream_Video, StreamPos_Last, General_ID_String, _T("0xE0"), Unlimited, true);
         }
     FILLING_END();
 }
@@ -1152,7 +1157,6 @@ Ztring File_Dvdv::Time_ADT(int32u)
     */
 }
 
-
 void File_Dvdv::Time_BCD(const Ztring &Name)
 {
     int32u FrameRate, FF;
@@ -1246,7 +1250,7 @@ void File_Dvdv::PGC(int64u Offset, bool Title)
                 Skip_Flags(Flags, 24,                               Time play or search);
                 */
             Element_Begin("Audio Stream Controls", 8*2);
-            for (int Pos=0; Pos<8; Pos++)
+            for (size_t Pos=0; Pos<8; Pos++)
             {
                 Element_Begin("Audio Stream Control", 2);
                 Element_Info(Ztring::ToZtring(Pos));
@@ -1263,6 +1267,9 @@ void File_Dvdv::PGC(int64u Offset, bool Title)
 
                 if (Available && Retrieve(Stream_Audio, Pos, Text_ID).empty() && Sectors[(size_t)((File_Offset+Buffer_Offset)/2048)]==Sector_VTS_PGCI)
                 {
+                    while (Pos>Count_Get(Stream_Audio))
+                        Stream_Prepare(Stream_Audio);
+
                     int8u ToAdd=0;
                     if (Retrieve(Stream_Audio, Pos, Audio_Format)==_T("AC-3"))
                         ToAdd=0x80;
@@ -1272,12 +1279,12 @@ void File_Dvdv::PGC(int64u Offset, bool Title)
                         ToAdd=0xA0;
                     Ztring ID_String; ID_String=_T("0x"); ID_String+=Ztring::ToZtring(ToAdd+Number, 16);
                     Fill(Stream_Audio, Pos, Audio_ID, ID_String);
-                    Fill(Stream_Audio, Pos, Audio_ID_String, ID_String);
+                    Fill(Stream_Audio, Pos, Audio_ID_String, ID_String, true);
                 }
             }
             Element_End();
             Element_Begin("Subpicture Stream Controls", 32*4);
-            for (int Pos=0; Pos<32; Pos++)
+            for (size_t Pos=0; Pos<32; Pos++)
             {
                 Element_Begin("Subpicture Stream Control", 4);
                 Element_Info(Ztring::ToZtring(Pos));
@@ -1301,9 +1308,12 @@ void File_Dvdv::PGC(int64u Offset, bool Title)
 
                 if (Available && Retrieve(Stream_Text, Pos, Text_ID).empty() && Sectors[(size_t)((File_Offset+Buffer_Offset)/2048)]==Sector_VTS_PGCI)
                 {
+                    while (Pos>Count_Get(Stream_Text))
+                        Stream_Prepare(Stream_Text);
+
                     Ztring ID_String; ID_String=_T("0x"); ID_String+=Ztring::ToZtring(0x20+Number_Wide, 16);
                     Fill(Stream_Text, Pos, Text_ID, ID_String);
-                    Fill(Stream_Text, Pos, Text_ID_String, ID_String);
+                    Fill(Stream_Text, Pos, Text_ID_String, ID_String, true);
                 }
             }
             Element_End();

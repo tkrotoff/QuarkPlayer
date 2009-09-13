@@ -130,16 +130,25 @@ File_Mk::~File_Mk()
 }
 
 //***************************************************************************
-// Format
+// Streams management
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Mk::Read_Buffer_Finalize()
+void File_Mk::Streams_Finish()
 {
     if (Duration!=0 && TimecodeScale!=0)
         Fill(Stream_General, 0, General_Duration, Duration*int64u_float64(TimecodeScale)/1000000.0, 0);
     for (std::map<int64u, stream>::iterator Temp=Stream.begin(); Temp!=Stream.end(); Temp++)
     {
+        if (Temp->second.DisplayAspectRatio!=0)
+        {
+            Fill(Stream_Video, Temp->second.StreamPos, Video_DisplayAspectRatio, Temp->second.DisplayAspectRatio, 3, true);
+            int64u Width=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Width).To_int64u();
+            int64u Height=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Height).To_int64u();
+            if (Width)
+                Fill(Stream_Video, Temp->second.StreamPos, Video_PixelAspectRatio, Temp->second.DisplayAspectRatio*Height/Width, 3, true);
+        }
+
         if (Temp->second.Parser)
         {
             Ztring Duration_Temp, Codec_Temp;
@@ -151,7 +160,7 @@ void File_Mk::Read_Buffer_Finalize()
                 Duration_Temp=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Duration); //Duration from stream is sometimes false
                 Codec_Temp=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Codec); //We want to keep the 4CC
             }
-            Open_Buffer_Finalize(Temp->second.Parser);
+            Finish(Temp->second.Parser);
             Merge(*Temp->second.Parser, Temp->second.StreamKind, 0, Temp->second.StreamPos);
             Fill(Stream_Video, StreamPos_Last, Video_Duration, Duration_Temp, true);
             if (Temp->second.StreamKind==Stream_Video && !Codec_Temp.empty())
@@ -213,8 +222,6 @@ void File_Mk::Read_Buffer_Finalize()
                     Fill(Stream_Video, 0, Video_Delay, 0, 10, true);
             }
         }
-        if (Temp->second.DisplayAspectRatio!=0)
-            Fill(Stream_Video, Temp->second.StreamPos, "DisplayAspectRatio", Temp->second.DisplayAspectRatio, 3, true);
     }
 
     //Chapters
@@ -239,12 +246,16 @@ void File_Mk::Read_Buffer_Finalize()
                     }
                     if (Text.size())
                         Text.resize(Text.size()-3);
-                    Fill(Stream_Menu, StreamPos_Last, Ztring().Duration_From_Milliseconds(EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterTimeStart/TimecodeScale).To_UTF8().c_str(), Text);
+                    Fill(Stream_Menu, StreamPos_Last, Ztring().Duration_From_Milliseconds(EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterTimeStart/1000000).To_UTF8().c_str(), Text);
                 }
             }
             Fill(Stream_Menu, StreamPos_Last, Menu_Chapters_Pos_End, Count_Get(Stream_Menu, StreamPos_Last), 10, true);
         }
     }
+
+    //Attachements
+    for (size_t Pos=0; Pos<AttachedFiles.size(); Pos++)
+        Fill(Stream_General, 0, "Cover", AttachedFiles[Pos]);
 
     //Purge what is not needed anymore
     if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
@@ -881,6 +892,8 @@ void File_Mk::Segment_Attachements()
 void File_Mk::Segment_Attachements_AttachedFile()
 {
     Element_Name("AttachedFile");
+
+    AttachedFiles.resize(AttachedFiles.size()+1);
 }
 
 //---------------------------------------------------------------------------
@@ -892,7 +905,8 @@ void File_Mk::Segment_Attachements_AttachedFile_FileData()
     Skip_XX(Element_TotalSize_Get(),                            "Data");
 
     FILLING_BEGIN();
-        Fill(Stream_General, 0, "Cover", "Yes");
+        if (AttachedFiles[AttachedFiles.size()-1].empty())
+            AttachedFiles[AttachedFiles.size()-1]=_T("Yes");
     FILLING_END();
 }
 
@@ -902,7 +916,12 @@ void File_Mk::Segment_Attachements_AttachedFile_FileDescription()
     Element_Name("FileDescription");
 
     //Parsing
-    UTF8_Info();
+    Ztring Data=Local_Get();
+
+    FILLING_BEGIN();
+        if (!Data.empty())
+            AttachedFiles[AttachedFiles.size()-1]=Data;
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1362,8 +1381,8 @@ void File_Mk::Segment_Cluster_BlockGroup_Block()
                     Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset), Ztring::ToZtring(TrackNumber, 16)+_T(".")+_T("raw"));
                     Open_Buffer_Continue(Stream[TrackNumber].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)Laces[Pos]);
                     Element_Offset+=Laces[Pos];
-                    if (Stream[TrackNumber].Parser->IsFilled
-                     || Stream[TrackNumber].Parser->IsFinished
+                    if (Stream[TrackNumber].Parser->Status[IsFilled]
+                     || Stream[TrackNumber].Parser->Status[IsFinished]
                      || Stream[TrackNumber].PacketCount>=300)
                         Stream[TrackNumber].Searching_Payload=false;
                 }
@@ -2074,7 +2093,7 @@ void File_Mk::Segment_Tracks_TrackEntry_CodecPrivate()
     Open_Buffer_Continue(Stream[TrackNumber].Parser, Buffer+Buffer_Offset, (size_t)Element_Size);
 
     //Filling
-    if (Stream[TrackNumber].Parser->IsFinished) //Can be finnished here...
+    if (Stream[TrackNumber].Parser->Status[IsFinished]) //Can be finnished here...
     {
         Stream[TrackNumber].Searching_Payload=false;
         Stream_Count--;
@@ -2304,7 +2323,7 @@ void File_Mk::Segment_Tracks_TrackEntry_TrackNumber()
     TrackNumber=UInteger_Get();
 
     FILLING_BEGIN();
-        Fill(StreamKind_Last, StreamPos_Last, "ID", TrackNumber);
+        Fill(StreamKind_Last, StreamPos_Last, General_ID, TrackNumber);
         if (StreamKind_Last!=Stream_Max)
         {
             Stream[TrackNumber].StreamKind=StreamKind_Last;
@@ -2382,7 +2401,7 @@ void File_Mk::Segment_Tracks_TrackEntry_TrackUID()
 
     //Filling
     FILLING_BEGIN();
-        Fill(StreamKind_Last, StreamPos_Last, "UniqueID", UInteger);
+        Fill(StreamKind_Last, StreamPos_Last, General_UniqueID, UInteger);
     FILLING_END();
 }
 
@@ -2763,10 +2782,10 @@ void File_Mk::CodecID_Manage()
     if (TrackType==(int64u)-1 || TrackNumber==(int64u)-1 || CodecID.empty() || Stream[TrackNumber].Parser)
         return; //Not ready (or not needed)
 
-    if (Retrieve(StreamKind_Last, StreamPos_Last, "CodecID").empty())
+    if (Retrieve(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_CodecID)).empty())
     {
         CodecID_Fill(CodecID, StreamKind_Last, StreamPos_Last, InfoCodecID_Format_Matroska);
-        Fill(StreamKind_Last, StreamPos_Last, "Codec", CodecID);
+        Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Codec), CodecID);
     }
 
     //Creating the parser

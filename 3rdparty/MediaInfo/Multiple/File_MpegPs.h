@@ -28,6 +28,7 @@
 
 //---------------------------------------------------------------------------
 #include "MediaInfo/File__Analyze.h"
+#include "MediaInfo/Multiple/File_Mpeg4_Descriptors.h"
 #include <map>
 //---------------------------------------------------------------------------
 
@@ -42,12 +43,16 @@ class File_MpegPs : public File__Analyze
 {
 public :
     //In
-    bool   FromTS;                  //Indicate if stream comes from TS
-    int8u  stream_type_FromTS;      //ID from TS
-    int8u  descriptor_tag_FromTS;   //Descriptor from TS
-    int32u format_identifier_FromTS;//Registration from TS
-    int8u  MPEG_Version;            //MPEG_Version from TS
+    bool   FromTS;                      //Indicate if stream comes from TS
+    int8u  FromTS_stream_type;          //ID from TS
+    int32u FromTS_format_identifier;    //Registration from TS
+    int8u  FromTS_descriptor_tag;       //Descriptor from TS
+    int8u  MPEG_Version;                //MPEG Version (or automaticly detected)
     bool   Searching_TimeStamp_Start;
+    #ifdef MEDIAINFO_MPEG4_YES
+        File_Mpeg4_Descriptors::decspecificinfotag* DecSpecificInfoTag;
+        File_Mpeg4_Descriptors::slconfig* SLConfig;
+    #endif
 
     //Out
     bool   HasTimeStamps;
@@ -56,8 +61,12 @@ public :
     File_MpegPs();
 
 private :
+    //Streams management
+    void Streams_Fill();
+    void Streams_Finish();
+
     //Buffer - File header
-    bool FileHeader_Begin();
+    bool FileHeader_Begin() {return FileHeader_Begin_0x000001();}
 
     //Buffer - Synchro
     bool Synchronize();
@@ -66,7 +75,7 @@ private :
 
     //Buffer - Global
     void Read_Buffer_Unsynched();
-    void Read_Buffer_Finalize ();
+    void Read_Buffer_Continue ();
 
     //Buffer - Per element
     void Header_Parse();
@@ -88,11 +97,11 @@ private :
     void private_stream_2();    //0xBF
     void audio_stream();        //0xC0 --> 0xDF
     void video_stream();        //0xE0 --> 0xEF
-    void LATM();                //0xFA
+    void SL_packetized_stream();//0xFA
     void extension_stream();    //0xFD
 
     //private_stream_1 specific
-    void           private_stream_1_Choose_DVD_ID();
+    bool           private_stream_1_Choose_DVD_ID();
     File__Analyze* private_stream_1_ChooseParser();
     const ZenLib::Char* private_stream_1_ChooseExtension();
     void           private_stream_1_Element_Info();
@@ -138,12 +147,11 @@ private :
             Mpeg_TimeStamp_TS DTS;
         };
 
+        stream_t       StreamKind;
+        size_t         StreamPos;
         int8u          stream_type;
         int8u          DVD_Identifier;
-        File__Analyze* Parser;
-        File__Analyze* Parser2; //Sometimes, we need to do parallel tests
-        File__Analyze* Parser3; //Sometimes, we need to do parallel tests
-        File__Analyze* Parser4; //Sometimes, we need to do parallel tests
+        std::vector<File__Analyze*> Parsers; //Sometimes, we need to do parallel tests
         Mpeg_TimeStamp TimeStamp_Start;
         Mpeg_TimeStamp TimeStamp_End;
         bool           StreamIsRegistred;
@@ -154,12 +162,10 @@ private :
 
         ps_stream()
         {
+            StreamKind=Stream_Max;
+            StreamPos=0;
             stream_type=0;
             DVD_Identifier=0;
-            Parser=NULL;
-            Parser2=NULL;
-            Parser3=NULL;
-            Parser4=NULL;
             StreamIsRegistred=false;
             Searching_Payload=false;
             Searching_TimeStamp_Start=false;
@@ -169,10 +175,8 @@ private :
 
         ~ps_stream()
         {
-            delete Parser; //Parser=NULL;
-            delete Parser2; //Parser2=NULL;
-            delete Parser3; //Parser3=NULL;
-            delete Parser4; //Parser4=NULL;
+            for (size_t Pos=0; Pos<Parsers.size(); Pos++)
+                delete Parsers[Pos]; //Parsers[Pos]=NULL;
         }
     };
     std::vector<ps_stream> Streams;
@@ -184,7 +188,7 @@ private :
     int64u SizeToAnalyze; //Total size of a chunk to analyse, it may be changed by the parser
     int8u  stream_id_extension;
     bool   video_stream_Unlimited;
-    int8u  video_stream_Unlimited_start_code;
+    int16u Buffer_DataSizeToParse;
     int64u PTS;
     int64u DTS;
     bool   Parsing_End_ForDTS;
@@ -212,7 +216,9 @@ private :
     File__Analyze* ChooseParser_NULL();
 
     //File__Analyze helpers
-    void Read_Buffer_Finalize_PerStream(size_t StreamID, ps_stream &Temp);
+    void Streams_Fill_PerStream(size_t StreamID, ps_stream &Temp);
+    void Streams_Finish_PerStream(size_t StreamID, ps_stream &Temp);
+    void xxx_stream_Parse(ps_stream &Temp, int8u &xxx_Count);
 
     //Output buffer
     size_t Output_Buffer_Get (const String &Value);
@@ -222,4 +228,6 @@ private :
 } //NameSpace
 
 #endif
+
+
 

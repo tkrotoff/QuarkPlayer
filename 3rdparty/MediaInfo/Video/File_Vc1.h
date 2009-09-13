@@ -50,6 +50,10 @@ public :
     File_Vc1();
 
 private :
+    //Streams management
+    void Streams_Fill();
+    void Streams_Finish();
+
     //Buffer - File header
     bool FileHeader_Begin();
 
@@ -57,9 +61,6 @@ private :
     bool Synchronize() {return Synchronize_0x000001();}
     bool Synched_Test();
     void Synched_Init();
-
-    //Buffer - Global
-    void Read_Buffer_Finalize ();
 
     //Buffer - Per element
     void Header_Parse();
@@ -72,7 +73,6 @@ private :
     void Slice();
     void Field();
     void FrameHeader();
-    void FrameHeader_Fill();
     void EntryPointHeader();
     void SequenceHeader();
     void UserDefinedSlice();
@@ -142,7 +142,6 @@ private :
     size_t Width;
     size_t Height;
     size_t RatioValue;
-    float32 FrameRate;
     size_t BitRate;
     bool   EntryPoint_Parsed;
 

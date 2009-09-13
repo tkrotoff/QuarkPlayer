@@ -124,12 +124,13 @@ File_Riff::~File_Riff()
     #endif //MEDIAINFO_DVDIF_YES
 }
 
-//---------------------------------------------------------------------------
-void File_Riff::Read_Buffer_Finalize ()
-{
-    if (!IsAccepted)
-        return;
+//***************************************************************************
+// Streams management
+//***************************************************************************
 
+//---------------------------------------------------------------------------
+void File_Riff::Streams_Finish ()
+{
     //For each stream
     std::map<int32u, stream>::iterator Temp=Stream.begin();
     while (Temp!=Stream.end())
@@ -140,24 +141,27 @@ void File_Riff::Read_Buffer_Finalize ()
 
         //StreamSize
         if (Temp->second.StreamSize>0)
-            Fill(StreamKind_Last, StreamPos_Last, "StreamSize", Temp->second.StreamSize);
+            Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_StreamSize), Temp->second.StreamSize);
 
         //Parser specific
         if (Temp->second.Parser)
         {
             //Finalizing and Merging (except Video codec and 120 fps hack)
-            Open_Buffer_Finalize(Temp->second.Parser);
+            Temp->second.Parser->ShouldContinueParsing=false;
 
             //Hack - Before
-            Ztring Codec_Temp;
+            Ztring StreamSize, Codec_Temp;
             if (StreamKind_Last==Stream_Video)
                 Codec_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_Codec); //We want to keep the 4CC of AVI
+            StreamSize=Retrieve(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_StreamSize)); //We want to keep the 4CC of AVI
 
             //Merging
+            Finish(Temp->second.Parser);
             Merge(*Temp->second.Parser, StreamKind_Last, 0, StreamPos_Last);
-            Fill(StreamKind_Last, StreamPos_Last, "ID", ((Temp->first>>24)-'0')*10+(((Temp->first>>16)&0xFF)-'0'));
+            Fill(StreamKind_Last, StreamPos_Last, General_ID, ((Temp->first>>24)-'0')*10+(((Temp->first>>16)&0xFF)-'0'));
 
             //Hacks - After
+            Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_StreamSize), StreamSize, true);
             if (StreamKind_Last==Stream_Video)
             {
                 if (!Codec_Temp.empty())
@@ -167,7 +171,7 @@ void File_Riff::Read_Buffer_Finalize ()
                 const Ztring &FrameRate=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate);
                 if (FrameRate.To_int32u()==120)
                 {
-                    Fill(Stream_Video, StreamPos_Last, Video_FrameRate_String, MediaInfoLib::Config.Language_Get(FrameRate+_T(" (24/30)"), _T(" fps")));
+                    Fill(Stream_Video, StreamPos_Last, Video_FrameRate_String, MediaInfoLib::Config.Language_Get(FrameRate+_T(" (24/30)"), _T(" fps")), true);
                     Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Minimum, 24, 10, true);
                     Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Maximum, 30, 10, true);
                     Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Mode, "VFR");
@@ -266,7 +270,7 @@ void File_Riff::Read_Buffer_Finalize ()
         {
             Clear(Stream_Video);
             Clear(Stream_Audio);
-            Open_Buffer_Finalize(DV_FromHeader);
+            Finish(DV_FromHeader);
             Merge(*DV_FromHeader);
             Fill(Stream_Video, 0, Video_Format, "Digital Video");
             Fill(Stream_Video, 0, Video_Codec_CC, "dvsd");
@@ -336,17 +340,17 @@ void File_Riff::Read_Buffer_Finalize ()
                     if (Retrieve(Stream_Video, 0, Video_FrameRate).To_float32())
                     {
                         Fill(Stream_Audio, StreamPos_Last, "Interleave_Duration", (float)Stream[0x30300000].PacketCount/Temp->second.PacketCount*1000/Retrieve(Stream_Video, 0, Video_FrameRate).To_float32(), 0);
-                        Ztring Temp;
-                        Temp+=Retrieve(Stream_Audio, StreamPos_Last, "Interleave_Duration");
-                        Temp+=_T(" ");
-                        Temp+=MediaInfoLib::Config.Language_Get(_T("ms"));
+                        Ztring Interleave_Duration_String;
+                        Interleave_Duration_String+=Retrieve(Stream_Audio, StreamPos_Last, "Interleave_Duration");
+                        Interleave_Duration_String+=_T(" ");
+                        Interleave_Duration_String+=MediaInfoLib::Config.Language_Get(_T("ms"));
                         if (!Retrieve(Stream_Audio, StreamPos_Last, "Interleave_VideoFrames").empty())
                         {
-                            Temp+=_T(" (");
-                            Temp+=MediaInfoLib::Config.Language_Get(Retrieve(Stream_Audio, StreamPos_Last, "Interleave_VideoFrames"), _T(" video frames"));
-                            Temp+=_T(")");
+                            Interleave_Duration_String+=_T(" (");
+                            Interleave_Duration_String+=MediaInfoLib::Config.Language_Get(Retrieve(Stream_Audio, StreamPos_Last, "Interleave_VideoFrames"), _T(" video frames"));
+                            Interleave_Duration_String+=_T(")");
                         }
-                        Fill(Stream_Audio, StreamPos_Last, "Interleave_Duration/String", Temp);
+                        Fill(Stream_Audio, StreamPos_Last, "Interleave_Duration/String", Interleave_Duration_String);
                     }
                     int64u Audio_FirstBytes=0;
                     for (std::map<int64u, stream_structure>::iterator Stream_Structure_Temp=Stream_Structure.begin(); Stream_Structure_Temp!=Stream_Structure.end(); Stream_Structure_Temp++)
@@ -358,7 +362,7 @@ void File_Riff::Read_Buffer_Finalize ()
                     }
                     if (Audio_FirstBytes && Retrieve(Stream_Audio, StreamPos_Last, Audio_BitRate).To_int32u())
                     {
-                        Fill(Stream_Audio, StreamPos_Last, "Interleave_Preload", Audio_FirstBytes*8*1000/Retrieve(Stream_Audio, StreamPos_Last, Audio_BitRate).To_int32u());
+                        Fill(Stream_Audio, StreamPos_Last, "Interleave_Preload", Audio_FirstBytes*1000/Temp->second.AvgBytesPerSec);
                         Fill(Stream_Audio, StreamPos_Last, "Interleave_Preload/String", Retrieve(Stream_Audio, StreamPos_Last, "Interleave_Preload")+_T(" ms"));
                     }
                 }

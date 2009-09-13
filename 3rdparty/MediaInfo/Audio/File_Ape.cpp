@@ -61,11 +61,11 @@ const char* Ape_Codec_Settings(int16u Setting)
 {
     switch (Setting)
     {
-        case 1000 : return "fast";
-        case 2000 : return "normal";
-        case 3000 : return "high";
-        case 4000 : return "extra-high";
-        case 5000 : return "insane";
+        case 1000 : return "Fast";
+        case 2000 : return "Normal";
+        case 3000 : return "High";
+        case 4000 : return "Extra-high";
+        case 5000 : return "Insane";
         default   : return "";
     }
 }
@@ -83,22 +83,12 @@ File_Ape::File_Ape()
 }
 
 //***************************************************************************
-// Buffer - Global
+// Streams management
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Ape::Read_Buffer_Continue()
+void File_Ape::Streams_Finish()
 {
-    //Tags
-    File__Tags_Helper::Read_Buffer_Continue();
-}
-
-//---------------------------------------------------------------------------
-void File_Ape::Read_Buffer_Finalize()
-{
-    if (!IsAccepted)
-        return;
-
     //Filling
     int64u CompressedSize=File_Size-TagsSize;
     float32 CompressionRatio=((float32)UncompressedSize)/CompressedSize;
@@ -107,7 +97,7 @@ void File_Ape::Read_Buffer_Finalize()
     Fill(Stream_Audio, 0, Audio_CompressionRatio, CompressionRatio);
     Fill(Stream_Audio, 0, Audio_BitRate, BitRate);
 
-    File__Tags_Helper::Read_Buffer_Finalize();
+    File__Tags_Helper::Streams_Finish();
 }
 
 //***************************************************************************
@@ -207,6 +197,7 @@ void File_Ape::FileHeader_Parse()
         Fill(Stream_General, 0, General_Format, "Monkey's Audio");
         File__Tags_Helper::Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, 0, Audio_Format, "Monkey's Audio");
+        Fill(Stream_Audio, 0, Audio_Encoded_Library_Settings, Ape_Codec_Settings(CompressionLevel));
         Fill(Stream_Audio, 0, Audio_Codec, "APE");
         Fill(Stream_Audio, 0, Audio_Resolution, Resolution);
         Fill(Stream_Audio, 0, Audio_Channel_s_, Channels);

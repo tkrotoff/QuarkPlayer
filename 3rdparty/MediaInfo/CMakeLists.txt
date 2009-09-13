@@ -2,7 +2,7 @@ project(mediainfo)
 
 set(MEDIAINFO_MAJOR_VERSION 0)
 set(MEDIAINFO_MINOR_VERSION 7)
-set(MEDIAINFO_PATCH_VERSION 9)
+set(MEDIAINFO_PATCH_VERSION 21)
 set(MEDIAINFO_VERSION ${MEDIAINFO_MAJOR_VERSION}.${MEDIAINFO_MINOR_VERSION}.${MEDIAINFO_PATCH_VERSION})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
@@ -15,8 +15,8 @@ set(mediainfo_SRCS
 	File__Analyze.cpp
 	File__Analyze_Buffer.cpp
 	File__Analyze_Buffer_MinimizeSize.cpp
-	File__Analyze_Finalize.cpp
 	File__Analyze_Streams.cpp
+	File__Analyze_Streams_Finish.cpp
 	File__Base.cpp
 	File__MultipleParsing.cpp
 	File__Duplicate.cpp
@@ -47,6 +47,7 @@ set(mediainfo_SRCS
 	Audio/File_Adpcm.cpp
 	Audio/File_Adts.cpp
 	Audio/File_Aes3.cpp
+	Audio/File_Als.cpp
 	Audio/File_Amr.cpp
 	Audio/File_Amv.cpp
 	Audio/File_Ape.cpp
@@ -55,6 +56,7 @@ set(mediainfo_SRCS
 	Audio/File_ExtendedModule.cpp
 	Audio/File_Flac.cpp
 	Audio/File_ImpulseTracker.cpp
+	Audio/File_La.cpp
 	Audio/File_Latm.cpp
 	Audio/File_Midi.cpp
 	Audio/File_Module.cpp
@@ -66,6 +68,7 @@ set(mediainfo_SRCS
 	Audio/File_Ps2Audio.cpp
 	Audio/File_ScreamTracker3.cpp
 	Audio/File_Speex.cpp
+	Audio/File_Tak.cpp
 	Audio/File_Tta.cpp
 	Audio/File_TwinVQ.cpp
 	Audio/File_Vorbis.cpp
@@ -80,9 +83,11 @@ set(mediainfo_SRCS
 	Image/File_Png.cpp
 	Image/File_Rle.cpp
 	Image/File_Tiff.cpp
+	Multiple/File_Bdmv.cpp
 	Multiple/File_Cdxa.cpp
 	Multiple/File_Dpg.cpp
 	Multiple/File_DvDif.cpp
+	Multiple/File_DvDif_Analysis.cpp
 	Multiple/File_Dvdv.cpp
 	Multiple/File_Flv.cpp
 	Multiple/File_Mk.cpp
@@ -114,9 +119,9 @@ set(mediainfo_SRCS
 	Tag/File_Lyrics3v2.cpp
 	Tag/File_VorbisCom.cpp
 	Text/File_Cmml.cpp
-	Text/File_Kate.cpp
 	Text/File_Eia608.cpp
 	Text/File_Eia708.cpp
+	Text/File_Kate.cpp
 	Text/File_OtherText.cpp
 	Text/File_Pgs.cpp
 	Video/File_Avc.cpp

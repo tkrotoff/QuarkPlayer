@@ -60,7 +60,7 @@ public :
 private :
     //Streams management
     void Streams_Fill();
-    void Streams_Update();
+    void Streams_Finish();
 
     //Buffer - File header
     bool FileHeader_Begin();
@@ -76,6 +76,9 @@ private :
     //Buffer - Per element
     void Header_Parse();
     void Header_Parse_AdaptationField();
+    #ifdef MEDIAINFO_MPEGTS_PCR_YES
+    void Header_Parse_AdaptationField_Duration_Update();
+    #endif //MEDIAINFO_MPEGTS_PCR_YES
     void Data_Parse();
 
     int16u                      pid;
@@ -86,6 +89,8 @@ private :
 
     //Elements
     void PSI();
+    void PSI_EPG_Update();
+    void PSI_Duration_End_Update();
     void PES();
 
     //Helpers
@@ -100,8 +105,11 @@ private :
     int64u MpegTs_JumpTo_End;
     bool   Searching_TimeStamp_Start;
 
+    //Helpers
+    void Streams_Fill_PerStream(int16u PID, complete_stream::stream &Temp);
+    void Streams_Finish_PerStream(int16u PID, complete_stream::stream &Temp);
+
     //File__Duplicate
-    void   File__Duplicate_Delete();
     void   File__Duplicate_Read_Buffer_Finalize ();
     bool   File__Duplicate_Set  (const Ztring &Value); //Fill a new File__Duplicate value
     bool   File__Duplicate_Get_From_PID (int16u PID);

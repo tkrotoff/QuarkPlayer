@@ -56,6 +56,9 @@ public :
     void          File_IsSeekable_Set (bool NewValue);
     bool          File_IsSeekable_Get ();
 
+    void          File_IsSub_Set (bool NewValue);
+    bool          File_IsSub_Get ();
+
     void          File_ForceParser_Set (const Ztring &NewValue);
     Ztring        File_ForceParser_Get ();
 
@@ -74,9 +77,14 @@ public :
     //Specific
     void          File_MpegTs_ForceMenu_Set (bool NewValue);
     bool          File_MpegTs_ForceMenu_Get ();
+    void          File_Bdmv_ParseTargetedFile_Set (bool NewValue);
+    bool          File_Bdmv_ParseTargetedFile_Get ();
+    void          File_DvDif_Analysis_Set (bool NewValue);
+    bool          File_DvDif_Analysis_Get ();
 
 private :
     bool                    FileIsSeekable;
+    bool                    FileIsSub;
     Ztring                  File_ForceParser;
 
     //Extra
@@ -88,6 +96,8 @@ private :
 
     //Specific
     bool                    File_MpegTs_ForceMenu;
+    bool                    File_Bdmv_ParseTargetedFile;
+    bool                    File_DvDif_Analysis;
 
     ZenLib::CriticalSection CS;
 };

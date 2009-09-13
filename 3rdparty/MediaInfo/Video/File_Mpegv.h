@@ -51,7 +51,12 @@ public :
     ~File_Mpegv();
 
 private :
+    //Streams management
+    void Streams_Fill();
+    void Streams_Finish();
+
     //Buffer - File header
+    void Read_Buffer_Unsynched();
     bool FileHeader_Begin() {return FileHeader_Begin_0x000001();}
 
     //Buffer - Synchro
@@ -59,9 +64,6 @@ private :
     bool Synched_Test();
     void Synched_Init();
     
-    //Buffer - Global
-    void Read_Buffer_Finalize ();
-
     //Buffer - Per element
     void Header_Parse();
     bool Header_Parser_QuickSearch();
@@ -74,7 +76,6 @@ private :
     //Elements
     void picture_start();
     void slice_start();
-    void slice_start_Fill();
     void user_data_start();
     void user_data_start_CC();
     void user_data_start_DTG1();
@@ -120,6 +121,8 @@ private :
         std::vector<cc_data_> GA94_03_CC; //Per cc offset
 
         bool   IsValid;
+        bool   HasPictureCoding;
+
         bool   progressive_frame;
         bool   top_field_first;
         bool   repeat_first_field;
@@ -127,6 +130,7 @@ private :
         temporalreference()
         {
             IsValid=false;
+            HasPictureCoding=false;
         }
     };
     std::vector<temporalreference> TemporalReference; //per temporal_reference
@@ -188,6 +192,7 @@ private :
     bool   group_start_broken_link;
     bool   Searching_TimeStamp_Start_DoneOneTime;
     bool   Parsing_End_ForDTS;
+    bool   bit_rate_value_IsValid;
 };
 
 } //NameSpace

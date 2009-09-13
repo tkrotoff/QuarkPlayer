@@ -149,9 +149,9 @@ void File_Dpg::Read_Buffer_Continue()
     {
         #if defined(MEDIAINFO_MPEGA_YES)
             Open_Buffer_Continue(Parser, Buffer+Buffer_Offset, (size_t)((File_Offset+Buffer_Size<Audio_Offset+Audio_Size)?Buffer_Size:(Audio_Offset+Audio_Size-File_Offset)));
-            if (Parser->IsAccepted)
+            if (Parser->Status[IsAccepted])
             {
-                Open_Buffer_Finalize(Parser);
+                Finish(Parser);
                 Merge(*Parser, Stream_Audio, 0, 0);
                 #if defined(MEDIAINFO_MPEGV_YES)
                     Audio_Size=0;
@@ -168,10 +168,10 @@ void File_Dpg::Read_Buffer_Continue()
     {
         #if defined(MEDIAINFO_MPEGV_YES)
             Open_Buffer_Continue(Parser, Buffer+Buffer_Offset, (size_t)((File_Offset+Buffer_Size<Video_Offset+Video_Size)?Buffer_Size:(Video_Offset+Video_Size-File_Offset)));
-            if (Parser->IsAccepted)
+            if (Parser->Status[IsAccepted])
             {
                 //Merging
-                Open_Buffer_Finalize(Parser);
+                Finish(Parser);
                 Merge(*Parser, Stream_Video, 0, 0);
 
                 Finish("DPG");

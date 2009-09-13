@@ -49,6 +49,10 @@ public :
     File_AvsV();
 
 private :
+    //Streams management
+    void Streams_Fill();
+    void Streams_Finish();
+
     //Buffer - File header
     bool FileHeader_Begin() {return FileHeader_Begin_0x000001();}
 
@@ -57,9 +61,6 @@ private :
     bool Synched_Test();
     void Synched_Init();
     
-    //Buffer - Global
-    void Read_Buffer_Finalize ();
-
     //Buffer - Per element
     void Header_Parse();
     bool Header_Parser_QuickSearch();
@@ -73,7 +74,6 @@ private :
     void user_data_start();
     void extension_start();
     void picture_start();
-    void picture_start_Fill();
     void video_edit();
     void reserved();
     

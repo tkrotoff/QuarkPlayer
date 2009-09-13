@@ -30,7 +30,7 @@
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-#if defined(MEDIAINFO_ID3V2_YES) || defined(MEDIAINFO_FLAC_YES) || defined(MEDIAINFO_VORBISCOM_YES)
+#if defined(MEDIAINFO_ID3V2_YES) || defined(MEDIAINFO_FLAC_YES) || defined(MEDIAINFO_VORBISCOM_YES) || defined(MEDIAINFO_OGG_YES)
 //---------------------------------------------------------------------------
 
 #include "ZenLib/Conf.h"
@@ -334,8 +334,12 @@ bool File_Id3v2::Static_Synchronize_Tags(const int8u* Buffer, size_t Buffer_Offs
     return true;
 }
 
+//***************************************************************************
+// Streams management
+//***************************************************************************
+
 //---------------------------------------------------------------------------
-void File_Id3v2::Read_Buffer_Finalize()
+void File_Id3v2::Streams_Finish()
 {
     if (Count_Get(Stream_General)==0)
         return;
@@ -413,9 +417,11 @@ void File_Id3v2::FileHeader_Parse()
     Param_Info(Id3v2_Size);
     if (ExtendedHeader)
     {
-        int32u Size;
-        Get_B4 (Size,                                           "Size");
-        Skip_XX(Size,                                           "Extended header");
+        Element_Begin("Extended header");
+        int32u Size_Extended;
+        Get_B4 (Size_Extended,                                  "Size");
+        Skip_XX(Size_Extended,                                  "Extended header");
+        Element_End();
     }
 
     FILLING_BEGIN();

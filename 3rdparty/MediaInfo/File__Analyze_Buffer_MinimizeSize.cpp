@@ -244,9 +244,11 @@ void File__Analyze::Get_BFP4(size_t Bits, float32 &Info)
 {
     INTEGRITY_SIZE_ATLEAST_INT(4);
     BS_Begin();
-    int32u Integer=BS->Get4(Bits);
+    int32s Integer=(int32s)BS->Get4(Bits);
     int32u Fraction=BS->Get4(32-Bits);
-    BS_End(); //Does Element_Offset+=4
+    BS_End();
+    if (Integer>=(1<<Bits)/2)
+        Integer-=1<<Bits;
     Info=Integer+((float32)Fraction)/(1<<(32-Bits));
 }
 
@@ -304,6 +306,13 @@ void File__Analyze::Peek_B8(int64u &Info)
 {
     INTEGRITY_SIZE_ATLEAST_INT(8);
     Info=BigEndian2int64u(Buffer+Buffer_Offset+(size_t)Element_Offset);
+}
+
+//---------------------------------------------------------------------------
+void File__Analyze::Peek_B16(int128u &Info)
+{
+    INTEGRITY_SIZE_ATLEAST_INT(16);
+    Info=BigEndian2int128u(Buffer+Buffer_Offset+(size_t)Element_Offset);
 }
 
 //***************************************************************************
@@ -457,6 +466,19 @@ void File__Analyze::Peek_L8(int64u &Info)
 }
 
 //***************************************************************************
+// GUID
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File__Analyze::Get_GUID(int128u &Info)
+{
+    INTEGRITY_SIZE_ATLEAST_INT(16);
+    Info.hi=LittleEndian2int64u(Buffer+Buffer_Offset+(size_t)Element_Offset);
+    Info.lo=BigEndian2int64u   (Buffer+Buffer_Offset+(size_t)Element_Offset+8);
+    Element_Offset+=16;
+}
+
+//***************************************************************************
 // UUID
 //***************************************************************************
 
@@ -464,8 +486,8 @@ void File__Analyze::Peek_L8(int64u &Info)
 void File__Analyze::Get_UUID(int128u &Info)
 {
     INTEGRITY_SIZE_ATLEAST_INT(16);
-    Info.hi=LittleEndian2int64u(Buffer+Buffer_Offset+(size_t)Element_Offset);
-    Info.lo=BigEndian2int64u   (Buffer+Buffer_Offset+(size_t)Element_Offset+8);
+    Info.hi=BigEndian2int64u(Buffer+Buffer_Offset+(size_t)Element_Offset);
+    Info.lo=BigEndian2int64u(Buffer+Buffer_Offset+(size_t)Element_Offset+8);
     Element_Offset+=16;
 }
 
@@ -1023,7 +1045,7 @@ void File__Analyze::Skip_PA()
 {
     INTEGRITY_SIZE_ATLEAST(1);
     int8u Size=Buffer[Buffer_Offset+Element_Offset];
-    int8u Pad=Size%2?0:1;
+    int8u Pad=(Size%2)?0:1;
     INTEGRITY_SIZE_ATLEAST(1+Size+Pad);
     Element_Offset+=(size_t)(1+Size+Pad);
 }

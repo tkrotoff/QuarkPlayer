@@ -31,6 +31,7 @@
 #include "ZenLib/ZtringListList.h"
 #include "ZenLib/Dir.h"
 using namespace ZenLib;
+using namespace std;
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -88,6 +89,38 @@ size_t MediaInfoList_Internal::Open(const String &File, const fileoptions_t Opti
     //Get all filenames
     ZtringList List=Dir::GetAllFileNames(File, (Options&FileOption_NoRecursive)?Dir::Nothing:Dir::Parse_SubDirs);
 
+    #ifdef MEDIAINFO_BDMV_YES
+        //if there is a BDMV folder, this is blu-ray
+        Ztring ToSearch=Ztring(1, PathSeparator)+_T("BDMV")+PathSeparator+_T("index.bdmv"); //"\BDMV\index.bdmv"
+        for (size_t File_Pos=0; File_Pos<List.size(); File_Pos++)
+        {
+            size_t BDMV_Pos=List[File_Pos].find(ToSearch);
+            if (BDMV_Pos!=string::npos && BDMV_Pos!=0 && BDMV_Pos+16==List[File_Pos].size())
+            {
+                //This is a BDMV index, parsing the directory only if index and movie objects are BOTH present
+                ToSearch=List[File_Pos];
+                ToSearch.resize(ToSearch.size()-10);
+                ToSearch+=_T("MovieObject.bdmv");  //"%CompletePath%\BDMV\MovieObject.bdmv"
+                if (List.Find(ToSearch)!=string::npos)
+                {
+                    //We want the folder instead of the files
+                    List[File_Pos].resize(List[File_Pos].size()-11); //only %CompletePath%\BDMV
+                    ToSearch=List[File_Pos];
+
+                    for (size_t Pos=0; Pos<List.size(); Pos++)
+                    {
+                        if (List[Pos].find(ToSearch)==0 && List[Pos]!=ToSearch) //Remove all subdirs of ToSearch but not ToSearch
+                        {
+                            //Removing the file in the blu-ray directory
+                            List.erase(List.begin()+Pos);
+                            Pos--;
+                        }
+                    }
+                }
+            }   
+        }
+    #endif //MEDIAINFO_BDMV_YES
+
     //Registering files
     CS.Enter();
     if (ToParse.empty())
@@ -129,18 +162,17 @@ void MediaInfoList_Internal::Entry()
         if (!ToParse.empty())
         {
             MediaInfo* MI=new MediaInfo();
+            for (std::map<String, String>::iterator Config_MediaInfo_Item=Config_MediaInfo_Items.begin(); Config_MediaInfo_Item!=Config_MediaInfo_Items.end(); Config_MediaInfo_Item++)
+                MI->Option(Config_MediaInfo_Item->first, Config_MediaInfo_Item->second);
             MI->Open(ToParse.front());
             Info.push_back(MI);
             ToParse.pop();
             ToParse_AlreadyDone++;
             State=ToParse_AlreadyDone*10000/ToParse_Total;
-            if (!IsInThread && State==10000)
-            {
-                CS.Leave();
-                break; //This is not in a thread, we must stop alone
-            }
         }
         CS.Leave();
+        if (!IsInThread && State==10000)
+            break; //This is not in a thread, we must stop alone
         Yield();
     }
 }
@@ -226,17 +258,24 @@ String MediaInfoList_Internal::Inform(size_t FilePos, size_t)
     if (FilePos==Error)
     {
         Ztring Retour;
-        unsigned int FilePos=0;
+        FilePos=0;
         ZtringListList MediaInfo_Custom_View; MediaInfo_Custom_View.Write(Option(_T("Inform_Get")));
-        Retour+=MediaInfo_Custom_View(Stream_Max+2, 1);//Page_Begin
+        bool XML=false;
+        if (MediaInfoLib::Config.Inform_Get()==_T("XML"))
+            XML=true;
+        if (XML) Retour+=_T("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Mediainfo>\n");
+        else Retour+=MediaInfo_Custom_View(Stream_Max+2, 1);//Page_Begin
         while (FilePos<Info.size())
         {
             Retour+=Inform(FilePos);
             if (FilePos<Info.size()-1)
+            {
                 Retour+=MediaInfo_Custom_View(Stream_Max+3, 1);//Page_Middle
+            }
             FilePos++;
         }
-        Retour+=MediaInfo_Custom_View(Stream_Max+4, 1);//Page_End
+        if (XML) Retour+=_T("</Mediainfo>\n");
+        else Retour+=MediaInfo_Custom_View(Stream_Max+4, 1);//Page_End
         //Retour.FindAndReplace(_T("\\n"),_T( "\n"), 0, Ztring_Recursive);
         return Retour.c_str();
     }
@@ -347,6 +386,11 @@ String MediaInfoList_Internal::Option (const String &Option, const String &Value
     else if (OptionLower==_T("thread"))
     {
         BlockMethod=1;
+        return _T("");
+    }
+    else if (OptionLower.find(_T("file_"))==0)
+    {
+        Config_MediaInfo_Items[Option]=Value;
         return _T("");
     }
     else

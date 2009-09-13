@@ -190,6 +190,85 @@ File_AvsV::File_AvsV()
 }
 
 //***************************************************************************
+// Streams management
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_AvsV::Streams_Fill()
+{
+    //Filling
+    Stream_Prepare(Stream_General);
+    Fill(Stream_General, 0, General_Format, "AVS Video");
+    Stream_Prepare(Stream_Video);
+    Fill(Stream_Video, 0, Video_Format, "AVS Video");
+    Fill(Stream_Video, 0, Video_Codec, "AVS Video");
+
+    //From sequence header
+    Fill(Stream_Video, 0, Video_Format_Profile, AvsV_profile(profile_id)+AvsV_level(level_id));
+    Fill(Stream_Video, 0, Video_Codec_Profile, AvsV_profile(profile_id)+AvsV_level(level_id));
+    Fill(Stream_Video, StreamPos_Last, Video_Width, horizontal_size);
+    Fill(Stream_Video, StreamPos_Last, Video_Height, vertical_size);
+    Fill(Stream_Video, 0, Video_FrameRate, AvsV_frame_rate[frame_rate_code]/(progressive_sequence?1:2));
+    if (aspect_ratio==0)
+        ;//Forbidden
+    else if (aspect_ratio==1)
+            Fill(Stream_Video, 0, Video_PixelAspectRatio, 1.000, 3, true);
+    else if (display_horizontal_size && display_vertical_size)
+    {
+        if (vertical_size && AvsV_aspect_ratio[aspect_ratio])
+            Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, (float)horizontal_size/vertical_size
+                                                                         *AvsV_aspect_ratio[aspect_ratio]/((float)display_horizontal_size/display_vertical_size), 3, true);
+    }
+    else if (AvsV_aspect_ratio[aspect_ratio])
+        Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, AvsV_aspect_ratio[aspect_ratio], 3, true);
+    Fill(Stream_Video, 0, Video_Colorimetry, AvsV_chroma_format[chroma_format]);
+    if (progressive_frame_Count && progressive_frame_Count!=Frame_Count)
+    {
+        //This is mixed
+    }
+    else if (Frame_Count>0) //Only if we have at least one progressive_frame definition
+    {
+        if (progressive_sequence || progressive_frame_Count==Frame_Count)
+        {
+            Fill(Stream_Video, 0, Video_ScanType, "Progressive");
+            Fill(Stream_Video, 0, Video_Interlacement, "PPF");
+        }
+        else
+        {
+            Fill(Stream_Video, 0, Video_ScanType, "Interlaced");
+            if ((Interlaced_Top && Interlaced_Bottom) || (!Interlaced_Top && !Interlaced_Bottom))
+                Fill(Stream_Video, 0, Video_Interlacement, "Interlaced");
+            else
+            {
+                Fill(Stream_Video, 0, Video_ScanOrder, Interlaced_Top?"TFF":"BFF");
+                Fill(Stream_Video, 0, Video_Interlacement, Interlaced_Top?"TFF":"BFF");
+            }
+        }
+    }
+    Fill(Stream_Video, 0, Video_BitRate_Nominal, bit_rate*8);
+
+    //From extensions
+    Fill(Stream_Video, 0, Video_Standard, AvsV_video_format[video_format]);
+
+    //Library name
+    if (!Library.empty())
+    {
+        Fill(Stream_Video, 0, Video_Encoded_Library, Library);
+        Fill(Stream_Video, 0, Video_Encoded_Library_Name, Library_Name);
+        Fill(Stream_Video, 0, Video_Encoded_Library_Version, Library_Version);
+        Fill(Stream_Video, 0, Video_Encoded_Library_Date, Library_Date);
+    }
+}
+
+//---------------------------------------------------------------------------
+void File_AvsV::Streams_Finish()
+{
+    //Purge what is not needed anymore
+    if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
+        Streams.clear();
+}
+
+//***************************************************************************
 // Buffer - Synchro
 //***************************************************************************
 
@@ -239,24 +318,8 @@ void File_AvsV::Synched_Init()
     //Default stream values
     Streams.resize(0x100);
     Streams[0xB0].Searching_Payload=true; //video_sequence_start
-    for (int8u Pos=0xB9; Pos!=0x00; Pos++)
+    for (int8u Pos=0xFF; Pos>=0xB9; Pos--)
         Streams[Pos].Searching_Payload=true; //Testing MPEG-PS
-}
-
-//***************************************************************************
-// Buffer - Global
-//***************************************************************************
-
-//---------------------------------------------------------------------------
-void File_AvsV::Read_Buffer_Finalize()
-{
-    //In case of partial data, and finalizing is forced, but with at least one frame
-    if (Retrieve(Stream_Video, 0, Video_Format).empty() && video_sequence_start_IsParsed)
-        picture_start_Fill();
-
-    //Purge what is not needed anymore
-    if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
-        Streams.clear();
 }
 
 //***************************************************************************
@@ -283,31 +346,28 @@ void File_AvsV::Header_Parse()
 //---------------------------------------------------------------------------
 bool File_AvsV::Header_Parser_QuickSearch()
 {
-    while (           Buffer_Offset+4<=Buffer_Size
-      &&   CC3(Buffer+Buffer_Offset)==0x000001)
+    while (       Buffer_Offset+4<=Buffer_Size
+      &&   Buffer[Buffer_Offset  ]==0x00
+      &&   Buffer[Buffer_Offset+1]==0x00
+      &&   Buffer[Buffer_Offset+2]==0x01)
     {
         //Getting start_code
-        int8u start_code=CC1(Buffer+Buffer_Offset+3);
+        int8u start_code=Buffer[Buffer_Offset+3];
 
-        //Searching start
+        //Searching start or timestamp
         if (Streams[start_code].Searching_Payload)
             return true;
 
-        //Getting size
+        //Synchronizing
         Buffer_Offset+=4;
-        while(Buffer_Offset+4<=Buffer_Size && CC3(Buffer+Buffer_Offset)!=0x000001)
-        {
-            Buffer_Offset+=2;
-            while(Buffer_Offset<Buffer_Size && Buffer[Buffer_Offset]!=0x00)
-                Buffer_Offset+=2;
-            if (Buffer_Offset<Buffer_Size && Buffer[Buffer_Offset-1]==0x00 || Buffer_Offset>=Buffer_Size)
-                Buffer_Offset--;
-        }
+        Synched=false;
+        if (!Synchronize_0x000001())
+            return false;
     }
 
-    if (Buffer_Offset+4<=Buffer_Size)
-        Trusted_IsNot("AVS Video, Synchronisation lost");
-    Synched=false;
+    if (Buffer_Offset+3==Buffer_Size)
+        return false; //Sync is OK, but start_code is not available
+    Trusted_IsNot("AVS Video, Synchronisation lost");
     return Synchronize();
 }
 
@@ -370,7 +430,11 @@ void File_AvsV::Data_Parse()
     }
 
     if (File_Offset+Buffer_Offset+Element_Size==File_Size && Frame_Count>0 && Count_Get(Stream_Video)==0) //Finalize frames in case of there are less than Frame_Count_Valid frames
-        picture_start_Fill();
+    {
+        //No need of more
+        Accept("AVS Video");
+        Finish("AVS Video");
+    }
 }
 
 //***************************************************************************
@@ -735,79 +799,12 @@ void File_AvsV::picture_start()
 
         //Filling only if not already done
         if (Frame_Count>=Frame_Count_Valid && Count_Get(Stream_Video)==0)
-            picture_start_Fill();
+        {
+            //No need of more
+            Accept("AVS Video");
+            Finish("AVS Video");
+        }
     FILLING_END();
-}
-
-//---------------------------------------------------------------------------
-void File_AvsV::picture_start_Fill()
-{
-    //Filling
-    Stream_Prepare(Stream_General);
-    Fill(Stream_General, 0, General_Format, "AVS Video");
-    Stream_Prepare(Stream_Video);
-    Fill(Stream_Video, 0, Video_Format, "AVS Video");
-    Fill(Stream_Video, 0, Video_Codec, "AVS Video");
-
-    //From sequence header
-    Fill(Stream_Video, 0, Video_Format_Profile, AvsV_profile(profile_id)+AvsV_level(level_id));
-    Fill(Stream_Video, 0, Video_Codec_Profile, AvsV_profile(profile_id)+AvsV_level(level_id));
-    Fill(Stream_Video, StreamPos_Last, Video_Width, horizontal_size);
-    Fill(Stream_Video, StreamPos_Last, Video_Height, vertical_size);
-    Fill(Stream_Video, 0, Video_FrameRate, AvsV_frame_rate[frame_rate_code]/(progressive_sequence?1:2));
-    if (aspect_ratio==0)
-        ;//Forbidden
-    else if (aspect_ratio==1)
-            Fill(Stream_Video, 0, Video_PixelAspectRatio, 1.000);
-    else if (display_horizontal_size && display_vertical_size)
-    {
-        if (vertical_size && AvsV_aspect_ratio[aspect_ratio])
-            Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, (float)horizontal_size/vertical_size
-                                                                         *AvsV_aspect_ratio[aspect_ratio]/((float)display_horizontal_size/display_vertical_size));
-    }
-    else if (AvsV_aspect_ratio[aspect_ratio])
-        Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, AvsV_aspect_ratio[aspect_ratio]);
-    Fill(Stream_Video, 0, Video_Colorimetry, AvsV_chroma_format[chroma_format]);
-    if (progressive_frame_Count && progressive_frame_Count!=Frame_Count)
-    {
-        //This is mixed
-    }
-    else if (Frame_Count>0) //Only if we have at least one progressive_frame definition
-    {
-        if (progressive_sequence || progressive_frame_Count==Frame_Count)
-        {
-            Fill(Stream_Video, 0, Video_ScanType, "Progressive");
-            Fill(Stream_Video, 0, Video_Interlacement, "PPF");
-        }
-        else
-        {
-            Fill(Stream_Video, 0, Video_ScanType, "Interlaced");
-            if ((Interlaced_Top && Interlaced_Bottom) || (!Interlaced_Top && !Interlaced_Bottom))
-                Fill(Stream_Video, 0, Video_Interlacement, "Interlaced");
-            else
-            {
-                Fill(Stream_Video, 0, Video_ScanOrder, Interlaced_Top?"TFF":"BFF");
-                Fill(Stream_Video, 0, Video_Interlacement, Interlaced_Top?"TFF":"BFF");
-            }
-        }
-    }
-    Fill(Stream_Video, 0, Video_BitRate_Nominal, bit_rate*8);
-
-    //From extensions
-    Fill(Stream_Video, 0, Video_Standard, AvsV_video_format[video_format]);
-
-    //Library name
-    if (!Library.empty())
-    {
-        Fill(Stream_Video, 0, Video_Encoded_Library, Library);
-        Fill(Stream_Video, 0, Video_Encoded_Library_Name, Library_Name);
-        Fill(Stream_Video, 0, Video_Encoded_Library_Version, Library_Version);
-        Fill(Stream_Video, 0, Video_Encoded_Library_Date, Library_Date);
-    }
-
-    //No need of more
-    Accept("AVS Video");
-    Finish("AVS Video");
 }
 
 //---------------------------------------------------------------------------

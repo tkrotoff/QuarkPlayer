@@ -42,13 +42,62 @@ class File_Mpeg4_Descriptors : public File__Analyze
 public :
     //In
     stream_t KindOfStream;
+    int32u   MajorBrand;
     bool     Parser_DoNotFreeIt; //If you want to keep the Parser
+    bool     DecSpecificInfoTag_DoNotFreeIt; //If you want to keep the DecSpecificInfoTag
+    bool     SLConfig_DoNotFreeIt; //If you want to keep the SLConfig
 
     //Out
     File__Analyze* Parser;
     int16u ES_ID;
+    struct decspecificinfotag
+    {
+        int8u* Buffer;
+        size_t Buffer_Size;
+        decspecificinfotag()
+        {
+            Buffer=NULL;
+            Buffer_Size=0;
+        }
+        ~decspecificinfotag()
+        {
+            delete[] Buffer; //Buffer=NULL;
+        }
+    };
+
+    struct slconfig
+    {
+        bool   useAccessUnitStartFlag;
+        bool   useAccessUnitEndFlag;
+        bool   useRandomAccessPointFlag;
+        bool   hasRandomAccessUnitsOnlyFlag;
+        bool   usePaddingFlag;
+        bool   useTimeStampsFlag;
+        bool   useIdleFlag;
+        bool   durationFlag;
+        int32u timeStampResolution;
+        int32u OCRResolution;
+        int8u  timeStampLength;
+        int8u  OCRLength;
+        int8u  AU_Length;
+        int8u  instantBitrateLength;
+        int8u  degradationPriorityLength;
+        int8u  AU_seqNumLength;
+        int8u  packetSeqNumLength;
+
+        int32u timeScale;
+        int16u accessUnitDuration;
+        int16u compositionUnitDuration;
+
+        int64u startDecodingTimeStamp;
+        int64u startCompositionTimeStamp;
+    };
+
+    decspecificinfotag* DecSpecificInfoTag;
+    slconfig* SLConfig;
 
 public :
+    //Constructor/Destructor
     File_Mpeg4_Descriptors();
     ~File_Mpeg4_Descriptors();
 

@@ -48,6 +48,10 @@ public :
     File_Dirac();
 
 private :
+    //Streams management
+    void Streams_Fill();
+    void Streams_Finish();
+
     //Buffer - File header
     bool FileHeader_Begin() {return FileHeader_Begin_0x000001();}
 
@@ -55,9 +59,6 @@ private :
     bool Synchronize();
     bool Synched_Test();
     void Synched_Init();
-    
-    //Buffer - Global
-    void Read_Buffer_Finalize ();
 
     //Buffer - Per element
     void Header_Parse();
@@ -82,7 +83,6 @@ private :
     void Intra_Non_Reference_Picture_Low();
     void Reserved();
     void picture();
-    void picture_Fill();
 
     //Streams
     struct stream

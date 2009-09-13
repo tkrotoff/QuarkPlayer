@@ -84,7 +84,7 @@ protected :
     virtual int WriteToDisk () {return -1;} //Write modified tags on disk
 
     //Arrays
-private :
+//private : //TODO:put it as private (DvDif)
     std::vector<std::vector<ZtringList> > * Stream; //pointer to others listed streams
     std::vector<std::vector<ZtringListList> > * Stream_More; //pointer to others listed streams
     bool Stream_MustBeDeleted;
@@ -102,9 +102,9 @@ protected :
 
     //Demux
     #ifndef MEDIAINFO_MINIMIZESIZE
-        void Demux (const int8u* Buffer, size_t Buffer_Size, const Ztring& StreamName, bool Final=true);
+        void Demux (const int8u* Buffer, size_t Buffer_Size, const Ztring& StreamName);
     #else //MEDIAINFO_MINIMIZESIZE
-        inline void Demux (const int8u*, size_t, const Ztring&, bool=true) {}
+        #define Demux(_A, _B, _C)
     #endif //MEDIAINFO_MINIMIZESIZE
 
 public :

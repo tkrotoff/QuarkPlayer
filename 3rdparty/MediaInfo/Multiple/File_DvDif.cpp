@@ -34,6 +34,7 @@
 #if defined(MEDIAINFO_EIA608_YES)
     #include "MediaInfo/Text/File_Eia608.h"
 #endif
+#include "MediaInfo/MediaInfo_Config_MediaInfo.h"
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -241,10 +242,14 @@ File_DvDif::File_DvDif()
     Duration=0;
     TimeCode_First=(int64u)-1;
     SCT_Old=4; //Video
+    DBN_Olds[0]=0;
     DBN_Olds[1]=1; //SubCode
     DBN_Olds[2]=2; //Vaux
     DBN_Olds[3]=8; //Audio
     DBN_Olds[4]=134; //Video
+    DBN_Olds[5]=0;
+    DBN_Olds[6]=0;
+    DBN_Olds[7]=0;
     consumer_camera_1_Parsed=false;
     consumer_camera_2_Parsed=false;
     DSF_IsValid=false;
@@ -254,16 +259,21 @@ File_DvDif::File_DvDif()
     TF3=false; //Valid by default, for direct analyze
 
     #ifdef MEDIAINFO_DVDIF_ANALYZE_YES
+    Analyze_Activated=false;
     Speed_FrameCount=0;
     Speed_FrameCount_Video_STA_Errors=0;
     Speed_FrameCount_Audio_Errors.resize(8);
     Speed_FrameCount_Timecode_Incoherency=0;
     Speed_FrameCount_Contains_NULL=0;
     Speed_Contains_NULL=0;
+    Speed_FrameCount_Arb_Incoherency=0;
+    Speed_FrameCount_Stts_Fluctuation=0;
     System_IsValid=false;
     Frame_AtLeast1DIF=false;
     QU=(int8u)-1;
     CH_IsPresent.resize(8);
+    Mpeg4_stts=NULL;
+    Mpeg4_stts_Pos=0;
     #endif //MEDIAINFO_DVDIF_ANALYZE_YES
 }
 
@@ -274,1042 +284,21 @@ File_DvDif::~File_DvDif()
         for (size_t Pos=0; Pos<CC_Parsers.size(); Pos++)
             delete CC_Parsers[Pos]; //CC_Parsers[Pos]=NULL;
     #endif
+    #if defined(MEDIAINFO_DVDIF_ANALYZE_YES)
+        delete Mpeg4_stts; //Mpeg4_stts=NULL;
+    #endif
 }
 
 //***************************************************************************
-// Format
+// Streams management
 //***************************************************************************
 
-#ifdef MEDIAINFO_DVDIF_ANALYZE_YES
 //---------------------------------------------------------------------------
-void File_DvDif::Read_Buffer_Continue()
+void File_DvDif::Streams_Finish()
 {
-    //Errors stats
-    while (Buffer_Offset+80<=Buffer_Size)
-    {
-        if ((Buffer[Buffer_Offset]&0xE0)==0x00  //SCT=0 (Header)
-         && !(Buffer[Buffer_Offset  ]==0x00
-           && Buffer[Buffer_Offset+1]==0x00
-           && Buffer[Buffer_Offset+2]==0x00))
-        {
-            Frame_AtLeast1DIF=true;
-
-            if (!DSF_IsValid)
-            {
-                DSF=(Buffer[Buffer_Offset+3]&0x80)?true:false;
-                DSF_IsValid=true;
-                Dseq_Old=DSF?11:9;
-            }
-        }
-
-        //Quick search depends of SCT
-        switch(Buffer[Buffer_Offset]&0xE0)
-        {
-            case 0x20 : //SCT=1 (Subcode)
-                {
-                    Frame_AtLeast1DIF=true;
-
-                    for (size_t Pos=3*8; Pos<40; Pos+=2*8)
-                    {
-                        int8u PackType=Buffer[Buffer_Offset+3+Pos+3];
-                        //timecode
-                        if (PackType==0x13) //Pack type=0x13 (timecode)
-                        {
-                            bool  DropFrame                 =( Buffer[Buffer_Offset+3+Pos+3+1]&0x40)?true:false;
-                            int8u Frames                    =((Buffer[Buffer_Offset+3+Pos+3+1]&0x30)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+3+1]&0x0F)   )   ;
-                            int8u Seconds                   =((Buffer[Buffer_Offset+3+Pos+3+2]&0x70)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+3+2]&0x0F))      ;
-                            int8u Minutes                   =((Buffer[Buffer_Offset+3+Pos+3+3]&0x70)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+3+3]&0x0F)   )   ;
-                            int8u Hours                     =((Buffer[Buffer_Offset+3+Pos+3+4]&0x30)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+3+4]&0x0F)   )   ;
-
-                            if (Frames ==0x00
-                             && Seconds==0x00
-                             && Minutes==0x00
-                             && Hours  ==0x00
-                             && Buffer[Buffer_Offset+3+Pos+3+1]==0x00
-                             && Buffer[Buffer_Offset+3+Pos+3+2]==0x00
-                             && Buffer[Buffer_Offset+3+Pos+3+3]==0x00
-                             && Buffer[Buffer_Offset+3+Pos+3+4]==0x00
-                             )
-                            {
-                                Frames =45;
-                                Seconds=85;
-                                Minutes=85;
-                                Hours  =45;
-                            }
-                            if (Frames !=45
-                             && Seconds!=85
-                             && Minutes!=85
-                             && Hours  !=45) //If not disabled
-                            {
-                                if (Speed_TimeCode_Current.IsValid
-                                 && (Speed_TimeCode_Current.DropFrame !=DropFrame
-                                  || Speed_TimeCode_Current.Frames    !=Frames
-                                  || Speed_TimeCode_Current.Seconds   !=Seconds
-                                  || Speed_TimeCode_Current.Minutes   !=Minutes
-                                  || Speed_TimeCode_Current.Hours     !=Hours))
-                                {
-                                    Speed_TimeCode_Current.MultipleValues=true; //There are 2+ different values
-                                }
-                                else if (!Speed_TimeCode_Current.IsValid && !Speed_TimeCode_Current.MultipleValues)
-                                {
-                                    Speed_TimeCode_Current.DropFrame=DropFrame;
-                                    Speed_TimeCode_Current.Frames   =Frames;
-                                    Speed_TimeCode_Current.Seconds  =Seconds;
-                                    Speed_TimeCode_Current.Minutes  =Minutes;
-                                    Speed_TimeCode_Current.Hours    =Hours;
-                                    Speed_TimeCode_Current.IsValid  =true;
-                                }
-                            }
-                        }
-
-                        //video_recdate
-                        if (PackType==0x62) //Pack type=0x62 (video_rectime)
-                        {
-                            int8u Days                      =((Buffer[Buffer_Offset+3+Pos+2]&0x30)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+2]&0x0F)   )   ;
-                            int8u Months                    =((Buffer[Buffer_Offset+3+Pos+3]&0x10)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+3]&0x0F)   )   ;
-                            int8u Years                     =((Buffer[Buffer_Offset+3+Pos+4]&0xF0)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+4]&0x0F)   )   ;
-                            if (Months<=12
-                             && Days  <=31)
-                            {
-                                if (Speed_RecDate_Current.IsValid
-                                 && Speed_RecDate_Current.Days      !=Days
-                                 && Speed_RecDate_Current.Months     !=Months
-                                 && Speed_RecDate_Current.Years     !=Years)
-                                {
-                                    Speed_RecDate_Current.MultipleValues=true; //There are 2+ different values
-                                }
-                                else if (!Speed_RecTime_Current.MultipleValues)
-                                {
-                                    Speed_RecDate_Current.Days     =Days;
-                                    Speed_RecDate_Current.Months   =Months;
-                                    Speed_RecDate_Current.Years    =Years;
-                                    Speed_RecDate_Current.IsValid  =true;
-                                }
-                            }
-                        }
-
-                        //video_rectime
-                        if (PackType==0x63) //Pack type=0x63 (video_rectime)
-                        {
-                            int8u Frames                    =((Buffer[Buffer_Offset+3+Pos+1]&0x30)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+1]&0x0F)   )   ;
-                            int8u Seconds                   =((Buffer[Buffer_Offset+3+Pos+2]&0x70)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+2]&0x0F))      ;
-                            int8u Minutes                   =((Buffer[Buffer_Offset+3+Pos+3]&0x70)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+3]&0x0F)   )   ;
-                            int8u Hours                     =((Buffer[Buffer_Offset+3+Pos+4]&0x30)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+4]&0x0F)   )   ;
-                            if (Seconds<61
-                             && Minutes<60
-                             && Hours  <24) //If not disabled
-                            {
-                                if (Speed_RecTime_Current.IsValid
-                                 && Speed_RecTime_Current.Frames    !=Frames
-                                 && Speed_RecTime_Current.Seconds   !=Seconds
-                                 && Speed_RecTime_Current.Minutes   !=Minutes
-                                 && Speed_RecTime_Current.Hours     !=Hours)
-                                {
-                                    Speed_RecTime_Current.MultipleValues=true; //There are 2+ different values
-                                }
-                                else if (!Speed_RecTime_Current.MultipleValues)
-                                {
-                                    Speed_RecTime_Current.Frames   =Frames;
-                                    Speed_RecTime_Current.Seconds  =Seconds;
-                                    Speed_RecTime_Current.Minutes  =Minutes;
-                                    Speed_RecTime_Current.Hours    =Hours;
-                                    Speed_RecTime_Current.IsValid  =true;
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-
-            case 0x40 : //SCT=2 (VAUX)
-                {
-                    Frame_AtLeast1DIF=true;
-
-                    for (size_t Pos=0; Pos<15*5; Pos+=5)
-                    {
-                        int8u PackType=Buffer[Buffer_Offset+3+Pos];
-                        //video_source
-                        if (PackType==0x60 && !System_IsValid) //Pack type=0x60 (video_source)
-                        {
-                            System=(Buffer[Buffer_Offset+3+Pos+3]&0x20)==0x20?true:false;
-                            System_IsValid=true;
-                        }
-
-                        //video_recdate
-                        if (PackType==0x62) //Pack type=0x62 (video_rectime)
-                        {
-                            int8u Days                      =((Buffer[Buffer_Offset+3+Pos+2]&0x30)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+2]&0x0F)   )   ;
-                            int8u Months                    =((Buffer[Buffer_Offset+3+Pos+3]&0x10)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+3]&0x0F)   )   ;
-                            int8u Years                     =((Buffer[Buffer_Offset+3+Pos+4]&0xF0)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+4]&0x0F)   )   ;
-                            if (Months<=12
-                             && Days  <=31)
-                            {
-                                if (Speed_RecDate_Current.IsValid
-                                 && Speed_RecDate_Current.Days      !=Days
-                                 && Speed_RecDate_Current.Months     !=Months
-                                 && Speed_RecDate_Current.Years     !=Years)
-                                {
-                                    Speed_RecDate_Current.MultipleValues=true; //There are 2+ different values
-                                }
-                                else if (!Speed_RecTime_Current.MultipleValues)
-                                {
-                                    Speed_RecDate_Current.Days     =Days;
-                                    Speed_RecDate_Current.Months   =Months;
-                                    Speed_RecDate_Current.Years    =Years;
-                                    Speed_RecDate_Current.IsValid  =true;
-                                }
-                            }
-                        }
-
-                        //video_rectime
-                        if (PackType==0x63) //Pack type=0x63 (video_rectime)
-                        {
-                            int8u Frames                    =((Buffer[Buffer_Offset+3+Pos+1]&0x30)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+1]&0x0F)   )   ;
-                            int8u Seconds                   =((Buffer[Buffer_Offset+3+Pos+2]&0x70)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+2]&0x0F))      ;
-                            int8u Minutes                   =((Buffer[Buffer_Offset+3+Pos+3]&0x70)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+3]&0x0F)   )   ;
-                            int8u Hours                     =((Buffer[Buffer_Offset+3+Pos+4]&0x30)>>4)*10
-                                                           + ((Buffer[Buffer_Offset+3+Pos+4]&0x0F)   )   ;
-                            if (Seconds!=85
-                             && Minutes!=85
-                             && Hours  !=45) //If not disabled
-                            {
-                                if (Speed_RecTime_Current.IsValid
-                                 && Speed_RecTime_Current.Frames    !=Frames
-                                 && Speed_RecTime_Current.Seconds   !=Seconds
-                                 && Speed_RecTime_Current.Minutes   !=Minutes
-                                 && Speed_RecTime_Current.Hours     !=Hours)
-                                {
-                                    Speed_RecTime_Current.MultipleValues=true; //There are 2+ different values
-                                }
-                                else if (!Speed_RecTime_Current.MultipleValues)
-                                {
-                                    Speed_RecTime_Current.Frames   =Frames;
-                                    Speed_RecTime_Current.Seconds  =Seconds;
-                                    Speed_RecTime_Current.Minutes  =Minutes;
-                                    Speed_RecTime_Current.Hours    =Hours;
-                                    Speed_RecTime_Current.IsValid  =true;
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-
-            case 0x60 : //SCT=3 (Audio)
-                {
-                    //audio_source
-                    if (Buffer[Buffer_Offset+3+0]==0x50) //audio_source
-                    {
-                              QU_FSC    =(Buffer[Buffer_Offset+1  ]&0x08)?true:false; //FSC
-                              QU_System =(Buffer[Buffer_Offset+3+3]&0x20)?true:false; //50/60
-
-                        int8u AUDIO_MODE=Buffer[Buffer_Offset+3+2]&0x0F;
-                              QU        =Buffer[Buffer_Offset+3+4]&0x07;
-
-                        size_t Channel=(QU_FSC?2:0)+((Buffer[Buffer_Offset+1]>>4)>=(QU_System?6:5)?1:0); //If Dseq>=5 or 6
-                        if (audio_source_IsPresent.empty())
-                            audio_source_IsPresent.resize(8);
-                        audio_source_IsPresent[Channel]=true;
-
-                        if (AUDIO_MODE==0x0F)
-                        {
-                            if (Audio_Invalids.empty())
-                            {
-                                Audio_Invalids.resize(8);
-                                for (size_t Pos=0; Pos<8; Pos++)
-                                    Audio_Invalids[Pos].resize(16);
-                            }
-                            Audio_Invalids[Channel][Buffer[Buffer_Offset+1]>>4]+=9;
-                        }
-                    }
-
-                    //audio_source_control
-                    if (Buffer[Buffer_Offset+3+0]==0x51) //audio_source_control
-                    {
-                        REC_ST =(Buffer[Buffer_Offset+3+2]&0x80)?true:false;
-                        REC_END=(Buffer[Buffer_Offset+3+2]&0x40)?true:false;
-                        REC_IsValid=true;
-                    }
-
-                    //Audio errors
-                    if (Buffer[Buffer_Offset+8]==0x80)
-                    {
-                        if (QU==0 && Buffer[Buffer_Offset+ 9]==0x00  //16-bit 0x8000
-                         || QU==1 && Buffer[Buffer_Offset+10]==0x00  //12-bit 0x800
-                         || QU==(int8u)-1 && (Buffer[Buffer_Offset+ 9]==0x00 && Buffer[Buffer_Offset+10]==0x80 && Buffer[Buffer_Offset+11]==0x00
-                                           || Buffer[Buffer_Offset+ 9]==0x80 && Buffer[Buffer_Offset+10]==0x00)) //In case of QU is not already detected
-                        {
-                            if (Audio_Errors.empty())
-                                Audio_Errors.resize(16);
-                            Audio_Errors[Buffer[Buffer_Offset+1]>>4]++;
-                        }
-                    }
-                }
-                break;
-
-            case 0x80 : //SCT=4 (Video)
-                {
-                    if (Buffer[Buffer_Offset+3]&0xF0) //STA present
-                    {
-                        if (Video_STA_Errors.empty())
-                            Video_STA_Errors.resize(16);
-                        Video_STA_Errors[Buffer[Buffer_Offset+3]>>4]++;
-                    }
-                }
-                break;
-        }
-
-        //Errors stats
-        if (Frame_AtLeast1DIF &&
-            (Buffer[Buffer_Offset  ]&0xE0)==0x00  //SCT=0 (Header)
-         && (Buffer[Buffer_Offset+1]&0xF0)==0x00  //Dseq=0
-         && (Buffer[Buffer_Offset+1]&0x08)==0x00) //FSC=0
-            Errors_Stats_Update();
-
-        //Coherency test
-        if (Buffer[Buffer_Offset  ]==0x00
-         && Buffer[Buffer_Offset+1]==0x00
-         && Buffer[Buffer_Offset+2]==0x00)
-           Speed_Contains_NULL++;
-
-        Buffer_Offset+=80;
-    }
-
-    if (!IsAccepted)
-        File__Analyze::Buffer_Offset=0;
-}
-
-void File_DvDif::Errors_Stats_Update()
-{
-    bool Errors_AreDetected=false;
-    bool Infos_AreDetected=false;
-    Ztring Errors_Stats_Line;
-    if (Speed_FrameCount) //We must have at least one complete frame
-    {
-        //Framerate computing
-        float64 FrameRate=29.970;
-        if (System_IsValid)
-            FrameRate=System?25.000:29.970;
-        else if (DSF_IsValid)
-            FrameRate=DSF?25.000:29.970;
-        else
-            FrameRate=29.970;
-        if (FrameRate==29.970 && Speed_TimeCode_Current.IsValid && !Speed_TimeCode_Current.DropFrame)
-            FrameRate=30.000;
-
-        //Frame number
-        Ztring Frame_Number_Padded=Ztring::ToZtring(Speed_FrameCount);
-        if (Frame_Number_Padded.size()<8)
-            Frame_Number_Padded.insert(0, 8-Frame_Number_Padded.size(), _T(' '));
-        Errors_Stats_Line+=Frame_Number_Padded;
-        Errors_Stats_Line+=_T('\t');
-
-        //Time Offset
-        float64 Time_Offset=(Speed_FrameCount-1)*1000/FrameRate;
-        Errors_Stats_Line+=Ztring().Duration_From_Milliseconds((int64u)Time_Offset);
-        Errors_Stats_Line+=_T('\t');
-
-        //TimeCode
-        if (Speed_TimeCode_Current.IsValid)
-        {
-            Speed_TimeCodeZ_Last=Speed_TimeCodeZ_Current;
-            Speed_TimeCodeZ_Current.clear();
-            Speed_TimeCodeZ_Current.reserve(12);
-            Speed_TimeCodeZ_Current.reserve(11);
-            Speed_TimeCodeZ_Current+=_T('0')+Speed_TimeCode_Current.Hours  /10;
-            Speed_TimeCodeZ_Current+=_T('0')+Speed_TimeCode_Current.Hours  %10;
-            Speed_TimeCodeZ_Current+=_T(':');
-            Speed_TimeCodeZ_Current+=_T('0')+Speed_TimeCode_Current.Minutes/10;
-            Speed_TimeCodeZ_Current+=_T('0')+Speed_TimeCode_Current.Minutes%10;
-            Speed_TimeCodeZ_Current+=_T(':');
-            Speed_TimeCodeZ_Current+=_T('0')+Speed_TimeCode_Current.Seconds/10;
-            Speed_TimeCodeZ_Current+=_T('0')+Speed_TimeCode_Current.Seconds%10;
-            Speed_TimeCodeZ_Current+=(!DSF && Speed_TimeCode_Current.DropFrame)?_T(';'):_T(':');
-            Speed_TimeCodeZ_Current+=_T('0')+Speed_TimeCode_Current.Frames /10;
-            Speed_TimeCodeZ_Current+=_T('0')+Speed_TimeCode_Current.Frames %10;
-            Errors_Stats_Line+=Speed_TimeCodeZ_Current;
-            if (Speed_TimeCodeZ.empty())
-            {
-                Speed_TimeCodeZ.resize(1);
-                Speed_TimeCodeZ[0].First.FramePos=Speed_FrameCount;
-                Speed_TimeCodeZ[0].First.TimeCode=Speed_TimeCodeZ_Current;
-            }
-        }
-        else
-            Errors_Stats_Line+=_T("XX:XX:XX:XX");
-        Errors_Stats_Line+=_T('\t');
-
-        //Order coherency
-        if (Speed_TimeCode_Current.IsValid && Speed_TimeCode_Last.IsValid
-         && Speed_TimeCode_Current.Frames ==Speed_TimeCode_Last.Frames
-         && Speed_TimeCode_Current.Seconds==Speed_TimeCode_Last.Seconds
-         && Speed_TimeCode_Current.Minutes==Speed_TimeCode_Last.Minutes
-         && Speed_TimeCode_Current.Hours  ==Speed_TimeCode_Last.Hours)
-        {
-            Errors_Stats_Line+=_T('R');
-            if (Speed_TimeCode_Current.Hours
-             || Speed_TimeCode_Current.Seconds
-             || Speed_TimeCode_Current.Minutes
-             || Speed_TimeCode_Current.Hours)
-                Errors_AreDetected=true;
-        }
-        else if (Speed_TimeCode_Current.IsValid && Speed_TimeCode_Current_Theory.IsValid
-              && (   Speed_TimeCode_Current.Frames !=Speed_TimeCode_Current_Theory.Frames
-                  || Speed_TimeCode_Current.Seconds!=Speed_TimeCode_Current_Theory.Seconds
-                  || Speed_TimeCode_Current.Minutes!=Speed_TimeCode_Current_Theory.Minutes
-                  || Speed_TimeCode_Current.Hours  !=Speed_TimeCode_Current_Theory.Hours))
-        {
-            size_t Speed_TimeCodeZ_Pos=Speed_TimeCodeZ.size();
-            Speed_TimeCodeZ.resize(Speed_TimeCodeZ_Pos+1);
-            Speed_TimeCodeZ[Speed_TimeCodeZ_Pos].First.FramePos=Speed_FrameCount-1;
-            Speed_TimeCodeZ[Speed_TimeCodeZ_Pos].First.TimeCode=Speed_TimeCodeZ_Current;
-            Speed_TimeCodeZ[Speed_TimeCodeZ_Pos-1].Last.FramePos=Speed_FrameCount-1;
-            Speed_TimeCodeZ[Speed_TimeCodeZ_Pos-1].Last.TimeCode=Speed_TimeCodeZ_Last;
-
-            Errors_Stats_Line+=_T('N');
-            Speed_TimeCode_Current_Theory=Speed_TimeCode_Current;
-            Errors_AreDetected=true;
-        }
-        else
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-
-        //RecDate/RecTime
-        if (Speed_RecDate_Current.IsValid)
-        {
-            Speed_RecDateZ_Last=Speed_RecDateZ_Current;
-            Speed_RecDateZ_Current.clear();
-            Speed_RecDateZ_Current.reserve(10);
-            Speed_RecDateZ_Current+=Speed_RecDate_Current.Years<75?_T("20"):_T("19");
-            Speed_RecDateZ_Current+=_T('0')+Speed_RecDate_Current.Years  /10;
-            Speed_RecDateZ_Current+=_T('0')+Speed_RecDate_Current.Years  %10;
-            Speed_RecDateZ_Current+=_T('-');
-            Speed_RecDateZ_Current+=_T('0')+Speed_RecDate_Current.Months /10;
-            Speed_RecDateZ_Current+=_T('0')+Speed_RecDate_Current.Months %10;
-            Speed_RecDateZ_Current+=_T('-');
-            Speed_RecDateZ_Current+=_T('0')+Speed_RecDate_Current.Days   /10;
-            Speed_RecDateZ_Current+=_T('0')+Speed_RecDate_Current.Days   %10;
-            Errors_Stats_Line+=Speed_RecDateZ_Current;
-            if (Speed_RecZ.empty())
-            {
-                Speed_RecZ.resize(1);
-                Speed_RecZ[0].First.FramePos=Speed_FrameCount;
-                Speed_RecZ[0].First.Date=Speed_RecDateZ_Current;
-            }
-        }
-        else
-            Errors_Stats_Line+=_T("XXXX-XX-XX");
-        Errors_Stats_Line+=_T(" ");
-        if (Speed_RecTime_Current.IsValid)
-        {
-            Speed_RecTimeZ_Last=Speed_RecTimeZ_Current;
-            Speed_RecTimeZ_Current.clear();
-            Speed_RecTimeZ_Current.reserve(12);
-            Speed_RecTimeZ_Current+=_T('0')+Speed_RecTime_Current.Hours  /10;
-            Speed_RecTimeZ_Current+=_T('0')+Speed_RecTime_Current.Hours  %10;
-            Speed_RecTimeZ_Current+=_T(':');
-            Speed_RecTimeZ_Current+=_T('0')+Speed_RecTime_Current.Minutes/10;
-            Speed_RecTimeZ_Current+=_T('0')+Speed_RecTime_Current.Minutes%10;
-            Speed_RecTimeZ_Current+=_T(':');
-            Speed_RecTimeZ_Current+=_T('0')+Speed_RecTime_Current.Seconds/10;
-            Speed_RecTimeZ_Current+=_T('0')+Speed_RecTime_Current.Seconds%10;
-            if (Speed_RecTime_Current.Frames!=45)
-            {
-                int32u Milliseconds=Speed_RecTime_Current.Frames*(System?40:33);
-                Speed_RecTimeZ_Current+=_T('.');
-                Speed_RecTimeZ_Current+=_T('0')+(Char)(Milliseconds/100);
-                Speed_RecTimeZ_Current+=_T('0')+(Char)((Milliseconds%100)/10);
-                Speed_RecTimeZ_Current+=_T('0')+(Char)(Milliseconds%10);
-            }
-            else
-                Speed_RecTimeZ_Current+=_T("    ");
-            Errors_Stats_Line+=Speed_RecTimeZ_Current;
-            if (Speed_RecZ.empty() || Speed_RecZ[0].First.FramePos==Speed_FrameCount) //Empty or the same frame as RecDate
-            {
-                if (Speed_RecZ.empty())
-                    Speed_RecZ.resize(1);
-                Speed_RecZ[0].First.FramePos=Speed_FrameCount;
-                Speed_RecZ[0].First.Time=Speed_RecTimeZ_Current;
-            }
-        }
-        else
-            Errors_Stats_Line+=_T("XX:XX:XX.XXX");
-        Errors_Stats_Line+=_T('\t');
-
-        //RecDate/RecTime coherency, Rec start/end
-        if (/*(!REC_IsValid || !REC_ST || !REC_END) &&*/
-            Speed_RecTime_Current.IsValid && Speed_RecTime_Current_Theory.IsValid
-         && !(   Speed_RecTime_Current.Seconds==Speed_RecTime_Current_Theory.Seconds
-              && Speed_RecTime_Current.Minutes==Speed_RecTime_Current_Theory.Minutes
-              && Speed_RecTime_Current.Hours  ==Speed_RecTime_Current_Theory.Hours)
-         && !(   Speed_RecTime_Current.Seconds==Speed_RecTime_Current_Theory2.Seconds
-              && Speed_RecTime_Current.Minutes==Speed_RecTime_Current_Theory2.Minutes
-              && Speed_RecTime_Current.Hours  ==Speed_RecTime_Current_Theory2.Hours))
-        {
-            size_t Speed_RecZ_Pos=Speed_RecZ.size();
-            Speed_RecZ.resize(Speed_RecZ_Pos+1);
-            Speed_RecZ[Speed_RecZ_Pos].First.FramePos=Speed_FrameCount-1;
-            Speed_RecZ[Speed_RecZ_Pos].First.Date=Speed_RecDateZ_Current;
-            Speed_RecZ[Speed_RecZ_Pos].First.Time=Speed_RecTimeZ_Current;
-            Speed_RecZ[Speed_RecZ_Pos-1].Last.FramePos=Speed_FrameCount-1;
-            Speed_RecZ[Speed_RecZ_Pos-1].Last.Date=Speed_RecDateZ_Last;
-            Speed_RecZ[Speed_RecZ_Pos-1].Last.Time=Speed_RecTimeZ_Last;
-
-            Errors_Stats_Line+=_T('N');
-            if (!REC_IsValid || REC_ST)
-                Errors_AreDetected=true; //If there is a start, this is not an error
-        }
-        else
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-
-        if (REC_IsValid && !REC_ST)
-        {
-            Errors_Stats_Line+=_T('S');
-            Infos_AreDetected=true;
-        }
-        else
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-
-        if (REC_IsValid && !REC_END)
-        {
-            Errors_Stats_Line+=_T('E');
-            Infos_AreDetected=true;
-        }
-        else
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-
-        //Channels
-        for (size_t Channel=0; Channel<8; Channel++)
-        {
-            if (!audio_source_IsPresent.empty() && audio_source_IsPresent[Channel])
-            {
-                if (Channel<4 && (!Audio_Invalids.empty() || !Audio_Errors.empty()))
-                {
-                    size_t Audio_Errors_Count=0;
-                    size_t Pos_Begin=(Channel%2)*(QU_System?6:5);
-                    size_t Pos_End=(Channel%2+1)*(QU_System?6:5);
-                    if (Channel>=2 && !QU_FSC
-                     || Channel< 2 &&  QU_FSC)
-                        Pos_End=Pos_Begin; //Not here
-                    if (!Audio_Invalids.empty())
-                        for (size_t Pos=Pos_Begin; Pos<Pos_End; Pos++)
-                            if (Audio_Invalids[Channel][Pos])
-                                Audio_Errors_Count+=Audio_Invalids[Channel][Pos];
-                    if (!Audio_Errors.empty())
-                        for (size_t Pos=Pos_Begin; Pos<Pos_End; Pos++)
-                            if (Audio_Errors[Pos])
-                                Audio_Errors_Count+=Audio_Errors[Pos];
-                    if (Audio_Errors_Count>=(size_t)((QU_System?6:5)*9))
-                        audio_source_IsPresent[Channel]=false;
-                    else
-                        CH_IsPresent[Channel]=true;
-                }
-            }
-        }
-
-        //Error 1: Video errors
-        Ztring Errors_Stats_Line_Details;
-        if (!Video_STA_Errors.empty())
-        {
-            Errors_Stats_Line+=_T('1');
-
-            size_t Video_STA_Errors_Count=0;
-            Ztring Video_STA_Errors_Details;
-            for (size_t Pos=0; Pos<16; Pos++)
-            {
-                if (Video_STA_Errors[Pos])
-                {
-                    Video_STA_Errors_Count+=Video_STA_Errors[Pos];
-                    Ztring Video_STA_Errors_Count_Padded=Ztring::ToZtring(Video_STA_Errors[Pos]);
-                    if (Video_STA_Errors_Count_Padded.size()<8)
-                        Video_STA_Errors_Count_Padded.insert(0, 8-Video_STA_Errors_Count_Padded.size(), _T(' '));
-                    Video_STA_Errors_Details+=Video_STA_Errors_Count_Padded;
-                    Video_STA_Errors_Details+=_T(" \"");
-                    Video_STA_Errors_Details+=Ztring::ToZtring(Pos, 16);
-                    Video_STA_Errors_Details+=_T("\" errors, ");
-                    if (Video_STA_Errors_Total.empty())
-                        Video_STA_Errors_Total.resize(16);
-                    Video_STA_Errors_Total[Pos]+=Video_STA_Errors[Pos];
-                }
-            }
-            if (Video_STA_Errors_Details.size()>2)
-            {
-                Ztring Video_STA_Errors_Count_Padded=Ztring::ToZtring(Video_STA_Errors_Count);
-                if (Video_STA_Errors_Count_Padded.size()<8)
-                    Video_STA_Errors_Count_Padded.insert(0, 8-Video_STA_Errors_Count_Padded.size(), _T(' '));
-                Errors_Stats_Line_Details+=Video_STA_Errors_Count_Padded+_T(" STA errors");
-                Video_STA_Errors_Details.resize(Video_STA_Errors_Details.size()-2);
-                Errors_Stats_Line_Details+=_T(" (")+Video_STA_Errors_Details+_T(")");
-                Speed_FrameCount_Video_STA_Errors++;
-                Errors_AreDetected=true;
-            }
-        }
-        else
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-        Errors_Stats_Line_Details+=_T('\t');
-
-        //Error 2: Audio errors
-        if (QU!=(int8u)-1 && (!Audio_Invalids.empty() || !Audio_Errors.empty()))
-        {
-            if (Audio_Errors.empty())
-                Audio_Errors.resize(16);
-            bool ErrorsAreAlreadyDetected=false;
-            for (size_t Channel=0; Channel<4; Channel++)
-            {
-                size_t Audio_Errors_Count=0;
-                Ztring Audio_Errors_Details;
-                size_t Pos_Begin=(Channel%2)*(QU_System?6:5);
-                size_t Pos_End=(Channel%2+1)*(QU_System?6:5);
-                if (Channel>=2 && !QU_FSC
-                 || Channel< 2 &&  QU_FSC
-                 || !CH_IsPresent[Channel])
-                    Pos_End=Pos_Begin; //Not here
-                for (size_t Pos=Pos_Begin; Pos<Pos_End; Pos++)
-                {
-                    if (Audio_Errors[Pos])
-                    {
-                        Audio_Errors_Count+=Audio_Errors[Pos];
-                        Ztring Audio_Errors_Count_Padded=Ztring::ToZtring(Audio_Errors[Pos]);
-                        if (Audio_Errors_Count_Padded.size()<2)
-                            Audio_Errors_Count_Padded.insert(0, 2-Audio_Errors_Count_Padded.size(), _T(' '));
-                        Audio_Errors_Details+=Audio_Errors_Count_Padded;
-                        Audio_Errors_Details+=_T(" Dseq=");
-                        Audio_Errors_Details+=Ztring::ToZtring(Pos, 16);
-                        Audio_Errors_Details+=_T(", ");
-                        if (Audio_Errors_Total.empty())
-                        {
-                            Audio_Errors_Total.resize(8);
-                            for (size_t Pos=0; Pos<8; Pos++)
-                                Audio_Errors_Total[Pos].resize(16);
-                        }
-                        Audio_Errors_Total[Channel][Pos]+=Audio_Errors[Pos];
-                    }
-                }
-                if (Audio_Errors_Count)
-                {
-                    if (!ErrorsAreAlreadyDetected)
-                        Errors_Stats_Line+=_T('2');
-
-                    Ztring Audio_Errors_Count_Padded=Ztring::ToZtring(Audio_Errors_Count);
-                    if (Audio_Errors_Count_Padded.size()<2)
-                        Audio_Errors_Count_Padded.insert(0, 2-Audio_Errors_Count_Padded.size(), _T(' '));
-                    if (ErrorsAreAlreadyDetected)
-                        Errors_Stats_Line_Details+=_T(", ");
-                    if (Audio_Errors_Count<(size_t)((QU_System?6:5)*9))
-                    {
-                        Errors_Stats_Line_Details+=_T("CH")+Ztring::ToZtring(Channel+1)+_T(": ")+Audio_Errors_Count_Padded+_T(" audio errors");
-                        Audio_Errors_Details.resize(Audio_Errors_Details.size()-2);
-                        Errors_Stats_Line_Details+=_T(" (")+Audio_Errors_Details+_T(")");
-                    }
-                    else
-                        Errors_Stats_Line_Details+=_T("CH")+Ztring::ToZtring(Channel+1)+_T(": no valid DIF");
-
-                    Speed_FrameCount_Audio_Errors[Channel]++;
-                    ErrorsAreAlreadyDetected=true;
-                    Errors_AreDetected=true;
-                }
-            }
-            if (!ErrorsAreAlreadyDetected)
-                Errors_Stats_Line+=_T(' ');
-        }
-        else
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-        Errors_Stats_Line_Details+=_T('\t');
-
-        //Error 3: Timecode incoherency
-        if (Speed_TimeCode_Current.MultipleValues)
-        {
-            Errors_Stats_Line+=_T('3');
-            Errors_Stats_Line_Details+=_T("(Timecode incoherency, first detected value is used)");
-            Speed_FrameCount_Timecode_Incoherency++;
-            Errors_AreDetected=true;
-        }
-        else
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-        Errors_Stats_Line_Details+=_T('\t');
-
-        //Error 4: DIF order incoherency
-        if (Speed_Contains_NULL)
-        {
-            Errors_Stats_Line+=_T('4');
-            Errors_Stats_Line_Details+=_T("\t(DIF incoherency, ")+Ztring::ToZtring(Speed_Contains_NULL)+_T(" NULL DIFs)");
-            Speed_FrameCount_Contains_NULL++;
-            Errors_AreDetected=true;
-        }
-        else
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-        Errors_Stats_Line_Details+=_T('\t');
-
-        //Error 5:
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-        Errors_Stats_Line_Details+=_T('\t');
-
-        //Error 6:
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-        Errors_Stats_Line_Details+=_T('\t');
-
-        //Error 7:
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-        Errors_Stats_Line_Details+=_T('\t');
-
-        //Error 8:
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-        Errors_Stats_Line_Details+=_T('\t');
-
-        //Error 9:
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-        Errors_Stats_Line_Details+=_T('\t');
-
-        //Error 0:
-            Errors_Stats_Line+=_T(' ');
-        Errors_Stats_Line+=_T('\t');
-        Errors_Stats_Line_Details+=_T('\t');
-
-        //Filling the main text if needed
-        if (Speed_FrameCount==1
-         || IsFinished
-         ||                       MediaInfoLib::Config.Verbosity_Get()>=(float32)1.0
-         || Infos_AreDetected  && MediaInfoLib::Config.Verbosity_Get()>=(float32)0.5
-         || Errors_AreDetected && MediaInfoLib::Config.Verbosity_Get()>=(float32)0.2)
-        {
-            Errors_Stats+=Errors_Stats_Line;
-            Errors_Stats+=Errors_Stats_Line_Details;
-            Errors_Stats+=_T("&");
-        }
-    }
-
-    //Speed_TimeCode_Current
-    if (!Speed_TimeCode_Current_Theory.IsValid)
-        Speed_TimeCode_Current_Theory=Speed_TimeCode_Current;
-    if (Speed_TimeCode_Current_Theory.IsValid)
-    {
-        int8u Frames_Max;
-        if (System_IsValid)
-            Frames_Max=System?25:30;
-        else if (DSF_IsValid)
-            Frames_Max=DSF?25:30;
-        else
-            Frames_Max=30;
-
-        Speed_TimeCode_Current_Theory.Frames++;
-        if (Speed_TimeCode_Current_Theory.Frames>=Frames_Max)
-        {
-            Speed_TimeCode_Current_Theory.Seconds++;
-            Speed_TimeCode_Current_Theory.Frames=0;
-            if (Speed_TimeCode_Current_Theory.Seconds>=60)
-            {
-                Speed_TimeCode_Current_Theory.Seconds=0;
-                Speed_TimeCode_Current_Theory.Minutes++;
-
-                if (Speed_TimeCode_Current_Theory.DropFrame && Speed_TimeCode_Current_Theory.Minutes%10)
-                    Speed_TimeCode_Current_Theory.Frames=2; //frames 0 and 1 are dropped for every minutes except 00 10 20 30 40 50
-
-                if (Speed_TimeCode_Current_Theory.Seconds>=60)
-                {
-                    Speed_TimeCode_Current_Theory.Minutes=0;
-                    Speed_TimeCode_Current_Theory.Hours++;
-                    if (Speed_TimeCode_Current_Theory.Hours>=24)
-                    {
-                        Speed_TimeCode_Current_Theory.Hours=0;
-                    }
-                }
-            }
-        }
-    }
-
-    //Speed_RecTime_Current_Theory
-    Speed_RecTime_Current_Theory=Speed_RecTime_Current;
-    Speed_RecTime_Current_Theory2=Speed_RecTime_Current; //Don't change it
-    if (Speed_RecTime_Current_Theory.IsValid)
-    {
-        Speed_RecTime_Current_Theory.Seconds++;
-        if (Speed_RecTime_Current_Theory.Seconds>=60)
-        {
-            Speed_RecTime_Current_Theory.Seconds=0;
-            Speed_RecTime_Current_Theory.Minutes++;
-            if (Speed_RecTime_Current_Theory.Seconds>=60)
-            {
-                Speed_RecTime_Current_Theory.Minutes=0;
-                Speed_RecTime_Current_Theory.Hours++;
-                if (Speed_RecTime_Current_Theory.Hours>=24)
-                {
-                    Speed_RecTime_Current_Theory.Hours=0;
-                }
-            }
-        }
-    }
-
-    Speed_TimeCode_Last=Speed_TimeCode_Current;
-    Speed_TimeCode_Current.Clear();
-    Speed_RecDate_Current.IsValid=false;
-    Speed_RecTime_Current.IsValid=false;
-    Speed_FrameCount++;
-    REC_IsValid=false;
-    Speed_Contains_NULL=0;
-    Frame_AtLeast1DIF=true;
-    if (Buffer_Offset+2>=Buffer_Size
-     || Buffer[Buffer_Offset  ]==0x00
-     && Buffer[Buffer_Offset+1]==0x00
-     && Buffer[Buffer_Offset+2]==0x00)
-        Frame_AtLeast1DIF=false;
-    Video_STA_Errors.clear();
-    Audio_Errors.clear();
-    Audio_Invalids.clear();
-}
-
-void File_DvDif::Errors_Stats_Update_Finnish()
-{
-    //Preparing next frame
-    Speed_FrameCount--;
-    Ztring Errors_Stats_End;
-    Ztring Errors_Stats_End_Lines;
-
-    //Frames
-    if (Speed_FrameCount)
-        Errors_Stats_End_Lines+=_T("Frame Count: ")+Ztring::ToZtring(Speed_FrameCount)+_T('&');
-
-    //One block
-    if (!Errors_Stats_End_Lines.empty())
-    {
-        Errors_Stats_End+=Errors_Stats_End_Lines;
-        Errors_Stats_End_Lines.clear();
-        Errors_Stats_End+=_T('&');
-    }
-
-    //Error 1: Video errors (STA)
-    if (Speed_FrameCount_Video_STA_Errors)
-        Errors_Stats_End_Lines+=_T("Frame Count with video STA errors: ")+Ztring::ToZtring(Speed_FrameCount_Video_STA_Errors)+_T('&');
-    if (!Video_STA_Errors_Total.empty())
-    {
-        Ztring Errors_Details;
-        size_t Errors_Count=0;
-        for (size_t Pos=0; Pos<16; Pos++)
-        {
-            if (Video_STA_Errors_Total[Pos])
-            {
-                Errors_Count+=Video_STA_Errors_Total[Pos];
-                Ztring Errors_Count_Padded=Ztring::ToZtring(Video_STA_Errors_Total[Pos]);
-                if (Errors_Count_Padded.size()<8)
-                    Errors_Count_Padded.insert(0, 8-Errors_Count_Padded.size(), _T(' '));
-                Errors_Details+=Errors_Count_Padded;
-                Errors_Details+=_T(" \"");
-                Errors_Details+=Ztring::ToZtring(Pos, 16);
-                Errors_Details+=_T("\" errors, ");
-            }
-        }
-        if (Errors_Details.size()>2)
-        {
-            Errors_Stats_End_Lines+=_T("Total video STA errors: ");
-            Ztring Errors_Count_Padded=Ztring::ToZtring(Errors_Count);
-            if (Errors_Count_Padded.size()<8)
-                Errors_Count_Padded.insert(0, 8-Errors_Count_Padded.size(), _T(' '));
-            Errors_Stats_End_Lines+=_T(" ")+Errors_Count_Padded+_T(" video STA errors");
-            Errors_Details.resize(Errors_Details.size()-2);
-            Errors_Stats_End_Lines+=_T(" (")+Errors_Details+_T(")")+_T('&');
-        }
-    }
-
-    //Error 2: Audio errors
-    if (!Audio_Errors_Total.empty())
-    {
-        for (size_t Channel=0; Channel<8; Channel++)
-        {
-            if (Speed_FrameCount_Audio_Errors[Channel])
-                Errors_Stats_End_Lines+=_T("Frame Count with CH")+Ztring::ToZtring(Channel+1)+_T(" audio errors: ")+Ztring::ToZtring(Speed_FrameCount_Audio_Errors[Channel])+_T('&');
-
-            Ztring Errors_Details;
-            size_t Errors_Count=0;
-            for (size_t Pos=0; Pos<16; Pos++)
-            {
-                if (Audio_Errors_Total[Channel][Pos])
-                {
-                    Errors_Count+=Audio_Errors_Total[Channel][Pos];
-                    Ztring Errors_Count_Padded=Ztring::ToZtring(Audio_Errors_Total[Channel][Pos]);
-                    if (Errors_Count_Padded.size()<8)
-                        Errors_Count_Padded.insert(0, 8-Errors_Count_Padded.size(), _T(' '));
-                    Errors_Details+=Errors_Count_Padded;
-                    Errors_Details+=_T(" Dseq=");
-                    Errors_Details+=Ztring::ToZtring(Pos, 16);
-                    Errors_Details+=_T(", ");
-                }
-            }
-            if (Errors_Details.size()>2)
-            {
-                Errors_Stats_End_Lines+=_T("Total audio errors for CH")+Ztring::ToZtring(Channel+1)+_T(": ");
-                Ztring Errors_Count_Padded=Ztring::ToZtring(Errors_Count);
-                if (Errors_Count_Padded.size()<8)
-                    Errors_Count_Padded.insert(0, 8-Errors_Count_Padded.size(), _T(' '));
-                Errors_Stats_End_Lines+=_T(" ")+Errors_Count_Padded+_T(" audio errors");
-                Errors_Details.resize(Errors_Details.size()-2);
-                Errors_Stats_End_Lines+=_T(" (")+Errors_Details+_T(")")+_T('&');
-            }
-        }
-    }
-
-    //Error 3: Timecode incoherency
-    if (Speed_FrameCount_Timecode_Incoherency)
-        Errors_Stats_End_Lines+=_T("Frame Count with Timecode incoherency errors: ")+Ztring::ToZtring(Speed_FrameCount_Timecode_Incoherency)+_T('&');
-
-    //Error 4: Contains NULL DIFs
-    if (Speed_FrameCount_Contains_NULL)
-        Errors_Stats_End_Lines+=_T("Frame Count with NULL DIF errors: ")+Ztring::ToZtring(Speed_FrameCount_Contains_NULL)+_T('&');
-
-    //One block
-    if (!Errors_Stats_End_Lines.empty())
-    {
-        Errors_Stats_End+=Errors_Stats_End_Lines;
-        Errors_Stats_End_Lines.clear();
-        Errors_Stats_End+=_T('&');
-    }
-
-    //RecDate/RecTime
-    if (!Speed_RecDateZ_Current.empty() && !Speed_RecTimeZ_Current.empty()) //Date and Time must be both available
-    {
-        size_t Speed_RecZ_Pos=Speed_RecZ.size();
-        if (Speed_RecZ_Pos)
-        {
-            Speed_RecZ_Pos--;
-            Speed_RecZ[Speed_RecZ_Pos].Last.FramePos=Speed_FrameCount;
-            Speed_RecZ[Speed_RecZ_Pos].Last.Date=Speed_RecDateZ_Current;
-            Speed_RecZ[Speed_RecZ_Pos].Last.Time=Speed_RecTimeZ_Current;
-            if (Speed_RecZ[Speed_RecZ_Pos].Last.FramePos-(Speed_RecZ_Pos?Speed_RecZ[Speed_RecZ_Pos-1].Last.FramePos:0)==1)
-            {
-                //Only one frame, the "Last" part is not filled
-                Speed_RecZ[Speed_RecZ_Pos].Last.Date=Speed_RecZ[Speed_RecZ_Pos].First.Date;
-                Speed_RecZ[Speed_RecZ_Pos].Last.Time=Speed_RecZ[Speed_RecZ_Pos].First.Time;
-            }
-
-            for (size_t Pos=0; Pos<Speed_RecZ.size(); Pos++)
-            {
-                Errors_Stats_End_Lines+=_T("Date Covered: ");
-                Errors_Stats_End_Lines+=Speed_RecZ[Pos].First.Date.empty()?Ztring(_T("XXXX-XX-XX")):Speed_RecZ[Pos].First.Date;
-                Errors_Stats_End_Lines+=_T(' ');
-                Errors_Stats_End_Lines+=Speed_RecZ[Pos].First.Time.empty()?Ztring(_T("XX:XX:XX:XX")):Speed_RecZ[Pos].First.Time;
-
-                Errors_Stats_End_Lines+=_T(" - ");
-
-                Errors_Stats_End_Lines+=Speed_RecZ[Pos].Last.Date.empty()?Ztring(_T("XXXX-XX-XX")):Speed_RecZ[Pos].Last.Date;
-                Errors_Stats_End_Lines+=_T(' ');
-                Errors_Stats_End_Lines+=Speed_RecZ[Pos].Last.Time.empty()?Ztring(_T("XX:XX:XX:XX")):Speed_RecZ[Pos].Last.Time;
-
-                Ztring Start_Padded=Ztring::ToZtring((Pos?Speed_RecZ[Pos-1].Last.FramePos+1:1));
-                if (Start_Padded.size()<8)
-                    Start_Padded.insert(0, 8-Start_Padded.size(), _T(' '));
-                Errors_Stats_End_Lines+=_T(" (start at ")+Start_Padded;
-
-                Ztring Frames_Padded=Ztring::ToZtring(Speed_RecZ[Pos].Last.FramePos-(Pos?Speed_RecZ[Pos-1].Last.FramePos:0));
-                if (Frames_Padded.size()<8)
-                    Frames_Padded.insert(0, 8-Frames_Padded.size(), _T(' '));
-                Errors_Stats_End_Lines+=_T(", ")+Frames_Padded+_T(" frames)");
-
-                Errors_Stats_End_Lines+=_T('&');
-            }
-        }
-    }
-
-    //One block
-    if (!Errors_Stats_End_Lines.empty())
-    {
-        Errors_Stats_End+=Errors_Stats_End_Lines;
-        Errors_Stats_End_Lines.clear();
-        Errors_Stats_End+=_T('&');
-    }
-
-    //TimeCode
-    if (!Speed_TimeCodeZ_Current.empty())
-    {
-        size_t Speed_TimeCodeZ_Pos=Speed_TimeCodeZ.size();
-        if (Speed_TimeCodeZ_Pos)
-        {
-            Speed_TimeCodeZ_Pos--;
-            Speed_TimeCodeZ[Speed_TimeCodeZ_Pos].Last.FramePos=Speed_FrameCount;
-            Speed_TimeCodeZ[Speed_TimeCodeZ_Pos].Last.TimeCode=Speed_TimeCodeZ_Current;
-            if (Speed_TimeCodeZ[Speed_TimeCodeZ_Pos].Last.FramePos-(Speed_TimeCodeZ_Pos?Speed_TimeCodeZ[Speed_TimeCodeZ_Pos-1].Last.FramePos:0)==1)
-            {
-                //Only one frame, the "Last" part is not filled
-                Speed_TimeCodeZ[Speed_TimeCodeZ_Pos].Last.TimeCode=Speed_TimeCodeZ[Speed_TimeCodeZ_Pos].First.TimeCode;
-            }
-
-            for (size_t Pos=0; Pos<Speed_TimeCodeZ.size(); Pos++)
-            {
-                Errors_Stats_End_Lines+=_T("Timecode Covered: ");
-                Errors_Stats_End_Lines+=Speed_TimeCodeZ[Pos].First.TimeCode;
-
-                Errors_Stats_End_Lines+=_T(" - ");
-
-                Errors_Stats_End_Lines+=Speed_TimeCodeZ[Pos].Last.TimeCode;
-
-                Ztring Start_Padded=Ztring::ToZtring((Pos?Speed_TimeCodeZ[Pos-1].Last.FramePos+1:1));
-                if (Start_Padded.size()<8)
-                    Start_Padded.insert(0, 8-Start_Padded.size(), _T(' '));
-                Errors_Stats_End_Lines+=_T(" (start at ")+Start_Padded;
-
-                Ztring Frames_Padded=Ztring::ToZtring(Speed_TimeCodeZ[Pos].Last.FramePos-(Pos?Speed_TimeCodeZ[Pos-1].Last.FramePos:0));
-                if (Frames_Padded.size()<8)
-                    Frames_Padded.insert(0, 8-Frames_Padded.size(), _T(' '));
-                Errors_Stats_End_Lines+=_T(", ")+Frames_Padded+_T(" frames)");
-
-                Errors_Stats_End_Lines+=_T('&');
-            }
-        }
-    }
-
-    //One block
-    if (!Errors_Stats_End_Lines.empty())
-    {
-        Errors_Stats_End+=Errors_Stats_End_Lines;
-        Errors_Stats_End_Lines.clear();
-        Errors_Stats_End+=_T('&');
-    }
-
-    //
-    if (Errors_Stats_End.size()>2)
-        Errors_Stats_End.resize(Errors_Stats_End.size()-2); //Removing last carriage returns
-
-    //Filling
-    if (Count_Get(Stream_Video)==0)
-        Stream_Prepare(Stream_Video);
-    Fill(Stream_Video, 0, "Errors_Stats_Begin", "Frame # \tTime        \tTimeCode   \tN\tRecorded date/time     \tN\tS\tE\t1\t2\t3\t4\t5\t6\t7\t8\t9\t0\t1\t2\t3\t4\t5\t6\t7\t8\t9\t0");
-    Fill(Stream_Video, 0, "Errors_Stats", Errors_Stats);
-    Fill(Stream_Video, 0, "Errors_Stats_End", Errors_Stats_End);
-    Fill(Stream_Video, 0, "FrameCount_Speed", Speed_FrameCount);
-}
-#endif //MEDIAINFO_DVDIF_ANALYZE_YES
-
-//---------------------------------------------------------------------------
-void File_DvDif::Read_Buffer_Finalize()
-{
-    if (!IsFilled && FrameCount>=1)
-        Header_Fill();
+    if (Count_Get(Stream_General)==0)
+        Stream_Prepare(Stream_General);
+    Fill(Stream_General, 0, General_Format, "Digital Video");
 
     if (!Recorded_Date_Date.empty())
     {
@@ -1328,25 +317,28 @@ void File_DvDif::Read_Buffer_Finalize()
     if (TimeCode_First!=(int64u)-1)
     {
         Fill(Stream_Video, 0, Video_Delay, TimeCode_First);
-        Fill(Stream_Audio, 0, Audio_Delay, TimeCode_First);
+        for (size_t Pos=0; Pos<Count_Get(Stream_Audio); Pos++)
+            Fill(Stream_Audio, Pos, Audio_Delay, TimeCode_First);
     }
 
     #if defined(MEDIAINFO_EIA608_YES)
         for (size_t Pos=0; Pos<CC_Parsers.size(); Pos++)
-            if (CC_Parsers[Pos] && CC_Parsers[Pos]->IsAccepted)
+            if (CC_Parsers[Pos] && CC_Parsers[Pos]->Status[IsAccepted])
             {
-                Open_Buffer_Finalize(CC_Parsers[Pos]);
+                CC_Parsers[Pos]->Finish();
                 Merge(*CC_Parsers[Pos]);
                 Fill(Stream_Text, StreamPos_Last, Text_ID, Pos);
             }
     #endif
 
     #ifdef MEDIAINFO_DVDIF_ANALYZE_YES
-    //Errors stats
-    if (!IsFinished)
-        Finish();
-    Errors_Stats_Update();
-    Errors_Stats_Update_Finnish();
+        if (Config->File_DvDif_Analysis_Get())
+        {
+            //Errors stats
+            Status[IsFinished]=true; //We need to fill it before the call to Errors_Stats_Update
+            Errors_Stats_Update();
+            Errors_Stats_Update_Finnish();
+        }
     #endif //MEDIAINFO_DVDIF_ANALYZE_YES
 }
 
@@ -1449,7 +441,7 @@ void File_DvDif::Data_Parse()
     }
 
     //Integrity
-    if (!IsAccepted)
+    if (!Status[IsAccepted])
     {
         //DIF Sequence Numbers
         if (DSF_IsValid)
@@ -1465,6 +457,8 @@ void File_DvDif::Data_Parse()
         }
 
         //DIF Block Numbers
+        if (Element_Code>=8)
+            return;    
         int8u Number=DBN_Olds[(size_t)Element_Code]+1;
         switch (SCT)
         {
@@ -1496,7 +490,8 @@ void File_DvDif::Data_Parse()
             default: ;
         }
         SCT_Old=SCT;
-        DBN_Olds[SCT]=DBN;
+        if (SCT<8)
+            DBN_Olds[SCT]=DBN;
     }
 
     Element_Info(DBN);
@@ -1567,10 +562,17 @@ void File_DvDif::Header()
         FrameCount++;
         if (Count_Get(Stream_General)==0)
             Stream_Prepare(Stream_General);
-        if (!IsAccepted && FrameCount>=10)
+        if (!Status[IsAccepted] && (FrameCount>=10 || IsSub))
             Accept("DV DIF");
-        if (!IsFilled && FrameCount>=Frame_Count_Valid)
-            Header_Fill();
+        if (!Status[IsFilled] && FrameCount>=Frame_Count_Valid)
+            #ifdef MEDIAINFO_DVDIF_ANALYZE_YES
+                if (Config->File_DvDif_Analysis_Get())
+                    Fill("DV DIF");
+                else
+                    Finish("DV DIF");
+            #else //MEDIAINFO_DVDIF_ANALYZE_YES
+                Finish("DV DIF");
+            #endif //MEDIAINFO_DVDIF_ANALYZE_YES
     FILLING_END();
 }
 #else //MEDIAINFO_MINIMIZESIZE
@@ -1603,26 +605,20 @@ void File_DvDif::Header()
         FrameCount++;
         if (Count_Get(Stream_General)==0)
             Stream_Prepare(Stream_General);
-        if (!IsAccepted && FrameCount>=10)
+        if (!Status[IsAccepted] && (FrameCount>=10 || IsSub))
             Accept("DV DIF");
-        if (!IsFilled && FrameCount>=Frame_Count_Valid)
-            Header_Fill();
+        if (!Status[IsFilled] && FrameCount>=Frame_Count_Valid)
+            #ifdef MEDIAINFO_DVDIF_ANALYZE_YES
+                if (Config->File_DvDif_Analysis_Get())
+                    Fill("DV DIF");
+                else
+                    Finish("DV DIF");
+            #else //MEDIAINFO_DVDIF_ANALYZE_YES
+                Finish("DV DIF");
+            #endif //MEDIAINFO_DVDIF_ANALYZE_YES
     FILLING_END();
 }
 #endif //MEDIAINFO_MINIMIZESIZE
-
-//---------------------------------------------------------------------------
-void File_DvDif::Header_Fill()
-{
-    if (Count_Get(Stream_General)==0)
-        Stream_Prepare(Stream_General);
-    Fill(Stream_General, 0, General_Format, "Digital Video");
-
-    IsFilled=true;
-    #ifndef MEDIAINFO_DVDIF_ANALYZE_YES
-        Finish("DV DIF");
-    #endif //MEDIAINFO_DVDIF_ANALYZE_YES
-}
 
 //---------------------------------------------------------------------------
 void File_DvDif::Subcode()
@@ -2006,15 +1002,15 @@ void File_DvDif::video_source()
             Stream_Prepare(Stream_Video);
             Fill(Stream_Video, 0, Video_Format, "Digital Video");
             Fill(Stream_Video, 0, Video_Codec, "DV");
-            Fill(Stream_Video, 0, Video_Standard, DSF?"PAL":"NTSC");
+            Fill(Stream_Video, 0, Video_Standard, system?"PAL":"NTSC");
             Fill(Stream_Video, 0, Video_Width, 720);
-            Fill(Stream_Video, 0, Video_Height, DSF?576:480);
+            Fill(Stream_Video, 0, Video_Height, system?576:480);
             Fill(Stream_Video, 0, Video_FrameRate, system?25.000:29.970);
             Fill(Stream_Video, 0, Video_FrameRate_Mode, "CFR");
 
-            if (DSF==false && stype==4) //NTSC and 4:2:2
+            if (system==false && stype==4) //NTSC and 4:2:2
                 Fill(Stream_Video, 0, Video_Colorimetry, "4:2:2");       //NTSC 50 Mbps
-            else if (DSF==false) //NTSC and not 4:2:2 (--> 4:1:1)
+            else if (system==false) //NTSC and not 4:2:2 (--> 4:1:1)
                 Fill(Stream_Video, 0, Video_Colorimetry, "4:1:1");       //NTSC 25 Mbps
             else if (stype==4) //PAL and 4:2:2
                 Fill(Stream_Video, 0, Video_Colorimetry, "4:2:2");       //PAL  50 Mbps
@@ -2076,15 +1072,18 @@ void File_DvDif::video_sourcecontrol()
             Fill(Stream_Video, 0, Video_Interlacement, Interlaced?"Interlaced":"PFF");
             switch (aspect)
             {
-                case 0 : Fill(Stream_Video, 0, Video_DisplayAspectRatio, 4.0/3.0); break;
+                case 0 : Fill(Stream_Video, 0, Video_DisplayAspectRatio, 4.0/3.0, 3, true); break;
                 case 2 :
-                case 7 : Fill(Stream_Video, 0, Video_DisplayAspectRatio, 16.0/9.0); break;
+                case 7 : Fill(Stream_Video, 0, Video_DisplayAspectRatio, 16.0/9.0, 3, true); break;
                 default: ;
             }
         }
 
-        if (!IsAccepted && AuxToAnalyze)
-            Header_Fill();
+        if (!Status[IsAccepted] && AuxToAnalyze)
+        {
+            Accept("DV DIF");
+            Fill("DV DIF");
+        }
     FILLING_END();
 }
 
@@ -2168,10 +1167,10 @@ void File_DvDif::consumer_camera_1()
 
     if (!consumer_camera_1_Parsed)
     {
-        if (ae_mode!=0x0F) Fill(Stream_Video, 0, Video_Encoded_Library_Settings, _T("ae mode=")+Ztring(Dv_consumer_camera_1_ae_mode[ae_mode]));
-        if (wb_mode!=0x08) Fill(Stream_Video, 0, Video_Encoded_Library_Settings, _T("wb mode=")+Ztring(Dv_consumer_camera_1_wb_mode[wb_mode]));
-        if (wb_mode!=0x1F) Fill(Stream_Video, 0, Video_Encoded_Library_Settings, _T("white balance=")+Ztring(Dv_consumer_camera_1_white_balance(white_balance)));
-                           Fill(Stream_Video, 0, Video_Encoded_Library_Settings, _T("fcm=")+Ztring(Dv_consumer_camera_1_fcm[fcm]));
+        if (ae_mode<0x0F) Fill(Stream_Video, 0, Video_Encoded_Library_Settings, _T("ae mode=")+Ztring(Dv_consumer_camera_1_ae_mode[ae_mode]));
+        if (wb_mode<0x08) Fill(Stream_Video, 0, Video_Encoded_Library_Settings, _T("wb mode=")+Ztring(Dv_consumer_camera_1_wb_mode[wb_mode]));
+        if (wb_mode<0x1F) Fill(Stream_Video, 0, Video_Encoded_Library_Settings, _T("white balance=")+Ztring(Dv_consumer_camera_1_white_balance(white_balance)));
+                          Fill(Stream_Video, 0, Video_Encoded_Library_Settings, _T("fcm=")+Ztring(Dv_consumer_camera_1_fcm[fcm]));
         consumer_camera_1_Parsed=true;
     }
 }

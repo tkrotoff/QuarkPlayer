@@ -881,8 +881,8 @@ void File_Mpeg_Psi::Data_Parse()
         Skip_B4(                                                "CRC32");
     }
 
-    IsAccepted=true; //Accept("PSI");
-    IsFinished=true; //Finish("PSI");
+    Status[IsAccepted]=true; //Accept("PSI");
+    Status[IsFinished]=true; //Finish("PSI");
 }
 
 //---------------------------------------------------------------------------
@@ -1020,7 +1020,8 @@ void File_Mpeg_Psi::Table_00()
                 else if (Complete_Stream->Streams[xxx_id].Table_IDs[0x00]==NULL)
                 {
                     for (size_t Table_ID=0; Table_ID<0x100; Table_ID++)
-                        Complete_Stream->Streams[xxx_id].Table_IDs[Table_ID]=new complete_stream::stream::table_id; //all
+                        if (Complete_Stream->Streams[xxx_id].Table_IDs[Table_ID]==NULL)
+                            Complete_Stream->Streams[xxx_id].Table_IDs[Table_ID]=new complete_stream::stream::table_id; //all
                 }
             }
         FILLING_END();
@@ -1116,17 +1117,17 @@ void File_Mpeg_Psi::Table_02()
     }
 
     FILLING_BEGIN();
+        #ifdef MEDIAINFO_MPEGTS_PCR_YES
+        Complete_Stream->Streams[PCR_PID].IsPCR=true;
         Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].PCR_PID=PCR_PID;
         if (Complete_Stream->Streams[PCR_PID].Kind==complete_stream::stream::unknown)
         {
-            Complete_Stream->Streams[PCR_PID].Kind=complete_stream::stream::pcr;
-            #ifdef MEDIAINFO_MPEGTS_PCR_YES
-                Complete_Stream->Streams[PCR_PID].Searching_TimeStamp_Start_Set(true);
-            #endif //MEDIAINFO_MPEGTS_PCR_YES
+            Complete_Stream->Streams[PCR_PID].Searching_TimeStamp_Start_Set(true);
             #ifndef MEDIAINFO_MINIMIZESIZE
                 Complete_Stream->Streams[PCR_PID].Element_Info="PCR";
             #endif //MEDIAINFO_MINIMIZESIZE
         }
+        #endif //MEDIAINFO_MPEGTS_PCR_YES
 
         //Sorting
         sort(Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].elementary_PIDs.begin(), Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].elementary_PIDs.end());
@@ -1272,6 +1273,7 @@ void File_Mpeg_Psi::Table_42()
             BS_End();
 
             //Descriptors
+            xxx_id_IsValid=true;
             if (Descriptors_Size>0)
                 Descriptors();
 
@@ -1297,7 +1299,7 @@ void File_Mpeg_Psi::Table_4E()
     //Clearing
     Complete_Stream->Transport_Streams[transport_stream_id].Programs[table_id_extension].DVB_EPG_Blocks[table_id].Events.clear();
     Complete_Stream->Transport_Streams[transport_stream_id].Programs[table_id_extension].DVB_EPG_Blocks_IsUpdated=true;
-    IsUpdated=true;
+    Complete_Stream->Programs_IsUpdated=true;
 
     //Parsing
     Get_B2 (transport_stream_id,                                "transport_stream_id");
@@ -1370,11 +1372,10 @@ void File_Mpeg_Psi::Table_70()
     Get_B3 (time,                                               "UTC_time (time)"); Param_Info(Time_BCD(time));
 
     FILLING_BEGIN();
-        if (Complete_Stream->Start_Time.empty())
-            Complete_Stream->Start_Time=_T("UTC ")+Date_MJD(date)+_T(" ")+Time_BCD(time);
-        Complete_Stream->End_Time=_T("UTC ")+Date_MJD(date)+_T(" ")+Time_BCD(time);
-        Complete_Stream->End_Time_IsUpdated=true;
-        IsUpdated=true;
+        if (Complete_Stream->Duration_Start.empty())
+            Complete_Stream->Duration_Start=_T("UTC ")+Date_MJD(date)+_T(" ")+Time_BCD(time);
+        Complete_Stream->Duration_End=_T("UTC ")+Date_MJD(date)+_T(" ")+Time_BCD(time);
+        Complete_Stream->Duration_End_IsUpdated=true;
     FILLING_END();
 }
 
@@ -1398,11 +1399,10 @@ void File_Mpeg_Psi::Table_73()
     Skip_B4(                                                    "CRC32");
 
     FILLING_BEGIN();
-        if (Complete_Stream->Start_Time.empty())
-            Complete_Stream->Start_Time=_T("UTC ")+Date_MJD(date)+_T(" ")+Time_BCD(time);
-        Complete_Stream->End_Time=_T("UTC ")+Date_MJD(date)+_T(" ")+Time_BCD(time);
-        Complete_Stream->End_Time_IsUpdated=true;
-        IsUpdated=true;
+        if (Complete_Stream->Duration_Start.empty())
+            Complete_Stream->Duration_Start=_T("UTC ")+Date_MJD(date)+_T(" ")+Time_BCD(time);
+        Complete_Stream->Duration_End=_T("UTC ")+Date_MJD(date)+_T(" ")+Time_BCD(time);
+        Complete_Stream->Duration_End_IsUpdated=true;
     FILLING_END();
 }
 
@@ -1632,7 +1632,7 @@ void File_Mpeg_Psi::Table_CA()
     ATSC_multiple_string_structure(rating_region_name,          "rating_region_name");
     Get_B1 (    dimensions_defined,                             "dimensions_defined");
     BS_End();
-    for (int8u Pos=0; Pos<dimensions_defined; Pos++)
+    for (int8u dimension_Pos=0; dimension_Pos<dimensions_defined; dimension_Pos++)
     {
         Element_Begin("dimension");
         Ztring dimension_name;
@@ -1644,7 +1644,7 @@ void File_Mpeg_Psi::Table_CA()
         Skip_SB(                                                "graduated_scale");
         Get_S1 ( 4, values_defined,                             "values_defined");
         BS_End();
-        for (int8u Pos=0; Pos<values_defined; Pos++)
+        for (int8u value_Pos=0; value_Pos<values_defined; value_Pos++)
         {
             Element_Begin("value");
             Ztring abbrev_rating_value, rating_value;
@@ -1673,7 +1673,7 @@ void File_Mpeg_Psi::Table_CB()
     //Clear
     Complete_Stream->Sources[table_id_extension].ATSC_EPG_Blocks[table_id].Events.clear();
     Complete_Stream->Sources[table_id_extension].ATSC_EPG_Blocks_IsUpdated=true;
-    IsUpdated=true;
+    Status[IsUpdated]=true;
 
     //Parsing
     int8u num_events_in_section;
@@ -1685,12 +1685,11 @@ void File_Mpeg_Psi::Table_CB()
     {
         Ztring title;
         int32u start_time, length_in_seconds;
-        int16u event_id;
         Element_Begin();
         BS_Begin();
         Skip_SB(                                                table_id==0xD9?"off_air":"reserved");
         Skip_SB(                                                "reserved");
-        Get_S2 (14, event_id,                                   "event_id");
+        Get_S2 (14, xxx_id,                                     "event_id");
         BS_End();
         Get_B4 (    start_time,                                 "start_time"); Param_Info(Ztring().Date_From_Seconds_1970(start_time+315964800)); Element_Info(Ztring().Date_From_Seconds_1970(start_time+315964800-Complete_Stream->GPS_UTC_offset)); //UTC 1980-01-06 00:00:00
         BS_Begin();
@@ -1706,20 +1705,21 @@ void File_Mpeg_Psi::Table_CB()
         BS_End();
 
         //Descriptors
+        xxx_id_IsValid=true;
         if (Descriptors_Size>0)
             Descriptors();
 
-        Element_End(Ztring::ToZtring_From_CC2(event_id));
+        Element_End(Ztring::ToZtring_From_CC2(xxx_id));
 
         FILLING_BEGIN();
-            Complete_Stream->Sources[table_id_extension].ATSC_EPG_Blocks[Complete_Stream->Streams[pid].table_type].Events[event_id].start_time=start_time;
+            Complete_Stream->Sources[table_id_extension].ATSC_EPG_Blocks[Complete_Stream->Streams[pid].table_type].Events[xxx_id].start_time=start_time;
             Ztring duration =(length_in_seconds<36000?_T("0"):_T(""))+Ztring::ToZtring(length_in_seconds/3600)+_T(":");
             length_in_seconds%=3600;
                    duration+=(length_in_seconds<  600?_T("0"):_T(""))+Ztring::ToZtring(length_in_seconds/  60)+_T(":");
             length_in_seconds%=60;
                    duration+=(length_in_seconds<   10?_T("0"):_T(""))+Ztring::ToZtring(length_in_seconds     );
-            Complete_Stream->Sources[table_id_extension].ATSC_EPG_Blocks[Complete_Stream->Streams[pid].table_type].Events[event_id].duration=duration;
-            Complete_Stream->Sources[table_id_extension].ATSC_EPG_Blocks[Complete_Stream->Streams[pid].table_type].Events[event_id].title=title;
+            Complete_Stream->Sources[table_id_extension].ATSC_EPG_Blocks[Complete_Stream->Streams[pid].table_type].Events[xxx_id].duration=duration;
+            Complete_Stream->Sources[table_id_extension].ATSC_EPG_Blocks[Complete_Stream->Streams[pid].table_type].Events[xxx_id].title=title;
         FILLING_END();
     }
 }
@@ -1747,7 +1747,7 @@ void File_Mpeg_Psi::Table_CC()
         {
             Complete_Stream->Sources[source_id].ATSC_EPG_Blocks[Complete_Stream->Streams[pid].table_type].Events[event_id].texts[table_id_extension]=extended_text_message;
             Complete_Stream->Sources[source_id].ATSC_EPG_Blocks_IsUpdated=true;
-            IsUpdated=true;
+            Complete_Stream->Sources_IsUpdated=true;
         }
     FILLING_END();
 }
@@ -1777,11 +1777,10 @@ void File_Mpeg_Psi::Table_CD()
         Descriptors();
 
     FILLING_BEGIN();
-        if (Complete_Stream->Start_Time.empty())
-            Complete_Stream->Start_Time=Ztring().Date_From_Seconds_1970(system_time+315964800-GPS_UTC_offset);
-        Complete_Stream->End_Time=Ztring().Date_From_Seconds_1970(system_time+315964800-GPS_UTC_offset);
-        Complete_Stream->End_Time_IsUpdated=true;
-        IsUpdated=true;
+        if (Complete_Stream->Duration_Start.empty())
+            Complete_Stream->Duration_Start=Ztring().Date_From_Seconds_1970(system_time+315964800-GPS_UTC_offset);
+        Complete_Stream->Duration_End=Ztring().Date_From_Seconds_1970(system_time+315964800-GPS_UTC_offset);
+        Complete_Stream->Duration_End_IsUpdated=true;
         Complete_Stream->GPS_UTC_offset=GPS_UTC_offset;
     FILLING_END();
 }
@@ -1823,7 +1822,6 @@ void File_Mpeg_Psi::Descriptors()
 
     //Parsing
     File_Mpeg_Descriptors Descriptors;
-    Buffer_Offset+=(size_t)Element_Offset; //Positionning
     Descriptors.Complete_Stream=Complete_Stream;
     Descriptors.transport_stream_id=transport_stream_id;
     Descriptors.table_id=table_id;
@@ -1831,8 +1829,7 @@ void File_Mpeg_Psi::Descriptors()
     Descriptors.xxx_id=xxx_id;
     Descriptors.xxx_id_IsValid=xxx_id_IsValid;
     Open_Buffer_Init(&Descriptors);
-    Open_Buffer_Continue(&Descriptors, Buffer+Buffer_Offset, Descriptors_Size);
-    Buffer_Offset-=(size_t)Element_Offset; //Positionning
+    Open_Buffer_Continue(&Descriptors, Buffer+Buffer_Offset+(size_t)Element_Offset, Descriptors_Size);
     Element_Offset+=Descriptors_Size;
     Element_End();
     xxx_id_IsValid=false;
@@ -1846,13 +1843,13 @@ void File_Mpeg_Psi::ATSC_multiple_string_structure(Ztring &Value, const char* In
     int8u number_strings, number_segments;
     Element_Begin(Info);
     Get_B1(number_strings,                                      "number_strings");
-    for (int8u Pos=0; Pos<number_strings; Pos++)
+    for (int8u string_Pos=0; string_Pos<number_strings; string_Pos++)
     {
         Element_Begin("String");
         int32u ISO_639_language_code;
         Get_C3(ISO_639_language_code,                           "ISO_639_language_code");
         Get_B1(number_segments,                                 "number_segments");
-        for (int8u Pos=0; Pos<number_segments; Pos++)
+        for (int8u segment_Pos=0; segment_Pos<number_segments; segment_Pos++)
         {
             Element_Begin("Segment");
             Ztring segment;
@@ -1877,14 +1874,17 @@ void File_Mpeg_Psi::ATSC_multiple_string_structure(Ztring &Value, const char* In
             Element_End(3+number_bytes);
 
             FILLING_BEGIN();
-                string+=segment+_T(" - ");
+                if (segment.find_first_not_of(_T("\t\n "))!=std::string::npos)
+                    string+=segment+_T(" - ");
             FILLING_END();
         }
 
         FILLING_BEGIN();
             if (!string.empty())
                 string.resize(string.size()-3);
-            Value+=Ztring().From_CC3(ISO_639_language_code)+_T(':')+string+_T(" - ");
+            Ztring ISO_639_2=Ztring().From_CC3(ISO_639_language_code);
+            const Ztring& ISO_639_1=MediaInfoLib::Config.Iso639_Get(ISO_639_2);
+            Value+=(ISO_639_1.empty()?ISO_639_2:ISO_639_1)+_T(':')+string+_T(" - ");
         FILLING_END();
 
         Element_Info(string);

@@ -35,6 +35,7 @@
 
 //---------------------------------------------------------------------------
 #include "MediaInfo/Multiple/File_Mpeg4_Descriptors.h"
+#include <cstring>
 #if defined(MEDIAINFO_OGG_YES)
     #include "MediaInfo/Multiple/File_Ogg.h"
 #endif
@@ -113,6 +114,8 @@ const char* Mpeg4_Descriptors_ObjectTypeIndication(int8u ID)
         case 0x20 : return "Visual ISO/IEC 14496-2 (MPEG-4 Visual)";
         case 0x21 : return "Visual ISO/IEC 14496-10 (AVC)";
         case 0x22 : return "Parameter Sets for Visual ISO/IEC 14496-10 (AVC)";
+        case 0x24 : return "ALS"; //Not sure
+        case 0x2B : return "SAOC"; //Not sure
         case 0x40 : return "Audio ISO/IEC 14496-3 (AAC)";
         case 0x60 : return "Visual ISO/IEC 13818-2 Simple Profile (MPEG Video)";
         case 0x61 : return "Visual ISO/IEC 13818-2 Main Profile (MPEG Video)";
@@ -243,56 +246,22 @@ const char* Mpeg4_Descriptors_AudioProfileLevelIndication(int8u ID)
         case   37 : return "MobileAudioInternetworking@L4";
         case   38 : return "MobileAudioInternetworking@L5";
         case   39 : return "MobileAudioInternetworking@L6";
+        case   40 : return "AAC@L1";
+        case   41 : return "AAC@L2";
+        case   42 : return "AAC@L4";
+        case   43 : return "AAC@L5";
+        case   44 : return "HighEfficiencyAAC@L2";
+        case   45 : return "HighEfficiencyAAC@L3";
+        case   46 : return "HighEfficiencyAAC@L4";
+        case   47 : return "HighEfficiencyAAC@L5";
+        case   59 : return "HighDefinitionAAC@L1";
+        case   60 : return "ALSSimple@L1";
         default   : return "";
     }
 }
 
 //---------------------------------------------------------------------------
-const char* Mpeg4_Descriptors_VisualProfileLevelIndication(int8u ID)
-{
-    switch (ID)
-    {
-        case    1 : return "Simple@L3";
-        case    2 : return "Simple@L2";
-        case    3 : return "Simple@L1";
-        case    4 : return "SimpleScalable@L1";
-        case    5 : return "SimpleScalable@L2";
-        case    6 : return "Core@L2";
-        case    7 : return "Core@L1";
-        case    8 : return "Main@L4";
-        case    9 : return "Main@L3";
-        case   10 : return "Main@L2";
-        case   11 : return "N-Bit@L2";
-        case   12 : return "Hybrid@L2";
-        case   13 : return "Hybrid@L1";
-        case   14 : return "BasicAnimatedTexture@L2";
-        case   15 : return "BasicAnimatedTexture@L1";
-        case   16 : return "ScalableTexture@L3";
-        case   17 : return "ScalableTexture@L2";
-        case   18 : return "ScalableTexture@L1";
-        case   19 : return "SimpleFaceAnimation@L2";
-        case   20 : return "SimpleFaceAnimation@L1";
-        case   21 : return "SimpleFBA@L2";
-        case   22 : return "SimpleFBA@L1";
-        case   23 : return "AdvancedRealTimeSimple@L4";
-        case   24 : return "AdvancedRealTimeSimple@L3";
-        case   25 : return "AdvancedRealTimeSimple@L2";
-        case   26 : return "AdvancedRealTimeSimple@L1";
-        case   27 : return "CoreScalable@L3";
-        case   28 : return "CoreScalable@L2";
-        case   29 : return "CoreScalable@L1";
-        case   30 : return "AdvancedCodingEfficiency@L4";
-        case   31 : return "AdvancedCodingEfficiency@L3";
-        case   32 : return "AdvancedCodingEfficiency@L2";
-        case   33 : return "AdvancedCoding@EfficiencyL1";
-        case   34 : return "AdvanceCore@L2";
-        case   35 : return "AdvanceCore@L1";
-        case   36 : return "AdvancedScalableTexture@L3";
-        case   37 : return "AdvancedScalableTexture@L2";
-        case   38 : return "AdvancedScalableTexture@L1";
-        default   : return "";
-    }
-}
+extern const char* Mpeg4v_Profile_Level(int32u Profile_Level);
 
 //---------------------------------------------------------------------------
 const char* Mpeg4_Descriptors_GraphicsProfileLevelIndication(int8u ID)
@@ -320,11 +289,16 @@ File_Mpeg4_Descriptors::File_Mpeg4_Descriptors()
 {
     //In
     KindOfStream=Stream_Max;
+    MajorBrand=0x00000000;
     Parser_DoNotFreeIt=false;
+    DecSpecificInfoTag_DoNotFreeIt=false;
+    SLConfig_DoNotFreeIt=false;
 
     //Out
     Parser=NULL;
     ES_ID=0x0000;
+    DecSpecificInfoTag=NULL;
+    SLConfig=NULL;
 
     //Temp
     ObjectTypeId=0x00;
@@ -335,6 +309,10 @@ File_Mpeg4_Descriptors::~File_Mpeg4_Descriptors()
 {
     if (!Parser_DoNotFreeIt)
         delete Parser;// Parser=NULL;
+    if (!DecSpecificInfoTag_DoNotFreeIt)
+        delete DecSpecificInfoTag; //DecSpecificInfoTag=NULL
+    if (!SLConfig_DoNotFreeIt)
+        delete SLConfig;// SLConfig=NULL;
 }
 
 //***************************************************************************
@@ -427,14 +405,14 @@ void File_Mpeg4_Descriptors::Data_Parse()
         ELEMENT_CASE(68, "DependencyMarkerTag");
         ELEMENT_CASE(69, "FLEXmuxChannelDescrTag");
         default: if (Element_Code>=0xC0)
-                    Element_Info("user private");
+                    Element_Name("user private");
                  else
-                    Element_Info("unknown");
+                    Element_Name("unknown");
                  Skip_XX(Element_Size,                          "Data");
                  break;
     }
 
-    IsAccepted=true;
+    Status[IsAccepted]=true;
 }
 
 //***************************************************************************
@@ -461,7 +439,7 @@ void File_Mpeg4_Descriptors::Descriptor_02()
     Info_B1(ODProfileLevel,                                     "ODProfileLevelIndication"); Param_Info(Mpeg4_Descriptors_ODProfileLevelIndication(ODProfileLevel));
     Info_B1(SceneProfileLevel,                                  "sceneProfileLevelIndication"); Param_Info(Mpeg4_Descriptors_SceneProfileLevelIndication(SceneProfileLevel));
     Info_B1(AudioProfileLevel,                                  "audioProfileLevelIndication"); Param_Info(Mpeg4_Descriptors_AudioProfileLevelIndication(AudioProfileLevel));
-    Info_B1(VisualProfileLevel,                                 "visualProfileLevelIndication"); Param_Info(Mpeg4_Descriptors_VisualProfileLevelIndication(VisualProfileLevel));
+    Info_B1(VisualProfileLevel,                                 "visualProfileLevelIndication"); Param_Info(Mpeg4v_Profile_Level(VisualProfileLevel));
     Info_B1(GraphicsProfileLevel,                               "graphicsProfileLevelIndication"); Param_Info(Mpeg4_Descriptors_GraphicsProfileLevelIndication(GraphicsProfileLevel));
 
     FILLING_BEGIN();
@@ -515,109 +493,109 @@ void File_Mpeg4_Descriptors::Descriptor_04()
     FILLING_BEGIN();
         switch (ObjectTypeId)
         {
-            case 0x01 : Fill(StreamKind_Last, StreamPos_Last, "Format", "System", Error, false, true); break;
-            case 0x02 : Fill(StreamKind_Last, StreamPos_Last, "Format", "System Core", Error, false, true); break;
+            case 0x01 : Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Format), "System", Error, false, true); break;
+            case 0x02 : Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Format), "System Core", Error, false, true); break;
             //case 0x03 Interaction Stream
             //case 0x05 AFX
             //case 0x06 Font Data
             //case 0x07 Synthesized Texture Stream
-            case 0x08 : Fill(StreamKind_Last, StreamPos_Last, "Format", "Streaming Text", Error, false, true); break;
-            case 0x20 : Fill(StreamKind_Last, StreamPos_Last, "Format", "MPEG-4 Visual", Error, false, true); break;
-            case 0x21 : Fill(StreamKind_Last, StreamPos_Last, "Format", "AVC", Error, false, true); break;
+            case 0x08 : Fill(Stream_Text    , StreamPos_Last, Text_Format, "Streaming Text", Error, false, true); break;
+            case 0x20 : Fill(Stream_Video   , StreamPos_Last, Video_Format, "MPEG-4 Visual", Error, false, true); break;
+            case 0x21 : Fill(Stream_Video   , StreamPos_Last, Video_Format, "AVC", Error, false, true); break;
             //case 0x22 Parameter Sets for AVC
-            case 0x40 : Fill(StreamKind_Last, StreamPos_Last, "Format", "AAC", Error, false, true); break; //MPEG-4 AAC
-            case 0x60 : Fill(StreamKind_Last, StreamPos_Last, "Format", "MPEG Video", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Profile", "Simple" , Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Version", "Version 2", Error, false, true); break; //MPEG-2V Simple
-            case 0x61 : Fill(StreamKind_Last, StreamPos_Last, "Format", "MPEG Video", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Profile", "Main"   , Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Version", "Version 2", Error, false, true); break; //MPEG-2V Main
-            case 0x62 : Fill(StreamKind_Last, StreamPos_Last, "Format", "MPEG Video", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Profile", "SNR"    , Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Version", "Version 2", Error, false, true); break; //MPEG-2V SNR
-            case 0x63 : Fill(StreamKind_Last, StreamPos_Last, "Format", "MPEG Video", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Profile", "Spatial", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Version", "Version 2", Error, false, true); break; //MPEG-2V Spatial
-            case 0x64 : Fill(StreamKind_Last, StreamPos_Last, "Format", "MPEG Video", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Profile", "High"   , Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Version", "Version 2", Error, false, true); break; //MPEG-2V High
-            case 0x65 : Fill(StreamKind_Last, StreamPos_Last, "Format", "MPEG Video", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Profile", "4:2:2"  , Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Version", "Version 2", Error, false, true); break; //MPEG-2V 4:2:2
-            case 0x66 : Fill(StreamKind_Last, StreamPos_Last, "Format", "AAC", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Profile", "Main", Error, false, true); break; //MPEG-2 AAC Main
-            case 0x67 : Fill(StreamKind_Last, StreamPos_Last, "Format", "AAC", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Profile", "LC", Error, false, true); break; //MPEG-2 AAC LC
-            case 0x68 : Fill(StreamKind_Last, StreamPos_Last, "Format", "AAC", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Profile", "SSR", Error, false, true); break; //MPEG-2 AAC SSR
-            case 0x69 : Fill(StreamKind_Last, StreamPos_Last, "Format", "MPEG Audio", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Profile", "Layer 3", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Version", "Version 2", Error, false, true); break;
-            case 0x6A : Fill(StreamKind_Last, StreamPos_Last, "Format", "MPEG Video", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Version", "Version 1", Error, false, true); break;
-            case 0x6B : Fill(StreamKind_Last, StreamPos_Last, "Format", "MPEG Audio", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Version", "Version 1", Error, false, true); break;
-            case 0x6C : Fill(StreamKind_Last, StreamPos_Last, "Format", "M-JPEG", Error, false, true); break;
-            case 0x6D : Fill(StreamKind_Last, StreamPos_Last, "Format", "PNG", Error, false, true); break;
-            case 0x6E : Fill(StreamKind_Last, StreamPos_Last, "Format", "MPEG Video", Error, false, true); break;  
-            case 0xA0 : Fill(StreamKind_Last, StreamPos_Last, "Format", "EVRC", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "SamplingRate", "8000"); Fill(StreamKind_Last, StreamPos_Last, "Channel(s)", "1", 10, true); break;
-            case 0xA1 : Fill(StreamKind_Last, StreamPos_Last, "Format", "SMV", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "SamplingRate", "8000"); Fill(StreamKind_Last, StreamPos_Last, "Channel(s)", "1", 10, true);  break;
-            case 0xA2 : Fill(StreamKind_Last, StreamPos_Last, "Format", "3GPP2", Error, false, true); break;
-            case 0xA3 : Fill(StreamKind_Last, StreamPos_Last, "Format", "VC-1", Error, false, true); break;
-            case 0xA4 : Fill(StreamKind_Last, StreamPos_Last, "Format", "Dirac", Error, false, true); break;
-            case 0xA5 : Fill(StreamKind_Last, StreamPos_Last, "Format", "AC-3", Error, false, true); break;
-            case 0xA6 : Fill(StreamKind_Last, StreamPos_Last, "Format", "E-AC-3", Error, false, true); break;
-            case 0xA9 : Fill(StreamKind_Last, StreamPos_Last, "Format", "DTS", Error, false, true); break;
-            case 0xAA : Fill(StreamKind_Last, StreamPos_Last, "Format", "DTS", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Profile", "HRA", Error, false, true); break; // DTS-HD High Resolution
-            case 0xAB : Fill(StreamKind_Last, StreamPos_Last, "Format", "DTS", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "Format_Profile", "MA", Error, false, true); break;  // DTS-HD Master Audio
-            case 0xD1 : Fill(StreamKind_Last, StreamPos_Last, "Format", "EVRC", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "SamplingRate", "8000"); Fill(StreamKind_Last, StreamPos_Last, "Channel(s)", "1", 10, true);  break;
-            case 0xD3 : Fill(StreamKind_Last, StreamPos_Last, "Format", "AC-3", Error, false, true); break;
-            case 0xD4 : Fill(StreamKind_Last, StreamPos_Last, "Format", "DTS", Error, false, true); break;
-            case 0xDD : Fill(StreamKind_Last, StreamPos_Last, "Format", "Ogg", Error, false, true); break;
-            case 0xDE : Fill(StreamKind_Last, StreamPos_Last, "Format", "Ogg", Error, false, true); break;
-            case 0xE1 : Fill(StreamKind_Last, StreamPos_Last, "Format", "QCELP", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "SamplingRate", "8000"); Fill(StreamKind_Last, StreamPos_Last, "Channel(s)", "1", 10, true);  break;
+            case 0x40 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "AAC", Error, false, true); break; //MPEG-4 AAC
+            case 0x60 : Fill(Stream_Video   , StreamPos_Last, Video_Format, "MPEG Video", Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Profile, "Simple" , Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Version, "Version 2", Error, false, true); break; //MPEG-2V Simple
+            case 0x61 : Fill(Stream_Video   , StreamPos_Last, Video_Format, "MPEG Video", Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Profile, "Main"   , Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Version, "Version 2", Error, false, true); break; //MPEG-2V Main
+            case 0x62 : Fill(Stream_Video   , StreamPos_Last, Video_Format, "MPEG Video", Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Profile, "SNR"    , Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Version, "Version 2", Error, false, true); break; //MPEG-2V SNR
+            case 0x63 : Fill(Stream_Video   , StreamPos_Last, Video_Format, "MPEG Video", Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Profile, "Spatial", Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Version, "Version 2", Error, false, true); break; //MPEG-2V Spatial
+            case 0x64 : Fill(Stream_Video   , StreamPos_Last, Video_Format, "MPEG Video", Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Profile, "High"   , Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Version, "Version 2", Error, false, true); break; //MPEG-2V High
+            case 0x65 : Fill(Stream_Video   , StreamPos_Last, Video_Format, "MPEG Video", Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Profile, "4:2:2"  , Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Version, "Version 2", Error, false, true); break; //MPEG-2V 4:2:2
+            case 0x66 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "AAC", Error, false, true); Fill(Stream_Audio, StreamPos_Last, Audio_Format_Profile, "Main", Error, false, true); break; //MPEG-2 AAC Main
+            case 0x67 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "AAC", Error, false, true); Fill(Stream_Audio, StreamPos_Last, Audio_Format_Profile, "LC", Error, false, true); break; //MPEG-2 AAC LC
+            case 0x68 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "AAC", Error, false, true); Fill(Stream_Audio, StreamPos_Last, Audio_Format_Profile, "SSR", Error, false, true); break; //MPEG-2 AAC SSR
+            case 0x69 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "MPEG Audio", Error, false, true); Fill(Stream_Audio, StreamPos_Last, Audio_Format_Version, "Version 2", Error, false, true); Fill(Stream_Audio, StreamPos_Last, Audio_Format_Profile, "Layer 3", Error, false, true); break;
+            case 0x6A : Fill(Stream_Video   , StreamPos_Last, Video_Format, "MPEG Video", Error, false, true); Fill(Stream_Video, StreamPos_Last, Video_Format_Version, "Version 1", Error, false, true); break;
+            case 0x6B : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "MPEG Audio", Error, false, true); Fill(Stream_Audio, StreamPos_Last, Audio_Format_Version, "Version 1", Error, false, true); break;
+            case 0x6C : Fill(Stream_Video   , StreamPos_Last, Video_Format, "M-JPEG", Error, false, true); break;
+            case 0x6D : Fill(Stream_Video   , StreamPos_Last, Video_Format, "PNG", Error, false, true); break;
+            case 0x6E : Fill(Stream_Video   , StreamPos_Last, Video_Format, "MPEG Video", Error, false, true); break;
+            case 0xA0 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "EVRC", Error, false, true); Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, 8000, 10, true); Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, 1, 10, true); break;
+            case 0xA1 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "SMV", Error, false, true); Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, 8000, 10, true); Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, 1, 10, true);  break;
+            case 0xA2 : Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Format), "3GPP2", Error, false, true); break;
+            case 0xA3 : Fill(Stream_Video   , StreamPos_Last, Video_Format, "VC-1", Error, false, true); break;
+            case 0xA4 : Fill(Stream_Video   , StreamPos_Last, Video_Format, "Dirac", Error, false, true); break;
+            case 0xA5 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "AC-3", Error, false, true); break;
+            case 0xA6 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "E-AC-3", Error, false, true); break;
+            case 0xA9 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "DTS", Error, false, true); break;
+            case 0xAA : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "DTS", Error, false, true); Fill(Stream_Audio, StreamPos_Last, Audio_Format_Profile, "HRA", Error, false, true); break; // DTS-HD High Resolution
+            case 0xAB : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "DTS", Error, false, true); Fill(Stream_Audio, StreamPos_Last, Audio_Format_Profile, "MA", Error, false, true); break;  // DTS-HD Master Audio
+            case 0xD1 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "EVRC", Error, false, true); Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, 8000, 10, true); Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, 1, 10, true);  break;
+            case 0xD3 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "AC-3", Error, false, true); break;
+            case 0xD4 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "DTS", Error, false, true); break;
+            case 0xDD : Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Format), "Ogg", Error, false, true); break;
+            case 0xDE : Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Format), "Ogg", Error, false, true); break;
+            case 0xE1 : Fill(Stream_Audio   , StreamPos_Last, Audio_Format, "QCELP", Error, false, true); Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, 8000, 10, true); Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, 1, 10, true);  break;
             default: ;
         }
         switch (ObjectTypeId)
         {
-            case 0x01 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "System", Error, false, true); break;
-            case 0x02 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "System Core", Error, false, true); break;
-            case 0x20 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "MPEG-4V", Error, false, true); break;
-            case 0x21 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "H264", Error, false, true); break;
-            case 0x40 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "AAC", Error, false, true); break; //MPEG-4 AAC
-            case 0x60 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "MPEG-2V", Error, false, true); break; //MPEG-2V Simple
-            case 0x61 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "MPEG-2V", Error, false, true); break; //MPEG-2V Main
-            case 0x62 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "MPEG-2V", Error, false, true); break; //MPEG-2V SNR
-            case 0x63 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "MPEG-2V", Error, false, true); break; //MPEG-2V Spatial
-            case 0x64 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "MPEG-2V", Error, false, true); break; //MPEG-2V High
-            case 0x65 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "MPEG-2V", Error, false, true); break; //MPEG-2V 4:2:2
-            case 0x66 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "AAC", Error, false, true); break; //MPEG-2 AAC Main
-            case 0x67 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "AAC", Error, false, true); break; //MPEG-2 AAC LC
-            case 0x68 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "AAC", Error, false, true); break; //MPEG-2 AAC SSR
-            case 0x69 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "MPEG-2A L3", Error, false, true); break;
-            case 0x6A : Fill(StreamKind_Last, StreamPos_Last, "Codec", "MPEG-1V", Error, false, true); break;
-            case 0x6B : Fill(StreamKind_Last, StreamPos_Last, "Codec", "MPEG-1A", Error, false, true); break;
-            case 0x6C : Fill(StreamKind_Last, StreamPos_Last, "Codec", "M-JPEG", Error, false, true); break;
-            case 0x6D : Fill(StreamKind_Last, StreamPos_Last, "Codec", "PNG", Error, false, true); break;
-            case 0x6E : Fill(StreamKind_Last, StreamPos_Last, "Codec", "MPEG-4V", Error, false, true); break; 
-            case 0xA0 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "EVRC", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "SamplingRate", "8000"); Fill(StreamKind_Last, StreamPos_Last, "Channel(s)", "1", 10, true); break;
-            case 0xA1 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "SMV", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "SamplingRate", "8000"); Fill(StreamKind_Last, StreamPos_Last, "Channel(s)", "1", 10, true);  break;
-            case 0xA2 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "MPEG-4V", Error, false, true); break;
-            case 0xA3 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "VC-1", Error, false, true); break;
-            case 0xA4 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "Dirac", Error, false, true); break;
-            case 0xA5 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "AC3", Error, false, true); break;
-            case 0xA6 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "AC3+", Error, false, true); break;
-            case 0xA9 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "DTS", Error, false, true); break;
+            case 0x01 : Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Codec), "System", Error, false, true); break;
+            case 0x02 : Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Codec), "System Core", Error, false, true); break;
+            case 0x20 : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "MPEG-4V", Error, false, true); break;
+            case 0x21 : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "H264", Error, false, true); break;
+            case 0x40 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "AAC", Error, false, true); break; //MPEG-4 AAC
+            case 0x60 : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "MPEG-2V", Error, false, true); break; //MPEG-2V Simple
+            case 0x61 : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "MPEG-2V", Error, false, true); break; //MPEG-2V Main
+            case 0x62 : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "MPEG-2V", Error, false, true); break; //MPEG-2V SNR
+            case 0x63 : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "MPEG-2V", Error, false, true); break; //MPEG-2V Spatial
+            case 0x64 : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "MPEG-2V", Error, false, true); break; //MPEG-2V High
+            case 0x65 : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "MPEG-2V", Error, false, true); break; //MPEG-2V 4:2:2
+            case 0x66 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "AAC", Error, false, true); break; //MPEG-2 AAC Main
+            case 0x67 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "AAC", Error, false, true); break; //MPEG-2 AAC LC
+            case 0x68 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "AAC", Error, false, true); break; //MPEG-2 AAC SSR
+            case 0x69 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "MPEG-2A L3", Error, false, true); break;
+            case 0x6A : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "MPEG-1V", Error, false, true); break;
+            case 0x6B : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "MPEG-1A", Error, false, true); break;
+            case 0x6C : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "M-JPEG", Error, false, true); break;
+            case 0x6D : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "PNG", Error, false, true); break;
+            case 0x6E : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "MPEG-4V", Error, false, true); break;
+            case 0xA0 : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "EVRC", Error, false, true); break;
+            case 0xA1 : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "SMV", Error, false, true); break;
+            case 0xA2 : Fill(Stream_Video   , StreamPos_Last, Video_Codec, "MPEG-4V", Error, false, true); break;
+            case 0xA3 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "VC-1", Error, false, true); break;
+            case 0xA4 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "Dirac", Error, false, true); break;
+            case 0xA5 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "AC3", Error, false, true); break;
+            case 0xA6 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "AC3+", Error, false, true); break;
+            case 0xA9 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "DTS", Error, false, true); break;
             case 0xAA : 
-            case 0xAB : Fill(StreamKind_Last, StreamPos_Last, "Codec", "DTS-HD", Error, false, true); break;
-            case 0xD1 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "EVRC", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "SamplingRate", "8000"); Fill(StreamKind_Last, StreamPos_Last, "Channel(s)", "1", 10, true);  break;
-            case 0xD3 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "AC3", Error, false, true); break;
-            case 0xD4 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "DTS", Error, false, true); break;
-            case 0xDD : Fill(StreamKind_Last, StreamPos_Last, "Codec", "Ogg", Error, false, true); break;
-            case 0xDE : Fill(StreamKind_Last, StreamPos_Last, "Codec", "Ogg", Error, false, true); break;
-            case 0xE1 : Fill(StreamKind_Last, StreamPos_Last, "Codec", "QCELP", Error, false, true); Fill(StreamKind_Last, StreamPos_Last, "SamplingRate", "8000"); Fill(StreamKind_Last, StreamPos_Last, "Channel(s)", "1", 10, true);  break;
+            case 0xAB : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "DTS-HD", Error, false, true); break;
+            case 0xD1 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "EVRC", Error, false, true); break;
+            case 0xD3 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "AC3", Error, false, true); break;
+            case 0xD4 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "DTS", Error, false, true); break;
+            case 0xDD : Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Codec), "Ogg", Error, false, true); break;
+            case 0xDE : Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Codec), "Ogg", Error, false, true); break;
+            case 0xE1 : Fill(Stream_Audio   , StreamPos_Last, Audio_Codec, "QCELP", Error, false, true); break;
             default: ;
         }
-        Fill(StreamKind_Last, StreamPos_Last, "CodecID", ObjectTypeId, 16, true);
-        Fill(StreamKind_Last, StreamPos_Last, "Codec/CC", ObjectTypeId, 16, true);
+        Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_CodecID), ObjectTypeId, 16, true);
+        Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Codec_CC), ObjectTypeId, 16, true);
 
         //Bitrate mode
         if (AvgBitrate>0
          && !(bufferSizeDB==AvgBitrate && bufferSizeDB==MaxBitrate && bufferSizeDB==0x1000)) //Some buggy data were found
         {
-            Fill(StreamKind_Last, StreamPos_Last, "BitRate_Nominal", AvgBitrate);
+            Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_BitRate_Nominal), AvgBitrate);
             if (MaxBitrate<=AvgBitrate*1.005)
-                Fill(StreamKind_Last, StreamPos_Last, "BitRate_Mode", "CBR");
+                Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_BitRate_Mode), "CBR");
             else
             {
-                Fill(StreamKind_Last, StreamPos_Last, "BitRate_Mode", "VBR");
-                Fill(StreamKind_Last, StreamPos_Last, "BitRate_Maximum", MaxBitrate);
+                Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_BitRate_Mode), "VBR");
+                Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_BitRate_Maximum), MaxBitrate);
             }
         }
 
         //Creating parser
-        delete Parser; //Parser=NULL;
+        delete Parser; Parser=NULL;
         switch (ObjectTypeId)
         {
             case 0x20 : //MPEG-4 Visual
@@ -638,6 +616,7 @@ void File_Mpeg4_Descriptors::Descriptor_04()
             case 0x40 :
                         #if defined(MEDIAINFO_MPEG4_YES)
                             Parser=new File_Mpeg4_AudioSpecificConfig;
+                            ((File_Mpeg4_AudioSpecificConfig*)Parser)->MajorBrand=MajorBrand;
                         #endif
                         break;
             case 0x60 :
@@ -657,7 +636,7 @@ void File_Mpeg4_Descriptors::Descriptor_04()
             case 0x67 :
             case 0x68 : //MPEG-2 AAC
                         #if defined(MEDIAINFO_MPEG4_YES)
-                            Parser=new File_Mpeg4_AudioSpecificConfig; //Should be ADIF, but the only sample I have is AudioSpecificConfig 
+                            Parser=new File_Mpeg4_AudioSpecificConfig; //Should be ADIF, but the only sample I have is AudioSpecificConfig
                         #endif
                         break;
             case 0x69 :
@@ -728,14 +707,15 @@ void File_Mpeg4_Descriptors::Descriptor_05()
         {
             case Stream_Video :
                                 #if defined(MEDIAINFO_MPEG4V_YES)
-                                    Parser=new File_Mpeg4v;
+                                    delete Parser; Parser=new File_Mpeg4v;
                                     ((File_Mpeg4v*)Parser)->Frame_Count_Valid=1;
                                     ((File_Mpeg4v*)Parser)->FrameIsAlwaysComplete=true;
                                 #endif
                                 break;
             case Stream_Audio :
                                 #if defined(MEDIAINFO_MPEG4_YES)
-                                    Parser=new File_Mpeg4_AudioSpecificConfig;
+                                    delete Parser; Parser=new File_Mpeg4_AudioSpecificConfig;
+                                    ((File_Mpeg4_AudioSpecificConfig*)Parser)->MajorBrand=MajorBrand;
                                 #endif
                                 break;
             default: ;
@@ -766,14 +746,22 @@ void File_Mpeg4_Descriptors::Descriptor_05()
         default: ;
     }
 
+    //Handling of IOD backup
+    if (ObjectTypeId==0x40) //Audio ISO/IEC 14496-3 (AAC)
+    {
+        delete DecSpecificInfoTag; DecSpecificInfoTag=new decspecificinfotag;
+        DecSpecificInfoTag->Buffer=new int8u[(size_t)Element_Size];
+        DecSpecificInfoTag->Buffer_Size=(size_t)Element_Size;
+        std::memcpy(DecSpecificInfoTag->Buffer, Buffer+Buffer_Offset, (size_t)Element_Size);
+    }
+
     //Parsing
     Open_Buffer_Continue(Parser, Buffer+Buffer_Offset, (size_t)Element_Size);
     if (!Parser_DoNotFreeIt
      || StreamKind_Last==Stream_Audio && Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==_T("AAC")) //File_Mpeg4_AudioSpecificConfig is only for DecConfig
     {
-        Open_Buffer_Finalize(Parser);
-
         //Filling
+        Finish(Parser);
         Merge(*Parser, StreamKind_Last, 0, StreamPos_Last);
 
         delete Parser; Parser=NULL;
@@ -803,64 +791,125 @@ void File_Mpeg4_Descriptors::Descriptor_05()
 //---------------------------------------------------------------------------
 void File_Mpeg4_Descriptors::Descriptor_06()
 {
+    delete SLConfig; SLConfig=new slconfig;
+
     //Parsing
-    int8u predefined, timeStampLength;
-    bool durationFlag, useTimeStampsFlag;
+    int8u predefined;
     Get_B1 (predefined,                                         "predefined"); Param_Info(Mpeg4_Descriptors_Predefined(predefined));
     switch (predefined)
     {
         case 0x00 :
             {
                     BS_Begin();
-                    Skip_SB(                                    "useAccessUnitStartFlag");
-                    Skip_SB(                                    "useAccessUnitEndFlag");
-                    Skip_SB(                                    "useRandomAccessPointFlag");
-                    Skip_SB(                                    "hasRandomAccessUnitsOnlyFlag");
-                    Skip_SB(                                    "usePaddingFlag");
-                    Get_SB (useTimeStampsFlag,                  "useTimeStampsFlag");
-                    Skip_SB(                                    "useIdleFlag");
-                    Get_SB (durationFlag,                       "durationFlag");
+                    Get_SB (SLConfig->useAccessUnitStartFlag,   "useAccessUnitStartFlag");
+                    Get_SB (SLConfig->useAccessUnitEndFlag,     "useAccessUnitEndFlag");
+                    Get_SB (SLConfig->useRandomAccessPointFlag, "useRandomAccessPointFlag");
+                    Get_SB (SLConfig->hasRandomAccessUnitsOnlyFlag, "hasRandomAccessUnitsOnlyFlag");
+                    Get_SB (SLConfig->usePaddingFlag,           "usePaddingFlag");
+                    Get_SB (SLConfig->useTimeStampsFlag,        "useTimeStampsFlag");
+                    Get_SB (SLConfig->useIdleFlag,              "useIdleFlag");
+                    Get_SB (SLConfig->durationFlag,             "durationFlag");
                     BS_End();
-                    Skip_B4(                                    "timeStampResolution");
-                    Skip_B4(                                    "OCRResolution");
-                    Get_B1 (timeStampLength,                    "timeStampLength");
-                    Skip_B1(                                    "OCRLength");
-                    Skip_B1(                                    "AU_Length");
-                    Skip_B1(                                    "instantBitrateLength");
+                    Get_B4 (SLConfig->timeStampResolution,      "timeStampResolution");
+                    Get_B4( SLConfig->OCRResolution,            "OCRResolution");
+                    Get_B1 (SLConfig->timeStampLength,          "timeStampLength");
+                    Get_B1 (SLConfig->AU_Length,                "OCRLength");
+                    Get_B1 (SLConfig->instantBitrateLength,     "AU_Length");
+                    Get_B1 (SLConfig->degradationPriorityLength,"instantBitrateLength");
                     BS_Begin();
-                    Skip_S1(4,                                  "degradationPriorityLength");
-                    Skip_S1(5,                                  "AU_seqNumLength");
-                    Skip_S1(5,                                  "packetSeqNumLength");
+                    Get_S1 (4, SLConfig->degradationPriorityLength, "degradationPriorityLength");
+                    Get_S1 (5, SLConfig->AU_seqNumLength,       "AU_seqNumLength");
+                    Get_S1 (5, SLConfig->packetSeqNumLength,    "packetSeqNumLength");
                     Skip_S1(2,                                  "reserved");
                     BS_End();
             }
             break;
         case 0x01 :
-                    useTimeStampsFlag=false;
-                    durationFlag=false;
-                    timeStampLength=32;
+                    SLConfig->useAccessUnitStartFlag          =false;
+                    SLConfig->useAccessUnitEndFlag            =false;
+                    SLConfig->useRandomAccessPointFlag        =false;
+                    SLConfig->hasRandomAccessUnitsOnlyFlag    =false;
+                    SLConfig->usePaddingFlag                  =false;
+                    SLConfig->useTimeStampsFlag               =false;
+                    SLConfig->useIdleFlag                     =false;
+                    SLConfig->durationFlag                    =false; //-
+                    SLConfig->timeStampResolution             =1000;
+                    SLConfig->OCRResolution                   =0; //-
+                    SLConfig->timeStampLength                 =32;
+                    SLConfig->AU_Length                       =0;
+                    SLConfig->instantBitrateLength            =0; //-
+                    SLConfig->degradationPriorityLength       =0;
+                    SLConfig->AU_seqNumLength                 =0;
+                    SLConfig->packetSeqNumLength              =0;
+
+                    SLConfig->timeScale                       =0; //-
+                    SLConfig->accessUnitDuration              =0; //-
+                    SLConfig->compositionUnitDuration         =0; //-
+
+                    SLConfig->startDecodingTimeStamp          =0; //-
+                    SLConfig->startCompositionTimeStamp       =0; //-
                     break;
         case 0x02 :
-                    useTimeStampsFlag=true;
-                    durationFlag=false;
-                    timeStampLength=32;
+                    SLConfig->useAccessUnitStartFlag          =false;
+                    SLConfig->useAccessUnitEndFlag            =false;
+                    SLConfig->useRandomAccessPointFlag        =false;
+                    SLConfig->hasRandomAccessUnitsOnlyFlag    =false;
+                    SLConfig->usePaddingFlag                  =false;
+                    SLConfig->useTimeStampsFlag               =true;
+                    SLConfig->useIdleFlag                     =false;
+                    SLConfig->durationFlag                    =false;
+                    SLConfig->timeStampResolution             =0; //-
+                    SLConfig->OCRResolution                   =0; //-
+                    SLConfig->timeStampLength                 =32;
+                    SLConfig->AU_Length                       =0;
+                    SLConfig->instantBitrateLength            =0;
+                    SLConfig->degradationPriorityLength       =0;
+                    SLConfig->AU_seqNumLength                 =0;
+                    SLConfig->packetSeqNumLength              =0;
+
+                    SLConfig->timeScale                       =0; //-
+                    SLConfig->accessUnitDuration              =0; //-
+                    SLConfig->compositionUnitDuration         =0; //-
+
+                    SLConfig->startDecodingTimeStamp          =0; //-
+                    SLConfig->startCompositionTimeStamp       =0; //-
                     break;
         default   :
-                    useTimeStampsFlag=false;
-                    durationFlag=false;
-                    timeStampLength=32;
+                    SLConfig->useAccessUnitStartFlag          =false;
+                    SLConfig->useAccessUnitEndFlag            =false;
+                    SLConfig->useRandomAccessPointFlag        =false;
+                    SLConfig->hasRandomAccessUnitsOnlyFlag    =false;
+                    SLConfig->usePaddingFlag                  =false;
+                    SLConfig->useTimeStampsFlag               =false;
+                    SLConfig->useIdleFlag                     =false;
+                    SLConfig->durationFlag                    =false;
+                    SLConfig->timeStampResolution             =0;
+                    SLConfig->OCRResolution                   =0;
+                    SLConfig->timeStampLength                 =0;
+                    SLConfig->AU_Length                       =0;
+                    SLConfig->instantBitrateLength            =0;
+                    SLConfig->degradationPriorityLength       =0;
+                    SLConfig->AU_seqNumLength                 =0;
+                    SLConfig->packetSeqNumLength              =0;
+
+                    SLConfig->timeScale                       =0;
+                    SLConfig->accessUnitDuration              =0;
+                    SLConfig->compositionUnitDuration         =0;
+
+                    SLConfig->startDecodingTimeStamp          =0;
+                    SLConfig->startCompositionTimeStamp       =0;
     }
-    if (durationFlag)
+    if (SLConfig->durationFlag)
     {
-        Skip_B4(                                                "timeScale");
-        Skip_B2(                                                "accessUnitDuration");
-        Skip_B2(                                                "compositionUnitDuration");
+        Get_B4 (SLConfig->timeScale,                            "timeScale");
+        Get_B2 (SLConfig->accessUnitDuration,                   "accessUnitDuration");
+        Get_B2 (SLConfig->compositionUnitDuration,              "compositionUnitDuration");
     }
-    if (!useTimeStampsFlag)
+    if (!SLConfig->useTimeStampsFlag)
     {
         BS_Begin();
-        Skip_S8(timeStampLength,                                "startDecodingTimeStamp");
-        Skip_S8(timeStampLength,                                "startCompositionTimeStamp");
+        Get_S8 (SLConfig->timeStampLength, SLConfig->startDecodingTimeStamp, "startDecodingTimeStamp");
+        Get_S8 (SLConfig->timeStampLength, SLConfig->startCompositionTimeStamp, "startCompositionTimeStamp");
         BS_End();
     }
 }

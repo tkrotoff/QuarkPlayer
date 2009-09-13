@@ -156,6 +156,7 @@ void File_Cdxa::FileHeader_Parse()
     FILLING_BEGIN();
         MI=new MediaInfo_Internal;
         MI->Option(_T("FormatDetection_MaximumOffset"), _T("1048576"));
+        MI->Option(_T("File_IsSub"), _T("1"));
         Stream_Prepare(Stream_General);
         Accept("CDXA");
     FILLING_END();
@@ -208,7 +209,7 @@ void File_Cdxa::Read_Buffer_Finalize ()
         return;
 
     //If nothing
-    if (MI->Info==NULL || !MI->Info->IsAccepted)
+    if (MI->Info==NULL || !MI->Info->Status[IsAccepted])
     {
         Fill(Stream_General, 0, General_Format, "CDXA");
     }
@@ -277,8 +278,15 @@ void File_Cdxa::Data_Parse()
     //Sending the buffer to MediaInfo
     MI->Open_Buffer_Continue(Buffer+Buffer_Offset, (size_t)(Element_Size-CRC_Size));
 
+    //Testing if filled
+    if (MI->Info->Status[IsFilled]) {
+
+    }
+
     //Testing if MediaInfo always need data
     File_GoTo=MI->Open_Buffer_Continue_GoTo_Get();
+    if (File_GoTo==(int64u)-1 && MI->Info->Status[IsFilled] && File_Size!=(int64u)-1 && File_Offset+Buffer_Size<File_Size/2)
+        GoToFromEnd(File_Offset+Buffer_Size);
     if (File_GoTo!=(int64u)-1)
         Info("CDXA, Jumping to end of file");
 
