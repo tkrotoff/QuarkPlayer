@@ -179,7 +179,7 @@ void WikipediaArticle::simplifyAndFixWikipediaArticle(QString & wiki) const {
 		copyright = wiki.mid(wiki.indexOf(copyrightMark) + copyrightMark.length());
 		copyright = copyright.mid(0, copyright.indexOf("</li>"));
 		copyright.remove("<br />");
-		//only one br at the beginning
+		//Only one br at the beginning
 		copyright.prepend("<br />");
 	}
 
@@ -201,7 +201,7 @@ void WikipediaArticle::simplifyAndFixWikipediaArticle(QString & wiki) const {
 	}
 
 	//Adding back style and license information
-	wiki = "<div id=\"bodyContent\"" + wiki;
+	wiki = "<div id=\"bodyContent\">" + wiki;
 	wiki += copyright;
 	wiki.append("</div>");
 	wiki.remove(QRegExp("<h3 id=\"siteSub\">[^<]*</h3>"));

@@ -20,6 +20,8 @@
 
 #include <contentfetcher/WikipediaArticle.h>
 
+#include <QtCore/QRegExp>
+
 void WikipediaArticleTest::initTestCase() {
 	_wikipediaArticle = new WikipediaArticle(this);
 	connect(_wikipediaArticle,
@@ -36,32 +38,32 @@ void WikipediaArticleTest::fetch_data() {
 	QTest::addColumn<QString>("artist");
 	QTest::addColumn<int>("networkError");
 	QTest::addColumn<QString>("wikipediaArticleUrl");
-	QTest::addColumn<QString>("wikipediaArticleContent");
+	QTest::addColumn<QRegExp>("wikipediaArticleContent");
 
 	QTest::newRow("Michael Jackson") << "Michael Jackson"
 		<< static_cast<int>(QNetworkReply::NoError)
 		<< "http://en.wikipedia.org/wiki/Michael_Jackson"
-		<< "<html><body><div id=\"bodyContent\".*</div></body></html>";
+		<< QRegExp("<html><body>\n<div id=\"bodyContent\">.*</div></body></html>\n");
 
 	QTest::newRow("Muse") << "Muse"
 		<< static_cast<int>(QNetworkReply::NoError)
 		<< "http://en.wikipedia.org/wiki/Muse_(band)"
-		<< "<html><body><div id=\"bodyContent\".*</div></body></html>";
+		<< QRegExp("<html><body>\n<div id=\"bodyContent\">.*</div></body></html>\n");
 
 	QTest::newRow("Noir Désir") << "Noir Désir"
 		<< static_cast<int>(QNetworkReply::NoError)
 		<< "http://en.wikipedia.org/wiki/Noir_D%C3%A9sir"
-		<< "";
+		<< QRegExp("<html><body>\n<div id=\"bodyContent\">.*</div></body></html>\n");
 
 	QTest::newRow("Non existing") << "Non existing artist"
 		<< static_cast<int>(QNetworkReply::ContentNotFoundError)
 		<< "http://en.wikipedia.org/w/api.php?action=opensearch&search=Non existing artist&format=xml"
-		<< "";
+		<< QRegExp("");
 
 	QTest::newRow("Empty") << ""
 		<< static_cast<int>(QNetworkReply::ContentNotFoundError)
 		<< "http://en.wikipedia.org/w/api.php?action=opensearch&search=&format=xml"
-		<< "<html><body><div id=\"bodyContent\"</div></body></html>";
+		<< QRegExp("");
 }
 
 void WikipediaArticleTest::fetch() {
@@ -82,12 +84,12 @@ void WikipediaArticleTest::wikipediaArticleFound(QNetworkReply::NetworkError err
 	QFETCH(QString, artist);
 	QFETCH(int, networkError);
 	QFETCH(QString, wikipediaArticleUrl);
-	QFETCH(QString, wikipediaArticleContent);
+	QFETCH(QRegExp, wikipediaArticleContent);
 
 	QCOMPARE(artist, track.artist);
 	QCOMPARE(networkError, static_cast<int>(error));
 	QCOMPARE(wikipediaArticleUrl, tmp);
-	//QCOMPARE(wikipediaArticleContent, QString::fromUtf8(wikipediaArticle));
+	QVERIFY(wikipediaArticleContent.exactMatch(QString::fromUtf8(wikipediaArticle)));
 
 	QTestEventLoop::instance().exitLoop();
 }
