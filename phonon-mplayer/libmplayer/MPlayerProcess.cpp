@@ -281,8 +281,8 @@ static QRegExp rx_stream_name("^Name   : (.*)");
 static QRegExp rx_stream_genre("^Genre  : (.*)");
 static QRegExp rx_stream_website("^Website: (.*)");
 
-void MPlayerProcess::parseLine(const QString & tmp) {
-	QString line = tmp;
+void MPlayerProcess::parseLine(const QString & line_) {
+	QString line = line_;
 
 	//Skip empty lines
 	if (line.isEmpty()) {
