@@ -31,14 +31,7 @@ endif (GCC)
 if (MSVC)
 	#add_definitions(/W4)
 else (MSVC)
-	add_definitions(-Wall)
-
-	if (NOT MINGW)
-		# Otherwise Qt-4.4.0 makes a lot of warnings with MinGW
-		if (GCC4)
-			add_definitions(-Wextra)
-		endif (GCC4)
-	endif (NOT MINGW)
+	add_definitions(-Wall -Wextra)
 endif (MSVC)
 ##
 
@@ -52,18 +45,14 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	add_definitions(-DDEBUG)
 endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
-if (CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
-	add_definitions(-DDEBUG)
-endif (CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
-
 # UNICODE support enabled
-# See Visual C++ Unicode Programming Summary
-# http://msdn.microsoft.com/en-us/library/dybsewaf%28VS.100%29.aspx
-if (NOT MINGW)
-	# MinGW STL does not support wide characters (wchar_t)
-	# see http://www.mingw.org/wiki/wide_characters
-	add_definitions(-DUNICODE)
-endif (NOT MINGW)
+add_definitions(-DUNICODE)
+if (MSVC)
+	# UNICODE support with Visual C++
+	# See Visual C++ Unicode Programming Summary
+	# http://msdn.microsoft.com/en-us/library/dybsewaf%28VS.100%29.aspx
+	add_definitions(-D_UNICODE)
+endif (MSVC)
 ##
 
 if (MSVC)
