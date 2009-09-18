@@ -3,12 +3,14 @@ project(contentfetchertest)
 set(contentfetchertest_SRCS
 	LyricsFetcherTest.cpp
 	WikipediaArticleTest.cpp
+	AmazonCoverArtTest.cpp
 	main.cpp
 )
 
 qt4_wrap_cpp(contentfetchertest_SRCS
 	LyricsFetcherTest.h
 	WikipediaArticleTest.h
+	AmazonCoverArtTest.h
 )
 
 add_executable(contentfetchertest ${contentfetchertest_SRCS})

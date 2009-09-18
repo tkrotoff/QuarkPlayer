@@ -16,23 +16,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LyricsFetcherTest.h"
-#include "WikipediaArticleTest.h"
-#include "AmazonCoverArtTest.h"
+#ifndef AMAZONCOVERARTTEST_H
+#define AMAZONCOVERARTTEST_H
 
-int main(int argc, char * argv[]) {
-	QCoreApplication app(argc, argv);
+#include <QtTest/QtTest>
 
-	int result = EXIT_FAILURE;
+#include <QtNetwork/QNetworkReply>
 
-	LyricsFetcherTest test1;
-	result |= QTest::qExec(&test1, argc, argv);
+class ContentFetcherTrack;
+class AmazonCoverArt;
 
-	WikipediaArticleTest test2;
-	result |= QTest::qExec(&test2, argc, argv);
+/**
+ * Test for AmazonCoverArt.
+ *
+ * @see AmazonCoverArt
+ * @author Tanguy Krotoff
+ */
+class AmazonCoverArtTest : public QObject {
+	Q_OBJECT
+private slots:
 
-	AmazonCoverArtTest test3;
-	result |= QTest::qExec(&test3, argc, argv);
+	/** Called before the first testfunction is executed. */
+	void initTestCase();
 
-	return result;
-}
+	/** Called after the last testfunction was executed. */
+	void cleanupTestCase();
+
+	void fetch_data();
+	void fetch();
+
+	void amazonCoverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & amazonCoverArt, const ContentFetcherTrack & track);
+
+private:
+
+	AmazonCoverArt * _amazonCoverArt;
+};
+
+#endif	//AMAZONCOVERARTTEST_H
