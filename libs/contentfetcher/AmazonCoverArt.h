@@ -98,7 +98,7 @@ private:
 	 */
 	QString _amazonWebServiceSecretKey;
 
-	QNetworkAccessManager * _coverArtDownloader;
+	QNetworkAccessManager * _amazonCoverArtDownloader;
 };
 
 #endif	//AMAZONCOVERART_H

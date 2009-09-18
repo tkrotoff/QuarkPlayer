@@ -37,7 +37,9 @@ LyricsFetcher::~LyricsFetcher() {
 }
 
 QUrl LyricsFetcher::lyricWikiUrl(const QString & artist, const QString & title) const {
-	QUrl url("http://lyricwiki.org/api.php");
+	QUrl url("http://lyrics.wikia.com/api.php");
+	url.addQueryItem("action", "lyrics");
+	url.addQueryItem("func", "getSong");
 	url.addQueryItem("fmt", "xml");
 	url.addQueryItem("artist", artist);
 	url.addQueryItem("song", title);
@@ -67,37 +69,42 @@ void LyricsFetcher::gotLyricsUrl(QNetworkReply * reply) {
 		return;
 	}
 
-	//Example of the XML response from LyricWiki:
+	//Examples of the XML response from lyrics.wikia.com
+
+	//http://lyrics.wikia.com/api.php?action=lyrics&func=getSong&fmt=xml&artist=Michael%20Jackson&song=Don%27t%20Stop%20%27Til%20You%20Get%20Enough
 	//<?xml version="1.0" encoding="UTF-8"?>
 	//<LyricsResult>
-	//	<artist>Kurtis Blow</artist>
-	//	<song>The Breaks</song>
-	//	<lyrics>Unfortunately, due to licensing restrictions from some of the major music publishers we can no longer return lyrics through the LyricWiki API (where this application gets some or all of its lyrics).
-	//
-	//The lyrics for this song can be found at the following URL:
-	//http://lyricwiki.org/Kurtis_Blow:The_Breaks
-	//
-	//&lt;a href=&#039;http://lyricwiki.org/Kurtis_Blow:The_Breaks&#039;&gt;Kurtis Blow:The Breaks&lt;/a&gt;
-	//
-	//
-	//(Please note: this is not the fault of the developer who created this application, but is a restriction imposed by the music publishers themselves.)</lyrics>
-	//	<url>http://lyricwiki.org/Kurtis_Blow:The_Breaks</url>
+	//	<artist>Michael Jackson</artist>
+	//	<song>Don't Stop 'Til You Get Enough</song>
+	//	<url>http://lyrics.wikia.com/Michael_Jackson:Don%27t_Stop_%27Til_You_Get_Enough</url>
 	//</LyricsResult>
 
+	//http://lyrics.wikia.com/api.php?action=lyrics&func=getSong&fmt=xml&artist=&song=
+	//<?xml version="1.0" encoding="UTF-8"?>
+	//<LyricsResult>
+	//	<artist></artist>
+	//	<song></song>
+	//	<url>http://lyrics.wikia.com</url>
+	//</LyricsResult>
+
+	//http://lyrics.wikia.com/api.php?action=lyrics&func=getSong&fmt=xml&artist=Non%20existing%20artist&song=Non%20existing%20title
+	//<?xml version="1.0" encoding="UTF-8"?>
+	//<LyricsResult>
+	//	<artist>Non existing artist</artist>
+	//	<song>Non existing title</song>
+	//	<url>http://lyrics.wikia.com/index.php?title=Non_Existing_Artist:Non_Existing_Title&amp;amp;action=edit</url>
+	//</LyricsResult>
+
+	//Get the real URL
 	QDomDocument doc;
 	doc.setContent(data);
-	QString lyrics = doc.elementsByTagName("lyrics").at(0).toElement().text();
-	if (lyrics == "Not found" || lyrics.isEmpty()) {
-		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
-		return;
-	}
-
-	//Get the real URL, example: <url>http://lyricwiki.org/Kurtis_Blow:The_Breaks</url>
 	QString url = doc.elementsByTagName("url").at(0).toElement().text();
 	///
 
-	//Avoid a redirection, lyricwiki.org is in fact lyrics.wikia.com
-	url = url.replace("lyricwiki.org/", "lyrics.wikia.com/index.php?title=");
+	if (url.endsWith("action=edit") || url.isEmpty()) {
+		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
+		return;
+	}
 
 	qDebug() << __FUNCTION__ << "Real LyricWiki URL:" << url;
 
@@ -116,11 +123,28 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 		return;
 	}
 
+	//Check for a HTTP redirection
+	QUrl redirectionUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+	if (!redirectionUrl.isEmpty()) {
+		_lyricsDownloader->get(QNetworkRequest(redirectionUrl));
+		return;
+	}
+	///
+
 	//Keep only the lyrics, not all the HTML from the webpage
 	QString beginLyrics("<div class='lyricbox' >");
 	QString endLyrics("</div>");
-	int beginLyricsIndex = data.indexOf(beginLyrics) + beginLyrics.size();
+	int beginLyricsIndex = data.indexOf(beginLyrics);
+	if (beginLyricsIndex == -1) {
+		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
+		return;
+	}
+	beginLyricsIndex += beginLyrics.size();
 	int endLyricsIndex = data.indexOf(endLyrics, beginLyricsIndex);
+	if (endLyricsIndex == -1) {
+		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
+		return;
+	}
 	QString lyrics = data.mid(beginLyricsIndex, endLyricsIndex - beginLyricsIndex);
 	lyrics.remove(QRegExp("<!--.*-->"));
 	///

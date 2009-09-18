@@ -42,9 +42,7 @@ AmazonCoverArt::AmazonCoverArt(const QString & amazonWebServiceAccessKeyId, cons
 	_amazonWebServiceAccessKeyId = amazonWebServiceAccessKeyId;
 	_amazonWebServiceSecretKey = amazonWebServiceSecretKey;
 
-	_coverArtDownloader = new QNetworkAccessManager(this);
-	connect(_coverArtDownloader, SIGNAL(finished(QNetworkReply *)),
-		SLOT(gotCoverArtAmazonXML(QNetworkReply *)));
+	_amazonCoverArtDownloader = new QNetworkAccessManager(this);
 }
 
 AmazonCoverArt::~AmazonCoverArt() {
@@ -130,13 +128,13 @@ QUrl AmazonCoverArt::amazonUrl(const ContentFetcherTrack & track) const {
 		QString artist(track.artist);
 		if (!artist.isEmpty()) {
 			//RFC 3986 percent encoding
-			artist = QUrl::toPercentEncoding(artist.toUtf8()).constData();
+			artist = QUrl::toPercentEncoding(artist);
 			params["Artist"] = artist;
 		}
 		QString album(track.album);
 		if (!album.isEmpty()) {
 			//RFC 3986 percent encoding
-			album = QUrl::toPercentEncoding(album.toUtf8()).constData();
+			album = QUrl::toPercentEncoding(album);
 			params["Title"] = album;
 		}
 	} else {
@@ -174,10 +172,15 @@ void AmazonCoverArt::start(const ContentFetcherTrack & track, const QString & la
 	_track.artist = _track.artist.trimmed();
 	_track.amazonASIN = _track.amazonASIN.trimmed();
 
-	qDebug() << __FUNCTION__ << "Looking up for the album cover art";
+	disconnect(_amazonCoverArtDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
+	connect(_amazonCoverArtDownloader, SIGNAL(finished(QNetworkReply *)),
+		SLOT(gotCoverArtAmazonXML(QNetworkReply *)));
 
-	//Try with both artist and album name
-	_coverArtDownloader->get(QNetworkRequest(amazonUrl(_track)));
+	QUrl url = amazonUrl(_track);
+
+	qDebug() << __FUNCTION__ << "Looking up for the amazon album cover art:" << url;
+
+	_amazonCoverArtDownloader->get(QNetworkRequest(url));
 }
 
 void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
@@ -185,7 +188,6 @@ void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
 	QByteArray data(reply->readAll());
 
 	if (error != QNetworkReply::NoError) {
-		qDebug() << __FUNCTION__ << "Network error:" << data;
 		emitNetworkError(QNetworkReply::OperationCanceledError, QUrl());
 		return;
 	}
@@ -194,17 +196,14 @@ void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
 	QString url = QUrl(QString(data).replace(QRegExp(".+<LargeImage><URL>([^<]+)<.+"), "\\1")).toString();
 
 	if (!url.contains(QRegExp("^http://"))) {
-		qWarning() << __FUNCTION__ << "Error: couldn't find cover art with artist+album";
-		qDebug() << __FUNCTION__ << "Artist:" << _track.artist;
-		qDebug() << __FUNCTION__ << "Album:" << _track.album;
-		qDebug() << __FUNCTION__ << "Amazon ASIN:" << _track.amazonASIN;
+		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
 	} else {
-		//qDebug() << __FUNCTION__ << "Downloading cover art";
+		qDebug() << __FUNCTION__ << "Downloading cover art:" << url;
 
-		disconnect(_coverArtDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
-		connect(_coverArtDownloader, SIGNAL(finished(QNetworkReply *)),
+		disconnect(_amazonCoverArtDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
+		connect(_amazonCoverArtDownloader, SIGNAL(finished(QNetworkReply *)),
 			SLOT(gotCoverArt(QNetworkReply *)));
-		_coverArtDownloader->get(QNetworkRequest(QUrl::fromEncoded(url.toUtf8())));
+		_amazonCoverArtDownloader->get(QNetworkRequest(QUrl::fromEncoded(url.toUtf8())));
 	}
 }
 
