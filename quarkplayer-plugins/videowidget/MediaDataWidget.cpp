@@ -48,7 +48,7 @@ MediaDataWidget::MediaDataWidget(QWidget * parent)
 	: MediaInfoWidget(parent) {
 
 	_mediaInfoFetcher = NULL;
-	_coverArtFetcher = NULL;
+	_amazonCoverArt = NULL;
 
 	_mediaInfoWindow = NULL;
 	connect(coverArtButton(), SIGNAL(clicked()), SLOT(showMediaInfoWindow()));
@@ -134,24 +134,24 @@ void MediaDataWidget::downloadAmazonCoverArt(const MediaInfo & mediaInfo) {
 
 		if (!QFileInfo(_amazonCoverArtPath).exists()) {
 			//Download the cover art
-			if (!_coverArtFetcher) {
+			if (!_amazonCoverArt) {
 				//Lazy initialization
-				_coverArtFetcher = new AmazonCoverArt(AMAZON_WEB_SERVICE_ACCESS_KEY_ID, AMAZON_WEB_SERVICE_SECRET_KEY, this);
-				connect(_coverArtFetcher,
+				_amazonCoverArt = new AmazonCoverArt(AMAZON_WEB_SERVICE_ACCESS_KEY_ID, AMAZON_WEB_SERVICE_SECRET_KEY, this);
+				connect(_amazonCoverArt,
 					SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
-					SLOT(coverArtFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &))
+					SLOT(amazonCoverArtFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &))
 				);
 			}
 			ContentFetcherTrack track;
 			track.artist = artist;
 			track.album = album;
 			track.amazonASIN = amazonASIN;
-			_coverArtFetcher->start(track);
+			_amazonCoverArt->start(track);
 		}
 	}
 }
 
-void MediaDataWidget::coverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & coverArt, const ContentFetcherTrack & track) {
+void MediaDataWidget::amazonCoverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & amazonCoverArt, const ContentFetcherTrack & track) {
 	if (error == QNetworkReply::NoError) {
 		//Check if the cover art received does match the current album playing
 		//Network replies can be too long since HTTP requests are asynchronous
@@ -160,13 +160,13 @@ void MediaDataWidget::coverArtFound(QNetworkReply::NetworkError error, const QUr
 		}
 
 		//Saves the downloaded cover art to a file
-		QFile coverArtFile(_amazonCoverArtPath);
-		if (coverArtFile.open(QIODevice::WriteOnly)) {
+		QFile amazonCoverArtFile(_amazonCoverArtPath);
+		if (amazonCoverArtFile.open(QIODevice::WriteOnly)) {
 			//The file could be opened
-			qint64 ret = coverArtFile.write(coverArt);
+			qint64 ret = amazonCoverArtFile.write(amazonCoverArt);
 			if (ret != -1) {
 				//The file could be written
-				coverArtFile.close();
+				amazonCoverArtFile.close();
 
 				showCoverArtStatusMessage(tr("Amazon cover art downloaded: ") + _amazonCoverArtPath + " " + url.toString());
 

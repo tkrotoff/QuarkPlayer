@@ -64,7 +64,7 @@ private slots:
 
 	void retranslate();
 
-	void coverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & coverArt, const ContentFetcherTrack & track);
+	void amazonCoverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & amazonCoverArt, const ContentFetcherTrack & track);
 
 private:
 
@@ -77,7 +77,7 @@ private:
 
 	MediaInfoFetcher * _mediaInfoFetcher;
 
-	AmazonCoverArt * _coverArtFetcher;
+	AmazonCoverArt * _amazonCoverArt;
 
 	/**
 	 * Current album.
