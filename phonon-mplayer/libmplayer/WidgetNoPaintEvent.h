@@ -21,11 +21,6 @@
 
 #include <QtGui/QWidget>
 
-namespace Phonon
-{
-namespace MPlayer
-{
-
 /**
  * Utility class: special widget for playing videos.
  *
@@ -53,7 +48,5 @@ private:
 
 	void paintEvent(QPaintEvent * event);
 };
-
-}}	//Namespace Phonon::MPlayer
 
 #endif	//WIDGETNOPAINTEVENT_H

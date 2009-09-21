@@ -15,8 +15,6 @@ set(phonon_mplayer_SRCS
 	Effect.cpp
 	SinkNode.cpp
 	SeekStack.cpp
-	WidgetNoPaintEvent.cpp
-	MPlayerVideoWidget.cpp
 )
 
 qt4_wrap_cpp(phonon_mplayer_SRCS
@@ -29,8 +27,6 @@ qt4_wrap_cpp(phonon_mplayer_SRCS
 	Effect.h
 	SinkNode.h
 	SeekStack.h
-	WidgetNoPaintEvent.h
-	MPlayerVideoWidget.h
 )
 
 add_library(phonon_mplayer MODULE ${phonon_mplayer_SRCS})

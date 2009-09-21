@@ -22,11 +22,6 @@
 #include <QtGui/QResizeEvent>
 #include <QtCore/QDebug>
 
-namespace Phonon
-{
-namespace MPlayer
-{
-
 MPlayerVideoWidget::MPlayerVideoWidget(QWidget * parent)
 	: WidgetNoPaintEvent(parent) {
 
@@ -112,5 +107,3 @@ void MPlayerVideoWidget::setVideoSize(const QSize & videoSize) {
 QSize MPlayerVideoWidget::sizeHint() const {
 	return _videoSize;
 }
-
-}}	//Namespace Phonon::MPlayer

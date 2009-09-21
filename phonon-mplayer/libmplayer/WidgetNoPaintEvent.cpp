@@ -20,11 +20,6 @@
 
 #include <QtGui/QPainter>
 
-namespace Phonon
-{
-namespace MPlayer
-{
-
 WidgetNoPaintEvent::WidgetNoPaintEvent(QWidget * parent)
 	: QWidget(parent) {
 
@@ -57,5 +52,3 @@ void WidgetNoPaintEvent::setBackgroundColor(const QColor & color) {
 	p.setColor(backgroundRole(), color);
 	setPalette(p);
 }
-
-}}	//Namespace Phonon::MPlayer

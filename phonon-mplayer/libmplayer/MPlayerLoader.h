@@ -77,7 +77,7 @@ public:
 	/**
 	 * Restarts/replays a media given its MPlayerProcess.
 	 *
-	 * Restarts a the latest known MPlayer instance.
+	 * Restarts the latest known MPlayer instance.
 	 *
 	 * This will use the previously known arguments and other infos.
 	 *

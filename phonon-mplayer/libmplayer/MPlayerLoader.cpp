@@ -20,6 +20,7 @@
 
 #include "MPlayerProcess.h"
 #include "MediaSettings.h"
+#include "Config.h"
 
 #include <QtCore/QtDebug>
 
@@ -138,6 +139,12 @@ QStringList MPlayerLoader::readMediaSettings() {
 	qDebug() << __FUNCTION__;
 
 	QStringList args;
+
+	//Sets MPlayer configuration file
+	//By forcing the MPlayer config file, the user can overwrite
+	//any of the parameters given to the MPlayer command line
+	args << "-include";
+	args << Config::instance().mplayerConfigPath();
 
 	//Force "no quiet output", otherwise we can't get stream position for example
 	//MPlayer default option is -quiet

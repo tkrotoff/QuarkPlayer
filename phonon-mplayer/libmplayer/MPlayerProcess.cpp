@@ -20,17 +20,11 @@
 #include "MPlayerProcess.h"
 
 #include "MPlayerVersion.h"
+#include "Config.h"
 
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
-
-#ifdef Q_OS_WIN
-	//Under Windows, mplayer.exe should be inside a subdirectory named mplayer
-	static const char * MPLAYER_EXE = "mplayer/mplayer.exe";
-#else
-	static const char * MPLAYER_EXE = "mplayer";
-#endif
 
 /** MPlayer works using seconds, we prefer to work using milliseconds. */
 static const double SECONDS_CONVERTION = 1000.0;
@@ -131,7 +125,7 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 	_mediaData.filename = shortPathName(filename);
 	args << _mediaData.filename;
 
-	MyProcess::start(MPLAYER_EXE, args);
+	MyProcess::start(Config::instance().mplayerPath(), args);
 	return waitForStarted();
 }
 

@@ -19,8 +19,8 @@
 #include "VideoWidget.h"
 
 #include "MediaObject.h"
-#include "MPlayerVideoWidget.h"
 
+#include "libmplayer/MPlayerVideoWidget.h"
 #include "libmplayer/MPlayerProcess.h"
 
 #include <QtGui/QWidget>

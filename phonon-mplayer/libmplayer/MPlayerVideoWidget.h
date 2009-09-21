@@ -26,11 +26,6 @@
 
 class QResizeEvent;
 
-namespace Phonon
-{
-namespace MPlayer
-{
-
 /**
  * Widget where to show the MPlayer video.
  *
@@ -68,7 +63,5 @@ private:
 	/** Original size of the video, needed for sizeHint(). */
 	QSize _videoSize;
 };
-
-}}	//Namespace Phonon::MPlayer
 
 #endif	//MPLAYERVIDEOWIDGET_H
