@@ -12,6 +12,9 @@ LIBMPLAYER_DIR = "./libmplayer"
 HEADERS += \
 	$$LIBMPLAYER_DIR/MyProcess.h \
 	$$LIBMPLAYER_DIR/MPlayerProcess.h \
+	$$LIBMPLAYER_DIR/WidgetNoPaintEvent.h \
+	$$LIBMPLAYER_DIR/MPlayerVideoWidget.h \
+	$$LIBMPLAYER_DIR/Config.h \
 	$$PHONON_MPLAYER_DIR/Backend.h \
 	$$PHONON_MPLAYER_DIR/MediaObject.h \
 	$$PHONON_MPLAYER_DIR/MediaController.h \
@@ -20,9 +23,7 @@ HEADERS += \
 	$$PHONON_MPLAYER_DIR/EffectManager.h \
 	$$PHONON_MPLAYER_DIR/Effect.h \
 	$$PHONON_MPLAYER_DIR/SinkNode.h \
-	$$PHONON_MPLAYER_DIR/SeekStack.h \
-	$$PHONON_MPLAYER_DIR/WidgetNoPaintEvent.h \
-	$$PHONON_MPLAYER_DIR/MPlayerVideoWidget.h
+	$$PHONON_MPLAYER_DIR/SeekStack.h
 
 SOURCES += \
 	$$LIBMPLAYER_DIR/MyProcess.cpp \
@@ -31,6 +32,9 @@ SOURCES += \
 	$$LIBMPLAYER_DIR/MPlayerVersion.cpp \
 	$$LIBMPLAYER_DIR/MPlayerProcess.cpp \
 	$$LIBMPLAYER_DIR/MPlayerLoader.cpp \
+	$$LIBMPLAYER_DIR/WidgetNoPaintEvent.cpp \
+	$$LIBMPLAYER_DIR/MPlayerVideoWidget.cpp \
+	$$LIBMPLAYER_DIR/Config.cpp \
 	$$PHONON_MPLAYER_DIR/Backend.cpp \
 	$$PHONON_MPLAYER_DIR/MediaObject.cpp \
 	$$PHONON_MPLAYER_DIR/MediaController.cpp \
@@ -39,6 +43,4 @@ SOURCES += \
 	$$PHONON_MPLAYER_DIR/EffectManager.cpp \
 	$$PHONON_MPLAYER_DIR/Effect.cpp \
 	$$PHONON_MPLAYER_DIR/SinkNode.cpp \
-	$$PHONON_MPLAYER_DIR/SeekStack.cpp \
-	$$PHONON_MPLAYER_DIR/WidgetNoPaintEvent.cpp \
-	$$PHONON_MPLAYER_DIR/MPlayerVideoWidget.cpp
+	$$PHONON_MPLAYER_DIR/SeekStack.cpp
