@@ -85,14 +85,11 @@ void WikipediaArticle::gotWikipediaSearchAnswer(QNetworkReply * reply) {
 	QXmlStreamReader xml(data);
 	while (!xml.atEnd()) {
 		xml.readNext();
-		switch (xml.tokenType()) {
-		case QXmlStreamReader::StartElement: {
+		if (xml.tokenType() == QXmlStreamReader::StartElement) {
 			QString element(xml.name().toString());
 			if (element == "Url") {
 				urls += xml.readElementText();
 			}
-			break;
-		}
 		}
 	}
 	///

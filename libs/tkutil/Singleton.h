@@ -55,8 +55,10 @@ public:
 	}
 
 	static void deleteInstance() {
-		delete _instance;
-		_instance = 0;
+		if (_instance) {
+			delete _instance;
+			_instance = 0;
+		}
 	}
 
 protected:
