@@ -37,12 +37,12 @@ set(TS_FILES
 	translations/quarkplayer_es.ts
 )
 
+set(QM_FILES "")
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	# Console output under Windows
-	add_executable(quarkplayer ${quarkplayer_SRCS} ${QM_FILES})
+	add_executable(quarkplayer ${quarkplayer_SRCS})
 else (CMAKE_BUILD_TYPE STREQUAL Debug)
 	# Pretty slow :/
-	set(QM_FILES "")
 	qt4_create_translation(QM_FILES ${SRCS_TRANSLATIONS} ${TS_FILES})
 	##
 
