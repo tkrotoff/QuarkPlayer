@@ -18,6 +18,8 @@
 
 #include "Config.h"
 
+#include <QtCore/QDebug>
+
 Config * Config::_instance = NULL;
 
 Config::Config()
@@ -29,6 +31,8 @@ Config::Config()
 	_settings(QSettings::NativeFormat, QSettings::UserScope, "phonon-mplayer", "phonon-mplayer")
 #endif
 	{
+
+	qDebug() << __FUNCTION__ << "Config file:" << _settings.fileName();
 }
 
 Config::~Config() {

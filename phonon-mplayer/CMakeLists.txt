@@ -2,8 +2,9 @@ add_subdirectory(libmplayer)
 
 project(phonon-mplayer)
 
-configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+if (NEW_TITLE_CHAPTER_HANDLING)
+	add_definitions(-DNEW_TITLE_CHAPTER_HANDLING)
+endif (NEW_TITLE_CHAPTER_HANDLING)
 
 set(phonon_mplayer_SRCS
 	Backend.cpp

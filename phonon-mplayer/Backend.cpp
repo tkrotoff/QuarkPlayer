@@ -23,7 +23,6 @@
 #include "AudioOutput.h"
 #include "EffectManager.h"
 #include "Effect.h"
-#include "config.h"
 
 #include <QtCore/QByteArray>
 #include <QtCore/QSet>

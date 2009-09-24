@@ -26,16 +26,37 @@
  * Read configuration file phonon-mplayer.ini.
  *
  * - Windows Vista: <pre>C:/Users/UserName/AppData/Roaming/phonon-mplayer/phonon-mplayer.ini</pre>
- * - Windows XP: <pre>UserName/phonon-mplayer/phonon-mplayer.ini</pre>
+ * - Windows XP: <pre>C:/Documents and Settings/UserName/Application Data/phonon-mplayer/phonon-mplayer.ini</pre>
  * - UNIX: <pre>~/.phonon-mplayer/phonon-mplayer.ini</pre>
+ *
+ * Example of phonon-mplayer.ini:
+ * <pre>
+ * [General]
+ * mplayer_path=C:/Program Files (x86)/SMPlayer/mplayer/mplayer.exe
+ * mplayer_config_path=C:/Program Files (x86)/SMPlayer/mplayer/mplayer/config
+ * </pre>
+ * Warning! under Windows, do not use \, use / instead
+ *
+ * The best way to see if it works is to edit MPlayer config file and add <pre>vo="null"</pre>
+ * MPlayer backend then shouldn't show any video (sound should still work).
  *
  * @author Tanguy Krotoff
  */
 class Config {
 public:
 
+	/**
+	 * Singleton.
+	 *
+	 * @return Config instance
+	 */
 	static Config & instance();
 
+	/**
+	 * Singleton.
+	 *
+	 * Deletes the Config instance.
+	 */
 	static void deleteInstance();
 
 	/**

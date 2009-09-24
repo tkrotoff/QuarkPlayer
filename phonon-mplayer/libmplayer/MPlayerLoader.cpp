@@ -140,12 +140,6 @@ QStringList MPlayerLoader::readMediaSettings() {
 
 	QStringList args;
 
-	//Sets MPlayer configuration file
-	//By forcing the MPlayer config file, the user can overwrite
-	//any of the parameters given to the MPlayer command line
-	args << "-include";
-	args << Config::instance().mplayerConfigPath();
-
 	//Force "no quiet output", otherwise we can't get stream position for example
 	//MPlayer default option is -quiet
 	args << "-noquiet";
@@ -268,6 +262,14 @@ QStringList MPlayerLoader::readMediaSettings() {
 
 	//Enables placing toptitles and subtitles in black borders when they are available
 	args << "-ass-use-margins";
+
+
+	//Sets MPlayer configuration file
+	//By forcing the MPlayer config file, the user can overwrite
+	//any of the parameters given to the MPlayer command line
+	//Warning: should be the latest argument
+	args << "-include";
+	args << Config::instance().mplayerConfigPath();
 
 
 	return args;

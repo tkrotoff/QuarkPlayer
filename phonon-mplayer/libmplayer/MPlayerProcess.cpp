@@ -33,7 +33,75 @@ static const double SECONDS_CONVERTION = 1000.0;
 int MPlayerProcess::_mplayerVersion = MPlayerProcess::MPLAYER_VERSION_NOTFOUND;
 
 MPlayerProcess::MPlayerProcess(QObject * parent)
-	: MyProcess(parent) {
+	: MyProcess(parent),
+
+	//See http://regexlib.com/DisplayPatterns.aspx
+	//General
+	rx_av("^[AV]: *([0-9,:.-]+)"),
+	rx_frame("^[AV]:.* (\\d+)\\/.\\d+"),
+	rx_generic("^(.*)=(.*)"),
+	rx_audio_mat("^ID_AID_(\\d+)_(LANG|NAME)=(.*)"),
+	rx_winresolution("^VO: \\[(.*)\\] (\\d+)x(\\d+) => (\\d+)x(\\d+)"),
+	rx_ao("^AO: \\[(.*)\\]"),
+	rx_paused("^ID_PAUSED$"),
+	rx_novideo("^Video: no video"),
+	rx_play("^Starting playback..."),
+	rx_playing("^Playing"),	//"Playing" does not mean the file is actually playing but only loading
+	rx_file_not_found("^File not found:"),
+	//rx_endoffile("^ID_EXIT=EOF$"),
+	rx_endoffile("^Exiting... \\(End of file\\)"),
+	rx_slowsystem("Your system is too SLOW to play this!"),
+
+	//Streaming
+	rx_connecting("^Connecting to server (.*)..."),
+	rx_resolving("^Resolving (.*)..."),
+	rx_resolving_failed("^Couldn't resolve name for "),
+	rx_cache_fill("^Cache fill: (.*)%"),
+	rx_read_failed("^Read failed."),	//"Read failed" for a streaming media
+	rx_stream_not_found("^No stream found to handle url "),
+
+	//Screenshot
+	rx_screenshot("^\\*\\*\\* screenshot '(.*)'"),
+
+	//DVD/Mkv titles/chapters/angles
+	rx_titles("^ID_DVD_TITLES=(\\d+)"),
+	rx_title("^ID_DVD_TITLE_(\\d+)_(LENGTH|CHAPTERS|ANGLES)=(.*)"),
+	//[mkv] Chapter 1 from 00:15:02.080 to 00:00:00.000, Plus l'on Approche de César
+	rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from (.*) to (.*), (.*)"),
+	rx_create_index("^Generating Index:.*"),
+
+	//VCD
+	rx_vcd("^ID_VCD_TRACK_(\\d+)_MSF=(.*)"),
+
+	//Audio CD
+	rx_cdda("^ID_CDDA_TRACK_(\\d+)_MSF=(.*)"),
+
+	//Subtitles
+	rx_subtitle("^ID_(SUBTITLE|FILE_SUB|VOBSUB)_ID=(\\d+)"),
+	rx_sid("^ID_(SID|VSID)_(\\d+)_(LANG|NAME)=(.*)"),
+	//rx_subtitle_file("^ID_FILE_SUB_FILENAME=(.*)"),
+	rx_subtitle_file("^SUB: Added subtitle file \\((\\d+)\\): (.*)"),
+
+	//Meta data infos
+	rx_clip_title("^(name|title): (.*)", Qt::CaseInsensitive),
+	rx_clip_artist("^artist: (.*)", Qt::CaseInsensitive),
+	rx_clip_author("^author: (.*)", Qt::CaseInsensitive),
+	rx_clip_album("^album: (.*)", Qt::CaseInsensitive),
+	rx_clip_genre("^genre: (.*)", Qt::CaseInsensitive),
+	rx_clip_date("^(creation date|year): (.*)", Qt::CaseInsensitive),
+	rx_clip_track("^track: (.*)", Qt::CaseInsensitive),
+	rx_clip_copyright("^copyright: (.*)", Qt::CaseInsensitive),
+	rx_clip_comment("^comment: (.*)", Qt::CaseInsensitive),
+	rx_clip_software("^software: (.*)", Qt::CaseInsensitive),
+
+	//Radio streaming infos
+	rx_stream_title("^.* StreamTitle='(.*)';StreamUrl='(.*)';"),
+	rx_stream_title_only("^.* StreamTitle='(.*)';"),
+	rx_stream_name("^Name   : (.*)"),
+	rx_stream_genre("^Genre  : (.*)"),
+	rx_stream_website("^Website: (.*)")
+
+	{
 
 	connect(this, SIGNAL(lineAvailable(const QString &)),
 		SLOT(parseLine(const QString &)));
@@ -206,74 +274,6 @@ QString MPlayerProcess::errorString() const {
 Phonon::ErrorType MPlayerProcess::errorType() const {
 	return _errorType;
 }
-
-//FIXME Dangerous to have static QRegExp like this, never know how they are initialized...
-
-//See http://regexlib.com/DisplayPatterns.aspx
-//General
-static QRegExp rx_av("^[AV]: *([0-9,:.-]+)");
-static QRegExp rx_frame("^[AV]:.* (\\d+)\\/.\\d+");
-static QRegExp rx_generic("^(.*)=(.*)");
-static QRegExp rx_audio_mat("^ID_AID_(\\d+)_(LANG|NAME)=(.*)");
-static QRegExp rx_winresolution("^VO: \\[(.*)\\] (\\d+)x(\\d+) => (\\d+)x(\\d+)");
-static QRegExp rx_ao("^AO: \\[(.*)\\]");
-static QRegExp rx_paused("^ID_PAUSED$");
-static QRegExp rx_novideo("^Video: no video");
-static QRegExp rx_play("^Starting playback...");
-static QRegExp rx_playing("^Playing");	//"Playing" does not mean the file is actually playing but only loading
-static QRegExp rx_file_not_found("^File not found:");
-//static QRegExp rx_endoffile("^ID_EXIT=EOF$");
-static QRegExp rx_endoffile("^Exiting... \\(End of file\\)");
-static QRegExp rx_slowsystem("Your system is too SLOW to play this!");
-
-//Streaming
-static QRegExp rx_connecting("^Connecting to server (.*)...");
-static QRegExp rx_resolving("^Resolving (.*)...");
-static QRegExp rx_resolving_failed("^Couldn't resolve name for ");
-static QRegExp rx_cache_fill("^Cache fill: (.*)%");
-static QRegExp rx_read_failed("^Read failed.");	//"Read failed" for a streaming media
-static QRegExp rx_stream_not_found("^No stream found to handle url ");
-
-//Screenshot
-static QRegExp rx_screenshot("^\\*\\*\\* screenshot '(.*)'");
-
-//DVD/Mkv titles/chapters/angles
-static QRegExp rx_titles("^ID_DVD_TITLES=(\\d+)");
-static QRegExp rx_title("^ID_DVD_TITLE_(\\d+)_(LENGTH|CHAPTERS|ANGLES)=(.*)");
-//[mkv] Chapter 1 from 00:15:02.080 to 00:00:00.000, Plus l'on Approche de César
-static QRegExp rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from (.*) to (.*), (.*)");
-static QRegExp rx_create_index("^Generating Index:.*");
-
-//VCD
-static QRegExp rx_vcd("^ID_VCD_TRACK_(\\d+)_MSF=(.*)");
-
-//Audio CD
-static QRegExp rx_cdda("^ID_CDDA_TRACK_(\\d+)_MSF=(.*)");
-
-//Subtitles
-static QRegExp rx_subtitle("^ID_(SUBTITLE|FILE_SUB|VOBSUB)_ID=(\\d+)");
-static QRegExp rx_sid("^ID_(SID|VSID)_(\\d+)_(LANG|NAME)=(.*)");
-//static QRegExp rx_subtitle_file("^ID_FILE_SUB_FILENAME=(.*)");
-static QRegExp rx_subtitle_file("^SUB: Added subtitle file \\((\\d+)\\): (.*)");
-
-//Meta data infos
-static QRegExp rx_clip_title("^(name|title): (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_artist("^artist: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_author("^author: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_album("^album: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_genre("^genre: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_date("^(creation date|year): (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_track("^track: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_copyright("^copyright: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_comment("^comment: (.*)", Qt::CaseInsensitive);
-static QRegExp rx_clip_software("^software: (.*)", Qt::CaseInsensitive);
-
-//Radio streaming infos
-static QRegExp rx_stream_title("^.* StreamTitle='(.*)';StreamUrl='(.*)';");
-static QRegExp rx_stream_title_only("^.* StreamTitle='(.*)';");
-static QRegExp rx_stream_name("^Name   : (.*)");
-static QRegExp rx_stream_genre("^Genre  : (.*)");
-static QRegExp rx_stream_website("^Website: (.*)");
 
 void MPlayerProcess::parseLine(const QString & line_) {
 	QString line = line_;
@@ -454,7 +454,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		}
 
 		//Subtitle
-		//static QRegExp rx_subtitle("^ID_(SUBTITLE|FILE_SUB|VOBSUB)_ID=(\\d+)");
+		//rx_subtitle("^ID_(SUBTITLE|FILE_SUB|VOBSUB)_ID=(\\d+)");
 		else if (rx_subtitle.indexIn(line) > -1) {
 			//DVD line example:
 
@@ -497,7 +497,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		}
 
 		//Subtitle
-		//static QRegExp rx_sid("^ID_(SID|VSID)_(\\d+)_(LANG|NAME)=(.*)");
+		//rx_sid("^ID_(SID|VSID)_(\\d+)_(LANG|NAME)=(.*)");
 		else if (rx_sid.indexIn(line) > -1) {
 			const QString type = rx_sid.cap(1);
 			int id = rx_sid.cap(2).toInt();
@@ -525,7 +525,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		}
 
 		//Subtitle
-		//static QRegExp rx_subtitle_file("^SUB: Added subtitle file \\((\\d+)\\): (.*)");
+		//rx_subtitle_file("^SUB: Added subtitle file \\((\\d+)\\): (.*)");
 		else if (rx_subtitle_file.indexIn(line) > -1) {
 			//MPlayer make the id start at number 1,
 			//we want it to start at number 0
@@ -628,7 +628,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			emit audioChannelAdded(id, audioChannelData);
 		}
 
-		//static QRegExp rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from (.*) to (.*), (.*)");
+		//rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from (.*) to (.*), (.*)");
 		//Matroska chapters
 		else if (rx_mkvchapters.indexIn(line) != -1) {
 			//Examples:
@@ -720,14 +720,14 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			emit receivedCreatingIndex(line);
 		}
 
-		//Catch resolving message
+		//Resolving URL message
 		else if (rx_resolving.indexIn(line) > -1) {
 			QString msg = rx_resolving.cap(1);
 			qDebug() << __FUNCTION__ << "Resolving:" << msg;
 			emit resolvingMessageReceived(msg);
 		}
 
-		//Catch resolving failed
+		//Resolving URL failed
 		else if (rx_resolving_failed.indexIn(line) > -1) {
 			_errorString = line;
 			_errorType = Phonon::FatalError;
@@ -743,7 +743,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			//changeState(Phonon::ErrorState);
 		}
 
-		//Catch connecting message
+		//Connecting message
 		else if (rx_connecting.indexIn(line) > -1) {
 			QString msg = rx_connecting.cap(1);
 			qDebug() << __FUNCTION__ << "Connecting:" << msg;
@@ -751,6 +751,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			changeState(Phonon::BufferingState);
 		}
 
+		//Network stream error
 		else if (rx_read_failed.indexIn(line) > -1) {
 			_errorString = "Cannot read the network stream";
 			_errorType = Phonon::FatalError;
@@ -758,7 +759,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			//changeState(Phonon::ErrorState);
 		}
 
-		//Catch cache messages
+		//Cache messages
 		else if (rx_cache_fill.indexIn(line) > -1) {
 			QString tmp = rx_cache_fill.cap(1);
 			tmp = tmp.trimmed();
@@ -839,7 +840,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			_mediaData.software = software;
 		}
 
-		//Catch "Starting playback..." message
+		//"Starting playback..." message
 		else if (rx_play.indexIn(line) > -1) {
 			//OK, now all the media datas should be in clean state
 			//Second time we emit mediaLoaded(), this one is usefull for DVD with angles/chapters/subtitles...

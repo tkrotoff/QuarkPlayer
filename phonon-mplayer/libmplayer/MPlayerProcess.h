@@ -83,6 +83,7 @@ class MPlayerProcess : public MyProcess {
 public:
 
 	MPlayerProcess(QObject * parent);
+
 	~MPlayerProcess();
 
 	/**
@@ -385,6 +386,77 @@ private:
 
 	/** Subtitle list, int = subtitle id/index. */
 	QMap<int, SubtitleData> _subtitleList;
+
+
+	/**
+	 * @name Regular expression for parsing MPlayer output
+	 * @see http://regexlib.com/DisplayPatterns.aspx
+	 * @{
+	 */
+
+	//General
+	QRegExp rx_av;
+	QRegExp rx_frame;
+	QRegExp rx_generic;
+	QRegExp rx_audio_mat;
+	QRegExp rx_winresolution;
+	QRegExp rx_ao;
+	QRegExp rx_paused;
+	QRegExp rx_novideo;
+	QRegExp rx_play;
+	QRegExp rx_playing;
+	QRegExp rx_file_not_found;
+	QRegExp rx_endoffile;
+	QRegExp rx_slowsystem;
+
+	//Streaming
+	QRegExp rx_connecting;
+	QRegExp rx_resolving;
+	QRegExp rx_resolving_failed;
+	QRegExp rx_cache_fill;
+	QRegExp rx_read_failed;
+	QRegExp rx_stream_not_found;
+
+	//Screenshot
+	QRegExp rx_screenshot;
+
+	//DVD/Mkv titles/chapters/angles
+	QRegExp rx_titles;
+	QRegExp rx_title;
+	QRegExp rx_mkvchapters;
+	QRegExp rx_create_index;
+
+	//VCD
+	QRegExp rx_vcd;
+
+	//Audio CD
+	QRegExp rx_cdda;
+
+	//Subtitles
+	QRegExp rx_subtitle;
+	QRegExp rx_sid;
+	QRegExp rx_subtitle_file;
+
+	//Meta data infos
+	QRegExp rx_clip_title;
+	QRegExp rx_clip_artist;
+	QRegExp rx_clip_author;
+	QRegExp rx_clip_album;
+	QRegExp rx_clip_genre;
+	QRegExp rx_clip_date;
+	QRegExp rx_clip_track;
+	QRegExp rx_clip_copyright;
+	QRegExp rx_clip_comment;
+	QRegExp rx_clip_software;
+
+	//Radio streaming infos
+	QRegExp rx_stream_title;
+	QRegExp rx_stream_title_only;
+	QRegExp rx_stream_name;
+	QRegExp rx_stream_genre;
+	QRegExp rx_stream_website;
+
+	/** @} */
 };
 
 #endif	//MPLAYERPROCESS_H
