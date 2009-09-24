@@ -175,6 +175,16 @@ if (BUILD_TESTS)
 	add_subdirectory(tests)
 endif (BUILD_TESTS)
 
+# make doc: custom target in order to generate the documentation using Doxygen
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+	add_custom_target(doc
+		${DOXYGEN_EXECUTABLE}
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	)
+endif (DOXYGEN_FOUND)
+##
+
 # Packaging (NSIS, RPM, Debian, src.tar.gz)
 add_subdirectory(packaging)
 
