@@ -145,14 +145,13 @@ void FindSubtitlesWindow::retranslate() {
 	//Language combobox
 	QString currentLanguage = _ui->languageComboBox->itemData(_ui->languageComboBox->currentIndex()).toString();
 	_ui->languageComboBox->clear();
+	_ui->languageComboBox->addItem(tr("All"), "*");
 	QMap<QString, QString> list = Languages::iso639_1_list();
 	QMapIterator<QString, QString> it(list);
 	while (it.hasNext()) {
 		it.next();
 		_ui->languageComboBox->addItem(it.value(), it.key());
 	}
-	_ui->languageComboBox->model()->sort(0);
-	_ui->languageComboBox->insertItem(0, tr("All"), '*');
 	_ui->languageComboBox->setCurrentIndex(_ui->languageComboBox->findData(currentLanguage));
 
 	_ui->downloadButton->setIcon(TkIcon("go-down"));
@@ -216,13 +215,18 @@ void FindSubtitlesWindow::currentItemChanged(const QModelIndex & current, const 
 }
 
 void FindSubtitlesWindow::setLanguage(const QString & language) {
-	_ui->languageComboBox->setCurrentIndex(_ui->languageComboBox->findData(language));
-	_filter->setFilterWildcard(language);
+	if (!language.isEmpty()) {
+		int currentIndex = _ui->languageComboBox->findData(language);
+		_ui->languageComboBox->setCurrentIndex(currentIndex);
+		_filter->setFilterWildcard(language);
+	}
 }
 
 void FindSubtitlesWindow::applyCurrentFilter() {
 	//_filter->setFilterWildcard(_ui->languageComboBox->currentText());
-	QString filter = _ui->languageComboBox->itemData(_ui->languageComboBox->currentIndex()).toString();
+	int currentIndex = _ui->languageComboBox->currentIndex();
+	QVariant tmp = _ui->languageComboBox->itemData(currentIndex);
+	QString filter = tmp.toString();
 	qDebug() << __FUNCTION__ << "Filter:" << filter;
 	_filter->setFilterWildcard(filter);
 
