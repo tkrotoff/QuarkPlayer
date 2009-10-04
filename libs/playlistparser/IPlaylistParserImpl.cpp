@@ -16,38 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IPLAYLISTPARSER_H
-#define IPLAYLISTPARSER_H
+#include "IPlaylistParserImpl.h"
 
-#include <playlistparser/playlistparser_export.h>
+IPlaylistParserImpl::IPlaylistParserImpl(QObject * parent)
+	: IPlaylistParser(parent) {
+}
 
-#include <QtCore/QObject>
-
-/**
- * Interface for implementing playlist file format parser.
- *
- * Follows the same API as TkUtil::FindFiles class.
- *
- * @see FindFiles
- * @author Tanguy Krotoff
- */
-class PLAYLISTPARSER_API IPlaylistParser : public QObject {
-public:
-
-	/**
-	 * Parses a given playlist.
-	 *
-	 * You must do a <pre>new PlaylistParser</pre> since PlaylistParser is threaded
-	 * and sends signals.
-	 */
-	IPlaylistParser(QObject * parent);
-
-	virtual ~IPlaylistParser();
-
-	/**
-	 * Stops the thread.
-	 */
-	virtual void stop() = 0;
-};
-
-#endif	//IPLAYLISTPARSER_H
+IPlaylistParserImpl::~IPlaylistParserImpl() {
+}

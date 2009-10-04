@@ -23,6 +23,8 @@
 
 #include <quarkplayer/PluginInterface.h>
 
+#include <playlistparser/PlaylistParser.h>
+
 #include <QtGui/QWidget>
 
 #include <QtCore/QList>
@@ -97,9 +99,9 @@ private slots:
 	 */
 	void createNewPlaylistWidget();
 
-	void playlistLoaded(int timeElapsed);
+	void playlistLoaded(PlaylistParser::Error, int timeElapsed);
 
-	void playlistSaved(int timeElapsed);
+	void playlistSaved(PlaylistParser::Error, int timeElapsed);
 
 	/** Jumps to current playing media. */
 	void jumpToCurrent();

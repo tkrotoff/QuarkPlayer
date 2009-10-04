@@ -19,7 +19,7 @@
 #ifndef CUEPARSER_H
 #define CUEPARSER_H
 
-#include "PlaylistParser.h"
+#include "IPlaylistParserImpl.h"
 
 #include <QtCore/QString>
 
@@ -30,24 +30,22 @@
  * @see http://digitalx.org/cuesheetsyntax.php
  * @author Tanguy Krotoff
  */
-class CUEParser : public IPlaylistParser {
+class CUEParser : public IPlaylistParserImpl {
 public:
 
-	CUEParser(const QString & filename, QObject * parent);
+	CUEParser(QObject * parent);
 
 	~CUEParser();
 
 	QStringList fileExtensions() const;
 
-	void load();
+	void load(QIODevice * device, const QString & location);
 
-	void save(const QList<MediaInfo> & files);
+	void save(QIODevice * device, const QString & location, const QList<MediaInfo> & files);
 
 	void stop();
 
 private:
-
-	QString _filename;
 
 	volatile bool _stop;
 };

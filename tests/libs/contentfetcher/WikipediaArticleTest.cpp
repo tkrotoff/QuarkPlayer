@@ -25,7 +25,7 @@
 void WikipediaArticleTest::initTestCase() {
 	_wikipediaArticle = new WikipediaArticle(this);
 	connect(_wikipediaArticle,
-		SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
+		SIGNAL(finished(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
 		SLOT(wikipediaArticleFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &))
 	);
 }

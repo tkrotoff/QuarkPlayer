@@ -19,7 +19,7 @@
 #ifndef PLSPARSER_H
 #define PLSPARSER_H
 
-#include "PlaylistParser.h"
+#include "IPlaylistParserImpl.h"
 
 #include <QtCore/QString>
 
@@ -29,24 +29,22 @@
  * @see http://en.wikipedia.org/wiki/PLS_(file_format)
  * @author Tanguy Krotoff
  */
-class PLSParser : public IPlaylistParser {
+class PLSParser : public IPlaylistParserImpl {
 public:
 
-	PLSParser(const QString & filename, QObject * parent);
+	PLSParser(QObject * parent);
 
 	~PLSParser();
 
 	QStringList fileExtensions() const;
 
-	void load();
+	void load(QIODevice * device, const QString & location);
 
-	void save(const QList<MediaInfo> & files);
+	void save(QIODevice * device, const QString & location, const QList<MediaInfo> & files);
 
 	void stop();
 
 private:
-
-	QString _filename;
 
 	volatile bool _stop;
 };

@@ -29,9 +29,6 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QTime>
 #include <QtCore/QDebug>
 
 static const char * WPL_TITLE = "title";
@@ -47,10 +44,9 @@ static const char * WPL_SEQ = "seq";
 static const char * WPL_MEDIA = "media";
 static const char * WPL_SRC = "src";
 
-WPLParser::WPLParser(const QString & filename, QObject * parent)
-	: IPlaylistParser(filename, parent) {
+WPLParser::WPLParser(QObject * parent)
+	: IPlaylistParserImpl(parent) {
 
-	_filename = filename;
 	_stop = false;
 }
 
@@ -68,121 +64,98 @@ void WPLParser::stop() {
 	_stop = true;
 }
 
-void WPLParser::load() {
-	QTime timeElapsed;
-	timeElapsed.start();
-
+void WPLParser::load(QIODevice * device, const QString & location) {
 	_stop = false;
 
 	QList<MediaInfo> files;
 
-	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
+	QString path(QFileInfo(location).path());
 
-	QFile file(_filename);
-	if (file.open(QIODevice::ReadOnly)) {
-		QString path(QFileInfo(_filename).path());
+	QXmlStreamReader xml(device);
+	while (!xml.atEnd() && !_stop) {
+		xml.readNext();
 
-		QXmlStreamReader xml(&file);
-		while (!xml.atEnd() && !_stop) {
-			xml.readNext();
+		switch (xml.tokenType()) {
 
-			switch (xml.tokenType()) {
+		case QXmlStreamReader::StartElement: {
+			QString element(xml.name().toString());
 
-			case QXmlStreamReader::StartElement: {
-				QString element(xml.name().toString());
+			if (element.compare(WPL_MEDIA, Qt::CaseInsensitive) == 0) {
+				QString filename(xml.attributes().value(WPL_SRC).toString());
 
-				if (element.compare(WPL_MEDIA, Qt::CaseInsensitive) == 0) {
-					QString filename(xml.attributes().value(WPL_SRC).toString());
+				//Add file to the list of files
+				files << MediaInfo(Util::canonicalFilePath(path, filename));
 
-					//Add file to the list of files
-					files << MediaInfo(Util::canonicalFilePath(path, filename));
-
-					if (files.size() > FILES_FOUND_LIMIT) {
-						//Emits the signal every FILES_FOUND_LIMIT files found
-						emit filesFound(files);
-						files.clear();
-					}
+				if (files.size() > FILES_FOUND_LIMIT) {
+					//Emits the signal every FILES_FOUND_LIMIT files found
+					emit filesFound(files);
+					files.clear();
 				}
-				break;
 			}
-
-			}
+			break;
 		}
 
-		if (xml.hasError()) {
-			qCritical() << __FUNCTION__ << "Error: ";
 		}
 	}
 
-	file.close();
+	if (xml.hasError()) {
+		qCritical() << __FUNCTION__ << "Error: ";
+	}
+
+	device->close();
 
 	if (!files.isEmpty()) {
 		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
 		emit filesFound(files);
 	}
-
-	//Emits the last signal
-	emit finished(timeElapsed.elapsed());
 }
 
-void WPLParser::save(const QList<MediaInfo> & files) {
-	QTime timeElapsed;
-	timeElapsed.start();
-
+void WPLParser::save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
 	_stop = false;
 
-	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
+	QString path(QFileInfo(location).path());
 
-	QString path(QFileInfo(_filename).path());
+	QXmlStreamWriter xml(device);
+	xml.setAutoFormatting(true);
+	xml.writeStartDocument();
 
-	QFile file(_filename);
-	if (file.open(QIODevice::WriteOnly)) {
+	xml.writeStartElement(WPL_SMIL);
+		xml.writeStartElement(WPL_HEAD);
+			xml.writeStartElement(WPL_META);
+				xml.writeAttribute(WPL_NAME, WPL_GENERATOR);
+				xml.writeAttribute(WPL_CONTENT, QCoreApplication::applicationName());
+			xml.writeEndElement();
 
-		QXmlStreamWriter xml(&file);
-		xml.setAutoFormatting(true);
-		xml.writeStartDocument();
+			xml.writeStartElement(WPL_AUTHOR);
+			xml.writeEndElement();
 
-		xml.writeStartElement(WPL_SMIL);
-			xml.writeStartElement(WPL_HEAD);
-				xml.writeStartElement(WPL_META);
-					xml.writeAttribute(WPL_NAME, WPL_GENERATOR);
-					xml.writeAttribute(WPL_CONTENT, QCoreApplication::applicationName());
-				xml.writeEndElement();
+			xml.writeTextElement(WPL_TITLE, QFileInfo(location).baseName());
+		xml.writeEndElement();	//head
 
-				xml.writeStartElement(WPL_AUTHOR);
-				xml.writeEndElement();
+		xml.writeStartElement(WPL_BODY);
+			xml.writeStartElement(WPL_SEQ);
 
-				xml.writeTextElement(WPL_TITLE, QFileInfo(_filename).baseName());
-			xml.writeEndElement();	//head
+				foreach (MediaInfo mediaInfo, files) {
+					if (_stop) {
+						break;
+					}
+					xml.writeStartElement(WPL_MEDIA);
 
-			xml.writeStartElement(WPL_BODY);
-				xml.writeStartElement(WPL_SEQ);
-
-					foreach (MediaInfo mediaInfo, files) {
-						if (_stop) {
-							break;
-						}
-						xml.writeStartElement(WPL_MEDIA);
-
-						if (mediaInfo.isUrl()) {
-							xml.writeAttribute(WPL_SRC, mediaInfo.fileName());
-						} else {
-							//Try to save the filename as relative instead of absolute
-							QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
-							filename = Util::pathToNativeSeparators(filename);
-							xml.writeAttribute(WPL_SRC, filename);
-						}
-
-						xml.writeEndElement();	//media
+					if (mediaInfo.isUrl()) {
+						xml.writeAttribute(WPL_SRC, mediaInfo.fileName());
+					} else {
+						//Try to save the filename as relative instead of absolute
+						QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
+						filename = Util::pathToNativeSeparators(filename);
+						xml.writeAttribute(WPL_SRC, filename);
 					}
 
-				xml.writeEndElement();	//seq
-			xml.writeEndElement();	//body
-		xml.writeEndElement();	//smil
-	}
+					xml.writeEndElement();	//media
+				}
 
-	file.close();
+			xml.writeEndElement();	//seq
+		xml.writeEndElement();	//body
+	xml.writeEndElement();	//smil
 
-	//Emits the last signal
-	emit finished(timeElapsed.elapsed());
+	device->close();
 }

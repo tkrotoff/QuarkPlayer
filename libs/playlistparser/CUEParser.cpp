@@ -26,20 +26,16 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
-#include <QtCore/QFile>
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
-#include <QtCore/QDir>
-#include <QtCore/QTime>
 #include <QtCore/QDebug>
 
 static const char * CUE_QUOTE = "\"";
 static const char * CUE_EOL = "\r\n";
 
-CUEParser::CUEParser(const QString & filename, QObject * parent)
-	: IPlaylistParser(filename, parent) {
+CUEParser::CUEParser(QObject * parent)
+	: IPlaylistParserImpl(parent) {
 
-	_filename = filename;
 	_stop = false;
 }
 
@@ -57,15 +53,10 @@ void CUEParser::stop() {
 	_stop = true;
 }
 
-void CUEParser::load() {
-	QTime timeElapsed;
-	timeElapsed.start();
-
+void CUEParser::load(QIODevice * device, const QString & location) {
 	_stop = false;
 
 	QList<MediaInfo> files;
-
-	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
 	//See http://regexlib.com/DisplayPatterns.aspx
 
@@ -89,182 +80,163 @@ void CUEParser::load() {
 	//    INDEX 01 00:00:00
 	static QRegExp rx_index("^    INDEX 01 (.*)$");
 
-	QFile file(_filename);
-	if (file.open(QIODevice::ReadOnly)) {
-		QString path(QFileInfo(_filename).path());
+	QString path(QFileInfo(location).path());
 
-		QTextStream stream(&file);
+	QTextStream stream(device);
 
-		MediaInfo mediaInfo;
+	MediaInfo mediaInfo;
 
-		//Root elements
-		QString genre;
-		QString date;
-		QString albumArtist;
-		QString album;
-		///
+	//Root elements
+	QString genre;
+	QString date;
+	QString albumArtist;
+	QString album;
+	///
 
-		QString filename;
+	QString filename;
 
-		while (!stream.atEnd() && !_stop) {
-			//Line of text, don't use trimmed()
-			//since CUE sheet files contain indentation spaces
-			QString line(stream.readLine());
+	while (!stream.atEnd() && !_stop) {
+		//Line of text, don't use trimmed()
+		//since CUE sheet files contain indentation spaces
+		QString line(stream.readLine());
 
-			if (line.isEmpty()) {
-				//Do nothing
+		if (line.isEmpty()) {
+			//Do nothing
+		}
+
+		else if (rx_genre.indexIn(line) != -1) {
+			genre = rx_genre.cap(1);
+		}
+
+		else if (rx_date.indexIn(line) != -1) {
+			date = rx_date.cap(1);
+		}
+
+		else if (rx_root_performer.indexIn(line) != -1) {
+			albumArtist = rx_root_performer.cap(1);
+		}
+
+		else if (rx_root_title.indexIn(line) != -1) {
+			album = rx_root_title.cap(1);
+		}
+
+		else if (rx_file.indexIn(line) != -1) {
+			filename = rx_file.cap(1);
+		}
+
+		else if (rx_track.indexIn(line) != -1) {
+			QString track(rx_track.cap(1));
+			mediaInfo.insertMetadata(MediaInfo::TrackNumber, track);
+		}
+
+		else if (rx_title.indexIn(line) != -1) {
+			QString title(rx_title.cap(1));
+			mediaInfo.insertMetadata(MediaInfo::Title, title);
+		}
+
+		else if (rx_performer.indexIn(line) != -1) {
+			QString performer(rx_performer.cap(1));
+			mediaInfo.insertMetadata(MediaInfo::Artist, performer);
+		}
+
+		else if (rx_index.indexIn(line) != -1) {
+			QString index(rx_index.cap(1));
+			mediaInfo.setCueStartIndex(index);
+
+			if (!files.isEmpty()) {
+				//Now we know the CUE end index from the previous media
+				files.last().setCueEndIndex(index);
 			}
 
-			else if (rx_genre.indexIn(line) != -1) {
-				genre = rx_genre.cap(1);
+			mediaInfo.insertMetadata(MediaInfo::Genre, genre);
+			mediaInfo.insertMetadata(MediaInfo::Year, date);
+			mediaInfo.insertMetadata(MediaInfo::AlbumArtist, albumArtist);
+			mediaInfo.insertMetadata(MediaInfo::Album, album);
+
+			bool isUrl = MediaInfo::isUrl(filename);
+			mediaInfo.setUrl(isUrl);
+			if (isUrl) {
+				mediaInfo.setFileName(filename);
+			} else {
+				mediaInfo.setFileName(Util::canonicalFilePath(path, filename));
 			}
 
-			else if (rx_date.indexIn(line) != -1) {
-				date = rx_date.cap(1);
-			}
+			if (!mediaInfo.fileName().isEmpty()) {
+				//Add file to the list of files
+				files << mediaInfo;
 
-			else if (rx_root_performer.indexIn(line) != -1) {
-				albumArtist = rx_root_performer.cap(1);
-			}
+				//Clear the MediaInfo for the next lines
+				mediaInfo.clear();
 
-			else if (rx_root_title.indexIn(line) != -1) {
-				album = rx_root_title.cap(1);
-			}
-
-			else if (rx_file.indexIn(line) != -1) {
-				filename = rx_file.cap(1);
-			}
-
-			else if (rx_track.indexIn(line) != -1) {
-				QString track(rx_track.cap(1));
-				mediaInfo.insertMetadata(MediaInfo::TrackNumber, track);
-			}
-
-			else if (rx_title.indexIn(line) != -1) {
-				QString title(rx_title.cap(1));
-				mediaInfo.insertMetadata(MediaInfo::Title, title);
-			}
-
-			else if (rx_performer.indexIn(line) != -1) {
-				QString performer(rx_performer.cap(1));
-				mediaInfo.insertMetadata(MediaInfo::Artist, performer);
-			}
-
-			else if (rx_index.indexIn(line) != -1) {
-				QString index(rx_index.cap(1));
-				mediaInfo.setCueStartIndex(index);
-
-				if (!files.isEmpty()) {
-					//Now we know the CUE end index from the previous media
-					files.last().setCueEndIndex(index);
+				if (files.size() > FILES_FOUND_LIMIT) {
+					//Emits the signal every FILES_FOUND_LIMIT files found
+					emit filesFound(files);
+					files.clear();
 				}
-
-				mediaInfo.insertMetadata(MediaInfo::Genre, genre);
-				mediaInfo.insertMetadata(MediaInfo::Year, date);
-				mediaInfo.insertMetadata(MediaInfo::AlbumArtist, albumArtist);
-				mediaInfo.insertMetadata(MediaInfo::Album, album);
-
-				bool isUrl = MediaInfo::isUrl(filename);
-				mediaInfo.setUrl(isUrl);
-				if (isUrl) {
-					mediaInfo.setFileName(filename);
-				} else {
-					mediaInfo.setFileName(Util::canonicalFilePath(path, filename));
-				}
-
-				if (!mediaInfo.fileName().isEmpty()) {
-					//Add file to the list of files
-					files << mediaInfo;
-
-					//Clear the MediaInfo for the next lines
-					mediaInfo.clear();
-
-					if (files.size() > FILES_FOUND_LIMIT) {
-						//Emits the signal every FILES_FOUND_LIMIT files found
-						emit filesFound(files);
-						files.clear();
-					}
-				}
-
 			}
 
-			else {
-				//Syntax error
-			}
+		}
+
+		else {
+			//Syntax error
 		}
 	}
 
-	file.close();
+	device->close();
 
 	if (!files.isEmpty()) {
 		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
 		emit filesFound(files);
 	}
-
-	//Emits the last signal
-	emit finished(timeElapsed.elapsed());
 }
 
-void CUEParser::save(const QList<MediaInfo> & files) {
-	QTime timeElapsed;
-	timeElapsed.start();
-
+void CUEParser::save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
 	_stop = false;
 
-	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
+	QString path(QFileInfo(location).path());
 
-	QString path(QFileInfo(_filename).path());
+	QTextStream stream(device);
 
-	QFile file(_filename);
-	if (file.open(QIODevice::WriteOnly)) {
-		QTextStream stream(&file);
+	stream << "REM COMMENT"
+		<< CUE_QUOTE << QCoreApplication::applicationName() << CUE_QUOTE
+		<< CUE_EOL;
 
-		QString filename;
+	foreach (MediaInfo mediaInfo, files) {
+		if (_stop) {
+			break;
+		}
 
-		stream << "REM COMMENT"
-			<< CUE_QUOTE << QCoreApplication::applicationName() << CUE_QUOTE
+		stream << "FILE "
+			<< CUE_QUOTE;
+		if (mediaInfo.isUrl()) {
+			stream << mediaInfo.fileName();
+		} else {
+			//Try to save the filename as relative instead of absolute
+			QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
+			stream << Util::pathToNativeSeparators(filename);
+		}
+		stream << CUE_QUOTE
+			<< " WAVE"
 			<< CUE_EOL;
 
-		foreach (MediaInfo mediaInfo, files) {
-			if (_stop) {
-				break;
-			}
+		stream << "  TRACK "
+			<< mediaInfo.metadataValue(MediaInfo::TrackNumber)
+			<< " AUDIO"
+			<< CUE_EOL;
 
-			stream << "FILE "
-				<< CUE_QUOTE;
-			if (mediaInfo.isUrl()) {
-				stream << mediaInfo.fileName();
-			} else {
-				//Try to save the filename as relative instead of absolute
-				QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
-				stream << Util::pathToNativeSeparators(filename);
-			}
-			stream << CUE_QUOTE
-				<< " WAVE"
-				<< CUE_EOL;
+		stream << "    TITLE "
+			<< CUE_QUOTE << mediaInfo.metadataValue(MediaInfo::Title) << CUE_QUOTE
+			<< CUE_EOL;
 
-			stream << "  TRACK "
-				<< mediaInfo.metadataValue(MediaInfo::TrackNumber)
-				<< " AUDIO"
-				<< CUE_EOL;
+		stream << "    PERFORMER "
+			<< CUE_QUOTE << mediaInfo.metadataValue(MediaInfo::Artist) << CUE_QUOTE
+			<< CUE_EOL;
 
-			stream << "    TITLE "
-				<< CUE_QUOTE << mediaInfo.metadataValue(MediaInfo::Title) << CUE_QUOTE
-				<< CUE_EOL;
-
-			stream << "    PERFORMER "
-				<< CUE_QUOTE << mediaInfo.metadataValue(MediaInfo::Artist) << CUE_QUOTE
-				<< CUE_EOL;
-
-			stream << "    INDEX "
-				<< "01 "
-				<< mediaInfo.cueStartIndexFormatted()
-				<< CUE_EOL;
-		}
+		stream << "    INDEX "
+			<< "01 "
+			<< mediaInfo.cueStartIndexFormatted()
+			<< CUE_EOL;
 	}
 
-	file.close();
-
-	//Emits the last signal
-	emit finished(timeElapsed.elapsed());
+	device->close();
 }

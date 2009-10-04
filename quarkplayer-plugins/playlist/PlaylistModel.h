@@ -21,6 +21,8 @@
 
 #include <quarkplayer-plugins/playlist/playlist_export.h>
 
+#include <playlistparser/PlaylistParser.h>
+
 #include <phonon/phononnamespace.h>
 
 #include <QtCore/QAbstractItemModel>
@@ -155,9 +157,9 @@ public slots:
 
 signals:
 
-	void playlistLoaded(int timeElapsed);
+	void playlistLoaded(PlaylistParser::Error, int timeElapsed);
 
-	void playlistSaved(int timeElapsed);
+	void playlistSaved(PlaylistParser::Error, int timeElapsed);
 
 private slots:
 
@@ -177,7 +179,7 @@ private slots:
 
 	void filesFound(const QList<MediaInfo> & files);
 
-	void searchfinished(int timeElapsed);
+	void searchFinished(int timeElapsed);
 
 	void allPluginsLoaded();
 

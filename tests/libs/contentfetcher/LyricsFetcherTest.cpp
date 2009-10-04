@@ -23,7 +23,7 @@
 void LyricsFetcherTest::initTestCase() {
 	_lyricsFetcher = new LyricsFetcher(this);
 	connect(_lyricsFetcher,
-		SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
+		SIGNAL(finished(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
 		SLOT(lyricsFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &))
 	);
 }

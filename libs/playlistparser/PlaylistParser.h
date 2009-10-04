@@ -23,10 +23,14 @@
 
 #include <QtCore/QList>
 
-class PlaylistParserThread;
+class IPlaylistParserImpl;
+
+class QString;
 
 /**
- * Parses a playlist file.
+ * Parses a playlist.
+ *
+ * Code factorization.
  *
  * A playlist file can be a .m3u, m3u8, .pls, .wpl...
  * Prefered format is m3u8 (8 means UTF-8) "The most popular format, M3U, is also the simplest"
@@ -36,29 +40,137 @@ class PlaylistParserThread;
  * @author Tanguy Krotoff
  */
 class PLAYLISTPARSER_API PlaylistParser : public IPlaylistParser {
+	Q_OBJECT
 public:
 
-	PlaylistParser(const QString & filename, QObject * parent);
+	enum Error {
+		/** No error condition. */
+		NoError,
 
-	~PlaylistParser();
+		/**
+		 * PlaylistReader was used with a file name, but no file was found with that name.
+		 */
+		FileNotFoundError,
 
-	QStringList fileExtensions() const;
+		/** Playlist format not supported. */
+		UnsupportedFormatError,
 
-	void load();
+		/** Use QNetworkAccessManager and QNetworkReply in order to get the error code. */
+		NetworkError
+	};
 
-	void save(const QList<MediaInfo> & files);
+	PlaylistParser(QObject * parent);
+
+	virtual ~PlaylistParser();
 
 	void stop();
 
-private:
+signals:
+
+	/**
+	 * Sends the signal after all filesFound() signals, this is the last signal sent.
+	 *
+	 * Guaranteed to be sent only once.
+	 * Will be sent even if the playlist file cannot be loaded or stop() has been called.
+	 *
+	 * @param timeElapsed time in milliseconds needed to perform the operation (load or save)
+	 */
+	void finished(PlaylistParser::Error error, int timeElapsed);
+
+protected slots:
+
+	void concurrentFinished();
+
+protected:
+
+	/** Sets _parser given a playlist file. */
+	void findParser(const QString & location);
 
 	/** List of all available parsers. */
-	QList<IPlaylistParser *> _parserList;
+	QList<IPlaylistParserImpl *> _parserList;
 
 	/** Current selected parser. */
-	IPlaylistParser * _parser;
+	IPlaylistParserImpl * _parser;
 
-	PlaylistParserThread * _parserThread;
+	/** Error for the finished() signal. */
+	Error _error;
+};
+
+class MediaInfo;
+
+class QIODevice;
+class QNetworkAccessManager;
+class QNetworkReply;
+
+/**
+ * Loads a playlist file.
+ *
+ * @see PlaylistWriter
+ * @author Tanguy Krotoff
+ */
+class PLAYLISTPARSER_API PlaylistReader : public PlaylistParser {
+	Q_OBJECT
+public:
+
+	PlaylistReader(QObject * parent);
+
+	~PlaylistReader();
+
+	void setNetworkAccessManager(QNetworkAccessManager * networkAccessManager);
+	QNetworkAccessManager * networkAccessManager() const;
+
+	/**
+	 * Loads the playlist.
+	 *
+	 * @param location playlist file (full path) or URL to load
+	 * @see filesFound()
+	 */
+	void load(const QString & location);
+
+signals:
+
+	/**
+	 * Sends the signal every FILES_FOUND_LIMIT files found.
+	 *
+	 * @param files list of files (full path filename) contained inside the playlist
+	 */
+	void filesFound(const QList<MediaInfo> & files);
+
+private slots:
+
+	void networkReplyFinished(QNetworkReply * reply);
+
+private:
+
+	void loadIODevice(QIODevice * device, const QString & location);
+
+	QNetworkAccessManager * _networkAccessManager;
+};
+
+/**
+ * Saves a playlist file.
+ *
+ * @see PlaylistReader
+ * @author Tanguy Krotoff
+ */
+class PLAYLISTPARSER_API PlaylistWriter : public PlaylistParser {
+public:
+
+	PlaylistWriter(QObject * parent);
+
+	~PlaylistWriter();
+
+	/**
+	 * Saves the playlist.
+	 *
+	 * @param files files to add to the playlist file
+	 */
+	void save(const QString & location, const QList<MediaInfo> & files);
+
+private:
+
+	void saveIODevice(QIODevice * device, const QString & location, const QList<MediaInfo> & files);
+
 };
 
 #endif	//PLAYLISTPARSER_H

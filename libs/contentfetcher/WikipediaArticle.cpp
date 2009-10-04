@@ -150,7 +150,7 @@ void WikipediaArticle::gotWikipediaArticle(QNetworkReply * reply) {
 	simplifyAndFixWikipediaArticle(data);
 
 	//We've got the Wikipedia article
-	emitContentFoundWithoutError(reply->url(), data.toUtf8());
+	emitFinishedWithoutError(reply->url(), data.toUtf8());
 }
 
 void WikipediaArticle::simplifyAndFixWikipediaArticle(QString & wiki) const {

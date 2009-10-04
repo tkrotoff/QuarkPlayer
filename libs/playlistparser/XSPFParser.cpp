@@ -21,7 +21,6 @@
 #include "Util.h"
 
 #include <mediainfofetcher/MediaInfo.h>
-#include <tkutil/TkFile.h>
 
 #include <QtXml/QXmlStreamReader>
 #include <QtXml/QXmlStreamWriter>
@@ -29,10 +28,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
 #include <QtCore/QUrl>
-#include <QtCore/QTime>
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 
@@ -54,7 +50,7 @@ static const char * XSPF_META = "meta";
 static const char * XSPF_APPLICATION = "application";
 static const char * XSPF_EXTENSION = "extension";
 
-//Specific to foobar2000 XSPF pluin
+//Specific to foobar2000 XSPF plugin
 static const char * XSPF_FOOBAR2000_DATE = "date";
 static const char * XSPF_FOOBAR2000_GENRE = "genre";
 ///
@@ -67,10 +63,9 @@ static const char * XSPF_QUARKPLAYER_YEAR = "year";
 static const char * XSPF_QUARKPLAYER_GENRE = "genre";
 ///
 
-XSPFParser::XSPFParser(const QString & filename, QObject * parent)
-	: IPlaylistParser(filename, parent) {
+XSPFParser::XSPFParser(QObject * parent)
+	: IPlaylistParserImpl(parent) {
 
-	_filename = filename;
 	_stop = false;
 }
 
@@ -105,7 +100,7 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 				if (isUrl) {
 					mediaInfo.setFileName(location);
 				} else {
-					QString path(QFileInfo(_filename).path());
+					QString path(QFileInfo(location).path());
 					mediaInfo.setFileName(Util::canonicalFilePath(path, location));
 				}
 			}
@@ -307,115 +302,92 @@ void XSPFParser::writeTrack(QXmlStreamWriter & xml, const MediaInfo & mediaInfo)
 	xml.writeEndElement();	//track
 }
 
-void XSPFParser::load() {
-	QTime timeElapsed;
-	timeElapsed.start();
-
+void XSPFParser::load(QIODevice * device, const QString & location) {
 	_stop = false;
 
 	QList<MediaInfo> files;
 
-	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
+	MediaInfo mediaInfo;
 
-	QFile file(_filename);
-	if (file.open(QIODevice::ReadOnly)) {
-		MediaInfo mediaInfo;
+	QXmlStreamReader xml(device);
+	while (!xml.atEnd() && !_stop) {
+		xml.readNext();
 
-		QXmlStreamReader xml(&file);
-		while (!xml.atEnd() && !_stop) {
-			xml.readNext();
+		switch (xml.tokenType()) {
 
-			switch (xml.tokenType()) {
+		case QXmlStreamReader::StartElement: {
+			QString element(xml.name().toString());
 
-			case QXmlStreamReader::StartElement: {
-				QString element(xml.name().toString());
+			if (element == XSPF_TRACK) {
+				readTrack(xml, mediaInfo);
 
-				if (element == XSPF_TRACK) {
-					readTrack(xml, mediaInfo);
+				if (!mediaInfo.fileName().isEmpty()) {
+					//Add file to the list of files
+					files << mediaInfo;
 
-					if (!mediaInfo.fileName().isEmpty()) {
-						//Add file to the list of files
-						files << mediaInfo;
+					//Clear the MediaInfo
+					mediaInfo.clear();
 
-						//Clear the MediaInfo
-						mediaInfo.clear();
-
-						if (files.size() > FILES_FOUND_LIMIT) {
-							//Emits the signal every FILES_FOUND_LIMIT files found
-							emit filesFound(files);
-							files.clear();
-						}
+					if (files.size() > FILES_FOUND_LIMIT) {
+						//Emits the signal every FILES_FOUND_LIMIT files found
+						emit filesFound(files);
+						files.clear();
 					}
 				}
-
-				//Otherwise won't read the track end element
-				break;
 			}
 
-			}
+			//Otherwise won't read the track end element
+			break;
 		}
 
-		if (xml.hasError()) {
-			qCritical() << __FUNCTION__ << "Error:" << xml.errorString()
-				<< "line:" << xml.lineNumber()
-				<< "column:" << xml.columnNumber();
 		}
 	}
 
-	file.close();
+	if (xml.hasError()) {
+		qCritical() << __FUNCTION__ << "Error:" << xml.errorString()
+			<< "line:" << xml.lineNumber()
+			<< "column:" << xml.columnNumber();
+	}
+
+	device->close();
 
 	if (!files.isEmpty()) {
 		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
 		emit filesFound(files);
 	}
-
-	//Emits the last signal
-	emit finished(timeElapsed.elapsed());
 }
 
-void XSPFParser::save(const QList<MediaInfo> & files) {
-	QTime timeElapsed;
-	timeElapsed.start();
-
+void XSPFParser::save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
 	_stop = false;
 
-	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
+	QString path(QFileInfo(location).path());
 
-	QString path(QFileInfo(_filename).path());
+	QXmlStreamWriter xml(device);
+	xml.setAutoFormatting(true);
+	xml.writeStartDocument();
 
-	QFile file(_filename);
-	if (file.open(QIODevice::WriteOnly)) {
+	xml.writeStartElement(XSPF_PLAYLIST);
+	xml.writeAttribute("version", "1");
+	xml.writeDefaultNamespace("http://xspf.org/ns/0/");
+	xml.writeNamespace(XSPF_QUARKPLAYER_NAMESPACE, "qp");
 
-		QXmlStreamWriter xml(&file);
-		xml.setAutoFormatting(true);
-		xml.writeStartDocument();
+		writeTextElement(xml, XSPF_TITLE, QFileInfo(location).baseName());
+		writeTextElement(xml, XSPF_CREATOR, QCoreApplication::applicationName());
+		writeTextElement(xml, XSPF_INFO, "http://quarkplayer.googlecode.com");
+		writeTextElement(xml, XSPF_DATE, QDateTime::currentDateTime().toString(Qt::ISODate));
 
-		xml.writeStartElement(XSPF_PLAYLIST);
-		xml.writeAttribute("version", "1");
-		xml.writeDefaultNamespace("http://xspf.org/ns/0/");
-		xml.writeNamespace(XSPF_QUARKPLAYER_NAMESPACE, "qp");
+		xml.writeStartElement(XSPF_TRACKLIST);
 
-			writeTextElement(xml, XSPF_TITLE, QFileInfo(_filename).baseName());
-			writeTextElement(xml, XSPF_CREATOR, QCoreApplication::applicationName());
-			writeTextElement(xml, XSPF_INFO, "http://quarkplayer.googlecode.com");
-			writeTextElement(xml, XSPF_DATE, QDateTime::currentDateTime().toString(Qt::ISODate));
-
-			xml.writeStartElement(XSPF_TRACKLIST);
-
-				foreach (MediaInfo mediaInfo, files) {
-					if (_stop) {
-						break;
-					}
-					writeTrack(xml, mediaInfo);
+			foreach (MediaInfo mediaInfo, files) {
+				if (_stop) {
+					break;
 				}
+				writeTrack(xml, mediaInfo);
+			}
 
-			xml.writeEndElement();	//trackList
+		xml.writeEndElement();	//trackList
 
-		xml.writeEndElement();	//playlist
-	}
+	xml.writeEndElement();	//playlist
 
-	file.close();
-
-	//Emits the last signal
-	emit finished(timeElapsed.elapsed());
+	device->close();
 }

@@ -28,11 +28,11 @@ ContentFetcher::~ContentFetcher() {
 }
 
 void ContentFetcher::emitNetworkError(QNetworkReply::NetworkError error, const QUrl & url) {
-	emit contentFound(error, url, QByteArray(), _track);
+	emit finished(error, url, QByteArray(), _track);
 }
 
-void ContentFetcher::emitContentFoundWithoutError(const QUrl & url, const QByteArray & content) {
-	emit contentFound(QNetworkReply::NoError, url, content, _track);
+void ContentFetcher::emitFinishedWithoutError(const QUrl & url, const QByteArray & content) {
+	emit finished(QNetworkReply::NoError, url, content, _track);
 }
 
 QString ContentFetcher::errorString(QNetworkReply::NetworkError errorCode) {

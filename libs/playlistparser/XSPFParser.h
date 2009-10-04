@@ -19,7 +19,7 @@
 #ifndef XSPFPARSER_H
 #define XSPFPARSER_H
 
-#include "PlaylistParser.h"
+#include "IPlaylistParserImpl.h"
 
 #include <QtCore/QString>
 
@@ -44,18 +44,18 @@ class QXmlStreamWriter;
  * @see http://xspf.org/xspf-v1.html
  * @author Tanguy Krotoff
  */
-class XSPFParser : public IPlaylistParser {
+class XSPFParser : public IPlaylistParserImpl {
 public:
 
-	XSPFParser(const QString & filename, QObject * parent);
+	XSPFParser(QObject * parent);
 
 	~XSPFParser();
 
 	QStringList fileExtensions() const;
 
-	void load();
+	void load(QIODevice * device, const QString & location);
 
-	void save(const QList<MediaInfo> & files);
+	void save(QIODevice * device, const QString & location, const QList<MediaInfo> & files);
 
 	void stop();
 
@@ -70,8 +70,6 @@ private:
 	static void writeIntElement(QXmlStreamWriter & xml, const QString & qualifiedName, int text);
 
 	static void writeTrack(QXmlStreamWriter & xml, const MediaInfo & mediaInfo);
-
-	QString _filename;
 
 	volatile bool _stop;
 };

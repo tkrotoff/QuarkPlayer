@@ -16,52 +16,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLAYLISTPARSERTEST_H
-#define PLAYLISTPARSERTEST_H
+#ifndef IPLAYLISTPARSERIMPL_H
+#define IPLAYLISTPARSERIMPL_H
 
-#include <playlistparser/PlaylistParser.h>
-
-#include <QtTest/QtTest>
-#include <QtCore/QList>
+#include "IPlaylistParser.h"
 
 class MediaInfo;
 
+class QIODevice;
+class QString;
+class QStringList;
+
 /**
- * Test for playlistparser library.
+ * Interface for saving a playlist file.
  *
- * @see PlaylistParser
  * @author Tanguy Krotoff
  */
-class PlaylistParserTest : public QObject {
+class IPlaylistParserImpl : public IPlaylistParser {
 	Q_OBJECT
-private slots:
+public:
 
-	/** Called before the first testfunction is executed. */
-	void initTestCase();
+	/** Files found limit before to send the signal filesFound(). */
+	static const int FILES_FOUND_LIMIT = 1000;
 
-	/** Called after the last testfunction was executed. */
-	void cleanupTestCase();
+	IPlaylistParserImpl(QObject * parent);
 
-	/** Called before each testfunction is executed. */
-	void init();
+	virtual ~IPlaylistParserImpl();
 
-	/** Called after every testfunction. */
-	void cleanup();
+	/**
+	 * Returns the list of file extensions supported by this parser.
+	 *
+	 * @return list of file extensions (i.e m3u, pls...)
+	 */
+	virtual QStringList fileExtensions() const = 0;
 
+	virtual void load(QIODevice * device, const QString & location) = 0;
 
-	void loadPlaylist_data();
+	virtual void save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) = 0;
 
-	void loadPlaylist();
+signals:
 
-private slots:
-
+	/**
+	 * @see PlaylistReader::filesFound()
+	 */
 	void filesFound(const QList<MediaInfo> & files);
 
-	void finished(PlaylistParser::Error error, int timeElapsed);
-
-private:
-
-	PlaylistReader * _parser;
 };
 
-#endif	//PLAYLISTPARSERTEST_H
+#endif	//IPLAYLISTPARSERIMPL_H

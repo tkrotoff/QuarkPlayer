@@ -74,7 +74,7 @@ signals:
 	 * @param content the reply
 	 * @param track track informations used by the user to get the reply
 	 */
-	void contentFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & content,
+	void finished(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & content,
 		const ContentFetcherTrack & track);
 
 protected:
@@ -89,7 +89,7 @@ protected:
 	/**
 	 * Code factorization: send signal, the content has been retrieved without error.
 	 */
-	void emitContentFoundWithoutError(const QUrl & url, const QByteArray & content);
+	void emitFinishedWithoutError(const QUrl & url, const QByteArray & content);
 
 	/** Can be reused by subclasses, code factorization. */
 	ContentFetcherTrack _track;

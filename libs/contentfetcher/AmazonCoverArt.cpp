@@ -219,5 +219,5 @@ void AmazonCoverArt::gotCoverArt(QNetworkReply * reply) {
 	qDebug() << __FUNCTION__ << "Got Amazon cover art";
 
 	//We've got the cover art
-	emitContentFoundWithoutError(reply->url(), data);
+	emitFinishedWithoutError(reply->url(), data);
 }

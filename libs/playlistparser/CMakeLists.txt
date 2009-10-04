@@ -3,8 +3,9 @@ project(playlistparser)
 add_definitions(-DBUILD_PLAYLISTPARSER)
 
 set(playlistparser_SRCS
+	IPlaylistParser.cpp
 	PlaylistParser.cpp
-	PlaylistParserThread.cpp
+	IPlaylistParserImpl.cpp
 
 	Util.cpp
 
@@ -18,7 +19,8 @@ set(playlistparser_SRCS
 
 qt4_wrap_cpp(playlistparser_SRCS
 	IPlaylistParser.h
-	PlaylistParserThread.h
+	PlaylistParser.h
+	IPlaylistParserImpl.h
 )
 
 add_library(playlistparser SHARED ${playlistparser_SRCS})

@@ -19,7 +19,7 @@
 #ifndef M3UPARSER_H
 #define M3UPARSER_H
 
-#include "PlaylistParser.h"
+#include "IPlaylistParserImpl.h"
 
 #include <QtCore/QString>
 
@@ -29,26 +29,24 @@
  * @see http://en.wikipedia.org/wiki/M3u
  * @author Tanguy Krotoff
  */
-class M3UParser : public IPlaylistParser {
+class M3UParser : public IPlaylistParserImpl {
 public:
 
-	M3UParser(const QString & filename, QObject * parent);
+	M3UParser(QObject * parent);
 
 	~M3UParser();
 
 	QStringList fileExtensions() const;
 
-	void load();
+	void load(QIODevice * device, const QString & location);
 
-	void save(const QList<MediaInfo> & files);
+	void save(QIODevice * device, const QString & location, const QList<MediaInfo> & files);
 
 	void stop();
 
 private:
 
-	bool isUtf8() const;
-
-	QString _filename;
+	static bool isUtf8(const QString & location);
 
 	volatile bool _stop;
 };

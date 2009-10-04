@@ -151,5 +151,5 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 
 	//qDebug() << __FUNCTION__ << "Lyrics:" << lyrics;
 
-	emitContentFoundWithoutError(reply->url(), lyrics.toUtf8());
+	emitFinishedWithoutError(reply->url(), lyrics.toUtf8());
 }

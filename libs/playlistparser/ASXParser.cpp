@@ -21,7 +21,6 @@
 #include "Util.h"
 
 #include <mediainfofetcher/MediaInfo.h>
-#include <tkutil/TkFile.h>
 
 #include <QtXml/QXmlStreamReader>
 #include <QtXml/QXmlStreamWriter>
@@ -29,9 +28,6 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QTime>
 #include <QtCore/QDebug>
 
 static const char * ASX_TITLE = "title";
@@ -43,10 +39,9 @@ static const char * ASX_ASX = "asx";
 static const char * ASX_VERSION = "version";
 static const char * ASX_3DOT0 = "3.0";
 
-ASXParser::ASXParser(const QString & filename, QObject * parent)
-	: IPlaylistParser(filename, parent) {
+ASXParser::ASXParser(QObject * parent)
+	: IPlaylistParserImpl(parent) {
 
-	_filename = filename;
 	_stop = false;
 }
 
@@ -66,140 +61,117 @@ void ASXParser::stop() {
 	_stop = true;
 }
 
-void ASXParser::load() {
-	QTime timeElapsed;
-	timeElapsed.start();
-
+void ASXParser::load(QIODevice * device, const QString & location) {
 	_stop = false;
 
 	QList<MediaInfo> files;
 
-	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
+	QString path(QFileInfo(location).path());
 
-	QFile file(_filename);
-	if (file.open(QIODevice::ReadOnly)) {
-		QString path(QFileInfo(_filename).path());
+	MediaInfo mediaInfo;
 
-		MediaInfo mediaInfo;
+	QXmlStreamReader xml(device);
+	while (!xml.atEnd() && !_stop) {
+		xml.readNext();
 
-		QXmlStreamReader xml(&file);
-		while (!xml.atEnd() && !_stop) {
-			xml.readNext();
+		switch (xml.tokenType()) {
 
-			switch (xml.tokenType()) {
-
-			case QXmlStreamReader::StartElement: {
-				QString element(xml.name().toString());
-				if (element.compare(ASX_TITLE, Qt::CaseInsensitive) == 0) {
-					QString title(xml.readElementText());
-					mediaInfo.insertMetadata(MediaInfo::Title, title);
-				} else if (element.compare(ASX_REF, Qt::CaseInsensitive) == 0) {
-					QString url(xml.attributes().value(ASX_HREF).toString());
-					if (url.isEmpty()) {
-						//Yes ASX format is shit
-						//Let's try with uppercase
-						QString uppercase(ASX_HREF);
-						uppercase = uppercase.toUpper();
-						url = xml.attributes().value(uppercase).toString();
-					}
-					mediaInfo.setFileName(url);
-					mediaInfo.setUrl(true);
-				} else if (element.compare(ASX_COPYRIGHT, Qt::CaseInsensitive) == 0) {
-					QString copyright(xml.readElementText());
-					mediaInfo.insertMetadata(MediaInfo::Copyright, copyright);
+		case QXmlStreamReader::StartElement: {
+			QString element(xml.name().toString());
+			if (element.compare(ASX_TITLE, Qt::CaseInsensitive) == 0) {
+				QString title(xml.readElementText());
+				mediaInfo.insertMetadata(MediaInfo::Title, title);
+			} else if (element.compare(ASX_REF, Qt::CaseInsensitive) == 0) {
+				QString url(xml.attributes().value(ASX_HREF).toString());
+				if (url.isEmpty()) {
+					//Yes ASX format is shit
+					//Let's try with uppercase
+					QString uppercase(ASX_HREF);
+					uppercase = uppercase.toUpper();
+					url = xml.attributes().value(uppercase).toString();
 				}
-				break;
+				mediaInfo.setFileName(url);
+				mediaInfo.setUrl(true);
+			} else if (element.compare(ASX_COPYRIGHT, Qt::CaseInsensitive) == 0) {
+				QString copyright(xml.readElementText());
+				mediaInfo.insertMetadata(MediaInfo::Copyright, copyright);
 			}
-
-			case QXmlStreamReader::EndElement: {
-				QString element(xml.name().toString());
-				if (element.compare(ASX_ENTRY, Qt::CaseInsensitive) == 0) {
-					if (!mediaInfo.fileName().isEmpty()) {
-						//Add file to the list of files
-						files << mediaInfo;
-
-						//Clear the MediaInfo
-						mediaInfo.clear();
-
-						if (files.size() > FILES_FOUND_LIMIT) {
-							//Emits the signal every FILES_FOUND_LIMIT files found
-							emit filesFound(files);
-							files.clear();
-						}
-					}
-				}
-				break;
-			}
-
-			}
+			break;
 		}
 
-		if (xml.hasError()) {
-			qCritical() << __FUNCTION__ << "Error: ";
+		case QXmlStreamReader::EndElement: {
+			QString element(xml.name().toString());
+			if (element.compare(ASX_ENTRY, Qt::CaseInsensitive) == 0) {
+				if (!mediaInfo.fileName().isEmpty()) {
+					//Add file to the list of files
+					files << mediaInfo;
+
+					//Clear the MediaInfo
+					mediaInfo.clear();
+
+					if (files.size() > FILES_FOUND_LIMIT) {
+						//Emits the signal every FILES_FOUND_LIMIT files found
+						emit filesFound(files);
+						files.clear();
+					}
+				}
+			}
+			break;
+		}
+
 		}
 	}
 
-	file.close();
+	if (xml.hasError()) {
+		qCritical() << __FUNCTION__ << "Error: ";
+	}
+
+	device->close();
 
 	if (!files.isEmpty()) {
 		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
 		emit filesFound(files);
 	}
-
-	//Emits the last signal
-	emit finished(timeElapsed.elapsed());
 }
 
-void ASXParser::save(const QList<MediaInfo> & files) {
-	QTime timeElapsed;
-	timeElapsed.start();
-
+void ASXParser::save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
 	_stop = false;
 
-	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
+	QString path(QFileInfo(location).path());
 
-	QString path(QFileInfo(_filename).path());
+	QXmlStreamWriter xml(device);
+	xml.setAutoFormatting(true);
+	//Don't write <?xml version="1.0" encoding="UTF-8"?>
+	//ASX playlist format is not a real XML file!
+	//xml.writeStartDocument();
 
-	QFile file(_filename);
-	if (file.open(QIODevice::WriteOnly)) {
+	xml.writeStartElement(ASX_ASX);
+	xml.writeAttribute(ASX_VERSION, ASX_3DOT0);
+		xml.writeTextElement(ASX_TITLE, QFileInfo(location).baseName());
 
-		QXmlStreamWriter xml(&file);
-		xml.setAutoFormatting(true);
-		//Don't write <?xml version="1.0" encoding="UTF-8"?>
-		//ASX playlist format is not a real XML file!
-		//xml.writeStartDocument();
+		foreach (MediaInfo mediaInfo, files) {
+			if (_stop) {
+				break;
+			}
 
-		xml.writeStartElement(ASX_ASX);
-		xml.writeAttribute(ASX_VERSION, ASX_3DOT0);
-			xml.writeTextElement(ASX_TITLE, QFileInfo(_filename).baseName());
-
-			foreach (MediaInfo mediaInfo, files) {
-				if (_stop) {
-					break;
+			xml.writeStartElement(ASX_ENTRY);
+				QString title(mediaInfo.metadataValue(MediaInfo::Title));
+				if (!title.isEmpty()) {
+					xml.writeTextElement(ASX_TITLE, title);
 				}
 
-				xml.writeStartElement(ASX_ENTRY);
-					QString title(mediaInfo.metadataValue(MediaInfo::Title));
-					if (!title.isEmpty()) {
-						xml.writeTextElement(ASX_TITLE, title);
-					}
+				xml.writeStartElement(ASX_REF);
+					QString filename(mediaInfo.fileName());
+					xml.writeAttribute(ASX_HREF, filename);
+				xml.writeEndElement();	//ref
 
-					xml.writeStartElement(ASX_REF);
-						QString filename(mediaInfo.fileName());
-						xml.writeAttribute(ASX_HREF, filename);
-					xml.writeEndElement();	//ref
+				QString copyright(mediaInfo.metadataValue(MediaInfo::Copyright));
+				if (!copyright.isEmpty()) {
+					xml.writeTextElement(ASX_COPYRIGHT, copyright);
+				}
+			xml.writeEndElement();	//entry
+		}
+	xml.writeEndElement();	//asx
 
-					QString copyright(mediaInfo.metadataValue(MediaInfo::Copyright));
-					if (!copyright.isEmpty()) {
-						xml.writeTextElement(ASX_COPYRIGHT, copyright);
-					}
-				xml.writeEndElement();	//entry
-			}
-		xml.writeEndElement();	//asx
-	}
-
-	file.close();
-
-	//Emits the last signal
-	emit finished(timeElapsed.elapsed());
+	device->close();
 }

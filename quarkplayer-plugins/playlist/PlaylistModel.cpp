@@ -363,7 +363,7 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 			connect(findFiles, SIGNAL(filesFound(const QStringList &, const QUuid &)),
 				SLOT(filesFound(const QStringList &)));
 			connect(findFiles, SIGNAL(finished(int, const QUuid &)),
-				SLOT(searchfinished(int)));
+				SLOT(searchFinished(int)));
 			findFiles->setSearchPath(filename);
 			findFiles->setFilesFoundLimit(500);
 			findFiles->setFindDirs(false);
@@ -434,7 +434,7 @@ void PlaylistModel::insertFilesInsideTheModel(const QList<MediaInfo> & files, in
 	}
 }
 
-void PlaylistModel::searchfinished(int timeElapsed) {
+void PlaylistModel::searchFinished(int timeElapsed) {
 	Q_UNUSED(timeElapsed);
 
 	_nbFindFiles--;
@@ -473,12 +473,12 @@ QString PlaylistModel::currentPlaylist() const {
 }
 
 void PlaylistModel::loadPlaylist(const QString & filename) {
-	PlaylistParser * parser = new PlaylistParser(filename, this);
+	static PlaylistReader * parser = new PlaylistReader(this);
 	connect(parser, SIGNAL(filesFound(const QList<MediaInfo> &)),
 		SLOT(filesFound(const QList<MediaInfo> &)));
-	connect(parser, SIGNAL(finished(int)),
-		SIGNAL(playlistLoaded(int)));
-	parser->load();
+	connect(parser, SIGNAL(finished(PlaylistParser::Error, int)),
+		SIGNAL(playlistLoaded(PlaylistParser::Error, int)));
+	parser->load(filename);
 }
 
 void PlaylistModel::loadCurrentPlaylist() {
@@ -509,10 +509,10 @@ void PlaylistModel::saveCurrentPlaylist() {
 		timerAlreadyStarted = false;
 
 		QString path(Config::instance().configDir());
-		PlaylistParser * parser = new PlaylistParser(path + currentPlaylist(), this);
-		connect(parser, SIGNAL(finished(int)),
-			SIGNAL(playlistSaved(int)));
-		parser->save(_filenames);
+		PlaylistWriter * parser = new PlaylistWriter(this);
+		connect(parser, SIGNAL(finished(PlaylistParser::Error, int)),
+			SIGNAL(playlistSaved(PlaylistParser::Error, int)));
+		parser->save(path + currentPlaylist(), _filenames);
 	}
 }
 

@@ -26,6 +26,7 @@
 TkConfig::TkConfig()
 	:
 #ifdef Q_OS_WIN
+	//INI file format, otherwise use the registry database
 	_settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName())
 #else
 	_settings(QSettings::NativeFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName())

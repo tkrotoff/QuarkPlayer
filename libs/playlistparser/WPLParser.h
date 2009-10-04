@@ -19,7 +19,7 @@
 #ifndef WPLPARSER_H
 #define WPLPARSER_H
 
-#include "PlaylistParser.h"
+#include "IPlaylistParserImpl.h"
 
 #include <QtCore/QString>
 
@@ -34,24 +34,22 @@
  * @see http://en.wikipedia.org/wiki/WPL
  * @author Tanguy Krotoff
  */
-class WPLParser : public IPlaylistParser {
+class WPLParser : public IPlaylistParserImpl {
 public:
 
-	WPLParser(const QString & filename, QObject * parent);
+	WPLParser(QObject * parent);
 
 	~WPLParser();
 
 	QStringList fileExtensions() const;
 
-	void load();
+	void load(QIODevice * device, const QString & location);
 
-	void save(const QList<MediaInfo> & files);
+	void save(QIODevice * device, const QString & location, const QList<MediaInfo> & files);
 
 	void stop();
 
 private:
-
-	QString _filename;
 
 	volatile bool _stop;
 };

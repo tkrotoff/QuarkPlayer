@@ -31,6 +31,10 @@ struct QUuid;
 /**
  * Stores QuarkPlayer configuration.
  *
+ * Under Windows Vista: <pre>C:/Users/UserName/AppData/Roaming/QuarkPlayer/QuarkPlayer.ini</pre>
+ * Under Windows XP: <pre>UserName/QuarkPlayer/QuarkPlayer.ini</pre>
+ * Under UNIX: <pre>~/.QuarkPlayer/QuarkPlayer.ini</pre>
+ *
  * Pattern singleton.
  * Transform it to CRTP pattern?
  * So one can inherit from this class

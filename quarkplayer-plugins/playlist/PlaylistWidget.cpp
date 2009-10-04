@@ -82,10 +82,10 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 		SLOT(updateWindowTitle()));
 	connect(_playlistModel, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
 		SLOT(updateWindowTitle()));
-	connect(_playlistModel, SIGNAL(playlistLoaded(int)),
-		SLOT(playlistLoaded(int)));
-	connect(_playlistModel, SIGNAL(playlistSaved(int)),
-		SLOT(playlistSaved(int)));
+	connect(_playlistModel, SIGNAL(playlistLoaded(PlaylistParser::Error, int)),
+		SLOT(playlistLoaded(PlaylistParser::Error, int)));
+	connect(_playlistModel, SIGNAL(playlistSaved(PlaylistParser::Error, int)),
+		SLOT(playlistSaved(PlaylistParser::Error, int)));
 	///
 
 	//Filter
@@ -341,12 +341,12 @@ void PlaylistWidget::openPlaylist() {
 	}
 }
 
-void PlaylistWidget::playlistLoaded(int timeElapsed) {
+void PlaylistWidget::playlistLoaded(PlaylistParser::Error, int timeElapsed) {
 	updateWindowTitle(tr("Playlist loaded:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
 			" (" + QString::number(_playlistModel->rowCount()) + ' ' + tr("medias") + ')');
 }
 
-void PlaylistWidget::playlistSaved(int timeElapsed) {
+void PlaylistWidget::playlistSaved(PlaylistParser::Error, int timeElapsed) {
 	updateWindowTitle(tr("Playlist saved:") + ' ' + QString::number((float) timeElapsed / 1000) + ' ' + tr("seconds") +
 			" (" + QString::number(_playlistModel->rowCount()) + ' ' + tr("medias") + ')');
 }
@@ -376,10 +376,10 @@ void PlaylistWidget::savePlaylist() {
 	if (!filename.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(filename).absolutePath());
 
-		PlaylistParser * parser = new PlaylistParser(filename, this);
-		connect(parser, SIGNAL(finished(int)),
-			SLOT(playlistSaved(int)));
-		parser->save(_playlistModel->files());
+		static PlaylistWriter * parser = new PlaylistWriter(this);
+		connect(parser, SIGNAL(finished(PlaylistParser::Error, int)),
+			SLOT(playlistSaved(PlaylistParser::Error, int)));
+		parser->save(filename, _playlistModel->files());
 	}
 }
 

@@ -19,7 +19,7 @@
 #ifndef ASXPARSER_H
 #define ASXPARSER_H
 
-#include "PlaylistParser.h"
+#include "IPlaylistParserImpl.h"
 
 #include <QtCore/QString>
 
@@ -40,24 +40,22 @@
  * @see http://en.wikipedia.org/wiki/Advanced_Stream_Redirector
  * @author Tanguy Krotoff
  */
-class ASXParser : public IPlaylistParser {
+class ASXParser : public IPlaylistParserImpl {
 public:
 
-	ASXParser(const QString & filename, QObject * parent);
+	ASXParser(QObject * parent);
 
 	~ASXParser();
 
 	QStringList fileExtensions() const;
 
-	void load();
+	void load(QIODevice * device, const QString & location);
 
-	void save(const QList<MediaInfo> & files);
+	void save(QIODevice * device, const QString & location, const QList<MediaInfo> & files);
 
 	void stop();
 
 private:
-
-	QString _filename;
 
 	volatile bool _stop;
 };

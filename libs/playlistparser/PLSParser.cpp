@@ -25,12 +25,9 @@
 
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
-#include <QtCore/QFile>
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
-#include <QtCore/QDir>
 #include <QtCore/QTextCodec>
-#include <QtCore/QTime>
 #include <QtCore/QDebug>
 
 static const char * PLS_PLAYLIST = "[playlist]";
@@ -44,10 +41,9 @@ static const char * PLS_LENGTH = "Length";
 static const char * PLS_WINAMP_EOL = "\r\r\n";
 static const char * PLS_EOL = "\r";
 
-PLSParser::PLSParser(const QString & filename, QObject * parent)
-	: IPlaylistParser(filename, parent) {
+PLSParser::PLSParser(QObject * parent)
+	: IPlaylistParserImpl(parent) {
 
-	_filename = filename;
 	_stop = false;
 }
 
@@ -65,15 +61,10 @@ void PLSParser::stop() {
 	_stop = true;
 }
 
-void PLSParser::load() {
-	QTime timeElapsed;
-	timeElapsed.start();
-
+void PLSParser::load(QIODevice * device, const QString & location) {
 	_stop = false;
 
 	QList<MediaInfo> files;
-
-	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
 
 	//See http://regexlib.com/DisplayPatterns.aspx
 
@@ -86,63 +77,60 @@ void PLSParser::load() {
 
 	MediaInfo mediaInfo;
 
-	QFile file(_filename);
-	if (file.open(QIODevice::ReadOnly)) {
-		QString path(QFileInfo(_filename).path());
+	QString path(QFileInfo(location).path());
 
-		QTextStream stream(&file);
+	QTextStream stream(device);
 
-		while (!stream.atEnd() && !_stop) {
+	while (!stream.atEnd() && !_stop) {
 
-			//Line of text excluding '\n'
-			QString line(stream.readLine().trimmed());
+		//Line of text excluding '\n'
+		QString line(stream.readLine().trimmed());
 
-			//Winamp inserts some ugly CR character inside .pls files
-			//Let's ignore them
-			line.remove(PLS_EOL);
+		//Winamp inserts some ugly CR character inside .pls files
+		//Let's ignore them
+		line.remove(PLS_EOL);
 
-			if (rx_file.indexIn(line) != -1) {
-				if (!mediaInfo.fileName().isEmpty()) {
-					//Add file to the list of files
-					files << mediaInfo;
+		if (rx_file.indexIn(line) != -1) {
+			if (!mediaInfo.fileName().isEmpty()) {
+				//Add file to the list of files
+				files << mediaInfo;
 
-					//Clear the MediaInfo for the next lines
-					mediaInfo.clear();
+				//Clear the MediaInfo for the next lines
+				mediaInfo.clear();
 
-					if (files.size() > FILES_FOUND_LIMIT) {
-						//Emits the signal every FILES_FOUND_LIMIT files found
-						emit filesFound(files);
-						files.clear();
-					}
-				}
-
-				QString filename(rx_file.cap(2));
-				bool isUrl = MediaInfo::isUrl(filename);
-				mediaInfo.setUrl(isUrl);
-				if (isUrl) {
-					mediaInfo.setFileName(filename);
-				} else {
-					mediaInfo.setFileName(Util::canonicalFilePath(path, filename));
+				if (files.size() > FILES_FOUND_LIMIT) {
+					//Emits the signal every FILES_FOUND_LIMIT files found
+					emit filesFound(files);
+					files.clear();
 				}
 			}
 
-			else if (rx_title.indexIn(line) != -1) {
-				QString title(rx_title.cap(2));
-				mediaInfo.insertMetadata(MediaInfo::Title, title);
+			QString filename(rx_file.cap(2));
+			bool isUrl = MediaInfo::isUrl(filename);
+			mediaInfo.setUrl(isUrl);
+			if (isUrl) {
+				mediaInfo.setFileName(filename);
+			} else {
+				mediaInfo.setFileName(Util::canonicalFilePath(path, filename));
 			}
+		}
 
-			else if (rx_length.indexIn(line) != -1) {
-				QString length(rx_length.cap(2));
-				mediaInfo.setLength(length.toInt());
-			}
+		else if (rx_title.indexIn(line) != -1) {
+			QString title(rx_title.cap(2));
+			mediaInfo.insertMetadata(MediaInfo::Title, title);
+		}
 
-			else {
-				//Syntax error
-			}
+		else if (rx_length.indexIn(line) != -1) {
+			QString length(rx_length.cap(2));
+			mediaInfo.setLength(length.toInt());
+		}
+
+		else {
+			//Syntax error
 		}
 	}
 
-	file.close();
+	device->close();
 
 	if (!mediaInfo.fileName().isEmpty()) {
 		//Add the last file to the list of files
@@ -153,69 +141,53 @@ void PLSParser::load() {
 		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
 		emit filesFound(files);
 	}
-
-	//Emits the last signal
-	emit finished(timeElapsed.elapsed());
 }
 
-void PLSParser::save(const QList<MediaInfo> & files) {
-	QTime timeElapsed;
-	timeElapsed.start();
-
+void PLSParser::save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
 	_stop = false;
 
-	qDebug() << __FUNCTION__ << "Playlist:" << _filename;
+	QString path(QFileInfo(location).path());
 
-	QString path(QFileInfo(_filename).path());
+	QTextStream stream(device);
 
-	QFile file(_filename);
-	if (file.open(QIODevice::WriteOnly)) {
-		QTextStream stream(&file);
+	stream << PLS_PLAYLIST << PLS_WINAMP_EOL;
 
-		QString filename;
+	int count = 0;
+	foreach (MediaInfo mediaInfo, files) {
+		count++;
 
-		stream << PLS_PLAYLIST << PLS_WINAMP_EOL;
-
-		int count = 0;
-		foreach (MediaInfo mediaInfo, files) {
-			count++;
-
-			if (_stop) {
-				break;
-			}
-
-			stream << PLS_FILE << count << '=';
-			if (mediaInfo.isUrl()) {
-				stream << mediaInfo.fileName();
-			} else {
-				//Try to save the filename as relative instead of absolute
-				QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
-				stream << Util::pathToNativeSeparators(filename);
-			}
-			stream << PLS_WINAMP_EOL;
-
-			stream << PLS_TITLE << count << '=';
-			QString artist(mediaInfo.metadataValue(MediaInfo::Artist));
-			if (!artist.isEmpty()) {
-				stream << artist;
-			}
-			QString title(mediaInfo.metadataValue(MediaInfo::Title));
-			if (!title.isEmpty()) {
-				if (!artist.isEmpty()) {
-					stream << " - ";
-				}
-				stream << mediaInfo.metadataValue(MediaInfo::Title);
-			}
-			stream << PLS_WINAMP_EOL;
-
-			stream << PLS_LENGTH << count << '=';
-			stream << mediaInfo.lengthSeconds();
-			stream << PLS_WINAMP_EOL;
+		if (_stop) {
+			break;
 		}
+
+		stream << PLS_FILE << count << '=';
+		if (mediaInfo.isUrl()) {
+			stream << mediaInfo.fileName();
+		} else {
+			//Try to save the filename as relative instead of absolute
+			QString filename(TkFile::relativeFilePath(path, mediaInfo.fileName()));
+			stream << Util::pathToNativeSeparators(filename);
+		}
+		stream << PLS_WINAMP_EOL;
+
+		stream << PLS_TITLE << count << '=';
+		QString artist(mediaInfo.metadataValue(MediaInfo::Artist));
+		if (!artist.isEmpty()) {
+			stream << artist;
+		}
+		QString title(mediaInfo.metadataValue(MediaInfo::Title));
+		if (!title.isEmpty()) {
+			if (!artist.isEmpty()) {
+				stream << " - ";
+			}
+			stream << mediaInfo.metadataValue(MediaInfo::Title);
+		}
+		stream << PLS_WINAMP_EOL;
+
+		stream << PLS_LENGTH << count << '=';
+		stream << mediaInfo.lengthSeconds();
+		stream << PLS_WINAMP_EOL;
 	}
 
-	file.close();
-
-	//Emits the last signal
-	emit finished(timeElapsed.elapsed());
+	device->close();
 }
