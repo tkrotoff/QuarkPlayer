@@ -32,6 +32,8 @@ qt4_wrap_cpp(phonon_mplayer_SRCS
 
 add_library(phonon_mplayer MODULE ${phonon_mplayer_SRCS})
 
+set_target_properties(phonon_mplayer PROPERTIES PREFIX "")
+
 target_link_libraries(phonon_mplayer
 	${PHONON_LIBS}
 	libmplayer
