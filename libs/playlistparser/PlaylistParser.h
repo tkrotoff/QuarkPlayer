@@ -26,6 +26,7 @@
 class IPlaylistParserImpl;
 
 class QString;
+class QFile;
 
 /**
  * Parses a playlist.
@@ -47,15 +48,21 @@ public:
 		/** No error condition. */
 		NoError,
 
-		/**
-		 * PlaylistReader was used with a file name, but no file was found with that name.
-		 */
-		FileNotFoundError,
-
 		/** Playlist format not supported. */
 		UnsupportedFormatError,
 
-		/** Use QNetworkAccessManager and QNetworkReply in order to get the error code. */
+		/**
+		 * Playlist file could not be read/write using QFile.
+		 *
+		 * Use QFile in order to get more informations.
+		 */
+		FileError,
+
+		/**
+		 * A network error occured while downloading the playlist file.
+		 *
+		 * Use QNetworkAccessManager and QNetworkReply in order to get more informations about the error.
+		 */
 		NetworkError
 	};
 
@@ -64,6 +71,8 @@ public:
 	virtual ~PlaylistParser();
 
 	void stop();
+
+	QFile * file() const;
 
 signals:
 
@@ -94,6 +103,9 @@ protected:
 
 	/** Error for the finished() signal. */
 	Error _error;
+
+	/** QFile used to read/write the playlist file. */
+	QFile * _file;
 };
 
 class MediaInfo;
@@ -116,9 +128,6 @@ public:
 
 	~PlaylistReader();
 
-	void setNetworkAccessManager(QNetworkAccessManager * networkAccessManager);
-	QNetworkAccessManager * networkAccessManager() const;
-
 	/**
 	 * Loads the playlist.
 	 *
@@ -126,6 +135,8 @@ public:
 	 * @see filesFound()
 	 */
 	void load(const QString & location);
+
+	QNetworkAccessManager * networkAccessManager() const;
 
 signals:
 

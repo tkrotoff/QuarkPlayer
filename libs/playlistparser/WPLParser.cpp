@@ -99,7 +99,10 @@ void WPLParser::load(QIODevice * device, const QString & location) {
 	}
 
 	if (xml.hasError()) {
-		qCritical() << __FUNCTION__ << "Error: ";
+		qWarning() << __FUNCTION__ << "Error:"
+			<< xml.errorString()
+			<< "line:" << xml.lineNumber()
+			<< "column:" << xml.columnNumber();
 	}
 
 	device->close();

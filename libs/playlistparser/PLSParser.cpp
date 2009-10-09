@@ -125,8 +125,20 @@ void PLSParser::load(QIODevice * device, const QString & location) {
 			mediaInfo.setLength(length.toInt());
 		}
 
+		else if (line == "[playlist]") {
+			//Ignore
+		}
+
+		else if (line.startsWith("NumberOfEntries=")) {
+			//Ignore
+		}
+
+		else if (line.startsWith("Version=")) {
+			//Ignore
+		}
+
 		else {
-			//Syntax error
+			qWarning() << __FUNCTION__ << "Syntax error:" << line;
 		}
 	}
 

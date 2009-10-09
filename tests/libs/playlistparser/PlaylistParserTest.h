@@ -29,6 +29,40 @@ class MediaInfo;
 /**
  * Test for playlistparser library.
  *
+ * Playlist files made with free albums from jamendo:
+ *
+ * - Nine Inch Nails (NIN) - Ghosts I–IV
+ *   http://ghosts.nin.com/
+ *   - FLAC lossless (259 mb)
+ *     http://dl.nin.com/data/dl/Nine_Inch_Nails_-_The_Slip_-_Flac.torrent
+ *   - FLAC high definition 24/96 (942 mb)
+ *     http://dl.nin.com/data/dl/Nine_Inch_Nails_-_The_Slip_24-96k_Flac.torrent
+ *   - M4A apple lossless (263 mb)
+ *     http://dl.nin.com/data/dl/Nine_Inch_Nails_-_The_Slip_-_Apple_Lossless.torrent
+ *   - High definition WAVE 24/96 (1.5 gb)
+ *     http://dl.nin.com/data/dl/Nine_Inch_Nails_-_The_Slip_-_Wave_96-24_High_Res.torrent
+ *
+ * - Nine Inch Nails (NIN) - The Slip http://theslip.nin.com/
+ *
+ * In order to test file names with special characters:
+ *
+ * - David TMX - fournée d'automne
+ *   - MP3
+ *   http://imgjam.com/torrents/album/795/4795/4795-mp32.torrent/David%20TMX%20-%20fournee%20d%27automne%20--%20Jamendo%20-%20MP3%20VBR%20192k%20-%202007.03.23%20%5Bwww.jamendo.com%5D.torrent
+ *   - OGG
+ *   http://imgjam.com/torrents/album/795/4795/4795-ogg3.torrent/David%20TMX%20-%20fournee%20d%27automne%20--%20Jamendo%20-%20OGG%20Vorbis%20q7%20-%202007.03.23%20%5Bwww.jamendo.com%5D.torrent
+ *
+ * - Bézèd'h - Ton jour viendra
+ *   - MP3
+ *   http://imgjam.com/torrents/album/135/135/135-mp32.torrent/Bezed%27h%20-%20Ton%20jour%20viendra%20--%20Jamendo%20-%20MP3%20VBR%20192k%20-%202005.04.28%20%5Bwww.jamendo.com%5D.torrent
+ *   - OGG
+ *   http://imgjam.com/torrents/album/135/135/135-ogg3.torrent/Bezed%27h%20-%20Ton%20jour%20viendra%20--%20Jamendo%20-%20OGG%20Vorbis%20q7%20-%202005.04.28%20%5Bwww.jamendo.com%5D.torrent
+ *
+ * French radio list:
+ * http://code.google.com/p/radioshell/wiki/ListeRadios
+ * http://flux.radio.free.fr/
+ * http://www.infomaniak.ch/societe/streaming.php
+ *
  * @see PlaylistParser
  * @author Tanguy Krotoff
  */

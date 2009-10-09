@@ -32,6 +32,8 @@
 
 static const char * ASX_TITLE = "title";
 static const char * ASX_ENTRY = "entry";
+static const char * ASX_AUTHOR = "author";
+static const char * ASX_MOREINFO = "moreinfo";
 static const char * ASX_REF = "ref";
 static const char * ASX_HREF = "href";
 static const char * ASX_COPYRIGHT = "copyright";
@@ -70,7 +72,50 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 
 	MediaInfo mediaInfo;
 
-	QXmlStreamReader xml(device);
+	//Some ASX playlists are invalid XML files
+	//Yes ASX format is shitty
+	//Let's fix this
+
+	QString text(device->readAll());
+	device->close();
+
+	//Replace all ASX tags by lowercase ASX tags,
+	//otherwise the XML parser can fail
+	text.replace(ASX_TITLE, ASX_TITLE, Qt::CaseInsensitive);
+	text.replace(ASX_ENTRY, ASX_ENTRY, Qt::CaseInsensitive);
+	text.replace(ASX_AUTHOR, ASX_AUTHOR, Qt::CaseInsensitive);
+	text.replace(ASX_MOREINFO, ASX_MOREINFO, Qt::CaseInsensitive);
+	text.replace(ASX_REF, ASX_REF, Qt::CaseInsensitive);
+	text.replace(ASX_HREF, ASX_HREF, Qt::CaseInsensitive);
+	text.replace(ASX_COPYRIGHT, ASX_COPYRIGHT, Qt::CaseInsensitive);
+	text.replace(ASX_ASX, ASX_ASX, Qt::CaseInsensitive);
+	text.replace(ASX_VERSION, ASX_VERSION, Qt::CaseInsensitive);
+	///
+
+	//New lines should be are \n only
+	text.replace("\r\n", "\n");
+
+	//Replace <ref href="http://proxiregie.adswizz.com/www/delivery/radioPreRoll.php?zoneid=124&streamtype=http&cs=330384"/>
+	//By <ref href="http://proxiregie.adswizz.com/www/delivery/radioPreRoll.php?zoneid=124&amp;streamtype=http&amp;cs=330384"/>
+	QStringList lines = text.split('\n', QString::SkipEmptyParts);
+	QString newText;
+	foreach (QString line, lines) {
+		QRegExp quotes("\"([^\"]*)\"");
+		if (quotes.indexIn(line) > -1) {
+			QString tmp = quotes.cap(1);
+			//Replace all occurrences of & with &amp;
+			//See http://discuss.joyent.com/viewtopic.php?id=10661
+			QRegExp rx_ampersand("&(?![a-zA-Z]{1,8};)");
+			tmp.replace(rx_ampersand, "&amp;");
+			if (!tmp.isEmpty()) {
+				line.replace(quotes, "\"" + tmp + "\"");
+			}
+		}
+		newText += line;
+	}
+	///
+
+	QXmlStreamReader xml(newText);
 	while (!xml.atEnd() && !_stop) {
 		xml.readNext();
 
@@ -90,8 +135,23 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 					uppercase = uppercase.toUpper();
 					url = xml.attributes().value(uppercase).toString();
 				}
-				mediaInfo.setFileName(url);
-				mediaInfo.setUrl(true);
+				if (mediaInfo.fileName().isEmpty()) {
+					//Do not set again a URL if already set
+					//Windows Media Player 12 under Windows 7
+					//Example of a wrong ASX playlist:
+					//<ASX VERSION="3.0">
+					//<ABSTRACT>Virgin Radio</ABSTRACT>
+					//<TITLE>Virgin Radio</TITLE>
+					//<AUTHOR>Virgin Radio - YACAST FRANCE</AUTHOR>
+					//<COPYRIGHT>(c) 2008, Virgin Radio</COPYRIGHT>
+					//<ENTRY>
+					//	<REF HREF="mms://viplagardere.yacast.net/encodereurope2" />
+					//	<REF HREF="mms://vipmms9.yacast.net/encodereurope2" />
+					//</ENTRY>
+					//</ASX>
+					mediaInfo.setFileName(url);
+					mediaInfo.setUrl(true);
+				}
 			} else if (element.compare(ASX_COPYRIGHT, Qt::CaseInsensitive) == 0) {
 				QString copyright(xml.readElementText());
 				mediaInfo.insertMetadata(MediaInfo::Copyright, copyright);
@@ -123,10 +183,11 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 	}
 
 	if (xml.hasError()) {
-		qCritical() << __FUNCTION__ << "Error: ";
+		qWarning() << __FUNCTION__ << "Error:"
+			<< xml.errorString()
+			<< "line:" << xml.lineNumber()
+			<< "column:" << xml.columnNumber();
 	}
-
-	device->close();
 
 	if (!files.isEmpty()) {
 		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)

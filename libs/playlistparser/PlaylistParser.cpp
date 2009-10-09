@@ -46,9 +46,11 @@ PlaylistParser::PlaylistParser(QObject * parent)
 	: IPlaylistParser(parent) {
 
 	qRegisterMetaType<QList<MediaInfo> >("QList<MediaInfo>");
+	qRegisterMetaType<PlaylistParser::Error>("PlaylistParser::Error");
 
 	_parser = NULL;
 	_error = NoError;
+	_file = NULL;
 
 	//FIXME memory leak: when to delete _parserList ?
 	_parserList += new M3UParser(this);
@@ -66,6 +68,10 @@ PlaylistParser::~PlaylistParser() {
 		//This is dangerous
 		//delete parser;
 	}
+}
+
+QFile * PlaylistParser::file() const {
+	return _file;
 }
 
 void PlaylistParser::findParser(const QString & location) {
@@ -106,13 +112,21 @@ PlaylistReader::PlaylistReader(QObject * parent)
 PlaylistReader::~PlaylistReader() {
 }
 
+QNetworkAccessManager * PlaylistReader::networkAccessManager() const {
+	return _networkAccessManager;
+}
+
 void PlaylistReader::load(const QString & location) {
 	qDebug() << __FUNCTION__ << "location:" << location;
 
 	if (MediaInfo::isUrl(location)) {
+
 		if (!_networkAccessManager) {
+			//Lazy initialization
 			_networkAccessManager = new QNetworkAccessManager(this);
 		}
+		disconnect(_networkAccessManager, SIGNAL(finished(QNetworkReply *)),
+			this, SLOT(networkReplyFinished(QNetworkReply *)));
 		connect(_networkAccessManager, SIGNAL(finished(QNetworkReply *)),
 			SLOT(networkReplyFinished(QNetworkReply *)));
 		_networkAccessManager->get(QNetworkRequest(QUrl(location)));
@@ -121,26 +135,40 @@ void PlaylistReader::load(const QString & location) {
 	else {
 		//Means location is a local file
 
-		QFile * file = new QFile(location, this);
+		if (!_file) {
+			//Lazy initialization
+			_file = new QFile(this);
+		}
+		_file->setFileName(location);
 
 		//Cannot use QIODevice::Text since binary playlist formats can exist (or exist already)
 		//See QFile documentation, here a copy-paste:
 		//The QIODevice::Text flag passed to open() tells Qt to convert Windows-style line terminators ("\r\n")
 		//into C++-style terminators ("\n").
 		//By default, QFile assumes binary, i.e. it doesn't perform any conversion on the bytes stored in the file.
-		bool ok = file->open(QIODevice::ReadOnly);
+		bool ok = _file->open(QIODevice::ReadOnly);
 
 		if (ok) {
-			loadIODevice(file, location);
+			loadIODevice(_file, location);
 		} else {
-			_error = FileNotFoundError;
-			delete file;
+			_error = FileError;
 		}
 	}
 }
 
 void PlaylistReader::networkReplyFinished(QNetworkReply * reply) {
 	QNetworkReply::NetworkError error = reply->error();
+
+	//Check for a HTTP redirection
+	QUrl redirectionUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+	if (!redirectionUrl.isEmpty()) {
+		if (_networkAccessManager) {
+			_networkAccessManager->get(QNetworkRequest(redirectionUrl));
+			return;
+		}
+	}
+	///
+
 	if (error == QNetworkReply::NoError) {
 		_error = NoError;
 		loadIODevice(reply, reply->url().toString());
@@ -158,6 +186,8 @@ void PlaylistReader::loadIODevice(QIODevice * device, const QString & location) 
 
 	findParser(location);
 	if (_parser) {
+		disconnect(_parser, SIGNAL(filesFound(const QList<MediaInfo> &)),
+			this, SIGNAL(filesFound(const QList<MediaInfo> &)));
 		connect(_parser, SIGNAL(filesFound(const QList<MediaInfo> &)),
 			SIGNAL(filesFound(const QList<MediaInfo> &)));
 
@@ -191,20 +221,23 @@ void PlaylistWriter::save(const QString & location, const QList<MediaInfo> & fil
 	else {
 		//Means location is a local file
 
-		QFile * file = new QFile(location, this);
+		if (!_file) {
+			//Lazy initialization
+			_file = new QFile(this);
+		}
+		_file->setFileName(location);
 
 		//Cannot use QIODevice::Text since binary playlist formats can exist (or exist already)
 		//See QFile documentation, here a copy-paste:
 		//The QIODevice::Text flag passed to open() tells Qt to convert Windows-style line terminators ("\r\n")
 		//into C++-style terminators ("\n").
 		//By default, QFile assumes binary, i.e. it doesn't perform any conversion on the bytes stored in the file.
-		bool ok = file->open(QIODevice::WriteOnly);
+		bool ok = _file->open(QIODevice::WriteOnly);
 
 		if (ok) {
-			saveIODevice(file, location, files);
+			saveIODevice(_file, location, files);
 		} else {
-			_error = FileNotFoundError;
-			delete file;
+			_error = FileError;
 		}
 	}
 }
@@ -219,8 +252,6 @@ void PlaylistWriter::saveIODevice(QIODevice * device, const QString & location, 
 			connect(watcher, SIGNAL(finished()),
 				SLOT(concurrentFinished()));
 		}
-		connect(watcher, SIGNAL(finished()),
-			SLOT(concurrentFinished()));
 		QFuture<void> future = QtConcurrent::run(_parser, &IPlaylistParserImpl::save, device, location, files);
 		watcher->setFuture(future);
 	}

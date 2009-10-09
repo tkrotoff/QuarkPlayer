@@ -234,6 +234,13 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 			}
 		}
 	}
+
+	if (xml.hasError()) {
+		qWarning() << __FUNCTION__ << "Error:"
+			<< xml.errorString()
+			<< "line:" << xml.lineNumber()
+			<< "column:" << xml.columnNumber();
+	}
 }
 
 void XSPFParser::writeTextElement(QXmlStreamWriter & xml, const QString & qualifiedName, const QString & text) {
