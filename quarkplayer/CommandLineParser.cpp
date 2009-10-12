@@ -83,7 +83,7 @@ void CommandLineParser::argsReceived(const QStringList & args, bool usingQtSingl
 }
 
 QString CommandLineParser::help() const {
-	QString appName = QFileInfo(QCoreApplication::instance()->applicationFilePath()).baseName();
+	QString appName = QFileInfo(QCoreApplication::instance()->applicationFilePath()).completeBaseName();
 
 	QString commandLine;
 	commandLine += tr("Usage:");

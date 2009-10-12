@@ -68,7 +68,7 @@ QString QuarkPlayer::currentMediaObjectTitle() const {
 		QString artist = metaData.value("ARTIST");
 		QString title = metaData.value("TITLE");
 		if (artist.isEmpty() && title.isEmpty()) {
-			fullTitle = QFileInfo(filename).baseName();
+			fullTitle = QFileInfo(filename).completeBaseName();
 		} else {
 			if (!title.isEmpty()) {
 				fullTitle = title;

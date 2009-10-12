@@ -378,7 +378,7 @@ void XSPFParser::save(QIODevice * device, const QString & location, const QList<
 	xml.writeDefaultNamespace("http://xspf.org/ns/0/");
 	xml.writeNamespace(XSPF_QUARKPLAYER_NAMESPACE, "qp");
 
-		writeTextElement(xml, XSPF_TITLE, QFileInfo(location).baseName());
+		writeTextElement(xml, XSPF_TITLE, QFileInfo(location).completeBaseName());
 		writeTextElement(xml, XSPF_CREATOR, QCoreApplication::applicationName());
 		writeTextElement(xml, XSPF_INFO, "http://quarkplayer.googlecode.com");
 		writeTextElement(xml, XSPF_DATE, QDateTime::currentDateTime().toString(Qt::ISODate));

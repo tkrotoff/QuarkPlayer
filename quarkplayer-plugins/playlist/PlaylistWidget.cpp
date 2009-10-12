@@ -246,7 +246,7 @@ void PlaylistWidget::retranslate() {
 	_searchLineEdit->showWordListButton()->setIcon(TkIcon("go-down-search"));
 
 	_searchLineEdit->setToolTip(tr("Search the playlist, use whitespaces to separate words"));
-	_searchLineEdit->setClickMessage(tr("Enter search terms here"));
+	_searchLineEdit->setClickMessage(tr("Search"));
 
 	uuidAction("Playlist.Open")->setText(tr("Open Playlist"));
 	uuidAction("Playlist.Open")->setIcon(TkIcon("document-open"));

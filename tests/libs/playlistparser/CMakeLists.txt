@@ -8,6 +8,10 @@ qt4_wrap_cpp(playlistparsertest_SRCS
 	PlaylistParserTest.h
 )
 
+qt4_add_resources(playlistparsertest_SRCS
+	playlists.qrc
+)
+
 add_executable(playlistparsertest ${playlistparsertest_SRCS})
 add_test(PlaylistParserTest playlistparsertest)
 

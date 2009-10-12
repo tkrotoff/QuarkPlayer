@@ -36,7 +36,7 @@ void WikipediaArticleTest::cleanupTestCase() {
 
 void WikipediaArticleTest::fetch_data() {
 	QTest::addColumn<QString>("artist");
-	QTest::addColumn<int>("networkError");
+	QTest::addColumn<int>("wikipediaError");
 	QTest::addColumn<QString>("wikipediaArticleUrl");
 	QTest::addColumn<QRegExp>("wikipediaArticleContent");
 
@@ -67,27 +67,30 @@ void WikipediaArticleTest::fetch_data() {
 }
 
 void WikipediaArticleTest::fetch() {
+	QSignalSpy spyFinished(_wikipediaArticle, SIGNAL(finished(QNetworkReply::NetworkError,
+				const QUrl &, const QByteArray &, const ContentFetcherTrack &)));
+
 	QFETCH(QString, artist);
 
-	//
 	ContentFetcherTrack track;
 	track.artist = artist;
 	_wikipediaArticle->start(track, "en");
 	QTestEventLoop::instance().enterLoop(30);
 	QVERIFY(!QTestEventLoop::instance().timeout());
-	///
+
+	QCOMPARE(spyFinished.count(), 1);
 }
 
 void WikipediaArticleTest::wikipediaArticleFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & wikipediaArticle, const ContentFetcherTrack & track) {
 	QString tmp = url.toString();
 
 	QFETCH(QString, artist);
-	QFETCH(int, networkError);
+	QFETCH(int, wikipediaError);
 	QFETCH(QString, wikipediaArticleUrl);
 	QFETCH(QRegExp, wikipediaArticleContent);
 
 	QCOMPARE(artist, track.artist);
-	QCOMPARE(networkError, static_cast<int>(error));
+	QCOMPARE(wikipediaError, static_cast<int>(error));
 	QCOMPARE(wikipediaArticleUrl, tmp);
 	QVERIFY(wikipediaArticleContent.exactMatch(QString::fromUtf8(wikipediaArticle)));
 

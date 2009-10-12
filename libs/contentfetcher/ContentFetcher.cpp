@@ -22,6 +22,9 @@
 
 ContentFetcher::ContentFetcher(QObject * parent)
 	: QObject(parent) {
+
+	qRegisterMetaType<ContentFetcherTrack>("ContentFetcherTrack");
+	qRegisterMetaType<QNetworkReply::NetworkError>("QNetworkReply::NetworkError");
 }
 
 ContentFetcher::~ContentFetcher() {

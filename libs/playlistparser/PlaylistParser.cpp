@@ -27,30 +27,25 @@
 
 #include <mediainfofetcher/MediaInfo.h>
 
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkRequest>
-#include <QtNetwork/QNetworkReply>
-
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QFuture>
 #include <QtCore/QFutureWatcher>
 
 #include <QtCore/QStringList>
 #include <QtCore/QUrl>
-#include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QMetaType>
 #include <QtCore/QDebug>
 
 PlaylistParser::PlaylistParser(QObject * parent)
-	: IPlaylistParser(parent) {
+	: IPlaylistParser(parent),
+	_file(this) {
 
 	qRegisterMetaType<QList<MediaInfo> >("QList<MediaInfo>");
 	qRegisterMetaType<PlaylistParser::Error>("PlaylistParser::Error");
 
 	_parser = NULL;
 	_error = NoError;
-	_file = NULL;
 
 	//FIXME memory leak: when to delete _parserList ?
 	_parserList += new M3UParser(this);
@@ -70,12 +65,12 @@ PlaylistParser::~PlaylistParser() {
 	}
 }
 
-QFile * PlaylistParser::file() const {
+const QFile & PlaylistParser::file() const {
 	return _file;
 }
 
-void PlaylistParser::findParser(const QString & location) {
-	QString extension(QFileInfo(location).suffix().toLower());
+void PlaylistParser::findParser(const QString & fileName) {
+	QString extension(QFileInfo(fileName).suffix().toLower());
 
 	_parser = NULL;
 	foreach (IPlaylistParserImpl * parser, _parserList) {
@@ -88,12 +83,13 @@ void PlaylistParser::findParser(const QString & location) {
 
 	if (!_parser) {
 		_error = UnsupportedFormatError;
+		emit finished(_error, _timeElapsed.elapsed());
 	}
 }
 
 void PlaylistParser::concurrentFinished() {
 	_error = NoError;
-	emit finished(_error, 0);
+	emit finished(_error, _timeElapsed.elapsed());
 }
 
 void PlaylistParser::stop() {
@@ -105,86 +101,40 @@ void PlaylistParser::stop() {
 
 PlaylistReader::PlaylistReader(QObject * parent)
 	: PlaylistParser(parent) {
-
-	_networkAccessManager = NULL;
 }
 
 PlaylistReader::~PlaylistReader() {
 }
 
-QNetworkAccessManager * PlaylistReader::networkAccessManager() const {
-	return _networkAccessManager;
-}
+void PlaylistReader::load(const QString & fileName) {
+	qDebug() << __FUNCTION__ << "fileName:" << fileName;
 
-void PlaylistReader::load(const QString & location) {
-	qDebug() << __FUNCTION__ << "location:" << location;
+	_timeElapsed.start();
 
-	if (MediaInfo::isUrl(location)) {
+	_file.setFileName(fileName);
 
-		if (!_networkAccessManager) {
-			//Lazy initialization
-			_networkAccessManager = new QNetworkAccessManager(this);
-		}
-		disconnect(_networkAccessManager, SIGNAL(finished(QNetworkReply *)),
-			this, SLOT(networkReplyFinished(QNetworkReply *)));
-		connect(_networkAccessManager, SIGNAL(finished(QNetworkReply *)),
-			SLOT(networkReplyFinished(QNetworkReply *)));
-		_networkAccessManager->get(QNetworkRequest(QUrl(location)));
-	}
+	//Cannot use QIODevice::Text since binary playlist formats can exist (or exist already)
+	//See QFile documentation, here a copy-paste:
+	//The QIODevice::Text flag passed to open() tells Qt to convert Windows-style line terminators ("\r\n")
+	//into C++-style terminators ("\n").
+	//By default, QFile assumes binary, i.e. it doesn't perform any conversion on the bytes stored in the file.
+	bool ok = _file.open(QIODevice::ReadOnly);
 
-	else {
-		//Means location is a local file
-
-		if (!_file) {
-			//Lazy initialization
-			_file = new QFile(this);
-		}
-		_file->setFileName(location);
-
-		//Cannot use QIODevice::Text since binary playlist formats can exist (or exist already)
-		//See QFile documentation, here a copy-paste:
-		//The QIODevice::Text flag passed to open() tells Qt to convert Windows-style line terminators ("\r\n")
-		//into C++-style terminators ("\n").
-		//By default, QFile assumes binary, i.e. it doesn't perform any conversion on the bytes stored in the file.
-		bool ok = _file->open(QIODevice::ReadOnly);
-
-		if (ok) {
-			loadIODevice(_file, location);
-		} else {
-			_error = FileError;
-		}
-	}
-}
-
-void PlaylistReader::networkReplyFinished(QNetworkReply * reply) {
-	QNetworkReply::NetworkError error = reply->error();
-
-	//Check for a HTTP redirection
-	QUrl redirectionUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
-	if (!redirectionUrl.isEmpty()) {
-		if (_networkAccessManager) {
-			_networkAccessManager->get(QNetworkRequest(redirectionUrl));
-			return;
-		}
-	}
-	///
-
-	if (error == QNetworkReply::NoError) {
-		_error = NoError;
-		loadIODevice(reply, reply->url().toString());
+	if (ok) {
+		loadIODevice(&_file, fileName);
 	} else {
-		_error = NetworkError;
-		emit finished(_error, 0);
+		_error = FileError;
+		emit finished(_error, _timeElapsed.elapsed());
 	}
 }
 
-void PlaylistReader::loadIODevice(QIODevice * device, const QString & location) {
+void PlaylistReader::loadIODevice(QIODevice * device, const QString & fileName) {
 	if (_parser) {
 		//Disconnect the previous parser if any
 		disconnect(_parser);
 	}
 
-	findParser(location);
+	findParser(fileName);
 	if (_parser) {
 		disconnect(_parser, SIGNAL(filesFound(const QList<MediaInfo> &)),
 			this, SIGNAL(filesFound(const QList<MediaInfo> &)));
@@ -198,7 +148,7 @@ void PlaylistReader::loadIODevice(QIODevice * device, const QString & location) 
 			connect(watcher, SIGNAL(finished()),
 				SLOT(concurrentFinished()));
 		}
-		QFuture<void> future = QtConcurrent::run(_parser, &IPlaylistParserImpl::load, device, location);
+		QFuture<void> future = QtConcurrent::run(_parser, &IPlaylistParserImpl::load, device, fileName);
 		watcher->setFuture(future);
 	}
 }
@@ -211,39 +161,30 @@ PlaylistWriter::PlaylistWriter(QObject * parent)
 PlaylistWriter::~PlaylistWriter() {
 }
 
-void PlaylistWriter::save(const QString & location, const QList<MediaInfo> & files) {
-	qDebug() << __FUNCTION__ << "location:" << location;
+void PlaylistWriter::save(const QString & fileName, const QList<MediaInfo> & files) {
+	qDebug() << __FUNCTION__ << "fileName:" << fileName;
 
-	if (MediaInfo::isUrl(location)) {
-		qCritical() << __FUNCTION__ << "Writing to a remote location is not supported";
-	}
+	_timeElapsed.restart();
 
-	else {
-		//Means location is a local file
+	_file.setFileName(fileName);
 
-		if (!_file) {
-			//Lazy initialization
-			_file = new QFile(this);
-		}
-		_file->setFileName(location);
+	//Cannot use QIODevice::Text since binary playlist formats may exist (or exist already)
+	//See QFile documentation, here a copy-paste:
+	//The QIODevice::Text flag passed to open() tells Qt to convert Windows-style line terminators ("\r\n")
+	//into C++-style terminators ("\n").
+	//By default, QFile assumes binary, i.e. it doesn't perform any conversion on the bytes stored in the file.
+	bool ok = _file.open(QIODevice::WriteOnly);
 
-		//Cannot use QIODevice::Text since binary playlist formats can exist (or exist already)
-		//See QFile documentation, here a copy-paste:
-		//The QIODevice::Text flag passed to open() tells Qt to convert Windows-style line terminators ("\r\n")
-		//into C++-style terminators ("\n").
-		//By default, QFile assumes binary, i.e. it doesn't perform any conversion on the bytes stored in the file.
-		bool ok = _file->open(QIODevice::WriteOnly);
-
-		if (ok) {
-			saveIODevice(_file, location, files);
-		} else {
-			_error = FileError;
-		}
+	if (ok) {
+		saveIODevice(&_file, fileName, files);
+	} else {
+		_error = FileError;
+		emit finished(_error, _timeElapsed.elapsed());
 	}
 }
 
-void PlaylistWriter::saveIODevice(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
-	findParser(location);
+void PlaylistWriter::saveIODevice(QIODevice * device, const QString & fileName, const QList<MediaInfo> & files) {
+	findParser(fileName);
 	if (_parser) {
 		static QFutureWatcher<void> * watcher = NULL;
 		if (!watcher) {
@@ -252,7 +193,7 @@ void PlaylistWriter::saveIODevice(QIODevice * device, const QString & location, 
 			connect(watcher, SIGNAL(finished()),
 				SLOT(concurrentFinished()));
 		}
-		QFuture<void> future = QtConcurrent::run(_parser, &IPlaylistParserImpl::save, device, location, files);
+		QFuture<void> future = QtConcurrent::run(_parser, &IPlaylistParserImpl::save, device, fileName, files);
 		watcher->setFuture(future);
 	}
 }

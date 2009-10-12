@@ -1,0 +1,19 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+	<file>foobar2000-0.9.6.7/test.m3u</file>
+	<file>foobar2000-0.9.6.7/test.m3u8</file>
+	<file>foobar2000-0.9.6.7/test.xspf</file>
+
+	<file>TheKMPlayer-2.9.4/test.KPL</file>
+
+	<file>fromInternet/webradio/europe1/europe1.m3u</file>
+	<file>fromInternet/webradio/europe1/europe1.asx</file>
+	<file>fromInternet/webradio/franceinter/france_inter_mp3-128k.m3u</file>
+	<file>fromInternet/webradio/franceinter/france_inter_mp3-128k.pls</file>
+	<file>fromInternet/webradio/radionova/radionova.m3u</file>
+	<file>fromInternet/webradio/live9/192.m3u</file>
+	<file>fromInternet/webradio/live9/192.asx</file>
+	<file>fromInternet/webradio/ouifm/Ouifm-hautdebit-wmp.asx</file>
+	<file>fromInternet/webradio/virginradio/virgin.asx</file>
+</qresource>
+</RCC>

@@ -22,11 +22,12 @@
 #include <playlistparser/IPlaylistParser.h>
 
 #include <QtCore/QList>
+#include <QtCore/QFile>
+#include <QtCore/QTime>
 
 class IPlaylistParserImpl;
 
 class QString;
-class QFile;
 
 /**
  * Parses a playlist.
@@ -54,16 +55,9 @@ public:
 		/**
 		 * Playlist file could not be read/write using QFile.
 		 *
-		 * Use QFile in order to get more informations.
+		 * Use file().error() in order to get more informations.
 		 */
 		FileError,
-
-		/**
-		 * A network error occured while downloading the playlist file.
-		 *
-		 * Use QNetworkAccessManager and QNetworkReply in order to get more informations about the error.
-		 */
-		NetworkError
 	};
 
 	PlaylistParser(QObject * parent);
@@ -72,7 +66,7 @@ public:
 
 	void stop();
 
-	QFile * file() const;
+	const QFile & file() const;
 
 signals:
 
@@ -105,14 +99,15 @@ protected:
 	Error _error;
 
 	/** QFile used to read/write the playlist file. */
-	QFile * _file;
+	QFile _file;
+
+	/** Computes the time needed to parser the playlist file. */
+	QTime _timeElapsed;
 };
 
 class MediaInfo;
 
 class QIODevice;
-class QNetworkAccessManager;
-class QNetworkReply;
 
 /**
  * Loads a playlist file.
@@ -131,12 +126,10 @@ public:
 	/**
 	 * Loads the playlist.
 	 *
-	 * @param location playlist file (full path) or URL to load
+	 * @param fileName playlist file (full path) or URL to load
 	 * @see filesFound()
 	 */
-	void load(const QString & location);
-
-	QNetworkAccessManager * networkAccessManager() const;
+	void load(const QString & fileName);
 
 signals:
 
@@ -147,15 +140,9 @@ signals:
 	 */
 	void filesFound(const QList<MediaInfo> & files);
 
-private slots:
-
-	void networkReplyFinished(QNetworkReply * reply);
-
 private:
 
-	void loadIODevice(QIODevice * device, const QString & location);
-
-	QNetworkAccessManager * _networkAccessManager;
+	void loadIODevice(QIODevice * device, const QString & fileName);
 };
 
 /**
@@ -176,11 +163,11 @@ public:
 	 *
 	 * @param files files to add to the playlist file
 	 */
-	void save(const QString & location, const QList<MediaInfo> & files);
+	void save(const QString & fileName, const QList<MediaInfo> & files);
 
 private:
 
-	void saveIODevice(QIODevice * device, const QString & location, const QList<MediaInfo> & files);
+	void saveIODevice(QIODevice * device, const QString & fileName, const QList<MediaInfo> & files);
 
 };
 

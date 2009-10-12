@@ -144,7 +144,7 @@ void ShortcutsConfigWidget::retranslate() {
 	_ui->searchLineEdit->showWordListButton()->setIcon(TkIcon("go-down-search"));
 
 	_ui->searchLineEdit->setToolTip(tr("Search shortcuts, use whitespaces to separate words"));
-	_ui->searchLineEdit->setClickMessage(tr("Enter search terms here"));
+	_ui->searchLineEdit->setClickMessage(tr("Search"));
 }
 
 bool ShortcutsConfigWidget::eventFilter(QObject * object, QEvent * event) {

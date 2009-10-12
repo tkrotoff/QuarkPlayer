@@ -208,7 +208,7 @@ void ASXParser::save(QIODevice * device, const QString & location, const QList<M
 
 	xml.writeStartElement(ASX_ASX);
 	xml.writeAttribute(ASX_VERSION, ASX_3DOT0);
-		xml.writeTextElement(ASX_TITLE, QFileInfo(location).baseName());
+		xml.writeTextElement(ASX_TITLE, QFileInfo(location).completeBaseName());
 
 		foreach (MediaInfo mediaInfo, files) {
 			if (_stop) {

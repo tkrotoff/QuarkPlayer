@@ -45,7 +45,7 @@ void AmazonCoverArtTest::fetch_data() {
 	QTest::addColumn<QString>("album");
 	QTest::addColumn<QString>("amazonASIN");
 
-	QTest::addColumn<int>("networkError");
+	QTest::addColumn<int>("amazonCoverArtError");
 	QTest::addColumn<QRegExp>("amazonCoverArtUrl");
 	QTest::addColumn<int>("amazonCoverArtContentSize");
 
@@ -76,11 +76,13 @@ void AmazonCoverArtTest::fetch_data() {
 }
 
 void AmazonCoverArtTest::fetch() {
+	QSignalSpy spyFinished(_amazonCoverArt, SIGNAL(finished(QNetworkReply::NetworkError,
+				const QUrl &, const QByteArray &, const ContentFetcherTrack &)));
+
 	QFETCH(QString, artist);
 	QFETCH(QString, album);
 	QFETCH(QString, amazonASIN);
 
-	//
 	ContentFetcherTrack track;
 	track.artist = artist;
 	track.album = album;
@@ -88,21 +90,22 @@ void AmazonCoverArtTest::fetch() {
 	_amazonCoverArt->start(track);
 	QTestEventLoop::instance().enterLoop(30);
 	QVERIFY(!QTestEventLoop::instance().timeout());
-	///
+
+	QCOMPARE(spyFinished.count(), 1);
 }
 
 void AmazonCoverArtTest::amazonCoverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & amazonCoverArt, const ContentFetcherTrack & track) {
 	QFETCH(QString, artist);
 	QFETCH(QString, album);
 	QFETCH(QString, amazonASIN);
-	QFETCH(int, networkError);
+	QFETCH(int, amazonCoverArtError);
 	QFETCH(QRegExp, amazonCoverArtUrl);
 	QFETCH(int, amazonCoverArtContentSize);
 
 	QCOMPARE(artist, track.artist);
 	QCOMPARE(album, track.album);
 	QCOMPARE(amazonASIN, track.amazonASIN);
-	QCOMPARE(networkError, static_cast<int>(error));
+	QCOMPARE(amazonCoverArtError, static_cast<int>(error));
 	QVERIFY(amazonCoverArtUrl.exactMatch(url.toString()));
 
 	QCOMPARE(amazonCoverArtContentSize, amazonCoverArt.size());

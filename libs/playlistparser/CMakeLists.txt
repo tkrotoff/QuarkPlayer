@@ -26,7 +26,7 @@ qt4_wrap_cpp(playlistparser_SRCS
 add_library(playlistparser SHARED ${playlistparser_SRCS})
 
 target_link_libraries(playlistparser
-	mediainfowindow
+	mediainfofetcher
 	tkutil
 
 	${QT_QTCORE_LIBRARY}

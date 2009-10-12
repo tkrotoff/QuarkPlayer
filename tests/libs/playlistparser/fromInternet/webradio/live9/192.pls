@@ -1,9 +1,5 @@
-http://acdc2.live9.fr:8050
-http://proxiregie.adswizz.com/www/delivery/audioRedirect.php?zoneid=186&streamtype=httpdownload
-http://stream.live9.fr:8050
-http://proxiregie.adswizz.com/www/delivery/audioRedirect.php?zoneid=186&streamtype=httpdownload
-http://stream.live9.fr:8050
-http://proxiregie.adswizz.com/www/delivery/audioRedirect.php?zoneid=186&streamtype=httpdownload
-http://stream.live9.fr:8050
-http://proxiregie.adswizz.com/www/delivery/audioRedirect.php?zoneid=186&streamtype=httpdownload
-http://stream.live9.fr:8050
+http://stream192.live9.fr:8050
+http://stream192.live9.fr:8050
+http://stream192.live9.fr:8050
+http://stream192.live9.fr:8050
+http://stream192.live9.fr:8050

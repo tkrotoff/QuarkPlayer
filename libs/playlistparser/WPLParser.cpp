@@ -132,7 +132,7 @@ void WPLParser::save(QIODevice * device, const QString & location, const QList<M
 			xml.writeStartElement(WPL_AUTHOR);
 			xml.writeEndElement();
 
-			xml.writeTextElement(WPL_TITLE, QFileInfo(location).baseName());
+			xml.writeTextElement(WPL_TITLE, QFileInfo(location).completeBaseName());
 		xml.writeEndElement();	//head
 
 		xml.writeStartElement(WPL_BODY);

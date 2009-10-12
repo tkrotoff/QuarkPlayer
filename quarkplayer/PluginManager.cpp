@@ -121,7 +121,7 @@ void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	QFileInfoList fileInfoList(QDir(_pluginDir).entryInfoList(QDir::Files));
 	foreach (QFileInfo fileInfo, fileInfoList) {
 		//Take only the base name, i.e without the extension since this part is platform dependent
-		QString baseName(fileInfo.baseName());
+		QString baseName(fileInfo.completeBaseName());
 #ifdef Q_WS_X11
 		if (baseName.startsWith("lib")) {
 			//Remove the "lib" prefix under UNIX
