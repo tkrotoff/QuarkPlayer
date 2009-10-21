@@ -7,10 +7,10 @@
  */
 
 #include <string>
-#include <ctime>
 #include <iostream>
 #include <sstream>
 
+#include <ctime>
 #include <cstdlib>
 
 /**
@@ -29,8 +29,8 @@ std::string number(int number) {
  * 2007-03-23 11:21:32 (YYYY-MM-DD HH:MM:SS)
  */
 std::string getCurrentDateTime() {
-	std::time_t currentTime = time(NULL);
-	struct std::tm * timeInfo = std::localtime(&currentTime);
+	time_t currentTime = time(NULL);
+	struct tm * timeInfo = localtime(&currentTime);
 
 	std::string month = number(timeInfo->tm_mon + 1);
 	std::string day = number(timeInfo->tm_mday);
