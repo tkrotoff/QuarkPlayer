@@ -80,11 +80,11 @@ signals:
 protected:
 
 	/**
-	 * Code factorization: send signal, a network error occured.
+	 * Code factorization: send signal, an error occured.
 	 *
 	 * @param error the error code that was detected
 	 */
-	void emitNetworkError(QNetworkReply::NetworkError error, const QUrl & url);
+	void emitFinishedWithError(QNetworkReply::NetworkError error, const QUrl & url);
 
 	/**
 	 * Code factorization: send signal, the content has been retrieved without error.

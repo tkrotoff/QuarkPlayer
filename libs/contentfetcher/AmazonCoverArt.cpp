@@ -188,7 +188,7 @@ void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
 	QByteArray data(reply->readAll());
 
 	if (error != QNetworkReply::NoError) {
-		emitNetworkError(QNetworkReply::OperationCanceledError, QUrl());
+		emitFinishedWithError(QNetworkReply::OperationCanceledError, QUrl());
 		return;
 	}
 
@@ -196,7 +196,7 @@ void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
 	QString url = QUrl(QString(data).replace(QRegExp(".+<LargeImage><URL>([^<]+)<.+"), "\\1")).toString();
 
 	if (!url.contains(QRegExp("^http://"))) {
-		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
+		emitFinishedWithError(QNetworkReply::ContentNotFoundError, reply->url());
 	} else {
 		qDebug() << __FUNCTION__ << "Downloading cover art:" << url;
 
@@ -212,7 +212,7 @@ void AmazonCoverArt::gotCoverArt(QNetworkReply * reply) {
 	QByteArray data(reply->readAll());
 
 	if (error != QNetworkReply::NoError) {
-		emitNetworkError(error, reply->url());
+		emitFinishedWithError(error, reply->url());
 		return;
 	}
 

@@ -65,7 +65,7 @@ void LyricsFetcher::gotLyricsUrl(QNetworkReply * reply) {
 	QString data(QString::fromUtf8(reply->readAll()));
 
 	if (error != QNetworkReply::NoError) {
-		emitNetworkError(error, reply->url());
+		emitFinishedWithError(error, reply->url());
 		return;
 	}
 
@@ -102,7 +102,7 @@ void LyricsFetcher::gotLyricsUrl(QNetworkReply * reply) {
 	///
 
 	if (url.endsWith("action=edit") || url.isEmpty()) {
-		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
+		emitFinishedWithError(QNetworkReply::ContentNotFoundError, reply->url());
 		return;
 	}
 
@@ -119,7 +119,7 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 	QString data(QString::fromUtf8(reply->readAll()));
 
 	if (error != QNetworkReply::NoError) {
-		emitNetworkError(error, reply->url());
+		emitFinishedWithError(error, reply->url());
 		return;
 	}
 
@@ -132,24 +132,47 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 	///
 
 	//Keep only the lyrics, not all the HTML from the webpage
-	QString beginLyrics("<div class='lyricbox' >");
-	QString endLyrics("</div>");
-	int beginLyricsIndex = data.indexOf(beginLyrics);
-	if (beginLyricsIndex == -1) {
-		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
-		return;
-	}
-	beginLyricsIndex += beginLyrics.size();
-	int endLyricsIndex = data.indexOf(endLyrics, beginLyricsIndex);
-	if (endLyricsIndex == -1) {
-		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
-		return;
-	}
-	QString lyrics = data.mid(beginLyricsIndex, endLyricsIndex - beginLyricsIndex);
-	lyrics.remove(QRegExp("<!--.*-->"));
-	///
 
-	//qDebug() << __FUNCTION__ << "Lyrics:" << lyrics;
+	//Remove some stupid advertisements like this one:
+	//<div class='rtMatcher'>
+	//<a href='http://www.ringtonematcher.com/co/ringtonematcher/02/noc.asp?sid=WILWros&amp;artist=Michael_Jackson&amp;song=Don%27t%2BStop%2B%27Til%2BYou%2BGet%2BEnough' target='_blank'>
+	//	<img src='http://images.wikia.com/lyricwiki/images/phone_left.gif' alt='phone' width='16' height='17'/>
+	//</a>
+	//<a href='http://www.ringtonematcher.com/co/ringtonematcher/02/noc.asp?sid=WILWros&amp;artist=Michael_Jackson&amp;song=Don%27t%2BStop%2B%27Til%2BYou%2BGet%2BEnough' target='_blank'>
+	//	Send "Don't Stop 'Til You Get Enough" Ringtone to your Cell
+	//</a>
+	//<a href='http://www.ringtonematcher.com/co/ringtonematcher/02/noc.asp?sid=WILWros&amp;artist=Michael_Jackson&amp;song=Don%27t%2BStop%2B%27Til%2BYou%2BGet%2BEnough' target='_blank'>
+	//	<img src='http://images.wikia.com/lyricwiki/images/phone_right.gif' alt='phone' width='16' height='17'/>
+	//</a>
+	//</div>
 
-	emitFinishedWithoutError(reply->url(), lyrics.toUtf8());
+	QRegExp rx_html;
+	//Non-greedy RegExp, see http://www.aota.net/forums/showthread.php?t=12016
+	rx_html.setMinimal(true);
+
+	rx_html.setPattern("<!--.*-->");
+	data.remove(rx_html);
+
+	rx_html.setPattern("<div class='rtMatcher'>.*</div>");
+	data.remove(rx_html);
+
+	rx_html.setPattern("<a href=.*</a>");
+	data.remove(rx_html);
+
+	rx_html.setPattern("<img src=.*/>");
+	data.remove(rx_html);
+
+
+	//Very specific to LyricWiki HTML code, hope it won't change all the time...
+	rx_html.setPattern("<div class='lyricbox'>(.*)</div>");
+	if (rx_html.indexIn(data) > -1) {
+		data = rx_html.cap(1);
+
+		//qDebug() << __FUNCTION__ << "Lyrics:" << data;
+
+		emitFinishedWithoutError(reply->url(), data.toUtf8());
+	} else {
+		qCritical() << __FUNCTION__ << "Parsing error: couldn't find 'lyricbox' inside the HTML returned by LyricWiki";
+		emitFinishedWithError(QNetworkReply::ContentNotFoundError, reply->url());
+	}
 }

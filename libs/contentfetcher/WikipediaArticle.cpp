@@ -76,7 +76,7 @@ void WikipediaArticle::gotWikipediaSearchAnswer(QNetworkReply * reply) {
 	qDebug() << __FUNCTION__ << reply->url();
 
 	if (error != QNetworkReply::NoError) {
-		emitNetworkError(error, reply->url());
+		emitFinishedWithError(error, reply->url());
 		return;
 	}
 
@@ -132,7 +132,7 @@ void WikipediaArticle::gotWikipediaSearchAnswer(QNetworkReply * reply) {
 		//We've got the Wikipedia article URL
 		_wikipediaArticleDownloader->get(QNetworkRequest(wikipediaUrl));
 	} else {
-		emitNetworkError(QNetworkReply::ContentNotFoundError, reply->url());
+		emitFinishedWithError(QNetworkReply::ContentNotFoundError, reply->url());
 	}
 }
 
@@ -143,7 +143,7 @@ void WikipediaArticle::gotWikipediaArticle(QNetworkReply * reply) {
 	qDebug() << __FUNCTION__ << reply->url();
 
 	if (error != QNetworkReply::NoError) {
-		emitNetworkError(error, reply->url());
+		emitFinishedWithError(error, reply->url());
 		return;
 	}
 

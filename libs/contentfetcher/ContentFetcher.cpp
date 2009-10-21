@@ -30,7 +30,7 @@ ContentFetcher::ContentFetcher(QObject * parent)
 ContentFetcher::~ContentFetcher() {
 }
 
-void ContentFetcher::emitNetworkError(QNetworkReply::NetworkError error, const QUrl & url) {
+void ContentFetcher::emitFinishedWithError(QNetworkReply::NetworkError error, const QUrl & url) {
 	emit finished(error, url, QByteArray(), _track);
 }
 
