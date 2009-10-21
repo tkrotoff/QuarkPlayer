@@ -425,7 +425,7 @@ void MediaInfoWindow::updateMediaInfo() {
 		//Lazy initialization
 		_wikipediaArticle = new WikipediaArticle(this);
 		connect(_wikipediaArticle,
-			SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
+			SIGNAL(finished(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
 			SLOT(wikipediaArticleFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &))
 		);
 	}
@@ -438,7 +438,7 @@ void MediaInfoWindow::updateMediaInfo() {
 		//Lazy initialization
 		_lyricsFetcher = new LyricsFetcher(this);
 		connect(_lyricsFetcher,
-			SIGNAL(contentFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
+			SIGNAL(finished(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
 			SLOT(lyricsFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &))
 		);
 	}
