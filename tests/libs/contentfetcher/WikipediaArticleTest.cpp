@@ -36,6 +36,7 @@ void WikipediaArticleTest::cleanupTestCase() {
 
 void WikipediaArticleTest::fetch_data() {
 	QTest::addColumn<QString>("artist");
+
 	QTest::addColumn<int>("wikipediaError");
 	QTest::addColumn<QString>("wikipediaArticleUrl");
 	QTest::addColumn<QRegExp>("wikipediaArticleContent");
@@ -85,13 +86,15 @@ void WikipediaArticleTest::wikipediaArticleFound(QNetworkReply::NetworkError err
 	QString tmp = url.toString();
 
 	QFETCH(QString, artist);
-	QFETCH(int, wikipediaError);
-	QFETCH(QString, wikipediaArticleUrl);
-	QFETCH(QRegExp, wikipediaArticleContent);
-
 	QCOMPARE(artist, track.artist);
+
+	QFETCH(int, wikipediaError);
 	QCOMPARE(wikipediaError, static_cast<int>(error));
+
+	QFETCH(QString, wikipediaArticleUrl);
 	QCOMPARE(wikipediaArticleUrl, tmp);
+
+	QFETCH(QRegExp, wikipediaArticleContent);
 	QVERIFY(wikipediaArticleContent.exactMatch(QString::fromUtf8(wikipediaArticle)));
 
 	QTestEventLoop::instance().exitLoop();

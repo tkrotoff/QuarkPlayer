@@ -35,6 +35,7 @@ void LyricsFetcherTest::cleanupTestCase() {
 void LyricsFetcherTest::fetch_data() {
 	QTest::addColumn<QString>("artist");
 	QTest::addColumn<QString>("title");
+
 	QTest::addColumn<int>("lyricsError");
 	QTest::addColumn<QString>("lyricsUrl");
 	QTest::addColumn<QString>("lyricsContent");
@@ -79,15 +80,18 @@ void LyricsFetcherTest::fetch() {
 
 void LyricsFetcherTest::lyricsFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & lyrics, const ContentFetcherTrack & track) {
 	QFETCH(QString, artist);
-	QFETCH(QString, title);
-	QFETCH(int, lyricsError);
-	QFETCH(QString, lyricsUrl);
-	QFETCH(QString, lyricsContent);
-
 	QCOMPARE(artist, track.artist);
+
+	QFETCH(QString, title);
 	QCOMPARE(title, track.title);
+
+	QFETCH(int, lyricsError);
 	QCOMPARE(lyricsError, static_cast<int>(error));
+
+	QFETCH(QString, lyricsUrl);
 	QCOMPARE(lyricsUrl, url.toString());
+
+	QFETCH(QString, lyricsContent);
 	QCOMPARE(lyricsContent, QString::fromUtf8(lyrics));
 
 	QTestEventLoop::instance().exitLoop();

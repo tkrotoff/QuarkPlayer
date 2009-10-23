@@ -87,8 +87,6 @@ private slots:
 
 	void loadPlaylist();
 
-private slots:
-
 	void filesFound(const QList<MediaInfo> & files);
 
 	void finished(PlaylistParser::Error error, int timeElapsed);

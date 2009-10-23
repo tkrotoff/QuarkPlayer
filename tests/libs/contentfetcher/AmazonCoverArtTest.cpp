@@ -96,18 +96,21 @@ void AmazonCoverArtTest::fetch() {
 
 void AmazonCoverArtTest::amazonCoverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & amazonCoverArt, const ContentFetcherTrack & track) {
 	QFETCH(QString, artist);
-	QFETCH(QString, album);
-	QFETCH(QString, amazonASIN);
-	QFETCH(int, amazonCoverArtError);
-	QFETCH(QRegExp, amazonCoverArtUrl);
-	QFETCH(int, amazonCoverArtContentSize);
-
 	QCOMPARE(artist, track.artist);
+
+	QFETCH(QString, album);
 	QCOMPARE(album, track.album);
+
+	QFETCH(QString, amazonASIN);
 	QCOMPARE(amazonASIN, track.amazonASIN);
+
+	QFETCH(int, amazonCoverArtError);
 	QCOMPARE(amazonCoverArtError, static_cast<int>(error));
+
+	QFETCH(QRegExp, amazonCoverArtUrl);
 	QVERIFY(amazonCoverArtUrl.exactMatch(url.toString()));
 
+	QFETCH(int, amazonCoverArtContentSize);
 	QCOMPARE(amazonCoverArtContentSize, amazonCoverArt.size());
 
 	QTestEventLoop::instance().exitLoop();

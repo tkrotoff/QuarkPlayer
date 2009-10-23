@@ -42,7 +42,9 @@ private slots:
 	/** Called after the last testfunction was executed. */
 	void cleanupTestCase();
 
+
 	void fetch_data();
+
 	void fetch();
 
 	void amazonCoverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & amazonCoverArt, const ContentFetcherTrack & track);
