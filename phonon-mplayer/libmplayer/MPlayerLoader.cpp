@@ -162,12 +162,12 @@ QStringList MPlayerLoader::readMediaSettings() {
 
 #ifdef Q_OS_WIN
 	if (MPlayerProcess::getMPlayerVersion() > 28121) {
-		args << "-vo";
 		if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA) {
 			//Direct3D video output driver only available after revision 28121
 			//See http://svn.mplayerhq.hu/mplayer/trunk/libvo/vo_direct3d.c
 			//The Direct3D video output driver does not very well yet under Windows XP
 			//It works fine only with Windows >= Vista
+			args << "-vo";
 			args << "direct3d";
 		}
 	}
