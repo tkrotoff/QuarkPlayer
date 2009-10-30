@@ -18,8 +18,6 @@
 
 #include "TkTextBrowser.h"
 
-#include "SyncHttp.h"
-
 #include <QtGui/QtGui>
 
 #include <QtNetwork/QtNetwork>
@@ -30,16 +28,9 @@
 TkTextBrowser::TkTextBrowser(QWidget * parent)
 	: QTextBrowser(parent) {
 
-	_cssEnabled = false;
-	_httpDownloader = new QHttp(this);
-	connect(_httpDownloader, SIGNAL(requestFinished(int, bool)),
-		SLOT(requestFinished(int, bool)));
-	connect(_httpDownloader, SIGNAL(responseHeaderReceived(const QHttpResponseHeader &)),
-		SLOT(responseHeaderReceived(const QHttpResponseHeader &)));
-
-	_httpSyncDownloader = new SyncHttp(this);
-	connect(_httpSyncDownloader, SIGNAL(responseHeaderReceived(const QHttpResponseHeader &)),
-		SLOT(responseHeaderReceived(const QHttpResponseHeader &)));
+	_networkAccess = new QNetworkAccessManager(this);
+	connect(_networkAccess, SIGNAL(finished(QNetworkReply *)),
+		SLOT(finished(QNetworkReply *)));
 }
 
 TkTextBrowser::~TkTextBrowser() {
@@ -48,17 +39,18 @@ TkTextBrowser::~TkTextBrowser() {
 
 void TkTextBrowser::setHtml(const QString & text) {
 	clearCache();
-	QTextBrowser::setHtml(text);
-}
 
-void TkTextBrowser::setPlainText(const QString & text) {
-	clearCache();
-	QTextBrowser::setPlainText(text);
-}
+	QString tmp(text);
 
-void TkTextBrowser::setText(const QString & text) {
-	clearCache();
-	QTextBrowser::setText(text);
+	//Remove JavaScript code as QTextBrowser can't display it
+	QRegExp rx_script("<\\s*script.*\\s*>.*<\\s*/\\s*script\\s*>");
+	rx_script.setCaseSensitivity(Qt::CaseInsensitive);
+	rx_script.setMinimal(true);
+	tmp.remove(rx_script);
+
+	//This will show an error message from QTextBrowser, example:
+	//"QTextBrowser: No document for http://en.wikipedia.org/wiki/Michael_Jackson"
+	QTextBrowser::setHtml(tmp);
 }
 
 void TkTextBrowser::setSource(const QUrl & name) {
@@ -68,135 +60,67 @@ void TkTextBrowser::setSource(const QUrl & name) {
 
 void TkTextBrowser::clearCache() {
 	_resourceMap.clear();
-	_cacheMap.clear();
 }
 
-void TkTextBrowser::setCSSEnabled(bool enabled) {
-	_cssEnabled = enabled;
+void TkTextBrowser::finished(QNetworkReply * reply) {
+	QUrl name(reply->url());
+	QByteArray data(reply->readAll());
+
+	Resource res = _resourceMap.value(name);
+	res.data = data;
+	_resourceMap[name] = res;
+
+	switch (res.type) {
+	case QTextDocument::HtmlResource:
+		setHtml(QString::fromUtf8(data));
+		break;
+	case QTextDocument::ImageResource:
+		break;
+	case QTextDocument::StyleSheetResource:
+		break;
+	default:
+		qCritical() << __FUNCTION__ << "Error: unknown type:" << res.type;
+	}
+
+	viewport()->update();
 }
 
 QVariant TkTextBrowser::loadResource(int type, const QUrl & name) {
 	QVariant resource;
 
-	bool isHttpRequest = false;
-	QHttp::ConnectionMode mode = QHttp::ConnectionModeHttp;
-	if (name.scheme().toLower() == "http") {
-		isHttpRequest = true;
-		mode = QHttp::ConnectionModeHttp;
-	} else if (name.scheme().toLower() == "https") {
-		isHttpRequest = true;
-		mode = QHttp::ConnectionModeHttps;
-	} else if (name.scheme().isEmpty()) {
-		//Means the URL is relative
-		//qDebug() << __FUNCTION__ << "Relative:" << name.toString();
-	}
+	qDebug() << __FUNCTION__ << name.toString();
 
-	//qDebug() << __FUNCTION__ << name.toString();
-
-	if (isHttpRequest) {
-		//HTTP link
-		if (_cacheMap.contains(name)) {
-			//Already in cache
-			resource = _cacheMap.value(name);
-			//qDebug() << __FUNCTION__ << "Cache:" << name.toString();
-		} else {
-			if (!requestAlreadyLaunched(name)) {
-				//Request not already launched
-
-				_httpDownloader->setHost(name.host(), mode, name.port() == -1 ? 0 : name.port());
-				_httpSyncDownloader->setHost(name.host(), mode, name.port() == -1 ? 0 : name.port());
-				QString path = name.path();
-				if (name.hasQuery()) {
-					path += '?' + name.encodedQuery();
-				}
-
-				//We use QHttpRequestHeader since Wikipedia for example does
-				//not like when there is no User-Agent info
-				QHttpRequestHeader header("GET", path);
-				header.setValue("Host", name.host());
-				header.setValue("User-Agent", QCoreApplication::applicationName());
-
-				if (type == QTextDocument::ImageResource) {
-					//Asynchronous resource download
-					int requestId = _httpDownloader->request(header);
-					Resource res;
-					res.type = type;
-					res.name = name;
-					_resourceMap[requestId] = res;
-					//qDebug() << __FUNCTION__ << "Download:" << name.toString();
-				} else {
-					if (!path.contains(".css") || _cssEnabled) {
-						//FIXME Download html resources synchronously
-						//otherwise the main html resource is never showed
-						//qDebug() << "Sync 0:" << path;
-						_httpSyncDownloader->syncRequest(header);
-						resource = _cacheMap[name] = QString::fromUtf8(_httpSyncDownloader->readAll());
-						//qDebug() << "Sync 1:" << name.toString();
-					}
-				}
-			}
-		}
-	} else {
-		//No HTTP, local file system
+	if (name.host().isEmpty()) {
+		//Not a URL: local file system
 		resource = QTextBrowser::loadResource(type, name);
 	}
 
+	else {
+		//This is a real URL
+		if (_resourceMap.contains(name)) {
+			//Already in cache
+			Resource res = _resourceMap.value(name);
+			resource = res.data;
+			res.data.clear();
+			_resourceMap[name] = res;
+		} else {
+			//Not in cache
+
+			//Wikipedia does not like when there is no User-Agent info
+			QNetworkRequest request;
+			request.setRawHeader("User-Agent", QCoreApplication::applicationName().toAscii());
+
+			request.setUrl(name);
+
+			//Asynchronous resource download
+			_networkAccess->get(request);
+
+			Resource res;
+			res.type = type;
+			res.data.clear();
+			_resourceMap[name] = res;
+		}
+	}
+
 	return resource;
-}
-
-void TkTextBrowser::requestFinished(int id, bool error) {
-	if (error) {
-		return;
-	}
-
-	if (_resourceMap.contains(id)) {
-		QByteArray data = _httpDownloader->readAll();
-		Resource resource = _resourceMap.value(id);
-		//qDebug() << __FUNCTION__ << "Finished:" << resource.name.toString();
-
-		switch (resource.type) {
-		case QTextDocument::HtmlResource:
-			_cacheMap[resource.name] = QString::fromUtf8(data);
-			document()->addResource(QTextDocument::HtmlResource, resource.name, _cacheMap[resource.name]);
-			break;
-		case QTextDocument::ImageResource:
-			_cacheMap[resource.name] = data;
-			document()->addResource(QTextDocument::ImageResource, resource.name, _cacheMap[resource.name]);
-			repaint();
-			break;
-		case QTextDocument::StyleSheetResource:
-			_cacheMap[resource.name] = QString::fromUtf8(data);
-			document()->addResource(QTextDocument::StyleSheetResource, resource.name, _cacheMap[resource.name]);
-			break;
-		default:
-			qCritical() << __FUNCTION__ << "Error: unknown type:" << resource.type;
-		}
-	}
-}
-
-void TkTextBrowser::responseHeaderReceived(const QHttpResponseHeader & resp) {
-	//qDebug() << __FUNCTION__ << "Status code:" << resp.statusCode();
-
-	if (resp.statusCode() == 301) {
-		//301 means "Moved Permanently"
-		QString newUrl = resp.value("Location");
-		loadResource(QTextDocument::HtmlResource, newUrl);
-	}
-}
-
-bool TkTextBrowser::requestAlreadyLaunched(const QUrl & resourceName) const {
-	//FIXME Greedy algorithm, goes through the whole map :/
-
-	QMapIterator<int, Resource> it(_resourceMap);
-	while (it.hasNext()) {
-		it.next();
-
-		Resource resource = it.value();
-		if (resourceName == resource.name) {
-			//Already inside the map
-			return true;
-		}
-	}
-
-	return false;
 }

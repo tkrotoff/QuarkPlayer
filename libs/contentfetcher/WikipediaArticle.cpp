@@ -158,6 +158,12 @@ void WikipediaArticle::simplifyAndFixWikipediaArticle(QString & wiki) const {
 	//method QString wikipediaEngine::wikiParse()
 	//Date: 2009/07/01
 
+	//Remove JavaScript code as QTextBrowser can't display it anyway
+	QRegExp rx_script("<\\s*script.*\\s*>.*<\\s*/\\s*script\\s*>");
+	rx_script.setCaseSensitivity(Qt::CaseInsensitive);
+	rx_script.setMinimal(true);
+	wiki.remove(rx_script);
+
 	//remove the new-lines and tabs(replace with spaces IS needed).
 	wiki.replace('\n', ' ');
 	wiki.replace('\t', ' ');

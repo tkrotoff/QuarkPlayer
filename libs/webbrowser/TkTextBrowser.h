@@ -21,10 +21,10 @@
 
 #include <QtGui/QTextBrowser>
 
-class SyncHttp;
+#include <QtCore/QMap>
 
-class QHttp;
-class QHttpResponseHeader;
+class QNetworkAccessManager;
+class QNetworkReply;
 
 /**
  * Improves QTextBrowser to make it a "real" minimalist web browser.
@@ -42,47 +42,32 @@ public:
 
 	QVariant loadResource(int type, const QUrl & name);
 
-	void setCSSEnabled(bool enabled);
-
 public slots:
 
 	void setHtml(const QString & text);
-	void setPlainText(const QString & text);
-	void setText(const QString & text);
+
 	void setSource(const QUrl & name);
 
 private slots:
 
-	void requestFinished(int id, bool error);
-
-	void responseHeaderReceived(const QHttpResponseHeader & resp);
+	void finished(QNetworkReply * reply);
 
 private:
 
-	bool requestAlreadyLaunched(const QUrl & resourceName) const;
-
-	/** Clears _resourceMap and _cacheMap. */
+	/** Clears _resourceMap. */
 	void clearCache();
 
-	/** Performs asynchronous downloads. */
-	QHttp * _httpDownloader;
+	/** Performs the downloads. */
+	QNetworkAccessManager * _networkAccess;
 
-	/** Performs synchronous downloads. */
-	SyncHttp * _httpSyncDownloader;
-
-	/** A resource as a type (HTML, image, CSS) and a name (URL). */
+	/** A resource has a type (HTML, image, CSS) and contains data (via QNetworkReply *). */
 	struct Resource {
 		int type;
-		QUrl name;
+		QVariant data;
 	};
 
-	/** Assign a resource to a HTTP request Id. */
-	QMap<int, Resource> _resourceMap;
-
 	/** Keep in cache downloaded datas. */
-	QMap<QUrl, QVariant> _cacheMap;
-
-	bool _cssEnabled;
+	QMap<QUrl, Resource> _resourceMap;
 };
 
 #endif	//TKTEXTBROWSER_H
