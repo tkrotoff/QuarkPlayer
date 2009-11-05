@@ -67,6 +67,8 @@ public:
 	 * Patch by Kamil Dziobek
 	 * Copyright (C) 2008  Kamil Dziobek <turbos11@gmail.com>
 	 * License: BSD or GPL or public domain
+	 *
+	 * @see http://trac.opensubtitles.org/projects/opensubtitles/wiki/HashSourceCodes
 	 */
 	static QString calculateHash(const QString & fileName);
 
