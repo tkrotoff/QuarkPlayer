@@ -47,6 +47,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
+#include <QtIOCompressor/QtIOCompressor>
+
 #include <quazip/quazip.h>
 #include <quazip/quazipfile.h>
 
@@ -385,6 +387,74 @@ void FindSubtitlesWindow::archiveDownloaded(const QByteArray & data) {
 		_ui->statusLabel->setText(tr("Error: couldn't save the file, check your folder permissions"));
 	}
 }
+
+QStringList FindSubtitlesWindow::listZipFiles(const QString & fileName) {
+	QStringList zipFileList;
+
+	QFile file(fileName);
+	if (!file.open(QIODevice::ReadOnly)) {
+		qWarning() << "Failed to open file:" << fileName;
+		return zipFileList;
+	}
+
+	//Read all from file and print
+	qDebug() << "Archive:" << fileName;
+	qDebug() << "Item Size Name";
+	int item = 0;
+
+	forever {
+		//Zip format "local file header" fields:
+		quint32 signature, crc, compSize, unCompSize;
+		quint16 extractVersion, bitFlag, compMethod, modTime, modDate;
+		quint16 nameLen, extraLen;
+
+		QDataStream stream(&file);
+		stream.setByteOrder(QDataStream::LittleEndian);
+		stream >> signature;
+		if (signature != 0x04034b50) {
+			//zip local file header magic number
+			break;
+		}
+		stream >> extractVersion >> bitFlag >> compMethod;
+		stream >> modTime >> modDate >> crc >> compSize >> unCompSize;
+		stream >> nameLen >> extraLen;
+
+		const QByteArray fileNameTmp = file.read(nameLen);
+		zipFileList += fileNameTmp;
+		file.read(extraLen);
+
+		QByteArray compData = file.read(compSize);
+		QByteArray unCompData;
+		if (compMethod == 0) {
+			unCompData = compData;
+		}
+		else {
+			QBuffer compBuf(&compData);
+			QtIOCompressor compressor(&compBuf);
+			compressor.setStreamFormat(QtIOCompressor::RawZipFormat);
+			compressor.open(QIODevice::ReadOnly);
+			unCompData = compressor.readAll();
+		}
+
+		//unCompData now contains the uncompressed file from the zip archive
+		qDebug() << QString("%1 %2").arg(1 + item++, 3).arg(unCompData.size(), 6)
+			<< fileNameTmp << endl;
+
+		//if (fileNameTmp.toLower().endsWith(".txt")) {
+		//	qDebug() << "   Preview: \""
+		//		<< unCompData.mid(0, unCompData.indexOf('\n')).replace('\r', "")
+		//		<< "\"...";
+		//}
+	}
+
+	if (!item) {
+		qWarning() << "Not a ZIP file!";
+		return zipFileList;
+	}
+
+	return zipFileList;
+}
+
 
 bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString & outputDir, const QStringList & filter) {
 	qDebug() << __FUNCTION__ << "Zip file:" << fileName << "outputDir:" << outputDir;

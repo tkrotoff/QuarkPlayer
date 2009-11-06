@@ -107,6 +107,8 @@ private:
 		ExtractFileSelectError
 	};
 
+	QStringList listZipFiles(const QString & fileName);
+
 	/** Move this to another class? */
 	ExtractFile extractFile(QuaZip & zipFile, const QString & fileName, const QString & outputFileName);
 

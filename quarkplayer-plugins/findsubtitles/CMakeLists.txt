@@ -37,6 +37,7 @@ target_link_libraries(findsubtitles
 	mainwindow
 	tkutil
 	quazip
+	qtiocompressor
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}

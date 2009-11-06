@@ -70,32 +70,8 @@ if (WIN32)
 	add_subdirectory(quarkplayer-plugins/wincontextmenu)
 endif (WIN32)
 
-if (ZLIB)
-	add_subdirectory(3rdparty/zlib)
-	set(ZLIB_FOUND 1)
-	set(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib)
-	set(ZLIB_LIBRARY zlib)
-endif (ZLIB)
-
 add_subdirectory(3rdparty/hmac)
-
-# minizip
-add_subdirectory(3rdparty/zlib/contrib/minizip)
-set(MINIZIP_FOUND 1)
-set(MINIZIP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib/contrib/minizip)
-set(MINIZIP_LIBRARY minizip)
 ##
-
-if (MEDIAINFOLIB)
-	add_subdirectory(3rdparty/ZenLib)
-	add_subdirectory(3rdparty/MediaInfo)
-endif (MEDIAINFOLIB)
-
-if (TAGLIB)
-	add_subdirectory(3rdparty/taglib)
-endif (TAGLIB)
-##
-
 
 # Qt/KDE libraries detection and initialization
 if (NOT ENV{KDEDIRS})
@@ -144,7 +120,33 @@ message(STATUS "Qt Directory: ${QT_BINARY_DIR}")
 reduce_qt_include_dirs()
 ##
 
+# 3rdparty libraries with zlib dependency
+set(ZLIB_FOUND 1)
+set(ZLIB_INCLUDE_DIR
+	${QT_INCLUDE_DIR}/../src/3rdparty/zlib
+	${QT_QTCORE_INCLUDE_DIR}
+)
+set(ZLIB_LIBRARY ${QT_QTCORE_LIBRARY})
+
+if (MEDIAINFOLIB)
+	add_subdirectory(3rdparty/ZenLib)
+	add_subdirectory(3rdparty/MediaInfo)
+endif (MEDIAINFOLIB)
+
+if (TAGLIB)
+	add_subdirectory(3rdparty/taglib)
+endif (TAGLIB)
+##
+
+# minizip
+add_subdirectory(3rdparty/zlib/contrib/minizip)
+set(MINIZIP_FOUND 1)
+set(MINIZIP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib/contrib/minizip)
+set(MINIZIP_LIBRARY minizip)
+##
+
 # 3rdparty libraries with Qt dependency
+add_subdirectory(3rdparty/qtiocompressor)
 add_subdirectory(3rdparty/quazip)
 add_subdirectory(3rdparty/modeltest)
 add_subdirectory(3rdparty/qtsingleapplication)
