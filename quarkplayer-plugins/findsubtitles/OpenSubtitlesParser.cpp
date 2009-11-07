@@ -51,7 +51,7 @@ bool OpenSubtitlesParser::parseXml(const QByteArray & xml) {
 		while (!subtitle.isNull()) {
 			OpenSubtitlesSubtitle sub;
 
-			sub.releasename = subtitle.firstChildElement("releasename").text();
+			sub.releaseName = subtitle.firstChildElement("releasename").text();
 			sub.link = baseUrl + subtitle.firstChildElement("download").text();
 			sub.detail = subtitle.firstChildElement("detail").text();
 			sub.date = subtitle.firstChildElement("subadddate").text();

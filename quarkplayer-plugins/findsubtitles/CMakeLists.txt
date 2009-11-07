@@ -1,8 +1,5 @@
 project(findsubtitles)
 
-include_directories(${ZLIB_INCLUDE_DIR})
-include_directories(${MINIZIP_INCLUDE_DIR})
-
 if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
 endif (STATICPLUGINS)
@@ -12,6 +9,7 @@ set(findsubtitles_SRCS
 	FindSubtitlesWindow.cpp
 	OpenSubtitlesParser.cpp
 	FileChooserWindow.cpp
+	ZipFile.cpp
 )
 
 qt4_wrap_cpp(findsubtitles_SRCS
@@ -36,7 +34,6 @@ target_link_libraries(findsubtitles
 	quarkplayercore
 	mainwindow
 	tkutil
-	quazip
 	qtiocompressor
 
 	${QT_QTCORE_LIBRARY}

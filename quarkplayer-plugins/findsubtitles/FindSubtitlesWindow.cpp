@@ -23,6 +23,7 @@
 
 #include "OpenSubtitlesParser.h"
 #include "FileChooserWindow.h"
+#include "ZipFile.h"
 
 #include <quarkplayer/Languages.h>
 
@@ -48,9 +49,6 @@
 #include <QtCore/QFileInfo>
 
 #include <QtIOCompressor/QtIOCompressor>
-
-#include <quazip/quazip.h>
-#include <quazip/quazipfile.h>
 
 static const int COLUMN_LANG = 0;
 static const int COLUMN_NAME = 1;
@@ -277,7 +275,7 @@ void FindSubtitlesWindow::downloadFinished(QNetworkReply * reply) {
 
 	default:
 		_ui->statusLabel->setText(tr("Error: download failed, network error: %1").arg(error));
-		qCritical() << __FUNCTION__ << "Network error:" << error;
+		qCritical() << __FUNCTION__ << "Network error:" << error << " " << reply->errorString();
 		break;
 	}
 }
@@ -296,8 +294,8 @@ void FindSubtitlesWindow::parseXml(const QByteArray & xml) {
 			OpenSubtitlesSubtitle subtitle = list[i];
 
 			QString titleName = subtitle.movie;
-			if (!subtitle.releasename.isEmpty()) {
-				titleName += " - " + subtitle.releasename;
+			if (!subtitle.releaseName.isEmpty()) {
+				titleName += " - " + subtitle.releaseName;
 			}
 
 			QStandardItem * itemName = new QStandardItem(titleName);
@@ -364,7 +362,7 @@ void FindSubtitlesWindow::showContextMenu(const QPoint & pos) {
 
 void FindSubtitlesWindow::archiveDownloaded(const QByteArray & data) {
 	QTemporaryFile tmpFile(QDir::tempPath() + QDir::separator() + QCoreApplication::applicationName() + "_XXXXXX.zip");
-	tmpFile.setAutoRemove(false);
+	//tmpFile.setAutoRemove(false);
 
 	if (tmpFile.open()) {
 		QString fileName = tmpFile.fileName();
@@ -388,99 +386,19 @@ void FindSubtitlesWindow::archiveDownloaded(const QByteArray & data) {
 	}
 }
 
-QStringList FindSubtitlesWindow::listZipFiles(const QString & fileName) {
-	QStringList zipFileList;
-
-	QFile file(fileName);
-	if (!file.open(QIODevice::ReadOnly)) {
-		qWarning() << "Failed to open file:" << fileName;
-		return zipFileList;
-	}
-
-	//Read all from file and print
-	qDebug() << "Archive:" << fileName;
-	qDebug() << "Item Size Name";
-	int item = 0;
-
-	forever {
-		//Zip format "local file header" fields:
-		quint32 signature, crc, compSize, unCompSize;
-		quint16 extractVersion, bitFlag, compMethod, modTime, modDate;
-		quint16 nameLen, extraLen;
-
-		QDataStream stream(&file);
-		stream.setByteOrder(QDataStream::LittleEndian);
-		stream >> signature;
-		if (signature != 0x04034b50) {
-			//zip local file header magic number
-			break;
-		}
-		stream >> extractVersion >> bitFlag >> compMethod;
-		stream >> modTime >> modDate >> crc >> compSize >> unCompSize;
-		stream >> nameLen >> extraLen;
-
-		const QByteArray fileNameTmp = file.read(nameLen);
-		zipFileList += fileNameTmp;
-		file.read(extraLen);
-
-		QByteArray compData = file.read(compSize);
-		QByteArray unCompData;
-		if (compMethod == 0) {
-			unCompData = compData;
-		}
-		else {
-			QBuffer compBuf(&compData);
-			QtIOCompressor compressor(&compBuf);
-			compressor.setStreamFormat(QtIOCompressor::RawZipFormat);
-			compressor.open(QIODevice::ReadOnly);
-			unCompData = compressor.readAll();
-		}
-
-		//unCompData now contains the uncompressed file from the zip archive
-		qDebug() << QString("%1 %2").arg(1 + item++, 3).arg(unCompData.size(), 6)
-			<< fileNameTmp << endl;
-
-		//if (fileNameTmp.toLower().endsWith(".txt")) {
-		//	qDebug() << "   Preview: \""
-		//		<< unCompData.mid(0, unCompData.indexOf('\n')).replace('\r', "")
-		//		<< "\"...";
-		//}
-	}
-
-	if (!item) {
-		qWarning() << "Not a ZIP file!";
-		return zipFileList;
-	}
-
-	return zipFileList;
-}
-
-
 bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString & outputDir, const QStringList & filter) {
 	qDebug() << __FUNCTION__ << "Zip file:" << fileName << "outputDir:" << outputDir;
 
-	QuaZip zipFile(fileName);
-
-	if (!zipFile.open(QuaZip::mdUnzip)) {
-		qCritical() << "Error: couldn't open the zip file:" << zipFile.getZipError();
-		return false;
-	}
-
-	zipFile.setFileNameCodec("IBM866");
-	qDebug() << __FUNCTION__ << "Zip entries count:" << zipFile.getEntriesCount();
+	ZipFile zipFile(fileName);
 
 	QStringList filesToExtract;
-	QuaZipFileInfo info;
-	for (bool more = zipFile.goToFirstFile(); more; more = zipFile.goToNextFile()) {
-		if (!zipFile.getCurrentFileInfo(&info)) {
-			qCritical() << "Error:" << zipFile.getZipError();
-			return false;
-		}
-		qDebug() << __FUNCTION__ << "File:" << info.name;
 
+	QStringList filesAvailable = zipFile.listFiles();
+
+	foreach (QString fileAvailable, filesAvailable) {
 		//Ignore files that are not from the list of extensions
-		if (filter.contains(QFileInfo(info.name).suffix())) {
-			filesToExtract.append(info.name);
+		if (filter.contains(QFileInfo(fileAvailable).suffix())) {
+			filesToExtract.append(fileAvailable);
 		}
 	}
 
@@ -495,7 +413,6 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 		fileChooserWindow.setWindowTitle(tr("Subtitles to Extract"));
 
 		if (fileChooserWindow.exec() == QDialog::Rejected) {
-			zipFile.close();
 			return false;
 		}
 
@@ -511,9 +428,9 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 				}
 			}
 
-			ExtractFile error = ExtractFileNoError;
+			ZipFile::ExtractFileError error = ZipFile::ExtractFileNoError;
 			QString newOutputDir = outputDir;
-			while ((error = extractFile(zipFile, fileToExtract, outputFileName)) == ExtractFileWriteError) {
+			while ((error = zipFile.extract(fileToExtract, outputFileName)) == ZipFile::ExtractFileWriteError) {
 				newOutputDir = TkFileDialog::getExistingDirectory(this,
 					tr("The directory '%1' can not be written. Please choose another directory where to save '%2'").arg(newOutputDir).arg(fileToExtract),
 					newOutputDir);
@@ -522,7 +439,7 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 					//where to save the file
 					break;
 				} else {
-					//Ok the uses has chosen another directory where to save the file
+					//Ok the user has chosen another directory where to save the file
 					outputFileName = newOutputDir + QDir::separator() + fileToExtract;
 				}
 
@@ -536,19 +453,16 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 			}
 
 			switch (error) {
-			case ExtractFileNoError:
+			case ZipFile::ExtractFileNoError:
 				qDebug() << __FUNCTION__ << "File saved:" << fileToExtract;
 				filesExtracted += outputFileName;
 				break;
-			case ExtractFileReadError:
+			case ZipFile::ExtractFileNotFoundError:
 				//Cannot do anything
 				break;
-			case ExtractFileWriteError:
+			case ZipFile::ExtractFileWriteError:
 				//Means that the user clicks on Cancel while choosing another directory
 				//where to save the file
-				break;
-			case ExtractFileSelectError:
-				//Cannot do anything
 				break;
 			default:
 				qCritical() << __FUNCTION__ << "Error: unknown error:" << error;
@@ -563,43 +477,5 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 		}
 	}
 
-	zipFile.close();
 	return true;
-}
-
-FindSubtitlesWindow::ExtractFile FindSubtitlesWindow::extractFile(QuaZip & zipFile, const QString & fileName, const QString & outputFileName) {
-	qDebug() << __FUNCTION__ << "Extract:" << fileName << outputFileName;
-
-	if (!zipFile.setCurrentFile(fileName)) {
-		qCritical() << __FUNCTION__ << "Error: can't select file:" << fileName;
-		return ExtractFileSelectError;
-	}
-
-	//Saving
-	QuaZipFile file(&zipFile);
-	QFile out(outputFileName);
-
-	if (!file.open(QIODevice::ReadOnly)) {
-		qCritical() << "Error: can't read file:" << file.getZipError();
-		return ExtractFileReadError;
-	}
-
-	if (out.open(QIODevice::WriteOnly)) {
-
-		//Slow like hell (on GNU/Linux at least), but it is not my fault.
-		//Not ZIP/UNZIP package's fault either.
-		//The slowest thing here is out.putChar(car).
-		char car;
-		while (file.getChar(&car)) {
-			out.putChar(car);
-		}
-		out.close();
-
-		file.close();
-	} else {
-		qCritical() << __FUNCTION__ << "Error: can't write file:" << outputFileName;
-		return ExtractFileWriteError;
-	}
-
-	return ExtractFileNoError;
 }

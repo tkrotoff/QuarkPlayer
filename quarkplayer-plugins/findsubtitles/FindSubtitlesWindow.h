@@ -35,8 +35,6 @@ class QUrl;
 class QNetworkAccessManager;
 class QNetworkReply;
 
-class QuaZip;
-
 /**
  * Find subtitles plugin
  *
@@ -97,20 +95,7 @@ private:
 
 	void archiveDownloaded(const QByteArray & data);
 
-	/** Move this to another class? */
 	bool uncompressZip(const QString & fileName, const QString & outputDir, const QStringList & filter);
-
-	enum ExtractFile {
-		ExtractFileNoError,
-		ExtractFileReadError,
-		ExtractFileWriteError,
-		ExtractFileSelectError
-	};
-
-	QStringList listZipFiles(const QString & fileName);
-
-	/** Move this to another class? */
-	ExtractFile extractFile(QuaZip & zipFile, const QString & fileName, const QString & outputFileName);
 
 	Ui::FindSubtitlesWindow * _ui;
 
@@ -123,10 +108,6 @@ private:
 	QMenu * _contextMenu;
 
 	QNetworkAccessManager * _networkManager;
-
-	//SimpleHttp * downloader;
-
-	//FileDownloader * file_downloader;
 };
 
 #endif	//FINDSUBTITLESWINDOW_H

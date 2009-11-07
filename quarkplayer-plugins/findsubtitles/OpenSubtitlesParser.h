@@ -29,7 +29,7 @@
 
 struct OpenSubtitlesSubtitle {
 	QString movie;
-	QString releasename;
+	QString releaseName;
 	QString link;
 	QString iso639;
 	QString language;
