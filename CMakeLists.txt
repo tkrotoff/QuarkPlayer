@@ -138,16 +138,8 @@ if (TAGLIB)
 endif (TAGLIB)
 ##
 
-# minizip
-add_subdirectory(3rdparty/zlib/contrib/minizip)
-set(MINIZIP_FOUND 1)
-set(MINIZIP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib/contrib/minizip)
-set(MINIZIP_LIBRARY minizip)
-##
-
 # 3rdparty libraries with Qt dependency
 add_subdirectory(3rdparty/qtiocompressor)
-add_subdirectory(3rdparty/quazip)
 add_subdirectory(3rdparty/modeltest)
 add_subdirectory(3rdparty/qtsingleapplication)
 ##
