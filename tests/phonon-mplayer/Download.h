@@ -27,13 +27,27 @@
 class QNetworkAccessManager;
 class QUrl;
 
+/**
+ * Simple class that downloads an URL and save it to a file.
+ *
+ * The download is done in a synchronous way.
+ *
+ * Example:
+ * <pre>
+ * Download::download(NULL, "http://download.blender.org/peach/trailer/trailer_iphone.m4v");
+ * QString fileName = QCoreApplication::applicationDirPath() + QDir::separator() + "trailer_iphone.m4v";
+ * </pre>
+ *
+ * @author Tanguy Krotoff
+ * @see QNetworkAccessManager
+ */
 class Download : public QObject {
 	Q_OBJECT
 public:
 
 	/**
 	 * Example:
-	 * http://video.blendertestbuilds.de/topdir/ED/making_of_voice_recording_divx5mp3.avi
+	 * http://download.blender.org/peach/trailer/trailer_iphone.m4v
 	 */
 	static QNetworkReply::NetworkError download(QObject * parent, const QUrl & url, const QString & fileName = QString());
 
