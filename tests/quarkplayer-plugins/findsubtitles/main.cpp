@@ -16,20 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ZipFileTest.h"
 #include "FindSubtitlesTest.h"
 
-#include <quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.h>
+int main(int argc, char * argv[]) {
+	QCoreApplication app(argc, argv);
 
-#include <QtCore/QDebug>
+	int result = EXIT_FAILURE;
 
-void FindSubtitlesTest::initTestCase() {
-}
+	ZipFileTest test1;
+	result |= QTest::qExec(&test1, argc, argv);
 
-void FindSubtitlesTest::cleanupTestCase() {
-}
+	FindSubtitlesTest test2;
+	result |= QTest::qExec(&test2, argc, argv);
 
-void FindSubtitlesTest::init() {
-}
-
-void FindSubtitlesTest::cleanup() {
+	return result;
 }

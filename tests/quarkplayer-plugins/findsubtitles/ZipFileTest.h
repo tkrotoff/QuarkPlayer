@@ -16,20 +16,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FindSubtitlesTest.h"
+#ifndef ZIPFILETEST_H
+#define ZIPFILETEST_H
 
-#include <quarkplayer-plugins/findsubtitles/FindSubtitlesWindow.h>
+#include <QtTest/QtTest>
 
-#include <QtCore/QDebug>
+/**
+ * Test class for ZipFile.
+ *
+ * @see ZipFile
+ * @author Tanguy Krotoff
+ */
+class ZipFileTest : public QObject {
+	Q_OBJECT
+private slots:
 
-void FindSubtitlesTest::initTestCase() {
-}
+	/** Called before the first testfunction is executed. */
+	void initTestCase();
 
-void FindSubtitlesTest::cleanupTestCase() {
-}
+	/** Called after the last testfunction was executed. */
+	void cleanupTestCase();
 
-void FindSubtitlesTest::init() {
-}
+	/** Called before each testfunction is executed. */
+	void init();
 
-void FindSubtitlesTest::cleanup() {
-}
+	/** Called after every testfunction. */
+	void cleanup();
+
+	void testListFiles_data();
+
+	void testListFiles();
+
+	void testExtract_data();
+
+	void testExtract();
+};
+
+#endif	//ZIPFILETEST_H
