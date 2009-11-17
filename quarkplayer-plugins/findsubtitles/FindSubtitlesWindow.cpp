@@ -105,6 +105,8 @@ FindSubtitlesWindow::FindSubtitlesWindow(QWidget * parent)
 		SLOT(showContextMenu(const QPoint &)));
 
 	_networkManager = new QNetworkAccessManager(this);
+	connect(_networkManager, SIGNAL(finished(QNetworkReply *)),
+		SLOT(downloadFinished(QNetworkReply *)));
 
 	populateActionCollection();
 	connect(ActionCollection::action("FindSubtitles.Download"), SIGNAL(triggered()), SLOT(downloadButtonClicked()));
@@ -203,8 +205,6 @@ void FindSubtitlesWindow::download(const QUrl & url) {
 	QNetworkReply * reply = _networkManager->get(QNetworkRequest(url));
 	connect(reply, SIGNAL(downloadProgress(qint64, qint64)),
 		SLOT(downloadProgress(qint64, qint64)));
-	connect(_networkManager, SIGNAL(finished(QNetworkReply *)),
-		SLOT(downloadFinished(QNetworkReply *)));
 }
 
 void FindSubtitlesWindow::currentItemChanged(const QModelIndex & current, const QModelIndex & /*previous*/) {
