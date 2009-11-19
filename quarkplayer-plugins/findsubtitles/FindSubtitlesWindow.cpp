@@ -148,11 +148,11 @@ void FindSubtitlesWindow::retranslate() {
 	QString currentLanguage = _ui->languageComboBox->itemData(_ui->languageComboBox->currentIndex()).toString();
 	_ui->languageComboBox->clear();
 	_ui->languageComboBox->addItem(tr("All"), "*");
-	QMap<QString, QString> list = Languages::iso639_1_list();
+	QMap<QString, QString> list = Languages::iso639_1_list_languageNameAsKey();
 	QMapIterator<QString, QString> it(list);
 	while (it.hasNext()) {
 		it.next();
-		_ui->languageComboBox->addItem(it.value(), it.key());
+		_ui->languageComboBox->addItem(it.key(), it.value());
 	}
 	_ui->languageComboBox->setCurrentIndex(_ui->languageComboBox->findData(currentLanguage));
 

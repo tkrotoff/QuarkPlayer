@@ -47,13 +47,33 @@ public:
 	 * Gets the ISO 639-1 language list.
 	 *
 	 * Structure:
+	 * <pre>
 	 * QMap<QString     , QString>
 	 * ISO 639-1 ("fr") , language name ("french")
+	 * </pre>
+	 *
+	 * Sorted by the ISO 639-1 code.
 	 *
 	 * @return the ISO 639-1 language list
 	 * @see http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 	 */
 	static QMap<QString, QString> iso639_1_list();
+
+	/**
+	 * Gets the ISO 639-1 language list.
+	 *
+	 * Structure:
+	 * <pre>
+	 * QMap<QString             , QString>
+	 * language name ("french") , ISO 639-1 ("fr")
+	 * </pre>
+	 *
+	 * Sorted by language name.
+	 *
+	 * @return the ISO 639-1 language list
+	 * @see iso639_1_list()
+	 */
+	static QMap<QString, QString> iso639_1_list_languageNameAsKey();
 
 	/**
 	 * Gets the translations available for QuarkPlayer.

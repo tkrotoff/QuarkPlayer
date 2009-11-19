@@ -218,6 +218,19 @@ QMap<QString, QString> Languages::iso639_1_list() {
 	return list;
 }
 
+QMap<QString, QString> Languages::iso639_1_list_languageNameAsKey() {
+	static QMap<QString, QString> sortedList;
+	if (sortedList.isEmpty()) {
+		//Lazy initialization
+		QMapIterator<QString, QString> it(iso639_1_list());
+		while (it.hasNext()) {
+			it.next();
+			sortedList.insert(it.value(), it.key());
+		}
+	}
+	return sortedList;
+}
+
 QMap<QString, QString> Languages::availableTranslations() {
 	static QMap<QString, QString> list;
 	if (list.isEmpty()) {
