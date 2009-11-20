@@ -1,6 +1,5 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
  * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -33,8 +32,6 @@ FileChooserWindow::FileChooserWindow(QWidget * parent)
 
 	_ui->listWidget->setSelectionMode(QAbstractItemView::NoSelection);
 
-	connect(_ui->selectAllButton, SIGNAL(clicked()), SLOT(selectAll()));
-	connect(_ui->selectNoneButton, SIGNAL(clicked()), SLOT(selectNone()));
 	connect(_ui->listWidget, SIGNAL(itemClicked(QListWidgetItem *)),
 		SLOT(itemClicked(QListWidgetItem *)));
 	connect(_ui->listWidget, SIGNAL(itemPressed(QListWidgetItem *)),
@@ -44,36 +41,14 @@ FileChooserWindow::FileChooserWindow(QWidget * parent)
 FileChooserWindow::~FileChooserWindow() {
 }
 
-void FileChooserWindow::selectAll() {
-	for (int i = 0; i < _ui->listWidget->count(); i++) {
-		_ui->listWidget->item(i)->setCheckState(Qt::Checked);
-	}
-	_ui->listWidget->setFocus();
-
-	allItemsChecked();
-}
-
-void FileChooserWindow::selectNone() {
-	for (int i = 0; i < _ui->listWidget->count(); i++) {
-		_ui->listWidget->item(i)->setCheckState(Qt::Unchecked);
-	}
-	_ui->listWidget->setFocus();
-
-	allItemsUnchecked();
-}
-
-void FileChooserWindow::allItemsChecked() {
+void FileChooserWindow::enableOkButton() {
 	QPushButton * okButton = _ui->buttonBox->button(QDialogButtonBox::Ok);
 	okButton->setEnabled(true);
-	_ui->selectAllButton->setEnabled(false);
-	_ui->selectNoneButton->setEnabled(true);
 }
 
-void FileChooserWindow::allItemsUnchecked() {
+void FileChooserWindow::disableOkButton() {
 	QPushButton * okButton = _ui->buttonBox->button(QDialogButtonBox::Ok);
 	okButton->setEnabled(false);
-	_ui->selectAllButton->setEnabled(true);
-	_ui->selectNoneButton->setEnabled(false);
 }
 
 void FileChooserWindow::itemClicked(QListWidgetItem * item) {
@@ -87,32 +62,23 @@ void FileChooserWindow::itemClicked(QListWidgetItem * item) {
 	}
 	//else - clicked on the checkbox itself, do nothing
 
-	int nbItemsChecked = 0;
+	//Compute the number of uncheck files
 	int nbItemsUnchecked = 0;
-
 	for (int i = 0; i < _ui->listWidget->count(); i++) {
 		QListWidgetItem * item = _ui->listWidget->item(i);
 		if (item) {
-			if (item->checkState() == Qt::Checked) {
-				nbItemsChecked++;
-			} else {
+			if (item->checkState() != Qt::Checked) {
 				nbItemsUnchecked++;
 			}
 		}
 	}
-
 	int nbItems = _ui->listWidget->count();
-	if (nbItemsChecked == nbItems) {
-		allItemsChecked();
-	} else if (nbItemsUnchecked == nbItems) {
-		allItemsUnchecked();
+	if (nbItemsUnchecked == nbItems) {
+		disableOkButton();
 	} else {
-		//Back to normal
-		QPushButton * okButton = _ui->buttonBox->button(QDialogButtonBox::Ok);
-		okButton->setEnabled(true);
-		_ui->selectAllButton->setEnabled(true);
-		_ui->selectNoneButton->setEnabled(true);
+		enableOkButton();
 	}
+	///
 }
 
 void FileChooserWindow::itemPressed(QListWidgetItem * item) {
@@ -128,11 +94,9 @@ void FileChooserWindow::addFiles(const QStringList & files) {
 		item->setIcon(fileIcon);
 		item->setCheckState(Qt::Checked);
 	}
-
-	allItemsChecked();
 }
 
-QStringList FileChooserWindow::selectedFiles() {
+QStringList FileChooserWindow::selectedFiles() const {
 	QStringList files;
 
 	for (int i = 0; i < _ui->listWidget->count(); i++) {

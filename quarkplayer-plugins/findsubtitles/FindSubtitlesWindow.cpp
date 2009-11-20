@@ -48,8 +48,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
-#include <QtIOCompressor/QtIOCompressor>
-
 static const int COLUMN_LANG = 0;
 static const int COLUMN_NAME = 1;
 static const int COLUMN_FORMAT = 2;

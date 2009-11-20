@@ -1,6 +1,7 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
+ * Copyright (C) 2008  Kamil Dziobek <turbos11@gmail.com>
  * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,12 +25,6 @@
 #include <QtCore/QFile>
 #include <QtCore/QDataStream>
 #include <QtCore/QDebug>
-
-OpenSubtitlesParser::OpenSubtitlesParser() {
-}
-
-OpenSubtitlesParser::~OpenSubtitlesParser() {
-}
 
 QList<OpenSubtitlesParser::Subtitle> OpenSubtitlesParser::parseXml(const QByteArray & xml) {
 	//qDebug() << __FUNCTION__ << "OpenSubtitles XML:" << xml.constData();

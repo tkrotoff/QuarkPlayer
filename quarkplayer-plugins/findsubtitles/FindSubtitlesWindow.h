@@ -40,7 +40,7 @@ class QNetworkReply;
  *
  * Open Subtitles DataBase OSDb protocol: http://trac.opensubtitles.org/projects/opensubtitles/wiki/OSDb
  *
- * Source code taken from SMPlayer, original author: Ricardo Villalba
+ * Source code adapted from SMPlayer, original author: Ricardo Villalba
  *
  * @author Ricardo Villalba
  * @author Tanguy Krotoff

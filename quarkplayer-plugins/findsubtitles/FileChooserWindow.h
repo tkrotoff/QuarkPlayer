@@ -1,6 +1,5 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
  * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -43,19 +42,27 @@ public:
 
 	~FileChooserWindow();
 
+	/**
+	 * Add files inside the chooser window.
+	 *
+	 * @param list of filenames that will be displayed inside the chooser window
+	 */
 	void addFiles(const QStringList & files);
 
+	/** Change the default information text displayed at the top of the chooser window. */
 	void setInformationText(const QString & text);
 
+	/** Change the default Ok button text. */
 	void setOkButtonText(const QString & text);
 
-	QStringList selectedFiles();
+	/**
+	 * Gets the files selected by the user.
+	 *
+	 * @return files selected if any
+	 */
+	QStringList selectedFiles() const;
 
 private slots:
-
-	void selectAll();
-
-	void selectNone();
 
 	void itemClicked(QListWidgetItem * item);
 
@@ -63,9 +70,11 @@ private slots:
 
 private:
 
-	void allItemsChecked();
+	/** Enable the Ok button. */
+	void enableOkButton();
 
-	void allItemsUnchecked();
+	/** Disable the Ok button. */
+	void disableOkButton();
 
 	Ui::FileChooserWindow * _ui;
 
