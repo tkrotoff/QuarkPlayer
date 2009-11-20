@@ -281,50 +281,45 @@ void FindSubtitlesWindow::downloadFinished(QNetworkReply * reply) {
 }
 
 void FindSubtitlesWindow::parseXml(const QByteArray & xml) {
-	OpenSubtitlesParser parser;
-	bool ok = parser.parseXml(xml);
-
 	_model->setRowCount(0);
 
 	QMap<QString, QString> languages = Languages::iso639_1_list();
 
-	if (ok) {
-		QList<OpenSubtitlesSubtitle> list = parser.subtitleList();
-		for (int i = 0; i < list.count(); i++) {
-			OpenSubtitlesSubtitle subtitle = list[i];
+	QList<OpenSubtitlesParser::Subtitle> list = OpenSubtitlesParser::parseXml(xml);
+	for (int i = 0; i < list.count(); i++) {
+		OpenSubtitlesParser::Subtitle subtitle = list[i];
 
-			QString titleName = subtitle.movie;
-			if (!subtitle.releaseName.isEmpty()) {
-				titleName += " - " + subtitle.releaseName;
-			}
-
-			QStandardItem * itemName = new QStandardItem(titleName);
-			itemName->setData(subtitle.link);
-			itemName->setToolTip(subtitle.link);
-
-			QStandardItem * itemLang = new QStandardItem(subtitle.language);
-			itemLang->setData(subtitle.iso639, Qt::UserRole);
-			itemLang->setToolTip(subtitle.iso639);
-			if (languages.contains(subtitle.iso639)) {
-				itemLang->setText(languages[subtitle.iso639]);
-			}
-
-			_model->setItem(i, COLUMN_LANG, itemLang);
-			_model->setItem(i, COLUMN_NAME, itemName);
-			_model->setItem(i, COLUMN_FORMAT, new QStandardItem(subtitle.format));
-			_model->setItem(i, COLUMN_FILES, new QStandardItem(subtitle.files));
-			_model->setItem(i, COLUMN_DATE, new QStandardItem(subtitle.date));
-			_model->setItem(i, COLUMN_USER, new QStandardItem(subtitle.user));
+		QString titleName = subtitle.movie;
+		if (!subtitle.releaseName.isEmpty()) {
+			titleName += " - " + subtitle.releaseName;
 		}
 
-		_ui->statusLabel->setText(tr("%1 files available").arg(list.count()));
-		applyCurrentFilter();
+		QStandardItem * itemName = new QStandardItem(titleName);
+		itemName->setData(subtitle.link);
+		itemName->setToolTip(subtitle.link);
 
-		_model->sort(_ui->treeView->header()->sortIndicatorSection(),
-			_ui->treeView->header()->sortIndicatorOrder());
-	} else {
-		_ui->statusLabel->setText(tr("Failed to parse the received data"));
+		QStandardItem * itemLang = new QStandardItem(subtitle.language);
+		itemLang->setData(subtitle.iso639, Qt::UserRole);
+		itemLang->setToolTip(subtitle.iso639);
+		if (languages.contains(subtitle.iso639)) {
+			itemLang->setText(languages[subtitle.iso639]);
+		}
+
+		_model->setItem(i, COLUMN_LANG, itemLang);
+		_model->setItem(i, COLUMN_NAME, itemName);
+		_model->setItem(i, COLUMN_FORMAT, new QStandardItem(subtitle.format));
+		_model->setItem(i, COLUMN_FILES, new QStandardItem(subtitle.files));
+		_model->setItem(i, COLUMN_DATE, new QStandardItem(subtitle.date));
+		_model->setItem(i, COLUMN_USER, new QStandardItem(subtitle.user));
 	}
+
+	//_ui->statusLabel->setText(tr("Failed to parse the received data"));
+
+	_ui->statusLabel->setText(tr("%1 files available").arg(list.count()));
+	applyCurrentFilter();
+
+	_model->sort(_ui->treeView->header()->sortIndicatorSection(),
+		_ui->treeView->header()->sortIndicatorOrder());
 }
 
 void FindSubtitlesWindow::itemActivated(const QModelIndex & index) {

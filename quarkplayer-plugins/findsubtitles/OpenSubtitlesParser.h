@@ -1,7 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2008  Kamil Dziobek <turbos11@gmail.com>
  * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,29 +20,13 @@
 #ifndef OPENSUBTITLESPARSER_H
 #define OPENSUBTITLESPARSER_H
 
-#include <QtXml/QDomDocument>
-
-#include <QtCore/QObject>
-#include <QtCore/QByteArray>
 #include <QtCore/QList>
+#include <QtCore/QString>
 
-struct OpenSubtitlesSubtitle {
-	QString movie;
-	QString releaseName;
-	QString link;
-	QString iso639;
-	QString language;
-	QString date;
-	QString format;
-	QString comments;
-	QString detail;
-	QString rating;
-	QString files;
-	QString user;
-};
+class QByteArray;
 
 /**
- * Parses the web service from the website http://www.opensubtitles.org
+ * Parses the web service/XML from the website http://www.opensubtitles.org
  *
  * http://www.opensubtitles.org gives us a subtitle file given a movie filename.
  *
@@ -55,15 +38,37 @@ struct OpenSubtitlesSubtitle {
 class OpenSubtitlesParser {
 public:
 
-	OpenSubtitlesParser();
-
-	~OpenSubtitlesParser();
-
-	bool parseXml(const QByteArray & xml);
-
-	QList<OpenSubtitlesSubtitle> subtitleList() const;
+	/**
+	 * Represents a subtitle.
+	 */
+	struct Subtitle {
+		QString movie;
+		QString releaseName;
+		QString link;
+		QString iso639;
+		QString language;
+		QString date;
+		QString format;
+		QString comments;
+		QString detail;
+		QString rating;
+		QString files;
+		QString user;
+	};
 
 	/**
+	 * Parses the XML given by OpenSubtitles.org web service.
+	 *
+	 * @param xml XML
+	 * @return the list of subtitles
+	 */
+	static QList<Subtitle> parseXml(const QByteArray & xml);
+
+	/**
+	 * Computes a hash from a movie file name that identifies uniquely the movie.
+	 *
+	 * This is specific to OpenSubtitles.org
+	 *
 	 * Patch by Kamil Dziobek
 	 * Copyright (C) 2008  Kamil Dziobek <turbos11@gmail.com>
 	 * License: BSD or GPL or public domain
@@ -74,9 +79,9 @@ public:
 
 private:
 
-	QDomDocument _doc;
+	OpenSubtitlesParser();
 
-	QList<OpenSubtitlesSubtitle> _subtitles;
+	~OpenSubtitlesParser();
 };
 
 #endif	//OPENSUBTITLESPARSER_H

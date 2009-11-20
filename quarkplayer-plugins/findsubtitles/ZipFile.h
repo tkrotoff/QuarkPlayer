@@ -27,36 +27,75 @@ class QFile;
 /**
  * Unzip a .zip file.
  *
+ * Uses QtIOCompressor from Qt Solutions Catalog
+ * http://qt.nokia.com/products/appdev/add-on-products/catalog/4
+ * http://qt.nokia.com/products/appdev/add-on-products/catalog/4/Utilities/qtiocompressor/
+ *
  * @see QtIOCompressor
  * @author Tanguy Krotoff
  */
 class ZipFile {
 public:
 
+	/**
+	 * Opens a .zip file given its full path name.
+	 *
+	 * @param archive file name (full path)
+	 */
 	ZipFile(const QString & fileName);
 
 	~ZipFile();
 
+	/**
+	 * List the files contained inside the .zip file.
+	 *
+	 * @return files contained inside the archive
+	 */
 	QStringList listFiles() const;
 
+	/** Error status when extracting a file from the archive. */
 	enum ExtractFileError {
+
+		/**
+		 * No error occured while extracting the file from the archive.
+		 * The file extracted has been saved on the harddrive.
+		 */
 		ExtractFileNoError,
+
+		/**
+		 * The file specified for being extracted has not been found inside the archive,
+		 * or the .zip file couldn't be opened.
+		 */
 		ExtractFileNotFoundError,
+
+		/**
+		 * The file to be extracted has been found but couldn't be saved on the harddrive.
+		 */
 		ExtractFileWriteError
 	};
 
+	/**
+	 * Extract a given file from the .zip file.
+	 *
+	 * @param fileName the file to extract from the archive
+	 * @param outputFileName file destination
+	 * @return error status
+	 */
 	ExtractFileError extract(const QString & fileName, const QString & outputFileName) const;
 
 private:
 
+	/** Code factorization. */
 	struct FileData {
 		QString fileName;
 		quint16 compMethod;
 		QByteArray compData;
 	};
 
+	/** Code factorization. */
 	static FileData readFile(QFile & file);
 
+	/** Archive file name (full path). */
 	QString _fileName;
 };
 

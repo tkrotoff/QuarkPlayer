@@ -1,7 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2008  Kamil Dziobek <turbos11@gmail.com>
  * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,6 +19,8 @@
 
 #include "OpenSubtitlesParser.h"
 
+#include <QtXml/QDomDocument>
+
 #include <QtCore/QFile>
 #include <QtCore/QDataStream>
 #include <QtCore/QDebug>
@@ -30,18 +31,19 @@ OpenSubtitlesParser::OpenSubtitlesParser() {
 OpenSubtitlesParser::~OpenSubtitlesParser() {
 }
 
-bool OpenSubtitlesParser::parseXml(const QByteArray & xml) {
+QList<OpenSubtitlesParser::Subtitle> OpenSubtitlesParser::parseXml(const QByteArray & xml) {
 	//qDebug() << __FUNCTION__ << "OpenSubtitles XML:" << xml.constData();
 
-	_subtitles.clear();
+	QList<Subtitle> subtitles;
 
-	bool ok = _doc.setContent(xml);
+	QDomDocument doc;
+	bool ok = doc.setContent(xml);
 	if (!ok) {
 		qCritical() << __FUNCTION__ << "Error: couldn't parse the given XML";
-		return false;
+		return subtitles;
 	}
 
-	QDomNode root = _doc.documentElement();
+	QDomNode root = doc.documentElement();
 
 	QString baseUrl = root.firstChildElement("base").text();
 
@@ -49,7 +51,7 @@ bool OpenSubtitlesParser::parseXml(const QByteArray & xml) {
 	if (!child.isNull()) {
 		QDomNode subtitle = child.firstChildElement("subtitle");
 		while (!subtitle.isNull()) {
-			OpenSubtitlesSubtitle sub;
+			Subtitle sub;
 
 			sub.releaseName = subtitle.firstChildElement("releasename").text();
 			sub.link = baseUrl + subtitle.firstChildElement("download").text();
@@ -64,17 +66,13 @@ bool OpenSubtitlesParser::parseXml(const QByteArray & xml) {
 			sub.iso639 = subtitle.firstChildElement("iso639").text();
 			sub.user = subtitle.firstChildElement("user").text();
 
-			_subtitles.append(sub);
+			subtitles.append(sub);
 
 			subtitle = subtitle.nextSiblingElement("subtitle");
 		}
 	}
 
-	return true;
-}
-
-QList<OpenSubtitlesSubtitle> OpenSubtitlesParser::subtitleList() const {
-	return _subtitles;
+	return subtitles;
 }
 
 QString OpenSubtitlesParser::calculateHash(const QString & fileName) {
