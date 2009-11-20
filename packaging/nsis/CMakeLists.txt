@@ -1,6 +1,8 @@
 find_program(NSIS_EXECUTABLE
 	NAMES makensis.exe
-	PATHS "C:/Program Files/NSIS/"
+	PATHS
+		"C:/Program Files/NSIS/"
+		"C:/Program Files (x86)/NSIS/"
 )
 
 if (NSIS_EXECUTABLE)
