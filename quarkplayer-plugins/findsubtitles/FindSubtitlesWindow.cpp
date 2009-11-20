@@ -311,8 +311,6 @@ void FindSubtitlesWindow::parseXml(const QByteArray & xml) {
 		_model->setItem(i, COLUMN_USER, new QStandardItem(subtitle.user));
 	}
 
-	//_ui->statusLabel->setText(tr("Failed to parse the received data"));
-
 	_ui->statusLabel->setText(tr("%1 files available").arg(list.count()));
 	applyCurrentFilter();
 
@@ -322,8 +320,6 @@ void FindSubtitlesWindow::parseXml(const QByteArray & xml) {
 
 void FindSubtitlesWindow::itemActivated(const QModelIndex & index) {
 	int row = _filter->mapToSource(index).row();
-
-	qDebug() << __FUNCTION__ << "Row:" << row;
 
 	QString url = _model->item(row, COLUMN_NAME)->data().toString();
 	download(url);
@@ -355,7 +351,6 @@ void FindSubtitlesWindow::showContextMenu(const QPoint & pos) {
 
 void FindSubtitlesWindow::archiveDownloaded(const QByteArray & data) {
 	QTemporaryFile tmpFile(QDir::tempPath() + QDir::separator() + QCoreApplication::applicationName() + "_XXXXXX.zip");
-	//tmpFile.setAutoRemove(false);
 
 	if (tmpFile.open()) {
 		QString fileName = tmpFile.fileName();
@@ -382,10 +377,9 @@ void FindSubtitlesWindow::archiveDownloaded(const QByteArray & data) {
 bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString & outputDir, const QStringList & filter) {
 	qDebug() << __FUNCTION__ << "Zip file:" << fileName << "outputDir:" << outputDir;
 
-	ZipFile zipFile(fileName);
-
 	QStringList filesToExtract;
 
+	ZipFile zipFile(fileName);
 	QStringList filesAvailable = zipFile.listFiles();
 
 	foreach (QString fileAvailable, filesAvailable) {
@@ -399,8 +393,7 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 		FileChooserWindow fileChooserWindow(this);
 		fileChooserWindow.addFiles(filesToExtract);
 		fileChooserWindow.setInformationText(
-			tr("Please choose the subtitles to extract."
-			" Subtitles will be extracted inside the movie directory:\n%1").arg(outputDir)
+			tr("Choose the subtitles to extract inside the movie directory:\n%1").arg(outputDir)
 		);
 		fileChooserWindow.setOkButtonText(tr("Extract"));
 		fileChooserWindow.setWindowTitle(tr("Subtitles to Extract"));
@@ -425,7 +418,7 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 			QString newOutputDir = outputDir;
 			while ((error = zipFile.extract(fileToExtract, outputFileName)) == ZipFile::ExtractFileWriteError) {
 				newOutputDir = TkFileDialog::getExistingDirectory(this,
-					tr("The directory '%1' can not be written. Please choose another directory where to save '%2'").arg(newOutputDir).arg(fileToExtract),
+					tr("The directory '%1' can not be written, choose another directory where to save '%2'").arg(newOutputDir).arg(fileToExtract),
 					newOutputDir);
 				if (newOutputDir.isEmpty()) {
 					//Means that the user clicks on Cancel while choosing another directory
@@ -448,14 +441,19 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 			switch (error) {
 			case ZipFile::ExtractFileNoError:
 				qDebug() << __FUNCTION__ << "File saved:" << fileToExtract;
+				_ui->statusLabel->setText(tr("File saved: %1").arg(outputFileName));
 				filesExtracted += outputFileName;
 				break;
 			case ZipFile::ExtractFileNotFoundError:
+				qWarning() << __FUNCTION__ << "File not found inside the archive:" << fileToExtract;
+				_ui->statusLabel->setText(tr("File not found inside the archive: %1").arg(fileToExtract));
 				//Cannot do anything
 				break;
 			case ZipFile::ExtractFileWriteError:
 				//Means that the user clicks on Cancel while choosing another directory
 				//where to save the file
+				qWarning() << __FUNCTION__ << "File couldn't be written:" << fileToExtract;
+				_ui->statusLabel->setText(tr("File couldn't be written: %1").arg(fileToExtract));
 				break;
 			default:
 				qCritical() << __FUNCTION__ << "Error: unknown error:" << error;

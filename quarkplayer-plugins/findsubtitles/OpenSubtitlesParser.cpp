@@ -27,7 +27,7 @@
 #include <QtCore/QDebug>
 
 QList<OpenSubtitlesParser::Subtitle> OpenSubtitlesParser::parseXml(const QByteArray & xml) {
-	//qDebug() << __FUNCTION__ << "OpenSubtitles XML:" << xml.constData();
+	//qDebug() << __FUNCTION__ << "OpenSubtitles.org XML:" << xml.constData();
 
 	QList<Subtitle> subtitles;
 

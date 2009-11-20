@@ -27,9 +27,9 @@
 class QByteArray;
 
 /**
- * Parses the web service/XML from the website http://www.opensubtitles.org
+ * Parses the web service/XML from OpenSubtitles.org
  *
- * http://www.opensubtitles.org gives us a subtitle file given a movie filename.
+ * http://www.opensubtitles.org gives us a list of subtitles given a movie filename.
  *
  * Source code adapted from SMPlayer, original author: Ricardo Villalba
  *
@@ -40,7 +40,7 @@ class OpenSubtitlesParser {
 public:
 
 	/**
-	 * Represents a subtitle has read from OpenSubtitles.org XML.
+	 * Represents a subtitle inside OpenSubtitles.org XML format.
 	 */
 	struct Subtitle {
 		QString movie;
@@ -58,15 +58,72 @@ public:
 	};
 
 	/**
-	 * Parses the XML given by OpenSubtitles.org web service.
+	 * Parses the XML provided by OpenSubtitles.org web service.
 	 *
-	 * @param xml XML
+	 * Example of (truncated) OpenSubtitles.org XML format
+	 * Request URL is: http://www.opensubtitles.org/en/search/sublanguageid-all/moviehash-55fa82a34fd38763/simplexml
+	 * With movie being: Elephants Dream, elephantsdream-1920-hd-mpeg4-su-ac3.avi
+	 * <pre>
+	 * <?xml version="1.0" encoding="utf-8"?>
+	 * <search>
+	 * 	<base>http://www.opensubtitles.org/en</base>
+	 * 	<results items='10' itemsfound='10' searchtime='0.196'>
+	 * 		<subtitle>
+	 * 			<download>/download/sub/3303153</download>
+	 * 			<detail>/subtitles/3303153/elephants-dream-en</detail>
+	 * 			<iso639>en</iso639>
+	 * 			<user>one4all</user>
+	 * 			<releasename><![CDATA[Elephants Dream [2006]]]></releasename>
+	 * 			<idsubtitle>3303153</idsubtitle>
+	 * 			<subadddate>2008-07-10 20:08:05</subadddate>
+	 * 			<subrating>0.0</subrating>
+	 * 			<subcomments><![CDATA[0]]></subcomments>
+	 * 			<movie><![CDATA[Elephants Dream (2006)]]></movie>
+	 * 			<files>1</files>
+	 * 			<format>srt</format>
+	 * 			<language>English</language>
+	 * 		</subtitle>
+	 * 		<subtitle>
+	 * 			<download>/download/sub/3180984</download>
+	 * 			<detail>/subtitles/3180984/elephants-dream-fr</detail>
+	 * 			<iso639>fr</iso639>
+	 * 			<user>jezusazerty</user>
+	 * 			<releasename><![CDATA[Helephants Dream]]></releasename>
+	 * 			<idsubtitle>3180984</idsubtitle>
+	 * 			<subadddate>2008-01-27 22:55:30</subadddate>
+	 * 			<subrating>0.0</subrating>
+	 * 			<subcomments><![CDATA[0]]></subcomments>
+	 * 			<movie><![CDATA[Elephants Dream (2006)]]></movie>
+	 * 			<files>1</files>
+	 * 			<format>srt</format>
+	 * 			<language>French</language>
+	 * 		</subtitle>
+	 * 		<subtitle>
+	 * 			<download>/download/sub/3093137</download>
+	 * 			<detail>/subtitles/3093137/elephants-dream-es</detail>
+	 * 			<iso639>es</iso639>
+	 * 			<user>tuxsoul</user>
+	 * 			<releasename><![CDATA[Elephants Dream]]></releasename>
+	 * 			<idsubtitle>3093137</idsubtitle>
+	 * 			<subadddate>2007-01-01 10:15:30</subadddate>
+	 * 			<subrating>0.0</subrating>
+	 * 			<subcomments><![CDATA[0]]></subcomments>
+	 * 			<movie><![CDATA[Elephants Dream (2006)]]></movie>
+	 * 			<files>1</files>
+	 * 			<format>srt</format>
+	 * 			<language>Spanish</language>
+	 * 		</subtitle>
+	 * 	</results>
+	 * </search>
+	 * </pre>
+	 *
+	 * @param xml OpenSubtitles.org XML format to parse
 	 * @return the list of subtitles
 	 */
 	static QList<Subtitle> parseXml(const QByteArray & xml);
 
 	/**
-	 * Computes a hash from a movie file name that identifies uniquely the movie.
+	 * Computes a hash given a movie file name that identifies uniquely the movie.
 	 *
 	 * This is specific to OpenSubtitles.org
 	 *
