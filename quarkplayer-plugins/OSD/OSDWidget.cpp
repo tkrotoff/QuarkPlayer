@@ -38,9 +38,9 @@
 
 #include <QtGui/QtGui>
 
-Q_EXPORT_PLUGIN2(osd, OSDWidgetFactory);
+Q_EXPORT_PLUGIN2(OSD, OSDWidgetFactory);
 
-const char * OSDWidgetFactory::PLUGIN_NAME = "osd";
+const char * OSDWidgetFactory::PLUGIN_NAME = "OSD";
 
 QStringList OSDWidgetFactory::dependencies() const {
 	QStringList tmp;

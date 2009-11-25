@@ -1,31 +1,31 @@
-project(mediainfowindow)
+project(MediaInfoWindow)
 
 add_definitions(-DBUILD_MEDIAINFOWINDOW)
 
-set(mediainfowindow_SRCS
+set(MediaInfoWindow_SRCS
 	MediaInfoWindow.cpp
 	MediaInfoWidget.cpp
 )
 
-qt4_wrap_cpp(mediainfowindow_SRCS
+qt4_wrap_cpp(MediaInfoWindow_SRCS
 	MediaInfoWindow.h
 	MediaInfoWidget.h
 )
 
-qt4_wrap_ui(mediainfowindow_SRCS
+qt4_wrap_ui(MediaInfoWindow_SRCS
 	MediaInfoWindow.ui
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(mediainfowindow SHARED ${mediainfowindow_SRCS})
+add_library(MediaInfoWindow SHARED ${MediaInfoWindow_SRCS})
 
-target_link_libraries(mediainfowindow
-	mediainfofetcher
-	tkutil
-	contentfetcher
-	webbrowser
-	thumbnailview
-	filetypes
+target_link_libraries(MediaInfoWindow
+	MediaInfoFetcher
+	TkUtil
+	ContentFetcher
+	WebBrowser
+	ThumbnailView
+	FileTypes
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTNETWORK_LIBRARY}
@@ -34,6 +34,6 @@ target_link_libraries(mediainfowindow
 )
 
 # Translations
-add_qt_translations(${mediainfowindow_SRCS})
+add_qt_translations(${MediaInfoWindow_SRCS})
 
-install(TARGETS mediainfowindow ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS MediaInfoWindow ${INSTALL_TARGETS_DEFAULT_ARGS})

@@ -1,4 +1,4 @@
-project(playlist)
+project(Playlist)
 
 add_definitions(-DBUILD_PLAYLIST)
 
@@ -6,7 +6,7 @@ if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
 endif (STATICPLUGINS)
 
-set(playlist_SRCS
+set(Playlist_SRCS
 	PlaylistWidget.cpp
 	PlaylistModel.cpp
 	PlaylistFilter.cpp
@@ -14,7 +14,7 @@ set(playlist_SRCS
 	PlaylistCommandLineParser.cpp
 )
 
-qt4_wrap_cpp(playlist_SRCS
+qt4_wrap_cpp(Playlist_SRCS
 	PlaylistWidget.h
 	PlaylistModel.h
 	PlaylistFilter.h
@@ -23,28 +23,28 @@ qt4_wrap_cpp(playlist_SRCS
 )
 
 if (STATICPLUGINS)
-	add_library(playlist STATIC ${playlist_SRCS})
+	add_library(Playlist STATIC ${Playlist_SRCS})
 else (STATICPLUGINS)
-	add_library(playlist SHARED ${playlist_SRCS})
+	add_library(Playlist SHARED ${Playlist_SRCS})
 endif (STATICPLUGINS)
 
-target_link_libraries(playlist
-	quarkplayercore
+target_link_libraries(Playlist
+	QuarkPlayerCore
 
-	mainwindow
-	configwindow
+	MainWindow
+	ConfigWindow
 
-	tkutil
-	playlistparser
-	mediainfowindow
+	TkUtil
+	PlaylistParser
+	MediaInfoWindow
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )
 
 # Translations
-add_qt_translations(${playlist_SRCS})
+add_qt_translations(${Playlist_SRCS})
 
 if (NOT STATICPLUGINS)
-	install(TARGETS playlist ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+	install(TARGETS Playlist ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
 endif (NOT STATICPLUGINS)

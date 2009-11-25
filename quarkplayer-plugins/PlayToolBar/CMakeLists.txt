@@ -1,35 +1,35 @@
-project(playtoolbar)
+project(PlayToolBar)
 
 if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
 endif (STATICPLUGINS)
 
-set(playtoolbar_SRCS
+set(PlayToolBar_SRCS
 	PlayToolBar.cpp
 )
 
-qt4_wrap_cpp(playtoolbar_SRCS
+qt4_wrap_cpp(PlayToolBar_SRCS
 	PlayToolBar.h
 )
 
 if (STATICPLUGINS)
-	add_library(playtoolbar STATIC ${playtoolbar_SRCS})
+	add_library(PlayToolBar STATIC ${PlayToolBar_SRCS})
 else (STATICPLUGINS)
-	add_library(playtoolbar MODULE ${playtoolbar_SRCS})
+	add_library(PlayToolBar MODULE ${PlayToolBar_SRCS})
 endif (STATICPLUGINS)
 
-target_link_libraries(playtoolbar
-	quarkplayercore
+target_link_libraries(PlayToolBar
+	QuarkPlayerCore
 
-	mainwindow
+	MainWindow
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )
 
 # Translations
-add_qt_translations(${playtoolbar_SRCS})
+add_qt_translations(${PlayToolBar_SRCS})
 
 if (NOT STATICPLUGINS)
-	install(TARGETS playtoolbar ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+	install(TARGETS PlayToolBar ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
 endif (NOT STATICPLUGINS)

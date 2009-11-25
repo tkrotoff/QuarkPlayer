@@ -1,26 +1,27 @@
-project(thumbnailview)
+project(ThumbnailView)
 
 add_definitions(-DBUILD_THUMBNAILVIEW)
 
-set(thumbnailview_SRCS
+set(ThumbnailView_SRCS
 	ThumbnailListView.cpp
 	ThumbnailDirModel.cpp
 	ThumbnailManager.cpp
 	ThumbnailView.cpp
 )
 
-qt4_wrap_cpp(thumbnailview_SRCS
+qt4_wrap_cpp(ThumbnailView_SRCS
 	ThumbnailDirModel.h
 	ThumbnailManager.h
 	ThumbnailView.h
 )
 
-add_library(thumbnailview SHARED ${thumbnailview_SRCS})
+add_library(ThumbnailView SHARED ${ThumbnailView_SRCS})
 
-target_link_libraries(thumbnailview
-	tkutil
+target_link_libraries(ThumbnailView
+	TkUtil
+
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )
 
-install(TARGETS thumbnailview ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS ThumbnailView ${INSTALL_TARGETS_DEFAULT_ARGS})

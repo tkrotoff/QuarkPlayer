@@ -30,9 +30,9 @@
 
 #include <QtCore/QDebug>
 
-Q_EXPORT_PLUGIN2(welcome, WelcomeWindowFactory);
+Q_EXPORT_PLUGIN2(Welcome, WelcomeWindowFactory);
 
-const char * WelcomeWindowFactory::PLUGIN_NAME = "welcome";
+const char * WelcomeWindowFactory::PLUGIN_NAME = "Welcome";
 
 QStringList WelcomeWindowFactory::dependencies() const {
 	QStringList tmp;

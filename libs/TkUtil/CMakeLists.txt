@@ -1,10 +1,10 @@
-project(tkutil)
+project(TkUtil)
 
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 
 add_definitions(-DBUILD_TKUTIL)
 
-set(tkutil_SRCS
+set(TkUtil_SRCS
 	TkFileDialog.cpp
 	TkComboBox.cpp
 	EventFilter.cpp
@@ -30,7 +30,7 @@ set(tkutil_SRCS
 	SqueezeLabel.cpp
 )
 
-qt4_wrap_cpp(tkutil_SRCS
+qt4_wrap_cpp(TkUtil_SRCS
 	EventFilter.h
 	TkConfig.h
 	FindFiles.h
@@ -42,20 +42,20 @@ qt4_wrap_cpp(tkutil_SRCS
 	TkAction.h
 )
 
-add_library(tkutil SHARED ${tkutil_SRCS})
+add_library(TkUtil SHARED ${TkUtil_SRCS})
 
 if (KDE4_FOUND)
-	target_link_libraries(tkutil
+	target_link_libraries(TkUtil
 		${KDE4_KDECORE_LIBS}
 		${KDE4_KDEUI_LIBS}
 		${KDE4_KIO_LIBS}
 	)
 else (KDE4_FOUND)
-	target_link_libraries(tkutil
+	target_link_libraries(TkUtil
 		${QT_QTCORE_LIBRARY}
 		${QT_QTGUI_LIBRARY}
 		${QT_QTNETWORK_LIBRARY}
 	)
 endif (KDE4_FOUND)
 
-install(TARGETS tkutil ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS TkUtil ${INSTALL_TARGETS_DEFAULT_ARGS})

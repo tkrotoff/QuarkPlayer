@@ -30,15 +30,15 @@
 #include <quarkplayer-plugins/configwindow/ConfigWindowPlugin.h>
 #include <quarkplayer-plugins/configwindow/PlaylistConfig.h>
 
-#include <tkutil/TkIcon.h>
-#include <tkutil/TkAction.h>
-#include <tkutil/ActionCollection.h>
-#include <tkutil/TkFileDialog.h>
-#include <tkutil/LanguageChangeEventFilter.h>
-#include <tkutil/KeyEventFilter.h>
-#include <tkutil/SearchLineEdit.h>
+#include <TkUtil/TkIcon.h>
+#include <TkUtil/TkAction.h>
+#include <TkUtil/ActionCollection.h>
+#include <TkUtil/TkFileDialog.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
+#include <TkUtil/KeyEventFilter.h>
+#include <TkUtil/SearchLineEdit.h>
 
-#include <filetypes/FileTypes.h>
+#include <FileTypes/FileTypes.h>
 
 #include <playlistparser/PlaylistParser.h>
 
@@ -51,9 +51,9 @@
 
 static const char * PLAYLIST_SEARCH_HISTORY_KEY = "playlist_search_history";
 
-Q_EXPORT_PLUGIN2(playlist, PlaylistWidgetFactory);
+Q_EXPORT_PLUGIN2(Playlist, PlaylistWidgetFactory);
 
-const char * PlaylistWidgetFactory::PLUGIN_NAME = "playlist";
+const char * PlaylistWidgetFactory::PLUGIN_NAME = "Playlist";
 
 QStringList PlaylistWidgetFactory::dependencies() const {
 	QStringList tmp;

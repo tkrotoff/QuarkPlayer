@@ -33,9 +33,9 @@
 
 static const char * STATUSBAR_TIME_DIPLAY_MODE_KEY = "statusbar_time_display_mode";
 
-Q_EXPORT_PLUGIN2(statusbar, StatusBarFactory);
+Q_EXPORT_PLUGIN2(StatusBar, StatusBarFactory);
 
-const char * StatusBarFactory::PLUGIN_NAME = "statusbar";
+const char * StatusBarFactory::PLUGIN_NAME = "StatusBar";
 
 QStringList StatusBarFactory::dependencies() const {
 	QStringList tmp;

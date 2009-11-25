@@ -34,9 +34,9 @@
 
 #include <QtGui/QtGui>
 
-Q_EXPORT_PLUGIN2(playtoolbar, PlayToolBarFactory);
+Q_EXPORT_PLUGIN2(PlayToolBar, PlayToolBarFactory);
 
-const char * PlayToolBarFactory::PLUGIN_NAME = "playtoolbar";
+const char * PlayToolBarFactory::PLUGIN_NAME = "PlayToolBar";
 
 QStringList PlayToolBarFactory::dependencies() const {
 	QStringList tmp;

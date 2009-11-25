@@ -34,9 +34,9 @@
 
 #include <QtGui/QtGui>
 
-Q_EXPORT_PLUGIN2(findsubtitles, FindSubtitlesFactory);
+Q_EXPORT_PLUGIN2(FindSubtitles, FindSubtitlesFactory);
 
-const char * FindSubtitlesFactory::PLUGIN_NAME = "findsubtitles";
+const char * FindSubtitlesFactory::PLUGIN_NAME = "FindSubtitles";
 
 QStringList FindSubtitlesFactory::dependencies() const {
 	QStringList tmp;

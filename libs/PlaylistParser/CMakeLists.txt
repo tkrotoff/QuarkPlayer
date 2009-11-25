@@ -1,8 +1,8 @@
-project(playlistparser)
+project(PlaylistParser)
 
 add_definitions(-DBUILD_PLAYLISTPARSER)
 
-set(playlistparser_SRCS
+set(PlaylistParser_SRCS
 	IPlaylistParser.cpp
 	PlaylistParser.cpp
 	IPlaylistParserImpl.cpp
@@ -17,20 +17,20 @@ set(playlistparser_SRCS
 	CUEParser.cpp
 )
 
-qt4_wrap_cpp(playlistparser_SRCS
+qt4_wrap_cpp(PlaylistParser_SRCS
 	IPlaylistParser.h
 	PlaylistParser.h
 	IPlaylistParserImpl.h
 )
 
-add_library(playlistparser SHARED ${playlistparser_SRCS})
+add_library(PlaylistParser SHARED ${PlaylistParser_SRCS})
 
-target_link_libraries(playlistparser
-	mediainfofetcher
-	tkutil
+target_link_libraries(PlaylistParser
+	MediaInfoFetcher
+	TkUtil
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTXML_LIBRARY}
 )
 
-install(TARGETS playlistparser ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS PlaylistParser ${INSTALL_TARGETS_DEFAULT_ARGS})

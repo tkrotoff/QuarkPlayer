@@ -1,4 +1,4 @@
-project(configwindow)
+project(ConfigWindow)
 
 add_definitions(-DBUILD_CONFIGWINDOW -DQT_QTSINGLEAPPLICATION_IMPORT)
 
@@ -6,7 +6,7 @@ if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
 endif (STATICPLUGINS)
 
-set(configwindow_SRCS
+set(ConfigWindow_SRCS
 	ConfigWindowPlugin.cpp
 	ConfigWindow.cpp
 	GeneralConfigWidget.cpp
@@ -20,7 +20,7 @@ set(configwindow_SRCS
 	ShortcutsConfig.cpp
 )
 
-qt4_wrap_cpp(configwindow_SRCS
+qt4_wrap_cpp(ConfigWindow_SRCS
 	ConfigWindowPlugin.h
 	ConfigWindow.h
 	IConfigWidget.h
@@ -34,7 +34,7 @@ qt4_wrap_cpp(configwindow_SRCS
 	ShortcutsConfig.h
 )
 
-qt4_wrap_ui(configwindow_SRCS
+qt4_wrap_ui(ConfigWindow_SRCS
 	ConfigWindow.ui
 	GeneralConfigWidget.ui
 	SettingsBrowser.ui
@@ -46,23 +46,23 @@ qt4_wrap_ui(configwindow_SRCS
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if (STATICPLUGINS)
-	add_library(configwindow STATIC ${configwindow_SRCS})
+	add_library(ConfigWindow STATIC ${ConfigWindow_SRCS})
 else (STATICPLUGINS)
-	add_library(configwindow SHARED ${configwindow_SRCS})
+	add_library(ConfigWindow SHARED ${ConfigWindow_SRCS})
 endif (STATICPLUGINS)
 
-target_link_libraries(configwindow
-	quarkplayercore
+target_link_libraries(ConfigWindow
+	QuarkPlayerCore
 
-	mainwindow
+	MainWindow
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )
 
 # Translations
-add_qt_translations(${configwindow_SRCS})
+add_qt_translations(${ConfigWindow_SRCS})
 
 if (NOT STATICPLUGINS)
-	install(TARGETS configwindow ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+	install(TARGETS ConfigWindow ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
 endif (NOT STATICPLUGINS)

@@ -1,8 +1,8 @@
-project(zenlib)
+project(ZenLib)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-set(zenlib_SRCS
+set(ZenLib_SRCS
 	Conf.cpp
 	CriticalSection.cpp
 	Dir.cpp
@@ -29,4 +29,4 @@ set(zenlib_SRCS
 	Format/Http/Http_Utils.cpp
 )
 
-add_library(zenlib STATIC ${zenlib_SRCS})
+add_library(ZenLib STATIC ${ZenLib_SRCS})

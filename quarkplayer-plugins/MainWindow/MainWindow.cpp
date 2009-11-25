@@ -28,7 +28,7 @@
 #include <quarkplayer-plugins/playlist/PlaylistWidget.h>
 #include <quarkplayer-plugins/playlist/PlaylistModel.h>
 
-#include <tkutil/ActionCollection.h>
+#include <TkUtil/ActionCollection.h>
 #include <tkutil/TkAction.h>
 #include <tkutil/TkIcon.h>
 #include <tkutil/TkFileDialog.h>
@@ -36,7 +36,7 @@
 
 #include <filetypes/FileTypes.h>
 
-#include <qtsingleapplication/QtSingleApplication>
+#include <QtSingleApplication/QtSingleApplication>
 
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>
@@ -48,9 +48,9 @@
 
 #include <cstdio>
 
-Q_EXPORT_PLUGIN2(mainwindow, MainWindowFactory);
+Q_EXPORT_PLUGIN2(MainWindow, MainWindowFactory);
 
-const char * MainWindowFactory::PLUGIN_NAME = "mainwindow";
+const char * MainWindowFactory::PLUGIN_NAME = "MainWindow";
 
 QStringList MainWindowFactory::dependencies() const {
 	QStringList tmp;

@@ -40,17 +40,17 @@
 	//Import the static plugins
 	//Static plugins are faster than dynamic plugins:
 	//it takes almost no time to load them
-	Q_IMPORT_PLUGIN(mainwindow)
-	Q_IMPORT_PLUGIN(configwindow)
-	Q_IMPORT_PLUGIN(filebrowser)
-	Q_IMPORT_PLUGIN(findsubtitles)
-	Q_IMPORT_PLUGIN(mediacontroller)
-	Q_IMPORT_PLUGIN(playlist)
-	Q_IMPORT_PLUGIN(playtoolbar)
-	Q_IMPORT_PLUGIN(quicksettings)
-	Q_IMPORT_PLUGIN(statusbar)
-	Q_IMPORT_PLUGIN(videowidget)
-	//Q_IMPORT_PLUGIN(osd)
+	Q_IMPORT_PLUGIN(MainWindow)
+	Q_IMPORT_PLUGIN(ConfigWindow)
+	Q_IMPORT_PLUGIN(FileBrowser)
+	Q_IMPORT_PLUGIN(FindSubtitles)
+	Q_IMPORT_PLUGIN(MediaController)
+	Q_IMPORT_PLUGIN(Playlist)
+	Q_IMPORT_PLUGIN(PlayToolBar)
+	Q_IMPORT_PLUGIN(QuickSettings)
+	Q_IMPORT_PLUGIN(StatusBar)
+	Q_IMPORT_PLUGIN(VideoWidget)
+	//Q_IMPORT_PLUGIN(OSD)
 #endif	//STATICPLUGINS
 
 int main(int argc, char * argv[]) {

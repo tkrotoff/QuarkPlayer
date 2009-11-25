@@ -53,9 +53,9 @@
 
 static const char * FILEBROWSER_SEARCH_HISTORY_KEY = "filebrowser_search_history";
 
-Q_EXPORT_PLUGIN2(filebrowser, FileBrowserWidgetFactory);
+Q_EXPORT_PLUGIN2(FileBrowser, FileBrowserWidgetFactory);
 
-const char * FileBrowserWidgetFactory::PLUGIN_NAME = "filebrowser";
+const char * FileBrowserWidgetFactory::PLUGIN_NAME = "FileBrowser";
 
 QStringList FileBrowserWidgetFactory::dependencies() const {
 	QStringList tmp;

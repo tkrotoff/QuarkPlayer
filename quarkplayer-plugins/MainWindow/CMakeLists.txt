@@ -1,4 +1,4 @@
-project(mainwindow)
+project(MainWindow)
 
 add_definitions(-DBUILD_MAINWINDOW -DQT_QTSINGLEAPPLICATION_IMPORT)
 
@@ -10,7 +10,7 @@ endif (STATICPLUGINS)
 # This happens when compiling using the KDE4 libraries
 remove_definitions(-DQT_NO_STL)
 
-set(mainwindow_SRCS
+set(MainWindow_SRCS
 	MainWindow.cpp
 	AboutWindow.cpp
 )
@@ -32,25 +32,25 @@ if (MSVC)
 	endif (MSVC_VERSION GREATER 1399)
 endif (MSVC)
 
-qt4_wrap_cpp(mainwindow_SRCS
+qt4_wrap_cpp(MainWindow_SRCS
 	MainWindow.h
 )
 
-qt4_wrap_ui(mainwindow_SRCS
+qt4_wrap_ui(MainWindow_SRCS
 	AboutWindow.ui
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if (STATICPLUGINS)
-	add_library(mainwindow STATIC ${mainwindow_SRCS})
+	add_library(MainWindow STATIC ${MainWindow_SRCS})
 else (STATICPLUGINS)
-	add_library(mainwindow SHARED ${mainwindow_SRCS})
+	add_library(MainWindow SHARED ${MainWindow_SRCS})
 endif (STATICPLUGINS)
 
-target_link_libraries(mainwindow
-	quarkplayercore
+target_link_libraries(MainWindow
+	QuarkPlayerCore
 
-	qtsingleapplication
+	QtSingleApplication
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
@@ -58,12 +58,12 @@ target_link_libraries(mainwindow
 )
 
 if (MEDIAINFOLIB)
-	target_link_libraries(mainwindow mediainfo)
+	target_link_libraries(MainWindow MediaInfo)
 endif (MEDIAINFOLIB)
 
 # Translations
-add_qt_translations(${mainwindow_SRCS})
+add_qt_translations(${MainWindow_SRCS})
 
 if (NOT STATICPLUGINS)
-	install(TARGETS mainwindow ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+	install(TARGETS MainWindow ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
 endif (NOT STATICPLUGINS)

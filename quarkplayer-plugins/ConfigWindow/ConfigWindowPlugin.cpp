@@ -31,9 +31,9 @@
 
 #include <QtCore/QDebug>
 
-Q_EXPORT_PLUGIN2(configwindow, ConfigWindowPluginFactory);
+Q_EXPORT_PLUGIN2(ConfigWindow, ConfigWindowPluginFactory);
 
-const char * ConfigWindowPluginFactory::PLUGIN_NAME = "configwindow";
+const char * ConfigWindowPluginFactory::PLUGIN_NAME = "ConfigWindow";
 
 QStringList ConfigWindowPluginFactory::dependencies() const {
 	QStringList tmp;

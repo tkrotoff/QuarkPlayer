@@ -1,15 +1,15 @@
-project(filetypes)
+project(FileTypes)
 
 add_definitions(-DBUILD_FILETYPES)
 
-set(filetypes_SRCS
+set(FileTypes_SRCS
 	FileTypes.cpp
 )
 
-add_library(filetypes SHARED ${filetypes_SRCS})
+add_library(FileTypes SHARED ${FileTypes_SRCS})
 
-target_link_libraries(filetypes
+target_link_libraries(FileTypes
 	${QT_QTCORE_LIBRARY}
 )
 
-install(TARGETS filetypes ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS FileTypes ${INSTALL_TARGETS_DEFAULT_ARGS})

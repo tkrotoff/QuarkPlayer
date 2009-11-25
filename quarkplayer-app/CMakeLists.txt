@@ -51,8 +51,8 @@ else (CMAKE_BUILD_TYPE STREQUAL Debug)
 endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
 target_link_libraries(quarkplayer
-	quarkplayercore
-	tkutil
+	QuarkPlayerCore
+	TkUtil
 
 	QtSingleApplication
 
@@ -67,17 +67,17 @@ if (STATICPLUGINS)
 	# Static plugins are faster than dynamic plugins:
 	# it takes almost no time to load them
 	target_link_libraries(quarkplayer
-		mainwindow
-		configwindow
-		filebrowser
-		findsubtitles
-		mediacontroller
-		playlist
-		playtoolbar
-		quicksettings
-		statusbar
-		videowidget
-		#osd
+		MainWindow
+		ConfigWindow
+		FileBrowser
+		FindSubtitles
+		MediaController
+		Playlist
+		PlayToolBar
+		QuickSettings
+		StatusBar
+		VideoWidget
+		#OSD
 	)
 endif (STATICPLUGINS)
 

@@ -1,4 +1,4 @@
-project(filebrowser)
+project(FileBrowser)
 
 add_definitions(-DBUILD_FILEBROWSER)
 
@@ -6,7 +6,7 @@ if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
 endif (STATICPLUGINS)
 
-set(filebrowser_SRCS
+set(FileBrowser_SRCS
 	FileBrowserWidget.cpp
 	FileBrowserTreeView.cpp
 	FileSearchModel.cpp
@@ -14,34 +14,35 @@ set(filebrowser_SRCS
 	config/FileBrowserConfigWidget.cpp
 )
 
-qt4_wrap_cpp(filebrowser_SRCS
+qt4_wrap_cpp(FileBrowser_SRCS
 	FileBrowserWidget.h
 	FileBrowserTreeView.h
 	FileSearchModel.h
 	config/FileBrowserConfigWidget.h
 )
 
-qt4_wrap_ui(filebrowser_SRCS
+qt4_wrap_ui(FileBrowser_SRCS
 	config/FileBrowserConfigWidget.ui
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if (STATICPLUGINS)
-	add_library(filebrowser STATIC ${filebrowser_SRCS})
+	add_library(FileBrowser STATIC ${FileBrowser_SRCS})
 else (STATICPLUGINS)
-	add_library(filebrowser SHARED ${filebrowser_SRCS})
+	add_library(FileBrowser SHARED ${FileBrowser_SRCS})
 endif (STATICPLUGINS)
 
-target_link_libraries(filebrowser
-	quarkplayercore
+target_link_libraries(FileBrowser
+	QuarkPlayerCore
 
-	mainwindow
-	configwindow
-	playlist
+	MainWindow
+	ConfigWindow
+	Playlist
 
-	filetypes
-	tkutil
-	mediainfowindow
+	FileTypes
+	TkUtil
+	MediaInfoWindow
+
 	modeltest
 
 	${QT_QTCORE_LIBRARY}
@@ -49,8 +50,8 @@ target_link_libraries(filebrowser
 )
 
 # Translations
-add_qt_translations(${filebrowser_SRCS})
+add_qt_translations(${FileBrowser_SRCS})
 
 if (NOT STATICPLUGINS)
-	install(TARGETS filebrowser ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+	install(TARGETS FileBrowser ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
 endif (NOT STATICPLUGINS)

@@ -1,4 +1,4 @@
-project(mediainfofetcher)
+project(MediaInfoFetcher)
 
 if (TAGLIB)
 	# This is because of the pretty strange taglib structure
@@ -15,7 +15,7 @@ add_definitions(-DBUILD_MEDIAINFOFETCHER)
 remove_definitions(-DQT_NO_STL)
 remove_definitions(-DQT_NO_STL_WCHAR)
 
-set(mediainfofetcher_SRCS
+set(MediaInfoFetcher_SRCS
 	MediaInfoFetcher.cpp
 	MediaInfo.cpp
 )
@@ -37,15 +37,15 @@ if (MSVC)
 	endif (MSVC_VERSION GREATER 1399)
 endif (MSVC)
 
-qt4_wrap_cpp(mediainfofetcher_SRCS
+qt4_wrap_cpp(MediaInfoFetcher_SRCS
 	MediaInfoFetcher.h
 )
 
-add_library(mediainfofetcher SHARED ${mediainfofetcher_SRCS})
+add_library(MediaInfoFetcher SHARED ${MediaInfoFetcher_SRCS})
 
-target_link_libraries(mediainfofetcher
-	tkutil
-	filetypes
+target_link_libraries(MediaInfoFetcher
+	TkUtil
+	FileTypes
 
 	${QT_QTCORE_LIBRARY}
 	${QT_PHONON_LIBRARY}
@@ -54,15 +54,15 @@ target_link_libraries(mediainfofetcher
 if (UNIX)
 	# Otherwise dlopen, dlsym, dlclose are unresolved
 	# This happens when compiling using the KDE4 libraries
-	target_link_libraries(mediainfofetcher dl)
+	target_link_libraries(MediaInfoFetcher dl)
 endif (UNIX)
 
 if (TAGLIB)
-	target_link_libraries(mediainfofetcher tag)
+	target_link_libraries(MediaInfoFetcher tag)
 endif (TAGLIB)
 
 if (MEDIAINFOLIB)
-	target_link_libraries(mediainfofetcher mediainfo)
+	target_link_libraries(MediaInfoFetcher MediaInfo)
 endif (MEDIAINFOLIB)
 
-install(TARGETS mediainfofetcher ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS MediaInfoFetcher ${INSTALL_TARGETS_DEFAULT_ARGS})

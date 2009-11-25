@@ -1,4 +1,4 @@
-project(quarkplayercore)
+project(QuarkPlayerCore)
 
 # Cannot put it inside ${CMAKE_CURRENT_BINARY_DIR} this it
 # is used by external components (i.e plugins) and the API must
@@ -23,7 +23,7 @@ configure_file(metrics.h.in ${CMAKE_CURRENT_SOURCE_DIR}/metrics.h)
 
 add_definitions(-DBUILD_QUARKPLAYER -DQT_QTSINGLEAPPLICATION_IMPORT)
 
-set(quarkplayercore_SRCS
+set(QuarkPlayerCore_SRCS
 	${CMAKE_CURRENT_BINARY_DIR}/version.cpp
 	QuarkPlayer.cpp
 	PluginInterface.cpp
@@ -38,7 +38,7 @@ set(quarkplayercore_SRCS
 	config/Config.cpp
 )
 
-qt4_wrap_cpp(quarkplayercore_SRCS
+qt4_wrap_cpp(QuarkPlayerCore_SRCS
 	QuarkPlayer.h
 	PluginManager.h
 	CommandLineManager.h
@@ -46,11 +46,11 @@ qt4_wrap_cpp(quarkplayercore_SRCS
 	config/Config.h
 )
 
-add_library(quarkplayercore SHARED ${quarkplayercore_SRCS})
+add_library(QuarkPlayerCore SHARED ${QuarkPlayerCore_SRCS})
 
-target_link_libraries(quarkplayercore
-	tkutil
-	filetypes
+target_link_libraries(QuarkPlayerCore
+	TkUtil
+	FileTypes
 
 	QtSingleApplication
 
@@ -64,10 +64,10 @@ target_link_libraries(quarkplayercore
 if (UNIX)
 	# Otherwise dlopen, dlsym, dlclose are unresolved
 	# This happens when compiling using the KDE4 libraries
-	target_link_libraries(quarkplayercore dl)
+	target_link_libraries(QuarkPlayerCore dl)
 endif (UNIX)
 
 # Translations
-add_qt_translations(${quarkplayercore_SRCS})
+add_qt_translations(${QuarkPlayerCore_SRCS})
 
-install(TARGETS quarkplayercore ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS QuarkPlayerCore ${INSTALL_TARGETS_DEFAULT_ARGS})

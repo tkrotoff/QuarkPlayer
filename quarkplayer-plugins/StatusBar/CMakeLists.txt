@@ -1,35 +1,35 @@
-project(statusbar)
+project(StatusBar)
 
 if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
 endif (STATICPLUGINS)
 
-set(statusbar_SRCS
+set(StatusBar_SRCS
 	StatusBar.cpp
 )
 
-qt4_wrap_cpp(statusbar_SRCS
+qt4_wrap_cpp(StatusBar_SRCS
 	StatusBar.h
 )
 
 if (STATICPLUGINS)
-	add_library(statusbar STATIC ${statusbar_SRCS})
+	add_library(StatusBar STATIC ${StatusBar_SRCS})
 else (STATICPLUGINS)
-	add_library(statusbar MODULE ${statusbar_SRCS})
+	add_library(StatusBar MODULE ${StatusBar_SRCS})
 endif (STATICPLUGINS)
 
-target_link_libraries(statusbar
-	quarkplayercore
+target_link_libraries(StatusBar
+	QuarkPlayerCore
 
-	mainwindow
+	MainWindow
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )
 
 # Translations
-add_qt_translations(${statusbar_SRCS})
+add_qt_translations(${StatusBar_SRCS})
 
 if (NOT STATICPLUGINS)
-	install(TARGETS statusbar ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+	install(TARGETS StatusBar ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
 endif (NOT STATICPLUGINS)

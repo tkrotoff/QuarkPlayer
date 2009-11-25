@@ -40,9 +40,9 @@
 
 #include <QtCore/QDebug>
 
-Q_EXPORT_PLUGIN2(quicksettings, QuickSettingsWindowFactory);
+Q_EXPORT_PLUGIN2(QuickSettings, QuickSettingsWindowFactory);
 
-const char * QuickSettingsWindowFactory::PLUGIN_NAME = "quicksettings";
+const char * QuickSettingsWindowFactory::PLUGIN_NAME = "QuickSettings";
 
 QStringList QuickSettingsWindowFactory::dependencies() const {
 	QStringList tmp;

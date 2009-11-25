@@ -1,4 +1,4 @@
-project(mediainfo)
+project(MediaInfo)
 
 set(MEDIAINFO_MAJOR_VERSION 0)
 set(MEDIAINFO_MINOR_VERSION 7)
@@ -11,7 +11,7 @@ include_directories(${ZLIB_INCLUDE_DIR})
 
 add_definitions(-DMEDIAINFO_MINIMIZESIZE)
 
-set(mediainfo_SRCS
+set(MediaInfo_SRCS
 	File__Analyze.cpp
 	File__Analyze_Buffer.cpp
 	File__Analyze_Buffer_MinimizeSize.cpp
@@ -139,21 +139,21 @@ set(mediainfo_SRCS
 
 if (WIN32)
 	# FIXME MediaInfo.rc should use ${MEDIAINFO_MAJOR_VERSION} and friends
-	list(APPEND mediainfo_SRCS
+	list(APPEND MediaInfo_SRCS
 		MediaInfo.rc
 	)
 endif (WIN32)
 
-add_library(mediainfo SHARED ${mediainfo_SRCS})
+add_library(MediaInfo SHARED ${MediaInfo_SRCS})
 
-target_link_libraries(mediainfo
-	zenlib
+target_link_libraries(MediaInfo
+	ZenLib
 	${ZLIB_LIBRARY}
 )
 
-set_target_properties(mediainfo PROPERTIES
+set_target_properties(MediaInfo PROPERTIES
 	VERSION ${MEDIAINFO_VERSION}
 	SOVERSION ${MEDIAINFO_MAJOR_VERSION}
 )
 
-install(TARGETS mediainfo ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS MediaInfo ${INSTALL_TARGETS_DEFAULT_ARGS})

@@ -1,21 +1,21 @@
-project(webbrowsertest)
+project(WebBrowserTest)
 
-set(webbrowsertest_SRCS
+set(WebBrowserTest_SRCS
 	WebBrowserTest.cpp
 )
 
-qt4_wrap_cpp(webbrowsertest_SRCS
+qt4_wrap_cpp(WebBrowserTest_SRCS
 	WebBrowserTest.h
 )
 
-add_executable(webbrowsertest ${webbrowsertest_SRCS})
+add_executable(WebBrowserTest ${WebBrowserTest_SRCS})
 
-target_link_libraries(webbrowsertest
-	webbrowser
-	contentfetcher
+target_link_libraries(WebBrowserTest
+	WebBrowser
+	ContentFetcher
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )
 
-install(TARGETS webbrowsertest ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS WebBrowserTest ${INSTALL_TARGETS_DEFAULT_ARGS})

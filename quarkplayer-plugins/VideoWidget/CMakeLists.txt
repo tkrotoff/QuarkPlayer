@@ -1,44 +1,44 @@
-project(videowidget)
+project(VideoWidget)
 
 if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
 endif (STATICPLUGINS)
 
-set(videowidget_SRCS
+set(VideoWidget_SRCS
 	VideoWidgetPlugin.cpp
 	VideoWidget.cpp
 	MediaDataWidget.cpp
 )
 
-qt4_wrap_cpp(videowidget_SRCS
+qt4_wrap_cpp(VideoWidget_SRCS
 	VideoWidgetPlugin.h
 	VideoWidget.h
 	MediaDataWidget.h
 )
 
-qt4_wrap_ui(videowidget_SRCS
+qt4_wrap_ui(VideoWidget_SRCS
 	BackgroundLogoWidget.ui
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if (STATICPLUGINS)
-	add_library(videowidget STATIC ${videowidget_SRCS})
+	add_library(VideoWidget STATIC ${VideoWidget_SRCS})
 else (STATICPLUGINS)
-	add_library(videowidget MODULE ${videowidget_SRCS})
+	add_library(VideoWidget MODULE ${VideoWidget_SRCS})
 endif (STATICPLUGINS)
 
-target_link_libraries(videowidget
-	quarkplayercore
-	mainwindow
-	mediainfowindow
+target_link_libraries(VideoWidget
+	QuarkPlayerCore
+	MainWindow
+	MediaInfoWindow
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 )
 
 # Translations
-add_qt_translations(${videowidget_SRCS})
+add_qt_translations(${VideoWidget_SRCS})
 
 if (NOT STATICPLUGINS)
-	install(TARGETS videowidget ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+	install(TARGETS VideoWidget ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
 endif (NOT STATICPLUGINS)

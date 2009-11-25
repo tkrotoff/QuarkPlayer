@@ -38,9 +38,9 @@
 
 #include <QtCore/QDebug>
 
-Q_EXPORT_PLUGIN2(videowidget, VideoWidgetPluginFactory);
+Q_EXPORT_PLUGIN2(VideoWidget, VideoWidgetPluginFactory);
 
-const char * VideoWidgetPluginFactory::PLUGIN_NAME = "videowidget";
+const char * VideoWidgetPluginFactory::PLUGIN_NAME = "VideoWidget";
 
 QStringList VideoWidgetPluginFactory::dependencies() const {
 	QStringList tmp;

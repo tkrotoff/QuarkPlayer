@@ -44,9 +44,9 @@
 #include <QtCore/QSignalMapper>
 #include <QtCore/QDebug>
 
-Q_EXPORT_PLUGIN2(mediacontroller, MediaControllerFactory);
+Q_EXPORT_PLUGIN2(MediaController, MediaControllerFactory);
 
-const char * MediaControllerFactory::PLUGIN_NAME = "mediacontroller";
+const char * MediaControllerFactory::PLUGIN_NAME = "MediaController";
 
 QStringList MediaControllerFactory::dependencies() const {
 	QStringList tmp;

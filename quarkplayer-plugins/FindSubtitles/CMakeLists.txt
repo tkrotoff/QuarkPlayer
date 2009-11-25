@@ -1,10 +1,10 @@
-project(findsubtitles)
+project(FindSubtitles)
 
 if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
 endif (STATICPLUGINS)
 
-set(findsubtitles_SRCS
+set(FindSubtitles_SRCS
 	FindSubtitles.cpp
 	FindSubtitlesWindow.cpp
 	OpenSubtitlesParser.cpp
@@ -12,28 +12,28 @@ set(findsubtitles_SRCS
 	ZipFile.cpp
 )
 
-qt4_wrap_cpp(findsubtitles_SRCS
+qt4_wrap_cpp(FindSubtitles_SRCS
 	FindSubtitles.h
 	FindSubtitlesWindow.h
 	FileChooserWindow.h
 )
 
-qt4_wrap_ui(findsubtitles_SRCS
+qt4_wrap_ui(FindSubtitles_SRCS
 	FindSubtitlesWindow.ui
 	FileChooserWindow.ui
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if (STATICPLUGINS)
-	add_library(findsubtitles STATIC ${findsubtitles_SRCS})
+	add_library(FindSubtitles STATIC ${FindSubtitles_SRCS})
 else (STATICPLUGINS)
-	add_library(findsubtitles MODULE ${findsubtitles_SRCS})
+	add_library(FindSubtitles MODULE ${FindSubtitles_SRCS})
 endif (STATICPLUGINS)
 
-target_link_libraries(findsubtitles
-	quarkplayercore
-	mainwindow
-	tkutil
+target_link_libraries(FindSubtitles
+	QuarkPlayerCore
+	MainWindow
+	TkUtil
 
 	QtIOCompressor
 
@@ -44,8 +44,8 @@ target_link_libraries(findsubtitles
 )
 
 # Translations
-add_qt_translations(${findsubtitles_SRCS})
+add_qt_translations(${FindSubtitles_SRCS})
 
 if (NOT STATICPLUGINS)
-	install(TARGETS findsubtitles ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
+	install(TARGETS FindSubtitles ${INSTALL_TARGETS_PLUGINS_DEFAULT_ARGS})
 endif (NOT STATICPLUGINS)
