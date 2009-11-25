@@ -53,7 +53,9 @@ endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 target_link_libraries(quarkplayer
 	quarkplayercore
 	tkutil
-	qtsingleapplication
+
+	QtSingleApplication
+
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 	${QT_PHONON_LIBRARY}

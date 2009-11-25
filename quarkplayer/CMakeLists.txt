@@ -51,7 +51,8 @@ add_library(quarkplayercore SHARED ${quarkplayercore_SRCS})
 target_link_libraries(quarkplayercore
 	tkutil
 	filetypes
-	qtsingleapplication
+
+	QtSingleApplication
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}

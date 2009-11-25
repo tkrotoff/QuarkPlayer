@@ -34,7 +34,8 @@ target_link_libraries(findsubtitles
 	quarkplayercore
 	mainwindow
 	tkutil
-	qtiocompressor
+
+	QtIOCompressor
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}

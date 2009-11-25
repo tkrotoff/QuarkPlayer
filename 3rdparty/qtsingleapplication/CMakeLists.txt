@@ -1,25 +1,25 @@
-project(qtsingleapplication)
+project(QtSingleApplication)
 
 add_definitions(-DQT_QTSINGLEAPPLICATION_EXPORT)
 
-set(qtsingleapplication_SRCS
+set(QtSingleApplication_SRCS
 	qtsinglecoreapplication.cpp
 	qtsingleapplication.cpp
 	qtlocalpeer.cpp
 )
 
-qt4_wrap_cpp(qtsingleapplication_SRCS
+qt4_wrap_cpp(QtSingleApplication_SRCS
 	qtsinglecoreapplication.h
 	qtsingleapplication.h
 	qtlocalpeer.h
 )
 
-add_library(qtsingleapplication SHARED ${qtsingleapplication_SRCS})
+add_library(QtSingleApplication SHARED ${QtSingleApplication_SRCS})
 
-target_link_libraries(qtsingleapplication
+target_link_libraries(QtSingleApplication
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
 	${QT_QTNETWORK_LIBRARY}
 )
 
-install(TARGETS qtsingleapplication ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS QtSingleApplication ${INSTALL_TARGETS_DEFAULT_ARGS})
