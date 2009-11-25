@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,7 +22,7 @@
 /**
  * Header template with copyright and GNU LGPL license.
  *
- * End of line character should be LF (UNIX) instead of CR LF (Windows) or CR (MacOS).
+ * End of line character should be LF (UNIX).
  * Code documentation should be inside header files using the javadoc standard.
  *
  * @see http://code.google.com/p/quarkplayer/wiki/CodeConventions
