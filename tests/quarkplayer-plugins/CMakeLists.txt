@@ -1,1 +1,1 @@
-add_subdirectory(findsubtitles)
+add_subdirectory(FindSubtitles)

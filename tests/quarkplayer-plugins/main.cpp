@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "filebrowser/FileSearchModelTest.h"
-#include "playlist/PlaylistModelTest.h"
+#include "FileBrowser/FileSearchModelTest.h"
+#include "Playlist/PlaylistModelTest.h"
 
 #include <QtGui/QApplication>
 
