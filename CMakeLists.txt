@@ -139,9 +139,9 @@ endif (TAGLIB)
 ##
 
 # 3rdparty libraries with Qt dependency
-add_subdirectory(3rdparty/qtiocompressor)
+add_subdirectory(3rdparty/QtIOCompressor)
 add_subdirectory(3rdparty/modeltest)
-add_subdirectory(3rdparty/qtsingleapplication)
+add_subdirectory(3rdparty/QtSingleApplication)
 ##
 
 # 3rdparty libraries with Qt and Phonon dependency
