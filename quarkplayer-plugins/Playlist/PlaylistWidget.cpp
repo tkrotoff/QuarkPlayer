@@ -242,8 +242,8 @@ void PlaylistWidget::retranslate() {
 	_searchLineEdit->clearButton()->setToolTip(tr("Clear Search"));
 	_searchLineEdit->clearButton()->setIcon(TkIcon("edit-clear-locationbar-rtl"));
 
-	_searchLineEdit->showWordListButton()->setToolTip(tr("Previous Searches"));
-	_searchLineEdit->showWordListButton()->setIcon(TkIcon("go-down-search"));
+	_searchLineEdit->wordListButton()->setToolTip(tr("Previous Searches"));
+	_searchLineEdit->wordListButton()->setIcon(TkIcon("go-down-search"));
 
 	_searchLineEdit->setToolTip(tr("Search the playlist, use whitespaces to separate words"));
 	_searchLineEdit->setClickMessage(tr("Search"));
