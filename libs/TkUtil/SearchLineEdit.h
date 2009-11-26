@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,7 @@
 
 #include <TkUtil/tkutil_export.h>
 
-#include <TkUtil/LineEdit.h>
-
-#include <QtGui/QPalette>
+#include <QtGui/QLineEdit>
 
 #include <QtCore/QString>
 
@@ -34,29 +32,35 @@ class QStringListModel;
  * Special QLineEdit for searches.
  *
  * QLineEdit with a tooltip that disappears when the user clicks on it.
- * Contains 2 buttons: one to clear the search and one to list the previous searches.
+ * Contains 2 buttons: one to clear the QLineEdit and one to list the previous searches.
  *
- * Inspired by KLineEdit, most of the code is from klineedit.cpp.
+ * Inspired by KLineEdit.
  *
+ * @see http://blog.forwardbias.in/2009/11/research-cleanup-part-2.html
+ * @see http://labs.trolltech.com/blogs/2007/06/06/lineedit-with-a-clear-button/
  * @see QLineEdit
  * @see KLineEdit
  * @author Tanguy Krotoff
  */
-class TKUTIL_API SearchLineEdit : public LineEdit {
+class TKUTIL_API SearchLineEdit : public QLineEdit {
 	Q_OBJECT
 public:
 
 	SearchLineEdit(QWidget * parent = 0);
 
+	/** Creates a SearchLineEdit given a list of words. */
 	SearchLineEdit(const QStringList & wordList, QWidget * parent = 0);
 
 	~SearchLineEdit();
 
+	/** Gets the list of previous searches. */
 	QStringList wordList() const;
 
+	/** Gets the clear button. */
 	QToolButton * clearButton() const;
 
-	QToolButton * showWordListButton() const;
+	/** Gets the button that list the previous searches. */
+	QToolButton * wordListButton() const;
 
 public slots:
 
@@ -66,29 +70,39 @@ public slots:
 	 */
 	void setClickMessage(const QString & message);
 
+	/** Add some standard text that won't disappear when clicking inside the QLineEdit. */
 	void setText(const QString & text);
 
+	/** Add a word to the list of words showed by the wordListButton. */
 	void addWord(const QString & word);
 
 private slots:
 
+	/** Hide or show the clear button depending if the QLineEdit contains some text or not. */
 	void updateClearButton(const QString & text);
 
+	/** Shows the previous searches inside the wordListButton. */
 	void showWordList();
 
 private:
 
 	void init(const QStringList & wordList);
 
+	/** Compute the positions of both the clear and word list buttons. */
+	void resizeEvent(QResizeEvent * event);
+
+	/** Gray-out the QLineEdit text. */
 	void paintEvent(QPaintEvent * event);
 
 	void focusInEvent(QFocusEvent * event);
 
 	void focusOutEvent(QFocusEvent * event);
 
+	/** Button to clear current QLineEdit text. */
 	QToolButton * _clearButton;
 
-	QToolButton * _showWordListButton;
+	/** Button that shows the previous searches. */
+	QToolButton * _wordListButton;
 
 	bool _enableClickMessage;
 

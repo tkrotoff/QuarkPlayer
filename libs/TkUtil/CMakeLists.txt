@@ -25,7 +25,6 @@ set(TkUtil_SRCS
 	FileChooserWidget.cpp
 	ScreenSaver.cpp
 	SearchLineEdit.cpp
-	LineEdit.cpp
 	TkAction.cpp
 	SqueezeLabel.cpp
 )
@@ -36,8 +35,6 @@ qt4_wrap_cpp(TkUtil_SRCS
 	FindFiles.h
 	FileChooserWidget.h
 	SearchLineEdit.h
-	LineEdit.h
-	LineEdit_p.h
 	ProxyStyle.h
 	TkAction.h
 )

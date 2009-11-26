@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +25,13 @@
 #include <QtCore/QDebug>
 
 SearchLineEdit::SearchLineEdit(QWidget * parent)
-	: LineEdit(parent) {
+	: QLineEdit(parent) {
 
 	init(QStringList());
 }
 
 SearchLineEdit::SearchLineEdit(const QStringList & wordList, QWidget * parent)
-	: LineEdit(parent) {
+	: QLineEdit(parent) {
 
 	init(wordList);
 }
@@ -45,20 +45,30 @@ void SearchLineEdit::init(const QStringList & wordList) {
 	_drawClickMessage = false;
 
 	//Clear button
-	_clearButton = new QToolButton(NULL);
+	_clearButton = new QToolButton(this);
 	_clearButton->setCursor(Qt::ArrowCursor);
 	_clearButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
 	_clearButton->hide();
 	connect(_clearButton, SIGNAL(clicked()), SLOT(clear()));
 	connect(this, SIGNAL(textChanged(const QString &)), SLOT(updateClearButton(const QString &)));
 
-	//Show word list button
-	_showWordListButton = new QToolButton(NULL);
-	_showWordListButton->setCursor(Qt::ArrowCursor);
-	_showWordListButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
-	connect(_showWordListButton, SIGNAL(clicked()), SLOT(showWordList()));
-	_showWordListButton->setEnabled(!wordList.isEmpty());
-	addWidget(_showWordListButton, RightSide);
+	//Word list button
+	_wordListButton = new QToolButton(this);
+	_wordListButton->setCursor(Qt::ArrowCursor);
+	_wordListButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
+	connect(_wordListButton, SIGNAL(clicked()), SLOT(showWordList()));
+	_wordListButton->setEnabled(!wordList.isEmpty());
+
+	//Compute the right margin so that the text does not overlap the clear button
+	//and the word list button
+	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+	setStyleSheet(QString("QLineEdit { padding-right: %1px; }").arg(
+			_clearButton->sizeHint().width() + _wordListButton->sizeHint().width() + frameWidth + 1));
+
+	//Compute minimum size for the SearchLineEdit
+	QSize sizeHint = minimumSizeHint();
+	setMinimumSize(qMax(sizeHint.width(), _clearButton->sizeHint().height() + frameWidth * 2 + 2),
+		qMax(sizeHint.height(), _clearButton->sizeHint().height() + frameWidth * 2 + 2));
 
 	//Search completion
 	_stringListModel = new QStringListModel();
@@ -72,21 +82,27 @@ QToolButton * SearchLineEdit::clearButton() const {
 	return _clearButton;
 }
 
-QToolButton * SearchLineEdit::showWordListButton() const {
-	return _showWordListButton;
+QToolButton * SearchLineEdit::wordListButton() const {
+	return _wordListButton;
+}
+
+void SearchLineEdit::resizeEvent(QResizeEvent * event) {
+	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+
+	QSize wordListButtonSizeHint = _clearButton->sizeHint();
+	_wordListButton->move(rect().right() - frameWidth - wordListButtonSizeHint.width(),
+			(rect().bottom() + 1 - wordListButtonSizeHint.height()) / 2);
+
+	QSize clearButtonSizeHint = _clearButton->sizeHint();
+	_clearButton->move(rect().right() - frameWidth - wordListButtonSizeHint.width() - clearButtonSizeHint.width() ,
+			(rect().bottom() + 1 - clearButtonSizeHint.height()) / 2);
 }
 
 void SearchLineEdit::paintEvent(QPaintEvent * event) {
-	LineEdit::paintEvent(event);
+	QLineEdit::paintEvent(event);
 
 	if (_enableClickMessage && _drawClickMessage && !hasFocus() && text().isEmpty()) {
 		QPainter p(this);
-		//No italic, difficult to read
-		//QFont f = font();
-		//f.setItalic(true);
-		//p.setFont(f);
-		///
-
 		p.setPen(palette().color(QPalette::Disabled, QPalette::Text));
 
 		//FIXME: fugly alert!
@@ -109,7 +125,7 @@ void SearchLineEdit::focusInEvent(QFocusEvent * event) {
 		_drawClickMessage = false;
 		update();
 	}
-	LineEdit::focusInEvent(event);
+	QLineEdit::focusInEvent(event);
 }
 
 void SearchLineEdit::focusOutEvent(QFocusEvent * event) {
@@ -117,7 +133,7 @@ void SearchLineEdit::focusOutEvent(QFocusEvent * event) {
 		_drawClickMessage = true;
 		update();
 	}
-	LineEdit::focusOutEvent(event);
+	QLineEdit::focusOutEvent(event);
 }
 
 void SearchLineEdit::setClickMessage(const QString & message) {
@@ -132,17 +148,11 @@ void SearchLineEdit::setText(const QString & text) {
 		_drawClickMessage = text.isEmpty();
 		update();
 	}
-	LineEdit::setText(text);
+	QLineEdit::setText(text);
 }
 
 void SearchLineEdit::updateClearButton(const QString & text) {
-	if (!text.isEmpty()) {
-		addWidget(_clearButton, RightSide);
-		_clearButton->show();
-	} else {
-		removeWidget(_clearButton);
-		_clearButton->hide();
-	}
+	_clearButton->setVisible(!text.isEmpty());
 }
 
 void SearchLineEdit::showWordList() {
@@ -168,5 +178,5 @@ void SearchLineEdit::addWord(const QString & word) {
 	}
 	_stringListModel->setStringList(wordList);
 
-	_showWordListButton->setEnabled(!wordList.isEmpty());
+	_wordListButton->setEnabled(!wordList.isEmpty());
 }
