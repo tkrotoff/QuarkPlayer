@@ -18,7 +18,7 @@ qt4_add_resources(FindSubtitlesTest_SRCS
 add_executable(FindSubtitlesTest ${FindSubtitlesTest_SRCS})
 
 target_link_libraries(FindSubtitlesTest
-	findsubtitles
+	FindSubtitles
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
