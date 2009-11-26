@@ -21,7 +21,7 @@
 
 #include <quarkplayer/PluginData.h>
 
-#include <tkutil/Singleton.h>
+#include <TkUtil/Singleton.h>
 
 /**
  * Load and save QuarkPlayer plugins configuration.

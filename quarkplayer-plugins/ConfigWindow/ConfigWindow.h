@@ -19,7 +19,7 @@
 #ifndef CONFIGWINDOW_H
 #define CONFIGWINDOW_H
 
-#include <quarkplayer-plugins/configwindow/configwindow_export.h>
+#include <quarkplayer-plugins/ConfigWindow/configwindow_export.h>
 
 #include <QtGui/QDialog>
 

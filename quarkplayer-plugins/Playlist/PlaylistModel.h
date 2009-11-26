@@ -19,9 +19,9 @@
 #ifndef PLAYLISTMODEL_H
 #define PLAYLISTMODEL_H
 
-#include <quarkplayer-plugins/playlist/playlist_export.h>
+#include <quarkplayer-plugins/Playlist/playlist_export.h>
 
-#include <playlistparser/PlaylistParser.h>
+#include <PlaylistParser/PlaylistParser.h>
 
 #include <phonon/phononnamespace.h>
 

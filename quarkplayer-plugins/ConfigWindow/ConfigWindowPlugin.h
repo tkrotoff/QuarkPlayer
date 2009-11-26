@@ -19,7 +19,7 @@
 #ifndef CONFIGWINDOWPLUGIN_H
 #define CONFIGWINDOWPLUGIN_H
 
-#include <quarkplayer-plugins/configwindow/configwindow_export.h>
+#include <quarkplayer-plugins/ConfigWindow/configwindow_export.h>
 
 #include <quarkplayer/PluginInterface.h>
 
@@ -54,8 +54,8 @@ signals:
 	 *
 	 * Example:
 	 * <pre>
-	 * #include <quarkplayer-plugins/configwindow/ConfigWindowPlugin.h>
-	 * #include <quarkplayer-plugins/configwindow/ConfigWindow.h>
+	 * #include <quarkplayer-plugins/ConfigWindow/ConfigWindowPlugin.h>
+	 * #include <quarkplayer-plugins/ConfigWindow/ConfigWindow.h>
 	 *
 	 * TotoPlugin::TotoPlugin(QuarkPlayer & quarkPlayer) {
 	 * 	connect(&quarkPlayer.mainWindow(), SIGNAL(configWindowCreated(ConfigWindow *)),

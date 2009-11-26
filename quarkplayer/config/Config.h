@@ -21,8 +21,8 @@
 
 #include <quarkplayer/quarkplayer_export.h>
 
-#include <tkutil/TkConfig.h>
-#include <tkutil/Singleton.h>
+#include <TkUtil/TkConfig.h>
+#include <TkUtil/Singleton.h>
 
 //Yes QUuid is a struct instead of a class inside src/corelib/plugin/quuid.h
 //This is strange...

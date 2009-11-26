@@ -21,7 +21,7 @@
 
 #include <quarkplayer/quarkplayer_export.h>
 
-#include <tkutil/Singleton.h>
+#include <TkUtil/Singleton.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>

@@ -19,7 +19,7 @@
 #ifndef MEDIADATAWIDGET_H
 #define MEDIADATAWIDGET_H
 
-#include <mediainfowindow/MediaInfoWidget.h>
+#include <MediaInfoWindow/MediaInfoWidget.h>
 
 #include <QtCore/QList>
 

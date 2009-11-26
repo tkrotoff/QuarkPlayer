@@ -21,7 +21,7 @@
 
 #include <quarkplayer/PluginInterface.h>
 
-#include <tkutil/TkToolBar.h>
+#include <TkUtil/TkToolBar.h>
 
 #include <phonon/phononnamespace.h>
 

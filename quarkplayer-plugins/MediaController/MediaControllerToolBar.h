@@ -19,7 +19,7 @@
 #ifndef MEDIACONTROLLERTOOLBAR_H
 #define MEDIACONTROLLERTOOLBAR_H
 
-#include <tkutil/TkToolBar.h>
+#include <TkUtil/TkToolBar.h>
 
 class QPushButton;
 class QMenu;

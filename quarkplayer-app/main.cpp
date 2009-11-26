@@ -30,7 +30,7 @@
 
 #include <phonon/mediaobject.h>
 
-#include <qtsingleapplication/QtSingleApplication>
+#include <QtSingleApplication/QtSingleApplication>
 
 #include <QtGui/QStyleFactory>
 

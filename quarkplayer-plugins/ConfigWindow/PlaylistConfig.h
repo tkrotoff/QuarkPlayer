@@ -19,9 +19,9 @@
 #ifndef PLAYLISTCONFIG_H
 #define PLAYLISTCONFIG_H
 
-#include <quarkplayer-plugins/configwindow/configwindow_export.h>
+#include <quarkplayer-plugins/ConfigWindow/configwindow_export.h>
 
-#include <tkutil/Singleton.h>
+#include <TkUtil/Singleton.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QUuid>

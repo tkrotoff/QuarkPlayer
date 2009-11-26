@@ -19,7 +19,7 @@
 #ifndef SHORTCUTSCONFIG_H
 #define SHORTCUTSCONFIG_H
 
-#include <tkutil/Singleton.h>
+#include <TkUtil/Singleton.h>
 
 class QAction;
 class QString;

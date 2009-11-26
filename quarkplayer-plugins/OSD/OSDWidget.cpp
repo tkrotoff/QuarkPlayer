@@ -21,16 +21,16 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
 
-#include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
-#include <mediainfowindow/MediaInfoWidget.h>
-#include <mediainfowindow/MediaInfoWindow.h>
-#include <mediainfofetcher/MediaInfoFetcher.h>
+#include <MediaInfoWindow/MediaInfoWidget.h>
+#include <MediaInfoWindow/MediaInfoWindow.h>
+#include <MediaInfoFetcher/MediaInfoFetcher.h>
 
-#include <tkutil/SqueezeLabel.h>
-#include <tkutil/ActionCollection.h>
-#include <tkutil/TkAction.h>
-#include <tkutil/LanguageChangeEventFilter.h>
+#include <TkUtil/SqueezeLabel.h>
+#include <TkUtil/ActionCollection.h>
+#include <TkUtil/TkAction.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/seekslider.h>

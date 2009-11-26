@@ -19,7 +19,7 @@
 #ifndef PLAYLISTPARSERTEST_H
 #define PLAYLISTPARSERTEST_H
 
-#include <playlistparser/PlaylistParser.h>
+#include <PlaylistParser/PlaylistParser.h>
 
 #include <QtTest/QtTest>
 #include <QtCore/QList>

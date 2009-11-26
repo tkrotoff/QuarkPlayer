@@ -19,12 +19,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <quarkplayer-plugins/mainwindow/mainwindow_export.h>
+#include <quarkplayer-plugins/MainWindow/mainwindow_export.h>
 
 #include <quarkplayer/PluginInterface.h>
 
-#include <tkutil/TkMainWindow.h>
-#include <tkutil/TkToolBar.h>
+#include <TkUtil/TkMainWindow.h>
+#include <TkUtil/TkToolBar.h>
 
 #include <QtGui/QMainWindow>
 

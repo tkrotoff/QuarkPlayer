@@ -19,7 +19,7 @@
 #ifndef FILESEARCHITEM_H
 #define FILESEARCHITEM_H
 
-#include <mediainfofetcher/MediaInfo.h>
+#include <MediaInfoFetcher/MediaInfo.h>
 
 #include <QtCore/QList>
 

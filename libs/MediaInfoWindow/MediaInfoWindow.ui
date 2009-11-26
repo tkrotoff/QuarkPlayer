@@ -547,7 +547,7 @@
   <customwidget>
    <class>ThumbnailView</class>
    <extends>QWidget</extends>
-   <header location="global">thumbnailview/ThumbnailView.h</header>
+   <header location="global">ThumbnailView/ThumbnailView.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
