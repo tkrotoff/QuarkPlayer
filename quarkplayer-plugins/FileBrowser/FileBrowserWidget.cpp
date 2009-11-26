@@ -27,16 +27,16 @@
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/PluginManager.h>
 
-#include <quarkplayer-plugins/mainwindow/MainWindow.h>
-#include <quarkplayer-plugins/configwindow/ConfigWindowPlugin.h>
-#include <quarkplayer-plugins/configwindow/ConfigWindow.h>
+#include <quarkplayer-plugins/MainWindow/MainWindow.h>
+#include <quarkplayer-plugins/ConfigWindow/ConfigWindowPlugin.h>
+#include <quarkplayer-plugins/ConfigWindow/ConfigWindow.h>
 
-#include <filetypes/FileTypes.h>
+#include <FileTypes/FileTypes.h>
 
-#include <tkutil/TkIcon.h>
-#include <tkutil/SearchLineEdit.h>
-#include <tkutil/TkFileDialog.h>
-#include <tkutil/LanguageChangeEventFilter.h>
+#include <TkUtil/TkIcon.h>
+#include <TkUtil/SearchLineEdit.h>
+#include <TkUtil/TkFileDialog.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <modeltest/modeltest.h>
 

@@ -20,7 +20,7 @@
 
 #include "PlaylistModel.h"
 
-#include <tkutil/Random.h>
+#include <TkUtil/Random.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>

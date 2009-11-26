@@ -18,7 +18,7 @@
 
 #include "MediaInfo.h"
 
-#include <tkutil/TkTime.h>
+#include <TkUtil/TkTime.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QUrl>

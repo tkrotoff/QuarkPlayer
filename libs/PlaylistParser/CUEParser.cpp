@@ -20,8 +20,8 @@
 
 #include "Util.h"
 
-#include <mediainfofetcher/MediaInfo.h>
-#include <tkutil/TkFile.h>
+#include <MediaInfoFetcher/MediaInfo.h>
+#include <TkUtil/TkFile.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>

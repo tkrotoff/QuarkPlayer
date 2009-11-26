@@ -18,7 +18,7 @@
 
 #include "AmazonCoverArtTest.h"
 
-#include <contentfetcher/AmazonCoverArt.h>
+#include <ContentFetcher/AmazonCoverArt.h>
 
 #include <QtCore/QRegExp>
 

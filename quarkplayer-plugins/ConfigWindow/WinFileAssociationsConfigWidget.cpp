@@ -23,7 +23,7 @@
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/WinDefaultApplication.h>
 
-#include <filetypes/FileTypes.h>
+#include <FileTypes/FileTypes.h>
 
 #include <QtGui/QtGui>
 

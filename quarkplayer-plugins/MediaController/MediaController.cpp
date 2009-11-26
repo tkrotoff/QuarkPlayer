@@ -25,15 +25,15 @@
 #include <quarkplayer/config.h>
 #include <quarkplayer/PluginManager.h>
 
-#include <quarkplayer-plugins/mainwindow/MainWindow.h>
-#include <quarkplayer-plugins/playlist/PlaylistWidget.h>
+#include <quarkplayer-plugins/MainWindow/MainWindow.h>
+#include <quarkplayer-plugins/Playlist/PlaylistWidget.h>
 
-#include <filetypes/FileTypes.h>
+#include <FileTypes/FileTypes.h>
 
-#include <tkutil/ActionCollection.h>
-#include <tkutil/TkFileDialog.h>
-#include <tkutil/LanguageChangeEventFilter.h>
-#include <tkutil/TkIcon.h>
+#include <TkUtil/ActionCollection.h>
+#include <TkUtil/TkFileDialog.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
+#include <TkUtil/TkIcon.h>
 
 #include <phonon/audiooutput.h>
 #include <phonon/mediaobject.h>

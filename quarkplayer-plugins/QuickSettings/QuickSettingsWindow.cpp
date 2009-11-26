@@ -23,10 +23,10 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
 
-#include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
-#include <tkutil/LanguageChangeEventFilter.h>
-#include <tkutil/ActionCollection.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
+#include <TkUtil/ActionCollection.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>

@@ -39,7 +39,7 @@
   <customwidget>
    <class>FileChooserWidget</class>
    <extends>QLineEdit</extends>
-   <header location="global" >tkutil/FileChooserWidget.h</header>
+   <header location="global" >TkUtil/FileChooserWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

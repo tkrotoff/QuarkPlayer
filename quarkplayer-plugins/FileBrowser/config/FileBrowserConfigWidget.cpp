@@ -22,8 +22,8 @@
 
 #include <quarkplayer/config/Config.h>
 
-#include <tkutil/TkIcon.h>
-#include <tkutil/TkFileDialog.h>
+#include <TkUtil/TkIcon.h>
+#include <TkUtil/TkFileDialog.h>
 
 #include <QtGui/QtGui>
 

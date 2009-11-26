@@ -18,9 +18,9 @@
 
 #include "MediaInfoWidget.h"
 
-#include <mediainfofetcher/MediaInfo.h>
+#include <MediaInfoFetcher/MediaInfo.h>
 
-#include <tkutil/SqueezeLabel.h>
+#include <TkUtil/SqueezeLabel.h>
 
 #include <QtGui/QtGui>
 

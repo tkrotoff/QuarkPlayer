@@ -25,7 +25,7 @@
 #include "XSPFParser.h"
 #include "CUEParser.h"
 
-#include <mediainfofetcher/MediaInfo.h>
+#include <MediaInfoFetcher/MediaInfo.h>
 
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QFuture>

@@ -18,7 +18,7 @@
 
 #include "LyricsFetcherTest.h"
 
-#include <contentfetcher/LyricsFetcher.h>
+#include <ContentFetcher/LyricsFetcher.h>
 
 void LyricsFetcherTest::initTestCase() {
 	_lyricsFetcher = new LyricsFetcher(this);

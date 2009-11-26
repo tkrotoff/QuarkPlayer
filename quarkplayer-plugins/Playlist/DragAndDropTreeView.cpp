@@ -24,15 +24,15 @@
 
 #include <quarkplayer/config/Config.h>
 
-#include <quarkplayer-plugins/configwindow/PlaylistConfig.h>
+#include <quarkplayer-plugins/ConfigWindow/PlaylistConfig.h>
 
-#include <mediainfofetcher/MediaInfoFetcher.h>
+#include <MediaInfoFetcher/MediaInfoFetcher.h>
 
-#include <mediainfowindow/MediaInfoWindow.h>
+#include <MediaInfoWindow/MediaInfoWindow.h>
 
-#include <tkutil/TkIcon.h>
-#include <tkutil/TkAction.h>
-#include <tkutil/LanguageChangeEventFilter.h>
+#include <TkUtil/TkIcon.h>
+#include <TkUtil/TkAction.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
 

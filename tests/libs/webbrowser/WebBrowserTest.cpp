@@ -18,8 +18,8 @@
 
 #include "WebBrowserTest.h"
 
-#include <webbrowser/WebBrowser.h>
-#include <contentfetcher/WikipediaArticle.h>
+#include <WebBrowser/WebBrowser.h>
+#include <ContentFetcher/WikipediaArticle.h>
 
 #include <QtGui/QtGui>
 

@@ -136,7 +136,7 @@
   <customwidget>
    <class>SearchLineEdit</class>
    <extends>QLineEdit</extends>
-   <header location="global" >tkutil/SearchLineEdit.h</header>
+   <header location="global" >TkUtil/SearchLineEdit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

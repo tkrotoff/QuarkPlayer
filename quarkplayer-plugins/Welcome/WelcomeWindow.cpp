@@ -22,7 +22,7 @@
 #include <quarkplayer/version.h>
 #include <quarkplayer/PluginManager.h>
 
-#include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
 #include <phonon/mediasource.h>
 

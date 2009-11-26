@@ -19,17 +19,17 @@
 #include "MediaDataWidget.h"
 
 #include <quarkplayer/config/Config.h>
-#include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
-#include <mediainfowindow/MediaInfoWindow.h>
-#include <mediainfowindow/MediaInfoWidget.h>
-#include <mediainfofetcher/MediaInfoFetcher.h>
+#include <MediaInfoWindow/MediaInfoWindow.h>
+#include <MediaInfoWindow/MediaInfoWidget.h>
+#include <MediaInfoFetcher/MediaInfoFetcher.h>
 
-#include <contentfetcher/AmazonCoverArt.h>
+#include <ContentFetcher/AmazonCoverArt.h>
 
-#include <tkutil/MouseEventFilter.h>
-#include <tkutil/LanguageChangeEventFilter.h>
-#include <tkutil/SqueezeLabel.h>
+#include <TkUtil/MouseEventFilter.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
+#include <TkUtil/SqueezeLabel.h>
 
 #include <phonon/mediaobject.h>
 

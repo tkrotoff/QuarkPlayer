@@ -20,7 +20,7 @@
 
 #include "QuarkPlayer.h"
 
-#include <tkutil/ActionCollection.h>
+#include <TkUtil/ActionCollection.h>
 
 #include <QtCore/QDebug>
 

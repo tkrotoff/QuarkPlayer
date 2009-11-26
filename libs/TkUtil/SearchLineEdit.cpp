@@ -18,7 +18,7 @@
 
 #include "SearchLineEdit.h"
 
-#include <tkutil/TkIcon.h>
+#include "TkIcon.h"
 
 #include <QtGui/QtGui>
 

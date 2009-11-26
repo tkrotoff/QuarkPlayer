@@ -20,7 +20,7 @@
 
 #include "TkTextBrowser.h"
 
-#include <tkutil/ActionCollection.h>
+#include <TkUtil/ActionCollection.h>
 
 #include <QtGui/QtGui>
 

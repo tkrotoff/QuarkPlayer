@@ -20,15 +20,15 @@
 
 #include "ui_MediaInfoWindow.h"
 
-#include <mediainfofetcher/MediaInfoFetcher.h>
+#include <MediaInfoFetcher/MediaInfoFetcher.h>
 
-#include <contentfetcher/LyricsFetcher.h>
-#include <contentfetcher/WikipediaArticle.h>
+#include <ContentFetcher/LyricsFetcher.h>
+#include <ContentFetcher/WikipediaArticle.h>
 
-#include <webbrowser/WebBrowser.h>
+#include <WebBrowser/WebBrowser.h>
 
-#include <tkutil/TkIcon.h>
-#include <tkutil/LanguageChangeEventFilter.h>
+#include <TkUtil/TkIcon.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
 

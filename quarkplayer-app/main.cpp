@@ -25,8 +25,8 @@
 #include <quarkplayer/version.h>
 #include <quarkplayer/config.h>
 
-#include <tkutil/Translator.h>
-#include <tkutil/TkIcon.h>
+#include <TkUtil/Translator.h>
+#include <TkUtil/TkIcon.h>
 
 #include <phonon/mediaobject.h>
 

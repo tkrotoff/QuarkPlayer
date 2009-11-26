@@ -22,10 +22,10 @@
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/PluginManager.h>
 
-#include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
-#include <tkutil/TkTime.h>
-#include <tkutil/MouseEventFilter.h>
+#include <TkUtil/TkTime.h>
+#include <TkUtil/MouseEventFilter.h>
 
 #include <phonon/mediaobject.h>
 

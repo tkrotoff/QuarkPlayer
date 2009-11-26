@@ -24,10 +24,10 @@
 
 #include <quarkplayer/config/Config.h>
 
-#include <tkutil/TkIcon.h>
-#include <tkutil/TkAction.h>
-#include <tkutil/ActionCollection.h>
-#include <tkutil/TkFileDialog.h>
+#include <TkUtil/TkIcon.h>
+#include <TkUtil/TkAction.h>
+#include <TkUtil/ActionCollection.h>
+#include <TkUtil/TkFileDialog.h>
 
 #include <QtGui/QtGui>
 

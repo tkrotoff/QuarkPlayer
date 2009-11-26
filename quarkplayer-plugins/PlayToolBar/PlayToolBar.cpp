@@ -21,11 +21,11 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
 
-#include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
-#include <tkutil/ActionCollection.h>
-#include <tkutil/TkIcon.h>
-#include <tkutil/LanguageChangeEventFilter.h>
+#include <TkUtil/ActionCollection.h>
+#include <TkUtil/TkIcon.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>

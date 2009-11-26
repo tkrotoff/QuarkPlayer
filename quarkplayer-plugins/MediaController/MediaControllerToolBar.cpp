@@ -18,8 +18,8 @@
 
 #include "MediaControllerToolBar.h"
 
-#include <tkutil/ActionCollection.h>
-#include <tkutil/LanguageChangeEventFilter.h>
+#include <TkUtil/ActionCollection.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
 

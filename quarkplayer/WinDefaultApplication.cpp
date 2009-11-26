@@ -18,7 +18,7 @@
 
 #include "WinDefaultApplication.h"
 
-#include <filetypes/FileTypes.h>
+#include <FileTypes/FileTypes.h>
 
 #include <QtCore/QSysInfo>
 #include <QtCore/QSettings>

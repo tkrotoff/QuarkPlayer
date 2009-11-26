@@ -20,12 +20,12 @@
 
 #include "FileSearchItem.h"
 
-#include <mediainfofetcher/MediaInfoFetcher.h>
+#include <MediaInfoFetcher/MediaInfoFetcher.h>
 
-#include <filetypes/FileTypes.h>
+#include <FileTypes/FileTypes.h>
 
-#include <tkutil/FindFiles.h>
-#include <tkutil/TkFile.h>
+#include <TkUtil/FindFiles.h>
+#include <TkUtil/TkFile.h>
 
 #include <QtGui/QtGui>
 

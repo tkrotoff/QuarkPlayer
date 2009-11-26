@@ -27,12 +27,12 @@
 
 #include <quarkplayer/Languages.h>
 
-#include <filetypes/FileTypes.h>
+#include <FileTypes/FileTypes.h>
 
-#include <tkutil/TkIcon.h>
-#include <tkutil/LanguageChangeEventFilter.h>
-#include <tkutil/ActionCollection.h>
-#include <tkutil/TkFileDialog.h>
+#include <TkUtil/TkIcon.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
+#include <TkUtil/ActionCollection.h>
+#include <TkUtil/TkFileDialog.h>
 
 #include <QtGui/QtGui>
 

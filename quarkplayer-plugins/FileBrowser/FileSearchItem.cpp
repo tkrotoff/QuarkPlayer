@@ -18,7 +18,7 @@
 
 #include "FileSearchItem.h"
 
-#include <tkutil/TkFile.h>
+#include <TkUtil/TkFile.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>

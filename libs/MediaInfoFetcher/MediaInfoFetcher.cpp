@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#include <filetypes/FileTypes.h>
+#include <FileTypes/FileTypes.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>

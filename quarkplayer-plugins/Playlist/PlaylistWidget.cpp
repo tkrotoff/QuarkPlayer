@@ -26,9 +26,9 @@
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/PluginManager.h>
 
-#include <quarkplayer-plugins/mainwindow/MainWindow.h>
-#include <quarkplayer-plugins/configwindow/ConfigWindowPlugin.h>
-#include <quarkplayer-plugins/configwindow/PlaylistConfig.h>
+#include <quarkplayer-plugins/MainWindow/MainWindow.h>
+#include <quarkplayer-plugins/ConfigWindow/ConfigWindowPlugin.h>
+#include <quarkplayer-plugins/ConfigWindow/PlaylistConfig.h>
 
 #include <TkUtil/TkIcon.h>
 #include <TkUtil/TkAction.h>
@@ -40,7 +40,7 @@
 
 #include <FileTypes/FileTypes.h>
 
-#include <playlistparser/PlaylistParser.h>
+#include <PlaylistParser/PlaylistParser.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>

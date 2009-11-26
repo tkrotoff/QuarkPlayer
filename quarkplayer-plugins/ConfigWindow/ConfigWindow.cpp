@@ -27,9 +27,9 @@
 #include "WinFileAssociationsConfigWidget.h"
 #include "ShortcutsConfigWidget.h"
 
-#include <tkutil/TkIcon.h>
-#include <tkutil/LanguageChangeEventFilter.h>
-#include <tkutil/TkStackedWidget.h>
+#include <TkUtil/TkIcon.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
+#include <TkUtil/TkStackedWidget.h>
 
 #include <QtGui/QtGui>
 

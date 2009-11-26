@@ -20,7 +20,7 @@
 
 #include "Util.h"
 
-#include <mediainfofetcher/MediaInfo.h>
+#include <MediaInfoFetcher/MediaInfo.h>
 
 #include <QtXml/QXmlStreamReader>
 #include <QtXml/QXmlStreamWriter>

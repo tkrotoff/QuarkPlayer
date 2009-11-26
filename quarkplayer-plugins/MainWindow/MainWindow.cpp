@@ -25,16 +25,16 @@
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/version.h>
 
-#include <quarkplayer-plugins/playlist/PlaylistWidget.h>
-#include <quarkplayer-plugins/playlist/PlaylistModel.h>
+#include <quarkplayer-plugins/Playlist/PlaylistWidget.h>
+#include <quarkplayer-plugins/Playlist/PlaylistModel.h>
 
 #include <TkUtil/ActionCollection.h>
-#include <tkutil/TkAction.h>
-#include <tkutil/TkIcon.h>
-#include <tkutil/TkFileDialog.h>
-#include <tkutil/LanguageChangeEventFilter.h>
+#include <TkUtil/TkAction.h>
+#include <TkUtil/TkIcon.h>
+#include <TkUtil/TkFileDialog.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
 
-#include <filetypes/FileTypes.h>
+#include <FileTypes/FileTypes.h>
 
 #include <QtSingleApplication/QtSingleApplication>
 

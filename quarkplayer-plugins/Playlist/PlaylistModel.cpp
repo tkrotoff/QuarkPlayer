@@ -25,17 +25,17 @@
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/PluginManager.h>
 
-#include <quarkplayer-plugins/configwindow/PlaylistConfig.h>
+#include <quarkplayer-plugins/ConfigWindow/PlaylistConfig.h>
 
-#include <mediainfofetcher/MediaInfoFetcher.h>
+#include <MediaInfoFetcher/MediaInfoFetcher.h>
 
-#include <filetypes/FileTypes.h>
+#include <FileTypes/FileTypes.h>
 
-#include <tkutil/FindFiles.h>
-#include <tkutil/Random.h>
-#include <tkutil/TkIcon.h>
+#include <TkUtil/FindFiles.h>
+#include <TkUtil/Random.h>
+#include <TkUtil/TkIcon.h>
 
-#include <playlistparser/PlaylistParser.h>
+#include <PlaylistParser/PlaylistParser.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>
@@ -610,7 +610,7 @@ void PlaylistModel::play(int position) {
 	if (_positionToPlay < _filenames.count()) {
 		playInternal();
 	} else {
-		//We need to wait until the file has been added to the playlist/model
+		//We need to wait until the file has been added to the Playlist/model
 		//before we can actually play it
 		connect(this, SIGNAL(rowsInserted(const QModelIndex &, int, int)), SLOT(playInternal()));
 	}

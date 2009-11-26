@@ -25,7 +25,7 @@
 #include "PluginConfig.h"
 #include "config/Config.h"
 
-#include <tkutil/Random.h>
+#include <TkUtil/Random.h>
 
 #include <QtCore/QPluginLoader>
 #include <QtCore/QDir>

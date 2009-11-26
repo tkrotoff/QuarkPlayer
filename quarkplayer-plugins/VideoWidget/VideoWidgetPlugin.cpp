@@ -25,12 +25,12 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
 
-#include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
-#include <mediainfofetcher/MediaInfoFetcher.h>
+#include <MediaInfoFetcher/MediaInfoFetcher.h>
 
-#include <tkutil/MouseEventFilter.h>
-#include <tkutil/CloseEventFilter.h>
+#include <TkUtil/MouseEventFilter.h>
+#include <TkUtil/CloseEventFilter.h>
 
 #include <phonon/mediaobject.h>
 

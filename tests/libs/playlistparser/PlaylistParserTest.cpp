@@ -18,9 +18,9 @@
 
 #include "PlaylistParserTest.h"
 
-#include <playlistparser/PlaylistParser.h>
+#include <PlaylistParser/PlaylistParser.h>
 
-#include <mediainfofetcher/MediaInfo.h>
+#include <MediaInfoFetcher/MediaInfo.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>

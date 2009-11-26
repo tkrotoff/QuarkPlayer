@@ -24,9 +24,9 @@
 #include <quarkplayer/PluginManager.h>
 #include <quarkplayer/config/Config.h>
 
-#include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
-#include <tkutil/ActionCollection.h>
+#include <TkUtil/ActionCollection.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>

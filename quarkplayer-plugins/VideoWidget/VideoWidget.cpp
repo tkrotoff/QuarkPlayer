@@ -18,13 +18,13 @@
 
 #include "VideoWidget.h"
 
-#include <quarkplayer-plugins/mainwindow/MainWindow.h>
+#include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
-#include <tkutil/ActionCollection.h>
-#include <tkutil/ScreenSaver.h>
-#include <tkutil/TkAction.h>
-#include <tkutil/TkIcon.h>
-#include <tkutil/LanguageChangeEventFilter.h>
+#include <TkUtil/ActionCollection.h>
+#include <TkUtil/ScreenSaver.h>
+#include <TkUtil/TkAction.h>
+#include <TkUtil/TkIcon.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
 

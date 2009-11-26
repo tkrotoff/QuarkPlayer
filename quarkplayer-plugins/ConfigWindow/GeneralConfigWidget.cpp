@@ -25,9 +25,9 @@
 #include <quarkplayer/config.h>
 #include <quarkplayer/Languages.h>
 
-#include <tkutil/Translator.h>
-#include <tkutil/TkComboBox.h>
-#include <tkutil/TkIcon.h>
+#include <TkUtil/Translator.h>
+#include <TkUtil/TkComboBox.h>
+#include <TkUtil/TkIcon.h>
 
 #include <QtGui/QtGui>
 

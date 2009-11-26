@@ -18,7 +18,7 @@
 
 #include "WikipediaArticleTest.h"
 
-#include <contentfetcher/WikipediaArticle.h>
+#include <ContentFetcher/WikipediaArticle.h>
 
 #include <QtCore/QRegExp>
 
