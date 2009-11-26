@@ -19,7 +19,7 @@
 #ifndef LYRICSFETCHER_H
 #define LYRICSFETCHER_H
 
-#include <contentfetcher/ContentFetcher.h>
+#include <ContentFetcher/ContentFetcher.h>
 
 #include <QtCore/QUrl>
 

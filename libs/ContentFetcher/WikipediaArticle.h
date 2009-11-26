@@ -19,7 +19,7 @@
 #ifndef WIKIPEDIAARTICLE_H
 #define WIKIPEDIAARTICLE_H
 
-#include <contentfetcher/ContentFetcher.h>
+#include <ContentFetcher/ContentFetcher.h>
 
 #include <QtCore/QUrl>
 

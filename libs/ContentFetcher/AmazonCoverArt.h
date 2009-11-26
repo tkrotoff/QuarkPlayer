@@ -19,7 +19,7 @@
 #ifndef AMAZONCOVERART_H
 #define AMAZONCOVERART_H
 
-#include <contentfetcher/ContentFetcher.h>
+#include <ContentFetcher/ContentFetcher.h>
 
 #include <QtCore/QUrl>
 
