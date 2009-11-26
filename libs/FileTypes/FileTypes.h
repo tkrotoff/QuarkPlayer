@@ -19,9 +19,9 @@
 #ifndef FILETYPES_H
 #define FILETYPES_H
 
-#include <filetypes/filetypes_export.h>
+#include <FileTypes/filetypes_export.h>
 
-#include <filetypes/FileType.h>
+#include <FileTypes/FileType.h>
 
 #include <QtCore/QStringList>
 
