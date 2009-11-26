@@ -20,7 +20,7 @@
 #ifndef MOUSEEVENTFILTER_H
 #define MOUSEEVENTFILTER_H
 
-#include <tkutil/EventFilter.h>
+#include <TkUtil/EventFilter.h>
 
 /**
  * Catch MouseMove event.

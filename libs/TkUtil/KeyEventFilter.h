@@ -20,7 +20,7 @@
 #ifndef KEYEVENTFILTER_H
 #define KEYEVENTFILTER_H
 
-#include <tkutil/EventFilter.h>
+#include <TkUtil/EventFilter.h>
 
 /**
  * Catch KeyPress event.

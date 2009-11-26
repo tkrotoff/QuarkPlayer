@@ -19,7 +19,7 @@
 #ifndef TKACTION_H
 #define TKACTION_H
 
-#include <tkutil/tkutil_export.h>
+#include <TkUtil/tkutil_export.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QKeySequence>

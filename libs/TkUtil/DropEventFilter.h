@@ -19,7 +19,7 @@
 #ifndef DROPEVENTFILTER_H
 #define DROPEVENTFILTER_H
 
-#include <tkutil/EventFilter.h>
+#include <TkUtil/EventFilter.h>
 
 /**
  * Catch Drop event.

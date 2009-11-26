@@ -19,7 +19,7 @@
 #ifndef ACTIONCOLLECTION_H
 #define ACTIONCOLLECTION_H
 
-#include <tkutil/tkutil_export.h>
+#include <TkUtil/tkutil_export.h>
 
 #include <QtCore/QString>
 #include <QtCore/QHash>

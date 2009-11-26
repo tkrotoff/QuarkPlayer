@@ -20,7 +20,7 @@
 #ifndef LINEEDIT_H
 #define LINEEDIT_H
 
-#include <tkutil/tkutil_export.h>
+#include <TkUtil/tkutil_export.h>
 
 #include <QtGui/QLineEdit>
 

@@ -19,7 +19,7 @@
 #ifndef SCREENSAVER_H
 #define SCREENSAVER_H
 
-#include <tkutil/tkutil_export.h>
+#include <TkUtil/tkutil_export.h>
 
 /**
  * Enables/disables the screensaver.

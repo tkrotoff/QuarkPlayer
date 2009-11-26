@@ -19,7 +19,7 @@
 #ifndef TKFILEDIALOG_H
 #define TKFILEDIALOG_H
 
-#include <tkutil/tkutil_export.h>
+#include <TkUtil/tkutil_export.h>
 
 #include <QtGui/QFileDialog>
 

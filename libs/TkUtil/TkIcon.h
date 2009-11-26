@@ -19,8 +19,8 @@
 #ifndef TKICON_H
 #define TKICON_H
 
-#include <tkutil/config.h>
-#include <tkutil/tkutil_export.h>
+#include <TkUtil/config.h>
+#include <TkUtil/tkutil_export.h>
 
 #ifdef KDE4_FOUND
 	#include <KIcon>

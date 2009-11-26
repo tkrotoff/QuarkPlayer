@@ -19,7 +19,7 @@
 #ifndef TKTOOLBAR_H
 #define TKTOOLBAR_H
 
-#include <tkutil/config.h>
+#include <TkUtil/config.h>
 
 #ifdef KDE4_FOUND
 	#include <KToolBar>

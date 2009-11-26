@@ -26,7 +26,7 @@
  *
  * Example:
  * <pre>
- * #include <tkutil/Singleton.h>
+ * #include <TkUtil/Singleton.h>
  *
  * class MyClass : public Singleton<MyClass> {
  * 	friend class Singleton<MyClass>;

@@ -19,9 +19,9 @@
 #ifndef TRANSLATOR_H
 #define TRANSLATOR_H
 
-#include <tkutil/tkutil_export.h>
+#include <TkUtil/tkutil_export.h>
 
-#include <tkutil/Singleton.h>
+#include <TkUtil/Singleton.h>
 
 #include <QtCore/QString>
 #include <QtCore/QTranslator>

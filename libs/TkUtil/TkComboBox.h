@@ -19,7 +19,7 @@
 #ifndef TKCOMBOBOX_H
 #define TKCOMBOBOX_H
 
-#include <tkutil/tkutil_export.h>
+#include <TkUtil/tkutil_export.h>
 
 class QComboBox;
 class QString;

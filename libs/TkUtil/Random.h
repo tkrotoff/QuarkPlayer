@@ -19,7 +19,7 @@
 #ifndef RANDOM_H
 #define RANDOM_H
 
-#include <tkutil/tkutil_export.h>
+#include <TkUtil/tkutil_export.h>
 
 #include <QtCore/QString>
 #include <QtCore/QList>

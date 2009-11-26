@@ -20,7 +20,7 @@
 #ifndef LANGUAGECHANGEEVENTFILTER_H
 #define LANGUAGECHANGEEVENTFILTER_H
 
-#include <tkutil/EventFilter.h>
+#include <TkUtil/EventFilter.h>
 
 #define RETRANSLATE(watched) \
 watched->installEventFilter(new LanguageChangeEventFilter(this, SLOT(retranslate())))

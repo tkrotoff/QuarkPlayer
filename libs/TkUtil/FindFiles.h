@@ -19,7 +19,7 @@
 #ifndef FINDFILES_H
 #define FINDFILES_H
 
-#include <tkutil/tkutil_export.h>
+#include <TkUtil/tkutil_export.h>
 
 #include <QtCore/QThread>
 #include <QtCore/QUuid>

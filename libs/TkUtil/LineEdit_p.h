@@ -39,8 +39,8 @@ protected:
 
 #if QT_VERSION < 0x040500
 
-#include <tkutil/ProxyStyle.h>
-#include <tkutil/LineEdit.h>
+#include <TkUtil/ProxyStyle.h>
+#include <TkUtil/LineEdit.h>
 
 #include <QtGui/QApplication>
 

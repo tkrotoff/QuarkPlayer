@@ -20,7 +20,7 @@
 #ifndef CLOSEEVENTFILTER_H
 #define CLOSEEVENTFILTER_H
 
-#include <tkutil/EventFilter.h>
+#include <TkUtil/EventFilter.h>
 
 /**
  * Catch Close event.

@@ -19,9 +19,9 @@
 #ifndef SEARCHLINEEDIT_H
 #define SEARCHLINEEDIT_H
 
-#include <tkutil/tkutil_export.h>
+#include <TkUtil/tkutil_export.h>
 
-#include <tkutil/LineEdit.h>
+#include <TkUtil/LineEdit.h>
 
 #include <QtGui/QPalette>
 

@@ -19,7 +19,7 @@
 #ifndef TKMAINWINDOW_H
 #define TKMAINWINDOW_H
 
-#include <tkutil/config.h>
+#include <TkUtil/config.h>
 
 #ifdef KDE4_FOUND
 	#include <KMainWindow>
