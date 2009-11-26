@@ -53,7 +53,8 @@
 
 #ifdef MEDIAINFOLIB
 	//MediaInfo is compiled with Unicode support on
-	#define UNICODE
+	//UNICODE symbol already defined for all of QuarkPlayer
+	//#define UNICODE
 	#ifdef Q_OS_UNIX
 		#include <MediaInfo/MediaInfo.h>
 	#else
