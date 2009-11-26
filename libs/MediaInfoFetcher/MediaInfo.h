@@ -19,9 +19,9 @@
 #ifndef MEDIAINFO_H
 #define MEDIAINFO_H
 
-#include <mediainfofetcher/mediainfofetcher_export.h>
+#include <MediaInfoFetcher/mediainfofetcher_export.h>
 
-#include <filetypes/FileType.h>
+#include <FileTypes/FileType.h>
 
 #include <QtCore/QString>
 #include <QtCore/QHash>

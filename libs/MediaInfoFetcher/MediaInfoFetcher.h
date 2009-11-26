@@ -19,7 +19,7 @@
 #ifndef MEDIAINFOFETCHER_H
 #define MEDIAINFOFETCHER_H
 
-#include <mediainfofetcher/MediaInfo.h>
+#include <MediaInfoFetcher/MediaInfo.h>
 
 #include <phonon/phononnamespace.h>
 #include <phonon/mediasource.h>
