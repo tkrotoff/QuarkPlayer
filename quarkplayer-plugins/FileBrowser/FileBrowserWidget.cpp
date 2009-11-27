@@ -297,7 +297,7 @@ void FileBrowserWidget::retranslate() {
 	_searchLineEdit->clearButton()->setToolTip(tr("Clear Search"));
 	_searchLineEdit->clearButton()->setIcon(TkIcon("edit-clear-locationbar-rtl"));
 
-	_searchLineEdit->wordListButton()->setToolTip(tr("Previous Searches"));
+	_searchLineEdit->wordListButton()->setToolTip(tr("Search History"));
 	_searchLineEdit->wordListButton()->setIcon(TkIcon("go-down-search"));
 
 	_searchLineEdit->setToolTip(tr("Search files, use whitespaces to separate words"));

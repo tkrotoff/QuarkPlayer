@@ -53,14 +53,17 @@ public:
 
 	~SearchLineEdit();
 
-	/** Gets the list of previous searches. */
+	/** Gets the search history as a list of words. */
 	QStringList wordList() const;
 
 	/** Gets the clear button. */
 	QToolButton * clearButton() const;
 
-	/** Gets the button that list the previous searches. */
+	/** Gets the search history button. */
 	QToolButton * wordListButton() const;
+
+	/** Gets the grayed-out text if any. */
+	QString clickMessage() const;
 
 public slots:
 
@@ -70,10 +73,15 @@ public slots:
 	 */
 	void setClickMessage(const QString & message);
 
-	/** Add some standard text that won't disappear when clicking inside the QLineEdit. */
+	/** Sets the normal black text (won't disappear when clicking inside the QLineEdit). */
 	void setText(const QString & text);
 
-	/** Add a word to the list of words showed by the wordListButton. */
+	/**
+	 * Adds a word to the list of words showed by the wordListButton.
+	 *
+	 * The last word added will be the first to be showed inside the wordListButton.
+	 * @param word word to add to the wordListButton
+	 */
 	void addWord(const QString & word);
 
 private slots:
@@ -81,14 +89,20 @@ private slots:
 	/** Hide or show the clear button depending if the QLineEdit contains some text or not. */
 	void updateClearButton(const QString & text);
 
-	/** Shows the previous searches inside the wordListButton. */
+	/** Shows the search history inside the wordListButton. */
 	void showWordList();
 
 private:
 
+	/** Initializes our SearchLineEdit. */
 	void init(const QStringList & wordList);
 
-	/** Compute the positions of both the clear and word list buttons. */
+	/**
+	 * Computes the positions of both the clear and word list buttons.
+	 *
+	 * The buttons are located on the right part of the line edit,
+	 * the clear button first then the word list button.
+	 */
 	void resizeEvent(QResizeEvent * event);
 
 	/** Gray-out the QLineEdit text. */
@@ -110,6 +124,7 @@ private:
 
 	bool _drawClickMessage;
 
+	/** Model that stores the search history for the wordListButton. */
 	QStringListModel * _stringListModel;
 };
 

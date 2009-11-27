@@ -143,6 +143,10 @@ void SearchLineEdit::setClickMessage(const QString & message) {
 	update();
 }
 
+QString SearchLineEdit::clickMessage() const {
+	return _clickMessage;
+}
+
 void SearchLineEdit::setText(const QString & text) {
 	if (_enableClickMessage) {
 		_drawClickMessage = text.isEmpty();
@@ -167,6 +171,10 @@ QStringList SearchLineEdit::wordList() const {
 }
 
 void SearchLineEdit::addWord(const QString & word) {
+	if (word.isEmpty()) {
+		return;
+	}
+
 	QStringList wordList(_stringListModel->stringList());
 	if (!wordList.contains(word, Qt::CaseInsensitive)) {
 		wordList.prepend(word);

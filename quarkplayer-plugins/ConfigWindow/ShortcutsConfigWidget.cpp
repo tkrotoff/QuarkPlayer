@@ -140,7 +140,7 @@ void ShortcutsConfigWidget::retranslate() {
 	_ui->searchLineEdit->clearButton()->setToolTip(tr("Clear Search"));
 	_ui->searchLineEdit->clearButton()->setIcon(TkIcon("edit-clear-locationbar-rtl"));
 
-	_ui->searchLineEdit->wordListButton()->setToolTip(tr("Previous Searches"));
+	_ui->searchLineEdit->wordListButton()->setToolTip(tr("Search History"));
 	_ui->searchLineEdit->wordListButton()->setIcon(TkIcon("go-down-search"));
 
 	_ui->searchLineEdit->setToolTip(tr("Search shortcuts, use whitespaces to separate words"));

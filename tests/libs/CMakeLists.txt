@@ -3,6 +3,6 @@
 add_subdirectory(PlaylistParser)
 add_subdirectory(ContentFetcher)
 add_subdirectory(WebBrowser)
-#add_subdirectory(TkUtil)
+add_subdirectory(TkUtil)
 #add_subdirectory(ThumbnailView)
 #add_subdirectory(FileTypes)
