@@ -25,6 +25,7 @@
 
 class MediaInfoWidget;
 class MediaInfoFetcher;
+class MediaInfo;
 
 namespace Phonon {
 	class MediaObject;
@@ -52,7 +53,7 @@ public slots:
 
 private slots:
 
-	void updateMediaInfo();
+	void updateMediaInfo(const MediaInfo & mediaInfo);
 
 	void metaDataChanged();
 

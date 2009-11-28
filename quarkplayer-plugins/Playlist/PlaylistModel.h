@@ -173,7 +173,7 @@ private slots:
 
 	void tick(qint64 time);
 
-	void updateMediaInfo();
+	void updateMediaInfo(const MediaInfo & mediaInfo);
 
 	void filesFound(const QStringList & files);
 

@@ -81,7 +81,8 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const 
 
 	//Info fetcher
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
-	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
+	connect(_mediaInfoFetcher, SIGNAL(finished(const MediaInfo &)),
+		SLOT(updateMediaInfo(const MediaInfo &)));
 
 	if (PluginManager::instance().allPluginsAlreadyLoaded()) {
 		//If all the plugins are already loaded...
@@ -552,23 +553,24 @@ Qt::DropActions PlaylistModel::supportedDropActions() const {
 	return Qt::CopyAction | Qt::MoveAction;
 }
 
-void PlaylistModel::updateMediaInfo() {
+void PlaylistModel::updateMediaInfo(const MediaInfo & mediaInfo) {
 	if (_mediaInfoFetcherRow == POSITION_INVALID) {
 		qCritical() << __FUNCTION__ << "Error: _mediaInfoFetcherRow invalid";
 	} else {
 		if (_mediaInfoFetcherRow < _filenames.size()) {
-			MediaInfo mediaInfo = _filenames[_mediaInfoFetcherRow];
-			QString filename(mediaInfo.fileName());
+			MediaInfo mediaInfo2 = _filenames[_mediaInfoFetcherRow];
+			QString filename(mediaInfo2.fileName());
 
-			if ((filename == _mediaInfoFetcher->mediaInfo().fileName())
-				&& !mediaInfo.fetched()
+			if ((filename == mediaInfo.fileName())
+				&& !mediaInfo2.fetched()
 				&& !MediaInfo::isUrl(filename)
-				&& (mediaInfo.cueStartIndex() == MediaInfo::CUE_INDEX_INVALID)) {
+				&& (mediaInfo2.cueStartIndex() == MediaInfo::CUE_INDEX_INVALID)) {
 
-				_filenames[_mediaInfoFetcherRow] = _mediaInfoFetcher->mediaInfo();
+				_filenames[_mediaInfoFetcherRow] = mediaInfo;
 
 				//Update the row since the matching MediaSource has been modified
-				emit dataChanged(index(_mediaInfoFetcherRow, COLUMN_FIRST), index(_mediaInfoFetcherRow, COLUMN_LAST));
+				emit dataChanged(index(_mediaInfoFetcherRow, COLUMN_FIRST),
+					index(_mediaInfoFetcherRow, COLUMN_LAST));
 			}
 		}
 	}
@@ -610,7 +612,7 @@ void PlaylistModel::play(int position) {
 	if (_positionToPlay < _filenames.count()) {
 		playInternal();
 	} else {
-		//We need to wait until the file has been added to the Playlist/model
+		//We need to wait until the file has been added to the playlist/model
 		//before we can actually play it
 		connect(this, SIGNAL(rowsInserted(const QModelIndex &, int, int)), SLOT(playInternal()));
 	}

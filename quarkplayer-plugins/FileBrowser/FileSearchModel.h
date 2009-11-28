@@ -31,6 +31,7 @@
 
 class FindFiles;
 class MediaInfoFetcher;
+class MediaInfo;
 class FileSearchItem;
 
 class QFileInfo;
@@ -139,7 +140,7 @@ private slots:
 
 	void filesFound(const QStringList & files, const QUuid & uuid);
 
-	void updateMediaInfo();
+	void updateMediaInfo(const MediaInfo & mediaInfo);
 
 	void searchFinishedSlot(int timeElapsed);
 

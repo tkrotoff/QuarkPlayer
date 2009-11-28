@@ -130,7 +130,8 @@ void OSDWidget::show() {
 
 void OSDWidget::startMediaInfoFetcher(Phonon::MediaObject * mediaObject) {
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
-	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
+	connect(_mediaInfoFetcher, SIGNAL(finished(const MediaInfo &)),
+		SLOT(updateMediaInfo(const MediaInfo &)));
 	Phonon::MediaSource mediaSource(mediaObject->currentSource());
 	if (mediaSource.type() == Phonon::MediaSource::Url) {
 		//Cannot solve meta data from a stream/remote media
@@ -143,17 +144,14 @@ void OSDWidget::startMediaInfoFetcher(Phonon::MediaObject * mediaObject) {
 		_mediaInfoFetcher->start(MediaInfo(mediaSource.fileName()),
 			MediaInfoFetcher::ReadStyleAccurate);
 	}
-	if (_mediaInfoFetcher->mediaInfo().fetched()) {
-		updateMediaInfo();
-	}
 }
 
-void OSDWidget::updateMediaInfo() {
+void OSDWidget::updateMediaInfo(const MediaInfo & mediaInfo) {
 	if (!_mediaInfoFetcher) {
 		return;
 	}
 
-	_mediaInfoWidget->updateMediaInfo(_mediaInfoFetcher->mediaInfo());
+	_mediaInfoWidget->updateMediaInfo(mediaInfo);
 }
 
 void OSDWidget::metaDataChanged() {

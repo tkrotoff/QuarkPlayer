@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,7 +72,9 @@ void MediaDataWidget::showMediaInfoWindow() {
 
 void MediaDataWidget::startMediaInfoFetcher(Phonon::MediaObject * mediaObject) {
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
-	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
+	connect(_mediaInfoFetcher, SIGNAL(finished(const MediaInfo &)),
+		SLOT(updateMediaInfo(const MediaInfo &)));
+
 	Phonon::MediaSource mediaSource(mediaObject->currentSource());
 	if (mediaSource.type() == Phonon::MediaSource::Url) {
 		//Cannot solve meta data from a stream/remote media
@@ -85,24 +87,19 @@ void MediaDataWidget::startMediaInfoFetcher(Phonon::MediaObject * mediaObject) {
 		_mediaInfoFetcher->start(MediaInfo(mediaSource.fileName()),
 			MediaInfoFetcher::ReadStyleAccurate);
 	}
-	if (_mediaInfoFetcher->mediaInfo().fetched()) {
-		updateMediaInfo();
-	}
 }
 
-void MediaDataWidget::updateMediaInfo() {
+void MediaDataWidget::updateMediaInfo(const MediaInfo & mediaInfo) {
 	if (!_mediaInfoFetcher) {
 		return;
 	}
-
-	MediaInfo mediaInfo = _mediaInfoFetcher->mediaInfo();
 
 	downloadAmazonCoverArt(mediaInfo);
 	MediaInfoWidget::updateMediaInfo(mediaInfo);
 }
 
 void MediaDataWidget::retranslate() {
-	updateMediaInfo();
+	//updateMediaInfo();
 
 	if (_mediaInfoWindow) {
 		_mediaInfoWindow->setLanguage(Config::instance().language());
@@ -129,7 +126,7 @@ void MediaDataWidget::downloadAmazonCoverArt(const MediaInfo & mediaInfo) {
 		amazonCoverArtFilename.replace('>', space);
 		amazonCoverArtFilename.replace('|', space);
 
-		QString coverArtDir(QFileInfo(_mediaInfoFetcher->mediaInfo().fileName()).path());
+		QString coverArtDir(QFileInfo(mediaInfo.fileName()).path());
 		_amazonCoverArtPath = coverArtDir + '/' + amazonCoverArtFilename;
 
 		if (!QFileInfo(_amazonCoverArtPath).exists()) {
@@ -170,8 +167,8 @@ void MediaDataWidget::amazonCoverArtFound(QNetworkReply::NetworkError error, con
 
 				showCoverArtStatusMessage(tr("Amazon cover art downloaded: ") + _amazonCoverArtPath + " " + url.toString());
 
-				//Buggy?
-				updateCoverArts(_mediaInfoFetcher->mediaInfo());
+				//FIXME buggy?
+				//updateCoverArts(_mediaInfoFetcher->mediaInfo());
 				///
 			} else {
 				qCritical() << __FUNCTION__ << "Error: cover art file couldn't be written:" << _amazonCoverArtPath;

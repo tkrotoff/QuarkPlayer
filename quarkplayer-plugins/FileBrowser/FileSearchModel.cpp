@@ -55,7 +55,8 @@ FileSearchModel::FileSearchModel(QObject * parent)
 
 	//Info fetcher
 	_mediaInfoFetcher = new MediaInfoFetcher(this);
-	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
+	connect(_mediaInfoFetcher, SIGNAL(finished(const MediaInfo &)),
+		SLOT(updateMediaInfo(const MediaInfo &)));
 }
 
 FileSearchModel::~FileSearchModel() {
@@ -438,18 +439,18 @@ void FileSearchModel::filesFound(const QStringList & files, const QUuid & uuid) 
 	endInsertRows();
 }
 
-void FileSearchModel::updateMediaInfo() {
+void FileSearchModel::updateMediaInfo(const MediaInfo & mediaInfo) {
 	if (_mediaInfoFetcherIndex == QModelIndex() || !_mediaInfoFetcherIndex.isValid()) {
 		qCritical() << __FUNCTION__ << "Error: _mediaInfoFetcherIndex invalid";
 	} else {
 		FileSearchItem * searchItem = item(_mediaInfoFetcherIndex);
 
-		MediaInfo mediaInfo = searchItem->mediaInfo();
+		MediaInfo mediaInfo2 = searchItem->mediaInfo();
 
-		if (mediaInfo.fileName() == _mediaInfoFetcher->mediaInfo().fileName() &&
-			!mediaInfo.fetched()) {
+		if (mediaInfo2.fileName() == mediaInfo.fileName() &&
+			!mediaInfo2.fetched()) {
 
-			searchItem->setMediaInfo(_mediaInfoFetcher->mediaInfo());
+			searchItem->setMediaInfo(mediaInfo);
 
 			//Update the index since the matching MediaSource has been modified
 			emit dataChanged(_mediaInfoFetcherIndex, _mediaInfoFetcherIndex);

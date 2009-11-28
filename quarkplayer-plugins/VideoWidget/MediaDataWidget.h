@@ -60,7 +60,7 @@ private slots:
 
 	void showMediaInfoWindow();
 
-	void updateMediaInfo();
+	void updateMediaInfo(const MediaInfo & mediaInfo);
 
 	void retranslate();
 
