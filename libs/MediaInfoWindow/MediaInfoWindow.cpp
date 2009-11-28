@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,13 +87,14 @@ MediaInfoWindow::~MediaInfoWindow() {
 void MediaInfoWindow::setMediaInfoFetcher(MediaInfoFetcher * mediaInfoFetcher) {
 	//Disconnect MediaInfoWindow from the previous MediaInfoFetcher if any
 	if (_mediaInfoFetcher) {
-		disconnect(_mediaInfoFetcher, SIGNAL(fetched()),
-			this, SLOT(updateMediaInfo()));
+		disconnect(_mediaInfoFetcher, SIGNAL(finished(const MediaInfo &)),
+			this, SLOT(updateMediaInfo(const MediaInfo &)));
 	}
 
 	//New MediaInfoFetcher
 	_mediaInfoFetcher = mediaInfoFetcher;
-	connect(_mediaInfoFetcher, SIGNAL(fetched()), SLOT(updateMediaInfo()));
+	connect(_mediaInfoFetcher, SIGNAL(finished(const MediaInfo &)),
+		SLOT(updateMediaInfo(const MediaInfo &)));
 }
 
 void MediaInfoWindow::setLanguage(const QString & language) {
@@ -132,15 +133,15 @@ void MediaInfoWindow::openDirectory() {
 
 void MediaInfoWindow::refresh() {
 	if (_mediaInfoFetcher) {
-		if (_mediaInfoFetcher->mediaInfo().fetched()) {
-			updateMediaInfo();
-		}
+		/*FIXME not implemented yet
+		MediaInfo mediaInfo = _mediaInfoFetcher->mediaInfo();
+		if (mediaInfo.fetched()) {
+			updateMediaInfo(mediaInfo);
+		}*/
 	}
 }
 
-void MediaInfoWindow::updateMediaInfo() {
-	MediaInfo mediaInfo = _mediaInfoFetcher->mediaInfo();
-
+void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {
 	_openDirectoryButton->setEnabled(!mediaInfo.isUrl());
 
 	QIcon icon;

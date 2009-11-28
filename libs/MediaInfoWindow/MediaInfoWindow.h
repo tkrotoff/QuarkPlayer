@@ -32,6 +32,7 @@ namespace Ui {
 	class MediaInfoWindow;
 }
 class MediaInfoFetcher;
+class MediaInfo;
 class LyricsFetcher;
 class WikipediaArticle;
 class ContentFetcherTrack;
@@ -84,7 +85,7 @@ private slots:
 
 	void wikipediaArticleFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & wikipediaArticle, const ContentFetcherTrack & track);
 
-	void updateMediaInfo();
+	void updateMediaInfo(const MediaInfo & mediaInfo);
 
 	void retranslate();
 
