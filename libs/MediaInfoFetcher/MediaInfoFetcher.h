@@ -104,18 +104,14 @@ public:
 	 */
 	void start(Phonon::MediaObject * mediaObject);
 
-	/** Gets the MediaInfo object that contains all the infos and metadata. */
-	MediaInfo mediaInfo() const;
-
 signals:
 
 	/**
 	 * All the metadata have been retrieved/fetched.
 	 *
-	 * Now you can use mediaInfo()
-	 * @see mediaInfo()
+	 * @param mediaInfo the MediaInfo object that contains all the infos and metadata
 	 */
-	void fetched();
+	void finished(const MediaInfo & mediaInfo);
 
 private slots:
 
@@ -143,6 +139,13 @@ private:
 
 	/** Determines file type from the file extension. */
 	void determineFileTypeFromExtension();
+
+	/**
+	 * Sends the finished() signal.
+	 *
+	 * Code factorization.
+	 */
+	void emitFinishedSignal();
 
 	ReadStyle _readStyle;
 

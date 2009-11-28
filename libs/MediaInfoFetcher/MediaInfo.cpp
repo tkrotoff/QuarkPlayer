@@ -25,16 +25,54 @@
 #include <QtCore/QDebug>
 
 MediaInfo::MediaInfo() {
+	qRegisterMetaType<MediaInfo>("MediaInfo");
+
 	clear();
 }
 
 MediaInfo::MediaInfo(const QString & filename) {
+	qRegisterMetaType<MediaInfo>("MediaInfo");
+
 	clear();
 
 	setFileName(filename);
 }
 
 MediaInfo::~MediaInfo() {
+}
+
+bool MediaInfo::operator==(const MediaInfo & mediaInfo) const {
+	bool equal = false;
+
+	equal |= _fetched == mediaInfo._fetched;
+	equal |= _fileName == mediaInfo._fileName;
+	equal |= _isUrl == mediaInfo._isUrl;
+	//equal |= _fileType == mediaInfo._fileType;
+	equal |= _fileSize == mediaInfo._fileSize;
+
+	equal |= _length == mediaInfo._length;
+
+	equal |= _bitrate == mediaInfo._bitrate;
+	equal |= _encodedApplication == mediaInfo._encodedApplication;
+	equal |= _privateData == mediaInfo._privateData;
+
+	equal |= _cueStartIndex == mediaInfo._cueStartIndex;
+	equal |= _cueEndIndex == mediaInfo._cueEndIndex;
+
+	equal |= _metadataHash == mediaInfo._metadataHash;
+
+	equal |= _audioStreamCount == mediaInfo._audioStreamCount;
+	equal |= _audioStreamHash == mediaInfo._audioStreamHash;
+
+	equal |= _videoStreamCount == mediaInfo._videoStreamCount;
+	equal |= _videoStreamHash == mediaInfo._videoStreamHash;
+
+	equal |= _textStreamCount == mediaInfo._textStreamCount;
+	equal |= _textStreamHash == mediaInfo._textStreamHash;
+
+	equal |= _networkStreamHash == mediaInfo._networkStreamHash;
+
+	return equal;
 }
 
 void MediaInfo::clear() {

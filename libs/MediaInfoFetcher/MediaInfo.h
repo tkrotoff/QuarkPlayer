@@ -25,6 +25,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QHash>
+#include <QtCore/QMetaType>
 
 /**
  * Infos and other metadata associated with a media/track.
@@ -38,6 +39,7 @@
  * Thus MediaInfo should be a simple and lightweight class.
  *
  * @see MediaInfoFetcher
+ * @see PlaylistParser
  * @author Tanguy Krotoff
  */
 class MEDIAINFOFETCHER_API MediaInfo {
@@ -53,6 +55,8 @@ public:
 	explicit MediaInfo(const QString & filename);
 
 	~MediaInfo();
+
+	bool operator==(const MediaInfo & mediaInfo) const;
 
 	void clear();
 
@@ -198,6 +202,9 @@ public:
 	enum VideoStream {
 		/** int */
 		VideoBitrate,
+		/** QSize */
+		//FIXME not implemented yet
+		//VideoResolution,
 		/** int */
 		VideoWidth,
 		/** int */
@@ -254,6 +261,9 @@ public:
 	void setPrivateData(const QString & privateData);
 	QString privateData() const;
 
+	//void setExtendedMetadata(const QString & key, const QVariant & value);
+	//QVariant extendedMetadata(const QString & key) const;
+
 private:
 
 	/** Factorization code: parses a CUE index string. */
@@ -300,5 +310,15 @@ private:
 	/** Network stream metadata. */
 	QHash<NetworkStream, QString> _networkStreamHash;
 };
+
+Q_DECLARE_METATYPE(MediaInfo);
+Q_DECLARE_METATYPE(QList<MediaInfo>);
+
+#include <QtCore/QList>
+
+/**
+ * A list of MediaInfo.
+ */
+typedef QList<MediaInfo> MediaInfoList;
 
 #endif	//MEDIAINFO_H

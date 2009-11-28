@@ -80,8 +80,9 @@ MediaInfoFetcher::MediaInfoFetcher(QObject * parent)
 MediaInfoFetcher::~MediaInfoFetcher() {
 }
 
-MediaInfo MediaInfoFetcher::mediaInfo() const {
-	return _mediaInfo;
+void MediaInfoFetcher::emitFinishedSignal() {
+	_mediaInfo.setFetched(true);
+	emit finished(_mediaInfo);
 }
 
 void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
@@ -99,9 +100,7 @@ void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
 		//This might be caused also by an invalid filename?
 		qCritical() << __FUNCTION__ << "Error: mediaInfo is a URL";
 
-		//Sends the fetched() signal
-		_mediaInfo.setFetched(true);
-		emit fetched();
+		emitFinishedSignal();
 	} else {
 		determineFileTypeFromExtension();
 
@@ -187,8 +186,7 @@ void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State ol
 	QMap<QString, QString> metadata = _metaObjectInfoResolver->metaData();
 
 	if (newState == Phonon::ErrorState) {
-		_mediaInfo.setFetched(true);
-		emit fetched();
+		emitFinishedSignal();
 	}
 
 	if (newState == Phonon::StoppedState) {
@@ -213,8 +211,7 @@ void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State ol
 		_mediaInfo.insertNetworkStream(MediaInfo::StreamWebsite, metadata.value("STREAM_WEBSITE").trimmed());
 		_mediaInfo.insertNetworkStream(MediaInfo::StreamURL, metadata.value("STREAM_URL").trimmed());
 
-		_mediaInfo.setFetched(true);
-		emit fetched();
+		emitFinishedSignal();
 	}
 }
 
@@ -425,8 +422,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 		}
 	}
 
-	_mediaInfo.setFetched(true);
-	emit fetched();
+	emitFinishedSignal();
 #endif	//TAGLIB
 }
 
@@ -512,8 +508,7 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 		_mediaInfo.insertTextStream(textStreamId, MediaInfo::TextLanguage, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Text, textStreamId, _T("Language/String"))).trimmed());
 	}
 
-	_mediaInfo.setFetched(true);
-	emit fetched();
+	emitFinishedSignal();
 #endif	//MEDIAINFOLIB
 }
 
