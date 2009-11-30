@@ -1,4 +1,4 @@
-#add_subdirectory(MediaInfoFetcher)
+add_subdirectory(MediaInfoFetcher)
 #add_subdirectory(MediaInfoWindow)
 add_subdirectory(PlaylistParser)
 add_subdirectory(ContentFetcher)
