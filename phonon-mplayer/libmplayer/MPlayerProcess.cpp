@@ -50,7 +50,10 @@ MPlayerProcess::MPlayerProcess(QObject * parent)
 	rx_file_not_found("^File not found:"),
 	//rx_endoffile("^ID_EXIT=EOF$"),
 	rx_endoffile("^Exiting... \\(End of file\\)"),
+
+	//General error messages
 	rx_slowsystem("Your system is too SLOW to play this!"),
+	//rx_cannotseek("Cannot seek in raw AVI streams. (Index required, try with the -idx switch.)");
 
 	//Streaming
 	rx_connecting("^Connecting to server (.*)..."),

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -561,6 +561,9 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 
 void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget * dockWidget, QDockWidget * lastDockWidget) {
 	if (dockWidget) {
+		dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+		dockWidget->setFloating(false);
+		dockWidget->setTitleBarWidget(NULL);
 		QMainWindow::addDockWidget(area, dockWidget);
 		if (lastDockWidget) {
 			tabifyDockWidget(lastDockWidget, dockWidget);

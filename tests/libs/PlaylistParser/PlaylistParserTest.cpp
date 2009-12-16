@@ -24,6 +24,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
+#include <QtCore/QList>
 
 QTEST_MAIN(PlaylistParserTest)
 
@@ -49,60 +50,20 @@ void PlaylistParserTest::cleanup() {
 void PlaylistParserTest::loadPlaylist_data() {
 	QTest::addColumn<QString>("playlistFileName");
 
-	QTest::addColumn<QStringList>("filesFound");
+	QTest::addColumn<QList<MediaInfo> >("filesFound");
 	QTest::addColumn<int>("parserError");
 	QTest::addColumn<int>("parserFileError");
 	QTest::addColumn<int>("parserTimeElapsed");
 
-	QTest::newRow("M3U") << ":/foobar2000-0.9.6.7/test.m3u"
-		<< (QStringList()
-			<< "01-Do Whats Good For Me.mp3"
-			<< "02-No Limit.mp3"
-			<< "03-Get Ready For This.mp3"
-			<< "04-Twilight Zone.mp3"
-			<< "05-No One.mp3"
-			<< "06-Jump For Joy.mp3"
-			<< "07-Tribal Dance.mp3"
-			<< "08-Magic Friend.mp3"
-			<< "09-Workaholic.mp3"
-			<< "10-Let The Beat Control Your Body.mp3"
-			<< "11-Nothing Like The Rain.mp3"
-			<< "12-Spread Your Love.mp3"
-			<< "13-The Real Thing.mp3"
-			<< "14-Here I Go.mp3"
-			<< "15-Maximum Overdrive.mp3"
-			<< "16-Faces.mp3"
-			<< "01 Blondie - Heart Of Glass.mp3"
-			<< "02 Blondie - Dreaming.mp3"
-			<< "03 Blondie - The Tide Is High.mp3"
-			<< "04 Blondie - In The Flesh.mp3"
-			<< "05 Blondie - Sunday Girl.mp3"
-			<< "06 Blondie - Hanging On The Telephone.mp3"
-			<< "07 Blondie - Rapture.mp3"
-			<< "08 Blondie - One Way Or Another.mp3"
-			<< "09 Blondie - (I'm Always Touched By Your) Presence Dear.mp3"
-			<< "10 Blondie - Call Me (Theme From American Gigolo).mp3"
-			<< "11 Blondie - Atomic.mp3"
-			<< "12 Blondie - Rip Her To Shreds.mp3"
-			<< "01  Madcon - Beggin'.mp3"
-			<< "02  Madcon - Back On The Road [With Paperboys].mp3"
-			<< "03  Madcon - Liar.mp3"
-			<< "04  Madcon - Hard To Read [With Noora].mp3"
-			<< "05  Madcon - Life's Too Short.mp3"
-			<< "06  Madcon - The Way We Do Thangs [With Timbuktu].mp3"
-			<< "07  Madcon - Blessed.mp3"
-			<< "08  Madcon - Suda Suda [With El Axel].mp3"
-			<< "09  Madcon - Let It Be Known.mp3"
-			<< "10  Madcon - Let's Dance Instead.mp3"
-			<< "11  Madcon - Dandelion.mp3"
-			<< "12  Madcon - Pride And Prejudice [With Sofian].mp3"
-			<< "13  Madcon - Me And My Brother.mp3"
-			<< "14  Madcon - Loose [Bonus].mp3")
-		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
-		<< 0;
+	loadPlaylistM3U();
+	loadPlaylistM3U8();
+	loadPlaylistWPL();
+	loadPlaylistPLS();
+	loadPlaylistASX();
+	loadPlaylistXSPF();
+	loadPlaylistCUE();
 
-	//Non existing file
+	/*//Non existing file
 	QTest::newRow("Non existing File") << "Non existing File"
 		<< QStringList()
 		<< static_cast<int>(PlaylistParser::FileError)
@@ -196,6 +157,44 @@ void PlaylistParserTest::loadPlaylist_data() {
 		<< static_cast<int>(QFile::NoError)
 		<< 0;
 	///
+	*/
+}
+
+void PlaylistParserTest::loadPlaylistM3U() {
+	MediaInfoList mediaInfoList;
+	MediaInfo mediaInfo;
+
+	mediaInfo.clear();
+	mediaInfo.setFileName("C:\\Documents and Settings\\tanguy_k\\My Documents\\Downloads\\2 Unlimited - The Very Best Of 2 Unlimited\\01-Do Whats Good For Me.mp3");
+	mediaInfoList += mediaInfo;
+
+	mediaInfo.clear();
+	mediaInfo.setFileName("C:\\Documents and Settings\\tanguy_k\\My Documents\\Downloads\\2 Unlimited - The Very Best Of 2 Unlimited\\02-No Limit.mp3");
+	mediaInfoList += mediaInfo;
+
+	QTest::newRow("M3U") << ":/foobar2000-0.9.6.7/test.m3u"
+		<< mediaInfoList
+		<< static_cast<int>(PlaylistParser::NoError)
+		<< static_cast<int>(QFile::NoError)
+		<< 0;
+}
+
+void PlaylistParserTest::loadPlaylistM3U8() {
+}
+
+void PlaylistParserTest::loadPlaylistWPL() {
+}
+
+void PlaylistParserTest::loadPlaylistPLS() {
+}
+
+void PlaylistParserTest::loadPlaylistASX() {
+}
+
+void PlaylistParserTest::loadPlaylistXSPF() {
+}
+
+void PlaylistParserTest::loadPlaylistCUE() {
 }
 
 void PlaylistParserTest::loadPlaylist() {
@@ -225,14 +224,12 @@ void PlaylistParserTest::loadPlaylist() {
 }
 
 void PlaylistParserTest::filesFound(const QList<MediaInfo> & files) {
-	QFETCH(QStringList, filesFound);
+	QFETCH(QList<MediaInfo>, filesFound);
 
 	QCOMPARE(files.size(), filesFound.size());
 
 	for (int i = 0; i < filesFound.size(); i++) {
-		QString file(files[i].fileName());
-		QString fileFound(filesFound[i]);
-		QVERIFY(file.endsWith(fileFound));
+		QCOMPARE(filesFound[i], files[i]);
 	}
 }
 

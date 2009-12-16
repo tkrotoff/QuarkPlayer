@@ -54,13 +54,39 @@ public:
 	CClassFactory();
 	virtual ~CClassFactory();
 
-	//Inherited from interface IUnknown
-	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, LPVOID FAR * ppvObject);
+	/**
+	 * Inherited from interface IUnknown.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms682521%28VS.85%29.aspx
+	 */
+	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void ** ppvObject);
+
+	/**
+	 * Inherited from interface IUnknown.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms691379%28VS.85%29.aspx
+	 */
 	ULONG STDMETHODCALLTYPE AddRef();
+
+	/**
+	 * Inherited from interface IUnknown.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms682317%28VS.85%29.aspx
+	 */
 	ULONG STDMETHODCALLTYPE Release();
 
-	//Inherited from interface IClassFactory
-	HRESULT STDMETHODCALLTYPE CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, LPVOID * ppvObject);
+	/**
+	 * Inherited from interface IClassFactory.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms682215%28VS.85%29.aspx
+	 */
+	HRESULT STDMETHODCALLTYPE CreateInstance(IUnknown * pUnkOuter, REFIID riid, void ** ppvObject);
+
+	/**
+	 * Inherited from interface IClassFactory.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms682332%28VS.85%29.aspx
+	 */
 	HRESULT STDMETHODCALLTYPE LockServer(BOOL fLock);
 
 private:
@@ -75,26 +101,62 @@ public:
 	CContextMenu();
 	virtual ~CContextMenu();
 
-	//Inherited from interface IUnknown
-	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, LPVOID FAR * ppvObject);
+	/**
+	 * Inherited from interface IUnknown.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms682521%28VS.85%29.aspx
+	 */
+	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void ** ppvObject);
+
+	/**
+	 * Inherited from interface IUnknown.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms691379%28VS.85%29.aspx
+	 */
 	ULONG STDMETHODCALLTYPE AddRef();
+
+	/**
+	 * Inherited from interface IUnknown.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms682317%28VS.85%29.aspx
+	 */
 	ULONG STDMETHODCALLTYPE Release();
 
-	//Inherited from interface IShellExtInit
-	HRESULT STDMETHODCALLTYPE Initialize(LPCITEMIDLIST pIDFolder, LPDATAOBJECT pDataObj, HKEY hKeyID);
+	/**
+	 * Inherited from interface IShellExtInit.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/bb775094%28VS.85%29.aspx
+	 */
+	HRESULT STDMETHODCALLTYPE Initialize(PCIDLIST_ABSOLUTE pidlFolder, IDataObject * pDataObj, HKEY hKeyProgID);
 
-	//Inherited from interface IContextMenu
-	HRESULT STDMETHODCALLTYPE GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT FAR * pwReserved, LPSTR pszName, UINT cchMax);
-	HRESULT STDMETHODCALLTYPE InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi);
+	/**
+	 * Inherited from interface IContextMenu.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/bb776094%28VS.85%29.aspx
+	 */
+	HRESULT STDMETHODCALLTYPE GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT * pwReserved, LPSTR pszName, UINT cchMax);
+
+	/**
+	 * Inherited from interface IContextMenu.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/bb776096%28VS.85%29.aspx
+	 */
+	HRESULT STDMETHODCALLTYPE InvokeCommand(LPCMINVOKECOMMANDINFO pici);
+
+	/**
+	 * Inherited from interface IContextMenu.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/bb776097%28VS.85%29.aspx
+	 */
 	HRESULT STDMETHODCALLTYPE QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags);
 
 private:
 
 	/** Execute quarkplayer.exe. */
-	HRESULT STDMETHODCALLTYPE invokeQuarkPlayer(HWND hParent, LPTSTR args);
+	HRESULT STDMETHODCALLTYPE InvokeQuarkPlayer(HWND hParent, TCHAR * args);
 
 	ULONG m_cRef;
-	LPDATAOBJECT m_pDataObj;
+	IDataObject * m_pDataObj;
 
 	/** QuarkPlayer icon that will be show inside the context menu. */
 	HBITMAP m_hQuarkPlayerBmp;

@@ -66,9 +66,8 @@ void SearchLineEdit::init(const QStringList & wordList) {
 			_clearButton->sizeHint().width() + _wordListButton->sizeHint().width() + frameWidth + 1));
 
 	//Compute minimum size for the SearchLineEdit
-	QSize sizeHint = minimumSizeHint();
-	setMinimumSize(qMax(sizeHint.width(), _clearButton->sizeHint().height() + frameWidth * 2 + 2),
-		qMax(sizeHint.height(), _clearButton->sizeHint().height() + frameWidth * 2 + 2));
+	setMinimumSize(_clearButton->sizeHint().height() + frameWidth,
+		_clearButton->sizeHint().height() + frameWidth);
 
 	//Search completion
 	_stringListModel = new QStringListModel();

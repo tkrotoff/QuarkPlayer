@@ -93,6 +93,14 @@ private slots:
 
 private:
 
+	void loadPlaylistM3U();
+	void loadPlaylistM3U8();
+	void loadPlaylistWPL();
+	void loadPlaylistPLS();
+	void loadPlaylistASX();
+	void loadPlaylistXSPF();
+	void loadPlaylistCUE();
+
 	PlaylistReader * _parser;
 };
 
