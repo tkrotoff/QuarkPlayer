@@ -1,7 +1,7 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2000-2008  Andre Burgaud <andre@burgaud.com>
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -127,7 +127,7 @@ public:
 	 *
 	 * @see http://msdn.microsoft.com/en-us/library/bb775094%28VS.85%29.aspx
 	 */
-	HRESULT STDMETHODCALLTYPE Initialize(PCIDLIST_ABSOLUTE pidlFolder, IDataObject * pDataObj, HKEY hKeyProgID);
+	HRESULT STDMETHODCALLTYPE Initialize(LPCITEMIDLIST/*PCIDLIST_ABSOLUTE*/ pidlFolder, IDataObject * pDataObj, HKEY hKeyProgID);
 
 	/**
 	 * Inherited from interface IContextMenu.
@@ -153,7 +153,7 @@ public:
 private:
 
 	/** Execute quarkplayer.exe. */
-	HRESULT STDMETHODCALLTYPE InvokeQuarkPlayer(HWND hParent, TCHAR * args);
+	HRESULT STDMETHODCALLTYPE InvokeQuarkPlayer(HWND hParent, const TCHAR * args);
 
 	ULONG m_cRef;
 	IDataObject * m_pDataObj;

@@ -1,7 +1,7 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2000-2008  Andre Burgaud <andre@burgaud.com>
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,13 +41,13 @@ unsigned _dllCount = 0;
 HINSTANCE _hModule = NULL;
 
 static const TCHAR * menuItems[] = {
-	_T("Play with QuarkPlayer"),
-	_T("Enqueue in QuarkPlayer")
+	L"Play with QuarkPlayer",
+	L"Enqueue in QuarkPlayer"
 };
 
-void MsgBoxError(HWND hWnd, TCHAR * message) {
+void MsgBoxError(HWND hWnd, const TCHAR * message) {
 	MessageBox(hWnd, message,
-		_T("QuarkPlayer Shell Extension"),
+		L"QuarkPlayer Shell Extension",
 		MB_OK | MB_ICONSTOP
 	);
 }
@@ -102,7 +102,7 @@ ULONG STDMETHODCALLTYPE CContextMenu::Release() {
 	return 0L;
 }
 
-HRESULT STDMETHODCALLTYPE CContextMenu::Initialize(PCIDLIST_ABSOLUTE pidlFolder, IDataObject * pDataObj, HKEY hKeyProgID) {
+HRESULT STDMETHODCALLTYPE CContextMenu::Initialize(LPCITEMIDLIST/*PCIDLIST_ABSOLUTE*/ /*pidlFolder*/, IDataObject * pDataObj, HKEY /*hKeyProgID*/) {
 	if (m_pDataObj) {
 		m_pDataObj->Release();
 	}
@@ -113,7 +113,7 @@ HRESULT STDMETHODCALLTYPE CContextMenu::Initialize(PCIDLIST_ABSOLUTE pidlFolder,
 	return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE CContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags) {
+HRESULT STDMETHODCALLTYPE CContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT /*idCmdLast*/, UINT uFlags) {
 	//Check if the first file selected by the user
 	//is a directory or not
 	//Depending on that we won't show the same menu
@@ -195,17 +195,17 @@ HRESULT STDMETHODCALLTYPE CContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici
 
 		switch (idCmd) {
 		case 0:
-			hres = InvokeQuarkPlayer(pici->hwnd, _T(""));
+			hres = InvokeQuarkPlayer(pici->hwnd, L"");
 			break;
 		case 1:
-			hres = InvokeQuarkPlayer(pici->hwnd, _T("--playlist-enqueue"));
+			hres = InvokeQuarkPlayer(pici->hwnd, L"--playlist-enqueue");
 			break;
 		}
 	}
 	return hres;
 }
 
-HRESULT STDMETHODCALLTYPE CContextMenu::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT * pwReserved, LPSTR pszName, UINT cchMax) {
+HRESULT STDMETHODCALLTYPE CContextMenu::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT * /*pwReserved*/, LPSTR pszName, UINT cchMax) {
 	//Text to show inside the Explorer status bar
 	//when the mouse points to an item from the context menu
 
@@ -221,7 +221,7 @@ HRESULT STDMETHODCALLTYPE CContextMenu::GetCommandString(UINT_PTR idCmd, UINT uF
 	return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE CContextMenu::InvokeQuarkPlayer(HWND hParent, TCHAR * args) {
+HRESULT STDMETHODCALLTYPE CContextMenu::InvokeQuarkPlayer(HWND hParent, const TCHAR * args) {
 	//Get the number of files selected by the user
 	unsigned nbFilesSelected = 0;
 	STGMEDIUM stgMedium;
@@ -247,23 +247,23 @@ HRESULT STDMETHODCALLTYPE CContextMenu::InvokeQuarkPlayer(HWND hParent, TCHAR * 
 	unsigned commandLineSize = MAX_PATH * (nbFilesSelected + 1) * sizeof(TCHAR);
 	commandLine = (TCHAR *) CoTaskMemAlloc(commandLineSize);
 	if (!commandLine) {
-		MsgBoxError(hParent, _T("Insufficient memory available."));
+		MsgBoxError(hParent, L"Insufficient memory available.");
 		return E_OUTOFMEMORY;
 	}
-	lstrcpy(commandLine, _T("\""));
+	lstrcpy(commandLine, L"\"");
 	lstrcat(commandLine, moduleDrive);
 	lstrcat(commandLine, modulePath);
-	lstrcat(commandLine, _T("quarkplayer.exe"));
-	lstrcat(commandLine, _T("\" "));
+	lstrcat(commandLine, L"quarkplayer.exe");
+	lstrcat(commandLine, L"\" ");
 	lstrcat(commandLine, args);
 
 	//Files selected by the user
 	TCHAR fileUserClickedOn[MAX_PATH];
 	for (unsigned i = 0; i < nbFilesSelected; i++) {
 		DragQueryFile((HDROP) stgMedium.hGlobal, i, fileUserClickedOn, MAX_PATH);
-		lstrcat(commandLine, _T(" \""));
+		lstrcat(commandLine, L" \"");
 		lstrcat(commandLine, fileUserClickedOn);
-		lstrcat(commandLine, _T("\""));
+		lstrcat(commandLine, L"\"");
 	}
 
 	ReleaseStgMedium(&stgMedium);
@@ -300,7 +300,7 @@ HRESULT STDMETHODCALLTYPE CContextMenu::InvokeQuarkPlayer(HWND hParent, TCHAR * 
 
 	if (!result) {
 		MsgBoxError(hParent,
-			_T("Error creating process: quarpkayercontextmenu.dll needs to be in the same directory as quarkplayer.exe"));
+			L"Error creating process: quarpkayercontextmenu.dll needs to be in the same directory as quarkplayer.exe");
 		return E_FAIL;
 	}
 
@@ -354,14 +354,14 @@ HRESULT STDMETHODCALLTYPE CClassFactory::CreateInstance(IUnknown * pUnkOuter, RE
 	return pContextMenu->QueryInterface(riid, ppvObject);
 }
 
-HRESULT STDMETHODCALLTYPE CClassFactory::LockServer(BOOL fLock) {
+HRESULT STDMETHODCALLTYPE CClassFactory::LockServer(BOOL /*fLock*/) {
 	return S_OK;
 }
 
 
 
 //Entrance function DllMain
-extern "C" int APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved) {
+extern "C" int APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /*lpReserved*/) {
 	if (dwReason == DLL_PROCESS_ATTACH) {
 		_hModule = hInstance;
 	}
@@ -384,14 +384,14 @@ STDAPI DllCanUnloadNow(void) {
 	return S_FALSE;
 }
 
-typedef struct {
+struct DOREGSTRUCT {
 	HKEY hRootKey;
-	TCHAR * szSubKey;
-	TCHAR * lpszValueName;
-	TCHAR * szData;
-} DOREGSTRUCT;
+	const TCHAR * szSubKey;
+	const TCHAR * lpszValueName;
+	const TCHAR * szData;
+};
 
-static const TCHAR * shellExtensionTitle = _T("QuarkPlayer");
+static const TCHAR * shellExtensionTitle = L"QuarkPlayer";
 
 static const unsigned GUID_SIZE = 128;
 
@@ -409,11 +409,11 @@ STDAPI DllRegisterServer(void) {
 	///
 
 	DOREGSTRUCT CLSIDEntries[] = {
-		HKEY_CLASSES_ROOT, _T("CLSID\\%s"), NULL, const_cast<TCHAR *>(shellExtensionTitle),
-		HKEY_CLASSES_ROOT, _T("CLSID\\%s\\InprocServer32"), NULL, moduleFileName,
-		HKEY_CLASSES_ROOT, _T("CLSID\\%s\\InprocServer32"), _T("ThreadingModel"), _T("Apartment"),
-		HKEY_CLASSES_ROOT, _T("CLSID\\%s\\shellex\\MayChangeDefaultMenu"), NULL, NULL,
-		NULL, NULL, NULL, NULL
+		{ HKEY_CLASSES_ROOT, L"CLSID\\%s", NULL, const_cast<TCHAR *>(shellExtensionTitle) },
+		{ HKEY_CLASSES_ROOT, L"CLSID\\%s\\InprocServer32", NULL, moduleFileName },
+		{ HKEY_CLASSES_ROOT, L"CLSID\\%s\\InprocServer32", L"ThreadingModel", L"Apartment" },
+		{ HKEY_CLASSES_ROOT, L"CLSID\\%s\\shellex\\MayChangeDefaultMenu", NULL, NULL },
+		{ NULL, NULL, NULL, NULL }
 	};
 
 	for (unsigned i = 0; CLSIDEntries[i].hRootKey; i++) {
@@ -465,13 +465,13 @@ STDAPI DllUnregisterServer(void) {
 	///
 
 	TCHAR szKeyTemp[MAX_PATH + GUID_SIZE];
-	wsprintf(szKeyTemp, _T("CLSID\\%s\\InprocServer32"), szCLSID);
+	wsprintf(szKeyTemp, L"CLSID\\%s\\InprocServer32", szCLSID);
 	RegDeleteKey(HKEY_CLASSES_ROOT, szKeyTemp);
-	wsprintf(szKeyTemp, _T("CLSID\\%s\\shellex\\MayChangeDefaultMenu"), szCLSID);
+	wsprintf(szKeyTemp, L"CLSID\\%s\\shellex\\MayChangeDefaultMenu", szCLSID);
 	RegDeleteKey(HKEY_CLASSES_ROOT, szKeyTemp);
-	wsprintf(szKeyTemp, _T("CLSID\\%s\\shellex"), szCLSID);
+	wsprintf(szKeyTemp, L"CLSID\\%s\\shellex", szCLSID);
 	RegDeleteKey(HKEY_CLASSES_ROOT, szKeyTemp);
-	wsprintf(szKeyTemp, _T("CLSID\\%s"), szCLSID);
+	wsprintf(szKeyTemp, L"CLSID\\%s", szCLSID);
 	RegDeleteKey(HKEY_CLASSES_ROOT, szKeyTemp);
 
 	return S_OK;
