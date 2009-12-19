@@ -20,3 +20,8 @@ qt4_wrap_cpp(libmplayer_SRCS
 )
 
 add_library(libmplayer STATIC ${libmplayer_SRCS})
+
+# Linking with Qt is required by MinGW, otherwise we get undefined symbols
+target_link_libraries(libmplayer
+	${PHONON_LIBS}
+)
