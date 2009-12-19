@@ -47,12 +47,12 @@ endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
 # UNICODE support enabled
 add_definitions(-DUNICODE)
-if (MSVC)
-	# UNICODE support with Visual C++
+if (WIN32)
+	# UNICODE support with Visual C++ and MinGW
 	# See Visual C++ Unicode Programming Summary
 	# http://msdn.microsoft.com/en-us/library/dybsewaf%28VS.100%29.aspx
 	add_definitions(-D_UNICODE)
-endif (MSVC)
+endif (WIN32)
 ##
 
 if (MSVC)
