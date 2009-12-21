@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
 #include <QtCore/QRegExp>
+#include <QtCore/QDate>
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
 
@@ -88,7 +89,7 @@ void CUEParser::load(QIODevice * device, const QString & location) {
 
 	//Root elements
 	QString genre;
-	QString date;
+	QDate date;
 	QString albumArtist;
 	QString album;
 	///
@@ -109,7 +110,7 @@ void CUEParser::load(QIODevice * device, const QString & location) {
 		}
 
 		else if (rx_date.indexIn(line) != -1) {
-			date = rx_date.cap(1);
+			date = QDate::fromString(rx_date.cap(1));
 		}
 
 		else if (rx_root_performer.indexIn(line) != -1) {
@@ -126,17 +127,17 @@ void CUEParser::load(QIODevice * device, const QString & location) {
 
 		else if (rx_track.indexIn(line) != -1) {
 			QString track(rx_track.cap(1));
-			mediaInfo.insertMetadata(MediaInfo::TrackNumber, track);
+			mediaInfo.insertMetaData(MediaInfo::TrackNumber, track.toInt());
 		}
 
 		else if (rx_title.indexIn(line) != -1) {
 			QString title(rx_title.cap(1));
-			mediaInfo.insertMetadata(MediaInfo::Title, title);
+			mediaInfo.insertMetaData(MediaInfo::Title, title);
 		}
 
 		else if (rx_performer.indexIn(line) != -1) {
 			QString performer(rx_performer.cap(1));
-			mediaInfo.insertMetadata(MediaInfo::Artist, performer);
+			mediaInfo.insertMetaData(MediaInfo::Artist, performer);
 		}
 
 		else if (rx_index.indexIn(line) != -1) {
@@ -148,14 +149,12 @@ void CUEParser::load(QIODevice * device, const QString & location) {
 				files.last().setCueEndIndex(index);
 			}
 
-			mediaInfo.insertMetadata(MediaInfo::Genre, genre);
-			mediaInfo.insertMetadata(MediaInfo::Year, date);
-			mediaInfo.insertMetadata(MediaInfo::AlbumArtist, albumArtist);
-			mediaInfo.insertMetadata(MediaInfo::Album, album);
+			mediaInfo.insertMetaData(MediaInfo::Genre, genre);
+			mediaInfo.insertMetaData(MediaInfo::Year, date);
+			mediaInfo.insertMetaData(MediaInfo::AlbumArtist, albumArtist);
+			mediaInfo.insertMetaData(MediaInfo::Album, album);
 
-			bool isUrl = MediaInfo::isUrl(filename);
-			mediaInfo.setUrl(isUrl);
-			if (isUrl) {
+			if (MediaInfo::isUrl(filename)) {
 				mediaInfo.setFileName(filename);
 			} else {
 				mediaInfo.setFileName(Util::canonicalFilePath(path, filename));
@@ -208,7 +207,7 @@ void CUEParser::save(QIODevice * device, const QString & location, const QList<M
 
 		stream << "FILE "
 			<< CUE_QUOTE;
-		if (mediaInfo.isUrl()) {
+		if (MediaInfo::isUrl(mediaInfo.fileName())) {
 			stream << mediaInfo.fileName();
 		} else {
 			//Try to save the filename as relative instead of absolute
@@ -220,16 +219,16 @@ void CUEParser::save(QIODevice * device, const QString & location, const QList<M
 			<< CUE_EOL;
 
 		stream << "  TRACK "
-			<< mediaInfo.metadataValue(MediaInfo::TrackNumber)
+			<< mediaInfo.metaDataValue(MediaInfo::TrackNumber).toInt()
 			<< " AUDIO"
 			<< CUE_EOL;
 
 		stream << "    TITLE "
-			<< CUE_QUOTE << mediaInfo.metadataValue(MediaInfo::Title) << CUE_QUOTE
+			<< CUE_QUOTE << mediaInfo.metaDataValue(MediaInfo::Title).toString() << CUE_QUOTE
 			<< CUE_EOL;
 
 		stream << "    PERFORMER "
-			<< CUE_QUOTE << mediaInfo.metadataValue(MediaInfo::Artist) << CUE_QUOTE
+			<< CUE_QUOTE << mediaInfo.metaDataValue(MediaInfo::Artist).toString() << CUE_QUOTE
 			<< CUE_EOL;
 
 		stream << "    INDEX "

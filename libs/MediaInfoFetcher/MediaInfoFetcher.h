@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ namespace Phonon {
  * MediaInfoFetcher currently use TagLib, MediaInfoLib and Phonon to get the infos and
  * metadata associated with a media/track.
  * It works asynchronously: using start() won't block your program and you have to wait for
- * the fetched() signal.
+ * the finished() signal.
  *
  * One improvement could be to add a backend system, each backend being associated with
  * one library: TagLib, MediaInfoLib, Phonon...
@@ -115,6 +115,7 @@ signals:
 
 private slots:
 
+	/** Specific to Phonon in order to retrieve the metadata. */
 	void metaStateChanged(Phonon::State newState, Phonon::State oldState);
 
 private:

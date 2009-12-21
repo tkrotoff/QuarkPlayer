@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,10 +45,10 @@ namespace Phonon {
  * Playlist model.
  *
  * Internally, PlaylistModel keeps the entire playlist in memory
- * via <pre>QList<Track> _filenames</pre>.
+ * via <pre>QList<Track> _fileNames</pre>.
  * This is compulsary since the user can perform some searches
  * inside the playlist via the search ToolBar.
- * <pre>QList<Track> _filenames</pre> should be memory efficient and thus the
+ * <pre>QList<Track> _fileNames</pre> should be memory efficient and thus the
  * Track class is very minimalist.
  *
  * @author Tanguy Krotoff
@@ -97,7 +97,7 @@ public:
 	/**
 	 * Loads a playlist file (.m3u, .pls...).
 	 */
-	void loadPlaylist(const QString & filename);
+	void loadPlaylist(const QString & fileName);
 
 	/**
 	 * Enqueues the file at the given position.
@@ -113,7 +113,7 @@ public:
 	/** Returns the files inside the playlist. */
 	const QList<MediaInfo> & files() const;
 
-	/** Gets the filename given its index. */
+	/** Gets the fileName given its index. */
 	MediaInfo mediaInfo(const QModelIndex & index) const;
 
 
@@ -206,9 +206,9 @@ private:
 	MediaInfoFetcher * _mediaInfoFetcher;
 
 	/**
-	 * List of all the media (filenames) available in this QAbstractItemModel.
+	 * List of all the media (fileNames) available in this QAbstractItemModel.
 	 */
-	QList<MediaInfo> _filenames;
+	QList<MediaInfo> _fileNames;
 
 	/**
 	 * _mediaInfoFetcher is working or not (already resolving some metadatas or not).

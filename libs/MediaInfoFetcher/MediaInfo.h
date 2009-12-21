@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <QtCore/QString>
 #include <QtCore/QHash>
 #include <QtCore/QMetaType>
+#include <QtCore/QVariant>
 
 /**
  * Infos and other metadata associated with a media/track.
@@ -58,6 +59,7 @@ public:
 
 	bool operator==(const MediaInfo & mediaInfo) const;
 
+	/** Resets this class. */
 	void clear();
 
 	/** Tells if the metadata were fetched or not. */
@@ -66,11 +68,8 @@ public:
 
 	/** MediaInfo filename, can also be a URL. */
 	QString fileName() const;
-	void setFileName(const QString & filename);
-
-	/** If the filename is a URL or not. */
-	bool isUrl() const;
-	void setUrl(bool url);
+	/** Internal. */
+	void setFileName(const QString & fileName);
 
 	/** Helper function: determine if a given filename is a URL or not. */
 	static bool isUrl(const QString & filename);
@@ -79,18 +78,46 @@ public:
 	FileType fileType() const;
 	void setFileType(FileType fileType);
 
-	/** Gets the size of the file in kbytes. */
-	QString fileSize() const;
-	void setFileSize(int fileSize);
+	/**
+	 * Gets the size of the file in kilobytes (KB).
+	 *
+	 * Stored inside an integer (32bits), this is gives us up to
+	 * a size of 2147GB, I guess this is enough for the near future.
+	 *
+	 * @return file size in KB or -1 if failed
+	 */
+	int fileSize() const;
+	void setFileSize(int kilobytes);
 
-	/** Returns the length of the file in a nice formatted way (i.e 03:45:02). */
-	QString lengthFormatted() const;
-	/** Returns the length of the file in seconds, or -1. */
-	int lengthSeconds() const;
-	/** Returns the length of the file in milliseconds, or -1. */
-	int lengthMilliseconds() const;
-	/** Sets the length of the file in seconds. */
-	void setLength(int length);
+	/**
+	 * Returns the duration/length of the file in a nice formatted way (i.e 03:45:02).
+	 *
+	 * @see TkTime::convertMilliseconds()
+	 */
+	QString durationFormatted() const;
+
+	/**
+	 * Returns the duration/length of the file in seconds, or -1.
+	 *
+	 * Qt uses abreviation Secs for seconds cf
+	 * http://qt.nokia.com/doc/4.6/qtime.html#addSecs
+	 */
+	qint64 durationSecs() const;
+
+	/**
+	 * Returns the duration/length of the file in milliseconds, or -1.
+	 *
+	 * Qt uses abreviation MSecs for milliseconds cf
+	 * http://qt.nokia.com/doc/4.6/qtime.html#addMSecs
+	 * http://qt.nokia.com/doc/4.6/qtime.html#msecsTo
+	 */
+	qint64 durationMSecs() const;
+
+	/** Sets the duration/length of the file in seconds. */
+	void setDurationSecs(qint64 seconds);
+
+	/** Sets the duration/length of the file in milliseconds. */
+	void setDurationMSecs(qint64 milliseconds);
 
 	/**
 	 * CUE start/end INDEX info.
@@ -115,154 +142,260 @@ public:
 	qint64 cueStartIndex() const;
 	qint64 cueEndIndex() const;
 
-	/** Gets the overall bitrate = audio bitrate + video bitrate if any. */
-	QString bitrate() const;
-	void setBitrate(int bitrate);
+	/**
+	 * Gets the overall bitrate = audio bitrate + video bitrate if any.
+	 *
+	 * Uses kilobits per second (kbps or kbit/s).
+	 *
+	 * @see http://en.wikipedia.org/wiki/Bit_rate
+	 *
+	 * Seems like Bitrate is a better name than BitRate:
+	 * Bitrate (Java): 3000 answers
+	 * http://www.google.com/codesearch?as_q=Bitrate&btnG=Search+Code&hl=en&as_lang=java&as_case=y
+	 * BitRate (Java): 1000 answers
+	 * http://www.google.com/codesearch?as_q=BitRate&btnG=Search+Code&hl=en&as_lang=java&as_case=y
+	 *
+	 * @return the overall bitrate of the media file in kbps or -1 if failed
+	 */
+	int bitrate() const;
+	void setBitrate(int kbps);
 
 	/** Gets the application used to encode the file. */
 	QString encodedApplication() const;
 	void setEncodedApplication(const QString & encodedApplication);
 
-	//Metadata
-	enum Metadata {
-		/** int */
+	/**
+	 * MetaData.
+	 *
+	 * @see http://en.wikipedia.org/wiki/Metadata
+	 *
+	 * Seems like MetaData is a better name than Metadata:
+	 * MetaData (Java): 90,500 answers
+	 * http://www.google.com/codesearch?as_q=MetaData&btnG=Search+Code&hl=en&as_lang=java&as_case=y
+	 * Metadata (Java): 81,200 answers
+	 * http://www.google.com/codesearch?as_q=Metadata&btnG=Search+Code&hl=en&as_lang=java&as_case=y
+	 */
+	enum MetaData {
+		/**
+		 * int
+		 * Returns 0 if no track number.
+		 */
 		TrackNumber,
-		/** int */
+
+		/**
+		 * int
+		 * Returns 0 if no disc number
+		 */
 		DiscNumber,
+
 		/** QString */
 		Title,
+
 		/** QString */
 		Artist,
+
 		/** QString */
 		OriginalArtist,
+
 		/** QString */
 		Album,
+
 		/** QString */
 		AlbumArtist,
-		/** QString */
+
+		/** QDate */
 		Year,
+
 		/** QString */
 		Genre,
+
 		/** QString */
 		Comment,
+
 		/** QString */
 		Composer,
+
 		/** QString */
 		Publisher,
+
 		/** QString */
 		Copyright,
-		/** QString */
+
+		/** QUrl */
 		URL,
+
 		/** QString */
 		EncodedBy,
+
 		/** QString */
 		AlbumArtistSort,
-		/** QString */
+
+		/**
+		 * FIXME QString -> QUuid
+		 * Cannot be a QUuid, see http://bugreports.qt.nokia.com/browse/QTBUG-373
+		 *
+		 * @see http://musicbrainz.org/doc/ArtistID
+		 */
 		MusicBrainzArtistId,
-		/** For MusicBrainz, release = album. */
+
+		/**
+		 * FIXME QString -> QUuid
+		 * For MusicBrainz, release = album.
+		 * Cannot be a QUuid, see http://bugreports.qt.nokia.com/browse/QTBUG-373
+		 *
+		 * @see http://musicbrainz.org/doc/ReleaseID
+		 */
 		MusicBrainzReleaseId,
-		/** QString */
+
+		/**
+		 * FIXME QString -> QUuid
+		 * Cannot be a QUuid, see http://bugreports.qt.nokia.com/browse/QTBUG-373
+		 *
+		 * @see http://musicbrainz.org/doc/TrackID
+		 */
 		MusicBrainzTrackId,
-		/** QString */
+
+		/**
+		 * QString
+		 *
+		 * Contains characters and numbers.
+		 * @see http://en.wikipedia.org/wiki/Amazon_Standard_Identification_Number
+		 */
 		AmazonASIN,
-		/** int */
+
+		/**
+		 * Beats per minute is a unit used as a measure of tempo in music.
+		 *
+		 * int
+		 * @see http://en.wikipedia.org/wiki/Beats_per_minute
+		 */
 		BPM
 	};
 
-	QString metadataValue(Metadata metadata) const;
-	void insertMetadata(Metadata metadata, const QString & value);
+	QVariant metaDataValue(MetaData metaData) const;
+	void insertMetaData(MetaData metaData, const QVariant & value);
 
 	//Audio
 	enum AudioStream {
-		/** int */
+		/**
+		 * int
+		 * Uses kilobits per second (kbps or kbit/s).
+		 */
 		AudioBitrate,
+
 		/** QString */
 		AudioBitrateMode,
-		/** int */
+
+		/**
+		 * Defines the number of samples per second taken from a continuous signal to make a discrete signal.
+		 *
+		 * int
+		 * Uses kilohertz (kHz).
+		 *
+		 * @see http://en.wikipedia.org/wiki/Sample_rate
+		 */
 		AudioSampleRate,
+
 		/** int */
 		AudioBitsPerSample,
+
 		/** int */
 		AudioChannelCount,
+
 		/** QString */
 		AudioCodec,
+
 		/** QString */
 		AudioCodecProfile,
+
 		/** QString */
 		AudioLanguage,
+
 		/** QString */
 		AudioEncodedLibrary
 	};
 
 	int audioStreamCount() const;
-	QString audioStreamValue(int audioStreamId, AudioStream audioStream) const;
-	void insertAudioStream(int audioStreamId, AudioStream audioStream, const QString & value);
+	QVariant audioStreamValue(int audioStreamId, AudioStream audioStream) const;
+	void insertAudioStream(int audioStreamId, AudioStream audioStream, const QVariant & value);
 
 	//Video
 	enum VideoStream {
 		/** int */
 		VideoBitrate,
-		/** QSize */
-		//FIXME not implemented yet
-		//VideoResolution,
-		/** int */
-		VideoWidth,
-		/** int */
-		VideoHeight,
-		/** int */
+
+		/**
+		 * QSize
+		 * QSize(int width, int height) in pixels.
+		 */
+		VideoResolution,
+
+		/**
+		 * Frame rate, or frame frequency, is the frequency (rate) at which an imaging
+		 * device produces unique consecutive images called frames.
+		 *
+		 * int
+		 * Uses frames per second (FPS).
+		 * @see http://en.wikipedia.org/wiki/Frame_rate
+		 */
 		VideoFrameRate,
+
 		/** QString */
 		VideoFormat,
+
 		/** QString */
 		VideoCodec,
+
 		/** QString */
 		VideoEncodedLibrary
 	};
 
 	int videoStreamCount() const;
-	QString videoStreamValue(int videoStreamId, VideoStream videoStream) const;
-	void insertVideoStream(int videoStreamId, VideoStream videoStream, const QString & value);
+	QVariant videoStreamValue(int videoStreamId, VideoStream videoStream) const;
+	void insertVideoStream(int videoStreamId, VideoStream videoStream, const QVariant & value);
 
 	//Text
 	enum TextStream {
 		/** QString */
 		TextFormat,
+
 		/** QString */
 		TextLanguage
 	};
 
 	int textStreamCount() const;
-	QString textStreamValue(int textStreamId, TextStream textStream) const;
-	void insertTextStream(int textStreamId, TextStream textStream, const QString & value);
+	QVariant textStreamValue(int textStreamId, TextStream textStream) const;
+	void insertTextStream(int textStreamId, TextStream textStream, const QVariant & value);
 
 	//Stream
 	enum NetworkStream {
 		/** QString */
 		StreamName,
+
 		/** QString */
 		StreamGenre,
-		/** QString */
+
+		/** QUrl */
 		StreamWebsite,
-		/** QString */
+
+		/** QUrl */
 		StreamURL
 	};
 
-	QString networkStreamValue(NetworkStream networkStream) const;
-	void insertNetworkStream(NetworkStream networkStream, const QString & value);
+	QVariant networkStreamValue(NetworkStream networkStream) const;
+	void insertNetworkStream(NetworkStream networkStream, const QVariant & value);
 
 	/**
-	 * Associates a private QString with MediaInfo.
+	 * Associates a QVariant with this MediaInfo.
 	 *
 	 * This function was added in order to easily extend MediaInfo
 	 * without inheriting from it (overly complex).
 	 *
-	 * @param privateData the meaning of privateData is up to the user.
+	 * @param key
+	 * @param value the meaning of value is up to the user
 	 */
-	void setPrivateData(const QString & privateData);
-	QString privateData() const;
-
-	//void setExtendedMetadata(const QString & key, const QVariant & value);
-	//QVariant extendedMetadata(const QString & key) const;
+	void setExtendedMetaData(const QString & key, const QVariant & value);
+	QVariant extendedMetaData(const QString & key) const;
 
 private:
 
@@ -274,16 +407,14 @@ private:
 
 	bool _fetched;
 	QString _fileName;
-	bool _isUrl;
 	FileType _fileType;
 	int _fileSize;
 
-	/** Length of the file in seconds. */
-	int _length;
+	/** Duration/length of the file in milliseconds. */
+	qint64 _duration;
 
 	int _bitrate;
 	QString _encodedApplication;
-	QString _privateData;
 
 	/**
 	 * CUE feature: position in milliseconds where to start the file.
@@ -292,23 +423,26 @@ private:
 	qint64 _cueStartIndex;
 	qint64 _cueEndIndex;
 
-	/** Metadata. */
-	QHash<Metadata, QString> _metadataHash;
+	/** MetaData. */
+	QHash<MetaData, QVariant> _metaDataHash;
 
 	/** Audio. */
 	int _audioStreamCount;
-	QHash<int, QString> _audioStreamHash;
+	QHash<int, QVariant> _audioStreamHash;
 
 	/** Video. */
 	int _videoStreamCount;
-	QHash<int, QString> _videoStreamHash;
+	QHash<int, QVariant> _videoStreamHash;
 
 	/** Text. */
 	int _textStreamCount;
-	QHash<int, QString> _textStreamHash;
+	QHash<int, QVariant> _textStreamHash;
 
 	/** Network stream metadata. */
-	QHash<NetworkStream, QString> _networkStreamHash;
+	QHash<NetworkStream, QVariant> _networkStreamHash;
+
+	/** Extended metadata. */
+	QHash<QString, QVariant> _extendedMetaData;
 };
 
 Q_DECLARE_METATYPE(MediaInfo);

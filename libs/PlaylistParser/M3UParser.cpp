@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,20 +95,20 @@ void M3UParser::load(QIODevice * device, const QString & location) {
 
 		else if (rx_extinf.indexIn(line) != -1) {
 			//#EXTINF line
-			QString length(rx_extinf.cap(1));
-			if (!length.isEmpty()) {
-				mediaInfo.setLength(length.toInt());
+			QString duration(rx_extinf.cap(1));
+			if (!duration.isEmpty()) {
+				mediaInfo.setDurationSecs(duration.toInt());
 			}
 			QString title(rx_extinf.cap(2));
 			if (!title.isEmpty()) {
-				mediaInfo.insertMetadata(MediaInfo::Title, title);
+				mediaInfo.insertMetaData(MediaInfo::Title, title);
 			}
 		}
 
 		else if (rx_extinf_title.indexIn(line) != -1) {
 			QString title(rx_extinf_title.cap(1));
 			if (!title.isEmpty()) {
-				mediaInfo.insertMetadata(MediaInfo::Title, title);
+				mediaInfo.insertMetaData(MediaInfo::Title, title);
 			}
 		}
 
@@ -118,7 +118,6 @@ void M3UParser::load(QIODevice * device, const QString & location) {
 
 		else {
 			bool isUrl = MediaInfo::isUrl(line);
-			mediaInfo.setUrl(isUrl);
 			if (isUrl) {
 				mediaInfo.setFileName(line);
 			} else {
@@ -170,14 +169,14 @@ void M3UParser::save(QIODevice * device, const QString & location, const QList<M
 		}
 
 		stream << "#EXTINF:";
-		stream << mediaInfo.lengthSeconds();
+		stream << mediaInfo.durationSecs();
 		stream << ',';
 
-		QString artist(mediaInfo.metadataValue(MediaInfo::Artist));
+		QString artist(mediaInfo.metaDataValue(MediaInfo::Artist).toString());
 		if (!artist.isEmpty()) {
 			stream << artist;
 		}
-		QString title(mediaInfo.metadataValue(MediaInfo::Title));
+		QString title(mediaInfo.metaDataValue(MediaInfo::Title).toString());
 		if (!title.isEmpty()) {
 			if (!artist.isEmpty()) {
 				stream << " - ";
@@ -186,7 +185,7 @@ void M3UParser::save(QIODevice * device, const QString & location, const QList<M
 		}
 		stream << M3U_EOL;
 
-		if (mediaInfo.isUrl()) {
+		if (MediaInfo::isUrl(mediaInfo.fileName())) {
 			stream << mediaInfo.fileName();
 		} else {
 			//Try to save the filename as relative instead of absolute

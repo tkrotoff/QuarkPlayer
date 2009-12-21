@@ -107,27 +107,27 @@ void MediaDataWidget::retranslate() {
 }
 
 void MediaDataWidget::downloadAmazonCoverArt(const MediaInfo & mediaInfo) {
-	QString artist(mediaInfo.metadataValue(MediaInfo::Artist));
-	QString album(mediaInfo.metadataValue(MediaInfo::Album));
-	QString amazonASIN(mediaInfo.metadataValue(MediaInfo::AmazonASIN));
+	QString artist(mediaInfo.metaDataValue(MediaInfo::Artist).toString());
+	QString album(mediaInfo.metaDataValue(MediaInfo::Album).toString());
+	QString amazonASIN(mediaInfo.metaDataValue(MediaInfo::AmazonASIN).toString());
 
 	if (!album.isEmpty() && !artist.isEmpty()) {
 		//Download the cover only if album + artist are not empty
 
-		QString amazonCoverArtFilename(artist + " - " + album + ".jpg");
+		QString amazonCoverArtFileName(artist + " - " + album + ".jpg");
 		//Remove characters not allowed inside a filename
 		static const QChar space(' ');
-		amazonCoverArtFilename.replace('/', space);
-		amazonCoverArtFilename.replace("\\", space);
-		amazonCoverArtFilename.replace(':', space);
-		amazonCoverArtFilename.replace('*', space);
-		amazonCoverArtFilename.replace('?', space);
-		amazonCoverArtFilename.replace('>', space);
-		amazonCoverArtFilename.replace('>', space);
-		amazonCoverArtFilename.replace('|', space);
+		amazonCoverArtFileName.replace('/', space);
+		amazonCoverArtFileName.replace("\\", space);
+		amazonCoverArtFileName.replace(':', space);
+		amazonCoverArtFileName.replace('*', space);
+		amazonCoverArtFileName.replace('?', space);
+		amazonCoverArtFileName.replace('>', space);
+		amazonCoverArtFileName.replace('>', space);
+		amazonCoverArtFileName.replace('|', space);
 
 		QString coverArtDir(QFileInfo(mediaInfo.fileName()).path());
-		_amazonCoverArtPath = coverArtDir + '/' + amazonCoverArtFilename;
+		_amazonCoverArtPath = coverArtDir + '/' + amazonCoverArtFileName;
 
 		if (!QFileInfo(_amazonCoverArtPath).exists()) {
 			//Download the cover art

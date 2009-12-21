@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,20 +46,18 @@ bool MediaInfo::operator==(const MediaInfo & mediaInfo) const {
 
 	equal |= _fetched == mediaInfo._fetched;
 	equal |= _fileName == mediaInfo._fileName;
-	equal |= _isUrl == mediaInfo._isUrl;
 	//equal |= _fileType == mediaInfo._fileType;
 	equal |= _fileSize == mediaInfo._fileSize;
 
-	equal |= _length == mediaInfo._length;
+	equal |= _duration == mediaInfo._duration;
 
 	equal |= _bitrate == mediaInfo._bitrate;
 	equal |= _encodedApplication == mediaInfo._encodedApplication;
-	equal |= _privateData == mediaInfo._privateData;
 
 	equal |= _cueStartIndex == mediaInfo._cueStartIndex;
 	equal |= _cueEndIndex == mediaInfo._cueEndIndex;
 
-	equal |= _metadataHash == mediaInfo._metadataHash;
+	equal |= _metaDataHash == mediaInfo._metaDataHash;
 
 	equal |= _audioStreamCount == mediaInfo._audioStreamCount;
 	equal |= _audioStreamHash == mediaInfo._audioStreamHash;
@@ -72,6 +70,8 @@ bool MediaInfo::operator==(const MediaInfo & mediaInfo) const {
 
 	equal |= _networkStreamHash == mediaInfo._networkStreamHash;
 
+	equal |= _extendedMetaData == mediaInfo._extendedMetaData;
+
 	return equal;
 }
 
@@ -80,18 +80,16 @@ void MediaInfo::clear() {
 
 	//General
 	_fileName.clear();
-	_isUrl = false;
 	//_fileType
 	_fileSize = -1;
-	_length = -1;
+	_duration = -1;
 	_bitrate = -1;
 	_encodedApplication.clear();
 	_cueStartIndex = CUE_INDEX_INVALID;
 	_cueEndIndex = CUE_INDEX_INVALID;
-	_privateData.clear();
 
 	//metaData
-	_metadataHash.clear();
+	_metaDataHash.clear();
 
 	//Audio
 	_audioStreamCount = 0;
@@ -107,6 +105,8 @@ void MediaInfo::clear() {
 
 	//Stream
 	_networkStreamHash.clear();
+
+	_extendedMetaData.clear();
 }
 
 bool MediaInfo::fetched() const {
@@ -131,14 +131,6 @@ void MediaInfo::setFileName(const QString & filename) {
 	//_fileName.replace("\\", "/");
 }
 
-bool MediaInfo::isUrl() const {
-	return _isUrl;
-}
-
-void MediaInfo::setUrl(bool url) {
-	_isUrl = url;
-}
-
 bool MediaInfo::isUrl(const QString & filename) {
 	//A filename that contains a host/server name is a remote/network media
 	return !QUrl(filename).host().isEmpty();
@@ -152,36 +144,41 @@ void MediaInfo::setFileType(FileType fileType) {
 	_fileType = fileType;
 }
 
-QString MediaInfo::fileSize() const {
+int MediaInfo::fileSize() const {
 	if (_fileSize > 0) {
-		return QString::number(_fileSize / 1024 / 1024.0);
+		return _fileSize / 1024 / 1024.0;
+	} else {
+		//_fileSize should be -1
+		return _fileSize;
+	}
+}
+
+void MediaInfo::setFileSize(int kilobytes) {
+	_fileSize = kilobytes;
+}
+
+QString MediaInfo::durationFormatted() const {
+	if (_duration > 0) {
+		return TkTime::convertMilliseconds(_duration);
 	} else {
 		return QString();
 	}
 }
 
-void MediaInfo::setFileSize(int fileSize) {
-	_fileSize = fileSize;
+qint64 MediaInfo::durationSecs() const {
+	return _duration / 1000.0;
 }
 
-QString MediaInfo::lengthFormatted() const {
-	if (_length > 0) {
-		return TkTime::convertSeconds(_length);
-	} else {
-		return QString();
-	}
+qint64 MediaInfo::durationMSecs() const {
+	return _duration;
 }
 
-int MediaInfo::lengthSeconds() const {
-	return _length;
+void MediaInfo::setDurationSecs(qint64 seconds) {
+	_duration = 1000 * seconds;
 }
 
-int MediaInfo::lengthMilliseconds() const {
-	return (_length * 1000);
-}
-
-void MediaInfo::setLength(int length) {
-	_length = length;
+void MediaInfo::setDurationMSecs(qint64 milliseconds) {
+	_duration = milliseconds;
 }
 
 qint64 MediaInfo::parseCueIndexString(const QString & cueIndexString) {
@@ -248,16 +245,12 @@ QString MediaInfo::cueEndIndexFormatted() const {
 	return cueIndexFormatted(_cueEndIndex);
 }
 
-QString MediaInfo::bitrate() const {
-	if (_bitrate > 0) {
-		return QString::number(_bitrate);
-	} else {
-		return QString();
-	}
+int MediaInfo::bitrate() const {
+	return _bitrate;
 }
 
-void MediaInfo::setBitrate(int bitrate) {
-	_bitrate = bitrate;
+void MediaInfo::setBitrate(int kbps) {
+	_bitrate = kbps;
 }
 
 QString MediaInfo::encodedApplication() const {
@@ -268,13 +261,13 @@ void MediaInfo::setEncodedApplication(const QString & encodedApplication) {
 	_encodedApplication = encodedApplication.trimmed();
 }
 
-//Metadata
-QString MediaInfo::metadataValue(Metadata metadata) const {
-	return _metadataHash.value(metadata);
+//MetaData
+QVariant MediaInfo::metaDataValue(MetaData metaData) const {
+	return _metaDataHash.value(metaData);
 }
 
-void MediaInfo::insertMetadata(Metadata metadata, const QString & value) {
-	_metadataHash.insert(metadata, value.trimmed());
+void MediaInfo::insertMetaData(MetaData metaData, const QVariant & value) {
+	_metaDataHash.insert(metaData, value);
 }
 
 //Audio
@@ -282,7 +275,7 @@ int MediaInfo::audioStreamCount() const {
 	return _audioStreamCount;
 }
 
-QString MediaInfo::audioStreamValue(int audioStreamId, AudioStream audioStream) const {
+QVariant MediaInfo::audioStreamValue(int audioStreamId, AudioStream audioStream) const {
 	//Constructs the key
 	//Example: audioStreamId = 1, audioStream = 9
 	//key = 19, not 1 + 9 = 10!
@@ -291,7 +284,7 @@ QString MediaInfo::audioStreamValue(int audioStreamId, AudioStream audioStream) 
 	return _audioStreamHash.value(key);
 }
 
-void MediaInfo::insertAudioStream(int audioStreamId, AudioStream audioStream, const QString & value) {
+void MediaInfo::insertAudioStream(int audioStreamId, AudioStream audioStream, const QVariant & value) {
 	if (audioStreamId + 1> _audioStreamCount) {
 		_audioStreamCount = audioStreamId + 1;
 	}
@@ -301,7 +294,7 @@ void MediaInfo::insertAudioStream(int audioStreamId, AudioStream audioStream, co
 	//key = 19, not 1 + 9 = 10!
 	int key = QString(QString::number(audioStreamId) + QString::number(audioStream)).toInt();
 
-	_audioStreamHash.insert(key, value.trimmed());
+	_audioStreamHash.insert(key, value);
 }
 
 //Video
@@ -309,7 +302,7 @@ int MediaInfo::videoStreamCount() const {
 	return _videoStreamCount;
 }
 
-QString MediaInfo::videoStreamValue(int videoStreamId, VideoStream videoStream) const {
+QVariant MediaInfo::videoStreamValue(int videoStreamId, VideoStream videoStream) const {
 	//Constructs the key
 	//Example: videoStreamId = 1, videoStream = 9
 	//key = 19, not 1 + 9 = 10!
@@ -318,7 +311,7 @@ QString MediaInfo::videoStreamValue(int videoStreamId, VideoStream videoStream) 
 	return _videoStreamHash.value(key);
 }
 
-void MediaInfo::insertVideoStream(int videoStreamId, VideoStream videoStream, const QString & value) {
+void MediaInfo::insertVideoStream(int videoStreamId, VideoStream videoStream, const QVariant & value) {
 	if (videoStreamId + 1> _videoStreamCount) {
 		_videoStreamCount = videoStreamId + 1;
 	}
@@ -328,7 +321,7 @@ void MediaInfo::insertVideoStream(int videoStreamId, VideoStream videoStream, co
 	//key = 19, not 1 + 9 = 10!
 	int key = QString(QString::number(videoStreamId) + QString::number(videoStream)).toInt();
 
-	_videoStreamHash.insert(key, value.trimmed());
+	_videoStreamHash.insert(key, value);
 }
 
 //Text
@@ -336,7 +329,7 @@ int MediaInfo::textStreamCount() const {
 	return _textStreamCount;
 }
 
-QString MediaInfo::textStreamValue(int textStreamId, TextStream textStream) const {
+QVariant MediaInfo::textStreamValue(int textStreamId, TextStream textStream) const {
 	//Constructs the key
 	//Example: textStreamId = 1, textStream = 9
 	//key = 19, not 1 + 9 = 10!
@@ -345,7 +338,7 @@ QString MediaInfo::textStreamValue(int textStreamId, TextStream textStream) cons
 	return _textStreamHash.value(key);
 }
 
-void MediaInfo::insertTextStream(int textStreamId, TextStream textStream, const QString & value) {
+void MediaInfo::insertTextStream(int textStreamId, TextStream textStream, const QVariant & value) {
 	if (textStreamId + 1> _textStreamCount) {
 		_textStreamCount = textStreamId + 1;
 	}
@@ -355,22 +348,23 @@ void MediaInfo::insertTextStream(int textStreamId, TextStream textStream, const 
 	//key = 19, not 1 + 9 = 10!
 	int key = QString(QString::number(textStreamId) + QString::number(textStream)).toInt();
 
-	_textStreamHash.insert(key, value.trimmed());
+	_textStreamHash.insert(key, value);
 }
 
 //Network stream
-QString MediaInfo::networkStreamValue(NetworkStream networkStream) const {
+QVariant MediaInfo::networkStreamValue(NetworkStream networkStream) const {
 	return _networkStreamHash.value(networkStream);
 }
 
-void MediaInfo::insertNetworkStream(NetworkStream networkStream, const QString & value) {
-	_networkStreamHash.insert(networkStream, value.trimmed());
+void MediaInfo::insertNetworkStream(NetworkStream networkStream, const QVariant & value) {
+	_networkStreamHash.insert(networkStream, value);
 }
 
-void MediaInfo::setPrivateData(const QString & privateData) {
-	_privateData = privateData;
+//Extended metadata
+void MediaInfo::setExtendedMetaData(const QString & key, const QVariant & value) {
+	_extendedMetaData.insert(key, value);
 }
 
-QString MediaInfo::privateData() const {
-	return _privateData;
+QVariant MediaInfo::extendedMetaData(const QString & key) const {
+	return _extendedMetaData.value(key);
 }

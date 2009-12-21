@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,7 +107,6 @@ void PLSParser::load(QIODevice * device, const QString & location) {
 
 			QString filename(rx_file.cap(2));
 			bool isUrl = MediaInfo::isUrl(filename);
-			mediaInfo.setUrl(isUrl);
 			if (isUrl) {
 				mediaInfo.setFileName(filename);
 			} else {
@@ -117,12 +116,12 @@ void PLSParser::load(QIODevice * device, const QString & location) {
 
 		else if (rx_title.indexIn(line) != -1) {
 			QString title(rx_title.cap(2));
-			mediaInfo.insertMetadata(MediaInfo::Title, title);
+			mediaInfo.insertMetaData(MediaInfo::Title, title);
 		}
 
 		else if (rx_length.indexIn(line) != -1) {
 			QString length(rx_length.cap(2));
-			mediaInfo.setLength(length.toInt());
+			mediaInfo.setDurationSecs(length.toInt());
 		}
 
 		else if (line == "[playlist]") {
@@ -173,7 +172,7 @@ void PLSParser::save(QIODevice * device, const QString & location, const QList<M
 		}
 
 		stream << PLS_FILE << count << '=';
-		if (mediaInfo.isUrl()) {
+		if (MediaInfo::isUrl(mediaInfo.fileName())) {
 			stream << mediaInfo.fileName();
 		} else {
 			//Try to save the filename as relative instead of absolute
@@ -183,21 +182,21 @@ void PLSParser::save(QIODevice * device, const QString & location, const QList<M
 		stream << PLS_WINAMP_EOL;
 
 		stream << PLS_TITLE << count << '=';
-		QString artist(mediaInfo.metadataValue(MediaInfo::Artist));
+		QString artist(mediaInfo.metaDataValue(MediaInfo::Artist).toString());
 		if (!artist.isEmpty()) {
 			stream << artist;
 		}
-		QString title(mediaInfo.metadataValue(MediaInfo::Title));
+		QString title(mediaInfo.metaDataValue(MediaInfo::Title).toString());
 		if (!title.isEmpty()) {
 			if (!artist.isEmpty()) {
 				stream << " - ";
 			}
-			stream << mediaInfo.metadataValue(MediaInfo::Title);
+			stream << title;
 		}
 		stream << PLS_WINAMP_EOL;
 
 		stream << PLS_LENGTH << count << '=';
-		stream << mediaInfo.lengthSeconds();
+		stream << mediaInfo.durationSecs();
 		stream << PLS_WINAMP_EOL;
 	}
 

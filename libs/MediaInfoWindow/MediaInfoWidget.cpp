@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,18 +68,18 @@ void MediaInfoWidget::updateMediaInfo(const MediaInfo & mediaInfo) {
 	static const QString endhref2("</a>");
 	static const QString br("<br>");
 
-	QString filename(mediaInfo.fileName());
-	QString title(mediaInfo.metadataValue(MediaInfo::Title));
-	QString artist(mediaInfo.metadataValue(MediaInfo::Artist));
-	QString album(mediaInfo.metadataValue(MediaInfo::Album));
-	QString albumArtist(mediaInfo.metadataValue(MediaInfo::AlbumArtist));
-	QString amazonASIN(mediaInfo.metadataValue(MediaInfo::AmazonASIN));
-	QString streamName(mediaInfo.networkStreamValue(MediaInfo::StreamName));
-	QString streamGenre(mediaInfo.networkStreamValue(MediaInfo::StreamGenre));
-	QString streamWebsite(mediaInfo.networkStreamValue(MediaInfo::StreamWebsite));
-	QString streamUrl(mediaInfo.networkStreamValue(MediaInfo::StreamURL));
-	QString bitrate(mediaInfo.bitrate());
-	QString bitrateMode(mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrateMode));
+	QString filename = mediaInfo.fileName();
+	QString title = mediaInfo.metaDataValue(MediaInfo::Title).toString();
+	QString artist = mediaInfo.metaDataValue(MediaInfo::Artist).toString();
+	QString album = mediaInfo.metaDataValue(MediaInfo::Album).toString();
+	QString albumArtist = mediaInfo.metaDataValue(MediaInfo::AlbumArtist).toString();
+	QString amazonASIN = mediaInfo.metaDataValue(MediaInfo::AmazonASIN).toString();
+	QString streamName = mediaInfo.networkStreamValue(MediaInfo::StreamName).toString();
+	QString streamGenre = mediaInfo.networkStreamValue(MediaInfo::StreamGenre).toString();
+	QUrl streamWebsite = mediaInfo.networkStreamValue(MediaInfo::StreamWebsite).toUrl();
+	QUrl streamUrl = mediaInfo.networkStreamValue(MediaInfo::StreamURL).toUrl();
+	int bitrate = mediaInfo.bitrate();
+	QString bitrateMode = mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrateMode).toString();
 
 	updateCoverArts(mediaInfo);
 
@@ -111,7 +111,7 @@ void MediaInfoWidget::updateMediaInfo(const MediaInfo & mediaInfo) {
 	if (!title.isEmpty()) {
 		_formLayout->addRow(tr("Title:"), new SqueezeLabel(font + title + endfont));
 	} else if (!filename.isEmpty()) {
-		if (mediaInfo.isUrl()) {
+		if (MediaInfo::isUrl(mediaInfo.fileName())) {
 			_formLayout->addRow(tr("URL:"), new SqueezeLabel(font + filename + endfont));
 		} else {
 			//filename + parent directory name, e.g:
@@ -143,21 +143,21 @@ void MediaInfoWidget::updateMediaInfo(const MediaInfo & mediaInfo) {
 
 	if (!streamWebsite.isEmpty()) {
 		SqueezeLabel * label = new SqueezeLabel();
-		label->setText(href + streamWebsite + endhref1 + font + streamWebsite + endfont + endhref2);
+		label->setText(href + streamWebsite.toString() + endhref1 + font + streamWebsite.toString() + endfont + endhref2);
 		label->setOpenExternalLinks(true);
 		_formLayout->addRow(tr("Stream Website:"), label);
 	}
 
 	if (!streamUrl.isEmpty()) {
 		SqueezeLabel * label = new SqueezeLabel();
-		label->setText(href + streamUrl + endhref1 + font + streamUrl + endfont + endhref2);
+		label->setText(href + streamUrl.toString() + endhref1 + font + streamUrl.toString() + endfont + endhref2);
 		label->setOpenExternalLinks(true);
 		_formLayout->addRow(tr("URL:"), label);
 	}
 
-	if (!bitrate.isEmpty()) {
+	if (bitrate > 0) {
 		_formLayout->addRow(tr("Bitrate:"),
-			new SqueezeLabel(font + bitrate + ' ' + tr("kbps") + ' ' + bitrateMode + endfont));
+			new SqueezeLabel(font + QString::number(bitrate) + ' ' + tr("kbps") + ' ' + bitrateMode + endfont));
 	}
 }
 

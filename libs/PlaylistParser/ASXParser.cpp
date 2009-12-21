@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,7 +125,7 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 			QString element(xml.name().toString());
 			if (element.compare(ASX_TITLE, Qt::CaseInsensitive) == 0) {
 				QString title(xml.readElementText());
-				mediaInfo.insertMetadata(MediaInfo::Title, title);
+				mediaInfo.insertMetaData(MediaInfo::Title, title);
 			} else if (element.compare(ASX_REF, Qt::CaseInsensitive) == 0) {
 				QString url(xml.attributes().value(ASX_HREF).toString());
 				if (url.isEmpty()) {
@@ -150,11 +150,10 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 					//</ENTRY>
 					//</ASX>
 					mediaInfo.setFileName(url);
-					mediaInfo.setUrl(true);
 				}
 			} else if (element.compare(ASX_COPYRIGHT, Qt::CaseInsensitive) == 0) {
 				QString copyright(xml.readElementText());
-				mediaInfo.insertMetadata(MediaInfo::Copyright, copyright);
+				mediaInfo.insertMetaData(MediaInfo::Copyright, copyright);
 			}
 			break;
 		}
@@ -216,7 +215,7 @@ void ASXParser::save(QIODevice * device, const QString & location, const QList<M
 			}
 
 			xml.writeStartElement(ASX_ENTRY);
-				QString title(mediaInfo.metadataValue(MediaInfo::Title));
+				QString title(mediaInfo.metaDataValue(MediaInfo::Title).toString());
 				if (!title.isEmpty()) {
 					xml.writeTextElement(ASX_TITLE, title);
 				}
@@ -226,7 +225,7 @@ void ASXParser::save(QIODevice * device, const QString & location, const QList<M
 					xml.writeAttribute(ASX_HREF, filename);
 				xml.writeEndElement();	//ref
 
-				QString copyright(mediaInfo.metadataValue(MediaInfo::Copyright));
+				QString copyright(mediaInfo.metaDataValue(MediaInfo::Copyright).toString());
 				if (!copyright.isEmpty()) {
 					xml.writeTextElement(ASX_COPYRIGHT, copyright);
 				}

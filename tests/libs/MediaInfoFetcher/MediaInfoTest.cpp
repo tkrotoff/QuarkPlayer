@@ -29,7 +29,7 @@ void MediaInfoTest::cleanupTestCase() {
 void MediaInfoTest::test() {
 	MediaInfo mediaInfo;
 
-	QCOMPARE(mediaInfo.metadataValue(MediaInfo::TrackNumber), QString(""));
-	mediaInfo.insertMetadata(MediaInfo::TrackNumber, "1");
-	QCOMPARE(mediaInfo.metadataValue(MediaInfo::TrackNumber), QString("1"));
+	QCOMPARE(mediaInfo.metaDataValue(MediaInfo::TrackNumber).toInt(), 0);
+	mediaInfo.insertMetaData(MediaInfo::TrackNumber, 1);
+	QCOMPARE(mediaInfo.metaDataValue(MediaInfo::TrackNumber).toInt(), 1);
 }

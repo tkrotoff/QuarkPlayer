@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,13 +116,13 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	int column = index.column();
 
 	const MediaInfo & mediaInfo(item(index)->mediaInfo());
-	QString filename(mediaInfo.fileName());
+	QString fileName(mediaInfo.fileName());
 
 	switch (role) {
 	case Qt::DisplayRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			tmp = QFileInfo(filename).fileName();
+			tmp = QFileInfo(fileName).fileName();
 			break;
 		}
 		break;
@@ -134,15 +134,15 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 			//This is too slow:
 			//re-creates an icon for each file
 			//We want a cache system -> way faster!
-			//tmp = _iconProvider.icon(QFileInfo(filename));
+			//tmp = _iconProvider.icon(QFileInfo(fileName));
 
-			QFileInfo fileInfo(filename);
+			QFileInfo fileInfo(fileName);
 			QString ext(fileInfo.suffix());
 			if (fileInfo.isDir()) {
 				ext = "Directory";
 			}
 			if (ext.isEmpty()) {
-				ext = filename;
+				ext = fileName;
 			}
 			if (!_iconsCache.contains(ext)) {
 				_iconsCache[ext] = _iconProvider.icon(fileInfo);
@@ -156,32 +156,34 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	case Qt::ToolTipRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			QFileInfo fileInfo(filename);
+			QFileInfo fileInfo(fileName);
 
 			//Make the filename relative to the search path
 			//This way the tooltip is more readable because it is shorter
-			QString relativeFilename(TkFile::relativeFilePath(_rootSearchPath, filename));
+			QString relativeFileName(TkFile::relativeFilePath(_rootSearchPath, fileName));
 
 			if (!fileInfo.isDir() && _toolTipExtensions.contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
-				if (mediaInfo.fetched()) {
+				if (true/*FIXME mediaInfo.fetched()*/) {
 					QString bitrate;
-					if (!mediaInfo.bitrate().isEmpty()) {
-						bitrate =  mediaInfo.bitrate() + ' ' + tr("kbps") + ' '
-							+ mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrateMode);
+					if (mediaInfo.bitrate() > 0) {
+						bitrate = QString("%1 %2 %3")
+								.arg(mediaInfo.bitrate())
+								.arg(tr("kbps"))
+								.arg(mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrateMode).toInt());
 					}
-					tmp = relativeFilename + "<br>" +
-						tr("Title:") + " <b>" + mediaInfo.metadataValue(MediaInfo::Title) + "</b><br>" +
-						tr("Artist:") + " <b>" + mediaInfo.metadataValue(MediaInfo::Artist) + "</b><br>" +
-						tr("Album:") + " <b>" + mediaInfo.metadataValue(MediaInfo::Album) + "</b><br>" +
-						tr("Length:") + " <b>" + mediaInfo.lengthFormatted() + "</b><br>" +
+					tmp = relativeFileName + "<br>" +
+						tr("Title:") + " <b>" + mediaInfo.metaDataValue(MediaInfo::Title).toString() + "</b><br>" +
+						tr("Artist:") + " <b>" + mediaInfo.metaDataValue(MediaInfo::Artist).toString() + "</b><br>" +
+						tr("Album:") + " <b>" + mediaInfo.metaDataValue(MediaInfo::Album).toString() + "</b><br>" +
+						tr("Length:") + " <b>" + mediaInfo.durationFormatted() + "</b><br>" +
 						tr("Bitrate:") + " <b>" + bitrate + "</b>";
 				} else {
-					tmp = relativeFilename;
+					tmp = relativeFileName;
 
 					//Resolve metadata file one by one
 					if (_mediaInfoFetcherIndex == QModelIndex()) {
 						_mediaInfoFetcherIndex = index;
-						_mediaInfoFetcher->start(MediaInfo(filename));
+						_mediaInfoFetcher->start(MediaInfo(fileName));
 					}
 				}
 			} else {
@@ -190,7 +192,7 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 				//since obviously there is none
 				//If the filename is a file without a "multimedia" extension (i.e .mp3, .avi, .flac...)
 				//then we don't try to resolve the meta data
-				tmp = relativeFilename;
+				tmp = relativeFileName;
 			}
 			break;
 		}
@@ -319,9 +321,9 @@ QMimeData * FileSearchModel::mimeData(const QModelIndexList & indexes) const {
 	QStringList files;
 	foreach (QModelIndex index, indexes) {
 		const MediaInfo & mediaInfo(item(index)->mediaInfo());
-		QString filename(mediaInfo.fileName());
-		if (!filename.isEmpty()) {
-			files << filename;
+		QString fileName(mediaInfo.fileName());
+		if (!fileName.isEmpty()) {
+			files << fileName;
 		}
 	}
 
@@ -431,10 +433,10 @@ void FileSearchModel::filesFound(const QStringList & files, const QUuid & uuid) 
 	int last = first + files.size() - 1;
 
 	beginInsertRows(_currentParentQModelIndex, first, last);
-	foreach (QString filename, files) {
+	foreach (QString fileName, files) {
 		//Later filenames comparisons can fail if we don't convert / or \
-		filename = QDir::toNativeSeparators(filename);
-		_currentParentItem->appendChild(new FileSearchItem(filename, _currentParentItem));
+		fileName = QDir::toNativeSeparators(fileName);
+		_currentParentItem->appendChild(new FileSearchItem(fileName, _currentParentItem));
 	}
 	endInsertRows();
 }

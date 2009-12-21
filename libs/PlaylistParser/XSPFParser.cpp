@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,9 +95,7 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 			if (element == XSPF_LOCATION) {
 				QUrl url = QUrl::fromEncoded(xml.readElementText().toUtf8());
 				QString location(url.toString());
-				bool isUrl = MediaInfo::isUrl(location);
-				mediaInfo.setUrl(isUrl);
-				if (isUrl) {
+				if (MediaInfo::isUrl(location)) {
 					mediaInfo.setFileName(location);
 				} else {
 					QString path(QFileInfo(location).path());
@@ -114,57 +112,56 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 			//Artist
 			else if (element == XSPF_CREATOR) {
 				QString creator(xml.readElementText());
-				mediaInfo.insertMetadata(MediaInfo::Artist, creator);
+				mediaInfo.insertMetaData(MediaInfo::Artist, creator);
 			}
 
 			//Album
 			else if (element == XSPF_ALBUM) {
 				QString album(xml.readElementText());
-				mediaInfo.insertMetadata(MediaInfo::Album, album);
+				mediaInfo.insertMetaData(MediaInfo::Album, album);
 			}
 
 			//Track number
 			else if (element == XSPF_TRACKNUM) {
 				QString trackNum(xml.readElementText());
-				mediaInfo.insertMetadata(MediaInfo::TrackNumber, trackNum);
+				mediaInfo.insertMetaData(MediaInfo::TrackNumber, trackNum.toInt());
 			}
 
 			//Title
 			else if (element == XSPF_TITLE) {
 				QString title(xml.readElementText());
-				mediaInfo.insertMetadata(MediaInfo::Title, title);
+				mediaInfo.insertMetaData(MediaInfo::Title, title);
 			}
 
 			//Comment
 			else if (element == XSPF_ANNOTATION) {
 				QString annotation(xml.readElementText());
-				if (mediaInfo.metadataValue(MediaInfo::Title).isEmpty()) {
+				if (mediaInfo.metaDataValue(MediaInfo::Title).toString().isEmpty()) {
 					//Some people didn't understand how XSPF works
 					//and confused annotation with title
-					mediaInfo.insertMetadata(MediaInfo::Title, annotation);
+					mediaInfo.insertMetaData(MediaInfo::Title, annotation);
 				}
-				mediaInfo.insertMetadata(MediaInfo::Comment, annotation);
+				mediaInfo.insertMetaData(MediaInfo::Comment, annotation);
 			}
 
 			//Length
 			else if (element == XSPF_DURATION) {
 				int duration = xml.readElementText().toInt();
 				//XSPF gives us the duration in milliseconds
-				//Let's convert it to seconds
-				mediaInfo.setLength(duration / 1000);
+				mediaInfo.setDurationMSecs(duration);
 			}
 
 			//Album art URL
 			else if (element == XSPF_IMAGE) {
 				QString image(xml.readElementText());
 				//FIXME not implemented yet
-				//mediaInfo.insertMetadata(MediaInfo::AlbumArt, image);
+				//mediaInfo.insertMetaData(MediaInfo::AlbumArt, image);
 			}
 
 			//URL of the original web page
 			else if (element == XSPF_INFO) {
 				QString info(xml.readElementText());
-				mediaInfo.insertMetadata(MediaInfo::URL, info);
+				mediaInfo.insertMetaData(MediaInfo::URL, QUrl(info));
 			}
 
 			//Meta
@@ -177,13 +174,13 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 				//Date
 				if (attributes.hasAttribute(XSPF_FOOBAR2000_DATE)) {
 					QString date(attributes.value(XSPF_FOOBAR2000_DATE).toString());
-					mediaInfo.insertMetadata(MediaInfo::Year, date);
+					mediaInfo.insertMetaData(MediaInfo::Year, QDate::fromString(date));
 				}
 
 				//Genre
 				else if (attributes.hasAttribute(XSPF_FOOBAR2000_GENRE)) {
 					QString genre(attributes.value(XSPF_FOOBAR2000_GENRE).toString());
-					mediaInfo.insertMetadata(MediaInfo::Genre, genre);
+					mediaInfo.insertMetaData(MediaInfo::Genre, genre);
 				}
 			}
 
@@ -209,12 +206,12 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 
 							else if (extensionElement == XSPF_QUARKPLAYER_YEAR) {
 								QString year(xml.readElementText());
-								mediaInfo.insertMetadata(MediaInfo::Year, year);
+								mediaInfo.insertMetaData(MediaInfo::Year, year);
 							}
 
 							else if (extensionElement == XSPF_QUARKPLAYER_GENRE) {
 								QString genre(xml.readElementText());
-								mediaInfo.insertMetadata(MediaInfo::Genre, genre);
+								mediaInfo.insertMetaData(MediaInfo::Genre, genre);
 							}
 						}
 
@@ -262,7 +259,6 @@ void XSPFParser::writeIntElement(QXmlStreamWriter & xml, const QString & qualifi
 }
 
 void XSPFParser::writeTrack(QXmlStreamWriter & xml, const MediaInfo & mediaInfo) {
-
 	xml.writeStartElement(XSPF_TRACK);
 
 		//Filename
@@ -274,36 +270,40 @@ void XSPFParser::writeTrack(QXmlStreamWriter & xml, const MediaInfo & mediaInfo)
 		//writeTextElement(xml, XSPF_IDENTIFIER, QString());
 
 		//Artist
-		writeTextElement(xml, XSPF_CREATOR, mediaInfo.metadataValue(MediaInfo::Artist));
+		writeTextElement(xml, XSPF_CREATOR, mediaInfo.metaDataValue(MediaInfo::Artist).toString());
 
 		//Album
-		writeTextElement(xml, XSPF_ALBUM, mediaInfo.metadataValue(MediaInfo::Album));
+		writeTextElement(xml, XSPF_ALBUM, mediaInfo.metaDataValue(MediaInfo::Album).toString());
 
 		//Track number
-		writeTextElement(xml, XSPF_TRACKNUM, mediaInfo.metadataValue(MediaInfo::TrackNumber));
+		writeIntElement(xml, XSPF_TRACKNUM, mediaInfo.metaDataValue(MediaInfo::TrackNumber).toInt());
 
 		//Title
-		writeTextElement(xml, XSPF_TITLE, mediaInfo.metadataValue(MediaInfo::Title));
+		writeTextElement(xml, XSPF_TITLE, mediaInfo.metaDataValue(MediaInfo::Title).toString());
 
 		//Comment
-		writeTextElement(xml, XSPF_ANNOTATION, mediaInfo.metadataValue(MediaInfo::Comment));
+		writeTextElement(xml, XSPF_ANNOTATION, mediaInfo.metaDataValue(MediaInfo::Comment).toString());
 
 		//Length
-		writeIntElement(xml, XSPF_DURATION, mediaInfo.lengthMilliseconds());
+		writeIntElement(xml, XSPF_DURATION, mediaInfo.durationMSecs());
 
 		//Album art URL
 		//FIXME not implemented yet
-		//writeTextElement(xml, XSPF_IMAGE, mediaInfo.metadataValue(MediaInfo::AlbumArt));
+		//writeTextElement(xml, XSPF_IMAGE, mediaInfo.metaDataValue(MediaInfo::AlbumArt));
 
 		//URL of the original web page
-		writeTextElement(xml, XSPF_INFO, mediaInfo.metadataValue(MediaInfo::URL));
+		writeTextElement(xml, XSPF_INFO, mediaInfo.metaDataValue(MediaInfo::URL).toUrl().toString());
 
 		xml.writeStartElement(XSPF_EXTENSION);
 		xml.writeAttribute(XSPF_APPLICATION, XSPF_QUARKPLAYER_NAMESPACE);
-		writeTextElementWithNamespace(xml, XSPF_QUARKPLAYER_NAMESPACE, XSPF_QUARKPLAYER_CUE_START_INDEX, mediaInfo.cueStartIndexFormatted());
-		writeTextElementWithNamespace(xml, XSPF_QUARKPLAYER_NAMESPACE, XSPF_QUARKPLAYER_CUE_END_INDEX, mediaInfo.cueEndIndexFormatted());
-		writeTextElementWithNamespace(xml, XSPF_QUARKPLAYER_NAMESPACE, XSPF_QUARKPLAYER_YEAR, mediaInfo.metadataValue(MediaInfo::Year));
-		writeTextElementWithNamespace(xml, XSPF_QUARKPLAYER_NAMESPACE, XSPF_QUARKPLAYER_GENRE, mediaInfo.metadataValue(MediaInfo::Genre));
+		writeTextElementWithNamespace(xml, XSPF_QUARKPLAYER_NAMESPACE, XSPF_QUARKPLAYER_CUE_START_INDEX,
+			mediaInfo.cueStartIndexFormatted());
+		writeTextElementWithNamespace(xml, XSPF_QUARKPLAYER_NAMESPACE, XSPF_QUARKPLAYER_CUE_END_INDEX,
+			mediaInfo.cueEndIndexFormatted());
+		writeTextElementWithNamespace(xml, XSPF_QUARKPLAYER_NAMESPACE, XSPF_QUARKPLAYER_YEAR,
+			mediaInfo.metaDataValue(MediaInfo::Year).toDate().toString("yyyy"));
+		writeTextElementWithNamespace(xml, XSPF_QUARKPLAYER_NAMESPACE, XSPF_QUARKPLAYER_GENRE,
+			mediaInfo.metaDataValue(MediaInfo::Genre).toString());
 		xml.writeEndElement();	//extension
 
 	xml.writeEndElement();	//track
