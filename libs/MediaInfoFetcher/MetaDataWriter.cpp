@@ -18,6 +18,7 @@
 
 #include "MetaDataWriter.h"
 
+#include "config.h"
 #include "MediaInfo.h"
 
 #ifdef TAGLIB
@@ -25,7 +26,13 @@
 	#include <taglib/tag.h>
 #endif	//TAGLIB
 
+#include <QtCore/QDate>
 #include <QtCore/QDebug>
+
+//Local version of taglib's QStringToTString macro. It is here, because taglib's one is
+//not Qt3Support clean (uses QString::utf8()). Once taglib will be clean of qt3support
+//it is safe to use QStringToTString again
+#define Qt4QStringToTString(s) TagLib::String(s.toUtf8().data(), TagLib::String::UTF8)
 
 bool MetaDataWriter::write(const MediaInfo & mediaInfo) {
 #ifdef TAGLIB
@@ -52,13 +59,13 @@ bool MetaDataWriter::write(const MediaInfo & mediaInfo) {
 		TagLib::Tag * tag = fileRef.tag();
 		if (tag) {
 			//Do it before anything else, very generic, can contains ID3v1 tags I guess
-			tag->setTrack(mediaInfo.metaData(MediaInfo::TrackNumber));
-			tag->setTitle(mediaInfo.metaData(MediaInfo::Title));
-			tag->setArtist(mediaInfo.metaData(MediaInfo::Artist));
-			tag->setAlbum(mediaInfo.metaData(MediaInfo::Album));
-			tag->setYear(mediaInfo.metaData(MediaInfo::Year));
-			tag->setGenre(mediaInfo.metaData(MediaInfo::Genre));
-			tag->setComment(mediaInfo.metaData(MediaInfo::Comment));
+			tag->setTrack(mediaInfo.metaDataValue(MediaInfo::TrackNumber).toInt());
+			tag->setTitle(Qt4QStringToTString(mediaInfo.metaDataValue(MediaInfo::Title).toString()));
+			tag->setArtist(Qt4QStringToTString(mediaInfo.metaDataValue(MediaInfo::Artist).toString()));
+			tag->setAlbum(Qt4QStringToTString(mediaInfo.metaDataValue(MediaInfo::Album).toString()));
+			tag->setYear(mediaInfo.metaDataValue(MediaInfo::Year).toDate().year());
+			tag->setGenre(Qt4QStringToTString(mediaInfo.metaDataValue(MediaInfo::Genre).toString()));
+			tag->setComment(Qt4QStringToTString(mediaInfo.metaDataValue(MediaInfo::Comment).toString()));
 		}
 	}
 

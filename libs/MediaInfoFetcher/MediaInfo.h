@@ -62,7 +62,12 @@ public:
 	/** Resets this class. */
 	void clear();
 
-	/** Tells if the metadata were fetched or not. */
+	//FIXME isEmpty() API?
+
+	/**
+	 * FIXME remove/rename this
+	 * Tells if the metadata were fetched or not.
+	 */
 	bool fetched() const;
 	void setFetched(bool fetched);
 

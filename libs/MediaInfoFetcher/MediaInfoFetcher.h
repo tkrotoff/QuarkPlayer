@@ -104,6 +104,13 @@ public:
 	 */
 	void start(Phonon::MediaObject * mediaObject);
 
+	/**
+	 * Gets the current MediaInfo object that contains all the infos and metadata.
+	 *
+	 * You must test if the MediaInfo object is not empty.
+	 */
+	MediaInfo mediaInfo() const;
+
 signals:
 
 	/**

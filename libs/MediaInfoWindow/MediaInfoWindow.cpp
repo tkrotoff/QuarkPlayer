@@ -21,6 +21,7 @@
 #include "ui_MediaInfoWindow.h"
 
 #include <MediaInfoFetcher/MediaInfoFetcher.h>
+#include <MediaInfoFetcher/MetaDataWriter.h>
 
 #include <ContentFetcher/LyricsFetcher.h>
 #include <ContentFetcher/WikipediaArticle.h>
@@ -61,7 +62,10 @@ MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 	_refreshButton->setAutoRaise(true);
 	connect(_refreshButton, SIGNAL(clicked()), SLOT(refresh()));
 
-	//open directory button
+	//Save metadata button
+	connect(_ui->buttonBox, SIGNAL(accepted()), SLOT(writeMetaData()));
+
+	//Open directory button
 	_openDirectoryButton = new QToolButton(this);
 	_openDirectoryButton->setAutoRaise(true);
 	connect(_openDirectoryButton, SIGNAL(clicked()), SLOT(openDirectory()));
@@ -133,12 +137,15 @@ void MediaInfoWindow::openDirectory() {
 
 void MediaInfoWindow::refresh() {
 	if (_mediaInfoFetcher) {
-		/*FIXME not implemented yet
 		MediaInfo mediaInfo = _mediaInfoFetcher->mediaInfo();
 		if (mediaInfo.fetched()) {
 			updateMediaInfo(mediaInfo);
-		}*/
+		}
 	}
+}
+
+void MediaInfoWindow::writeMetaData() const {
+	MetaDataWriter::write(_mediaInfoFetcher->mediaInfo());
 }
 
 void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {

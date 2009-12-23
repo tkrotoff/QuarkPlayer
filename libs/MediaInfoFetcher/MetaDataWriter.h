@@ -38,10 +38,15 @@ class MEDIAINFOFETCHER_API MetaDataWriter {
 public:
 
 	/**
-	 * Writes the metadata from a given MediaInfo to a file.
+	 * Writes/saves the metadata from a given MediaInfo to a file.
 	 *
 	 * The file where the metadata will be written/updated
 	 * is the filename given to MediaInfo.
+	 *
+	 * For the implementation of this method, see how it is done inside Amarok:
+	 * http://gitorious.org/amarok/amarok/blobs/master/src/meta/MetaUtility.cpp
+	 * See how it is done inside VLC:
+	 * http://git.videolan.org/?p=vlc.git;a=blob;f=modules/meta_engine/taglib.cpp;hb=HEAD
 	 *
 	 * @param mediaInfo metadata to write on the hard drive
 	 * @return true if succeded; false otherwise

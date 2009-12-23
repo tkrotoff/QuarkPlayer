@@ -82,6 +82,10 @@ MediaInfoFetcher::MediaInfoFetcher(QObject * parent)
 MediaInfoFetcher::~MediaInfoFetcher() {
 }
 
+MediaInfo MediaInfoFetcher::mediaInfo() const {
+	return _mediaInfo;
+}
+
 void MediaInfoFetcher::emitFinishedSignal() {
 	_mediaInfo.setFetched(true);
 	emit finished(_mediaInfo);

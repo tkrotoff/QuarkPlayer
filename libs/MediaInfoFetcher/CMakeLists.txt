@@ -32,7 +32,9 @@ if (MSVC)
 		# See http://www.qtcentre.org/forum/f-qt-programming-2/t-finding-window-linker-error-12478.html
 		# See http://thread.gmane.org/gmane.comp.lib.qt.general/8486
 		# /Zc:wchar_t- is not recognized under Visual C++ .NET 2003 (MSVC71)
-		set_source_files_properties(MediaInfoFetcher.cpp
+		set_source_files_properties(
+			MediaInfoFetcher.cpp
+			MetaDataWriter.cpp
 			PROPERTIES COMPILE_FLAGS "/Zc:wchar_t-"
 		)
 	endif (MSVC_VERSION GREATER 1399)

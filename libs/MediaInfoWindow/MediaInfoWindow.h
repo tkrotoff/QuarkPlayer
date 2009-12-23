@@ -94,6 +94,11 @@ private slots:
 
 	void openDirectory();
 
+	/**
+	 * Saves/writes the metadata from the current MediaInfo to a file using TagLib.
+	 */
+	void writeMetaData() const;
+
 private:
 
 	MediaInfoFetcher * _mediaInfoFetcher;
