@@ -36,6 +36,8 @@
 
 bool MetaDataWriter::write(const MediaInfo & mediaInfo) {
 #ifdef TAGLIB
+	qDebug() << __FUNCTION__ << "Write metadata to file:" << mediaInfo.fileName();
+
 	if (MediaInfo::isUrl(mediaInfo.fileName())) {
 		qWarning() << __FUNCTION__ << "This MediaInfo is not a real file:" << mediaInfo.fileName();
 		return false;

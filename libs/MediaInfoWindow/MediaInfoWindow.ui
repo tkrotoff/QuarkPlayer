@@ -75,7 +75,7 @@
             <item row="1" column="1">
              <widget class="QLineEdit" name="titleLineEdit">
               <property name="readOnly">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -89,7 +89,7 @@
             <item row="2" column="1">
              <widget class="QLineEdit" name="artistLineEdit">
               <property name="readOnly">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -103,7 +103,7 @@
             <item row="3" column="1">
              <widget class="QLineEdit" name="albumLineEdit">
               <property name="readOnly">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -145,7 +145,7 @@
             <item row="6" column="1">
              <widget class="QLineEdit" name="yearLineEdit">
               <property name="readOnly">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -159,7 +159,7 @@
             <item row="7" column="1">
              <widget class="QLineEdit" name="genreLineEdit">
               <property name="readOnly">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -191,7 +191,7 @@
                  </size>
                 </property>
                 <property name="readOnly">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -233,7 +233,7 @@
             <item row="8" column="1">
              <widget class="QTextEdit" name="commentTextEdit">
               <property name="readOnly">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
              </widget>
             </item>
