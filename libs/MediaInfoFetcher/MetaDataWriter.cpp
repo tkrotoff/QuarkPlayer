@@ -35,6 +35,8 @@
 #define Qt4QStringToTString(s) TagLib::String(s.toUtf8().data(), TagLib::String::UTF8)
 
 bool MetaDataWriter::write(const MediaInfo & mediaInfo) {
+	bool saved = false;
+
 #ifdef TAGLIB
 	qDebug() << __FUNCTION__ << "Write metadata to file:" << mediaInfo.fileName();
 
@@ -68,11 +70,17 @@ bool MetaDataWriter::write(const MediaInfo & mediaInfo) {
 			tag->setYear(mediaInfo.metaDataValue(MediaInfo::Year).toDate().year());
 			tag->setGenre(Qt4QStringToTString(mediaInfo.metaDataValue(MediaInfo::Genre).toString()));
 			tag->setComment(Qt4QStringToTString(mediaInfo.metaDataValue(MediaInfo::Comment).toString()));
+		} else {
+			qCritical() << __FUNCTION__ << "Error: TagLib::Tag is null:" << mediaInfo.fileName();
 		}
 	}
 
 	//Saves the metadata
-	fileRef.save();
+	saved = fileRef.save();
+	if (!saved) {
+		qCritical() << __FUNCTION__ << "Error: TagLib failed to save the file:" << mediaInfo.fileName();
+	}
+
 #endif	//TAGLIB
 
 	return true;
