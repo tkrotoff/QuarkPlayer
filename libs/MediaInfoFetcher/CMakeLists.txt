@@ -18,6 +18,7 @@ remove_definitions(-DQT_NO_STL_WCHAR)
 set(MediaInfoFetcher_SRCS
 	MediaInfoFetcher.cpp
 	MediaInfo.cpp
+	MetaDataWriter.cpp
 )
 
 if (MSVC)

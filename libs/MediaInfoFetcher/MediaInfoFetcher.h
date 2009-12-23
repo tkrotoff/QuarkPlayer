@@ -130,6 +130,11 @@ private:
 	 *
 	 * TagLib open files in read/write, opening a file in read/write prevents the backend to open the file too :/
 	 *
+	 * For the implementation of this method, see how it is done inside Amarok:
+	 * http://gitorious.org/amarok/amarok/blobs/master/utilities/collectionscanner/CollectionScanner.cpp
+	 * See how it is done inside VLC:
+	 * http://git.videolan.org/?p=vlc.git;a=blob;f=modules/meta_engine/taglib.cpp;hb=HEAD
+	 *
 	 * @see VideoWidgetPlugin::stateChanged()
 	 * @see http://article.gmane.org/gmane.comp.kde.devel.taglib/918
 	 */

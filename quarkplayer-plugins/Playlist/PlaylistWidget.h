@@ -50,6 +50,12 @@ class QDockWidget;
  *
  * A lot of code (search toolbar) is a copy-paste from FileBrowserWidget.
  *
+ * Seems like Playlist is a better name than PlayList:
+ * Playlist (Java): 10,000 answers
+ * http://www.google.com/codesearch?as_q=Playlist&btnG=Search+Code&hl=en&as_lang=java&as_case=y
+ * PlayList (Java): 6,000 answers
+ * http://www.google.com/codesearch?as_q=PlayList&btnG=Search+Code&hl=en&as_lang=java&as_case=y
+ *
  * @see FileBrowserWidget
  * @author Tanguy Krotoff
  */

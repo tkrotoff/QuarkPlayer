@@ -261,7 +261,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 	}
 
 	//Taken from Amarok, file: CollectionScanner.cpp
-	//See http://websvn.kde.org/trunk/extragear/multimedia/amarok/utilities/collectionscanner/CollectionScanner.cpp?view=markup
+	//See http://gitorious.org/amarok/amarok/trees/master/utilities/collectionscanner/CollectionScanner.cpp
 #ifdef Q_OS_WIN
 	const wchar_t * encodedName = reinterpret_cast<const wchar_t *>(_mediaInfo.fileName().utf16());
 #else
