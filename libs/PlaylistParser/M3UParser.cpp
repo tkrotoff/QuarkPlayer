@@ -101,14 +101,14 @@ void M3UParser::load(QIODevice * device, const QString & location) {
 			}
 			QString title(rx_extinf.cap(2));
 			if (!title.isEmpty()) {
-				mediaInfo.insertMetaData(MediaInfo::Title, title);
+				mediaInfo.setMetaData(MediaInfo::Title, title);
 			}
 		}
 
 		else if (rx_extinf_title.indexIn(line) != -1) {
 			QString title(rx_extinf_title.cap(1));
 			if (!title.isEmpty()) {
-				mediaInfo.insertMetaData(MediaInfo::Title, title);
+				mediaInfo.setMetaData(MediaInfo::Title, title);
 			}
 		}
 

@@ -30,6 +30,6 @@ void MediaInfoTest::test() {
 	MediaInfo mediaInfo;
 
 	QCOMPARE(mediaInfo.metaDataValue(MediaInfo::TrackNumber).toInt(), 0);
-	mediaInfo.insertMetaData(MediaInfo::TrackNumber, 1);
+	mediaInfo.setMetaData(MediaInfo::TrackNumber, 1);
 	QCOMPARE(mediaInfo.metaDataValue(MediaInfo::TrackNumber).toInt(), 1);
 }

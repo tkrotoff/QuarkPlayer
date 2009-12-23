@@ -116,7 +116,7 @@ void PLSParser::load(QIODevice * device, const QString & location) {
 
 		else if (rx_title.indexIn(line) != -1) {
 			QString title(rx_title.cap(2));
-			mediaInfo.insertMetaData(MediaInfo::Title, title);
+			mediaInfo.setMetaData(MediaInfo::Title, title);
 		}
 
 		else if (rx_length.indexIn(line) != -1) {

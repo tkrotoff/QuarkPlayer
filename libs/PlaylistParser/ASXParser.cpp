@@ -125,7 +125,7 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 			QString element(xml.name().toString());
 			if (element.compare(ASX_TITLE, Qt::CaseInsensitive) == 0) {
 				QString title(xml.readElementText());
-				mediaInfo.insertMetaData(MediaInfo::Title, title);
+				mediaInfo.setMetaData(MediaInfo::Title, title);
 			} else if (element.compare(ASX_REF, Qt::CaseInsensitive) == 0) {
 				QString url(xml.attributes().value(ASX_HREF).toString());
 				if (url.isEmpty()) {
@@ -153,7 +153,7 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 				}
 			} else if (element.compare(ASX_COPYRIGHT, Qt::CaseInsensitive) == 0) {
 				QString copyright(xml.readElementText());
-				mediaInfo.insertMetaData(MediaInfo::Copyright, copyright);
+				mediaInfo.setMetaData(MediaInfo::Copyright, copyright);
 			}
 			break;
 		}

@@ -51,9 +51,9 @@ public:
 	/**
 	 * Constructs a MediaInfo given a filename or a URL.
 	 *
-	 * @param filename a media filename or a URL
+	 * @param fileName a media filename or a URL
 	 */
-	explicit MediaInfo(const QString & filename);
+	explicit MediaInfo(const QString & fileName);
 
 	~MediaInfo();
 
@@ -72,7 +72,7 @@ public:
 	void setFileName(const QString & fileName);
 
 	/** Helper function: determine if a given filename is a URL or not. */
-	static bool isUrl(const QString & filename);
+	static bool isUrl(const QString & fileName);
 
 	/** Gets the file type. */
 	FileType fileType() const;
@@ -273,7 +273,19 @@ public:
 	};
 
 	QVariant metaDataValue(MetaData metaData) const;
-	void insertMetaData(MetaData metaData, const QVariant & value);
+	void setMetaData(MetaData metaData, const QVariant & value);
+
+	/**
+	 * Associates a QVariant with this MediaInfo.
+	 *
+	 * This function was added in order to easily extend MediaInfo
+	 * without inheriting from it (overly complex).
+	 *
+	 * @param key
+	 * @param value the meaning of value is up to the user
+	 */
+	void setExtendedMetaData(const QString & key, const QVariant & value);
+	QVariant extendedMetaData(const QString & key) const;
 
 	//Audio
 	enum AudioStream {
@@ -384,18 +396,6 @@ public:
 
 	QVariant networkStreamValue(NetworkStream networkStream) const;
 	void insertNetworkStream(NetworkStream networkStream, const QVariant & value);
-
-	/**
-	 * Associates a QVariant with this MediaInfo.
-	 *
-	 * This function was added in order to easily extend MediaInfo
-	 * without inheriting from it (overly complex).
-	 *
-	 * @param key
-	 * @param value the meaning of value is up to the user
-	 */
-	void setExtendedMetaData(const QString & key, const QVariant & value);
-	QVariant extendedMetaData(const QString & key) const;
 
 private:
 

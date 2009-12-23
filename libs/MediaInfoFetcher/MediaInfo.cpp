@@ -30,12 +30,12 @@ MediaInfo::MediaInfo() {
 	clear();
 }
 
-MediaInfo::MediaInfo(const QString & filename) {
+MediaInfo::MediaInfo(const QString & fileName) {
 	qRegisterMetaType<MediaInfo>("MediaInfo");
 
 	clear();
 
-	setFileName(filename);
+	setFileName(fileName);
 }
 
 MediaInfo::~MediaInfo() {
@@ -121,8 +121,8 @@ QString MediaInfo::fileName() const {
 	return _fileName;
 }
 
-void MediaInfo::setFileName(const QString & filename) {
-	_fileName = filename.trimmed();
+void MediaInfo::setFileName(const QString & fileName) {
+	_fileName = fileName.trimmed();
 
 	//This avoid a stupid bug: comparing a filename with \ separator and another with /
 	//By replacing any \ by /, we don't have any comparison problem
@@ -131,9 +131,9 @@ void MediaInfo::setFileName(const QString & filename) {
 	//_fileName.replace("\\", "/");
 }
 
-bool MediaInfo::isUrl(const QString & filename) {
+bool MediaInfo::isUrl(const QString & fileName) {
 	//A filename that contains a host/server name is a remote/network media
-	return !QUrl(filename).host().isEmpty();
+	return !QUrl(fileName).host().isEmpty();
 }
 
 FileType MediaInfo::fileType() const {
@@ -266,8 +266,17 @@ QVariant MediaInfo::metaDataValue(MetaData metaData) const {
 	return _metaDataHash.value(metaData);
 }
 
-void MediaInfo::insertMetaData(MetaData metaData, const QVariant & value) {
+void MediaInfo::setMetaData(MetaData metaData, const QVariant & value) {
 	_metaDataHash.insert(metaData, value);
+}
+
+//Extended metadata
+void MediaInfo::setExtendedMetaData(const QString & key, const QVariant & value) {
+	_extendedMetaData.insert(key, value);
+}
+
+QVariant MediaInfo::extendedMetaData(const QString & key) const {
+	return _extendedMetaData.value(key);
 }
 
 //Audio
@@ -358,13 +367,4 @@ QVariant MediaInfo::networkStreamValue(NetworkStream networkStream) const {
 
 void MediaInfo::insertNetworkStream(NetworkStream networkStream, const QVariant & value) {
 	_networkStreamHash.insert(networkStream, value);
-}
-
-//Extended metadata
-void MediaInfo::setExtendedMetaData(const QString & key, const QVariant & value) {
-	_extendedMetaData.insert(key, value);
-}
-
-QVariant MediaInfo::extendedMetaData(const QString & key) const {
-	return _extendedMetaData.value(key);
 }

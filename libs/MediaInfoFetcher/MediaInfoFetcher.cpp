@@ -126,7 +126,7 @@ void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
 
 		if (!resolverLaunched) {
 			//If TagLib or MediaInfoLib are not used, let's use
-			//the backend for resolving the metadata
+			//the backend for resolving the metaData
 			_mediaSource = fileName;
 			startPhononResolver();
 			resolverLaunched = true;
@@ -147,7 +147,7 @@ void MediaInfoFetcher::start(Phonon::MediaObject * mediaObject) {
 		qCritical() << __FUNCTION__ << "Error: mediaSource is not a URL";
 	}
 
-	//Cannot solve metadata from a stream/remote media if we have only the MediaSource
+	//Cannot solve metaData from a stream/remote media if we have only the MediaSource
 	//We need the MediaObject
 	//Use the given mediaObject to get the meta data
 	//So when using MediaInfoFetcher you must check if the source is a url
@@ -161,7 +161,7 @@ void MediaInfoFetcher::start(Phonon::MediaObject * mediaObject) {
 	_metaObjectInfoResolver = mediaObject;
 
 	//Trick: the given mediaObject is already playing thus we have already
-	//all the metadata from the stream, we just need to read them
+	//all the metaData from the stream, we just need to read them
 	metaStateChanged(Phonon::StoppedState, Phonon::StoppedState);
 
 	//Back to normal
@@ -183,41 +183,41 @@ void MediaInfoFetcher::startPhononResolver() {
 void MediaInfoFetcher::metaStateChanged(Phonon::State newState, Phonon::State oldState) {
 	Q_UNUSED(oldState);
 
-	QMap<QString, QString> metadata = _metaObjectInfoResolver->metaData();
+	QMap<QString, QString> metaData = _metaObjectInfoResolver->metaData();
 
 	if (newState == Phonon::ErrorState) {
 		emitFinishedSignal();
 	}
 
 	if (newState == Phonon::StoppedState) {
-		_mediaInfo.insertMetaData(MediaInfo::TrackNumber, metadata.value("TRACKNUMBER").trimmed().toInt());
-		_mediaInfo.insertMetaData(MediaInfo::Title, metadata.value("TITLE").trimmed());
-		_mediaInfo.insertMetaData(MediaInfo::Artist, metadata.value("ARTIST").trimmed());
-		_mediaInfo.insertMetaData(MediaInfo::Album, metadata.value("ALBUM").trimmed());
-		_mediaInfo.insertMetaData(MediaInfo::Year, QDate::fromString(metadata.value("DATE").trimmed()));
-		_mediaInfo.insertMetaData(MediaInfo::Genre, metadata.value("GENRE").trimmed());
-		_mediaInfo.insertMetaData(MediaInfo::Comment, metadata.value("COMMENT").trimmed());
+		_mediaInfo.setMetaData(MediaInfo::TrackNumber, metaData.value("TRACKNUMBER").trimmed().toInt());
+		_mediaInfo.setMetaData(MediaInfo::Title, metaData.value("TITLE").trimmed());
+		_mediaInfo.setMetaData(MediaInfo::Artist, metaData.value("ARTIST").trimmed());
+		_mediaInfo.setMetaData(MediaInfo::Album, metaData.value("ALBUM").trimmed());
+		_mediaInfo.setMetaData(MediaInfo::Year, QDate::fromString(metaData.value("DATE").trimmed()));
+		_mediaInfo.setMetaData(MediaInfo::Genre, metaData.value("GENRE").trimmed());
+		_mediaInfo.setMetaData(MediaInfo::Comment, metaData.value("COMMENT").trimmed());
 
-		_mediaInfo.setDurationMSecs(metadata.value("LENGTH").trimmed().toULongLong());
+		_mediaInfo.setDurationMSecs(metaData.value("LENGTH").trimmed().toULongLong());
 		//Converts from bps to kbps
-		_mediaInfo.insertAudioStream(0, MediaInfo::AudioBitrate, metadata.value("BITRATE").trimmed().toInt() / 1000);
-		_mediaInfo.setBitrate(metadata.value("BITRATE").trimmed().toInt() / 1000);
-		_mediaInfo.insertAudioStream(0, MediaInfo::AudioSampleRate, metadata.value("SAMPLERATE").trimmed().toInt());
-		_mediaInfo.insertAudioStream(0, MediaInfo::AudioChannelCount, metadata.value("CHANNELS").trimmed().toInt());
+		_mediaInfo.insertAudioStream(0, MediaInfo::AudioBitrate, metaData.value("BITRATE").trimmed().toInt() / 1000);
+		_mediaInfo.setBitrate(metaData.value("BITRATE").trimmed().toInt() / 1000);
+		_mediaInfo.insertAudioStream(0, MediaInfo::AudioSampleRate, metaData.value("SAMPLERATE").trimmed().toInt());
+		_mediaInfo.insertAudioStream(0, MediaInfo::AudioChannelCount, metaData.value("CHANNELS").trimmed().toInt());
 
-		_mediaInfo.insertNetworkStream(MediaInfo::StreamName, metadata.value("STREAM_NAME").trimmed());
-		_mediaInfo.insertNetworkStream(MediaInfo::StreamGenre, metadata.value("STREAM_GENRE").trimmed());
-		_mediaInfo.insertNetworkStream(MediaInfo::StreamWebsite, QUrl(metadata.value("STREAM_WEBSITE").trimmed()));
-		_mediaInfo.insertNetworkStream(MediaInfo::StreamURL, QUrl(metadata.value("STREAM_URL").trimmed()));
+		_mediaInfo.insertNetworkStream(MediaInfo::StreamName, metaData.value("STREAM_NAME").trimmed());
+		_mediaInfo.insertNetworkStream(MediaInfo::StreamGenre, metaData.value("STREAM_GENRE").trimmed());
+		_mediaInfo.insertNetworkStream(MediaInfo::StreamWebsite, QUrl(metaData.value("STREAM_WEBSITE").trimmed()));
+		_mediaInfo.insertNetworkStream(MediaInfo::StreamURL, QUrl(metaData.value("STREAM_URL").trimmed()));
 
 		emitFinishedSignal();
 	}
 }
 
 #ifdef TAGLIB
-QString parseID3v2_TXXX(const TagLib::ID3v2::FrameListMap & metadata, const QString & tagName) {
+QString parseID3v2_TXXX(const TagLib::ID3v2::FrameListMap & metaData, const QString & tagName) {
 	QString tmp;
-	TagLib::ID3v2::FrameList frameList = metadata["TXXX"];
+	TagLib::ID3v2::FrameList frameList = metaData["TXXX"];
 	for (TagLib::ID3v2::FrameList::Iterator it = frameList.begin(); it != frameList.end(); it++) {
 		TagLib::ID3v2::TextIdentificationFrame * textFrame = dynamic_cast<TagLib::ID3v2::TextIdentificationFrame *>(*it);
 		TagLib::StringList fieldList = textFrame->fieldList();
@@ -229,9 +229,9 @@ QString parseID3v2_TXXX(const TagLib::ID3v2::FrameListMap & metadata, const QStr
 	return tmp;
 }
 
-QString parseID3v2_WXXX(const TagLib::ID3v2::FrameListMap & metadata) {
+QString parseID3v2_WXXX(const TagLib::ID3v2::FrameListMap & metaData) {
 	QString tmp;
-	TagLib::ID3v2::FrameList frameList = metadata["WXXX"];
+	TagLib::ID3v2::FrameList frameList = metaData["WXXX"];
 	for (TagLib::ID3v2::FrameList::Iterator it = frameList.begin(); it != frameList.end(); it++) {
 		TagLib::ID3v2::UrlLinkFrame * urlFrame = dynamic_cast<TagLib::ID3v2::UrlLinkFrame *>(*it);
 		tmp = TStringToQString(urlFrame->url()).trimmed();
@@ -277,116 +277,116 @@ void MediaInfoFetcher::startTagLibResolver() {
 		TagLib::Tag * tag = fileRef.tag();
 		if (tag) {
 			//Do it before anything else, very generic, can contains ID3v1 tags I guess
-			_mediaInfo.insertMetaData(MediaInfo::TrackNumber, QString::number(tag->track()));
-			_mediaInfo.insertMetaData(MediaInfo::Title, TStringToQString(tag->title()).trimmed());
-			_mediaInfo.insertMetaData(MediaInfo::Artist, TStringToQString(tag->artist()).trimmed());
-			_mediaInfo.insertMetaData(MediaInfo::Album, TStringToQString(tag->album()).trimmed());
-			_mediaInfo.insertMetaData(MediaInfo::Year, QString::number(tag->year()));
-			_mediaInfo.insertMetaData(MediaInfo::Genre, TStringToQString(tag->genre()).trimmed());
-			_mediaInfo.insertMetaData(MediaInfo::Comment, TStringToQString(tag->comment()).trimmed());
+			_mediaInfo.setMetaData(MediaInfo::TrackNumber, QString::number(tag->track()));
+			_mediaInfo.setMetaData(MediaInfo::Title, TStringToQString(tag->title()).trimmed());
+			_mediaInfo.setMetaData(MediaInfo::Artist, TStringToQString(tag->artist()).trimmed());
+			_mediaInfo.setMetaData(MediaInfo::Album, TStringToQString(tag->album()).trimmed());
+			_mediaInfo.setMetaData(MediaInfo::Year, QString::number(tag->year()));
+			_mediaInfo.setMetaData(MediaInfo::Genre, TStringToQString(tag->genre()).trimmed());
+			_mediaInfo.setMetaData(MediaInfo::Comment, TStringToQString(tag->comment()).trimmed());
 		}
 
 		if (TagLib::MPEG::File * file = dynamic_cast<TagLib::MPEG::File *>(fileRef.file())) {
 			_mediaInfo.setFileType(FileTypes::fileType(FileType::MP3));
 			if (file->ID3v2Tag()) {
-				TagLib::ID3v2::FrameListMap metadata = file->ID3v2Tag()->frameListMap();
+				TagLib::ID3v2::FrameListMap metaData = file->ID3v2Tag()->frameListMap();
 
 				//4 letters: id3v2.3.0 and id3v2.4.0 (November 1, 2000)
 				//3 letters: id3v2.2.0, "considered obsolete" cf http://en.wikipedia.org/wiki/ID3
 
-				if (!metadata["TPOS"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::DiscNumber, TStringToQString(metadata["TPOS"].front()->toString()).trimmed());
+				if (!metaData["TPOS"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::DiscNumber, TStringToQString(metaData["TPOS"].front()->toString()).trimmed());
 				}
-				if (!metadata["TBP"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::BPM, TStringToQString(metadata["TBP"].front()->toString()).trimmed().toInt());
+				if (!metaData["TBP"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::BPM, TStringToQString(metaData["TBP"].front()->toString()).trimmed().toInt());
 				}
-				if (!metadata["TBPM"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::BPM, TStringToQString(metadata["TBPM"].front()->toString()).trimmed().toInt());
+				if (!metaData["TBPM"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::BPM, TStringToQString(metaData["TBPM"].front()->toString()).trimmed().toInt());
 				}
-				if (!metadata["TCM"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::Composer, TStringToQString(metadata["TCM"].front()->toString()).trimmed());
+				if (!metaData["TCM"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::Composer, TStringToQString(metaData["TCM"].front()->toString()).trimmed());
 				}
-				if (!metadata["TCOM"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::Composer, TStringToQString(metadata["TCOM"].front()->toString()).trimmed());
+				if (!metaData["TCOM"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::Composer, TStringToQString(metaData["TCOM"].front()->toString()).trimmed());
 				}
-				if (!metadata["TPE2"].isEmpty()) {
+				if (!metaData["TPE2"].isEmpty()) {
 					//Non-standard: Apple, Microsoft
-					_mediaInfo.insertMetaData(MediaInfo::AlbumArtist, TStringToQString(metadata["TPE2"].front()->toString()).trimmed());
+					_mediaInfo.setMetaData(MediaInfo::AlbumArtist, TStringToQString(metaData["TPE2"].front()->toString()).trimmed());
 				}
-				if (!metadata["TCMP"].isEmpty()) {
+				if (!metaData["TCMP"].isEmpty()) {
 					//TODO
-					qDebug() << "TODO Compilation:" << TStringToQString(metadata["TCMP"].front()->toString()).trimmed();
+					qDebug() << "TODO Compilation:" << TStringToQString(metaData["TCMP"].front()->toString()).trimmed();
 				}
-				if (!metadata["TPB"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::Publisher, TStringToQString(metadata["TPB"].front()->toString()).trimmed());
+				if (!metaData["TPB"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::Publisher, TStringToQString(metaData["TPB"].front()->toString()).trimmed());
 				}
-				if (!metadata["TPUB"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::Publisher, TStringToQString(metadata["TPUB"].front()->toString()).trimmed());
+				if (!metaData["TPUB"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::Publisher, TStringToQString(metaData["TPUB"].front()->toString()).trimmed());
 				}
-				if (!metadata["TCR"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::Copyright, TStringToQString(metadata["TCR"].front()->toString()).trimmed());
+				if (!metaData["TCR"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::Copyright, TStringToQString(metaData["TCR"].front()->toString()).trimmed());
 				}
-				if (!metadata["TCOP"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::Copyright, TStringToQString(metadata["TCOP"].front()->toString()).trimmed());
+				if (!metaData["TCOP"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::Copyright, TStringToQString(metaData["TCOP"].front()->toString()).trimmed());
 				}
-				if (!metadata["TEN"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::EncodedBy, TStringToQString(metadata["TEN"].front()->toString()).trimmed());
+				if (!metaData["TEN"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::EncodedBy, TStringToQString(metaData["TEN"].front()->toString()).trimmed());
 				}
-				if (!metadata["TENC"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::EncodedBy, TStringToQString(metadata["TENC"].front()->toString()).trimmed());
+				if (!metaData["TENC"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::EncodedBy, TStringToQString(metaData["TENC"].front()->toString()).trimmed());
 				}
-				if (!metadata["TOA"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::OriginalArtist, TStringToQString(metadata["TOA"].front()->toString()).trimmed());
+				if (!metaData["TOA"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::OriginalArtist, TStringToQString(metaData["TOA"].front()->toString()).trimmed());
 				}
-				if (!metadata["TOPE"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::OriginalArtist, TStringToQString(metadata["TOPE"].front()->toString()).trimmed());
+				if (!metaData["TOPE"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::OriginalArtist, TStringToQString(metaData["TOPE"].front()->toString()).trimmed());
 				}
 
-				_mediaInfo.insertMetaData(MediaInfo::URL, QUrl(parseID3v2_WXXX(metadata)));
+				_mediaInfo.setMetaData(MediaInfo::URL, QUrl(parseID3v2_WXXX(metaData)));
 
-				_mediaInfo.insertMetaData(MediaInfo::AlbumArtistSort, parseID3v2_TXXX(metadata, "ALBUMARTISTSORT"));
+				_mediaInfo.setMetaData(MediaInfo::AlbumArtistSort, parseID3v2_TXXX(metaData, "ALBUMARTISTSORT"));
 
-				_mediaInfo.insertMetaData(MediaInfo::MusicBrainzArtistId, /*QUuid(*/parseID3v2_TXXX(metadata, "MusicBrainz Artist Id")/*)*/);
-				_mediaInfo.insertMetaData(MediaInfo::MusicBrainzReleaseId, /*QUuid(*/parseID3v2_TXXX(metadata, "MusicBrainz Album Id")/*)*/);
-				_mediaInfo.insertMetaData(MediaInfo::MusicBrainzTrackId, /*QUuid(*/parseID3v2_TXXX(metadata, "MusicBrainz Track Id")/*)*/);
-				_mediaInfo.insertMetaData(MediaInfo::AmazonASIN, parseID3v2_TXXX(metadata, "ASIN"));
+				_mediaInfo.setMetaData(MediaInfo::MusicBrainzArtistId, /*QUuid(*/parseID3v2_TXXX(metaData, "MusicBrainz Artist Id")/*)*/);
+				_mediaInfo.setMetaData(MediaInfo::MusicBrainzReleaseId, /*QUuid(*/parseID3v2_TXXX(metaData, "MusicBrainz Album Id")/*)*/);
+				_mediaInfo.setMetaData(MediaInfo::MusicBrainzTrackId, /*QUuid(*/parseID3v2_TXXX(metaData, "MusicBrainz Track Id")/*)*/);
+				_mediaInfo.setMetaData(MediaInfo::AmazonASIN, parseID3v2_TXXX(metaData, "ASIN"));
 			}
 
 		} else if (TagLib::Ogg::Vorbis::File * file = dynamic_cast<TagLib::Ogg::Vorbis::File *>(fileRef.file())) {
 			_mediaInfo.setFileType(FileTypes::fileType(FileType::Vorbis));
 			if (file->tag()) {
-				TagLib::Ogg::FieldListMap metadata = file->tag()->fieldListMap();
-				if (!metadata["COMPOSER"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::Composer, TStringToQString(metadata["COMPOSER"].front()).trimmed());
+				TagLib::Ogg::FieldListMap metaData = file->tag()->fieldListMap();
+				if (!metaData["COMPOSER"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::Composer, TStringToQString(metaData["COMPOSER"].front()).trimmed());
 				}
-				if (!metadata["BPM"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::BPM, TStringToQString(metadata["BPM"].front()).trimmed().toInt());
+				if (!metaData["BPM"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::BPM, TStringToQString(metaData["BPM"].front()).trimmed().toInt());
 				}
-				if (!metadata["DISCNUMBER"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::DiscNumber, TStringToQString(metadata["DISCNUMBER"].front()).trimmed().toInt());
+				if (!metaData["DISCNUMBER"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::DiscNumber, TStringToQString(metaData["DISCNUMBER"].front()).trimmed().toInt());
 				}
-				if (!metadata["COMPILATION"].isEmpty()) {
+				if (!metaData["COMPILATION"].isEmpty()) {
 					//TODO
-					qDebug() << "TODO Compilation:" << TStringToQString(metadata["COMPILATION"].front()).trimmed();
+					qDebug() << "TODO Compilation:" << TStringToQString(metaData["COMPILATION"].front()).trimmed();
 				}
 			}
 
 		} else if (TagLib::Ogg::FLAC::File * file = dynamic_cast<TagLib::Ogg::FLAC::File *>(fileRef.file())) {
 			_mediaInfo.setFileType(FileTypes::fileType(FileType::FLAC));
 			if (file->tag()) {
-				TagLib::Ogg::FieldListMap metadata = file->tag()->fieldListMap();
-				if (!metadata["COMPOSER"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::Composer, TStringToQString(metadata["COMPOSER"].front()).trimmed());
+				TagLib::Ogg::FieldListMap metaData = file->tag()->fieldListMap();
+				if (!metaData["COMPOSER"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::Composer, TStringToQString(metaData["COMPOSER"].front()).trimmed());
 				}
-				if (!metadata["BPM"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::BPM, TStringToQString(metadata["BPM"].front()).trimmed().toInt());
+				if (!metaData["BPM"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::BPM, TStringToQString(metaData["BPM"].front()).trimmed().toInt());
 				}
-				if (!metadata["DISCNUMBER"].isEmpty()) {
-					_mediaInfo.insertMetaData(MediaInfo::DiscNumber, TStringToQString(metadata["DISCNUMBER"].front()).trimmed().toInt());
+				if (!metaData["DISCNUMBER"].isEmpty()) {
+					_mediaInfo.setMetaData(MediaInfo::DiscNumber, TStringToQString(metaData["DISCNUMBER"].front()).trimmed().toInt());
 				}
-				if (!metadata["COMPILATION"].isEmpty()) {
+				if (!metaData["COMPILATION"].isEmpty()) {
 					//TODO
-					qDebug() << "TODO Compilation:" << TStringToQString(metadata["COMPILATION"].front()).trimmed();
+					qDebug() << "TODO Compilation:" << TStringToQString(metaData["COMPILATION"].front()).trimmed();
 				}
 			}
 
@@ -453,26 +453,26 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 	_mediaInfo.setEncodedApplication(QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Encoded_Application"))));
 
 	//Metadata
-	_mediaInfo.insertMetaData(MediaInfo::Title, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Title"))).trimmed());
-	_mediaInfo.insertMetaData(MediaInfo::Artist, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Performer"))).trimmed());
-	_mediaInfo.insertMetaData(MediaInfo::Album, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Album"))).trimmed());
-	_mediaInfo.insertMetaData(MediaInfo::AlbumArtist, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Accompaniment"))).trimmed());
-	_mediaInfo.insertMetaData(MediaInfo::TrackNumber, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Track/Position"))).trimmed().toInt());
-	_mediaInfo.insertMetaData(MediaInfo::DiscNumber, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Part/Position"))).trimmed().toInt());
-	_mediaInfo.insertMetaData(MediaInfo::OriginalArtist, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Original/Performer"))).trimmed());
-	_mediaInfo.insertMetaData(MediaInfo::Composer, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Composer"))).trimmed());
-	_mediaInfo.insertMetaData(MediaInfo::Publisher, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Publisher"))).trimmed());
-	_mediaInfo.insertMetaData(MediaInfo::Genre, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Genre"))).trimmed());
-	_mediaInfo.insertMetaData(MediaInfo::Year, QDate::fromString(QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Recorded_Date"))).trimmed()));
-	_mediaInfo.insertMetaData(MediaInfo::BPM, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("BPM"))).trimmed());
-	_mediaInfo.insertMetaData(MediaInfo::Copyright, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Copyright"))).trimmed());
-	_mediaInfo.insertMetaData(MediaInfo::Comment, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Comment"))).trimmed());
-	_mediaInfo.insertMetaData(MediaInfo::URL, QUrl(QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("URL"))).trimmed()));
-	_mediaInfo.insertMetaData(MediaInfo::EncodedBy, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Encoded_Library/String"))).trimmed());
-	_mediaInfo.insertMetaData(MediaInfo::MusicBrainzArtistId, /*QUuid(*/QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Artist Id"))).trimmed()/*)*/);
-	_mediaInfo.insertMetaData(MediaInfo::MusicBrainzReleaseId, /*QUuid(*/QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Album Id"))).trimmed()/*)*/);
-	_mediaInfo.insertMetaData(MediaInfo::MusicBrainzTrackId, /*QUuid(*/QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Track Id"))).trimmed()/*)*/);
-	_mediaInfo.insertMetaData(MediaInfo::AmazonASIN, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("ASIN"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::Title, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Title"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::Artist, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Performer"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::Album, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Album"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::AlbumArtist, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Accompaniment"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::TrackNumber, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Track/Position"))).trimmed().toInt());
+	_mediaInfo.setMetaData(MediaInfo::DiscNumber, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Part/Position"))).trimmed().toInt());
+	_mediaInfo.setMetaData(MediaInfo::OriginalArtist, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Original/Performer"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::Composer, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Composer"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::Publisher, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Publisher"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::Genre, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Genre"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::Year, QDate::fromString(QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Recorded_Date"))).trimmed()));
+	_mediaInfo.setMetaData(MediaInfo::BPM, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("BPM"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::Copyright, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Copyright"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::Comment, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Comment"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::URL, QUrl(QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("URL"))).trimmed()));
+	_mediaInfo.setMetaData(MediaInfo::EncodedBy, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("Encoded_Library/String"))).trimmed());
+	_mediaInfo.setMetaData(MediaInfo::MusicBrainzArtistId, /*QUuid(*/QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Artist Id"))).trimmed()/*)*/);
+	_mediaInfo.setMetaData(MediaInfo::MusicBrainzReleaseId, /*QUuid(*/QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Album Id"))).trimmed()/*)*/);
+	_mediaInfo.setMetaData(MediaInfo::MusicBrainzTrackId, /*QUuid(*/QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("MusicBrainz Track Id"))).trimmed()/*)*/);
+	_mediaInfo.setMetaData(MediaInfo::AmazonASIN, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("ASIN"))).trimmed());
 
 	//Audio
 	size_t audioStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Audio);

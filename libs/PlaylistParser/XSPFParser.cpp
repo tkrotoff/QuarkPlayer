@@ -112,25 +112,25 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 			//Artist
 			else if (element == XSPF_CREATOR) {
 				QString creator(xml.readElementText());
-				mediaInfo.insertMetaData(MediaInfo::Artist, creator);
+				mediaInfo.setMetaData(MediaInfo::Artist, creator);
 			}
 
 			//Album
 			else if (element == XSPF_ALBUM) {
 				QString album(xml.readElementText());
-				mediaInfo.insertMetaData(MediaInfo::Album, album);
+				mediaInfo.setMetaData(MediaInfo::Album, album);
 			}
 
 			//Track number
 			else if (element == XSPF_TRACKNUM) {
 				QString trackNum(xml.readElementText());
-				mediaInfo.insertMetaData(MediaInfo::TrackNumber, trackNum.toInt());
+				mediaInfo.setMetaData(MediaInfo::TrackNumber, trackNum.toInt());
 			}
 
 			//Title
 			else if (element == XSPF_TITLE) {
 				QString title(xml.readElementText());
-				mediaInfo.insertMetaData(MediaInfo::Title, title);
+				mediaInfo.setMetaData(MediaInfo::Title, title);
 			}
 
 			//Comment
@@ -139,12 +139,12 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 				if (mediaInfo.metaDataValue(MediaInfo::Title).toString().isEmpty()) {
 					//Some people didn't understand how XSPF works
 					//and confused annotation with title
-					mediaInfo.insertMetaData(MediaInfo::Title, annotation);
+					mediaInfo.setMetaData(MediaInfo::Title, annotation);
 				}
-				mediaInfo.insertMetaData(MediaInfo::Comment, annotation);
+				mediaInfo.setMetaData(MediaInfo::Comment, annotation);
 			}
 
-			//Length
+			//Duration/length
 			else if (element == XSPF_DURATION) {
 				int duration = xml.readElementText().toInt();
 				//XSPF gives us the duration in milliseconds
@@ -155,13 +155,13 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 			else if (element == XSPF_IMAGE) {
 				QString image(xml.readElementText());
 				//FIXME not implemented yet
-				//mediaInfo.insertMetaData(MediaInfo::AlbumArt, image);
+				//mediaInfo.setMetaData(MediaInfo::AlbumArt, image);
 			}
 
 			//URL of the original web page
 			else if (element == XSPF_INFO) {
 				QString info(xml.readElementText());
-				mediaInfo.insertMetaData(MediaInfo::URL, QUrl(info));
+				mediaInfo.setMetaData(MediaInfo::URL, QUrl(info));
 			}
 
 			//Meta
@@ -174,13 +174,13 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 				//Date
 				if (attributes.hasAttribute(XSPF_FOOBAR2000_DATE)) {
 					QString date(attributes.value(XSPF_FOOBAR2000_DATE).toString());
-					mediaInfo.insertMetaData(MediaInfo::Year, QDate::fromString(date));
+					mediaInfo.setMetaData(MediaInfo::Year, QDate::fromString(date));
 				}
 
 				//Genre
 				else if (attributes.hasAttribute(XSPF_FOOBAR2000_GENRE)) {
 					QString genre(attributes.value(XSPF_FOOBAR2000_GENRE).toString());
-					mediaInfo.insertMetaData(MediaInfo::Genre, genre);
+					mediaInfo.setMetaData(MediaInfo::Genre, genre);
 				}
 			}
 
@@ -206,12 +206,12 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 
 							else if (extensionElement == XSPF_QUARKPLAYER_YEAR) {
 								QString year(xml.readElementText());
-								mediaInfo.insertMetaData(MediaInfo::Year, year);
+								mediaInfo.setMetaData(MediaInfo::Year, year);
 							}
 
 							else if (extensionElement == XSPF_QUARKPLAYER_GENRE) {
 								QString genre(xml.readElementText());
-								mediaInfo.insertMetaData(MediaInfo::Genre, genre);
+								mediaInfo.setMetaData(MediaInfo::Genre, genre);
 							}
 						}
 

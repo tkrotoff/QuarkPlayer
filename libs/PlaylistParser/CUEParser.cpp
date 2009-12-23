@@ -127,17 +127,17 @@ void CUEParser::load(QIODevice * device, const QString & location) {
 
 		else if (rx_track.indexIn(line) != -1) {
 			QString track(rx_track.cap(1));
-			mediaInfo.insertMetaData(MediaInfo::TrackNumber, track.toInt());
+			mediaInfo.setMetaData(MediaInfo::TrackNumber, track.toInt());
 		}
 
 		else if (rx_title.indexIn(line) != -1) {
 			QString title(rx_title.cap(1));
-			mediaInfo.insertMetaData(MediaInfo::Title, title);
+			mediaInfo.setMetaData(MediaInfo::Title, title);
 		}
 
 		else if (rx_performer.indexIn(line) != -1) {
 			QString performer(rx_performer.cap(1));
-			mediaInfo.insertMetaData(MediaInfo::Artist, performer);
+			mediaInfo.setMetaData(MediaInfo::Artist, performer);
 		}
 
 		else if (rx_index.indexIn(line) != -1) {
@@ -149,10 +149,10 @@ void CUEParser::load(QIODevice * device, const QString & location) {
 				files.last().setCueEndIndex(index);
 			}
 
-			mediaInfo.insertMetaData(MediaInfo::Genre, genre);
-			mediaInfo.insertMetaData(MediaInfo::Year, date);
-			mediaInfo.insertMetaData(MediaInfo::AlbumArtist, albumArtist);
-			mediaInfo.insertMetaData(MediaInfo::Album, album);
+			mediaInfo.setMetaData(MediaInfo::Genre, genre);
+			mediaInfo.setMetaData(MediaInfo::Year, date);
+			mediaInfo.setMetaData(MediaInfo::AlbumArtist, albumArtist);
+			mediaInfo.setMetaData(MediaInfo::Album, album);
 
 			if (MediaInfo::isUrl(filename)) {
 				mediaInfo.setFileName(filename);
