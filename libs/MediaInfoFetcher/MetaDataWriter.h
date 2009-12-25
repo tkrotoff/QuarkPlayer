@@ -30,8 +30,13 @@ class MediaInfo;
  * support and then MetaDataWriter won't work (will do nothing and return false).
  *
  * Very basic implementation for now, in the future will probably be threaded
- * via QtConcurrent::run
+ * via QtConcurrent::run and send a finished() signal.
  *
+ * MetaDataWriter allows us to add a new feature to MediaInfo without modifying
+ * this class. MediaInfo should be keep simple and lightweight since it is used to
+ * represent each item inside the Playlist.
+ *
+ * @see MediaInfo
  * @author Tanguy Krotoff
  */
 class MEDIAINFOFETCHER_API MetaDataWriter {
