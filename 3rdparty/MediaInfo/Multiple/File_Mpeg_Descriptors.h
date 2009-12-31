@@ -222,14 +222,14 @@ struct complete_stream
         bool                                        EndTimeStampMoreThanxSeconds;
         bool                                        ShouldDuplicate;
         bool                                        IsRegistered;
-        bool                                        IsScrambled;
+        size_t                                      IsScrambled;
 
         //Constructor/Destructor
         stream()
         {
             Parser=NULL;
             StreamKind=Stream_Max;
-            StreamPos=0;
+            StreamPos=(size_t)-1;
             Kind=unknown;
             IsPCR=false;
             #ifdef MEDIAINFO_MPEGTS_PCR_YES
@@ -255,7 +255,7 @@ struct complete_stream
             EndTimeStampMoreThanxSeconds=false;
             ShouldDuplicate=false;
             IsRegistered=false;
-            IsScrambled=false;
+            IsScrambled=0;
         }
 
         ~stream()
@@ -333,7 +333,13 @@ struct complete_stream
                 int32u  start_time;
                 Ztring  duration;
                 Ztring  title;
+                Ztring  language;
                 std::map<int16u, Ztring> texts;
+
+                event()
+                {
+                    start_time=(int32u)-1;
+                }
             };
 
             typedef std::map<int16u, event> events; //Key is event_id
@@ -400,11 +406,16 @@ class File_Mpeg_Descriptors : public File__Analyze
 public :
     //In
     complete_stream* Complete_Stream;
-    int16u   transport_stream_id;
-    int8u    table_id;
-    int16u   table_id_extension;
-    int16u   xxx_id;
-    bool     xxx_id_IsValid;
+    int16u transport_stream_id;
+    int16u pid;
+    int8u  table_id;
+    int16u table_id_extension;
+    int16u elementary_PID;
+    int16u program_number;
+    int16u event_id;
+    bool   elementary_PID_IsValid;
+    bool   program_number_IsValid;
+    bool   event_id_IsValid;
 
     //Constructor/Destructor
     File_Mpeg_Descriptors();
@@ -428,9 +439,9 @@ private :
     void Descriptor_08();
     void Descriptor_09();
     void Descriptor_0A();
-    void Descriptor_0B() {Skip_XX(Element_Size, "Data");};
+    void Descriptor_0B();
     void Descriptor_0C() {Skip_XX(Element_Size, "Data");};
-    void Descriptor_0D() {Skip_XX(Element_Size, "Data");};
+    void Descriptor_0D();
     void Descriptor_0E();
     void Descriptor_0F();
     void Descriptor_10();

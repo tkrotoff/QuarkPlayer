@@ -30,29 +30,195 @@
 #include "MediaInfo/MediaInfo_Config.h"
 #include "MediaInfo/File__Analyze.h"
 #include "MediaInfo/File__MultipleParsing.h"
-#include "MediaInfo/File_Unknown.h"
-#include "ZenLib/FileName.h"
+#include "ZenLib/Dir.h"
 #include "ZenLib/File.h"
-#include "ZenLib/InfoMap.h"
-#include <vector>
-#include <cstring>
-#if defined(MEDIAINFO_BDMV_YES)
-    #include "MediaInfo/Multiple/File_Bdmv.h"
+#if defined(MEDIAINFO_DIRECTORY_YES)
+    #include "MediaInfo/Reader/Reader_Directory.h"
+#endif
+#if defined(MEDIAINFO_FILE_YES)
+    #include "MediaInfo/Reader/Reader_File.h"
+#endif
+#if defined(MEDIAINFO_LIBCURL_YES)
+    #include "MediaInfo/Reader/Reader_libcurl.h"
+#endif
+#if defined(MEDIAINFO_LIBMMS_YES)
+    #include "MediaInfo/Reader/Reader_libmms.h"
 #endif
 using namespace ZenLib;
+using namespace std;
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
 {
 
-const size_t Buffer_NormalSize=/*188*7;//*/64*1024;
+//---------------------------------------------------------------------------
+//To clarify the code
+namespace MediaInfo_Debug_MediaInfo_Internal
+{
 
-//---------------------------------------------------------------------------
-extern MediaInfo_Config         Config;
-       ZtringListList           MediaInfo_Internal_Temp;
-//       vector<ZtringListList>   MediaInfo_Internal_Capacities;
-       String         MediaInfo_Internal_Capacities_Final;
-//---------------------------------------------------------------------------
+#if defined (MEDIAINFO_DEBUG_CONFIG) || defined (MEDIAINFO_DEBUG_BUFFER) || defined (MEDIAINFO_DEBUG_OUTPUT)
+    #ifdef WINDOWS
+        const Char* MediaInfo_Debug_Name=_T("MediaInfo_Debug");
+    #else
+        const Char* MediaInfo_Debug_Name=_T("/tmp/MediaInfo_Debug");
+    #endif
+#endif
+
+#ifdef MEDIAINFO_DEBUG_CONFIG
+    #define MEDIAINFO_DEBUG_CONFIG_TEXT(_TOAPPEND) \
+        { \
+            Ztring Debug; \
+            _TOAPPEND; \
+            Debug+=_T("\r\n"); \
+            if (!Debug_Config.Opened_Get()) \
+                Debug_Config.Create(Ztring(MediaInfo_Debug_Name)+_T(".")+Ztring::ToZtring((size_t)this, 16)+_T(".Config.txt")); \
+            Debug_Config.Write(Debug); \
+        }
+#else // MEDIAINFO_DEBUG_CONFIG
+    #define MEDIAINFO_DEBUG_CONFIG_TEXT(_TOAPPEND)
+#endif // MEDIAINFO_DEBUG_CONFIG
+
+#ifdef MEDIAINFO_DEBUG_CONFIG
+    #define EXECUTE_SIZE_T(_METHOD,_DEBUGB) \
+        { \
+            size_t ToReturn=_METHOD; \
+            MEDIAINFO_DEBUG_CONFIG_TEXT(_DEBUGB) \
+            return ToReturn; \
+        }
+#else //MEDIAINFO_DEBUG_CONFIG
+    #define EXECUTE_SIZE_T(_METHOD, _DEBUGB) \
+        return _METHOD;
+#endif //MEDIAINFO_DEBUG_CONFIG
+
+#ifdef MEDIAINFO_DEBUG_CONFIG
+    #define EXECUTE_INT64U(_METHOD,_DEBUGB) \
+        { \
+            int64u ToReturn=_METHOD; \
+            MEDIAINFO_DEBUG_CONFIG_TEXT(_DEBUGB) \
+            return ToReturn; \
+        }
+#else //MEDIAINFO_DEBUG_CONFIG
+    #define EXECUTE_INT64U(_METHOD, _DEBUGB) \
+        return _METHOD;
+#endif //MEDIAINFO_DEBUG_CONFIG
+
+#ifdef MEDIAINFO_DEBUG_CONFIG
+    #define EXECUTE_STRING(_METHOD,_DEBUGB) \
+        { \
+            Ztring ToReturn=_METHOD; \
+            MEDIAINFO_DEBUG_CONFIG_TEXT(_DEBUGB) \
+            return ToReturn; \
+        }
+#else //MEDIAINFO_DEBUG_CONFIG
+    #define EXECUTE_STRING(_METHOD,_DEBUGB) \
+        return _METHOD;
+#endif //MEDIAINFO_DEBUG_CONFIG
+
+#ifdef MEDIAINFO_DEBUG_BUFFER
+    #define MEDIAINFO_DEBUG_BUFFER_SAVE(_BUFFER, _SIZE) \
+        { \
+            if (!Debug_Buffer_Stream.Opened_Get()) \
+            { \
+                Debug_Buffer_Stream.Create(Ztring(MediaInfo_Debug_Name)+_T(".")+Ztring::ToZtring((size_t)this, 16)+_T(".Buffer.Stream.0000000000000000")); \
+                Debug_Buffer_Stream_Order=0; \
+                Debug_Buffer_Sizes.Create(Ztring(MediaInfo_Debug_Name)+_T(".")+Ztring::ToZtring((size_t)this, 16)+_T(".Buffer.Sizes.0000000000000000")); \
+                Debug_Buffer_Sizes_Count=0; \
+            } \
+            Debug_Buffer_Stream.Write(_BUFFER, _SIZE); \
+            Debug_Buffer_Sizes.Write((int8u*)&_SIZE, sizeof(size_t)); \
+            Debug_Buffer_Sizes_Count+=_SIZE; \
+            if (Debug_Buffer_Sizes_Count>=MEDIAINFO_DEBUG_BUFFER_SAVE_FileSize) \
+            { \
+                Debug_Buffer_Stream.Close(); \
+                Debug_Buffer_Sizes.Close(); \
+                Ztring Before=Ztring::ToZtring(Debug_Buffer_Stream_Order-1); \
+                while (Before.size()<16) \
+                    Before.insert(0, 1, _T('0')); \
+                Ztring Next=Ztring::ToZtring(Debug_Buffer_Stream_Order+1); \
+                while (Next.size()<16) \
+                    Next.insert(0, 1, _T('0')); \
+                Debug_Buffer_Stream.Create(Ztring(MediaInfo_Debug_Name)+_T(".")+Ztring::ToZtring((size_t)this, 16)+_T(".Buffer.Stream.")+Next); \
+                Debug_Buffer_Sizes.Create(Ztring(MediaInfo_Debug_Name)+_T(".")+Ztring::ToZtring((size_t)this, 16)+_T(".Buffer.Sizes.")+Next); \
+                File::Delete(Ztring(MediaInfo_Debug_Name)+_T(".")+Ztring::ToZtring((size_t)this, 16)+_T(".Buffer.Stream.")+Before); \
+                File::Delete(Ztring(MediaInfo_Debug_Name)+_T(".")+Ztring::ToZtring((size_t)this, 16)+_T(".Buffer.Sizes.")+Before); \
+                Debug_Buffer_Stream_Order++; \
+                Debug_Buffer_Sizes_Count=0; \
+            } \
+        }
+#else // MEDIAINFO_DEBUG_BUFFER
+    #define MEDIAINFO_DEBUG_BUFFER_SAVE(_BUFFER, _SIZE)
+#endif // MEDIAINFO_DEBUG_BUFFER
+
+#ifdef MEDIAINFO_DEBUG_OUTPUT
+    #define MEDIAINFO_DEBUG_OUTPUT_INIT(_VALUE, _DEBUGB) \
+        { \
+            if (OptionLower==_T("file_duplicate")) \
+            { \
+                size_t Pos=(size_t)ToReturn2.To_int64u(); \
+                if (Pos>=Debug_Output_Pos_Stream.size()) \
+                { \
+                    Debug_Output_Pos_Stream.resize(Pos+1); \
+                    Debug_Output_Pos_Stream[Pos]=new File(); \
+                    Debug_Output_Pos_Sizes.resize(Pos+1); \
+                    Debug_Output_Pos_Sizes[Pos]=new File(); \
+                    Debug_Output_Pos_Pointer.resize(Pos+1); \
+                    Debug_Output_Pos_Pointer[Pos]=(void*)Ztring(Value).SubString(_T("memory:/""/"), _T(":")).To_int64u(); \
+                } \
+            } \
+            EXECUTE_STRING(_VALUE, _DEBUGB) \
+        }
+#else // MEDIAINFO_DEBUG_OUTPUT
+    #define MEDIAINFO_DEBUG_OUTPUT_INIT(_VALUE, _DEBUGB) \
+        EXECUTE_STRING(_VALUE, _DEBUGB)
+#endif // MEDIAINFO_DEBUG_OUTPUT
+
+#ifdef MEDIAINFO_DEBUG_OUTPUT
+    #define MEDIAINFO_DEBUG_OUTPUT_VALUE(_VALUE, _METHOD) \
+        { \
+            size_t ByteCount=Info->Output_Buffer_Get(Value); \
+            void* ValueH=(void*)Ztring(Value).SubString(_T("memory:/""/"), _T(":")).To_int64u(); \
+            map<void*, File>::iterator F_Stream=Debug_Output_Value_Stream.find(ValueH); \
+            if (F_Stream!=Debug_Output_Value_Stream.end()) \
+            { \
+                map<void*, File>::iterator F_Sizes=Debug_Output_Value_Stream.find(ValueH); \
+                if (!F_Stream->second.Opened_Get()) \
+                { \
+                    F_Stream->second.Create(Ztring(MediaInfo_Debug_Name)+_T(".")+Ztring::ToZtring((size_t)this, 16)+_T(".Output.")+Ztring::ToZtring((size_t)ValueH, 16)+_T(".Stream")); \
+                    F_Sizes->second.Create(Ztring(MediaInfo_Debug_Name)+_T(".")+Ztring::ToZtring((size_t)this, 16)+_T(".Output.")+Ztring::ToZtring((size_t)ValueH, 16)+_T(".Sizes")); \
+                } \
+                F_Stream->second.Write((int8u*)ValueH, ByteCount); \
+                F_Sizes->second.Write((int8u*)&ByteCount, sizeof(ByteCount)); \
+            } \
+            return ByteCount; \
+        }
+#else // MEDIAINFO_DEBUG_OUTPUT
+    #define MEDIAINFO_DEBUG_OUTPUT_VALUE(_VALUE, _METHOD) \
+        return _METHOD
+#endif // MEDIAINFO_DEBUG_OUTPUT
+
+#ifdef MEDIAINFO_DEBUG_OUTPUT
+    #define MEDIAINFO_DEBUG_OUTPUT_POS(_POS, _METHOD) \
+        { \
+            size_t ByteCount=Info->Output_Buffer_Get(_POS); \
+            if (_POS<Debug_Output_Pos_Stream.size()) \
+            { \
+                if (!Debug_Output_Pos_Stream[_POS]->Opened_Get()) \
+                { \
+                    Debug_Output_Pos_Stream[_POS]->Create(Ztring(MediaInfo_Debug_Name)+_T(".")+Ztring::ToZtring((size_t)this, 16)+_T(".Output.")+Ztring::ToZtring(Pos, 16)+_T(".Stream")); \
+                    Debug_Output_Pos_Sizes[_POS]->Create(Ztring(MediaInfo_Debug_Name)+_T(".")+Ztring::ToZtring((size_t)this, 16)+_T(".Output.")+Ztring::ToZtring(Pos, 16)+_T(".Sizes")); \
+                } \
+                Debug_Output_Pos_Stream[_POS]->Write((int8u*)Debug_Output_Pos_Pointer[_POS], ByteCount); \
+                Debug_Output_Pos_Sizes[_POS]->Write((int8u*)&ByteCount, sizeof(ByteCount)); \
+            } \
+            return ByteCount; \
+        }
+#else // MEDIAINFO_DEBUG_OUTPUT
+    #define MEDIAINFO_DEBUG_OUTPUT_POS(_VALUE, _METHOD) \
+        return _METHOD
+#endif // MEDIAINFO_DEBUG_OUTPUT
+
+}
+using namespace MediaInfo_Debug_MediaInfo_Internal;
 
 //***************************************************************************
 // Constructor/destructor
@@ -60,24 +226,24 @@ extern MediaInfo_Config         Config;
 
 //---------------------------------------------------------------------------
 MediaInfo_Internal::MediaInfo_Internal()
+: Thread()
 {
     CriticalSectionLocker CSL(CS);
-    Thread=NULL;
-    BlockMethod=BlockMethod_Local;
-    Info=NULL;
-    Buffer=NULL;
-    Buffer_Size=0;
-    Buffer_Size_Max=0;
-    BufferConst=NULL;
-    File_Handle=NULL;
-    File_Size=0;
-    File_Offset=0;
-    File_AlreadyBuffered=false;
-    MultipleParsing_IsDetected=false;
+
+    MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Construction");)
 
     MediaInfoLib::Config.Init(); //Initialize Configuration
+
+    BlockMethod=BlockMethod_Local;
+    Info=NULL;
+    Info_IsMultipleParsing=false;
+
     Stream.resize(Stream_Max);
     Stream_More.resize(Stream_Max);
+    
+    //Threading
+    BlockMethod=0;
+    IsInThread=false;
 }
 
 //---------------------------------------------------------------------------
@@ -85,10 +251,18 @@ MediaInfo_Internal::~MediaInfo_Internal()
 {
     Close();
 
-    CriticalSectionLocker CSL(CS);;
+    CriticalSectionLocker CSL(CS);
+
+    MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Destruction");)
+
     delete Info; //Info=NULL;
-    delete[] Buffer; //Buffer=NULL;
-    delete (File*)File_Handle; //File_Handle=NULL;
+    #ifdef MEDIAINFO_DEBUG_OUTPUT
+        for (size_t Pos=0; Pos<Debug_Output_Pos_Stream.size(); Pos++)
+        {
+            delete Debug_Output_Pos_Stream[Pos]; //Debug_Output_Pos_Stream[Pos]=NULL;
+            delete Debug_Output_Pos_Sizes[Pos]; //Debug_Output_Pos_Sizes[Pos]=NULL;
+        }
+    #endif //MEDIAINFO_DEBUG_OUTPUT
 }
 
 //***************************************************************************
@@ -98,331 +272,163 @@ MediaInfo_Internal::~MediaInfo_Internal()
 //---------------------------------------------------------------------------
 size_t MediaInfo_Internal::Open(const String &File_Name_)
 {
-    //Test existence of the file
+    Close();
+
+    CS.Enter();
+    MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Open, File=");Debug+=Ztring(File_Name_).c_str();)
     File_Name=File_Name_;
-    if (!File::Exists(File_Name))
+    CS.Leave();
+
+    //Parsing
+    if (BlockMethod==1)
     {
-        #ifdef MEDIAINFO_BDMV_YES
-            if (File_Name.find(Ztring(1, PathSeparator)+_T("BDMV"))+5==File_Name.size())
-            {
-                //Blu-ray stuff
-                delete Info; Info=new File_Bdmv();
-
-                CriticalSectionLocker CSL(CS);
-                //Test the theorical format
-                #ifndef MEDIAINFO_MINIMIZESIZE
-                    Info->Init(&Config, &Details, &Stream, &Stream_More);
-                #else //MEDIAINFO_MINIMIZESIZE
-                    Info->Init(&Config, &Stream, &Stream_More);
-                #endif //MEDIAINFO_MINIMIZESIZE
-                Info->File_Name=File_Name;
-                ((File_Bdmv*)Info)->BDMV();
-                Info->Open_Buffer_Finalize();
-                Info->Fill();
-                Info->Finish();
-                return 1;
-            }
-        #endif //MEDIAINFO_BDMV_YES
-        return 0;
-    }
-
-    //Get the Extension
-    Ztring Extension=FileName::Extension_Get(File_Name);
-    Extension.MakeLowerCase();
-
-    //Search the theorical format from extension
-    InfoMap &FormatList=MediaInfoLib::Config.Format_Get();
-    InfoMap::iterator Format=FormatList.begin();
-    while (Format!=FormatList.end())
-    {
-        const Ztring &Extensions=FormatList.Get(Format->first, InfoFormat_Extensions);
-        if (Extensions.find(Extension)!=Error)
+        if (!IsInThread) //If already created, the routine will read the new files
         {
-            if(Extension.size()==Extensions.size())
-                break; //Only one extenion in the list
-            if(Extensions.find(Extension+_T(" "))!=Error
-            || Extensions.find(_T(" ")+Extension)!=Error)
-                break;
+            Run();
+            IsInThread=true;
         }
-        Format++;
-    }
-    if (Format!=FormatList.end())
-    {
-        const Ztring &Parser=Format->second(InfoFormat_Parser);
-        SelectFromExtension(Parser);
-    }
-
-    CriticalSectionLocker CSL(CS);
-    //Test the theorical format
-    if (Format_Test()>0)
-         return 1;
-
-    //Extension is not the good one, parse with all formats
-    /*
-    delete Info; Info=new File__MultipleParsing;
-    if (Format_Test()>0)
-         return 1;
-
-    delete Info; Info=new File_Unknown;
-    if (Format_Test()>0)
-         return 1;
-    return 0;
-    */
-    InternalMethod=1;
-    size_t ToReturn=ListFormats();
-
-    Format_Test_FillBuffer_Close();
-    return ToReturn;
-}
-
-//---------------------------------------------------------------------------
-int MediaInfo_Internal::Format_Test()
-{
-    //Integrity
-    if (Info==NULL)
         return 0;
-    #ifndef MEDIAINFO_MINIMIZESIZE
-        Info->Init(&Config, &Details, &Stream, &Stream_More);
-    #else //MEDIAINFO_MINIMIZESIZE
-        Info->Init(&Config, &Stream, &Stream_More);
-    #endif //MEDIAINFO_MINIMIZESIZE
-    Info->File_Name=File_Name;
-    
-    //Test the format with buffer
-    //-Test is already test with failure
-    if (File_AlreadyBuffered && File_Size==0)
-        return 0; //Already tested, ad a big problem on it
-
-    //-Initating the format
-    if (Format_Test_FillBuffer_Init()<0)
-        return 0;
-    Info->Open_Buffer_Init(File_Size);
-
-    //-Test the format with buffer
-    do
-    {
-        if (Format_Test_FillBuffer_Continue()<0)
-            break; //Error during reading
-        else if (Info)
-            Info->Open_Buffer_Continue(Buffer, Buffer_Size);
-    }
-    while (Info && !Info->Status[File__Analyze::IsFinished]);
-
-    //-Close
-    Format_Test_FillBuffer_Close();
-
-    //Is this file detected?
-    if (!Info->Status[File__Analyze::IsAccepted])
-    {
-        delete Info; Info=NULL;
-        return 0;
-    }
-
-    //Finalize
-    Info->Open_Buffer_Finalize();
-    Info->Fill();
-    Info->Finish();
-
-    //Cleanup
-    if (Config.Option(_T("File_IsSub_Get"))==_T("0")) //We need info for the calling parser
-    {
-        delete Info; Info=NULL;
-    }
-    return 1;
-}
-
-//---------------------------------------------------------------------------
-int MediaInfo_Internal::Format_Test_Buffer()
-{
-    //Integrity
-    if (Info==NULL)
-        return 0;
-
-    if (Info->Count_Get(Stream_General)==0)
-        Info->Open_Buffer_Init(NULL, File_Size, File_Offset);
-
-    //-Test the format with buffer
-    Info->Open_Buffer_Continue(NULL, BufferConst?BufferConst:Buffer, Buffer_Size);
-    //We must wait fo more data
-    if (Info->Count_Get(Stream_General)>0)
-        return 1;
-    else
-        return 0;
-}
-
-//---------------------------------------------------------------------------
-int MediaInfo_Internal::Format_Test_FillBuffer_Init()
-{
-    //Integrity
-    if (Info==NULL)
-        return -1;
-
-    //Is there a file to open?
-    if (File_Name.empty())
-        return 1; //Buffer is handled elsewhere
-    if (File_Handle)
-    {
-        File_AlreadyBuffered=true;
-        return 1; //Already opened
-    }
-
-    //Init
-    Buffer_Size_Max=Buffer_NormalSize;
-    File_Offset=0;
-    Buffer=NULL;
-
-    //Opening the file
-    File_Handle=new File;
-    ((File*)File_Handle)->Open(File_Name);
-    if (!((File*)File_Handle)->Opened_Get())
-    {
-        File_AlreadyBuffered=true; //We don't succeed to open it, so File_Size is 0
-        return -1;
-    }
-
-
-    //FileSize
-    if (File_Size==0) //If not provided by Open_Buffer_Init()
-        File_Size=((File*)File_Handle)->Size_Get();
-
-    //Buffer
-    delete[] Buffer; Buffer=new int8u[Buffer_Size_Max];
-
-    return 1;
-}
-
-//---------------------------------------------------------------------------
-int MediaInfo_Internal::Format_Test_FillBuffer_Continue()
-{
-    //Integrity
-    if (Info==NULL)
-        return -1;
-
-    //Is there a file to open?
-    if (File_Name.empty())
-    {
-        if (File_Offset==0)
-            return 1; //Buffer is handled elsewhere
-        else
-            return -1; //Not possible to have more
-    }
-
-    //Seek (if needed)
-    if (Info->File_GoTo!=(int64u)-1)
-    {
-        if (Info->File_GoTo<File_Size)
-        {
-            if (Info->File_GoTo>=((File*)File_Handle)->Size_Get())
-                //Seek requested, but on a file bigger in theory than what is in the real file, we can't do this
-                return -1;
-            if (((File*)File_Handle)->GoTo(Info->File_GoTo))
-            {
-                File_Offset=Info->File_GoTo;
-                Info->Open_Buffer_Init(File_Size, File_Offset);
-            }
-            else
-                //File is not seekable
-                return -1;
-        }
-        else
-        {
-            Info->Open_Buffer_Finalize();
-            return -1;
-        }
-    }
-
-    //Buffering
-    if (!File_AlreadyBuffered)
-    {
-        Buffer_Size=((File*)File_Handle)->Read(Buffer, Buffer_Size_Max);
-        if (Buffer_Size!=0)
-        {
-            //Read is OK
-            if (Buffer_Size==0)
-                return -1;
-            File_Offset+=Buffer_Size;
-        }
-        else
-            //Problem while reading
-            return -1;
     }
     else
-        File_AlreadyBuffered=false;
+    {
+        Entry(); //Normal parsing
+        return Count_Get(Stream_General);
+    }
+}
+
+//---------------------------------------------------------------------------
+void MediaInfo_Internal::Entry()
+{
+    CS.Enter();
+    MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Entry");)
+    Config.State_Set(0);
+    CS.Leave();
+
+        if (0);
+    #if defined(MEDIAINFO_LIBCURL_YES)
+        else if ((File_Name.size()>=7
+          && File_Name[0]==_T('h')
+          && File_Name[1]==_T('t')
+          && File_Name[2]==_T('t')
+          && File_Name[3]==_T('p')
+          && File_Name[4]==_T(':')
+          && File_Name[5]==_T('/')
+          && File_Name[6]==_T('/'))
+         || (File_Name.size()>=6
+          && File_Name[0]==_T('f')
+          && File_Name[1]==_T('t')
+          && File_Name[2]==_T('p')
+          && File_Name[3]==_T(':')
+          && File_Name[4]==_T('/')
+          && File_Name[5]==_T('/')))
+            Reader_libcurl::Format_Test(this, File_Name);
+    #endif //MEDIAINFO_LIBCURL_YES
+
+    #if defined(MEDIAINFO_LIBMMS_YES)
+        else if ((File_Name.size()>=6
+          && File_Name[0]==_T('m')
+          && File_Name[1]==_T('m')
+          && File_Name[2]==_T('s')
+          && File_Name[3]==_T(':')
+          && File_Name[4]==_T('/')
+          && File_Name[5]==_T('/'))
+         || (File_Name.size()>=7
+          && File_Name[0]==_T('m')
+          && File_Name[1]==_T('m')
+          && File_Name[2]==_T('s')
+          && File_Name[3]==_T('h')
+          && File_Name[4]==_T(':')
+          && File_Name[5]==_T('/')
+          && File_Name[6]==_T('/')))
+            Reader_libmms::Format_Test(this, File_Name);
+    #endif //MEDIAINFO_LIBMMS_YES
+
+    #if defined(MEDIAINFO_DIRECTORY_YES)
+        else if (Dir::Exists(File_Name))
+            Reader_Directory::Format_Test(this, File_Name);
+    #endif //MEDIAINFO_DIRECTORY_YES
+
+    #if defined(MEDIAINFO_FILE_YES)
+        else if (File::Exists(File_Name))
+            Reader_File::Format_Test(this, File_Name);
+    #endif //MEDIAINFO_FILE_YES
+
+    CS.Enter();
+    Config.State_Set(1);
+    CS.Leave();
+}
+
+//---------------------------------------------------------------------------
+size_t MediaInfo_Internal::Open (const int8u* Begin, size_t Begin_Size, const int8u*, size_t, int64u File_Size)
+{
+    Open_Buffer_Init(File_Size);
+    Open_Buffer_Continue(Begin, Begin_Size);
+    Open_Buffer_Finalize();
 
     return 1;
 }
 
 //---------------------------------------------------------------------------
-int MediaInfo_Internal::Format_Test_FillBuffer_Close()
-{
-    //Close
-    delete (File*)File_Handle; File_Handle=NULL;
-    Buffer_Clear();
-
-    return 1;
-}
-
-//---------------------------------------------------------------------------
-size_t MediaInfo_Internal::Open (const int8u* Begin_, size_t Begin_Size_, const int8u*, size_t, int64u FileSize_)
-{
-    CriticalSectionLocker CSL(CS);
-    Buffer_Size_Max=Begin_Size_;
-    delete[] Buffer; Buffer=new int8u[Buffer_Size_Max];
-    std::memcpy(Buffer, Begin_, Begin_Size_);
-    Buffer_Size=Begin_Size_;
-    File_Name.clear();
-    File_Size=FileSize_;
-
-    InternalMethod=1;
-    size_t ToReturn=ListFormats();
-
-    Buffer_Clear();
-    return ToReturn;
-}
-
-//---------------------------------------------------------------------------
-size_t MediaInfo_Internal::Open_Buffer_Init (int64u File_Size_, int64u File_Offset_)
+size_t MediaInfo_Internal::Open_Buffer_Init (int64u File_Size_, const String &File_Name)
 {
     CriticalSectionLocker CSL(CS);
     if (Info==NULL)
     {
         if (!Config.File_ForceParser_Get().empty())
         {
+            CS.Leave();
             SelectFromExtension(Config.File_ForceParser_Get());
-            MultipleParsing_IsDetected=true;
+            CS.Enter();
         }
         else
+        {
             Info=new File__MultipleParsing;
+            Info_IsMultipleParsing=true;
+        }
     }
     #ifndef MEDIAINFO_MINIMIZESIZE
         Info->Init(&Config, &Details, &Stream, &Stream_More);
     #else //MEDIAINFO_MINIMIZESIZE
         Info->Init(&Config, &Stream, &Stream_More);
     #endif //MEDIAINFO_MINIMIZESIZE
-    Info->Open_Buffer_Init(File_Size_, File_Offset_);
-
-    //Saving the real file size, in case the user provide the theoritical file size, to be used instead of the real file size
-    File_Size=File_Size_;
+    if (!File_Name.empty())
+        Info->File_Name=File_Name;
+    Info->Open_Buffer_Init(File_Size_);
 
     return 1;
 }
 
 //---------------------------------------------------------------------------
-size_t MediaInfo_Internal::Open_Buffer_Continue (const int8u* ToAdd, size_t ToAdd_Size)
+size_t MediaInfo_Internal::Open_Buffer_Init (int64u File_Size_, int64u File_Offset_)
+{
+    MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Open_Buffer_Init, File_Size=");Debug+=Ztring::ToZtring(File_Size_);Debug+=_T(", File_Offset=");Debug+=Ztring::ToZtring(File_Offset_);)
+
+    Open_Buffer_Init(File_Size_);
+
+    CriticalSectionLocker CSL(CS);
+
+    Info->Open_Buffer_Position_Set(File_Offset_);
+
+    EXECUTE_SIZE_T(1, Debug+=_T("Open_Buffer_Init, will return 1");)
+}
+
+//---------------------------------------------------------------------------
+std::bitset<32> MediaInfo_Internal::Open_Buffer_Continue (const int8u* ToAdd, size_t ToAdd_Size)
 {
     CriticalSectionLocker CSL(CS);
+    MEDIAINFO_DEBUG_BUFFER_SAVE(ToAdd, ToAdd_Size);
     if (Info==NULL)
         return 0;
 
     Info->Open_Buffer_Continue(ToAdd, ToAdd_Size);
 
-    if (!MultipleParsing_IsDetected && Info->Status[File__Analyze::IsAccepted])
+    if (Info_IsMultipleParsing && Info->Status[File__Analyze::IsAccepted])
     {
         //Found
         File__Analyze* Info_ToDelete=Info;
         Info=((File__MultipleParsing*)Info)->Parser_Get();
         delete Info_ToDelete; //Info_ToDelete=NULL;
-        MultipleParsing_IsDetected=true;
+        Info_IsMultipleParsing=false;
     }
 
     #if 0 //temp, for old users
@@ -431,6 +437,7 @@ size_t MediaInfo_Internal::Open_Buffer_Continue (const int8u* ToAdd, size_t ToAd
     {
         Info->Open_Buffer_Finalize(true);
         Info->File_GoTo=(int64u)-1;
+        MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Open_Buffer_Continue, will return 0");)
         return 0;
     }
 
@@ -443,13 +450,10 @@ size_t MediaInfo_Internal::Open_Buffer_Continue (const int8u* ToAdd, size_t ToAd
         Info->File_GoTo=(int64u)-1;
     }
 
-    if (Info)
-    {
-        if (!Info->Status[File__Analyze::IsFilled] && Info->Status[File__Analyze::IsUpdated])
-            Info->Status[File__Analyze::IsUpdated]=false; //No updated info until IsFilled is set
-        return Info->Status.to_ulong();
-    }
-    return 0;
+    if (!Info->Status[File__Analyze::IsFilled] && Info->Status[File__Analyze::IsUpdated])
+        Info->Status[File__Analyze::IsUpdated]=false; //No updated info until IsFilled is set
+
+    return Info->Status;
     #endif
 }
 
@@ -457,35 +461,58 @@ size_t MediaInfo_Internal::Open_Buffer_Continue (const int8u* ToAdd, size_t ToAd
 int64u MediaInfo_Internal::Open_Buffer_Continue_GoTo_Get ()
 {
     CriticalSectionLocker CSL(CS);
-    if (Info!=NULL)
-        return Info->File_GoTo;
-    else
+    if (Info==NULL)
         return 0;
+
+    return Info->File_GoTo;
+}
+
+bool MediaInfo_Internal::Open_Buffer_Position_Set(int64u File_Offset)
+{
+    CriticalSectionLocker CSL(CS);
+    if (Info==NULL)
+        return false;
+
+    Info->Open_Buffer_Position_Set(File_Offset);
+    return true;
 }
 
 //---------------------------------------------------------------------------
 size_t MediaInfo_Internal::Open_Buffer_Finalize ()
 {
     CriticalSectionLocker CSL(CS);
-    if (Info!=NULL)
+    MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Open_Buffer_Finalize");)
+    if (Info==NULL)
+        return 0;
+
+    Info->Open_Buffer_Finalize();
+
+    //Cleanup
+    if (!Config.File_IsSub_Get() && !Config.File_KeepInfo_Get()) //We need info for the calling parser
     {
-        Info->Open_Buffer_Finalize();
-        Info->Fill();
-        Info->Finish();
+        delete Info; Info=NULL;
     }
-    return 1;
+
+    EXECUTE_SIZE_T(1, Debug+=_T("Open_Buffer_Finalize, will return 1"))
 }
 
 //---------------------------------------------------------------------------
 void MediaInfo_Internal::Close()
 {
+    if (IsRunning())
+    {
+        RequestTerminate();
+        while(IsExited())
+            Yield();
+    }
+
     CriticalSectionLocker CSL(CS);
+    MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Close");)
     Stream.clear();
     Stream.resize(Stream_Max);
     Stream_More.clear();
     Stream_More.resize(Stream_Max);
     delete Info; Info=NULL;
-    Buffer_Clear();
 }
 
 //***************************************************************************
@@ -493,7 +520,7 @@ void MediaInfo_Internal::Close()
 //***************************************************************************
 
 /*//---------------------------------------------------------------------------
-String MediaInfo_Internal::Inform(size_t)
+Ztring MediaInfo_Internal::Inform(size_t)
 {
     //Info case
     if (Info)
@@ -506,9 +533,10 @@ String MediaInfo_Internal::Inform(size_t)
 } */
 
 //---------------------------------------------------------------------------
-String MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamNumber, size_t Parameter, info_t KindOfInfo)
+Ztring MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamPos, size_t Parameter, info_t KindOfInfo)
 {
     CriticalSectionLocker CSL(CS);
+    MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Get, StreamKind=");Debug+=Ztring::ToZtring((size_t)StreamKind);Debug+=_T(", StreamPos=");Debug+=Ztring::ToZtring(StreamPos);Debug+=_T(", Parameter=");Debug+=Ztring::ToZtring(Parameter);)
 
     if (Info)
     {
@@ -518,25 +546,25 @@ String MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamNumber, size_t 
     }
 
     //Check integrity
-    if (StreamKind>=Stream_Max || StreamNumber>=Stream[StreamKind].size() || Parameter>=MediaInfoLib::Config.Info_Get(StreamKind).size()+Stream_More[StreamKind][StreamNumber].size() || KindOfInfo>=Info_Max)
+    if (StreamKind>=Stream_Max || StreamPos>=Stream[StreamKind].size() || Parameter>=MediaInfoLib::Config.Info_Get(StreamKind).size()+Stream_More[StreamKind][StreamPos].size() || KindOfInfo>=Info_Max)
         return MediaInfoLib::Config.EmptyString_Get(); //Parameter is unknown
 
     else if (Parameter<MediaInfoLib::Config.Info_Get(StreamKind).size())
     {
         //Optimization : KindOfInfo>Info_Text is in static lists
         if (KindOfInfo!=Info_Text)
-            return MediaInfoLib::Config.Info_Get(StreamKind, Parameter, KindOfInfo); //look for static information only
-        else if (Parameter<Stream[StreamKind][StreamNumber].size())
-            return Stream[StreamKind][StreamNumber][Parameter];
+            EXECUTE_STRING(MediaInfoLib::Config.Info_Get(StreamKind, Parameter, KindOfInfo), Debug+=_T("Get, will return ");Debug+=ToReturn;) //look for static information only
+        else if (Parameter<Stream[StreamKind][StreamPos].size())
+            EXECUTE_STRING(Stream[StreamKind][StreamPos][Parameter], Debug+=_T("Get, will return ");Debug+=ToReturn;)
         else
-            return MediaInfoLib::Config.EmptyString_Get(); //This parameter is known, but not filled
+            EXECUTE_STRING(MediaInfoLib::Config.EmptyString_Get(), Debug+=_T("Get, will return ");Debug+=ToReturn;) //This parameter is known, but not filled
     }
     else
-        return Stream_More[StreamKind][StreamNumber][Parameter-MediaInfoLib::Config.Info_Get(StreamKind).size()](KindOfInfo);
+        EXECUTE_STRING(Stream_More[StreamKind][StreamPos][Parameter-MediaInfoLib::Config.Info_Get(StreamKind).size()](KindOfInfo), Debug+=_T("Get, will return ");Debug+=ToReturn;)
 }
 
 //---------------------------------------------------------------------------
-String MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamPos, const String &Parameter, info_t KindOfInfo, info_t KindOfSearch)
+Ztring MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamPos, const String &Parameter, info_t KindOfInfo, info_t KindOfSearch)
 {
     //Legacy
     if (Parameter.find(_T("_String"))!=Error)
@@ -583,6 +611,7 @@ String MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamPos, const Stri
         return Get(Stream_General, StreamPos, _T("OverallBitRate_Maximum/String"), KindOfInfo, KindOfSearch);
 
     CS.Enter();
+    MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Get, StreamKind=");Debug+=Ztring::ToZtring((size_t)StreamKind);Debug+=_T(", StreamKind=");Debug+=Ztring::ToZtring(StreamPos);Debug+=_T(", Parameter=");Debug+=Ztring(Parameter);)
 
     if (Info)
     {
@@ -595,7 +624,7 @@ String MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamPos, const Stri
     if (StreamKind>=Stream_Max || StreamPos>=Stream[StreamKind].size() || KindOfInfo>=Info_Max)
     {
         CS.Leave();
-        return MediaInfoLib::Config.EmptyString_Get(); //Parameter is unknown
+        EXECUTE_STRING(MediaInfoLib::Config.EmptyString_Get(), Debug+=_T("Get, will return empty string");) //Parameter is unknown
     }
 
     //Special cases
@@ -618,7 +647,7 @@ String MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamPos, const Stri
         if (ParameterI==Error)
         {
             CS.Leave();
-            return MediaInfoLib::Config.EmptyString_Get(); //Parameter is unknown
+            EXECUTE_STRING(MediaInfoLib::Config.EmptyString_Get(), Debug+=_T("Get, will return empty string");) //Parameter is unknown
         }
         CS.Leave();
         CriticalSectionLocker CSL(CS);
@@ -627,7 +656,7 @@ String MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamPos, const Stri
 
     CS.Leave();
 
-    return Get(StreamKind, StreamPos, ParameterI, KindOfInfo);
+    EXECUTE_STRING(Get(StreamKind, StreamPos, ParameterI, KindOfInfo), Debug+=_T("Get, will return ");Debug+=ToReturn;)
 }
 
 //***************************************************************************
@@ -635,23 +664,23 @@ String MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamPos, const Stri
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-size_t MediaInfo_Internal::Set(const String &ToSet, stream_t StreamKind, size_t StreamNumber, size_t Parameter, const String &OldValue)
+size_t MediaInfo_Internal::Set(const String &ToSet, stream_t StreamKind, size_t StreamPos, size_t Parameter, const String &OldValue)
 {
     CriticalSectionLocker CSL(CS);
     if (!Info)
         return 0;
 
-    return Info->Set(StreamKind, StreamNumber, Parameter, ToSet, OldValue);
+    return Info->Set(StreamKind, StreamPos, Parameter, ToSet, OldValue);
 }
 
 //---------------------------------------------------------------------------
-size_t MediaInfo_Internal::Set(const String &ToSet, stream_t StreamKind, size_t StreamNumber, const String &Parameter, const String &OldValue)
+size_t MediaInfo_Internal::Set(const String &ToSet, stream_t StreamKind, size_t StreamPos, const String &Parameter, const String &OldValue)
 {
     CriticalSectionLocker CSL(CS);
     if (!Info)
         return 0;
 
-    return Info->Set(StreamKind, StreamNumber, Parameter, ToSet, OldValue);
+    return Info->Set(StreamKind, StreamPos, Parameter, ToSet, OldValue);
 }
 
 //***************************************************************************
@@ -665,7 +694,7 @@ size_t MediaInfo_Internal::Output_Buffer_Get (const String &Value)
     if (!Info)
         return 0;
 
-    return Info->Output_Buffer_Get(Value);
+    MEDIAINFO_DEBUG_OUTPUT_VALUE(Value, Info->Output_Buffer_Get(Value));
 }
 
 //---------------------------------------------------------------------------
@@ -675,7 +704,7 @@ size_t MediaInfo_Internal::Output_Buffer_Get (size_t Pos)
     if (!Info)
         return 0;
 
-    return Info->Output_Buffer_Get(Pos);
+    MEDIAINFO_DEBUG_OUTPUT_POS(Pos, Info->Output_Buffer_Get(Pos));
 }
 
 //***************************************************************************
@@ -686,6 +715,7 @@ size_t MediaInfo_Internal::Output_Buffer_Get (size_t Pos)
 String MediaInfo_Internal::Option (const String &Option, const String &Value)
 {
     CriticalSectionLocker CSL(CS);
+    MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Option, Option=");Debug+=Ztring(Option);Debug+=_T(", Value=");Debug+=Ztring(Value);)
     Ztring OptionLower=Option; OptionLower.MakeLowerCase();
          if (Option.empty())
         return _T("");
@@ -705,19 +735,25 @@ String MediaInfo_Internal::Option (const String &Option, const String &Value)
         delete Info; Info=NULL;
         return _T("");
     }
+    else if (OptionLower==_T("thread"))
+    {
+        BlockMethod=1;
+        return _T("");
+    }
     else if (Option==_T("info_capacities"))
     {
         return _T("Option removed");
     }
     else if (OptionLower.find(_T("file_"))==0)
     {
-        Ztring ToReturn=Config.Option(Option, Value);
+        Ztring ToReturn2=Config.Option(Option, Value);
         if (Info)
             Info->Option_Manage();
-        return ToReturn;
+
+        MEDIAINFO_DEBUG_OUTPUT_INIT(ToReturn2, Debug+=_T("Option, will return ");Debug+=ToReturn;)
     }
     else
-        return MediaInfoLib::Config.Option(Option, Value);
+        EXECUTE_STRING(MediaInfoLib::Config.Option(Option, Value), Debug+=_T("Option, will return ");Debug+=ToReturn;)
 }
 
 //---------------------------------------------------------------------------
@@ -744,33 +780,9 @@ size_t MediaInfo_Internal::Count_Get (stream_t StreamKind, size_t StreamPos)
 size_t MediaInfo_Internal::State_Get ()
 {
     CriticalSectionLocker CSL(CS);
-    return 0; //Not yet implemented
-}
-
-//---------------------------------------------------------------------------
-void MediaInfo_Internal::Buffer_Clear()
-{
-    Buffer_Size_Max=0;
-    delete[] Buffer; Buffer=NULL;
-    Buffer_Size=0;
-    File_Size=0;
-}
-
-//---------------------------------------------------------------------------
-int MediaInfo_Internal::ApplyMethod()
-{
-    switch (InternalMethod)
-    {
-        case 1 : //Open file
-            return Format_Test();
-        case 2 : //Open buffer
-            return Format_Test_Buffer();
-        case 3 : //Supported formats
-            delete Info; Info=NULL;
-            return 0; //We want to continue the format listing
-    }
-    return 0;
+    return (size_t)(Config.State_Get()*10000);
 }
 
 } //NameSpace
+
 

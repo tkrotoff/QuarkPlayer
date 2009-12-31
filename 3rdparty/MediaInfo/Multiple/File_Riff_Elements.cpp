@@ -45,6 +45,9 @@
 #if defined(MEDIAINFO_MPEG4V_YES)
     #include "MediaInfo/Video/File_Mpeg4v.h"
 #endif
+#if defined(MEDIAINFO_MPEGV_YES)
+    #include "MediaInfo/Video/File_Mpegv.h"
+#endif
 #if defined(MEDIAINFO_AVC_YES)
     #include "MediaInfo/Video/File_Avc.h"
 #endif
@@ -306,6 +309,8 @@ namespace Elements
     const int32u MThd=0x4D546864;
     const int32u MTrk=0x4D54726B;
     const int32u PAL_=0x50414C20;
+    const int32u QLCM=0x514C434D;
+    const int32u QLCM_fmt_=0x666D7420;
     const int32u RDIB=0x52444942;
     const int32u RMID=0x524D4944;
     const int32u RMMP=0x524D4D50;
@@ -327,11 +332,21 @@ namespace Elements
     const int32u WAVE_fact=0x66616374;
     const int32u WAVE_fmt_=0x666D7420;
     const int32u WAVE_ID3_=0x49443320;
+    const int32u WAVE_INFO=0x494E464F;
     const int32u WAVE_iXML=0x69584D4C;
     const int32u wave=0x77617665;
     const int32u wave_data=0x64617461;
     const int32u wave_fmt_=0x666D7420;
     const int32u W3DI=0x57334449;
+
+    #define UUID(NAME, PART1, PART2, PART3, PART4, PART5) \
+        const int64u NAME   =0x##PART3##PART2##PART1##ULL; \
+        const int64u NAME##2=0x##PART4##PART5##ULL; \
+
+    UUID(QLCM_QCELP1,                                           5E7F6D41, B115, 11D0, BA91, 00805FB4B97E)
+    UUID(QLCM_QCELP2,                                           5E7F6D42, B115, 11D0, BA91, 00805FB4B97E)
+    UUID(QLCM_EVRC,                                             E689D48D, 9076, 46B5, 91EF, 736A5100CEB4)
+    UUID(QLCM_SMV,                                              8D7C2B75, A797, ED49, 985E, D53C8CC75F84)
 }
 
 //***************************************************************************
@@ -432,6 +447,10 @@ void File_Riff::Data_Parse()
     ATOM(MThd)
     LIST_SKIP(MTrk)
     LIST_SKIP(PAL_)
+    LIST(QLCM)
+        ATOM_BEGIN
+        ATOM(QLCM_fmt_)
+        ATOM_END
     LIST_SKIP(RDIB)
     LIST_SKIP(RMID)
     LIST_SKIP(RMMP)
@@ -464,6 +483,10 @@ void File_Riff::Data_Parse()
         ATOM(WAVE_fact)
         ATOM(WAVE_fmt_)
         ATOM(WAVE_ID3_)
+        LIST(WAVE_INFO)
+            ATOM_BEGIN
+            ATOM_DEFAULT(WAVE_INFO_xxxx)
+            ATOM_END_DEFAULT
         ATOM(WAVE_iXML)
         ATOM_END
     LIST(wave)
@@ -477,7 +500,7 @@ void File_Riff::Data_Parse()
     if (Alignement_ExtraByte)
     {
         Element_Size+=Alignement_ExtraByte;
-        if (File_GoTo==(size_t)-1)
+        if (Element_Offset+Alignement_ExtraByte==Element_Size)
             Skip_XX(Alignement_ExtraByte,                       "Alignement");
     }
 }
@@ -493,7 +516,6 @@ void File_Riff::AIFC()
     Element_Name("AIFF Compressed");
 
     //Filling
-    Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "AIFF");
     Stream_Prepare(Stream_Audio);
 }
@@ -538,7 +560,6 @@ void File_Riff::AIFF()
     Element_Name("AIFF");
 
     //Filling
-    Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "AIFF");
     Stream_Prepare(Stream_Audio);
 }
@@ -611,7 +632,7 @@ void File_Riff::AIFF_SSND()
     Element_Name("Sound Data");
 
     Skip_XX(Element_TotalSize_Get(),                            "Data");
-    
+
     //Filling
     Fill(Stream_Audio, 0, Audio_StreamSize, Element_TotalSize_Get());
     Finish("AIFF");
@@ -646,19 +667,19 @@ void File_Riff::AIFF_xxxx()
 //---------------------------------------------------------------------------
 void File_Riff::AVI_()
 {
-    Data_Accept("AVI");
     Element_Name("AVI");
 
     //Test if there is only one AVI chunk
-    if (Count_Get(Stream_General)>0)
+    if (Status[IsAccepted])
     {
         Element_Info("Problem: 2 AVI chunks, this is not normal");
         Skip_XX(Element_TotalSize_Get(),                        "Data");
         return;
     }
 
+    Data_Accept("AVI");
+
     //Filling
-    Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "AVI");
 
     //Configuring
@@ -1016,13 +1037,14 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
 
     //Parsing
     int32u SamplesPerSec, AvgBytesPerSec;
-    int16u FormatTag, Channels, BitsPerSample;
+    int16u FormatTag, Channels, BitsPerSample=0;
     Get_L2 (FormatTag,                                          "FormatTag");
     Get_L2 (Channels,                                           "Channels");
     Get_L4 (SamplesPerSec,                                      "SamplesPerSec");
     Get_L4 (AvgBytesPerSec,                                     "AvgBytesPerSec");
     Skip_L2(                                                    "BlockAlign");
-    Get_L2 (BitsPerSample,                                      "BitsPerSample");
+    if (Element_Offset+2<=Element_Size)
+        Get_L2 (BitsPerSample,                                  "BitsPerSample");
 
     //Filling
     Stream_Prepare(Stream_Audio);
@@ -1035,7 +1057,8 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
     Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, (Channels!=5 || FormatTag==0xFFFE)?Channels:6);
     Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, SamplesPerSec);
     Fill(Stream_Audio, StreamPos_Last, Audio_BitRate, AvgBytesPerSec*8);
-    if (BitsPerSample) Fill(Stream_Audio, StreamPos_Last, Audio_Resolution, BitsPerSample);
+    if (BitsPerSample)
+        if (BitsPerSample) Fill(Stream_Audio, StreamPos_Last, Audio_Resolution, BitsPerSample);
     Stream[Stream_ID].AvgBytesPerSec=AvgBytesPerSec; //Saving bitrate for each stream
     if (SamplesPerSec && TimeReference!=(int64u)-1)
         Fill(Stream_Audio, 0, Audio_Delay, TimeReference/SamplesPerSec);
@@ -1043,14 +1066,14 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
     //Creating the parser
          if (0);
     #if defined(MEDIAINFO_MPEGA_YES)
-    else if (MediaInfoLib::Config.Codec_Get(Codec, InfoCodec_KindofCodec).find(_T("MPEG-"))==0)
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Audio, InfoCodecID_Format_Riff, Codec)==_T("MPEG Audio"))
     {
         Stream[Stream_ID].Parser=new File_Mpega;
         Stream[Stream_ID].Parser->ShouldContinueParsing=true;
     }
     #endif
     #if defined(MEDIAINFO_AC3_YES)
-    else if (FormatTag==0x2000)
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Audio, InfoCodecID_Format_Riff, Codec)==_T("AC-3"))
     {
         Stream[Stream_ID].Parser=new File_Ac3;
         ((File_Ac3*)Stream[Stream_ID].Parser)->Frame_Count_Valid=2;
@@ -1058,7 +1081,7 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
     }
     #endif
     #if defined(MEDIAINFO_DTS_YES)
-    else if (FormatTag==0x2001
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Audio, InfoCodecID_Format_Riff, Codec)==_T("DTS")
           || (FormatTag==0x1 && Retrieve(Stream_General, 0, General_Format)==_T("Wave"))) //Some DTS streams are coded "1"
     {
         Stream[Stream_ID].Parser=new File_Dts;
@@ -1067,7 +1090,7 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
     }
     #endif
     #if defined(MEDIAINFO_ADTS_YES)
-    else if (FormatTag==0xAAC || FormatTag==0xFF)
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Audio, InfoCodecID_Format_Riff, Codec)==_T("AAC"))
     {
         Stream[Stream_ID].Parser=new File_Adts;
         ((File_Adts*)Stream[Stream_ID].Parser)->Frame_Count_Valid=1;
@@ -1075,7 +1098,7 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
     }
     #endif
     #if defined(MEDIAINFO_PCM_YES)
-    else if (MediaInfoLib::Config.Codec_Get(Codec, InfoCodec_KindofCodec).find(_T("PCM"))==0)
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Audio, InfoCodecID_Format_Riff, Codec)==_T("PCM"))
     {
         //Creating the parser
         File_Pcm MI;
@@ -1083,7 +1106,7 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
 
         //Parsing
         Open_Buffer_Init(&MI);
-        Open_Buffer_Continue(&MI, Buffer+Buffer_Offset, 0);
+        Open_Buffer_Continue(&MI, 0);
 
         //Filling
         Finish(&MI);
@@ -1091,7 +1114,7 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
     }
     #endif
     #if defined(MEDIAINFO_ADPCM_YES)
-    else if (MediaInfoLib::Config.Codec_Get(Codec, InfoCodec_KindofCodec).find(_T("ADPCM"))==0)
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Audio, InfoCodecID_Format_Riff, Codec)==_T("ADPCM"))
     {
         //Creating the parser
         File_Adpcm MI;
@@ -1099,7 +1122,7 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
 
         //Parsing
         Open_Buffer_Init(&MI);
-        Open_Buffer_Continue(&MI, Buffer+Buffer_Offset, 0);
+        Open_Buffer_Continue(&MI, 0);
 
         //Filling
         Finish(&MI);
@@ -1107,8 +1130,8 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
     }
     #endif
     #if defined(MEDIAINFO_OGG_YES)
-    else if (MediaInfoLib::Config.Codec_Get(Codec, InfoCodec_KindofCodec)==_T("Vorbis")
-          && FormatTag!=0x566F) //0x6F56 has config in this chunk
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Audio, InfoCodecID_Format_Riff, Codec)==_T("Vorbis")
+          && FormatTag!=0x566F) //0x566F has config in this chunk
     {
         Stream[Stream_ID].Parser=new File_Ogg;
         Stream[Stream_ID].Parser->ShouldContinueParsing=true;
@@ -1119,7 +1142,7 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
     //Options
     if (Element_Offset+2>Element_Size)
         return; //No options
-        
+
     //Parsing
     int16u Option_Size;
     Get_L2 (Option_Size,                                        "cbSize");
@@ -1168,7 +1191,7 @@ void File_Riff::AVI__hdlr_strl_strf_auds_Aac()
     #if defined(MEDIAINFO_MPEG4_YES)
         File_Mpeg4_AudioSpecificConfig MI;
         Open_Buffer_Init(&MI);
-        Open_Buffer_Continue(&MI, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+        Open_Buffer_Continue(&MI);
         Finish(&MI);
         Merge(MI, StreamKind_Last, 0, StreamPos_Last);
     #else //MEDIAINFO_MPEG4_YES
@@ -1208,13 +1231,14 @@ void File_Riff::AVI__hdlr_strl_strf_auds_Vorbis()
         //Parsing blocks
         for (int8u Pos=0; Pos<Elements_Count; Pos++)
         {
-            Open_Buffer_Continue(&MI, Buffer+Buffer_Offset+(size_t)Element_Offset, Elements_Size[Pos]);
-            Open_Buffer_Continue(&MI, Buffer+Buffer_Offset+(size_t)Element_Size, 0);
+            Open_Buffer_Continue(&MI, Elements_Size[Pos]);
+            Open_Buffer_Continue(&MI, 0);
             Element_Offset+=Elements_Size[Pos];
         }
         //Finalizing
         Finish(&MI);
         Merge(MI, StreamKind_Last, 0, StreamPos_Last);
+        Clear(Stream_Audio, StreamPos_Last, Audio_Resolution); //Resolution is not valid for Vorbis
         Element_Show();
     #else //MEDIAINFO_MPEG4_YES
         Skip_XX(Element_Size-Element_Offset,                    "(Vorbis headers)");
@@ -1230,8 +1254,8 @@ void File_Riff::AVI__hdlr_strl_strf_auds_Vorbis2()
     Element_Begin("Vorbis options");
     #if defined(MEDIAINFO_OGG_YES)
         File_Ogg_SubElement MI;
-        Open_Buffer_Continue(Stream[Stream_ID].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
-        Open_Buffer_Continue(Stream[Stream_ID].Parser, Buffer+Buffer_Offset+(size_t)Element_Size, 0);
+        Open_Buffer_Continue(Stream[Stream_ID].Parser);
+        Open_Buffer_Continue(Stream[Stream_ID].Parser, 0);
         Finish(Stream[Stream_ID].Parser);
         Merge(*Stream[Stream_ID].Parser, StreamKind_Last, 0, StreamPos_Last);
         Element_Show();
@@ -1245,15 +1269,46 @@ void File_Riff::AVI__hdlr_strl_strf_auds_Vorbis2()
 void File_Riff::AVI__hdlr_strl_strf_auds_ExtensibleWave()
 {
     //Parsing
+    int128u SubFormat;
     int32u ChannelMask;
     Skip_L2(                                                    "ValidBitsPerSample / SamplesPerBlock");
     Get_L4 (ChannelMask,                                        "ChannelMask");
-    Skip_GUID(                                                  "SubFormat");
+    Get_GUID(SubFormat,                                         "SubFormat");
 
     FILLING_BEGIN();
+        if ((SubFormat.hi&0xFFFFFFFFFFFF0000LL)==0x0010000000000000LL && SubFormat.lo==0x800000AA00389B71LL)
+        {
+            CodecID_Fill(Ztring().From_Number((int16u)SubFormat.hi, 16), Stream_Audio, StreamPos_Last, InfoCodecID_Format_Riff);
+            Fill(Stream_Audio, StreamPos_Last, Audio_CodecID, Ztring().From_GUID(SubFormat), true);
+            Fill(Stream_Audio, StreamPos_Last, Audio_Codec, MediaInfoLib::Config.Codec_Get(Ztring().From_Number((int16u)SubFormat.hi, 16)), true);
+
+            //Creating the parser
+                 if (0);
+            #if defined(MEDIAINFO_PCM_YES)
+            else if (MediaInfoLib::Config.CodecID_Get(Stream_Audio, InfoCodecID_Format_Riff, Ztring().From_Number((int16u)SubFormat.hi, 16))==_T("PCM"))
+            {
+                //Creating the parser
+                File_Pcm MI;
+                MI.Codec=Ztring().From_Number((int16u)SubFormat.hi, 16);
+
+                //Parsing
+                Open_Buffer_Init(&MI);
+                Open_Buffer_Continue(&MI, 0);
+
+                //Filling
+                Finish(&MI);
+                Merge(MI, StreamKind_Last, 0, StreamPos_Last);
+            }
+            #endif
+        }
+        else
+        {
+            CodecID_Fill(Ztring().From_GUID(SubFormat), Stream_Audio, StreamPos_Last, InfoCodecID_Format_Riff);
+        }
         Fill(Stream_Audio, StreamPos_Last, Audio_ChannelPositions, ExtensibleWave_ChannelMask(ChannelMask));
         Fill(Stream_Audio, StreamPos_Last, Audio_ChannelPositions_String2, ExtensibleWave_ChannelMask2(ChannelMask));
     FILLING_END();
+
 }
 
 //---------------------------------------------------------------------------
@@ -1279,7 +1334,7 @@ void File_Riff::AVI__hdlr_strl_strf_iavs()
 
         //DVAAuxSrc
         ((File_DvDif*)DV_FromHeader)->AuxToAnalyze=0x50; //Audio source
-        Open_Buffer_Continue(DV_FromHeader, Buffer+Buffer_Offset+(size_t)Element_Offset, 4);
+        Open_Buffer_Continue(DV_FromHeader, 4);
         Element_Offset+=4;
         //DVAAuxCtl
         ((File_DvDif*)DV_FromHeader)->AuxToAnalyze=0x51; //Audio control
@@ -1291,11 +1346,11 @@ void File_Riff::AVI__hdlr_strl_strf_iavs()
         Skip_L4(                                                "DVAAuxCtl1");
         //DVVAuxSrc
         ((File_DvDif*)DV_FromHeader)->AuxToAnalyze=0x60; //Video source
-        Open_Buffer_Continue(DV_FromHeader, Buffer+Buffer_Offset+(size_t)Element_Offset, 4);
+        Open_Buffer_Continue(DV_FromHeader, 4);
         Element_Offset+=4;
         //DVAAuxCtl
         ((File_DvDif*)DV_FromHeader)->AuxToAnalyze=0x61; //Video control
-        Open_Buffer_Continue(DV_FromHeader, Buffer+Buffer_Offset+(size_t)Element_Offset, 4);
+        Open_Buffer_Continue(DV_FromHeader, 4);
         Element_Offset+=4;
         //Reserved
         Skip_L4(                                                "DVReserved");
@@ -1306,7 +1361,6 @@ void File_Riff::AVI__hdlr_strl_strf_iavs()
         Stream_Prepare(Stream_Video);
         Stream[Stream_ID].Parser=new File_DvDif;
         Open_Buffer_Init(Stream[Stream_ID].Parser);
-        ((File_DvDif*)Stream[Stream_ID].Parser)->Frame_Count_Valid=2;
 
     #else //MEDIAINFO_DVDIF_YES
         //Parsing
@@ -1401,7 +1455,7 @@ void File_Riff::AVI__hdlr_strl_strf_vids()
     Get_L4 (Width,                                              "Width");
     Get_L4 (Height,                                             "Height");
     Skip_L2(                                                    "Planes");
-    Get_L2 (Resolution,                                         "BitCount");
+    Get_L2 (Resolution,                                         "BitCount"); //Do not use it
     Get_C4 (Compression,                                        "Compression");
     Skip_L4(                                                    "SizeImage");
     Skip_L4(                                                    "XPelsPerMeter");
@@ -1441,7 +1495,29 @@ void File_Riff::AVI__hdlr_strl_strf_vids()
         }
         Fill(StreamKind_Last, StreamPos_Last, "Width", Width, 10, true);
         Fill(StreamKind_Last, StreamPos_Last, "Height", Height, 10, true);
-        Fill(StreamKind_Last, StreamPos_Last, "Resolution", Resolution);
+        if (Resolution==32 && Compression==0x74736363) //tscc
+            Fill(StreamKind_Last, StreamPos_Last, "Resolution", 8);
+        else if (Compression==0x44495633) //DIV3
+            Fill(StreamKind_Last, StreamPos_Last, "Resolution", 8);
+        else if (Compression==0x44585342) //DXSB
+            Fill(StreamKind_Last, StreamPos_Last, "Resolution", Resolution);
+        else if (MediaInfoLib::Config.CodecID_Get(StreamKind_Last, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression), InfoCodecID_ColorSpace).find(_T("RGBA"))!=std::string::npos) //RGB codecs
+            Fill(StreamKind_Last, StreamPos_Last, "Resolution", Resolution/4);
+        else if (Compression==0x00000000 //RGB
+              || MediaInfoLib::Config.CodecID_Get(StreamKind_Last, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression), InfoCodecID_ColorSpace).find(_T("RGB"))!=std::string::npos) //RGB codecs
+        {
+            if (Resolution==32)
+            {
+                Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Format), "RGBA", Unlimited, true, true);
+                Fill(StreamKind_Last, StreamPos_Last, "Resolution", Resolution/4); //With Alpha
+            }
+            else
+                Fill(StreamKind_Last, StreamPos_Last, "Resolution", Resolution<=16?8:(Resolution/3)); //indexed or normal
+        }
+        else if (Compression==0x56503632 //VP62
+              || MediaInfoLib::Config.CodecID_Get(StreamKind_Last, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression), InfoCodecID_Format)==_T("H.263") //H.263
+              || MediaInfoLib::Config.CodecID_Get(StreamKind_Last, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression), InfoCodecID_Format)==_T("VC-1")) //VC-1
+            Fill(StreamKind_Last, StreamPos_Last, "Resolution", Resolution/3);
     }
     else
     {
@@ -1452,8 +1528,15 @@ void File_Riff::AVI__hdlr_strl_strf_vids()
 
     //Creating the parser
          if (0);
+    #if defined(MEDIAINFO_MPEGV_YES)
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Video, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression), InfoCodecID_Format)==_T("MPEG Video"))
+    {
+        Stream[Stream_ID].Parser=new File_Mpegv;
+        ((File_Mpegv*)Stream[Stream_ID].Parser)->FrameIsAlwaysComplete=true;
+    }
+    #endif
     #if defined(MEDIAINFO_MPEG4V_YES)
-    else if (MediaInfoLib::Config.Codec_Get(Ztring().From_CC4(Compression), InfoCodec_KindofCodec).find(_T("MPEG-4V"))==0)
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Video, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression))==_T("MPEG-4 Visual"))
     {
         Stream[Stream_ID].Parser=new File_Mpeg4v;
         Stream[Stream_ID].Specific_IsMpeg4v=true;
@@ -1462,24 +1545,23 @@ void File_Riff::AVI__hdlr_strl_strf_vids()
     }
     #endif
     #if defined(MEDIAINFO_AVC_YES)
-    else if (MediaInfoLib::Config.Codec_Get(Ztring().From_CC4(Compression), InfoCodec_KindofCodec).find(_T("AVC"))==0)
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Video, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression))==_T("AVC"))
     {
         Stream[Stream_ID].Parser=new File_Avc;
         ((File_Avc*)Stream[Stream_ID].Parser)->FrameIsAlwaysComplete=true;
     }
     #endif
     #if defined(MEDIAINFO_JPEG_YES)
-    else if (Ztring().From_CC4(Compression)==_T("MJPG"))
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Video, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression))==_T("M-JPEG"))
     {
         Stream[Stream_ID].Parser=new File_Jpeg;
         ((File_Jpeg*)Stream[Stream_ID].Parser)->StreamKind=Stream_Video;
     }
     #endif
     #if defined(MEDIAINFO_DVDIF_YES)
-    else if (MediaInfoLib::Config.Codec_Get(Ztring().From_CC4(Compression), InfoCodec_KindofCodec).find(_T("DV"))==0)
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Video, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression))==_T("Digital Video"))
     {
         Stream[Stream_ID].Parser=new File_DvDif;
-        ((File_DvDif*)Stream[Stream_ID].Parser)->Frame_Count_Valid=2;
         ((File_DvDif*)Stream[Stream_ID].Parser)->IgnoreAudio=true;
     }
     #endif
@@ -1488,7 +1570,7 @@ void File_Riff::AVI__hdlr_strl_strf_vids()
     //Options
     if (Element_Offset>=Element_Size)
         return; //No options
-        
+
     //Filling
          if (0);
     else if (MediaInfoLib::Config.Codec_Get(Ztring().From_CC4(Compression), InfoCodec_KindofCodec).find(_T("AVC"))==0)
@@ -1505,7 +1587,7 @@ void File_Riff::AVI__hdlr_strl_strf_vids_Avc()
         ((File_Avc*)Stream[Stream_ID].Parser)->MustParse_SPS_PPS=true;
         ((File_Avc*)Stream[Stream_ID].Parser)->SizedBlocks=true;
         ((File_Avc*)Stream[Stream_ID].Parser)->MustSynchronize=false;
-        Open_Buffer_Continue(Stream[Stream_ID].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+        Open_Buffer_Continue(Stream[Stream_ID].Parser);
     #else //MEDIAINFO_AVC_YES
         Skip_XX(Element_Size-Element_Offset,                    "(AVC headers)");
     #endif
@@ -1640,7 +1722,7 @@ void File_Riff::AVI__idx1()
     else if (!Element_IsComplete_Get())
     {
         Element_WaitForMoreData();
-        return;         
+        return;
     }
 
     //Testing malformed index (index is based on start of the file, wrong)
@@ -1730,7 +1812,7 @@ void File_Riff::AVI__INFO_IID3()
     #if defined(MEDIAINFO_ID3_YES)
         File_Id3 MI;
         Open_Buffer_Init(&MI);
-        Open_Buffer_Continue(&MI, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+        Open_Buffer_Continue(&MI);
         Finish(&MI);
         Merge(MI, Stream_General, 0, 0);
     #endif
@@ -1988,7 +2070,7 @@ void File_Riff::AVI__movi_xxxx()
     //Parsing
     if (Stream[Stream_ID].Parser)
     {
-        Open_Buffer_Continue(Stream[Stream_ID].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+        Open_Buffer_Continue(Stream[Stream_ID].Parser);
         if (Stream[Stream_ID].Parser->Buffer_Size>0)
             Stream[Stream_ID].ChunksAreComplete=false;
     }
@@ -2074,9 +2156,9 @@ void File_Riff::AVI__movi_StreamJump()
         if (ToJump>File_Size)
             ToJump=File_Size;
         if (ToJump>=File_Offset+Buffer_Offset+Element_TotalSize_Get(Element_Level-2)) //We want always Element movi
-            File_GoTo=File_Offset+Buffer_Offset+Element_TotalSize_Get(Element_Level-2); //Not in this chunk
+            GoTo(File_Offset+Buffer_Offset+Element_TotalSize_Get(Element_Level-2), "AVI"); //Not in this chunk
         else if (ToJump!=File_Offset+Buffer_Offset+(Element_Code==Elements::AVI__movi?0:Element_Size))
-            File_GoTo=ToJump; //Not just after
+            GoTo(ToJump, "AVI"); //Not just after
     }
     else if (stream_Count==0)
     {
@@ -2099,9 +2181,9 @@ void File_Riff::AVI__movi_StreamJump()
         {
             int64u ToJump=Stream_Structure_Temp->first;
             if (ToJump>=File_Offset+Buffer_Offset+Element_TotalSize_Get(Element_Level-2))
-                File_GoTo=File_Offset+Buffer_Offset+Element_TotalSize_Get(Element_Level-2); //Not in this chunk
+                GoTo(File_Offset+Buffer_Offset+Element_TotalSize_Get(Element_Level-2), "AVI"); //Not in this chunk
             else if (ToJump!=File_Offset+Buffer_Offset+Element_Size)
-                File_GoTo=ToJump; //Not just after
+                GoTo(ToJump, "AVI"); //Not just after
         }
         else
             Finish("AVI");
@@ -2189,7 +2271,7 @@ void File_Riff::CADP()
 //---------------------------------------------------------------------------
 void File_Riff::CMJP()
 {
-    Element_Name("CMP4 - MJPEG");
+    Element_Name("CMP4 - M-JPEG");
 
     //Parsing
     #ifdef MEDIAINFO_JPEG_YES
@@ -2197,7 +2279,7 @@ void File_Riff::CMJP()
         Stream[Stream_ID].Parser=new File_Jpeg;
         Open_Buffer_Init(Stream[Stream_ID].Parser);
         ((File_Jpeg*)Stream[Stream_ID].Parser)->StreamKind=Stream_Video;
-        Open_Buffer_Continue(Stream[Stream_ID].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+        Open_Buffer_Continue(Stream[Stream_ID].Parser);
         Element_Offset=Element_Size;
         Skip_XX(Element_TotalSize_Get()-Element_Offset,         "Other data");
 
@@ -2212,7 +2294,7 @@ void File_Riff::CMJP()
 
         FILLING_BEGIN();
             Stream_Prepare(Stream_Video);
-            Fill(Stream_Video, StreamKind_Last, Video_Format, "MJPEG");
+            Fill(Stream_Video, StreamKind_Last, Video_Format, "M-JPEG");
             Fill(Stream_Video, StreamKind_Last, Video_StreamSize, Element_TotalSize_Get());
         FILLING_END();
     #endif
@@ -2229,7 +2311,6 @@ void File_Riff::CMP4()
     Get_Local(Element_Size, Title,                              "Title");
 
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
         Fill(Stream_General, 0, General_Format, "CMP4");
         Fill(Stream_General, 0, "Title", Title);
     FILLING_END();
@@ -2272,10 +2353,8 @@ void File_Riff::MThd()
     Skip_B2(                                                    "division");
 
     FILLING_BEGIN_PRECISE();
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "MIDI");
-
         Accept("MIDI");
+        Fill(Stream_General, 0, General_Format, "MIDI");
     FILLING_ELSE();
         Reject("MIDI");
     FILLING_END();
@@ -2301,55 +2380,111 @@ void File_Riff::MTrk()
 //---------------------------------------------------------------------------
 void File_Riff::PAL_()
 {
-    Accept("RIFF Palette");
-    Element_Name("Format: RIFF Palette");
+    Data_Accept("RIFF Palette");
+    Element_Name("RIFF Palette");
 
     //Filling
-    Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "RIFF Palette");
+}
+
+//---------------------------------------------------------------------------
+void File_Riff::QLCM()
+{
+    Data_Accept("QLCM");
+    Element_Name("QLCM");
+
+    //Filling
+    Fill(Stream_General, 0, General_Format, "QLCM");
+}
+
+//---------------------------------------------------------------------------
+void File_Riff::QLCM_fmt_()
+{
+    //Parsing
+    Ztring codec_name;
+    int128u codec_guid;
+    int32u num_rates;
+    int16u codec_version, average_bps, packet_size, block_size, sampling_rate, sample_size;
+    int8u major, minor;
+    Get_L1 (major,                                              "major");
+    Get_L1 (minor,                                              "minor");
+    Get_GUID(codec_guid,                                        "codec-guid");
+    Get_L2 (codec_version,                                      "codec-version");
+    Get_Local(80, codec_name,                                   "codec-name");
+    Get_L2 (average_bps,                                        "average-bps");
+    Get_L2 (packet_size,                                        "packet-size");
+    Get_L2 (block_size,                                         "block-size");
+    Get_L2 (sampling_rate,                                      "sampling-rate");
+    Get_L2 (sample_size,                                        "sample-size");
+    Element_Begin("rate-map-table");
+        Get_L4 (num_rates,                                      "num-rates");
+        for (int32u rate=0; rate<num_rates; rate++)
+        {
+            Skip_L2(                                            "rate-size");
+            Skip_L2(                                            "rate-octet");
+        }
+    Element_End();
+    Skip_L4(                                                    "Reserved");
+    Skip_L4(                                                    "Reserved");
+    Skip_L4(                                                    "Reserved");
+    Skip_L4(                                                    "Reserved");
+    if (Element_Offset<Element_Size)
+        Skip_L4(                                                "Reserved"); //Some files don't have the 5th reserved dword
+
+    FILLING_BEGIN_PRECISE();
+        Stream_Prepare (Stream_Audio);
+        switch (codec_guid.hi)
+        {
+            case Elements::QLCM_QCELP1 :
+            case Elements::QLCM_QCELP2 : Fill(Stream_Audio, 0, Audio_Format, "QCELP"); Fill(Stream_Audio, 0, Audio_Codec, "QCELP"); break;
+            case Elements::QLCM_EVRC   : Fill(Stream_Audio, 0, Audio_Format, "EVRC"); Fill(Stream_Audio, 0, Audio_Codec, "EVRC"); break;
+            case Elements::QLCM_SMV    : Fill(Stream_Audio, 0, Audio_Format, "SMV"); Fill(Stream_Audio, 0, Audio_Codec, "SMV"); break;
+            default :                    ;
+        }
+        Fill(Stream_Audio, 0, Audio_BitRate, average_bps);
+        Fill(Stream_Audio, 0, Audio_SamplingRate, sampling_rate);
+        Fill(Stream_Audio, 0, Audio_Resolution, sample_size);
+        Fill(Stream_Audio, 0, Audio_Channel_s_, 1);
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
 void File_Riff::RDIB()
 {
-    Accept("RIFF DIB");
-    Element_Name("Format: RIFF DIB");
+    Data_Accept("RIFF DIB");
+    Element_Name("RIFF DIB");
 
     //Filling
-    Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "RIFF DIB");
 }
 
 //---------------------------------------------------------------------------
 void File_Riff::RMID()
 {
-    Accept("RIFF MIDI");
-    Element_Name("Format: RIFF MIDI");
+    Data_Accept("RIFF MIDI");
+    Element_Name("RIFF MIDI");
 
     //Filling
-    Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "RIFF MIDI");
 }
 
 //---------------------------------------------------------------------------
 void File_Riff::RMMP()
 {
-    Accept("RIFF MMP");
-    Element_Name("Format: RIFF MMP");
+    Data_Accept("RIFF MMP");
+    Element_Name("RIFF MMP");
 
     //Filling
-    Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "RIFF MMP");
 }
 
 //---------------------------------------------------------------------------
 void File_Riff::RMP3()
 {
-    Accept("RMP3");
-    Element_Name("Format: RMP3");
+    Data_Accept("RMP3");
+    Element_Name("RMP3");
 
     //Filling
-    Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "RMP3");
 }
 
@@ -2362,7 +2497,7 @@ void File_Riff::RMP3_data()
     #if defined(MEDIAINFO_MPEGA_YES)
         File_Mpega MI;
         Open_Buffer_Init(&MI);
-        Open_Buffer_Continue(&MI, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+        Open_Buffer_Continue(&MI);
         Finish(&MI);
         Merge(MI, Stream_Audio, 0, 0);
     #else
@@ -2371,7 +2506,7 @@ void File_Riff::RMP3_data()
     #endif
 
     //Positionning
-    Element_Offset+=Element_TotalSize_Get();
+    Element_Offset+=Element_TotalSize_Get()-Element_Size;
 }
 
 //---------------------------------------------------------------------------
@@ -2436,8 +2571,8 @@ void File_Riff::SMV0()
         SMV_FrameCount++;
         Fill(Stream_General, 0, General_Format_Profile, "SMV v2");
         Stream_Prepare(Stream_Video);
-        Fill(Stream_Video, 0, Video_Format, "MJPEG");
-        Fill(Stream_Video, 0, Video_Codec,  "MJPEG");
+        Fill(Stream_Video, 0, Video_Format, "M-JPEG");
+        Fill(Stream_Video, 0, Video_Codec,  "M-JPEG");
         Fill(Stream_Video, 0, Video_MuxingMode, "SMV v2");
         Fill(Stream_Video, 0, Video_Width, Width);
         Fill(Stream_Video, 0, Video_Height, Height);
@@ -2461,7 +2596,7 @@ void File_Riff::SMV0_xxxx()
         Open_Buffer_Init(&MI);
 
         //Parsing
-        Open_Buffer_Continue(&MI, Buffer+Buffer_Offset+(size_t)Element_Offset, Size);
+        Open_Buffer_Continue(&MI, Size);
 
         //Filling
         Finish(&MI);
@@ -2484,10 +2619,9 @@ void File_Riff::SMV0_xxxx()
 void File_Riff::WAVE()
 {
     Data_Accept("Wave");
-    Element_Name("Format: Wave");
+    Element_Name("Wave");
 
     //Filling
-    Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "Wave");
 }
 
@@ -2636,7 +2770,7 @@ void File_Riff::WAVE_ID3_()
     #if defined(MEDIAINFO_ID3V2_YES)
         File_Id3v2 MI;
         Open_Buffer_Init(&MI);
-        Open_Buffer_Continue(&MI, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+        Open_Buffer_Continue(&MI);
         Finish(&MI);
         Merge(MI, Stream_General, 0, 0);
     #endif
@@ -2655,10 +2789,9 @@ void File_Riff::WAVE_iXML()
 void File_Riff::wave()
 {
     Data_Accept("Wave64");
-    Element_Name("Format: Wave64");
+    Element_Name("Wave64");
 
     //Filling
-    Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "Wave64");
 }
 
@@ -2726,4 +2859,5 @@ void File_Riff::W3DI()
 } //NameSpace
 
 #endif //MEDIAINFO_RIFF_YES
+
 

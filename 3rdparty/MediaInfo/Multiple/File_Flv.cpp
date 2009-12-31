@@ -404,6 +404,12 @@ void File_Flv::Streams_Finish()
     {
         Finish(Stream[Stream_Audio].Parser);
         Merge(*Stream[Stream_Audio].Parser, Stream_Audio, 0, 0);
+
+        //Special case: AAC
+        if (Retrieve(Stream_Audio, 0, Audio_Format)==_T("AAC")
+         || Retrieve(Stream_Audio, 0, Audio_Format)==_T("MPEG Audio")
+         || Retrieve(Stream_Audio, 0, Audio_Format)==_T("Vorbis"))
+            Clear(Stream_Audio, 0, Audio_Resolution); //Resolution is not valid for AAC / MPEG Audio / Vorbis
     }
 
     //Delay
@@ -424,6 +430,24 @@ void File_Flv::Streams_Finish()
             Fill(Stream_Video, 0, Video_Duration, Duration_Final, 10, true);
         if (Count_Get(Stream_Audio))
             Fill(Stream_Audio, 0, Audio_Duration, Duration_Final, 10, true);
+
+        //Integrity
+        if (Count_Get(Stream_Video) && File_Size!=(int64u)-1 && !Retrieve(Stream_Video, 0, Video_BitRate).empty() && !Retrieve(Stream_Video, 0, Video_Duration).empty())
+        {
+            int64u BitRate_Video_Meta=Retrieve(Stream_Video, 0, Video_BitRate).To_int64u();
+            int64u Duration=Retrieve(Stream_Video, 0, Video_Duration).To_int64u();
+            int64u BitRate_Video_Duration=File_Size*8*1000/Duration;
+            if (Count_Get(Stream_Audio) && !Retrieve(Stream_Audio, 0, Audio_BitRate).empty())
+            {
+                int64u BitRate_Audio=Retrieve(Stream_Audio, 0, Audio_BitRate).To_int64u();
+                if (BitRate_Audio<BitRate_Video_Duration)
+                    BitRate_Video_Duration-=BitRate_Audio;
+                else if (BitRate_Audio)
+                    BitRate_Video_Duration=0; //There is a problem
+            }
+            if (BitRate_Video_Meta<BitRate_Video_Duration/2 || BitRate_Video_Meta>BitRate_Video_Duration*2)
+                Clear(Stream_Video, 0, Video_BitRate);
+        }
     }
 
     //Purge what is not needed anymore
@@ -462,7 +486,8 @@ void File_Flv::FileHeader_Parse()
         }
 
         //Filling
-        Stream_Prepare(Stream_General);
+        Accept("FLV");
+
         Fill(Stream_General, 0, General_Format, "Flash Video");
         if (video_stream_Count)
         {
@@ -474,21 +499,12 @@ void File_Flv::FileHeader_Parse()
         if (audio_stream_Count)
             Stream_Prepare(Stream_Audio);
 
-        Accept("FLV");
         if (Version>1)
         {
             Finish("FLV");
             return; //Version more than 1 is not supported
         }
     FILLING_END();
-}
-
-//---------------------------------------------------------------------------
-bool File_Flv::Header_Begin()
-{
-    if (Searching_Duration && File_Offset+Buffer_Offset==File_Size-4 && Buffer_Size!=4)
-        return false;
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -549,7 +565,10 @@ void File_Flv::Data_Parse()
         case 0xFA : Rm(); break;
         case (int64u)-1 : GoTo(File_Size-PreviousTagSize-8, "FLV"); return; //When searching the last frame
         default : if (Searching_Duration)
-                    Reject("FLV"); //This is surely a bad en of file, don't try anymore
+                  {
+                    Finish("FLV"); //This is surely a bad en of file, don't try anymore
+                    return;
+                  }
 
     }
 
@@ -807,7 +826,7 @@ void File_Flv::video_AVC()
                     }
 
                     //Parsing
-                    Open_Buffer_Continue(Stream[Stream_Video].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+                    Open_Buffer_Continue(Stream[Stream_Video].Parser);
                 #else
                     Skip_XX(Element_Size-Element_Offset,        "AVC Data");
                     video_stream_Count=false; //Unable to parse it
@@ -823,7 +842,7 @@ void File_Flv::video_AVC()
                     }
 
                     //Parsing
-                    Open_Buffer_Continue(Stream[Stream_Video].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+                    Open_Buffer_Continue(Stream[Stream_Video].Parser);
 
                     //Disabling this stream
                     if (Stream[Stream_Video].Parser->File_GoTo!=(int64u)-1 || Stream[Stream_Video].Parser->Count_Get(Stream_Video)>0)
@@ -931,7 +950,7 @@ void File_Flv::audio_MPEG()
         }
 
         //Parsing
-        Open_Buffer_Continue(Stream[Stream_Audio].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+        Open_Buffer_Continue(Stream[Stream_Audio].Parser);
 
         //Disabling this stream
         if (Stream[Stream_Audio].Parser->File_GoTo!=(int64u)-1 || Stream[Stream_Audio].Parser->Count_Get(Stream_Audio)>0)
@@ -956,7 +975,7 @@ void File_Flv::audio_AAC()
                     }
 
                     //Parsing
-                    Open_Buffer_Continue(Stream[Stream_Audio].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+                    Open_Buffer_Continue(Stream[Stream_Audio].Parser);
 
                     //Disabling this stream
                     audio_stream_Count=false;
@@ -1035,7 +1054,7 @@ void File_Flv::meta_SCRIPTDATAVALUE(const std::string &StringData)
                 else if (StringData=="lasttimestamp") {}
                 else if (StringData=="filesize") {meta_filesize=(int64u)Value;}
                 else if (StringData=="audiosize") {ToFill="StreamSize"; StreamKind=Stream_Audio; ValueS.From_Number(Value, 0);}
-                else if (StringData=="videosize") {ToFill="StreamSize"; StreamKind=Stream_Video; ValueS.From_Number(Value, 0);; video_stream_Count=true;} //1 file with FrameRate tag and video stream but no video present tag
+                else if (StringData=="videosize") {ToFill="StreamSize"; StreamKind=Stream_Video; ValueS.From_Number(Value, 0); video_stream_Count=true;} //1 file with FrameRate tag and video stream but no video present tag
                 else if (StringData=="videodatarate") {ToFill="BitRate"; StreamKind=Stream_Video; ValueS.From_Number(Value*1000, 0); video_stream_Count=true;} //1 file with FrameRate tag and video stream but no video present tag
                 else if (StringData=="lastkeyframetimestamp") {}
                 else if (StringData=="lastkeyframelocation") {}
@@ -1209,11 +1228,13 @@ void File_Flv::meta_SCRIPTDATAVALUE(const std::string &StringData)
                     std::string ToFill;
                          if (0) ;
                     else if (StringData=="creator") {ToFill="Encoded_Application";}
+                    else if (StringData=="liveXML") {}
                     else if (StringData=="metadatacreator") {ToFill="Tagged_Application";}
                     else if (StringData=="creationdate") {ToFill="Encoded_Date"; Value.Date_From_String(Value.To_UTF8().c_str());}
                     else {ToFill=StringData;}
                     Element_Info(Value);
-                    Fill(Stream_General, 0, ToFill.c_str(), Value);
+                    if (!ToFill.empty())
+                        Fill(Stream_General, 0, ToFill.c_str(), Value);
                 }
             }
             break;
@@ -1248,7 +1269,7 @@ void File_Flv::Rm()
     Open_Buffer_Init(&MI);
 
     //Parsing
-    Open_Buffer_Continue(&MI, Buffer+Buffer_Offset, (size_t)Element_Size);
+    Open_Buffer_Continue(&MI);
 
     //Filling
     Finish(&MI);

@@ -154,11 +154,10 @@ void File_Cdxa::FileHeader_Parse()
     Skip_L4(                                                    "data size");
 
     FILLING_BEGIN();
+        Accept("CDXA");
         MI=new MediaInfo_Internal;
         MI->Option(_T("FormatDetection_MaximumOffset"), _T("1048576"));
-        MI->Option(_T("File_IsSub"), _T("1"));
-        Stream_Prepare(Stream_General);
-        Accept("CDXA");
+        //MI->Option(_T("File_IsSub"), _T("1"));
     FILLING_END();
 }
 
@@ -199,11 +198,11 @@ bool File_Cdxa::Synched_Test()
 }
 
 //***************************************************************************
-// Buffer - Global
+// Streams management
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void File_Cdxa::Read_Buffer_Finalize ()
+void File_Cdxa::Streams_Finish ()
 {
     if (!MI)
         return;
@@ -222,8 +221,8 @@ void File_Cdxa::Read_Buffer_Finalize ()
         Merge(*(MI->Info), Stream_General, 0, 0);
         const Ztring &Format=Retrieve(Stream_General, 0, General_Format);
         Fill(Stream_General, 0, General_Format, (Ztring(_T("CDXA/"))+Format).c_str(), Unlimited, true);
-        Fill(Stream_General, 0, General_Duration, "", Unlimited, true);
-        Fill(Stream_Video, 0, Video_Duration, "", Unlimited, true);
+        Clear(Stream_General, 0, General_Duration);
+        Clear(Stream_Video, 0, Video_Duration);
     }
 
     //Purge what is not needed anymore

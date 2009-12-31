@@ -40,6 +40,8 @@
         Trusted_IsNot("Size error"); \
     else if (Element_IsOK()) \
     {
+#include <cmath>
+using namespace std;
 using namespace ZenLib;
 //---------------------------------------------------------------------------
 
@@ -274,11 +276,10 @@ void File_Vc1::Streams_Fill()
     }
 
     //Filling
-    Stream_Prepare(Stream_General);
-    Fill(Stream_General, 0, General_Format, "VC-1");
     Stream_Prepare(Stream_Video);
     Fill(Stream_Video, 0, Video_Format, "VC-1");
     Fill(Stream_Video, 0, Video_Codec, From_WMV3?"WMV3":"VC-1"); //For compatibility with the old reaction
+    Fill(Stream_Video, 0, Video_Resolution, 8);
 
     Ztring Profile=Vc1_Profile[profile];
     if (profile==3)
@@ -339,6 +340,10 @@ void File_Vc1::Streams_Fill()
             Fill(Stream_Video, 0, Video_Interlacement, "PPF", Unlimited, true, true);
         }
     }
+
+    //Buffer
+    for (size_t Pos=0; Pos<hrd_buffers.size(); Pos++)
+        Fill(Stream_Video, 0, Video_BufferSize, hrd_buffers[Pos]);
 }
 
 //---------------------------------------------------------------------------
@@ -723,8 +728,6 @@ void File_Vc1::FrameHeader()
         Streams[0x0D].Searching_Payload=true;
         Streams[0x0F].Searching_Payload=true;
 
-        if (!Status[IsAccepted])
-            Accept("VC-1");
         //Filling only if not already done
         if (!Status[IsFilled] && Frame_Count>=Frame_Count_Valid)
             Finish("VC-1");
@@ -755,7 +758,7 @@ void File_Vc1::EntryPointHeader()
         for (int8u Pos=0; Pos<hrd_num_leaky_buckets; Pos++)
         {
             Element_Begin("leaky_bucket");
-            Skip_S2( 8,                                         "hrd_full");
+            Skip_S1( 8,                                         "hrd_full");
             Element_End();
         }
     TEST_SB_SKIP(                                               "coded_size_flag");
@@ -764,14 +767,15 @@ void File_Vc1::EntryPointHeader()
     TEST_SB_END();
     if (extended_mv)
         Skip_SB(                                                "extended_dmv");
-    TEST_SB_SKIP(                                               "luma_sampling");
-        Skip_S1( 3,                                             "y_range");
+    TEST_SB_SKIP(                                               "range_mapy_flag");
+        Skip_S1( 3,                                             "range_mapy");
     TEST_SB_END();
-    TEST_SB_SKIP(                                               "chroma_sampling");
-        Skip_S1( 3,                                             "uv_range");
+    TEST_SB_SKIP(                                               "range_mapuv_flag");
+        Skip_S1( 3,                                             "range_mapuv");
     TEST_SB_END();
+    Mark_1();
     BS_End();
-    
+
     FILLING_BEGIN();
         //NextCode
         NextCode_Test();
@@ -859,15 +863,22 @@ void File_Vc1::SequenceHeader()
             TEST_SB_END();
         TEST_SB_END();
         TEST_SB_GET (hrd_param_flag,                            "hrd_param_flag");
+            int8u buffer_size_exponent;
             Get_S1 ( 5, hrd_num_leaky_buckets,                  "hrd_num_leaky_buckets");
             Skip_S1( 4,                                         "bitrate_exponent");
-            Skip_S1( 4,                                         "buffer_size_exponent");
+            Get_S1 ( 4, buffer_size_exponent,                   "buffer_size_exponent");
+            hrd_buffers.clear();
             for (int8u Pos=0; Pos<hrd_num_leaky_buckets; Pos++)
             {
                 Element_Begin("leaky_bucket");
+                int16u hrd_buffer;
                 Skip_S2(16,                                     "hrd_rate");
-                Skip_S2(16,                                     "hrd_buffer");
+                Get_S2(16, hrd_buffer,                         "hrd_buffer");
+                int32u hrd_buffer_value=(int32u)((hrd_buffer+1)*pow(2.0, 1+buffer_size_exponent)); Param_Info(hrd_buffer_value, " bytes");
                 Element_End();
+
+                //Filling
+                hrd_buffers.push_back(hrd_buffer_value);
             }
         TEST_SB_END();
     }

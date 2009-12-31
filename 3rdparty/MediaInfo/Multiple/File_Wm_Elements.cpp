@@ -237,7 +237,6 @@ void File_Wm::Header()
     Skip_L1(                                                    "Architecture");
 
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
         Fill(Stream_General, 0, General_Format, "Windows Media");
     FILLING_END();
 }
@@ -437,7 +436,7 @@ void File_Wm::Header_StreamProperties_Video ()
     Fill(Stream_Video, StreamPos_Last, Video_Width, Width);
     Fill(Stream_Video, StreamPos_Last, Video_Height, Height);
     if (Resolution>0)
-        Fill(Stream_Video, StreamPos_Last, Video_Resolution, Resolution);
+        Fill(Stream_Video, StreamPos_Last, Video_Resolution, Resolution%3?Resolution:(Resolution/3)); //If not a multiple of 3, the total resolution is filled
     if (Compression==CC4("DVR "))
         IsDvrMs=true;
 
@@ -456,7 +455,7 @@ void File_Wm::Header_StreamProperties_Video ()
         Open_Buffer_Init(Stream[Stream_Number].Parser);
         if (Data_Size>40)
         {
-            Open_Buffer_Continue(Stream[Stream_Number].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Data_Size-40));
+            Open_Buffer_Continue(Stream[Stream_Number].Parser, (size_t)(Data_Size-40));
             if (Stream[Stream_Number].Parser->Status[IsFinished])
             {
                 Finish(Stream[Stream_Number].Parser);
@@ -468,7 +467,6 @@ void File_Wm::Header_StreamProperties_Video ()
                 ((File_Vc1*)Stream[Stream_Number].Parser)->Only_0D=true;
                 ((File_Vc1*)Stream[Stream_Number].Parser)->MustSynchronize=false;
             }
-            Element_Offset+=Data_Size-40;
         }
     }
     #endif
@@ -778,7 +776,7 @@ void File_Wm::Header_HeaderExtension_Metadata()
         }
         else if (Name==_T("DeviceConformanceTemplate"))
         {
-            if (Data!=_T("@"))
+            if (Data!=_T("@") && Data.find(_T('@'))!=std::string::npos)
                 Stream[StreamNumber].Info["Format_Profile"]=Data;
         }
         else if (Name==_T("WM/WMADRCPeakReference")) {}
@@ -1491,7 +1489,7 @@ void File_Wm::Data_Packet()
                 ((File_Vc1*)Stream[Stream_Number].Parser)->FrameIsAlwaysComplete=FrameIsAlwaysComplete;
             #endif
 
-            Open_Buffer_Continue(Stream[Stream_Number].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)PayloadLength);
+            Open_Buffer_Continue(Stream[Stream_Number].Parser, (size_t)PayloadLength);
             if (Stream[Stream_Number].Parser->Status[IsFinished]
              || Stream[Stream_Number].PresentationTime_Count>=300)
             {
@@ -1500,7 +1498,6 @@ void File_Wm::Data_Packet()
                 Streams_Count--;
             }
 
-            Element_Offset+=PayloadLength;
             Element_Show();
         }
         else

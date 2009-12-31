@@ -52,6 +52,9 @@
 #if defined(MEDIAINFO_MPEGV_YES)
     #include "MediaInfo/Video/File_Mpegv.h"
 #endif
+#if defined(MEDIAINFO_ADTS_YES)
+    #include "MediaInfo/Audio/File_Adts.h"
+#endif
 #if defined(MEDIAINFO_AC3_YES)
     #include "MediaInfo/Audio/File_Ac3.h"
 #endif
@@ -154,17 +157,21 @@ void File_Mk::Streams_Finish()
             Ztring Duration_Temp, Codec_Temp;
             StreamKind_Last=Temp->second.StreamKind;
             StreamPos_Last=Temp->second.StreamPos;
+            Duration_Temp=Retrieve(StreamKind_Last, Temp->second.StreamPos, Fill_Parameter(StreamKind_Last, Generic_Duration)); //Duration from stream is sometimes false
+            Codec_Temp=Retrieve(StreamKind_Last, Temp->second.StreamPos, Fill_Parameter(StreamKind_Last, Generic_Codec)); //We want to keep the 4CC
 
-            if (Temp->second.StreamKind==Stream_Video)
-            {
-                Duration_Temp=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Duration); //Duration from stream is sometimes false
-                Codec_Temp=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Codec); //We want to keep the 4CC
-            }
             Finish(Temp->second.Parser);
             Merge(*Temp->second.Parser, Temp->second.StreamKind, 0, Temp->second.StreamPos);
-            Fill(Stream_Video, StreamPos_Last, Video_Duration, Duration_Temp, true);
+            Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Duration), Duration_Temp, true);
             if (Temp->second.StreamKind==Stream_Video && !Codec_Temp.empty())
-                Fill(Stream_Video, StreamPos_Last, Video_Codec, Codec_Temp, true);
+                Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Codec), Codec_Temp, true);
+
+            //Special case: AAC
+            if (StreamKind_Last==Stream_Audio
+             && (Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==_T("AAC")
+              || Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==_T("MPEG Audio")
+              || Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==_T("Vorbis")))
+                Clear(Stream_Audio, StreamPos_Last, Audio_Resolution); //Resolution is not valid for AAC / MPEG Audio / Vorbis
 
             //Video specific
             if (StreamKind_Last==Stream_Video)
@@ -240,7 +247,7 @@ void File_Mk::Streams_Finish()
                     {
                         Ztring PerLanguage;
                         if (!EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterDisplays[ChapterDisplays_Pos].ChapLanguage.empty())
-                            PerLanguage=MediaInfoLib::Config.Iso639_Get(EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterDisplays[ChapterDisplays_Pos].ChapLanguage)+_T(':');
+                            PerLanguage=MediaInfoLib::Config.Iso639_1_Get(EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterDisplays[ChapterDisplays_Pos].ChapLanguage)+_T(':');
                         PerLanguage+=EditionEntries[EditionEntries_Pos].ChapterAtoms[ChapterAtoms_Pos].ChapterDisplays[ChapterDisplays_Pos].ChapString;
                         Text+=PerLanguage+_T(" - ");
                     }
@@ -473,6 +480,9 @@ namespace Elements
 //---------------------------------------------------------------------------
 void File_Mk::Data_Parse()
 {
+    if (File_Offset+Buffer_Offset>=0x3FDD8)
+        int A=0;
+
     #define LIS2(_ATOM, _NAME) \
         case Elements::_ATOM : \
                 if (Level==Element_Level) \
@@ -852,9 +862,10 @@ void File_Mk::Ebml_DocType()
 
     //Filling
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "Matroska");
         Accept("Matroska");
+
+        Fill(Stream_General, 0, General_Format, "Matroska");
+
         Buffer_MaximumSize=8*1024*1024;
     FILLING_END();
 }
@@ -1366,6 +1377,10 @@ void File_Mk::Segment_Cluster_BlockGroup_Block()
                 if (Stream[TrackNumber].ContentCompAlgo!=(int32u)-1 && Stream[TrackNumber].ContentCompAlgo!=3)
                     Stream[TrackNumber].Searching_Payload=false; //Unsupported
 
+                //Integrity test
+                if (Element_Offset+Laces[Pos]>Element_Size)
+                    Stream[TrackNumber].Searching_Payload=false; //There is a problem
+
                 if (Stream[TrackNumber].Searching_Payload)
                 {
                     //Content compression
@@ -1379,8 +1394,7 @@ void File_Mk::Segment_Cluster_BlockGroup_Block()
 
                     //Parsing
                     Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset), Ztring::ToZtring(TrackNumber, 16)+_T(".")+_T("raw"));
-                    Open_Buffer_Continue(Stream[TrackNumber].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)Laces[Pos]);
-                    Element_Offset+=Laces[Pos];
+                    Open_Buffer_Continue(Stream[TrackNumber].Parser, (size_t)Laces[Pos]);
                     if (Stream[TrackNumber].Parser->Status[IsFilled]
                      || Stream[TrackNumber].Parser->Status[IsFinished]
                      || Stream[TrackNumber].PacketCount>=300)
@@ -1409,7 +1423,7 @@ void File_Mk::Segment_Cluster_BlockGroup_Block()
         Element_End(); //Block
         Info("Cluster, no need of more");
         Element_End(); //BlockGroup
-        Finish("Matroska"); //File_GoTo=File_Offset+Buffer_Offset+Element_TotalSize_Get();
+        Finish("Matroska"); //GoTo(File_Offset+Buffer_Offset+Element_TotalSize_Get());
     }
 
     Element_Show(); //For debug
@@ -2090,7 +2104,7 @@ void File_Mk::Segment_Tracks_TrackEntry_CodecPrivate()
     }
 
     //Parsing
-    Open_Buffer_Continue(Stream[TrackNumber].Parser, Buffer+Buffer_Offset, (size_t)Element_Size);
+    Open_Buffer_Continue(Stream[TrackNumber].Parser);
 
     //Filling
     if (Stream[TrackNumber].Parser->Status[IsFinished]) //Can be finnished here...
@@ -2130,7 +2144,8 @@ void File_Mk::Segment_Tracks_TrackEntry_CodecPrivate_auds()
         Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, Channels!=5?Channels:6, 10, true);
         Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, SamplesPerSec, 10, true);
         Fill(Stream_Audio, StreamPos_Last, Audio_BitRate, AvgBytesPerSec*8, 10, true);
-        if (BitsPerSample) Fill(Stream_Audio, StreamPos_Last, Audio_Resolution, BitsPerSample);
+        if (BitsPerSample)
+            Fill(Stream_Audio, StreamPos_Last, Audio_Resolution, BitsPerSample);
 
         CodecID_Manage();
         if (TrackNumber!=(int64u)-1)
@@ -2183,7 +2198,29 @@ void File_Mk::Segment_Tracks_TrackEntry_CodecPrivate_vids()
             }
             Fill(Stream_Video, StreamPos_Last, Video_Width, Width, 10, true);
             Fill(Stream_Video, StreamPos_Last, Video_Height, Height, 10, true);
-            Fill(Stream_Video, StreamPos_Last, Video_Resolution, Resolution, 10, true);
+            if (Resolution==32 && Compression==0x74736363) //tscc
+                Fill(StreamKind_Last, StreamPos_Last, "Resolution", 8);
+            else if (Compression==0x44495633) //DIV3
+                Fill(StreamKind_Last, StreamPos_Last, "Resolution", 8);
+            else if (Compression==0x44585342) //DXSB
+                Fill(StreamKind_Last, StreamPos_Last, "Resolution", Resolution);
+            else if (Resolution>16 && MediaInfoLib::Config.CodecID_Get(StreamKind_Last, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression), InfoCodecID_ColorSpace).find(_T("RGBA"))!=std::string::npos) //RGB codecs
+                Fill(StreamKind_Last, StreamPos_Last, "Resolution", Resolution/4);
+            else if (Compression==0x00000000 //RGB
+                  || MediaInfoLib::Config.CodecID_Get(StreamKind_Last, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression), InfoCodecID_ColorSpace).find(_T("RGB"))!=std::string::npos) //RGB codecs
+            {
+                if (Resolution==32)
+                {
+                    Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Format), "RGBA", Unlimited, true, true);
+                    Fill(StreamKind_Last, StreamPos_Last, "Resolution", Resolution/4); //With Alpha
+                }
+                else
+                    Fill(StreamKind_Last, StreamPos_Last, "Resolution", Resolution<=16?8:(Resolution/3)); //indexed or normal
+            }
+            else if (Compression==0x56503632 //VP62
+                  || MediaInfoLib::Config.CodecID_Get(StreamKind_Last, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression), InfoCodecID_Format)==_T("H.263") //H.263
+                  || MediaInfoLib::Config.CodecID_Get(StreamKind_Last, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression), InfoCodecID_Format)==_T("VC-1")) //VC-1
+                Fill(StreamKind_Last, StreamPos_Last, "Resolution", Resolution/3);
         }
 
         //Creating the parser
@@ -2195,7 +2232,7 @@ void File_Mk::Segment_Tracks_TrackEntry_CodecPrivate_vids()
     {
         Element_Begin("Private data");
         if (Stream[TrackNumber].Parser)
-            Open_Buffer_Continue(Stream[TrackNumber].Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+            Open_Buffer_Continue(Stream[TrackNumber].Parser);
         else
             Skip_XX(Data_Remain(),                                  "Unknown");
         Element_End();
@@ -2875,6 +2912,12 @@ void File_Mk::CodecID_Manage()
     {
         Stream[TrackNumber].Parser=new File_Aac;
         ((File_Aac*)Stream[TrackNumber].Parser)->Codec=CodecID;
+    }
+    #endif
+    #if defined(MEDIAINFO_ADTS_YES)
+    else if (Format==(_T("AAC")))
+    {
+        Stream[TrackNumber].Parser=new File_Adts;
     }
     #endif
     #if defined(MEDIAINFO_MPEGA_YES)

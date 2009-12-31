@@ -73,25 +73,21 @@ void File_Amr::FileHeader_Parse()
         Skip_C5(                                                "Signature");
 
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "AMR");
+        Accept("AMR");
+
         Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, 0, Audio_Format, "AMR");
-        if (!Codec.empty())
-        {
-            Ztring Profile;
-            if (0)
-                ;
-            else if (Codec==_T("samr"))             {Profile=_T("Narrow band");}
-            else if (Codec==_T("sawb"))             {Profile=_T("Wide band");}
-            else if (Codec==_T("A104"))             {Profile=_T("Wide band");}
-            Fill(Stream_Audio, 0, Audio_Format_Profile, Profile);
-        }
-        else
+        if (Codec.empty())
             Fill(Stream_Audio, 0, Audio_Codec, "AMR");
+        if (MediaInfoLib::Config.CodecID_Get(Stream_Audio, InfoCodecID_Format_Mpeg4, Codec, InfoCodecID_Profile)==_T("Narrow band"))
+            Fill(Stream_Audio, 0, Audio_Resolution, 13);
+        if (MediaInfoLib::Config.CodecID_Get(Stream_Audio, InfoCodecID_Format_Mpeg4, Codec, InfoCodecID_Profile)==_T("Wide band"))
+        {
+            Fill(Stream_Audio, 0, Audio_Resolution, 14);
+            Fill(Stream_Audio, 0, Audio_InternetMediaType, "audio/AMR-WB", Unlimited, true, true);
+        }
 
-        //No need of more
-        Accept("AMR");
+        //No more need data
         Finish("AMR");
     FILLING_END();
 }

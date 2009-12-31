@@ -43,7 +43,7 @@ extern MediaInfo_Config Config;
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-String MediaInfo_Internal::Inform()
+Ztring MediaInfo_Internal::Inform()
 {
     CS.Enter();
     if (Info)
@@ -55,7 +55,7 @@ String MediaInfo_Internal::Inform()
     CS.Leave();
 
     #ifndef MEDIAINFO_MINIMIZESIZE
-        if (MediaInfoLib::Config.Details_Get())
+        if (MediaInfoLib::Config.Details_Get() || MediaInfoLib::Config.Inform_Get()==_T("Details"))
             return Details;
     #endif //MEDIAINFO_MINIMIZESIZE
 
@@ -136,10 +136,12 @@ String MediaInfo_Internal::Inform()
             Retour+=MediaInfoLib::Config.Inform_Get(_T("Menu_End"));
         Retour+=MediaInfoLib::Config.Inform_Get(_T("File_End"));
 
-        Retour.FindAndReplace(_T("\\r\\n"), _T("\\n"), 0, Ztring_Recursive);
-        Retour.FindAndReplace(_T("\\n"), MediaInfoLib::Config.LineSeparator_Get(), 0, Ztring_Recursive);
-        //Retour.FindAndReplace(_T("\\n"), MediaInfoLib::Config.LineSeparator_Get(), 0, Ztring_Recursive);
-        //Retour.FindAndReplace(_T("\\r"), MediaInfoLib::Config.LineSeparator_Get(), 0, Ztring_Recursive);
+        Retour.FindAndReplace(_T("\\r\\n"), _T("\n"), 0, Ztring_Recursive);
+        Retour.FindAndReplace(_T("\\r"), _T("\n"), 0, Ztring_Recursive);
+        Retour.FindAndReplace(_T("\\n"), _T("\n"), 0, Ztring_Recursive);
+        Retour.FindAndReplace(_T("\r\n"), _T("\n"), 0, Ztring_Recursive);
+        Retour.FindAndReplace(_T("\r"), _T("\n"), 0, Ztring_Recursive);
+        Retour.FindAndReplace(_T("\n"), MediaInfoLib::Config.LineSeparator_Get(), 0, Ztring_Recursive);
         return Retour;
     }
 
@@ -195,14 +197,18 @@ String MediaInfo_Internal::Inform()
     if (HTML) Retour+=_T("\n</body>\n</html>\n");
     if (XML)  Retour+=_T("</File>\n");
 
-    Retour.FindAndReplace(_T("\\r\\n"), _T("\\n"), 0, Ztring_Recursive);
-    Retour.FindAndReplace(_T("\\n"), MediaInfoLib::Config.LineSeparator_Get(), 0, Ztring_Recursive);
+    Retour.FindAndReplace(_T("\\r\\n"), _T("\n"), 0, Ztring_Recursive);
+    Retour.FindAndReplace(_T("\\r"), _T("\n"), 0, Ztring_Recursive);
+    Retour.FindAndReplace(_T("\\n"), _T("\n"), 0, Ztring_Recursive);
+    Retour.FindAndReplace(_T("\r\n"), _T("\n"), 0, Ztring_Recursive);
+    Retour.FindAndReplace(_T("\r"), _T("\n"), 0, Ztring_Recursive);
+    Retour.FindAndReplace(_T("\n"), MediaInfoLib::Config.LineSeparator_Get(), 0, Ztring_Recursive);
     Retour.FindAndReplace(_T("|SC1|"), _T("\\"), 0, Ztring_Recursive);
     return Retour;
 }
 
 //---------------------------------------------------------------------------
-String MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
+Ztring MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
 {
     //Integrity
     if (StreamKind>=Stream_Max || StreamPos>=Stream[StreamKind].size())
@@ -280,8 +286,12 @@ String MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
             }
         }
 
-        Retour.FindAndReplace(_T("\\r\\n"), _T("\\n"), 0, Ztring_Recursive);
-        Retour.FindAndReplace(_T("\\n"), MediaInfoLib::Config.LineSeparator_Get(), 0, Ztring_Recursive);
+        Retour.FindAndReplace(_T("\\r\\n"), _T("\n"), 0, Ztring_Recursive);
+        Retour.FindAndReplace(_T("\\r"), _T("\n"), 0, Ztring_Recursive);
+        Retour.FindAndReplace(_T("\\n"), _T("\n"), 0, Ztring_Recursive);
+        Retour.FindAndReplace(_T("\r\n"), _T("\n"), 0, Ztring_Recursive);
+        Retour.FindAndReplace(_T("\r"), _T("\n"), 0, Ztring_Recursive);
+        Retour.FindAndReplace(_T("\n"), MediaInfoLib::Config.LineSeparator_Get(), 0, Ztring_Recursive);
         Retour.FindAndReplace(_T("|SC1|"), _T("\\"), 0, Ztring_Recursive);
         return Retour;
     }
@@ -406,12 +416,14 @@ String MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
     Retour.FindAndReplace(_T("|SC7|"), _T(")"), 0, Ztring_Recursive);
     Retour.FindAndReplace(_T("|SC8|"), _T(")"), 0, Ztring_Recursive);
     Retour.FindAndReplace(_T("|SC9|"), _T("),"), 0, Ztring_Recursive);
-    Retour.FindAndReplace(_T("\\r\\n"), MediaInfoLib::Config.LineSeparator_Get(), 0, Ztring_Recursive);
-    Retour.FindAndReplace(_T("\r\n"), MediaInfoLib::Config.LineSeparator_Get(), 0, Ztring_Recursive);
 
     //Retour=_T("<table width=\"100%\" border=\"0\" cellpadding=\"1\" cellspacing=\"2\" style=\"border:1px solid Navy\">\n<tr>\n    <td width=\"150\">Video #0</td>\n  </tr>\r\n  <tr>\n    <td><i>Codec :</i></td>\n    <td colspan=\"3\">WMV1</td>\n  </tr>\r\n  <tr>\n    <td><i>Codec/Info :</i></td>\n    <td colspan=\"3\">Windows Media Video 7</td>\n  </tr>\r\n  <tr>\n    <td><i>Width :</i></td>\n    <td colspan=\"3\">200 pixels</td>\n  </tr>\r\n  <tr>\n    <td><i>Height :</i></td>\n    <td colspan=\"3\">150 pixels</td>\n  </tr>\r\n  <tr>\n    <td><i>Aspect ratio :</i></td>\n    <td colspan=\"3\">4/3</td>\n  </tr>\r\n  <tr>\n    <td><i>Resolution :</i></td>\n    <td colspan=\"3\">24 bits</td>\n  </tr>\r\n</table>\n");
-    Retour.FindAndReplace(_T("\\r\\n"), _T("\\n"), 0, Ztring_Recursive);
-    Retour.FindAndReplace(_T("\\n"), MediaInfoLib::Config.LineSeparator_Get(), 0, Ztring_Recursive);
+    Retour.FindAndReplace(_T("\\r\\n"), _T("\n"), 0, Ztring_Recursive);
+    Retour.FindAndReplace(_T("\\r"), _T("\n"), 0, Ztring_Recursive);
+    Retour.FindAndReplace(_T("\\n"), _T("\n"), 0, Ztring_Recursive);
+    Retour.FindAndReplace(_T("\r\n"), _T("\n"), 0, Ztring_Recursive);
+    Retour.FindAndReplace(_T("\r"), _T("\n"), 0, Ztring_Recursive);
+    Retour.FindAndReplace(_T("\n"), MediaInfoLib::Config.LineSeparator_Get(), 0, Ztring_Recursive);
     return Retour;
 }
 

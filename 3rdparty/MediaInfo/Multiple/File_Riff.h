@@ -130,6 +130,7 @@ private :
     bool   NeedOldIndex;
     bool   IsBigEndian;
     bool   IsWave64;
+    bool   IsRIFF64;
     bool   SecondPass;      //Second pass for streams
     File__Analyze*  DV_FromHeader;
 
@@ -213,6 +214,8 @@ private :
     void MThd ();
     void MTrk ();
     void PAL_ ();
+    void QLCM ();
+    void QLCM_fmt_ ();
     void RDIB ();
     void RMID ();
     void RMMP ();
@@ -235,6 +238,8 @@ private :
     void WAVE_fact ();
     void WAVE_fmt_ ();
     void WAVE_ID3_ ();
+    void WAVE_INFO() {AVI__INFO();}
+    void WAVE_INFO_xxxx() {AVI__INFO_xxxx ();}
     void WAVE_iXML ();
     void wave ();
     void wave_data () {WAVE_data();}

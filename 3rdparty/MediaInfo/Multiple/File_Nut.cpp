@@ -110,10 +110,10 @@ void File_Nut::FileHeader_Parse()
         }
 
         //Filling
-        Stream_Prepare(Stream_General);
+        Accept("Nut");
+
         Fill(Stream_General, 0, General_Format, "Nut");
 
-        Accept("Nut");
         Finish("Nut");
     FILLING_END();
 }
@@ -130,7 +130,6 @@ void File_Nut::Data_Parse()
     #define ELEMENT_CASE(_NAME) \
         case Elements::_NAME : _NAME(); break;
 
-    int64u A=Elements::main;
     //Parsing
     #ifndef __BORLANDC__
         switch (Element_Code)

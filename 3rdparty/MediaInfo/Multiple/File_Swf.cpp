@@ -300,19 +300,6 @@ File_Swf::File_Swf()
 }
 
 //***************************************************************************
-// Format
-//***************************************************************************
-
-//---------------------------------------------------------------------------
-void File_Swf::Read_Buffer_Finalize()
-{
-    if (Count_Get(Stream_General)==0)
-        return;
-    if (!Status[IsAccepted])
-        Accept("SWF");
-}
-
-//***************************************************************************
 // Buffer
 //***************************************************************************
 
@@ -398,11 +385,13 @@ void File_Swf::FileHeader_Parse()
             Reject("SWF");
             return;
         }
-        Accept("SWF");
 
         //Filling
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "ShockWave");
+        Accept("SWF");
+
+        if (!IsSub)
+            Fill(Stream_General, 0, General_Format, "ShockWave");
+
         Stream_Prepare(Stream_Video);
         Fill(Stream_Video, 0, Video_Width, (Xmax-Xmin)/20);
         Fill(Stream_Video, 0, Video_Height, (Ymax-Ymin)/20);
@@ -583,7 +572,8 @@ void File_Swf::DefineSound()
     Fill(Stream_Audio, StreamPos_Last, Audio_Format_Profile, Swf_Format_Profile_Audio[SoundFormat]);
     Fill(Stream_Audio, StreamPos_Last, Audio_Codec, Swf_SoundFormat[SoundFormat]);
     Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, Swf_SoundRate[SoundRate]);
-    Fill(Stream_Audio, StreamPos_Last, Audio_Resolution, Swf_SoundSize[SoundSize]);
+    if (SoundFormat!=2) //SoundSize is not valid for MPEG Audio
+        Fill(Stream_Audio, StreamPos_Last, Audio_Resolution, Swf_SoundSize[SoundSize]);
     Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, Swf_SoundType[SoundType]);
 }
 
@@ -615,7 +605,8 @@ void File_Swf::SoundStreamHead()
         Fill(Stream_Audio, StreamPos_Last, Audio_Format_Profile, Swf_Format_Profile_Audio[StreamSoundCompression]);
         Fill(Stream_Audio, StreamPos_Last, Audio_Codec, Swf_SoundFormat[StreamSoundCompression]);
         Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, Swf_SoundRate[StreamSoundRate]);
-        Fill(Stream_Audio, StreamPos_Last, Audio_Resolution, Swf_SoundSize[StreamSoundSize]);
+        if (StreamSoundCompression!=2) //SoundSize is not valid for MPEG Audio
+            Fill(Stream_Audio, StreamPos_Last, Audio_Resolution, Swf_SoundSize[StreamSoundSize]);
         Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, Swf_SoundType[StreamSoundType]);
     }
 }
@@ -667,9 +658,10 @@ bool File_Swf::Decompress()
     if (Buffer_Size!=File_Size)
     {
         //We must have the complete file in memory, but this is too big (not handled by FileHeader_Begin()), only saying this is SWF
-        Stream_Prepare(Stream_General);
         Fill(Stream_General, 0, General_Format, "ShockWave");
+
         Stream_Prepare(Stream_Video);
+
         Finish("SWF");
         return true;
     }
@@ -690,14 +682,14 @@ bool File_Swf::Decompress()
 
     Accept("SWF");
 
-    Stream_Prepare(Stream_General);
+    Fill(Stream_General, 0, General_Format, "ShockWave");
 
     File_Swf MI;
     MI.FileLength=FileLength;
     MI.Version=Version;
     Open_Buffer_Init(&MI);
-    Open_Buffer_Continue(&MI, Dest, FileLength-8);
-    Open_Buffer_Finalize(&MI);
+    MI.Open_Buffer_Continue(Dest, FileLength-8);
+    MI.Open_Buffer_Finalize();
     Merge(MI, Stream_General, 0, 0);
     Merge(MI);
     delete[] Dest; //Dest=NULL;

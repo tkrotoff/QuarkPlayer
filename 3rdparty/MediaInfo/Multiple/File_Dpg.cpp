@@ -104,7 +104,8 @@ void File_Dpg::FileHeader_Parse()
     Get_L4 (Video_Size,                                         "Video Size");
 
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
+        Accept("DPG");
+
         Fill(Stream_General, 0, General_Format, "DPG");
 
         Stream_Prepare(Stream_Video);
@@ -120,16 +121,13 @@ void File_Dpg::FileHeader_Parse()
         #if defined(MEDIAINFO_MPEGA_YES)
             Parser=new File_Mpega();
             Open_Buffer_Init(Parser);
-            Accept("DPG");
             GoTo(Audio_Offset, "DPG");
         #elif defined(MEDIAINFO_MPEGV_YES)
             Audio_Size=0;
             Parser=new File_Mpegv();
             Open_Buffer_Init(Parser);
-            Accept("DPG");
             GoTo(Video_Offset, "DPG");
         #else
-            Accept("DPG");
             Finish("DPG");
         #endif
     FILLING_END();
@@ -148,7 +146,7 @@ void File_Dpg::Read_Buffer_Continue()
     if (Audio_Size)
     {
         #if defined(MEDIAINFO_MPEGA_YES)
-            Open_Buffer_Continue(Parser, Buffer+Buffer_Offset, (size_t)((File_Offset+Buffer_Size<Audio_Offset+Audio_Size)?Buffer_Size:(Audio_Offset+Audio_Size-File_Offset)));
+            Open_Buffer_Continue(Parser, (size_t)((File_Offset+Buffer_Size<Audio_Offset+Audio_Size)?Buffer_Size:(Audio_Offset+Audio_Size-File_Offset)));
             if (Parser->Status[IsAccepted])
             {
                 Finish(Parser);
@@ -167,7 +165,7 @@ void File_Dpg::Read_Buffer_Continue()
     else
     {
         #if defined(MEDIAINFO_MPEGV_YES)
-            Open_Buffer_Continue(Parser, Buffer+Buffer_Offset, (size_t)((File_Offset+Buffer_Size<Video_Offset+Video_Size)?Buffer_Size:(Video_Offset+Video_Size-File_Offset)));
+            Open_Buffer_Continue(Parser, (size_t)((File_Offset+Buffer_Size<Video_Offset+Video_Size)?Buffer_Size:(Video_Offset+Video_Size-File_Offset)));
             if (Parser->Status[IsAccepted])
             {
                 //Merging

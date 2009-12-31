@@ -73,7 +73,6 @@ void File_Dummy::FileHeader_Parse()
     else
     {
         File_Name=_T("D:\\WhatIsIt.mkv");
-        Stream_Prepare(Stream_General);
         Fill(Stream_General, 0, General_Domain, "Starwars saga");
         Fill(Stream_General, 0, General_Movie, "Starwars 4");
         Fill(Stream_General, 0, General_Movie_More, "A new hope");
@@ -89,7 +88,7 @@ void File_Dummy::FileHeader_Parse()
         Fill(Stream_Video, 0, Video_Width, "720");
         Fill(Stream_Video, 0, Video_Height, "320");
         Fill(Stream_Video, 0, Video_FrameRate, "24.976");
-        Fill(Stream_Video, 0, Video_Resolution, "24");
+        Fill(Stream_Video, 0, Video_Resolution, "8");
         Fill(Stream_Video, 0, Video_Language, "en");
         Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, 0, Audio_Format, "AC-3");
@@ -120,7 +119,6 @@ void File_Dummy::FileHeader_Parse()
 //---------------------------------------------------------------------------
 void File_Dummy::Fill_Dummy_General()
 {
-    Stream_Prepare(Stream_General);
     Fill(Stream_General, 0, General_Format, "Format");
     Fill(Stream_General, 0, General_Format_Url, "http://mediainfo.sourceforge.net");
     Fill(Stream_General, 0, General_Format_Extensions, "fmt fmt fmt");
@@ -255,7 +253,7 @@ void File_Dummy::Fill_Dummy_Video()
         Fill(Stream_Video, 0, Video_DisplayAspectRatio, "2");
         Fill(Stream_Video, 0, Video_FrameRate, "24.976");
         Fill(Stream_Video, 0, Video_FrameCount, "FrameCount");
-        Fill(Stream_Video, 0, Video_Resolution, "24");
+        Fill(Stream_Video, 0, Video_Resolution, "8");
         Fill(Stream_Video, 0, Video_Bits__Pixel_Frame_, "Bits/(Pixel*Frame)");
         Fill(Stream_Video, 0, Video_Delay, "100");
         Fill(Stream_Video, 0, Video_Duration, "990000");

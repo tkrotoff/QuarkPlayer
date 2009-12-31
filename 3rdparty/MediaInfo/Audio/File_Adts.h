@@ -25,6 +25,7 @@
 //---------------------------------------------------------------------------
 #include "MediaInfo/File__Analyze.h"
 #include "MediaInfo/Tag/File__Tags.h"
+#include <vector>
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -45,21 +46,19 @@ public :
 
 private :
     //Streams management
+    void Streams_Fill();
     void Streams_Finish()                                                       {File__Tags_Helper::Streams_Finish();}
 
     //Buffer - Synchro
     bool Synchronize();
     bool Synched_Test();
 
-    //Buffer - Global
-    void Read_Buffer_Finalize()                                                 {File__Tags_Helper::Read_Buffer_Finalize();}
-
     //Buffer - Per element
     void Header_Parse();
     void Data_Parse();
-    void Data_Parse_Fill();
 
     //Temp
+    std::vector<int16u> aac_frame_lengths;
     size_t Frame_Count;
     int16u adts_buffer_fullness;
     int16u aac_frame_length;

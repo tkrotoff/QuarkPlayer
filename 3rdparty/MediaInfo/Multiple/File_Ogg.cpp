@@ -93,6 +93,11 @@ void File_Ogg::Streams_Fill()
             }
             if (!IsSub)
             {
+                if (Stream_Temp->second.StreamKind==Stream_Max)
+                {
+                    Stream_Temp->second.StreamKind=Stream_General;
+                    Stream_Temp->second.StreamPos=0;
+                }
                 Fill(Stream_Temp->second.StreamKind, Stream_Temp->second.StreamPos, General_ID, Stream_Temp->first);
                 Fill(Stream_Temp->second.StreamKind, Stream_Temp->second.StreamPos, General_ID_String, Ztring::ToZtring(Stream_Temp->first)+_T(" (0x")+Ztring::ToZtring(Stream_Temp->first, 16)+_T(')'), true);
             }
@@ -101,6 +106,8 @@ void File_Ogg::Streams_Fill()
     }
 
     Fill(Stream_General, 0, General_Format, "OGG", Unlimited, true, true);
+    if (Count_Get(Stream_Video)==0 && Count_Get(Stream_Image)==0)
+        Fill(Stream_General, 0, General_InternetMediaType, "audio/ogg", Unlimited, true, true);
 }
 
 //---------------------------------------------------------------------------
@@ -352,8 +359,6 @@ void File_Ogg::Data_Parse()
                 Accept("OGG");
             if (Parser->Status[IsFinished] || (Element_Offset==Element_Size && eos))
             {
-                if (Count_Get(Stream_General)==0)
-                    Stream_Prepare(Stream_General);
                 StreamsToDo--;
                 Stream[Element_Code].SearchingPayload=false;
                 break;
@@ -372,11 +377,12 @@ void File_Ogg::Data_Parse()
         else
             GoToFromEnd(256*1024, "OGG");
         std::map<int64u, stream>::iterator Stream_Temp=Stream.begin();
-        while (Stream_Temp!=Stream.end())
-        {
-            Stream_Temp->second.absolute_granule_position=0;
-            Stream_Temp++;
-        }
+        if (File_GoTo!=(int64u)-1)
+            while (Stream_Temp!=Stream.end())
+            {
+                Stream_Temp->second.absolute_granule_position=0;
+                Stream_Temp++;
+            }
         Parsing_End=true;
     }
 

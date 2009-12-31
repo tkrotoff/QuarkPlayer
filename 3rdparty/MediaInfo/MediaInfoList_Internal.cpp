@@ -29,7 +29,9 @@
 #include "MediaInfoList_Internal.h"
 #include "MediaInfo/MediaInfo_Config.h"
 #include "ZenLib/ZtringListList.h"
+#include "ZenLib/File.h"
 #include "ZenLib/Dir.h"
+#include "MediaInfo/Reader/Reader_Directory.h"
 using namespace ZenLib;
 using namespace std;
 //---------------------------------------------------------------------------
@@ -48,16 +50,20 @@ extern MediaInfo_Config Config;
 //---------------------------------------------------------------------------
 //Constructeurs
 MediaInfoList_Internal::MediaInfoList_Internal(size_t Count_Init)
+: Thread()
 {
     CriticalSectionLocker CSL(CS);
+    
     //Initialisation
     Info.reserve(Count_Init);
     for (size_t Pos=0; Pos<Info.size(); Pos++)
         Info[Pos]=NULL;
-    BlockMethod=0;
-    State=0;
     ToParse_AlreadyDone=0;
     ToParse_Total=0;
+    
+    //Threading
+    BlockMethod=0;
+    State=0;
     IsInThread=false;
 }
 
@@ -66,10 +72,6 @@ MediaInfoList_Internal::MediaInfoList_Internal(size_t Count_Init)
 MediaInfoList_Internal::~MediaInfoList_Internal()
 {
     Close();
-
-    CriticalSectionLocker CSL(CS);
-    for (size_t Pos=0; Pos<Info.size(); Pos++)
-        delete Info[Pos]; //Info[Pos]=NULL;
 }
 
 //***************************************************************************
@@ -77,7 +79,7 @@ MediaInfoList_Internal::~MediaInfoList_Internal()
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-size_t MediaInfoList_Internal::Open(const String &File, const fileoptions_t Options)
+size_t MediaInfoList_Internal::Open(const String &File_Name, const fileoptions_t Options)
 {
     //Option FileOption_Close
     if (Options & FileOption_CloseAll)
@@ -87,39 +89,44 @@ size_t MediaInfoList_Internal::Open(const String &File, const fileoptions_t Opti
     //TODO
 
     //Get all filenames
-    ZtringList List=Dir::GetAllFileNames(File, (Options&FileOption_NoRecursive)?Dir::Nothing:Dir::Parse_SubDirs);
+    ZtringList List;
+    if ((File_Name.size()>=7
+      && File_Name[0]==_T('h')
+      && File_Name[1]==_T('t')
+      && File_Name[2]==_T('t')
+      && File_Name[3]==_T('p')
+      && File_Name[4]==_T(':')
+      && File_Name[5]==_T('/')
+      && File_Name[6]==_T('/'))
+     || (File_Name.size()>=6
+      && File_Name[0]==_T('f')
+      && File_Name[1]==_T('t')
+      && File_Name[2]==_T('p')
+      && File_Name[3]==_T(':')
+      && File_Name[4]==_T('/')
+      && File_Name[5]==_T('/'))
+     || (File_Name.size()>=6
+      && File_Name[0]==_T('m')
+      && File_Name[1]==_T('m')
+      && File_Name[2]==_T('s')
+      && File_Name[3]==_T(':')
+      && File_Name[4]==_T('/')
+      && File_Name[5]==_T('/'))
+     || (File_Name.size()>=7
+      && File_Name[0]==_T('m')
+      && File_Name[1]==_T('m')
+      && File_Name[2]==_T('s')
+      && File_Name[3]==_T('h')
+      && File_Name[4]==_T(':')
+      && File_Name[5]==_T('/')
+      && File_Name[6]==_T('/')))
+        List.push_back(File_Name);
+    else if (File::Exists(File_Name))
+        List.push_back(File_Name);
+    else
+        List=Dir::GetAllFileNames(File_Name, (Options&FileOption_NoRecursive)?Dir::Nothing:Dir::Parse_SubDirs);
 
-    #ifdef MEDIAINFO_BDMV_YES
-        //if there is a BDMV folder, this is blu-ray
-        Ztring ToSearch=Ztring(1, PathSeparator)+_T("BDMV")+PathSeparator+_T("index.bdmv"); //"\BDMV\index.bdmv"
-        for (size_t File_Pos=0; File_Pos<List.size(); File_Pos++)
-        {
-            size_t BDMV_Pos=List[File_Pos].find(ToSearch);
-            if (BDMV_Pos!=string::npos && BDMV_Pos!=0 && BDMV_Pos+16==List[File_Pos].size())
-            {
-                //This is a BDMV index, parsing the directory only if index and movie objects are BOTH present
-                ToSearch=List[File_Pos];
-                ToSearch.resize(ToSearch.size()-10);
-                ToSearch+=_T("MovieObject.bdmv");  //"%CompletePath%\BDMV\MovieObject.bdmv"
-                if (List.Find(ToSearch)!=string::npos)
-                {
-                    //We want the folder instead of the files
-                    List[File_Pos].resize(List[File_Pos].size()-11); //only %CompletePath%\BDMV
-                    ToSearch=List[File_Pos];
-
-                    for (size_t Pos=0; Pos<List.size(); Pos++)
-                    {
-                        if (List[Pos].find(ToSearch)==0 && List[Pos]!=ToSearch) //Remove all subdirs of ToSearch but not ToSearch
-                        {
-                            //Removing the file in the blu-ray directory
-                            List.erase(List.begin()+Pos);
-                            Pos--;
-                        }
-                    }
-                }
-            }   
-        }
-    #endif //MEDIAINFO_BDMV_YES
+    Reader_Directory::Directory_Cleanup(List);
 
     //Registering files
     CS.Enter();
@@ -137,11 +144,13 @@ size_t MediaInfoList_Internal::Open(const String &File, const fileoptions_t Opti
     //Parsing
     if (BlockMethod==1)
     {
-        if (!IsInThread) //If already created, the routine will read the new files
+        CS.Enter();
+        if (!IsRunning()) //If already created, the routine will read the new files
         {
-            Run();
+            RunAgain();
             IsInThread=true;
         }
+        CS.Leave();
         return 0;
     }
     else
@@ -164,15 +173,37 @@ void MediaInfoList_Internal::Entry()
             MediaInfo* MI=new MediaInfo();
             for (std::map<String, String>::iterator Config_MediaInfo_Item=Config_MediaInfo_Items.begin(); Config_MediaInfo_Item!=Config_MediaInfo_Items.end(); Config_MediaInfo_Item++)
                 MI->Option(Config_MediaInfo_Item->first, Config_MediaInfo_Item->second);
+            if (BlockMethod==1)
+                MI->Option(_T("Thread"), _T("1"));
             MI->Open(ToParse.front());
+            if (BlockMethod==1)
+            {
+                CS.Leave();
+                while (MI->State_Get()<10000)
+                {
+                    size_t A=MI->State_Get();
+                    CS.Enter();
+                    State=(ToParse_AlreadyDone*10000+A)/ToParse_Total;
+                    CS.Leave();
+                    if (IsTerminating())
+                    {
+                        break;
+                    }
+                    Yield();
+                }
+                CS.Enter();
+            }
             Info.push_back(MI);
             ToParse.pop();
             ToParse_AlreadyDone++;
             State=ToParse_AlreadyDone*10000/ToParse_Total;
         }
+        if (IsTerminating() || State==10000)
+        {
+            CS.Leave();
+            break;
+        }
         CS.Leave();
-        if (!IsInThread && State==10000)
-            break; //This is not in a thread, we must stop alone
         Yield();
     }
 }
@@ -229,6 +260,13 @@ size_t MediaInfoList_Internal::Save(size_t)
 //---------------------------------------------------------------------------
 void MediaInfoList_Internal::Close(size_t FilePos)
 {
+    if (IsRunning())
+    {
+        RequestTerminate();
+        while(IsExited())
+            Yield();
+    }
+
     CriticalSectionLocker CSL(CS);
     if (FilePos==Unlimited)
     {
@@ -430,17 +468,6 @@ size_t MediaInfoList_Internal::Count_Get()
 {
     CriticalSectionLocker CSL(CS);
     return Info.size();
-}
-
-//***************************************************************************
-// Internal
-//***************************************************************************
-
-//---------------------------------------------------------------------------
-void MediaInfoList_Internal::State_Set(size_t State_)
-{
-    CriticalSectionLocker CSL(CS);
-    State=State_;
 }
 
 } //NameSpace

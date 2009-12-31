@@ -178,7 +178,6 @@ void File_Rm::Data_Parse()
 //---------------------------------------------------------------------------
 void File_Rm::RMF()
 {
-    Accept("RealMedia");
     NAME_VERSION("Real Media Format");
     INTEGRITY_VERSION(1);
 
@@ -190,7 +189,7 @@ void File_Rm::RMF()
     Skip_B4(                                                    "num_headers"); //The number of headers in the header section that follow the RealMedia File Header.
 
     //Filling
-    Stream_Prepare(Stream_General);
+    Accept("RealMedia");
     Fill(Stream_General, 0, General_Format, "RealMedia");
 }
 
@@ -213,7 +212,7 @@ void File_Rm::CONT()
     Get_Local(comment_len, comment,                             "comment"); //An array of ASCII characters that represents the comment information for the RealMedia file.
 
     //Filling
-    Fill(Stream_General, 0, General_Duration, title);
+    Fill(Stream_General, 0, General_Title, title);
     Fill(Stream_General, 0, General_Performer, author);
     Fill(Stream_General, 0, General_Copyright, copyright);
     Fill(Stream_General, 0, General_Comment, comment);
@@ -401,13 +400,13 @@ void File_Rm::MDPR_realvideo()
 {
     //Parsing
     int32u Codec;
-    int16u Width, Height, Resolution, FrameRate;
+    int16u Width, Height, FrameRate;
     Skip_B4(                                                    "Size");
     Skip_C4(                                                    "FCC");
     Get_C4 (Codec,                                              "Compression");
     Get_B2 (Width,                                              "Width");
     Get_B2 (Height,                                             "Height");
-    Get_B2 (Resolution,                                         "bpp");
+    Skip_B2(                                                    "bpp"); //Do not use it
     Skip_B4(                                                    "Unknown");
     Get_B2 (FrameRate,                                          "fps");
     Skip_B2(                                                    "Unknown");
@@ -415,13 +414,15 @@ void File_Rm::MDPR_realvideo()
     Skip_C4(                                                    "Type2");
 
     //Filling
+    if (!Status[IsAccepted])
+        Accept("RealMedia"); //Is subs
+
     Stream_Prepare(Stream_Video);
     if (FromMKV_StreamType==Stream_Max) //Using the one from the container
         CodecID_Fill(Ztring().From_CC4(Codec), Stream_Video, StreamPos_Last, InfoCodecID_Format_Real);
     Fill(Stream_Video, StreamPos_Last, Video_Codec, Ztring().From_CC4(Codec));
     Fill(Stream_Video, StreamPos_Last, Video_Width, Width); //Width
     Fill(Stream_Video, StreamPos_Last, Video_Height, Height); //Height
-    Fill(Stream_Video, StreamPos_Last, Video_Resolution, Resolution); //Resolution
     Fill(Stream_Video, StreamPos_Last, Video_FrameRate, (float)FrameRate); //FrameRate
 }
 
@@ -528,6 +529,9 @@ void File_Rm::MDPR_realaudio()
     }
 
     //Filling
+    if (!Status[IsAccepted])
+        Accept("RealMedia"); //Is subs
+
     Stream_Prepare(Stream_Audio);
     if (Version==3)
     {

@@ -204,9 +204,11 @@ void File_Adif::FileHeader_Parse()
     BS_End();
 
     FILLING_BEGIN();
-        File__Tags_Helper::Stream_Prepare(Stream_General);
+        File__Tags_Helper::Accept("ADIF");
+
         Fill(Stream_General, 0, General_Format, "ADIF");
         Fill(Stream_General, 0, General_Comment, comment_field_data);
+
         File__Tags_Helper::Stream_Prepare(Stream_Audio);
         Fill (Stream_Audio, 0, Audio_Format, "AAC");
         Fill (Stream_Audio, 0, Audio_Format_Version, "Version 2");
@@ -222,11 +224,9 @@ void File_Adif::FileHeader_Parse()
             Fill(Stream_Audio, 0, Audio_SamplingRate, ADIF_sampling_frequency[sampling_frequency_index]);
         if (num_front_channel_elements!=(int8u)-1)
             Fill(Stream_Audio, 0, Audio_Channel_s_, num_front_channel_elements+num_side_channel_elements+num_back_channel_elements+num_lfe_channel_elements);
-        Fill(Stream_Audio, 0, Audio_Resolution, 16);
         Fill(Stream_Audio, 0, Audio_MuxingMode, "ADIF");
 
         //No more need data
-        File__Tags_Helper::Accept("ADIF");
         File__Tags_Helper::Finish("ADIF");
     FILLING_END();
 }

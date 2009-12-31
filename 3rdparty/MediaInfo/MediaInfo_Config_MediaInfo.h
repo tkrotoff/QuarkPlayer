@@ -59,6 +59,12 @@ public :
     void          File_IsSub_Set (bool NewValue);
     bool          File_IsSub_Get ();
 
+    void          File_KeepInfo_Set (bool NewValue);
+    bool          File_KeepInfo_Get ();
+
+    void          File_StopAfterFilled_Set (bool NewValue);
+    bool          File_StopAfterFilled_Get ();
+
     void          File_ForceParser_Set (const Ztring &NewValue);
     Ztring        File_ForceParser_Get ();
 
@@ -81,10 +87,18 @@ public :
     bool          File_Bdmv_ParseTargetedFile_Get ();
     void          File_DvDif_Analysis_Set (bool NewValue);
     bool          File_DvDif_Analysis_Get ();
+    void          File_Curl_Set (const Ztring &NewValue);
+    Ztring        File_Curl_Get (const Ztring &Field);
+
+    //Analysis internal
+    void          State_Set (float State);
+    float         State_Get ();
 
 private :
     bool                    FileIsSeekable;
     bool                    FileIsSub;
+    bool                    FileKeepInfo;
+    bool                    FileStopAfterFilled;
     Ztring                  File_ForceParser;
 
     //Extra
@@ -98,6 +112,12 @@ private :
     bool                    File_MpegTs_ForceMenu;
     bool                    File_Bdmv_ParseTargetedFile;
     bool                    File_DvDif_Analysis;
+
+    //Analysis internal
+    float                   State;
+
+    //Generic
+    std::map<Ztring, Ztring> Curl;
 
     ZenLib::CriticalSection CS;
 };

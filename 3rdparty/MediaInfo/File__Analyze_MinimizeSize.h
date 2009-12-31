@@ -16,12 +16,14 @@ public :
     // Open
     //***************************************************************************
 
-    int     Open_File (const Ztring &File_Name); //1 if succeed, 0 if problem with format
-    void    Open_Buffer_Init        (                    int64u File_Size, int64u File_Offset=0);
+    void    Open_Buffer_Init        (                    int64u File_Size);
     void    Open_Buffer_Init        (File__Analyze* Sub);
-    void    Open_Buffer_Init        (File__Analyze* Sub, int64u File_Size, int64u File_Offset=0);
+    void    Open_Buffer_Init        (File__Analyze* Sub, int64u File_Size);
     void    Open_Buffer_Continue    (                    const int8u* Buffer, size_t Buffer_Size);
     void    Open_Buffer_Continue    (File__Analyze* Sub, const int8u* Buffer, size_t Buffer_Size);
+    void    Open_Buffer_Continue    (File__Analyze* Sub, size_t Buffer_Size) {Open_Buffer_Continue(Sub, Buffer+Buffer_Offset+(size_t)Element_Offset, Buffer_Size); Element_Offset+=Buffer_Size;}
+    void    Open_Buffer_Continue    (File__Analyze* Sub) {Open_Buffer_Continue(Sub, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset)); Element_Offset=Element_Size;}
+    void    Open_Buffer_Position_Set(int64u File_Offset);
     void    Open_Buffer_Unsynch     ();
     void    Open_Buffer_Finalize    (bool NoBufferModification=false);
     void    Open_Buffer_Finalize    (File__Analyze* Sub);
@@ -223,7 +225,7 @@ public :
     inline void Param_GUID (const char*, int128u) {}
     inline void Param_UUID (const char*, int128u) {}
     #ifdef NEED_SIZET
-    inline void Param      (const char*, size_t Value, intu Radix=16) {}
+    inline void Param      (const char*, size_t, intu =16) {}
     #endif //NEED_SIZET
     inline void Param      (const char*, float32, intu =3) {}
     inline void Param      (const char*, float64, intu =3) {}
@@ -707,7 +709,6 @@ public :
 
     //Before filling the stream, the stream must be prepared
     size_t Stream_Prepare   (stream_t KindOfStream);
-    void   General_Fill     (); //Special : pre-fill General with some important information
 
     //Fill with datas (with parameter as a size_t)
     void Fill (stream_t StreamKind, size_t StreamPos, size_t Parameter, const Ztring  &Value, bool Replace=false);

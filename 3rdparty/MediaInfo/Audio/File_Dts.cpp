@@ -376,10 +376,12 @@ File_Dts::~File_Dts()
 //---------------------------------------------------------------------------
 void File_Dts::Streams_Fill()
 {
-    if (Count_Get(Stream_General)==0)
-        Stream_Prepare(Stream_General);
-    Fill(Stream_General, 0, General_Format, "DTS");
-    Fill(Stream_General, 0, General_Format_Profile, Profile);
+    if (!IsSub)
+    {
+        Fill(Stream_General, 0, General_Format, "DTS");
+        Fill(Stream_General, 0, General_Format_Profile, Profile);
+    }
+
     Stream_Prepare(Stream_Audio);
     Fill(Stream_Audio, 0, Audio_Format, "DTS");
 
@@ -644,6 +646,7 @@ bool File_Dts::Synched_Test()
     }
 
     //We continue
+    Accept("DTS");
     return true;
 }
 
@@ -664,9 +667,6 @@ void File_Dts::Read_Buffer_Continue()
         return; //Wait for more data
     if (Synched && (!Word || !BigEndian))
     {
-        if (Count_Get(Stream_General)==0)
-            Stream_Prepare(Stream_General);
-
         //Preparing new buffer
         size_t Dest_Size=Word?Buffer_Size:(Buffer_Size*14/16);
         Dest=new int8u[Dest_Size];
@@ -705,10 +705,8 @@ void File_Dts::Read_Buffer_Continue()
             Open_Buffer_Init(Parser);
         }
         Open_Buffer_Continue(Parser, Dest, Dest_Size);
-        if (!Status[IsAccepted] && Parser->Status[IsAccepted])
-            Accept("DTS 14-bit");
         if (!Status[IsFinished] && Parser->Status[IsFinished])
-            Finish("DTS 14-bit");
+            Finish("DTS");
 
         Demux(Dest, Dest_Size, _T("extract"));
         delete[] Dest;

@@ -216,8 +216,6 @@ const char* MP4_ChannelConfiguration2[]=
 File_Mpeg4_AudioSpecificConfig::File_Mpeg4_AudioSpecificConfig()
 :File__Analyze()
 {
-    //In
-    MajorBrand=0x00000000;
 }
 
 //***************************************************************************
@@ -372,11 +370,13 @@ void File_Mpeg4_AudioSpecificConfig::Read_Buffer_Continue()
         SBR();
 
     BS_End();
-    Accept("AudioSpecificConfig");
-    Finish("AudioSpecificConfig");
 
     //Handling implicit SBR and PS
-    if ((MajorBrand&0x33677000)!=0x33677000) //If this is not a 3GP file
+    bool Is3GP=false;
+    for (size_t Pos=0; Pos<ftyps.size(); Pos++)
+        if ((ftyps[Pos]&0xFFFFFF00)==0x33677000)
+            Is3GP=true;
+    if (!Is3GP) //If this is not a 3GP file
     {
         if (!sbrPresentFlag && samplingFrequency<=24000)
         {
@@ -388,8 +388,8 @@ void File_Mpeg4_AudioSpecificConfig::Read_Buffer_Continue()
     }
 
     FILLING_BEGIN()
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "AAC");
+        Accept("AudioSpecificConfig");
+
         if (Count_Get(Stream_Audio)==0) //May be done elsewhere
             Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, StreamPos_Last, Audio_Format, MP4_Format(audioObjectType));
@@ -406,7 +406,6 @@ void File_Mpeg4_AudioSpecificConfig::Read_Buffer_Continue()
             Fill(Stream_Audio, StreamPos_Last, Audio_ChannelPositions, MP4_ChannelConfiguration[channelConfiguration]);
             Fill(Stream_Audio, StreamPos_Last, Audio_ChannelPositions_String2, MP4_ChannelConfiguration2[channelConfiguration]);
         }
-        Fill(Stream_Audio, StreamPos_Last, Audio_Resolution, 16);
 
         if (sbrPresentFlag)
         {
@@ -426,6 +425,8 @@ void File_Mpeg4_AudioSpecificConfig::Read_Buffer_Continue()
             Fill(Stream_Audio, StreamPos_Last, Audio_ChannelPositions, "Front: L R", Unlimited, true, true);
         }
     }
+
+    Finish("AudioSpecificConfig");
 }
 
 //---------------------------------------------------------------------------
@@ -583,6 +584,8 @@ void File_Mpeg4_AudioSpecificConfig::GASpecificConfig ()
                             (Channels_LFE? (_T('.')+Ztring::ToZtring(Channels_LFE )):Ztring());
 
         //Filling
+        Accept("AudioSpecificConfig");
+
         Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, Channels_Front+Channels_Side+Channels_Back+Channels_LFE);
         Fill(Stream_Audio, StreamPos_Last, Audio_ChannelPositions, Channels_Positions);
@@ -693,8 +696,8 @@ void File_Mpeg4_AudioSpecificConfig::ALS ()
 
     FILLING_BEGIN();
         //Filling
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "ALS");
+        Accept("AudioSpecificConfig");
+
         Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, StreamPos_Last, Audio_Format, "ALS");
         Fill(Stream_Audio, StreamPos_Last, Audio_Codec, "ALS");
@@ -712,7 +715,7 @@ void File_Mpeg4_AudioSpecificConfig::ALS ()
             //Parsing
             size_t Riff_Pos=Riff.find("RIFF");
             Skip_XX(Riff_Pos,                                   "Unknown");
-            Open_Buffer_Continue(&MI, (const int8u*)Riff.c_str()+Riff_Pos, Riff.size()-Riff_Pos);
+            Open_Buffer_Continue(&MI);
 
             //Filling
             Finish(&MI);
@@ -720,6 +723,8 @@ void File_Mpeg4_AudioSpecificConfig::ALS ()
 
             //The RIFF header is for PCM
             Clear(Stream_Audio, StreamPos_Last, Audio_ID);
+            Clear(Stream_Audio, StreamPos_Last, Audio_Codec_String);
+            Clear(Stream_Audio, StreamPos_Last, Audio_Codec_Family);
             Fill(Stream_Audio, StreamPos_Last, Audio_Format, "ALS", Unlimited, true, true);
             Fill(Stream_Audio, StreamPos_Last, Audio_Codec, "ALS", Unlimited, true, true);
             Clear(Stream_Audio, StreamPos_Last, Audio_CodecID);
@@ -737,8 +742,7 @@ void File_Mpeg4_AudioSpecificConfig::ALS ()
     else
         Skip_XX(Element_Size-Element_Offset,                    "Unknown");
 
-    //NO need more
-    Accept("AudioSpecificConfig");
+    //No need more
     Finish("AudioSpecificConfig");
 }
 

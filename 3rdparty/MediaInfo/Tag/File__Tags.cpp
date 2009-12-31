@@ -52,6 +52,7 @@ namespace MediaInfoLib
 // Constructor/Destructor
 //***************************************************************************
 
+//---------------------------------------------------------------------------
 File__Tags_Helper::File__Tags_Helper()
 {
     //In
@@ -64,6 +65,7 @@ File__Tags_Helper::File__Tags_Helper()
 
     //Temp
     Parser=NULL;
+    Parser_Streams_Fill=NULL;
     Id3v1_Offset=(int64u)-1;
     Lyrics3_Offset=(int64u)-1;
     Lyrics3v2_Offset=(int64u)-1;
@@ -77,6 +79,13 @@ File__Tags_Helper::File__Tags_Helper()
     SearchingForEndTags=false;
 }
 
+//---------------------------------------------------------------------------
+File__Tags_Helper::~File__Tags_Helper()
+{
+    delete Parser; //Parser=NULL;
+    delete Parser_Streams_Fill; //Parser_Streams_Fill=NULL;
+}
+
 //***************************************************************************
 // Streams management
 //***************************************************************************
@@ -84,6 +93,13 @@ File__Tags_Helper::File__Tags_Helper()
 //---------------------------------------------------------------------------
 void File__Tags_Helper::Streams_Fill()
 {
+    if (Parser_Streams_Fill && Parser_Streams_Fill->Status[File__Analyze::IsAccepted])
+    {
+        Parser_Streams_Fill->Read_Buffer_Finalize();
+        Base->Merge(*Parser_Streams_Fill, Stream_General, 0, 0, false);
+        Base->Merge(*Parser_Streams_Fill, Stream_Audio  , 0, 0, false);
+    }
+    delete Parser_Streams_Fill; Parser_Streams_Fill=NULL;
 }
 
 //---------------------------------------------------------------------------
@@ -109,11 +125,6 @@ bool File__Tags_Helper::Read_Buffer_Continue()
     if (File__Tags_Helper::Synchronize(Tag_Found) &&  Tag_Found)
         File__Tags_Helper::Synched_Test();
     return true;
-}
-
-//---------------------------------------------------------------------------
-void File__Tags_Helper::Read_Buffer_Finalize()
-{
 }
 
 //***************************************************************************
@@ -263,13 +274,17 @@ bool File__Tags_Helper::Synched_Test()
             Parser_Buffer_Size-=(size_t)Size_ToParse;
             if (Parser->Status[File__Analyze::IsFinished] || Parser_Buffer_Size==0)
             {
-                if (Parser->Count_Get(Stream_General)>0)
+                if (Base->Status[File__Analyze::IsAccepted] && Parser->Count_Get(Stream_General)>0)
                 {
                     Parser->Read_Buffer_Finalize();
                     Base->Merge(*Parser, Stream_General, 0, 0, false);
                     Base->Merge(*Parser, Stream_Audio  , 0, 0, false);
+                    delete Parser; Parser=NULL;
                 }
-                delete Parser; Parser=NULL;
+                else
+                {
+                    Parser_Streams_Fill=Parser; Parser=NULL;
+                }
                 if (Parser_Buffer_Size)
                     Base->Skip_XX(Parser_Buffer_Size,           "Data continued");
                 Base->Element_Show();
@@ -429,7 +444,7 @@ bool File__Tags_Helper::DetectBeginOfEndTags_Test()
         {
             if (Base->File_Offset>Base->File_Size-File_EndTagSize-9) //Must be at the end less 15 bytes
             {
-                Base->File_GoTo=Base->File_Size-File_EndTagSize-9;
+                Base->GoTo(Base->File_Size-File_EndTagSize-9, "Tags");
                 TagSizeIsFinal=false;
                 return false;
             }
@@ -437,7 +452,7 @@ bool File__Tags_Helper::DetectBeginOfEndTags_Test()
             if (Base->File_Offset+Base->Buffer_Size<Base->File_Size-File_EndTagSize) //Must be at the end less File_EndTagSize+9 bytes plus 9 bytes of tags
             {
                 if (Base->File_Offset!=Base->File_Size-File_EndTagSize)
-                    Base->File_GoTo=Base->File_Size-File_EndTagSize;
+                    Base->GoTo(Base->File_Size-File_EndTagSize, "Tags");
                 TagSizeIsFinal=false;
                 return false;
             }
@@ -447,7 +462,7 @@ bool File__Tags_Helper::DetectBeginOfEndTags_Test()
                 //Must find the beginning, 5100 bytes before
                 if (Base->File_Offset>Base->File_Size-File_EndTagSize-5100) //Must be at the end less 15 bytes
                 {
-                    Base->File_GoTo=Base->File_Size-File_EndTagSize-5100;
+                    Base->GoTo(Base->File_Size-File_EndTagSize-5100, "Tags");
                     TagSizeIsFinal=false;
                     return false;
                 }
@@ -455,7 +470,7 @@ bool File__Tags_Helper::DetectBeginOfEndTags_Test()
                 if (Base->File_Offset+Base->Buffer_Size<Base->File_Size-File_EndTagSize) //Must be at the end less File_EndTagSize
                 {
                     if (Base->File_Offset!=Base->File_Size-File_EndTagSize)
-                        Base->File_GoTo=Base->File_Size-File_EndTagSize;
+                        Base->GoTo(Base->File_Size-File_EndTagSize, "Tags");
                     TagSizeIsFinal=false;
                     return false;
                 }
@@ -478,7 +493,7 @@ bool File__Tags_Helper::DetectBeginOfEndTags_Test()
         {
             if (Base->File_Offset>Base->File_Size-File_EndTagSize-15) //Must be at the end less 15 bytes
             {
-                Base->File_GoTo=Base->File_Size-File_EndTagSize-15;
+                Base->GoTo(Base->File_Size-File_EndTagSize-15, "Tags");
                 TagSizeIsFinal=false;
                 return false;
             }
@@ -486,7 +501,7 @@ bool File__Tags_Helper::DetectBeginOfEndTags_Test()
             if (Base->File_Offset+Base->Buffer_Size<Base->File_Size-File_EndTagSize) //Must be at the end less File_EndTagSize
             {
                 if (Base->File_Offset!=Base->File_Size-File_EndTagSize)
-                    Base->File_GoTo=Base->File_Size-File_EndTagSize;
+                    Base->GoTo(Base->File_Size-File_EndTagSize, "Tags");
                 TagSizeIsFinal=false;
                 return false;
             }
@@ -505,7 +520,7 @@ bool File__Tags_Helper::DetectBeginOfEndTags_Test()
         {
             if (Base->File_Offset>Base->File_Size-File_EndTagSize-32) //Must be at the end less 32 bytes
             {
-                Base->File_GoTo=Base->File_Size-File_EndTagSize-32;
+                Base->GoTo(Base->File_Size-File_EndTagSize-32, "Tags");
                 TagSizeIsFinal=false;
                 return false;
             }
@@ -513,7 +528,7 @@ bool File__Tags_Helper::DetectBeginOfEndTags_Test()
             if (Base->File_Offset+Base->Buffer_Size<Base->File_Size-File_EndTagSize) //Must be at the end less File_EndTagSize+15 bytes plus 15 bytes of tags
             {
                 if (Base->File_Offset!=Base->File_Size-File_EndTagSize-32)
-                    Base->File_GoTo=Base->File_Size-File_EndTagSize-32;
+                    Base->GoTo(Base->File_Size-File_EndTagSize-32, "Tags");
                 TagSizeIsFinal=false;
                 return false;
             }

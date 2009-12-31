@@ -72,35 +72,35 @@ const char* Mpegv_Colorimetry_format[]=
 //---------------------------------------------------------------------------
 const char* Mpegv_profile_and_level_indication_profile[]=
 {
-    "",
+    "0",
     "High",
-    "Spatial",
-    "SNR",
+    "Spatial Sclable",
+    "SNR Scalable",
     "Main",
     "Simple",
-    "",
-    "",
-};
+    "6",
+    "7",
+}; //4:2:2 Profile?
 
 //---------------------------------------------------------------------------
 const char* Mpegv_profile_and_level_indication_level[]=
 {
-    "",
-    "",
-    "",
-    "",
+    "0",
+    "1",
+    "2",
+    "3",
     "High",
-    "",
-    "High-1440",
-    "",
+    "4",
+    "High 1440",
+    "5",
     "Main",
-    "",
+    "6",
     "Low",
-    "",
-    "",
-    "",
-    "",
-    "",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
 };
 
 } //NameSpace
@@ -308,14 +308,11 @@ File_Mpegv::~File_Mpegv()
 void File_Mpegv::Streams_Fill()
 {
     //Filling
-    if (Count_Get(Stream_General)==0)
-        Stream_Prepare(Stream_General);
     Stream_Prepare(Stream_Video);
 
     //Version
     if (MPEG_Version==2)
     {
-        Fill(Stream_General, 0, General_Format, "MPEG Video");
         Fill(Stream_General, 0, General_Format_Version, "Version 2");
         Fill(Stream_Video, 0, Video_Format, "MPEG Video");
         Fill(Stream_Video, 0, Video_Format_Version, "Version 2");
@@ -324,7 +321,6 @@ void File_Mpegv::Streams_Fill()
     }
     else
     {
-        Fill(Stream_General, 0, General_Format, "MPEG Video");
         Fill(Stream_General, 0, General_Format_Version, "Version 1");
         Fill(Stream_Video, 0, Video_Format, "MPEG Video");
         Fill(Stream_Video, 0, Video_Format_Version, "Version 1");
@@ -335,6 +331,7 @@ void File_Mpegv::Streams_Fill()
     Fill(Stream_Video, 0, Video_Width, 0x1000*horizontal_size_extension+horizontal_size_value);
     Fill(Stream_Video, 0, Video_Height, 0x1000*vertical_size_extension+vertical_size_value);
     Fill(Stream_Video, 0, Video_Colorimetry, Mpegv_Colorimetry_format[chroma_format]);
+    Fill(Stream_Video, 0, Video_Resolution, 8);
 
     //AspectRatio
     if (MPEG_Version==2)
@@ -359,18 +356,15 @@ void File_Mpegv::Streams_Fill()
     }
 
     //FrameRate
-    if (frame_rate_extension_d!=0)
-        Fill(Stream_Video, StreamPos_Last, Video_FrameRate, (float)frame_rate_extension_n/frame_rate_extension_d);
-    else
-        Fill(Stream_Video, StreamPos_Last, Video_FrameRate, Mpegv_frame_rate[frame_rate_code]);
+    Fill(Stream_Video, StreamPos_Last, Video_FrameRate, (float)(Mpegv_frame_rate[frame_rate_code] * (frame_rate_extension_n + 1)) / (float)(frame_rate_extension_d + 1));
 
     //BitRate
     if (vbv_delay==0xFFFF || (MPEG_Version==1 && bit_rate_value==0x3FFFF))
         Fill(Stream_Video, 0, Video_BitRate_Mode, "VBR");
     else if ((MPEG_Version==1 && bit_rate_value!=0x3FFFF) || MPEG_Version==2)
         Fill(Stream_Video, 0, Video_BitRate_Mode, "CBR");
-    if (bit_rate_value_IsValid && bit_rate_value!=0x3FFFF)
-        Fill(Stream_Video, 0, Video_BitRate_Nominal, bit_rate_value*400);
+    if (bit_rate_value_IsValid && (bit_rate_extension>0 || bit_rate_value!=0x3FFFF))
+        Fill(Stream_Video, 0, Video_BitRate_Nominal, ((((int32u)bit_rate_extension<<12))+bit_rate_value)*400);
 
     //Interlacement
     if (MPEG_Version==1)
@@ -431,7 +425,7 @@ void File_Mpegv::Streams_Fill()
     }
 
     //Profile
-    if (profile_and_level_indication_profile && profile_and_level_indication_level)
+    if (!profile_and_level_indication_escape && profile_and_level_indication_profile && profile_and_level_indication_level)
     {
         Fill(Stream_Video, 0, Video_Format_Profile, Ztring().From_Local(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile])+_T("@")+Ztring().From_Local(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]));
         Fill(Stream_Video, 0, Video_Codec_Profile, Ztring().From_Local(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile])+_T("@")+Ztring().From_Local(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]));
@@ -478,6 +472,18 @@ void File_Mpegv::Streams_Fill()
         Fill(Stream_Video, 0, Video_Delay_Settings, Ztring(_T("closed_gop="))+(group_start_closed_gop?_T("1"):_T("0")));
         Fill(Stream_Video, 0, Video_Delay_Settings, Ztring(_T("broken_link="))+(group_start_broken_link?_T("1"):_T("0")));
     }
+
+    //BVOP
+    if (BVOP_Count>0)
+    {
+        Fill(Stream_Video, 0, Video_Format_Settings, "BVOP");
+        Fill(Stream_Video, 0, Video_Format_Settings_BVOP, "Yes");
+    }
+    else
+        Fill(Stream_Video, 0, Video_Format_Settings_BVOP, "No");
+
+    //Buffer
+    Fill(Stream_Video, 0, Video_BufferSize, 2*1024*((((int32u)vbv_buffer_size_extension)<<10)+vbv_buffer_size_value));
 
     //Autorisation of other streams
     NextCode_Clear();
@@ -575,12 +581,14 @@ void File_Mpegv::Synched_Init()
 {
     //Temp
     Frame_Count=0;
+    BVOP_Count=0;
     progressive_frame_Count=0;
     Interlaced_Top=0;
     Interlaced_Bottom=0;
     display_horizontal_size=0;
     display_vertical_size=0;
     vbv_delay=0;
+    vbv_buffer_size_value=0;
     Time_Begin_Seconds=Error;
     Time_Begin_Frames=(int8u)-1;
     Time_End_Seconds=Error;
@@ -603,6 +611,7 @@ void File_Mpegv::Synched_Init()
     frame_rate_extension_n=0;
     frame_rate_extension_d=0;
     video_format=5; //Unspecified video format
+    vbv_buffer_size_extension=0;
     DVD_CC_IsPresent=false;
     GA94_03_CC_IsPresent=false;
     Time_End_NeedComplete=false;
@@ -614,6 +623,7 @@ void File_Mpegv::Synched_Init()
     FirstFieldFound=false;
     group_start_IsParsed=false;
     bit_rate_value_IsValid=false;
+    profile_and_level_indication_escape=false;
 
     //Default stream values
     Streams.resize(0x100);
@@ -893,6 +903,10 @@ void File_Mpegv::picture_start()
             TemporalReference.resize(TemporalReference_Offset+temporal_reference+1);
         TemporalReference[TemporalReference_Offset+temporal_reference].IsValid=true;
 
+        //Count
+        if (picture_coding_type==3)
+            BVOP_Count++;
+
         //NextCode
         NextCode_Clear();
         for (int64u Element_Name_Next=0x01; Element_Name_Next<=0x1F; Element_Name_Next++)
@@ -963,15 +977,15 @@ void File_Mpegv::user_data_start()
         bool OK=true;
         for (size_t Pos=0; Pos<4; Pos++)
         {
-            if (!(Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x20 && Pos
-               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x22
-               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x27
-               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x28
-               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x29 && Pos
-               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]>=0x30
-               && Buffer[Buffer_Offset+Library_Start_Offset+Pos]<=0x3F
-               || Buffer[Buffer_Offset+Library_Start_Offset+Pos]>=0x41
-               && Buffer[Buffer_Offset+Library_Start_Offset+Pos]<=0x7D))
+            if (!((Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x20 && Pos)
+               ||  Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x22
+               ||  Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x27
+               ||  Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x28
+               || (Buffer[Buffer_Offset+Library_Start_Offset+Pos]==0x29 && Pos)
+               || (Buffer[Buffer_Offset+Library_Start_Offset+Pos]>=0x30
+               &&  Buffer[Buffer_Offset+Library_Start_Offset+Pos]<=0x3F)
+               || (Buffer[Buffer_Offset+Library_Start_Offset+Pos]>=0x41
+               && Buffer[Buffer_Offset+Library_Start_Offset+Pos]<=0x7D)))
             {
                 OK=false;
                 break;
@@ -1114,7 +1128,7 @@ void File_Mpegv::user_data_start_CC()
                 if (DVD_CC_Parsers[cc_type]->Status[IsFinished])
                 {
                     if (Count_Get(Stream_General)==0)
-                        Stream_Prepare(Stream_General);
+                        Accept("MPEG Video");
                     Merge(*DVD_CC_Parsers[cc_type]);
                     Fill(Stream_Text, StreamPos_Last, Text_ID, _T("DVD-")+Ztring::ToZtring(cc_type));
                     Fill(Stream_Text, StreamPos_Last, "MuxingMode", _T("DVD-Video"));
@@ -1272,7 +1286,7 @@ void File_Mpegv::user_data_start_GA94_03()
                             if (GA94_03_CC_Parsers[Parser_Pos]->Status[IsFinished])
                             {
                                 if (Count_Get(Stream_General)==0)
-                                    Stream_Prepare(Stream_General);
+                                    Accept("MPEG Video");
                                 Merge(*GA94_03_CC_Parsers[Parser_Pos]);
                                 if (Parser_Pos<2)
                                     Fill(Stream_Text, StreamPos_Last, Text_ID, _T("608-")+Ztring::ToZtring(Parser_Pos));
@@ -1381,7 +1395,7 @@ void File_Mpegv::sequence_header()
     Get_S1 ( 4, frame_rate_code,                                "frame_rate_code"); Param_Info(Mpegv_frame_rate[frame_rate_code]);
     Get_S3 (18, bit_rate_value_temp,                            "bit_rate_value"); Param_Info(bit_rate_value*400);
     Mark_1 ();
-    Info_S2(10, vbv_buffer_size_value,                          "vbv_buffer_size_value"); Param_Info(16*1024*vbv_buffer_size_value);
+    Get_S2 (10, vbv_buffer_size_value,                          "vbv_buffer_size_value"); Param_Info(2*1024*((int32u)vbv_buffer_size_value), " bytes");
     Skip_SB(                                                    "constrained_parameters_flag");
     TEST_SB_GET(load_intra_quantiser_matrix,                    "load_intra_quantiser_matrix");
         for (size_t Pos=0; Pos<64; Pos++)
@@ -1494,16 +1508,21 @@ void File_Mpegv::extension_start()
     {
         case 1 :{ //Sequence
                     //Parsing
-                    Skip_SB(                                    "profile_and_level_indication_escape");
-                    Get_S1 ( 3, profile_and_level_indication_profile, "profile_and_level_indication_profile"); Param_Info(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile]);
-                    Get_S1 ( 4, profile_and_level_indication_level, "profile_and_level_indication_level"); Param_Info(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]);
+                    Get_SB (    profile_and_level_indication_escape, "profile_and_level_indication_escape");
+                    if (profile_and_level_indication_escape)
+                        Skip_S1( 7,                            "profile_and_level_indication_reserved");
+                    else
+                    {
+                        Get_S1 ( 3, profile_and_level_indication_profile, "profile_and_level_indication_profile"); Param_Info(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile]);
+                        Get_S1 ( 4, profile_and_level_indication_level, "profile_and_level_indication_level"); Param_Info(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]);
+                    }
                     Get_SB (    progressive_sequence,           "progressive_sequence");
                     Get_S1 ( 2, chroma_format,                  "chroma_format"); Param_Info(Mpegv_Colorimetry_format[chroma_format]);
                     Get_S1 ( 2, horizontal_size_extension,      "horizontal_size_extension");
                     Get_S1 ( 2, vertical_size_extension,        "vertical_size_extension");
                     Get_S2 (12, bit_rate_extension,             "bit_rate_extension");
                     Mark_1 ();
-                    Skip_S1( 8,                                 "vbv_buffer_size_extension");
+                    Get_S1 ( 8, vbv_buffer_size_extension,      "vbv_buffer_size_extension"); Param_Info(2*1024*((((int32u)vbv_buffer_size_extension)<<10)+vbv_buffer_size_value), " bytes");
                     Skip_SB(                                    "low_delay");
                     Get_S1 ( 2, frame_rate_extension_n,         "frame_rate_extension_n");
                     Get_S1 ( 5, frame_rate_extension_d,         "frame_rate_extension_d");
@@ -1703,10 +1722,7 @@ void File_Mpegv::group_start()
 
         //Autorisation of other streams
         if (Searching_TimeStamp_Start_DoneOneTime)
-        {
             Streams[0xB8].Searching_TimeStamp_Start=false; //group_start
-            SizeToAnalyse_Begin=0;
-        }
         else
             Searching_TimeStamp_Start_DoneOneTime=true;
         Streams[0x00].Searching_TimeStamp_End=true; //picture_start

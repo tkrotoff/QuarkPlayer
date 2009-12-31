@@ -198,8 +198,8 @@ void File_Tak::STREAMINFO()
         int32u SamplingRate=(samplerate/16)+6000;
 
         //Filling
-        File__Tags_Helper::Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "TAK");
+        File__Tags_Helper::Accept("TAK");
+
         File__Tags_Helper::Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, 0, Audio_Format, "TAK");
         Fill(Stream_Audio, 0, Audio_Codec, "TAK");
@@ -208,8 +208,6 @@ void File_Tak::STREAMINFO()
         if (Tak_samplesize[samplesize])
             Fill(Stream_Audio, 0, Audio_Resolution, Tak_samplesize[samplesize]);
         Fill(Stream_Audio, 0, Audio_Duration, Samples*1000/SamplingRate);
-
-        File__Tags_Helper::Accept("TAK");
     FILLING_END();
 }
 
@@ -241,7 +239,7 @@ void File_Tak::WAVEMETADATA()
         Open_Buffer_Init(&MI);
 
         //Parsing
-        Open_Buffer_Continue(&MI, Buffer+Buffer_Offset+(size_t)Element_Offset, HeaderLength);
+        Open_Buffer_Continue(&MI, HeaderLength);
         Element_Offset+=HeaderLength;
 
         //Filling

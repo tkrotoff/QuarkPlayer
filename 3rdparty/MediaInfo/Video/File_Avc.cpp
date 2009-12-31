@@ -84,6 +84,7 @@ const char* Avc_profile_idc(int8u profile_idc)
 #if defined(MEDIAINFO_EIA708_YES)
     #include "MediaInfo/Text/File_Eia708.h"
 #endif
+using namespace std;
 using namespace ZenLib;
 //---------------------------------------------------------------------------
 
@@ -364,9 +365,6 @@ void File_Avc::Streams_Fill()
     else
         PixelAspectRatio=1; //Unknown
 
-    if (Count_Get(Stream_General)==0)
-        Stream_Prepare(Stream_General);
-    Fill(Stream_General, 0, General_Format, "AVC");
     if (Count_Get(Stream_Video)==0)
         Stream_Prepare(Stream_Video);
     Fill(Stream_Video, 0, Video_Format, "AVC");
@@ -377,20 +375,24 @@ void File_Avc::Streams_Fill()
     Fill(Stream_Video, StreamPos_Last, Video_Width, Width);
     Fill(Stream_Video, StreamPos_Last, Video_Height, Height);
     Fill(Stream_Video, 0, Video_PixelAspectRatio, PixelAspectRatio, 3, true);
-    if (Height!=0)
-        Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, ((float)Width)/Height*PixelAspectRatio, 3, true);
     Fill(Stream_Video, 0, Video_Standard, Avc_video_format[video_format]);
     if (timing_info_present_flag)
     {
         if (!fixed_frame_rate_flag)
             Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Mode, "VFR");
         else if (time_scale && num_units_in_tick)
-            Fill(Stream_Video, StreamPos_Last, Video_FrameRate, (float)time_scale/num_units_in_tick/2/FrameRate_Divider);
+            Fill(Stream_Video, StreamPos_Last, Video_FrameRate, (float)time_scale/num_units_in_tick/(pic_order_cnt_type==2?1:2)/FrameRate_Divider);
     }
     if (FrameRate_Divider==2)
+    {
+        Fill(Stream_Video, StreamPos_Last, Video_Format_Settings_FrameMode, "Frame doubling");
         Fill(Stream_Video, StreamPos_Last, Video_Format_Settings, "Frame doubling");
+    }
     if (FrameRate_Divider==3)
+    {
+        Fill(Stream_Video, StreamPos_Last, Video_Format_Settings_FrameMode, "Frame tripling");
         Fill(Stream_Video, StreamPos_Last, Video_Format_Settings, "Frame tripling");
+    }
     Fill(Stream_Video, 0, Video_Colorimetry, Avc_Colorimetry_format_idc[chroma_format_idc]);
 
     //Interlacement
@@ -471,7 +473,7 @@ void File_Avc::Streams_Fill()
     Fill(Stream_Video, 0, Video_Format_Settings_RefFrames, num_ref_frames);
     Fill(Stream_Video, 0, Video_Codec_Settings_RefFrames, num_ref_frames);
     if (bit_depth_luma_minus8==bit_depth_Colorimetry_minus8)
-        Fill(Stream_Video, 0, Video_Resolution, (bit_depth_luma_minus8+8)*3);
+        Fill(Stream_Video, 0, Video_Resolution, bit_depth_luma_minus8+8);
 
     //Colour description
     Fill(Stream_Video, 0, "colour_primaries", Avc_colour_primaries(colour_primaries));
@@ -486,6 +488,12 @@ void File_Avc::Streams_Fill()
         for (int8u Pos=0x00; Pos<0x20; Pos++)
             Streams[Pos].Searching_Payload=false; //Coded slice...
     }
+
+    //Buffer
+    for (size_t Pos=0; Pos<cpb_size_values_NAL.size(); Pos++)
+        Fill(Stream_Video, 0, Video_BufferSize, cpb_size_values_NAL[Pos]);
+    for (size_t Pos=0; Pos<cpb_size_values_VCL.size(); Pos++)
+        Fill(Stream_Video, 0, Video_BufferSize, cpb_size_values_VCL[Pos]);
 }
 
 //---------------------------------------------------------------------------
@@ -1604,7 +1612,7 @@ void File_Avc::sei_message_mainconcept(int32u payloadSize)
     {
         Encoded_Library=Text.SubString(_T("produced by "), _T(" MainConcept AG"));
         Encoded_Library_Name=_T("MainConcept H.264/AVC Codec");
-        Encoded_Library_Version=Text.SubString(_T("produced by MainConcept H.264/AVC Codec v"), _T(" (c) "));;
+        Encoded_Library_Version=Text.SubString(_T("produced by MainConcept H.264/AVC Codec v"), _T(" (c) "));
         Encoded_Library_Date=MediaInfoLib::Config.Library_Get(InfoLibrary_Format_MainConcept_Avc, Encoded_Library_Version, InfoLibrary_Date);
     }
 }
@@ -1790,9 +1798,9 @@ void File_Avc::pic_parameter_set()
                 pic_size_in_map_units_minus1=0;
             }
             #if defined (__mips__)       || defined (__mipsel__)
-                int32u slice_group_id_Size=(int32u)(std::ceil(std::log((double)(num_slice_groups_minus1+1))/std::log((double)2))); //this is log2
+                int32u slice_group_id_Size=(int32u)(std::ceil(std::log((double)(num_slice_groups_minus1+1))/std::log((double)10))); //std::log is natural logarithm
             #else
-                int32u slice_group_id_Size=(int32u)(std::ceil(std::log((float32)(num_slice_groups_minus1+1))/std::log((float32)2))); //this is log2
+                int32u slice_group_id_Size=(int32u)(std::ceil(std::log((float32)(num_slice_groups_minus1+1))/std::log((float32)10))); //std::log is natural logarithm
             #endif
             for (int32u Pos=0; Pos<=pic_size_in_map_units_minus1; Pos++)
                 Skip_S4(slice_group_id_Size,                    "slice_group_id");
@@ -1951,10 +1959,10 @@ void File_Avc::vui_parameters()
         Get_SB (fixed_frame_rate_flag,                          "fixed_frame_rate_flag");
     TEST_SB_END();
     TEST_SB_GET (nal_hrd_parameters_present_flag,               "nal_hrd_parameters_present_flag");
-        hrd_parameters();
+        hrd_parameters(false);
     TEST_SB_END();
     TEST_SB_GET (vcl_hrd_parameters_present_flag,               "vcl_hrd_parameters_present_flag");
-        hrd_parameters();
+        hrd_parameters(true);
     TEST_SB_END();
     if(nal_hrd_parameters_present_flag || vcl_hrd_parameters_present_flag)
     {
@@ -1974,12 +1982,20 @@ void File_Avc::vui_parameters()
 }
 
 //---------------------------------------------------------------------------
-void File_Avc::hrd_parameters()
+void File_Avc::hrd_parameters(bool vcl)
 {
+    //Filling
+    if (vcl)
+        cpb_size_values_VCL.clear();
+    else
+        cpb_size_values_NAL.clear();
+
+    //Parsing
     int32u cpb_cnt_minus1;
-    Get_UE (cpb_cnt_minus1,                                     "cpb_cnt_minus1");
+    int8u  cpb_size_scale;
+    Get_UE (   cpb_cnt_minus1,                                  "cpb_cnt_minus1");
     Skip_S1(4,                                                  "bit_rate_scale");
-    Skip_S1(4,                                                  "cpb_size_scale");
+    Get_S1 (4, cpb_size_scale,                                  "cpb_size_scale");
     if (cpb_cnt_minus1>31)
     {
         Trusted_IsNot("cpb_cnt_minus1 too high");
@@ -1988,10 +2004,18 @@ void File_Avc::hrd_parameters()
     for (int32u SchedSelIdx=0; SchedSelIdx<=cpb_cnt_minus1; SchedSelIdx++)
     {
         Element_Begin("ShedSel");
+        int32u cpb_size_value_minus1;
         Skip_UE(                                                "bit_rate_value_minus1");
-        Skip_UE(                                                "cpb_size_value_minus1");
+        Get_UE(cpb_size_value_minus1,                           "cpb_size_value_minus1");
+        int32u cpb_size_value=(int32u)((cpb_size_value_minus1+1)*pow(2.0, 1+cpb_size_scale)); Param_Info(cpb_size_value, " bytes");
         Skip_SB(                                                "cbr_flag");
         Element_End();
+
+        //Filling
+        if (vcl)
+            cpb_size_values_VCL.push_back(cpb_size_value);
+        else
+            cpb_size_values_NAL.push_back(cpb_size_value);
     }
     Skip_S1(5,                                                  "initial_cpb_removal_delay_length_minus1");
     Get_S1 (5, cpb_removal_delay_length_minus1,                 "cpb_removal_delay_length_minus1");
@@ -2074,8 +2098,8 @@ void File_Avc::SPS_PPS()
         Element_Size=Element_Size_Save;
         Element_End();
     }
-    if (Element_Offset+1==Element_Size)
-        Skip_B1(                                                "Padding?");
+    if (Element_Offset<Element_Size)
+        Skip_XX(Element_Size-Element_Offset,                    "Padding?");
 
     //Filling
     FILLING_BEGIN_PRECISE();

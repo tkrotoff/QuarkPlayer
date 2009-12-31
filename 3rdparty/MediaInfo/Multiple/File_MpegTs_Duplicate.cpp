@@ -50,7 +50,7 @@ namespace MediaInfoLib
 // Format
 //***************************************************************************
 
-void File_MpegTs::File__Duplicate_Read_Buffer_Finalize ()
+void File_MpegTs::File__Duplicate_Streams_Finish ()
 {
     if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
         Complete_Stream->Duplicates_Speed_FromPID.clear();
@@ -269,11 +269,25 @@ void File_MpegTs::File__Duplicate_Write (int16u PID)
             size_t program_map_PIDs_Size=Complete_Stream->Duplicates_Speed[Pos]->program_map_PIDs.size();
             for (size_t program_map_PIDs_Pos=0; program_map_PIDs_Pos<program_map_PIDs_Size; program_map_PIDs_Pos++)
                 if (Dup->program_map_PIDs[program_map_PIDs_Pos])
-                    Complete_Stream->Duplicates_Speed_FromPID[program_map_PIDs_Pos].push_back(Dup);
+                {
+                    bool AlreadyPresent=false;
+                    for (size_t Pos=0; Pos<Complete_Stream->Duplicates_Speed_FromPID[program_map_PIDs_Pos].size(); Pos++)
+                        if (Complete_Stream->Duplicates_Speed_FromPID[program_map_PIDs_Pos][Pos]==Dup)
+                            AlreadyPresent=true;
+                    if (!AlreadyPresent)
+                        Complete_Stream->Duplicates_Speed_FromPID[program_map_PIDs_Pos].push_back(Dup);
+                }
             size_t elementary_PIDs_Size=Complete_Stream->Duplicates_Speed[Pos]->program_map_PIDs.size();
             for (size_t elementary_PIDs_Pos=0; elementary_PIDs_Pos<elementary_PIDs_Size; elementary_PIDs_Pos++)
                 if (Dup->elementary_PIDs[elementary_PIDs_Pos])
-                    Complete_Stream->Duplicates_Speed_FromPID[elementary_PIDs_Pos].push_back(Dup);
+                {
+                    bool AlreadyPresent=false;
+                    for (size_t Pos=0; Pos<Complete_Stream->Duplicates_Speed_FromPID[elementary_PIDs_Pos].size(); Pos++)
+                        if (Complete_Stream->Duplicates_Speed_FromPID[elementary_PIDs_Pos][Pos]==Dup)
+                            AlreadyPresent=true;
+                    if (!AlreadyPresent)
+                        Complete_Stream->Duplicates_Speed_FromPID[elementary_PIDs_Pos].push_back(Dup);
+                }
         }
     }
 }
@@ -285,6 +299,8 @@ void File_MpegTs::File__Duplicate_Write (int16u PID)
 //---------------------------------------------------------------------------
 size_t File_MpegTs::Output_Buffer_Get (const String &Code)
 {
+    if (Complete_Stream==NULL)
+        return 0;
     std::map<const String, File__Duplicate_MpegTs*>::iterator Stream=Complete_Stream->Duplicates.find(Code);
     if (Stream==Complete_Stream->Duplicates.end())
         return 0;
@@ -309,7 +325,7 @@ size_t File_MpegTs::Output_Buffer_Get (const String &Code)
 //---------------------------------------------------------------------------
 size_t File_MpegTs::Output_Buffer_Get (size_t Pos)
 {
-    if (Pos<Complete_Stream->Duplicates_Speed.size() && Complete_Stream->Duplicates_Speed[Pos]!=NULL)
+    if (Complete_Stream!=NULL && Pos<Complete_Stream->Duplicates_Speed.size() && Complete_Stream->Duplicates_Speed[Pos]!=NULL)
         if (size_t Size=Complete_Stream->Duplicates_Speed[Pos]->Output_Buffer_Get())
             return Size;
 

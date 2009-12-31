@@ -152,7 +152,8 @@ void File_Mz::Read_Buffer_Continue()
     }
 
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
+        Accept("MZ");
+
         Fill(Stream_General, 0, General_Format, "MZ");
         if (Characteristics&0x2000)
             Fill(Stream_General, 0, General_Format_Profile, "DLL");
@@ -162,8 +163,7 @@ void File_Mz::Read_Buffer_Continue()
         if (TimeDateStamp)
             Fill(Stream_General, 0, General_Encoded_Date, Ztring().Date_From_Seconds_1970(TimeDateStamp));
 
-        //No need of more
-        Accept("MZ");
+        //No more need data
         Finish("MZ");
     FILLING_END();
 }

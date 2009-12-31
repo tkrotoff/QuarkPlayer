@@ -101,8 +101,11 @@ void File_Flic::FileHeader_Parse()
                             return;
         }
 
-        Stream_Prepare(Stream_General);
+        //Filling
+        Accept("FLIC");
+
         Fill(Stream_General, 0, General_Format, "FLIC");
+
         Stream_Prepare(Stream_Video);
         if (Type==0xAF11)
         {
@@ -129,9 +132,8 @@ void File_Flic::FileHeader_Parse()
         Fill(Stream_Video, 0, Video_FrameCount, Frames);
         Fill(Stream_Video, StreamPos_Last, Video_Width, Width);
         Fill(Stream_Video, StreamPos_Last, Video_Height, Height);
-        Fill(Stream_Video, 0, Video_Resolution, BitsPerPixel);
-
-        Accept("FLIC");
+        Fill(Stream_Video, 0, Video_Resolution, BitsPerPixel%3?BitsPerPixel:(BitsPerPixel/3), 10, true); //If not a multiple of 3, the total resolution is filled
+        //No more need data
         Finish("FLIC");
     FILLING_END();
 }

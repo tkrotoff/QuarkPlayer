@@ -69,9 +69,10 @@ void File_Ace::Read_Buffer_Continue()
     Skip_XX(File_Size-7,                                        "Data");
 
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "ACE");
         Accept("Ace");
+
+        Fill(Stream_General, 0, General_Format, "ACE");
+
         Finish("Ace");
     FILLING_END();
 }

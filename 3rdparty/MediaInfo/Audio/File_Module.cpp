@@ -92,12 +92,13 @@ void File_Module::Read_Buffer_Continue()
     Skip_C4(                                                    "Signature");
 
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
+        Accept("Module");
+
         Fill(Stream_General, 0, General_Format, "Module");
 
         Stream_Prepare(Stream_Audio);
 
-        Accept("Module");
+        //No more need data
         Finish("Module");
     FILLING_END();
 }

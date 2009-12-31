@@ -51,6 +51,7 @@ public :
 
 protected :
     //Streams management
+    void Streams_Fill();
     void Streams_Finish();
 
     //Buffer - Global
@@ -95,19 +96,20 @@ protected :
     #endif
     Ztring Recorded_Date_Date;
     Ztring Recorded_Date_Time;
+    Ztring Encoded_Library_Settings;
     size_t FrameCount;
-    size_t FrameSize_Theory; //The size of a frame
     int64u Duration;
     int64u TimeCode_First;
+    int64u FrameSize_Theory; //The size of a frame
     int8u  SCT;
     int8u  SCT_Old;
     int8u  Dseq;
     int8u  Dseq_Old;
     int8u  DBN;
     int8u  DBN_Olds[8];
-    int8u  FSC;
-    bool   consumer_camera_1_Parsed;
-    bool   consumer_camera_2_Parsed;
+    int8u  stype;
+    bool   FSC;
+    bool   FSP;
     bool   DSF;
     bool   DSF_IsValid;
     int8u  APT;
@@ -116,14 +118,20 @@ protected :
     bool   TF3;
     int8u  aspect;
     bool   Interlaced;
+    bool   system;
+    bool   FSC_WasSet;
+    bool   FSP_WasNotSet;
+    bool   video_sourcecontrol_IsParsed;
 
     #ifdef MEDIAINFO_DVDIF_ANALYZE_YES
     bool Analyze_Activated;
-    
+    bool video_source_Detected;
+
     void Errors_Stats_Update();
     void Errors_Stats_Update_Finnish();
     Ztring Errors_Stats_03;
     Ztring Errors_Stats_05;
+    Ztring Errors_Stats_09;
     Ztring Errors_Stats_10;
     Ztring Date;
     Ztring Time;
@@ -162,13 +170,26 @@ protected :
     };
     struct dvtime
     {
-        int8u  Frames;
-        int8u  Seconds;
-        int8u  Minutes;
-        int8u  Hours;
-        bool   DropFrame;
-        bool   MultipleValues;
-        bool   IsValid;
+        struct time
+        {
+            int8u  Frames;
+            int8u  Seconds;
+            int8u  Minutes;
+            int8u  Hours;
+            bool   DropFrame;
+
+            time()
+            {
+                Frames=(int8u)-1;
+                Seconds=(int8u)-1;
+                Minutes=(int8u)-1;
+                Hours=(int8u)-1;
+                DropFrame=false;
+            }
+        };
+        time    Time;
+        bool    MultipleValues;
+        bool    IsValid;
 
         dvtime() {Clear();}
 
@@ -184,6 +205,7 @@ protected :
     Ztring Speed_TimeCodeZ_First;
     Ztring Speed_TimeCodeZ_Last;
     Ztring Speed_TimeCodeZ_Current;
+    bool   Speed_TimeCode_IsValid;
     dvtime Speed_RecTime_Current;
     dvtime Speed_RecTime_Current_Theory;
     dvtime Speed_RecTime_Current_Theory2;
@@ -258,6 +280,7 @@ protected :
 
     struct arb
     {
+        std::vector<size_t> Value_Counters;
         int8u  Value;
         bool   MultipleValues;
         bool   IsValid;
@@ -266,11 +289,23 @@ protected :
 
         void Clear()
         {
+            Value_Counters.clear();
+            Value_Counters.resize(16);
+            Value=0xF; //Used only when we are sure
             MultipleValues=false;
             IsValid=false;
         }
     };
-    arb Arb;
+    arb Speed_Arb_Last;
+    arb Speed_Arb_Current;
+    arb Speed_Arb_Current_Theory;
+    bool   Speed_Arb_IsValid;
+
+    //Stats
+    std::vector<size_t> Stats;
+    size_t              Stats_Total;
+    size_t              Stats_Total_WithoutArb;
+    bool                Stats_Total_AlreadyDetected;
 
 public:
     //From MPEG-4 container

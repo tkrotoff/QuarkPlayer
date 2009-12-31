@@ -82,12 +82,11 @@ void File_Cmml::Identification()
     Skip_L1(                                                    "granule shift");
 
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
+        Accept("CMML");
+
         Stream_Prepare(Stream_Text);
         Fill(Stream_Text, 0, Text_Format, "CMML");
         Fill(Stream_Text, 0, Text_Codec,  "CMML");
-
-        Accept("CMML");
     FILLING_END();
 }
 

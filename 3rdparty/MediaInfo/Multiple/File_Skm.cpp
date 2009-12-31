@@ -86,10 +86,9 @@ void File_Skm::FileHeader_Parse()
     Skip_C5(                                                    "Signature");
 
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "SKM");
-
         Accept("SKM");
+
+        Fill(Stream_General, 0, General_Format, "SKM");
     FILLING_END();
 }
 
@@ -185,7 +184,7 @@ void File_Skm::Data_Parse()
         ((File_Mpeg4v*)Stream.Parser)->FrameIsAlwaysComplete=true;
         ((File_Mpeg4v*)Stream.Parser)->OnlyVOP();
         Open_Buffer_Init(Stream.Parser);
-        Open_Buffer_Continue(Stream.Parser, Buffer+Buffer_Offset, (size_t)Element_Size);
+        Open_Buffer_Continue(Stream.Parser);
         Finish("SKM");
     #endif
 }

@@ -28,9 +28,29 @@
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
+// For developper: you can disable or enable traces
+//#define MEDIAINFO_DEBUG_CONFIG
+//#define MEDIAINFO_DEBUG_BUFFER
+//#define MEDIAINFO_DEBUG_OUTPUT
+// For developper: customization of traces
+#ifdef MEDIAINFO_DEBUG_BUFFER
+    const size_t MEDIAINFO_DEBUG_BUFFER_SAVE_FileSize=128*1024*1024;
+#endif //MEDIAINFO_DEBUG_BUFFER
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
 #include "MediaInfo/MediaInfo_Internal_Const.h"
 #include "MediaInfo/MediaInfo_Config.h"
 #include "MediaInfo/MediaInfo_Config_MediaInfo.h"
+#include "ZenLib/Thread.h"
+#include "ZenLib/CriticalSection.h"
+#include <bitset>
+#if defined (MEDIAINFO_DEBUG_CONFIG) || defined (MEDIAINFO_DEBUG_BUFFER) || defined (MEDIAINFO_DEBUG_OUTPUT)
+    #include <ZenLib/File.h>
+    #include <map>
+#endif //MEDIAINFO_DEBUG
+using namespace std;
+using namespace ZenLib;
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -44,7 +64,7 @@ class Internet__Base;
 /// @version 0.7
 //***************************************************************************
 
-class MediaInfo_Internal
+class MediaInfo_Internal : public ZenLib::Thread
 {
 public :
     //Constructor/Destructor
@@ -54,19 +74,21 @@ public :
     //File
     size_t Open (const String &File_Name);
     size_t Open (const ZenLib::int8u* Begin, size_t Begin_Size, const ZenLib::int8u* End=NULL, size_t End_Size=0, ZenLib::int64u File_Size=0);
-    size_t Open_Buffer_Init (ZenLib::int64u File_Size=(ZenLib::int64u)-1, ZenLib::int64u File_Offset=0);
-    size_t Open_Buffer_Continue (const ZenLib::int8u* Buffer, size_t Buffer_Size);
+    size_t Open_Buffer_Init (ZenLib::int64u File_Size=(ZenLib::int64u)-1, const String &File_Name=String());
+    size_t Open_Buffer_Init (ZenLib::int64u File_Size, ZenLib::int64u File_Offset);
+    std::bitset<32> Open_Buffer_Continue (const ZenLib::int8u* Buffer, size_t Buffer_Size);
     ZenLib::int64u Open_Buffer_Continue_GoTo_Get ();
+    bool   Open_Buffer_Position_Set(int64u File_Offset);
     size_t Open_Buffer_Finalize ();
     void Close ();
 
     //General information
-    String  Inform ();
-    String  Inform (stream_t StreamKind, size_t StreamNumber=0); //All about only a specific stream
+    Ztring  Inform ();
+    Ztring  Inform (stream_t StreamKind, size_t StreamNumber=0); //All about only a specific stream
 
     //Get
-    String Get (stream_t StreamKind, size_t StreamNumber, size_t Parameter, info_t InfoKind=Info_Text);
-    String Get (stream_t StreamKind, size_t StreamNumber, const String &Parameter, info_t InfoKind=Info_Text, info_t SearchKind=Info_Name);
+    Ztring Get (stream_t StreamKind, size_t StreamNumber, size_t Parameter, info_t InfoKind=Info_Text);
+    Ztring Get (stream_t StreamKind, size_t StreamNumber, const String &Parameter, info_t InfoKind=Info_Text, info_t SearchKind=Info_Name);
 
     //Set
     size_t Set (const String &ToSet, stream_t StreamKind, size_t StreamNumber, size_t Parameter, const String &OldValue=_T(""));
@@ -88,56 +110,54 @@ private :
     friend class File_Bdmv;  //Theses classes need access to internal structure for optimization. There is recursivity with theses formats
     friend class File_Cdxa;  //Theses classes need access to internal structure for optimization. There is recursivity with theses formats
     friend class File_Mpeg4; //Theses classes need access to internal structure for optimization. There is recursivity with theses formats
-
-    //Format testing
-    int Format_Test();
-    int Format_Test_Buffer();
-    int Format_Test_FillBuffer_Init();
-    int Format_Test_FillBuffer_Continue();
-    int Format_Test_FillBuffer_Close();
-
-    //File
-    String File_Name;
-    void*            File_Handle;
-    ZenLib::int64u   File_Size;
-    ZenLib::int64u   File_Offset;
-    bool             File_AlreadyBuffered;
-
-    //Buffer
-    unsigned char*   Buffer;
-    size_t           Buffer_Size;
-    size_t           Buffer_Size_Max;
-    const unsigned char* BufferConst;
+    friend class File_Mxf;   //Theses classes need access to internal structure for optimization. There is recursivity with theses formats
 
     //Parsing handles
     File__Analyze*  Info;
     Internet__Base* Internet;
-
-    //Thread
-    void* Thread;
-    blockmethod_t BlockMethod; //Open() returns when?
+    Ztring          File_Name;
 
     //Helpers
-    int  InternalMethod; //1=Open file, 3=Supported formats
-    int  ApplyMethod();
-    int  ListFormats();
-    void Buffer_Clear(); //Clear the buffer
-    void SelectFromExtension (const String &Parser); //Select File_* from the parser name
     void CreateDummy (const String& Value); //Create dummy Information
-
     MediaInfo_Internal(const MediaInfo_Internal&); // Copy Constructor
 
     //Open Buffer
-    bool MultipleParsing_IsDetected;
+    bool Info_IsMultipleParsing;
 
     //Config
-    MediaInfo_Config_MediaInfo Config;
     std::vector<std::vector<ZtringList> > Stream;
     std::vector<std::vector<ZtringListList> > Stream_More;
     Ztring Details;
     void Traiter(Ztring &C); //enleve les $if...
 
+public :
+    bool SelectFromExtension (const String &Parser); //Select File_* from the parser name
+    int  ListFormats(const String &File_Name=String());
+    MediaInfo_Config_MediaInfo Config;
+
+private :
+    //Threading
+    size_t  BlockMethod; //Open() return: 0=immedialtly, 1=after local info, 2=when user interaction is needed
+    bool    IsInThread;
+    void    Entry();
     ZenLib::CriticalSection CS;
+
+    #ifdef MEDIAINFO_DEBUG_CONFIG
+        File Debug_Config;
+    #endif //MEDIAINFO_DEBUG_CONFIG
+    #ifdef MEDIAINFO_DEBUG_BUFFER
+        File    Debug_Buffer_Stream;
+        int64u  Debug_Buffer_Stream_Order;
+        File    Debug_Buffer_Sizes;
+        int64u  Debug_Buffer_Sizes_Count;
+    #endif //MEDIAINFO_DEBUG_BUFFER
+    #ifdef MEDIAINFO_DEBUG_OUTPUT
+        map<void*, File> Debug_Output_Value_Stream; //Key is the memory address
+        map<void*, File> Debug_Output_Value_Sizes; //Key is the memory address
+        vector<File*> Debug_Output_Pos_Stream; //Key is the pos
+        vector<File*> Debug_Output_Pos_Sizes; //Key is the pos
+        vector<void*> Debug_Output_Pos_Pointer; //Key is the pos
+    #endif //MEDIAINFO_DEBUG_OUTPUT
 };
 
 } //NameSpace

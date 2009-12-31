@@ -100,12 +100,11 @@ void File_TwinVQ::FileHeader_Parse()
     Skip_B4(                                                    "subchunks_size");
 
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "TwinVQ");
+        Accept("TwinVQ");
+
         Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, 0, Audio_Format, "TwinVQ");
         Fill(Stream_Audio, 0, Audio_Codec, "TwinVQ");
-        Accept("TwinVQ");
     FILLING_END();
 }
 
@@ -165,6 +164,8 @@ void File_TwinVQ::COMM()
     Fill(Stream_Audio, 0, Audio_Channel_s_, channel_mode+1);
     Fill(Stream_Audio, 0, Audio_BitRate, bitrate*1000);
     Fill(Stream_Audio, 0, Audio_SamplingRate, TwinVQ_samplerate(samplerate));
+    if (!IsSub && File_Size!=(int64u)-1)
+        Fill(Stream_Audio, 0, Audio_StreamSize, File_Size);
 }
 
 //---------------------------------------------------------------------------

@@ -209,8 +209,13 @@ void File_MpegTs::Streams_Fill()
             {
                 if (Program->second.IsParsed)
                 {
-                    Stream_Prepare(Stream_Menu);
-                    Program->second.StreamPos=StreamPos_Last;
+                    if (Program->second.StreamPos==(size_t)-1)
+                    {
+                        Stream_Prepare(Stream_Menu);
+                        Program->second.StreamPos=StreamPos_Last;
+                    }
+                    else
+                        StreamPos_Last=Program->second.StreamPos;
                     Fill(Stream_Menu, StreamPos_Last, Menu_ID, Program->second.pid);
                     Fill(Stream_Menu, StreamPos_Last, Menu_ID_String, Decimal_Hexa(Program->second.pid), true);
                     Fill(Stream_Menu, StreamPos_Last, Menu_MenuID, Program->first);
@@ -219,17 +224,70 @@ void File_MpegTs::Streams_Fill()
                         Fill(Stream_Menu, StreamPos_Last, Info->first.c_str(), Info->second);
 
                     //Per PID
-                    Ztring Languages;
+                    Ztring Languages, Codecs, Formats, StreamKinds, StreamPoss;
                     for (size_t Pos=0; Pos<Program->second.elementary_PIDs.size(); Pos++)
                     {
                         int16u elementary_PID=Program->second.elementary_PIDs[Pos];
-                        if (Complete_Stream->Streams[elementary_PID].IsRegistered)
+                        if (Complete_Stream->Streams[elementary_PID].IsRegistered && Retrieve(Stream_Menu, StreamPos_Last, "KLV_PID").To_int32u()!=elementary_PID)
+                        {
+                            Ztring Format=Retrieve(Complete_Stream->Streams[elementary_PID].StreamKind, Complete_Stream->Streams[elementary_PID].StreamPos, Fill_Parameter(Complete_Stream->Streams[elementary_PID].StreamKind, Generic_Format));
+                            Formats+=Format+_T(" / ");
+                            Codecs+=Retrieve(Complete_Stream->Streams[elementary_PID].StreamKind, Complete_Stream->Streams[elementary_PID].StreamPos, Fill_Parameter(Complete_Stream->Streams[elementary_PID].StreamKind, Generic_Codec))+_T(" / ");
+                            if (Complete_Stream->Streams[elementary_PID].StreamKind!=Stream_Max)
+                            {
+                                StreamKinds+=Ztring::ToZtring(Complete_Stream->Streams[elementary_PID].StreamKind);
+                                StreamPoss+=Ztring::ToZtring(Complete_Stream->Streams[elementary_PID].StreamPos);
+                            }
+                            StreamKinds+=_T(" / ");
+                            StreamPoss+=_T(" / ");
+                            Fill(Stream_Menu, StreamPos_Last, Menu_List, elementary_PID);
+                            Ztring Language=Retrieve(Complete_Stream->Streams[elementary_PID].StreamKind, Complete_Stream->Streams[elementary_PID].StreamPos, "Language/String");
+                            Languages+=Language+_T(" / ");
+                            Ztring List_String=Decimal_Hexa(elementary_PID);
+                            List_String+=_T(" (");
+                            List_String+=Format;
+                            if (!Language.empty())
+                            {
+                                List_String+=_T(", ");
+                                List_String+=Language;
+                            }
+                            List_String+=_T(")");
+                            Fill(Stream_Menu, StreamPos_Last, Menu_List_String, List_String);
+                        }
+                    }
+                    if (!Formats.empty())
+                        Formats.resize(Formats.size()-3);
+                    Fill(Stream_Menu, StreamPos_Last, Menu_Format, Formats);
+                    if (!Codecs.empty())
+                        Codecs.resize(Codecs.size()-3);
+                    Fill(Stream_Menu, StreamPos_Last, Menu_Codec, Codecs);
+                    if (!StreamKinds.empty())
+                        StreamKinds.resize(StreamKinds.size()-3);
+                    Fill(Stream_Menu, StreamPos_Last, Menu_List_StreamKind, StreamKinds);
+                    if (!StreamPoss.empty())
+                        StreamPoss.resize(StreamPoss.size()-3);
+                    Fill(Stream_Menu, StreamPos_Last, Menu_List_StreamPos, StreamPoss);
+                    if (!Languages.empty())
+                        Languages.resize(Languages.size()-3);
+                    Fill(Stream_Menu, StreamPos_Last, Menu_Language, Languages);
+
+                    /*
+                    Ztring Languages, StreamKinds, StreamPoss;
+                    for (size_t Pos=0; Pos<Program->second.elementary_PIDs.size(); Pos++)
+                    {
+                        int16u elementary_PID=Program->second.elementary_PIDs[Pos];
+                        if (Complete_Stream->Streams[elementary_PID].IsRegistered && Retrieve(Stream_Menu, StreamPos_Last, "KLV_PID").To_int32u()!=elementary_PID)
                         {
                             Ztring Format=Retrieve(Complete_Stream->Streams[elementary_PID].StreamKind, Complete_Stream->Streams[elementary_PID].StreamPos, Fill_Parameter(Complete_Stream->Streams[elementary_PID].StreamKind, Generic_Format));
                             Fill(Stream_Menu, StreamPos_Last, Menu_Format, Format);
                             Fill(Stream_Menu, StreamPos_Last, Menu_Codec, Retrieve(Complete_Stream->Streams[elementary_PID].StreamKind, Complete_Stream->Streams[elementary_PID].StreamPos, Fill_Parameter(Complete_Stream->Streams[elementary_PID].StreamKind, Generic_Codec)));
-                            Fill(Stream_Menu, StreamPos_Last, Menu_List_StreamKind, Complete_Stream->Streams[elementary_PID].StreamKind);
-                            Fill(Stream_Menu, StreamPos_Last, Menu_List_StreamPos, Complete_Stream->Streams[elementary_PID].StreamPos);
+                            if (Complete_Stream->Streams[elementary_PID].StreamKind!=Stream_Max)
+                            {
+                                StreamKinds+=Ztring::ToZtring(Complete_Stream->Streams[elementary_PID].StreamKind);
+                                StreamPoss+=Ztring::ToZtring(Complete_Stream->Streams[elementary_PID].StreamPos);
+                            }
+                            StreamKinds+=_T(" / ");
+                            StreamPoss+=_T(" / ");
                             Fill(Stream_Menu, StreamPos_Last, Menu_List, elementary_PID);
                             Ztring Language=Retrieve(Complete_Stream->Streams[elementary_PID].StreamKind, Complete_Stream->Streams[elementary_PID].StreamPos, "Language/String");
                             Languages+=Language+_T(" / ");
@@ -248,6 +306,13 @@ void File_MpegTs::Streams_Fill()
                     if (!Languages.empty())
                         Languages.resize(Languages.size()-3);
                     Fill(Stream_Menu, StreamPos_Last, Menu_Language, Languages);
+                    if (!StreamKinds.empty())
+                        StreamKinds.resize(StreamKinds.size()-3);
+                    Fill(Stream_Menu, StreamPos_Last, Menu_List_StreamKind, StreamKinds);
+                    if (!StreamPoss.empty())
+                        StreamPoss.resize(StreamPoss.size()-3);
+                    Fill(Stream_Menu, StreamPos_Last, Menu_List_StreamPos, StreamPoss);
+                    */
                 }
             }
     }
@@ -387,7 +452,7 @@ void File_MpegTs::Streams_Fill_PerStream(int16u PID, complete_stream::stream &Te
         Temp.StreamPos=StreamPos_Last;
 
         //Encryption
-        if (Temp.IsScrambled)
+        if (Temp.IsScrambled>16)
             Fill(StreamKind_Last, StreamPos_Last, "Encryption", "Encrypted");
 
         //TS info
@@ -425,7 +490,7 @@ void File_MpegTs::Streams_Finish()
     for (int16u PID=0; PID<0x2000; PID++)
         Streams_Finish_PerStream(PID, Complete_Stream->Streams[PID]);
 
-    File__Duplicate_Read_Buffer_Finalize();
+    File__Duplicate_Streams_Finish();
 }
 
 //---------------------------------------------------------------------------
@@ -526,6 +591,8 @@ bool File_MpegTs::Synchronize()
         return false;
 
     //Synched is OK
+    if (!Status[IsAccepted])
+        Accept("MPEG-TS");
     return true;
 }
 
@@ -562,7 +629,11 @@ bool File_MpegTs::Synched_Test()
                         size_t Version_Pos=BDAV_Size
                                           +4 //standart header
                                           +((Buffer[Buffer_Offset+BDAV_Size+3]&0x20)?(1+Buffer[Buffer_Offset+BDAV_Size+4]):0); //adaptation_field_control (adaptation) --> adaptation_field_length
+                        if (Version_Pos>=BDAV_Size+188)
+                            return true; //There is a problem with this block, accelerated parsing disabled
                         Version_Pos+=1+Buffer[Buffer_Offset+Version_Pos]; //pointer_field
+                        if (Version_Pos>=BDAV_Size+188)
+                            return true; //There is a problem with this block, accelerated parsing disabled
                         int8u table_id=Buffer[Buffer_Offset+Version_Pos]; //table_id
                         if (table_id==0xCD) //specifc case for ATSC STT
                             return true; //Version has no meaning
@@ -610,80 +681,77 @@ bool File_MpegTs::Synched_Test()
                     else
                         return true; //No version in this pid
                 }
-                else
-                {
-                    //Adaptation layer
-                    #ifdef MEDIAINFO_MPEGTS_PCR_YES
-                        if (Stream->Searching_TimeStamp_Start
-                         || Stream->Searching_TimeStamp_End)
-                        {
-                            if ((Buffer[Buffer_Offset+BDAV_Size+3]&0x20)==0x20) //Adaptation is present
-                            {
-                                int8u pid_Adaptation_Info=Buffer[Buffer_Offset+BDAV_Size+5];
-                                if (pid_Adaptation_Info&0x10) //PCR is present
-                                {
-                                    int64u program_clock_reference_base=(  (((int64u)Buffer[Buffer_Offset+BDAV_Size+6])<<25)
-                                                                         | (((int64u)Buffer[Buffer_Offset+BDAV_Size+7])<<17)
-                                                                         | (((int64u)Buffer[Buffer_Offset+BDAV_Size+8])<< 9)
-                                                                         | (((int64u)Buffer[Buffer_Offset+BDAV_Size+9])<< 1)
-                                                                         | (((int64u)Buffer[Buffer_Offset+BDAV_Size+10])>>7));
-                                    if (Complete_Stream->Streams[pid].Searching_TimeStamp_End)
-                                    {
-                                        Complete_Stream->Streams[pid].TimeStamp_End=program_clock_reference_base;
-                                        #ifdef MEDIAINFO_MPEGTS_PCR_YES
-                                            if (Status[IsFilled])
-                                                Header_Parse_AdaptationField_Duration_Update();
-                                        #endif //MEDIAINFO_MPEGTS_PCR_YES
-                                    }
-                                    if (Complete_Stream->Streams[pid].Searching_TimeStamp_Start)
-                                    {
-                                        //This is the first PCR
-                                        Complete_Stream->Streams[pid].TimeStamp_Start=program_clock_reference_base;
-                                        Complete_Stream->Streams[pid].Searching_TimeStamp_Start_Set(false);
-                                        Complete_Stream->Streams[pid].Searching_TimeStamp_End_Set(true);
-                                        Complete_Stream->Streams_With_StartTimeStampCount++;
-                                    }
+            }
 
-                                    //Test if we can find the TS bitrate
-                                    if (!Complete_Stream->Streams[pid].EndTimeStampMoreThanxSeconds && Complete_Stream->Streams[pid].TimeStamp_Start!=(int64u)-1)
+            //Searching continue and parser timestamp
+            if (Stream->Searching_Payload_Continue
+            #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+                 || Stream->Searching_ParserTimeStamp_Start
+                 || Stream->Searching_ParserTimeStamp_End
+            #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+             )
+                return true;
+
+            //Adaptation layer
+            #ifdef MEDIAINFO_MPEGTS_PCR_YES
+                if (( Stream->Searching_TimeStamp_Start
+                  ||  Stream->Searching_TimeStamp_End)
+                #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+                 &&  !Stream->Searching_ParserTimeStamp_End
+                #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+                  )
+                {
+                    if ((Buffer[Buffer_Offset+BDAV_Size+3]&0x20)==0x20) //adaptation_field_control (adaptation)
+                    {
+                        if (Buffer[Buffer_Offset+BDAV_Size+4]>=5) //adaptation_field_length
+                        {
+                            int8u pid_Adaptation_Info=Buffer[Buffer_Offset+BDAV_Size+5];
+                            if (pid_Adaptation_Info&0x10) //PCR is present
+                            {
+                                int64u program_clock_reference_base=(  (((int64u)Buffer[Buffer_Offset+BDAV_Size+6])<<25)
+                                                                     | (((int64u)Buffer[Buffer_Offset+BDAV_Size+7])<<17)
+                                                                     | (((int64u)Buffer[Buffer_Offset+BDAV_Size+8])<< 9)
+                                                                     | (((int64u)Buffer[Buffer_Offset+BDAV_Size+9])<< 1)
+                                                                     | (((int64u)Buffer[Buffer_Offset+BDAV_Size+10])>>7));
+                                if (Complete_Stream->Streams[pid].Searching_TimeStamp_End)
+                                {
+                                    Complete_Stream->Streams[pid].TimeStamp_End=program_clock_reference_base;
+                                        if (Status[IsFilled])
+                                            Header_Parse_AdaptationField_Duration_Update();
+                                }
+                                if (Complete_Stream->Streams[pid].Searching_TimeStamp_Start)
+                                {
+                                    //This is the first PCR
+                                    Complete_Stream->Streams[pid].TimeStamp_Start=program_clock_reference_base;
+                                    Complete_Stream->Streams[pid].Searching_TimeStamp_Start_Set(false);
+                                    Complete_Stream->Streams[pid].Searching_TimeStamp_End_Set(true);
+                                    Complete_Stream->Streams_With_StartTimeStampCount++;
+                                }
+
+                                //Test if we can find the TS bitrate
+                                if (!Complete_Stream->Streams[pid].EndTimeStampMoreThanxSeconds && Complete_Stream->Streams[pid].TimeStamp_Start!=(int64u)-1)
+                                {
+                                    if (program_clock_reference_base<Complete_Stream->Streams[pid].TimeStamp_Start)
+                                        program_clock_reference_base+=0x200000000LL; //33 bits, cyclic
+                                    if ((program_clock_reference_base-Complete_Stream->Streams[pid].TimeStamp_Start)/90>8000)
                                     {
-                                        if (program_clock_reference_base<Complete_Stream->Streams[pid].TimeStamp_Start)
-                                            program_clock_reference_base+=0x200000000LL; //33 bits, cyclic
-                                        if ((program_clock_reference_base-Complete_Stream->Streams[pid].TimeStamp_Start)/90>8000)
+                                        Complete_Stream->Streams[pid].EndTimeStampMoreThanxSeconds=true;
+                                        Complete_Stream->Streams_With_EndTimeStampMoreThanxSecondsCount++;
+                                        if (Complete_Stream->Streams_NotParsedCount==0
+                                         && Complete_Stream->Streams_With_StartTimeStampCount>0
+                                         && Complete_Stream->Streams_With_StartTimeStampCount==Complete_Stream->Streams_With_EndTimeStampMoreThanxSecondsCount)
                                         {
-                                            Complete_Stream->Streams[pid].EndTimeStampMoreThanxSeconds=true;
-                                            Complete_Stream->Streams_With_EndTimeStampMoreThanxSecondsCount++;
-                                            if (Complete_Stream->Streams_With_StartTimeStampCount>0
-                                             && Complete_Stream->Streams_With_StartTimeStampCount==Complete_Stream->Streams_With_EndTimeStampMoreThanxSecondsCount)
-                                            {
-                                                //We are already parsing 4 seconds (for all PCRs), we don't hope to have more info
-                                                MpegTs_JumpTo_Begin=File_Offset+Buffer_Offset;
-                                                MpegTs_JumpTo_End=MpegTs_JumpTo_Begin;
-                                            }
+                                            //We are already parsing 4 seconds (for all PCRs), we don't hope to have more info
+                                            MpegTs_JumpTo_Begin=File_Offset+Buffer_Offset;
+                                            MpegTs_JumpTo_End=MpegTs_JumpTo_Begin;
                                         }
                                     }
                                 }
                             }
                         }
-                    #endif //MEDIAINFO_MPEGTS_PCR_YES
-
-                    //Searching continue and parser timestamp
-                    #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
-                        if (Stream->Searching_ParserTimeStamp_Start
-                         || Stream->Searching_ParserTimeStamp_End)
-                            return true;
-                    #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+                    }
                 }
-            }
-            else
-                //Searching continue and parser timestamp
-                if (Stream->Searching_Payload_Continue
-                #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
-                     || Stream->Searching_ParserTimeStamp_Start
-                     || Stream->Searching_ParserTimeStamp_End
-                #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
-                 )
-                    return true;
+            #endif //MEDIAINFO_MPEGTS_PCR_YES
         }
 
         //File__Duplicate
@@ -724,11 +792,40 @@ void File_MpegTs::Synched_Init()
         MpegTs_JumpTo_End=File_Size;
     }
 
-    //There is no start code, so Stream_General is filled here
-    Stream_Prepare(Stream_General);
-
     //Continue, again, for Duplicate and Filter
     Option_Manage();
+}
+
+//***************************************************************************
+// Buffer - Global
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_MpegTs::Read_Buffer_Unsynched()
+{
+    if (Complete_Stream->Streams.empty())
+        return;
+
+    for (size_t StreamID=0; StreamID<0x2000; StreamID++)//std::map<int64u, stream>::iterator Stream=Streams.begin(); Stream!=Streams.end(); Stream++)
+    {
+        //End timestamp is out of date
+        #if defined(MEDIAINFO_MPEGTS_PCR_YES) || defined(MEDIAINFO_MPEGTS_PESTIMESTAMP_YES)
+        Complete_Stream->Streams[StreamID].Searching_TimeStamp_Start_Set(false); //No more searching start
+        Complete_Stream->Streams[StreamID].TimeStamp_End=(int64u)-1;
+        if (Complete_Stream->Streams[StreamID].TimeStamp_Start!=(int64u)-1)
+            Complete_Stream->Streams[StreamID].Searching_TimeStamp_End_Set(true); //Searching only for a start found
+        #endif //defined(MEDIAINFO_MPEGTS_PCR_YES) ||  defined(MEDIAINFO_MPEGTS_PESTIMESTAMP_YES)
+        if (Complete_Stream->Streams[StreamID].Parser)
+        {
+            #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+                Complete_Stream->Streams[StreamID].Searching_ParserTimeStamp_Start_Set(false); //No more searching start
+                if (((File_MpegPs*)Complete_Stream->Streams[StreamID].Parser)->HasTimeStamps)
+                    Complete_Stream->Streams[StreamID].Searching_ParserTimeStamp_End_Set(true); //Searching only for a start found
+            #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+            Complete_Stream->Streams[StreamID].Parser->Open_Buffer_Unsynch();
+        }
+    }
+    Complete_Stream->Duration_End.clear();
 }
 
 //***************************************************************************
@@ -804,7 +901,7 @@ void File_MpegTs::Header_Parse()
     {
         //Encryption
         if (transport_scrambling_control>0)
-            Complete_Stream->Streams[pid].IsScrambled=true;
+            Complete_Stream->Streams[pid].IsScrambled++;
     }
     else if (Element_Offset<TS_Size)
         Skip_XX(TS_Size-Element_Offset,                         "Junk");
@@ -831,7 +928,7 @@ void File_MpegTs::Header_Parse()
     {
         //Encryption
         if (transport_scrambling_control>0)
-            Complete_Stream->Streams[pid].IsScrambled=true;
+            Complete_Stream->Streams[pid].IsScrambled++;
     }
 
     //Filling
@@ -848,7 +945,12 @@ void File_MpegTs::Header_Parse_AdaptationField()
     Element_Begin("adaptation_field");
     int8u Adaptation_Size;
     Get_B1 (Adaptation_Size,                                    "adaptation_field_length");
-    if (Adaptation_Size>0)
+    if (Adaptation_Size>188-4-1) //TS size - header - adaptation_field_length
+    {
+        Adaptation_Size=188-4-1;
+        Skip_XX(188-4-1,                                        "stuffing_bytes");
+    }
+    else if (Adaptation_Size>0)
     {
         bool PCR_flag, OPCR_flag, splicing_point_flag, transport_private_data_flag, adaptation_field_extension_flag;
         BS_Begin();
@@ -867,13 +969,15 @@ void File_MpegTs::Header_Parse_AdaptationField()
                 BS_Begin();
                 int64u program_clock_reference_base;
                 Get_S8 (33, program_clock_reference_base,           "program_clock_reference_base"); Param_Info_From_Milliseconds(program_clock_reference_base/90);
-                if (Complete_Stream->Streams[pid].Searching_TimeStamp_End)
+                if (Complete_Stream->Streams[pid].Searching_TimeStamp_End
+                #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+                 && !Complete_Stream->Streams[pid].Searching_ParserTimeStamp_End
+                #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+                 )
                 {
                     Complete_Stream->Streams[pid].TimeStamp_End=program_clock_reference_base;
-                    #ifdef MEDIAINFO_MPEGTS_PCR_YES
                     if (Status[IsFilled])
                         Header_Parse_AdaptationField_Duration_Update();
-                    #endif //MEDIAINFO_MPEGTS_PCR_YES
                 }
                 if (Complete_Stream->Streams[pid].Searching_TimeStamp_Start)
                 {
@@ -897,7 +1001,8 @@ void File_MpegTs::Header_Parse_AdaptationField()
                     {
                         Complete_Stream->Streams[pid].EndTimeStampMoreThanxSeconds=true;
                         Complete_Stream->Streams_With_EndTimeStampMoreThanxSecondsCount++;
-                        if (Complete_Stream->Streams_With_StartTimeStampCount>0
+                        if (Complete_Stream->Streams_NotParsedCount==0
+                         && Complete_Stream->Streams_With_StartTimeStampCount>0
                          && Complete_Stream->Streams_With_StartTimeStampCount==Complete_Stream->Streams_With_EndTimeStampMoreThanxSecondsCount)
                         {
                             //We are already parsing 4 seconds (for all PCRs), we don't hope to have more info
@@ -926,13 +1031,19 @@ void File_MpegTs::Header_Parse_AdaptationField()
         {
             int8u transport_private_data_length;
             Get_B1 (transport_private_data_length,              "transport_private_data_length");
-            Skip_XX(transport_private_data_length,              "transport_private_data");
+            if (Element_Offset+transport_private_data_length<=Element_Pos_Save+1+Adaptation_Size)
+                Skip_XX(transport_private_data_length,          "transport_private_data");
+            else
+                Skip_XX(Element_Pos_Save+1+Adaptation_Size-Element_Offset, "problem");
         }
         if (adaptation_field_extension_flag)
         {
             int8u adaptation_field_extension_length;
             Get_B1 (adaptation_field_extension_length,          "adaptation_field_extension_length");
-            Skip_XX(adaptation_field_extension_length,          "adaptation_field_extension");
+            if (Element_Offset+adaptation_field_extension_length<=Element_Pos_Save+1+Adaptation_Size)
+                Skip_XX(adaptation_field_extension_length,      "adaptation_field_extension");
+            else
+                Skip_XX(Element_Pos_Save+1+Adaptation_Size-Element_Offset, "problem");
         }
     }
     if (Element_Offset<Element_Pos_Save+1+Adaptation_Size)
@@ -943,7 +1054,9 @@ void File_MpegTs::Header_Parse_AdaptationField()
 {
     int8u Adaptation_Size=Buffer[Buffer_Offset+BDAV_Size+4];
     #ifdef MEDIAINFO_MPEGTS_PCR_YES
-        if (Adaptation_Size)
+        if (Adaptation_Size>188-4-1) //TS size - header - adaptation_field_length
+            Adaptation_Size=188-4-1;
+        else if (Adaptation_Size)
         {
             bool PCR_flag=(Buffer[Buffer_Offset+BDAV_Size+5]&0x10)!=0;
             if (PCR_flag)
@@ -953,13 +1066,15 @@ void File_MpegTs::Header_Parse_AdaptationField()
                                                      | (((int64u)Buffer[Buffer_Offset+BDAV_Size+8])<< 9)
                                                      | (((int64u)Buffer[Buffer_Offset+BDAV_Size+9])<< 1)
                                                      | (((int64u)Buffer[Buffer_Offset+BDAV_Size+10])>>7));
-                if (Complete_Stream->Streams[pid].Searching_TimeStamp_End)
+                if (Complete_Stream->Streams[pid].Searching_TimeStamp_End
+                #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+                 && !Complete_Stream->Streams[pid].Searching_ParserTimeStamp_End
+                #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+                 )
                 {
                     Complete_Stream->Streams[pid].TimeStamp_End=program_clock_reference_base;
-                    #ifdef MEDIAINFO_MPEGTS_PCR_YES
                     if (Status[IsFilled])
                         Header_Parse_AdaptationField_Duration_Update();
-                    #endif //MEDIAINFO_MPEGTS_PCR_YES
                 }
                 if (Complete_Stream->Streams[pid].Searching_TimeStamp_Start)
                 {
@@ -979,7 +1094,8 @@ void File_MpegTs::Header_Parse_AdaptationField()
                     {
                         Complete_Stream->Streams[pid].EndTimeStampMoreThanxSeconds=true;
                         Complete_Stream->Streams_With_EndTimeStampMoreThanxSecondsCount++;
-                        if (Complete_Stream->Streams_With_StartTimeStampCount>0
+                        if (Complete_Stream->Streams_NotParsedCount==0
+                         && Complete_Stream->Streams_With_StartTimeStampCount>0
                          && Complete_Stream->Streams_With_StartTimeStampCount==Complete_Stream->Streams_With_EndTimeStampMoreThanxSecondsCount)
                         {
                             //We are already parsing 4 seconds (for all PCRs), we don't hope to have more info
@@ -1006,18 +1122,17 @@ void File_MpegTs::Header_Parse_AdaptationField_Duration_Update()
             Complete_Stream->Streams[pid].TimeStamp_End+=0x200000000LL; //33 bits, cyclic
         int64u Duration=Complete_Stream->Streams[pid].TimeStamp_End-Complete_Stream->Streams[pid].TimeStamp_Start;
 
-        //Filling
         if (Complete_Stream->Streams[pid].Kind==complete_stream::stream::pes)
         {
             if (Duration!=0 && Duration!=(int64u)-1)
-                Fill(Complete_Stream->Streams[pid].StreamKind, Complete_Stream->Streams[pid].StreamPos, Fill_Parameter(Complete_Stream->Streams[pid].StreamKind, Generic_Duration), Duration/90, 10, true);
+                Fill(Complete_Stream->Streams[pid].StreamKind, Complete_Stream->Streams[pid].StreamPos, Fill_Parameter(Complete_Stream->Streams[pid].StreamKind, Generic_Duration), ((float64)Duration)/90, 3, true);
             else
                 Clear(Complete_Stream->Streams[pid].StreamKind, Complete_Stream->Streams[pid].StreamPos, Fill_Parameter(Complete_Stream->Streams[pid].StreamKind, Generic_Duration));
         }
         if (Complete_Stream->Streams[pid].IsPCR)
         {
             if (Duration!=0 && Duration!=(int64u)-1)
-                Fill(Stream_General, 0, General_Duration, Duration/90, 10, true);
+                Fill(Stream_General, 0, General_Duration, ((float64)Duration)/90, 3, true);
             else
                 Clear(Stream_General, 0, General_Duration);
         }
@@ -1083,9 +1198,12 @@ void File_MpegTs::PES()
         Complete_Stream->Streams[pid].IsRegistered=true;
         for (size_t Pos=0; Pos<Complete_Stream->Streams[pid].program_numbers.size(); Pos++)
             Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[Complete_Stream->Streams[pid].program_numbers[Pos]].IsRegistered=true;
+    }
 
-        //Case of encrypted streams
-        if (Complete_Stream->Streams[pid].IsScrambled)
+    //Case of encrypted streams
+    if (Complete_Stream->Streams[pid].IsScrambled)
+    {
+        if (Complete_Stream->Streams[pid].IsScrambled>16)
         {
             //Don't need anymore
             Complete_Stream->Streams[pid].Searching_Payload_Start_Set(false);
@@ -1093,10 +1211,10 @@ void File_MpegTs::PES()
             #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
                 Complete_Stream->Streams[pid].Searching_ParserTimeStamp_Start_Set(false);
             #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
-            Skip_XX(Element_Size-Element_Offset,                    "Scrambled data");
-
-            return;
         }
+        Skip_XX(Element_Size-Element_Offset,                    "Scrambled data");
+
+        return;
     }
 
     //Parser creation
@@ -1156,7 +1274,7 @@ void File_MpegTs::PES()
     }
 
     //Parsing
-    Open_Buffer_Continue(Complete_Stream->Streams[pid].Parser, Buffer+Buffer_Offset, (size_t)Element_Size);
+    Open_Buffer_Continue(Complete_Stream->Streams[pid].Parser);
     #if defined(MEDIAINFO_MPEGPS_YES) && defined(MEDIAINFO_MPEGTS_PESTIMESTAMP_YES)
         if (MpegTs_JumpTo_Begin+MpegTs_JumpTo_End>File_Size
          && !Complete_Stream->Streams[pid].Searching_ParserTimeStamp_End
@@ -1200,7 +1318,7 @@ void File_MpegTs::PSI()
     }
 
     //Parsing
-    Open_Buffer_Continue(Complete_Stream->Streams[pid].Parser, Buffer+Buffer_Offset, (size_t)Element_Size);
+    Open_Buffer_Continue(Complete_Stream->Streams[pid].Parser);
 
     //EPG
     if (Status[IsFilled])
@@ -1314,14 +1432,15 @@ void File_MpegTs::PSI_EPG_Update()
                     {
                         for (complete_stream::source::atsc_epg_blocks::iterator ATSC_EPG_Block=Source->second.ATSC_EPG_Blocks.begin(); ATSC_EPG_Block!=Source->second.ATSC_EPG_Blocks.end(); ATSC_EPG_Block++)
                             for (complete_stream::source::atsc_epg_block::events::iterator Event=ATSC_EPG_Block->second.Events.begin(); Event!=ATSC_EPG_Block->second.Events.end(); Event++)
-                            {
-                                Ztring Texts;
-                                for (std::map<int16u, Ztring>::iterator text=Event->second.texts.begin(); text!=Event->second.texts.end(); text++)
-                                    Texts+=text->second+_T(" - ");
-                                if (!Texts.empty())
-                                    Texts.resize(Texts.size()-3);
-                                EPGs[Ztring().Date_From_Seconds_1970(Event->second.start_time+315964800-Complete_Stream->GPS_UTC_offset)]=Event->second.title+_T(" / ")+Texts+_T(" /  /  / ")+Event->second.duration+_T(" / ");
-                            }
+                                if (Event->second.start_time!=(int32u)-1) //TODO: find the reason when start_time is not set
+                                {
+                                    Ztring Texts;
+                                    for (std::map<int16u, Ztring>::iterator text=Event->second.texts.begin(); text!=Event->second.texts.end(); text++)
+                                        Texts+=text->second+_T(" - ");
+                                    if (!Texts.empty())
+                                        Texts.resize(Texts.size()-3);
+                                    EPGs[Ztring().Date_From_Seconds_1970(Event->second.start_time+315964800-Complete_Stream->GPS_UTC_offset)]=Event->second.title+_T(" / ")+Texts+_T(" /  /  / ")+Event->second.duration+_T(" / ");
+                                }
                         Source->second.ATSC_EPG_Blocks_IsUpdated=false;
                         EPGs_IsUpdated=true;
                     }
@@ -1414,40 +1533,12 @@ void File_MpegTs::Detect_EOF()
     //|| (program_Count==0 && elementary_PID_Count==0)
     ))
     {
-        #if defined(MEDIAINFO_MPEGTS_PCR_YES) ||  defined(MEDIAINFO_MPEGTS_PESTIMESTAMP_YES)
-            if (File_Size!=(int64u)-1) //Only if not unlimited
-            {
-                //Reactivating interessant TS streams
-                if (!Complete_Stream->Streams.empty())
-                {
-                    //End timestamp is out of date
-                    for (size_t StreamID=0; StreamID<0x2000; StreamID++)//std::map<int64u, stream>::iterator Stream=Streams.begin(); Stream!=Streams.end(); Stream++)
-                    {
-                        //End timestamp is out of date
-                        Complete_Stream->Streams[StreamID].Searching_TimeStamp_Start_Set(false); //No more searching start
-                        Complete_Stream->Streams[StreamID].TimeStamp_End=(int64u)-1;
-                        if (Complete_Stream->Streams[StreamID].TimeStamp_Start!=(int64u)-1)
-                            Complete_Stream->Streams[StreamID].Searching_TimeStamp_End_Set(true); //Searching only for a start found
-                        if (Complete_Stream->Streams[StreamID].Parser)
-                        {
-                            #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
-                                Complete_Stream->Streams[StreamID].Searching_ParserTimeStamp_Start_Set(false); //No more searching start
-                                if (((File_MpegPs*)Complete_Stream->Streams[StreamID].Parser)->HasTimeStamps)
-                                    Complete_Stream->Streams[StreamID].Searching_ParserTimeStamp_End_Set(true); //Searching only for a start found
-                            #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
-                            Complete_Stream->Streams[StreamID].Parser->Open_Buffer_Unsynch();
-                        }
-                    }
-                }
-                Complete_Stream->Duration_End.clear();
-            }
-        #endif //defined(MEDIAINFO_MPEGTS_PCR_YES) ||  defined(MEDIAINFO_MPEGTS_PESTIMESTAMP_YES)
-
         if (!Status[IsAccepted])
             Accept("MPEG-TS");
         Fill("MPEG-TS");
+
         #if !defined(MEDIAINFO_MPEGTS_PCR_YES) && !defined(MEDIAINFO_MPEGTS_PESTIMESTAMP_YES)
-            GoToFromEnd(47, "MPEG-TS"); //TODO: Should be changed later (when Finalize stuff will be split) 
+            GoToFromEnd(47, "MPEG-TS"); //TODO: Should be changed later (when Finalize stuff will be split)
         #else //!defined(MEDIAINFO_MPEGTS_PCR_YES) && !defined(MEDIAINFO_MPEGTS_PESTIMESTAMP_YES)
             GoToFromEnd(MpegTs_JumpTo_End, "MPEG-TS");
             Searching_TimeStamp_Start=false;

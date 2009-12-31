@@ -124,6 +124,17 @@ const char* Dirac_source_sampling(int32u source_sampling)
 }
 
 //---------------------------------------------------------------------------
+const char* Dirac_source_sampling_Codec(int32u source_sampling)
+{
+    switch (source_sampling)
+    {
+        case 0 : return "PPF";
+        case 1 : return "Interlaced";
+        default: return "";
+    }
+}
+
+//---------------------------------------------------------------------------
 const char* Dirac_chroma_format(int32u chroma_format)
 {
     switch (chroma_format)
@@ -419,8 +430,6 @@ File_Dirac::File_Dirac()
 //---------------------------------------------------------------------------
 void File_Dirac::Streams_Fill()
 {
-    Stream_Prepare(Stream_General);
-    Fill(Stream_General, 0, General_Format, "Dirac");
     Stream_Prepare(Stream_Video);
     Fill(Stream_Video, 0, Video_Format, "Dirac");
     Fill(Stream_Video, 0, Video_Codec, "Dirac");
@@ -439,7 +448,7 @@ void File_Dirac::Streams_Fill()
         Fill(Stream_Video, StreamPos_Last, Video_FrameRate, frame_rate);
     Fill(Stream_Video, 0, Video_Colorimetry, Dirac_chroma_format(chroma_format));
     Fill(Stream_Video, 0, Video_ScanType, Dirac_source_sampling(source_sampling));
-    Fill(Stream_Video, 0, Video_Interlacement, Dirac_source_sampling(source_sampling));
+    Fill(Stream_Video, 0, Video_Interlacement, Dirac_source_sampling_Codec(source_sampling));
 }
 
 //---------------------------------------------------------------------------

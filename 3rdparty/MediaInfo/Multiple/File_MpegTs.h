@@ -73,6 +73,9 @@ private :
     //Options
     void Option_Manage ();
 
+    //Buffer - Global
+    void Read_Buffer_Unsynched();
+
     //Buffer - Per element
     void Header_Parse();
     void Header_Parse_AdaptationField();
@@ -110,7 +113,7 @@ private :
     void Streams_Finish_PerStream(int16u PID, complete_stream::stream &Temp);
 
     //File__Duplicate
-    void   File__Duplicate_Read_Buffer_Finalize ();
+    void   File__Duplicate_Streams_Finish ();
     bool   File__Duplicate_Set  (const Ztring &Value); //Fill a new File__Duplicate value
     bool   File__Duplicate_Get_From_PID (int16u PID);
     void   File__Duplicate_Write (int16u PID);

@@ -111,7 +111,8 @@ void File_ImpulseTracker::Read_Buffer_Continue()
     Skip_XX(PatNum*4,                                           "Patterns");
 
     FILLING_BEGIN();
-        Stream_Prepare(Stream_General);
+        Accept("Impulse Tracker");
+
         Fill(Stream_General, 0, General_Format, "Impulse Tracker");
         Fill(Stream_General, 0, General_Format_Version, Ztring(_T("Version "))+Ztring::ToZtring(VersionMajor)+_T(".")+Ztring::ToZtring(VersionMinor/16)+Ztring::ToZtring(VersionMinor%16));
         Fill(Stream_General, 0, General_Track, SongName);
@@ -121,7 +122,7 @@ void File_ImpulseTracker::Read_Buffer_Continue()
         Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, StreamPos_Last, Audio_Channel_s_, Stereo?2:1);
         
-        Accept("Impulse Tracker");
+        //No more need data
         Finish("Impulse Tracker");
     FILLING_END();
 }

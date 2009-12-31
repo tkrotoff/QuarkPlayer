@@ -109,6 +109,7 @@ File_Riff::File_Riff()
     NeedOldIndex=true;
     IsBigEndian=false;
     IsWave64=false;
+    IsRIFF64=false;
     SecondPass=false;
     DV_FromHeader=NULL;
 
@@ -131,6 +132,10 @@ File_Riff::~File_Riff()
 //---------------------------------------------------------------------------
 void File_Riff::Streams_Finish ()
 {
+    //Global
+    if (IsRIFF64)
+        Fill(Stream_General, 0, General_Format_Profile, "RF64");
+
     //For each stream
     std::map<int32u, stream>::iterator Temp=Stream.begin();
     while (Temp!=Stream.end())
@@ -186,7 +191,7 @@ void File_Riff::Streams_Finish ()
             }
 
             //Delay
-            if (StreamKind_Last==Stream_Audio && Count_Get(Stream_Video)==1 && Temp->second.Rate!=0 && Temp->second.Parser->Count_Get(Stream_General)>0)
+            if (StreamKind_Last==Stream_Audio && Count_Get(Stream_Video)==1 && Temp->second.Rate!=0 && Temp->second.Parser->Status[IsAccepted])
             {
                 float Delay=0;
                 bool Delay_IsValid=false;
@@ -219,6 +224,13 @@ void File_Riff::Streams_Finish ()
                     Fill(Stream_Video, 0, Video_Delay, 0, 10, true);
                 }
             }
+
+            //Special case: AAC
+            if (StreamKind_Last==Stream_Audio
+             && (Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==_T("AAC")
+              || Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==_T("MPEG Audio")
+              || Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==_T("Vorbis")))
+                Clear(Stream_Audio, StreamPos_Last, Audio_Resolution); //Resolution is not valid for AAC / MPEG Audio / Vorbis
 
             //Format specific
             #if defined(MEDIAINFO_MPEG4V_YES)
@@ -265,19 +277,6 @@ void File_Riff::Streams_Finish ()
                 }
             #endif
         }
-        #if defined(MEDIAINFO_DVDIF_YES)
-        if (StreamKind_Last==Stream_Video && DV_FromHeader && Retrieve(Stream_Video, StreamPos_Last, Video_Format).empty() && Retrieve(Stream_Video, StreamPos_Last, Video_Codec).empty()) //Sometimes, there is a problem with the parser
-        {
-            Clear(Stream_Video);
-            Clear(Stream_Audio);
-            Finish(DV_FromHeader);
-            Merge(*DV_FromHeader);
-            Fill(Stream_Video, 0, Video_Format, "Digital Video");
-            Fill(Stream_Video, 0, Video_Codec_CC, "dvsd");
-            Fill(Stream_Audio, 0, Audio_Format, "PCM");
-            Fill(Stream_Audio, 0, Audio_Codec_CC, "PCM");
-        }
-        #endif
 
         //Duration
         if (Temp->second.PacketCount>0)
@@ -392,7 +391,7 @@ void File_Riff::Streams_Finish ()
     //Interleaved
     if (Interleaved0_1 && Interleaved0_10 && Interleaved1_1 && Interleaved1_10)
         Fill(Stream_General, 0, General_Interleaved, (Interleaved0_1<Interleaved1_1 && Interleaved0_10>Interleaved1_1
-                                              || Interleaved1_1<Interleaved0_1 && Interleaved1_10>Interleaved0_1)?"Yes":"No");
+                                                   || Interleaved1_1<Interleaved0_1 && Interleaved1_10>Interleaved0_1)?"Yes":"No");
 
     //Purge what is not needed anymore
     if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
@@ -522,7 +521,7 @@ void File_Riff::Header_Parse()
      || Name==Elements::FORM)
     {
         if (Name==Elements::RF64)
-            Fill(Stream_General, 0, General_Format_Profile, "RF64");
+            IsRIFF64=true;
         Get_C4 (Name,                                           "Real Name");
     }
 
@@ -532,7 +531,7 @@ void File_Riff::Header_Parse()
         //Filling
         Header_Fill_Code(0, "Junk");
         Header_Fill_Size(File_Size-(File_Offset+Buffer_Offset));
-        Alignement_ExtraByte=false;
+        Alignement_ExtraByte=0;
         return;
     }
 
@@ -557,7 +556,7 @@ bool File_Riff::BookMark_Needed()
 
     Stream_Structure_Temp=Stream_Structure.begin();
     if (!Stream_Structure.empty())
-        File_GoTo=Stream_Structure_Temp->first;
+        GoTo(Stream_Structure_Temp->first);
     NeedOldIndex=false;
     SecondPass=true;
     Index_Pos.clear(); //We didn't succeed to find theses indexes :(

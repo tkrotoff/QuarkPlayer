@@ -242,6 +242,7 @@
 #if !defined(MEDIAINFO_OTHER_NO)
     #include "MediaInfo/File_Other.h"
 #endif
+#include "MediaInfo/File_Unknown.h"
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -303,6 +304,9 @@ File__MultipleParsing::File__MultipleParsing()
     #endif
     #if defined(MEDIAINFO_MPEGTS_YES)
         Temp=new File_MpegTs(); Parser.push_back(Temp);
+    #endif
+    #if defined(MEDIAINFO_TSP_YES)
+        Temp=new File_MpegTs(); ((File_MpegTs*)Temp)->TSP_Size=16; Parser.push_back(Temp);
     #endif
     #if defined(MEDIAINFO_MXF_YES)
         Temp=new File_Mxf(); Parser.push_back(Temp);
@@ -490,6 +494,22 @@ File__MultipleParsing::~File__MultipleParsing()
 }
 
 //***************************************************************************
+// Streams management
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File__MultipleParsing::Streams_Finish()
+{
+    if (Parser.size()!=1)
+        return;
+
+    Parser[0]->Open_Buffer_Finalize();
+    #ifndef MEDIAINFO_MINIMIZESIZE
+        Details=Parser[0]->Details;
+    #endif //MEDIAINFO_MINIMIZESIZE
+}
+
+//***************************************************************************
 // Buffer - Global
 //***************************************************************************
 
@@ -505,7 +525,8 @@ void File__MultipleParsing::Read_Buffer_Init()
         #else //MEDIAINFO_MINIMIZESIZE
             Parser[Pos]->Init(Config, Stream, Stream_More);
         #endif //MEDIAINFO_MINIMIZESIZE
-        Parser[Pos]->Open_Buffer_Init(File_Size, File_Offset);
+        Parser[Pos]->File_Name=File_Name;
+        Parser[Pos]->Open_Buffer_Init(File_Size);
     }
 }
 
@@ -516,7 +537,9 @@ void File__MultipleParsing::Read_Buffer_Continue()
     for (size_t Pos=0; Pos<Parser.size(); Pos++)
     {
         //Parsing
-        Parser[Pos]->Open_Buffer_Continue(Buffer+Buffer_Offset, (size_t)Element_Size);
+        Open_Buffer_Continue(Parser[Pos], Buffer+Buffer_Offset, (size_t)Element_Size);
+        if (File_Offset+Buffer_Size==File_Size)
+            Open_Buffer_Finalize(Parser[Pos]);
 
         //Testing if the parser failed
         if (Parser[Pos]->Status[IsFinished] && !Parser[Pos]->Status[IsAccepted])
@@ -526,48 +549,42 @@ void File__MultipleParsing::Read_Buffer_Continue()
             Pos--; //for the next position
 
             if (Parser.empty())
-                Reject();
+            {
+                File__Analyze* Temp=new File_Unknown(); Parser.push_back(Temp);
+                Read_Buffer_Init();
+            }
         }
         else
         {
             //If Parser is found, erasing all the other parsers
-            if (Parser[Pos]->Status[IsAccepted])
+            if (Parser.size()>1 && Parser[Pos]->Status[IsAccepted])
             {
-                if (Parser.size()>1)
-                {
-                    File__Analyze* Temp=Parser[Pos];
-                    for (size_t To_Delete_Pos=0; To_Delete_Pos<Parser.size(); To_Delete_Pos++)
-                        if (To_Delete_Pos!=Pos)
-                            delete Parser[To_Delete_Pos]; //Parser[Pos]=NULL
-                    Parser.clear();
-                    Parser.push_back(Temp);
-                    Pos=0;
-                }
-                Status[IsAccepted]=true;
+                File__Analyze* Temp=Parser[Pos];
+                for (size_t To_Delete_Pos=0; To_Delete_Pos<Parser.size(); To_Delete_Pos++)
+                    if (To_Delete_Pos!=Pos)
+                        delete Parser[To_Delete_Pos]; //Parser[Pos]=NULL
+                Parser.clear();
+                Parser.push_back(Temp);
+                Pos=0;
             }
 
-            //Positionning if requested
-            if (Parser.size()==1 && Parser[0]->File_GoTo!=(int64u)-1)
-               File_GoTo=Parser[0]->File_GoTo;
+            if (Parser.size()==1)
+            {
+                //Status
+                if (!Status[IsAccepted] && Parser[Pos]->Status[IsAccepted])
+                    Status[IsAccepted]=true;
+                if (!Status[IsFilled] && Parser[Pos]->Status[IsFilled])
+                    Status[IsFilled]=true;
+                if (!Status[IsUpdated] && Parser[Pos]->Status[IsUpdated])
+                    Status[IsUpdated]=true;
+                if (!Status[IsFinished] && Parser[Pos]->Status[IsFinished])
+                    Status[IsFinished]=true;
 
-            //Ending if requested
-            if (Parser.size()==1 && Parser[Pos]->Status[IsFinished])
-               Accept();
+                //Positionning if requested
+                if (Parser[0]->File_GoTo!=(int64u)-1)
+                   File_GoTo=Parser[0]->File_GoTo;
+            }
         }
-    }
-}
-
-//---------------------------------------------------------------------------
-void File__MultipleParsing::Read_Buffer_Finalize()
-{
-    //Parsing
-    for (size_t Pos=0; Pos<Parser.size(); Pos++)
-    {
-        Parser[Pos]->Open_Buffer_Finalize();
-        Merge(*(Parser[Pos]));
-        Merge(*(Parser[Pos]), Stream_General, 0, 0);
-        if (Parser[Pos]->Status[IsAccepted])
-            Status[IsAccepted]=true;
     }
 }
 

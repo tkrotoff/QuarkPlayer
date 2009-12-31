@@ -178,8 +178,10 @@ void File_Flac::STREAMINFO()
     FILLING_BEGIN()
         if (SampleRate==0)
             return;
-        File__Tags_Helper::Stream_Prepare(Stream_General);
-        Fill(Stream_General, 0, General_Format, "FLAC");
+        File__Tags_Helper::Accept("FLAC");
+
+        File__Tags_Helper::Streams_Fill();
+
         File__Tags_Helper::Stream_Prepare(Stream_Audio);
         Fill(Stream_Audio, 0, Audio_Format, "FLAC");
         Fill(Stream_Audio, 0, Audio_Codec, "FLAC");
@@ -193,7 +195,6 @@ void File_Flac::STREAMINFO()
         if (!IsSub)
             Fill(Stream_Audio, 0, Audio_Duration, Samples*1000/SampleRate);
 
-        File__Tags_Helper::Accept("FLAC");
         Buffer_MaximumSize=4*1024*1024;
     FILLING_END();
 }
@@ -215,7 +216,7 @@ void File_Flac::VORBIS_COMMENT()
         File_VorbisCom VorbisCom;
         VorbisCom.StreamKind_Specific=Stream_Audio;
         Open_Buffer_Init(&VorbisCom);
-        Open_Buffer_Continue(&VorbisCom, Buffer+Buffer_Offset, (size_t)Element_Size);
+        Open_Buffer_Continue(&VorbisCom);
         File__Analyze::Finish(&VorbisCom);
         Merge(VorbisCom, Stream_General,  0, 0);
         Merge(VorbisCom, Stream_Audio,    0, 0);
@@ -245,6 +246,7 @@ void File_Flac::PICTURE()
         return; //There is a problem
     std::string Data_Raw((const char*)(Buffer+(size_t)(Buffer_Offset+Element_Offset)), Data_Size);
     std::string Data_Base64(Base64::encode(Data_Raw));
+    Skip_XX(Element_Size-Element_Offset, "Data");
 
     //Filling
     Fill(Stream_General, 0, General_Cover, "Yes");

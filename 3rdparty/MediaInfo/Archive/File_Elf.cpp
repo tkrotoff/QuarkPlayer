@@ -222,7 +222,8 @@ void File_Elf::Read_Buffer_Continue()
             return;
         }
 
-        Stream_Prepare(Stream_General);
+        Accept("ELF");
+
         Fill(Stream_General, 0, General_Format, "ELF");
         if (type!=(int16u)-1)
             Fill(Stream_General, 0, General_Format_Profile, Elf_type(type));
@@ -230,7 +231,6 @@ void File_Elf::Read_Buffer_Continue()
             Fill(Stream_General, 0, General_Format_Profile, Elf_machine(machine));
 
         //No need of more
-        Accept("ELF");
         Finish("ELF");
     FILLING_END();
 }

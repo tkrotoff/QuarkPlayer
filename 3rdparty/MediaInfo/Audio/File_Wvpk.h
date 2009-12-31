@@ -53,13 +53,15 @@ private :
     //Streams management
     void Streams_Finish();
 
+    //Buffer - File header
+    bool FileHeader_Begin();
+
     //Buffer - Synchro
     bool Synchronize();
     bool Synched_Test();
 
     //Buffer - Global
     void Read_Buffer_Continue ();
-    void Read_Buffer_Finalize()                                                 {File__Tags_Helper::Read_Buffer_Finalize();}
 
     //Buffer - Per element
     void Header_Parse();

@@ -43,12 +43,15 @@ MediaInfo_Config_MediaInfo::MediaInfo_Config_MediaInfo()
 {
     FileIsSeekable=true;
     FileIsSub=false;
+    FileKeepInfo=false;
+    FileStopAfterFilled=false;
     File_Filter_HasChanged_=false;
 
     //Specific
     File_MpegTs_ForceMenu=false;
     File_Bdmv_ParseTargetedFile=true;
     File_DvDif_Analysis=false;
+    State=0;
 }
 
 //***************************************************************************
@@ -80,6 +83,24 @@ Ztring MediaInfo_Config_MediaInfo::Option (const String &Option, const String &V
     else if (Option_Lower==_T("file_issub_get"))
     {
         return File_IsSub_Get()?"1":"0";
+    }
+    if (Option_Lower==_T("file_keepinfo"))
+    {
+        File_KeepInfo_Set(!(Value==_T("0") || Value.empty()));
+        return _T("");
+    }
+    else if (Option_Lower==_T("file_keepinfo_get"))
+    {
+        return File_KeepInfo_Get()?"1":"0";
+    }
+    if (Option_Lower==_T("file_stopafterfilled"))
+    {
+        File_StopAfterFilled_Set(!(Value==_T("0") || Value.empty()));
+        return _T("");
+    }
+    else if (Option_Lower==_T("file_stopafterfilled_get"))
+    {
+        return File_StopAfterFilled_Get()?"1":"0";
     }
     else if (Option_Lower==_T("file_forceparser"))
     {
@@ -137,6 +158,15 @@ Ztring MediaInfo_Config_MediaInfo::Option (const String &Option, const String &V
     {
         return File_DvDif_Analysis_Get()?"1":"0";
     }
+    else if (Option_Lower==_T("file_curl"))
+    {
+        File_Curl_Set(Value);
+        return _T("");
+    }
+    else if (Option_Lower==_T("file_curl_get"))
+    {
+        return File_Curl_Get(Value);
+    }
     else
         return _T("Option not known");
 }
@@ -173,6 +203,40 @@ bool MediaInfo_Config_MediaInfo::File_IsSub_Get ()
 {
     CriticalSectionLocker CSL(CS);
     return FileIsSub;
+}
+
+//***************************************************************************
+// File Keep Info
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void MediaInfo_Config_MediaInfo::File_KeepInfo_Set (bool NewValue)
+{
+    CriticalSectionLocker CSL(CS);
+    FileKeepInfo=NewValue;
+}
+
+bool MediaInfo_Config_MediaInfo::File_KeepInfo_Get ()
+{
+    CriticalSectionLocker CSL(CS);
+    return FileKeepInfo;
+}
+
+//***************************************************************************
+// File Keep Info
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void MediaInfo_Config_MediaInfo::File_StopAfterFilled_Set (bool NewValue)
+{
+    CriticalSectionLocker CSL(CS);
+    FileStopAfterFilled=NewValue;
+}
+
+bool MediaInfo_Config_MediaInfo::File_StopAfterFilled_Get ()
+{
+    CriticalSectionLocker CSL(CS);
+    return FileStopAfterFilled;
 }
 
 //***************************************************************************
@@ -365,6 +429,46 @@ bool MediaInfo_Config_MediaInfo::File_DvDif_Analysis_Get ()
 {
     CriticalSectionLocker CSL(CS);
     bool Temp=File_DvDif_Analysis;
+    return Temp;
+}
+
+//---------------------------------------------------------------------------
+void MediaInfo_Config_MediaInfo::File_Curl_Set (const Ztring &NewValue)
+{
+    size_t Pos=NewValue.find(_T(','));
+    if (Pos==string::npos)
+        Pos=NewValue.find(_T(';'));
+    if (Pos!=string::npos)
+    {
+        Ztring Field=NewValue.substr(0, Pos); Field.MakeLowerCase();
+        Ztring Value=NewValue.substr(Pos+1, string::npos);
+        CriticalSectionLocker CSL(CS);
+        Curl[Field]=Value;
+    }
+}
+
+Ztring MediaInfo_Config_MediaInfo::File_Curl_Get (const Ztring &Field_)
+{
+    Ztring Field=Field_; Field.MakeLowerCase();
+    CriticalSectionLocker CSL(CS);
+    return Curl[Field];
+}
+
+//***************************************************************************
+// Analysis internal
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void MediaInfo_Config_MediaInfo::State_Set (float NewValue)
+{
+    CriticalSectionLocker CSL(CS);
+    State=NewValue;
+}
+
+float MediaInfo_Config_MediaInfo::State_Get ()
+{
+    CriticalSectionLocker CSL(CS);
+    float Temp=State;
     return Temp;
 }
 

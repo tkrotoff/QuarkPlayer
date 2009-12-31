@@ -9,7 +9,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 include_directories(${ZLIB_INCLUDE_DIR})
 
-add_definitions(-DMEDIAINFO_MINIMIZESIZE)
+add_definitions(
+	-DMEDIAINFO_MINIMIZESIZE
+	-DMEDIAINFO_LIBCURL_NO
+	-DMEDIAINFO_LIBMMS_NO
+)
 
 set(MediaInfo_SRCS
 	File__Analyze.cpp
@@ -111,6 +115,10 @@ set(MediaInfo_SRCS
 	Multiple/File_Swf.cpp
 	Multiple/File_Wm.cpp
 	Multiple/File_Wm_Elements.cpp
+	Reader/Reader_Directory.cpp
+	Reader/Reader_File.cpp
+	Reader/Reader_libcurl.cpp
+	Reader/Reader_libmms.cpp
 	Tag/File__Tags.cpp
 	Tag/File_ApeTag.cpp
 	Tag/File_Id3.cpp
