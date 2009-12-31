@@ -35,6 +35,7 @@ class MediaInfo;
  * MetaDataWriter allows us to add a new feature to MediaInfo without modifying
  * this class. MediaInfo should be keep simple and lightweight since it is used to
  * represent each item inside the Playlist.
+ * Is this Inversion of Control pattern?
  *
  * @see MediaInfo
  * @author Tanguy Krotoff
