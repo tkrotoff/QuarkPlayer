@@ -28,6 +28,9 @@
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 #include "ZenLib/Thread.h"
+#include <iostream>
+#include <ZenLib/Ztring.h>
+#include <ZenLib/CriticalSection.h>
 //---------------------------------------------------------------------------
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -180,9 +183,13 @@ void Thread::Yield()
 namespace ZenLib
 {
 
+//---------------------------------------------------------------------------
 THREAD_RETVAL THREAD_CALLCONV Thread_Start(void *param)
 {
     ((Thread*)param)->Entry();
+
+    ((Thread*)param)->Internal_Exit();
+
     return 1;
 }
 
@@ -193,6 +200,42 @@ THREAD_RETVAL THREAD_CALLCONV Thread_Start(void *param)
 //---------------------------------------------------------------------------
 Thread::Thread()
 {
+    C.Enter();
+
+    State=State_New;
+    ThreadPointer=NULL;
+
+    C.Leave();
+}
+
+//---------------------------------------------------------------------------
+Thread::~Thread()
+{
+    C.Enter();
+
+    if (ThreadPointer!=NULL)
+        CloseHandle((HANDLE)ThreadPointer); //ThreadPointer=NULL
+
+    C.Leave();
+}
+
+//***************************************************************************
+// Control
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+Thread::returnvalue Thread::Run()
+{
+    C.Enter();
+
+    //Coherency
+    if (State!=State_New || ThreadPointer!=NULL)
+    {
+        C.Leave();
+        return Incoherent;
+    }
+
+    //Creating
     #ifdef USING_BEGINTHREAD
         #ifdef __WATCOMC__
             const unsigned stksize=10240; //Watcom is reported to not like 0 stack size (which means "use default")
@@ -204,12 +247,122 @@ Thread::Thread()
     #else
         ThreadPointer=(void*)CreateThread   (NULL,       0, Thread_Start, this, CREATE_SUSPENDED, NULL);
     #endif //USING_BEGINTHREAD
+    if (ThreadPointer==NULL)
+    {
+        C.Leave();
+        return Ressource;
+    }
+
+    //Running
+    ResumeThread((HANDLE)ThreadPointer);
+
+    //Configuring
+    State=State_Running;
+
+    C.Leave();
+    return Ok;
 }
 
 //---------------------------------------------------------------------------
-Thread::~Thread()
+Thread::returnvalue Thread::RunAgain()
 {
-    CloseHandle((HANDLE)ThreadPointer);
+    //Coherency
+    C.Enter();
+
+    //Coherency
+    if (State!=State_New
+     && State!=State_Terminated)
+    {
+        C.Leave();
+        return Incoherent;
+    }
+
+    //Configuring
+    if (State==State_Terminated)
+        State=State_New;
+
+    C.Leave();
+
+    return Run();
+}
+
+//---------------------------------------------------------------------------
+Thread::returnvalue Thread::Pause()
+{
+    C.Enter();
+
+    //Pausing
+    SuspendThread((HANDLE)ThreadPointer);
+
+    //Configuring
+    State=State_Paused;
+
+    C.Leave();
+    return Ok;
+}
+
+//---------------------------------------------------------------------------
+Thread::returnvalue Thread::RequestTerminate()
+{
+    C.Enter();
+
+    //Coherency
+    if (State!=State_Running)
+    {
+        C.Leave();
+        return IsNotRunning;
+    }
+
+    //Configuring
+    State=State_Terminating;
+
+    C.Leave();
+    return Ok;
+}
+
+//---------------------------------------------------------------------------
+Thread::returnvalue Thread::ForceTerminate()
+{
+    C.Enter();
+
+    //Terminating (not clean)
+    TerminateThread((HANDLE)ThreadPointer, 1); ThreadPointer=NULL;
+
+    //Configuring
+    State=State_Terminated;
+
+    C.Leave();
+    return Ok;
+}
+
+//***************************************************************************
+// Status
+//***************************************************************************
+
+bool Thread::IsRunning()
+{
+    C.Enter();
+    bool ToReturn=State==State_Running;
+    C.Leave();
+    return ToReturn;
+}
+
+//---------------------------------------------------------------------------
+bool Thread::IsTerminating()
+{
+    C.Enter();
+    bool ToReturn=State==State_Terminating;
+    C.Leave();
+    return ToReturn;
+}
+
+//---------------------------------------------------------------------------
+bool Thread::IsExited()
+{
+    C.Enter();
+    bool ToReturn=State==State_New || State==State_Terminating;
+    C.Leave();
+    return ToReturn;
 }
 
 //***************************************************************************
@@ -221,41 +374,46 @@ void Thread::Entry()
 }
 
 //***************************************************************************
-// Control
-//***************************************************************************
-
-void Thread::Run()
-{
-    ResumeThread((HANDLE)ThreadPointer);
-}
-
-void Thread::Pause()
-{
-    SuspendThread((HANDLE)SuspendThread);
-}
-
-void Thread::Stop()
-{
-    SuspendThread((HANDLE)SuspendThread); //Find better
-}
-
-bool Thread::IsRunning()
-{
-    return true; //ToImplement
-}
-
-//***************************************************************************
 // Communicating
 //***************************************************************************
 
+//---------------------------------------------------------------------------
 void Thread::Sleep(size_t Millisecond)
 {
     ::Sleep((DWORD)Millisecond);
 }
 
+//---------------------------------------------------------------------------
 void Thread::Yield()
 {
     ::Sleep(0);
+}
+
+//***************************************************************************
+// Internal
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+Thread::returnvalue Thread::Internal_Exit()
+{
+    C.Enter();
+
+    //Coherency
+    if (State!=State_Running
+     && State!=State_Terminating)
+    {
+        C.Leave();
+        return IsNotRunning;
+    }
+
+    //Closing old handle
+    CloseHandle((HANDLE)ThreadPointer); ThreadPointer=NULL;
+
+    //Configuring
+    State=State_Terminated;
+
+    C.Leave();
+    return Ok;
 }
 
 } //Namespace
@@ -269,8 +427,29 @@ void Thread::Yield()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+//---------------------------------------------------------------------------
+//Source: http://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+#include <pthread.h>
+#include <unistd.h>
+#ifdef _POSIX_PRIORITY_SCHEDULING
+    #include <sched.h>
+#endif //_POSIX_PRIORITY_SCHEDULING
+//---------------------------------------------------------------------------
+
 namespace ZenLib
 {
+
+//---------------------------------------------------------------------------
+void *Thread_Start(void *param)
+{
+    ((Thread*)param)->Entry();
+    ((Thread*)param)->Internal_Exit();
+
+    return NULL;
+}
 
 //***************************************************************************
 // Constructor/Destructor
@@ -279,6 +458,13 @@ namespace ZenLib
 //---------------------------------------------------------------------------
 Thread::Thread()
 {
+    C.Enter();
+
+    State=State_New;
+    ThreadPointer=NULL;
+
+    C.Leave();
+
 }
 
 //---------------------------------------------------------------------------
@@ -298,33 +484,156 @@ void Thread::Entry()
 // Control
 //***************************************************************************
 
-void Thread::Run()
+Thread::returnvalue Thread::Run()
 {
+    C.Enter();
+
+    //Coherency
+    if (State!=State_New || ThreadPointer!=NULL)
+    {
+        C.Leave();
+        return Incoherent;
+    }
+
+    //Creating
+    pthread_attr_t Attr;
+    pthread_attr_init(&Attr);
+    pthread_attr_setdetachstate(&Attr, PTHREAD_CREATE_DETACHED);
+    
+    //Running
+    pthread_create((pthread_t*)&ThreadPointer, &Attr, Thread_Start, (void*)this);
+
+    //Configuring
+    State=State_Running;
+
+    C.Leave();
+    return Ok;
 }
 
-void Thread::Pause()
+Thread::returnvalue Thread::RunAgain()
 {
+    //Coherency
+    C.Enter();
+
+    //Coherency
+    if (State!=State_New
+     && State!=State_Terminated)
+    {
+        C.Leave();
+        return Incoherent;
+    }
+
+    //Configuring
+    if (State==State_Terminated)
+        State=State_New;
+
+    C.Leave();
+
+    return Run();
 }
 
-void Thread::Stop()
+Thread::returnvalue Thread::Pause()
 {
+    //pthread_cond_wait
+    return Ok;
 }
 
+Thread::returnvalue Thread::RequestTerminate()
+{
+    C.Enter();
+
+    if (State!=State_Running)
+    {
+        C.Leave();
+        return IsNotRunning;
+    }
+
+    State=State_Terminating;
+
+    C.Leave();
+    return Ok;
+}
+
+Thread::returnvalue Thread::ForceTerminate()
+{
+    //Terminating (not clean)
+
+    //Configuring
+    State=State_Terminated;
+
+    return Ok;
+}
+
+//***************************************************************************
+// Status
+//***************************************************************************
+
+//---------------------------------------------------------------------------
 bool Thread::IsRunning()
 {
-    return true; //ToImplement
+    C.Enter();
+    bool ToReturn=State==State_Running;
+    C.Leave();
+    return ToReturn;
+}
+
+//---------------------------------------------------------------------------
+bool Thread::IsTerminating()
+{
+    C.Enter();
+    bool ToReturn=State==State_Terminating;
+    C.Leave();
+    return ToReturn;
+}
+
+//---------------------------------------------------------------------------
+bool Thread::IsExited()
+{
+    C.Enter();
+    bool ToReturn=State==State_New || State==State_Terminating;
+    C.Leave();
+    return ToReturn;
 }
 
 //***************************************************************************
 // Communicating
 //***************************************************************************
 
-void Thread::Sleep(size_t Millisecond)
+void Thread::Sleep(size_t)
 {
 }
 
 void Thread::Yield()
 {
+    #ifdef _POSIX_PRIORITY_SCHEDULING
+        sched_yield();
+    #endif //_POSIX_PRIORITY_SCHEDULING
+}
+
+//***************************************************************************
+// Internal
+//***************************************************************************
+
+Thread::returnvalue Thread::Internal_Exit()
+{
+    C.Enter();
+
+    //Coherency
+    if (State!=State_Running
+     && State!=State_Terminating)
+    {
+        C.Leave();
+        return IsNotRunning;
+    }
+
+    //Closing old handle
+    ; ThreadPointer=NULL;
+
+    //Configuring
+    State=State_Terminated;
+
+    C.Leave();
+    return Ok;
 }
 
 } //Namespace

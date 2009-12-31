@@ -60,6 +60,7 @@
 #include <cmath>
 #include "ZenLib/Ztring.h"
 #include "ZenLib/OS_Utils.h"
+#include "ZenLib/File.h"
 using namespace std;
 //---------------------------------------------------------------------------
 
@@ -92,6 +93,42 @@ Char &Ztring::operator() (size_type Pos)
     if (Pos>size())
         resize(Pos);
     return operator[] (Pos);
+}
+
+//***************************************************************************
+// Assign
+//***************************************************************************
+
+bool Ztring::Assign_FromFile (const Ztring &FileName)
+{
+    File F;
+    if (!F.Open(FileName))
+        return false;
+    int64u F_Size=F.Size_Get();
+    if (F_Size>((size_t)-1)-1)
+        return false;
+
+    //Creating buffer
+    int8u* Buffer=new int8u[(size_t)F_Size+1];
+    size_t Buffer_Offset=0;
+
+    //Reading the file
+    while(Buffer_Offset<F_Size)
+    {
+        size_t BytesRead=F.Read(Buffer+Buffer_Offset, (size_t)F_Size-Buffer_Offset);
+        if (BytesRead==0)
+            break; //Read is finished
+        Buffer_Offset+=BytesRead;
+    }
+    if (Buffer_Offset<F_Size)
+        return false;
+    Buffer[Buffer_Offset]='\0';
+
+    //Filling
+    assign((const Char*)Buffer);
+    delete[] Buffer;
+
+    return true;
 }
 
 //***************************************************************************
@@ -512,10 +549,14 @@ Ztring& Ztring::From_Local (const char* S, size_type Start, size_type Length)
 Ztring& Ztring::From_GUID (const int128u S)
 {
     Ztring S1;
-    S1.From_CC2((int16u)((S.hi&0xFFFF000000000000LL)>>48)); append(S1);
-    S1.From_CC2((int16u)((S.hi&0x0000FFFF00000000LL)>>32)); append(S1); append(_T("-"));
-    S1.From_CC2((int16u)((S.hi&0x00000000FFFF0000LL)>>16)); assign(S1); append(_T("-"));
-    S1.From_CC2((int16u)( S.hi&0x000000000000FFFFLL     )); append(S1); append(_T("-"));
+    S1.From_CC1((int8u) ((S.hi&0x000000FF00000000LL)>>32)); append(S1);
+    S1.From_CC1((int8u) ((S.hi&0x0000FF0000000000LL)>>40)); append(S1);
+    S1.From_CC1((int8u) ((S.hi&0x00FF000000000000LL)>>48)); append(S1);
+    S1.From_CC1((int8u) ((S.hi&0xFF00000000000000LL)>>56)); append(S1); append(_T("-"));
+    S1.From_CC1((int8u) ((S.hi&0x0000000000FF0000LL)>>16)); append(S1);
+    S1.From_CC1((int8u) ((S.hi&0x00000000FF000000LL)>>24)); append(S1); append(_T("-"));
+    S1.From_CC1((int8u) ( S.hi&0x00000000000000FFLL     )); append(S1);
+    S1.From_CC1((int8u) ((S.hi&0x000000000000FF00LL)>> 8)); append(S1); append(_T("-"));
     S1.From_CC2((int16u)((S.lo&0xFFFF000000000000LL)>>48)); append(S1); append(_T("-"));
     S1.From_CC2((int16u)((S.lo&0x0000FFFF00000000LL)>>32)); append(S1);
     S1.From_CC2((int16u)((S.lo&0x00000000FFFF0000LL)>>16)); append(S1);
@@ -985,13 +1026,13 @@ Ztring& Ztring::Date_From_Seconds_1904 (const int64u Value)
 
         assign (ToReturn.c_str());
         */ //WxDateTime is buggy???
-        if (Value>=2082844800 && Value<2082844800+0x100000000LL) //Values <1970 and >2038 are not supported
+        if (Value>2082844800 && Value<2082844800+0x100000000LL) //Values <1970 and >2038 are not supported, 1970-01-01 00:00:00 is considered as not possible too
             Date_From_Seconds_1970((int32u)(Value-2082844800));
         else
             clear(); //Not supported
 
     #else //ZENLIB_USEWX
-        if (Value>=2082844800 && Value<2082844800+0x100000000LL) //Values <1970 and >2038 are not supported
+        if (Value>2082844800 && Value<2082844800+0x100000000LL) //Values <1970 and >2038 are not supported, 1970-01-01 00:00:00 is considered as not possible too
             Date_From_Seconds_1970((int32u)(Value-2082844800));
         else
             clear(); //Not supported
@@ -1005,6 +1046,32 @@ Ztring& Ztring::Date_From_Seconds_1970 (const int32u Value)
     struct tm *Gmt=gmtime(&Time);
     Ztring DateT;
     Ztring Date=_T("UTC ");
+    Date+=Ztring::ToZtring((Gmt->tm_year+1900));
+    Date+=_T("-");
+    DateT.From_Number(Gmt->tm_mon+1); if (DateT.size()<2){DateT=Ztring(_T("0"))+Ztring::ToZtring(Gmt->tm_mon+1);}
+    Date+=DateT;
+    Date+=_T("-");
+    DateT.From_Number(Gmt->tm_mday); if (DateT.size()<2){DateT=Ztring(_T("0"))+Ztring::ToZtring(Gmt->tm_mday);}
+    Date+=DateT;
+    Date+=_T(" ");
+    DateT.From_Number(Gmt->tm_hour); if (DateT.size()<2){DateT=Ztring(_T("0"))+Ztring::ToZtring(Gmt->tm_hour);}
+    Date+=DateT;
+    Date+=_T(":");
+    DateT=Ztring::ToZtring(Gmt->tm_min); if (DateT.size()<2){DateT=Ztring(_T("0"))+Ztring::ToZtring(Gmt->tm_min);}
+    Date+=DateT;
+    Date+=_T(":");
+    DateT.From_Number(Gmt->tm_sec); if (DateT.size()<2){DateT=Ztring(_T("0"))+Ztring::ToZtring(Gmt->tm_sec);}
+    Date+=DateT;
+    assign (Date.c_str());
+    return *this;
+}
+
+Ztring& Ztring::Date_From_Seconds_1970_Local (const int32u Value)
+{
+    time_t Time=(time_t)Value;
+    struct tm *Gmt=localtime(&Time);
+    Ztring DateT;
+    Ztring Date;
     Date+=Ztring::ToZtring((Gmt->tm_year+1900));
     Date+=_T("-");
     DateT.From_Number(Gmt->tm_mon+1); if (DateT.size()<2){DateT=Ztring(_T("0"))+Ztring::ToZtring(Gmt->tm_mon+1);}
@@ -1274,6 +1341,92 @@ std::string Ztring::To_Local () const
     #else
         return c_str();
     #endif
+}
+
+//---------------------------------------------------------------------------
+int128u Ztring::To_UUID () const
+{
+    if (size()!=36)
+        return 0;
+
+    Ztring Temp=*this;
+
+    for (size_t Pos=0; Pos<36; Pos++)
+    {
+        if ((Temp[Pos]< _T('0') || Temp[Pos]> _T('9'))
+         && (Temp[Pos]< _T('A') || Temp[Pos]> _T('F'))
+         && (Temp[Pos]< _T('a') || Temp[Pos]> _T('f')))
+            return 0;
+        if (Temp[Pos]>=_T('A') && Temp[Pos]<=_T('F'))
+        {
+            Temp[Pos]-=_T('A');
+            Temp[Pos]-=_T('9')+1;
+        }
+        if (Temp[Pos]>=_T('a') && Temp[Pos]<=_T('f'))
+        {
+            Temp[Pos]-=_T('a');
+            Temp[Pos]-=_T('9')+1;
+        }
+
+        switch(Pos)
+        {
+            case  7 :
+            case 12 :
+            case 17 :
+            case 22 :
+                        if (at(Pos+1)!=_T('-'))
+                            return 0;
+                        Pos++; //Skipping dash in the test
+        }
+    }
+    
+    int128u I;
+    I.hi=((int64u)((int8u)(at( 0)-'0'))<<60)
+       | ((int64u)((int8u)(at( 1)-'0'))<<56)
+       | ((int64u)((int8u)(at( 2)-'0'))<<52)
+       | ((int64u)((int8u)(at( 3)-'0'))<<48)
+       | ((int64u)((int8u)(at( 4)-'0'))<<44)
+       | ((int64u)((int8u)(at( 5)-'0'))<<40)
+       | ((int64u)((int8u)(at( 6)-'0'))<<36)
+       | ((int64u)((int8u)(at( 7)-'0'))<<32)
+       | ((int64u)((int8u)(at( 9)-'0'))<<28)
+       | ((int64u)((int8u)(at(10)-'0'))<<24)
+       | ((int64u)((int8u)(at(11)-'0'))<<20)
+       | ((int64u)((int8u)(at(12)-'0'))<<16)
+       | ((int64u)((int8u)(at(14)-'0'))<<12)
+       | ((int64u)((int8u)(at(15)-'0'))<< 8)
+       | ((int64u)((int8u)(at(16)-'0'))<< 4)
+       | ((int64u)((int8u)(at(17)-'0'))    );
+    I.lo=((int64u)((int8u)(at(19)-'0'))<<60)
+       | ((int64u)((int8u)(at(20)-'0'))<<56)
+       | ((int64u)((int8u)(at(21)-'0'))<<52)
+       | ((int64u)((int8u)(at(22)-'0'))<<48)
+       | ((int64u)((int8u)(at(24)-'0'))<<44)
+       | ((int64u)((int8u)(at(25)-'0'))<<40)
+       | ((int64u)((int8u)(at(26)-'0'))<<36)
+       | ((int64u)((int8u)(at(27)-'0'))<<32)
+       | ((int64u)((int8u)(at(28)-'0'))<<28)
+       | ((int64u)((int8u)(at(29)-'0'))<<24)
+       | ((int64u)((int8u)(at(30)-'0'))<<20)
+       | ((int64u)((int8u)(at(31)-'0'))<<16)
+       | ((int64u)((int8u)(at(32)-'0'))<<12)
+       | ((int64u)((int8u)(at(33)-'0'))<< 8)
+       | ((int64u)((int8u)(at(34)-'0'))<< 4)
+       | ((int64u)((int8u)(at(35)-'0'))    );
+
+    return I;
+}
+
+//---------------------------------------------------------------------------
+int32u Ztring::To_CC4 () const
+{
+    int32u I;
+    I =((int32u)((int8u)at(0))<<24)
+     | ((int32u)((int8u)at(1))<<16)
+     | ((int32u)((int8u)at(2))<< 8)
+     | ((int32u)((int8u)at(3))    );
+
+    return I;
 }
 
 //---------------------------------------------------------------------------
@@ -1693,14 +1846,17 @@ Ztring Ztring::SubString (const tstring &Begin, const tstring &End, size_type Po
 //FindAndReplace
 Ztring::size_type Ztring::FindAndReplace (const ZenLib::tstring &ToFind, const ZenLib::tstring &ReplaceBy, size_type Pos, ZenLib::ztring_t Options)
 {
-   size_type Count=0;
-   size_type Middle=Pos;
-   while (!(Count==1 && !(Options&Ztring_Recursive)) && (Middle=find(ToFind, Middle))!=npos)
-   {
-      replace(Middle, ToFind.length(), ReplaceBy);
-      Middle += ReplaceBy.length();
-      Count++;
-   }
+    if (ToFind.empty())
+        return 0;
+
+    size_type Count=0;
+    size_type Middle=Pos;
+    while (!(Count==1 && !(Options&Ztring_Recursive)) && (Middle=find(ToFind, Middle))!=npos)
+    {
+        replace(Middle, ToFind.length(), ReplaceBy);
+        Middle += ReplaceBy.length();
+        Count++;
+    }
 
     return Count;
 }

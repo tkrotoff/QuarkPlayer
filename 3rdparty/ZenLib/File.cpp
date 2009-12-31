@@ -33,6 +33,10 @@
     #include <wx/utils.h>
 #else //ZENLIB_USEWX
     #ifdef ZENLIB_STANDARD
+        #ifdef WINDOWS
+        #else
+            #include <cstdio>
+        #endif
         /*
         #ifdef WINDOWS
             #include <io.h>
@@ -98,8 +102,10 @@ File::~File()
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-bool File::Open (Ztring File_Name, access_t Access)
+bool File::Open (const tstring &File_Name_, access_t Access)
 {
+    File_Name=File_Name_;
+
     #ifdef ZENLIB_USEWX
         File_Handle=(void*)new wxFile();
         if (((wxFile*)File_Handle)->Open(File_Name.c_str(), (wxFile::OpenMode)Access)==0)
@@ -133,10 +139,15 @@ bool File::Open (Ztring File_Name, access_t Access)
             ios_base::openmode mode;
             switch (Access)
             {
-                case Access_Read         : mode=ios_base::binary|ios_base::in          ; break;
-                case Access_Write        : mode=ios_base::binary|/*ios_base::in|*/ios_base::out; break;
-                case Access_Write_Append : mode=ios_base::binary|/*ios_base::in|*/ios_base::out|ios_base::app ; break; //Fail with Linux
-                default                  :                           ; break;
+                case Access_Read         : mode=ios_base::binary|ios_base::in; break;
+                case Access_Write        : mode=ios_base::binary|ios_base::out; break;
+                case Access_Read_Write   : mode=ios_base::binary|ios_base::in|ios_base::out; break;
+                case Access_Write_Append : if (!Exists(File_Name))
+                                                mode=ios_base::binary|ios_base::out;
+                                           else
+                                                mode=ios_base::binary|ios_base::out|ios_base::app;
+                                           break;
+                default                  : ;
             }
             #ifdef UNICODE
                 File_Handle=new fstream(File_Name.To_Local().c_str(), mode);
@@ -184,7 +195,7 @@ bool File::Open (Ztring File_Name, access_t Access)
                 Sleep(1000);
                 #ifdef UNICODE
                     if (IsWin9X())
-                        File_Handle=CreateFileA(File_Name.To_Local().c_str(), dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, 0, NULL);
+                        File_Handle=CreateFileA(Ztring(File_Name).To_Local().c_str(), dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, 0, NULL);
                     else
                         File_Handle=CreateFileW(File_Name.c_str(), dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, 0, NULL);
                 #else
@@ -205,7 +216,7 @@ bool File::Open (Ztring File_Name, access_t Access)
 }
 
 //---------------------------------------------------------------------------
-bool File::Create (Ztring File_Name, bool OverWrite)
+bool File::Create (const Ztring &File_Name, bool OverWrite)
 {
     #ifdef ZENLIB_USEWX
         File_Handle=(void*)new wxFile();
@@ -304,6 +315,8 @@ void File::Close ()
             CloseHandle(File_Handle); File_Handle=NULL;
         #endif
     #endif //ZENLIB_USEWX
+    Position=(int64u)-1;
+    Size=(int64u)-1;
 }
 
 //***************************************************************************
@@ -327,7 +340,7 @@ size_t File::Read (int8u* Buffer, size_t Buffer_Size_Max)
                 Position_Get();
             if (Size==(int64u)-1)
                 Size_Get();
-            if (Position+Buffer_Size_Max>Size)
+            if (Position!=(int64u)-1 && Position+Buffer_Size_Max>Size)
                 Buffer_Size_Max=(size_t)(Size-Position); //We don't want to enable eofbit (impossible to seek after)
             ((fstream*)File_Handle)->read((char*)Buffer, Buffer_Size_Max);
             size_t ByteRead=((fstream*)File_Handle)->gcount();
@@ -379,7 +392,7 @@ size_t File::Write (const int8u* Buffer, size_t Buffer_Size)
 }
 
 //---------------------------------------------------------------------------
-size_t File::Write (Ztring ToWrite)
+size_t File::Write (const Ztring &ToWrite)
 {
     std::string AnsiString=ToWrite.To_UTF8();
     return Write((const int8u*)AnsiString.c_str(), AnsiString.size());
@@ -475,12 +488,19 @@ int64u File::Size_Get()
             lseek(File_Handle, CurrentPos, SEEK_SET);
             */
             streampos CurrentPos=((fstream*)File_Handle)->tellg();
-            ((fstream*)File_Handle)->seekg(0, ios_base::end);
-            Size=((fstream*)File_Handle)->tellg();
-            ((fstream*)File_Handle)->seekg(CurrentPos, ios_base::beg);
+            if (CurrentPos!=(streampos)-1)
+            {
+                ((fstream*)File_Handle)->seekg(0, ios_base::end);
+                Size=((fstream*)File_Handle)->tellg();
+                ((fstream*)File_Handle)->seekg(CurrentPos, ios_base::beg);
+            }
+            else
+                Size=(int64u)-1;
             return Size;
         #elif defined WINDOWS
             DWORD High;DWORD Low=GetFileSize(File_Handle, &High);
+            if (Low==INVALID_FILE_SIZE && GetLastError()!=NO_ERROR)
+                return (int64u)-1;    
             Size=0x100000000ULL*High+Low;
             return Size;
         #endif
@@ -573,7 +593,6 @@ Ztring File::Modified_Get()
         if (File_Handle==NULL)
     #else //ZENLIB_USEWX
         #ifdef ZENLIB_STANDARD
-            //if (File_Handle==-1)
             if (File_Handle==NULL)
         #elif defined WINDOWS
             if (File_Handle==NULL)
@@ -585,7 +604,12 @@ Ztring File::Modified_Get()
         return _T(""); //Not implemented
     #else //ZENLIB_USEWX
         #ifdef ZENLIB_STANDARD
-            return _T(""); //Not implemented
+            struct stat Stat;
+            int Result=stat(File_Name.To_Local().c_str(), &Stat);
+            if (Result<0)
+                return _T(""); //Error
+            Ztring Time; Time.Date_From_Seconds_1970(Stat.st_mtime);
+            return Time;
         #elif defined WINDOWS
             FILETIME TimeFT;
             if (GetFileTime(File_Handle, NULL, NULL, &TimeFT))
@@ -619,7 +643,12 @@ Ztring File::Modified_Local_Get()
         return _T(""); //Not implemented
     #else //ZENLIB_USEWX
         #ifdef ZENLIB_STANDARD
-            return _T(""); //Not implemented
+            struct stat Stat;
+            int Result=stat(File_Name.To_Local().c_str(), &Stat);
+            if (Result<0)
+                return _T(""); //Error
+            Ztring Time; Time.Date_From_Seconds_1970_Local(Stat.st_mtime);
+            return Time;
         #elif defined WINDOWS
             FILETIME TimeFT;
             if (GetFileTime(File_Handle, NULL, NULL, &TimeFT))
@@ -743,21 +772,23 @@ bool File::Copy(const Ztring &Source, const Ztring &Destination, bool OverWrite)
 //---------------------------------------------------------------------------
 bool File::Move(const Ztring &Source, const Ztring &Destination, bool OverWrite)
 {
+    if (OverWrite && Exists(Source))
+        Delete(Destination);
     #ifdef ZENLIB_USEWX
         if (OverWrite && Exists(Destination))
             wxRemoveFile(Destination.c_str());
         return wxRenameFile(Source.c_str(), Destination.c_str());
     #else //ZENLIB_USEWX
         #ifdef ZENLIB_STANDARD
-            return false;
+            return !std::rename(Source.To_Local().c_str(), Destination.To_Local().c_str());
         #elif defined WINDOWS
             #ifdef UNICODE
                 if (IsWin9X())
-                    return CopyFileA(Source.To_Local().c_str(), Destination.To_Local().c_str(), !OverWrite)!=0;
+                    return MoveFileA(Source.To_Local().c_str(), Destination.To_Local().c_str())!=0;
                 else
-                    return CopyFileW(Source.c_str(), Destination.c_str(), !OverWrite)!=0;
+                    return MoveFileW(Source.c_str(), Destination.c_str())!=0;
             #else
-                return CopyFile(Source.c_str(), Destination.c_str(), !OverWrite)!=0;
+                return MoveFile(Source.c_str(), Destination.c_str())!=0;
             #endif //UNICODE
         #endif
     #endif //ZENLIB_USEWX

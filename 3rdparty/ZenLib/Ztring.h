@@ -81,6 +81,9 @@ public :
         ///Same as [], but resize the string if Pos doesn't exist yet
     Char &operator () (size_type Pos);
 
+    //Assign
+    bool Assign_FromFile (const Ztring &FileName);
+
     //Conversions - From
     #ifndef WSTRING_MISSING
         /// @brief convert an Unicode encoded string into Ztring
@@ -194,6 +197,8 @@ public :
     Ztring& Date_From_Seconds_1904 (const int64u Seconds);
         /// @brief convert count of seconds since 1970 into a readable and sortable string
     Ztring& Date_From_Seconds_1970 (const int32u Seconds);
+        /// @brief convert count of seconds since 1970 into a readable and sortable string (in local time)
+    Ztring& Date_From_Seconds_1970_Local (const int32u Seconds);
         /// @brief convert a free formated string into a readable and sortable string
     Ztring& Date_From_String (const char* Date, size_type Value_Size=Error);
         /// @brief convert numbers into a readable and sortable string
@@ -211,6 +216,14 @@ public :
         /// @brief Convert into char* (Local encoded)
         /// @return the string corresponding \n
     std::string To_Local    () const;
+        /// @brief Convert into 16 byte UUID number
+        /// @return the value corresponding \n
+        ///         0 if there is a problem
+    int128u     To_UUID    () const;
+        /// @brief Convert into a 4 Character Code
+        /// @return the value corresponding \n
+        ///         0 if there is a problem
+    int32u      To_CC4    () const;
         /// @brief Convert into Int (8 bits)
         /// @return the value corresponding \n
         ///         0 if there is a problem

@@ -44,6 +44,7 @@
         #include <sys/types.h>
         #undef __TEXT //dirent include windows.h on Windows/Borland
         #include <dirent.h>
+        #include <glob.h>
     #endif
 #endif //ZENLIB_USEWX
 #include "ZenLib/Dir.h"
@@ -175,7 +176,7 @@ ZtringList Dir::GetAllFileNames(const Ztring &Dir_Name_, dirlist_t Options)
                         if (Options&Parse_SubDirs)
                             ToReturn+=GetAllFileNames(File_Name_Complete, Options); //A SubDir
                     }
-                    else
+                    else if ((Options&Include_Hidden) || (!File_Name.empty() && File_Name[0]!=_T('.')))
                         ToReturn.push_back(File_Name_Complete); //A file
                 }
                 #ifdef UNICODE
@@ -231,13 +232,22 @@ ZtringList Dir::GetAllFileNames(const Ztring &Dir_Name_, dirlist_t Options)
                             if (Options&Parse_SubDirs)
                                 ToReturn+=GetAllFileNames(File_Name_Complete, Options); //A SubDir
                         }
-                        else
+                        else if ((Options&Include_Hidden) || (!File_Name.empty() && File_Name[0]!=_T('.')))
                             ToReturn.push_back(File_Name_Complete); //A file
                     }
                 }
 
                 //Close it
                 closedir(Dir);
+            }
+            else
+            {
+                glob_t globbuf;
+                if (glob(Dir_Name.To_Local().c_str(), GLOB_NOSORT, NULL, &globbuf)==0)
+                {
+                    for (int Pos=0; Pos<globbuf.gl_pathc; Pos++)
+                        ToReturn.push_back(Ztring().From_Local(globbuf.gl_pathv[Pos]));
+                }
             }
         #endif
     #endif //ZENLIB_USEWX
@@ -296,8 +306,8 @@ bool Dir::Create(const Ztring &File_Name)
                 return CreateDirectory(File_Name.c_str(), NULL)!=0;
             #endif //UNICODE
         #else //WINDOWS
-            return false;
-        #endif
+            return mkdir(File_Name.To_Local().c_str(), 0700)==0;
+        #endif //WINDOWS
     #endif //ZENLIB_USEWX
 }
 
