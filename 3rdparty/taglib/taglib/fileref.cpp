@@ -29,6 +29,7 @@
 
 #include <tfile.h>
 #include <tstring.h>
+#include <tdebug.h>
 
 #include "fileref.h"
 #include "asffile.h"
@@ -93,11 +94,19 @@ FileRef::~FileRef()
 
 Tag *FileRef::tag() const
 {
+  if(isNull()) {
+    debug("FileRef::tag() - Called without a valid file.");
+    return 0;
+  }
   return d->file->tag();
 }
 
 AudioProperties *FileRef::audioProperties() const
 {
+  if(isNull()) {
+    debug("FileRef::audioProperties() - Called without a valid file.");
+    return 0;
+  }
   return d->file->audioProperties();
 }
 
@@ -108,6 +117,10 @@ File *FileRef::file() const
 
 bool FileRef::save()
 {
+  if(isNull()) {
+    debug("FileRef::save() - Called without a valid file.");
+    return false;
+  }
   return d->file->save();
 }
 
@@ -129,14 +142,14 @@ StringList FileRef::defaultFileExtensions()
   l.append("wv");
   l.append("spx");
   l.append("tta");
-#ifdef WITH_MP4
+#ifdef TAGLIB_WITH_MP4
   l.append("m4a");
   l.append("m4b");
   l.append("m4p");
   l.append("3g2");
   l.append("mp4");
 #endif
-#ifdef WITH_ASF
+#ifdef TAGLIB_WITH_ASF
   l.append("wma");
   l.append("asf");
 #endif
@@ -205,12 +218,18 @@ File *FileRef::create(FileName fileName, bool readAudioProperties,
   int pos = s.rfind(".");
   if(pos != -1) {
     String ext = s.substr(pos + 1).upper();
-    if(ext == "OGG")
-      return new Ogg::Vorbis::File(fileName, readAudioProperties, audioPropertiesStyle);
     if(ext == "MP3")
       return new MPEG::File(fileName, readAudioProperties, audioPropertiesStyle);
-    if(ext == "OGA")
-      return new Ogg::FLAC::File(fileName, readAudioProperties, audioPropertiesStyle);
+    if(ext == "OGG")
+      return new Ogg::Vorbis::File(fileName, readAudioProperties, audioPropertiesStyle);
+    if(ext == "OGA") {
+      /* .oga can be any audio in the Ogg container. First try FLAC, then Vorbis. */
+      File *file = new Ogg::FLAC::File(fileName, readAudioProperties, audioPropertiesStyle);
+      if (file->isValid())
+        return file;
+      delete file;
+      return new Ogg::Vorbis::File(fileName, readAudioProperties, audioPropertiesStyle);
+    }
     if(ext == "FLAC")
       return new FLAC::File(fileName, readAudioProperties, audioPropertiesStyle);
     if(ext == "MPC")
@@ -221,11 +240,11 @@ File *FileRef::create(FileName fileName, bool readAudioProperties,
       return new Ogg::Speex::File(fileName, readAudioProperties, audioPropertiesStyle);
     if(ext == "TTA")
       return new TrueAudio::File(fileName, readAudioProperties, audioPropertiesStyle);
-#ifdef WITH_MP4
+#ifdef TAGLIB_WITH_MP4
     if(ext == "M4A" || ext == "M4B" || ext == "M4P" || ext == "MP4" || ext == "3G2")
       return new MP4::File(fileName, readAudioProperties, audioPropertiesStyle);
 #endif
-#ifdef WITH_ASF
+#ifdef TAGLIB_WITH_ASF
     if(ext == "WMA" || ext == "ASF")
       return new ASF::File(fileName, readAudioProperties, audioPropertiesStyle);
 #endif

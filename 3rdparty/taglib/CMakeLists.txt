@@ -2,6 +2,8 @@ project(taglib)
 
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
+OPTION(ENABLE_STATIC "Make static version of libtag"  OFF)
+
 OPTION(BUILD_TESTS "Build the test suite"  OFF)
 OPTION(BUILD_EXAMPLES "Build the examples"  OFF)
 
@@ -37,8 +39,8 @@ if (WIN32)
 endif (WIN32)
 
 SET(TAGLIB_LIB_MAJOR_VERSION "1")
-SET(TAGLIB_LIB_MINOR_VERSION "5")
-SET(TAGLIB_LIB_PATCH_VERSION "0")
+SET(TAGLIB_LIB_MINOR_VERSION "6")
+SET(TAGLIB_LIB_PATCH_VERSION "1")
 
 SET(TAGLIB_LIB_VERSION_STRING "${TAGLIB_LIB_MAJOR_VERSION}.${TAGLIB_LIB_MINOR_VERSION}.${TAGLIB_LIB_PATCH_VERSION}")
 
@@ -46,10 +48,21 @@ SET(TAGLIB_LIB_VERSION_STRING "${TAGLIB_LIB_MAJOR_VERSION}.${TAGLIB_LIB_MINOR_VE
 include(ConfigureChecks.cmake)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/taglib-config.cmake ${CMAKE_CURRENT_BINARY_DIR}/taglib-config )
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/taglib.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/taglib.pc )
 
+if(NOT WIN32)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/taglib.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/taglib.pc )
+endif(NOT WIN32)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 configure_file(config-taglib.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h )
+
+if(WITH_ASF)
+    set(TAGLIB_WITH_ASF TRUE)
+endif(WITH_ASF)
+if(WITH_MP4)
+    set(TAGLIB_WITH_MP4 TRUE)
+endif(WITH_MP4)
+configure_file(taglib/taglib_config.h.cmake ${CMAKE_CURRENT_SOURCE_DIR}/taglib_config.h )
+install( FILES  ${CMAKE_CURRENT_BINARY_DIR}/taglib_config.h DESTINATION ${INCLUDE_INSTALL_DIR}/taglib)
 
 ADD_SUBDIRECTORY( taglib )
 
@@ -60,7 +73,5 @@ ADD_SUBDIRECTORY( taglib )
 #if(NOT WIN32)
 #  install( FILES  ${CMAKE_CURRENT_BINARY_DIR}/taglib.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig )
 #endif(NOT WIN32)
-#
+
 #INSTALL( PROGRAMS  ${CMAKE_CURRENT_BINARY_DIR}/taglib-config DESTINATION ${BIN_INSTALL_DIR})
-
-

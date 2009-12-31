@@ -1,5 +1,5 @@
 /**************************************************************************
-    copyright            : (C) 2005-2007 by Lukáš Lalinský
+    copyright            : (C) 2009 by Lukáš Lalinský
     email                : lalinsky@gmail.com
  **************************************************************************/
 
@@ -23,52 +23,49 @@
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#ifndef TAGLIB_ASFPROPERTIES_H
-#define TAGLIB_ASFPROPERTIES_H
+#ifndef TAGLIB_MP4COVERART_H
+#define TAGLIB_MP4COVERART_H
 
-#include "audioproperties.h"
-#include "tstring.h"
+#include "tlist.h"
+#include "tbytevector.h"
 #include "taglib_export.h"
 
 namespace TagLib {
 
-  namespace ASF {
+  namespace MP4 {
 
-    //! An implementation of ASF audio properties
-    class TAGLIB_EXPORT Properties : public AudioProperties
+    class TAGLIB_EXPORT CoverArt
     {
     public:
-
       /*!
-       * Create an instance of ASF::Properties.
+       * This describes the image type.
        */
-      Properties();
+      enum Format {
+        JPEG = 0x0D,
+        PNG  = 0x0E
+      };
 
-      /*!
-       * Destroys this ASF::Properties instance.
-       */
-      virtual ~Properties();
+      CoverArt(Format format, const ByteVector &data);
+      ~CoverArt();
 
-      // Reimplementations.
-      virtual int length() const;
-      virtual int bitrate() const;
-      virtual int sampleRate() const;
-      virtual int channels() const;
+      CoverArt(const CoverArt &item);
+      CoverArt &operator=(const CoverArt &item);
 
-#ifndef DO_NOT_DOCUMENT
-      void setLength(int value);
-      void setBitrate(int value);
-      void setSampleRate(int value);
-      void setChannels(int value);
-#endif
+      //! Format of the image
+      Format format() const;
+
+      //! The image data
+      ByteVector data() const;
 
     private:
-      class PropertiesPrivate;
-      PropertiesPrivate *d;
+      class CoverArtPrivate;
+      CoverArtPrivate *d;
     };
+
+    typedef List<CoverArt> CoverArtList;
 
   }
 
 }
 
-#endif 
+#endif

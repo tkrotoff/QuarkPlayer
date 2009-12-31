@@ -1,5 +1,5 @@
 /**************************************************************************
-    copyright            : (C) 2005-2007 by Lukáš Lalinský
+    copyright            : (C) 2009 by Lukáš Lalinský
     email                : lalinsky@gmail.com
  **************************************************************************/
 
@@ -23,52 +23,67 @@
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#ifndef TAGLIB_ASFPROPERTIES_H
-#define TAGLIB_ASFPROPERTIES_H
-
-#include "audioproperties.h"
-#include "tstring.h"
-#include "taglib_export.h"
-
-namespace TagLib {
-
-  namespace ASF {
-
-    //! An implementation of ASF audio properties
-    class TAGLIB_EXPORT Properties : public AudioProperties
-    {
-    public:
-
-      /*!
-       * Create an instance of ASF::Properties.
-       */
-      Properties();
-
-      /*!
-       * Destroys this ASF::Properties instance.
-       */
-      virtual ~Properties();
-
-      // Reimplementations.
-      virtual int length() const;
-      virtual int bitrate() const;
-      virtual int sampleRate() const;
-      virtual int channels() const;
-
-#ifndef DO_NOT_DOCUMENT
-      void setLength(int value);
-      void setBitrate(int value);
-      void setSampleRate(int value);
-      void setChannels(int value);
+#ifdef HAVE_CONFIG_H
+#include <config.h>
 #endif
 
-    private:
-      class PropertiesPrivate;
-      PropertiesPrivate *d;
-    };
+#ifdef WITH_MP4
 
-  }
+#include <taglib.h>
+#include <tdebug.h>
+#include "mp4coverart.h"
 
+using namespace TagLib;
+
+class MP4::CoverArt::CoverArtPrivate : public RefCounter
+{
+public:
+  CoverArtPrivate() : RefCounter(), format(MP4::CoverArt::JPEG) {}
+
+  Format format;
+  ByteVector data;
+};
+
+MP4::CoverArt::CoverArt(Format format, const ByteVector &data)
+{
+  d = new CoverArtPrivate;
+  d->format = format;
+  d->data = data;
 }
 
-#endif 
+MP4::CoverArt::CoverArt(const CoverArt &item) : d(item.d)
+{
+  d->ref();
+}
+
+MP4::CoverArt &
+MP4::CoverArt::operator=(const CoverArt &item)
+{
+  if(d->deref()) {
+    delete d;
+  }
+  d = item.d;
+  d->ref();
+  return *this;
+}
+
+MP4::CoverArt::~CoverArt()
+{
+  if(d->deref()) {
+    delete d;
+  }
+}
+
+MP4::CoverArt::Format
+MP4::CoverArt::format() const
+{
+  return d->format;
+}
+
+ByteVector
+MP4::CoverArt::data() const
+{
+  return d->data;
+}
+
+#endif
