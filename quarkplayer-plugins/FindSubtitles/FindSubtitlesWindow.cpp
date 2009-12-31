@@ -1,7 +1,7 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -248,14 +248,17 @@ void FindSubtitlesWindow::downloadFinished(QNetworkReply * reply) {
 	QNetworkReply::NetworkError error = reply->error();
 	QUrl url = reply->url();
 
-	qDebug() << __FUNCTION__ << error << url;
+	qDebug() << __FUNCTION__ << url << error << reply->errorString();
+
+	//Remove the progress bar since the download ended
+	_ui->progressBar->setMaximum(1);
+	_ui->progressBar->setValue(0);
+	_ui->progressBar->hide();
+	///
 
 	switch (error) {
 	case QNetworkReply::NoError: {
 		_ui->statusLabel->setText(tr("Done."));
-		_ui->progressBar->setMaximum(1);
-		_ui->progressBar->setValue(0);
-		_ui->progressBar->hide();
 
 		QByteArray data(reply->readAll());
 
@@ -272,8 +275,9 @@ void FindSubtitlesWindow::downloadFinished(QNetworkReply * reply) {
 	}
 
 	default:
-		_ui->statusLabel->setText(tr("Error: download failed, network error: %1").arg(error));
-		qCritical() << __FUNCTION__ << "Network error:" << error << " " << reply->errorString();
+		//An error occured
+		_ui->statusLabel->setText(tr("Download failed, error: %1")
+			.arg(reply->errorString()));
 		break;
 	}
 }
