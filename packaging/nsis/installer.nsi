@@ -1,7 +1,7 @@
 ;
 ; NSIS installer script for QuarkPlayer
 ;
-; Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+; Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
 ;
 
 ; Global variables, already defined by CMake.
