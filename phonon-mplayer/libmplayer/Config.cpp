@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -65,8 +65,8 @@ QString Config::mplayerPath() const {
 
 QString Config::mplayerConfigPath() const {
 #ifdef Q_OS_WIN
-	//Under Windows, config file should be inside a subdirectory named mplayer
-	QString defaultMPlayerConfigPath = "mplayer/config";
+	//Under Windows, config file should be inside a subdirectory named mplayer/mplayer
+	QString defaultMPlayerConfigPath = "mplayer/mplayer/config";
 #else
 	QString defaultMPlayerConfigPath = "~/.mplayer/config";
 #endif
