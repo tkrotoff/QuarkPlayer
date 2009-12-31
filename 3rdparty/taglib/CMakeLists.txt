@@ -61,7 +61,7 @@ endif(WITH_ASF)
 if(WITH_MP4)
     set(TAGLIB_WITH_MP4 TRUE)
 endif(WITH_MP4)
-configure_file(taglib/taglib_config.h.cmake ${CMAKE_CURRENT_SOURCE_DIR}/taglib_config.h )
+configure_file(taglib/taglib_config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/taglib_config.h )
 install( FILES  ${CMAKE_CURRENT_BINARY_DIR}/taglib_config.h DESTINATION ${INCLUDE_INSTALL_DIR}/taglib)
 
 ADD_SUBDIRECTORY( taglib )

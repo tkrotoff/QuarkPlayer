@@ -3,6 +3,7 @@ project(MediaInfoFetcher)
 if (TAGLIB)
 	# This is because of the pretty strange taglib structure
 	include_directories(${CMAKE_SOURCE_DIR}/3rdparty/taglib)
+	include_directories(${CMAKE_BINARY_DIR}/3rdparty/taglib)
 endif (TAGLIB)
 
 configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
