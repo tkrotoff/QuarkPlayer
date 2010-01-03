@@ -16,7 +16,7 @@ Delete "$INSTDIR\icons\mimetypes\*.ico"
 
 
 SetOutPath "$INSTDIR"
-File "${BUILD_DIR}\*.exe"
+File "${BUILD_DIR}\quarkplayer.exe"
 File "${BUILD_DIR}\*.dll"
 
 File "${BUILD_DIR}\README"
