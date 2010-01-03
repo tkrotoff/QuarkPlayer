@@ -1,7 +1,7 @@
 /*
  * MPlayer backend for the Phonon library
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,6 +25,8 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
+
+const char * MPLAYER_LOG = "MPLAYER";
 
 /** MPlayer works using seconds, we prefer to work using milliseconds. */
 static const double SECONDS_CONVERTION = 1000.0;
@@ -202,26 +204,26 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 
 void MPlayerProcess::stop() {
 	if (!isRunning()) {
-		qWarning() << __FUNCTION__ << "MPlayer not running";
+		qWarning() << MPLAYER_LOG << __FUNCTION__ << "MPlayer not running";
 		return;
 	}
 
 	sendCommand("quit");
 
-	qDebug() << __FUNCTION__ << "Finishing MPlayer...";
+	qDebug() << MPLAYER_LOG << __FUNCTION__ << "Finishing MPlayer...";
 	if (!waitForFinished(5000)) {
-		qDebug() << __FUNCTION__ << "Killing MPlayer...";
+		qDebug() << MPLAYER_LOG << __FUNCTION__ << "Killing MPlayer...";
 		kill();
-		qDebug() << __FUNCTION__ << "MPlayer killed";
+		qDebug() << MPLAYER_LOG << __FUNCTION__ << "MPlayer killed";
 	}
 
-	qDebug() << __FUNCTION__ << "MPlayer finished";
+	qDebug() << MPLAYER_LOG << __FUNCTION__ << "MPlayer finished";
 }
 
 bool MPlayerProcess::sendCommand(const QString & command) {
 	bool result = false;
 
-	qDebug() << __FUNCTION__ << "Command:" << command;
+	qDebug() << MPLAYER_LOG << __FUNCTION__ << "Command:" << command;
 
 	if (!command.isEmpty()) {
 		if (isRunning()) {
@@ -229,13 +231,13 @@ bool MPlayerProcess::sendCommand(const QString & command) {
 			if (nbBytes != -1) {
 				result = true;
 			} else {
-				qWarning() << __FUNCTION__ << "Error: couldn't write inside MPlayer process";
+				qWarning() << MPLAYER_LOG << __FUNCTION__ << "Error: couldn't write inside MPlayer process";
 			}
 		} else {
-			qWarning() << __FUNCTION__ << "Error: MPlayer process not running";
+			qWarning() << MPLAYER_LOG << __FUNCTION__ << "Error: MPlayer process not running";
 		}
 	} else {
-		qWarning() << __FUNCTION__ << "Error: empty MPlayer command";
+		qWarning() << MPLAYER_LOG << __FUNCTION__ << "Error: empty MPlayer command";
 	}
 
 	return result;
@@ -279,7 +281,7 @@ Phonon::ErrorType MPlayerProcess::errorType() const {
 }
 
 void MPlayerProcess::parseLine(const QString & line_) {
-	QString line = line_;
+	QString line(line_);
 
 	//Skip empty lines
 	if (line.isEmpty()) {
@@ -296,7 +298,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		_mediaData.currentTime = (qint64) (rx_av.cap(1).toDouble() * SECONDS_CONVERTION);
 
 		if (_currentState != Phonon::PlayingState) {
-			qDebug() << __FUNCTION__ << "Starting time:" << _mediaData.currentTime;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Starting time:" << _mediaData.currentTime;
 			changeState(Phonon::PlayingState);
 
 			//OK, now all the media datas should be in clean state
@@ -308,14 +310,17 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		//Check for frame number
 		if (rx_frame.indexIn(line) > -1) {
 			int frame = rx_frame.cap(1).toInt();
-			//qDebug() << __FUNCTION__ << "Frame number:" << frame;
+			//qDebug() << MPLAYER_LOG << __FUNCTION__ << "Frame number:" << frame;
 			emit currentFrameNumberReceived(frame);
 		}
 	}
 
 	//Parse other things
 	else {
-		qDebug() << "MPlayer:" << line;
+		//qDebug interprets QString and add "" around it
+		//qDebug does not add "" around a char *
+		qDebug() << MPLAYER_LOG << line.toUtf8().constData();
+		///
 
 		//Loading the file/stream/media
 		//Becarefull! "Playing" does not mean the file is playing but only loading
@@ -333,7 +338,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 
 		//Slow system
 		else if (rx_slowsystem.indexIn(line) > -1) {
-			qDebug() << __FUNCTION__ << "Slow system detected";
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Slow system detected";
 			_errorString = "System too slow to play the media";
 			_errorType = Phonon::NormalError;
 			changeState(Phonon::ErrorState);
@@ -342,13 +347,13 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		//Screenshot
 		else if (rx_screenshot.indexIn(line) > -1) {
 			const QString filename = rx_screenshot.cap(1);
-			qDebug() << __FUNCTION__ << "Screenshot:" << filename;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Screenshot:" << filename;
 			emit screenshotSaved(filename);
 		}
 
 		//End of file
 		else if (rx_endoffile.indexIn(line) > -1) {
-			qDebug() << __FUNCTION__ << "End of file detected";
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "End of file detected";
 
 			//In case of playing VCDs or DVDs, maybe the first title
 			//is not playable, so the GUI doesn't get the info about
@@ -368,7 +373,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			int width = rx_winresolution.cap(4).toInt();
 			int height = rx_winresolution.cap(5).toInt();
 
-			qDebug() << __FUNCTION__ << "Video driver:" << rx_winresolution.cap(1);
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Video driver:" << rx_winresolution.cap(1);
 
 			//Now we know the real video size
 			emit videoWidgetSizeChanged(width, height);
@@ -383,7 +388,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		//No video
 		else if (rx_novideo.indexIn(line) > -1) {
 			_mediaData.hasVideo = false;
-			qDebug() << __FUNCTION__ << "Video:" << _mediaData.hasVideo;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Video:" << _mediaData.hasVideo;
 			emit hasVideoChanged(_mediaData.hasVideo);
 			//emit mplayerFullyLoaded();
 		}
@@ -397,8 +402,8 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		else if (rx_stream_title.indexIn(line) > -1) {
 			QString title = rx_stream_title.cap(1);
 			QString url = rx_stream_title.cap(2);
-			qDebug() << __FUNCTION__ << "Stream title:" << title;
-			qDebug() << __FUNCTION__ << "Stream url:" << url;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Stream title:" << title;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Stream url:" << url;
 			_mediaData.title = title;
 			if (!url.isEmpty() && url.at(url.size() - 1) == '/') {
 				url.remove(url.size() - 1, 1);
@@ -411,7 +416,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		//Stream title only
 		else if (rx_stream_title_only.indexIn(line) > -1) {
 			QString title = rx_stream_title_only.cap(1);
-			qDebug() << __FUNCTION__ << "Stream title:" << title;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Stream title:" << title;
 			_mediaData.title = title;
 
 			emit mediaDataChanged(_mediaData);
@@ -435,21 +440,21 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		//Stream name
 		else if (rx_stream_name.indexIn(line) > -1) {
 			QString name = rx_stream_name.cap(1);
-			qDebug() << __FUNCTION__ << "Stream name:" << name;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Stream name:" << name;
 			_mediaData.streamName = name;
 		}
 
 		//Stream genre
 		else if (rx_stream_genre.indexIn(line) > -1) {
 			QString genre = rx_stream_genre.cap(1);
-			qDebug() << __FUNCTION__ << "Stream genre:" << genre;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Stream genre:" << genre;
 			_mediaData.streamGenre = genre;
 		}
 
 		//Stream website
 		else if (rx_stream_website.indexIn(line) > -1) {
 			QString website = rx_stream_website.cap(1);
-			qDebug() << __FUNCTION__ << "Stream website:" << website;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Stream website:" << website;
 			if (!website.isEmpty() && website.at(website.size() - 1) == '/') {
 				website.remove(website.size() - 1, 1);
 			}
@@ -522,7 +527,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			subtitleData.type = type;
 			_subtitleList[id] = subtitleData;
 
-			qDebug() << __FUNCTION__ << "Subtitle id:" << id << "value:" << value << "type:" << type << "attr:" << attr;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Subtitle id:" << id << "value:" << value << "type:" << type << "attr:" << attr;
 
 			emit subtitleAdded(id, subtitleData);
 		}
@@ -534,7 +539,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			//we want it to start at number 0
 			int id = rx_subtitle_file.cap(1).toInt() - 1;
 			const QString filename = rx_subtitle_file.cap(2);
-			qDebug() << __FUNCTION__ << "Subtitle id:" << id << "file:" << filename;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Subtitle id:" << id << "file:" << filename;
 
 			SubtitleData subtitleData = _subtitleList[id];
 			subtitleData.name = filename;
@@ -544,7 +549,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			emit subtitleAdded(id, subtitleData);
 
 			if (id == 0) {
-				qDebug() << __FUNCTION__ << "Current subtitle changed:" << id;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "Current subtitle changed:" << id;
 				emit subtitleChanged(0);
 			}
 		}
@@ -626,7 +631,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			}
 			_audioChannelList[id] = audioChannelData;
 
-			qDebug() << __FUNCTION__ << "Audio id:" << id << "attr:" << attr << "value:" << value;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Audio id:" << id << "attr:" << attr << "value:" << value;
 
 			emit audioChannelAdded(id, audioChannelData);
 		}
@@ -644,7 +649,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			QString from = rx_mkvchapters.cap(2);
 			QString to = rx_mkvchapters.cap(3);
 			QString title = rx_mkvchapters.cap(4);
-			qDebug() << __FUNCTION__ << "mkv chapter:" << id << "title:" << title << "from:" << from << "to:" << to;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "mkv chapter:" << id << "title:" << title << "from:" << from << "to:" << to;
 
 			emit mkvChapterAdded(id, title, from, to);
 		}
@@ -698,21 +703,21 @@ void MPlayerProcess::parseLine(const QString & line_) {
 
 			if (attr == "CHAPTERS") {
 				int chapters = rx_title.cap(3).toInt();
-				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "chapters:" << chapters;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "DVD titleId:" << titleId << "chapters:" << chapters;
 
 				emit chapterAdded(titleId, chapters);
 			}
 
 			else if (attr == "ANGLES") {
 				int angles = rx_title.cap(3).toInt();
-				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "angles:" << angles;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "DVD titleId:" << titleId << "angles:" << angles;
 
 				emit angleAdded(titleId, angles);
 			}
 
 			else if (attr == "LENGTH") {
 				double length = rx_title.cap(3).toDouble();
-				qDebug() << __FUNCTION__ << "DVD titleId:" << titleId << "length:" << length << "attr:" << attr;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "DVD titleId:" << titleId << "length:" << length << "attr:" << attr;
 
 				emit titleAdded(titleId, (int) (length * SECONDS_CONVERTION));
 			}
@@ -726,7 +731,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		//Resolving URL message
 		else if (rx_resolving.indexIn(line) > -1) {
 			QString msg = rx_resolving.cap(1);
-			qDebug() << __FUNCTION__ << "Resolving:" << msg;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Resolving:" << msg;
 			emit resolvingMessageReceived(msg);
 		}
 
@@ -749,7 +754,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		//Connecting message
 		else if (rx_connecting.indexIn(line) > -1) {
 			QString msg = rx_connecting.cap(1);
-			qDebug() << __FUNCTION__ << "Connecting:" << msg;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Connecting:" << msg;
 			emit connectingMessageReceived(msg);
 			changeState(Phonon::BufferingState);
 		}
@@ -767,7 +772,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			QString tmp = rx_cache_fill.cap(1);
 			tmp = tmp.trimmed();
 			float percentFilled = tmp.toFloat();
-			qDebug() << __FUNCTION__ << "Cache %:" << percentFilled << tmp;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Cache %:" << percentFilled << tmp;
 			emit bufferStatus(static_cast<int>(percentFilled));
 		}
 
@@ -776,70 +781,70 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		//Title
 		else if (rx_clip_title.indexIn(line) > -1) {
 			QString title = rx_clip_title.cap(2);
-			qDebug() << __FUNCTION__ << "Clip title:" << title;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Clip title:" << title;
 			_mediaData.title = title;
 		}
 
 		//Artist
 		else if (rx_clip_artist.indexIn(line) > -1) {
 			QString artist = rx_clip_artist.cap(1);
-			qDebug() << __FUNCTION__ << "Clip artist:" << artist;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Clip artist:" << artist;
 			_mediaData.artist = artist;
 		}
 
 		//Author
 		else if (rx_clip_author.indexIn(line) > -1) {
 			QString author = rx_clip_author.cap(1);
-			qDebug() << __FUNCTION__ << "Clip author:" << author;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Clip author:" << author;
 			_mediaData.author = author;
 		}
 
 		//Album
 		else if (rx_clip_album.indexIn(line) > -1) {
 			QString album = rx_clip_album.cap(1);
-			qDebug() << __FUNCTION__ << "Clip album:" << album;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Clip album:" << album;
 			_mediaData.album = album;
 		}
 
 		//Genre
 		else if (rx_clip_genre.indexIn(line) > -1) {
 			QString genre = rx_clip_genre.cap(1);
-			qDebug() << __FUNCTION__ << "Clip genre:" << genre;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Clip genre:" << genre;
 			_mediaData.genre = genre;
 		}
 
 		//Date
 		else if (rx_clip_date.indexIn(line) > -1) {
 			QString date = rx_clip_date.cap(2);
-			qDebug() << __FUNCTION__ << "Clip date:" << date;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Clip date:" << date;
 			_mediaData.date = date;
 		}
 
 		//Track
 		else if (rx_clip_track.indexIn(line) > -1) {
 			QString track = rx_clip_track.cap(1);
-			qDebug() << __FUNCTION__ << "Clip track:" << track;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Clip track:" << track;
 			_mediaData.track = track;
 		}
 
 		//Copyright
 		else if (rx_clip_copyright.indexIn(line) > -1) {
 			QString copyright = rx_clip_copyright.cap(1);
-			qDebug() << __FUNCTION__ << "Clip copyright:" << copyright;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Clip copyright:" << copyright;
 			_mediaData.copyright = copyright;
 		}
 
 		//Comment
 		else if (rx_clip_comment.indexIn(line) > -1) {
 			QString comment = rx_clip_comment.cap(1);
-			qDebug() << __FUNCTION__ << "Clip comment:" << comment;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Clip comment:" << comment;
 			_mediaData.comment = comment;
 		}
 
 		//Software
 		else if (rx_clip_software.indexIn(line) > -1) {
 			QString software = rx_clip_software.cap(1);
-			qDebug() << __FUNCTION__ << "Clip software:" << software;
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Clip software:" << software;
 			_mediaData.software = software;
 		}
 
@@ -869,37 +874,37 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			if (tag == "ID_VIDEO_ID") {
 				//First string to tell us that the media contains a video track
 				_mediaData.hasVideo = true;
-				qDebug() << __FUNCTION__ << "Video:" << _mediaData.hasVideo;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "Video:" << _mediaData.hasVideo;
 				emit hasVideoChanged(_mediaData.hasVideo);
 			}
 
 			else if (tag == "ID_AUDIO_ID") {
 				//First string to tell us that the media contains an audio track
 				/*int audioId = value.toInt();
-				qDebug() << __FUNCTION__ << "ID_AUDIO_ID:" << audioId;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "ID_AUDIO_ID:" << audioId;
 				md.audios.addID(audioId);*/
 			}
 
 			else if (tag == "ID_LENGTH") {
 				_mediaData.totalTime = (qint64) (value.toDouble() * SECONDS_CONVERTION);
-				qDebug() << __FUNCTION__ << "Media total time:" << _mediaData.totalTime;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "Media total time:" << _mediaData.totalTime;
 				emit totalTimeChanged(_mediaData.totalTime);
 			}
 
 			else if (tag == "ID_SEEKABLE") {
 				_mediaData.isSeekable = value.toInt();
-				qDebug() << __FUNCTION__ << "Media seekable:" << _mediaData.isSeekable;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "Media seekable:" << _mediaData.isSeekable;
 				emit seekableChanged(_mediaData.isSeekable);
 			}
 
 			else if (tag == "ID_VIDEO_WIDTH") {
 				_mediaData.videoWidth = value.toInt();
-				qDebug() << __FUNCTION__ << "Video width:" << _mediaData.videoWidth;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "Video width:" << _mediaData.videoWidth;
 			}
 
 			else if (tag == "ID_VIDEO_HEIGHT") {
 				_mediaData.videoHeight = value.toInt();
-				qDebug() << __FUNCTION__ << "Video height:" << _mediaData.videoHeight;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "Video height:" << _mediaData.videoHeight;
 			}
 
 			else if (tag == "ID_VIDEO_ASPECT") {
@@ -908,12 +913,12 @@ void MPlayerProcess::parseLine(const QString & line_) {
 					//I hope width & height are already set
 					_mediaData.videoAspectRatio = (double) _mediaData.videoWidth / _mediaData.videoHeight;
 				}
-				qDebug() << __FUNCTION__ << "Video aspect:" << _mediaData.videoAspectRatio;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "Video aspect:" << _mediaData.videoAspectRatio;
 			}
 
 			else if (tag == "ID_DVD_DISC_ID") {
 				//_mediaData.dvd_id = value;
-				qDebug() << __FUNCTION__ << "DVD disc Id:" << value;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "DVD disc Id:" << value;
 			}
 
 			else if (tag == "ID_DEMUXER") {
@@ -934,7 +939,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 
 			else if (tag == "ID_VIDEO_FPS") {
 				_mediaData.videoFPS = value.toDouble();
-				qDebug() << __FUNCTION__ << "Video FPS:" << _mediaData.videoFPS;
+				qDebug() << MPLAYER_LOG << __FUNCTION__ << "Video FPS:" << _mediaData.videoFPS;
 			}
 
 			else if (tag == "ID_AUDIO_BITRATE") {
@@ -970,7 +975,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 
 void MPlayerProcess::finished(int exitCode, QProcess::ExitStatus exitStatus) {
 	if (exitCode != 0) {
-		qCritical() << __FUNCTION__ << "Error: MPlayer crashed";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: MPlayer crashed";
 		_errorString = "MPlayer crashed";
 		_errorType = Phonon::FatalError;
 		changeState(Phonon::ErrorState);
@@ -979,7 +984,7 @@ void MPlayerProcess::finished(int exitCode, QProcess::ExitStatus exitStatus) {
 
 		switch (exitStatus) {
 		case QProcess::NormalExit:
-			qDebug() << __FUNCTION__ << "MPlayer process exited normally";
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "MPlayer process exited normally";
 
 			if (_errorType == Phonon::NoError) {
 				changeState(Phonon::StoppedState);
@@ -991,13 +996,13 @@ void MPlayerProcess::finished(int exitCode, QProcess::ExitStatus exitStatus) {
 			}
 			break;
 		case QProcess::CrashExit:
-			qCritical() << __FUNCTION__ << "Error: MPlayer process crashed";
+			qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: MPlayer process crashed";
 			_errorString = "MPlayer process crashed";
 			_errorType = Phonon::FatalError;
 			changeState(Phonon::ErrorState);
 			break;
 		default:
-			qCritical() << __FUNCTION__ << "Error: unknown state:" << exitStatus;
+			qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: unknown state:" << exitStatus;
 			return;
 		}
 	}
@@ -1045,7 +1050,7 @@ void MPlayerProcess::error(QProcess::ProcessError error) {
 		_errorString = "An unknown error occurred";
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unknown error number:" << error;
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: unknown error number:" << error;
 	}
 
 	changeState(Phonon::ErrorState);

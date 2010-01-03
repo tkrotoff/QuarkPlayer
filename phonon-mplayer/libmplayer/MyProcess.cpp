@@ -21,6 +21,8 @@
 
 #include <QtCore/QtDebug>
 
+extern const char * MPLAYER_LOG;
+
 MyProcess::MyProcess(QObject * parent)
 	: QProcess(parent) {
 
@@ -52,7 +54,17 @@ bool MyProcess::isRunning() const {
 void MyProcess::start(const QString & program, const QStringList & arguments) {
 	_remainingOutput.clear();
 
-	qDebug() << __FUNCTION__ << "Process started:" << program << arguments.join(" ");
+	static bool firstTime = true;
+	if (!firstTime) {
+		//End of lines to make it pretty inside the debug output
+		qDebug() << MPLAYER_LOG;
+		qDebug() << MPLAYER_LOG;
+		qDebug() << MPLAYER_LOG;
+	}
+	firstTime = false;
+
+	qDebug() << MPLAYER_LOG << __FUNCTION__ << "Process started:" << program << arguments.join(" ");
+
 	QProcess::start(program, arguments);
 }
 
@@ -125,36 +137,36 @@ int MyProcess::canReadLine2(const QByteArray & output, int from) {
 }
 
 void MyProcess::finished(int exitCode, QProcess::ExitStatus exitStatus) {
-	qDebug() << __FUNCTION__ << "Bytes still available:" << bytesAvailable();
+	qDebug() << MPLAYER_LOG << __FUNCTION__ << "Bytes still available:" << bytesAvailable();
 
 	if (bytesAvailable() > 0) {
 		readStdout();
 	}
 
-	qDebug() << __FUNCTION__ << "Process ended: exitCode:" << exitCode << "exitStatus:" << exitStatus;
+	qDebug() << MPLAYER_LOG << __FUNCTION__ << "Process ended: exitCode:" << exitCode << "exitStatus:" << exitStatus;
 }
 
 void MyProcess::error(QProcess::ProcessError error) {
 	switch (error) {
 	case QProcess::FailedToStart:
-		qCritical() << __FUNCTION__ << "Error: QProcess::FailedToStart";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: QProcess::FailedToStart";
 		break;
 	case QProcess::Crashed:
-		qCritical() << __FUNCTION__ << "Error: QProcess::Crashed";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: QProcess::Crashed";
 		break;
 	case QProcess::Timedout:
-		qCritical() << __FUNCTION__ << "Error: QProcess::Timedout";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: QProcess::Timedout";
 		break;
 	case QProcess::WriteError:
-		qCritical() << __FUNCTION__ << "Error: QProcess::WriteError";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: QProcess::WriteError";
 		break;
 	case QProcess::ReadError:
-		qCritical() << __FUNCTION__ << "Error: QProcess::ReadError";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: QProcess::ReadError";
 		break;
 	case QProcess::UnknownError:
-		qCritical() << __FUNCTION__ << "Error: QProcess::UnknownError";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: QProcess::UnknownError";
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unknown QProcess::ProcessError:" << error;
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: unknown QProcess::ProcessError:" << error;
 	}
 }

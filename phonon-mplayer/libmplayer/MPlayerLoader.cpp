@@ -34,7 +34,7 @@ MPlayerProcess * MPlayerLoader::createNewMPlayerProcess(QObject * parent) {
 
 void MPlayerLoader::start(MPlayerProcess * process, const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek) {
 	if (!process) {
-		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: process cannot be NULL";
 		return;
 	}
 
@@ -46,14 +46,14 @@ void MPlayerLoader::start(MPlayerProcess * process, const QStringList & argument
 
 	//Check for the optical device and add new arguments if possible
 	if (filename.contains("dvd://")) {
-		qDebug() << __FUNCTION__ << "DVD detected";
+		qDebug() << MPLAYER_LOG << __FUNCTION__ << "DVD detected";
 		if (!settings.opticalDeviceName.isEmpty()) {
 			args << "-dvd-device";
 			args << settings.opticalDeviceName;
 		}
 	}
 	if (filename.contains("cdda://") || filename.contains("vcd://")) {
-		qDebug() << __FUNCTION__ << "CD Audio/VCD detected";
+		qDebug() << MPLAYER_LOG << __FUNCTION__ << "CD Audio/VCD detected";
 		if (!settings.opticalDeviceName.isEmpty()) {
 			args << "-cdrom-device";
 			args << settings.opticalDeviceName;
@@ -63,13 +63,13 @@ void MPlayerLoader::start(MPlayerProcess * process, const QStringList & argument
 
 	if (!process->start(args, filename, videoWidgetId, seek)) {
 		//Error handling
-		qCritical() << __FUNCTION__ << "error: MPlayer process couldn't start";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "error: MPlayer process couldn't start";
 	}
 }
 
 void MPlayerLoader::restart(MPlayerProcess * process, const QStringList & arguments, const QString & filename, qint64 seek) {
 	if (!process) {
-		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: process cannot be NULL";
 		return;
 	}
 
@@ -101,7 +101,7 @@ void MPlayerLoader::startMPlayerVersion(QObject * parent) {
 
 	if (!process->start(args, filename, 0, 0)) {
 		//Error handling
-		qCritical() << __FUNCTION__ << "Error: MPlayer process couldn't start";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: MPlayer process couldn't start";
 	}
 
 	//Blocks until the command is done
@@ -110,13 +110,13 @@ void MPlayerLoader::startMPlayerVersion(QObject * parent) {
 
 void MPlayerLoader::loadMedia(MPlayerProcess * process, const QString & filename) {
 	if (!process) {
-		qCritical() << __FUNCTION__ << "Error: process cannot be NULL";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: process cannot be NULL";
 		return;
 	}
 
 	//Optimisation: no -identify if we are reading a dvd
 	if (filename.contains("dvd://")) {
-		qDebug() << __FUNCTION__ << "DVD detected";
+		qDebug() << MPLAYER_LOG << __FUNCTION__ << "DVD detected";
 		return;
 	}
 
@@ -131,12 +131,12 @@ void MPlayerLoader::loadMedia(MPlayerProcess * process, const QString & filename
 
 	if (!process->start(args, filename, 0, 0)) {
 		//Error handling
-		qCritical() << __FUNCTION__ << "Error: MPlayer process couldn't start";
+		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: MPlayer process couldn't start";
 	}
 }
 
 QStringList MPlayerLoader::readMediaSettings() {
-	qDebug() << __FUNCTION__;
+	qDebug() << MPLAYER_LOG << __FUNCTION__;
 
 	QStringList args;
 

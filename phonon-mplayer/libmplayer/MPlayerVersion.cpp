@@ -61,12 +61,12 @@ int MPlayerVersion::parse(const QString & line) {
 
 	if (rx_mplayer_revision.indexIn(version) > -1) {
 		revision = rx_mplayer_revision.cap(2).toInt();
-		qDebug() << __FUNCTION__ << "MPlayer SVN revision:" << revision;
+		qDebug() << MPLAYER_LOG << __FUNCTION__ << "MPlayer SVN revision:" << revision;
 	}
 
 	else if (rx_mplayer_version.indexIn(version) > -1) {
 		version = rx_mplayer_version.cap(1);
-		qDebug() << __FUNCTION__ << "MPlayer version:" << version;
+		qDebug() << MPLAYER_LOG << __FUNCTION__ << "MPlayer version:" << version;
 		if (version == "1.0rc2") {
 			revision = MPlayerProcess::MPLAYER_1_0_RC2_SVN;
 		}
