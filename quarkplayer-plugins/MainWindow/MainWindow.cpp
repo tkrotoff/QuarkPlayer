@@ -19,11 +19,13 @@
 #include "MainWindow.h"
 
 #include "AboutWindow.h"
+#include "LogWindow.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/version.h>
+#include <quarkplayer/MsgHandler.h>
 
 #include <quarkplayer-plugins/Playlist/PlaylistWidget.h>
 #include <quarkplayer-plugins/Playlist/PlaylistModel.h>
@@ -96,6 +98,8 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), SLOT(close()));
 	connect(ActionCollection::action("MainWindow.ReportBug"), SIGNAL(triggered()), SLOT(reportBug()));
 	connect(ActionCollection::action("MainWindow.ShowMailingList"), SIGNAL(triggered()), SLOT(showMailingList()));
+	connect(ActionCollection::action("MainWindow.ViewMPlayerLog"), SIGNAL(triggered()), SLOT(viewMPlayerLog()));
+	connect(ActionCollection::action("MainWindow.ViewQuarkPlayerLog"), SIGNAL(triggered()), SLOT(viewQuarkPlayerLog()));
 	connect(ActionCollection::action("MainWindow.About"), SIGNAL(triggered()), SLOT(about()));
 	connect(ActionCollection::action("MainWindow.AboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
@@ -223,6 +227,22 @@ void MainWindow::showMailingList() {
 	QDesktopServices::openUrl(QUrl("http://groups.google.com/group/quarkplayer"));
 }
 
+void MainWindow::viewMPlayerLog() {
+	static LogWindow * logWindow = NULL;
+	if (!logWindow) {
+		//Lazy initialization
+		logWindow = new LogWindow(this);
+		connect(&MsgHandler::instance(), SIGNAL(mplayerLogLineAvailable(const QString &)),
+			logWindow, SLOT(appendText(const QString &)));
+		logWindow->setText(MsgHandler::instance().mplayerLog);
+	}
+
+	logWindow->show();
+}
+
+void MainWindow::viewQuarkPlayerLog() {
+}
+
 void MainWindow::about() {
 	static AboutWindow * aboutWindow = new AboutWindow(this);
 	aboutWindow->show();
@@ -235,6 +255,8 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("MainWindow.Quit", new TkAction(app, tr("Ctrl+Q"), tr("Alt+X")));
 	ActionCollection::addAction("MainWindow.ReportBug", new QAction(app));
 	ActionCollection::addAction("MainWindow.ShowMailingList", new QAction(app));
+	ActionCollection::addAction("MainWindow.ViewMPlayerLog", new QAction(app));
+	ActionCollection::addAction("MainWindow.ViewQuarkPlayerLog", new QAction(app));
 	ActionCollection::addAction("MainWindow.About", new TkAction(app, tr("Ctrl+F1")));
 	ActionCollection::addAction("MainWindow.AboutQt", new QAction(app));
 	ActionCollection::addAction("MainWindow.OpenDVD", new TkAction(app, tr("Ctrl+D")));
@@ -315,7 +337,8 @@ void MainWindow::populateActionCollection() {
 
 void MainWindow::setupUi() {
 	//No central widget, only QDockWidget
-	setCentralWidget(NULL);
+	//setCentralWidget(NULL);
+	setCentralWidget(new QDockWidget(this));
 
 	_menuFile = new QMenu();
 	menuBar()->addMenu(_menuFile);
@@ -361,6 +384,10 @@ void MainWindow::setupUi() {
 	menuBar()->addMenu(_menuHelp);
 	_menuHelp->addAction(ActionCollection::action("MainWindow.ReportBug"));
 	_menuHelp->addAction(ActionCollection::action("MainWindow.ShowMailingList"));
+	_menuHelp->addSeparator();
+	_menuHelp->addAction(ActionCollection::action("MainWindow.ViewMPlayerLog"));
+	_menuHelp->addAction(ActionCollection::action("MainWindow.ViewQuarkPlayerLog"));
+	_menuHelp->addSeparator();
 	_menuHelp->addAction(ActionCollection::action("MainWindow.About"));
 	_menuHelp->addAction(ActionCollection::action("MainWindow.AboutQt"));
 
@@ -392,6 +419,12 @@ void MainWindow::retranslate() {
 
 	ActionCollection::action("MainWindow.ShowMailingList")->setText(tr("&Discuss about QuarkPlayer..."));
 	ActionCollection::action("MainWindow.ShowMailingList")->setIcon(TkIcon("mail-mark-unread"));
+
+	ActionCollection::action("MainWindow.ViewMPlayerLog")->setText(tr("&View MPlayer Log"));
+	ActionCollection::action("MainWindow.ViewMPlayerLog")->setIcon(TkIcon("help-about"));
+
+	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setText(tr("&View QuarkPlayer Log"));
+	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setIcon(TkIcon("help-about"));
 
 	ActionCollection::action("MainWindow.About")->setText(tr("&About"));
 	ActionCollection::action("MainWindow.About")->setIcon(TkIcon("help-about"));
@@ -559,11 +592,59 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 	//exit(EXIT_SUCCESS);
 }
 
+void MainWindow::showQTabBarHack() {
+	//Taken from http://vingrad.ru/blogs/sabrog/2008/12/26/qt-opredelyaem-tekuschiy-vidzhet-v-qtabbar-qdockwidgetov/
+	//See also http://ariya.blogspot.com/2007/04/tab-bar-with-roundednorth-for-tabbed.html
+
+	//recursively look like kids in QTabBar * QMainWindow
+	QList<QTabBar *> lst = this->findChildren<QTabBar *>();
+
+	//255 TabBar'ov should suffice;)
+	//quint8 i = 0;
+
+	/*
+	QTabBar'y can be created, but not destroy, so they can be invisible.
+	There is an option when in TabBar'e only 2 DockWidget'a, with one floating (floating),
+	the user see that TabBar disappeared but actually disappears only yarlychek.
+	QTabBar disappears when a floating window be tied somewhere in QTabBare is only 1 element.
+	In general, check with count'om optional to Detective
+	where QTabBar'y have labels
+	*/
+	foreach (QTabBar * tab, lst) {
+		if (tab->isVisible() /*&& tab->count() > 1*/) {
+			//'re counting visible QTabBar'ov, if necessary
+			//i++;
+
+			/*
+			Next is untranslatable play on words:)
+			Qt developers in each yarlychek put a pointer to QDockWidget, which yarlychek belongs.
+			Procedure for transfer pointer QWidget'a in QVariant user-defined type and vice versa.
+			Last type quintptr - cross-platform version of the index, where it is the size of 32 bits, which do not need 64.
+			*/
+			quintptr wId = qvariant_cast<quintptr>(tab->tabData(tab->currentIndex()));
+
+			QDockWidget * widget = reinterpret_cast<QDockWidget *>(wId);
+			QMessageBox::information(
+				this, "Info",
+				QString("class:%1, title:%2")
+					.arg(widget->metaObject()->className())
+					.arg(widget->windowTitle())
+			);
+		}
+	}
+}
+
 void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget * dockWidget, QDockWidget * lastDockWidget) {
 	if (dockWidget) {
-		dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
-		dockWidget->setFloating(false);
-		dockWidget->setTitleBarWidget(NULL);
+		//dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+		//dockWidget->setFloating(false);
+
+		//To hide the title bar completely
+		//we must replace the default widget with a generic one
+		//QWidget * titleWidget = new QWidget(this);
+		//dockWidget->setTitleBarWidget(titleWidget);
+		///
+
 		QMainWindow::addDockWidget(area, dockWidget);
 		if (lastDockWidget) {
 			tabifyDockWidget(lastDockWidget, dockWidget);
@@ -624,6 +705,8 @@ void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 
 void MainWindow::mutedChanged(bool muted) {
 	ActionCollection::action("MainWindow.VolumeMute")->setChecked(muted);
+
+	showQTabBarHack();
 }
 
 void MainWindow::mutedToggled(bool muted) {

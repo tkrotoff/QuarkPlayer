@@ -116,6 +116,9 @@ private slots:
 	void reportBug();
 	void showMailingList();
 
+	void viewMPlayerLog();
+	void viewQuarkPlayerLog();
+
 	void about();
 
 	void playFile();
@@ -137,6 +140,8 @@ private slots:
 	void mutedToggled(bool muted);
 
 private:
+
+	void showQTabBarHack();
 
 	void populateActionCollection();
 
