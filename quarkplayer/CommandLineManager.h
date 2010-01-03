@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ class ICommandLineParser;
 /**
  * Manager/Observer for the command line parsers.
  *
- * Uses a Java Listener pattern instead of Qt slots/signals due to the internal implemetation of this class.
+ * Uses a Java Listener pattern instead of Qt slots/signals due to the internal implementation of this class.
  * Still the API is simple.
  *
  * @see QCoreApplication::arguments()

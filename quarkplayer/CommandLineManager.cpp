@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ CommandLineManager::CommandLineManager() {
 }
 
 CommandLineManager::~CommandLineManager() {
+	//FIXME clean up _parserList?
 }
 
 void CommandLineManager::addCommandLineParser(ICommandLineParser * parser) {
@@ -79,6 +80,7 @@ void CommandLineManager::messageReceived(const QString & message) {
 	if (!args.isEmpty()) {
 		qDebug() << __FUNCTION__ << "Command line arguments via QtSingleApplication:" << args;
 		foreach (ICommandLineParser * parser, _parserList) {
+			Q_ASSERT(parser);
 			parser->argsReceived(args, true);
 		}
 	}

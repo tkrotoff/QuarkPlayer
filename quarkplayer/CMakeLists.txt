@@ -35,6 +35,7 @@ set(QuarkPlayerCore_SRCS
 	CommandLineParser.cpp
 	Languages.cpp
 	WinDefaultApplication.cpp
+	MsgHandler.cpp
 	config/Config.cpp
 )
 
@@ -43,6 +44,7 @@ qt4_wrap_cpp(QuarkPlayerCore_SRCS
 	PluginManager.h
 	CommandLineManager.h
 	CommandLineParser.h
+	MsgHandler.h
 	config/Config.h
 )
 
