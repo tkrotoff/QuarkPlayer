@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
+#include <quarkplayer/MsgHandler.h>
 #include <quarkplayer/CommandLineManager.h>
 #include <quarkplayer/CommandLineParser.h>
 #include <quarkplayer/config/Config.h>
@@ -54,6 +55,9 @@
 #endif	//STATICPLUGINS
 
 int main(int argc, char * argv[]) {
+	//Installs a custom message handler for qDebug(), qWarning() and others
+	qInstallMsgHandler(MsgHandler::myMessageOutput);
+
 	QtSingleApplication app(argc, argv);
 
 	//General infos
