@@ -34,7 +34,7 @@
 
 #ifdef MEDIAINFOLIB
 	//MediaInfo is compiled with Unicode support on
-	#define UNICODE
+	//#define UNICODE
 	#ifdef Q_OS_UNIX
 		#include <MediaInfo/MediaInfo.h>
 	#else
