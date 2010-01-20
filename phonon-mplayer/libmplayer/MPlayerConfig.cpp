@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Config.h"
+#include "MPlayerConfig.h"
 
 #include <QtCore/QDebug>
 
-Config * Config::_instance = NULL;
+MPlayerConfig * MPlayerConfig::_instance = NULL;
 
-Config::Config()
+MPlayerConfig::MPlayerConfig()
 	:
 #ifdef Q_OS_WIN
-	//INI file format, otherwise use the registry database
+	//Forces INI file format instead of using Windows registry database
 	_settings(QSettings::IniFormat, QSettings::UserScope, "phonon-mplayer", "phonon-mplayer")
 #else
 	_settings(QSettings::NativeFormat, QSettings::UserScope, "phonon-mplayer", "phonon-mplayer")
@@ -35,24 +35,24 @@ Config::Config()
 	qDebug() << __FUNCTION__ << "Config file:" << _settings.fileName();
 }
 
-Config::~Config() {
+MPlayerConfig::~MPlayerConfig() {
 }
 
-Config & Config::instance() {
+MPlayerConfig & MPlayerConfig::instance() {
 	if (!_instance) {
-		_instance = new Config();
+		_instance = new MPlayerConfig();
 	}
 	return *_instance;
 }
 
-void Config::deleteInstance() {
+void MPlayerConfig::deleteInstance() {
 	if (_instance) {
 		delete _instance;
 		_instance = 0;
 	}
 }
 
-QString Config::mplayerPath() const {
+QString MPlayerConfig::path() const {
 #ifdef Q_OS_WIN
 	//Under Windows, mplayer.exe should be inside a subdirectory named mplayer
 	QString defaultMPlayerPath = "mplayer/mplayer.exe";
@@ -63,7 +63,7 @@ QString Config::mplayerPath() const {
 	return _settings.value("mplayer_path", defaultMPlayerPath).toString();
 }
 
-QString Config::mplayerConfigPath() const {
+QString MPlayerConfig::configPath() const {
 #ifdef Q_OS_WIN
 	//Under Windows, config file should be inside a subdirectory named mplayer/mplayer
 	QString defaultMPlayerConfigPath = "mplayer/mplayer/config";

@@ -33,7 +33,7 @@ struct QUuid;
  *
  * Under Windows Vista: <pre>C:/Users/UserName/AppData/Roaming/QuarkPlayer/QuarkPlayer.ini</pre>
  * Under Windows XP: <pre>UserName/QuarkPlayer/QuarkPlayer.ini</pre>
- * Under UNIX: <pre>~/.QuarkPlayer/QuarkPlayer.ini</pre>
+ * Under UNIX: <pre>~/.config/QuarkPlayer/QuarkPlayer.conf</pre>
  *
  * Pattern singleton.
  * Transform it to CRTP pattern?

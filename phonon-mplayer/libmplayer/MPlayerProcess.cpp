@@ -20,7 +20,7 @@
 #include "MPlayerProcess.h"
 
 #include "MPlayerVersion.h"
-#include "Config.h"
+#include "MPlayerConfig.h"
 
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
@@ -198,7 +198,7 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 	_mediaData.filename = shortPathName(filename);
 	args << _mediaData.filename;
 
-	MyProcess::start(Config::instance().mplayerPath(), args);
+	MyProcess::start(MPlayerConfig::instance().path(), args);
 	return waitForStarted();
 }
 

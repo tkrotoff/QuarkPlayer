@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,7 +27,7 @@
  *
  * - Windows Vista: <pre>C:/Users/UserName/AppData/Roaming/phonon-mplayer/phonon-mplayer.ini</pre>
  * - Windows XP: <pre>C:/Documents and Settings/UserName/Application Data/phonon-mplayer/phonon-mplayer.ini</pre>
- * - UNIX: <pre>~/.phonon-mplayer/phonon-mplayer.ini</pre>
+ * - UNIX: <pre>~/.config/phonon-mplayer/phonon-mplayer.conf</pre>
  *
  * Example of phonon-mplayer.ini:
  * <pre>
@@ -42,20 +42,20 @@
  *
  * @author Tanguy Krotoff
  */
-class Config {
+class MPlayerConfig {
 public:
 
 	/**
 	 * Singleton.
 	 *
-	 * @return Config instance
+	 * @return MPlayerConfig instance
 	 */
-	static Config & instance();
+	static MPlayerConfig & instance();
 
 	/**
 	 * Singleton.
 	 *
-	 * Deletes the Config instance.
+	 * Deletes the MPlayerConfig instance.
 	 */
 	static void deleteInstance();
 
@@ -69,7 +69,7 @@ public:
 	 * @return MPlayer binary path
 	 * @see MPlayerProcess
 	 */
-	QString mplayerPath() const;
+	QString path() const;
 
 	/**
 	 * Gets MPlayer config file path.
@@ -82,15 +82,15 @@ public:
 	 * @return MPlayer config file path
 	 * @see MPlayerLoader
 	 */
-	QString mplayerConfigPath() const;
+	QString configPath() const;
 
 private:
 
-	Config();
+	MPlayerConfig();
 
-	~Config();
+	~MPlayerConfig();
 
-	static Config * _instance;
+	static MPlayerConfig * _instance;
 
 	QSettings _settings;
 };

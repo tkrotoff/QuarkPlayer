@@ -9,7 +9,7 @@ set(libmplayer_SRCS
 	MPlayerLoader.cpp
 	WidgetNoPaintEvent.cpp
 	MPlayerVideoWidget.cpp
-	Config.cpp
+	MPlayerConfig.cpp
 )
 
 qt4_wrap_cpp(libmplayer_SRCS
