@@ -420,10 +420,10 @@ void MainWindow::retranslate() {
 	ActionCollection::action("MainWindow.ShowMailingList")->setText(tr("&Discuss about QuarkPlayer..."));
 	ActionCollection::action("MainWindow.ShowMailingList")->setIcon(TkIcon("mail-mark-unread"));
 
-	ActionCollection::action("MainWindow.ViewMPlayerLog")->setText(tr("&View MPlayer Log"));
+	ActionCollection::action("MainWindow.ViewMPlayerLog")->setText(tr("View &MPlayer Log"));
 	ActionCollection::action("MainWindow.ViewMPlayerLog")->setIcon(TkIcon("help-about"));
 
-	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setText(tr("&View QuarkPlayer Log"));
+	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setText(tr("View &QuarkPlayer Log"));
 	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setIcon(TkIcon("help-about"));
 
 	ActionCollection::action("MainWindow.About")->setText(tr("&About"));
@@ -491,17 +491,17 @@ void MainWindow::retranslate() {
 	ActionCollection::action("MainWindow.SpeedIncrease10%")->setText(tr("Increase Speed"));
 	ActionCollection::action("MainWindow.SpeedIncrease10%")->setIcon(TkIcon("media-seek-forward"));
 
-	ActionCollection::action("MainWindow.VolumeMute")->setText(tr("Mute"));
+	ActionCollection::action("MainWindow.VolumeMute")->setText(tr("&Mute"));
 	ActionCollection::action("MainWindow.VolumeMute")->setIcon(TkIcon("audio-volume-muted"));
-	ActionCollection::action("MainWindow.VolumeDecrease10%")->setText(tr("Decrease Volume"));
+	ActionCollection::action("MainWindow.VolumeDecrease10%")->setText(tr("&Decrease Volume"));
 	ActionCollection::action("MainWindow.VolumeDecrease10%")->setIcon(TkIcon("audio-volume-low"));
-	ActionCollection::action("MainWindow.VolumeIncrease10%")->setText(tr("Increase Volume"));
+	ActionCollection::action("MainWindow.VolumeIncrease10%")->setText(tr("&Increase Volume"));
 	ActionCollection::action("MainWindow.VolumeIncrease10%")->setIcon(TkIcon("audio-volume-high"));
 
 	ActionCollection::action("MainWindow.FullScreen")->setText(tr("&Fullscreen"));
 	ActionCollection::action("MainWindow.FullScreen")->setIcon(TkIcon("view-fullscreen"));
 
-	ActionCollection::action("MainWindow.FullScreenLeave")->setText(tr("Leave Fullscreen"));
+	ActionCollection::action("MainWindow.FullScreenLeave")->setText(tr("&Leave Fullscreen"));
 }
 
 QMenu * MainWindow::menuFile() const {
