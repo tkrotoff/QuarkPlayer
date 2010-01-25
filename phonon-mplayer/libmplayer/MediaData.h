@@ -1,7 +1,7 @@
 /*
  * MPlayer backend for the Phonon library
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,13 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEDIADATA_H
-#define MEDIADATA_H
+#ifndef PHONON_MPLAYER_MEDIADATA_H
+#define PHONON_MPLAYER_MEDIADATA_H
 
 //For WId
 #include <QtGui/QWidget>
 
 #include <QtCore/QString>
+
+namespace Phonon
+{
+namespace MPlayer
+{
 
 /**
  * Stores some volatile informations about the stream/media/file.
@@ -171,4 +176,6 @@ public:
 	QString audioCodec;
 };
 
-#endif	//MEDIADATA_H
+}}	//Namespace Phonon::MPlayer
+
+#endif	//PHONON_MPLAYER_MEDIADATA_H

@@ -21,6 +21,11 @@
 
 #include <QtCore/QtDebug>
 
+namespace Phonon
+{
+namespace MPlayer
+{
+
 MediaData::MediaData() {
 	clear();
 }
@@ -74,3 +79,5 @@ void MediaData::clear() {
 	videoCodec.clear();
 	audioCodec.clear();
 }
+
+}}	//Namespace Phonon::MPlayer

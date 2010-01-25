@@ -20,6 +20,11 @@
 
 #include <QtCore/QDebug>
 
+namespace Phonon
+{
+namespace MPlayer
+{
+
 MPlayerConfig * MPlayerConfig::_instance = NULL;
 
 MPlayerConfig::MPlayerConfig()
@@ -73,3 +78,5 @@ QString MPlayerConfig::configPath() const {
 
 	return _settings.value("mplayer_config_path", defaultMPlayerConfigPath).toString();
 }
+
+}}	//Namespace Phonon::MPlayer

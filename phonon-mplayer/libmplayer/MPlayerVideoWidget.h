@@ -1,7 +1,7 @@
 /*
  * MPlayer backend for the Phonon library
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,6 +25,11 @@
 #include <QtGui/QWidget>
 
 class QResizeEvent;
+
+namespace Phonon
+{
+namespace MPlayer
+{
 
 /**
  * Widget where to show the MPlayer video.
@@ -63,5 +68,7 @@ private:
 	/** Original size of the video, needed for sizeHint(). */
 	QSize _videoSize;
 };
+
+}}	//Namespace Phonon::MPlayer
 
 #endif	//MPLAYERVIDEOWIDGET_H

@@ -23,12 +23,12 @@
 
 #include <phonon/videowidgetinterface.h>
 
-class MPlayerVideoWidget;
-
 namespace Phonon
 {
 namespace MPlayer
 {
+
+class MPlayerVideoWidget;
 
 /**
  * Widget where to show the MPlayer video.

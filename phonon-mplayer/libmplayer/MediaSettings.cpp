@@ -19,6 +19,11 @@
 
 #include "MediaSettings.h"
 
+namespace Phonon
+{
+namespace MPlayer
+{
+
 MediaSettings::MediaSettings() {
 	clear();
 }
@@ -94,3 +99,5 @@ void MediaSettings::clear() {
 double MediaSettings::win_aspect() {
 	return (double) win_width / win_height;
 }
+
+}}	//Namespace Phonon::MPlayer

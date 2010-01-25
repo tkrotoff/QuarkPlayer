@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,11 @@
 #define WIDGETNOPAINTEVENT_H
 
 #include <QtGui/QWidget>
+
+namespace Phonon
+{
+namespace MPlayer
+{
 
 /**
  * Utility class: special widget for playing videos.
@@ -48,5 +53,7 @@ private:
 
 	void paintEvent(QPaintEvent * event);
 };
+
+}}	//Namespace Phonon::MPlayer
 
 #endif	//WIDGETNOPAINTEVENT_H

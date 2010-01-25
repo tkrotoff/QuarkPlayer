@@ -16,11 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef PHONON_MPLAYER_MPLAYERCONFIG_H
+#define PHONON_MPLAYER_MPLAYERCONFIG_H
 
 #include <QtCore/QString>
 #include <QtCore/QSettings>
+
+namespace Phonon
+{
+namespace MPlayer
+{
 
 /**
  * Read configuration file phonon-mplayer.ini.
@@ -95,4 +100,6 @@ private:
 	QSettings _settings;
 };
 
-#endif	//CONFIG_H
+}}	//Namespace Phonon::MPlayer
+
+#endif	//PHONON_MPLAYER_MPLAYERCONFIG_H

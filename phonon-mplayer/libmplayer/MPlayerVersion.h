@@ -22,6 +22,11 @@
 
 #include <QtCore/QString>
 
+namespace Phonon
+{
+namespace MPlayer
+{
+
 /**
  * Gets MPlayer SVN revision number.
  *
@@ -45,5 +50,7 @@ private:
 	MPlayerVersion();
 	~MPlayerVersion();
 };
+
+}}	//Namespace Phonon::MPlayer
 
 #endif	//MPLAYERVERSION_H

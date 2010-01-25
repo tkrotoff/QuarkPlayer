@@ -24,14 +24,14 @@
 
 #include <QtCore/QObject>
 
-class MPlayerProcess;
-class AudioChannelData;
-class SubtitleData;
-
 namespace Phonon
 {
 namespace MPlayer
 {
+
+class MPlayerProcess;
+class AudioChannelData;
+class SubtitleData;
 
 static const int MPLAYER_DEFAULT_DVD_TITLE = 1;
 static const int MPLAYER_DEFAULT_VCD_TITLE = MPLAYER_DEFAULT_DVD_TITLE;

@@ -29,14 +29,14 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QTimer>
 
-//Time in milliseconds before sending aboutToFinish() signal
-//2 seconds
-static const int ABOUT_TO_FINISH_TIME = 2000;
-
 namespace Phonon
 {
 namespace MPlayer
 {
+
+//Time in milliseconds before sending aboutToFinish() signal
+//2 seconds
+static const int ABOUT_TO_FINISH_TIME = 2000;
 
 MediaObject::MediaObject(QObject * parent)
 	: MediaController(parent) {

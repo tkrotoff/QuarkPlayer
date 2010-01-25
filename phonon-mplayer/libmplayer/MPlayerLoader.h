@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MPLAYERLOADER_H
-#define MPLAYERLOADER_H
+#ifndef PHONON_MPLAYER_MPLAYERLOADER_H
+#define PHONON_MPLAYER_MPLAYERLOADER_H
 
 //For WId
 #include <QtGui/QWidget>
@@ -25,10 +25,15 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
+class QObject;
+
+namespace Phonon
+{
+namespace MPlayer
+{
+
 class MediaSettings;
 class MPlayerProcess;
-
-class QObject;
 
 /**
  * Helps to launch a MPlayer process.
@@ -104,5 +109,7 @@ private:
 	/** Code factorization. */
 	static void start(MPlayerProcess * process, const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek);
 };
+
+}}	//Namespace Phonon::MPlayer
 
 #endif	//MPLAYERLOADER_H

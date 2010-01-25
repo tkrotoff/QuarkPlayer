@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,6 +19,11 @@
 #include "WidgetNoPaintEvent.h"
 
 #include <QtGui/QPainter>
+
+namespace Phonon
+{
+namespace MPlayer
+{
 
 WidgetNoPaintEvent::WidgetNoPaintEvent(QWidget * parent)
 	: QWidget(parent) {
@@ -52,3 +57,5 @@ void WidgetNoPaintEvent::setBackgroundColor(const QColor & color) {
 	p.setColor(backgroundRole(), color);
 	setPalette(p);
 }
+
+}}	//Namespace Phonon::MPlayer

@@ -1,7 +1,7 @@
 /*
  * MPlayer backend for the Phonon library
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,12 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEDIASETTINGS_H
-#define MEDIASETTINGS_H
+#ifndef PHONON_MPLAYER_MEDIASETTINGS_H
+#define PHONON_MPLAYER_MEDIASETTINGS_H
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QSize>
+
+namespace Phonon
+{
+namespace MPlayer
+{
 
 /**
  * Settings for the MPlayer process.
@@ -181,4 +186,6 @@ public:
 	double win_aspect();
 };
 
-#endif	//MEDIASETTINGS_H
+}}	//Namespace Phonon::MPlayer
+
+#endif	//PHONON_MPLAYER_MEDIASETTINGS_H

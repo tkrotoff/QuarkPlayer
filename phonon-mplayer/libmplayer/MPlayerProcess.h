@@ -1,7 +1,7 @@
 /*
  * MPlayer backend for the Phonon library
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,9 @@
 #ifndef MPLAYERPROCESS_H
 #define MPLAYERPROCESS_H
 
+#include "MyProcess.h"
+#include "MediaData.h"
+
 #include <phonon/phononnamespace.h>
 
 //For WId
@@ -28,8 +31,10 @@
 #include <QtCore/QString>
 #include <QtCore/QMap>
 
-#include "MyProcess.h"
-#include "MediaData.h"
+namespace Phonon
+{
+namespace MPlayer
+{
 
 /**
  * Help recognize the MPlayer backend output from the other debug messages.
@@ -371,6 +376,17 @@ private:
 
 	void changeState(Phonon::State newState);
 
+	/**
+	 * Converts a normal filename to a short filename (8+3 format).
+	 *
+	 * This is needed when launching MPlayer process under Windows.
+	 * Taken from Scribus.
+	 *
+	 * @see http://docs.scribus.net/devel/util_8cpp-source.html#l00112
+	 * @see http://scribus.info/svn/Scribus/trunk/Scribus/scribus/util.cpp
+	 */
+	static QString shortPathName(const QString & longPath);
+
 	bool _endOfFileReached;
 
 	MediaData _mediaData;
@@ -470,5 +486,7 @@ private:
 
 	/** @} */
 };
+
+}}	//Namespace Phonon::MPlayer
 
 #endif	//MPLAYERPROCESS_H

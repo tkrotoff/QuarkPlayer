@@ -26,6 +26,19 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
 
+#ifdef Q_OS_WIN
+	//Needed by MPlayerProcess::shortPathName()
+	#include <QtCore/QFileInfo>
+	#include <QtCore/QDir>
+	#include <QtCore/QSysInfo>
+	#include <windows.h>
+#endif	//Q_OS_WIN
+
+namespace Phonon
+{
+namespace MPlayer
+{
+
 const char * MPLAYER_LOG = "MPLAYER";
 
 /** MPlayer works using seconds, we prefer to work using milliseconds. */
@@ -135,19 +148,7 @@ void MPlayerProcess::init() {
 	_subtitleList.clear();
 }
 
-#ifdef Q_OS_WIN
-	//Needed by shortPathName()
-	#include <QtCore/QFileInfo>
-	#include <QtCore/QDir>
-	#include <QtCore/QSysInfo>
-	#include <windows.h>
-#endif	//Q_OS_WIN
-
-//Converts a normal filename to a short filename (8+3 format)
-//Taken from Scribus
-//See http://docs.scribus.net/devel/util_8cpp-source.html#l00112
-//See http://scribus.info/svn/Scribus/trunk/Scribus/scribus/util.cpp
-QString shortPathName(const QString & longPath) {
+QString MPlayerProcess::shortPathName(const QString & longPath) {
 	QString shortPath(longPath);
 
 #ifdef Q_OS_WIN
@@ -1055,3 +1056,5 @@ void MPlayerProcess::error(QProcess::ProcessError error) {
 
 	changeState(Phonon::ErrorState);
 }
+
+}}	//Namespace Phonon::MPlayer

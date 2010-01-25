@@ -25,6 +25,11 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
 
+namespace Phonon
+{
+namespace MPlayer
+{
+
 int MPlayerVersion::parse(const QString & line) {
 	//Examples:
 	//From older to most recent
@@ -83,3 +88,5 @@ int MPlayerVersion::parse(const QString & line) {
 
 	return revision;
 }
+
+}}	//Namespace Phonon::MPlayer

@@ -1,7 +1,7 @@
 /*
  * MPlayer backend for the Phonon library
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,6 +21,11 @@
 #define MYPROCESS_H
 
 #include <QtCore/QProcess>
+
+namespace Phonon
+{
+namespace MPlayer
+{
 
 /**
  * MyProcess is a specialized QProcess designed to properly work with MPlayer.
@@ -76,5 +81,7 @@ private:
 
 	QByteArray _remainingOutput;
 };
+
+}}	//Namespace Phonon::MPlayer
 
 #endif	//MYPROCESS_H

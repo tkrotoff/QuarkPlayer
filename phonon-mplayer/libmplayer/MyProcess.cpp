@@ -1,7 +1,7 @@
 /*
  * MPlayer backend for the Phonon library
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,11 @@
 #include "MyProcess.h"
 
 #include <QtCore/QtDebug>
+
+namespace Phonon
+{
+namespace MPlayer
+{
 
 extern const char * MPLAYER_LOG;
 
@@ -170,3 +175,5 @@ void MyProcess::error(QProcess::ProcessError error) {
 		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: unknown QProcess::ProcessError:" << error;
 	}
 }
+
+}}	//Namespace Phonon::MPlayer

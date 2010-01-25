@@ -24,6 +24,11 @@
 
 #include <QtCore/QtDebug>
 
+namespace Phonon
+{
+namespace MPlayer
+{
+
 MediaSettings MPlayerLoader::settings;
 
 MPlayerProcess * MPlayerLoader::createNewMPlayerProcess(QObject * parent) {
@@ -278,3 +283,5 @@ QStringList MPlayerLoader::readMediaSettings() {
 
 	return args;
 }
+
+}}	//Namespace Phonon::MPlayer
