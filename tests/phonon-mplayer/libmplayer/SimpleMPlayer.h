@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,8 +23,12 @@
 
 namespace Ui { class SimpleMPlayer; }
 
-class MPlayerVideoWidget;
-class MPlayerProcess;
+namespace Phonon {
+	namespace MPlayer {
+		class MPlayerVideoWidget;
+		class MPlayerProcess;
+	}
+}
 
 /**
  * A simple player that uses libmplayer.
@@ -52,8 +56,8 @@ private:
 
 	Ui::SimpleMPlayer * _ui;
 
-	MPlayerVideoWidget * _videoWidget;
-	MPlayerProcess * _process;
+	Phonon::MPlayer::MPlayerVideoWidget * _videoWidget;
+	Phonon::MPlayer::MPlayerProcess * _process;
 };
 
 #endif	//SIMPLEMPLAYER_H
