@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,9 +71,14 @@ private slots:
 
 private:
 
+	/** Catches QEvent::WindowStateChange. */
+	bool event(QEvent * event);
+
+	/** When user double click on the video it gets fullscreen. */
 	void mouseDoubleClickEvent(QMouseEvent * event);
 
-	bool event(QEvent * event);
+	/** When user moves the mouse then the mouse cursor should appear. */
+	void mouseMoveEvent(QMouseEvent * event);
 
 	void timerEvent(QTimerEvent * event);
 

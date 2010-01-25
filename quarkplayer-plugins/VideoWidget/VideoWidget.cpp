@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -218,9 +218,6 @@ void VideoWidget::enterFullScreenSlot() {
 		layout->setContentsMargins(0, 0, 0, 0);
 		_widgetOverFullScreen->setLayout(layout);
 	}
-
-	QAction * fullScreen = ActionCollection::action("MainWindow.FullScreen");
-	fullScreen->setChecked(true);
 }
 
 void VideoWidget::leaveFullScreenSlot() {
@@ -238,9 +235,6 @@ void VideoWidget::leaveFullScreenSlot() {
 
 	addPlayToolBarToMainWindow();
 	_widgetOverFullScreen->hide();
-
-	QAction * fullScreen = ActionCollection::action("MainWindow.FullScreen");
-	fullScreen->setChecked(false);
 }
 
 void VideoWidget::setFullScreenSlot(bool fullScreen) {
@@ -252,31 +246,35 @@ void VideoWidget::setFullScreenSlot(bool fullScreen) {
 }
 
 void VideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
-	Phonon::VideoWidget::mouseDoubleClickEvent(event);
-	setFullScreenSlot(!isFullScreen());
+	if (event->button() == Qt::LeftButton) {
+		event->accept();
+		ActionCollection::action("MainWindow.FullScreen")->toggle();
+	} else {
+		event->ignore();
+	}
+}
+
+void VideoWidget::mouseMoveEvent(QMouseEvent * event) {
+	event->accept();
+	if (isFullScreen()) {
+		checkMousePos();
+		_timer.start(1000, this);
+	}
+	unsetCursor();
 }
 
 bool VideoWidget::event(QEvent * event) {
-	switch(event->type()) {
-	case QEvent::MouseMove:
-		if (isFullScreen()) {
-			checkMousePos();
-			_timer.start(1000, this);
-		}
-		unsetCursor();
-		break;
-
-	case QEvent::WindowStateChange:
+	//QEvent::WindowStateChange cannot be in its own event method
+	//like mouseMoveEvent() and mouseDoubleClickEvent()
+	//I would rather prefer to have a method named windowStateChangeEvent()
+	if (event->type() == QEvent::WindowStateChange) {
+		event->accept();
 		if (isFullScreen()) {
 			_timer.start(1000, this);
 		} else {
 			_timer.stop();
 			unsetCursor();
 		}
-		break;
-
-	default:
-		break;
 	}
 
 	return Phonon::VideoWidget::event(event);
@@ -284,6 +282,7 @@ bool VideoWidget::event(QEvent * event) {
 
 void VideoWidget::timerEvent(QTimerEvent * event) {
 	if (event->timerId() == _timer.timerId()) {
+		event->accept();
 		//Let's store the cursor shape
 		setCursor(Qt::BlankCursor);
 	}
@@ -293,7 +292,6 @@ void VideoWidget::timerEvent(QTimerEvent * event) {
 void VideoWidget::showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder) {
 	//Width divided by 1.5, I think it's better
 	//otherwise the widget (playToolBar + statusBar) is too big
-	//So same as VLC...
 	int widgetOverWidth = static_cast<int>(widgetUnder->width() / 1.5);
 	widgetOver->resize(widgetOverWidth, widgetOver->height());
 
@@ -336,7 +334,6 @@ void VideoWidget::checkMousePos() {
 		//Going "near bottom" area
 
 		if (!bottomCursor) {
-			qDebug() << __FUNCTION__;
 			bottomCursor = true;
 
 			//PlayToolBar
