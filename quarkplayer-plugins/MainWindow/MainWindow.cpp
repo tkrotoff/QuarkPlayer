@@ -338,7 +338,6 @@ void MainWindow::populateActionCollection() {
 void MainWindow::setupUi() {
 	//No central widget, only QDockWidget
 	//setCentralWidget(NULL);
-	setCentralWidget(new QDockWidget(this));
 
 	_menuFile = new QMenu();
 	menuBar()->addMenu(_menuFile);
@@ -592,58 +591,14 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 	//exit(EXIT_SUCCESS);
 }
 
-void MainWindow::showQTabBarHack() {
-	//Taken from http://vingrad.ru/blogs/sabrog/2008/12/26/qt-opredelyaem-tekuschiy-vidzhet-v-qtabbar-qdockwidgetov/
-	//See also http://ariya.blogspot.com/2007/04/tab-bar-with-roundednorth-for-tabbed.html
-
-	//recursively look like kids in QTabBar * QMainWindow
-	QList<QTabBar *> lst = this->findChildren<QTabBar *>();
-
-	//255 TabBar'ov should suffice;)
-	//quint8 i = 0;
-
-	/*
-	QTabBar'y can be created, but not destroy, so they can be invisible.
-	There is an option when in TabBar'e only 2 DockWidget'a, with one floating (floating),
-	the user see that TabBar disappeared but actually disappears only yarlychek.
-	QTabBar disappears when a floating window be tied somewhere in QTabBare is only 1 element.
-	In general, check with count'om optional to Detective
-	where QTabBar'y have labels
-	*/
-	foreach (QTabBar * tab, lst) {
-		if (tab->isVisible() /*&& tab->count() > 1*/) {
-			//'re counting visible QTabBar'ov, if necessary
-			//i++;
-
-			/*
-			Next is untranslatable play on words:)
-			Qt developers in each yarlychek put a pointer to QDockWidget, which yarlychek belongs.
-			Procedure for transfer pointer QWidget'a in QVariant user-defined type and vice versa.
-			Last type quintptr - cross-platform version of the index, where it is the size of 32 bits, which do not need 64.
-			*/
-			quintptr wId = qvariant_cast<quintptr>(tab->tabData(tab->currentIndex()));
-
-			QDockWidget * widget = reinterpret_cast<QDockWidget *>(wId);
-			QMessageBox::information(
-				this, "Info",
-				QString("class:%1, title:%2")
-					.arg(widget->metaObject()->className())
-					.arg(widget->windowTitle())
-			);
-		}
-	}
-}
-
-void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget * dockWidget, QDockWidget * lastDockWidget) {
+void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget * lastDockWidget, QDockWidget * dockWidget) {
 	if (dockWidget) {
-		//dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
-		//dockWidget->setFloating(false);
+		dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+		dockWidget->setFloating(false);
 
 		//To hide the title bar completely
 		//we must replace the default widget with a generic one
-		//QWidget * titleWidget = new QWidget(this);
-		//dockWidget->setTitleBarWidget(titleWidget);
-		///
+		dockWidget->setTitleBarWidget(new QWidget(this));
 
 		QMainWindow::addDockWidget(area, dockWidget);
 		if (lastDockWidget) {
@@ -654,7 +609,7 @@ void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget * dockWidget
 
 void MainWindow::addBrowserDockWidget(QDockWidget * dockWidget) {
 	static QDockWidget * lastDockWidget = NULL;
-	addDockWidget(Qt::LeftDockWidgetArea, dockWidget, lastDockWidget);
+	addDockWidget(Qt::LeftDockWidgetArea, lastDockWidget, dockWidget);
 	lastDockWidget = dockWidget;
 }
 
@@ -664,7 +619,7 @@ void MainWindow::resetBrowserDockWidget() {
 
 void MainWindow::addVideoDockWidget(QDockWidget * dockWidget) {
 	static QDockWidget * lastDockWidget = NULL;
-	addDockWidget(Qt::RightDockWidgetArea, dockWidget, lastDockWidget);
+	addDockWidget(Qt::RightDockWidgetArea, lastDockWidget, dockWidget);
 	lastDockWidget = dockWidget;
 }
 
@@ -674,7 +629,7 @@ void MainWindow::resetVideoDockWidget() {
 
 void MainWindow::addPlaylistDockWidget(QDockWidget * dockWidget) {
 	static QDockWidget * lastDockWidget = NULL;
-	addDockWidget(Qt::RightDockWidgetArea, dockWidget, lastDockWidget);
+	addDockWidget(Qt::RightDockWidgetArea, lastDockWidget, dockWidget);
 	lastDockWidget = dockWidget;
 }
 
@@ -705,8 +660,6 @@ void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 
 void MainWindow::mutedChanged(bool muted) {
 	ActionCollection::action("MainWindow.VolumeMute")->setChecked(muted);
-
-	showQTabBarHack();
 }
 
 void MainWindow::mutedToggled(bool muted) {
