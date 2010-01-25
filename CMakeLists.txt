@@ -111,7 +111,7 @@ else (KDE4_FOUND)
 	# Includes all wanted definitions for Qt
 	include(${QT_USE_FILE})
 
-	message(STATUS "KDE4 support disabled")
+	message(STATUS "KDE4 Support: disabled")
 endif (KDE4_FOUND)
 
 message(STATUS "Qt Directory: ${QT_BINARY_DIR}")

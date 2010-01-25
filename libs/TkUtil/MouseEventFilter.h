@@ -41,6 +41,12 @@ private:
 /**
  * Catch MouseButtonPress event.
  *
+ * Example:
+ * <pre>
+ * MousePressEventFilter * mousePressFilter = new MousePressEventFilter(this, SLOT(printHelloWorld()), Qt::LeftButton, false);
+ * widget->installEventFilter(mousePressFilter);
+ * </pre>
+ *
  * @author Tanguy Krotoff
  */
 class TKUTIL_API MousePressEventFilter : public EventFilter {
