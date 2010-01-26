@@ -4,10 +4,13 @@ if (TAGLIB)
 	# This is because of the pretty strange taglib structure
 	include_directories(${CMAKE_SOURCE_DIR}/3rdparty/taglib)
 	include_directories(${CMAKE_BINARY_DIR}/3rdparty/taglib)
+
+	add_definitions(-DTAGLIB)
 endif (TAGLIB)
 
-configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+if (MEDIAINFOLIB)
+	add_definitions(-DMEDIAINFOLIB)
+endif (MEDIAINFOLIB)
 
 add_definitions(-DBUILD_MEDIAINFOFETCHER)
 

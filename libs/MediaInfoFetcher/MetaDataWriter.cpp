@@ -18,7 +18,6 @@
 
 #include "MetaDataWriter.h"
 
-#include "config.h"
 #include "MediaInfo.h"
 
 #ifdef TAGLIB
@@ -27,6 +26,7 @@
 #endif	//TAGLIB
 
 #include <QtCore/QDate>
+#include <QtCore/QFile>
 #include <QtCore/QDebug>
 
 //Local version of taglib's QStringToTString macro. It is here, because taglib's one is

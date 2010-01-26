@@ -18,8 +18,6 @@
 
 #include "MediaInfoFetcher.h"
 
-#include "config.h"
-
 #include <FileTypes/FileTypes.h>
 
 #include <phonon/mediaobject.h>
@@ -113,6 +111,7 @@ void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
 
 #ifdef MEDIAINFOLIB
 		if (_readStyle == ReadStyleAccurate) {
+			qDebug() << __FUNCTION__ << "MediaInfoLib";
 			QtConcurrent::run(this, &MediaInfoFetcher::startMediaInfoLibResolver);
 			resolverLaunched = true;
 		}
@@ -120,6 +119,8 @@ void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
 
 #ifdef TAGLIB
 		if (!resolverLaunched) {
+			qDebug() << __FUNCTION__ << "TagLib";
+
 			//Use TagLib only for files on the harddrive, not for URLs
 			//See http://article.gmane.org/gmane.comp.kde.devel.taglib/864
 			//Run it inside a different thread since TagLib is a synchronous library
@@ -129,6 +130,8 @@ void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
 #endif	//TAGLIB
 
 		if (!resolverLaunched) {
+			qDebug() << __FUNCTION__ << "Phonon";
+
 			//If TagLib or MediaInfoLib are not used, let's use
 			//the backend for resolving the metaData
 			_mediaSource = fileName;
