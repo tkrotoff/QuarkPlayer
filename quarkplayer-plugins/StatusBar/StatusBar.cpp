@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,9 @@
 #include "StatusBar.h"
 
 #include <quarkplayer/QuarkPlayer.h>
-#include <quarkplayer/config/Config.h>
 #include <quarkplayer/PluginManager.h>
+#include <quarkplayer/config/Config.h>
+#include <quarkplayer/style/QuarkPlayerStyle.h>
 
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
@@ -65,6 +66,10 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	//Background color is black and text color is white
 	setStyleSheet("background-color: rgb(0, 0, 0);color: rgb(255, 255, 255);");
+
+	//By default QuarkPlayerStyle: specific style for QuarkPlayer
+	//Fix some ugly things under Windows XP
+	setStyle(&QuarkPlayerStyle::instance());
 
 	//Add the statusbar to the main window
 	MainWindowFactory::mainWindow()->setStatusBar(this);

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
+#include <quarkplayer/style/QuarkPlayerStyle.h>
 
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
@@ -68,6 +69,11 @@ PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	createControlToolBar();
 	layout->addWidget(_controlToolBar);
+
+	//By default QuarkPlayerStyle: specific style for QuarkPlayer
+	//Fix some ugly things under Windows XP
+	_seekToolBar->setStyle(&QuarkPlayerStyle::instance());
+	_controlToolBar->setStyle(&QuarkPlayerStyle::instance());
 
 	addWidget(widget);
 

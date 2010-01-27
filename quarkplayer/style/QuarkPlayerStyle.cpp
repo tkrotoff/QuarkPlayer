@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,32 +22,11 @@
 
 #include <QtCore/QDebug>
 
-Q_EXPORT_PLUGIN2(quarkplayerstyle, QuarkPlayerStylePlugin)
-
-static const char * QUARKPLAYERSTYLE_NAME = "QuarkPlayerStyle";
-
-QuarkPlayerStyle::QuarkPlayerStyle() {
-	//Saves the last valid system style name (i.e valid means different than QuarkPlayerStyle)
-	//This permit to avoid a crash when applying QuarkPlayerStyle on QuarkPlayerStyle
-	static QString lastValidSystemStyleName;
-
-	QString styleName = QApplication::style()->objectName();
-
-	if (styleName != QString(QUARKPLAYERSTYLE_NAME).toLower()) {
-		lastValidSystemStyleName = styleName;
-		_systemStyle = QStyleFactory::create(lastValidSystemStyleName);
-	} else {
-		//If styleName == QUARKPLAYERSTYLE_NAME, then we end up in recursion
-		_systemStyle = QStyleFactory::create(lastValidSystemStyleName);
-	}
-
-	if (!_systemStyle) {
-		_systemStyle = QStyleFactory::create("windows");
-	}
+QuarkPlayerStyle::QuarkPlayerStyle()
+	: ProxyStyle(QApplication::style()->objectName()) {
 }
 
 QuarkPlayerStyle::~QuarkPlayerStyle() {
-	//delete _systemStyle;
 }
 
 void QuarkPlayerStyle::drawControl(ControlElement element, const QStyleOption * option,
@@ -59,7 +38,7 @@ void QuarkPlayerStyle::drawControl(ControlElement element, const QStyleOption * 
 		return;
 	}
 
-	_systemStyle->drawControl(element, option, painter, widget);
+	ProxyStyle::drawControl(element, option, painter, widget);
 }
 
 void QuarkPlayerStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * option,
@@ -71,17 +50,5 @@ void QuarkPlayerStyle::drawPrimitive(PrimitiveElement element, const QStyleOptio
 		return;
 	}
 
-	_systemStyle->drawPrimitive(element, option, painter, widget);
-}
-
-//QStylePlugin
-QStringList QuarkPlayerStylePlugin::keys() const {
-	return QStringList() << QUARKPLAYERSTYLE_NAME;
-}
-
-QStyle * QuarkPlayerStylePlugin::create(const QString & key) {
-	if (key.toLower() == QString(QUARKPLAYERSTYLE_NAME).toLower()) {
-		return new QuarkPlayerStyle();
-	}
-	return NULL;
+	ProxyStyle::drawPrimitive(element, option, painter, widget);
 }

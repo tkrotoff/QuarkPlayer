@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ public:
 	static const char * LANGUAGE_KEY;
 	QString language() const;
 
-	/** Qt style name to be used. */
+	/** Qt style name to be used or empty string. */
 	static const char * STYLE_KEY;
 	QString style() const;
 

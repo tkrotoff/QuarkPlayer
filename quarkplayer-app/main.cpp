@@ -94,9 +94,11 @@ int main(int argc, char * argv[]) {
 	}
 	///
 
-	//By default QuarkPlayerStyle: specific style for QuarkPlayer
-	//Fix some ugly things under Windows XP
-	app.setStyle(QStyleFactory::create(Config::instance().style()));
+	//Set the style saved inside the configuration if any
+	QString style = Config::instance().style();
+	if (!style.isEmpty()) {
+		app.setStyle(QStyleFactory::create(style));
+	}
 
 	//Translate the application using the right language
 	Translator::instance().load(config.language());

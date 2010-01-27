@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ Config::Config()
 
 	addKey(BACKEND_KEY, "mplayer");
 	addKey(LANGUAGE_KEY, QString());
-	addKey(STYLE_KEY, "QuarkPlayerStyle");
+	addKey(STYLE_KEY, QString());
 	addKey(ICON_THEME_KEY, "silk");
 	addKey(RECENT_FILES_KEY, QStringList());
 	addKey(LAST_DIR_OPENED_KEY, QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
