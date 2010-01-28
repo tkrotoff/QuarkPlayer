@@ -26,6 +26,13 @@ typedef std::list<std::string> StringList;
 StringList sourceCodeExtensions() {
 	StringList extensions;
 
+	extensions.push_back("cs");
+
+	extensions.push_back("java");
+
+	extensions.push_back("py");
+	extensions.push_back("rb");
+
 	extensions.push_back("cpp");
 	extensions.push_back("cxx");
 	extensions.push_back("c++");
