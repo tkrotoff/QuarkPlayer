@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,11 +46,11 @@ class TKUTIL_API Translator : public Singleton<Translator> {
 public:
 
 	/**
-	 * Sets the path containing the translations (*.ts files).
+	 * Sets the path containing the translations (*.qm files).
 	 *
 	 * Default path is <pre>QCoreApplication::applicationDirPath() + "/translations/"</pre>
 	 *
-	 * @param translationsPath path containing the translations (*.ts files)
+	 * @param translationsPath path containing the translations (*.qm files)
 	 */
 	void setTranslationsPath(const QString & translationsPath);
 
@@ -73,19 +73,24 @@ private:
 
 	~Translator();
 
+	/** Loads the .qm translation file. */
 	bool loadLanguage(QTranslator & translator, const QString & name, const QString & language, const QString & translationsPath);
 
-	void install();
+	/** Installs both the application and Qt translators. */
+	void installTranslator();
 
-	void remove();
+	/** Removes both the application and Qt translators. */
+	void removeTranslator();
 
+	/** Translator that translates the application. */
 	QTranslator _appTranslator;
 
+	/** Translator that translates Qt. */
 	QTranslator _qtTranslator;
 
 	bool _translatorInstalled;
 
-	/** Path to the translations. */
+	/** Path to the translations (*.qm files). */
 	QString _translationsPath;
 };
 

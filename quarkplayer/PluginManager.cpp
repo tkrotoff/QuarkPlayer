@@ -80,7 +80,7 @@ QString PluginManager::findPluginDir() const {
 	}
 
 	if (tmp.isEmpty()) {
-		qCritical() << __FUNCTION__ << "Error: couldn't find the plugin directory, back to the default one";
+		qDebug() << __FUNCTION__ << "Back to the default plugin directory";
 		tmp = Config::instance().pluginDirList().first();
 	}
 

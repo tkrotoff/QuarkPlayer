@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,13 +38,13 @@ void Translator::setTranslationsPath(const QString & translationsPath) {
 	_translationsPath = translationsPath;
 }
 
-void Translator::install() {
+void Translator::installTranslator() {
 	QCoreApplication::instance()->installTranslator(&_appTranslator);
 	QCoreApplication::instance()->installTranslator(&_qtTranslator);
 	_translatorInstalled = true;
 }
 
-void Translator::remove() {
+void Translator::removeTranslator() {
 	QCoreApplication::instance()->removeTranslator(&_appTranslator);
 	QCoreApplication::instance()->removeTranslator(&_qtTranslator);
 	_translatorInstalled = false;
@@ -52,9 +52,10 @@ void Translator::remove() {
 
 void Translator::load(const QString & language) {
 	if (!_translatorInstalled) {
-		install();
+		installTranslator();
 	}
 
+	//FIXME when switching to QIcon::fromTheme()
 	//Don't do that, retranslate() is also used for changing icons without
 	//restarting the application
 	//static QString lastLoadedLanguage("this string should be unique");
@@ -86,20 +87,23 @@ void Translator::load(const QString & language) {
 	bool appRet = loadLanguage(_appTranslator, QCoreApplication::applicationName().toLower(), myLanguage, _translationsPath);
 
 	//Both Qt and app language loading failed
-	//Let's go back to english builtin
 	if (!qtRet && !appRet) {
-		qDebug() << __FUNCTION__ << "Back to builtin english";
-		remove();
+		removeTranslator();
 	}
 }
 
 bool Translator::loadLanguage(QTranslator & translator, const QString & name, const QString & language, const QString & translationsPath) {
-	QString filename = name + '_' + language;
-	bool ret = translator.load(filename, translationsPath);
-	if (!ret) {
-		qDebug() << __FUNCTION__ << "Error: couldn't load translation:" << filename << "from:" << translationsPath;
+	QString fileName = name + '_' + language;
+
+	bool ret = translator.load(fileName, translationsPath);
+	if (language == "en") {
+		qDebug() << __FUNCTION__ << "Back to built-in english:" << fileName;
 	} else {
-		qDebug() << __FUNCTION__ << "Translation loaded:" << filename << "from:" << translationsPath;
+		if (!ret) {
+			qDebug() << __FUNCTION__ << "Error: couldn't load translation:" << fileName << "from:" << translationsPath;
+		} else {
+			qDebug() << __FUNCTION__ << "Translation loaded:" << fileName << "from:" << translationsPath;
+		}
 	}
 	return ret;
 }
