@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,6 +73,7 @@ AboutWindow::AboutWindow(QWidget * parent)
 
 	_ui->metricsLabel->setText(
 		"Pushing intelligence to the edge; KISS Keep It Simple, Stupid; Small is Beautiful!"
+		"<br>Phonon MPlayer: " + QString::number(PHONON_MPLAYER_LOC) + " LOC"
 		"<br>QuarkPlayer Core: " + QString::number(QUARKPLAYER_CORE_LOC) + " LOC"
 		"<br>QuarkPlayer Libraries: " + QString::number(QUARKPLAYER_LIBS_LOC) + " LOC"
 		"<br>QuarkPlayer Plugins: " + QString::number(QUARKPLAYER_PLUGINS_LOC) + " LOC"
