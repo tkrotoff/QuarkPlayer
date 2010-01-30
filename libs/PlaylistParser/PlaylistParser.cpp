@@ -70,7 +70,7 @@ const QFile & PlaylistParser::file() const {
 }
 
 void PlaylistParser::findParser(const QString & fileName) {
-	QString extension(QFileInfo(fileName).suffix().toLower());
+	QString extension(QFileInfo(fileName).suffix());
 
 	_parser = NULL;
 	foreach (IPlaylistParserImpl * parser, _parserList) {

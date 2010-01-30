@@ -41,6 +41,7 @@
  * @author Tanguy Krotoff
  */
 class QUARKPLAYER_API Languages : public QObject {
+	Q_OBJECT
 public:
 
 	/**

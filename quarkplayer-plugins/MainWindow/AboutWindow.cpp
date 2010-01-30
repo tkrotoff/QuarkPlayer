@@ -77,6 +77,7 @@ AboutWindow::AboutWindow(QWidget * parent)
 		"<br>QuarkPlayer Core: " + QString::number(QUARKPLAYER_CORE_LOC) + " LOC"
 		"<br>QuarkPlayer Libraries: " + QString::number(QUARKPLAYER_LIBS_LOC) + " LOC"
 		"<br>QuarkPlayer Plugins: " + QString::number(QUARKPLAYER_PLUGINS_LOC) + " LOC"
+		"<br>QuarkPlayer Tests: " + QString::number(QUARKPLAYER_TESTS_LOC) + " LOC"
 		"<br>QuarkPlayer 3rdparty: " + QString::number(QUARKPLAYER_3RDPARTY_LOC) + " LOC"
 	);
 }

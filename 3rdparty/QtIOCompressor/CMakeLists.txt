@@ -1,6 +1,8 @@
 project(QtIOCompressor)
 
-add_definitions(-DQT_QTIOCOMPRESSOR_EXPORT)
+if (WIN32)
+	add_definitions(-DQT_QTIOCOMPRESSOR_EXPORT)
+endif (WIN32)
 
 include_directories(${ZLIB_INCLUDE_DIR})
 

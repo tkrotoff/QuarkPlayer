@@ -31,7 +31,6 @@ qt4_wrap_cpp(ConfigWindow_SRCS
 	WinFileAssociationsConfigWidget.h
 	PlaylistConfig.h
 	ShortcutsConfigWidget.h
-	ShortcutsConfig.h
 )
 
 qt4_wrap_ui(ConfigWindow_SRCS

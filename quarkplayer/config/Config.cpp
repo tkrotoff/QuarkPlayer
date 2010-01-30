@@ -26,8 +26,6 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
-const char * Config::BACKEND_KEY = "backend";
-
 const char * Config::LANGUAGE_KEY = "language";
 
 const char * Config::STYLE_KEY = "style";
@@ -52,7 +50,6 @@ const char * Config::ALLOW_MULTIPLE_INSTANCES_KEY = "allow_multiple_instances";
 Config::Config()
 	: TkConfig() {
 
-	addKey(BACKEND_KEY, "mplayer");
 	addKey(LANGUAGE_KEY, QString());
 	addKey(STYLE_KEY, QString());
 	addKey(ICON_THEME_KEY, "silk");
@@ -117,18 +114,6 @@ void Config::deleteConfig() {
 	QString tmp(configDir.dirName());
 	configDir.cdUp();
 	configDir.rmdir(tmp);
-}
-
-QStringList Config::backendList() const {
-	QStringList list;
-	list << "MPlayer"
-		<< "VLC"
-		<< "DS9";
-	return list;
-}
-
-QString Config::backend() const {
-	return value(BACKEND_KEY).toString();
 }
 
 QString Config::language() const {

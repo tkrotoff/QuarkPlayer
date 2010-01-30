@@ -68,7 +68,7 @@ void MediaInfoWidget::updateMediaInfo(const MediaInfo & mediaInfo) {
 	static const QString endhref2("</a>");
 	static const QString br("<br>");
 
-	QString filename = mediaInfo.fileName();
+	QString fileName = mediaInfo.fileName();
 	QString title = mediaInfo.metaDataValue(MediaInfo::Title).toString();
 	QString artist = mediaInfo.metaDataValue(MediaInfo::Artist).toString();
 	QString album = mediaInfo.metaDataValue(MediaInfo::Album).toString();
@@ -110,16 +110,16 @@ void MediaInfoWidget::updateMediaInfo(const MediaInfo & mediaInfo) {
 
 	if (!title.isEmpty()) {
 		_formLayout->addRow(tr("Title:"), new SqueezeLabel(font + title + endfont));
-	} else if (!filename.isEmpty()) {
+	} else if (!fileName.isEmpty()) {
 		if (MediaInfo::isUrl(mediaInfo.fileName())) {
-			_formLayout->addRow(tr("URL:"), new SqueezeLabel(font + filename + endfont));
+			_formLayout->addRow(tr("URL:"), new SqueezeLabel(font + fileName + endfont));
 		} else {
-			//filename + parent directory name, e.g:
+			//fileName + parent directory name, e.g:
 			// /home/tanguy/Music/DJ Vadim/Bluebird.mp3
 			// --> DJ Vadim/Bluebird.mp3
-			filename = QDir::toNativeSeparators(filename);
-			int lastSlashPos = filename.lastIndexOf(QDir::separator()) - 1;
-			QString tmp(filename.mid(filename.lastIndexOf(QDir::separator(), lastSlashPos) + 1));
+			fileName = QDir::toNativeSeparators(fileName);
+			int lastSlashPos = fileName.lastIndexOf(QDir::separator()) - 1;
+			QString tmp(fileName.mid(fileName.lastIndexOf(QDir::separator(), lastSlashPos) + 1));
 
 			_formLayout->addRow(tr("File:"), new SqueezeLabel(font + tmp + endfont));
 		}
@@ -170,8 +170,7 @@ void MediaInfoWidget::updateCoverArts(const MediaInfo & mediaInfo) {
 	QStringList imageSuffixList;
 	foreach (QByteArray format, QImageReader::supportedImageFormats()) {
 		QString suffix(format);
-		suffix = suffix.toLower();
-		imageSuffixList << "*." + suffix;
+		imageSuffixList << "*." + suffix.toLower();
 	}
 
 	QDir path(coverArtDir);
@@ -179,8 +178,8 @@ void MediaInfoWidget::updateCoverArts(const MediaInfo & mediaInfo) {
 		QFileInfoList fileList = path.entryInfoList(imageSuffixList, QDir::Files);
 		foreach (QFileInfo fileInfo, fileList) {
 			if (fileInfo.size() > 0) {
-				QString filename(fileInfo.absoluteFilePath());
-				_coverArtList << filename;
+				QString fileName(fileInfo.absoluteFilePath());
+				_coverArtList << fileName;
 			}
 		}
 	}
@@ -208,8 +207,8 @@ void MediaInfoWidget::updateCoverArtPixmap() {
 		}
 
 		//Update the cover art pixmap
-		QString filename(_coverArtList[_currentCoverArtIndex]);
-		QPixmap coverArt(filename);
+		QString fileName(_coverArtList[_currentCoverArtIndex]);
+		QPixmap coverArt(fileName);
 		if (!coverArt.isNull()) {
 			_coverArtButton->setIcon(coverArt);
 		} else {

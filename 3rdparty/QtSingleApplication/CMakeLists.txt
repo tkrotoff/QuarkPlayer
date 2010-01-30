@@ -1,6 +1,8 @@
 project(QtSingleApplication)
 
-add_definitions(-DQT_QTSINGLEAPPLICATION_EXPORT)
+if (WIN32)
+	add_definitions(-DQT_QTSINGLEAPPLICATION_EXPORT)
+endif (WIN32)
 
 set(QtSingleApplication_SRCS
 	qtsinglecoreapplication.cpp

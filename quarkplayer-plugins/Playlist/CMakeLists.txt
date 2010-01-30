@@ -19,7 +19,6 @@ qt4_wrap_cpp(Playlist_SRCS
 	PlaylistModel.h
 	PlaylistFilter.h
 	DragAndDropTreeView.h
-	PlaylistCommandLineParser.h
 )
 
 if (STATICPLUGINS)

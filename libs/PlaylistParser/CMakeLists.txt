@@ -18,7 +18,6 @@ set(PlaylistParser_SRCS
 )
 
 qt4_wrap_cpp(PlaylistParser_SRCS
-	IPlaylistParser.h
 	PlaylistParser.h
 	IPlaylistParserImpl.h
 )

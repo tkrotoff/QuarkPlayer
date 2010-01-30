@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,24 +125,24 @@ void FindFiles::findAllFilesQt(const QString & path) {
 			break;
 		}
 
-		QString filename(path + QDir::separator() + name);
+		QString fileName(path + QDir::separator() + name);
 
-		if (TkFile::isDir(filename)) {
+		if (TkFile::isDir(fileName)) {
 			//Filter directory matching the given pattern
 			if (_findDirs && patternMatches(name)) {
-				_files << filename;
+				_files << fileName;
 			}
 
 			if (_recursiveSearch) {
 				//Recurse
-				findAllFilesQt(filename);
+				findAllFilesQt(fileName);
 			}
 		}
 
 		else {
 			//Filter file matching the given pattern and extensions
 			if (extensionMatches(name) && patternMatches(name)) {
-				_files << filename;
+				_files << fileName;
 			}
 
 			if (_files.size() > _filesFoundLimit) {
@@ -193,7 +193,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 			}
 
 			QString name(QString::fromUtf16((unsigned short *) fileData.cFileName));
-			QString filename(path + QDir::separator() + name);
+			QString fileName(path + QDir::separator() + name);
 
 			//Check if the object is a directory or not
 			if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
@@ -202,12 +202,12 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 				if (!name.startsWith('.')) {
 					//Filter directory matching the given pattern
 					if (_findDirs && patternMatches(name)) {
-						_files << filename;
+						_files << fileName;
 					}
 
 					if (_recursiveSearch) {
 						//Recurse
-						findAllFilesWin32(filename);
+						findAllFilesWin32(fileName);
 					}
 				}
 			}
@@ -215,7 +215,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 			else {
 				//Filter file matching the given pattern and extensions
 				if (extensionMatches(name) && patternMatches(name)) {
-					_files << filename;
+					_files << fileName;
 				}
 
 				if (_files.size() > _filesFoundLimit) {
@@ -266,24 +266,24 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 			//Avoid '.', '..' and other hidden files
 			if (!name.startsWith('.')) {
 
-				QString filename(path + QDir::separator() + name);
+				QString fileName(path + QDir::separator() + name);
 
-				if (TkFile::isDir(filename)) {
+				if (TkFile::isDir(fileName)) {
 					//Filter directory matching the given pattern
 					if (_findDirs && patternMatches(name)) {
-						_files << filename;
+						_files << fileName;
 					}
 
 					if (_recursiveSearch) {
 						//Recurse
-						findAllFilesUNIX(filename);
+						findAllFilesUNIX(fileName);
 					}
 				}
 
 				else {
 					//Filter file matching the given pattern and extensions
 					if (extensionMatches(name) && patternMatches(name)) {
-						_files << filename;
+						_files << fileName;
 					}
 
 					if (_files.size() > _filesFoundLimit) {
@@ -308,24 +308,24 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 #endif	//Q_OS_WIN
 }
 
-bool FindFiles::patternMatches(const QString & filename) const {
+bool FindFiles::patternMatches(const QString & fileName) const {
 	bool tmp = false;
 
 	if (_pattern.isEmpty()) {
 		tmp = true;
-	} else if (filename.contains(_pattern)) {
+	} else if (fileName.contains(_pattern)) {
 		tmp = true;
 	}
 
 	return tmp;
 }
 
-bool FindFiles::extensionMatches(const QString & filename) const {
+bool FindFiles::extensionMatches(const QString & fileName) const {
 	bool tmp = false;
 
 	if (_extensions.isEmpty()) {
 		tmp = true;
-	} else if (_extensions.contains(QFileInfo(filename).suffix(), Qt::CaseInsensitive)) {
+	} else if (_extensions.contains(QFileInfo(fileName).suffix(), Qt::CaseInsensitive)) {
 		tmp = true;
 	}
 

@@ -24,7 +24,6 @@
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/style/QuarkPlayerStyle.h>
 #include <quarkplayer/version.h>
-#include <quarkplayer/config.h>
 
 #include <TkUtil/Translator.h>
 #include <TkUtil/TkIcon.h>

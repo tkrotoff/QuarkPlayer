@@ -310,6 +310,8 @@ void XSPFParser::writeTrack(QXmlStreamWriter & xml, const MediaInfo & mediaInfo)
 }
 
 void XSPFParser::load(QIODevice * device, const QString & location) {
+	Q_UNUSED(location);
+
 	_stop = false;
 
 	QList<MediaInfo> files;
@@ -346,6 +348,10 @@ void XSPFParser::load(QIODevice * device, const QString & location) {
 			//Otherwise won't read the track end element
 			break;
 		}
+
+		default:
+			//Do nothing
+			break;
 
 		}
 	}

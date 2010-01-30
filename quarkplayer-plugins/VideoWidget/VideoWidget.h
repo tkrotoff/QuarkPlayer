@@ -37,9 +37,9 @@ class QStatusBar;
 class QToolBar;
 
 /**
- * Where the video lies.
+ * Widget where the video lies.
  *
- * Inspired from class MediaVideoWidget from mediaplayer example from Trolltech.
+ * Inspired from class MediaVideoWidget from Trolltech' mediaplayer example.
  *
  * @author Tanguy Krotoff
  */
@@ -53,23 +53,50 @@ public:
 
 public slots:
 
-	void leaveFullScreenSlot();
+	/**
+	 * Triggers action FullScreenExit.
+	 *
+	 * Simulates user clicking on the exit full screen button.
+	 * Call by VideoWidgetPlugin when the current playing media object finishes.
+	 */
+	void triggerExitFullScreenAction();
 
 private slots:
 
-	void setFullScreenSlot(bool fullScreen);
-	void enterFullScreenSlot();
+	/**
+	 * Enters or exits full screen mode.
+	 *
+	 * @param fullScreen if true then call enterFullScreenInternal(); if false call exitFullScreenInternal()
+	 */
+	void setFullScreenInternal(bool fullScreen);
 
 	void playToolBarAdded(QToolBar * playToolBar);
 	void statusBarAdded(QStatusBar * statusBar);
 
+	/**
+	 * Shows the context menu on the video when user clicks
+	 * using right button of the mouse.
+	 *
+	 * @param pos current position of the mouse cursor
+	 */
 	void showContextMenu(const QPoint & pos);
+
 	void scaleModeChanged(QAction * action);
 	void aspectRatioChanged(QAction * action);
 
 	void retranslate();
 
 private:
+
+	/**
+	 * Enters full screen mode.
+	 */
+	void enterFullScreenInternal();
+
+	/**
+	 * Exits full screen mode.
+	 */
+	void exitFullScreenInternal();
 
 	/** Catches QEvent::WindowStateChange. */
 	bool event(QEvent * event);
@@ -82,12 +109,21 @@ private:
 
 	void timerEvent(QTimerEvent * event);
 
+	/**
+	 * Checks current mouse cursor position.
+	 */
 	void checkMousePos();
 
 	static void showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder);
 
 	void addPlayToolBarToMainWindow();
 
+	/**
+	 * Creates the context menu of the video.
+	 *
+	 * This is the context menu that appears when user clicks
+	 * using right button of the mouse.
+	 */
 	void createContextMenu();
 
 	void populateActionCollection();
@@ -105,6 +141,12 @@ private:
 	/** QWidget that contains PlayToolBar + StatusBar. */
 	QWidget * _widgetOverFullScreen;
 
+	/**
+	 * Context menu of the video.
+	 *
+	 * This is the context menu that appears when user clicks
+	 * using right button of the mouse.
+	 */
 	QMenu * _contextMenu;
 };
 

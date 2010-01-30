@@ -188,7 +188,11 @@ void VideoWidget::aspectRatioChanged(QAction * action) {
 	}
 }
 
-void VideoWidget::enterFullScreenSlot() {
+void VideoWidget::triggerExitFullScreenAction() {
+	ActionCollection::action("MainWindow.FullScreen")->setChecked(false);
+}
+
+void VideoWidget::enterFullScreenInternal() {
 	if (isFullScreen()) {
 		return;
 	}
@@ -220,12 +224,10 @@ void VideoWidget::enterFullScreenSlot() {
 	}
 }
 
-void VideoWidget::leaveFullScreenSlot() {
+void VideoWidget::exitFullScreenInternal() {
 	if (!isFullScreen()) {
 		return;
 	}
-
-	//Leaving fullscreen
 
 	//Restore screensaver
 	ScreenSaver::restore();
@@ -237,11 +239,11 @@ void VideoWidget::leaveFullScreenSlot() {
 	_widgetOverFullScreen->hide();
 }
 
-void VideoWidget::setFullScreenSlot(bool fullScreen) {
+void VideoWidget::setFullScreenInternal(bool fullScreen) {
 	if (fullScreen) {
-		enterFullScreenSlot();
+		enterFullScreenInternal();
 	} else {
-		leaveFullScreenSlot();
+		exitFullScreenInternal();
 	}
 }
 
@@ -371,10 +373,10 @@ void VideoWidget::playToolBarAdded(QToolBar * playToolBar) {
 	addPlayToolBarToMainWindow();
 
 	connect(ActionCollection::action("MainWindow.FullScreen"), SIGNAL(toggled(bool)),
-		SLOT(setFullScreenSlot(bool)));
+		SLOT(setFullScreenInternal(bool)));
 
-	connect(ActionCollection::action("MainWindow.FullScreenLeave"), SIGNAL(triggered()),
-		SLOT(leaveFullScreenSlot()));
+	connect(ActionCollection::action("MainWindow.FullScreenExit"), SIGNAL(triggered()),
+		SLOT(triggerExitFullScreenAction()));
 }
 
 void VideoWidget::statusBarAdded(QStatusBar * statusBar) {

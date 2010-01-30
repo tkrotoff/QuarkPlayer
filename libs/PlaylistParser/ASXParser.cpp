@@ -178,6 +178,10 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 			break;
 		}
 
+		default:
+			//Do nothing
+			break;
+
 		}
 	}
 

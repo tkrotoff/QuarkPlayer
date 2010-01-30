@@ -46,6 +46,10 @@ WebBrowserTest::~WebBrowserTest() {
 }
 
 void WebBrowserTest::wikipediaArticleFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & wikipediaArticle, const ContentFetcherTrack & track) {
+	Q_UNUSED(error);
+	Q_UNUSED(url);
+	Q_UNUSED(track);
+
 	QMainWindow * mainWindow = new QMainWindow();
 	WebBrowser * browser = new WebBrowser(mainWindow);
 	mainWindow->setCentralWidget(browser);

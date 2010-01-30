@@ -482,7 +482,7 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 	_mediaInfo.setMetaData(MediaInfo::AmazonASIN, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("ASIN"))).trimmed());
 
 	//Audio
-	size_t audioStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Audio);
+	int audioStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Audio);
 	for (int audioStreamId = 0; audioStreamId < audioStreamCount; audioStreamId++) {
 		_mediaInfo.insertAudioStream(audioStreamId, MediaInfo::AudioBitrate, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("BitRate"))).trimmed().toInt() / 1000);
 		_mediaInfo.insertAudioStream(audioStreamId, MediaInfo::AudioBitrateMode, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Audio, audioStreamId, _T("BitRate_Mode"))).trimmed().toUInt());
@@ -496,7 +496,7 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 	}
 
 	//Video
-	size_t videoStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Video);
+	int videoStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Video);
 	for (int videoStreamId = 0; videoStreamId < videoStreamCount; videoStreamId++) {
 		_mediaInfo.insertVideoStream(videoStreamId, MediaInfo::VideoBitrate, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Video, videoStreamId, _T("BitRate"))).trimmed().toUInt() / 1000);
 
@@ -511,7 +511,7 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 	}
 
 	//Text
-	size_t textStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Text);
+	int textStreamCount = mediaInfo.Count_Get(MediaInfoLib::Stream_Text);
 	for (int textStreamId = 0; textStreamId < textStreamCount; textStreamId++) {
 		_mediaInfo.insertTextStream(textStreamId, MediaInfo::TextFormat, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Text, textStreamId, _T("Format"))).trimmed());
 		_mediaInfo.insertTextStream(textStreamId, MediaInfo::TextLanguage, QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_Text, textStreamId, _T("Language/String"))).trimmed());
@@ -522,6 +522,6 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 }
 
 void MediaInfoFetcher::determineFileTypeFromExtension() {
-	QString extension(QFileInfo(_mediaInfo.fileName()).suffix().toLower());
+	QString extension(QFileInfo(_mediaInfo.fileName()).suffix());
 	_mediaInfo.setFileType(FileTypes::fileType(extension));
 }

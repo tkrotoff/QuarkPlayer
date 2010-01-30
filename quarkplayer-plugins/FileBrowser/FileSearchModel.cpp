@@ -434,7 +434,7 @@ void FileSearchModel::filesFound(const QStringList & files, const QUuid & uuid) 
 
 	beginInsertRows(_currentParentQModelIndex, first, last);
 	foreach (QString fileName, files) {
-		//Later filenames comparisons can fail if we don't convert / or \
+		/* Later filenames comparisons can fail if we don't convert / or \ */
 		fileName = QDir::toNativeSeparators(fileName);
 		_currentParentItem->appendChild(new FileSearchItem(fileName, _currentParentItem));
 	}
@@ -462,6 +462,8 @@ void FileSearchModel::updateMediaInfo(const MediaInfo & mediaInfo) {
 }
 
 void FileSearchModel::searchFinishedSlot(int timeElapsed) {
+	Q_UNUSED(timeElapsed);
+
 	/*if (_rootItem) {
 
 		emit layoutAboutToBeChanged();

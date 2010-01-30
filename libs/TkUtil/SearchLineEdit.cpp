@@ -86,6 +86,7 @@ QToolButton * SearchLineEdit::wordListButton() const {
 }
 
 void SearchLineEdit::resizeEvent(QResizeEvent * event) {
+	Q_UNUSED(event);
 	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
 
 	QSize wordListButtonSizeHint = _clearButton->sizeHint();

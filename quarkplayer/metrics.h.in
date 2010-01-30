@@ -40,6 +40,11 @@ static const int QUARKPLAYER_LIBS_LOC = @QUARKPLAYER_LIBS_LOC@;
 static const int QUARKPLAYER_PLUGINS_LOC = @QUARKPLAYER_PLUGINS_LOC@;
 
 /**
+ * Lines of source code inside QuarkPlayer Tests.
+ */
+static const int QUARKPLAYER_TESTS_LOC = @QUARKPLAYER_TESTS_LOC@;
+
+/**
  * Lines of source code inside 3rdparty components.
  */
 static const int QUARKPLAYER_3RDPARTY_LOC = @QUARKPLAYER_3RDPARTY_LOC@;

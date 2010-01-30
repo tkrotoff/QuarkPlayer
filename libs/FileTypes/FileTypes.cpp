@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -161,27 +161,29 @@ QStringList FileTypes::extensions(FileType::Category category1, FileType::Catego
 FileType FileTypes::fileType(const QString & extension) {
 	static QHash<QString, FileType> hash;
 
-	if (!hash.contains(extension)) {
+	QString ext = extension.toLower();
+
+	if (!hash.contains(ext)) {
 		foreach (FileType fileType, fileTypes()) {
-			if (fileType.extensions.contains(extension)) {
+			if (fileType.extensions.contains(ext)) {
 				//The first one that we found
-				hash[extension] = fileType;
+				hash[ext] = fileType;
 				break;
 			}
 		}
 
-		//The extension string was not found :/
-		if (!hash.contains(extension)) {
+		//The ext string was not found :/
+		if (!hash.contains(ext)) {
 			FileType unknownFileType;
 			unknownFileType.category = FileType::CategoryUnknown;
 			unknownFileType.name = FileType::NameUnknown;
-			unknownFileType.fullName = extension;
-			unknownFileType.extensions += extension;
-			hash[extension] = unknownFileType;
+			unknownFileType.fullName = ext;
+			unknownFileType.extensions += ext;
+			hash[ext] = unknownFileType;
 		}
 	}
 
-	return hash.value(extension);
+	return hash.value(ext);
 }
 
 FileType FileTypes::fileType(FileType::Name name) {

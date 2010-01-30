@@ -234,7 +234,7 @@ void PlaylistParserTest::filesFound(const QList<MediaInfo> & files) {
 }
 
 void PlaylistParserTest::finished(PlaylistParser::Error error, int timeElapsed) {
-	QFETCH(int, parserTimeElapsed);
+	//QFETCH(int, parserTimeElapsed);
 
 	QFETCH(int, parserError);
 	QCOMPARE(parserError, static_cast<int>(error));

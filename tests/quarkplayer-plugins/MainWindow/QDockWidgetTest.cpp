@@ -117,10 +117,11 @@ void QDockWidgetTest::showQTabBarHack() {
 			Procedure for transfer pointer QWidget'a in QVariant user-defined type and vice versa.
 			Last type quintptr - cross-platform version of the index, where it is the size of 32 bits, which do not need 64.
 			*/
-			quintptr wId = qvariant_cast<quintptr>(tab->tabData(tab->currentIndex()));
+			//quintptr wId = qvariant_cast<quintptr>(tab->tabData(tab->currentIndex()));
 
+			/*
 			QDockWidget * widget = reinterpret_cast<QDockWidget *>(wId);
-			/*QMessageBox::information(
+			QMessageBox::information(
 				_mainWindow, "Info",
 				QString("class:%1, title:%2")
 					.arg(widget->metaObject()->className())
@@ -130,7 +131,7 @@ void QDockWidgetTest::showQTabBarHack() {
 			MousePressEventFilter * mousePressFilter = new MousePressEventFilter(this, SLOT(printHelloWorld()), Qt::LeftButton, false);
 			tab->installEventFilter(mousePressFilter);
 
-			PaintEventFilter * paintEventFilter = new PaintEventFilter();
+			//PaintEventFilter * paintEventFilter = new PaintEventFilter();
 			//tab->installEventFilter(paintEventFilter);
 
 			//tab->removeTab(0);

@@ -61,11 +61,6 @@ public:
 	/** Deletes all configuration files from the computer. */
 	void deleteConfig();
 
-	/** List of available backends + selected backend. */
-	static const char * BACKEND_KEY;
-	QStringList backendList() const;
-	QString backend() const;
-
 	/** Language of the application (i.e en, fr, sp...). */
 	static const char * LANGUAGE_KEY;
 	QString language() const;
