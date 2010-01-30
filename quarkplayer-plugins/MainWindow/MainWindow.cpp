@@ -153,7 +153,7 @@ QStatusBar * MainWindow::statusBar() const {
 }
 
 void MainWindow::playFile() {
-	QStringList filenames = TkFileDialog::getOpenFileNames(
+	QStringList fileNames = TkFileDialog::getOpenFileNames(
 		this, tr("Select Audio/Video File"), Config::instance().lastDirOpened(),
 		tr("Multimedia") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video, FileType::Audio)) + ";;" +
 		tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video)) +";;" +
@@ -162,13 +162,13 @@ void MainWindow::playFile() {
 		tr("All Files") + " (*)"
 	);
 
-	if (!filenames.isEmpty()) {
-		QString fileToPlay(filenames[0]);
+	if (!fileNames.isEmpty()) {
+		QString fileToPlay(fileNames[0]);
 		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(fileToPlay).absolutePath());
 
 		PlaylistWidget * playlistWidget = PlaylistWidgetFactory::playlistWidget();
 		if (playlistWidget) {
-			playlistWidget->addFilesToCurrentPlaylist(filenames);
+			playlistWidget->addFilesToCurrentPlaylist(fileNames);
 			playlistWidget->playlistModel()->play(0);
 		} else {
 			play(fileToPlay);
@@ -206,7 +206,7 @@ void MainWindow::playVCD() {
 
 void MainWindow::play(const Phonon::MediaSource & mediaSource) {
 	quarkPlayer().play(mediaSource);
-	//_statusBar->showMessage(tr("Processing") + " " + filename + "...");
+	//_statusBar->showMessage(tr("Processing") + " " + fileName + "...");
 }
 
 void MainWindow::updateWindowTitle() {
@@ -332,7 +332,7 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("MainWindow.FullScreen", action);
 
 	action = new TkAction(app, tr("Esc"));
-	ActionCollection::addAction("MainWindow.FullScreenLeave", action);
+	ActionCollection::addAction("MainWindow.FullScreenExit", action);
 }
 
 void MainWindow::setupUi() {
@@ -500,7 +500,7 @@ void MainWindow::retranslate() {
 	ActionCollection::action("MainWindow.FullScreen")->setText(tr("&Fullscreen"));
 	ActionCollection::action("MainWindow.FullScreen")->setIcon(TkIcon("view-fullscreen"));
 
-	ActionCollection::action("MainWindow.FullScreenLeave")->setText(tr("&Leave Fullscreen"));
+	ActionCollection::action("MainWindow.FullScreenExit")->setText(tr("&Exit Fullscreen"));
 }
 
 QMenu * MainWindow::menuFile() const {
@@ -537,17 +537,17 @@ void MainWindow::dropEvent(QDropEvent * event) {
 	//Add urls to a list
 	if (event->mimeData()->hasUrls()) {
 		QList<QUrl> urlList = event->mimeData()->urls();
-		QString filename;
+		QString fileName;
 		foreach (QUrl url, urlList) {
 			if (url.isValid()) {
 				qDebug() << __FUNCTION__ << "File scheme:" << url.scheme();
 				if (url.scheme() == "file") {
-					filename = url.toLocalFile();
+					fileName = url.toLocalFile();
 				} else {
-					filename = url.toString();
+					fileName = url.toString();
 				}
-				qDebug() << __FUNCTION__ << "File dropped:" << filename;
-				files << filename;
+				qDebug() << __FUNCTION__ << "File dropped:" << fileName;
+				files << fileName;
 			}
 		}
 	}
@@ -555,17 +555,17 @@ void MainWindow::dropEvent(QDropEvent * event) {
 	if (files.count() > 0) {
 		if (files.count() == 1) {
 			//1 file
-			QString filename = files[0];
+			QString fileName = files[0];
 
-			bool isSubtitle = FileTypes::extensions(FileType::Subtitle).contains(QFileInfo(filename).completeSuffix(), Qt::CaseInsensitive);
+			bool isSubtitle = FileTypes::extensions(FileType::Subtitle).contains(QFileInfo(fileName).completeSuffix(), Qt::CaseInsensitive);
 			if (isSubtitle) {
-				qDebug() << __FUNCTION__ << "Loading subtitle:" << filename;
-				emit subtitleFileDropped(filename);
-			} else if (QFileInfo(filename).isDir()) {
+				qDebug() << __FUNCTION__ << "Loading subtitle:" << fileName;
+				emit subtitleFileDropped(fileName);
+			} else if (QFileInfo(fileName).isDir()) {
 				//TODO open directory
 			} else {
 				//TODO add to playlist if 'auto-add-playlist' option
-				play(filename);
+				play(fileName);
 			}
 		} else {
 			//Several files
