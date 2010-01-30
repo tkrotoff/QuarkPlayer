@@ -90,7 +90,7 @@ void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldSt
 
 void VideoWidgetPlugin::finished() {
 	VideoContainer * container = _mediaObjectHash.value(quarkPlayer().currentMediaObject());
-	container->videoWidget->leaveFullScreenSlot();
+	container->videoWidget->triggerExitFullScreenAction();
 	container->videoDockWidget->setWidget(container->backgroundLogoWidget);
 	qDebug() << __FUNCTION__ << container->backgroundLogoWidget;
 }
