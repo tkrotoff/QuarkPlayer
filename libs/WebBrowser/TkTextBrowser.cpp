@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,10 +37,10 @@ TkTextBrowser::~TkTextBrowser() {
 	clearCache();
 }
 
-void TkTextBrowser::setHtml(const QString & text) {
+void TkTextBrowser::setHtml(const QString & html) {
 	clearCache();
 
-	QString tmp(text);
+	QString tmp(html);
 
 	//Remove JavaScript code as QTextBrowser can't display it
 	QRegExp rx_script("<\\s*script.*\\s*>.*<\\s*/\\s*script\\s*>");
@@ -53,9 +53,9 @@ void TkTextBrowser::setHtml(const QString & text) {
 	QTextBrowser::setHtml(tmp);
 }
 
-void TkTextBrowser::setSource(const QUrl & name) {
+void TkTextBrowser::setUrl(const QUrl & url) {
 	clearCache();
-	QTextBrowser::setSource(name);
+	QTextBrowser::setSource(url);
 }
 
 void TkTextBrowser::clearCache() {
@@ -63,12 +63,12 @@ void TkTextBrowser::clearCache() {
 }
 
 void TkTextBrowser::finished(QNetworkReply * reply) {
-	QUrl name(reply->url());
+	QUrl url(reply->url());
 	QByteArray data(reply->readAll());
 
-	Resource res = _resourceMap.value(name);
+	Resource res = _resourceMap.value(url);
 	res.data = data;
-	_resourceMap[name] = res;
+	_resourceMap[url] = res;
 
 	switch (res.type) {
 	case QTextDocument::HtmlResource:
@@ -85,24 +85,24 @@ void TkTextBrowser::finished(QNetworkReply * reply) {
 	viewport()->update();
 }
 
-QVariant TkTextBrowser::loadResource(int type, const QUrl & name) {
+QVariant TkTextBrowser::loadResource(int type, const QUrl & url) {
 	QVariant resource;
 
-	qDebug() << __FUNCTION__ << name.toString();
+	//qDebug() << Q_FUNC_INFO << url.toString();
 
-	if (name.host().isEmpty()) {
+	if (url.host().isEmpty()) {
 		//Not a URL: local file system
-		resource = QTextBrowser::loadResource(type, name);
+		resource = QTextBrowser::loadResource(type, url);
 	}
 
 	else {
 		//This is a real URL
-		if (_resourceMap.contains(name)) {
+		if (_resourceMap.contains(url)) {
 			//Already in cache
-			Resource res = _resourceMap.value(name);
+			Resource res = _resourceMap.value(url);
 			resource = res.data;
 			res.data.clear();
-			_resourceMap[name] = res;
+			_resourceMap[url] = res;
 		} else {
 			//Not in cache
 
@@ -110,7 +110,7 @@ QVariant TkTextBrowser::loadResource(int type, const QUrl & name) {
 			QNetworkRequest request;
 			request.setRawHeader("User-Agent", QCoreApplication::applicationName().toAscii());
 
-			request.setUrl(name);
+			request.setUrl(url);
 
 			//Asynchronous resource download
 			_networkAccess->get(request);
@@ -118,7 +118,7 @@ QVariant TkTextBrowser::loadResource(int type, const QUrl & name) {
 			Resource res;
 			res.type = type;
 			res.data.clear();
-			_resourceMap[name] = res;
+			_resourceMap[url] = res;
 		}
 	}
 

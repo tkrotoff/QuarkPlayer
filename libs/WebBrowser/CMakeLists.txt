@@ -20,6 +20,7 @@ target_link_libraries(WebBrowser
 	${QT_QTCORE_LIBRARY}
 	${QT_QTNETWORK_LIBRARY}
 	${QT_QTGUI_LIBRARY}
+	${QT_QTWEBKIT_LIBRARY}
 )
 
 #Translations

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,17 +30,17 @@ class QLineEdit;
 class QIcon;
 class QUrl;
 
+class QWebView;
+
 /**
- * A simple web browser based on TkTextBrowser/QTextBrowser.
+ * A simple web browser.
  *
- * QtWebKit is pretty heavy on the hard drive, this class only relies on QtGui instead.
- * For Qt-4.4.0, QtWebKit4.dll is 5,5MB compared to QtGui4.dll which is 6,9MB...
- *
- * On the other hand, this class is very limited about HTML/CSS compliance.
- * Anyway, it is enough for viewing pages from Wikipedia.
+ * Works with a backend that let's you choose between
+ * QTextBrowser or QWebView.
  *
  * @see TkTextBrowser
  * @see QTextBrowser
+ * @see QWebView
  * @see http://doc.trolltech.com/main-snapshot/richtext-html-subset.html
  * @author Tanguy Krotoff
  */
@@ -48,54 +48,118 @@ class WEBBROWSER_API WebBrowser : public QWidget {
 	Q_OBJECT
 public:
 
-	WebBrowser(QWidget * parent);
+	/** Available backends to render the HTML web page. */
+	enum WebBrowserBackend {
+
+		/**
+		 * QTextBrowser backend.
+		 *
+		 * Very basic and small memory footprint.
+		 * Very limited about HTML/CSS compliance, just enough for
+		 * viewing pages from Wikipedia.
+		 */
+		QTextBrowserBackend,
+
+		/**
+		 * QtWebKit backend.
+		 *
+		 * Advanced HTML rendering.
+		 * QtWebKit is pretty heavy: QtWebKit4.dll is 5,5MB compared
+		 * to QtGui4.dll which is 6,9MB... (Qt-4.4.0)
+		 */
+		QWebViewBackend
+	};
+
+	WebBrowser(WebBrowserBackend backend, QWidget * parent);
 
 	~WebBrowser();
 
-	void setBackwardIcon(const QIcon & icon);
+	/**
+	 * Sets the content of the web browser to the specified text.
+	 *
+	 * No network requests are performed.
+	 * This is supposed to be asynchronous.
+	 * You may call setUrlLineEdit() otherwise the location/address/URL
+	 * line edit will be empty.
+	 *
+	 * @param html text to render inside the web browser
+	 */
+	void setHtml(const QString & html);
 
-	void setForwardIcon(const QIcon & icon);
+	/**
+	 * Loads an URL and shows its content.
+	 *
+	 * Network requests are performed if needed.
+	 * This is supposed to be asynchronous.
+	 */
+	void setUrl(const QUrl & url);
 
-	void setReloadIcon(const QIcon & icon);
+	/**
+	 * Sets location/address/URL line edit URL.
+	 *
+	 *  Won't load the URL.
+	 */
+	void setUrlLineEdit(const QString & url);
 
-	void setStopIcon(const QIcon & icon);
-
-	void setHomeIcon(const QIcon & icon);
-
-	void setGoIcon(const QIcon & icon);
-
-	void setOpenBrowserIcon(const QIcon & icon);
-
-	void setHtml(const QString & text);
-
-	void setSource(const QUrl & name);
-
-	/** Sets QLineEdit URL without actually loading the URL. */
-	void setSourceWithoutLoading(const QUrl & name);
-
+	/**
+	 * Clears content and current URL.
+	 */
 	void clear();
 
 private slots:
 
+	/**
+	 * Translates the graphical interface.
+	 */
+	void retranslate();
+
+	/**
+	 * User clicked on the Go button.
+	 */
 	void go();
 
-	void backwardAvailable(bool available);
+	/**
+	 * User changed the URL inside the web browser.
+	 */
+	void urlChanged(const QUrl & url);
 
-	void forwardAvailable(bool available);
+	/**
+	 * Opens the web browser given the current URL.
+	 */
+	void openExternalWebBrowser();
 
-	void sourceChanged(const QUrl & src);
-
-	void openBrowser();
+	/** Go back home: the first URL set. */
+	void home();
 
 private:
 
 	void populateActionCollection();
 
+	/** Sets back button/QAction tooltip. */
+	void setBackActionToolTip();
+
+	/** Sets forward button/QAction tooltip. */
+	void setForwardActionToolTip();
+
+	/** Backend to use. */
+	WebBrowserBackend _backend;
+
+	/** QTextBrowser backend. */
 	TkTextBrowser * _textBrowser;
+
+	/** QtWebKit backend. */
+	QWebView * _webView;
 
 	QToolBar * _toolBar;
 
-	QLineEdit * _lineEdit;
+	/** Location/address/URL line edit. */
+	QLineEdit * _urlLineEdit;
+
+	/** Home URL if any. */
+	QString _homeUrl;
+
+	/** Home HTML text if any. */
+	QString _homeHtml;
 };
 
 #endif	//WEBBROWSER_H

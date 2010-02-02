@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,9 @@
 #include "TkTextBrowser.h"
 
 #include <TkUtil/ActionCollection.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
+
+#include <QtWebKit/QtWebKit>
 
 #include <QtGui/QtGui>
 
@@ -28,8 +31,12 @@
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
 
-WebBrowser::WebBrowser(QWidget * parent)
+WebBrowser::WebBrowser(WebBrowserBackend backend, QWidget * parent)
 	: QWidget(parent) {
+
+	_textBrowser = NULL;
+	_webView = NULL;
+	_backend = backend;
 
 	populateActionCollection();
 
@@ -38,136 +45,222 @@ WebBrowser::WebBrowser(QWidget * parent)
 	layout->setMargin(0);
 	layout->setSpacing(0);
 
-	_textBrowser = new TkTextBrowser(this);
-	connect(_textBrowser, SIGNAL(backwardAvailable(bool)), SLOT(backwardAvailable(bool)));
-	connect(_textBrowser, SIGNAL(forwardAvailable(bool)), SLOT(forwardAvailable(bool)));
-	backwardAvailable(_textBrowser->isBackwardAvailable());
-	forwardAvailable(_textBrowser->isForwardAvailable());
-	connect(_textBrowser, SIGNAL(sourceChanged(const QUrl &)), SLOT(sourceChanged(const QUrl &)));
-
 	_toolBar = new QToolBar();
 	_toolBar->setIconSize(QSize(16, 16));
 	_toolBar->addAction(ActionCollection::action("WebBrowser.Backward"));
-	connect(ActionCollection::action("WebBrowser.Backward"), SIGNAL(triggered()), _textBrowser, SLOT(backward()));
 	_toolBar->addAction(ActionCollection::action("WebBrowser.Forward"));
-	connect(ActionCollection::action("WebBrowser.Forward"), SIGNAL(triggered()), _textBrowser, SLOT(forward()));
 	_toolBar->addAction(ActionCollection::action("WebBrowser.Reload"));
-	connect(ActionCollection::action("WebBrowser.Reload"), SIGNAL(triggered()), _textBrowser, SLOT(reload()));
 	_toolBar->addAction(ActionCollection::action("WebBrowser.Stop"));
-	//connect(ActionCollection::action("WebBrowser.Stop"), SIGNAL(triggered()), _textBrowser, SLOT(stop()));
 	_toolBar->addAction(ActionCollection::action("WebBrowser.Home"));
-	connect(ActionCollection::action("WebBrowser.Home"), SIGNAL(triggered()), _textBrowser, SLOT(home()));
-	_lineEdit = new QLineEdit();
-	_toolBar->addWidget(_lineEdit);
-	connect(_lineEdit, SIGNAL(returnPressed()), SLOT(go()));
+	layout->addWidget(_toolBar);
+
+	_urlLineEdit = new QLineEdit();
+	_toolBar->addWidget(_urlLineEdit);
+	connect(_urlLineEdit, SIGNAL(editingFinished()), SLOT(go()));
 	_toolBar->addAction(ActionCollection::action("WebBrowser.Go"));
 	connect(ActionCollection::action("WebBrowser.Go"), SIGNAL(triggered()), SLOT(go()));
 	_toolBar->addAction(ActionCollection::action("WebBrowser.OpenBrowser"));
-	connect(ActionCollection::action("WebBrowser.OpenBrowser"), SIGNAL(triggered()), SLOT(openBrowser()));
-	layout->addWidget(_toolBar);
+	connect(ActionCollection::action("WebBrowser.OpenBrowser"), SIGNAL(triggered()), SLOT(openExternalWebBrowser()));
 
-	layout->addWidget(_textBrowser);
+	switch (_backend) {
+	case QTextBrowserBackend: {
+		_textBrowser = new TkTextBrowser();
+		layout->addWidget(_textBrowser);
+
+		connect(_textBrowser, SIGNAL(sourceChanged(const QUrl &)), SLOT(urlChanged(const QUrl &)));
+
+		connect(ActionCollection::action("WebBrowser.Backward"), SIGNAL(triggered()), _textBrowser, SLOT(backward()));
+		connect(ActionCollection::action("WebBrowser.Forward"), SIGNAL(triggered()), _textBrowser, SLOT(forward()));
+		connect(ActionCollection::action("WebBrowser.Reload"), SIGNAL(triggered()), _textBrowser, SLOT(reload()));
+		connect(ActionCollection::action("WebBrowser.Home"), SIGNAL(triggered()), SLOT(home()));
+		//QTextBrowser cannot stops current rendering, multithreaded?
+		//connect(ActionCollection::action("WebBrowser.Stop"), SIGNAL(triggered()), _textBrowser, SLOT(stop()));
+		ActionCollection::action("WebBrowser.Stop")->setEnabled(false);
+		break;
+	}
+	case QWebViewBackend: {
+		_webView = new QWebView();
+		layout->addWidget(_webView);
+
+		connect(_webView, SIGNAL(urlChanged(const QUrl &)), SLOT(urlChanged(const QUrl &)));
+
+		connect(ActionCollection::action("WebBrowser.Backward"), SIGNAL(triggered()), _webView, SLOT(back()));
+		connect(ActionCollection::action("WebBrowser.Forward"), SIGNAL(triggered()), _webView, SLOT(forward()));
+		connect(ActionCollection::action("WebBrowser.Reload"), SIGNAL(triggered()), _webView, SLOT(reload()));
+		connect(ActionCollection::action("WebBrowser.Home"), SIGNAL(triggered()), SLOT(home()));
+		connect(ActionCollection::action("WebBrowser.Stop"), SIGNAL(triggered()), _webView, SLOT(stop()));
+		break;
+	}
+	default:
+		qCritical() << Q_FUNC_INFO << "Unknown backend:" << _backend;
+	}
+
+	//Initializes the backward and forward QAction
+	setBackActionToolTip();
+	setForwardActionToolTip();
+
+	RETRANSLATE(this);
+	retranslate();
 }
 
 WebBrowser::~WebBrowser() {
 }
 
-void WebBrowser::setBackwardIcon(const QIcon & icon) {
-	ActionCollection::action("WebBrowser.Backward")->setText(tr("Backward"));
-	ActionCollection::action("WebBrowser.Backward")->setIcon(icon);
+void WebBrowser::populateActionCollection() {
+	ActionCollection::addAction("WebBrowser.Backward", new QAction(qApp));
+	ActionCollection::addAction("WebBrowser.Forward", new QAction(qApp));
+	ActionCollection::addAction("WebBrowser.Reload", new QAction(qApp));
+	ActionCollection::addAction("WebBrowser.Stop", new QAction(qApp));
+	ActionCollection::addAction("WebBrowser.Home", new QAction(qApp));
+	ActionCollection::addAction("WebBrowser.Go", new QAction(qApp));
+	ActionCollection::addAction("WebBrowser.OpenBrowser", new QAction(qApp));
 }
 
-void WebBrowser::setForwardIcon(const QIcon & icon) {
+void WebBrowser::retranslate() {
+	/*
+	_webBrowser->setBackIcon(TkIcon("go-previous"));
+	_webBrowser->setForwardIcon(TkIcon("go-next"));
+	_webBrowser->setReloadIcon(TkIcon("view-refresh"));
+	_webBrowser->setStopIcon(TkIcon("process-stop"));
+	_webBrowser->setHomeIcon(TkIcon("go-home"));
+	_webBrowser->setGoIcon(TkIcon("go-jump-locationbar"));
+	_webBrowser->setOpenBrowserIcon(TkIcon("internet-web-browser"));
+	*/
+
+	ActionCollection::action("WebBrowser.Backward")->setText(tr("Back"));
+	ActionCollection::action("WebBrowser.Backward")->setIcon(style()->standardIcon(QStyle::SP_ArrowBack));
+
 	ActionCollection::action("WebBrowser.Forward")->setText(tr("Forward"));
-	ActionCollection::action("WebBrowser.Forward")->setIcon(icon);
-}
+	ActionCollection::action("WebBrowser.Forward")->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
 
-void WebBrowser::setReloadIcon(const QIcon & icon) {
 	ActionCollection::action("WebBrowser.Reload")->setText(tr("Reload"));
-	ActionCollection::action("WebBrowser.Reload")->setIcon(icon);
-}
+	ActionCollection::action("WebBrowser.Reload")->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
 
-void WebBrowser::setStopIcon(const QIcon & icon) {
 	ActionCollection::action("WebBrowser.Stop")->setText(tr("Stop"));
-	ActionCollection::action("WebBrowser.Stop")->setIcon(icon);
-}
+	ActionCollection::action("WebBrowser.Stop")->setIcon(style()->standardIcon(QStyle::SP_BrowserStop));
 
-void WebBrowser::setHomeIcon(const QIcon & icon) {
 	ActionCollection::action("WebBrowser.Home")->setText(tr("Home"));
-	ActionCollection::action("WebBrowser.Home")->setIcon(icon);
-}
+	ActionCollection::action("WebBrowser.Home")->setIcon(style()->standardIcon(QStyle::SP_DirHomeIcon));
 
-void WebBrowser::setGoIcon(const QIcon & icon) {
 	ActionCollection::action("WebBrowser.Go")->setText(tr("Go"));
-	ActionCollection::action("WebBrowser.Go")->setIcon(icon);
-}
+	ActionCollection::action("WebBrowser.Go")->setIcon(style()->standardIcon(QStyle::SP_CommandLink));
 
-void WebBrowser::setOpenBrowserIcon(const QIcon & icon) {
 	ActionCollection::action("WebBrowser.OpenBrowser")->setText(tr("Open External Browser"));
-	ActionCollection::action("WebBrowser.OpenBrowser")->setIcon(icon);
+	ActionCollection::action("WebBrowser.OpenBrowser")->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
+	//QStyle::SP_DialogOpenButton
 }
 
-void WebBrowser::setHtml(const QString & text) {
-	_textBrowser->setHtml(text);
+void WebBrowser::setHtml(const QString & html) {
+	if (_homeUrl.isEmpty() && _homeHtml.isEmpty()) {
+		_homeHtml = html;
+	}
+
+	switch (_backend) {
+	case QTextBrowserBackend:
+		_textBrowser->setHtml(html);
+		break;
+	case QWebViewBackend:
+		_webView->setHtml(html);
+		break;
+	default:
+		qCritical() << Q_FUNC_INFO << "Unknown backend:" << _backend;
+	};
 }
 
-void WebBrowser::setSource(const QUrl & name) {
-	_textBrowser->setSource(name);
+void WebBrowser::setUrl(const QUrl & url) {
+	if (_homeUrl.isEmpty()) {
+		_homeUrl = url.toString();
+	}
+
+	switch (_backend) {
+	case QTextBrowserBackend:
+		_textBrowser->setSource(url);
+		break;
+	case QWebViewBackend:
+		_webView->setUrl(url);
+		break;
+	default:
+		qCritical() << Q_FUNC_INFO << "Unknown backend:" << _backend;
+	};
 }
 
-void WebBrowser::setSourceWithoutLoading(const QUrl & name) {
-	_lineEdit->setText(name.toString());
+void WebBrowser::setUrlLineEdit(const QString & url) {
+	if (_homeUrl.isEmpty()) {
+		_homeUrl = url;
+	}
+
+	_urlLineEdit->setText(url);
 }
 
 void WebBrowser::clear() {
-	setSource(QString());
+	setUrl(QString());
 	setHtml(QString());
 }
 
-void WebBrowser::populateActionCollection() {
-	QCoreApplication * app = QApplication::instance();
-
-	ActionCollection::addAction("WebBrowser.Backward", new QAction(app));
-	ActionCollection::addAction("WebBrowser.Forward", new QAction(app));
-	ActionCollection::addAction("WebBrowser.Reload", new QAction(app));
-	ActionCollection::addAction("WebBrowser.Stop", new QAction(app));
-	ActionCollection::addAction("WebBrowser.Home", new QAction(app));
-	ActionCollection::addAction("WebBrowser.Go", new QAction(app));
-	ActionCollection::addAction("WebBrowser.OpenBrowser", new QAction(app));
-}
-
 void WebBrowser::go() {
-	QString url(_lineEdit->text());
+	QString url(_urlLineEdit->text());
+	/*
+	Don't do that: url line edit can contain a simple text
+	that is not a URL
 	if (!url.contains("http://") &&
 		!url.contains("file://") &&
 		!url.contains("://")) {
 		url.prepend("http://");
-	}
-	_textBrowser->setSource(url);
+	}*/
+	setUrl(url);
 }
 
-void WebBrowser::backwardAvailable(bool available) {
-	ActionCollection::action("WebBrowser.Backward")->setEnabled(available);
-	if (available) {
-		ActionCollection::action("WebBrowser.Backward")->setToolTip(_textBrowser->historyTitle(-1));
+void WebBrowser::setBackActionToolTip() {
+	QString title;
+	switch (_backend) {
+	case QTextBrowserBackend:
+		title = _textBrowser->historyTitle(-1);
+		break;
+	case QWebViewBackend:
+		title = _webView->history()->backItem().title();
+		break;
+	default:
+		qCritical() << Q_FUNC_INFO << "Unknown backend:" << _backend;
+	};
+
+	ActionCollection::action("WebBrowser.Backward")->setEnabled(!title.isEmpty());
+	ActionCollection::action("WebBrowser.Backward")->setToolTip(title);
+}
+
+void WebBrowser::setForwardActionToolTip() {
+	QString title;
+	switch (_backend) {
+	case QTextBrowserBackend:
+		title = _textBrowser->historyTitle(+1);
+		break;
+	case QWebViewBackend:
+		title = _webView->history()->forwardItem().title();
+		break;
+	default:
+		qCritical() << Q_FUNC_INFO << "Unknown backend:" << _backend;
+	};
+
+	ActionCollection::action("WebBrowser.Forward")->setEnabled(!title.isEmpty());
+	ActionCollection::action("WebBrowser.Forward")->setToolTip(title);
+}
+
+void WebBrowser::urlChanged(const QUrl & url) {
+	_urlLineEdit->setText(url.toString());
+
+	//Updates the backward and forward QAction
+	setBackActionToolTip();
+	setForwardActionToolTip();
+}
+
+void WebBrowser::openExternalWebBrowser() {
+	QDesktopServices::openUrl(QUrl::fromPercentEncoding(_urlLineEdit->text().toAscii()));
+}
+
+void WebBrowser::home() {
+	if (!_homeHtml.isEmpty()) {
+		setUrlLineEdit(_homeUrl);
+		setHtml(_homeHtml);
 	} else {
-		ActionCollection::action("WebBrowser.Backward")->setToolTip(QString());
+		setUrl(_homeUrl);
 	}
-}
-
-void WebBrowser::forwardAvailable(bool available) {
-	ActionCollection::action("WebBrowser.Forward")->setEnabled(available);
-	if (available) {
-		ActionCollection::action("WebBrowser.Forward")->setToolTip(_textBrowser->historyTitle(+1));
-	} else {
-		ActionCollection::action("WebBrowser.Forward")->setToolTip(QString());
-	}
-}
-
-void WebBrowser::sourceChanged(const QUrl & src) {
-	_lineEdit->setText(src.toString());
-}
-
-void WebBrowser::openBrowser() {
-	QDesktopServices::openUrl(QUrl::fromPercentEncoding(_lineEdit->text().toAscii()));
 }

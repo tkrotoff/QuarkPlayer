@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,20 +36,47 @@ class TkTextBrowser : public QTextBrowser {
 	Q_OBJECT
 public:
 
-	TkTextBrowser(QWidget * parent);
+	TkTextBrowser(QWidget * parent = 0);
 
 	~TkTextBrowser();
 
-	QVariant loadResource(int type, const QUrl & name);
+	/**
+	 * Loads a item (e.g image, css...) referenced by the main document.
+	 *
+	 * Inherited by QTextBrowser so must be public.
+	 *
+	 * @see QTextBrowser::loadResource()
+	 */
+	QVariant loadResource(int type, const QUrl & url);
 
 public slots:
 
-	void setHtml(const QString & text);
+	/**
+	 * Sets main document content with a given text.
+	 *
+	 * No network requests are performed.
+	 *
+	 * @see QTextEdit::setHtml()
+	 */
+	void setHtml(const QString & html);
 
-	void setSource(const QUrl & name);
+	/**
+	 * Loads an URL and shows its content inside QTextBrowser.
+	 *
+	 * Network requests are performed if needed via loadResource().
+	 *
+	 * @see QTextBrowser::setSource()
+	 */
+	void setUrl(const QUrl & url);
 
 private slots:
 
+	/**
+	 * A network request is finished.
+	 *
+	 * @param reply a pointer to the reply that has just finished
+	 * @see QNetworkAccessManager::finished()
+	 */
 	void finished(QNetworkReply * reply);
 
 private:
@@ -60,7 +87,7 @@ private:
 	/** Performs the downloads. */
 	QNetworkAccessManager * _networkAccess;
 
-	/** A resource has a type (HTML, image, CSS) and contains data (via QNetworkReply *). */
+	/** A resource has a type (HTML, image, CSS) and contains data (obtained via QNetworkReply *). */
 	struct Resource {
 		int type;
 		QVariant data;
