@@ -56,7 +56,9 @@ WebBrowser::WebBrowser(WebBrowserBackend backend, QWidget * parent)
 
 	_urlLineEdit = new QLineEdit();
 	_toolBar->addWidget(_urlLineEdit);
-	connect(_urlLineEdit, SIGNAL(editingFinished()), SLOT(go()));
+	//Do not use QLineEdit::editingFinished() since it will trigger go()
+	//even with QLineEdit::setText()
+	connect(_urlLineEdit, SIGNAL(returnPressed()), SLOT(go()));
 	_toolBar->addAction(ActionCollection::action("WebBrowser.Go"));
 	connect(ActionCollection::action("WebBrowser.Go"), SIGNAL(triggered()), SLOT(go()));
 	_toolBar->addAction(ActionCollection::action("WebBrowser.OpenBrowser"));
