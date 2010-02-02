@@ -2,6 +2,9 @@ project(WebBrowser)
 
 add_definitions(-DBUILD_WEBBROWSER)
 
+# Bug inside qwebelement.h: they include <QString> instead of <QtCore/QString>
+include_directories(${QT_QTCORE_INCLUDE_DIR})
+
 set(WebBrowser_SRCS
 	WebBrowser.cpp
 	TkTextBrowser.cpp
