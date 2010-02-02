@@ -31,6 +31,9 @@
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
 
+/** Detects if _homeHtml should be used or not inside WebBrowser::home(). */
+static const char * HOME_HTML_INVALID = "INVALID";
+
 WebBrowser::WebBrowser(WebBrowserBackend backend, QWidget * parent)
 	: QWidget(parent) {
 
@@ -153,7 +156,7 @@ void WebBrowser::retranslate() {
 }
 
 void WebBrowser::setHtml(const QString & html) {
-	if (_homeUrl.isEmpty() && _homeHtml.isEmpty()) {
+	if (_homeHtml.isEmpty()) {
 		_homeHtml = html;
 	}
 
@@ -172,6 +175,7 @@ void WebBrowser::setHtml(const QString & html) {
 void WebBrowser::setUrl(const QUrl & url) {
 	if (_homeUrl.isEmpty()) {
 		_homeUrl = url.toString();
+		_homeHtml = HOME_HTML_INVALID;
 	}
 
 	switch (_backend) {
@@ -259,10 +263,10 @@ void WebBrowser::openExternalWebBrowser() {
 }
 
 void WebBrowser::home() {
-	if (!_homeHtml.isEmpty()) {
+	if (_homeHtml == HOME_HTML_INVALID) {
+		setUrl(_homeUrl);
+	} else {
 		setUrlLineEdit(_homeUrl);
 		setHtml(_homeHtml);
-	} else {
-		setUrl(_homeUrl);
 	}
 }
