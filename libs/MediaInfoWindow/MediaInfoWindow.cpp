@@ -48,7 +48,7 @@ MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 	_ui->setupUi(this);
 
 	//Web browser widget
-	_webBrowser = new WebBrowser(_ui->artistTab);
+	_webBrowser = new WebBrowser(WebBrowser::QTextBrowserBackend, _ui->artistTab);
 	_ui->artistTab->layout()->setMargin(0);
 	_ui->artistTab->layout()->setSpacing(0);
 	_ui->artistTab->layout()->addWidget(_webBrowser);
@@ -111,14 +111,6 @@ void MediaInfoWindow::show() {
 }
 
 void MediaInfoWindow::retranslate() {
-	_webBrowser->setBackwardIcon(TkIcon("go-previous"));
-	_webBrowser->setForwardIcon(TkIcon("go-next"));
-	_webBrowser->setReloadIcon(TkIcon("view-refresh"));
-	_webBrowser->setStopIcon(TkIcon("process-stop"));
-	_webBrowser->setHomeIcon(TkIcon("go-home"));
-	_webBrowser->setGoIcon(TkIcon("go-jump-locationbar"));
-	_webBrowser->setOpenBrowserIcon(TkIcon("internet-web-browser"));
-
 	_refreshButton->setIcon(TkIcon("view-refresh"));
 	_refreshButton->setToolTip(tr("Refresh Informations"));
 
@@ -453,10 +445,10 @@ void MediaInfoWindow::lyricsFound(QNetworkReply::NetworkError error, const QUrl 
 
 void MediaInfoWindow::wikipediaArticleFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & wikipediaArticle, const ContentFetcherTrack & track) {
 	if (error == QNetworkReply::NoError) {
-		_webBrowser->setSourceWithoutLoading(url);
+		_webBrowser->setUrlLineEdit(url.toString());
 		_webBrowser->setHtml(QString::fromUtf8(wikipediaArticle));
 	} else {
-		_webBrowser->setSourceWithoutLoading(url);
+		_webBrowser->setUrlLineEdit(url.toString());
 		_webBrowser->setHtml(tr("Error: ") + ContentFetcher::errorString(error));
 	}
 }

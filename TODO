@@ -28,13 +28,6 @@
 - Check Qt Creator plugin system and adapt it to QuarkPlayer
 
 == General ==
-- fix quit problems
-  infos:
-   QWaitCondition: Destroyed while threads are still waiting
-   corelib\thread\qwaitcondition_win.cpp:161: qWarning("QWaitCondition: Destroyed while threads are still waiting");
-   QObject::killTimers: timers cannot be stopped from another thread
-   ASSERT failure in QCoreApplication::sendEvent: "Cannot send events to objects owned by a different thread.
-   Current thread 136f4f18. Receiver '' (of type 'Phonon::AudioOutput') was created in thread 3eaad8", file kernel\qcoreapplication.cpp, line 301
 - fix several playlist mode
 - fix several FileBrowser mode
 - add profiles (audio, video...) ala Konqueror
@@ -62,7 +55,7 @@
 - add Magnatune support
 - add LastFm support
 - add Deezer support
-- add IPod support and others
+- add iPod support and others
 - fully configurable playlist (change headers order, sorting...)
 - add DLNA support
   see http://xbmc.org/wiki/index.php?title=UPnP_Sharing

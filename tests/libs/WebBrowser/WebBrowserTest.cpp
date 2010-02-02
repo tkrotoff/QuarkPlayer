@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,13 +26,7 @@
 #include <QtNetwork/QtNetwork>
 
 WebBrowserTest::WebBrowserTest() {
-	QMainWindow * mainWindow = new QMainWindow();
-	WebBrowser * browser = new WebBrowser(mainWindow);
-	mainWindow->setCentralWidget(browser);
-	browser->setSource(QUrl("http://en.wikipedia.org/wiki/Michael_Jackson"));
-	mainWindow->show();
-
-	WikipediaArticle * wikipediaArticle = new WikipediaArticle(mainWindow);
+	WikipediaArticle * wikipediaArticle = new WikipediaArticle(this);
 	connect(wikipediaArticle,
 		SIGNAL(finished(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
 		SLOT(wikipediaArticleFound(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &))
@@ -40,6 +34,20 @@ WebBrowserTest::WebBrowserTest() {
 	ContentFetcherTrack track;
 	track.artist = "Michael Jackson";
 	wikipediaArticle->start(track, "en");
+
+	//QTextBrowser + valid URL
+	QMainWindow * mainWindow = new QMainWindow();
+	WebBrowser * browser = new WebBrowser(WebBrowser::QTextBrowserBackend, mainWindow);
+	mainWindow->setCentralWidget(browser);
+	browser->setUrl(QUrl("http://en.wikipedia.org/wiki/Michael_Jackson"));
+	mainWindow->show();
+
+	//QtWebKit + valid URL
+	mainWindow = new QMainWindow();
+	browser = new WebBrowser(WebBrowser::QWebViewBackend, mainWindow);
+	mainWindow->setCentralWidget(browser);
+	browser->setUrl(QUrl("http://en.wikipedia.org/wiki/Michael_Jackson"));
+	mainWindow->show();
 }
 
 WebBrowserTest::~WebBrowserTest() {
@@ -50,9 +58,19 @@ void WebBrowserTest::wikipediaArticleFound(QNetworkReply::NetworkError error, co
 	Q_UNUSED(url);
 	Q_UNUSED(track);
 
+	//QTextBrowser + HTML text
 	QMainWindow * mainWindow = new QMainWindow();
-	WebBrowser * browser = new WebBrowser(mainWindow);
+	WebBrowser * browser = new WebBrowser(WebBrowser::QTextBrowserBackend, mainWindow);
 	mainWindow->setCentralWidget(browser);
+	browser->setUrlLineEdit("Michael Jackson");
+	browser->setHtml(QString::fromUtf8(wikipediaArticle));
+	mainWindow->show();
+
+	//QtWebKit + HTML text
+	mainWindow = new QMainWindow();
+	browser = new WebBrowser(WebBrowser::QWebViewBackend, mainWindow);
+	mainWindow->setCentralWidget(browser);
+	browser->setUrlLineEdit("Michael Jackson");
 	browser->setHtml(QString::fromUtf8(wikipediaArticle));
 	mainWindow->show();
 }
