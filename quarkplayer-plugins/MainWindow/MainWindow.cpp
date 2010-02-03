@@ -32,7 +32,6 @@
 
 #include <TkUtil/ActionCollection.h>
 #include <TkUtil/TkAction.h>
-#include <TkUtil/TkIcon.h>
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
@@ -408,46 +407,46 @@ void MainWindow::retranslate() {
 	setWindowIcon(QIcon(":/icons/quarkplayer-16x16.png"));
 
 	ActionCollection::action("MainWindow.OpenFile")->setText(tr("Play &File..."));
-	ActionCollection::action("MainWindow.OpenFile")->setIcon(TkIcon("document-open"));
+	ActionCollection::action("MainWindow.OpenFile")->setIcon(QIcon::fromTheme("document-open"));
 
 	ActionCollection::action("MainWindow.Quit")->setText(tr("&Quit"));
-	ActionCollection::action("MainWindow.Quit")->setIcon(TkIcon("application-exit"));
+	ActionCollection::action("MainWindow.Quit")->setIcon(QIcon::fromTheme("application-exit"));
 
 	ActionCollection::action("MainWindow.ReportBug")->setText(tr("&Report a bug..."));
-	ActionCollection::action("MainWindow.ReportBug")->setIcon(TkIcon("tools-report-bug"));
+	ActionCollection::action("MainWindow.ReportBug")->setIcon(QIcon::fromTheme("tools-report-bug"));
 
 	ActionCollection::action("MainWindow.ShowMailingList")->setText(tr("&Discuss about QuarkPlayer..."));
-	ActionCollection::action("MainWindow.ShowMailingList")->setIcon(TkIcon("mail-mark-unread"));
+	ActionCollection::action("MainWindow.ShowMailingList")->setIcon(QIcon::fromTheme("mail-mark-unread"));
 
 	ActionCollection::action("MainWindow.ViewMPlayerLog")->setText(tr("View &MPlayer Log"));
-	ActionCollection::action("MainWindow.ViewMPlayerLog")->setIcon(TkIcon("help-about"));
+	ActionCollection::action("MainWindow.ViewMPlayerLog")->setIcon(QIcon::fromTheme("help-about"));
 
 	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setText(tr("View &QuarkPlayer Log"));
-	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setIcon(TkIcon("help-about"));
+	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setIcon(QIcon::fromTheme("help-about"));
 
 	ActionCollection::action("MainWindow.About")->setText(tr("&About"));
-	ActionCollection::action("MainWindow.About")->setIcon(TkIcon("help-about"));
+	ActionCollection::action("MainWindow.About")->setIcon(QIcon::fromTheme("help-about"));
 
 	ActionCollection::action("MainWindow.AboutQt")->setText(tr("About &Qt"));
-	ActionCollection::action("MainWindow.AboutQt")->setIcon(TkIcon("help-about"));
+	ActionCollection::action("MainWindow.AboutQt")->setIcon(QIcon::fromTheme("help-about"));
 
 	ActionCollection::action("MainWindow.OpenDVD")->setText(tr("Play &DVD..."));
-	ActionCollection::action("MainWindow.OpenDVD")->setIcon(TkIcon("media-optical"));
+	ActionCollection::action("MainWindow.OpenDVD")->setIcon(QIcon::fromTheme("media-optical"));
 
 	ActionCollection::action("MainWindow.OpenURL")->setText(tr("Play &URL..."));
-	ActionCollection::action("MainWindow.OpenURL")->setIcon(TkIcon("document-open-remote"));
+	ActionCollection::action("MainWindow.OpenURL")->setIcon(QIcon::fromTheme("document-open-remote"));
 
 	ActionCollection::action("MainWindow.OpenVCD")->setText(tr("Play &VCD..."));
-	//ActionCollection::action("MainWindow.OpenVCD")->setIcon(TkIcon("media-optical"));
+	//ActionCollection::action("MainWindow.OpenVCD")->setIcon(QIcon::fromTheme("media-optical"));
 
 	ActionCollection::action("MainWindow.NewMediaObject")->setText(tr("New Media Window"));
-	ActionCollection::action("MainWindow.NewMediaObject")->setIcon(TkIcon("window-new"));
+	ActionCollection::action("MainWindow.NewMediaObject")->setIcon(QIcon::fromTheme("window-new"));
 
 	ActionCollection::action("MainWindow.Equalizer")->setText(tr("&Equalizer..."));
-	ActionCollection::action("MainWindow.Equalizer")->setIcon(TkIcon("view-media-equalizer"));
+	ActionCollection::action("MainWindow.Equalizer")->setIcon(QIcon::fromTheme("view-media-equalizer"));
 
 	ActionCollection::action("MainWindow.Configure")->setText(tr("&Configure QuarkPlayer..."));
-	ActionCollection::action("MainWindow.Configure")->setIcon(TkIcon("preferences-system"));
+	ActionCollection::action("MainWindow.Configure")->setIcon(QIcon::fromTheme("preferences-system"));
 
 	ActionCollection::action("MainWindow.EmptyMenu")->setText(tr("<empty>"));
 	ActionCollection::action("MainWindow.EmptyMenu")->setEnabled(false);
@@ -462,43 +461,43 @@ void MainWindow::retranslate() {
 	_menuHelp->setTitle(tr("&Help"));
 
 	ActionCollection::action("MainWindow.PreviousTrack")->setText(tr("P&revious Track"));
-	ActionCollection::action("MainWindow.PreviousTrack")->setIcon(TkIcon("media-skip-backward"));
+	ActionCollection::action("MainWindow.PreviousTrack")->setIcon(QIcon::fromTheme("media-skip-backward"));
 
 	ActionCollection::action("MainWindow.PlayPause")->setText(tr("&Play/Pause"));
-	ActionCollection::action("MainWindow.PlayPause")->setIcon(TkIcon("media-playback-start"));
+	ActionCollection::action("MainWindow.PlayPause")->setIcon(QIcon::fromTheme("media-playback-start"));
 
 	ActionCollection::action("MainWindow.Stop")->setText(tr("&Stop"));
-	ActionCollection::action("MainWindow.Stop")->setIcon(TkIcon("media-playback-stop"));
+	ActionCollection::action("MainWindow.Stop")->setIcon(QIcon::fromTheme("media-playback-stop"));
 
 	ActionCollection::action("MainWindow.NextTrack")->setText(tr("&Next Track"));
-	ActionCollection::action("MainWindow.NextTrack")->setIcon(TkIcon("media-skip-forward"));
+	ActionCollection::action("MainWindow.NextTrack")->setIcon(QIcon::fromTheme("media-skip-forward"));
 
 	ActionCollection::action("MainWindow.JumpBackward10s")->setText(tr("Jump &Backward 10s"));
-	ActionCollection::action("MainWindow.JumpBackward10s")->setIcon(TkIcon("media-seek-backward"));
+	ActionCollection::action("MainWindow.JumpBackward10s")->setIcon(QIcon::fromTheme("media-seek-backward"));
 	ActionCollection::action("MainWindow.JumpBackward1min")->setText(tr("Jump &Backward 1min"));
-	ActionCollection::action("MainWindow.JumpBackward1min")->setIcon(TkIcon("media-seek-backward"));
+	ActionCollection::action("MainWindow.JumpBackward1min")->setIcon(QIcon::fromTheme("media-seek-backward"));
 	ActionCollection::action("MainWindow.JumpBackward10min")->setText(tr("Jump &Backward 10min"));
-	ActionCollection::action("MainWindow.JumpBackward10min")->setIcon(TkIcon("media-seek-backward"));
+	ActionCollection::action("MainWindow.JumpBackward10min")->setIcon(QIcon::fromTheme("media-seek-backward"));
 	ActionCollection::action("MainWindow.JumpForward10s")->setText(tr("Jump &Forward 10s"));
-	ActionCollection::action("MainWindow.JumpForward10s")->setIcon(TkIcon("media-seek-forward"));
+	ActionCollection::action("MainWindow.JumpForward10s")->setIcon(QIcon::fromTheme("media-seek-forward"));
 	ActionCollection::action("MainWindow.JumpForward1min")->setText(tr("Jump &Forward 1min"));
-	ActionCollection::action("MainWindow.JumpForward1min")->setIcon(TkIcon("media-seek-forward"));
+	ActionCollection::action("MainWindow.JumpForward1min")->setIcon(QIcon::fromTheme("media-seek-forward"));
 	ActionCollection::action("MainWindow.JumpForward10min")->setText(tr("Jump &Forward 10min"));
-	ActionCollection::action("MainWindow.JumpForward10min")->setIcon(TkIcon("media-seek-forward"));
+	ActionCollection::action("MainWindow.JumpForward10min")->setIcon(QIcon::fromTheme("media-seek-forward"));
 	ActionCollection::action("MainWindow.SpeedDecrease10%")->setText(tr("Decrease Speed"));
-	ActionCollection::action("MainWindow.SpeedDecrease10%")->setIcon(TkIcon("media-seek-backward"));
+	ActionCollection::action("MainWindow.SpeedDecrease10%")->setIcon(QIcon::fromTheme("media-seek-backward"));
 	ActionCollection::action("MainWindow.SpeedIncrease10%")->setText(tr("Increase Speed"));
-	ActionCollection::action("MainWindow.SpeedIncrease10%")->setIcon(TkIcon("media-seek-forward"));
+	ActionCollection::action("MainWindow.SpeedIncrease10%")->setIcon(QIcon::fromTheme("media-seek-forward"));
 
 	ActionCollection::action("MainWindow.VolumeMute")->setText(tr("&Mute"));
-	ActionCollection::action("MainWindow.VolumeMute")->setIcon(TkIcon("audio-volume-muted"));
+	ActionCollection::action("MainWindow.VolumeMute")->setIcon(QIcon::fromTheme("audio-volume-muted"));
 	ActionCollection::action("MainWindow.VolumeDecrease10%")->setText(tr("&Decrease Volume"));
-	ActionCollection::action("MainWindow.VolumeDecrease10%")->setIcon(TkIcon("audio-volume-low"));
+	ActionCollection::action("MainWindow.VolumeDecrease10%")->setIcon(QIcon::fromTheme("audio-volume-low"));
 	ActionCollection::action("MainWindow.VolumeIncrease10%")->setText(tr("&Increase Volume"));
-	ActionCollection::action("MainWindow.VolumeIncrease10%")->setIcon(TkIcon("audio-volume-high"));
+	ActionCollection::action("MainWindow.VolumeIncrease10%")->setIcon(QIcon::fromTheme("audio-volume-high"));
 
 	ActionCollection::action("MainWindow.FullScreen")->setText(tr("&Fullscreen"));
-	ActionCollection::action("MainWindow.FullScreen")->setIcon(TkIcon("view-fullscreen"));
+	ActionCollection::action("MainWindow.FullScreen")->setIcon(QIcon::fromTheme("view-fullscreen"));
 
 	ActionCollection::action("MainWindow.FullScreenExit")->setText(tr("&Exit Fullscreen"));
 }

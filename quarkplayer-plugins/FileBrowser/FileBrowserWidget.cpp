@@ -33,7 +33,6 @@
 
 #include <FileTypes/FileTypes.h>
 
-#include <TkUtil/TkIcon.h>
 #include <TkUtil/SearchLineEdit.h>
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
@@ -293,19 +292,19 @@ void FileBrowserWidget::createNewFileBrowserWidget() {
 
 void FileBrowserWidget::retranslate() {
 	_searchLineEdit->clearButton()->setToolTip(tr("Clear Search"));
-	_searchLineEdit->clearButton()->setIcon(TkIcon("edit-clear-locationbar-rtl"));
+	_searchLineEdit->clearButton()->setIcon(QIcon::fromTheme("edit-clear-locationbar-rtl"));
 
 	_searchLineEdit->wordListButton()->setToolTip(tr("Search History"));
-	_searchLineEdit->wordListButton()->setIcon(TkIcon("go-down-search"));
+	_searchLineEdit->wordListButton()->setIcon(QIcon::fromTheme("go-down-search"));
 
 	_searchLineEdit->setToolTip(tr("Search files, use whitespaces to separate words"));
 	_searchLineEdit->setClickMessage(tr("Search"));
 
 	uuidAction("FileBrowser.Browse")->setText(tr("Change Directory"));
-	uuidAction("FileBrowser.Browse")->setIcon(TkIcon("document-open-folder"));
+	uuidAction("FileBrowser.Browse")->setIcon(QIcon::fromTheme("document-open-folder"));
 
 	uuidAction("FileBrowser.New")->setText(tr("New File Browser Window"));
-	uuidAction("FileBrowser.New")->setIcon(TkIcon("window-new"));
+	uuidAction("FileBrowser.New")->setIcon(QIcon::fromTheme("window-new"));
 
 	setWindowTitle(QString());
 }

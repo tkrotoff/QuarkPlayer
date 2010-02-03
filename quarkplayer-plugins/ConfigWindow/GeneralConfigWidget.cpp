@@ -27,7 +27,6 @@
 
 #include <TkUtil/Translator.h>
 #include <TkUtil/TkComboBox.h>
-#include <TkUtil/TkIcon.h>
 
 #include <QtGui/QtGui>
 
@@ -58,10 +57,6 @@ void GeneralConfigWidget::saveConfig() {
 	config.setValue(Config::STYLE_KEY, styleName);
 	QApplication::setStyle(QStyleFactory::create(styleName));
 
-	//Icon theme
-	config.setValue(Config::ICON_THEME_KEY, _ui->iconThemeComboBox->currentText().toLower());
-	TkIcon::setIconTheme(config.iconTheme());
-
 	//Language
 	QString language = Languages::availableTranslations().key(_ui->languageComboBox->currentText());
 	config.setValue(Config::LANGUAGE_KEY, language);
@@ -75,11 +70,6 @@ void GeneralConfigWidget::readConfig() {
 	_ui->styleComboBox->clear();
 	_ui->styleComboBox->addItems(QStyleFactory::keys());
 	TkComboBox::setCurrentText(_ui->styleComboBox, config.style());
-
-	//Icon theme
-	_ui->iconThemeComboBox->clear();
-	_ui->iconThemeComboBox->addItems(config.iconThemeList());
-	TkComboBox::setCurrentText(_ui->iconThemeComboBox, config.iconTheme());
 
 	//Language
 	_ui->languageComboBox->clear();

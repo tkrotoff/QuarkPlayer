@@ -24,7 +24,6 @@
 
 #include <quarkplayer/config/Config.h>
 
-#include <TkUtil/TkIcon.h>
 #include <TkUtil/TkAction.h>
 #include <TkUtil/ActionCollection.h>
 #include <TkUtil/TkFileDialog.h>
@@ -134,14 +133,14 @@ void ShortcutsConfigWidget::readConfig() {
 void ShortcutsConfigWidget::retranslate() {
 	_ui->retranslateUi(this);
 
-	_ui->resetButton->setIcon(TkIcon("edit-undo"));
-	_ui->removeButton->setIcon(TkIcon("edit-delete"));
+	_ui->resetButton->setIcon(QIcon::fromTheme("edit-undo"));
+	_ui->removeButton->setIcon(QIcon::fromTheme("edit-delete"));
 
 	_ui->searchLineEdit->clearButton()->setToolTip(tr("Clear Search"));
-	_ui->searchLineEdit->clearButton()->setIcon(TkIcon("edit-clear-locationbar-rtl"));
+	_ui->searchLineEdit->clearButton()->setIcon(QIcon::fromTheme("edit-clear-locationbar-rtl"));
 
 	_ui->searchLineEdit->wordListButton()->setToolTip(tr("Search History"));
-	_ui->searchLineEdit->wordListButton()->setIcon(TkIcon("go-down-search"));
+	_ui->searchLineEdit->wordListButton()->setIcon(QIcon::fromTheme("go-down-search"));
 
 	_ui->searchLineEdit->setToolTip(tr("Search shortcuts, use whitespaces to separate words"));
 	_ui->searchLineEdit->setClickMessage(tr("Search"));

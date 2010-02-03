@@ -27,7 +27,6 @@
 #include "WinFileAssociationsConfigWidget.h"
 #include "ShortcutsConfigWidget.h"
 
-#include <TkUtil/TkIcon.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 #include <TkUtil/TkStackedWidget.h>
 
@@ -122,7 +121,7 @@ void ConfigWindow::populateStackedWidget() {
 			item = new QTreeWidgetItem(_ui->treeWidget);
 		}
 		item->setExpanded(true);
-		item->setIcon(NAME_COLUMN, TkIcon(tmp.configWidget->iconName()));
+		item->setIcon(NAME_COLUMN, QIcon::fromTheme(tmp.configWidget->iconName()));
 		item->setText(NAME_COLUMN, tmp.configWidget->name());
 		item->setText(PRIVATE_POINTER_COLUMN, QString::number(quintptr(tmp.configWidget)));
 

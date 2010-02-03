@@ -52,7 +52,7 @@ Config::Config()
 
 	addKey(LANGUAGE_KEY, QString());
 	addKey(STYLE_KEY, QString());
-	addKey(ICON_THEME_KEY, "silk");
+	addKey(ICON_THEME_KEY, QString());
 	addKey(RECENT_FILES_KEY, QStringList());
 	addKey(LAST_DIR_OPENED_KEY, QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
 
@@ -122,17 +122,6 @@ QString Config::language() const {
 
 QString Config::style() const {
 	return value(STYLE_KEY).toString();
-}
-
-QStringList Config::iconThemeList() const {
-	QStringList list;
-	list << "Oxygen"
-		<< "Silk"
-		<< "Tango"
-		<< "Crystal"
-		<< "GartoonRedux"
-		<< "Null";
-	return list;
 }
 
 QString Config::iconTheme() const {

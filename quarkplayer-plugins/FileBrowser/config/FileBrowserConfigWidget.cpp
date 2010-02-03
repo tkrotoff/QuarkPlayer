@@ -22,7 +22,6 @@
 
 #include <quarkplayer/config/Config.h>
 
-#include <TkUtil/TkIcon.h>
 #include <TkUtil/TkFileDialog.h>
 
 #include <QtGui/QtGui>
@@ -36,7 +35,7 @@ FileBrowserConfigWidget::FileBrowserConfigWidget(const QUuid & uuid) {
 	_ui->setupUi(this);
 
 	_ui->fileChooserWidget->setDialogType(FileChooserWidget::DialogTypeDir);
-	_ui->fileChooserWidget->setSearchButtonIcon(TkIcon("document-open-folder"));
+	_ui->fileChooserWidget->setSearchButtonIcon(QIcon::fromTheme("document-open-folder"));
 }
 
 FileBrowserConfigWidget::~FileBrowserConfigWidget() {

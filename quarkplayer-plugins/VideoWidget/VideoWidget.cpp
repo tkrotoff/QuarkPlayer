@@ -23,7 +23,6 @@
 #include <TkUtil/ActionCollection.h>
 #include <TkUtil/ScreenSaver.h>
 #include <TkUtil/TkAction.h>
-#include <TkUtil/TkIcon.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>

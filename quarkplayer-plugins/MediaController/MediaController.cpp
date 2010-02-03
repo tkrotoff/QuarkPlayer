@@ -33,7 +33,6 @@
 #include <TkUtil/ActionCollection.h>
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
-#include <TkUtil/TkIcon.h>
 
 #include <phonon/audiooutput.h>
 #include <phonon/mediaobject.h>
@@ -152,28 +151,28 @@ void MediaController::retranslate() {
 	qDebug() << __FUNCTION__;
 
 	ActionCollection::action("MediaController.OpenSubtitleFile")->setText(tr("&Open Subtitle..."));
-	ActionCollection::action("MediaController.OpenSubtitleFile")->setIcon(TkIcon("document-open"));
+	ActionCollection::action("MediaController.OpenSubtitleFile")->setIcon(QIcon::fromTheme("document-open"));
 
 	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
 	//Need to implement a full plugin system like Qt Creator has
 	//Let's wait for Qt Creator source code to be released...
 	//This way MainWindow would be also a real plugin!
 	ActionCollection::action("MainWindow.FindSubtitles")->setText(tr("&Find Subtitles..."));
-	ActionCollection::action("MainWindow.FindSubtitles")->setIcon(TkIcon("edit-find"));
+	ActionCollection::action("MainWindow.FindSubtitles")->setIcon(QIcon::fromTheme("edit-find"));
 	ActionCollection::action("MainWindow.UploadSubtitles")->setText(tr("&Upload Subtitles..."));
 	///
 
 	_menuAudioChannels->setTitle(tr("&Audio Channels"));
-	_menuAudioChannels->setIcon(TkIcon("audio-x-generic"));
+	_menuAudioChannels->setIcon(QIcon::fromTheme("audio-x-generic"));
 
 	_menuSubtitles->setTitle(tr("&Subtitles"));
-	_menuSubtitles->setIcon(TkIcon("format-text-underline"));
+	_menuSubtitles->setIcon(QIcon::fromTheme("format-text-underline"));
 
 	_menuTitles->setTitle(tr("&Title"));
-	_menuTitles->setIcon(TkIcon("format-list-ordered"));
+	_menuTitles->setIcon(QIcon::fromTheme("format-list-ordered"));
 
 	_menuChapters->setTitle(tr("&Chapter"));
-	_menuChapters->setIcon(TkIcon("x-office-address-book"));
+	_menuChapters->setIcon(QIcon::fromTheme("x-office-address-book"));
 
 	_menuAngles->setTitle(tr("&Angle"));
 	_menuSubtitle->setTitle(tr("&Subtitle"));

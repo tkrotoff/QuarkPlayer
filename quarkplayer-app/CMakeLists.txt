@@ -12,12 +12,7 @@ set(quarkplayer_SRCS
 
 qt4_add_resources(quarkplayer_SRCS
 	quarkplayer.qrc
-	quarkplayer_oxygen.qrc
 	quarkplayer_silk.qrc
-	quarkplayer_tango.qrc
-	quarkplayer_crystal.qrc
-	quarkplayer_gartoonredux.qrc
-	quarkplayer_null.qrc
 )
 
 if (WIN32)

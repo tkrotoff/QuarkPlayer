@@ -26,13 +26,13 @@
 #include <quarkplayer/version.h>
 
 #include <TkUtil/Translator.h>
-#include <TkUtil/TkIcon.h>
 
 #include <phonon/mediaobject.h>
 
 #include <QtSingleApplication/QtSingleApplication>
 
 #include <QtGui/QStyleFactory>
+#include <QtGui/QIcon>
 
 #include <QtCore/QtPlugin>
 
@@ -98,16 +98,28 @@ int main(int argc, char * argv[]) {
 	if (!style.isEmpty()) {
 		app.setStyle(QStyleFactory::create(style));
 	}
+	///
+
+	//Set the icon theme saved inside the configuration if any
+	QString iconTheme = Config::instance().iconTheme();
+	if (!iconTheme.isEmpty()) {
+		QIcon::setThemeName(iconTheme);
+	}
+	if (!QIcon::hasThemeIcon("document-open")) {
+		//If there is no default working icon theme then we should
+		//use Silk icon theme
+		//This case happens under Windows and Mac OS X
+		//This does not happen if the user is running GNOME or KDE
+		//FIXME handle Mac OS X with an icon theme designed for it
+		QIcon::setThemeName("silk");
+	}
+	///
 
 	//Translate the application using the right language
 	Translator::instance().load(config.language());
 
 	//Parse the command line arguments
 	CommandLineParser parser;
-
-	//Icons
-	TkIcon::setIconTheme(config.iconTheme());
-	TkIcon::setIconSize(16);
 
 	QuarkPlayer quarkPlayer(&app);
 

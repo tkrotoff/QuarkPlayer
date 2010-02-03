@@ -30,7 +30,6 @@
 
 #include <MediaInfoWindow/MediaInfoWindow.h>
 
-#include <TkUtil/TkIcon.h>
 #include <TkUtil/TkAction.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
@@ -137,19 +136,19 @@ void DragAndDropTreeView::populateActionCollection() {
 
 void DragAndDropTreeView::retranslate() {
 	_playlistWidget->uuidAction("Playlist.PlayItem")->setText(tr("Play"));
-	_playlistWidget->uuidAction("Playlist.PlayItem")->setIcon(TkIcon("media-playback-start"));
+	_playlistWidget->uuidAction("Playlist.PlayItem")->setIcon(QIcon::fromTheme("media-playback-start"));
 
 	_playlistWidget->uuidAction("Playlist.SendTo")->setText(tr("Sent To"));
-	_playlistWidget->uuidAction("Playlist.SendTo")->setIcon(TkIcon("text-x-script"));
+	_playlistWidget->uuidAction("Playlist.SendTo")->setIcon(QIcon::fromTheme("text-x-script"));
 
 	_playlistWidget->uuidAction("Playlist.DeleteItem")->setText(tr("Delete from Playlist"));
-	_playlistWidget->uuidAction("Playlist.DeleteItem")->setIcon(TkIcon("edit-delete"));
+	_playlistWidget->uuidAction("Playlist.DeleteItem")->setIcon(QIcon::fromTheme("edit-delete"));
 
 	_playlistWidget->uuidAction("Playlist.RateItem")->setText(tr("Rate"));
-	_playlistWidget->uuidAction("Playlist.RateItem")->setIcon(TkIcon("rating"));
+	_playlistWidget->uuidAction("Playlist.RateItem")->setIcon(QIcon::fromTheme("rating"));
 
 	_playlistWidget->uuidAction("Playlist.ViewMediaInfo")->setText(tr("View Media Info..."));
-	_playlistWidget->uuidAction("Playlist.ViewMediaInfo")->setIcon(TkIcon("document-properties"));
+	_playlistWidget->uuidAction("Playlist.ViewMediaInfo")->setIcon(QIcon::fromTheme("document-properties"));
 
 	if (_mediaInfoWindow) {
 		_mediaInfoWindow->setLanguage(Config::instance().language());

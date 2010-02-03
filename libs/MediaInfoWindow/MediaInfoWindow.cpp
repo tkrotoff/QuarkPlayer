@@ -28,7 +28,6 @@
 
 #include <WebBrowser/WebBrowser.h>
 
-#include <TkUtil/TkIcon.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
@@ -111,10 +110,10 @@ void MediaInfoWindow::show() {
 }
 
 void MediaInfoWindow::retranslate() {
-	_refreshButton->setIcon(TkIcon("view-refresh"));
+	_refreshButton->setIcon(QIcon::fromTheme("view-refresh"));
 	_refreshButton->setToolTip(tr("Refresh Informations"));
 
-	_openDirectoryButton->setIcon(TkIcon("document-open-folder"));
+	_openDirectoryButton->setIcon(QIcon::fromTheme("document-open-folder"));
 	_openDirectoryButton->setToolTip(tr("Open Directory"));
 
 	_ui->retranslateUi(this);
@@ -149,7 +148,7 @@ void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {
 		static QFileIconProvider iconProvider;
 		icon = iconProvider.icon(QFileInfo(mediaInfo.fileName()));
 	} else {
-		icon = TkIcon("document-open-remote");
+		icon = QIcon::fromTheme("document-open-remote");
 	}
 	_ui->fileTypeLabel->setPixmap(icon.pixmap(QSize(16, 16)));
 

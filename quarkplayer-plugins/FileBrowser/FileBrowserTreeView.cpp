@@ -32,7 +32,6 @@
 #include <MediaInfoFetcher/MediaInfoFetcher.h>
 
 #include <TkUtil/LanguageChangeEventFilter.h>
-#include <TkUtil/TkIcon.h>
 
 #include <phonon/mediaobject.h>
 
@@ -130,13 +129,13 @@ void FileBrowserTreeView::play() {
 
 void FileBrowserTreeView::retranslate() {
 	_fileBrowserWidget->uuidAction("FileBrowser.AddToPlaylist")->setText(tr("Add to Playlist"));
-	_fileBrowserWidget->uuidAction("FileBrowser.AddToPlaylist")->setIcon(TkIcon("list-add"));
+	_fileBrowserWidget->uuidAction("FileBrowser.AddToPlaylist")->setIcon(QIcon::fromTheme("list-add"));
 
 	_fileBrowserWidget->uuidAction("FileBrowser.Play")->setText(tr("Play"));
-	_fileBrowserWidget->uuidAction("FileBrowser.Play")->setIcon(TkIcon("media-playback-start"));
+	_fileBrowserWidget->uuidAction("FileBrowser.Play")->setIcon(QIcon::fromTheme("media-playback-start"));
 
 	_fileBrowserWidget->uuidAction("FileBrowser.ViewMediaInfo")->setText(tr("View Media Info..."));
-	_fileBrowserWidget->uuidAction("FileBrowser.ViewMediaInfo")->setIcon(TkIcon("document-properties"));
+	_fileBrowserWidget->uuidAction("FileBrowser.ViewMediaInfo")->setIcon(QIcon::fromTheme("document-properties"));
 }
 
 QFileInfo FileBrowserTreeView::fileInfo(const QModelIndex & index) const {

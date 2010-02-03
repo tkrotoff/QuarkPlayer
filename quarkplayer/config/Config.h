@@ -69,9 +69,19 @@ public:
 	static const char * STYLE_KEY;
 	QString style() const;
 
-	/** Icon theme to be used (silk, oxygen, tango...). */
+	/**
+	 * Icon theme to be used (silk, oxygen, tango...).
+	 *
+	 * If no icon theme (empty string) has been set by the user then
+	 * it will use the default icon theme from the OS.
+	 * Under GNOME and KDE there is a default icon theme.
+	 * Under Windows and Mac OS X there isn't and thus an icon theme
+	 * must be specified.
+	 *
+	 * @see QIcon::fromTheme()
+	 * @see QIcon::setThemeName()
+	 */
 	static const char * ICON_THEME_KEY;
-	QStringList iconThemeList() const;
 	QString iconTheme() const;
 
 	/** The most recent files played. */

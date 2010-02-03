@@ -92,7 +92,7 @@ if (KDE4_FOUND)
 	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS})
 	include_directories(${QDBUS_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
 else (KDE4_FOUND)
-	set(QT_MIN_VERSION 4.4.0)
+	set(QT_MIN_VERSION 4.6.0)
 	find_package(Qt4 REQUIRED)
 
 	# Do not use Phonon from Qt or KDE4

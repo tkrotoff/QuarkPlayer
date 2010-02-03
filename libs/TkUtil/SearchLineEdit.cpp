@@ -18,8 +18,6 @@
 
 #include "SearchLineEdit.h"
 
-#include "TkIcon.h"
-
 #include <QtGui/QtGui>
 
 #include <QtCore/QDebug>

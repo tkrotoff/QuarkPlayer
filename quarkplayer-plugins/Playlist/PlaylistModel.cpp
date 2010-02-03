@@ -33,7 +33,6 @@
 
 #include <TkUtil/FindFiles.h>
 #include <TkUtil/Random.h>
-#include <TkUtil/TkIcon.h>
 
 #include <PlaylistParser/PlaylistParser.h>
 
@@ -233,7 +232,7 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 		if (role == Qt::DecorationRole) {
 			switch (column) {
 			case COLUMN_INFO:
-				tmp = TkIcon("dialog-warning");
+				tmp = QIcon::fromTheme("dialog-warning");
 			}
 		}
 		else if (role == Qt::ToolTipRole) {
@@ -261,7 +260,7 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 		else if (role == Qt::DecorationRole) {
 			switch (column) {
 			case COLUMN_INFO:
-				tmp = TkIcon("go-jump");
+				tmp = QIcon::fromTheme("go-jump");
 			}
 		}
 	}

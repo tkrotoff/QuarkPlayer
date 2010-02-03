@@ -30,7 +30,6 @@
 #include <quarkplayer-plugins/ConfigWindow/ConfigWindowPlugin.h>
 #include <quarkplayer-plugins/ConfigWindow/PlaylistConfig.h>
 
-#include <TkUtil/TkIcon.h>
 #include <TkUtil/TkAction.h>
 #include <TkUtil/ActionCollection.h>
 #include <TkUtil/TkFileDialog.h>
@@ -240,41 +239,41 @@ void PlaylistWidget::populateActionCollection() {
 
 void PlaylistWidget::retranslate() {
 	_searchLineEdit->clearButton()->setToolTip(tr("Clear Search"));
-	_searchLineEdit->clearButton()->setIcon(TkIcon("edit-clear-locationbar-rtl"));
+	_searchLineEdit->clearButton()->setIcon(QIcon::fromTheme("edit-clear-locationbar-rtl"));
 
 	_searchLineEdit->wordListButton()->setToolTip(tr("Search History"));
-	_searchLineEdit->wordListButton()->setIcon(TkIcon("go-down-search"));
+	_searchLineEdit->wordListButton()->setIcon(QIcon::fromTheme("go-down-search"));
 
 	_searchLineEdit->setToolTip(tr("Search the playlist, use whitespaces to separate words"));
 	_searchLineEdit->setClickMessage(tr("Search"));
 
 	uuidAction("Playlist.Open")->setText(tr("Open Playlist"));
-	uuidAction("Playlist.Open")->setIcon(TkIcon("document-open"));
+	uuidAction("Playlist.Open")->setIcon(QIcon::fromTheme("document-open"));
 
 	uuidAction("Playlist.Save")->setText(tr("Save Playlist"));
-	uuidAction("Playlist.Save")->setIcon(TkIcon("document-save"));
+	uuidAction("Playlist.Save")->setIcon(QIcon::fromTheme("document-save"));
 
 	uuidAction("Playlist.Add")->setText(tr("Add..."));
-	uuidAction("Playlist.Add")->setIcon(TkIcon("list-add"));
+	uuidAction("Playlist.Add")->setIcon(QIcon::fromTheme("list-add"));
 
 	uuidAction("Playlist.AddFiles")->setText(tr("Add Files"));
 	uuidAction("Playlist.AddDirectory")->setText(tr("Add Directory"));
 	uuidAction("Playlist.AddURL")->setText(tr("Add URL"));
 
 	uuidAction("Playlist.RemoveAll")->setText(tr("Remove All"));
-	uuidAction("Playlist.RemoveAll")->setIcon(TkIcon("list-remove"));
+	uuidAction("Playlist.RemoveAll")->setIcon(QIcon::fromTheme("list-remove"));
 
 	uuidAction("Playlist.Shuffle")->setText(tr("Shuffle"));
-	uuidAction("Playlist.Shuffle")->setIcon(TkIcon("media-playlist-shuffle"));
+	uuidAction("Playlist.Shuffle")->setIcon(QIcon::fromTheme("media-playlist-shuffle"));
 
 	uuidAction("Playlist.Repeat")->setText(tr("Repeat"));
-	uuidAction("Playlist.Repeat")->setIcon(TkIcon("media-playlist-repeat"));
+	uuidAction("Playlist.Repeat")->setIcon(QIcon::fromTheme("media-playlist-repeat"));
 
 	uuidAction("Playlist.JumpToCurrent")->setText(tr("Jump to Current Playing Media"));
-	uuidAction("Playlist.JumpToCurrent")->setIcon(TkIcon("go-jump"));
+	uuidAction("Playlist.JumpToCurrent")->setIcon(QIcon::fromTheme("go-jump"));
 
 	uuidAction("Playlist.New")->setText(tr("New Playlist Window"));
-	uuidAction("Playlist.New")->setIcon(TkIcon("window-new"));
+	uuidAction("Playlist.New")->setIcon(QIcon::fromTheme("window-new"));
 
 	updateWindowTitle();
 }

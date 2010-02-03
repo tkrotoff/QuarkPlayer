@@ -25,7 +25,6 @@
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
 #include <TkUtil/ActionCollection.h>
-#include <TkUtil/TkIcon.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <phonon/mediaobject.h>
@@ -120,7 +119,7 @@ void PlayToolBar::stateChanged(Phonon::State newState) {
 
 	case Phonon::PlayingState:
 		ActionCollection::action("MainWindow.PlayPause")->setText(tr("&Pause"));
-		ActionCollection::action("MainWindow.PlayPause")->setIcon(TkIcon("media-playback-pause"));
+		ActionCollection::action("MainWindow.PlayPause")->setIcon(QIcon::fromTheme("media-playback-pause"));
 		disconnect(ActionCollection::action("MainWindow.PlayPause"), 0, 0, 0);
 		connect(ActionCollection::action("MainWindow.PlayPause"), SIGNAL(triggered()),
 			quarkPlayer().currentMediaObject(), SLOT(pause()));
@@ -130,7 +129,7 @@ void PlayToolBar::stateChanged(Phonon::State newState) {
 
 	case Phonon::StoppedState:
 		ActionCollection::action("MainWindow.PlayPause")->setText(tr("P&lay"));
-		ActionCollection::action("MainWindow.PlayPause")->setIcon(TkIcon("media-playback-start"));
+		ActionCollection::action("MainWindow.PlayPause")->setIcon(QIcon::fromTheme("media-playback-start"));
 		disconnect(ActionCollection::action("MainWindow.PlayPause"), 0, 0, 0);
 		connect(ActionCollection::action("MainWindow.PlayPause"), SIGNAL(triggered()),
 			quarkPlayer().currentMediaObject(), SLOT(play()));
@@ -140,7 +139,7 @@ void PlayToolBar::stateChanged(Phonon::State newState) {
 
 	case Phonon::PausedState:
 		ActionCollection::action("MainWindow.PlayPause")->setText(tr("P&lay"));
-		ActionCollection::action("MainWindow.PlayPause")->setIcon(TkIcon("media-playback-start"));
+		ActionCollection::action("MainWindow.PlayPause")->setIcon(QIcon::fromTheme("media-playback-start"));
 		disconnect(ActionCollection::action("MainWindow.PlayPause"), 0, 0, 0);
 		connect(ActionCollection::action("MainWindow.PlayPause"), SIGNAL(triggered()),
 			quarkPlayer().currentMediaObject(), SLOT(play()));
@@ -272,13 +271,13 @@ void PlayToolBar::volumeIncrease10() {
 
 void PlayToolBar::volumeChanged(qreal volume) {
 	if (volume <= 0.0) {
-		_volumeSlider->setVolumeIcon(TkIcon("audio-volume-muted"));
+		_volumeSlider->setVolumeIcon(QIcon::fromTheme("audio-volume-muted"));
 	} else if (volume < 0.3) {
-		_volumeSlider->setVolumeIcon(TkIcon("audio-volume-low"));
+		_volumeSlider->setVolumeIcon(QIcon::fromTheme("audio-volume-low"));
 	} else if (volume > 0.7) {
-		_volumeSlider->setVolumeIcon(TkIcon("audio-volume-high"));
+		_volumeSlider->setVolumeIcon(QIcon::fromTheme("audio-volume-high"));
 	} else {
-		_volumeSlider->setVolumeIcon(TkIcon("audio-volume-medium"));
+		_volumeSlider->setVolumeIcon(QIcon::fromTheme("audio-volume-medium"));
 	}
 }
 
@@ -309,10 +308,10 @@ void PlayToolBar::createControlToolBar() {
 void PlayToolBar::retranslate() {
 	setWindowTitle(tr("Play ToolBar"));
 
-	_volumeSlider->setVolumeIcon(TkIcon("player-volume"));
-	_volumeSlider->setMutedIcon(TkIcon("audio-volume-muted"));
+	_volumeSlider->setVolumeIcon(QIcon::fromTheme("player-volume"));
+	_volumeSlider->setMutedIcon(QIcon::fromTheme("audio-volume-muted"));
 
-	//_seekSlider->setIcon(TkIcon("player-time"));
+	//_seekSlider->setIcon(QIcon::fromTheme("player-time"));
 
 	setMinimumSize(sizeHint());
 }

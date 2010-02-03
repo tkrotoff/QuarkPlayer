@@ -122,37 +122,26 @@ void WebBrowser::populateActionCollection() {
 }
 
 void WebBrowser::retranslate() {
-	/*
-	_webBrowser->setBackIcon(TkIcon("go-previous"));
-	_webBrowser->setForwardIcon(TkIcon("go-next"));
-	_webBrowser->setReloadIcon(TkIcon("view-refresh"));
-	_webBrowser->setStopIcon(TkIcon("process-stop"));
-	_webBrowser->setHomeIcon(TkIcon("go-home"));
-	_webBrowser->setGoIcon(TkIcon("go-jump-locationbar"));
-	_webBrowser->setOpenBrowserIcon(TkIcon("internet-web-browser"));
-	*/
-
 	ActionCollection::action("WebBrowser.Backward")->setText(tr("Back"));
-	ActionCollection::action("WebBrowser.Backward")->setIcon(style()->standardIcon(QStyle::SP_ArrowBack));
+	ActionCollection::action("WebBrowser.Backward")->setIcon(QIcon::fromTheme("go-previous"));
 
 	ActionCollection::action("WebBrowser.Forward")->setText(tr("Forward"));
-	ActionCollection::action("WebBrowser.Forward")->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
+	ActionCollection::action("WebBrowser.Forward")->setIcon(QIcon::fromTheme("go-next"));
 
 	ActionCollection::action("WebBrowser.Reload")->setText(tr("Reload"));
-	ActionCollection::action("WebBrowser.Reload")->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
+	ActionCollection::action("WebBrowser.Reload")->setIcon(QIcon::fromTheme("view-refresh"));
 
 	ActionCollection::action("WebBrowser.Stop")->setText(tr("Stop"));
-	ActionCollection::action("WebBrowser.Stop")->setIcon(style()->standardIcon(QStyle::SP_BrowserStop));
+	ActionCollection::action("WebBrowser.Stop")->setIcon(QIcon::fromTheme("process-stop"));
 
 	ActionCollection::action("WebBrowser.Home")->setText(tr("Home"));
-	ActionCollection::action("WebBrowser.Home")->setIcon(style()->standardIcon(QStyle::SP_DirHomeIcon));
+	ActionCollection::action("WebBrowser.Home")->setIcon(QIcon::fromTheme("go-home"));
 
 	ActionCollection::action("WebBrowser.Go")->setText(tr("Go"));
-	ActionCollection::action("WebBrowser.Go")->setIcon(style()->standardIcon(QStyle::SP_CommandLink));
+	ActionCollection::action("WebBrowser.Go")->setIcon(QIcon::fromTheme("go-jump-locationbar"));
 
 	ActionCollection::action("WebBrowser.OpenBrowser")->setText(tr("Open External Browser"));
-	ActionCollection::action("WebBrowser.OpenBrowser")->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
-	//QStyle::SP_DialogOpenButton
+	ActionCollection::action("WebBrowser.OpenBrowser")->setIcon(QIcon::fromTheme("internet-web-browser"));
 }
 
 void WebBrowser::setHtml(const QString & html) {

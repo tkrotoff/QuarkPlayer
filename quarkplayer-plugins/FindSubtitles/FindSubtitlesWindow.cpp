@@ -29,7 +29,6 @@
 
 #include <FileTypes/FileTypes.h>
 
-#include <TkUtil/TkIcon.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 #include <TkUtil/ActionCollection.h>
 #include <TkUtil/TkFileDialog.h>
@@ -70,7 +69,7 @@ FindSubtitlesWindow::FindSubtitlesWindow(QWidget * parent)
 	_ui->fileChooserWidget->setDialogType(FileChooserWidget::DialogTypeFile);
 	_ui->fileChooserWidget->setFilter(tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video))
 				+ ";;" + tr("All Files") + " (*.*)");
-	_ui->fileChooserWidget->setSearchButtonIcon(TkIcon("document-open"));
+	_ui->fileChooserWidget->setSearchButtonIcon(QIcon::fromTheme("document-open"));
 	connect(_ui->fileChooserWidget, SIGNAL(pathChanged(const QString &)),
 		SLOT(setMovieFileName(const QString &)));
 
@@ -154,15 +153,15 @@ void FindSubtitlesWindow::retranslate() {
 	}
 	_ui->languageComboBox->setCurrentIndex(_ui->languageComboBox->findData(currentLanguage));
 
-	_ui->downloadButton->setIcon(TkIcon("go-down"));
+	_ui->downloadButton->setIcon(QIcon::fromTheme("go-down"));
 
-	_ui->refreshButton->setIcon(TkIcon("view-refresh"));
+	_ui->refreshButton->setIcon(QIcon::fromTheme("view-refresh"));
 
 	ActionCollection::action("FindSubtitles.Download")->setText(tr("&Download"));
-	ActionCollection::action("FindSubtitles.Download")->setIcon(TkIcon("go-down"));
+	ActionCollection::action("FindSubtitles.Download")->setIcon(QIcon::fromTheme("go-down"));
 
 	ActionCollection::action("FindSubtitles.CopyClipboard")->setText(tr("&Copy link to clipboard"));
-	ActionCollection::action("FindSubtitles.CopyClipboard")->setIcon(TkIcon("edit-copy"));
+	ActionCollection::action("FindSubtitles.CopyClipboard")->setIcon(QIcon::fromTheme("edit-copy"));
 }
 
 void FindSubtitlesWindow::refreshButtonClicked() {
