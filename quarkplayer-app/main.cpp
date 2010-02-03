@@ -105,13 +105,14 @@ int main(int argc, char * argv[]) {
 	if (!iconTheme.isEmpty()) {
 		QIcon::setThemeName(iconTheme);
 	}
-	if (!QIcon::hasThemeIcon("document-open")) {
+	static const char * GENERIC_ICON_TO_CHECK = "document-open";
+	static const char * FALLBACK_ICON_THEME = "silk";
+	if (!QIcon::hasThemeIcon(GENERIC_ICON_TO_CHECK)) {
 		//If there is no default working icon theme then we should
-		//use Silk icon theme
+		//use an icon theme that we provide via a .qrc file
 		//This case happens under Windows and Mac OS X
-		//This does not happen if the user is running GNOME or KDE
-		//FIXME handle Mac OS X with an icon theme designed for it
-		QIcon::setThemeName("silk");
+		//This does not happen under GNOME or KDE
+		QIcon::setThemeName(FALLBACK_ICON_THEME);
 	}
 	///
 
