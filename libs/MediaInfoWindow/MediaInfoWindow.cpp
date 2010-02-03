@@ -352,7 +352,6 @@ void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {
 		QString textFormat(mediaInfo.textStreamValue(textStreamId, MediaInfo::TextFormat).toString());
 
 		if (!textFormat.isEmpty() || !textLanguage.isEmpty()) {
-
 			if (textStreamCount > 1) {
 				textStream += br + tr("Text Stream #%1:").arg(textStreamId + 1);
 			} else {
@@ -367,29 +366,28 @@ void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {
 		}
 	}
 
-	//Sets the label
-	_ui->formatInfoLabel->setText(
-		fileInfo + encodedApplication +
-		videoStream + audioStream + textStream
-	);
-
+	//Warning about proprietary codecs
 	QString moreInfo;
 	if (mediaInfo.fileType().name == FileType::WMA) {
-		moreInfo += tr("Warning:") + br +
-			tr("WMA is a proprietary, Windows specific audio codec that includes DRM and thus is not recommended") + br +
-			tr("Use instead a well supported standard audio codec like ") +
-			"<a href=\"http://" + _language + ".wikipedia.org/wiki/MP3\">MP3</a>" +
-			tr(" or ") +
-			"<a href=\"http://" + _language + ".wikipedia.org/wiki/FLAC\">FLAC</a>";
+		moreInfo += br + br + tr("Warning: \
+			WMA is a proprietary, Windows specific audio codec that includes DRM and thus is not recommended. \
+			Use a well supported standard audio codec instead like %1 or %2")
+			.arg("<a href=\"http://" + _language + ".wikipedia.org/wiki/MP3\">MP3</a>")
+			.arg("<a href=\"http://" + _language + ".wikipedia.org/wiki/FLAC\">FLAC</a>");
 	} else if (mediaInfo.fileType().name == FileType::WMV) {
-		moreInfo += tr("Warning:") + br +
-			tr("WMV is a proprietary, Windows specific video codec that includes DRM and thus is not recommended") + br +
-			tr("Use instead a well supported standard video codec like ") +
-			"<a href=\"http://" + _language + ".wikipedia.org/wiki/Xvid\">Xvid</a>" +
-			tr(" or ") +
-			"<a href=\"http://" + _language + ".wikipedia.org/wiki/Theora\">Ogg/Theora</a>";
+		moreInfo += br + br + tr("Warning: \
+			WMV is a proprietary, Windows specific video codec that includes DRM and thus is not recommended. \
+			Use a well supported standard video codec instead like %1 or %2")
+			.arg("<a href=\"http://" + _language + ".wikipedia.org/wiki/Xvid\">Xvid</a>")
+			.arg("<a href=\"http://" + _language + ".wikipedia.org/wiki/Theora\">Ogg/Theora</a>");
 	}
-	_ui->moreInfoLabel->setText(moreInfo);
+
+	//Sets the label
+	_ui->formatInfoLabel->setText(
+		fileInfo + encodedApplication
+		+ videoStream + audioStream + textStream
+		+ moreInfo
+	);
 
 	//Refresh ThumbnailView
 	QFileInfo filenameInfo(mediaInfo.fileName());
