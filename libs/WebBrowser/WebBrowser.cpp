@@ -73,7 +73,7 @@ WebBrowser::WebBrowser(WebBrowserBackend backend, QWidget * parent)
 		layout->addWidget(_textBrowser);
 
 		connect(_textBrowser, SIGNAL(sourceChanged(const QUrl &)), SLOT(urlChanged(const QUrl &)));
-
+		connect(_textBrowser, SIGNAL(historyChanged()), SLOT(historyChanged()));
 		connect(ActionCollection::action("WebBrowser.Backward"), SIGNAL(triggered()), _textBrowser, SLOT(backward()));
 		connect(ActionCollection::action("WebBrowser.Forward"), SIGNAL(triggered()), _textBrowser, SLOT(forward()));
 		connect(ActionCollection::action("WebBrowser.Reload"), SIGNAL(triggered()), _textBrowser, SLOT(reload()));
@@ -88,7 +88,7 @@ WebBrowser::WebBrowser(WebBrowserBackend backend, QWidget * parent)
 		layout->addWidget(_webView);
 
 		connect(_webView, SIGNAL(urlChanged(const QUrl &)), SLOT(urlChanged(const QUrl &)));
-
+		connect(_webView, SIGNAL(urlChanged(const QUrl &)), SLOT(historyChanged()));
 		connect(ActionCollection::action("WebBrowser.Backward"), SIGNAL(triggered()), _webView, SLOT(back()));
 		connect(ActionCollection::action("WebBrowser.Forward"), SIGNAL(triggered()), _webView, SLOT(forward()));
 		connect(ActionCollection::action("WebBrowser.Reload"), SIGNAL(triggered()), _webView, SLOT(reload()));
@@ -164,6 +164,8 @@ void WebBrowser::setHtml(const QString & html) {
 void WebBrowser::setUrl(const QUrl & url) {
 	if (_homeUrl.isEmpty()) {
 		_homeUrl = url.toString();
+		ActionCollection::action("WebBrowser.Home")->setToolTip(_homeUrl);
+
 		_homeHtml = HOME_HTML_INVALID;
 	}
 
@@ -182,6 +184,7 @@ void WebBrowser::setUrl(const QUrl & url) {
 void WebBrowser::setUrlLineEdit(const QString & url) {
 	if (_homeUrl.isEmpty()) {
 		_homeUrl = url;
+		ActionCollection::action("WebBrowser.Home")->setToolTip(_homeUrl);
 	}
 
 	_urlLineEdit->setText(url);
@@ -194,8 +197,7 @@ void WebBrowser::clear() {
 
 void WebBrowser::go() {
 	QString url(_urlLineEdit->text());
-	/*
-	Don't do that: url line edit can contain a simple text
+	/*Don't do that: url line edit can contain a simple text
 	that is not a URL
 	if (!url.contains("http://") &&
 		!url.contains("file://") &&
@@ -241,8 +243,9 @@ void WebBrowser::setForwardActionToolTip() {
 
 void WebBrowser::urlChanged(const QUrl & url) {
 	_urlLineEdit->setText(url.toString());
+}
 
-	//Updates the backward and forward QAction
+void WebBrowser::historyChanged() {
 	setBackActionToolTip();
 	setForwardActionToolTip();
 }

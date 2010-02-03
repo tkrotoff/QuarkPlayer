@@ -64,8 +64,7 @@ public:
 		 * QtWebKit backend.
 		 *
 		 * Advanced HTML rendering.
-		 * QtWebKit is pretty heavy: QtWebKit4.dll is 5,5MB compared
-		 * to QtGui4.dll which is 6,9MB... (Qt-4.4.0)
+		 * QtWebKit is pretty heavy: QtWebKit4.dll is 12.7MB (Qt-4.6.1 release x64).
 		 */
 		QWebViewBackend
 	};
@@ -122,6 +121,11 @@ private slots:
 	 * User changed the URL inside the web browser.
 	 */
 	void urlChanged(const QUrl & url);
+
+	/**
+	 * Updates back button/QAction & forward button/QAction.
+	 */
+	void historyChanged();
 
 	/**
 	 * Opens the web browser given the current URL.
