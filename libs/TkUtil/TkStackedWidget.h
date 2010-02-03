@@ -24,7 +24,7 @@
 class QStackedWidget;
 
 /**
- * Usefull functions for QStackedWidget.
+ * Useful functions for QStackedWidget.
  *
  * @see QStackedWidget
  * @author Tanguy Krotoff
