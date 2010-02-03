@@ -48,7 +48,15 @@ class WEBBROWSER_API WebBrowser : public QWidget {
 	Q_OBJECT
 public:
 
-	/** Available backends to render the HTML web page. */
+	/**
+	 * Available backends to render the HTML web page.
+	 *
+	 * Test results with QTextBrowserBackend and QWebViewBackend (Qt 4.6.1 Windows 7 x64 release),
+	 * after 1h surfing on Wikipedia and other pages (these are the highest numbers found):
+	 * - QtWebKit: 128MB (Working Set Memory) 108MB (Private Working Set Memory)
+	 * - QTextBrowser: 80MB (Working Set Memory) 64MB (Private Working Set Memory)
+	 * Numbers are from Windows Task Manager.
+	 */
 	enum WebBrowserBackend {
 
 		/**

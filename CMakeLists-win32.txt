@@ -51,6 +51,11 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	install(FILES ${QT_BINARY_DIR}/QtXmld4.dll DESTINATION ${BIN_INSTALL_DIR})
 	install(FILES ${QT_BINARY_DIR}/QtTestd4.dll DESTINATION ${BIN_INSTALL_DIR})
 
+	# QtWebKit
+	install(FILES ${QT_BINARY_DIR}/QtWebKitd4.dll DESTINATION ${BIN_INSTALL_DIR})
+	install(FILES ${QT_BINARY_DIR}/QtXmlPatternsd4.dll DESTINATION ${BIN_INSTALL_DIR})
+	install(FILES ${QT_BINARY_DIR}/phonond4.dll DESTINATION ${BIN_INSTALL_DIR})
+
 	# Sometimes Windows complain about QtSvg missing, don't know why
 	install(FILES ${QT_BINARY_DIR}/QtSvgd4.dll DESTINATION ${BIN_INSTALL_DIR})
 
@@ -68,6 +73,9 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 		install(FILES ${QT_BINARY_DIR}/QtTestd4.pdb DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtSvgd4.pdb DESTINATION ${BIN_INSTALL_DIR})
 		install(FILES ${QT_BINARY_DIR}/QtOpenGLd4.pdb DESTINATION ${BIN_INSTALL_DIR})
+		install(FILES ${QT_BINARY_DIR}/QtWebKitd4.pdb DESTINATION ${BIN_INSTALL_DIR})
+		install(FILES ${QT_BINARY_DIR}/QtXmlPatternsd4.pdb DESTINATION ${BIN_INSTALL_DIR})
+		install(FILES ${QT_BINARY_DIR}/phonond4.pdb DESTINATION ${BIN_INSTALL_DIR})
 	endif (MSVC)
 
 else (CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -76,6 +84,11 @@ else (CMAKE_BUILD_TYPE STREQUAL Debug)
 	install(FILES ${QT_BINARY_DIR}/QtNetwork4.dll DESTINATION ${BIN_INSTALL_DIR})
 	install(FILES ${QT_BINARY_DIR}/QtXml4.dll DESTINATION ${BIN_INSTALL_DIR})
 	install(FILES ${QT_BINARY_DIR}/QtTest4.dll DESTINATION ${BIN_INSTALL_DIR})
+
+	# QtWebKit
+	install(FILES ${QT_BINARY_DIR}/QtWebKit4.dll DESTINATION ${BIN_INSTALL_DIR})
+	install(FILES ${QT_BINARY_DIR}/QtXmlPatterns4.dll DESTINATION ${BIN_INSTALL_DIR})
+	install(FILES ${QT_BINARY_DIR}/phonon4.dll DESTINATION ${BIN_INSTALL_DIR})
 
 	# Sometimes Windows complain about QtSvg missing, don't know why
 	install(FILES ${QT_BINARY_DIR}/QtSvg4.dll DESTINATION ${BIN_INSTALL_DIR})
