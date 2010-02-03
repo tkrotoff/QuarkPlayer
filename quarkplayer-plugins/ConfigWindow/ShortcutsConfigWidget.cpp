@@ -37,6 +37,7 @@ Q_DECLARE_METATYPE(ShortcutItem *);
 static const int COLUMN_ACTION = 0;
 static const int COLUMN_LABEL = 1;
 static const int COLUMN_SHORTCUT = 2;
+static const int COLUMN_CONTEXT = 3;
 
 ShortcutsConfigWidget::ShortcutsConfigWidget() {
 	_keyNum = _key[0] = _key[1] = _key[2] = _key[3] = 0;
@@ -57,7 +58,7 @@ ShortcutsConfigWidget::ShortcutsConfigWidget() {
 		SLOT(actionChanged(QTreeWidgetItem *)));
 
 	_ui->shortcutEdit->installEventFilter(this);
-	connect(_ui->shortcutEdit, SIGNAL(textChanged(QString)), SLOT(shortcutChanged()));
+	connect(_ui->shortcutEdit, SIGNAL(textChanged(const QString &)), SLOT(shortcutChanged()));
 
 	QHeaderView * header = _ui->actionList->header();
 	header->resizeSection(COLUMN_ACTION, 210);
@@ -123,9 +124,10 @@ void ShortcutsConfigWidget::readConfig() {
 			}
 			item->setIcon(COLUMN_ACTION, icon);
 			item->setText(COLUMN_ACTION, name);
+			item->setData(COLUMN_ACTION, Qt::UserRole, qVariantFromValue(shortcutItem));
 			item->setText(COLUMN_LABEL, tkAction->toolTip());
 			item->setText(COLUMN_SHORTCUT, toString(shortcutItem->shortcuts));
-			item->setData(COLUMN_ACTION, Qt::UserRole, qVariantFromValue(shortcutItem));
+			item->setText(COLUMN_CONTEXT, toString(tkAction->shortcutContext()));
 		}
 	}
 }
@@ -136,14 +138,7 @@ void ShortcutsConfigWidget::retranslate() {
 	_ui->resetButton->setIcon(QIcon::fromTheme("edit-undo"));
 	_ui->removeButton->setIcon(QIcon::fromTheme("edit-delete"));
 
-	_ui->searchLineEdit->clearButton()->setToolTip(tr("Clear Search"));
-	_ui->searchLineEdit->clearButton()->setIcon(QIcon::fromTheme("edit-clear-locationbar-rtl"));
-
-	_ui->searchLineEdit->wordListButton()->setToolTip(tr("Search History"));
-	_ui->searchLineEdit->wordListButton()->setIcon(QIcon::fromTheme("go-down-search"));
-
 	_ui->searchLineEdit->setToolTip(tr("Search shortcuts, use whitespaces to separate words"));
-	_ui->searchLineEdit->setClickMessage(tr("Search"));
 }
 
 bool ShortcutsConfigWidget::eventFilter(QObject * object, QEvent * event) {
@@ -368,6 +363,29 @@ QString ShortcutsConfigWidget::toString(const QList<QKeySequence> & shortcuts) {
 		}
 	}
 	return strList.join(", ");
+}
+
+QString ShortcutsConfigWidget::toString(Qt::ShortcutContext shortcutContext) {
+	QString str;
+
+	switch (shortcutContext) {
+	case Qt::WidgetShortcut:
+		str = "Widget";
+		break;
+	case Qt::WidgetWithChildrenShortcut:
+		str = "WidgetWithChildren";
+		break;
+	case Qt::WindowShortcut:
+		str = "Window";
+		break;
+	case Qt::ApplicationShortcut:
+		str = "Application";
+		break;
+	default:
+		str = "Unknown";
+	}
+
+	return str;
 }
 
 QList<QKeySequence> ShortcutsConfigWidget::fromString(const QString & shortcuts) {

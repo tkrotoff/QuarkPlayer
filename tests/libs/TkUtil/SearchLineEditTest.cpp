@@ -48,11 +48,6 @@ void SearchLineEditTest::testGui() {
 	QCOMPARE(_searchLineEdit->wordList(), searchHistory);
 	//
 
-	//Test buttons
-	QVERIFY(_searchLineEdit->clearButton());
-	QVERIFY(_searchLineEdit->wordListButton());
-	///
-
 	//Test click message
 	QString clickMessage("Grayed-out text");
 	_searchLineEdit->setClickMessage(clickMessage);
@@ -70,12 +65,7 @@ void SearchLineEditTest::showGui() {
 	QWidget * window = new QWidget();
 	QHBoxLayout * layout = new QHBoxLayout();
 
-	_searchLineEdit->clearButton()->setToolTip("Clear Search");
-	_searchLineEdit->clearButton()->setIcon(QIcon(":/edit-clear-locationbar-rtl"));
-	_searchLineEdit->wordListButton()->setToolTip("Search History");
-	_searchLineEdit->wordListButton()->setIcon(QIcon(":/go-down-search"));
 	_searchLineEdit->setToolTip("Search, use whitespaces to separate words");
-	_searchLineEdit->setClickMessage("Search");
 
 	layout->addWidget(_searchLineEdit);
 

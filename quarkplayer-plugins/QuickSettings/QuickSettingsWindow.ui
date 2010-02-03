@@ -1,187 +1,188 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>QuickSettingsWindow</class>
- <widget class="QDialog" name="QuickSettingsWindow" >
-  <property name="geometry" >
+ <widget class="QDialog" name="QuickSettingsWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>296</width>
-    <height>391</height>
+    <width>318</width>
+    <height>425</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Quick Settings</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3" >
-   <item row="0" column="0" >
-    <widget class="QGroupBox" name="videoGroupBox" >
-     <property name="title" >
+  <layout class="QGridLayout" name="gridLayout_3">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="videoGroupBox">
+     <property name="title">
       <string>Video</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout" >
-      <item row="0" column="0" >
-       <layout class="QFormLayout" name="formLayout" >
-        <property name="fieldGrowthPolicy" >
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <layout class="QFormLayout" name="formLayout">
+        <property name="fieldGrowthPolicy">
          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
         </property>
-        <item row="0" column="0" >
-         <widget class="QLabel" name="contrastLabel" >
-          <property name="text" >
+        <item row="0" column="0">
+         <widget class="QLabel" name="contrastLabel">
+          <property name="text">
            <string>Contrast:</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0" >
-         <widget class="QLabel" name="brightnessLabel" >
-          <property name="text" >
+        <item row="1" column="0">
+         <widget class="QLabel" name="brightnessLabel">
+          <property name="text">
            <string>Brightness:</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1" >
-         <widget class="QSlider" name="brightnessSlider" >
-          <property name="minimum" >
+        <item row="1" column="1">
+         <widget class="QSlider" name="brightnessSlider">
+          <property name="minimum">
            <number>-8</number>
           </property>
-          <property name="maximum" >
+          <property name="maximum">
            <number>8</number>
           </property>
-          <property name="orientation" >
+          <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="tickPosition" >
+          <property name="tickPosition">
            <enum>QSlider::TicksBelow</enum>
           </property>
-          <property name="tickInterval" >
+          <property name="tickInterval">
            <number>4</number>
           </property>
          </widget>
         </item>
-        <item row="2" column="0" >
-         <widget class="QLabel" name="saturationLabel" >
-          <property name="text" >
+        <item row="2" column="0">
+         <widget class="QLabel" name="saturationLabel">
+          <property name="text">
            <string>Saturation:</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1" >
-         <widget class="QSlider" name="saturationSlider" >
-          <property name="minimum" >
+        <item row="2" column="1">
+         <widget class="QSlider" name="saturationSlider">
+          <property name="minimum">
            <number>-8</number>
           </property>
-          <property name="maximum" >
+          <property name="maximum">
            <number>8</number>
           </property>
-          <property name="orientation" >
+          <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="tickPosition" >
+          <property name="tickPosition">
            <enum>QSlider::TicksBelow</enum>
           </property>
-          <property name="tickInterval" >
+          <property name="tickInterval">
            <number>4</number>
           </property>
          </widget>
         </item>
-        <item row="3" column="0" >
-         <widget class="QLabel" name="hueLabel" >
-          <property name="text" >
+        <item row="3" column="0">
+         <widget class="QLabel" name="hueLabel">
+          <property name="text">
            <string>Hue:</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1" >
-         <widget class="QSlider" name="hueSlider" >
-          <property name="minimum" >
+        <item row="3" column="1">
+         <widget class="QSlider" name="hueSlider">
+          <property name="minimum">
            <number>-8</number>
           </property>
-          <property name="maximum" >
+          <property name="maximum">
            <number>8</number>
           </property>
-          <property name="orientation" >
+          <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="tickPosition" >
+          <property name="tickPosition">
            <enum>QSlider::TicksBelow</enum>
           </property>
-          <property name="tickInterval" >
+          <property name="tickInterval">
            <number>4</number>
           </property>
          </widget>
         </item>
-        <item row="4" column="0" >
-         <widget class="QLabel" name="aspectRatioLabel" >
-          <property name="text" >
+        <item row="4" column="0">
+         <widget class="QLabel" name="aspectRatioLabel">
+          <property name="text">
            <string>Aspect Ratio:</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1" >
-         <widget class="QComboBox" name="aspectRatioCombo" >
-          <property name="minimumSize" >
+        <item row="4" column="1">
+         <widget class="QComboBox" name="aspectRatioCombo">
+          <property name="minimumSize">
            <size>
             <width>180</width>
             <height>0</height>
            </size>
           </property>
           <item>
-           <property name="text" >
+           <property name="text">
             <string>Auto</string>
            </property>
           </item>
           <item>
-           <property name="text" >
+           <property name="text">
             <string>Stretch</string>
            </property>
           </item>
           <item>
-           <property name="text" >
+           <property name="text">
             <string>4/3</string>
            </property>
           </item>
           <item>
-           <property name="text" >
+           <property name="text">
             <string>16/9</string>
            </property>
           </item>
          </widget>
         </item>
-        <item row="5" column="0" >
-         <widget class="QLabel" name="scaleModeLabel" >
-          <property name="text" >
+        <item row="5" column="0">
+         <widget class="QLabel" name="scaleModeLabel">
+          <property name="text">
            <string>Scale Mode:</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1" >
-         <widget class="QComboBox" name="scaleModeCombo" >
+        <item row="5" column="1">
+         <widget class="QComboBox" name="scaleModeCombo">
           <item>
-           <property name="text" >
+           <property name="text">
             <string>Fit in view</string>
            </property>
           </item>
           <item>
-           <property name="text" >
+           <property name="text">
             <string>Scale and crop</string>
            </property>
           </item>
          </widget>
         </item>
-        <item row="0" column="1" >
-         <widget class="QSlider" name="contrastSlider" >
-          <property name="minimum" >
+        <item row="0" column="1">
+         <widget class="QSlider" name="contrastSlider">
+          <property name="minimum">
            <number>-8</number>
           </property>
-          <property name="maximum" >
+          <property name="maximum">
            <number>8</number>
           </property>
-          <property name="orientation" >
+          <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="tickPosition" >
+          <property name="tickPosition">
            <enum>QSlider::TicksBelow</enum>
           </property>
-          <property name="tickInterval" >
+          <property name="tickInterval">
            <number>4</number>
           </property>
          </widget>
@@ -191,112 +192,112 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0" >
-    <widget class="QGroupBox" name="audioGroupBox" >
-     <property name="title" >
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="audioGroupBox">
+     <property name="title">
       <string>Audio</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2" >
-      <item row="0" column="0" >
-       <layout class="QFormLayout" name="formLayout_2" >
-        <property name="fieldGrowthPolicy" >
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <layout class="QFormLayout" name="formLayout_2">
+        <property name="fieldGrowthPolicy">
          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
         </property>
-        <item row="0" column="0" >
-         <widget class="QLabel" name="label" >
-          <property name="text" >
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
            <string>Audio Device:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1" >
-         <widget class="QComboBox" name="deviceCombo" />
+        <item row="0" column="1">
+         <widget class="QComboBox" name="deviceCombo"/>
         </item>
-        <item row="1" column="0" >
-         <widget class="QLabel" name="audioEffectLabel" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Maximum" >
+        <item row="1" column="0">
+         <widget class="QLabel" name="audioEffectLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text" >
+          <property name="text">
            <string>Audio Effect:</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1" >
-         <layout class="QHBoxLayout" name="horizontalLayout_2" >
+        <item row="1" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QComboBox" name="audioEffectsCombo" />
+           <widget class="QComboBox" name="audioEffectsCombo"/>
           </item>
           <item>
-           <widget class="QToolButton" name="effectButton" >
-            <property name="enabled" >
+           <widget class="QToolButton" name="effectButton">
+            <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>Setup</string>
             </property>
            </widget>
           </item>
          </layout>
         </item>
-        <item row="2" column="0" >
-         <widget class="QLabel" name="crossFadeLabel" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Maximum" >
+        <item row="2" column="0">
+         <widget class="QLabel" name="crossFadeLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text" >
+          <property name="text">
            <string>Cross Fade:</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1" >
-         <layout class="QVBoxLayout" name="verticalLayout_2" >
+        <item row="2" column="1">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QSlider" name="crossFadeSlider" >
-            <property name="minimum" >
+           <widget class="QSlider" name="crossFadeSlider">
+            <property name="minimum">
              <number>-20</number>
             </property>
-            <property name="maximum" >
+            <property name="maximum">
              <number>20</number>
             </property>
-            <property name="singleStep" >
+            <property name="singleStep">
              <number>1</number>
             </property>
-            <property name="pageStep" >
+            <property name="pageStep">
              <number>2</number>
             </property>
-            <property name="value" >
+            <property name="value">
              <number>0</number>
             </property>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="tickPosition" >
+            <property name="tickPosition">
              <enum>QSlider::TicksBelow</enum>
             </property>
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" >
+           <layout class="QHBoxLayout">
             <item>
-             <widget class="QLabel" name="crossFadeLabel1" >
-              <property name="text" >
+             <widget class="QLabel" name="crossFadeLabel1">
+              <property name="text">
                <string>-10 Sec</string>
               </property>
              </widget>
             </item>
             <item>
              <spacer>
-              <property name="orientation" >
+              <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" stdset="0">
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -305,18 +306,18 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="crossFadeLabel2" >
-              <property name="text" >
+             <widget class="QLabel" name="crossFadeLabel2">
+              <property name="text">
                <string>0</string>
               </property>
              </widget>
             </item>
             <item>
              <spacer>
-              <property name="orientation" >
+              <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" stdset="0">
                <size>
                 <width>40</width>
                 <height>20</height>
@@ -325,8 +326,8 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="crossFadeLabel3" >
-              <property name="text" >
+             <widget class="QLabel" name="crossFadeLabel3">
+              <property name="text">
                <string>10 Sec</string>
               </property>
              </widget>
@@ -340,18 +341,31 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" >
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+   <item row="2" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
+     <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>contrastSlider</tabstop>
+  <tabstop>brightnessSlider</tabstop>
+  <tabstop>saturationSlider</tabstop>
+  <tabstop>hueSlider</tabstop>
+  <tabstop>aspectRatioCombo</tabstop>
+  <tabstop>scaleModeCombo</tabstop>
+  <tabstop>deviceCombo</tabstop>
+  <tabstop>audioEffectsCombo</tabstop>
+  <tabstop>effectButton</tabstop>
+  <tabstop>crossFadeSlider</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -360,11 +374,11 @@
    <receiver>QuickSettingsWindow</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>248</x>
      <y>254</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -376,11 +390,11 @@
    <receiver>QuickSettingsWindow</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>316</x>
      <y>260</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>

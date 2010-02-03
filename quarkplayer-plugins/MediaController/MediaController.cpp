@@ -58,6 +58,12 @@ PluginInterface * MediaControllerFactory::create(QuarkPlayer & quarkPlayer, cons
 	return new MediaController(quarkPlayer, uuid);
 }
 
+MediaController * MediaControllerFactory::mediaController() {
+	MediaController * mediaController = dynamic_cast<MediaController *>(PluginManager::instance().pluginInterface(PLUGIN_NAME));
+	Q_ASSERT(mediaController);
+	return mediaController;
+}
+
 MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QWidget(MainWindowFactory::mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
@@ -98,12 +104,6 @@ void MediaController::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
 	ActionCollection::addAction("MediaController.OpenSubtitleFile", new QAction(app));
-
-	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
-	//Need to implement a full plugin system like Qt Creator has
-	//Let's wait for Qt Creator source code to be released...
-	//This way MainWindow would be also a real plugin!
-	//ActionCollection::addAction("MainWindow.FindSubtitles", new QAction(app));
 }
 
 void MediaController::addMenusToMainWindow() {
@@ -126,14 +126,6 @@ void MediaController::addMenusToMainWindow() {
 	_menuSubtitles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
 	_menuSubtitle->addMenu(_menuSubtitles);
 
-	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
-	//Need to implement a full plugin system like Qt Creator has
-	//Let's wait for Qt Creator source code to be released...
-	//This way MainWindow would be also a real plugin!
-	_menuSubtitle->addAction(ActionCollection::action("MainWindow.FindSubtitles"));
-	_menuSubtitle->addAction(ActionCollection::action("MainWindow.UploadSubtitles"));
-	///
-
 	_menuBrowse = new QMenu();
 	menuBar->insertMenu(insertBeforeMenuSettings, _menuBrowse);
 	_menuTitles = new QMenu();
@@ -147,20 +139,17 @@ void MediaController::addMenusToMainWindow() {
 	_menuBrowse->addAction(_menuAngles->menuAction());
 }
 
-void MediaController::retranslate() {
-	qDebug() << __FUNCTION__;
+QMenu * MediaController::menuSubtitle() const {
+	return _menuSubtitle;
+}
 
+QToolBar * MediaController::toolBar() const {
+	return _toolBar;
+}
+
+void MediaController::retranslate() {
 	ActionCollection::action("MediaController.OpenSubtitleFile")->setText(tr("&Open Subtitle..."));
 	ActionCollection::action("MediaController.OpenSubtitleFile")->setIcon(QIcon::fromTheme("document-open"));
-
-	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
-	//Need to implement a full plugin system like Qt Creator has
-	//Let's wait for Qt Creator source code to be released...
-	//This way MainWindow would be also a real plugin!
-	ActionCollection::action("MainWindow.FindSubtitles")->setText(tr("&Find Subtitles..."));
-	ActionCollection::action("MainWindow.FindSubtitles")->setIcon(QIcon::fromTheme("edit-find"));
-	ActionCollection::action("MainWindow.UploadSubtitles")->setText(tr("&Upload Subtitles..."));
-	///
 
 	_menuAudioChannels->setTitle(tr("&Audio Channels"));
 	_menuAudioChannels->setIcon(QIcon::fromTheme("audio-x-generic"));
@@ -202,17 +191,17 @@ void MediaController::openSubtitleFile() {
 	}
 	///
 
-	QString filename = TkFileDialog::getOpenFileName(
+	QString fileName = TkFileDialog::getOpenFileName(
 		_mainWindow, tr("Select Subtitle File"), dir,
 		tr("Subtitle") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Subtitle)) + ";;" +
 		tr("All Files") + " (*.*)"
 	);
 
-	if (!filename.isEmpty()) {
+	if (!fileName.isEmpty()) {
 		if (updateLastDirOpened) {
-			Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(filename).absolutePath());
+			Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(fileName).absolutePath());
 		}
-		openSubtitleFile(filename);
+		openSubtitleFile(fileName);
 	}
 }
 
@@ -429,7 +418,7 @@ void MediaController::availableTitlesChanged() {
 
 	int currentTitle = quarkPlayer().currentMediaController()->currentTitle();
 	qDebug() << __FUNCTION__ << currentTitle;
-	Phonon::DiscType discType = mediaSource.discType();
+	//Phonon::DiscType discType = mediaSource.discType();
 
 	//if (discType == Phonon::Dvd
 	//	&&

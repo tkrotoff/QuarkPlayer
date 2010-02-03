@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 
 #include <TkUtil/TkAction.h>
 #include <TkUtil/ActionCollection.h>
+#include <TkUtil/TkToolBar.h>
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 #include <TkUtil/KeyEventFilter.h>
@@ -153,7 +154,7 @@ PlaylistFilter * PlaylistWidget::playlistFilter() const {
 }
 
 void PlaylistWidget::createToolBar() {
-	QToolBar * toolBar = new QToolBar(NULL);
+	TkToolBar * toolBar = new TkToolBar(NULL);
 	toolBar->setIconSize(QSize(16, 16));
 	layout()->addWidget(toolBar);
 
@@ -238,13 +239,7 @@ void PlaylistWidget::populateActionCollection() {
 }
 
 void PlaylistWidget::retranslate() {
-	_searchLineEdit->clearButton()->setToolTip(tr("Clear Search"));
-	_searchLineEdit->clearButton()->setIcon(QIcon::fromTheme("edit-clear-locationbar-rtl"));
-
-	_searchLineEdit->wordListButton()->setToolTip(tr("Search History"));
-	_searchLineEdit->wordListButton()->setIcon(QIcon::fromTheme("go-down-search"));
-
-	_searchLineEdit->setToolTip(tr("Search the playlist, use whitespaces to separate words"));
+	_searchLineEdit->setToolTip(tr("Search playlist, use whitespaces to separate words"));
 	_searchLineEdit->setClickMessage(tr("Search"));
 
 	uuidAction("Playlist.Open")->setText(tr("Open Playlist"));
@@ -273,7 +268,7 @@ void PlaylistWidget::retranslate() {
 	uuidAction("Playlist.JumpToCurrent")->setIcon(QIcon::fromTheme("go-jump"));
 
 	uuidAction("Playlist.New")->setText(tr("New Playlist Window"));
-	uuidAction("Playlist.New")->setIcon(QIcon::fromTheme("window-new"));
+	uuidAction("Playlist.New")->setIcon(QIcon::fromTheme("tab-new"));
 
 	updateWindowTitle();
 }

@@ -34,6 +34,7 @@ namespace Phonon {
 }
 
 class QMenu;
+class QToolBar;
 
 /**
  * Handles Phonon::MediaController.
@@ -52,6 +53,10 @@ public:
 	MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid);
 
 	~MediaController();
+
+	QMenu * menuSubtitle() const;
+
+	QToolBar * toolBar() const;
 
 private slots:
 
@@ -120,6 +125,8 @@ public:
 	QString copyright() const { return "Copyright (C) Tanguy Krotoff"; }
 
 	PluginInterface * create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const;
+
+	static MediaController * mediaController();
 };
 
 #endif	//MEDIACONTROLLER_H

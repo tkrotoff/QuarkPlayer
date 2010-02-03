@@ -58,6 +58,8 @@ public:
 	void setPlayToolBar(QToolBar * playToolBar);
 	QToolBar * playToolBar() const;
 
+	QToolBar * mainToolBar() const;
+
 	void setStatusBar(QStatusBar * statusBar);
 	QStatusBar * statusBar() const;
 
@@ -113,7 +115,7 @@ public slots:
 
 private slots:
 
-	void reportBug();
+	void reportProblem();
 	void showMailingList();
 
 	void viewMPlayerLog();

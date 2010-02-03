@@ -41,7 +41,6 @@ int main(int argc, char * argv[]) {
 
 	qDebug() << "VideoWidget winId:" << videoWidget->winId();
 
-	QGraphicsProxyWidget * proxy = scene.addWidget(videoWidget);
 	view.show();
 
 	QString fileName;

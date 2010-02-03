@@ -50,7 +50,13 @@ private slots:
 
 	void uploadSubtitles();
 
+	void retranslate();
+
 private:
+
+	void populateActionCollection();
+
+	void addMenusToMediaController();
 };
 
 #include <quarkplayer/PluginFactory.h>

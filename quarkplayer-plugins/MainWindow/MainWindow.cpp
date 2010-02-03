@@ -95,7 +95,7 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	connect(ActionCollection::action("MainWindow.OpenVCD"), SIGNAL(triggered()), SLOT(playVCD()));
 	connect(ActionCollection::action("MainWindow.NewMediaObject"), SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
 	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), SLOT(close()));
-	connect(ActionCollection::action("MainWindow.ReportBug"), SIGNAL(triggered()), SLOT(reportBug()));
+	connect(ActionCollection::action("MainWindow.ReportProblem"), SIGNAL(triggered()), SLOT(reportProblem()));
 	connect(ActionCollection::action("MainWindow.ShowMailingList"), SIGNAL(triggered()), SLOT(showMailingList()));
 	connect(ActionCollection::action("MainWindow.ViewMPlayerLog"), SIGNAL(triggered()), SLOT(viewMPlayerLog()));
 	connect(ActionCollection::action("MainWindow.ViewQuarkPlayerLog"), SIGNAL(triggered()), SLOT(viewQuarkPlayerLog()));
@@ -133,6 +133,10 @@ void MainWindow::setPlayToolBar(QToolBar * playToolBar) {
 
 QToolBar * MainWindow::playToolBar() const {
 	return _playToolBar;
+}
+
+QToolBar * MainWindow::mainToolBar() const {
+	return _mainToolBar;
 }
 
 void MainWindow::setStatusBar(QStatusBar * statusBar) {
@@ -218,7 +222,7 @@ void MainWindow::updateWindowTitle() {
 	}
 }
 
-void MainWindow::reportBug() {
+void MainWindow::reportProblem() {
 	QDesktopServices::openUrl(QUrl("http://code.google.com/p/quarkplayer/issues/list"));
 }
 
@@ -252,7 +256,7 @@ void MainWindow::populateActionCollection() {
 
 	ActionCollection::addAction("MainWindow.OpenFile", new TkAction(app, QKeySequence::Open));
 	ActionCollection::addAction("MainWindow.Quit", new TkAction(app, tr("Ctrl+Q"), tr("Alt+X")));
-	ActionCollection::addAction("MainWindow.ReportBug", new QAction(app));
+	ActionCollection::addAction("MainWindow.ReportProblem", new QAction(app));
 	ActionCollection::addAction("MainWindow.ShowMailingList", new QAction(app));
 	ActionCollection::addAction("MainWindow.ViewMPlayerLog", new QAction(app));
 	ActionCollection::addAction("MainWindow.ViewQuarkPlayerLog", new QAction(app));
@@ -278,23 +282,23 @@ void MainWindow::populateActionCollection() {
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	ActionCollection::addAction("MainWindow.PreviousTrack", action);
 
-	action = new TkAction(app, tr("Shift+Left"));
+	action = new TkAction(app, tr("Left"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	ActionCollection::addAction("MainWindow.JumpBackward10s", action);
 	action = new TkAction(app, tr("Ctrl+Left"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	ActionCollection::addAction("MainWindow.JumpBackward1min", action);
-	action = new TkAction(app, tr("Alt+Left"));
+	action = new TkAction(app, tr("Shift+Left"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	ActionCollection::addAction("MainWindow.JumpBackward10min", action);
 
-	action = new TkAction(app, tr("Shift+Right"));
+	action = new TkAction(app, tr("Right"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	ActionCollection::addAction("MainWindow.JumpForward10s", action);
 	action = new TkAction(app, tr("Ctrl+Right"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	ActionCollection::addAction("MainWindow.JumpForward1min", action);
-	action = new TkAction(app, tr("Alt+Right"));
+	action = new TkAction(app, tr("Shift+Right"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	ActionCollection::addAction("MainWindow.JumpForward10min", action);
 
@@ -316,14 +320,6 @@ void MainWindow::populateActionCollection() {
 	action = new TkAction(app, tr("Ctrl+Up"), tr("+"), tr("Alt++"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	ActionCollection::addAction("MainWindow.VolumeIncrease10%", action);
-
-	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
-	//Need to implement a full plugin system like Qt Creator has
-	//Let's wait for Qt Creator source code to be released...
-	//This way MainWindow would be also a real plugin!
-	ActionCollection::addAction("MainWindow.FindSubtitles", new QAction(app));
-	ActionCollection::addAction("MainWindow.UploadSubtitles", new QAction(app));
-	///
 
 	action = new TkAction(app, tr("Ctrl+F"), tr("Alt+Return"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
@@ -380,8 +376,8 @@ void MainWindow::setupUi() {
 
 	_menuHelp = new QMenu();
 	menuBar()->addMenu(_menuHelp);
-	_menuHelp->addAction(ActionCollection::action("MainWindow.ReportBug"));
 	_menuHelp->addAction(ActionCollection::action("MainWindow.ShowMailingList"));
+	_menuHelp->addAction(ActionCollection::action("MainWindow.ReportProblem"));
 	_menuHelp->addSeparator();
 	_menuHelp->addAction(ActionCollection::action("MainWindow.ViewMPlayerLog"));
 	_menuHelp->addAction(ActionCollection::action("MainWindow.ViewQuarkPlayerLog"));
@@ -391,14 +387,18 @@ void MainWindow::setupUi() {
 
 	//Main ToolBar
 	_mainToolBar = new TkToolBar(this);
-	//_mainToolBar->setIconSize(QSize(16, 16));
+
+	//Defines the style of all tool buttons that are added as QActions
+	//By default under GNOME Qt::ToolButtonFollowStyle will show
+	//the QActions text beside the icons
+	_mainToolBar->setToolButtonStyle(Qt::ToolButtonFollowStyle);
 
 	_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenFile"));
 	_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenDVD"));
-	_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenURL"));
-	_mainToolBar->addSeparator();
-	_mainToolBar->addAction(ActionCollection::action("MainWindow.Equalizer"));
-	_mainToolBar->addAction(ActionCollection::action("MainWindow.Configure"));
+	//_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenURL"));
+	//_mainToolBar->addSeparator();
+	//_mainToolBar->addAction(ActionCollection::action("MainWindow.Equalizer"));
+	//_mainToolBar->addAction(ActionCollection::action("MainWindow.Configure"));
 	addToolBar(_mainToolBar);
 }
 
@@ -412,17 +412,18 @@ void MainWindow::retranslate() {
 	ActionCollection::action("MainWindow.Quit")->setText(tr("&Quit"));
 	ActionCollection::action("MainWindow.Quit")->setIcon(QIcon::fromTheme("application-exit"));
 
-	ActionCollection::action("MainWindow.ReportBug")->setText(tr("&Report a bug..."));
-	ActionCollection::action("MainWindow.ReportBug")->setIcon(QIcon::fromTheme("tools-report-bug"));
+	ActionCollection::action("MainWindow.ReportProblem")->setText(tr("&Report a Problem..."));
+	//ActionCollection::action("MainWindow.ReportProblem")->setIcon(QIcon::fromTheme("tools-report-bug"));
+	ActionCollection::action("MainWindow.ReportProblem")->setIcon(QIcon::fromTheme("apport"));
 
 	ActionCollection::action("MainWindow.ShowMailingList")->setText(tr("&Discuss about QuarkPlayer..."));
-	ActionCollection::action("MainWindow.ShowMailingList")->setIcon(QIcon::fromTheme("mail-mark-unread"));
+	ActionCollection::action("MainWindow.ShowMailingList")->setIcon(QIcon::fromTheme("help-faq"));
 
 	ActionCollection::action("MainWindow.ViewMPlayerLog")->setText(tr("View &MPlayer Log"));
-	ActionCollection::action("MainWindow.ViewMPlayerLog")->setIcon(QIcon::fromTheme("help-about"));
+	ActionCollection::action("MainWindow.ViewMPlayerLog")->setIcon(QIcon::fromTheme("logviewer"));
 
 	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setText(tr("View &QuarkPlayer Log"));
-	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setIcon(QIcon::fromTheme("help-about"));
+	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setIcon(QIcon::fromTheme("logviewer"));
 
 	ActionCollection::action("MainWindow.About")->setText(tr("&About"));
 	ActionCollection::action("MainWindow.About")->setIcon(QIcon::fromTheme("help-about"));
@@ -440,12 +441,12 @@ void MainWindow::retranslate() {
 	//ActionCollection::action("MainWindow.OpenVCD")->setIcon(QIcon::fromTheme("media-optical"));
 
 	ActionCollection::action("MainWindow.NewMediaObject")->setText(tr("New Media Window"));
-	ActionCollection::action("MainWindow.NewMediaObject")->setIcon(QIcon::fromTheme("window-new"));
+	ActionCollection::action("MainWindow.NewMediaObject")->setIcon(QIcon::fromTheme("tab-new"));
 
 	ActionCollection::action("MainWindow.Equalizer")->setText(tr("&Equalizer..."));
 	ActionCollection::action("MainWindow.Equalizer")->setIcon(QIcon::fromTheme("view-media-equalizer"));
 
-	ActionCollection::action("MainWindow.Configure")->setText(tr("&Configure QuarkPlayer..."));
+	ActionCollection::action("MainWindow.Configure")->setText(tr("&Configure..."));
 	ActionCollection::action("MainWindow.Configure")->setIcon(QIcon::fromTheme("preferences-system"));
 
 	ActionCollection::action("MainWindow.EmptyMenu")->setText(tr("<empty>"));
@@ -556,7 +557,7 @@ void MainWindow::dropEvent(QDropEvent * event) {
 			//1 file
 			QString fileName = files[0];
 
-			bool isSubtitle = FileTypes::extensions(FileType::Subtitle).contains(QFileInfo(fileName).completeSuffix(), Qt::CaseInsensitive);
+			bool isSubtitle = FileTypes::extensions(FileType::Subtitle).contains(QFileInfo(fileName).suffix(), Qt::CaseInsensitive);
 			if (isSubtitle) {
 				qDebug() << __FUNCTION__ << "Loading subtitle:" << fileName;
 				emit subtitleFileDropped(fileName);

@@ -56,12 +56,6 @@ public:
 	/** Gets the search history as a list of words. */
 	QStringList wordList() const;
 
-	/** Gets the clear button. */
-	QToolButton * clearButton() const;
-
-	/** Gets the search history button. */
-	QToolButton * wordListButton() const;
-
 	/** Gets the grayed-out text if any. */
 	QString clickMessage() const;
 
@@ -91,6 +85,8 @@ private slots:
 
 	/** Shows the search history inside the wordListButton. */
 	void showWordList();
+
+	void retranslate();
 
 private:
 

@@ -25,8 +25,10 @@
 #include <quarkplayer/config/Config.h>
 
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
+#include <quarkplayer-plugins/MediaController/MediaController.h>
 
 #include <TkUtil/ActionCollection.h>
+#include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>
@@ -41,6 +43,7 @@ const char * FindSubtitlesFactory::PLUGIN_NAME = "FindSubtitles";
 QStringList FindSubtitlesFactory::dependencies() const {
 	QStringList tmp;
 	tmp += MainWindowFactory::PLUGIN_NAME;
+	tmp += MediaControllerFactory::PLUGIN_NAME;
 	return tmp;
 }
 
@@ -52,17 +55,49 @@ FindSubtitles::FindSubtitles(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QObject(MainWindowFactory::mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
-	//FIXME See MainWindow.cpp MediaController.cpp FindSubtitles.cpp QuarkPlayer.h
-	//Need to implement a full plugin system like Qt Creator has
-	//Let's wait for Qt Creator source code to be released...
-	//This way MainWindow would be also a real plugin!
-	connect(ActionCollection::action("MainWindow.FindSubtitles"), SIGNAL(triggered()),
+	populateActionCollection();
+
+	addMenusToMediaController();
+
+	connect(ActionCollection::action("FindSubtitles.FindSubtitles"), SIGNAL(triggered()),
 		SLOT(findSubtitles()));
-	connect(ActionCollection::action("MainWindow.UploadSubtitles"), SIGNAL(triggered()),
+	connect(ActionCollection::action("FindSubtitles.UploadSubtitles"), SIGNAL(triggered()),
 		SLOT(uploadSubtitles()));
+
+	RETRANSLATE(this);
+	retranslate();
 }
 
 FindSubtitles::~FindSubtitles() {
+}
+
+void FindSubtitles::populateActionCollection() {
+	QCoreApplication * app = QApplication::instance();
+
+	ActionCollection::addAction("FindSubtitles.FindSubtitles", new QAction(app));
+	ActionCollection::addAction("FindSubtitles.UploadSubtitles", new QAction(app));
+}
+
+void FindSubtitles::retranslate() {
+	ActionCollection::action("FindSubtitles.FindSubtitles")->setText(tr("&Find Subtitles..."));
+	ActionCollection::action("FindSubtitles.FindSubtitles")->setIcon(QIcon::fromTheme("edit-find"));
+
+	ActionCollection::action("FindSubtitles.UploadSubtitles")->setText(tr("&Upload Subtitles..."));
+}
+
+void FindSubtitles::addMenusToMediaController() {
+	MediaController * mediaController = MediaControllerFactory::mediaController();
+	QMenu * menuSubtitle = mediaController->menuSubtitle();
+	if (!menuSubtitle) {
+		qCritical() << __FUNCTION__ << "Error: MediaController subtitle menu NULL";
+		return;
+	}
+
+	menuSubtitle->addAction(ActionCollection::action("FindSubtitles.FindSubtitles"));
+	menuSubtitle->addAction(ActionCollection::action("FindSubtitles.UploadSubtitles"));
+
+	//Add find susbtitles action to the MediaController tool bar
+	mediaController->toolBar()->addAction(ActionCollection::action("FindSubtitles.FindSubtitles"));
 }
 
 void FindSubtitles::findSubtitles() {

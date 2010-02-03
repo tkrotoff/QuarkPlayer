@@ -22,7 +22,6 @@
 
 #include <quarkplayer/config/Config.h>
 
-#include <quarkplayer/config.h>
 #include <quarkplayer/Languages.h>
 
 #include <TkUtil/Translator.h>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>515</width>
-    <height>483</height>
+    <width>549</width>
+    <height>588</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -518,7 +518,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>&lt;a href=&quot;http://musicbrainz.org/doc/PicardDownload&quot;&gt;MusicBrainz Picard Tagger&lt;/a&gt; is recommended for tagging your music files</string>
+        <string>Use &lt;a href=&quot;http://musicbrainz.org/doc/PicardDownload&quot;&gt;MusicBrainz Picard Tagger&lt;/a&gt; to tag your music files</string>
        </property>
        <property name="openExternalLinks">
         <bool>true</bool>

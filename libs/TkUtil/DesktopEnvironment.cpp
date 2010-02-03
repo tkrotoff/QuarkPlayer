@@ -16,42 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEDIACONTROLLERTOOLBAR_H
-#define MEDIACONTROLLERTOOLBAR_H
+#include "DesktopEnvironment.h"
 
-#include <TkUtil/TkToolBar.h>
+#include <QtCore/QtGlobal>
+#include <QtCore/QString>
+#include <QtCore/QDebug>
 
-class QPushButton;
-class QMenu;
+DesktopEnvironment::DesktopEnvironment() {
+}
 
-/**
- * Media controller toolbar.
- *
- * @author Tanguy Krotoff
- */
-class MediaControllerToolBar : public TkToolBar {
-	Q_OBJECT
-public:
+DesktopEnvironment::~DesktopEnvironment() {
+}
 
-	MediaControllerToolBar(QWidget * parent);
+DesktopEnvironment::Environment DesktopEnvironment::env() {
+	Environment platform = Unknown;
 
-	~MediaControllerToolBar();
+#ifdef Q_WS_WIN
+	platform = Windows;
+#elif defined Q_WS_MAC
+	platform = Mac;
+#elif defined Q_WS_X11
+	QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
+	if (desktopEnvironment == "kde") {
+		platform = KDE;
+	} else if (desktopEnvironment == "gnome") {
+		platform = GNOME;
+	}
+#endif
 
-	QMenu * menuAudioChannels() const;
-
-	QMenu * menuSubtitles() const;
-
-private slots:
-
-	void retranslate();
-
-private:
-
-	QPushButton * _audioChannelsButton;
-	QMenu * _menuAudioChannels;
-
-	QPushButton * _subtitlesButton;
-	QMenu * _menuSubtitles;
-};
-
-#endif	//MEDIACONTROLLERTOOLBAR_H
+	return platform;
+}

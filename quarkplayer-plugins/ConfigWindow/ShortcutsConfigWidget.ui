@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>ShortcutsConfigWidget</class>
- <widget class="QWidget" name="ShortcutsConfigWidget" >
-  <property name="geometry" >
+ <widget class="QWidget" name="ShortcutsConfigWidget">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,28 +10,28 @@
     <height>405</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox" >
-     <property name="title" >
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
       <string>Keyboard Shortcuts</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout" >
-      <item row="2" column="0" >
-       <layout class="QHBoxLayout" >
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="2" column="0">
+       <layout class="QHBoxLayout">
         <item>
-         <widget class="QPushButton" name="defaultButton" >
-          <property name="text" >
+         <widget class="QPushButton" name="defaultButton">
+          <property name="text">
            <string>Defaults</string>
           </property>
          </widget>
         </item>
         <item>
          <spacer>
-          <property name="orientation" >
+          <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="sizeHint" stdset="0" >
+          <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
             <height>20</height>
@@ -39,83 +40,88 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="loadButton" >
-          <property name="text" >
+         <widget class="QPushButton" name="loadButton">
+          <property name="text">
            <string>Load...</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="saveButton" >
-          <property name="text" >
+         <widget class="QPushButton" name="saveButton">
+          <property name="text">
            <string>Save...</string>
           </property>
          </widget>
         </item>
        </layout>
       </item>
-      <item row="1" column="0" >
-       <widget class="QTreeWidget" name="actionList" >
-        <property name="uniformRowHeights" >
+      <item row="1" column="0">
+       <widget class="QTreeWidget" name="actionList">
+        <property name="uniformRowHeights">
          <bool>true</bool>
         </property>
-        <property name="sortingEnabled" >
+        <property name="sortingEnabled">
          <bool>true</bool>
         </property>
-        <property name="columnCount" >
-         <number>3</number>
+        <property name="columnCount">
+         <number>4</number>
         </property>
         <column>
-         <property name="text" >
+         <property name="text">
           <string>Action</string>
          </property>
         </column>
         <column>
-         <property name="text" >
+         <property name="text">
           <string>Label</string>
          </property>
         </column>
         <column>
-         <property name="text" >
+         <property name="text">
           <string>Shortcut</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Context</string>
          </property>
         </column>
        </widget>
       </item>
-      <item row="0" column="0" >
-       <widget class="SearchLineEdit" name="searchLineEdit" />
+      <item row="0" column="0">
+       <widget class="SearchLineEdit" name="searchLineEdit"/>
       </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="keyGroupBox" >
-     <property name="title" >
+    <widget class="QGroupBox" name="keyGroupBox">
+     <property name="title">
       <string>Key Sequence</string>
      </property>
-     <layout class="QVBoxLayout" >
+     <layout class="QVBoxLayout">
       <item>
-       <layout class="QHBoxLayout" >
+       <layout class="QHBoxLayout">
         <item>
-         <widget class="QLabel" name="shortcutLabel" >
-          <property name="text" >
+         <widget class="QLabel" name="shortcutLabel">
+          <property name="text">
            <string>Shortcut:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="shortcutEdit" />
+         <widget class="QLineEdit" name="shortcutEdit"/>
         </item>
         <item>
-         <widget class="QToolButton" name="resetButton" >
-          <property name="toolTip" >
+         <widget class="QToolButton" name="resetButton">
+          <property name="toolTip">
            <string>Reset</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="removeButton" >
-          <property name="toolTip" >
+         <widget class="QToolButton" name="removeButton">
+          <property name="toolTip">
            <string>Remove</string>
           </property>
          </widget>
@@ -126,19 +132,26 @@
     </widget>
    </item>
   </layout>
-  <zorder>groupBox</zorder>
   <zorder>keyGroupBox</zorder>
-  <zorder>searchLineEdit</zorder>
-  <zorder>actionList</zorder>
-  <zorder></zorder>
+  <zorder>groupBox</zorder>
  </widget>
  <customwidgets>
   <customwidget>
    <class>SearchLineEdit</class>
    <extends>QLineEdit</extends>
-   <header location="global" >TkUtil/SearchLineEdit.h</header>
+   <header location="global">TkUtil/SearchLineEdit.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>searchLineEdit</tabstop>
+  <tabstop>actionList</tabstop>
+  <tabstop>defaultButton</tabstop>
+  <tabstop>loadButton</tabstop>
+  <tabstop>saveButton</tabstop>
+  <tabstop>shortcutEdit</tabstop>
+  <tabstop>resetButton</tabstop>
+  <tabstop>removeButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

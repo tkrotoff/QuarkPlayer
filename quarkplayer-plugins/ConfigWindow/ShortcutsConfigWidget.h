@@ -58,6 +58,8 @@ public:
 
 	static QString toString(const QList<QKeySequence> & shortcuts);
 
+	static QString toString(Qt::ShortcutContext shortcutContext);
+
 	static QList<QKeySequence> fromString(const QString & shortcuts);
 
 private slots:

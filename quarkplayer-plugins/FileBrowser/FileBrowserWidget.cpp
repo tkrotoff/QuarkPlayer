@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,11 +33,10 @@
 
 #include <FileTypes/FileTypes.h>
 
+#include <TkUtil/TkToolBar.h>
 #include <TkUtil/SearchLineEdit.h>
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
-
-#include <modeltest/modeltest.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QDockWidget>
@@ -126,16 +125,13 @@ FileBrowserWidget::~FileBrowserWidget() {
 }
 
 void FileBrowserWidget::createToolBar() {
-	QToolBar * toolBar = new QToolBar(NULL);
+	TkToolBar * toolBar = new TkToolBar(NULL);
 	toolBar->setIconSize(QSize(16, 16));
 	layout()->addWidget(toolBar);
 
 	//Browse button
-	QToolButton * browseButton = new QToolButton();
-	browseButton->setAutoRaise(true);
-	browseButton->setDefaultAction(uuidAction("FileBrowser.Browse"));
-	toolBar->addWidget(browseButton);
-	connect(browseButton, SIGNAL(clicked()), SLOT(configure()));
+	toolBar->addAction(uuidAction("FileBrowser.Browse"));
+	connect(uuidAction("FileBrowser.Browse"), SIGNAL(triggered()), SLOT(configure()));
 
 	//Search line edit
 	QStringList history = Config::instance().value(FILEBROWSER_SEARCH_HISTORY_KEY).toStringList();
@@ -144,11 +140,8 @@ void FileBrowserWidget::createToolBar() {
 	toolBar->addWidget(_searchLineEdit);
 
 	//New file browser button
-	QToolButton * newFileBrowserButton = new QToolButton();
-	newFileBrowserButton->setAutoRaise(true);
-	newFileBrowserButton->setDefaultAction(uuidAction("FileBrowser.New"));
-	toolBar->addWidget(newFileBrowserButton);
-	connect(newFileBrowserButton, SIGNAL(clicked()), SLOT(createNewFileBrowserWidget()));
+	toolBar->addAction(uuidAction("FileBrowser.New"));
+	connect(uuidAction("FileBrowser.New"), SIGNAL(triggered()), SLOT(createNewFileBrowserWidget()));
 }
 
 void FileBrowserWidget::populateActionCollection() {
@@ -291,20 +284,13 @@ void FileBrowserWidget::createNewFileBrowserWidget() {
 }
 
 void FileBrowserWidget::retranslate() {
-	_searchLineEdit->clearButton()->setToolTip(tr("Clear Search"));
-	_searchLineEdit->clearButton()->setIcon(QIcon::fromTheme("edit-clear-locationbar-rtl"));
-
-	_searchLineEdit->wordListButton()->setToolTip(tr("Search History"));
-	_searchLineEdit->wordListButton()->setIcon(QIcon::fromTheme("go-down-search"));
-
 	_searchLineEdit->setToolTip(tr("Search files, use whitespaces to separate words"));
-	_searchLineEdit->setClickMessage(tr("Search"));
 
 	uuidAction("FileBrowser.Browse")->setText(tr("Change Directory"));
-	uuidAction("FileBrowser.Browse")->setIcon(QIcon::fromTheme("document-open-folder"));
+	uuidAction("FileBrowser.Browse")->setIcon(QIcon::fromTheme("folder"));
 
 	uuidAction("FileBrowser.New")->setText(tr("New File Browser Window"));
-	uuidAction("FileBrowser.New")->setIcon(QIcon::fromTheme("window-new"));
+	uuidAction("FileBrowser.New")->setIcon(QIcon::fromTheme("tab-new"));
 
 	setWindowTitle(QString());
 }

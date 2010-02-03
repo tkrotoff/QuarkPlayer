@@ -26,6 +26,7 @@ set(TkUtil_SRCS
 	SearchLineEdit.cpp
 	TkAction.cpp
 	SqueezeLabel.cpp
+	DesktopEnvironment.cpp
 )
 
 qt4_wrap_cpp(TkUtil_SRCS

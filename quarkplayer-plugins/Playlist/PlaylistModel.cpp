@@ -352,7 +352,7 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 
 	QList<MediaInfo> fileList;
 	foreach (QString fileName, files) {
-		QString extension(QFileInfo(fileName).suffix().toLower());
+		QString extension(QFileInfo(fileName).suffix());
 		bool isMultimediaFile =
 			FileTypes::extensions(FileType::Video, FileType::Audio).contains(extension, Qt::CaseInsensitive);
 		if (isMultimediaFile) {

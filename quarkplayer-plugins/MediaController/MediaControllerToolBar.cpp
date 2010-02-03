@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,11 @@
 
 MediaControllerToolBar::MediaControllerToolBar(QWidget * parent)
 	: TkToolBar(parent) {
+
+	//Defines the style of all tool buttons that are added as QActions
+	//By default under GNOME Qt::ToolButtonFollowStyle will show
+	//the QActions text beside the icons
+	setToolButtonStyle(Qt::ToolButtonFollowStyle);
 
 	_audioChannelsButton = new QPushButton();
 	_menuAudioChannels = new QMenu();

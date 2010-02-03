@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -105,12 +105,15 @@ void QuickSettingsWindow::init() {
 	connect(_ui->aspectRatioCombo, SIGNAL(currentIndexChanged(int)), SLOT(setAspect(int)));
 	connect(_ui->scaleModeCombo, SIGNAL(currentIndexChanged(int)), SLOT(setScale(int)));
 
-	_ui->brightnessSlider->setValue(int (_videoWidget->brightness() * SLIDER_RANGE));
-	_ui->hueSlider->setValue(int (_videoWidget->hue() * SLIDER_RANGE));
-	_ui->saturationSlider->setValue(int (_videoWidget->saturation() * SLIDER_RANGE));
-	_ui->contrastSlider->setValue(int (_videoWidget->contrast() * SLIDER_RANGE));
-	_ui->aspectRatioCombo->setCurrentIndex(_videoWidget->aspectRatio());
-	_ui->scaleModeCombo->setCurrentIndex(_videoWidget->scaleMode());
+	if (_videoWidget) {
+		_ui->brightnessSlider->setValue(int (_videoWidget->brightness() * SLIDER_RANGE));
+		_ui->hueSlider->setValue(int (_videoWidget->hue() * SLIDER_RANGE));
+		_ui->saturationSlider->setValue(int (_videoWidget->saturation() * SLIDER_RANGE));
+		_ui->contrastSlider->setValue(int (_videoWidget->contrast() * SLIDER_RANGE));
+		_ui->aspectRatioCombo->setCurrentIndex(_videoWidget->aspectRatio());
+		_ui->scaleModeCombo->setCurrentIndex(_videoWidget->scaleMode());
+	}
+
 	connect(_ui->effectButton, SIGNAL(clicked()), SLOT(configureEffect()));
 
 	_ui->crossFadeSlider->setValue((int) (2 * _mediaObject->transitionTime() / 1000.0f));
@@ -146,8 +149,13 @@ void QuickSettingsWindow::init() {
 void QuickSettingsWindow::saveSettings() {
 	_mediaObject->setTransitionTime((int) (1000 * float(_ui->crossFadeSlider->value()) / 2.0f));
 	QList<Phonon::AudioOutputDevice> devices = Phonon::BackendCapabilities::availableAudioOutputDevices();
-	_audioOutput->setOutputDevice(devices[_ui->deviceCombo->currentIndex()]);
-	QList<Phonon::Effect *> currEffects = _audioOutputPath.effects();
+
+	QList<Phonon::Effect *> currEffects;
+	if (_audioOutput) {
+		_audioOutput->setOutputDevice(devices[_ui->deviceCombo->currentIndex()]);
+		currEffects = _audioOutputPath.effects();
+	}
+
 	QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
 
 	if (_ui->audioEffectsCombo->currentIndex() > 0) {
@@ -169,24 +177,26 @@ void QuickSettingsWindow::saveSettings() {
 }
 
 void QuickSettingsWindow::restoreSettings() {
-	//TODO Make it dynamic, no restore settings
-	float oldBrightness = _videoWidget->brightness();
-	float oldHue = _videoWidget->hue();
-	float oldSaturation = _videoWidget->saturation();
-	float oldContrast = _videoWidget->contrast();
-	Phonon::VideoWidget::AspectRatio oldAspect = _videoWidget->aspectRatio();
-	Phonon::VideoWidget::ScaleMode oldScale = _videoWidget->scaleMode();
-	int currentEffect = _ui->audioEffectsCombo->currentIndex();
-	//
+	if (_videoWidget) {
+		//TODO Make it dynamic, no restore settings
+		float oldBrightness = _videoWidget->brightness();
+		float oldHue = _videoWidget->hue();
+		float oldSaturation = _videoWidget->saturation();
+		float oldContrast = _videoWidget->contrast();
+		Phonon::VideoWidget::AspectRatio oldAspect = _videoWidget->aspectRatio();
+		Phonon::VideoWidget::ScaleMode oldScale = _videoWidget->scaleMode();
+		int currentEffect = _ui->audioEffectsCombo->currentIndex();
+		//
 
-	//Restore previous settings
-	_videoWidget->setBrightness(oldBrightness);
-	_videoWidget->setSaturation(oldSaturation);
-	_videoWidget->setHue(oldHue);
-	_videoWidget->setContrast(oldContrast);
-	_videoWidget->setAspectRatio(oldAspect);
-	_videoWidget->setScaleMode(oldScale);
-	_ui->audioEffectsCombo->setCurrentIndex(currentEffect);
+		//Restore previous settings
+		_videoWidget->setBrightness(oldBrightness);
+		_videoWidget->setSaturation(oldSaturation);
+		_videoWidget->setHue(oldHue);
+		_videoWidget->setContrast(oldContrast);
+		_videoWidget->setAspectRatio(oldAspect);
+		_videoWidget->setScaleMode(oldScale);
+		_ui->audioEffectsCombo->setCurrentIndex(currentEffect);
+	}
 }
 
 void QuickSettingsWindow::effectChanged() {
@@ -395,27 +405,39 @@ void QuickSettingsWindow::configureEffect() {
 }
 
 void QuickSettingsWindow::setSaturation(int val) {
-	_videoWidget->setSaturation(val / qreal(SLIDER_RANGE));
+	if (_videoWidget) {
+		_videoWidget->setSaturation(val / qreal(SLIDER_RANGE));
+	}
 }
 
 void QuickSettingsWindow::setHue(int val) {
-	_videoWidget->setHue(val / qreal(SLIDER_RANGE));
+	if (_videoWidget) {
+		_videoWidget->setHue(val / qreal(SLIDER_RANGE));
+	}
 }
 
 void QuickSettingsWindow::setAspect(int val) {
-	_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio(val));
+	if (_videoWidget) {
+		_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio(val));
+	}
 }
 
 void QuickSettingsWindow::setScale(int val) {
-	_videoWidget->setScaleMode(Phonon::VideoWidget::ScaleMode(val));
+	if (_videoWidget) {
+		_videoWidget->setScaleMode(Phonon::VideoWidget::ScaleMode(val));
+	}
 }
 
 void QuickSettingsWindow::setBrightness(int val) {
-	_videoWidget->setBrightness(val / qreal(SLIDER_RANGE));
+	if (_videoWidget) {
+		_videoWidget->setBrightness(val / qreal(SLIDER_RANGE));
+	}
 }
 
 void QuickSettingsWindow::setContrast(int val) {
-	_videoWidget->setContrast(val / qreal(SLIDER_RANGE));
+	if (_videoWidget) {
+		_videoWidget->setContrast(val / qreal(SLIDER_RANGE));
+	}
 }
 
 void QuickSettingsWindow::retranslate() {

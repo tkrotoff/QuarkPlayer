@@ -430,6 +430,8 @@ void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {
 }
 
 void MediaInfoWindow::lyricsFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & lyrics, const ContentFetcherTrack & track) {
+	Q_UNUSED(track);
+
 	if (error == QNetworkReply::NoError) {
 		QString text(QString::fromUtf8(lyrics));
 		_ui->lyricsTextBrowser->setHtml(text
@@ -441,6 +443,8 @@ void MediaInfoWindow::lyricsFound(QNetworkReply::NetworkError error, const QUrl 
 }
 
 void MediaInfoWindow::wikipediaArticleFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & wikipediaArticle, const ContentFetcherTrack & track) {
+	Q_UNUSED(track);
+
 	if (error == QNetworkReply::NoError) {
 		_webBrowser->setUrlLineEdit(url.toString());
 		_webBrowser->setHtml(QString::fromUtf8(wikipediaArticle));

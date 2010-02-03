@@ -18,6 +18,9 @@
 
 #include "SearchLineEdit.h"
 
+#include "DesktopEnvironment.h"
+#include "LanguageChangeEventFilter.h"
+
 #include <QtGui/QtGui>
 
 #include <QtCore/QDebug>
@@ -73,14 +76,37 @@ void SearchLineEdit::init(const QStringList & wordList) {
 	QCompleter * completer = new QCompleter(_stringListModel, this);
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	setCompleter(completer);
+
+	RETRANSLATE(this);
+	retranslate();
 }
 
-QToolButton * SearchLineEdit::clearButton() const {
-	return _clearButton;
-}
+void SearchLineEdit::retranslate() {
+	_clearButton->setToolTip(tr("Clear Search"));
+	switch (DesktopEnvironment::env()) {
+	case DesktopEnvironment::KDE:
+		_clearButton->setIcon(QIcon::fromTheme("edit-clear-locationbar-rtl"));
+		break;
+	case DesktopEnvironment::GNOME:
+		_clearButton->setIcon(QIcon::fromTheme("edit-clear"));
+		break;
+	default:
+		break;
+	}
 
-QToolButton * SearchLineEdit::wordListButton() const {
-	return _wordListButton;
+	_wordListButton->setToolTip(tr("Search History"));
+	switch (DesktopEnvironment::env()) {
+	case DesktopEnvironment::KDE:
+		_wordListButton->setIcon(QIcon::fromTheme("go-down-search"));
+		break;
+	case DesktopEnvironment::GNOME:
+		_wordListButton->setIcon(QIcon::fromTheme("go-down"));
+		break;
+	default:
+		break;
+	}
+
+	setClickMessage(tr("Search"));
 }
 
 void SearchLineEdit::resizeEvent(QResizeEvent * event) {
