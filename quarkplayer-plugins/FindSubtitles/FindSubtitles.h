@@ -28,7 +28,8 @@ class QuarkPlayer;
 /**
  * Find subtitles plugin, uses http://www.opensubtitles.org website.
  *
- * Source code taken from SMPlayer, original author: Ricardo Villalba
+ * Source code adapted from SMPlayer, original author: Ricardo Villalba
+ * See also Totem source code: http://git.gnome.org/browse/totem/tree/src/plugins/opensubtitles
  *
  * @see FindSubtitlesWindow
  * @author Tanguy Krotoff
