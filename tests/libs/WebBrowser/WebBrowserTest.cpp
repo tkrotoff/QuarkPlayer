@@ -35,22 +35,12 @@ WebBrowserTest::WebBrowserTest() {
 	track.artist = "Michael Jackson";
 	wikipediaArticle->start(track, "en");
 
-	QMainWindow * mainWindow = NULL;
-	WebBrowser * browser = NULL;
-
-	//QTextBrowser + valid URL
-	mainWindow = new QMainWindow();
-	browser = new WebBrowser(WebBrowser::QTextBrowserBackend, mainWindow);
+	//Valid URL
+	QMainWindow * mainWindow = new QMainWindow();
+	WebBrowser * browser = new WebBrowser(mainWindow);
 	mainWindow->setCentralWidget(browser);
 	browser->setUrl(QUrl("http://en.wikipedia.org/wiki/Michael_Jackson"));
 	mainWindow->show();
-
-	//QtWebKit + valid URL
-	/*mainWindow = new QMainWindow();
-	browser = new WebBrowser(WebBrowser::QWebViewBackend, mainWindow);
-	mainWindow->setCentralWidget(browser);
-	browser->setUrl(QUrl("http://en.wikipedia.org/wiki/Michael_Jackson"));
-	mainWindow->show();*/
 }
 
 WebBrowserTest::~WebBrowserTest() {
@@ -61,24 +51,13 @@ void WebBrowserTest::wikipediaArticleFound(QNetworkReply::NetworkError error, co
 	Q_UNUSED(url);
 	Q_UNUSED(track);
 
-	QMainWindow * mainWindow = NULL;
-	WebBrowser * browser = NULL;
-
-	//QTextBrowser + HTML text
-	/*mainWindow = new QMainWindow();
-	browser = new WebBrowser(WebBrowser::QTextBrowserBackend, mainWindow);
+	//HTML text
+	QMainWindow * mainWindow = new QMainWindow();
+	WebBrowser * browser = new WebBrowser(mainWindow);
 	mainWindow->setCentralWidget(browser);
 	browser->setUrlLineEdit("Michael Jackson");
 	browser->setHtml(QString::fromUtf8(wikipediaArticle));
 	mainWindow->show();
-
-	//QtWebKit + HTML text
-	mainWindow = new QMainWindow();
-	browser = new WebBrowser(WebBrowser::QWebViewBackend, mainWindow);
-	mainWindow->setCentralWidget(browser);
-	browser->setUrlLineEdit("Michael Jackson");
-	browser->setHtml(QString::fromUtf8(wikipediaArticle));
-	mainWindow->show();*/
 }
 
 int main(int argc, char * argv[]) {

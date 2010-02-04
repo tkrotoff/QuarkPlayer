@@ -47,7 +47,7 @@ MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 	_ui->setupUi(this);
 
 	//Web browser widget
-	_webBrowser = new WebBrowser(WebBrowser::QTextBrowserBackend, _ui->artistTab);
+	_webBrowser = new WebBrowser(_ui->artistTab);
 	_ui->artistTab->layout()->setMargin(0);
 	_ui->artistTab->layout()->setSpacing(0);
 	_ui->artistTab->layout()->addWidget(_webBrowser);

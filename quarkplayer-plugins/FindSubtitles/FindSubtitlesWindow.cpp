@@ -56,7 +56,7 @@ static const int COLUMN_USER = 5;
 static const int COLUMN_COUNT = COLUMN_USER + 1;
 
 FindSubtitlesWindow::FindSubtitlesWindow(QWidget * parent)
-	: QDialog(parent, Qt::WindowMinMaxButtonsHint) {
+	: QDialog(parent, Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint) {
 
 	_ui = new Ui::FindSubtitlesWindow();
 	_ui->setupUi(this);

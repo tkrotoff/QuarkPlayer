@@ -30,13 +30,30 @@ class QLineEdit;
 class QIcon;
 class QUrl;
 
-class QWebView;
+#ifdef WEBKIT
+	class QWebView;
+#endif	//WEBKIT
 
 /**
  * A simple web browser.
  *
- * Works with a backend that let's you choose between
- * QTextBrowser or QWebView.
+ * Works with a backend: QTextBrowser or QWebView.
+ * Backend choice is made at compilation time via -DWEBKIT.
+ *
+ * QTextBrowser backend:
+ * Very basic and small memory footprint.
+ * Very limited about HTML/CSS compliance, just enough for
+ * viewing pages from Wikipedia.
+ *
+ * QtWebKit backend:
+ * Advanced HTML rendering.
+ * QtWebKit is pretty heavy: QtWebKit4.dll is 12.7MB (Qt-4.6.1 release x64).
+ *
+ * Performance results with QTextBrowserBackend and QWebViewBackend (Qt 4.6.1 Windows 7 x64 release):
+ * (after 1h surfing on Wikipedia and other pages - these are the highest numbers found)
+ * - QtWebKit: 128MB (Working Set Memory) 108MB (Private Working Set Memory)
+ * - QTextBrowser: 80MB (Working Set Memory) 64MB (Private Working Set Memory)
+ * Numbers are from Windows Task Manager.
  *
  * @see TkTextBrowser
  * @see QTextBrowser
@@ -48,36 +65,7 @@ class WEBBROWSER_API WebBrowser : public QWidget {
 	Q_OBJECT
 public:
 
-	/**
-	 * Available backends to render the HTML web page.
-	 *
-	 * Test results with QTextBrowserBackend and QWebViewBackend (Qt 4.6.1 Windows 7 x64 release),
-	 * after 1h surfing on Wikipedia and other pages (these are the highest numbers found):
-	 * - QtWebKit: 128MB (Working Set Memory) 108MB (Private Working Set Memory)
-	 * - QTextBrowser: 80MB (Working Set Memory) 64MB (Private Working Set Memory)
-	 * Numbers are from Windows Task Manager.
-	 */
-	enum WebBrowserBackend {
-
-		/**
-		 * QTextBrowser backend.
-		 *
-		 * Very basic and small memory footprint.
-		 * Very limited about HTML/CSS compliance, just enough for
-		 * viewing pages from Wikipedia.
-		 */
-		QTextBrowserBackend,
-
-		/**
-		 * QtWebKit backend.
-		 *
-		 * Advanced HTML rendering.
-		 * QtWebKit is pretty heavy: QtWebKit4.dll is 12.7MB (Qt-4.6.1 release x64).
-		 */
-		QWebViewBackend
-	};
-
-	WebBrowser(WebBrowserBackend backend, QWidget * parent);
+	WebBrowser(QWidget * parent);
 
 	~WebBrowser();
 
@@ -153,15 +141,13 @@ private:
 	/** Sets forward button/QAction tooltip. */
 	void setForwardActionToolTip();
 
-	/** Backend to use. */
-	WebBrowserBackend _backend;
-
 	/** QTextBrowser backend. */
 	TkTextBrowser * _textBrowser;
 
+#ifdef WEBKIT
 	/** QtWebKit backend. */
 	QWebView * _webView;
-
+#endif	//WEBKIT
 	QToolBar * _toolBar;
 
 	/** Location/address/URL line edit. */

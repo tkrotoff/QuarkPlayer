@@ -5,6 +5,10 @@ add_definitions(-DBUILD_WEBBROWSER)
 # Bug inside qwebelement.h with Qt 4.6.1: includes <QString> instead of <QtCore/QString>
 include_directories(${QT_QTCORE_INCLUDE_DIR})
 
+if (WEBKIT)
+	add_definitions(-DWEBKIT)
+endif (WEBKIT)
+
 set(WebBrowser_SRCS
 	WebBrowser.cpp
 	TkTextBrowser.cpp
@@ -23,8 +27,11 @@ target_link_libraries(WebBrowser
 	${QT_QTCORE_LIBRARY}
 	${QT_QTNETWORK_LIBRARY}
 	${QT_QTGUI_LIBRARY}
-	${QT_QTWEBKIT_LIBRARY}
 )
+
+if (WEBKIT)
+	target_link_libraries(WebBrowser ${QT_QTWEBKIT_LIBRARY})
+endif (WEBKIT)
 
 #Translations
 add_qt_translations(${WebBrowser_SRCS})

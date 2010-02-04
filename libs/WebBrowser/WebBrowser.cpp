@@ -23,7 +23,9 @@
 #include <TkUtil/ActionCollection.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
-#include <QtWebKit/QtWebKit>
+#ifdef WEBKIT
+	#include <QtWebKit/QtWebKit>
+#endif	//WEBKIT
 
 #include <QtGui/QtGui>
 
@@ -34,12 +36,8 @@
 /** Detects if _homeHtml should be used or not inside WebBrowser::home(). */
 static const char * HOME_HTML_INVALID = "INVALID";
 
-WebBrowser::WebBrowser(WebBrowserBackend backend, QWidget * parent)
+WebBrowser::WebBrowser(QWidget * parent)
 	: QWidget(parent) {
-
-	_textBrowser = NULL;
-	_webView = NULL;
-	_backend = backend;
 
 	populateActionCollection();
 
@@ -67,38 +65,31 @@ WebBrowser::WebBrowser(WebBrowserBackend backend, QWidget * parent)
 	_toolBar->addAction(ActionCollection::action("WebBrowser.OpenBrowser"));
 	connect(ActionCollection::action("WebBrowser.OpenBrowser"), SIGNAL(triggered()), SLOT(openExternalWebBrowser()));
 
-	switch (_backend) {
-	case QTextBrowserBackend: {
-		_textBrowser = new TkTextBrowser();
-		layout->addWidget(_textBrowser);
+#ifdef WEBKIT
+	_webView = new QWebView();
+	layout->addWidget(_webView);
 
-		connect(_textBrowser, SIGNAL(sourceChanged(const QUrl &)), SLOT(urlChanged(const QUrl &)));
-		connect(_textBrowser, SIGNAL(historyChanged()), SLOT(historyChanged()));
-		connect(ActionCollection::action("WebBrowser.Backward"), SIGNAL(triggered()), _textBrowser, SLOT(backward()));
-		connect(ActionCollection::action("WebBrowser.Forward"), SIGNAL(triggered()), _textBrowser, SLOT(forward()));
-		connect(ActionCollection::action("WebBrowser.Reload"), SIGNAL(triggered()), _textBrowser, SLOT(reload()));
-		connect(ActionCollection::action("WebBrowser.Home"), SIGNAL(triggered()), SLOT(home()));
-		//QTextBrowser cannot stops current rendering, multithreaded?
-		//connect(ActionCollection::action("WebBrowser.Stop"), SIGNAL(triggered()), _textBrowser, SLOT(stop()));
-		ActionCollection::action("WebBrowser.Stop")->setEnabled(false);
-		break;
-	}
-	case QWebViewBackend: {
-		_webView = new QWebView();
-		layout->addWidget(_webView);
+	connect(_webView, SIGNAL(urlChanged(const QUrl &)), SLOT(urlChanged(const QUrl &)));
+	connect(_webView, SIGNAL(urlChanged(const QUrl &)), SLOT(historyChanged()));
+	connect(ActionCollection::action("WebBrowser.Backward"), SIGNAL(triggered()), _webView, SLOT(back()));
+	connect(ActionCollection::action("WebBrowser.Forward"), SIGNAL(triggered()), _webView, SLOT(forward()));
+	connect(ActionCollection::action("WebBrowser.Reload"), SIGNAL(triggered()), _webView, SLOT(reload()));
+	connect(ActionCollection::action("WebBrowser.Home"), SIGNAL(triggered()), SLOT(home()));
+	connect(ActionCollection::action("WebBrowser.Stop"), SIGNAL(triggered()), _webView, SLOT(stop()));
+#else
+	_textBrowser = new TkTextBrowser();
+	layout->addWidget(_textBrowser);
 
-		connect(_webView, SIGNAL(urlChanged(const QUrl &)), SLOT(urlChanged(const QUrl &)));
-		connect(_webView, SIGNAL(urlChanged(const QUrl &)), SLOT(historyChanged()));
-		connect(ActionCollection::action("WebBrowser.Backward"), SIGNAL(triggered()), _webView, SLOT(back()));
-		connect(ActionCollection::action("WebBrowser.Forward"), SIGNAL(triggered()), _webView, SLOT(forward()));
-		connect(ActionCollection::action("WebBrowser.Reload"), SIGNAL(triggered()), _webView, SLOT(reload()));
-		connect(ActionCollection::action("WebBrowser.Home"), SIGNAL(triggered()), SLOT(home()));
-		connect(ActionCollection::action("WebBrowser.Stop"), SIGNAL(triggered()), _webView, SLOT(stop()));
-		break;
-	}
-	default:
-		qCritical() << Q_FUNC_INFO << "Unknown backend:" << _backend;
-	}
+	connect(_textBrowser, SIGNAL(sourceChanged(const QUrl &)), SLOT(urlChanged(const QUrl &)));
+	connect(_textBrowser, SIGNAL(historyChanged()), SLOT(historyChanged()));
+	connect(ActionCollection::action("WebBrowser.Backward"), SIGNAL(triggered()), _textBrowser, SLOT(backward()));
+	connect(ActionCollection::action("WebBrowser.Forward"), SIGNAL(triggered()), _textBrowser, SLOT(forward()));
+	connect(ActionCollection::action("WebBrowser.Reload"), SIGNAL(triggered()), _textBrowser, SLOT(reload()));
+	connect(ActionCollection::action("WebBrowser.Home"), SIGNAL(triggered()), SLOT(home()));
+	//QTextBrowser cannot stops current rendering, multithreaded?
+	//connect(ActionCollection::action("WebBrowser.Stop"), SIGNAL(triggered()), _textBrowser, SLOT(stop()));
+	ActionCollection::action("WebBrowser.Stop")->setEnabled(false);
+#endif	//WEBKIT
 
 	//Initializes the backward and forward QAction
 	setBackActionToolTip();
@@ -149,16 +140,11 @@ void WebBrowser::setHtml(const QString & html) {
 		_homeHtml = html;
 	}
 
-	switch (_backend) {
-	case QTextBrowserBackend:
-		_textBrowser->setHtml(html);
-		break;
-	case QWebViewBackend:
-		_webView->setHtml(html);
-		break;
-	default:
-		qCritical() << Q_FUNC_INFO << "Unknown backend:" << _backend;
-	};
+#ifdef WEBKIT
+	_webView->setHtml(html);
+#else
+	_textBrowser->setHtml(html);
+#endif	//WEBKIT
 }
 
 void WebBrowser::setUrl(const QUrl & url) {
@@ -169,16 +155,11 @@ void WebBrowser::setUrl(const QUrl & url) {
 		_homeHtml = HOME_HTML_INVALID;
 	}
 
-	switch (_backend) {
-	case QTextBrowserBackend:
-		_textBrowser->setSource(url);
-		break;
-	case QWebViewBackend:
-		_webView->setUrl(url);
-		break;
-	default:
-		qCritical() << Q_FUNC_INFO << "Unknown backend:" << _backend;
-	};
+#ifdef WEBKIT
+	_webView->setUrl(url);
+#else
+	_textBrowser->setSource(url);
+#endif	//WEBKIT
 }
 
 void WebBrowser::setUrlLineEdit(const QString & url) {
@@ -209,16 +190,11 @@ void WebBrowser::go() {
 
 void WebBrowser::setBackActionToolTip() {
 	QString title;
-	switch (_backend) {
-	case QTextBrowserBackend:
-		title = _textBrowser->historyTitle(-1);
-		break;
-	case QWebViewBackend:
-		title = _webView->history()->backItem().title();
-		break;
-	default:
-		qCritical() << Q_FUNC_INFO << "Unknown backend:" << _backend;
-	};
+#ifdef WEBKIT
+	title = _webView->history()->backItem().title();
+#else
+	title = _textBrowser->historyTitle(-1);
+#endif	//WEBKIT
 
 	ActionCollection::action("WebBrowser.Backward")->setEnabled(!title.isEmpty());
 	ActionCollection::action("WebBrowser.Backward")->setToolTip(title);
@@ -226,16 +202,11 @@ void WebBrowser::setBackActionToolTip() {
 
 void WebBrowser::setForwardActionToolTip() {
 	QString title;
-	switch (_backend) {
-	case QTextBrowserBackend:
-		title = _textBrowser->historyTitle(+1);
-		break;
-	case QWebViewBackend:
-		title = _webView->history()->forwardItem().title();
-		break;
-	default:
-		qCritical() << Q_FUNC_INFO << "Unknown backend:" << _backend;
-	};
+#ifdef WEBKIT
+	title = _webView->history()->forwardItem().title();
+#else
+	title = _textBrowser->historyTitle(+1);
+#endif	//WEBKIT
 
 	ActionCollection::action("WebBrowser.Forward")->setEnabled(!title.isEmpty());
 	ActionCollection::action("WebBrowser.Forward")->setToolTip(title);
