@@ -32,6 +32,7 @@
 
 #include <TkUtil/ActionCollection.h>
 #include <TkUtil/TkAction.h>
+#include <TkUtil/DesktopEnvironment.h>
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
@@ -413,17 +414,30 @@ void MainWindow::retranslate() {
 	ActionCollection::action("MainWindow.Quit")->setIcon(QIcon::fromTheme("application-exit"));
 
 	ActionCollection::action("MainWindow.ReportProblem")->setText(tr("&Report a Problem..."));
-	//ActionCollection::action("MainWindow.ReportProblem")->setIcon(QIcon::fromTheme("tools-report-bug"));
-	ActionCollection::action("MainWindow.ReportProblem")->setIcon(QIcon::fromTheme("apport"));
+	if (desktopEnvironment() == GNOME) {
+		ActionCollection::action("MainWindow.ReportProblem")->setIcon(QIcon::fromTheme("apport"));
+	} else {
+		ActionCollection::action("MainWindow.ReportProblem")->setIcon(QIcon::fromTheme("tools-report-bug"));
+	}
 
 	ActionCollection::action("MainWindow.ShowMailingList")->setText(tr("&Discuss about QuarkPlayer..."));
-	ActionCollection::action("MainWindow.ShowMailingList")->setIcon(QIcon::fromTheme("help-faq"));
+	if (desktopEnvironment() == GNOME) {
+		ActionCollection::action("MainWindow.ShowMailingList")->setIcon(QIcon::fromTheme("help-faq"));
+	} else {
+		ActionCollection::action("MainWindow.ShowMailingList")->setIcon(QIcon::fromTheme("help-hint"));
+	}
 
 	ActionCollection::action("MainWindow.ViewMPlayerLog")->setText(tr("View &MPlayer Log"));
-	ActionCollection::action("MainWindow.ViewMPlayerLog")->setIcon(QIcon::fromTheme("logviewer"));
+	QIcon logIcon;
+	if (desktopEnvironment() == GNOME) {
+		logIcon = QIcon::fromTheme("logviewer");
+	} else {
+		logIcon = QIcon::fromTheme("text-x-log");
+	}
+	ActionCollection::action("MainWindow.ViewMPlayerLog")->setIcon(logIcon);
 
 	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setText(tr("View &QuarkPlayer Log"));
-	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setIcon(QIcon::fromTheme("logviewer"));
+	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setIcon(logIcon);
 
 	ActionCollection::action("MainWindow.About")->setText(tr("&About"));
 	ActionCollection::action("MainWindow.About")->setIcon(QIcon::fromTheme("help-about"));

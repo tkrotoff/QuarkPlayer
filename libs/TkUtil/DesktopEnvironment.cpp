@@ -22,14 +22,8 @@
 #include <QtCore/QString>
 #include <QtCore/QDebug>
 
-DesktopEnvironment::DesktopEnvironment() {
-}
-
-DesktopEnvironment::~DesktopEnvironment() {
-}
-
-DesktopEnvironment::Environment DesktopEnvironment::env() {
-	Environment platform = Unknown;
+DesktopEnvironment desktopEnvironment() {
+	DesktopEnvironment platform = Unknown;
 
 #ifdef Q_WS_WIN
 	platform = Windows;

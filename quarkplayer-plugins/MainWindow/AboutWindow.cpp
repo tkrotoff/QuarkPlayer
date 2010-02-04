@@ -68,6 +68,7 @@ AboutWindow::AboutWindow(QWidget * parent)
 
 #ifdef MEDIAINFOLIB
 		+ "<br>MediaInfoLib: " + mediaInfoLibVersion
+		+ "<br>Silk Icons: http://www.famfamfam.com/lab/icons/silk/"
 #endif	//MEDIAINFOLIB
 	);
 

@@ -83,27 +83,17 @@ void SearchLineEdit::init(const QStringList & wordList) {
 
 void SearchLineEdit::retranslate() {
 	_clearButton->setToolTip(tr("Clear Search"));
-	switch (DesktopEnvironment::env()) {
-	case DesktopEnvironment::KDE:
-		_clearButton->setIcon(QIcon::fromTheme("edit-clear-locationbar-rtl"));
-		break;
-	case DesktopEnvironment::GNOME:
+	if (desktopEnvironment() == GNOME) {
 		_clearButton->setIcon(QIcon::fromTheme("edit-clear"));
-		break;
-	default:
-		break;
+	} else {
+		_clearButton->setIcon(QIcon::fromTheme("edit-clear-locationbar-rtl"));
 	}
 
 	_wordListButton->setToolTip(tr("Search History"));
-	switch (DesktopEnvironment::env()) {
-	case DesktopEnvironment::KDE:
-		_wordListButton->setIcon(QIcon::fromTheme("go-down-search"));
-		break;
-	case DesktopEnvironment::GNOME:
+	if (desktopEnvironment() == GNOME) {
 		_wordListButton->setIcon(QIcon::fromTheme("go-down"));
-		break;
-	default:
-		break;
+	} else {
+		_wordListButton->setIcon(QIcon::fromTheme("go-down-search"));
 	}
 
 	setClickMessage(tr("Search"));

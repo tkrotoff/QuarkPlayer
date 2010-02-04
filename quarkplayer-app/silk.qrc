@@ -5,7 +5,7 @@
 	<file alias="16x16/application-exit.png">icons/silk/stop.png</file>
 	<file alias="16x16/document-open.png">icons/silk/folder_page.png</file>
 	<file alias="16x16/document-save.png">icons/silk/disk.png</file>
-	<file alias="16x16/document-open-folder.png">icons/silk/folder.png</file>
+	<file alias="16x16/folder.png">icons/silk/folder.png</file>
 	<file alias="16x16/document-open-recent.png">icons/silk/clock.png</file>
 	<file alias="16x16/document-open-remote.png">icons/silk/page_link.png</file>
 	<file alias="16x16/edit-delete.png">icons/silk/delete.png</file>
@@ -33,13 +33,11 @@
 	<file alias="16x16/go-down-search.png">icons/silk/bullet_arrow_down.png</file>
 	<file alias="16x16/rating.png">icons/silk/star.png</file>
 	<file alias="16x16/document-properties.png">icons/silk/page_edit.png</file>
-	<file alias="16x16/window-new.png">icons/silk/application_add.png</file>
+	<file alias="16x16/tab-new.png">icons/silk/tab_add.png</file>
 	<file alias="16x16/window-close.png">icons/silk/application_delete.png</file>
 	<file alias="16x16/window-duplicate.png">icons/silk/application_double.png</file>
 	<file alias="16x16/mail-mark-unread.png">icons/silk/email.png</file>
-
 	<file alias="16x16/tools-report-bug.png">icons/silk/bug.png</file>
-
 	<file alias="16x16/format-text-underline.png">icons/silk/text_underline.png</file>
 	<file alias="16x16/media-playback-pause.png">icons/silk/control_pause_blue.png</file>
 	<file alias="16x16/media-playback-start.png">icons/silk/control_play_blue.png</file>
@@ -50,30 +48,25 @@
 	<file alias="16x16/media-seek-forward.png">icons/silk/control_fastforward_blue.png</file>
 	<file alias="16x16/view-fullscreen.png">icons/silk/arrow_out.png</file>
 	<file alias="16x16/help-about.png">icons/silk/information.png</file>
+	<file alias="16x16/help-hint.png">icons/silk/user_comment.png</file>
 	<file alias="16x16/list-add.png">icons/silk/page_add.png</file>
 	<file alias="16x16/list-remove.png">icons/silk/page_delete.png</file>
-
 	<file alias="16x16/preferences-desktop-display.png">icons/silk/monitor.png</file>
 	<file alias="16x16/preferences-desktop-keyboard.png">icons/silk/keyboard.png</file>
 	<file alias="16x16/preferences-system-windows.png">icons/silk/application_double.png</file>
-	<file alias="16x16/preferences-plugin.png.png">icons/silk/plugin.png</file>
+	<file alias="16x16/preferences-plugin.png">icons/silk/plugin.png</file>
 	<file alias="16x16/internet-web-browser.png">icons/silk/world_go.png</file>
-
 	<file alias="16x16/preferences-system.png">icons/silk/wrench.png</file>
 	<file alias="16x16/preferences-desktop.png">icons/silk/monitor.png</file>
 	<file alias="16x16/system-help.png">icons/silk/information.png</file>
-
 	<file alias="16x16/media-optical.png">icons/silk/dvd.png</file>
-
 	<file alias="16x16/audio-x-generic.png">icons/silk/music.png</file>
 	<file alias="16x16/video-x-generic.png">icons/silk/film.png</file>
 	<file alias="16x16/x-office-address-book.png">icons/silk/book.png</file>
 	<file alias="16x16/text-x-script.png">icons/silk/script_code.png</file>
-
 	<file alias="16x16/media-playlist-repeat.png">icons/silk/control_repeat_blue.png</file>
 	<file alias="16x16/media-playlist-shuffle.png">icons/silk/arrow_switch.png</file>
-
 	<file alias="16x16/dialog-warning.png">icons/silk/bullet_error.png</file>
-
+	<file alias="16x16/text-x-log.png">icons/silk/script_edit.png</file>
 </qresource>
 </RCC>

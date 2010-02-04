@@ -30,38 +30,29 @@
  * @see QIcon::fromTheme()
  * @author Tanguy Krotoff
  */
-class TKUTIL_API DesktopEnvironment {
-public:
 
-	enum Environment {
-		/** Couldn't detect the desktop environment. */
-		Unknown,
+enum DesktopEnvironment {
+	/** Couldn't detect the desktop environment. */
+	Unknown,
 
-		/** Microsoft Windows is being used. */
-		Windows,
+	/** Microsoft Windows is being used. */
+	Windows,
 
-		/** Mac OS X is being used. */
-		Mac,
+	/** Mac OS X is being used. */
+	Mac,
 
-		/** KDE is being used. */
-		KDE,
+	/** KDE is being used. */
+	KDE,
 
-		/** GNOME is being used. */
-		GNOME
-	};
-
-	/**
-	 * Gets the currently used environment.
-	 *
-	 * @return the environment (KDE or GNOME or Unknow)
-	 */
-	static Environment env();
-
-private:
-
-	DesktopEnvironment();
-
-	~DesktopEnvironment();
+	/** GNOME is being used. */
+	GNOME
 };
+
+/**
+ * Gets the currently used environment.
+ *
+ * @return the environment for example KDE or GNOME
+ */
+TKUTIL_API DesktopEnvironment desktopEnvironment();
 
 #endif	//DESKTOPENVIRONMENT_H
