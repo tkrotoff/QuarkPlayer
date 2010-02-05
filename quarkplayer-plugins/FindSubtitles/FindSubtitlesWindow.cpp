@@ -49,11 +49,9 @@
 
 static const int COLUMN_LANG = 0;
 static const int COLUMN_NAME = 1;
-static const int COLUMN_FORMAT = 2;
-static const int COLUMN_FILES = 3;
-static const int COLUMN_DATE = 4;
-static const int COLUMN_USER = 5;
-static const int COLUMN_COUNT = COLUMN_USER + 1;
+static const int COLUMN_DATE = 2;
+static const int COLUMN_RATING = 3;
+static const int COLUMN_COUNT = COLUMN_RATING + 1;
 
 FindSubtitlesWindow::FindSubtitlesWindow(QWidget * parent)
 	: QDialog(parent) {
@@ -133,8 +131,7 @@ void FindSubtitlesWindow::retranslate() {
 	_ui->retranslateUi(this);
 
 	QStringList labels;
-	labels << tr("Language") << tr("Name") << tr("Format")
-		<< tr("Files") << tr("Date") << tr("Uploaded by");
+	labels << tr("Language") << tr("Name") << tr("Date") << tr("Rating");
 
 	_model->setHorizontalHeaderLabels(labels);
 
@@ -227,10 +224,8 @@ void FindSubtitlesWindow::applyCurrentFilter() {
 	//Resize the columns according to their contents
 	_ui->treeView->resizeColumnToContents(COLUMN_LANG);
 	_ui->treeView->resizeColumnToContents(COLUMN_NAME);
-	_ui->treeView->resizeColumnToContents(COLUMN_FORMAT);
-	_ui->treeView->resizeColumnToContents(COLUMN_FILES);
 	_ui->treeView->resizeColumnToContents(COLUMN_DATE);
-	_ui->treeView->resizeColumnToContents(COLUMN_USER);
+	_ui->treeView->resizeColumnToContents(COLUMN_RATING);
 }
 
 void FindSubtitlesWindow::downloadProgress(qint64 bytesReceived, qint64 bytesTotal) {
@@ -305,10 +300,8 @@ void FindSubtitlesWindow::parseXml(const QByteArray & xml) {
 
 		_model->setItem(i, COLUMN_LANG, itemLang);
 		_model->setItem(i, COLUMN_NAME, itemName);
-		_model->setItem(i, COLUMN_FORMAT, new QStandardItem(subtitle.format));
-		_model->setItem(i, COLUMN_FILES, new QStandardItem(subtitle.files));
 		_model->setItem(i, COLUMN_DATE, new QStandardItem(subtitle.date));
-		_model->setItem(i, COLUMN_USER, new QStandardItem(subtitle.user));
+		_model->setItem(i, COLUMN_RATING, new QStandardItem(subtitle.rating));
 	}
 
 	_ui->statusLabel->setText(tr("%1 files available").arg(list.count()));

@@ -36,7 +36,7 @@ class QNetworkAccessManager;
 class QNetworkReply;
 
 /**
- * Find subtitles plugin
+ * Find subtitles plugin.
  *
  * Open Subtitles DataBase OSDb protocol: http://trac.opensubtitles.org/projects/opensubtitles/wiki/OSDb
  *
