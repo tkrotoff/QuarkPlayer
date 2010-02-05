@@ -66,7 +66,7 @@ FindSubtitlesWindow::FindSubtitlesWindow(QWidget * parent)
 	_ui->fileChooserWidget->setFilter(tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video))
 				+ ";;" + tr("All Files") + " (*.*)");
 	connect(_ui->fileChooserWidget, SIGNAL(pathChanged(const QString &)),
-		SLOT(setMovieFileName(const QString &)));
+		SLOT(setVideoFileName(const QString &)));
 
 	connect(_ui->downloadButton, SIGNAL(clicked()), SLOT(downloadButtonClicked()));
 	connect(_ui->refreshButton, SIGNAL(clicked()), SLOT(refreshButtonClicked()));
@@ -160,11 +160,11 @@ void FindSubtitlesWindow::retranslate() {
 
 void FindSubtitlesWindow::refreshButtonClicked() {
 	_lastFileName = QString();
-	setMovieFileName(_ui->fileChooserWidget->path());
+	setVideoFileName(_ui->fileChooserWidget->path());
 }
 
-void FindSubtitlesWindow::setMovieFileName(const QString & fileName) {
-	qDebug() << __FUNCTION__ << "Movie fileName:" << fileName;
+void FindSubtitlesWindow::setVideoFileName(const QString & fileName) {
+	qDebug() << __FUNCTION__ << "Video fileName:" << fileName;
 
 	if (fileName.isEmpty()) {
 		return;
@@ -199,7 +199,6 @@ void FindSubtitlesWindow::download(const QUrl & url) {
 }
 
 void FindSubtitlesWindow::currentItemChanged(const QModelIndex & current, const QModelIndex & /*previous*/) {
-	qDebug() << __FUNCTION__ << "Row:" << current.row() << "column:" << current.column();
 	_ui->downloadButton->setEnabled(current.isValid());
 	ActionCollection::action("FindSubtitles.Download")->setEnabled(current.isValid());
 	ActionCollection::action("FindSubtitles.CopyClipboard")->setEnabled(current.isValid());
@@ -386,7 +385,7 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 		FileChooserWindow fileChooserWindow(this);
 		fileChooserWindow.addFiles(filesToExtract);
 		fileChooserWindow.setInformationText(
-			tr("Choose the subtitles to extract inside the movie directory:\n%1").arg(outputDir)
+			tr("Choose the subtitles to extract inside the video directory:\n%1").arg(outputDir)
 		);
 		fileChooserWindow.setOkButtonText(tr("Extract"));
 		fileChooserWindow.setWindowTitle(tr("Subtitles to Extract"));
@@ -457,6 +456,9 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 		_ui->statusLabel->setText(tr("%1 subtitle(s) extracted").arg(filesExtracted.size()));
 		if (filesExtracted.size() > 0) {
 			emit subtitleDownloaded(filesExtracted[0]);
+
+			//Close FindSubtitlesWindow and go back to the video
+			//with the subtitle loaded
 			close();
 		}
 	}

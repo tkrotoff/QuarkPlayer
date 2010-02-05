@@ -57,7 +57,7 @@ public:
 
 public slots:
 
-	void setMovieFileName(const QString & fileName);
+	void setVideoFileName(const QString & fileName);
 
 signals:
 

@@ -112,7 +112,7 @@ void FindSubtitles::findSubtitles() {
 			connect(findSubtitlesWindow, SIGNAL(subtitleDownloaded(const QString &)),
 				SLOT(loadSubtitle(const QString &)));
 		}
-		findSubtitlesWindow->setMovieFileName(fileName);
+		findSubtitlesWindow->setVideoFileName(fileName);
 		findSubtitlesWindow->setLanguage(Config::instance().language());
 		findSubtitlesWindow->show();
 	}
