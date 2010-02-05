@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,15 @@
 class QLineEdit;
 class QToolButton;
 
+/**
+ * Widget to choose a file or a directory in a nice way.
+ *
+ * Code factorization: agregates a QLineEdit with a QCompleter
+ * and a button with an icon.
+ *
+ * @see QCompleter
+ * @author Tanguy Krotoff
+ */
 class TKUTIL_API FileChooserWidget : public QWidget {
 	Q_OBJECT
 public:
@@ -47,10 +56,18 @@ public:
 	QString path() const;
 
 	enum DialogType {
+		/** FileChooser is a file chooser. */
 		DialogTypeFile,
+
+		/** FileChooser is a directory chooser. */
 		DialogTypeDir
 	};
 
+	/**
+	 * Sets the type of dialog FileChooser should be.
+	 *
+	 * @param dialogType type of dialog
+	 */
 	void setDialogType(DialogType dialogType);
 
 	/**
@@ -68,15 +85,6 @@ public:
 	 * @param path can be a directory or a fileName depending on DialogType.
 	 */
 	void setPath(const QString & path);
-
-	/**
-	 * Change icon for the search button.
-	 *
-	 * @param icon new search button icon
-	 */
-	void setSearchButtonIcon(const QIcon & icon);
-
-	QLineEdit * lineEdit() const;
 
 signals:
 
@@ -105,7 +113,8 @@ private:
 
 	QLineEdit * _pathLineEdit;
 
-	QToolButton * _searchButton;
+	/** Button to open a file or a directory. */
+	QToolButton * _openFileButton;
 };
 
 #endif	//FILECHOOSERWIDGET_H

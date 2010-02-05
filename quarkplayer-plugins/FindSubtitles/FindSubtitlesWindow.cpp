@@ -56,12 +56,10 @@ static const int COLUMN_USER = 5;
 static const int COLUMN_COUNT = COLUMN_USER + 1;
 
 FindSubtitlesWindow::FindSubtitlesWindow(QWidget * parent)
-	: QDialog(parent, Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint) {
+	: QDialog(parent) {
 
 	_ui = new Ui::FindSubtitlesWindow();
 	_ui->setupUi(this);
-
-	_ui->fileNameLabel->setBuddy(_ui->fileChooserWidget->lineEdit());
 
 	_ui->progressBar->hide();
 
@@ -69,7 +67,6 @@ FindSubtitlesWindow::FindSubtitlesWindow(QWidget * parent)
 	_ui->fileChooserWidget->setDialogType(FileChooserWidget::DialogTypeFile);
 	_ui->fileChooserWidget->setFilter(tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video))
 				+ ";;" + tr("All Files") + " (*.*)");
-	_ui->fileChooserWidget->setSearchButtonIcon(QIcon::fromTheme("document-open"));
 	connect(_ui->fileChooserWidget, SIGNAL(pathChanged(const QString &)),
 		SLOT(setMovieFileName(const QString &)));
 

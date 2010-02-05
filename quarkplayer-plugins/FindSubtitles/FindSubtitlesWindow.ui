@@ -1,56 +1,43 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>FindSubtitlesWindow</class>
- <widget class="QDialog" name="FindSubtitlesWindow" >
-  <property name="geometry" >
+ <widget class="QDialog" name="FindSubtitlesWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>551</width>
-    <height>332</height>
+    <width>585</width>
+    <height>344</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Find Subtitles using OpenSubtitles.org</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" >
-   <item row="0" column="0" >
-    <widget class="QLabel" name="fileNameLabel" >
-     <property name="text" >
-      <string>&amp;Movie:</string>
-     </property>
-    </widget>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="FileChooserWidget" name="fileChooserWidget"/>
    </item>
-   <item row="0" column="1" >
-    <widget class="FileChooserWidget" native="1" name="fileChooserWidget" >
-     <property name="sizePolicy" >
-      <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-       <horstretch>1</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
+   <item row="1" column="0">
+    <widget class="QTreeView" name="treeView"/>
    </item>
-   <item row="1" column="0" colspan="2" >
-    <widget class="QTreeView" name="treeView" />
-   </item>
-   <item row="2" column="0" colspan="2" >
-    <layout class="QHBoxLayout" name="horizontalLayout_2" >
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QLabel" name="openSubtitlesLabel" >
-       <property name="text" >
-        <string>Subtitles from &lt;a href="http://opensubtitles.org">OpenSubtitles.org&lt;/a></string>
+      <widget class="QLabel" name="openSubtitlesLabel">
+       <property name="text">
+        <string>Subtitles from &lt;a href=&quot;http://opensubtitles.org&quot;&gt;OpenSubtitles.org&lt;/a&gt;</string>
        </property>
-       <property name="openExternalLinks" >
+       <property name="openExternalLinks">
         <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
-      <spacer name="spacer" >
-       <property name="orientation" >
+      <spacer name="spacer">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>158</width>
          <height>23</height>
@@ -59,68 +46,68 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="languageLabel" >
-       <property name="text" >
+      <widget class="QLabel" name="languageLabel">
+       <property name="text">
         <string>&amp;Language:</string>
        </property>
-       <property name="buddy" >
+       <property name="buddy">
         <cstring>languageComboBox</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="languageComboBox" />
+      <widget class="QComboBox" name="languageComboBox"/>
      </item>
      <item>
-      <widget class="QPushButton" name="refreshButton" >
-       <property name="text" >
+      <widget class="QPushButton" name="refreshButton">
+       <property name="text">
         <string>&amp;Refresh</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="downloadButton" >
-       <property name="enabled" >
+      <widget class="QPushButton" name="downloadButton">
+       <property name="enabled">
         <bool>false</bool>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>&amp;Download</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item row="3" column="0" colspan="2" >
-    <layout class="QHBoxLayout" name="horizontalLayout" >
+   <item row="3" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="statusLabel" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+      <widget class="QLabel" name="statusLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>1</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="frameShape" >
+       <property name="frameShape">
         <enum>QFrame::Panel</enum>
        </property>
-       <property name="frameShadow" >
+       <property name="frameShadow">
         <enum>QFrame::Sunken</enum>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QProgressBar" name="progressBar" >
-       <property name="textVisible" >
+      <widget class="QProgressBar" name="progressBar">
+       <property name="textVisible">
         <bool>false</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QDialogButtonBox" name="buttonBox" >
-       <property name="orientation" >
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="standardButtons" >
+       <property name="standardButtons">
         <set>QDialogButtonBox::Close</set>
        </property>
       </widget>
@@ -132,8 +119,8 @@
  <customwidgets>
   <customwidget>
    <class>FileChooserWidget</class>
-   <extends>QWidget</extends>
-   <header location="global" >TkUtil/FileChooserWidget.h</header>
+   <extends>QLineEdit</extends>
+   <header location="global">TkUtil/FileChooserWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -145,11 +132,11 @@
    <receiver>FindSubtitlesWindow</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>521</x>
      <y>347</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -161,11 +148,11 @@
    <receiver>FindSubtitlesWindow</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>521</x>
      <y>347</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>

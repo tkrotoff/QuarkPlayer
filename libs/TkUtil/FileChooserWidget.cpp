@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,12 @@ FileChooserWidget::FileChooserWidget(QWidget * parent)
 	layout->setSpacing(0);
 	setLayout(layout);
 
+	//Open button
+	_openFileButton = new QToolButton();
+	layout->addWidget(_openFileButton);
+	_openFileButton->setAutoRaise(true);
+	connect(_openFileButton, SIGNAL(clicked()), SLOT(search()));
+
 	//Path line edit
 	_pathLineEdit = new QLineEdit(this);
 	layout->addWidget(_pathLineEdit);
@@ -42,12 +48,6 @@ FileChooserWidget::FileChooserWidget(QWidget * parent)
 		SLOT(returnPressed()));
 	connect(_pathLineEdit, SIGNAL(textChanged(const QString &)),
 		SLOT(textChanged(const QString &)));
-
-	//Search button
-	_searchButton = new QToolButton();
-	layout->addWidget(_searchButton);
-	_searchButton->setAutoRaise(true);
-	connect(_searchButton, SIGNAL(clicked()), SLOT(search()));
 }
 
 FileChooserWidget::~FileChooserWidget() {
@@ -55,6 +55,16 @@ FileChooserWidget::~FileChooserWidget() {
 
 void FileChooserWidget::setDialogType(DialogType dialogType) {
 	_dialogType = dialogType;
+	switch (_dialogType) {
+	case DialogTypeFile:
+		_openFileButton->setIcon(QIcon::fromTheme("document-open"));
+		break;
+	case DialogTypeDir:
+		_openFileButton->setIcon(QIcon::fromTheme("folder"));
+		break;
+	default:
+		qCritical() << Q_FUNC_INFO << "Unknown DialogType:" << _dialogType;
+	}
 }
 
 void FileChooserWidget::setFilter(const QString & filter) {
@@ -72,7 +82,7 @@ void FileChooserWidget::search() {
 		tmp = TkFileDialog::getExistingDirectory(this, tr("Select a Directory"), _path);
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unknown DialogType:" << _dialogType;
+		qCritical() << Q_FUNC_INFO << "Unknown DialogType:" << _dialogType;
 	}
 
 	if (!tmp.isEmpty()) {
@@ -82,10 +92,6 @@ void FileChooserWidget::search() {
 	}
 }
 
-void FileChooserWidget::setSearchButtonIcon(const QIcon & icon) {
-	_searchButton->setIcon(icon);
-}
-
 QString FileChooserWidget::path() const {
 	return _pathLineEdit->text();
 }
@@ -93,10 +99,6 @@ QString FileChooserWidget::path() const {
 void FileChooserWidget::setPath(const QString & path) {
 	_path = path;
 	_pathLineEdit->setText(_path);
-}
-
-QLineEdit * FileChooserWidget::lineEdit() const {
-	return _pathLineEdit;
 }
 
 void FileChooserWidget::returnPressed() {
