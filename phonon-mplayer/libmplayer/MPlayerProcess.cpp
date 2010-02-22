@@ -26,13 +26,13 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	//Needed by MPlayerProcess::shortPathName()
 	#include <QtCore/QFileInfo>
 	#include <QtCore/QDir>
 	#include <QtCore/QSysInfo>
 	#include <windows.h>
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 
 namespace Phonon
 {

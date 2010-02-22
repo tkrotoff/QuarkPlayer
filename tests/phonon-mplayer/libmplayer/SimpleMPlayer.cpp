@@ -85,7 +85,7 @@ void SimpleMPlayer::videoWidgetSizeChanged(int width, int height) {
 	_videoWidget->hide();
 	_videoWidget->setVideoSize(videoSize);
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	QWidget * parent = qobject_cast<QWidget *>(this->parent());
 
 	QSize previousSize;
@@ -93,14 +93,14 @@ void SimpleMPlayer::videoWidgetSizeChanged(int width, int height) {
 		previousSize = parent->minimumSize();
 		parent->setMinimumSize(videoSize);
 	}
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 
 	_videoWidget->show();
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	if (parent) {
 		parent->setMinimumSize(previousSize);
 	}
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 	///
 }

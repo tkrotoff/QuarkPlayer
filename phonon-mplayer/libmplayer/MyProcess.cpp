@@ -92,11 +92,11 @@ void MyProcess::genericRead(const QByteArray & output) {
 		QString line = QString::fromLocal8Bit(totalOutput.mid(start, pos - start));
 		from = pos + 1;
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 		if ((from < totalOutput.size()) && (totalOutput.at(from) == '\n')) {
 			from++;
 		}
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 
 		start = from;
 

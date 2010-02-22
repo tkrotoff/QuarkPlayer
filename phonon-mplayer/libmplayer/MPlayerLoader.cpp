@@ -165,7 +165,7 @@ QStringList MPlayerLoader::readMediaSettings() {
 	args << "-msglevel";
 	args << "demux=6";
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	if (MPlayerProcess::getMPlayerVersion() > 28121) {
 		if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA) {
 			//Direct3D video output driver only available after revision 28121
@@ -176,7 +176,7 @@ QStringList MPlayerLoader::readMediaSettings() {
 			args << "direct3d";
 		}
 	}
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 
 	//Drops frames on a slow computer
 	args << "-framedrop";
@@ -269,8 +269,20 @@ QStringList MPlayerLoader::readMediaSettings() {
 	//and this option is enabled by default
 	args << "-embeddedfonts";
 
-	//Enables placing toptitles and subtitles in black borders when they are available
-	args << "-ass-use-margins";
+	//Disable mouse button press/release input
+	args << "-nomouseinput";
+
+	//Adjust matching fuzziness when searching for subtitles:
+	//0    exact match
+	//1    Load all subs containing movie name
+	//2    Load all subs in the current directory
+	args << "-sub-fuzziness";
+	args << "1";
+
+	//Turns off xscreensaver at startup and turns it on again on exit.
+	//If your screensaver supports neither the XSS nor XResetScreen-
+	//Saver API please use -heartbeat-cmd instead.
+	//args << "-stop-xscreensaver";
 
 
 	//Sets MPlayer configuration file
@@ -279,7 +291,6 @@ QStringList MPlayerLoader::readMediaSettings() {
 	//Warning: should be the latest argument
 	args << "-include";
 	args << MPlayerConfig::instance().configPath();
-
 
 	return args;
 }

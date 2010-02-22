@@ -29,7 +29,7 @@ MPlayerConfig * MPlayerConfig::_instance = NULL;
 
 MPlayerConfig::MPlayerConfig()
 	:
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	//Forces INI file format instead of using Windows registry database
 	_settings(QSettings::IniFormat, QSettings::UserScope, "phonon-mplayer", "phonon-mplayer")
 #else
@@ -58,7 +58,7 @@ void MPlayerConfig::deleteInstance() {
 }
 
 QString MPlayerConfig::path() const {
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	//Under Windows, mplayer.exe should be inside a subdirectory named mplayer
 	QString defaultMPlayerPath = "mplayer/mplayer.exe";
 #else
@@ -69,7 +69,7 @@ QString MPlayerConfig::path() const {
 }
 
 QString MPlayerConfig::configPath() const {
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	//Under Windows, config file should be inside a subdirectory named mplayer/mplayer
 	QString defaultMPlayerConfigPath = "mplayer/mplayer/config";
 #else
