@@ -26,11 +26,11 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QDebug>
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	#include <windows.h>
 #else
 	#include <dirent.h>
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 
 static const int DEFAULT_FILES_FOUND_LIMIT = 500;
 
@@ -92,11 +92,11 @@ void FindFiles::run() {
 	QTime timeElapsed;
 	timeElapsed.start();
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	findAllFilesWin32(_path);
 #else
 	findAllFilesUNIX(_path);
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 	//findAllFilesQt(_path);
 
 	if (!_stop) {
@@ -157,7 +157,7 @@ void FindFiles::findAllFilesQt(const QString & path) {
 }
 
 void FindFiles::findAllFilesWin32(const QString & path) {
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	//See http://msdn.microsoft.com/en-us/library/ms811896.aspx
 	//See http://msdn.microsoft.com/en-us/library/aa364418.aspx
 	//See http://msdn.microsoft.com/en-us/library/aa365247.aspx
@@ -238,11 +238,11 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 	FindClose(hList);
 #else
 	Q_UNUSED(path);
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 }
 
 void FindFiles::findAllFilesUNIX(const QString & path) {
-#ifndef Q_OS_WIN
+#ifndef Q_WS_WIN
 	//http://www.commentcamarche.net/forum/affich-1699952-langage-c-recuperer-un-dir
 
 	if (_stop) {
@@ -305,7 +305,7 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 	}
 #else
 	Q_UNUSED(path);
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 }
 
 bool FindFiles::patternMatches(const QString & fileName) const {

@@ -51,10 +51,10 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	_configWidgetList.prepend(ConfigWidget(new PluginConfigWidget()));
 	_configWidgetList.prepend(ConfigWidget(new SettingsBrowser()));
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	//Make it only available under Windows as this uses the Windows registry
 	_configWidgetList.prepend(ConfigWidget(new WinFileAssociationsConfigWidget()));
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 
 	_configWidgetList.prepend(ConfigWidget(new BackendCapabilitiesWidget()));
 	_configWidgetList.prepend(ConfigWidget(new ShortcutsConfigWidget()));

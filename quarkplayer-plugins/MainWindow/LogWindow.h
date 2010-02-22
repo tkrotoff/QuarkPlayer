@@ -19,7 +19,7 @@
 #ifndef LOGWINDOW_H
 #define LOGWINDOW_H
 
-#include <QtGui/QDialog>
+#include <QtGui/QMainWindow>
 
 namespace Ui { class LogWindow; }
 
@@ -30,7 +30,7 @@ namespace Ui { class LogWindow; }
  *
  * @author Tanguy Krotoff
  */
-class LogWindow : public QDialog {
+class LogWindow : public QMainWindow {
 	Q_OBJECT
 public:
 
@@ -52,7 +52,13 @@ private slots:
 
 private:
 
+	void setupUi();
+
+	void populateActionCollection();
+
 	Ui::LogWindow * _ui;
+
+	QToolBar * _toolBar;
 };
 
 #endif	//LOGWINDOW_H

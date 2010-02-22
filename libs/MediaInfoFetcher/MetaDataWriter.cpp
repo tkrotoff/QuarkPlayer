@@ -47,11 +47,11 @@ bool MetaDataWriter::write(const MediaInfo & mediaInfo) {
 
 	//Taken from Amarok, file: CollectionScanner.cpp
 	//See http://gitorious.org/amarok/amarok/trees/master/utilities/collectionscanner/CollectionScanner.cpp
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	const wchar_t * encodedName = reinterpret_cast<const wchar_t *>(mediaInfo.fileName().utf16());
 #else
 	const char * encodedName = QFile::encodeName(mediaInfo.fileName()).constData();
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 
 	TagLib::FileRef fileRef(encodedName, true);
 

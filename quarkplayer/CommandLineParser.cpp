@@ -66,7 +66,7 @@ void CommandLineParser::argsReceived(const QStringList & args, bool usingQtSingl
 			//QCoreApplication::quit();
 		}
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 		else if (arg == "--windows-install") {
 			WinDefaultApplication::install();
 
@@ -82,7 +82,7 @@ void CommandLineParser::argsReceived(const QStringList & args, bool usingQtSingl
 			exit(EXIT_SUCCESS);
 			//QCoreApplication::quit();
 		}
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 	}
 }
 

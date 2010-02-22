@@ -20,17 +20,28 @@
 
 #include <QtCore/QDebug>
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	#include <windows.h>
 
 	int _lowPowerTimeout = 0;
 	int _powerOffTimeout = 0;
 	int _screenSaverTimeout = 0;
 	bool _stateSaved = false;
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
+
+#ifdef Q_WS_X11
+	#include <QtGui/QApplication>
+	#include <QtGui/QWidget>
+	#include <QtCore/QProcess>
+
+	QProcess * _xdgScreenSaverProcess = NULL;
+	WId _XWindowID = 0;
+#endif	//Q_WS_X11
 
 void ScreenSaver::disable() {
-#ifdef Q_OS_WIN
+	qDebug() << __FUNCTION__;
+
+#ifdef Q_WS_WIN
 	if (!_stateSaved) {
 		SystemParametersInfo(SPI_GETLOWPOWERTIMEOUT, 0, &_lowPowerTimeout, 0);
 		SystemParametersInfo(SPI_GETPOWEROFFTIMEOUT, 0, &_powerOffTimeout, 0);
@@ -45,13 +56,27 @@ void ScreenSaver::disable() {
 	SystemParametersInfo(SPI_SETLOWPOWERTIMEOUT, 0, NULL, 0);
 	SystemParametersInfo(SPI_SETPOWEROFFTIMEOUT, 0, NULL, 0);
 	SystemParametersInfo(SPI_SETSCREENSAVETIMEOUT, 0, NULL, 0);
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
+
+#ifdef Q_WS_X11
+	if (!_xdgScreenSaverProcess) {
+		//Lazy initialization
+		_xdgScreenSaverProcess = new QProcess(QCoreApplication::instance());
+	}
+	_XWindowID = qApp->activeWindow()->winId();
+	QStringList args;
+	args << "suspend";
+	args << QString::number(_XWindowID);
+	int errorCode = _xdgScreenSaverProcess->execute("xdg-screensaver", args);
+	qDebug() << __FUNCTION__ << args << errorCode;
+	qDebug() << __FUNCTION__ << _xdgScreenSaverProcess->readAll();
+#endif	//Q_WS_X11
 }
 
 void ScreenSaver::restore() {
 	qDebug() << __FUNCTION__;
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	if (_stateSaved) {
 		SystemParametersInfo(SPI_SETLOWPOWERTIMEOUT, _lowPowerTimeout, NULL, 0);
 		SystemParametersInfo(SPI_SETPOWEROFFTIMEOUT, _powerOffTimeout, NULL, 0);
@@ -59,5 +84,22 @@ void ScreenSaver::restore() {
 	} else {
 		qCritical() << __FUNCTION__ << "Error: screensaver cannot be restored";
 	}
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
+
+#ifdef Q_WS_X11
+	if (_XWindowID > 0) {
+		QStringList args;
+		args << "resume";
+		args << QString::number(_XWindowID);
+		if (_xdgScreenSaverProcess) {
+			int errorCode = _xdgScreenSaverProcess->execute("xdg-screensaver", args);
+			qDebug() << __FUNCTION__ << args << errorCode;
+			qDebug() << __FUNCTION__ << _xdgScreenSaverProcess->readAll();
+		} else {
+			qCritical() << __FUNCTION__ << "Error: no xdg-screensaver process";
+		}
+	} else {
+		qCritical() << __FUNCTION__ << "Error: _XWindowID cannot be 0";
+	}
+#endif	//Q_WS_X11
 }

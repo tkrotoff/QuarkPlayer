@@ -74,9 +74,11 @@ private slots:
 	void volumeIncrease10();
 
 	/**
-	 * Volume output has been changed, let's change the icon.
+	 * Updates the volume icon given the sound volume value.
+	 *
+	 * @param volume sound volume value
 	 */
-	void volumeChanged(qreal volume);
+	void updateVolumeIcon(qreal volume);
 
 private:
 

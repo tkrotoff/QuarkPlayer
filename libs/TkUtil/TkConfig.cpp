@@ -25,12 +25,12 @@
 
 TkConfig::TkConfig()
 	:
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	//Forces INI file format instead of using Windows registry database
 	_settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName())
 #else
 	_settings(QSettings::NativeFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName())
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 	{
 
 	if (QCoreApplication::organizationName().isEmpty() || QCoreApplication::applicationName().isEmpty()) {

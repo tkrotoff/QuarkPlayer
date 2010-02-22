@@ -21,10 +21,11 @@
 #include "ui_LogWindow.h"
 
 #include <TkUtil/TkFileDialog.h>
+#include <TkUtil/TkAction.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
+#include <TkUtil/ActionCollection.h>
 
-#include <QtGui/QTextEdit>
-#include <QtGui/QMessageBox>
+#include <QtGui/QtGui>
 
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
@@ -32,12 +33,13 @@
 #include <QtCore/QDebug>
 
 LogWindow::LogWindow(QWidget * parent)
-	: QDialog(parent) {
+	: QMainWindow(parent) {
 
-	_ui = new Ui::LogWindow();
-	_ui->setupUi(this);
+	populateActionCollection();
 
-	connect(_ui->buttonBox, SIGNAL(accepted()), SLOT(saveText()));
+	setupUi();
+
+	connect(ActionCollection::action("LogWindow.Save"), SIGNAL(triggered()), SLOT(saveText()));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -46,8 +48,45 @@ LogWindow::LogWindow(QWidget * parent)
 LogWindow::~LogWindow() {
 }
 
+void LogWindow::setupUi() {
+	_ui = new Ui::LogWindow();
+	_ui->setupUi(this);
+
+	_toolBar = new QToolBar();
+
+	//Defines the style of all tool buttons that are added as QActions
+	//By default under GNOME Qt::ToolButtonFollowStyle will show
+	//the QActions text beside the icons
+	_toolBar->setToolButtonStyle(Qt::ToolButtonFollowStyle);
+
+	_toolBar->addAction(ActionCollection::action("LogWindow.Save"));
+	_toolBar->addAction(ActionCollection::action("LogWindow.Clear"));
+	_toolBar->addAction(ActionCollection::action("LogWindow.Pause"));
+	addToolBar(_toolBar);
+}
+
+void LogWindow::populateActionCollection() {
+	QCoreApplication * app = QApplication::instance();
+
+	ActionCollection::addAction("LogWindow.Save", new TkAction(app, QKeySequence::Save));
+	ActionCollection::addAction("LogWindow.Clear", new QAction(app));
+	ActionCollection::addAction("LogWindow.Pause", new QAction(app));
+	//FIXME add level action
+}
+
 void LogWindow::retranslate() {
 	_ui->retranslateUi(this);
+
+	ActionCollection::action("LogWindow.Save")->setText(tr("&Save"));
+	ActionCollection::action("LogWindow.Save")->setIcon(QIcon::fromTheme("document-save"));
+
+	ActionCollection::action("LogWindow.Clear")->setText(tr("&Clear"));
+	ActionCollection::action("LogWindow.Clear")->setIcon(QIcon::fromTheme("edit-clear"));
+
+	ActionCollection::action("LogWindow.Pause")->setText(tr("&Pause"));
+	ActionCollection::action("LogWindow.Pause")->setIcon(QIcon::fromTheme("media-playback-pause"));
+
+	_toolBar->setWindowTitle(tr("toolBar"));
 }
 
 void LogWindow::setText(const QString & text) {

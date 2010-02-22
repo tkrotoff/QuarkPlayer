@@ -20,6 +20,7 @@
 #define TKTOOLBAR_H
 
 #include <TkUtil/config.h>
+#include <TkUtil/tkutil_export.h>
 
 #ifdef KDE4_FOUND
 	#include <KToolBar>
@@ -36,13 +37,20 @@
  * @see KToolBar
  * @author Tanguy Krotoff
  */
-class TkToolBar : public PrivateToolBar {
+class TKUTIL_API TkToolBar : public PrivateToolBar {
 public:
 
 	/** Makes the parent compulsary, KToolBar requires a parent, not QToolBar. */
-	TkToolBar(QWidget * parent)
-		: PrivateToolBar(parent) {
-	}
+	TkToolBar(QWidget * parent);
+
+	/**
+	 * Defines a given QToolBar button style.
+	 *
+	 * This is code factorization, QToolBar button style depends on the OS.
+	 *
+	 * @param toolBar QToolBar to change button style
+	 */
+	static void setToolButtonStyle(QToolBar * toolBar);
 
 private:
 };

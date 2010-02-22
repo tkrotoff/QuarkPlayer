@@ -154,7 +154,7 @@ void PlayToolBar::stateChanged(Phonon::State newState) {
 		break;
 
 	default:
-		qDebug() << "State? newState=" << newState;
+		qDebug() << __FUNCTION__ << "newState:" << newState;
 	}
 }
 
@@ -214,7 +214,7 @@ void PlayToolBar::jumpBackward1min() {
 
 void PlayToolBar::jumpBackward10s() {
 	Phonon::MediaObject * mediaObject = quarkPlayer().currentMediaObject();
-	qint64 seek = mediaObject->currentTime() - 1000 * 10;
+	qint64 seek = mediaObject->currentTime() - 1000 * 15;
 	if (seek < 0) {
 		seek = 0;
 	}
@@ -223,7 +223,7 @@ void PlayToolBar::jumpBackward10s() {
 
 void PlayToolBar::jumpForward10s() {
 	Phonon::MediaObject * mediaObject = quarkPlayer().currentMediaObject();
-	qint64 seek = mediaObject->currentTime() + 1000 * 10;
+	qint64 seek = mediaObject->currentTime() + 1000 * 15;
 	if (seek > mediaObject->totalTime()) {
 		seek = mediaObject->totalTime();
 	}
@@ -269,7 +269,7 @@ void PlayToolBar::volumeIncrease10() {
 	audioOutput->setVolume(volume);
 }
 
-void PlayToolBar::volumeChanged(qreal volume) {
+void PlayToolBar::updateVolumeIcon(qreal volume) {
 	if (volume <= 0.0) {
 		_volumeSlider->setVolumeIcon(QIcon::fromTheme("audio-volume-muted"));
 	} else if (volume < 0.3) {
@@ -308,9 +308,10 @@ void PlayToolBar::createControlToolBar() {
 void PlayToolBar::retranslate() {
 	setWindowTitle(tr("Play ToolBar"));
 
-	_volumeSlider->setVolumeIcon(QIcon::fromTheme("player-volume"));
-	_volumeSlider->setMutedIcon(QIcon::fromTheme("audio-volume-muted"));
+	//FIXME crash: no MediaObject at this time
+	//updateVolumeIcon(quarkPlayer().currentAudioOutput()->volume());
 
+	_volumeSlider->setMutedIcon(QIcon::fromTheme("audio-volume-muted"));
 	//_seekSlider->setIcon(QIcon::fromTheme("player-time"));
 
 	setMinimumSize(sizeHint());
@@ -346,7 +347,11 @@ void PlayToolBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	_seekSlider->setMediaObject(mediaObject);
 
 	Phonon::AudioOutput * audioOutput = quarkPlayer().currentAudioOutput();
-	_volumeSlider->setAudioOutput(quarkPlayer().currentAudioOutput());
-	disconnect(audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged(qreal)));
-	connect(audioOutput, SIGNAL(volumeChanged(qreal)), SLOT(volumeChanged(qreal)));
+	if (audioOutput) {
+		_volumeSlider->setAudioOutput(audioOutput);
+		disconnect(audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(updateVolumeIcon(qreal)));
+		connect(audioOutput, SIGNAL(volumeChanged(qreal)), SLOT(updateVolumeIcon(qreal)));
+
+		updateVolumeIcon(audioOutput->volume());
+	}
 }

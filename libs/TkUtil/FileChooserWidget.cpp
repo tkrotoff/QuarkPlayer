@@ -35,6 +35,7 @@ FileChooserWidget::FileChooserWidget(QWidget * parent)
 	//Open button
 	_openFileButton = new QToolButton();
 	layout->addWidget(_openFileButton);
+	_openFileButton->setFocusPolicy(Qt::ClickFocus);
 	_openFileButton->setAutoRaise(true);
 	connect(_openFileButton, SIGNAL(clicked()), SLOT(search()));
 

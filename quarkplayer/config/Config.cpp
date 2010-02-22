@@ -59,14 +59,14 @@ Config::Config()
 	//Default DVD and CDROM device
 	QString dvdDir;
 	QString cdromDir;
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	dvdDir = "D:/";
 	cdromDir = "D:/";
-#elif defined(Q_OS_MAC)
+#elif defined(Q_WS_MAC)
 	//FIXME don't know yet
 	dvdDir = '/';
 	cdromDir = '/';
-#elif defined(Q_OS_UNIX)
+#elif defined(Q_WS_X11)
 	dvdDir = "/dev/dvd";
 	cdromDir = "/dev/cdrom";
 #endif
@@ -79,9 +79,9 @@ Config::Config()
 	//All possible plugin directories
 	QStringList pluginDirList;
 	pluginDirList << QCoreApplication::applicationDirPath() + "/plugins";
-#ifdef Q_OS_UNIX
+#ifdef Q_WS_X11
 	pluginDirList << "/usr/lib/quarkplayer/plugins";
-#endif	//Q_OS_UNIX
+#endif	//Q_WS_X11
 	addKey(PLUGIN_DIR_KEY, pluginDirList);
 	///
 

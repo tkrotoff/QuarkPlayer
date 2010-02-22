@@ -53,12 +53,12 @@
 	//MediaInfo is compiled with Unicode support on
 	//UNICODE symbol already defined for all of QuarkPlayer
 	//#define UNICODE
-	#ifdef Q_OS_UNIX
-		#include <MediaInfo/MediaInfo.h>
-	#else
+	#ifdef Q_WS_WIN
 		#include <MediaInfo/MediaInfoDLL.h>
 		#define MediaInfoLib MediaInfoDLL
-	#endif	//Q_OS_UNIX
+	#else
+		#include <MediaInfo/MediaInfo.h>
+	#endif	//Q_WS_WIN
 #endif	//MEDIAINFOLIB
 
 #include <QtCore/QFileInfo>
@@ -269,11 +269,11 @@ void MediaInfoFetcher::startTagLibResolver() {
 
 	//Taken from Amarok, file: CollectionScanner.cpp
 	//See http://gitorious.org/amarok/amarok/trees/master/utilities/collectionscanner/CollectionScanner.cpp
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	const wchar_t * encodedName = reinterpret_cast<const wchar_t *>(_mediaInfo.fileName().utf16());
 #else
 	const char * encodedName = QFile::encodeName(_mediaInfo.fileName()).constData();
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 
 	TagLib::FileRef fileRef(encodedName, true, readStyle);
 

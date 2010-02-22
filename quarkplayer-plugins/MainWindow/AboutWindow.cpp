@@ -34,13 +34,14 @@
 
 #ifdef MEDIAINFOLIB
 	//MediaInfo is compiled with Unicode support on
+	//UNICODE symbol already defined for all of QuarkPlayer
 	//#define UNICODE
-	#ifdef Q_OS_UNIX
-		#include <MediaInfo/MediaInfo.h>
-	#else
+	#ifdef Q_WS_WIN
 		#include <MediaInfo/MediaInfoDLL.h>
 		#define MediaInfoLib MediaInfoDLL
-	#endif	//Q_OS_UNIX
+	#else
+		#include <MediaInfo/MediaInfo.h>
+	#endif	//Q_WS_WIN
 #endif	//MEDIAINFOLIB
 
 AboutWindow::AboutWindow(QWidget * parent)

@@ -155,7 +155,7 @@ void WinDefaultApplication::addFileAssociation(const QString & extension) {
 	}
 
 	QString icon;
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	if (QSysInfo::windowsVersion() < QSysInfo::WV_VISTA) {
 		//Do this only under Windows versions inferior to Vista.
 		//Under Vista, mimetypes icons are fine, no need to change them
@@ -172,7 +172,7 @@ void WinDefaultApplication::addFileAssociation(const QString & extension) {
 			icon = QString();
 		}*/
 	}
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 
 	registerShellExDLL();
 
@@ -307,14 +307,14 @@ void WinDefaultApplication::deleteAllFileAssociations() {
 	notifyFileAssociationChanged();
 }
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	#include <shlobj.h>
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 
 void WinDefaultApplication::notifyFileAssociationChanged() {
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	//Calling SHChangeNotify() will update the file association icons
 	//in case they had been reset.
 	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 }

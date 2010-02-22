@@ -65,10 +65,10 @@ int main(int argc, char * argv[]) {
 	app.setApplicationName("QuarkPlayer");
 	app.setApplicationVersion(QUARKPLAYER_VERSION);
 
-#ifdef Q_OS_LINUX
+#ifdef Q_WS_X11
 	//FIXME hardcoded, a better solution must be found
 	app.addLibraryPath("/usr/lib/quarkplayer/");
-#endif	//Q_OS_LINUX
+#endif	//Q_WS_X11
 
 	//Do it now, otherwise organizationName and applicationName are not set
 	Config & config = Config::instance();

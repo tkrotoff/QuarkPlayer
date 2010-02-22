@@ -388,12 +388,7 @@ void MainWindow::setupUi() {
 
 	//Main ToolBar
 	_mainToolBar = new TkToolBar(this);
-
-	//Defines the style of all tool buttons that are added as QActions
-	//By default under GNOME Qt::ToolButtonFollowStyle will show
-	//the QActions text beside the icons
-	_mainToolBar->setToolButtonStyle(Qt::ToolButtonFollowStyle);
-
+	TkToolBar::setToolButtonStyle(_mainToolBar);
 	_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenFile"));
 	_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenDVD"));
 	//_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenURL"));

@@ -27,6 +27,7 @@ set(TkUtil_SRCS
 	TkAction.cpp
 	SqueezeLabel.cpp
 	DesktopEnvironment.cpp
+	TkToolBar.cpp
 )
 
 qt4_wrap_cpp(TkUtil_SRCS
