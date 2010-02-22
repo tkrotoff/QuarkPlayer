@@ -20,6 +20,8 @@
 
 #include <QtGui/QPainter>
 
+#include <QtCore/QDebug>
+
 namespace Phonon
 {
 namespace MPlayer
@@ -35,12 +37,14 @@ WidgetNoPaintEvent::WidgetNoPaintEvent(QWidget * parent)
 	setAttribute(Qt::WA_PaintOnScreen);
 
 	//Indicates that the widget has no background, i.e. when the widget receives paint events,
-	//the background is not automatically repainted.
+	//the background is not automatically repainted
 	setAttribute(Qt::WA_NoSystemBackground);
 
 	//Required for dvdnav
 	//Important otherwise the cursor is not show when in fullscreen
 	setMouseTracking(true);
+
+	setFocusPolicy(Qt::NoFocus);
 }
 
 void WidgetNoPaintEvent::paintEvent(QPaintEvent * event) {

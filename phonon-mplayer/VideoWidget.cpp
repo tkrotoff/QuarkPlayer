@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -185,7 +185,7 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height) {
 	_videoWidget->hide();
 	_videoWidget->setVideoSize(videoSize);
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	QWidget * parent = qobject_cast<QWidget *>(this->parent());
 
 	QSize previousSize;
@@ -193,16 +193,15 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height) {
 		previousSize = parent->minimumSize();
 		parent->setMinimumSize(videoSize);
 	}
-#endif	//Q_OS_WIN
+#endif	//Q_WS_WIN
 
 	_videoWidget->show();
 
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
 	if (parent) {
 		parent->setMinimumSize(previousSize);
 	}
-#endif	//Q_OS_WIN
-	///
+#endif	//Q_WS_WIN
 }
 
 }}	//Namespace Phonon::MPlayer
