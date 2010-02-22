@@ -395,12 +395,12 @@ void MediaController::subtitleChanged(int id) {
 	}
 }
 
-void MediaController::loadSubtitleFile(const QString & filename) {
-	if (!filename.isEmpty()) {
+void MediaController::loadSubtitleFile(const QString & fileName) {
+	if (!fileName.isEmpty()) {
 		//Loads the selected subtitle file
 		QStringList args;
 		args << "-sub";
-		args << filename;
+		args << fileName;
 
 		clearMediaController();
 		MPlayerLoader::restart(_process, args);
@@ -432,7 +432,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription & sub
 		}
 
 		else if (type.compare("file", Qt::CaseInsensitive) == 0) {
-			QString filename = _currentSubtitle.property("name").toString();
+			QString fileName = _currentSubtitle.property("name").toString();
 
 			if (_availableSubtitles.contains(_currentSubtitle)) {
 				//If already in the list of subtitles
@@ -441,7 +441,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription & sub
 			} else {
 				//This is a new subtitle file
 				//We must load it and restart MPlayer
-				loadSubtitleFile(filename);
+				loadSubtitleFile(fileName);
 			}
 		}
 

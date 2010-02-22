@@ -107,11 +107,11 @@ public:
 	 * Starts the MPlayer process.
 	 *
 	 * @param arguments options to give to the MPlayer process
-	 * @param filename file/media/stream to play, can be an URL or dvd://
+	 * @param fileName file/media/stream to play, can be an URL or dvd://
 	 * @param videoWidgetId used with the -wid option
 	 * @param seek position where to start inside the file/media/stream
 	 */
-	bool start(const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek);
+	bool start(const QStringList & arguments, const QString & fileName, WId videoWidgetId, qint64 seek);
 
 	/**
 	 * Stops the MPlayer process.
@@ -213,9 +213,13 @@ signals:
 	void hasVideoChanged(bool hasVideo);
 
 	/**
-	 * @param filename screenshot filename
+	 * A screenshot has been taken.
+	 *
+	 * TODO not catched because of Phonon
+	 *
+	 * @param fileName screenshot filename
 	 */
-	void screenshotSaved(const QString & filename);
+	void screenshotSaved(const QString & fileName);
 
 	/**
 	 * If the stream/media/file is seekable or not.
@@ -248,6 +252,8 @@ signals:
 	 *
 	 * Example: "Connecting to server www.podtrac.com[69.16.233.67]: 80..."
 	 *
+	 * TODO not catched because of Phonon
+	 *
 	 * @param message connecting message from MPlayer
 	 */
 	void connectingMessageReceived(const QString & message);
@@ -258,6 +264,8 @@ signals:
 	 * Only when the user tries to play an URL.
 	 *
 	 * Example: "Resolving www.podtrac.com for AF_INET..."
+	 *
+	 * TODO not catched because of Phonon
 	 *
 	 * @param message resolving message from MPlayer
 	 */
@@ -352,6 +360,27 @@ signals:
 	 */
 	void bufferStatus(int percentFilled);
 
+	/**
+	 * MPlayer is scanning the fonts available on the system.
+	 *
+	 * This is done the first time MPlayer is launched.
+	 *
+	 * TODO not catched because of Phonon
+	 */
+	void scanningFonts();
+
+	/**
+	 * MPlayer is updating the font cache.
+	 *
+	 * Can take quite some time...
+	 * This is done the first time MPlayer is launched.
+	 *
+	 * In order to reproduce this event, delete directory <pre>~/fontconfig</pre>
+	 * Under Windows Vista/7: <pre>C:/Users/UserName/fontconfig</pre>
+	 *
+	 * TODO not catched because of Phonon
+	 */
+	void updatingFontCache();
 
 
 	void receivedCreatingIndex(QString);
@@ -436,6 +465,10 @@ private:
 	QRegExp rx_file_not_found;
 	QRegExp rx_endoffile;
 	QRegExp rx_slowsystem;
+
+	//Fonts
+	QRegExp rx_fontcache;
+	QRegExp rx_scanning_font;
 
 	//Streaming
 	QRegExp rx_connecting;

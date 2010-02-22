@@ -133,7 +133,7 @@ private slots:
 
 private:
 
-	void loadMedia(const QString & filename);
+	void loadMedia(const QString & fileName);
 
 	/** Internal code factorization. */
 	QString sourceFileName(const MediaSource & source);
@@ -154,7 +154,7 @@ private:
 
 	bool _playRequestReached;
 
-	QString _filename;
+	QString _fileName;
 
 	WId _videoWidgetId;
 };

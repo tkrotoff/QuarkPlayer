@@ -50,7 +50,7 @@ public:
 	void clear();
 
 	/** Filename of the media. Full path. */
-	QString filename;
+	QString fileName;
 
 	/**
 	 * Media total time (duration) in milliseconds.

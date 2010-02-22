@@ -70,6 +70,10 @@ MPlayerProcess::MPlayerProcess(QObject * parent)
 	rx_slowsystem("Your system is too SLOW to play this!"),
 	//rx_cannotseek("Cannot seek in raw AVI streams. (Index required, try with the -idx switch.)");
 
+	//Fonts
+	rx_fontcache("^\\[ass\\] Updating font cache|^\\[ass\\] Init"),
+	rx_scanning_font("Scanning file"),
+
 	//Streaming
 	rx_connecting("^Connecting to server (.*)..."),
 	rx_resolving("^Resolving (.*)..."),
@@ -168,7 +172,7 @@ QString MPlayerProcess::shortPathName(const QString & longPath) {
 	return shortPath;
 }
 
-bool MPlayerProcess::start(const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek) {
+bool MPlayerProcess::start(const QStringList & arguments, const QString & fileName, WId videoWidgetId, qint64 seek) {
 	//Stop MPlayerProcess if it is already running
 	if (isRunning()) {
 		stop();
@@ -196,8 +200,8 @@ bool MPlayerProcess::start(const QStringList & arguments, const QString & filena
 	//File to play
 	//MPlayer can't open filenames which contain characters outside the local codepage
 	//By converting them to short filenames (8+3 format) MPlayer can open them
-	_mediaData.filename = shortPathName(filename);
-	args << _mediaData.filename;
+	_mediaData.fileName = shortPathName(fileName);
+	args << _mediaData.fileName;
 
 	MyProcess::start(MPlayerConfig::instance().path(), args);
 	return waitForStarted();
@@ -345,11 +349,23 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			changeState(Phonon::ErrorState);
 		}
 
+		//Updating font cache
+		else if (rx_fontcache.indexIn(line) > -1) {
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Updating font cache";
+			emit updatingFontCache();
+		}
+
+		//Scanning fonts
+		else if (rx_scanning_font.indexIn(line) > -1) {
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Scanning fonts";
+			emit scanningFonts();
+		}
+
 		//Screenshot
 		else if (rx_screenshot.indexIn(line) > -1) {
-			const QString filename = rx_screenshot.cap(1);
-			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Screenshot:" << filename;
-			emit screenshotSaved(filename);
+			const QString fileName = rx_screenshot.cap(1);
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Screenshot:" << fileName;
+			emit screenshotSaved(fileName);
 		}
 
 		//End of file
@@ -539,11 +555,11 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			//MPlayer make the id start at number 1,
 			//we want it to start at number 0
 			int id = rx_subtitle_file.cap(1).toInt() - 1;
-			const QString filename = rx_subtitle_file.cap(2);
-			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Subtitle id:" << id << "file:" << filename;
+			const QString fileName = rx_subtitle_file.cap(2);
+			qDebug() << MPLAYER_LOG << __FUNCTION__ << "Subtitle id:" << id << "file:" << fileName;
 
 			SubtitleData subtitleData = _subtitleList[id];
-			subtitleData.name = filename;
+			subtitleData.name = fileName;
 			subtitleData.type = "file";
 			_subtitleList[id] = subtitleData;
 

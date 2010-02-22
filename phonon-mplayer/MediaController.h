@@ -181,7 +181,7 @@ private:
 
 private:
 
-	void loadSubtitleFile(const QString & filename);
+	void loadSubtitleFile(const QString & fileName);
 
 	static QString convertMilliseconds(qint64 milliseconds);
 };

@@ -34,7 +34,7 @@ MediaData::~MediaData() {
 }
 
 void MediaData::clear() {
-	filename.clear();
+	fileName.clear();
 
 	totalTime = 0;
 	currentTime = 0;

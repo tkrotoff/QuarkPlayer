@@ -64,9 +64,9 @@ public:
 	 * Only tries to detect meta-data informations for a media.
 	 *
 	 * @param process the MPlayerProcess to load
-	 * @param filename media to load
+	 * @param fileName media to load
 	 */
-	static void loadMedia(MPlayerProcess * process, const QString & filename);
+	static void loadMedia(MPlayerProcess * process, const QString & fileName);
 
 	/**
 	 * Starts/plays a media given its MPlayerProcess.
@@ -74,10 +74,10 @@ public:
 	 * Starts a new MPlayer instance.
 	 *
 	 * @param process the MPlayerProcess to start
-	 * @param filename media to play
+	 * @param fileName media to play
 	 * @param videoWidgetId QWidget ID where the video (if any) will be played
 	 */
-	static void start(MPlayerProcess * process, const QString & filename, WId videoWidgetId);
+	static void start(MPlayerProcess * process, const QString & fileName, WId videoWidgetId);
 
 	/**
 	 * Restarts/replays a media given its MPlayerProcess.
@@ -88,10 +88,10 @@ public:
 	 *
 	 * @param process the MPlayerProcess to start
 	 * @param arguments MPlayerProcess arguments (options for MPlayer); if empty then previous arguments are used
-	 * @param filename media to play; if empty then previous filename is used
+	 * @param fileName media to play; if empty then previous filename is used
 	 * @param seek position inside the media in milliseconds; if -1 then previous media position is used
 	 */
-	static void restart(MPlayerProcess * process, const QStringList & arguments = QStringList(), const QString & filename = QString(), qint64 seek = -1);
+	static void restart(MPlayerProcess * process, const QStringList & arguments = QStringList(), const QString & fileName = QString(), qint64 seek = -1);
 
 private:
 
@@ -107,7 +107,7 @@ private:
 	static QStringList readMediaSettings();
 
 	/** Code factorization. */
-	static void start(MPlayerProcess * process, const QStringList & arguments, const QString & filename, WId videoWidgetId, qint64 seek);
+	static void start(MPlayerProcess * process, const QStringList & arguments, const QString & fileName, WId videoWidgetId, qint64 seek);
 };
 
 }}	//Namespace Phonon::MPlayer
