@@ -18,10 +18,9 @@
 
 #include "LogWindow.h"
 
-#include "ui_LogWindow.h"
-
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/TkAction.h>
+#include <TkUtil/TkToolBar.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 #include <TkUtil/ActionCollection.h>
 
@@ -49,16 +48,13 @@ LogWindow::~LogWindow() {
 }
 
 void LogWindow::setupUi() {
-	_ui = new Ui::LogWindow();
-	_ui->setupUi(this);
+	resize(648, 482);
+
+	_textEdit = new QTextEdit();
+	setCentralWidget(_textEdit);
 
 	_toolBar = new QToolBar();
-
-	//Defines the style of all tool buttons that are added as QActions
-	//By default under GNOME Qt::ToolButtonFollowStyle will show
-	//the QActions text beside the icons
-	_toolBar->setToolButtonStyle(Qt::ToolButtonFollowStyle);
-
+	TkToolBar::setToolButtonStyle(_toolBar);
 	_toolBar->addAction(ActionCollection::action("LogWindow.Save"));
 	_toolBar->addAction(ActionCollection::action("LogWindow.Clear"));
 	_toolBar->addAction(ActionCollection::action("LogWindow.Pause"));
@@ -75,7 +71,7 @@ void LogWindow::populateActionCollection() {
 }
 
 void LogWindow::retranslate() {
-	_ui->retranslateUi(this);
+	setWindowTitle(tr("Message Log"));
 
 	ActionCollection::action("LogWindow.Save")->setText(tr("&Save"));
 	ActionCollection::action("LogWindow.Save")->setIcon(QIcon::fromTheme("document-save"));
@@ -90,12 +86,12 @@ void LogWindow::retranslate() {
 }
 
 void LogWindow::setText(const QString & text) {
-	_ui->textEdit->setPlainText(text);
+	_textEdit->setPlainText(text);
 }
 
 void LogWindow::appendText(const QString & text) {
-	_ui->textEdit->moveCursor(QTextCursor::End);
-	_ui->textEdit->insertPlainText(text);
+	_textEdit->moveCursor(QTextCursor::End);
+	_textEdit->insertPlainText(text);
 }
 
 void LogWindow::saveText() {
@@ -120,7 +116,7 @@ void LogWindow::saveText() {
 		QFile file(fileName);
 		if (file.open(QIODevice::WriteOnly)) {
 			QTextStream stream(&file);
-			stream << _ui->textEdit->toPlainText();
+			stream << _textEdit->toPlainText();
 			file.close();
 		} else {
 			//Error opening file

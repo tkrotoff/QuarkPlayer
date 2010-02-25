@@ -21,7 +21,7 @@
 
 #include <QtGui/QMainWindow>
 
-namespace Ui { class LogWindow; }
+class QTextEdit;
 
 /**
  * Window showing a log file or any other simple text.
@@ -56,9 +56,9 @@ private:
 
 	void populateActionCollection();
 
-	Ui::LogWindow * _ui;
-
 	QToolBar * _toolBar;
+
+	QTextEdit * _textEdit;
 };
 
 #endif	//LOGWINDOW_H

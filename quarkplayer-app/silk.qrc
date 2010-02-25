@@ -10,6 +10,7 @@
 	<file alias="16x16/document-open-remote.png">icons/silk/page_link.png</file>
 	<file alias="16x16/edit-delete.png">icons/silk/delete.png</file>
 	<file alias="16x16/edit-clear-locationbar-rtl.png">icons/silk/delete.png</file>
+	<file alias="16x16/edit-clear.png">icons/silk/delete.png</file>
 	<file alias="16x16/edit-find.png">icons/silk/find.png</file>
 	<file alias="16x16/edit-copy.png">icons/silk/page_copy.png</file>
 	<file alias="16x16/edit-undo.png">icons/silk/arrow_undo.png</file>
