@@ -50,8 +50,8 @@ void MediaInfoWidget::setupUi() {
 	QHBoxLayout * layout = new QHBoxLayout();
 	layout->setContentsMargins(2, 2, 2, 2);
 	layout->addWidget(_coverArtButton);
-	layout->addStretch();
 	layout->addLayout(_formLayout);
+	layout->addStretch();
 
 	setLayout(layout);
 }
@@ -109,7 +109,7 @@ void MediaInfoWidget::updateMediaInfo(const MediaInfo & mediaInfo) {
 	///
 
 	if (!title.isEmpty()) {
-		_formLayout->addRow(tr("Title:"), new SqueezeLabel(font + title + endfont));
+		_formLayout->addRow(new SqueezeLabel(tr("Title:")), new SqueezeLabel(font + title + endfont));
 	} else if (!fileName.isEmpty()) {
 		if (MediaInfo::isUrl(mediaInfo.fileName())) {
 			_formLayout->addRow(tr("URL:"), new SqueezeLabel(font + fileName + endfont));
@@ -126,37 +126,37 @@ void MediaInfoWidget::updateMediaInfo(const MediaInfo & mediaInfo) {
 	}
 
 	if (!artist.isEmpty()) {
-		_formLayout->addRow(tr("Artist:"), new SqueezeLabel(font + artist + endfont));
+		_formLayout->addRow(new SqueezeLabel(tr("Artist:")), new SqueezeLabel(font + artist + endfont));
 	}
 
 	if (!album.isEmpty()) {
-		_formLayout->addRow(tr("Album:"), new SqueezeLabel(font + album + endfont));
+		_formLayout->addRow(new SqueezeLabel(tr("Album:")), new SqueezeLabel(font + album + endfont));
 	}
 
 	if (!streamName.isEmpty()) {
-		_formLayout->addRow(tr("Stream Name:"), new SqueezeLabel(font + streamName + endfont));
+		_formLayout->addRow(new SqueezeLabel(tr("Stream Name:")), new SqueezeLabel(font + streamName + endfont));
 	}
 
 	if (!streamGenre.isEmpty()) {
-		_formLayout->addRow(tr("Stream Genre:"), new SqueezeLabel(font + streamGenre + endfont));
+		_formLayout->addRow(new SqueezeLabel(tr("Stream Genre:")), new SqueezeLabel(font + streamGenre + endfont));
 	}
 
 	if (!streamWebsite.isEmpty()) {
 		SqueezeLabel * label = new SqueezeLabel();
 		label->setText(href + streamWebsite.toString() + endhref1 + font + streamWebsite.toString() + endfont + endhref2);
 		label->setOpenExternalLinks(true);
-		_formLayout->addRow(tr("Stream Website:"), label);
+		_formLayout->addRow(new SqueezeLabel(tr("Stream Website:")), label);
 	}
 
 	if (!streamUrl.isEmpty()) {
 		SqueezeLabel * label = new SqueezeLabel();
 		label->setText(href + streamUrl.toString() + endhref1 + font + streamUrl.toString() + endfont + endhref2);
 		label->setOpenExternalLinks(true);
-		_formLayout->addRow(tr("URL:"), label);
+		_formLayout->addRow(new SqueezeLabel(tr("URL:")), label);
 	}
 
 	if (bitrate > 0) {
-		_formLayout->addRow(tr("Bitrate:"),
+		_formLayout->addRow(new SqueezeLabel(tr("Bitrate:")),
 			new SqueezeLabel(font + QString::number(bitrate) + ' ' + tr("kbps") + ' ' + bitrateMode + endfont));
 	}
 }

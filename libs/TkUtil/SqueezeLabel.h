@@ -26,11 +26,20 @@
 #include <QtGui/QLabel>
 
 /**
- * Paint the current text with an elided in the middle
- * if the width of the text is less then the width of the widget.
+ * A replacement for QLabel that squeezes its text.
+ *
+ * If the text is too long to fit into the label it is divided into
+ * remaining left and right parts which are separated by three dots.
+ *
+ * Example:
+ * <code>
+ * http://www.kde.org/documentation/index.html could be squeezed to
+ * http://www.kde...ion/index.html
+ * </code>
  *
  * Taken from Trolltech Browser demo and Arora source code
  * @see http://github.com/Arora/arora/tree/master
+ * @see http://websvn.kde.org/trunk/KDE/kdelibs/kdeui/widgets/ksqueezedtextlabel.cpp
  */
 class TKUTIL_API SqueezeLabel : public QLabel {
 public:
@@ -39,9 +48,22 @@ public:
 
 	SqueezeLabel(const QString & text, QWidget * parent = 0);
 
+	QSize minimumSizeHint() const;
+
 protected:
 
 	void paintEvent(QPaintEvent * event);
+
+private:
+
+	/**
+	 * Removes all HTML tags to keep only the real plain text.
+	 *
+	 * This is done because HTML tags inside QLabel are invisible
+	 * to the end user, thus we have to calculate the size of the text
+	 * using the real plain text not the text containing the HTML tags.
+	 */
+	QString plainText() const;
 };
 
 #endif	//SQUEEZELABEL_H
