@@ -19,7 +19,7 @@
 #include "VideoWidgetPlugin.h"
 
 #include "ui_BackgroundLogoWidget.h"
-#include "VideoWidget.h"
+#include "MyVideoWidget.h"
 #include "MediaDataWidget.h"
 
 #include <quarkplayer/QuarkPlayer.h>
@@ -155,7 +155,7 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	container->mediaDataWidget = new MediaDataWidget(NULL);
 
 	//videoWidget
-	container->videoWidget = new VideoWidget(container->videoDockWidget, MainWindowFactory::mainWindow());
+	container->videoWidget = new MyVideoWidget(container->videoDockWidget, MainWindowFactory::mainWindow());
 	Phonon::createPath(mediaObject, container->videoWidget);
 
 	_mediaObjectHash[mediaObject] = container;

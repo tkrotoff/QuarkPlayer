@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VIDEOWIDGET_H
-#define VIDEOWIDGET_H
+#ifndef MYVIDEOWIDGET_H
+#define MYVIDEOWIDGET_H
 
 #include <phonon/videowidget.h>
 #include <phonon/phononnamespace.h>
@@ -41,15 +41,18 @@ class QToolBar;
  *
  * Inspired from class MediaVideoWidget from Trolltech' mediaplayer example.
  *
+ * Cannot be simply named VideoWidget otherwise Doxygen confuses it with Phonon::VideoWidget,
+ * thus was renamed MyVideoWidget.
+ *
  * @author Tanguy Krotoff
  */
-class VideoWidget : public Phonon::VideoWidget {
+class MyVideoWidget : public Phonon::VideoWidget {
 	Q_OBJECT
 public:
 
-	VideoWidget(QDockWidget * dockWidget, MainWindow * mainWindow);
+	MyVideoWidget(QDockWidget * dockWidget, MainWindow * mainWindow);
 
-	~VideoWidget();
+	~MyVideoWidget();
 
 public slots:
 
@@ -150,4 +153,4 @@ private:
 	QMenu * _contextMenu;
 };
 
-#endif	//VIDEOWIDGET_H
+#endif	//MYVIDEOWIDGET_H

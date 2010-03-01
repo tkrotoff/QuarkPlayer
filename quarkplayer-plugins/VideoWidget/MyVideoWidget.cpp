@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VideoWidget.h"
+#include "MyVideoWidget.h"
 
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
@@ -29,7 +29,7 @@
 
 #include <QtCore/QTimerEvent>
 
-VideoWidget::VideoWidget(QDockWidget * dockWidget, MainWindow * mainWindow)
+MyVideoWidget::MyVideoWidget(QDockWidget * dockWidget, MainWindow * mainWindow)
 	: Phonon::VideoWidget(NULL) {
 
 	_dockWidget = dockWidget;
@@ -61,10 +61,10 @@ VideoWidget::VideoWidget(QDockWidget * dockWidget, MainWindow * mainWindow)
 	retranslate();
 }
 
-VideoWidget::~VideoWidget() {
+MyVideoWidget::~MyVideoWidget() {
 }
 
-void VideoWidget::populateActionCollection() {
+void MyVideoWidget::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 
 	TkAction * action = new TkAction(app);
@@ -86,7 +86,7 @@ void VideoWidget::populateActionCollection() {
 	ActionCollection::addAction("VideoWidget.ScaleModeScaleAndCrop", action);
 }
 
-void VideoWidget::retranslate() {
+void MyVideoWidget::retranslate() {
 	ActionCollection::action("VideoWidget.AspectRatioAuto")->setText(tr("Auto"));
 	ActionCollection::action("VideoWidget.AspectRatioScale")->setText(tr("Scale"));
 	ActionCollection::action("VideoWidget.AspectRatio16/9")->setText(tr("16/9"));
@@ -95,7 +95,7 @@ void VideoWidget::retranslate() {
 	ActionCollection::action("VideoWidget.ScaleModeScaleAndCrop")->setText(tr("Scale and Crop"));
 }
 
-void VideoWidget::createContextMenu() {
+void MyVideoWidget::createContextMenu() {
 	_contextMenu = new QMenu(this);
 
 	_contextMenu->addAction(ActionCollection::action("MainWindow.PreviousTrack"));
@@ -159,11 +159,11 @@ void VideoWidget::createContextMenu() {
 	_contextMenu->addAction(ActionCollection::action("MainWindow.Quit"));
 }
 
-void VideoWidget::showContextMenu(const QPoint & pos) {
+void MyVideoWidget::showContextMenu(const QPoint & pos) {
 	_contextMenu->popup(isFullScreen() ? pos : mapToGlobal(pos));
 }
 
-void VideoWidget::scaleModeChanged(QAction * action) {
+void MyVideoWidget::scaleModeChanged(QAction * action) {
 	if (action == ActionCollection::action("VideoWidget.ScaleModeFitInView")) {
 		setScaleMode(Phonon::VideoWidget::FitInView);
 	} else if (action == ActionCollection::action("VideoWidget.ScaleModeScaleAndCrop")) {
@@ -173,7 +173,7 @@ void VideoWidget::scaleModeChanged(QAction * action) {
 	}
 }
 
-void VideoWidget::aspectRatioChanged(QAction * action) {
+void MyVideoWidget::aspectRatioChanged(QAction * action) {
 	if (action == ActionCollection::action("VideoWidget.AspectRatio16/9")) {
 		setAspectRatio(Phonon::VideoWidget::AspectRatio16_9);
 	} else if (action == ActionCollection::action("VideoWidget.AspectRatioScale")) {
@@ -187,11 +187,11 @@ void VideoWidget::aspectRatioChanged(QAction * action) {
 	}
 }
 
-void VideoWidget::triggerExitFullScreenAction() {
+void MyVideoWidget::triggerExitFullScreenAction() {
 	ActionCollection::action("MainWindow.FullScreen")->setChecked(false);
 }
 
-void VideoWidget::enterFullScreenInternal() {
+void MyVideoWidget::enterFullScreenInternal() {
 	if (isFullScreen()) {
 		return;
 	}
@@ -223,7 +223,7 @@ void VideoWidget::enterFullScreenInternal() {
 	}
 }
 
-void VideoWidget::exitFullScreenInternal() {
+void MyVideoWidget::exitFullScreenInternal() {
 	if (!isFullScreen()) {
 		return;
 	}
@@ -238,7 +238,7 @@ void VideoWidget::exitFullScreenInternal() {
 	_widgetOverFullScreen->hide();
 }
 
-void VideoWidget::setFullScreenInternal(bool fullScreen) {
+void MyVideoWidget::setFullScreenInternal(bool fullScreen) {
 	if (fullScreen) {
 		enterFullScreenInternal();
 	} else {
@@ -246,7 +246,7 @@ void VideoWidget::setFullScreenInternal(bool fullScreen) {
 	}
 }
 
-void VideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
+void MyVideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
 	if (event->button() == Qt::LeftButton) {
 		event->accept();
 		ActionCollection::action("MainWindow.FullScreen")->toggle();
@@ -255,7 +255,7 @@ void VideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
 	}
 }
 
-void VideoWidget::mouseMoveEvent(QMouseEvent * event) {
+void MyVideoWidget::mouseMoveEvent(QMouseEvent * event) {
 	event->accept();
 	if (isFullScreen()) {
 		checkMousePos();
@@ -264,7 +264,7 @@ void VideoWidget::mouseMoveEvent(QMouseEvent * event) {
 	unsetCursor();
 }
 
-bool VideoWidget::event(QEvent * event) {
+bool MyVideoWidget::event(QEvent * event) {
 	//QEvent::WindowStateChange cannot be in its own event method
 	//like mouseMoveEvent() and mouseDoubleClickEvent()
 	//I would rather prefer to have a method named windowStateChangeEvent()
@@ -281,7 +281,7 @@ bool VideoWidget::event(QEvent * event) {
 	return Phonon::VideoWidget::event(event);
 }
 
-void VideoWidget::timerEvent(QTimerEvent * event) {
+void MyVideoWidget::timerEvent(QTimerEvent * event) {
 	if (event->timerId() == _timer.timerId()) {
 		event->accept();
 		//Let's store the cursor shape
@@ -290,7 +290,7 @@ void VideoWidget::timerEvent(QTimerEvent * event) {
 	Phonon::VideoWidget::timerEvent(event);
 }
 
-void VideoWidget::showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder) {
+void MyVideoWidget::showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder) {
 	//Width divided by 1.5, I think it's better
 	//otherwise the widget (playToolBar + statusBar) is too big
 	int widgetOverWidth = static_cast<int>(widgetUnder->width() / 1.5);
@@ -306,7 +306,7 @@ void VideoWidget::showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder) {
 	widgetOver->show();
 }
 
-void VideoWidget::checkMousePos() {
+void MyVideoWidget::checkMousePos() {
 	static bool bottomCursor = false;
 
 	if (!isFullScreen()) {
@@ -362,7 +362,7 @@ void VideoWidget::checkMousePos() {
 	}
 }
 
-void VideoWidget::playToolBarAdded(QToolBar * playToolBar) {
+void MyVideoWidget::playToolBarAdded(QToolBar * playToolBar) {
 	qDebug() << __FUNCTION__;
 
 	_playToolBar = playToolBar;
@@ -378,11 +378,11 @@ void VideoWidget::playToolBarAdded(QToolBar * playToolBar) {
 		SLOT(triggerExitFullScreenAction()));
 }
 
-void VideoWidget::statusBarAdded(QStatusBar * statusBar) {
+void MyVideoWidget::statusBarAdded(QStatusBar * statusBar) {
 	_statusBar = statusBar;
 }
 
-void VideoWidget::addPlayToolBarToMainWindow() {
+void MyVideoWidget::addPlayToolBarToMainWindow() {
 	if (_playToolBar) {
 		_mainWindow->addToolBar(Qt::BottomToolBarArea, _playToolBar);
 	}

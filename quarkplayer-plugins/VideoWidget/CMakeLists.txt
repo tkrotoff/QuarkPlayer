@@ -6,13 +6,13 @@ endif (STATICPLUGINS)
 
 set(VideoWidget_SRCS
 	VideoWidgetPlugin.cpp
-	VideoWidget.cpp
+	MyVideoWidget.cpp
 	MediaDataWidget.cpp
 )
 
 qt4_wrap_cpp(VideoWidget_SRCS
 	VideoWidgetPlugin.h
-	VideoWidget.h
+	MyVideoWidget.h
 	MediaDataWidget.h
 )
 

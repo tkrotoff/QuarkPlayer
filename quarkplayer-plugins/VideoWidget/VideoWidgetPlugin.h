@@ -26,7 +26,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QHash>
 
-class VideoWidget;
+class MyVideoWidget;
 class MediaDataWidget;
 
 class QuarkPlayer;
@@ -86,7 +86,7 @@ private:
 		}
 
 		/** Widget containing the video. */
-		VideoWidget * videoWidget;
+		MyVideoWidget * videoWidget;
 
 		/** Widget containing the logo. */
 		QWidget * backgroundLogoWidget;
