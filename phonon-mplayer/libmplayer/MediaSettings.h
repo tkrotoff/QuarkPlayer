@@ -100,11 +100,11 @@ public:
 	 * Optial device name for MPlayer.
 	 *
 	 * -dvd-device argument for MPlayer
-	 * <pre>mplayer dvd://<title> -dvd-device d:</pre>
+	 * <pre>mplayer dvd://title -dvd-device d:</pre>
 	 * <pre>mplayer dvd://1 -dvd-device /dev/dvd</pre>
 	 *
 	 * -cdrom-device argument for MPlayer
-	 * <pre>mplayer vcd://<track> -cdrom-device d:</pre>
+	 * <pre>mplayer vcd://track -cdrom-device d:</pre>
 	 * <pre>mplayer vcd://1 -cdrom-device /dev/cdrom</pre>
 	 * <pre>mplayer cdda://1 -cdrom-device /dev/cdrom</pre>
 	 */

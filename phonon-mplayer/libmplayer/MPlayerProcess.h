@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MPLAYERPROCESS_H
-#define MPLAYERPROCESS_H
+#ifndef PHONON_MPLAYER_MPLAYERPROCESS_H
+#define PHONON_MPLAYER_MPLAYERPROCESS_H
 
 #include "MyProcess.h"
 #include "MediaData.h"
@@ -279,8 +279,8 @@ signals:
 	 *
 	 * @see http://en.wikipedia.org/wiki/Matroska
 	 * @param id audio id to select if we choose this lang
-	 * @param name name/desciption of the audio channel
-	 * @param lang fr, en... / fre, eng... / french, english...
+	 * @param audioChannelData audio channel name/desciption and
+	 *        lang fr, en... / fre, eng... / french, english...
 	 */
 	void audioChannelAdded(int id, const AudioChannelData & audioChannelData);
 
@@ -292,7 +292,7 @@ signals:
 	 *
 	 * @see http://en.wikipedia.org/wiki/Matroska
 	 * @param id subtitle id to select, start at number 0
-	 * @param name can be the filename or the subtitle
+	 * @param subtitleData the file name or the subtitle
 	 *        language (fr, en... / french, english...) or anything else
 	 */
 	void subtitleAdded(int id, const SubtitleData & subtitleData);
@@ -522,4 +522,4 @@ private:
 
 }}	//Namespace Phonon::MPlayer
 
-#endif	//MPLAYERPROCESS_H
+#endif	//PHONON_MPLAYER_MPLAYERPROCESS_H

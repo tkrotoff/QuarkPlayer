@@ -1,7 +1,7 @@
 /*
  * MPlayer backend for the Phonon library
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MPLAYERVERSION_H
-#define MPLAYERVERSION_H
+#ifndef PHONON_MPLAYER_MPLAYERVERSION_H
+#define PHONON_MPLAYER_MPLAYERVERSION_H
 
 #include <QtCore/QString>
 
@@ -53,4 +53,4 @@ private:
 
 }}	//Namespace Phonon::MPlayer
 
-#endif	//MPLAYERVERSION_H
+#endif	//PHONON_MPLAYER_MPLAYERVERSION_H

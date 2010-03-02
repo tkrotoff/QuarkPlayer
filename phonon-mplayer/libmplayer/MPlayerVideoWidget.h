@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MPLAYERVIDEOWIDGET_H
-#define MPLAYERVIDEOWIDGET_H
+#ifndef PHONON_MPLAYER_MPLAYERVIDEOWIDGET_H
+#define PHONON_MPLAYER_MPLAYERVIDEOWIDGET_H
 
 #include "WidgetNoPaintEvent.h"
 
@@ -71,4 +71,4 @@ private:
 
 }}	//Namespace Phonon::MPlayer
 
-#endif	//MPLAYERVIDEOWIDGET_H
+#endif	//PHONON_MPLAYER_MPLAYERVIDEOWIDGET_H

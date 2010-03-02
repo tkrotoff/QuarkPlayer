@@ -196,8 +196,10 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
 
 	case Phonon::AudioCaptureDeviceType:
 	case Phonon::AudioChannelType:
+#ifdef NEW_TITLE_CHAPTER_HANDLING
 	case Phonon::ChapterType:
 	case Phonon::TitleType:
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 	case Phonon::SubtitleType:
 		qWarning() << __FUNCTION__ << "Not implemented yet: " << type;
 		break;

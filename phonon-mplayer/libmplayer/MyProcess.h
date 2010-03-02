@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MYPROCESS_H
-#define MYPROCESS_H
+#ifndef PHONON_MPLAYER_MYPROCESS_H
+#define PHONON_MPLAYER_MYPROCESS_H
 
 #include <QtCore/QProcess>
 
@@ -70,8 +70,9 @@ private:
 	/**
 	 * Return true if it's possible to read an entire line.
 	 *
-	 * Named canReadLine2() since there can be a clash name with canReadLine()
+	 * Named canReadLine2() since there is a clash name with canReadLine()
 	 *
+	 * @param output process output
 	 * @param from specifies the position to begin.
 	 */
 	int canReadLine2(const QByteArray & output, int from = 0);
@@ -84,4 +85,4 @@ private:
 
 }}	//Namespace Phonon::MPlayer
 
-#endif	//MYPROCESS_H
+#endif	//PHONON_MPLAYER_MYPROCESS_H
