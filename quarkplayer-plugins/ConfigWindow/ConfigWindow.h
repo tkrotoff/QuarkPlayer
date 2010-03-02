@@ -56,6 +56,8 @@ public:
 
 	void show();
 
+	void exec();
+
 private slots:
 
 	void showConfigWidget(QTreeWidgetItem * item);

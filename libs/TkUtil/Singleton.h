@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
  * Becareful in multi-threaded environment: this class does not contain a mutex.
  *
  * Example:
- * <pre>
+ * @code
  * #include <TkUtil/Singleton.h>
  *
  * class MyClass : public Singleton<MyClass> {
@@ -39,7 +39,7 @@
  * 	MyClass();
  * 	~MyClass();
  * };
- * </pre>
+ * @endcode
  *
  * @author Tanguy Krotoff
  */

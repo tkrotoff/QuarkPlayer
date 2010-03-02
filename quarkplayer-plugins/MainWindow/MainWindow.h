@@ -92,14 +92,14 @@ signals:
 	 *
 	 * @see setPlayToolBar()
 	 * @see PlayToolBar
-	 * @param main window play toolbar
+	 * @param playToolBar main window play toolbar (cannot be NULL or there is a bug...)
 	 */
 	void playToolBarAdded(QToolBar * playToolBar);
 
 	/**
 	 * The status bar has been added to the main window.
 	 *
-	 * @param main window status bar (cannot be NULL or there is a bug...)
+	 * @param statusBar main window status bar (cannot be NULL or there is a bug...)
 	 * @see setStatusBar()
 	 */
 	void statusBarAdded(QStatusBar * statusBar);

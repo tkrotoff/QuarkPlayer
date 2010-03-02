@@ -44,6 +44,10 @@ signals:
 
 	void subtitleDownloaded(const QString & fileName);
 
+private slots:
+
+	void downloadFinished(QNetworkReply * reply);
+
 private:
 
 	void download(const QUrl & url);

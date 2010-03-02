@@ -75,6 +75,7 @@ public:
 	/**
 	 * When getting the save file dialog, we need a file format filter.
 	 *
+	 * @param extensions the extensions listed inside the QFileDialog
 	 * @param defaultExtension the default extension that will be first in the list for QFileDialog
 	 * @see QFileDialog
 	 */

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ signals:
 	 * show and hide each time the user wants it).
 	 *
 	 * Example:
-	 * <pre>
+	 * @code
 	 * #include <quarkplayer-plugins/ConfigWindow/ConfigWindowPlugin.h>
 	 * #include <quarkplayer-plugins/ConfigWindow/ConfigWindow.h>
 	 *
@@ -65,7 +65,7 @@ signals:
 	 * TotoPlugin::configWindowCreated(ConfigWindow * configWindow) {
 	 * 	configWindow->addConfigWidget(new TotoPluginConfigWidget());
 	 * }
-	 * </pre>
+	 * @endcode
 	 *
 	 * @param configWindow the configuration window that has been created
 	 */

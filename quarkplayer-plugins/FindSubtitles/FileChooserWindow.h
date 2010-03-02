@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ public:
 	/**
 	 * Add files inside the chooser window.
 	 *
-	 * @param list of filenames that will be displayed inside the chooser window
+	 * @param files list of filenames that will be displayed inside the chooser window
 	 */
 	void addFiles(const QStringList & files);
 

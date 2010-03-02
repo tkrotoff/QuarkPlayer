@@ -116,6 +116,10 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	RETRANSLATE(this);
 	retranslate();
 
+	//Trick: MainWindow should get the focus and be the active window
+	//otherwise SearchLineEdit can get the focus instead
+	qApp->setActiveWindow(this);
+
 	show();
 }
 
@@ -242,6 +246,10 @@ void MainWindow::viewMPlayerLog() {
 	}
 
 	logWindow->show();
+
+	//Trick: MainWindow should get the focus and be the active window
+	//otherwise SearchLineEdit can get the focus instead
+	qApp->setActiveWindow(this);
 }
 
 void MainWindow::viewQuarkPlayerLog() {
@@ -249,7 +257,11 @@ void MainWindow::viewQuarkPlayerLog() {
 
 void MainWindow::about() {
 	static AboutWindow * aboutWindow = new AboutWindow(this);
-	aboutWindow->show();
+	aboutWindow->exec();
+
+	//Trick: MainWindow should get the focus and be the active window
+	//otherwise SearchLineEdit can get the focus instead
+	qApp->setActiveWindow(this);
 }
 
 void MainWindow::populateActionCollection() {

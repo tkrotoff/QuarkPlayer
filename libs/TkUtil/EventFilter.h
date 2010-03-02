@@ -1,7 +1,7 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2004-2007  Wengo
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,13 +36,13 @@ class QEvent;
  *
  * This class permits to make some special actions on Qt events.
  * Example:
- * <code>
+ * <pre>
  * QMainWindow * widget = new QMainWindow();
  * CloseEventFilter * closeFilter = new CloseEventFilter(this, SLOT(printHelloWorld()), true);
  * ResizeEventFilter * resizeFilter = new ResizeEventFilter(this, SLOT(printHelloWorld()), false);
  * widget->installEventFilter(closeFilter);
  * widget->installEventFilter(resizeFilter);
- * </code>
+ * </pre>
  *
  * The eventFilter() function must return true if the event should be filtered,
  * (i.e. stopped); otherwise it must return false.

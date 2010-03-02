@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,6 +76,7 @@ signals:
 	 * Guaranteed to be sent only once.
 	 * Will be sent even if the playlist file cannot be loaded or stop() has been called.
 	 *
+	 * @param error error while parsing the playlist file
 	 * @param timeElapsed time in milliseconds needed to perform the operation (load or save)
 	 */
 	void finished(PlaylistParser::Error error, int timeElapsed);
@@ -161,6 +162,7 @@ public:
 	/**
 	 * Saves the playlist.
 	 *
+	 * @param fileName playlist file (full path)
 	 * @param files files to add to the playlist file
 	 */
 	void save(const QString & fileName, const QList<MediaInfo> & files);

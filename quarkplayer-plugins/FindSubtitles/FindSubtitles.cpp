@@ -114,7 +114,7 @@ void FindSubtitles::findSubtitles() {
 		}
 		findSubtitlesWindow->setVideoFileName(fileName);
 		findSubtitlesWindow->setLanguage(Config::instance().language());
-		findSubtitlesWindow->show();
+		findSubtitlesWindow->exec();
 	}
 }
 

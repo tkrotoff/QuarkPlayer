@@ -32,10 +32,10 @@
  * remaining left and right parts which are separated by three dots.
  *
  * Example:
- * <code>
+ * @code
  * http://www.kde.org/documentation/index.html could be squeezed to
  * http://www.kde...ion/index.html
- * </code>
+ * @endcode
  *
  * Taken from Trolltech Browser demo and Arora source code
  * @see http://github.com/Arora/arora/tree/master

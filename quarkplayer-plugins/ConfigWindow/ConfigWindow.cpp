@@ -94,6 +94,11 @@ void ConfigWindow::show() {
 	QDialog::show();
 }
 
+void ConfigWindow::exec() {
+	readConfig();
+	QDialog::exec();
+}
+
 void ConfigWindow::readConfig() {
 	foreach (ConfigWidget tmp, _configWidgetList) {
 		tmp.configWidget->readConfig();

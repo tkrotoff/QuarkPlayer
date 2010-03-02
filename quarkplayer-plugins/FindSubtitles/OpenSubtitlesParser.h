@@ -63,7 +63,7 @@ public:
 	 * Example of (truncated) OpenSubtitles.org XML format
 	 * Request URL is: http://www.opensubtitles.org/en/search/sublanguageid-all/moviehash-55fa82a34fd38763/simplexml
 	 * With movie being: Elephants Dream, elephantsdream-1920-hd-mpeg4-su-ac3.avi
-	 * <pre>
+	 * @code
 	 * <?xml version="1.0" encoding="utf-8"?>
 	 * <search>
 	 * 	<base>http://www.opensubtitles.org/en</base>
@@ -115,7 +115,7 @@ public:
 	 * 		</subtitle>
 	 * 	</results>
 	 * </search>
-	 * </pre>
+	 * @endcode
 	 *
 	 * @param xml OpenSubtitles.org XML format to parse
 	 * @return the list of subtitles

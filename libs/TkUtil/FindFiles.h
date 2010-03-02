@@ -104,6 +104,7 @@ signals:
 	 * Sends the signal every _filesFoundLimit files found.
 	 *
 	 * @param files list of files (full path fileName)
+	 * @param uuid each search has its own unique id
 	 */
 	void filesFound(const QStringList & files, const QUuid & uuid);
 

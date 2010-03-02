@@ -270,6 +270,7 @@ void PlayToolBar::volumeIncrease10() {
 }
 
 void PlayToolBar::updateVolumeIcon(qreal volume) {
+#ifdef NEW_TITLE_CHAPTER_HANDLING
 	if (volume <= 0.0) {
 		_volumeSlider->setVolumeIcon(QIcon::fromTheme("audio-volume-muted"));
 	} else if (volume < 0.3) {
@@ -279,6 +280,7 @@ void PlayToolBar::updateVolumeIcon(qreal volume) {
 	} else {
 		_volumeSlider->setVolumeIcon(QIcon::fromTheme("audio-volume-medium"));
 	}
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 }
 
 void PlayToolBar::createControlToolBar() {
@@ -311,8 +313,10 @@ void PlayToolBar::retranslate() {
 	//FIXME crash: no MediaObject at this time
 	//updateVolumeIcon(quarkPlayer().currentAudioOutput()->volume());
 
+#ifdef NEW_TITLE_CHAPTER_HANDLING
 	_volumeSlider->setMutedIcon(QIcon::fromTheme("audio-volume-muted"));
 	//_seekSlider->setIcon(QIcon::fromTheme("player-time"));
+#endif	//NEW_TITLE_CHAPTER_HANDLING
 
 	setMinimumSize(sizeHint());
 }

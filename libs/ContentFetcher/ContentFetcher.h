@@ -83,6 +83,7 @@ protected:
 	 * Code factorization: send signal, an error occured.
 	 *
 	 * @param error the error code that was detected
+	 * @param url the URL that failed
 	 */
 	void emitFinishedWithError(QNetworkReply::NetworkError error, const QUrl & url);
 
