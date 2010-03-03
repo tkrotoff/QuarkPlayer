@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -33,8 +33,9 @@ namespace MPlayer
 {
 
 /**
+ * MPlayer backend implementation of MediaObjectInterface.
  *
- *
+ * @see MediaController
  * @author Tanguy Krotoff
  */
 class MediaObject : public MediaController, public MediaObjectInterface {
@@ -57,12 +58,13 @@ public:
 	MPlayerProcess * getMPlayerProcess() const;
 
 	/**
-	 * Needed by VideoWidget
 	 * Widget Id where MPlayer will show the videos.
+	 *
+	 * Needed by VideoWidget.
 	 */
 	void setVideoWidgetId(WId videoWidgetId);
 
-	//Needed by SeekStack
+	/** Needed by SeekStack. */
 	void seekInternal(qint64 milliseconds);
 
 
@@ -156,6 +158,7 @@ private:
 
 	QString _fileName;
 
+	/** Widget Id where MPlayer will show the videos. */
 	WId _videoWidgetId;
 };
 

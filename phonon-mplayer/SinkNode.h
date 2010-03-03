@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,8 +30,9 @@ namespace MPlayer
 class MediaObject;
 
 /**
+ * Connects nodes together: a source to a sink.
  *
- *
+ * @see http://qt.nokia.com/doc/4.6/phonon-overview.html#sinks
  * @author Tanguy Krotoff
  */
 class SinkNode : public QObject {
@@ -41,8 +42,18 @@ public:
 	SinkNode(QObject * parent);
 	virtual ~SinkNode();
 
+	/**
+	 * Connects the sink to a MediaObject.
+	 *
+	 * The sink can be connected to a single MediaObject.
+	 */
 	virtual void connectToMediaObject(MediaObject * mediaObject);
 
+	/**
+	 * Disconnects the sink from a MediaObject.
+	 *
+	 * The sink can be connected to a single MediaObject.
+	 */
 	virtual void disconnectFromMediaObject(MediaObject * mediaObject);
 
 protected:

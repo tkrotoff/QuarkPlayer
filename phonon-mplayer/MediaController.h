@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -38,10 +38,12 @@ static const int MPLAYER_DEFAULT_VCD_TITLE = MPLAYER_DEFAULT_DVD_TITLE;
 static const int MPLAYER_DEFAULT_CDAUDIO_TITLE = MPLAYER_DEFAULT_DVD_TITLE;
 
 /**
- * Interface for AddonInterface.
+ * MPlayer backend implementation of AddonInterface.
  *
- * Normally MediaObject inherits directly from AddonInterface, but wait, I don't want
- * 3000LOC classes...
+ * MediaObject and MediaController should be implemented inside the same class
+ * (the other backends do that) and inherit from AddonInterface.
+ * In order to keep source code elegant, the class that implements AddonInterface
+ * has been cut in too: MediaObject and MediaController.
  *
  * @see MediaObject
  * @author Tanguy Krotoff

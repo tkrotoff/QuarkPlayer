@@ -29,22 +29,38 @@ namespace Phonon
 namespace MPlayer
 {
 
+/**
+ * A video or audio effect.
+ *
+ * @author Tanguy Krotoff
+ */
 class EffectInfo {
 public:
 
+	/** Type of effect. */
 	enum Type {
 		AudioEffect,
 		VideoEffect
 	};
 
+	/**
+	 * Constructs an effect given its name and its MPlayer command.
+	 *
+	 * @param name effect name
+	 * @param command MPlayer command for the effect
+	 * @param type effect type (audio or video effect)
+	 */
 	EffectInfo(const QString & name, const QString & command, Type type);
 
 	~EffectInfo();
 
+	/** Gets the effect name. */
 	QString name() const;
 
+	/** Gets the MPlayer command for the effect. */
 	QString command() const;
 
+	/** Gets the effet type (audio or video). */
 	Type type() const;
 
 private:
@@ -57,7 +73,7 @@ private:
 };
 
 /**
- *
+ * Keeps a list of available MPlayer effects.
  *
  * @author Tanguy Krotoff
  */
@@ -65,9 +81,11 @@ class EffectManager : public QObject {
 	Q_OBJECT
 public:
 
+	/** Constructs the list of available MPlayer effects. */
 	EffectManager(QObject * parent);
 	~EffectManager();
 
+	/** Gets the list of available effects. */
 	QList<EffectInfo *> effectList() const;
 
 private:

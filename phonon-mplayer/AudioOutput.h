@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2007-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,7 +29,9 @@ namespace MPlayer
 {
 
 /**
+ * MPlayer backend implementation of Phonon::AudioOutput.
  *
+ * Allows to change volume and audio device.
  *
  * @author Tanguy Krotoff
  */
@@ -44,15 +46,20 @@ public:
 	qreal volume() const;
 	void setVolume(qreal volume);
 
+	/** FIXME not implemented yet. */
 	int outputDevice() const;
-	bool setOutputDevice(int);
+
+	/** FIXME not implemented yet. */
+	bool setOutputDevice(int device);
+
+	/** FIXME not implemented yet. */
 	bool setOutputDevice(const Phonon::AudioOutputDevice & device);
 
 signals:
 
 	void volumeChanged(qreal volume);
 
-	//FIXME not implemented yet
+	/** FIXME not implemented yet. */
 	void audioDeviceFailed();
 
 private:

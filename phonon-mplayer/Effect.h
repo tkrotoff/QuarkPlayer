@@ -34,7 +34,7 @@ class MediaObject;
 class EffectManager;
 
 /**
- *
+ * MPlayer backend implementation of Phonon::EffectInterface.
  *
  * @author Tanguy Krotoff
  */

@@ -49,10 +49,12 @@ namespace MPlayer
 extern const char * MPLAYER_LOG;
 
 /**
- * Stores AudioChannel informations/datas.
+ * Stores available audio channels.
+ *
  * Hack because MPlayer sends several audio channel infos instead of everything
  * at the same time.
  *
+ * @see SubtitleData
  * @author Tanguy Krotoff
  */
 class AudioChannelData {
@@ -61,6 +63,12 @@ public:
 	QString name;
 };
 
+/**
+ * Stores available subtitles.
+ *
+ * @see AudioChannelData
+ * @author Tanguy Krotoff
+ */
 class SubtitleData {
 public:
 	QString lang;
