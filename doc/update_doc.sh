@@ -16,10 +16,8 @@ cd ../doc/html
 
 # Remove missing subversion files
 svn status | grep '\!' | awk '{print $2;}' | xargs svn rm
-svn status search | grep '\!' | awk '{print $2;}' | xargs svn rm
 
 # Add files not under version control
 svn status | grep '\?' | awk '{print $2;}' | xargs svn add
-svn status search | grep '\?' | awk '{print $2;}' | xargs svn add
 
 # svn commit should be done manually
