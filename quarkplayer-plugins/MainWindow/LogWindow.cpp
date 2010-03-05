@@ -32,13 +32,17 @@
 #include <QtCore/QDebug>
 
 LogWindow::LogWindow(QWidget * parent)
-	: QMainWindow(parent) {
+	: QMainWindow(parent, Qt::Dialog) {
+
+	_playMode = true;
 
 	populateActionCollection();
 
 	setupUi();
 
 	connect(ActionCollection::action("LogWindow.Save"), SIGNAL(triggered()), SLOT(saveText()));
+	connect(ActionCollection::action("LogWindow.Clear"), SIGNAL(triggered()), SLOT(clearText()));
+	connect(ActionCollection::action("LogWindow.PlayPause"), SIGNAL(triggered()), SLOT(playPauseButtonClicked()));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -57,7 +61,7 @@ void LogWindow::setupUi() {
 	TkToolBar::setToolButtonStyle(_toolBar);
 	_toolBar->addAction(ActionCollection::action("LogWindow.Save"));
 	_toolBar->addAction(ActionCollection::action("LogWindow.Clear"));
-	_toolBar->addAction(ActionCollection::action("LogWindow.Pause"));
+	_toolBar->addAction(ActionCollection::action("LogWindow.PlayPause"));
 	addToolBar(_toolBar);
 }
 
@@ -66,8 +70,8 @@ void LogWindow::populateActionCollection() {
 
 	ActionCollection::addAction("LogWindow.Save", new TkAction(app, QKeySequence::Save));
 	ActionCollection::addAction("LogWindow.Clear", new QAction(app));
-	ActionCollection::addAction("LogWindow.Pause", new QAction(app));
-	//FIXME add level action
+	ActionCollection::addAction("LogWindow.PlayPause", new QAction(app));
+	//TODO add level action
 }
 
 void LogWindow::retranslate() {
@@ -79,8 +83,14 @@ void LogWindow::retranslate() {
 	ActionCollection::action("LogWindow.Clear")->setText(tr("&Clear"));
 	ActionCollection::action("LogWindow.Clear")->setIcon(QIcon::fromTheme("edit-clear"));
 
-	ActionCollection::action("LogWindow.Pause")->setText(tr("&Pause"));
-	ActionCollection::action("LogWindow.Pause")->setIcon(QIcon::fromTheme("media-playback-pause"));
+	QAction * action = ActionCollection::action("LogWindow.PlayPause");
+	if (_playMode) {
+		action->setText(tr("&Pause"));
+		action->setIcon(QIcon::fromTheme("media-playback-pause"));
+	} else {
+		action->setText(tr("&Play"));
+		action->setIcon(QIcon::fromTheme("media-playback-start"));
+	}
 
 	_toolBar->setWindowTitle(tr("toolBar"));
 }
@@ -90,8 +100,10 @@ void LogWindow::setText(const QString & text) {
 }
 
 void LogWindow::appendText(const QString & text) {
-	_textEdit->moveCursor(QTextCursor::End);
-	_textEdit->insertPlainText(text);
+	if (_playMode) {
+		_textEdit->moveCursor(QTextCursor::End);
+		_textEdit->insertPlainText(text);
+	}
 }
 
 void LogWindow::saveText() {
@@ -129,4 +141,15 @@ void LogWindow::saveText() {
 				QMessageBox::NoButton);
 		}
 	}
+}
+
+void LogWindow::clearText() {
+	_textEdit->clear();
+}
+
+void LogWindow::playPauseButtonClicked() {
+	_playMode = !_playMode;
+
+	//Change playPauseButton icon & text
+	retranslate();
 }

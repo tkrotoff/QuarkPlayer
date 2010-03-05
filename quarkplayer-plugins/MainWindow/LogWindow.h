@@ -26,7 +26,11 @@ class QTextEdit;
 /**
  * Window showing a log file or any other simple text.
  *
- * This is used mostly for MPlayer and QuarkPlayer logs.
+ * This is used to show MPlayer and QuarkPlayer logs.
+ *
+ * LogWindow is a QMainWindow with Qt::WindowFlags being Qt::Dialog
+ * instead of default QMainWindow Qt::WindowFlags. This way LogWindow
+ * is centered and destroyed when its parent is.
  *
  * @author Tanguy Krotoff
  */
@@ -50,6 +54,10 @@ private slots:
 
 	void saveText();
 
+	void clearText();
+
+	void playPauseButtonClicked();
+
 private:
 
 	void setupUi();
@@ -59,6 +67,13 @@ private:
 	QToolBar * _toolBar;
 
 	QTextEdit * _textEdit;
+
+	/**
+	 * Play or pause the log.
+	 *
+	 * If in pause mode then no more log messages will appended to the QTextEdit.
+	 */
+	bool _playMode;
 };
 
 #endif	//LOGWINDOW_H
