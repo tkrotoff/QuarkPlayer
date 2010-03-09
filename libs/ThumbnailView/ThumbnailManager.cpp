@@ -24,7 +24,9 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
-
+/**
+ * Special Thumbnail QEvent to be used with QCoreApplication::postEvent().
+ */
 struct ThumbnailEvent : public QEvent {
 
 	ThumbnailEvent(const QString & _path, const QImage & _image)

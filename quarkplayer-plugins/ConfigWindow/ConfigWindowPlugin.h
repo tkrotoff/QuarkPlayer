@@ -86,6 +86,11 @@ private:
 
 #include <quarkplayer/PluginFactory.h>
 
+/**
+ * Creates ConfigWindowPlugin plugin.
+ *
+ * @author Tanguy Krotoff
+ */
 class CONFIGWINDOW_API ConfigWindowPluginFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)

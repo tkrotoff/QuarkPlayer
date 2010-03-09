@@ -384,6 +384,9 @@ STDAPI DllCanUnloadNow(void) {
 	return S_FALSE;
 }
 
+/**
+ * Structure helping to register the menu shell extension.
+ */
 struct DOREGSTRUCT {
 	HKEY hRootKey;
 	const TCHAR * szSubKey;

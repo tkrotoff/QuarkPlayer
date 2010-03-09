@@ -104,6 +104,11 @@ private:
 
 #include <quarkplayer/PluginFactory.h>
 
+/**
+ * Creates PlayToolBar plugin.
+ *
+ * @author Tanguy Krotoff
+ */
 class PlayToolBarFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)

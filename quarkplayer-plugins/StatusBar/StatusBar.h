@@ -78,6 +78,11 @@ private:
 
 #include <quarkplayer/PluginFactory.h>
 
+/**
+ * Creates StatusBar plugin.
+ *
+ * @author Tanguy Krotoff
+ */
 class StatusBarFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)

@@ -28,7 +28,7 @@
 #include <QtNetwork/QNetworkReply>
 
 /**
- * A simple track structure.
+ * A simple track (title, artist, album) structure.
  *
  * @see ContentFetcher::start()
  */

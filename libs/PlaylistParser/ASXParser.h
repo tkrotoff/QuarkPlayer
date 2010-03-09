@@ -24,9 +24,9 @@
 #include <QtCore/QString>
 
 /**
- * Parses a ASX (+ WAX and WVX) playlist (Advanced Stream Redirector).
+ * Parses an ASX (+ WAX and WVX) playlist (Advanced Stream Redirector).
  *
- * Developed by Microsoft.
+ * Format developed by Microsoft.
  *
  * ASX playlists should only contain urls.
  * With the introduction of the WMA and WMV container formats,

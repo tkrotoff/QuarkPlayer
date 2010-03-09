@@ -37,6 +37,9 @@ QString SqueezeLabel::plainText() const {
 }
 
 void SqueezeLabel::paintEvent(QPaintEvent * event) {
+	//FIXME: here we have a graphical bug
+	//in case the font is bold or italic since we assume here
+	//the font is a regular one without these attributes
 	QFontMetrics fm = fontMetrics();
 	if (fm.width(plainText()) > contentsRect().width()) {
 		QString elided = fm.elidedText(plainText(), Qt::ElideMiddle, width());

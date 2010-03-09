@@ -100,6 +100,11 @@ bool FileSearchItem::isDir() const {
 	return _isDir;
 }
 
+/**
+ * Sorts the files/items inside FileSearchModel.
+ *
+ * @author Tanguy Krotoff
+ */
 class FileSearchModelSorter {
 public:
 

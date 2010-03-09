@@ -91,6 +91,11 @@ private:
 
 #include <quarkplayer/PluginFactory.h>
 
+/**
+ * Creates FileBrowserWidget plugin.
+ *
+ * @author Tanguy Krotoff
+ */
 class FileBrowserWidgetFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)

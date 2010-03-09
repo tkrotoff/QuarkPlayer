@@ -1,7 +1,7 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2004-2007  Wengo
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ class ThumbnailDirModel;
 class ThumbnailListView;
 
 /**
- * A dialog to select an avatar.
+ * Widget that shows thumnails of images.
  *
  * @author Aurélien Gâteau
  * @author Tanguy Krotoff

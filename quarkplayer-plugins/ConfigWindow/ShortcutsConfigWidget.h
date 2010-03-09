@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,9 +27,20 @@ namespace Ui { class ShortcutsConfigWidget; }
 
 class QTreeWidgetItem;
 
+/**
+ * A shortcut item: a QAction + a list of shortcuts.
+ *
+ * @author Tanguy Krotoff
+ */
 struct ShortcutItem {
 	QAction * action;
 	QList<QKeySequence> shortcuts;
+
+	/**
+	 * Pointer to the QTreeWidgetItem inside _ui->actionList (QTreeWidget).
+	 *
+	 * @see ShortcutsConfigWidget.ui
+	 */
 	QTreeWidgetItem * treeItem;
 };
 

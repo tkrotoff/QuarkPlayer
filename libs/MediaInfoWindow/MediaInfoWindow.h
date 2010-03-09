@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ class QLabel;
 class QToolButton;
 
 /**
- * Shows the album artwork and other infos about the media playing.
+ * Shows the album artwork and other infos about the current media playing.
  *
  * FIXME This should be moved to a quarkplayer plugin. Needs a better
  * plugin support for that (see QtCreator)

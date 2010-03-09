@@ -169,6 +169,11 @@ private:
 
 #include <quarkplayer/PluginFactory.h>
 
+/**
+ * Creates MainWindow plugin.
+ *
+ * @author Tanguy Krotoff
+ */
 class MAINWINDOW_API MainWindowFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)

@@ -21,80 +21,25 @@
 #define WINCONTEXTMENU_H
 
 /**
- * Context menu shell extension for QuarkPlayer.
+ * Windows context menu shell extension for QuarkPlayer.
  *
- * DLL registration: "regsvr32 /s quarkplayercontextmenu.dll"
- * DLL unregistration: "regsvr32 /s /u quarkplayercontextmenu.dll"
+ * DLL registration: <pre>regsvr32 /s quarkplayercontextmenu.dll</pre>
+ * DLL unregistration: <pre>regsvr32 /s /u quarkplayercontextmenu.dll</pre>
  *
  * Original source code taken from:
  * - SciTE Context Menu by Andre Burgaud, see http://www.burgaud.com/category/wscitecm/
  *
  * Documentation links:
- * The Complete Idiot's Guite to Writing Shell Extensions, Part I: http://www.codeproject.com/KB/shell/shellextguide1.aspx
- * Creating Shell Extension Handlers: http://msdn.microsoft.com/en-us/library/cc144067(VS.85).aspx
- * Introduction to COM by Adrian Perez : http://www.flipcode.com/documents/doccom.html
- * Mike Panitz's Introduction to COM: http://faculty.cascadia.edu/mpanitz/com_tutorial/
- * Introduction to COM - What It Is and How to Use It: http://www.codeproject.com/KB/COM/comintro.aspx
- * Introduction to COM by Microsoft: http://msdn.microsoft.com/en-us/library/ms694363(VS.85).aspx
- * COM technical overview by Microsoft: http://msdn.microsoft.com/en-us/library/ms809980.aspx
+ * - The Complete Idiot's Guite to Writing Shell Extensions, Part I: http://www.codeproject.com/KB/shell/shellextguide1.aspx
+ * - Creating Shell Extension Handlers: http://msdn.microsoft.com/en-us/library/cc144067(VS.85).aspx
+ * - Introduction to COM by Adrian Perez : http://www.flipcode.com/documents/doccom.html
+ * - Mike Panitz's Introduction to COM: http://faculty.cascadia.edu/mpanitz/com_tutorial/
+ * - Introduction to COM - What It Is and How to Use It: http://www.codeproject.com/KB/COM/comintro.aspx
+ * - Introduction to COM by Microsoft: http://msdn.microsoft.com/en-us/library/ms694363(VS.85).aspx
+ * - COM technical overview by Microsoft: http://msdn.microsoft.com/en-us/library/ms809980.aspx
  *
  * @author Tanguy Krotoff
  */
-
-//GUID of our shell extension, generated using guidgen.exe provided with Visual C++
-//Please do not copy-paste QuarkPlayer GUUID, just create your own to avoid conflicts
-//{BC6D1C0E-ADF5-44a1-9940-978019DF7985}
-//If changed, then update GUUID inside quarkplayer/WinDefaultApplication.cpp
-DEFINE_GUID(CLSID_ShellExtension, 0xbc6d1c0e, 0xadf5, 0x44a1, 0x99, 0x40, 0x97, 0x80, 0x19, 0xdf, 0x79, 0x85);
-
-
-class CClassFactory : public IClassFactory {
-public:
-
-	CClassFactory();
-	virtual ~CClassFactory();
-
-	/**
-	 * Inherited from interface IUnknown.
-	 *
-	 * @see http://msdn.microsoft.com/en-us/library/ms682521%28VS.85%29.aspx
-	 */
-	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void ** ppvObject);
-
-	/**
-	 * Inherited from interface IUnknown.
-	 *
-	 * @see http://msdn.microsoft.com/en-us/library/ms691379%28VS.85%29.aspx
-	 */
-	ULONG STDMETHODCALLTYPE AddRef();
-
-	/**
-	 * Inherited from interface IUnknown.
-	 *
-	 * @see http://msdn.microsoft.com/en-us/library/ms682317%28VS.85%29.aspx
-	 */
-	ULONG STDMETHODCALLTYPE Release();
-
-	/**
-	 * Inherited from interface IClassFactory.
-	 *
-	 * @see http://msdn.microsoft.com/en-us/library/ms682215%28VS.85%29.aspx
-	 */
-	HRESULT STDMETHODCALLTYPE CreateInstance(IUnknown * pUnkOuter, REFIID riid, void ** ppvObject);
-
-	/**
-	 * Inherited from interface IClassFactory.
-	 *
-	 * @see http://msdn.microsoft.com/en-us/library/ms682332%28VS.85%29.aspx
-	 */
-	HRESULT STDMETHODCALLTYPE LockServer(BOOL fLock);
-
-private:
-
-	ULONG m_cRef;
-};
-
-
 class CContextMenu : public IContextMenu, IShellExtInit {
 public:
 
@@ -161,5 +106,63 @@ private:
 	/** QuarkPlayer icon that will be show inside the context menu. */
 	HBITMAP m_hQuarkPlayerBmp;
 };
+
+/**
+ * Windows context menu shell extension for QuarkPlayer.
+ *
+ * @see CContextMenu
+ * @author Tanguy Krotoff
+ */
+class CClassFactory : public IClassFactory {
+public:
+
+	CClassFactory();
+	virtual ~CClassFactory();
+
+	/**
+	 * Inherited from interface IUnknown.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms682521%28VS.85%29.aspx
+	 */
+	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void ** ppvObject);
+
+	/**
+	 * Inherited from interface IUnknown.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms691379%28VS.85%29.aspx
+	 */
+	ULONG STDMETHODCALLTYPE AddRef();
+
+	/**
+	 * Inherited from interface IUnknown.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms682317%28VS.85%29.aspx
+	 */
+	ULONG STDMETHODCALLTYPE Release();
+
+	/**
+	 * Inherited from interface IClassFactory.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms682215%28VS.85%29.aspx
+	 */
+	HRESULT STDMETHODCALLTYPE CreateInstance(IUnknown * pUnkOuter, REFIID riid, void ** ppvObject);
+
+	/**
+	 * Inherited from interface IClassFactory.
+	 *
+	 * @see http://msdn.microsoft.com/en-us/library/ms682332%28VS.85%29.aspx
+	 */
+	HRESULT STDMETHODCALLTYPE LockServer(BOOL fLock);
+
+private:
+
+	ULONG m_cRef;
+};
+
+//GUID of our shell extension, generated using guidgen.exe provided with Visual C++
+//Please do not copy-paste QuarkPlayer GUUID, just create your own to avoid conflicts
+//{BC6D1C0E-ADF5-44a1-9940-978019DF7985}
+//If changed, then update GUUID inside quarkplayer/WinDefaultApplication.cpp
+DEFINE_GUID(CLSID_ShellExtension, 0xbc6d1c0e, 0xadf5, 0x44a1, 0x99, 0x40, 0x97, 0x80, 0x19, 0xdf, 0x79, 0x85);
 
 #endif	//WINCONTEXTMENU_H

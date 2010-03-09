@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,6 +75,15 @@ private slots:
 
 private:
 
+	/**
+	 * Container inside the video panel.
+	 *
+	 * A container matches one and only one Phonon::MediaObject.
+	 * VideoWidgetPlugin can handle several Phonon::MediaObject
+	 * and VideoContainer does this part.
+	 *
+	 * @author Tanguy Krotoff
+	 */
 	class VideoContainer {
 	public:
 
@@ -104,6 +113,11 @@ private:
 
 #include <quarkplayer/PluginFactory.h>
 
+/**
+ * Creates VideoWidgetPlugin plugin.
+ *
+ * @author Tanguy Krotoff
+ */
 class VideoWidgetPluginFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ namespace Phonon {
 class QDockWidget;
 
 /**
- * Playlist.
+ * Playlist widget.
  *
  * A lot of code (search toolbar) is a copy-paste from FileBrowserWidget.
  *
@@ -148,6 +148,11 @@ private:
 
 #include <quarkplayer/PluginFactory.h>
 
+/**
+ * Creates PlaylistWidget plugin.
+ *
+ * @author Tanguy Krotoff
+ */
 class PLAYLIST_API PlaylistWidgetFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)

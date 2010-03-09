@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,16 @@
 
 #include <QtCore/QString>
 
+/**
+ * Type/format (FLAC, DivX, MP3...) of a file.
+ *
+ * This class supports all the types/formats supported by QuarkPlayer.
+ *
+ * @author Tanguy Krotoff
+ */
 struct FileType {
+
+	/** File type category: Video, Audio, Playlist, Subtitle... */
 	enum Category {
 		CategoryUnknown,
 		Video,
@@ -30,6 +39,7 @@ struct FileType {
 		Subtitle
 	};
 
+	/** File type name/format: FLAC, DivX... */
 	enum Name {
 		NameUnknown,
 
@@ -106,11 +116,40 @@ struct FileType {
 		VOBsub
 	};
 
+	/** File type category: Video, Audio, Playlist, Subtitle... */
 	Category category;
+
+	/** File type name/format: FLAC, DivX... */
 	Name name;
+
+	/**
+	 * Full file type name.
+	 *
+	 * Example: FLAC full name is "Free Lossless Audio Codec (FLAC)"
+	 */
 	QString fullName;
+
+	/**
+	 * Link to the Wikipedia article for this particular file type.
+	 *
+	 * Cannot be a QUrl since this variable does not contain the entire URL,
+	 * just the last part (most important part).
+	 * Example: FLAC Wikipedia article is "Free_Lossless_Audio_Codec"
+	 */
 	QString wikipediaArticle;
+
+	/**
+	 * File extensions (wihtout the dot) matching this particular file type.
+	 *
+	 * Example: FLAC file extensions is flac
+	 */
 	QString extensions;
+
+	/**
+	 * Mime types matching this particular file type.
+	 *
+	 * Example: FLAC mime types are "audio/x-flac,audio/x-oggflac"
+	 */
 	QString mimeTypes;
 };
 

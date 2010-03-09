@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,15 +27,13 @@
 class QAction;
 
 /**
- * The container for all QAction of QuarkPlayer.
+ * Contains all QuarkPlayer' QActions.
  *
  * This is code factorization, idea is to not duplicate QAction.
  * QAction are defined once (with translation, icon...) and used
  * everywhere via this class.
  *
  * Problem with ActionCollection is that every code checking is done at runtime :/
- *
- * Pattern singleton.
  *
  * @author Tanguy Krotoff
  */

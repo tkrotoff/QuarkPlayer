@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 namespace Ui { class AboutWindow; }
 
 /**
- * About dialog of QuarkPlayer.
+ * QuarkPlayer about dialog box.
  *
  * @author Tanguy Krotoff
  */

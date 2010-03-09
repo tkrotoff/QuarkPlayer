@@ -25,7 +25,7 @@
 #include <QtCore/QObject>
 
 /**
- * Makes QuarkPlayer the Windows default application.
+ * Makes QuarkPlayer the default Windows application for multimedia file types.
  *
  * See Windows XP "Set Programs Access and Defaults" (SPAD)
  * Windows Media Player and Winamp use this feature.

@@ -85,7 +85,7 @@ public:
 
 private:
 
-	/** Code factorization. */
+	/** Internal: code factorization. */
 	struct FileData {
 		QString fileName;
 		quint16 compMethod;

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ class QAbstractItemView;
 class QTreeWidgetItem;
 
 /**
- * Window that shows QuarkPlayer configuration.
+ * QuarkPlayer configuration window.
  *
  * @author Tanguy Krotoff
  */
@@ -76,6 +76,9 @@ private:
 
 	Ui::ConfigWindow * _ui;
 
+	/**
+	 * The ConfigWindow contains ConfigWidgets.
+	 */
 	class ConfigWidget {
 	public:
 
@@ -86,7 +89,7 @@ private:
 
 		IConfigWidget * configWidget;
 
-		/** If the IConfigWidget should be in the plugin categorie or not. */
+		/** If the IConfigWidget should be in the plugin category or not. */
 		bool isPlugin;
 	};
 
