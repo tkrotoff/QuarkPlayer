@@ -10,12 +10,14 @@ set(FindSubtitles_SRCS
 	OpenSubtitlesParser.cpp
 	FileChooserWindow.cpp
 	ZipFile.cpp
+	OpenSubtitlesDownload.cpp
 )
 
 qt4_wrap_cpp(FindSubtitles_SRCS
 	FindSubtitles.h
 	FindSubtitlesWindow.h
 	FileChooserWindow.h
+	OpenSubtitlesDownload.h
 )
 
 qt4_wrap_ui(FindSubtitles_SRCS

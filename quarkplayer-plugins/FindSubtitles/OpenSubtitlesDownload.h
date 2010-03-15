@@ -21,6 +21,10 @@
 
 #include <QtCore/QObject>
 
+class QUrl;
+class QNetworkAccessManager;
+class QNetworkReply;
+
 /**
  * Download a subtitle from http://www.opensubtitles.org website.
  *
@@ -36,21 +40,30 @@ public:
 
 	~OpenSubtitlesDownload();
 
-public slots:
+	/**
+	 * Downloads the subtitle given a file name.
+	 *
+	 * Will internally compute the hash of the video and
+	 * send it to opensubtitles.org
+	 *
+	 * @param fileName video file name
+	 * @return URL forged with the video file name or empty URL if something went wrong
+	 */
+	QUrl download(const QString & fileName);
 
-	void download(const QString & fileName);
+	void download(const QUrl & url);
 
 signals:
 
-	void subtitleDownloaded(const QString & fileName);
+	void finished(QNetworkReply * reply);
 
-private slots:
-
-	void downloadFinished(QNetworkReply * reply);
+	void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
 
 private:
 
-	void download(const QUrl & url);
+	QNetworkAccessManager * _networkManager;
+
+	QNetworkReply * _currentNetworkReply;
 };
 
 #endif	//OPENSUBTITLESDOWNLOAD_H

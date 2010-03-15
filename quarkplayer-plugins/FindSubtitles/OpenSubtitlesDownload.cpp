@@ -32,60 +32,36 @@ OpenSubtitlesDownload::OpenSubtitlesDownload(QObject * parent)
 
 	_networkManager = new QNetworkAccessManager(this);
 	connect(_networkManager, SIGNAL(finished(QNetworkReply *)),
-		SLOT(downloadFinished(QNetworkReply *)));
+		SIGNAL(finished(QNetworkReply *)));
+	_currentNetworkReply = NULL;
 }
 
 OpenSubtitlesDownload::~OpenSubtitlesDownload() {
 }
 
-void OpenSubtitlesDownload::download(const QString & fileName) {
-	qDebug() << Q_FUNC_INFO << "Video file name:" << fileName;
+QUrl OpenSubtitlesDownload::download(const QString & fileName) {
+	QUrl url;
 
-	if (fileName.isEmpty()) {
-		return;
-	}
+	qDebug() << Q_FUNC_INFO << "Video file name:" << fileName;
 
 	QString hash = OpenSubtitlesParser::calculateHash(fileName);
 	if (hash.isEmpty()) {
-		qCritical() << Q_FUNC_INFO << "Error: invalid hash";
+		qCritical() << Q_FUNC_INFO << "Error: invalid empty hash";
 	} else {
-		QString url = "http://www.opensubtitles.org/en/search/sublanguageid-all/moviehash-" + hash + "/simplexml";
+		url = QUrl("http://www.opensubtitles.org/en/search/sublanguageid-all/moviehash-" + hash + "/simplexml");
 		download(url);
 	}
+
+	return url;
 }
 
 void OpenSubtitlesDownload::download(const QUrl & url) {
 	qDebug() << Q_FUNC_INFO << "URL:" << url;
 
-	QNetworkReply * reply = _networkManager->get(QNetworkRequest(url));
-	connect(reply, SIGNAL(downloadProgress(qint64, qint64)),
-		SLOT(downloadProgress(qint64, qint64)));
-}
-
-void OpenSubtitlesDownload::downloadFinished(QNetworkReply * reply) {
-	QNetworkReply::NetworkError error = reply->error();
-	QUrl url = reply->url();
-
-	qDebug() << Q_FUNC_INFO << url << error << reply->errorString();
-
-	switch (error) {
-	case QNetworkReply::NoError: {
-		QByteArray data(reply->readAll());
-
-		if (url.toString().contains("simplexml")) {
-			//This means we have finished downloading
-			//the XML from opensubtitles.org
-			emit finished(data);
-			parseXml(data);
-		} else {
-			//This means we have finished downloading
-			//an archive file from opensubtitles.org
-			emit archiveDownloaded(data);
-		}
-		break;
+	if (_currentNetworkReply) {
+		_currentNetworkReply->abort();
 	}
-
-	default:
-		break;
-	}
+	_currentNetworkReply = _networkManager->get(QNetworkRequest(url));
+	connect(_currentNetworkReply, SIGNAL(downloadProgress(qint64, qint64)),
+		SIGNAL(downloadProgress(qint64, qint64)));
 }

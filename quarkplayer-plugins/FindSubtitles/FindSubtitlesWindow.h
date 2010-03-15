@@ -24,15 +24,14 @@
 
 namespace Ui { class FindSubtitlesWindow; }
 
+class OpenSubtitlesDownload;
+
 class QStandardItemModel;
 class QSortFilterProxyModel;
 class QModelIndex;
 class QMenu;
 class QAction;
 class QBuffer;
-class QUrl;
-
-class QNetworkAccessManager;
 class QNetworkReply;
 
 /**
@@ -89,8 +88,6 @@ private:
 
 	void populateActionCollection();
 
-	void download(const QUrl & url);
-
 	void parseXml(const QByteArray & data);
 
 	void archiveDownloaded(const QByteArray & data);
@@ -107,7 +104,7 @@ private:
 
 	QMenu * _contextMenu;
 
-	QNetworkAccessManager * _networkManager;
+	OpenSubtitlesDownload * _subtitlesDownload;
 };
 
 #endif	//FINDSUBTITLESWINDOW_H

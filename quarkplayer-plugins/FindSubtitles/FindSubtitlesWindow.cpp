@@ -22,6 +22,7 @@
 #include "ui_FindSubtitlesWindow.h"
 
 #include "OpenSubtitlesParser.h"
+#include "OpenSubtitlesDownload.h"
 #include "FileChooserWindow.h"
 #include "ZipFile.h"
 
@@ -35,8 +36,6 @@
 
 #include <QtGui/QtGui>
 
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 
 #include <QtCore/QUrl>
@@ -96,9 +95,11 @@ FindSubtitlesWindow::FindSubtitlesWindow(QWidget * parent)
 	connect(_ui->treeView, SIGNAL(customContextMenuRequested(const QPoint &)),
 		SLOT(showContextMenu(const QPoint &)));
 
-	_networkManager = new QNetworkAccessManager(this);
-	connect(_networkManager, SIGNAL(finished(QNetworkReply *)),
+	_subtitlesDownload = new OpenSubtitlesDownload(this);
+	connect(_subtitlesDownload, SIGNAL(finished(QNetworkReply *)),
 		SLOT(downloadFinished(QNetworkReply *)));
+	connect(_subtitlesDownload, SIGNAL(downloadProgress(qint64, qint64)),
+		SLOT(downloadProgress(qint64, qint64)));
 
 	populateActionCollection();
 	connect(ActionCollection::action("FindSubtitles.Download"), SIGNAL(triggered()), SLOT(downloadButtonClicked()));
@@ -178,24 +179,17 @@ void FindSubtitlesWindow::setVideoFileName(const QString & fileName) {
 
 	_model->setRowCount(0);
 
-	QString hash = OpenSubtitlesParser::calculateHash(fileName);
-	if (hash.isEmpty()) {
-		qCritical() << __FUNCTION__ << "Error: invalid hash";
-	} else {
-		QString url = "http://www.opensubtitles.org/en/search/sublanguageid-all/moviehash-" + hash + "/simplexml";
-		download(url);
+	//Downloads the subtitle given a file name
+	QUrl url = _subtitlesDownload->download(fileName);
 
+	if (!url.isEmpty()) {
 		_lastFileName = fileName;
+
+		qDebug() << __FUNCTION__ << "URL:" << url;
+		_ui->statusLabel->setText(tr("Connecting to %1...").arg(url.host()));
+	} else {
+		_ui->statusLabel->setText(tr("Could not determine OpenSubtitles.org URL"));
 	}
-}
-
-void FindSubtitlesWindow::download(const QUrl & url) {
-	qDebug() << __FUNCTION__ << "URL:" << url;
-	_ui->statusLabel->setText(tr("Connecting to %1...").arg(url.host()));
-
-	QNetworkReply * reply = _networkManager->get(QNetworkRequest(url));
-	connect(reply, SIGNAL(downloadProgress(qint64, qint64)),
-		SLOT(downloadProgress(qint64, qint64)));
 }
 
 void FindSubtitlesWindow::currentItemChanged(const QModelIndex & current, const QModelIndex & /*previous*/) {
@@ -313,8 +307,8 @@ void FindSubtitlesWindow::parseXml(const QByteArray & xml) {
 void FindSubtitlesWindow::itemActivated(const QModelIndex & index) {
 	int row = _filter->mapToSource(index).row();
 
-	QString url = _model->item(row, COLUMN_NAME)->data().toString();
-	download(url);
+	QUrl url(_model->item(row, COLUMN_NAME)->data().toString());
+	_subtitlesDownload->download(url);
 }
 
 void FindSubtitlesWindow::downloadButtonClicked() {
