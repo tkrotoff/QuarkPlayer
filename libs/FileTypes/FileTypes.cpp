@@ -45,7 +45,7 @@ static const FileType FILETYPELIST[FILETYPELIST_SIZE] = {
 	{ FileType::Video, FileType::NSV, "Nullsoft Streaming Video (NSV)", "Nullsoft_Streaming_Video", "nsv", "" },
 	{ FileType::Video, FileType::OGM, "Ogg Media (OGM)", "Ogg_Media", "ogm", "application/ogg,application/x-ogg,video/x-ogg" },
 	{ FileType::Video, FileType::Tarkin, "Tarkin", "Tarkin_(codec)", "", "" },
-	{ FileType::Video, FileType::Theora, "Theora", "Theora", "ogv", "video/ogg,video/x-ogg" },
+	{ FileType::Video, FileType::Theora, "Theora", "Theora", "ogv,ogg", "video/ogg,video/x-ogg" },
 	{ FileType::Video, FileType::RealMedia, "RealMedia", "RealMedia", "rv,rmvb", "application/vnd.rn-realmedia" },
 	{ FileType::Video, FileType::WMV, "Windows Media Video (WMV)", "Windows_Media_Video", "wmv", "video/x-ms-wmv" },
 	{ FileType::Video, FileType::DivX, "DivX Media Format (DMF)", ".divx", "divx", "video/divx" },
