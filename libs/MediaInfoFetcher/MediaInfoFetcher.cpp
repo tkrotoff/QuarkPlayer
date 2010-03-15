@@ -268,11 +268,12 @@ void MediaInfoFetcher::startTagLibResolver() {
 	}
 
 	//Taken from Amarok, file: CollectionScanner.cpp
-	//See http://gitorious.org/amarok/amarok/trees/master/utilities/collectionscanner/CollectionScanner.cpp
+	//See http://gitorious.org/amarok/amarok/blobs/master/utilities/collectionscanner/CollectionScanner.cpp
 #ifdef Q_WS_WIN
 	const wchar_t * encodedName = reinterpret_cast<const wchar_t *>(_mediaInfo.fileName().utf16());
 #else
-	const char * encodedName = QFile::encodeName(_mediaInfo.fileName()).constData();
+	QByteArray fileName = QFile::encodeName(_mediaInfo.fileName());
+	const char * encodedName = fileName.constData(); //Valid as long as fileName exists
 #endif	//Q_WS_WIN
 
 	TagLib::FileRef fileRef(encodedName, true, readStyle);

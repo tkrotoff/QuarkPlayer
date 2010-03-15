@@ -162,23 +162,22 @@ QUrl AmazonCoverArt::amazonUrl(const ContentFetcherTrack & track) const {
 }
 
 void AmazonCoverArt::start(const ContentFetcherTrack & track, const QString & language) {
-	Q_UNUSED(language);
+	ContentFetcher::start(track, language);
 
-	_track = track;
-
-	_track.album.replace(QRegExp("[[(<{].+"), QString());
-	_track.album.replace("-", QString());
-	_track.album = _track.album.trimmed();
-	_track.artist.replace(QRegExp("[[(<{].+"), QString());
-	_track.artist.replace("-", QString());
-	_track.artist = _track.artist.trimmed();
-	_track.amazonASIN = _track.amazonASIN.trimmed();
+	ContentFetcherTrack tmp = track;
+	tmp.album.replace(QRegExp("[[(<{].+"), QString());
+	tmp.album.replace("-", QString());
+	tmp.album = tmp.album.trimmed();
+	tmp.artist.replace(QRegExp("[[(<{].+"), QString());
+	tmp.artist.replace("-", QString());
+	tmp.artist = tmp.artist.trimmed();
+	tmp.amazonASIN = tmp.amazonASIN.trimmed();
 
 	disconnect(_amazonCoverArtDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
 	connect(_amazonCoverArtDownloader, SIGNAL(finished(QNetworkReply *)),
 		SLOT(gotCoverArtAmazonXML(QNetworkReply *)));
 
-	QUrl url = amazonUrl(_track);
+	QUrl url = amazonUrl(tmp);
 
 	qDebug() << __FUNCTION__ << "Looking up for the amazon album cover art:" << url;
 

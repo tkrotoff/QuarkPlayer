@@ -56,6 +56,9 @@ public:
 	/**
 	 * Starts looking for the content given track informations.
 	 *
+	 * When inheriting this class you must call this virtual pure method
+	 * otherwise _track and _language won't be initialized.
+	 *
 	 * @param track track informations
 	 * @param language language/locale (en, fr, de...)
 	 */
@@ -92,14 +95,28 @@ protected:
 	 */
 	void emitFinishedWithoutError(const QUrl & url, const QByteArray & content);
 
-	/** Can be reused by subclasses, code factorization. */
+	/** Gets value of _track. */
+	ContentFetcherTrack getTrack() const;
+
+	/** Gets value of _language. */
+	QString getLanguage() const;
+
+private:
+
+	/**
+	 * Can be reused by subclasses, code factorization.
+	 * Do not modify _track
+	 *
+	 * ContentFetcher::start() saves track for later comparison
+	 * See AmazonCoverArt and MediaDataWidget:
+	 * Saving _track avoids a bug: write an amazon cover art inside the wrong
+	 * directory due to network lag since HTTP requests are asynchronous
+	 * One could think about a unique id for each network request but it is less user friendly?
+	 */
 	ContentFetcherTrack _track;
 
 	/** Can be reused by subclasses, code factorization. */
 	QString _language;
-
-private:
-
 };
 
 #endif	//CONTENTFETCHER_H

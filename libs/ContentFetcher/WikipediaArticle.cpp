@@ -61,12 +61,12 @@ QUrl WikipediaArticle::wikipediaSearchUrl(const QString & searchTerm, const QStr
 }
 
 void WikipediaArticle::start(const ContentFetcherTrack & track, const QString & language) {
-	_track = track;
-	_language = language;
+	ContentFetcher::start(track, language);
 
 	qDebug() << __FUNCTION__ << "Looking up for the Wikipedia article";
 
-	_wikipediaSearchDownloader->get(QNetworkRequest(wikipediaSearchUrl(_track.artist, _language)));
+	QNetworkRequest request(wikipediaSearchUrl(getTrack().artist, getLanguage()));
+	_wikipediaSearchDownloader->get(request);
 }
 
 void WikipediaArticle::gotWikipediaSearchAnswer(QNetworkReply * reply) {
@@ -102,13 +102,13 @@ void WikipediaArticle::gotWikipediaSearchAnswer(QNetworkReply * reply) {
 	static QRegExp rx_artist_de("^.*(Band|Musiker).*$");
 	static QRegExp rx_artist_pl("^.*(grupa muzyczna).*$");
 
-	if (_language == "fr") {
+	if (getLanguage() == "fr") {
 		rx_artist = &rx_artist_fr;
-	} else if (_language == "es") {
+	} else if (getLanguage() == "es") {
 		rx_artist = &rx_artist_es;
-	} else if (_language == "de") {
+	} else if (getLanguage() == "de") {
 		rx_artist = &rx_artist_de;
-	} else if (_language == "pl") {
+	} else if (getLanguage() == "pl") {
 		rx_artist = &rx_artist_pl;
 	} else {
 		//Default language is english

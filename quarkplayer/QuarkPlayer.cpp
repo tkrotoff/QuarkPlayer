@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,13 +62,13 @@ QString QuarkPlayer::currentMediaObjectTitle() const {
 	QString fullTitle;
 
 	if (_currentMediaObject) {
-		QString filename = _currentMediaObject->currentSource().fileName();
+		QString fileName = _currentMediaObject->currentSource().fileName();
 		QMultiMap<QString, QString> metaData = _currentMediaObject->metaData();
 
 		QString artist = metaData.value("ARTIST");
 		QString title = metaData.value("TITLE");
 		if (artist.isEmpty() && title.isEmpty()) {
-			fullTitle = QFileInfo(filename).completeBaseName();
+			fullTitle = QFileInfo(fileName).completeBaseName();
 		} else {
 			if (!title.isEmpty()) {
 				fullTitle = title;
@@ -101,8 +101,8 @@ void QuarkPlayer::play(const Phonon::MediaSource & mediaSource) {
 		//from device D:/
 		//Let's use a regexp to detect this case
 		static QRegExp rx_windows_cdda("^(\\D+)Track(\\d+).cda$");
-		QString filename = tmp.fileName();
-		if (!filename.isEmpty() && rx_windows_cdda.indexIn(filename) > -1) {
+		QString fileName = tmp.fileName();
+		if (!fileName.isEmpty() && rx_windows_cdda.indexIn(fileName) > -1) {
 			QString deviceName = rx_windows_cdda.cap(1);
 			int track = rx_windows_cdda.cap(2).toInt();
 			_currentMediaController->setCurrentTitle(track);

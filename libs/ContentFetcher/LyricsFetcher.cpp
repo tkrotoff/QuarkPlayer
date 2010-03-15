@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,15 +47,13 @@ QUrl LyricsFetcher::lyricWikiUrl(const QString & artist, const QString & title) 
 }
 
 void LyricsFetcher::start(const ContentFetcherTrack & track, const QString & language) {
-	Q_UNUSED(language);
-
-	_track = track;
+	ContentFetcher::start(track, language);
 
 	disconnect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
 	connect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)),
 		SLOT(gotLyricsUrl(QNetworkReply *)));
 
-	QUrl url = lyricWikiUrl(_track.artist, _track.title);
+	QUrl url = lyricWikiUrl(getTrack().artist, getTrack().title);
 
 	qDebug() << __FUNCTION__ << "Looking up for the lyrics:" << url;
 

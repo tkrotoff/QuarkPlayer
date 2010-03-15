@@ -30,6 +30,19 @@ ContentFetcher::ContentFetcher(QObject * parent)
 ContentFetcher::~ContentFetcher() {
 }
 
+void ContentFetcher::start(const ContentFetcherTrack & track, const QString & language) {
+	_track = track;
+	_language = language;
+}
+
+ContentFetcherTrack ContentFetcher::getTrack() const {
+	return _track;
+}
+
+QString ContentFetcher::getLanguage() const {
+	return _language;
+}
+
 void ContentFetcher::emitFinishedWithError(QNetworkReply::NetworkError error, const QUrl & url) {
 	emit finished(error, url, QByteArray(), _track);
 }

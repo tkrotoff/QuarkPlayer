@@ -84,6 +84,7 @@ private:
 	 *
 	 * Used to avoid a bug: writing a cover art inside the wrong
 	 * directory due to network lag since HTTP requests are asynchronous.
+	 * One could think about a unique id for each network request but it is less user friendly?
 	 */
 	QString _currentAlbum;
 

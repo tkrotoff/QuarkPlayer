@@ -143,6 +143,7 @@ void MediaDataWidget::downloadAmazonCoverArt(const MediaInfo & mediaInfo) {
 			track.artist = artist;
 			track.album = album;
 			track.amazonASIN = amazonASIN;
+			_currentAlbum = album;
 			_amazonCoverArt->start(track);
 		}
 	}
@@ -151,7 +152,7 @@ void MediaDataWidget::downloadAmazonCoverArt(const MediaInfo & mediaInfo) {
 void MediaDataWidget::amazonCoverArtFound(QNetworkReply::NetworkError error, const QUrl & url, const QByteArray & amazonCoverArt, const ContentFetcherTrack & track) {
 	if (error == QNetworkReply::NoError) {
 		//Check if the cover art received does match the current album playing
-		//Network replies can be too long since HTTP requests are asynchronous
+		//Network replies can be long since HTTP requests are asynchronous
 		if (_currentAlbum != track.album) {
 			return;
 		}
@@ -178,7 +179,7 @@ void MediaDataWidget::amazonCoverArtFound(QNetworkReply::NetworkError error, con
 		}
 	} else {
 		//Check if the cover art received does match the current album playing
-		//Network replies can be too long since HTTP requests are asynchronous
+		//Network replies can be long since HTTP requests are asynchronous
 		if (_currentAlbum != track.album) {
 			return;
 		}
