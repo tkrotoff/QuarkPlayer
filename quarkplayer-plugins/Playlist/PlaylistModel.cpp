@@ -158,11 +158,17 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 
 		switch (column) {
 		case COLUMN_TRACK: {
-			TrackDisplayMode trackDisplayMode = static_cast<TrackDisplayMode>(Config::instance().value(PLAYLIST_TRACK_DISPLAY_MODE_KEY).toInt());
+			TrackDisplayMode trackDisplayMode = static_cast<TrackDisplayMode>(
+				Config::instance().value(PLAYLIST_TRACK_DISPLAY_MODE_KEY).toInt()
+			);
 			switch (trackDisplayMode) {
-			case TrackDisplayModeNormal:
-				tmp = mediaInfo.metaDataValue(MediaInfo::TrackNumber);
+			case TrackDisplayModeNormal: {
+				int trackNumber = mediaInfo.metaDataValue(MediaInfo::TrackNumber).toInt();
+				if (trackNumber > 0) {
+					tmp = trackNumber;
+				}
 				break;
+			}
 			case TrackDisplayModeWinamp:
 				//Display track numbers like Winamp
 				tmp = QString::number(row);
