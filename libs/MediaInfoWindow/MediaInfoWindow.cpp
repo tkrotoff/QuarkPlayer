@@ -156,8 +156,14 @@ void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {
 	_ui->filenameLineEdit->setText(mediaInfo.fileName());
 
 	//Metadata
-	_ui->trackLineEdit->setText(QString::number(mediaInfo.metaDataValue(MediaInfo::TrackNumber).toInt()));
-	_ui->discLineEdit->setText(QString::number(mediaInfo.metaDataValue(MediaInfo::DiscNumber).toInt()));
+	int trackNumber = mediaInfo.metaDataValue(MediaInfo::TrackNumber).toInt();
+	if (trackNumber > 0) {
+		_ui->trackLineEdit->setText(QString::number(trackNumber));
+	}
+	int discNumber = mediaInfo.metaDataValue(MediaInfo::DiscNumber).toInt();
+	if (discNumber > 0) {
+		_ui->discLineEdit->setText(QString::number(discNumber));
+	}
 	_ui->titleLineEdit->setText(mediaInfo.metaDataValue(MediaInfo::Title).toString());
 	_ui->artistLineEdit->setText(mediaInfo.metaDataValue(MediaInfo::Artist).toString());
 	_ui->albumLineEdit->setText(mediaInfo.metaDataValue(MediaInfo::Album).toString());
@@ -175,7 +181,10 @@ void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {
 	_ui->publisherLineEdit->setText(mediaInfo.metaDataValue(MediaInfo::Publisher).toString());
 	_ui->copyrightLineEdit->setText(mediaInfo.metaDataValue(MediaInfo::Copyright).toString());
 	_ui->urlLineEdit->setText(mediaInfo.metaDataValue(MediaInfo::URL).toString());
-	_ui->bpmLineEdit->setText(QString::number(mediaInfo.metaDataValue(MediaInfo::BPM).toInt()));
+	int bpm = mediaInfo.metaDataValue(MediaInfo::BPM).toInt();
+	if (bpm > 0) {
+		_ui->bpmLineEdit->setText(QString::number(bpm));
+	}
 	_ui->encodedByLineEdit->setText(mediaInfo.metaDataValue(MediaInfo::EncodedBy).toString());
 
 	//MusicBrainz tags
