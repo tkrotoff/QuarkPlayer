@@ -55,17 +55,6 @@ void Translator::load(const QString & language) {
 		installTranslator();
 	}
 
-	//FIXME when switching to QIcon::fromTheme()
-	//Don't do that, retranslate() is also used for changing icons without
-	//restarting the application
-	//static QString lastLoadedLanguage("this string should be unique");
-	//if (language == lastLoadedLanguage) {
-	//	qWarning() << __FUNCTION__ << "Language already loaded:" << language;
-	//	return;
-	//}
-	//lastLoadedLanguage = language;
-	///
-
 	QString myLanguage = language;
 	if (myLanguage.isEmpty()) {
 		//Takes the default ISO 639-1 language name from QLocale
@@ -75,19 +64,23 @@ void Translator::load(const QString & language) {
 		myLanguage.resize(2);
 	}
 
-	//Qt translation
-	bool qtRet = loadLanguage(_qtTranslator, "qt", myLanguage, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-	if (!qtRet) {
-		//No Qt framework installed
-		//Try with the application path
-		qtRet = loadLanguage(_qtTranslator, "qt", myLanguage, _translationsPath);
-	}
-
 	//Application translation
-	bool appRet = loadLanguage(_appTranslator, QCoreApplication::applicationName().toLower(), myLanguage, _translationsPath);
+	bool app = loadLanguage(_appTranslator, QCoreApplication::applicationName().toLower(), myLanguage, _translationsPath);
 
-	//Both Qt and app language loading failed
-	if (!qtRet && !appRet) {
+	if (app) {
+
+		//Qt translation
+		//Loads the Qt translation only if the application translation worked
+		//otherwise it can be awkward for the user to have some parts of the application translated
+		bool qt = loadLanguage(_qtTranslator, "qt", myLanguage, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+		if (!qt) {
+			//No Qt framework installed
+			//Try with the application path
+			qt = loadLanguage(_qtTranslator, "qt", myLanguage, _translationsPath);
+		}
+
+	} else {
+		//Loading failed
 		removeTranslator();
 	}
 }
