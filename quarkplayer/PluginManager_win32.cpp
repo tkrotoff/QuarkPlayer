@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,10 +35,10 @@ void PluginManagerWin32::setDllDirectory(const char * path) {
 	Q_ASSERT(path);
 
 #ifdef Q_WS_WIN
-	//Use SetEnvironmentVariable() ?
+	//Use SetEnvironmentVariable()?
 	//See http://msdn.microsoft.com/en-us/library/ms686206.aspx
 	//See http://www.google.com/codesearch/p?hl=en#k_74qd9ASEQ/trunk/psycle/src/psycle/host/Plugin.cpp&q=SetDllDirectory
-	//SetDllDirectoryA(".\\plugins");
-	SetDllDirectoryA(path);
+	//SetDllDirectory(".\\plugins");
+	SetDllDirectory(path);
 #endif	//Q_WS_WIN
 }

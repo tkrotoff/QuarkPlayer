@@ -64,6 +64,10 @@ public:
 	void setFilesFoundLimit(int filesFoundLimit);
 
 	/**
+	 * File name pattern to match.
+	 *
+	 * By default the pattern is empty and thus matches every file.
+	 *
 	 * @param pattern pattern to match
 	 */
 	void setPattern(const QRegExp & pattern);
@@ -72,6 +76,7 @@ public:
 	 * Sets the file extensions to match.
 	 *
 	 * The unmatching file will be discarsed.
+	 * By default all extensions match (empty extensions list).
 	 *
 	 * @param extensions file extensions to match ex: "what is love.mp3" matches "mp3" extension
 	 */
@@ -79,6 +84,8 @@ public:
 
 	/**
 	 * Sets if we filter directories names aswell or not.
+	 *
+	 * Default value is false.
 	 */
 	void setFindDirs(bool findDirs);
 

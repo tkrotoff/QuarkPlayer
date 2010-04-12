@@ -113,7 +113,7 @@ void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	//Windows specific code
 	//Needs to be in different .cpp file otherwise it fails to compile
 	PluginManagerWin32::setErrorMode();
-	PluginManagerWin32::setDllDirectory(_pluginDir.toUtf8().constData());
+	PluginManagerWin32::setDllDirectory(QFile::encodeName(_pluginDir));
 	///
 
 	//List of all the available plugins

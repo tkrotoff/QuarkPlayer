@@ -32,6 +32,8 @@
 	#include <dirent.h>
 #endif	//Q_WS_WIN
 
+#include <cerrno>
+
 static const int DEFAULT_FILES_FOUND_LIMIT = 500;
 
 FindFiles::FindFiles(QObject * parent)
@@ -243,7 +245,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 
 void FindFiles::findAllFilesUNIX(const QString & path) {
 #ifndef Q_WS_WIN
-	//http://www.commentcamarche.net/forum/affich-1699952-langage-c-recuperer-un-dir
+	//See http://www.commentcamarche.net/forum/affich-1699952-langage-c-recuperer-un-dir
 
 	if (_stop) {
 		return;
@@ -251,17 +253,16 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 
 	//Warning: opendir() is limited to PATH_MAX
 	//See http://insanecoding.blogspot.com/2007/11/pathmax-simply-isnt.html
-	DIR * dir = opendir(path.toUtf8().constData());
+	DIR * dir = opendir(QFile::encodeName(path));
 	if (!dir) {
-		qCritical() << __FUNCTION__ << "Error: opendir() failed";
-		perror(path.toUtf8().constData());
+		qCritical() << Q_FUNC_INFO << "opendir() failed, path:" << path << "errno:" << strerror(errno);
 	} else {
 		struct dirent * entry = NULL;
 		while ((entry = readdir(dir))) {
 			if (_stop) {
 				break;
 			}
-			QString name(entry->d_name);
+			QString name(QFile::decodeName(entry->d_name));
 
 			//Avoid '.', '..' and other hidden files
 			if (!name.startsWith('.')) {
@@ -299,8 +300,7 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 
 		int ret = closedir(dir);
 		if (ret != 0) {
-			qCritical() << __FUNCTION__ << "Error: closedir() failed";
-			perror(path.toUtf8().constData());
+			qCritical() << Q_FUNC_INFO << "closedir() failed, path:" << path << "errno:" << strerror(errno);
 		}
 	}
 #else

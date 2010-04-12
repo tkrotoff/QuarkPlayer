@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,34 +24,46 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifndef lstat
-	//Under MinGW, lstat() does not exist
-	#define lstat stat
-#endif	//!lstat
+#include <cerrno>
 
 bool TkFile::isDir(const QString & path) {
+	bool dir = false;
+
 #ifdef Q_CC_MSVC
+	//See http://msdn.microsoft.com/en-us/library/14h5k7ff.aspx
+	//_wstat does not work with Windows Vista symbolic links.
+	//In these cases, _wstat will always report a file size of 0.
+	//_stat does work correctly with symbolic links.
+
 	const wchar_t * encodedName = reinterpret_cast<const wchar_t *>(path.utf16());
 	struct _stat statbuf;
-	_wstat(encodedName, &statbuf);
-	return ((statbuf.st_mode & S_IFMT) == S_IFDIR);
+	int error = _wstati64(encodedName, &statbuf);
+	if (error != 0) {
+		qCritical() << Q_FUNC_INFO << "_wstat() failed, path:" << path << "errno:" << strerror(errno);
+	} else {
+		dir = (statbuf.st_mode & S_IFMT) == S_IFDIR;
+	}
 #else
-	const char * encodedName = path.toUtf8().constData();
 	struct stat statbuf;
-	//lstat() works with symbolic links, stat() does not
-	lstat(encodedName, &statbuf);
-	return S_ISDIR(statbuf.st_mode);
+	int error = stat(QFile::encodeName(path), &statbuf);
+	if (error != 0) {
+		qCritical() << Q_FUNC_INFO << "stat() failed, path:" << path << "errno:" << strerror(errno);
+	} else {
+		dir = S_ISDIR(statbuf.st_mode);
+	}
 #endif	//Q_CC_MSVC
+
+	return dir;
 }
 
-QString TkFile::relativeFilePath(const QString & path, const QString & filename) {
+QString TkFile::relativeFilePath(const QString & path, const QString & fileName) {
 	//FIXME Yes this can be improved
 	//Does not handle this case for example:
 	//path = "C:\Documents and Settings\tanguy_k\My Documents\My Music\My Playlists\"
 	//filename = "C:/Documents and Settings/tanguy_k/My Documents/Downloads/Cindy Sander - Papillon de lumiere 3'37.mp3"
 	//result = "..\..\Downloads\Cindy Sander - Papillon de lumiere 3'37.mp3"
 
-	QString tmp(filename);
+	QString tmp(fileName);
 	tmp = QDir::toNativeSeparators(tmp);
 
 	QString pathTmp(path + '/');

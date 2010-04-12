@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 /**
  * Useful functions for QFile.
  *
- * This has been reimplemented since QFile and QFileInfo is pretty slow.
+ * This has been reimplemented since QFile and QFileInfo are slow.
  *
  * @see QFile
  * @see QFileInfo
@@ -38,7 +38,7 @@ public:
 	/**
 	 * Checks if a path is a directory or a file.
 	 *
-	 * QFileInfo::isDir() is slow, this implementation uses lstat() under UNIX
+	 * QFileInfo::isDir() is slow, this implementation uses stat() under UNIX
 	 * and _wstat() under Windows.
 	 *
 	 * @return true if it is a path; false otherwise
@@ -51,10 +51,10 @@ public:
 	 *
 	 * Example:
 	 * path = "C:\Documents and Settings\tanguy_k\My Documents\My Music"
-	 * filename = "C:/Documents and Settings/tanguy_k/My Documents/My Music/Cindy Sander - Papillon de lumiere 3'37.mp3"
+	 * fileName = "C:/Documents and Settings/tanguy_k/My Documents/My Music/Cindy Sander - Papillon de lumiere 3'37.mp3"
 	 * result = "Cindy Sander - Papillon de lumiere 3'37.mp3"
 	 */
-	static QString relativeFilePath(const QString & path, const QString & filename);
+	static QString relativeFilePath(const QString & path, const QString & fileName);
 
 private:
 
