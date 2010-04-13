@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ public:
 	bool loadPlugin(PluginData & pluginData);
 
 	/**
-	 * Loads/reloads a previously disabled plugin that matches the given plugin filename.
+	 * Loads/reloads a previously disabled plugin that matches the given plugin fileName.
 	 *
 	 * If no previously disabled plugin exists then a new one will be created.
 	 *
@@ -57,9 +57,9 @@ public:
 	 * PluginManager::instance().loadDisabledPlugin("name_of_my_plugin_without_file_extension");
 	 * </pre>
 	 *
-	 * @param filename plugin to reload
+	 * @param fileName plugin to reload
 	 */
-	bool loadDisabledPlugin(const QString & filename);
+	bool loadDisabledPlugin(const QString & fileName);
 
 	/**
 	 * Deletes/unloads a given plugin and saves the plugins configuration.
@@ -68,8 +68,8 @@ public:
 	 */
 	bool deletePlugin(PluginData & pluginData);
 
-	/** Gets the first loaded plugin interface matching the given filename. */
-	PluginInterface * pluginInterface(const QString & filename) const;
+	/** Gets the first loaded plugin interface matching the given fileName. */
+	PluginInterface * pluginInterface(const QString & fileName) const;
 
 	/** Gets a plugin given a unique ID, search among all the available plugins (loaded + disabled). */
 	PluginData pluginData(const QUuid & uuid) const;
@@ -138,7 +138,7 @@ private:
 	QString findPluginDir() const;
 
 	/** QPluginLoader needs the plugin file extension unlike QLibrary who does not need it. */
-	QString getRealPluginFileName(const QString & filename);
+	QString getRealPluginFileName(const QString & fileName);
 
 	QuarkPlayer * _quarkPlayer;
 

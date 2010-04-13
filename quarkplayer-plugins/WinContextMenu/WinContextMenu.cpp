@@ -40,12 +40,12 @@ unsigned _dllCount = 0;
 //HINSTANCE of our DLL
 HINSTANCE _hModule = NULL;
 
-static const TCHAR * menuItems[] = {
+static const wchar_t * menuItems[] = {
 	L"Play with QuarkPlayer",
 	L"Enqueue in QuarkPlayer"
 };
 
-void MsgBoxError(HWND hWnd, const TCHAR * message) {
+void MsgBoxError(HWND hWnd, const wchar_t * message) {
 	MessageBox(hWnd, message,
 		L"QuarkPlayer Shell Extension",
 		MB_OK | MB_ICONSTOP
@@ -54,9 +54,9 @@ void MsgBoxError(HWND hWnd, const TCHAR * message) {
 
 #include <sys/stat.h>
 
-BOOL IsDir(TCHAR * path) {
-	struct _stat statbuf;
-	_wstat(path, &statbuf);
+BOOL IsDir(const wchar_t * path) {
+	struct _stati64 statbuf;
+	int error = _wstati64(path, &statbuf);
 	return ((statbuf.st_mode & S_IFMT) == S_IFDIR);
 }
 
@@ -124,7 +124,7 @@ HRESULT STDMETHODCALLTYPE CContextMenu::QueryContextMenu(HMENU hMenu, UINT index
 	if (SUCCEEDED(hres)) {
 		if (stgMedium.hGlobal) {
 			//First file selected by the user
-			TCHAR fileUserClickedOn[MAX_PATH];
+			wchar_t fileUserClickedOn[MAX_PATH];
 			DragQueryFile((HDROP) stgMedium.hGlobal, 0, fileUserClickedOn, MAX_PATH);
 			isDir = IsDir(fileUserClickedOn);
 		}
@@ -213,7 +213,7 @@ HRESULT STDMETHODCALLTYPE CContextMenu::GetCommandString(UINT_PTR idCmd, UINT uF
 	//There is no need to deal with the different uFlags, just GCS_HELPTEXT
 	switch (uFlags) {
 	case GCS_HELPTEXT:
-		lstrcpyn((TCHAR *) pszName, menuItems[idCmd], cchMax);
+		lstrcpyn((wchar_t *) pszName, menuItems[idCmd], cchMax);
 		break;
 	default:
 		return E_INVALIDARG;
@@ -221,7 +221,7 @@ HRESULT STDMETHODCALLTYPE CContextMenu::GetCommandString(UINT_PTR idCmd, UINT uF
 	return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE CContextMenu::InvokeQuarkPlayer(HWND hParent, const TCHAR * args) {
+HRESULT STDMETHODCALLTYPE CContextMenu::InvokeQuarkPlayer(HWND hParent, const wchar_t * args) {
 	//Get the number of files selected by the user
 	unsigned nbFilesSelected = 0;
 	STGMEDIUM stgMedium;
@@ -235,17 +235,17 @@ HRESULT STDMETHODCALLTYPE CContextMenu::InvokeQuarkPlayer(HWND hParent, const TC
 	///
 
 	//Module full path
-	TCHAR moduleFileName[MAX_PATH];
+	wchar_t moduleFileName[MAX_PATH];
 	GetModuleFileName(_hModule, moduleFileName, MAX_PATH);
 	//Get folder name
-	TCHAR moduleDrive[_MAX_DRIVE];
-	TCHAR modulePath[MAX_PATH];
+	wchar_t moduleDrive[_MAX_DRIVE];
+	wchar_t modulePath[MAX_PATH];
 	_wsplitpath(moduleFileName, moduleDrive, modulePath, NULL, NULL);
 
 	//quarkplayer.exe full path
-	TCHAR * commandLine;
-	unsigned commandLineSize = MAX_PATH * (nbFilesSelected + 1) * sizeof(TCHAR);
-	commandLine = (TCHAR *) CoTaskMemAlloc(commandLineSize);
+	wchar_t * commandLine;
+	unsigned commandLineSize = MAX_PATH * (nbFilesSelected + 1) * sizeof(wchar_t);
+	commandLine = (wchar_t *) CoTaskMemAlloc(commandLineSize);
 	if (!commandLine) {
 		MsgBoxError(hParent, L"Insufficient memory available.");
 		return E_OUTOFMEMORY;
@@ -258,7 +258,7 @@ HRESULT STDMETHODCALLTYPE CContextMenu::InvokeQuarkPlayer(HWND hParent, const TC
 	lstrcat(commandLine, args);
 
 	//Files selected by the user
-	TCHAR fileUserClickedOn[MAX_PATH];
+	wchar_t fileUserClickedOn[MAX_PATH];
 	for (unsigned i = 0; i < nbFilesSelected; i++) {
 		DragQueryFile((HDROP) stgMedium.hGlobal, i, fileUserClickedOn, MAX_PATH);
 		lstrcat(commandLine, L" \"");
@@ -389,30 +389,30 @@ STDAPI DllCanUnloadNow(void) {
  */
 struct DOREGSTRUCT {
 	HKEY hRootKey;
-	const TCHAR * szSubKey;
-	const TCHAR * lpszValueName;
-	const TCHAR * szData;
+	const wchar_t * szSubKey;
+	const wchar_t * lpszValueName;
+	const wchar_t * szData;
 };
 
-static const TCHAR * shellExtensionTitle = L"QuarkPlayer";
+static const wchar_t * shellExtensionTitle = L"QuarkPlayer";
 
 static const unsigned GUID_SIZE = 128;
 
 STDAPI DllRegisterServer(void) {
 	//Module full path
-	TCHAR moduleFileName[MAX_PATH];
+	wchar_t moduleFileName[MAX_PATH];
 	GetModuleFileName(_hModule, moduleFileName, MAX_PATH);
 
 	//
 	LPOLESTR pwsz;
 	StringFromIID(CLSID_ShellExtension, &pwsz);
-	TCHAR szCLSID[GUID_SIZE + 1];
+	wchar_t szCLSID[GUID_SIZE + 1];
 	lstrcpy(szCLSID, pwsz);
 	CoTaskMemFree(pwsz);
 	///
 
 	DOREGSTRUCT CLSIDEntries[] = {
-		{ HKEY_CLASSES_ROOT, L"CLSID\\%s", NULL, const_cast<TCHAR *>(shellExtensionTitle) },
+		{ HKEY_CLASSES_ROOT, L"CLSID\\%s", NULL, const_cast<wchar_t *>(shellExtensionTitle) },
 		{ HKEY_CLASSES_ROOT, L"CLSID\\%s\\InprocServer32", NULL, moduleFileName },
 		{ HKEY_CLASSES_ROOT, L"CLSID\\%s\\InprocServer32", L"ThreadingModel", L"Apartment" },
 		{ HKEY_CLASSES_ROOT, L"CLSID\\%s\\shellex\\MayChangeDefaultMenu", NULL, NULL },
@@ -421,7 +421,7 @@ STDAPI DllRegisterServer(void) {
 
 	for (unsigned i = 0; CLSIDEntries[i].hRootKey; i++) {
 		//Create the sub key string
-		TCHAR szSubKey[MAX_PATH];
+		wchar_t szSubKey[MAX_PATH];
 		wsprintf(szSubKey, CLSIDEntries[i].szSubKey, szCLSID);
 
 		HKEY hKey;
@@ -446,7 +446,7 @@ STDAPI DllRegisterServer(void) {
 					0,
 					REG_SZ,
 					(const BYTE *) CLSIDEntries[i].szData,
-					(lstrlen(CLSIDEntries[i].szData) + 1) * sizeof(TCHAR)
+					(lstrlen(CLSIDEntries[i].szData) + 1) * sizeof(wchar_t)
 				);
 			}
 			RegCloseKey(hKey);
@@ -462,12 +462,12 @@ STDAPI DllUnregisterServer(void) {
 	//
 	LPOLESTR pwsz;
 	StringFromIID(CLSID_ShellExtension, &pwsz);
-	TCHAR szCLSID[GUID_SIZE + 1];
+	wchar_t szCLSID[GUID_SIZE + 1];
 	lstrcpy(szCLSID, pwsz);
 	CoTaskMemFree(pwsz);
 	///
 
-	TCHAR szKeyTemp[MAX_PATH + GUID_SIZE];
+	wchar_t szKeyTemp[MAX_PATH + GUID_SIZE];
 	wsprintf(szKeyTemp, L"CLSID\\%s\\InprocServer32", szCLSID);
 	RegDeleteKey(HKEY_CLASSES_ROOT, szKeyTemp);
 	wsprintf(szKeyTemp, L"CLSID\\%s\\shellex\\MayChangeDefaultMenu", szCLSID);

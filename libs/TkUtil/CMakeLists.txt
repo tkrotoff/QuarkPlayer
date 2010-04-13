@@ -30,6 +30,13 @@ set(TkUtil_SRCS
 	TkToolBar.cpp
 )
 
+if (WIN32)
+	set(TkUtil_SRCS
+		${TkUtil_SRCS}
+		Win32Util.cpp
+	)
+endif (WIN32)
+
 qt4_wrap_cpp(TkUtil_SRCS
 	EventFilter.h
 	TkConfig.h

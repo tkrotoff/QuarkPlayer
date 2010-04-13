@@ -35,11 +35,14 @@ bool TkFile::isDir(const QString & path) {
 	//In these cases, _wstat will always report a file size of 0.
 	//_stat does work correctly with symbolic links.
 
+	//_wstati64 is used by Qt 3.3.x (qfileinfo_win.cpp) so let's use the same wstat() function
+	//See http://www.google.com/codesearch/
+
 	const wchar_t * encodedName = reinterpret_cast<const wchar_t *>(path.utf16());
-	struct _stat statbuf;
+	struct _stati64 statbuf;
 	int error = _wstati64(encodedName, &statbuf);
 	if (error != 0) {
-		qCritical() << Q_FUNC_INFO << "_wstat() failed, path:" << path << "errno:" << strerror(errno);
+		qCritical() << Q_FUNC_INFO << "_wstati64() failed, path:" << path << "errno:" << strerror(errno);
 	} else {
 		dir = (statbuf.st_mode & S_IFMT) == S_IFDIR;
 	}

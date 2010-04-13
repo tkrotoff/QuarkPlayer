@@ -20,6 +20,10 @@
 
 #include "TkFile.h"
 
+#ifdef Q_WS_WIN
+	#include "Win32Util.h"
+#endif
+
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTime>
@@ -87,6 +91,11 @@ void FindFiles::start(const QUuid & uuid) {
 
 void FindFiles::run() {
 	Q_ASSERT(!_path.isEmpty());
+
+	//C:/ -> C:
+	if (_path.endsWith('/') || _path.endsWith('\\')) {
+		_path = _path.left(_path.length() - 1);
+	}
 
 	_stop = false;
 	_files.clear();
@@ -170,7 +179,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 
 	QString longPath("\\\\?\\" + path + "\\*");
 
-	//Converts to native separator, otherwise FindFirstFileW()
+	//Converts to native separator, otherwise FindFirstFile()
 	//won't work if '/' separators are found
 	longPath = QDir::toNativeSeparators(longPath);
 
@@ -179,11 +188,12 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 	//LPCSTR = char *
 	//TCHAR = char or wchar_t
 	//WCHAR = wchar_t
+	//See http://tkrotoff.blogspot.com/2010/04/code-snippets-about-qstring-wchart.html
 
 	//Get the first file
-	HANDLE hList = FindFirstFileW((TCHAR *) longPath.utf16(), &fileData);
+	HANDLE hList = FindFirstFile(reinterpret_cast<const wchar_t *>(longPath.utf16()), &fileData);
 	if (hList == INVALID_HANDLE_VALUE) {
-		qCritical() << __FUNCTION__ << "Error: no files found, path:" << path << " error code:" << GetLastError();
+		qCritical() << Q_FUNC_INFO << "Path:" << path << Win32Util::GetLastErrorToString(GetLastError());
 	}
 
 	else {
@@ -194,7 +204,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 				break;
 			}
 
-			QString name(QString::fromUtf16((unsigned short *) fileData.cFileName));
+			QString name(QString::fromUtf16(reinterpret_cast<const unsigned short *>(fileData.cFileName)));
 			QString fileName(path + QDir::separator() + name);
 
 			//Check if the object is a directory or not
@@ -229,7 +239,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 				}
 			}
 
-			if (!FindNextFileW(hList, &fileData)) {
+			if (!FindNextFile(hList, &fileData)) {
 				if (GetLastError() == ERROR_NO_MORE_FILES) {
 					finished = true;
 				}

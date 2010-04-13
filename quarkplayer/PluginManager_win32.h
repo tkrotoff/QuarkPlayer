@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ public:
 	 *
 	 * @see http://msdn.microsoft.com/en-us/library/ms686203.aspx
 	 */
-	static void setDllDirectory(const char * path);
+	static void setDllDirectory(const wchar_t * path);
 };
 
 #endif	//PLUGINMANAGERWIN32_H

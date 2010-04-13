@@ -98,7 +98,7 @@ public:
 private:
 
 	/** Execute quarkplayer.exe. */
-	HRESULT STDMETHODCALLTYPE InvokeQuarkPlayer(HWND hParent, const TCHAR * args);
+	HRESULT STDMETHODCALLTYPE InvokeQuarkPlayer(HWND hParent, const wchar_t * args);
 
 	ULONG m_cRef;
 	IDataObject * m_pDataObj;

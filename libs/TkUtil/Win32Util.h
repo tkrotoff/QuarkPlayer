@@ -16,29 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PluginManager_win32.h"
+#ifndef WIN32UTIL_H
+#define WIN32UTIL_H
 
-#include <QtCore/QtGlobal>
+#include <QtCore/QString>
 
-#ifdef Q_WS_WIN
-	#define _WIN32_WINNT 0x0502
-	#include <QtCore/qt_windows.h>
-#endif	//Q_WS_WIN
+/**
+ * Utility functions for the Win32 / Windows API.
+ *
+ * Could not find a better place for this functions.
+ */
+class Win32Util {
+public:
 
-void PluginManagerWin32::setErrorMode() {
-#ifdef Q_WS_WIN
-	SetErrorMode(0);
-#endif	//Q_WS_WIN
-}
+	/** Gets an explanation given a GetLastError() error code. */
+	static QString GetLastErrorToString(unsigned long lastError);
 
-void PluginManagerWin32::setDllDirectory(const wchar_t * path) {
-	Q_ASSERT(path);
+private:
+};
 
-#ifdef Q_WS_WIN
-	//Use SetEnvironmentVariable()?
-	//See http://msdn.microsoft.com/en-us/library/ms686206.aspx
-	//See http://www.google.com/codesearch/p?hl=en#k_74qd9ASEQ/trunk/psycle/src/psycle/host/Plugin.cpp&q=SetDllDirectory
-	//SetDllDirectory(".\\plugins");
-	SetDllDirectory(path);
-#endif	//Q_WS_WIN
-}
+#endif	//WIN32UTIL_H
