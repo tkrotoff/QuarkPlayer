@@ -13,6 +13,7 @@ set(quarkplayer_SRCS
 qt4_add_resources(quarkplayer_SRCS
 	quarkplayer.qrc
 	silk.qrc
+	fugue.qrc
 )
 
 if (WIN32)
