@@ -14,7 +14,7 @@
 	<file alias="16x16/edit-clear.png">icons/fugue/16x16/minus.png</file>
 	<file alias="16x16/edit-find.png">icons/fugue/16x16/binocular.png</file>
 	<file alias="16x16/edit-copy.png">icons/fugue/16x16/document-copy.png</file>
-	<file alias="16x16/edit-undo.png">icons/fugue/16x16/folder.png</file>
+	<file alias="16x16/edit-undo.png">icons/fugue/16x16/arrow-return-180.png</file>
 	<file alias="16x16/format-list-ordered.png">icons/fugue/16x16/edit-list-order.png</file>
 	<file alias="16x16/speaker.png">icons/fugue/16x16/speaker.png</file>
 	<file alias="16x16/player-volume.png">icons/fugue/16x16/speaker-volume.png</file>
