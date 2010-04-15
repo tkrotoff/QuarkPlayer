@@ -50,7 +50,8 @@ bool MetaDataWriter::write(const MediaInfo & mediaInfo) {
 #ifdef Q_WS_WIN
 	const wchar_t * encodedName = reinterpret_cast<const wchar_t *>(mediaInfo.fileName().utf16());
 #else
-	const char * encodedName = QFile::encodeName(mediaInfo.fileName()).constData();
+	QByteArray fileName = QFile::encodeName(mediaInfo.fileName());
+	const char * encodedName = fileName.constData(); //Valid as long as fileName exists
 #endif	//Q_WS_WIN
 
 	TagLib::FileRef fileRef(encodedName, true);
