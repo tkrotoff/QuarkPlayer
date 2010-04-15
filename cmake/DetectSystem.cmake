@@ -12,17 +12,18 @@
 #
 # Compilers:
 # - MSVC (Microsoft Visual C++)
-#   - MSVC60 (Visual C++ 6.0)             MSVC_VERSION=1200
-#   - MSVC60 (Visual C++ 6.0 SP5)         MSVC_VERSION=1200
-#   - MSVC60 (Visual C++ 6.0 SP6)         MSVC_VERSION=1200
-#   - MSVC70 (Visual C++ .NET 2002)       MSVC_VERSION=1300
-#   - MSVC70 (Visual C++ .NET 2002 SP1)   MSVC_VERSION=1300
-#   - MSVC71 (Visual C++ .NET 2003)       MSVC_VERSION=1310 (Compiler Version 13.10.3077)
-#   - MSVC71 (Visual C++ .NET 2003 SP1)   MSVC_VERSION=1310 (Compiler Version 13.10.6030)
-#   - MSVC80 (Visual C++ 2005)            MSVC_VERSION=1400
-#   - MSVC80 (Visual C++ 2005 SP1)        MSVC_VERSION=1400 (Compiler Version 14.00.50727.762)
-#   - MSVC90 (Visual C++ 2008)            MSVC_VERSION=1500 (Compiler Version 15.00.21022.08)
-#   - MSVC90 (Visual C++ 2008 SP1)        MSVC_VERSION=1500 (Compiler Version 15.00.30729.01)
+#   - MSVC60  (Visual C++ 6.0)             MSVC_VERSION=1200
+#   - MSVC60  (Visual C++ 6.0 SP5)         MSVC_VERSION=1200
+#   - MSVC60  (Visual C++ 6.0 SP6)         MSVC_VERSION=1200
+#   - MSVC70  (Visual C++ .NET 2002)       MSVC_VERSION=1300
+#   - MSVC70  (Visual C++ .NET 2002 SP1)   MSVC_VERSION=1300
+#   - MSVC71  (Visual C++ .NET 2003)       MSVC_VERSION=1310 (Compiler Version 13.10.3077)
+#   - MSVC71  (Visual C++ .NET 2003 SP1)   MSVC_VERSION=1310 (Compiler Version 13.10.6030)
+#   - MSVC80  (Visual C++ 2005)            MSVC_VERSION=1400
+#   - MSVC80  (Visual C++ 2005 SP1)        MSVC_VERSION=1400 (Compiler Version 14.00.50727.762)
+#   - MSVC90  (Visual C++ 2008)            MSVC_VERSION=1500 (Compiler Version 15.00.21022.08)
+#   - MSVC90  (Visual C++ 2008 SP1)        MSVC_VERSION=1500 (Compiler Version 15.00.30729.01)
+#   - MSVC100 (Visual C++ 2010)            MSVC_VERSION=1600 (Compiler Version 16.00.30319.01)
 # - GCC (GNU GCC)
 #   - MINGW (Native GCC under Windows)
 #   - GCC3 (GNU GCC 3.x)
@@ -40,7 +41,7 @@
 #   (MSVC71, MinGW, GCC42, Borland, Watcom...)
 #
 # Copyright (C) 2007  Wengo
-# Coptright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+# Coptright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING file.
@@ -98,6 +99,10 @@ endif (MSVC80)
 if (MSVC90)
 	set(COMPILER_NAME "MSVC90")
 endif (MSVC90)
+if (MSVC100)
+	# This is does not work as of CMake-2.8.1
+	set(COMPILER_NAME "MSVC100")
+endif (MSVC100)
 
 # Borland
 if (BORLAND)
