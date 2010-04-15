@@ -1,0 +1,11 @@
+[Icon Theme]
+Name=Fugue
+Comment=Fugue Theme
+Inherits=default
+Directories=16x16 24x24
+
+[16x16]
+Size=16
+
+[24x24]
+Size=24
