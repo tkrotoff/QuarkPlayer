@@ -61,13 +61,13 @@ void M3UParser::load(QIODevice * device, const QString & location) {
 	//See http://regexlib.com/DisplayPatterns.aspx
 
 	//#EXTM3U
-	static QRegExp rx_extm3u("^#EXTM3U$|^#M3U$");
+	QRegExp rx_extm3u("^#EXTM3U$|^#M3U$");
 	//#EXTINF:123,Sample title
-	static QRegExp rx_extinf("^#EXTINF:([-+]?\\d+),(.*)$");
+	QRegExp rx_extinf("^#EXTINF:([-+]?\\d+),(.*)$");
 	//#EXTINF:Sample title
-	static QRegExp rx_extinf_title("^#EXTINF:(.*)$");
+	QRegExp rx_extinf_title("^#EXTINF:(.*)$");
 	//#Just a comment
-	static QRegExp rx_comment("^#.*$");
+	QRegExp rx_comment("^#.*$");
 
 	QString path(QFileInfo(location).path());
 

@@ -63,23 +63,23 @@ void CUEParser::load(QIODevice * device, const QString & location) {
 
 	//REM GENRE "Alternative rock"
 	//REM GENRE Pop
-	static QRegExp rx_genre("^REM GENRE (.*)$");
+	QRegExp rx_genre("^REM GENRE (.*)$");
 	//REM DATE 1994
-	static QRegExp rx_date("^REM DATE (\\d+)$");
+	QRegExp rx_date("^REM DATE (\\d+)$");
 	//PERFORMER "Weezer"
-	static QRegExp rx_root_performer("^PERFORMER \"(.*)\"$");
+	QRegExp rx_root_performer("^PERFORMER \"(.*)\"$");
 	//TITLE "Weezer (The Blue Album)"
-	static QRegExp rx_root_title("^TITLE \"(.*)\"$");
+	QRegExp rx_root_title("^TITLE \"(.*)\"$");
 	//FILE "01. My Name Is Jonas - [Weezer] .wav" WAVE
-	static QRegExp rx_file("^FILE \"(.*)\"");
+	QRegExp rx_file("^FILE \"(.*)\"");
 	//  TRACK 01 AUDIO
-	static QRegExp rx_track("^  TRACK (\\d+)");
+	QRegExp rx_track("^  TRACK (\\d+)");
 	//    TITLE "No One Else"
-	static QRegExp rx_title("^    TITLE \"(.*)\"$");
+	QRegExp rx_title("^    TITLE \"(.*)\"$");
 	//    PERFORMER "Weezer"
-	static QRegExp rx_performer("^    PERFORMER \"(.*)\"$");
+	QRegExp rx_performer("^    PERFORMER \"(.*)\"$");
 	//    INDEX 01 00:00:00
-	static QRegExp rx_index("^    INDEX 01 (.*)$");
+	QRegExp rx_index("^    INDEX 01 (.*)$");
 
 	QString path(QFileInfo(location).path());
 

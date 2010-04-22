@@ -69,11 +69,11 @@ void PLSParser::load(QIODevice * device, const QString & location) {
 	//See http://regexlib.com/DisplayPatterns.aspx
 
 	//File1=http://streamexample.com:80
-	static QRegExp rx_file("^File(\\d+)=(.*)$");
+	QRegExp rx_file("^File(\\d+)=(.*)$");
 	//Title1=My Favorite Online Radio
-	static QRegExp rx_title("^Title(\\d+)=(.*)$");
+	QRegExp rx_title("^Title(\\d+)=(.*)$");
 	//Length1=-1
-	static QRegExp rx_length("^Length(\\d+)=(.*)$");
+	QRegExp rx_length("^Length(\\d+)=(.*)$");
 
 	MediaInfo mediaInfo;
 
