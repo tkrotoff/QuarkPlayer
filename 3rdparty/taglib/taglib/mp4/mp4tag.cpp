@@ -209,7 +209,7 @@ MP4::Tag::parseCovr(MP4::Atom *atom, TagLib::File *file)
     int flags = data.mid(pos + 8, 4).toUInt();
     if(name != "data") {
       debug("MP4: Unexpected atom \"" + name + "\", expecting \"data\"");
-      return;
+      break;
     }
     if(flags == MP4::CoverArt::PNG || flags == MP4::CoverArt::JPEG) {
       value.append(MP4::CoverArt(MP4::CoverArt::Format(flags),
@@ -270,7 +270,7 @@ MP4::Tag::renderIntPair(const ByteVector &name, MP4::Item &item)
               ByteVector::fromShort(item.toIntPair().first) +
               ByteVector::fromShort(item.toIntPair().second) +
               ByteVector(2, '\0'));
-  return renderData(name, 0x15, data);
+  return renderData(name, 0x00, data);
 }
 
 ByteVector
@@ -280,7 +280,7 @@ MP4::Tag::renderIntPairNoTrailing(const ByteVector &name, MP4::Item &item)
   data.append(ByteVector(2, '\0') +
               ByteVector::fromShort(item.toIntPair().first) +
               ByteVector::fromShort(item.toIntPair().second));
-  return renderData(name, 0x15, data);
+  return renderData(name, 0x00, data);
 }
 
 ByteVector
