@@ -27,12 +27,12 @@
 	<file alias="16x16/go-next.png">icons/fugue/16x16/arrow.png</file>
 	<file alias="16x16/go-previous.png">icons/fugue/16x16/arrow-180.png</file>
 	<file alias="16x16/process-stop.png">icons/fugue/16x16/cross.png</file>
-	<file alias="16x16/view-refresh.png">icons/fugue/16x16/arrow-circle.png</file>
+	<file alias="16x16/view-refresh.png">icons/fugue/16x16/arrow-circle-315.png</file>
 	<file alias="16x16/go-home.png">icons/fugue/16x16/home.png</file>
 	<file alias="16x16/go-jump-locationbar.png">icons/fugue/16x16/arrow-000-small.png</file>
 	<file alias="16x16/go-jump.png">icons/fugue/16x16/arrow-000-small.png</file>
 	<file alias="16x16/go-down.png">icons/fugue/16x16/arrow-270.png</file>
-	<file alias="16x16/go-down-search.png">icons/fugue/16x16/arrow-270.png</file>
+	<file alias="16x16/go-down-search.png">icons/fugue/16x16/arrow-270-small.png</file>
 	<file alias="16x16/rating.png">icons/fugue/16x16/star.png</file>
 	<file alias="16x16/document-properties.png">icons/fugue/16x16/document--pencil.png</file>
 	<file alias="16x16/tab-new.png">icons/fugue/16x16/ui-tab--plus.png</file>
