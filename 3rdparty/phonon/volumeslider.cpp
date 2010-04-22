@@ -85,7 +85,7 @@ VolumeSlider::~VolumeSlider()
 
 bool VolumeSlider::isMuteVisible() const
 {
-    return k_ptr->muteButton.isVisible();
+    return !k_ptr->muteButton.isHidden();
 }
 
 void VolumeSlider::setMuteVisible(bool visible)
@@ -102,41 +102,6 @@ void VolumeSlider::setIconSize(const QSize &iconSize)
 {
     pDebug() << Q_FUNC_INFO << iconSize;
     k_ptr->muteButton.setIconSize(iconSize);
-}
-
-QIcon VolumeSlider::volumeIcon() const
-{
-    return k_ptr->volumeIcon;
-}
-
-void VolumeSlider::setVolumeIcon(const QIcon &icon)
-{
-    K_D(VolumeSlider);
-    pDebug() << Q_FUNC_INFO << icon;
-    k_ptr->volumeIcon = icon;
-    d->updateIcon();
-}
-
-QIcon VolumeSlider::mutedIcon() const
-{
-    return k_ptr->mutedIcon;
-}
-
-void VolumeSlider::setMutedIcon(const QIcon &icon)
-{
-    K_D(VolumeSlider);
-    pDebug() << Q_FUNC_INFO << icon;
-    k_ptr->mutedIcon = icon;
-    d->updateIcon();
-}
-
-void VolumeSliderPrivate::updateIcon()
-{
-    if (output && output->isMuted()) {
-        muteButton.setIcon(mutedIcon);
-    } else {
-        muteButton.setIcon(volumeIcon);
-    }
 }
 
 qreal VolumeSlider::maximumVolume() const
@@ -240,20 +205,28 @@ void VolumeSliderPrivate::_k_sliderChanged(int value)
         }
 #endif
 
-        ignoreVolumeChange = true;
-        output->setVolume((static_cast<qreal>(value)) * 0.01);
-        ignoreVolumeChange = false;
+        qreal newvolume = (static_cast<qreal>(value)) * 0.01;
+        if (!ignoreVolumeChangeObserve && output->volume() != newvolume) {
+          ignoreVolumeChangeAction = true;
+          output->setVolume(newvolume);
+        }
     } else {
         slider.setEnabled(false);
         muteButton.setEnabled(false);
     }
+
+    ignoreVolumeChangeObserve = false;
 }
 
 void VolumeSliderPrivate::_k_volumeChanged(qreal value)
 {
-    if (!ignoreVolumeChange) {
-        slider.setValue(qRound(100 * value));
+    int newslidervalue = qRound(100 * value);
+    if (!ignoreVolumeChangeAction && slider.value() != newslidervalue) {
+        ignoreVolumeChangeObserve = true;
+        slider.setValue(newslidervalue);
     }
+
+    ignoreVolumeChangeAction = false;
 }
 
 bool VolumeSlider::hasTracking() const

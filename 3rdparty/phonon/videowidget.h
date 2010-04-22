@@ -38,7 +38,7 @@ namespace Phonon
 {
 class AbstractVideoOutput;
     class VideoWidgetPrivate;
-    /** \class VideoWidget videowidget.h Phonon/VideoWidget
+    /** \class VideoWidget videowidget.h phonon/VideoWidget
      * \short Widget to display video.
      *
      * This widget shows the video signal.
@@ -172,6 +172,7 @@ class AbstractVideoOutput;
             qreal contrast() const;
             qreal hue() const;
             qreal saturation() const;
+            QImage snapshot() const;
 
             //TODO: bar colors property
         public Q_SLOTS:

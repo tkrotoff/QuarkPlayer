@@ -46,6 +46,7 @@ class AudioOutputPrivate : public AbstractAudioOutputPrivate
             return 0;
         }
         void init(Phonon::Category c);
+        QString getStreamUuid();
 
 
     protected:
@@ -58,6 +59,7 @@ class AudioOutputPrivate : public AbstractAudioOutputPrivate
 #endif
             deviceBeforeFallback(-1),
             outputDeviceOverridden(false),
+            forceMove(false),
             muted(false)
         {
         }
@@ -66,25 +68,30 @@ class AudioOutputPrivate : public AbstractAudioOutputPrivate
 
         enum DeviceChangeType {
             FallbackChange,
-            HigherPreferenceChange
+            HigherPreferenceChange,
+            SoundSystemChange
         };
         void handleAutomaticDeviceChange(const AudioOutputDevice &newDev, DeviceChangeType type);
 
         void _k_volumeChanged(qreal);
+        void _k_mutedChanged(bool);
         void _k_revertFallback();
         void _k_audioDeviceFailed();
         void _k_deviceListChanged();
+        void _k_deviceChanged(int deviceIndex);
 
     private:
         QString name;
         Phonon::AudioOutputDevice device;
         qreal volume;
+        QString streamUuid;
 #ifndef QT_NO_DBUS
         Phonon::AudioOutputAdaptor *adaptor;
 #endif
         Category category;
         int deviceBeforeFallback;
         bool outputDeviceOverridden;
+        bool forceMove;
         bool muted;
 };
 } //namespace Phonon

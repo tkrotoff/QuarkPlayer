@@ -97,7 +97,9 @@ void EffectWidgetPrivate::autogenerateUi()
     Q_Q(EffectWidget);
     QVBoxLayout *mainLayout = new QVBoxLayout(q);
     mainLayout->setMargin(0);
-    foreach (const EffectParameter &para, effect->parameters()) {
+    const QList<Phonon::EffectParameter> parameters = effect->parameters();
+    for (int i = 0; i < parameters.count(); ++i) {
+        const EffectParameter &para = parameters.at(i);
         QVariant value = effect->parameterValue(para);
         QHBoxLayout *pLayout = new QHBoxLayout;
         mainLayout->addLayout(pLayout);
@@ -117,13 +119,14 @@ void EffectWidgetPrivate::autogenerateUi()
                 control = cb;
                 if (value.type() == QVariant::Int) {
                     //value just defines the item index
-                    foreach (const QVariant &item, para.possibleValues()) {
-                        cb->addItem(item.toString());
+                    for (int i = 0; i < para.possibleValues().count(); ++i) {
+                        cb->addItem(para.possibleValues().at(i).toString());
                     }
                     cb->setCurrentIndex(value.toInt());
                     QObject::connect(cb, SIGNAL(currentIndexChanged(int)), q, SLOT(_k_setIntParameter(int)));
                 } else {
-                    foreach (const QVariant &item, para.possibleValues()) {
+                    for (int i = 0; i < para.possibleValues().count(); ++i) {
+                        const QVariant &item = para.possibleValues().at(i);
                         cb->addItem(item.toString());
                         if (item == value) {
                             cb->setCurrentIndex(cb->count() - 1);
@@ -148,25 +151,27 @@ void EffectWidgetPrivate::autogenerateUi()
                 bool minValueOk = false;
                 bool maxValueOk = false;
                 const int minValue = para.minimumValue().toInt(&minValueOk);
-                const int maxValue = para.minimumValue().toInt(&maxValueOk);
+                const int maxValue = para.maximumValue().toInt(&maxValueOk);
 
                 sb->setRange(minValueOk ? minValue : DEFAULT_MIN_INT, maxValueOk ? maxValue : DEFAULT_MAX_INT);
                 sb->setValue(value.toInt());
                 QObject::connect(sb, SIGNAL(valueChanged(int)), q, SLOT(_k_setIntParameter(int)));
             }
             break;
+        case QMetaType::Float:
         case QVariant::Double:
             {
-                const double minValue = (para.minimumValue().type() == QVariant::Double ?
-                    para.minimumValue().toDouble() : DEFAULT_MIN);
-                const double maxValue = (para.maximumValue().type() == QVariant::Double ?
-                    para.maximumValue().toDouble() : DEFAULT_MAX);
+                const qreal minValue = para.minimumValue().canConvert(QVariant::Double) ?
+                    para.minimumValue().toReal() : DEFAULT_MIN;
+                const qreal maxValue = para.maximumValue().canConvert(QVariant::Double) ?
+                    para.maximumValue().toReal() : DEFAULT_MAX;
 
                 if (minValue == -1. && maxValue == 1.) {
                     //Special case values between -1 and 1.0 to use a slider for improved usability
                     QSlider *slider = new QSlider(Qt::Horizontal, q);
+                    control = slider;
                     slider->setRange(-SLIDER_RANGE, +SLIDER_RANGE);
-                    slider->setValue(int(SLIDER_RANGE * value.toDouble()));
+                    slider->setValue(int(SLIDER_RANGE * value.toReal()));
                     slider->setTickPosition(QSlider::TicksBelow);
                     slider->setTickInterval(TICKINTERVAL);
                     QObject::connect(slider, SIGNAL(valueChanged(int)), q, SLOT(_k_setSliderParameter(int)));
@@ -188,10 +193,10 @@ void EffectWidgetPrivate::autogenerateUi()
             break;
         }
 
+        if (control) {
 #ifndef QT_NO_TOOLTIP
         control->setToolTip(para.description());
 #endif
-        if (control) {
 #ifndef QT_NO_SHORTCUT
             label->setBuddy(control);
 #endif

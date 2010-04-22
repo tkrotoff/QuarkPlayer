@@ -1,5 +1,5 @@
 /*  This file is part of the KDE project
-Copyright (C) 2006-2008 Matthias Kretz <kretz@kde.org>
+    Copyright (C) 2010 Colin Guthrie <cguthrie@mandriva.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -20,29 +20,56 @@ Copyright (C) 2006-2008 Matthias Kretz <kretz@kde.org>
 
 */
 
-#ifndef PHONON_GLOBALCONFIG_P_H
-#define PHONON_GLOBALCONFIG_P_H
-
-#include <QtCore/QSettings>
+#ifndef PHONON_PULSESTREAM_H
+#define PHONON_PULSESTREAM_H
 
 #include "phonon_export.h"
+#include "phononnamespace.h"
+
+#include <stdint.h>
+#include <pulse/pulseaudio.h>
+
+
+#include <QtCore/QtGlobal>
 
 QT_BEGIN_HEADER
 QT_BEGIN_NAMESPACE
 
 namespace Phonon
 {
-    class GlobalConfigPrivate
+    class PHONON_EXPORT PulseStream : public QObject
     {
+        Q_OBJECT
         public:
-            GlobalConfigPrivate();
-            virtual ~GlobalConfigPrivate() {}
+            PulseStream(QString streamUuid);
+            ~PulseStream();
 
-            QSettings config;
+            QString uuid();
+
+            uint32_t index();
+            void setIndex(uint32_t index);
+
+            uint8_t channels();
+
+            void setDevice(int device);
+            void setVolume(const pa_cvolume *volume);
+            void setMute(bool mute);
+
+        signals:
+            void usingDevice(int device);
+            void volumeChanged(qreal volume);
+            void muteChanged(bool mute);
+
+        private:
+            QString mStreamUuid;
+            uint32_t mIndex;
+            int mDevice;
+            pa_cvolume mVolume;
+            bool mMute;
     };
 } // namespace Phonon
 
 QT_END_NAMESPACE
 QT_END_HEADER
 
-#endif // PHONON_GLOBALCONFIG_P_H
+#endif // PHONON_PULSESUPPORT_H

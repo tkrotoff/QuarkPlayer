@@ -26,7 +26,7 @@
 #include "phonondefs_p.h"
 #include "backendinterface.h"
 #include "factory_p.h"
-#include "globalconfig_p.h"
+#include "globalconfig.h"
 #include "globalstatic_p.h"
 #include "objectdescription.h"
 
@@ -75,10 +75,12 @@ bool BackendCapabilities::isMimeTypeAvailable(const QString &mimeType)
 QList<AudioOutputDevice> BackendCapabilities::availableAudioOutputDevices()
 {
     QList<AudioOutputDevice> ret;
+#ifndef QT_NO_PHONON_SETTINGSGROUP
     const QList<int> deviceIndexes = GlobalConfig().audioOutputDeviceListFor(Phonon::NoCategory);
-    foreach (int i, deviceIndexes) {
-        ret.append(AudioOutputDevice::fromIndex(i));
+    for (int i = 0; i < deviceIndexes.count(); ++i) {
+        ret.append(AudioOutputDevice::fromIndex(deviceIndexes.at(i)));
     }
+#endif //QT_NO_PHONON_SETTINGSGROUP
     return ret;
 }
 
@@ -88,8 +90,8 @@ QList<AudioCaptureDevice> BackendCapabilities::availableAudioCaptureDevices()
 {
     QList<AudioCaptureDevice> ret;
     const QList<int> deviceIndexes = GlobalConfig().audioCaptureDeviceListFor(Phonon::NoCategory);
-    foreach (int i, deviceIndexes) {
-        ret.append(AudioCaptureDevice::fromIndex(i));
+    for (int i = 0; i < deviceIndexes.count(); ++i) {
+        ret.append(AudioCaptureDevice::fromIndex(deviceIndexes.at(i)));
     }
     return ret;
 }
@@ -101,9 +103,9 @@ QList<EffectDescription> BackendCapabilities::availableAudioEffects()
     BackendInterface *backendIface = qobject_cast<BackendInterface *>(Factory::backend());
     QList<EffectDescription> ret;
     if (backendIface) {
-        QList<int> deviceIndexes = backendIface->objectDescriptionIndexes(Phonon::EffectType);
-        foreach (int i, deviceIndexes) {
-            ret.append(EffectDescription::fromIndex(i));
+        const QList<int> deviceIndexes = backendIface->objectDescriptionIndexes(Phonon::EffectType);
+        for (int i = 0; i < deviceIndexes.count(); ++i) {
+            ret.append(EffectDescription::fromIndex(deviceIndexes.at(i)));
         }
     }
     return ret;

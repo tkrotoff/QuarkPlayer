@@ -65,8 +65,6 @@ namespace Phonon
         EffectType,
         AudioChannelType,
         SubtitleType,
-        ChapterType,
-        TitleType,
 
         /**
          * Audio capture devices. This can be soundcards (with different drivers), soundservers or
@@ -89,7 +87,7 @@ namespace Phonon
     };
 
 /** \internal
- * \class ObjectDescriptionData objectdescription.h Phonon/ObjectDescription
+ * \class ObjectDescriptionData objectdescription.h phonon/ObjectDescription
  * \brief Data class for objects describing devices or features of the backend.
  *
  * \author Matthias Kretz <kretz@kde.org>
@@ -167,7 +165,7 @@ class PHONON_EXPORT ObjectDescriptionData : public QSharedData //krazy:exclude=d
 
 template<ObjectDescriptionType T> class ObjectDescriptionModel;
 
-/** \class ObjectDescription objectdescription.h Phonon/ObjectDescription
+/** \class ObjectDescription objectdescription.h phonon/ObjectDescription
  * \short Provides a tuple of enduser visible name and description.
  *
  * Some parts give the enduser choices, e.g. what source to capture audio from.
@@ -312,18 +310,11 @@ typedef ObjectDescription<EffectType> EffectDescription;
 #ifndef QT_NO_PHONON_MEDIACONTROLLER
 typedef ObjectDescription<AudioChannelType> AudioChannelDescription;
 typedef ObjectDescription<SubtitleType> SubtitleDescription;
-typedef ObjectDescription<ChapterType> ChapterDescription;
-typedef ObjectDescription<TitleType> TitleDescription;
 #endif //QT_NO_PHONON_MEDIACONTROLLER
 
 } //namespace Phonon
 
 QT_END_NAMESPACE
-
-Q_DECLARE_METATYPE(Phonon::ChapterDescription)
-Q_DECLARE_METATYPE(Phonon::TitleDescription)
-Q_DECLARE_METATYPE(QList<Phonon::ChapterDescription>)
-Q_DECLARE_METATYPE(QList<Phonon::TitleDescription>)
 
 Q_DECLARE_METATYPE(Phonon::AudioOutputDevice)
 Q_DECLARE_METATYPE(QList<Phonon::AudioOutputDevice>)
