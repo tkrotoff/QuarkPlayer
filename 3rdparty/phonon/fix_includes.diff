@@ -1,0 +1,25 @@
+Index: audiooutput.cpp
+===================================================================
+--- audiooutput.cpp	(revision 1256)
++++ audiooutput.cpp	(working copy)
+@@ -34,6 +34,7 @@
+ #endif
+ 
+ #include <QtCore/qmath.h>
++#include <QtCore/QUuid>
+ 
+ #define PHONON_CLASSNAME AudioOutput
+ #define IFACES2 AudioOutputInterface42
+Index: pulsesupport.cpp
+===================================================================
+--- pulsesupport.cpp	(revision 1256)
++++ pulsesupport.cpp	(working copy)
+@@ -23,7 +23,7 @@
+ #include <QtCore/QAbstractEventDispatcher>
+ #include <QtCore/QDebug>
+ #include <QtCore/QStringList>
+-#include <QTimer>
++#include <QtCore/QTimer>
+ 
+ #ifdef HAVE_PULSEAUDIO
+ #include "pulsestream_p.h"

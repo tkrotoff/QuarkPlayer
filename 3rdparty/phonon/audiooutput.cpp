@@ -34,6 +34,7 @@
 #endif
 
 #include <QtCore/qmath.h>
+#include <QtCore/QUuid>
 
 #define PHONON_CLASSNAME AudioOutput
 #define IFACES2 AudioOutputInterface42
