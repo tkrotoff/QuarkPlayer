@@ -97,6 +97,10 @@ void FindFiles::run() {
 		_path = _path.left(_path.length() - 1);
 	}
 
+	//Converts to native separators, otherwise FindFirstFile()
+	//under Windows won't work if '/' separators are found
+	_path = QDir::toNativeSeparators(_path);
+
 	_stop = false;
 	_files.clear();
 
@@ -178,10 +182,6 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 	}
 
 	QString longPath("\\\\?\\" + path + "\\*");
-
-	//Converts to native separator, otherwise FindFirstFile()
-	//won't work if '/' separators are found
-	longPath = QDir::toNativeSeparators(longPath);
 
 	WIN32_FIND_DATAW fileData;
 	//LPCWSTR = wchar_t *

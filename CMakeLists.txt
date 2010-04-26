@@ -106,7 +106,7 @@ else (KDE4_FOUND)
 	)
 
 	# Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
-	set(NEW_TITLE_CHAPTER_HANDLING 1)
+	#set(NEW_TITLE_CHAPTER_HANDLING 1)
 
 	# Includes all wanted definitions for Qt
 	include(${QT_USE_FILE})

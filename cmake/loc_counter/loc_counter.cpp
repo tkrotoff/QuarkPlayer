@@ -5,6 +5,9 @@
  * For details see the accompanying COPYING file.
  */
 
+#define UNICODE
+#define _UNICODE
+
 #include <fstream>
 #include <list>
 #include <string>
@@ -14,7 +17,10 @@
 #include <sys/stat.h>
 
 #ifdef WIN32
+	#define _CRT_SECURE_NO_WARNINGS
+
 	#include <windows.h>
+	#include <atlbase.h>
 #else
 	#include <dirent.h>
 #endif	//WIN32
@@ -46,11 +52,11 @@ StringList sourceCodeExtensions() {
 	return extensions;
 }
 
-bool filter(const std::string & filename) {
+bool filter(const std::string & fileName) {
 	static StringList extensions(sourceCodeExtensions());
 
 	for (StringList::iterator it = extensions.begin(); it != extensions.end(); it++) {
-		int ok = filename.compare(filename.size() - (*it).size(), (*it).size(), *it);
+		int ok = fileName.compare(fileName.size() - (*it).size(), (*it).size(), *it);
 		if (ok == 0) {
 			return true;
 		}
@@ -59,11 +65,11 @@ bool filter(const std::string & filename) {
 	return false;
 }
 
-int locFile(const std::string & filename) {
+int locFile(const std::string & fileName) {
 	int loc = 0;
 
-	if (filter(filename)) {
-		std::ifstream file(filename.c_str());
+	if (filter(fileName)) {
+		std::ifstream file(fileName.c_str());
 		std::string line;
 		while (getline(file, line)) {
 			loc++;
@@ -99,7 +105,7 @@ void findAllFilesUNIX(const std::string & path, bool recursive) {
 	//See http://insanecoding.blogspot.com/2007/11/pathmax-simply-isnt.html
 	DIR * dir = opendir(path.c_str());
 	if (!dir) {
-		std::cerr << __FUNCTION__ << "Error: opendir() failed" << std::endl;
+		std::cerr << __FUNCTION__ << " Error: opendir() failed, path: " << path << " errno: " << strerror(errno) << std::endl;
 		perror(path.c_str());
 	} else {
 		struct dirent * entry = NULL;
@@ -109,22 +115,22 @@ void findAllFilesUNIX(const std::string & path, bool recursive) {
 			//Avoid '.', '..' and other hidden files
 			if (name[0] != '.') {
 
-				std::string filename(path + '/' + name);
+				std::string fileName(path + '/' + name);
 
-				if (recursive && isDirectory(filename)) {
+				if (recursive && isDirectory(fileName)) {
 					//Recurse
-					findAllFilesUNIX(filename, recursive);
+					findAllFilesUNIX(fileName, recursive);
 				}
 
 				else {
-					_totalLoc += locFile(filename);
+					_totalLoc += locFile(fileName);
 				}
 			}
 		}
 
 		int ret = closedir(dir);
 		if (ret != 0) {
-			std::cerr << __FUNCTION__ << "Error: closedir() failed" << std::endl;
+			std::cerr << __FUNCTION__ << " Error: closedir() failed, path: " << path << " errno: " << strerror(errno) << std::endl;
 			perror(path.c_str());
 		}
 	}
@@ -146,7 +152,6 @@ void findAllFilesWin32(const std::string & path, bool recursive) {
 	//See http://msdn.microsoft.com/en-us/library/aa365247.aspx
 
 	std::string longPath("\\\\?\\" + path + "\\*");
-	replace(longPath, "/", "\\");
 
 	WIN32_FIND_DATAW fileData;
 	//LPCWSTR = wchar_t *
@@ -156,9 +161,21 @@ void findAllFilesWin32(const std::string & path, bool recursive) {
 
 	//Get the first file
 	std::wstring wideLongPath(longPath.begin(), longPath.end());
-	HANDLE hList = FindFirstFileW((TCHAR *) wideLongPath.c_str(), &fileData);
+
+	//OK Unicode does not work here
+	//Is it because the root path is given by CMake?
+
+	/*CA2W tmp(longPath.c_str());
+	std::wstring wideLongPath(static_cast<const wchar_t *>(tmp));*/
+
+	/*wchar_t * buf = new wchar_t[longPath.size()];
+	size_t num_chars = mbstowcs(buf, longPath.c_str(), longPath.size());
+	std::wstring wideLongPath(buf, num_chars);
+	delete[] buf;*/
+
+	HANDLE hList = FindFirstFile(reinterpret_cast<const wchar_t *>(wideLongPath.c_str()), &fileData);
 	if (hList == INVALID_HANDLE_VALUE) {
-		std::cerr << __FUNCTION__ << "Error: no files found, error code: " << GetLastError() << std::endl;
+		//std::cerr << __FUNCTION__ << " Path: " << path << " Error: no files found, error code: " << GetLastError() << std::endl;
 	}
 
 	else {
@@ -168,7 +185,7 @@ void findAllFilesWin32(const std::string & path, bool recursive) {
 
 			std::wstring wideName(fileData.cFileName);
 			std::string name(wideName.begin(), wideName.end());
-			std::string filename(path + '\\' + name);
+			std::string fileName(path + '\\' + name);
 
 			//Check if the object is a directory or not
 			if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
@@ -177,16 +194,16 @@ void findAllFilesWin32(const std::string & path, bool recursive) {
 				if (name[0] != '.') {
 					//Filter directory matching the given pattern
 					if (recursive) {
-						findAllFilesWin32(filename, recursive);
+						findAllFilesWin32(fileName, recursive);
 					}
 				}
 			}
 
 			else {
-				_totalLoc += locFile(filename);
+				_totalLoc += locFile(fileName);
 			}
 
-			if (!FindNextFileW(hList, &fileData)) {
+			if (!FindNextFile(hList, &fileData)) {
 				if (GetLastError() == ERROR_NO_MORE_FILES) {
 					finished = true;
 				}
@@ -206,7 +223,7 @@ int main(int argc, char * argv[]) {
 		rootPath = std::string(argv[1]);
 		bool exists = isDirectory(rootPath);
 		if (!exists) {
-			std::cerr << "Error: path does not exist:" << rootPath << std::endl;
+			std::cerr << __FUNCTION__ << " Error: path does not exist: " << rootPath << std::endl;
 			return EXIT_FAILURE;
 		}
 	}
@@ -215,6 +232,10 @@ int main(int argc, char * argv[]) {
 	}
 
 #ifdef WIN32
+	//Converts to native separators, otherwise FindFirstFile()
+	//under Windows won't work if '/' separators are found
+	replace(rootPath, "/", "\\");
+
 	findAllFilesWin32(rootPath, recursive);
 #else
 	findAllFilesUNIX(rootPath, recursive);
