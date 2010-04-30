@@ -87,8 +87,18 @@ protected slots:
 
 protected:
 
-	/** Sets _parser given a playlist file. */
-	void findParser(const QString & location);
+	/**
+	 * Gets the parser implementation given a playlist filename.
+	 *
+	 * The playlist parser implementation is choosen depending on the file extension.
+	 * Example: if file extension is ".m3u" then M3UParser will be instantiated.
+	 *
+	 * Code factorization: returns nothing, instead sets _parser variable to the right
+	 * parser implementation or NULL if none could be find given the playlist filename.
+	 *
+	 * @param fileName playlist filename/location
+	 */
+	void findParser(const QString & fileName);
 
 	/** List of all available parsers. */
 	QList<IPlaylistParserImpl *> _parserList;
@@ -127,6 +137,9 @@ public:
 	/**
 	 * Loads the playlist.
 	 *
+	 * The playlist parser implementation is choosen depending on the file extension.
+	 * Example: if file extension is ".m3u" then M3UParser will be instantiated.
+	 *
 	 * @param fileName playlist file (full path) or URL to load
 	 * @see filesFound()
 	 */
@@ -161,6 +174,9 @@ public:
 
 	/**
 	 * Saves the playlist.
+	 *
+	 * The playlist parser implementation is choosen depending on the file extension.
+	 * Example: if file extension is ".m3u" then M3UParser will be instantiated.
 	 *
 	 * @param fileName playlist file (full path)
 	 * @param files files to add to the playlist file
