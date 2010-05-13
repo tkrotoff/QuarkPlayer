@@ -41,7 +41,6 @@ set(QuarkPlayerCore_SRCS
 	WinDefaultApplication.cpp
 	MsgHandler.cpp
 	config/Config.cpp
-	style/ProxyStyle.cpp
 	style/QuarkPlayerStyle.cpp
 )
 

@@ -22,8 +22,7 @@
 
 #include <QtCore/QDebug>
 
-QuarkPlayerStyle::QuarkPlayerStyle()
-	: ProxyStyle(QApplication::style()->objectName()) {
+QuarkPlayerStyle::QuarkPlayerStyle() {
 }
 
 QuarkPlayerStyle::~QuarkPlayerStyle() {
@@ -38,7 +37,7 @@ void QuarkPlayerStyle::drawControl(ControlElement element, const QStyleOption * 
 		return;
 	}
 
-	ProxyStyle::drawControl(element, option, painter, widget);
+	QProxyStyle::drawControl(element, option, painter, widget);
 }
 
 void QuarkPlayerStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * option,
@@ -50,5 +49,5 @@ void QuarkPlayerStyle::drawPrimitive(PrimitiveElement element, const QStyleOptio
 		return;
 	}
 
-	ProxyStyle::drawPrimitive(element, option, painter, widget);
+	QProxyStyle::drawPrimitive(element, option, painter, widget);
 }

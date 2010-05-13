@@ -71,13 +71,12 @@ AboutWindow::AboutWindow(QWidget * parent)
 		+ "<br>MediaInfoLib: " + mediaInfoLibVersion
 #endif	//MEDIAINFOLIB
 
-		+ "<br>Silk Icons: http://www.famfamfam.com/lab/icons/silk/"
 		+ "<br>Fugue Icons: http://p.yusukekamiyamane.com/"
+		+ "<br>Silk Icons: http://www.famfamfam.com/lab/icons/silk/"
 	);
 
 	_ui->metricsLabel->setText(
-		"Pushing intelligence to the edge; KISS Keep It Simple, Stupid; Small is Beautiful!"
-		"<br>Phonon MPlayer: " + QString::number(PHONON_MPLAYER_LOC) + " LOC"
+		"Phonon MPlayer: " + QString::number(PHONON_MPLAYER_LOC) + " LOC"
 		"<br>QuarkPlayer Core: " + QString::number(QUARKPLAYER_CORE_LOC) + " LOC"
 		"<br>QuarkPlayer Libraries: " + QString::number(QUARKPLAYER_LIBS_LOC) + " LOC"
 		"<br>QuarkPlayer Plugins: " + QString::number(QUARKPLAYER_PLUGINS_LOC) + " LOC"

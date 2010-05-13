@@ -19,11 +19,11 @@
 #ifndef QUARKPLAYERSTYLE_H
 #define QUARKPLAYERSTYLE_H
 
-#include "ProxyStyle.h"
-
 #include <quarkplayer/quarkplayer_export.h>
 
 #include <TkUtil/Singleton.h>
+
+#include <QtGui/QProxyStyle>
 
 /**
  * QuarkPlayer Qt style for correcting some bugs or ugly style.
@@ -33,7 +33,7 @@
  *
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API QuarkPlayerStyle : public ProxyStyle, public Singleton<QuarkPlayerStyle> {
+class QUARKPLAYER_API QuarkPlayerStyle : public QProxyStyle, public Singleton<QuarkPlayerStyle> {
 	friend class Singleton<QuarkPlayerStyle>;
 public:
 
