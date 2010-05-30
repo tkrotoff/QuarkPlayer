@@ -1,5 +1,52 @@
 <tagfile>
   <compound kind="class">
+    <name>AudioDataOutput</name>
+    <filename>phonon-audiodataoutput.html</filename>
+    <member kind="enum">
+      <name>Channel</name>
+      <anchor>Channel-enum</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function">
+      <name>dataReady</name>
+      <anchor>dataReady</anchor>
+      <arglist>( const QMap&lt;Phonon::AudioDataOutput::Channel, QVector&lt;qint16&gt; &gt; &amp; data )</arglist>
+    </member>
+    <member kind="function">
+      <name>endOfMedia</name>
+      <anchor>endOfMedia</anchor>
+      <arglist>( int remainingSamples )</arglist>
+    </member>
+    <member kind="function">
+      <name>sampleRate</name>
+      <anchor>sampleRate</anchor>
+      <arglist>()</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>AudioDataOutputInterface</name>
+    <filename>phonon-audiodataoutputinterface.html</filename>
+    <member kind="function">
+      <name>frontendObject</name>
+      <anchor>frontendObject</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <name>setFrontendObject</name>
+      <anchor>setFrontendObject</anchor>
+      <arglist>( AudioDataOutput * )</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>AudioDataOutputPrivate</name>
+    <filename>phonon-audiodataoutputprivate.html</filename>
+    <member kind="function">
+      <name>AudioDataOutputPrivate</name>
+      <anchor>AudioDataOutputPrivate</anchor>
+      <arglist>()</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>AudioOutput</name>
     <filename>phonon-audiooutput.html</filename>
     <member kind="function">
@@ -163,6 +210,15 @@
   <compound kind="class">
     <name>EffectWidget</name>
     <filename>phonon-effectwidget.html</filename>
+  </compound>
+  <compound kind="class">
+    <name>GlobalConfigPrivate</name>
+    <filename>phonon-globalconfigprivate.html</filename>
+    <member kind="function">
+      <name>GlobalConfigPrivate</name>
+      <anchor>GlobalConfigPrivate</anchor>
+      <arglist>()</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>MediaController</name>
@@ -694,6 +750,95 @@
     </member>
   </compound>
   <compound kind="class">
+    <name>PulseSupport</name>
+    <filename>phonon-pulsesupport.html</filename>
+    <member kind="function">
+      <name>clearStreamCache</name>
+      <anchor>clearStreamCache</anchor>
+      <arglist>( QString streamUuid )</arglist>
+    </member>
+    <member kind="function">
+      <name>emitObjectDescriptionChanged</name>
+      <anchor>emitObjectDescriptionChanged</anchor>
+      <arglist>( ObjectDescriptionType )</arglist>
+    </member>
+    <member kind="function">
+      <name>emitUsingDevice</name>
+      <anchor>emitUsingDevice</anchor>
+      <arglist>( QString streamUuid, int device )</arglist>
+    </member>
+    <member kind="function">
+      <name>enable</name>
+      <anchor>enable</anchor>
+      <arglist>( bool enabled = true )</arglist>
+    </member>
+    <member kind="function">
+      <name>getInstance</name>
+      <anchor>getInstance</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <name>isActive</name>
+      <anchor>isActive</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <name>objectDescriptionChanged</name>
+      <anchor>objectDescriptionChanged</anchor>
+      <arglist>( ObjectDescriptionType )</arglist>
+    </member>
+    <member kind="function">
+      <name>objectDescriptionIndexes</name>
+      <anchor>objectDescriptionIndexes</anchor>
+      <arglist>( ObjectDescriptionType type )</arglist>
+    </member>
+    <member kind="function">
+      <name>objectDescriptionProperties</name>
+      <anchor>objectDescriptionProperties</anchor>
+      <arglist>( ObjectDescriptionType type, int index )</arglist>
+    </member>
+    <member kind="function">
+      <name>objectIndexesByCategory</name>
+      <anchor>objectIndexesByCategory</anchor>
+      <arglist>( ObjectDescriptionType type, Category category )</arglist>
+    </member>
+    <member kind="function">
+      <name>setCaptureDevice</name>
+      <anchor>setCaptureDevice</anchor>
+      <arglist>( QString streamUuid, int device )</arglist>
+    </member>
+    <member kind="function">
+      <name>setCaptureDevicePriorityForCategory</name>
+      <anchor>setCaptureDevicePriorityForCategory</anchor>
+      <arglist>( Category category, QList&lt;int&gt; order )</arglist>
+    </member>
+    <member kind="function">
+      <name>setOutputDevice</name>
+      <anchor>setOutputDevice</anchor>
+      <arglist>( QString streamUuid, int device )</arglist>
+    </member>
+    <member kind="function">
+      <name>setOutputDevicePriorityForCategory</name>
+      <anchor>setOutputDevicePriorityForCategory</anchor>
+      <arglist>( Category category, QList&lt;int&gt; order )</arglist>
+    </member>
+    <member kind="function">
+      <name>setStreamPropList</name>
+      <anchor>setStreamPropList</anchor>
+      <arglist>( Category category, QString streamUuid )</arglist>
+    </member>
+    <member kind="function">
+      <name>shutdown</name>
+      <anchor>shutdown</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <name>usingDevice</name>
+      <anchor>usingDevice</anchor>
+      <arglist>( QString streamUuid, int device )</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>SeekSlider</name>
     <filename>phonon-seekslider.html</filename>
     <member kind="function">
@@ -720,6 +865,15 @@
       <name>setMediaObject</name>
       <anchor>setMediaObject</anchor>
       <arglist>( MediaObject * media )</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>SwiftSlider</name>
+    <filename>phonon-swiftslider.html</filename>
+    <member kind="function">
+      <name>SwiftSlider</name>
+      <anchor>SwiftSlider</anchor>
+      <arglist>( Qt::Orientation orientation, QWidget * parent )</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -807,7 +961,7 @@
     </member>
     <member kind="function">
       <name>videoWidget</name>
-      <anchor>videoWidgetx</anchor>
+      <anchor>videoWidget</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -831,7 +985,7 @@
     </member>
     <member kind="function">
       <name>VideoWidget</name>
-      <anchor>VideoWidget</anchor>
+      <anchor>VideoWidgetx</anchor>
       <arglist>( QWidget * parent = 0 )</arglist>
     </member>
     <member kind="function">
@@ -853,6 +1007,20 @@
       <name>mouseMoveEvent</name>
       <anchor>mouseMoveEvent</anchor>
       <arglist>( QMouseEvent * )</arglist>
+    </member>
+    <member kind="function">
+      <name>snapshot</name>
+      <anchor>snapshot</anchor>
+      <arglist>()</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>VideoWidgetInterface44</name>
+    <filename>phonon-videowidgetinterface44.html</filename>
+    <member kind="function">
+      <name>snapshot</name>
+      <anchor>snapshot</anchor>
+      <arglist>()</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -936,6 +1104,11 @@
     <member kind="enum">
       <name>State</name>
       <anchor>State-enum</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function">
+      <name>VideoWidgetInterfaceLatest</name>
+      <anchor>VideoWidgetInterfaceLatest-typedef</anchor>
       <arglist></arglist>
     </member>
     <member kind="function">
@@ -11872,7 +12045,7 @@
     </member>
     <member kind="function">
       <name>lineStep</name>
-      <anchor>lineStepx</anchor>
+      <anchor>lineStep</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -19842,7 +20015,7 @@
     </member>
     <member kind="function">
       <name>lineStep</name>
-      <anchor>lineStepx</anchor>
+      <anchor>lineStep</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -21023,7 +21196,7 @@
     </member>
     <member kind="function">
       <name>attribute</name>
-      <anchor>attributex</anchor>
+      <anchor>attribute</anchor>
       <arglist>( const QXmlName &amp; name, const QStringRef &amp; value )</arglist>
     </member>
     <member kind="function">
@@ -23448,7 +23621,7 @@
     </member>
     <member kind="function">
       <name>classID</name>
-      <anchor>classID</anchor>
+      <anchor>classIDx</anchor>
       <arglist>( const QString &amp; key )</arglist>
     </member>
     <member kind="function">
@@ -33525,7 +33698,7 @@
     </member>
     <member kind="function">
       <name>linestep</name>
-      <anchor>linestep</anchor>
+      <anchor>linestepx</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -34349,7 +34522,7 @@
     </member>
     <member kind="function">
       <name>attribute</name>
-      <anchor>attributex</anchor>
+      <anchor>attribute</anchor>
       <arglist>( const QString &amp; name, const QString &amp; defValue = QString()</arglist>
     </member>
     <member kind="function">
@@ -43564,7 +43737,7 @@
     <member kind="function">
       <name>setParentItem</name>
       <anchor>setParentItem</anchor>
-      <arglist>( QGraphicsItem * parent )</arglist>
+      <arglist>( QGraphicsItem * newParent )</arglist>
     </member>
     <member kind="function">
       <name>setPos</name>
@@ -43745,6 +43918,11 @@
       <name>zValue</name>
       <anchor>zValue</anchor>
       <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <name>Type</name>
+      <anchor>Type-var</anchor>
+      <arglist></arglist>
     </member>
     <member kind="function">
       <name>UserType</name>
@@ -51684,7 +51862,7 @@
     <filename>qinputmethodevent-attribute.html</filename>
     <member kind="function">
       <name>Attribute</name>
-      <anchor>Attribute</anchor>
+      <anchor>Attributex</anchor>
       <arglist>( AttributeType type, int start, int length, QVariant value )</arglist>
     </member>
   </compound>
@@ -52666,12 +52844,12 @@
     </member>
     <member kind="function">
       <name>StandardKey</name>
-      <anchor>operator-eq-eq</anchor>
+      <anchor>operator-eq-eq-32</anchor>
       <arglist> key )</arglist>
     </member>
     <member kind="function">
       <name>StandardKey</name>
-      <anchor>operator-eq-eq-9</anchor>
+      <anchor>operator-eq-eq-33</anchor>
       <arglist> key, QKeyEvent * e )</arglist>
     </member>
   </compound>
@@ -63058,7 +63236,7 @@
     </member>
     <member kind="function">
       <name>attribute</name>
-      <anchor>attributex</anchor>
+      <anchor>attribute</anchor>
       <arglist>( QNetworkRequest::Attribute code )</arglist>
     </member>
     <member kind="function">
@@ -63247,7 +63425,7 @@
     </member>
     <member kind="function">
       <name>attribute</name>
-      <anchor>attributex</anchor>
+      <anchor>attribute</anchor>
       <arglist>( Attribute code, const QVariant &amp; defaultValue = QVariant()</arglist>
     </member>
     <member kind="function">
@@ -64150,9 +64328,19 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <name>redirected</name>
+      <anchor>redirected</anchor>
+      <arglist>( const QPaintDevice * device, QPoint * offset = 0 )</arglist>
+    </member>
+    <member kind="function">
       <name>resetMatrix</name>
       <anchor>resetMatrix</anchor>
       <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <name>restoreRedirected</name>
+      <anchor>restoreRedirected</anchor>
+      <arglist>( const QPaintDevice * device )</arglist>
     </member>
     <member kind="function">
       <name>setMatrix</name>
@@ -64163,6 +64351,11 @@
       <name>setMatrixEnabled</name>
       <anchor>setMatrixEnabled</anchor>
       <arglist>( bool enable )</arglist>
+    </member>
+    <member kind="function">
+      <name>setRedirected</name>
+      <anchor>setRedirected</anchor>
+      <arglist>( const QPaintDevice * device, QPaintDevice * replacement, const QPoint &amp; offset = QPoint()</arglist>
     </member>
     <member kind="function">
       <name>setWorldMatrix</name>
@@ -65044,11 +65237,6 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
-      <name>redirected</name>
-      <anchor>redirected</anchor>
-      <arglist>( const QPaintDevice * device, QPoint * offset = 0 )</arglist>
-    </member>
-    <member kind="function">
       <name>renderHints</name>
       <anchor>renderHints</anchor>
       <arglist>()</arglist>
@@ -65062,11 +65250,6 @@
       <name>restore</name>
       <anchor>restore</anchor>
       <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <name>restoreRedirected</name>
-      <anchor>restoreRedirected</anchor>
-      <arglist>( const QPaintDevice * device )</arglist>
     </member>
     <member kind="function">
       <name>rotate</name>
@@ -65182,11 +65365,6 @@
       <name>setPen</name>
       <anchor>setPen-3</anchor>
       <arglist>( Qt::PenStyle style )</arglist>
-    </member>
-    <member kind="function">
-      <name>setRedirected</name>
-      <anchor>setRedirected</anchor>
-      <arglist>( const QPaintDevice * device, QPaintDevice * replacement, const QPoint &amp; offset = QPoint()</arglist>
     </member>
     <member kind="function">
       <name>setRenderHint</name>
@@ -72451,6 +72629,11 @@
       <arglist>( SubElement element, const QStyleOption * opt, const QWidget * widget = 0 )</arglist>
     </member>
     <member kind="function">
+      <name>timerEvent</name>
+      <anchor>timerEvent</anchor>
+      <arglist>( QTimerEvent * event )</arglist>
+    </member>
+    <member kind="function">
       <name>unpolish</name>
       <anchor>unpolish</anchor>
       <arglist>( QWidget * widget )</arglist>
@@ -72565,7 +72748,7 @@
     </member>
     <member kind="function">
       <name>classId</name>
-      <anchor>classIdx</anchor>
+      <anchor>classId</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -72645,7 +72828,7 @@
     </member>
     <member kind="function">
       <name>linestep</name>
-      <anchor>linestep</anchor>
+      <anchor>linestepx</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -100511,7 +100694,7 @@
     </member>
     <member kind="function">
       <name>attribute</name>
-      <anchor>attributex</anchor>
+      <anchor>attribute</anchor>
       <arglist>( const QString &amp; name, const QString &amp; defaultValue = QString()</arglist>
     </member>
     <member kind="function">
@@ -106139,7 +106322,7 @@
     </member>
     <member kind="function">
       <name>attribute</name>
-      <anchor>attributex</anchor>
+      <anchor>attribute</anchor>
       <arglist>( const QXmlName &amp; name, const QStringRef &amp; value )</arglist>
     </member>
     <member kind="function">
@@ -107099,7 +107282,7 @@
     </member>
     <member kind="function">
       <name>attribute</name>
-      <anchor>attributex</anchor>
+      <anchor>attribute</anchor>
       <arglist>( const QXmlName &amp; name, const QStringRef &amp; value )</arglist>
     </member>
     <member kind="function">
