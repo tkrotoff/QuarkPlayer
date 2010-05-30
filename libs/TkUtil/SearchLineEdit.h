@@ -86,6 +86,10 @@ private slots:
 	/** Shows the search history inside the wordListButton. */
 	void showWordList();
 
+	void itemActivatedFromWordList();
+
+	void itemHighlightedFromWordList();
+
 	void retranslate();
 
 private:

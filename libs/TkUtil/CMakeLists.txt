@@ -43,7 +43,6 @@ qt4_wrap_cpp(TkUtil_SRCS
 	FindFiles.h
 	FileChooserWidget.h
 	SearchLineEdit.h
-	ProxyStyle.h
 	TkAction.h
 )
 

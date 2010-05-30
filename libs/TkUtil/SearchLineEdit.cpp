@@ -71,9 +71,12 @@ void SearchLineEdit::init(const QStringList & wordList) {
 		_clearButton->sizeHint().height() + frameWidth);
 
 	//Search completion
-	_stringListModel = new QStringListModel();
+	QCompleter * completer = new QCompleter(this);
+	_stringListModel = new QStringListModel(completer);
 	_stringListModel->setStringList(wordList);
-	QCompleter * completer = new QCompleter(_stringListModel, this);
+	completer->setModel(_stringListModel);
+	connect(completer, SIGNAL(activated(const QString &)), SLOT(itemActivatedFromWordList()));
+	connect(completer, SIGNAL(highlighted(const QString &)), SLOT(itemHighlightedFromWordList()));
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	setCompleter(completer);
 
@@ -174,10 +177,18 @@ void SearchLineEdit::updateClearButton(const QString & text) {
 }
 
 void SearchLineEdit::showWordList() {
-	setFocus();
+	//setFocus();
 	//Empty string means show the entire list
 	completer()->setCompletionPrefix(QString());
 	completer()->complete();
+}
+
+void SearchLineEdit::itemActivatedFromWordList() {
+	qDebug() << Q_FUNC_INFO << "activated";
+}
+
+void SearchLineEdit::itemHighlightedFromWordList() {
+	qDebug() << Q_FUNC_INFO << "highlighted";
 }
 
 QStringList SearchLineEdit::wordList() const {
