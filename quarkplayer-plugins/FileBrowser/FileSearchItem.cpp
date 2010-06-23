@@ -108,9 +108,17 @@ bool FileSearchItem::isDir() const {
 class FileSearchModelSorter {
 public:
 
+	/**
+	 * "Less than" function for qStableSort().
+	 *
+	 * Equivalent to operator<().
+	 * Place directories before files.
+	 *
+	 * @return true if leftItem is < rightItem; false otherwise
+	 */
 	bool operator()(const FileSearchItem * leftItem, const FileSearchItem * rightItem) const {
 		//Place directories before files
-		//FIXME Not under MacOS X ?
+
 		bool left = leftItem->isDir();
 		bool right = rightItem->isDir();
 		if (left ^ right) {
@@ -126,4 +134,9 @@ private:
 void FileSearchItem::sortChildren() {
 	FileSearchModelSorter modelSorter;
 	qStableSort(_childItems.begin(), _childItems.end(), modelSorter);
+
+	//Recursive
+	foreach (FileSearchItem * item, _childItems) {
+		item->sortChildren();
+	}
 }

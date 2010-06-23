@@ -25,7 +25,6 @@
 #include <TkUtil/Singleton.h>
 
 //Yes QUuid is a struct instead of a class inside src/corelib/plugin/quuid.h
-//This is strange...
 struct QUuid;
 
 /**
@@ -132,6 +131,10 @@ public:
 	 */
 	static const char * ALLOW_MULTIPLE_INSTANCES_KEY;
 	bool allowMultipleInstances() const;
+
+	/** Backend used by class FindFiles. */
+	static const char * FINDFILES_BACKEND_KEY;
+	int findFilesBackend() const;
 
 private:
 

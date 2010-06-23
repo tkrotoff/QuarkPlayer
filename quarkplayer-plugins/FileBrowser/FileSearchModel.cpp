@@ -27,6 +27,8 @@
 #include <TkUtil/FindFiles.h>
 #include <TkUtil/TkFile.h>
 
+#include <quarkplayer/config/Config.h>
+
 #include <QtGui/QtGui>
 
 #include <QtCore/QDebug>
@@ -392,11 +394,11 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 			SLOT(filesFound(const QStringList &, const QUuid &)), Qt::QueuedConnection);
 		connect(_findFiles, SIGNAL(finished(int, const QUuid &)),
 			SIGNAL(searchFinished(int)), Qt::QueuedConnection);
-		//connect(_findFiles, SIGNAL(finished(int)),
-			//SLOT(searchFinishedSlot(int)), Qt::QueuedConnection);
+		connect(_findFiles, SIGNAL(finished(int, const QUuid &)),
+			SLOT(sortCurrentItem()), Qt::QueuedConnection);
 	}
 
-	//This was true with Qt 4.4.3
+	//This was true with Qt 4.4.3:
 	//Way faster with INT_MAX because beginInsertRows() is slow
 	//It's better to call only once thus INT_MAX instead of 1 for example
 	//_findFiles->setFilesFoundLimit(INT_MAX);
@@ -410,6 +412,8 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 	_findFiles->setExtensions(_searchExtensions);
 	_findFiles->setFindDirs(true);
 	_findFiles->setRecursiveSearch(recursiveSearch);
+	FindFiles::setBackend(static_cast<FindFiles::Backend>(
+		Config::instance().value(Config::FINDFILES_BACKEND_KEY).toInt()));
 
 	//Starts a new search
 	_currentSearchUuid = QUuid::createUuid();
@@ -461,12 +465,11 @@ void FileSearchModel::updateMediaInfo(const MediaInfo & mediaInfo) {
 	_mediaInfoFetcherIndex = QModelIndex();
 }
 
-void FileSearchModel::searchFinishedSlot(int timeElapsed) {
-	Q_UNUSED(timeElapsed);
-
-	/*if (_rootItem) {
-
+void FileSearchModel::sortCurrentItem() {
+	//Code inspired by Qt 4.6.1 src/gui/dialogs/qfilesystemmodel.cpp
+	if (_currentParentItem) {
 		emit layoutAboutToBeChanged();
+
 		QModelIndexList oldList = persistentIndexList();
 		QList<QPair<FileSearchItem *, int> > oldNodes;
 		for (int i = 0; i < oldList.count(); ++i) {
@@ -474,7 +477,7 @@ void FileSearchModel::searchFinishedSlot(int timeElapsed) {
 			oldNodes.append(pair);
 		}
 
-		_rootItem->sortChildren();
+		_currentParentItem->sortChildren();
 
 		QModelIndexList newList;
 		for (int i = 0; i < oldNodes.count(); ++i) {
@@ -482,9 +485,8 @@ void FileSearchModel::searchFinishedSlot(int timeElapsed) {
 			idx = idx.sibling(idx.row(), oldNodes.at(i).second);
 			newList.append(idx);
 		}
-		qDebug() << __FUNCTION__ << oldList.size();
-		qDebug() << __FUNCTION__ << newList.size();
+
 		changePersistentIndexList(oldList, newList);
 		emit layoutChanged();
-	}*/
+	}
 }

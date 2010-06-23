@@ -47,6 +47,8 @@ const char * Config::MAINWINDOW_GEOMETRY_KEY = "mainwindow_geometry";
 
 const char * Config::ALLOW_MULTIPLE_INSTANCES_KEY = "allow_multiple_instances";
 
+const char * Config::FINDFILES_BACKEND_KEY = "findfiles_backend";
+
 Config::Config()
 	: TkConfig() {
 
@@ -92,6 +94,9 @@ Config::Config()
 	addKey(MAINWINDOW_GEOMETRY_KEY, QByteArray());
 
 	addKey(ALLOW_MULTIPLE_INSTANCES_KEY, false);
+
+	//0 = native, 1 = Qt
+	addKey(FINDFILES_BACKEND_KEY, 0);
 }
 
 Config::~Config() {
@@ -190,4 +195,8 @@ QByteArray Config::mainWindowGeometry() const {
 
 bool Config::allowMultipleInstances() const {
 	return value(ALLOW_MULTIPLE_INSTANCES_KEY).toBool();
+}
+
+int Config::findFilesBackend() const {
+	return value(FINDFILES_BACKEND_KEY).toInt();
 }

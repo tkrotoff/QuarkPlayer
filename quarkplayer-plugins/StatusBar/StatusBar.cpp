@@ -89,7 +89,8 @@ void StatusBar::tick(qint64 time) {
 	QString timeText;
 	if (time != 0) {
 		qint64 totalTime = quarkPlayer().currentMediaObject()->totalTime();
-		TimeDisplayMode timeDisplayMode = static_cast<TimeDisplayMode>(Config::instance().value(STATUSBAR_TIME_DIPLAY_MODE_KEY).toInt());
+		TimeDisplayMode timeDisplayMode = static_cast<TimeDisplayMode>(
+			Config::instance().value(STATUSBAR_TIME_DIPLAY_MODE_KEY).toInt());
 
 		switch (timeDisplayMode) {
 		case TimeDisplayModeElapsed:
@@ -108,7 +109,8 @@ void StatusBar::tick(qint64 time) {
 void StatusBar::changeTimeDisplayMode() {
 	qDebug() << __FUNCTION__;
 
-	TimeDisplayMode timeDisplayMode = static_cast<TimeDisplayMode>(Config::instance().value(STATUSBAR_TIME_DIPLAY_MODE_KEY).toInt());
+	TimeDisplayMode timeDisplayMode = static_cast<TimeDisplayMode>(
+		Config::instance().value(STATUSBAR_TIME_DIPLAY_MODE_KEY).toInt());
 	TimeDisplayMode newTimeDisplayMode = TimeDisplayModeElapsed;	//Initialization just to avoid a warning
 	switch (timeDisplayMode) {
 	case TimeDisplayModeElapsed:

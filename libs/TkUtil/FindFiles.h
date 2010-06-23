@@ -33,6 +33,8 @@
  * There are UNIX and Win32 specific implementations, cannot be faster than that :)
  * A Qt implementation is available aswell but is way slower.
  *
+ * All implementations (i.e backends) sort files in alphabetic order.
+ *
  * Follows the same API as PlaylistParser class.
  *
  * @see IPlaylistParser
@@ -95,6 +97,38 @@ public:
 	 * By default recursion is on.
 	 */
 	void setRecursiveSearch(bool recursiveSearch);
+
+	/**
+	 * Backend used by FindFiles.
+	 *
+	 * A backend is an implementation for searching files.
+	 */
+	enum Backend {
+
+		/**
+		 * Native way to search files.
+		 *
+		 * Under Windows this uses FindFirstFile().
+		 * Under UNIX this uses readdir() and friends.
+		 */
+		BackendNative,
+
+		/**
+		 * Qt way to search files, uses QDir::entryList().
+		 *
+		 * This backend is slower than the native one, specially under Windows.
+		 * This might change with future releases of Qt.
+		 */
+		BackendQt
+	};
+
+	/**
+	 * Sets the backend to be used to search files.
+	 *
+	 * Can be native backend or Qt backend.
+	 * By default native backend is used.
+	 */
+	static void setBackend(Backend backend);
 
 	/**
 	 * Stops the thread.
@@ -181,6 +215,11 @@ private:
 	volatile bool _stop;
 
 	QUuid _uuid;
+
+	/**
+	 * Backend to use to search files, native or Qt way.
+	 */
+	static Backend _backend;
 };
 
 #endif	//FINDFILES_H

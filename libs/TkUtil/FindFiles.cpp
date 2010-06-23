@@ -39,6 +39,7 @@
 #include <cerrno>
 
 static const int DEFAULT_FILES_FOUND_LIMIT = 500;
+FindFiles::Backend FindFiles::_backend = FindFiles::BackendNative;
 
 FindFiles::FindFiles(QObject * parent)
 	: QThread(parent) {
@@ -79,6 +80,10 @@ void FindFiles::setRecursiveSearch(bool recursiveSearch) {
 	_recursiveSearch = recursiveSearch;
 }
 
+void FindFiles::setBackend(Backend backend) {
+	_backend = backend;
+}
+
 void FindFiles::stop() {
 	_stop = true;
 	wait();
@@ -107,12 +112,23 @@ void FindFiles::run() {
 	QTime timeElapsed;
 	timeElapsed.start();
 
+	switch (_backend) {
+
+	case BackendNative:
 #ifdef Q_WS_WIN
-	findAllFilesWin32(_path);
+		findAllFilesWin32(_path);
 #else
-	findAllFilesUNIX(_path);
+		findAllFilesUNIX(_path);
 #endif	//Q_WS_WIN
-	//findAllFilesQt(_path);
+		break;
+
+	case BackendQt:
+		findAllFilesQt(_path);
+		break;
+
+	default:
+		qCritical() << Q_FUNC_INFO << "Unknown backend:" + _backend;
+	}
 
 	if (!_stop) {
 		//Emits the signal for the remaining files found
@@ -255,24 +271,29 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 
 void FindFiles::findAllFilesUNIX(const QString & path) {
 #ifndef Q_WS_WIN
-	//See http://www.commentcamarche.net/forum/affich-1699952-langage-c-recuperer-un-dir
+	//See scandir() manpage for an example
 
 	if (_stop) {
 		return;
 	}
 
-	//Warning: opendir() is limited to PATH_MAX
+	//Warning: opendir() (and I guess scandir() too) is limited to PATH_MAX
 	//See http://insanecoding.blogspot.com/2007/11/pathmax-simply-isnt.html
-	DIR * dir = opendir(QFile::encodeName(path));
-	if (!dir) {
-		qCritical() << Q_FUNC_INFO << "opendir() failed, path:" << path << "errno:" << strerror(errno);
+	//filter() callback function is to NULL, I prefer to filter "myself" the entries
+	//so that this algorithm is similar to the Qt and Windows implementations.
+	struct dirent ** entries;
+	int nbEntries = scandir(QFile::encodeName(path), &entries, NULL, alphasort);
+	if (nbEntries < 0) {
+		qCritical() << Q_FUNC_INFO << "scandir() failed, path:" << path << "errno:" << strerror(errno);
 	} else {
-		struct dirent * entry = NULL;
-		while ((entry = readdir(dir))) {
+		for (int i = 0; i < nbEntries; i++) {
 			if (_stop) {
 				break;
 			}
+
+			struct dirent * entry = entries[i];
 			QString name(QFile::decodeName(entry->d_name));
+			free(entry);
 
 			//Avoid '.', '..' and other hidden files
 			if (!name.startsWith('.')) {
@@ -307,11 +328,7 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 				}
 			}
 		}
-
-		int ret = closedir(dir);
-		if (ret != 0) {
-			qCritical() << Q_FUNC_INFO << "closedir() failed, path:" << path << "errno:" << strerror(errno);
-		}
+		free(entries);
 	}
 #else
 	Q_UNUSED(path);

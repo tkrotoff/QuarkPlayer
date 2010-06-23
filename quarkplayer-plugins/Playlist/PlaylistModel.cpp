@@ -375,6 +375,8 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 			findFiles->setSearchPath(fileName);
 			findFiles->setFilesFoundLimit(500);
 			findFiles->setFindDirs(false);
+			FindFiles::setBackend(static_cast<FindFiles::Backend>(
+				Config::instance().value(Config::FINDFILES_BACKEND_KEY).toInt()));
 			findFiles->start(QUuid::createUuid());
 		} else if (MediaInfo::isUrl(fileName)) {
 			//A filename that contains a host/server name is a remote/network media

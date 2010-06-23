@@ -142,7 +142,12 @@ private slots:
 
 	void updateMediaInfo(const MediaInfo & mediaInfo);
 
-	void searchFinishedSlot(int timeElapsed);
+	/**
+	 * Sorts the model: directories first and alphabetic order.
+	 *
+	 * Code inspired by Qt 4.6.1 src/gui/dialogs/qfilesystemmodel.cpp
+	 */
+	void sortCurrentItem();
 
 private:
 
