@@ -39,6 +39,14 @@ public:
 	void setPopulatedChildren(bool populatedChildren);
 	bool populatedChildren() const;
 
+	/**
+	 * Appends an item to this item.
+	 *
+	 * Each an item is added, all children of this item
+	 * are sorted.
+	 *
+	 * @see sort()
+	 */
 	void appendChild(FileSearchItem * newItem);
 
 	FileSearchItem * child(int row);
@@ -55,9 +63,15 @@ public:
 
 	bool isDir() const;
 
-	void sortChildren();
-
 private:
+
+	/**
+	 * Sorts the children of this item if any.
+	 *
+	 * Uses qStableSort() function from Qt.
+	 * The sort is not recursive, there is no need.
+	 */
+	void sort();
 
 	/** Data (filename mostly) contained inside this item. */
 	MediaInfo _mediaInfo;

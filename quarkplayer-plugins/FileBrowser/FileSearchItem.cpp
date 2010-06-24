@@ -45,6 +45,7 @@ bool FileSearchItem::populatedChildren() const {
 
 void FileSearchItem::appendChild(FileSearchItem * newItem) {
 	_childItems.append(newItem);
+	sort();
 }
 
 FileSearchItem * FileSearchItem::child(int row) {
@@ -108,17 +109,17 @@ bool FileSearchItem::isDir() const {
 class FileSearchModelSorter {
 public:
 
+	/** Used by qStableSort(). */
+	bool operator()(const FileSearchItem * leftItem, const FileSearchItem * rightItem) const {
+		compareItems(leftItem, rightItem);
+	}
+
 	/**
-	 * "Less than" function for qStableSort().
-	 *
-	 * Equivalent to operator<().
 	 * Place directories before files.
 	 *
 	 * @return true if leftItem is < rightItem; false otherwise
 	 */
-	bool operator()(const FileSearchItem * leftItem, const FileSearchItem * rightItem) const {
-		//Place directories before files
-
+	bool compareItems(const FileSearchItem * leftItem, const FileSearchItem * rightItem) const {
 		bool left = leftItem->isDir();
 		bool right = rightItem->isDir();
 		if (left ^ right) {
@@ -131,12 +132,7 @@ private:
 
 };
 
-void FileSearchItem::sortChildren() {
+void FileSearchItem::sort() {
 	FileSearchModelSorter modelSorter;
 	qStableSort(_childItems.begin(), _childItems.end(), modelSorter);
-
-	//Recursive
-	foreach (FileSearchItem * item, _childItems) {
-		item->sortChildren();
-	}
 }

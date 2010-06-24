@@ -394,8 +394,6 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 			SLOT(filesFound(const QStringList &, const QUuid &)), Qt::QueuedConnection);
 		connect(_findFiles, SIGNAL(finished(int, const QUuid &)),
 			SIGNAL(searchFinished(int)), Qt::QueuedConnection);
-		connect(_findFiles, SIGNAL(finished(int, const QUuid &)),
-			SLOT(sortCurrentItem()), Qt::QueuedConnection);
 	}
 
 	//This was true with Qt 4.4.3:
@@ -463,30 +461,4 @@ void FileSearchModel::updateMediaInfo(const MediaInfo & mediaInfo) {
 		}
 	}
 	_mediaInfoFetcherIndex = QModelIndex();
-}
-
-void FileSearchModel::sortCurrentItem() {
-	//Code inspired by Qt 4.6.1 src/gui/dialogs/qfilesystemmodel.cpp
-	if (_currentParentItem) {
-		emit layoutAboutToBeChanged();
-
-		QModelIndexList oldList = persistentIndexList();
-		QList<QPair<FileSearchItem *, int> > oldNodes;
-		for (int i = 0; i < oldList.count(); ++i) {
-			QPair<FileSearchItem *, int> pair(item(oldList.at(i)), oldList.at(i).column());
-			oldNodes.append(pair);
-		}
-
-		_currentParentItem->sortChildren();
-
-		QModelIndexList newList;
-		for (int i = 0; i < oldNodes.count(); ++i) {
-			QModelIndex idx = index(oldNodes.at(i).first);
-			idx = idx.sibling(idx.row(), oldNodes.at(i).second);
-			newList.append(idx);
-		}
-
-		changePersistentIndexList(oldList, newList);
-		emit layoutChanged();
-	}
 }
