@@ -25,7 +25,13 @@ svn status | grep '\!' | awk '{print $2;}' | xargs svn rm
 svn status | grep '\?' | awk '{print $2;}' | xargs svn add
 
 # Change mime-type
-svn propset svn:mime-type text/html *.html
-svn propset svn:mime-type text/css *.css
+# FIXME -R parameter does not work despite being
+# inside Subversion documentation
+# Bug as been reported
+svn -R propset svn:mime-type text/html *.html
+svn -R propset svn:mime-type text/css *.css
+svn -R propset svn:mime-type image/png *.png
+svn -R propset svn:mime-type image/gif *.gif
+svn -R propset svn:mime-type application/x-javascript *.js
 
 # svn commit should be done manually

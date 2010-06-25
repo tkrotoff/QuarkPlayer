@@ -146,7 +146,9 @@ add_subdirectory(3rdparty/QtSingleApplication)
 
 # 3rdparty libraries with Qt and Phonon dependency
 add_subdirectory(3rdparty/phonon)
-add_subdirectory(phonon-mplayer)
+
+set(SERVICES_INSTALL_DIR ${BIN_INSTALL_DIR})
+add_subdirectory(3rdparty/phonon-mplayer/mplayer)
 ##
 
 # QuarkPlayer
