@@ -111,7 +111,7 @@ public:
 
 	/** Used by qStableSort(). */
 	bool operator()(const FileSearchItem * leftItem, const FileSearchItem * rightItem) const {
-		compareItems(leftItem, rightItem);
+		return compareItems(leftItem, rightItem);
 	}
 
 	/**
