@@ -62,7 +62,7 @@ public slots:
 	 * Simulates user clicking on the exit full screen button.
 	 * Call by VideoWidgetPlugin when the current playing media object finishes.
 	 */
-	void triggerExitFullScreenAction();
+	void triggerFullScreenExitAction();
 
 private slots:
 

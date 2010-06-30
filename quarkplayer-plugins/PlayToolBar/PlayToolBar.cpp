@@ -322,7 +322,7 @@ void PlayToolBar::retranslate() {
 }
 
 void PlayToolBar::setToolBarEnabled(bool enabled) {
-	//FIXME don't why, seekToolBar does not get enabled afterwards
+	//FIXME don't know why, seekToolBar does not get enabled afterwards
 	//_seekToolBar->setEnabled(enabled);
 
 	ActionCollection::action("MainWindow.PreviousTrack")->setEnabled(enabled);

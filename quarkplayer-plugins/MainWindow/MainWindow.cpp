@@ -346,6 +346,14 @@ void MainWindow::populateActionCollection() {
 void MainWindow::setupUi() {
 	//No central widget, only QDockWidget
 	//setCentralWidget(NULL);
+	/*QWidget * centralWidget = new QWidget();
+	centralWidget->setMaximumSize(0, 0);
+	centralWidget->setSizeIncrement(0, 0);
+	centralWidget->setBaseSize(0, 0);
+	centralWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+	centralWidget->setMinimumSize(0, 0);
+	setCentralWidget(centralWidget);*/
+	///
 
 	_menuFile = new QMenu();
 	menuBar()->addMenu(_menuFile);
@@ -373,6 +381,7 @@ void MainWindow::setupUi() {
 	_menuPlay->addAction(ActionCollection::action("MainWindow.SpeedIncrease10%"));
 	_menuPlay->addSeparator();
 	_menuPlay->addAction(ActionCollection::action("MainWindow.FullScreen"));
+	//No menu entry for FullScreenExit, see MyVideoWidget.cpp
 	_menuPlay->addSeparator();
 	_menuPlay->addAction(ActionCollection::action("MainWindow.NewMediaObject"));
 

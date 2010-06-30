@@ -187,7 +187,7 @@ void MyVideoWidget::aspectRatioChanged(QAction * action) {
 	}
 }
 
-void MyVideoWidget::triggerExitFullScreenAction() {
+void MyVideoWidget::triggerFullScreenExitAction() {
 	ActionCollection::action("MainWindow.FullScreen")->setChecked(false);
 }
 
@@ -374,8 +374,16 @@ void MyVideoWidget::playToolBarAdded(QToolBar * playToolBar) {
 	connect(ActionCollection::action("MainWindow.FullScreen"), SIGNAL(toggled(bool)),
 		SLOT(setFullScreenInternal(bool)));
 
+
+	//We have to add the QAction to the widget otherwise it won't work
+	//From Qt doc:
+	//Note that an action must be added to a widget before it can be used;
+	//this is also true when the shortcut should be global
+	//(i.e., Qt::ApplicationShortcut as Qt::ShortcutContext).
+	addAction(ActionCollection::action("MainWindow.FullScreenExit"));
+
 	connect(ActionCollection::action("MainWindow.FullScreenExit"), SIGNAL(triggered()),
-		SLOT(triggerExitFullScreenAction()));
+		SLOT(triggerFullScreenExitAction()));
 }
 
 void MyVideoWidget::statusBarAdded(QStatusBar * statusBar) {
