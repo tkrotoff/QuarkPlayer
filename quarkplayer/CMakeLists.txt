@@ -15,7 +15,7 @@ set(QUARKPLAYER_TESTS_LOC 0)
 set(QUARKPLAYER_3RDPARTY_LOC 0)
 if (NOT CMAKE_BUILD_TYPE STREQUAL Debug)
 	# Takes a lot of time :/
-	loc_counter(${CMAKE_SOURCE_DIR}/phonon-mplayer PHONON_MPLAYER_LOC 1)
+	loc_counter(${CMAKE_SOURCE_DIR}/3rdparty/phonon-mplayer PHONON_MPLAYER_LOC 1)
 	loc_counter(${CMAKE_SOURCE_DIR}/quarkplayer QUARKPLAYER_CORE_LOC 1)
 	loc_counter(${CMAKE_SOURCE_DIR}/libs QUARKPLAYER_LIBS_LOC 1)
 	loc_counter(${CMAKE_SOURCE_DIR}/quarkplayer-plugins QUARKPLAYER_PLUGINS_LOC 1)

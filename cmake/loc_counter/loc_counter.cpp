@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * Redistribution and use is allowed according to the terms of the BSD license.
  * For details see the accompanying COPYING file.
@@ -25,6 +25,8 @@
 	#include <dirent.h>
 #endif	//WIN32
 
+#include <cerrno>
+#include <cstring>
 #include <cstdlib>
 
 typedef std::list<std::string> StringList;
