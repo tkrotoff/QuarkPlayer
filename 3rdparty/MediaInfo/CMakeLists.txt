@@ -3,11 +3,13 @@ project(MediaInfo)
 set(MEDIAINFO_MAJOR_VERSION 0)
 set(MEDIAINFO_MINOR_VERSION 7)
 set(MEDIAINFO_PATCH_VERSION 21)
-set(MEDIAINFO_VERSION ${MEDIAINFO_MAJOR_VERSION}.${MEDIAINFO_MINOR_VERSION}.${MEDIAINFO_PATCH_VERSION})
+set(MEDIAINFO_VERSION
+	${MEDIAINFO_MAJOR_VERSION}.${MEDIAINFO_MINOR_VERSION}.${MEDIAINFO_PATCH_VERSION}
+)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-include_directories(${ZLIB_INCLUDE_DIR})
+include_directories(${ZLIB_INCLUDE_DIRS})
 
 add_definitions(
 	-DMEDIAINFO_MINIMIZESIZE
@@ -156,7 +158,7 @@ add_library(MediaInfo SHARED ${MediaInfo_SRCS})
 
 target_link_libraries(MediaInfo
 	ZenLib
-	${ZLIB_LIBRARY}
+	${ZLIB_LIBRARIES}
 )
 
 set_target_properties(MediaInfo PROPERTIES

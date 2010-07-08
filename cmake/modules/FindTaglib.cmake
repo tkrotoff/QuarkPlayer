@@ -2,7 +2,8 @@
 # Once done this will define
 #
 #  TAGLIB_FOUND - system has the taglib library
-#  TAGLIB_CFLAGS - the taglib cflags
+#  TAGLIB_INCLUDE_DIRS - MediaInfoLib include directories
+#  TAGLIB_DEFINITIONS - the taglib cflags
 #  TAGLIB_LIBRARIES - The libraries needed to use taglib
 
 # Copyright (c) 2006, Laurent Montel, <montel@kde.org>
@@ -22,7 +23,7 @@ endif(NOT WIN32)
 
 #reset vars
 set(TAGLIB_LIBRARIES)
-set(TAGLIB_CFLAGS)
+set(TAGLIB_DEFINITIONS)
 
 # if taglib-config has been found
 if(TAGLIBCONFIG_EXECUTABLE)
@@ -36,18 +37,18 @@ if(TAGLIBCONFIG_EXECUTABLE)
 
      exec_program(${TAGLIBCONFIG_EXECUTABLE} ARGS --libs RETURN_VALUE _return_VALUE OUTPUT_VARIABLE TAGLIB_LIBRARIES)
 
-     exec_program(${TAGLIBCONFIG_EXECUTABLE} ARGS --cflags RETURN_VALUE _return_VALUE OUTPUT_VARIABLE TAGLIB_CFLAGS)
+     exec_program(${TAGLIBCONFIG_EXECUTABLE} ARGS --cflags RETURN_VALUE _return_VALUE OUTPUT_VARIABLE TAGLIB_DEFINITIONS)
 
-     if(TAGLIB_LIBRARIES AND TAGLIB_CFLAGS)
+     if(TAGLIB_LIBRARIES AND TAGLIB_DEFINITIONS)
         set(TAGLIB_FOUND TRUE)
-     endif(TAGLIB_LIBRARIES AND TAGLIB_CFLAGS)
-     string(REGEX REPLACE " *-I" ";" TAGLIB_INCLUDES "${TAGLIB_CFLAGS}")
-  endif(TAGLIB_VERSION STRLESS "${TAGLIB_MIN_VERSION}") 
-  mark_as_advanced(TAGLIB_CFLAGS TAGLIB_LIBRARIES TAGLIB_INCLUDES)
+     endif(TAGLIB_LIBRARIES AND TAGLIB_DEFINITIONS)
+     string(REGEX REPLACE " *-I" ";" TAGLIB_INCLUDE_DIRS "${TAGLIB_DEFINITIONS}")
+  endif(TAGLIB_VERSION STRLESS "${TAGLIB_MIN_VERSION}")
+  mark_as_advanced(TAGLIB_DEFINITIONS TAGLIB_LIBRARIES TAGLIB_INCLUDE_DIRS)
 
 else(TAGLIBCONFIG_EXECUTABLE)
 
-  find_path(TAGLIB_INCLUDES
+  find_path(TAGLIB_INCLUDE_DIRS
     NAMES
     tag.h
     PATH_SUFFIXES taglib
@@ -64,10 +65,10 @@ else(TAGLIBCONFIG_EXECUTABLE)
     ELSE(NOT WIN32)
 
       # 1. get all possible libnames
-      SET(args PATHS ${KDE4_LIB_DIR} ${LIB_INSTALL_DIR})             
-      SET(newargs "")               
-      SET(libnames_release "")      
-      SET(libnames_debug "")        
+      SET(args PATHS ${KDE4_LIB_DIR} ${LIB_INSTALL_DIR})
+      SET(newargs "")
+      SET(libnames_release "")
+      SET(libnames_debug "")
 
       LIST(LENGTH args listCount)
 
@@ -115,21 +116,21 @@ else(TAGLIBCONFIG_EXECUTABLE)
       MARK_AS_ADVANCED(TAGLIB_LIBRARIES_DEBUG)
 
     ENDIF(NOT WIN32)
-  
+
   INCLUDE(FindPackageMessage)
   INCLUDE(FindPackageHandleStandardArgs)
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(Taglib DEFAULT_MSG TAGLIB_INCLUDES TAGLIB_LIBRARIES)
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(Taglib DEFAULT_MSG TAGLIB_INCLUDE_DIRS TAGLIB_LIBRARIES)
 
 endif(TAGLIBCONFIG_EXECUTABLE)
 
 
 if(TAGLIB_FOUND)
   if(NOT Taglib_FIND_QUIETLY AND TAGLIBCONFIG_EXECUTABLE)
-    message(STATUS "Taglib found: ${TAGLIB_LIBRARIES}")
+    message(STATUS "Found TagLib: ${TAGLIB_LIBRARIES}")
   endif(NOT Taglib_FIND_QUIETLY AND TAGLIBCONFIG_EXECUTABLE)
 else(TAGLIB_FOUND)
   if(Taglib_FIND_REQUIRED)
-    message(FATAL_ERROR "Could not find Taglib")
+    message(FATAL_ERROR "Could NOT find Taglib")
   endif(Taglib_FIND_REQUIRED)
 endif(TAGLIB_FOUND)
 
