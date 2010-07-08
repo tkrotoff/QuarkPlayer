@@ -184,13 +184,33 @@ void MainWindow::playFile() {
 	}
 }
 
-void MainWindow::playDVD() {
-	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select DVD folder"),
-			Config::instance().dvdDir());
+QString MainWindow::getDiscPath(const QString & defaultPath, const QString & windowTitle) {
+	QString path;
 
-	if (!dir.isEmpty()) {
-		Config::instance().setValue(Config::DVD_DIR_KEY, dir);
-		play(Phonon::MediaSource(Phonon::Dvd, dir));
+#ifdef Q_WS_WIN
+	path = TkFileDialog::getExistingDirectory(this, windowTitle, defaultPath);
+#else
+	//Under Linux
+	//FIXME and other OS like Mac OS X??
+	path = TkFileDialog::getOpenFileName(this, windowTitle, defaultPath);
+#endif	//Q_WS_WIN
+
+	return path;
+}
+
+void MainWindow::playDVD() {
+	QString dvd = getDiscPath(Config::instance().dvdPath(), tr("Select DVD Device"));
+	if (!dvd.isEmpty()) {
+		Config::instance().setValue(Config::DVD_PATH_KEY, dvd);
+		play(Phonon::MediaSource(Phonon::Dvd, dvd));
+	}
+}
+
+void MainWindow::playVCD() {
+	QString cdrom = getDiscPath(Config::instance().cdromPath(), tr("Select SVCD/VCD Device"));
+	if (!cdrom.isEmpty()) {
+		Config::instance().setValue(Config::CDROM_PATH_KEY, cdrom);
+		play(Phonon::MediaSource(Phonon::Vcd, cdrom));
 	}
 }
 
@@ -199,16 +219,6 @@ void MainWindow::playURL() {
 
 	if (!url.isEmpty()) {
 		play(url);
-	}
-}
-
-void MainWindow::playVCD() {
-	QString dir = TkFileDialog::getExistingDirectory(this, tr("Select VCD folder"),
-			Config::instance().cdromDir());
-
-	if (!dir.isEmpty()) {
-		Config::instance().setValue(Config::CDROM_DIR_KEY, dir);
-		play(Phonon::MediaSource(Phonon::Vcd, dir));
 	}
 }
 

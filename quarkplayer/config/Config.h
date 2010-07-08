@@ -91,13 +91,21 @@ public:
 	static const char * LAST_DIR_OPENED_KEY;
 	QString lastDirOpened() const;
 
-	/** DVD directory: DVD device. */
-	static const char * DVD_DIR_KEY;
-	QString dvdDir() const;
+	/**
+	 * DVD path: DVD device.
+	 *
+	 * Can be a directory or a file depending on the platform.
+	 */
+	static const char * DVD_PATH_KEY;
+	QString dvdPath() const;
 
-	/** CDROM directory: CDROM device. */
-	static const char * CDROM_DIR_KEY;
-	QString cdromDir() const;
+	/**
+	 * CDROM path: CDROM device.
+	 *
+	 * Can be a directory or a file depending on the platform.
+	 */
+	static const char * CDROM_PATH_KEY;
+	QString cdromPath() const;
 
 	/** Standard music location (i.e C:/blabla/My Music). */
 	static const char * MUSIC_DIR_KEY;
@@ -108,7 +116,7 @@ public:
 	static const char * PLUGIN_DIR_KEY;
 	QStringList pluginDirList() const;
 
-	/** Directoctory where the resources are located. */
+	/** Directory where the resources are located. */
 	static const char * RESOURCE_DIR_KEY;
 	QString resourceDir() const;
 
@@ -125,7 +133,7 @@ public:
 	QByteArray mainWindowGeometry() const;
 
 	/**
-	 * Multiple QuarkPlayer instances.
+	 * Enables/disables multiple QuarkPlayer instances.
 	 *
 	 * @see QtSingleApplication
 	 */

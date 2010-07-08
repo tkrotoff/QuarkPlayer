@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ public:
 	FileSearchItem * child(int row);
 	int childCount() const;
 	int row() const;
-	int childRow(const QString & filename) const;
+	int childRow(const QString & fileName) const;
 	FileSearchItem * parent() const;
 
 	/** Helper function, equivalent to mediaInfo().fileName() */
@@ -85,8 +85,6 @@ private:
 	bool _populatedChildren;
 
 	mutable int _isDir;
-
-	int _firstFileItemAdded;
 };
 
 #endif	//FILESEARCHITEM_H

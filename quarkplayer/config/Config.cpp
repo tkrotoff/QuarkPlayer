@@ -34,8 +34,8 @@ const char * Config::ICON_THEME_KEY = "icon_theme";
 const char * Config::RECENT_FILES_KEY = "recent_files";
 
 const char * Config::LAST_DIR_OPENED_KEY = "last_dir_opened";
-const char * Config::DVD_DIR_KEY = "dvd_dir";
-const char * Config::CDROM_DIR_KEY = "cdrom_dir";
+const char * Config::DVD_PATH_KEY = "dvd_path";
+const char * Config::CDROM_PATH_KEY = "cdrom_path";
 const char * Config::MUSIC_DIR_KEY = "music_dir";
 const char * Config::PLUGIN_DIR_KEY = "plugin_dir";
 const char * Config::RESOURCE_DIR_KEY = "resource_dir";
@@ -59,21 +59,21 @@ Config::Config()
 	addKey(LAST_DIR_OPENED_KEY, QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
 
 	//Default DVD and CDROM device
-	QString dvdDir;
-	QString cdromDir;
+	QString dvdPath;
+	QString cdromPath;
 #ifdef Q_WS_WIN
-	dvdDir = "D:/";
-	cdromDir = "D:/";
+	dvdPath = "D:/";
+	cdromPath = "D:/";
 #elif defined(Q_WS_MAC)
 	//FIXME don't know yet
-	dvdDir = '/';
-	cdromDir = '/';
+	dvdPath = '/';
+	cdromPath = '/';
 #elif defined(Q_WS_X11)
-	dvdDir = "/dev/dvd";
-	cdromDir = "/dev/cdrom";
+	dvdPath = "/dev/sr0";
+	cdromPath = "/dev/sr0";
 #endif
-	addKey(DVD_DIR_KEY, dvdDir);
-	addKey(CDROM_DIR_KEY, cdromDir);
+	addKey(DVD_PATH_KEY, dvdPath);
+	addKey(CDROM_PATH_KEY, cdromPath);
 
 	addKey(MUSIC_DIR_KEY, QDesktopServices::storageLocation(QDesktopServices::MusicLocation));
 
@@ -142,12 +142,12 @@ QString Config::lastDirOpened() const {
 	return value(LAST_DIR_OPENED_KEY).toString();
 }
 
-QString Config::dvdDir() const {
-	return value(DVD_DIR_KEY).toString();
+QString Config::dvdPath() const {
+	return value(DVD_PATH_KEY).toString();
 }
 
-QString Config::cdromDir() const {
-	return value(CDROM_DIR_KEY).toString();
+QString Config::cdromPath() const {
+	return value(CDROM_PATH_KEY).toString();
 }
 
 void Config::addMusicDir(const QString & musicDir, const QUuid & uuid) {

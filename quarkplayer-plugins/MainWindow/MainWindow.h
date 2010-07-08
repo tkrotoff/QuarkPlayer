@@ -156,6 +156,13 @@ private:
 
 	void closeEvent(QCloseEvent * event);
 
+	/**
+	 * Asks for the DVDROM or CDROM path.
+	 *
+	 * @return DVDROM/CDROM path depending on the platform (can be a directory or a file)
+	 */
+	QString getDiscPath(const QString & defaultPath, const QString & windowTitle);
+
 	TkToolBar * _mainToolBar;
 	QMenu * _menuFile;
 	QMenu * _menuPlay;
