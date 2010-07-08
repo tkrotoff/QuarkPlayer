@@ -1,6 +1,11 @@
 project(MainWindow)
 
-add_definitions(-DBUILD_MAINWINDOW -DQT_QTSINGLEAPPLICATION_IMPORT)
+include_directories(${QTSINGLEAPPLICATION_INCLUDE_DIRS})
+add_definitions(-DBUILD_MAINWINDOW ${QTSINGLEAPPLICATION_DEFINITIONS})
+
+if (MEDIAINFOLIB)
+	include_directories(${MEDIAINFOLIB_INCLUDE_DIRS})
+endif (MEDIAINFOLIB)
 
 if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
@@ -53,7 +58,7 @@ endif (STATICPLUGINS)
 target_link_libraries(MainWindow
 	QuarkPlayerCore
 
-	QtSingleApplication
+	${QTSINGLEAPPLICATION_LIBRARIES}
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}
@@ -61,7 +66,7 @@ target_link_libraries(MainWindow
 )
 
 if (MEDIAINFOLIB)
-	target_link_libraries(MainWindow MediaInfo)
+	target_link_libraries(MainWindow ${MEDIAINFOLIB_LIBRARIES})
 endif (MEDIAINFOLIB)
 
 # Translations

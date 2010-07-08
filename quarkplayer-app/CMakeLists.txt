@@ -1,6 +1,7 @@
 project(quarkplayer)
 
-add_definitions(-DQT_QTSINGLEAPPLICATION_IMPORT)
+include_directories(${QTSINGLEAPPLICATION_INCLUDE_DIRS})
+add_definitions(${QTSINGLEAPPLICATION_DEFINITIONS})
 
 if (STATICPLUGINS)
 	add_definitions(-DSTATICPLUGINS)
@@ -50,7 +51,7 @@ target_link_libraries(quarkplayer
 	QuarkPlayerCore
 	TkUtil
 
-	QtSingleApplication
+	${QTSINGLEAPPLICATION_LIBRARIES}
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}

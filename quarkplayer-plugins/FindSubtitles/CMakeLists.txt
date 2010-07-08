@@ -1,5 +1,8 @@
 project(FindSubtitles)
 
+include_directories(${QTIOCOMPRESSOR_INCLUDE_DIRS})
+add_definitions(${QTIOCOMPRESSOR_DEFINITIONS})
+
 if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
 endif (STATICPLUGINS)
@@ -37,7 +40,7 @@ target_link_libraries(FindSubtitles
 	MainWindow
 	TkUtil
 
-	QtIOCompressor
+	${QTIOCOMPRESSOR_LIBRARIES}
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}

@@ -1,5 +1,6 @@
 project(ContentFetcher)
 
+include_directories(${HMAC_INCLUDE_DIRS})
 add_definitions(-DBUILD_CONTENTFETCHER)
 
 set(ContentFetcher_SRCS
@@ -19,7 +20,7 @@ qt4_wrap_cpp(ContentFetcher_SRCS
 add_library(ContentFetcher SHARED ${ContentFetcher_SRCS})
 
 target_link_libraries(ContentFetcher
-	hmac
+	${HMAC_LIBRARIES}
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}

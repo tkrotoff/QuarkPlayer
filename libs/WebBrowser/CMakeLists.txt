@@ -2,10 +2,10 @@ project(WebBrowser)
 
 add_definitions(-DBUILD_WEBBROWSER)
 
-# Bug inside qwebelement.h with Qt 4.6.1: includes <QString> instead of <QtCore/QString>
-include_directories(${QT_QTCORE_INCLUDE_DIR})
-
 if (WEBKIT)
+	# Bug inside qwebelement.h with Qt 4.6.1: includes <QString> instead of <QtCore/QString>
+	include_directories(${QT_QTCORE_INCLUDE_DIR})
+
 	add_definitions(-DWEBKIT)
 endif (WEBKIT)
 

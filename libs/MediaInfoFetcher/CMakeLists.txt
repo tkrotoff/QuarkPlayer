@@ -1,15 +1,13 @@
 project(MediaInfoFetcher)
 
 if (TAGLIB)
-	# This is because of the pretty strange taglib structure
-	include_directories(${CMAKE_SOURCE_DIR}/3rdparty/taglib)
-	include_directories(${CMAKE_BINARY_DIR}/3rdparty/taglib)
-
-	add_definitions(-DTAGLIB)
+	include_directories(${TAGLIB_INCLUDE_DIRS})
+	add_definitions(${TAGLIB_CFLAGS})
 endif (TAGLIB)
 
 if (MEDIAINFOLIB)
-	add_definitions(-DMEDIAINFOLIB)
+	include_directories(${MEDIAINFOLIB_INCLUDE_DIRS})
+	add_definitions(${MEDIAINFOLIB_DEFINITIONS})
 endif (MEDIAINFOLIB)
 
 add_definitions(-DBUILD_MEDIAINFOFETCHER)
@@ -65,11 +63,11 @@ if (UNIX)
 endif (UNIX)
 
 if (TAGLIB)
-	target_link_libraries(MediaInfoFetcher tag)
+	target_link_libraries(MediaInfoFetcher ${TAGLIB_LIBRARIES})
 endif (TAGLIB)
 
 if (MEDIAINFOLIB)
-	target_link_libraries(MediaInfoFetcher MediaInfo)
+	target_link_libraries(MediaInfoFetcher ${MEDIAINFOLIB_LIBRARIES})
 endif (MEDIAINFOLIB)
 
 install(TARGETS MediaInfoFetcher ${INSTALL_TARGETS_DEFAULT_ARGS})

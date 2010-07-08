@@ -25,7 +25,8 @@ endif (NOT CMAKE_BUILD_TYPE STREQUAL Debug)
 configure_file(metrics.h.in ${CMAKE_CURRENT_SOURCE_DIR}/metrics.h)
 ##
 
-add_definitions(-DBUILD_QUARKPLAYER -DQT_QTSINGLEAPPLICATION_IMPORT)
+include_directories(${QTSINGLEAPPLICATION_INCLUDE_DIRS})
+add_definitions(-DBUILD_QUARKPLAYER ${QTSINGLEAPPLICATION_DEFINITIONS})
 
 set(QuarkPlayerCore_SRCS
 	${CMAKE_CURRENT_BINARY_DIR}/version.cpp
@@ -59,7 +60,7 @@ target_link_libraries(QuarkPlayerCore
 	TkUtil
 	FileTypes
 
-	QtSingleApplication
+	${QTSINGLEAPPLICATION_LIBRARIES}
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}

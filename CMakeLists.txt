@@ -35,7 +35,7 @@ set(QUARKPLAYER_DESCRIPTION
 set(QUARKPLAYER_AUTHORS "QuarkPlayer Team")
 set(QUARKPLAYER_URL "http://quarkplayer.googlecode.com/")
 set(QUARKPLAYER_COPYRIGHT "Copyright (C) 2008-2009  Tanguy Krotoff")
-set(QUARKPLAYER_LICENSE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/COPYING)
+set(QUARKPLAYER_LICENSE_FILE ${CMAKE_SOURCE_DIR}/COPYING)
 set(QUARKPLAYER_PACKAGE_FILE quarkplayer-${QUARKPLAYER_VERSION}-rev${SVN_REVISION}-${BUILD_NAME})
 set(QUARKPLAYER_SOURCE_PACKAGE_FILE quarkplayer-${QUARKPLAYER_VERSION}-rev${SVN_REVISION}-src)
 set(QUARKPLAYER_PACKAGE_AUTHORS ${QUARKPLAYER_AUTHORS})
@@ -64,6 +64,11 @@ if (APPLE)
 endif (APPLE)
 ##
 
+if (USE_SYSTEM_LIBRARIES)
+	message(STATUS "Try to use the system libraries")
+else (USE_SYSTEM_LIBRARIES)
+	message(STATUS "Using internal 3rdparty libraries")
+endif (USE_SYSTEM_LIBRARIES)
 
 # 3rdparty libraries with no Qt dependency
 if (WIN32)
@@ -71,11 +76,13 @@ if (WIN32)
 endif (WIN32)
 
 add_subdirectory(3rdparty/hmac)
+set(HMAC_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty)
+set(HMAC_LIBRARIES hmac)
 ##
 
 # Qt/KDE libraries detection and initialization
 if (NOT ENV{KDEDIRS})
-	# Ubuntu 8.04, if GNOME is runnng instead of KDE, KDEDIRS variable is not defined
+	# Ubuntu 8.04, if GNOME is running instead of KDE, KDEDIRS variable is not defined
 	# so let's define it
 	set(ENV{KDEDIRS} /usr/lib/kde4)
 endif (NOT ENV{KDEDIRS})
@@ -90,23 +97,10 @@ if (KDE4_FOUND)
 	#include(MacroLibrary)
 
 	add_definitions(${QT_DEFINITIONS} ${QT_QTDBUS_DEFINITIONS} ${KDE4_DEFINITIONS})
-	include_directories(${QDBUS_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
+	include_directories(${QDBUS_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
 else (KDE4_FOUND)
 	set(QT_MIN_VERSION 4.6.0)
 	find_package(Qt4 REQUIRED)
-
-	# Do not use Phonon from Qt or KDE4
-	# Use Phonon from this repository instead (patched version)
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
-	set(QT_PHONON_LIBRARY phonon)
-	set(PHONON_LIBS
-		${QT_PHONON_LIBRARY}
-		${QT_QTCORE_LIBRARY}
-		${QT_QTGUI_LIBRARY}
-	)
-
-	# Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
-	#set(NEW_TITLE_CHAPTER_HANDLING 1)
 
 	# Includes all wanted definitions for Qt
 	include(${QT_USE_FILE})
@@ -122,31 +116,77 @@ reduce_qt_include_dirs()
 
 # 3rdparty libraries with zlib dependency
 set(ZLIB_FOUND 1)
-set(ZLIB_INCLUDE_DIR
+set(ZLIB_INCLUDE_DIRS
 	${QT_INCLUDE_DIR}/../src/3rdparty/zlib
 	${QT_QTCORE_INCLUDE_DIR}
 )
-set(ZLIB_LIBRARY ${QT_QTCORE_LIBRARY})
+set(ZLIB_LIBRARIES ${QT_QTCORE_LIBRARY})
 
 if (MEDIAINFOLIB)
-	add_subdirectory(3rdparty/ZenLib)
-	add_subdirectory(3rdparty/MediaInfo)
+	if (USE_SYSTEM_LIBRARIES)
+		find_package(MediaInfoLib)
+	endif (USE_SYSTEM_LIBRARIES)
+	if (NOT MEDIAINFOLIB_FOUND)
+		add_subdirectory(3rdparty/ZenLib)
+		add_subdirectory(3rdparty/MediaInfo)
+		set(MEDIAINFOLIB_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty)
+		set(MEDIAINFOLIB_LIBRARIES MediaInfo)
+		set(MEDIAINFOLIB_DEFINITIONS -DMEDIAINFOLIB)
+	endif (NOT MEDIAINFOLIB_FOUND)
 endif (MEDIAINFOLIB)
 
 if (TAGLIB)
-	add_subdirectory(3rdparty/taglib)
+	if (USE_SYSTEM_LIBRARIES)
+		find_package(Taglib)
+	endif (USE_SYSTEM_LIBRARIES)
+	if (NOT TAGLIB_FOUND)
+		add_subdirectory(3rdparty/taglib)
+		# Because of the strange TagLib structure
+		set(TAGLIB_INCLUDE_DIRS
+			${CMAKE_SOURCE_DIR}/3rdparty
+			${CMAKE_SOURCE_DIR}/3rdparty/taglib
+			${CMAKE_BINARY_DIR}/3rdparty/taglib
+		)
+		set(TAGLIB_CFLAGS -DTAGLIB)
+		set(TAGLIB_LIBRARIES tag)
+	endif (NOT TAGLIB_FOUND)
 endif (TAGLIB)
 ##
 
 # 3rdparty libraries with Qt dependency
 add_subdirectory(3rdparty/QtIOCompressor)
+set(QTIOCOMPRESSOR_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty)
+set(QTIOCOMPRESSOR_LIBRARIES QtIOCompressor)
+set(QTIOCOMPRESSOR_DEFINITIONS -DQT_QTIOCOMPRESSOR_IMPORT)
+
 add_subdirectory(3rdparty/modeltest)
+
 add_subdirectory(3rdparty/QtSingleApplication)
+set(QTSINGLEAPPLICATION_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty)
+set(QTSINGLEAPPLICATION_LIBRARIES QtSingleApplication)
+set(QTSINGLEAPPLICATION_DEFINITIONS -DQT_QTSINGLEAPPLICATION_IMPORT)
+##
+
+# Phonon
+if (NOT USE_SYSTEM_LIBRARIES)
+	# Do not use Phonon from Qt or KDE4
+	# Use Phonon from this repository instead (patched version)
+	add_subdirectory(3rdparty/phonon)
+	set(QT_PHONON_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/3rdparty)
+	set(QT_PHONON_LIBRARY phonon)
+endif (NOT USE_SYSTEM_LIBRARIES)
+
+set(PHONON_LIBS
+	${QT_PHONON_LIBRARY}
+	${QT_QTCORE_LIBRARY}
+	${QT_QTGUI_LIBRARY}
+)
+
+# Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
+#set(NEW_TITLE_CHAPTER_HANDLING 1)
 ##
 
 # 3rdparty libraries with Qt and Phonon dependency
-add_subdirectory(3rdparty/phonon)
-
 set(SERVICES_INSTALL_DIR ${BIN_INSTALL_DIR})
 add_subdirectory(3rdparty/phonon-mplayer/mplayer)
 ##
@@ -154,10 +194,10 @@ add_subdirectory(3rdparty/phonon-mplayer/mplayer)
 # QuarkPlayer
 clear_qt_translations()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)
+include_directories(${CMAKE_SOURCE_DIR}/libs)
 add_subdirectory(libs)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR})
 add_subdirectory(quarkplayer)
 add_subdirectory(quarkplayer-plugins)
 add_subdirectory(quarkplayer-app)
