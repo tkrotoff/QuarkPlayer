@@ -7,9 +7,11 @@ set(MEDIAINFO_VERSION
 	${MEDIAINFO_MAJOR_VERSION}.${MEDIAINFO_MINOR_VERSION}.${MEDIAINFO_PATCH_VERSION}
 )
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
-
-include_directories(${ZLIB_INCLUDE_DIRS})
+include_directories(
+	${CMAKE_CURRENT_SOURCE_DIR}/..
+	${CMAKE_CURRENT_SOURCE_DIR}/..
+	${ZLIB_INCLUDE_DIRS}
+)
 
 add_definitions(
 	-DMEDIAINFO_MINIMIZESIZE
@@ -157,7 +159,7 @@ endif (WIN32)
 add_library(MediaInfo SHARED ${MediaInfo_SRCS})
 
 target_link_libraries(MediaInfo
-	ZenLib
+	${ZENLIB_LIBRARIES}
 	${ZLIB_LIBRARIES}
 )
 
