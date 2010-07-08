@@ -42,7 +42,7 @@ namespace MediaInfoLib
 {
 
 //---------------------------------------------------------------------------
-const Char*  MediaInfo_Version=_T("MediaInfoLib - v0.7.27BETA");
+const Char*  MediaInfo_Version=_T("MediaInfoLib - v0.7.27BETA-internal");
 const Char*  MediaInfo_Url=_T("http://mediainfo.sourceforge.net");
       Ztring EmptyZtring;       //Use it when we can't return a reference to a true Ztring
 const Ztring EmptyZtring_Const; //Use it when we can't return a reference to a true Ztring, const version
@@ -1320,7 +1320,7 @@ Ztring MediaInfo_Config::Info_Codecs_Get ()
         ToReturn+=Temp->second.Read();
         ToReturn+=EOL;
         Temp++;
-    }    
+    }
 
     return ToReturn;
 }
