@@ -1,1 +1,1 @@
-#include "taglib/riff/wav/wavproperties.h"
+#include "../taglib/riff/wav/wavproperties.h"
