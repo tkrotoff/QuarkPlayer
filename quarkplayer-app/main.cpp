@@ -29,7 +29,7 @@
 
 #include <phonon/mediaobject.h>
 
-#include <QtSingleApplication/QtSingleApplication>
+#include <QtSingleApplication>
 
 #include <QtGui/QStyleFactory>
 #include <QtGui/QIcon>

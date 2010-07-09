@@ -18,7 +18,7 @@
 
 #include "AmazonCoverArt.h"
 
-#include <hmac/hmac_sha2.h>
+#include <hmac_sha2.h>
 
 #include <QtGui/QDesktopServices>
 

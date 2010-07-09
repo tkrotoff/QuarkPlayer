@@ -20,7 +20,7 @@
 
 #include "ICommandLineParser.h"
 
-#include <QtSingleApplication/QtSingleApplication>
+#include <QtSingleApplication>
 
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>

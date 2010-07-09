@@ -18,7 +18,7 @@
 
 #include "ZipFile.h"
 
-#include <QtIOCompressor/QtIOCompressor>
+#include <QtIOCompressor>
 
 #include <QtCore/QDataStream>
 #include <QtCore/QFile>

@@ -38,7 +38,7 @@
 
 #include <FileTypes/FileTypes.h>
 
-#include <QtSingleApplication/QtSingleApplication>
+#include <QtSingleApplication>
 
 #include <phonon/mediaobject.h>
 #include <phonon/mediasource.h>

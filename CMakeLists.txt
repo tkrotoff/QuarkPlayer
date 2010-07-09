@@ -76,7 +76,7 @@ if (WIN32)
 endif (WIN32)
 
 add_subdirectory(3rdparty/hmac)
-set(HMAC_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty)
+set(HMAC_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty/hmac)
 set(HMAC_LIBRARIES hmac)
 ##
 
@@ -127,9 +127,8 @@ if (MEDIAINFOLIB)
 		find_package(MediaInfoLib)
 	endif (USE_SYSTEM_LIBRARIES)
 	if (NOT MEDIAINFOLIB_FOUND)
-		add_subdirectory(3rdparty/ZenLib)
-		add_subdirectory(3rdparty/MediaInfo)
-		set(MEDIAINFOLIB_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty)
+		add_subdirectory(3rdparty/mediainfo)
+		set(MEDIAINFOLIB_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty/mediainfo)
 		set(MEDIAINFOLIB_LIBRARIES MediaInfo)
 		set(MEDIAINFOLIB_DEFINITIONS -DMEDIAINFOLIB)
 	endif (NOT MEDIAINFOLIB_FOUND)
@@ -141,10 +140,10 @@ if (TAGLIB)
 	endif (USE_SYSTEM_LIBRARIES)
 	if (NOT TAGLIB_FOUND)
 		add_subdirectory(3rdparty/taglib)
-		# Because of the strange TagLib structure
+		# TagLib has a strange structure
 		set(TAGLIB_INCLUDE_DIRS
-			${CMAKE_SOURCE_DIR}/3rdparty
-			${CMAKE_SOURCE_DIR}/3rdparty/taglib
+			${CMAKE_SOURCE_DIR}/3rdparty/taglib/include/taglib
+			${CMAKE_SOURCE_DIR}/3rdparty/taglib/include
 			${CMAKE_BINARY_DIR}/3rdparty/taglib
 		)
 		set(TAGLIB_CFLAGS -DTAGLIB)
@@ -154,15 +153,15 @@ endif (TAGLIB)
 ##
 
 # 3rdparty libraries with Qt dependency
-add_subdirectory(3rdparty/QtIOCompressor)
-set(QTIOCOMPRESSOR_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty)
+add_subdirectory(3rdparty/qtiocompressor)
+set(QTIOCOMPRESSOR_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty/qtiocompressor)
 set(QTIOCOMPRESSOR_LIBRARIES QtIOCompressor)
 set(QTIOCOMPRESSOR_DEFINITIONS -DQT_QTIOCOMPRESSOR_IMPORT)
 
 add_subdirectory(3rdparty/modeltest)
 
-add_subdirectory(3rdparty/QtSingleApplication)
-set(QTSINGLEAPPLICATION_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty)
+add_subdirectory(3rdparty/qtsingleapplication)
+set(QTSINGLEAPPLICATION_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty/qtsingleapplication)
 set(QTSINGLEAPPLICATION_LIBRARIES QtSingleApplication)
 set(QTSINGLEAPPLICATION_DEFINITIONS -DQT_QTSINGLEAPPLICATION_IMPORT)
 ##
@@ -171,8 +170,8 @@ set(QTSINGLEAPPLICATION_DEFINITIONS -DQT_QTSINGLEAPPLICATION_IMPORT)
 if (NOT USE_SYSTEM_LIBRARIES)
 	# Do not use Phonon from Qt or KDE4
 	# Use Phonon from this repository instead (patched version)
-	add_subdirectory(3rdparty/phonon)
-	set(QT_PHONON_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/3rdparty)
+	add_subdirectory(3rdparty/phonon/phonon)
+	set(QT_PHONON_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/3rdparty/phonon)
 	set(QT_PHONON_LIBRARY phonon)
 endif (NOT USE_SYSTEM_LIBRARIES)
 

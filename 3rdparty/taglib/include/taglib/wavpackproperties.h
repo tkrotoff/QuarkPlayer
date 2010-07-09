@@ -1,1 +1,1 @@
-#include "../taglib/wavpack/wavpackproperties.h"
+#include "../../taglib/wavpack/wavpackproperties.h"

@@ -9,7 +9,6 @@ set(MEDIAINFO_VERSION
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/..
-	${CMAKE_CURRENT_SOURCE_DIR}/..
 	${ZLIB_INCLUDE_DIRS}
 )
 
@@ -159,7 +158,7 @@ endif (WIN32)
 add_library(MediaInfo SHARED ${MediaInfo_SRCS})
 
 target_link_libraries(MediaInfo
-	${ZENLIB_LIBRARIES}
+	ZenLib
 	${ZLIB_LIBRARIES}
 )
 

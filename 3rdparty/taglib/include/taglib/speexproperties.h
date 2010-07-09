@@ -1,1 +1,1 @@
-#include "../taglib/ogg/speex/speexproperties.h"
+#include "../../taglib/ogg/speex/speexproperties.h"

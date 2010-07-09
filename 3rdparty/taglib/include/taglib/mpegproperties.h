@@ -1,1 +1,1 @@
-#include "../taglib/mpeg/mpegproperties.h"
+#include "../../taglib/mpeg/mpegproperties.h"
