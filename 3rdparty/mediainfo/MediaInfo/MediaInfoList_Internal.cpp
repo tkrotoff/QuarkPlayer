@@ -1,5 +1,5 @@
 // MediaInfoList_Internal - A list of MediaInfo
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -301,7 +301,7 @@ String MediaInfoList_Internal::Inform(size_t FilePos, size_t)
         bool XML=false;
         if (MediaInfoLib::Config.Inform_Get()==_T("XML"))
             XML=true;
-        if (XML) Retour+=_T("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Mediainfo>\n");
+        if (XML) Retour+=_T("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")+MediaInfoLib::Config.LineSeparator_Get()+_T("<Mediainfo version=\"")+MediaInfoLib::Config.Info_Version_Get().SubString(_T(" v"), Ztring())+_T("\">")+MediaInfoLib::Config.LineSeparator_Get();
         else Retour+=MediaInfo_Custom_View(Stream_Max+2, 1);//Page_Begin
         while (FilePos<Info.size())
         {
@@ -312,7 +312,7 @@ String MediaInfoList_Internal::Inform(size_t FilePos, size_t)
             }
             FilePos++;
         }
-        if (XML) Retour+=_T("</Mediainfo>\n");
+        if (XML) Retour+=_T("</Mediainfo>")+MediaInfoLib::Config.LineSeparator_Get();
         else Retour+=MediaInfo_Custom_View(Stream_Max+4, 1);//Page_End
         //Retour.FindAndReplace(_T("\\n"),_T( "\n"), 0, Ztring_Recursive);
         return Retour.c_str();

@@ -1,5 +1,5 @@
 // File_Mk - Info for Matroska files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -82,6 +82,9 @@
 #if defined(MEDIAINFO_PCM_YES)
     #include "MediaInfo/Audio/File_Pcm.h"
 #endif
+#if MEDIAINFO_EVENTS
+    #include "MediaInfo/MediaInfo_Events.h"
+#endif //MEDIAINFO_EVENTS
 #include <cstring>
 #include <algorithm>
 //---------------------------------------------------------------------------
@@ -107,6 +110,16 @@ const char* Mk_ContentCompAlgo(int64u Algo)
 }
 
 //***************************************************************************
+// Infos
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+extern std::string ExtensibleWave_ChannelMask (int32u ChannelMask);
+
+//---------------------------------------------------------------------------
+extern std::string ExtensibleWave_ChannelMask2 (int32u ChannelMask);
+
+//***************************************************************************
 // Constructor/Destructor
 //***************************************************************************
 
@@ -115,6 +128,10 @@ File_Mk::File_Mk()
 :File__Analyze()
 {
     //Configuration
+    #if MEDIAINFO_EVENTS
+        ParserIDs[0]=MediaInfo_Parser_Matroska;
+        StreamIDs_Width[0]=16;
+    #endif //MEDIAINFO_EVENTS
     DataMustAlwaysBeComplete=false;
 
     //Temp
@@ -480,9 +497,6 @@ namespace Elements
 //---------------------------------------------------------------------------
 void File_Mk::Data_Parse()
 {
-    if (File_Offset+Buffer_Offset>=0x3FDD8)
-        int A=0;
-
     #define LIS2(_ATOM, _NAME) \
         case Elements::_ATOM : \
                 if (Level==Element_Level) \
@@ -864,7 +878,12 @@ void File_Mk::Ebml_DocType()
     FILLING_BEGIN();
         Accept("Matroska");
 
-        Fill(Stream_General, 0, General_Format, "Matroska");
+        if (Data==_T("matroska"))
+            Fill(Stream_General, 0, General_Format, "Matroska");
+        else if (Data==_T("webm"))
+            Fill(Stream_General, 0, General_Format, "WebM");
+        else
+            Fill(Stream_General, 0, General_Format, Data);
 
         Buffer_MaximumSize=8*1024*1024;
     FILLING_END();
@@ -1389,11 +1408,11 @@ void File_Mk::Segment_Cluster_BlockGroup_Block()
                         Element_Offset-=(size_t)Stream[TrackNumber].ContentCompSettings_Buffer_Size; //This is an extra array, not in the stream
                         Open_Buffer_Continue(Stream[TrackNumber].Parser, Stream[TrackNumber].ContentCompSettings_Buffer, (size_t)Stream[TrackNumber].ContentCompSettings_Buffer_Size);
                         Element_Offset+=(size_t)Stream[TrackNumber].ContentCompSettings_Buffer_Size;
-                        Demux(Stream[TrackNumber].ContentCompSettings_Buffer, (size_t)Stream[TrackNumber].ContentCompSettings_Buffer_Size, Ztring::ToZtring(TrackNumber, 16)+_T(".")+_T("raw"));
+                        Demux(Stream[TrackNumber].ContentCompSettings_Buffer, (size_t)Stream[TrackNumber].ContentCompSettings_Buffer_Size, ContentType_MainStream);
                     }
 
                     //Parsing
-                    Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset), Ztring::ToZtring(TrackNumber, 16)+_T(".")+_T("raw"));
+                    Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset), ContentType_MainStream);
                     Open_Buffer_Continue(Stream[TrackNumber].Parser, (size_t)Laces[Pos]);
                     if (Stream[TrackNumber].Parser->Status[IsFilled]
                      || Stream[TrackNumber].Parser->Status[IsFinished]
@@ -2131,8 +2150,6 @@ void File_Mk::Segment_Tracks_TrackEntry_CodecPrivate_auds()
     Get_L4 (AvgBytesPerSec,                                     "AvgBytesPerSec");
     Skip_L2(                                                    "BlockAlign");
     Get_L2 (BitsPerSample,                                      "BitsPerSample");
-    if (Data_Remain())
-        Skip_XX(Data_Remain(),                                  "Unknown");
 
     //Filling
     FILLING_BEGIN()
@@ -2150,6 +2167,67 @@ void File_Mk::Segment_Tracks_TrackEntry_CodecPrivate_auds()
         CodecID_Manage();
         if (TrackNumber!=(int64u)-1)
             Stream[TrackNumber].AvgBytesPerSec=AvgBytesPerSec;
+    FILLING_END();
+
+    //Options
+    if (Element_Offset+2>Element_Size)
+        return; //No options
+
+    //Parsing
+    int16u Option_Size;
+    Get_L2 (Option_Size,                                        "cbSize");
+
+    //Filling
+    if (Option_Size>0)
+    {
+             if (FormatTag==0xFFFE) //Extensible Wave
+            Segment_Tracks_TrackEntry_CodecPrivate_auds_ExtensibleWave();
+        else Skip_XX(Option_Size,                               "Unknown");
+    }
+}
+
+//---------------------------------------------------------------------------
+void File_Mk::Segment_Tracks_TrackEntry_CodecPrivate_auds_ExtensibleWave()
+{
+    //Parsing
+    int128u SubFormat;
+    int32u ChannelMask;
+    Skip_L2(                                                    "ValidBitsPerSample / SamplesPerBlock");
+    Get_L4 (ChannelMask,                                        "ChannelMask");
+    Get_GUID(SubFormat,                                         "SubFormat");
+
+    FILLING_BEGIN();
+        if ((SubFormat.hi&0xFFFFFFFFFFFF0000LL)==0x0010000000000000LL && SubFormat.lo==0x800000AA00389B71LL)
+        {
+            CodecID_Fill(Ztring().From_Number((int16u)SubFormat.hi, 16), Stream_Audio, StreamPos_Last, InfoCodecID_Format_Riff);
+            Fill(Stream_Audio, StreamPos_Last, Audio_CodecID, Ztring().From_GUID(SubFormat), true);
+            Fill(Stream_Audio, StreamPos_Last, Audio_Codec, MediaInfoLib::Config.Codec_Get(Ztring().From_Number((int16u)SubFormat.hi, 16)), true);
+
+            //Creating the parser
+                 if (0);
+            #if defined(MEDIAINFO_PCM_YES)
+            else if (MediaInfoLib::Config.CodecID_Get(Stream_Audio, InfoCodecID_Format_Riff, Ztring().From_Number((int16u)SubFormat.hi, 16))==_T("PCM"))
+            {
+                //Creating the parser
+                File_Pcm MI;
+                MI.Codec=Ztring().From_Number((int16u)SubFormat.hi, 16);
+
+                //Parsing
+                Open_Buffer_Init(&MI);
+                Open_Buffer_Continue(&MI, 0);
+
+                //Filling
+                Finish(&MI);
+                Merge(MI, StreamKind_Last, 0, StreamPos_Last);
+            }
+            #endif
+        }
+        else
+        {
+            CodecID_Fill(Ztring().From_GUID(SubFormat), Stream_Audio, StreamPos_Last, InfoCodecID_Format_Riff);
+        }
+        Fill(Stream_Audio, StreamPos_Last, Audio_ChannelPositions, ExtensibleWave_ChannelMask(ChannelMask));
+        Fill(Stream_Audio, StreamPos_Last, Audio_ChannelPositions_String2, ExtensibleWave_ChannelMask2(ChannelMask));
     FILLING_END();
 }
 

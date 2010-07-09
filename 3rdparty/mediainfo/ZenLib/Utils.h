@@ -1,5 +1,5 @@
 // ZenLib::Utils - Very small utilities
-// Copyright (C) 2002-2006 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -203,7 +203,7 @@ inline int64s BigEndian2int56s    (const int8u* List) {return BigEndian2int56s  
 inline int64u BigEndian2int56u    (const int8u* List) {return BigEndian2int56u    ((const char*)List);}
 inline int64s BigEndian2int64s    (const int8u* List) {return BigEndian2int64s    ((const char*)List);}
 inline int64u BigEndian2int64u    (const int8u* List) {return BigEndian2int64u    ((const char*)List);}
-inline int128u BigEndian2int128u  (const int8u* List) {return BigEndian2int64u    ((const char*)List);}
+inline int128u BigEndian2int128u  (const int8u* List) {return BigEndian2int128u   ((const char*)List);}
 #endif
 inline float32 BigEndian2float32  (const int8u* List) {return BigEndian2float32   ((const char*)List);}
 inline float64 BigEndian2float64  (const int8u* List) {return BigEndian2float64   ((const char*)List);}

@@ -1,5 +1,5 @@
 // MediaInfoList - A list of MediaInfo
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -32,6 +32,27 @@
 #include "MediaInfo/MediaInfo.h"
 //---------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------
+#undef MEDIAINFO_EXP
+#if defined(_WIN32) && !defined(__MINGW32__) //MinGW32 does not support _declspec
+    #ifdef MEDIAINFO_DLL_EXPORT
+        #define MEDIAINFO_EXP
+    #else
+        #define MEDIAINFO_EXP
+    #endif
+#else //defined(_WIN32) && !defined(__MINGW32__)
+    #if __GNUC__ >= 4
+        #define MEDIAINFO_EXP __attribute__ ((visibility("default")))
+    #else
+        #define MEDIAINFO_EXP
+    #endif
+#endif //defined(_WIN32) && !defined(__MINGW32__)
+
+#if !defined(__WINDOWS__)
+    #define __stdcall //Supported only on windows
+#endif //!defined(_WIN32)
+//---------------------------------------------------------------------------
+
 namespace MediaInfoLib
 {
 
@@ -40,7 +61,7 @@ namespace MediaInfoLib
 /// @version 0.7
 //***************************************************************************
 
-class MediaInfoList
+class MEDIAINFO_EXP MediaInfoList
 {
 public :
     //Class
@@ -141,7 +162,7 @@ public :
         /// @param OldValue The old value of the parameter \n if OldValue is empty and ToSet is filled: tag is added \n if OldValue is filled and ToSet is filled: tag is replaced \n if OldValue is filled and ToSet is empty: tag is deleted
         /// @retval >0 succeed
         /// @retval 0 failed
-    size_t Set (const String &ToSet, size_t FilePos, stream_t StreamKind, size_t StreamNumber, size_t Parameter, const String &OldValue=_T("")); //Get info, FilePos=File position, StreamKind=General video audio text chapter, StreamNumber=stream number, PosInStream=parameter you want, KindOfInfo=name, text, measure, options name(language) measure(language) information how to
+    size_t Set (const String &ToSet, size_t FilePos, stream_t StreamKind, size_t StreamNumber, size_t Parameter, const String &OldValue=String()); //Get info, FilePos=File position, StreamKind=General video audio text chapter, StreamNumber=stream number, PosInStream=parameter you want, KindOfInfo=name, text, measure, options name(language) measure(language) information how to
         /// @brief (NOT IMPLEMENTED YET) Get information about a file (parameter is a string)
         /// @warning Not yet implemented, do not use it
         /// @param ToSet Piece of information
@@ -154,7 +175,7 @@ public :
         /// @param OldValue The old value of the parameter \n if OldValue is empty and ToSet is filled: tag is added \n if OldValue is filled and ToSet is filled: tag is replaced \n if OldValue is filled and ToSet is empty: tag is deleted
         /// @retval >0 succeed
         /// @retval 0 failed
-    size_t Set (const String &ToSet, size_t FilePos, stream_t StreamKind, size_t StreamNumber, const String &Parameter, const String &OldValue=_T("")); //Get info, FilePos=File position, StreamKind=General video audio text chapter, StreamNumber=stream number, PosInStream=parameter you want, KindOfInfo=name text measure options name (language) measure (language) information how to, KindOfSearch=which Kind Of information Parameter must be searched?
+    size_t Set (const String &ToSet, size_t FilePos, stream_t StreamKind, size_t StreamNumber, const String &Parameter, const String &OldValue=String()); //Get info, FilePos=File position, StreamKind=General video audio text chapter, StreamNumber=stream number, PosInStream=parameter you want, KindOfInfo=name text measure options name (language) measure (language) information how to, KindOfSearch=which Kind Of information Parameter must be searched?
 
     //Output_Buffered
         /// Output buffer retrieving, used for File_Duplicate option.
@@ -171,13 +192,13 @@ public :
         /// @param Value The value of option
         /// @return Depend of the option: by default "" (nothing) means No, other means Yes
         /// @post Known options are: See MediaInfo::Option()
-    String        Option (const String &Option, const String &Value=String(_T("")));
+    String        Option (const String &Option, const String &Value=String());
         /// Configure or get information about MediaInfoLib (static version)
         /// @param Option The name of option
         /// @param Value The value of option
         /// @return Depend of the option: by default "" (nothing) means No, other means Yes
         /// @post Known options are: See MediaInfo::Option()
-    static String Option_Static (const String &Option, const String &Value=String(_T("")));
+    static String Option_Static (const String &Option, const String &Value=String());
         /// @brief (NOT IMPLEMENTED YET) Get the state of the library
         /// @retval <1000 No information is available for the file yet
         /// @retval >=1000_<5000 Only local (into the file) information is available, getting Internet information (titles only) is no finished yet

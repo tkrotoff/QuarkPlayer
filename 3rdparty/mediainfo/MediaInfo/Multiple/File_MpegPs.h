@@ -1,5 +1,5 @@
 // File_Mpeg - Info for MPEG files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -45,6 +45,7 @@ public :
     //In
     bool   FromTS;                      //Indicate if stream comes from TS
     int8u  FromTS_stream_type;          //ID from TS
+    int32u FromTS_program_format_identifier; //Registration from TS
     int32u FromTS_format_identifier;    //Registration from TS
     int8u  FromTS_descriptor_tag;       //Descriptor from TS
     int8u  MPEG_Version;                //MPEG Version (or automaticly detected)
@@ -53,12 +54,50 @@ public :
         File_Mpeg4_Descriptors::decspecificinfotag* DecSpecificInfoTag;
         File_Mpeg4_Descriptors::slconfig* SLConfig;
     #endif
+    #if MEDIAINFO_DEMUX
+        struct demux
+        {
+            struct buffer
+            {
+                int64u  DTS;
+                size_t  Buffer_Size;
+                size_t  Buffer_Size_Max;
+                int8u*  Buffer;
+
+                buffer()
+                {
+                    DTS=(int64u)-1;
+                    Buffer_Size=0;
+                    Buffer_Size_Max=0;
+                    Buffer=NULL;
+                }
+
+                ~buffer()
+                {
+                    delete[] Buffer;
+                }
+            };
+            std::vector<buffer*> Buffers;
+
+            demux()
+            {
+            }
+
+            ~demux()
+            {
+                for (size_t Pos=0; Pos<Buffers.size(); Pos++)
+                    delete Buffers[Pos]; //Buffers[Pos]=NULL;
+            }
+        };
+        demux* SubStream_Demux;
+    #endif //MEDIAINFO_DEMUX
 
     //Out
     bool   HasTimeStamps;
 
     //Constructor/Destructor
     File_MpegPs();
+    ~File_MpegPs();
 
 private :
     //Streams management
@@ -195,6 +234,7 @@ private :
     std::vector<int64u> video_stream_PTS;
     size_t video_stream_PTS_FrameCount;
     bool video_stream_PTS_MustAddOffset;
+    bool Demux_Unpacketize;
 
     //Helpers
     bool Header_Parser_QuickSearch();

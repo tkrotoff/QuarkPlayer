@@ -1,5 +1,5 @@
 // File_Aac - Info for AAC (Raw) files
-// Copyright (C) 2008-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2008-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -168,13 +168,16 @@ void File_Aac::libfaad()
         }
     #else
         //Filling
-        Accept("AAC");
+        if (!Status[IsAccepted])
+        {
+            Accept("AAC");
 
-        Stream_Prepare(Stream_Audio);
-        Fill(Stream_Audio, 0, Audio_Format, "AAC");
-        Fill(Stream_Audio, 0, Audio_Codec, "AAC");
+            Stream_Prepare(Stream_Audio);
+            Fill(Stream_Audio, 0, Audio_Format, "AAC");
+            Fill(Stream_Audio, 0, Audio_Codec, "AAC");
 
-        Finish("AAC");
+            Finish("AAC");
+        }
     #endif
 }
 

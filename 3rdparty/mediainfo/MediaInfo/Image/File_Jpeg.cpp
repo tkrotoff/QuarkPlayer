@@ -1,5 +1,5 @@
 // File_Jpeg - Info for NewFormat files
-// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -338,18 +338,18 @@ void File_Jpeg::SIZ()
 void File_Jpeg::COD()
 {
     //Parsing
-    int8u Style, Levels, Style2, MultipleComponentTransform;
+    int16u Levels;
+    int8u Style, Style2, MultipleComponentTransform;
     bool PrecinctUsed;
     Get_B1 (Style,                                              "Scod - Style");
         Get_Flags (Style, 0, PrecinctUsed,                      "Precinct used");
         Skip_Flags(Style, 1,                                    "Use SOP (start of packet)");
         Skip_Flags(Style, 2,                                    "Use EPH (end of packet header)");
-    Skip_B1(                                                    "Progressive order");
-    Skip_B2(                                                    "Number of layers");
-    Skip_B1(                                                    "Multiple component transform");
-    Get_B1 (Levels,                                             "Decomposition levels");
+    Skip_B1(                                                    "Number of decomposition levels");
+    Skip_B1(                                                    "Progression order");
+    Get_B2 (Levels,                                             "Number of layers");
     Info_B1(DimX,                                               "Code-blocks dimensions X (2^(n+2))"); Param_Info(1<<(DimX+2), " pixels");
-    Info_B1(DimY,                                               "Code-blocks dimensions Y (2^(n+2))"); Param_Info(1<<(DimX+2), " pixels");
+    Info_B1(DimY,                                               "Code-blocks dimensions Y (2^(n+2))"); Param_Info(1<<(DimY+2), " pixels");
     Get_B1 (Style2,                                             "Style of the code-block coding passes");
         Skip_Flags(Style, 0,                                    "Selective arithmetic coding bypass");
         Skip_Flags(Style, 1,                                    "MQ states for all contexts");
@@ -357,14 +357,24 @@ void File_Jpeg::COD()
         Skip_Flags(Style, 3,                                    "Vertically stripe-causal context formation");
         Skip_Flags(Style, 4,                                    "Error resilience info is embedded on MQ termination");
         Skip_Flags(Style, 5,                                    "Segmentation marker is to be inserted at the end of each normalization coding pass");
+    Skip_B1(                                                    "Transform");
     Get_B1(MultipleComponentTransform,                          "Multiple component transform");
     if (PrecinctUsed)
-        for (int8u Pos=0; Pos<Levels; Pos++)
+    {
+        BS_Begin();
+        Skip_S1(4,                                              "LL sub-band width");
+        Skip_S1(4,                                              "LL sub-band height");
+        BS_End();
+        for (int16u Pos=0; Pos<Levels; Pos++)
         {
             Element_Begin("Decomposition level");
-            Skip_B1(                                            "?");
+            BS_Begin();
+            Skip_S1(4,                                          "decomposition level width");
+            Skip_S1(4,                                          "decomposition level height");
+            BS_End();
             Element_End();
         }
+    }
 
     FILLING_BEGIN();
         switch (MultipleComponentTransform)
@@ -420,7 +430,8 @@ void File_Jpeg::SOF_()
             Fill(Stream_Image, 0, Image_Codec_String, "JPEG", Unlimited, true, true); //To Avoid automatic filling
         if (StreamKind==Stream_Video)
             Fill(Stream_Video, 0, Video_InternetMediaType, "video/JPEG", Unlimited, true, true);
-        Fill(StreamKind, 0, StreamKind==Stream_Image?(size_t)Image_Resolution:(size_t)Video_Resolution, Resolution);
+        Fill(Stream_Video, 0, Video_ColorSpace, "YUV");
+        Fill(StreamKind, 0, Fill_Parameter(StreamKind, Generic_Resolution), Resolution);
         Fill(StreamKind, 0, StreamKind==Stream_Image?(size_t)Image_Height:(size_t)Video_Height, Height*Height_Multiplier);
         Fill(StreamKind, 0, StreamKind==Stream_Image?(size_t)Image_Width:(size_t)Video_Width, Width);
     FILLING_END();

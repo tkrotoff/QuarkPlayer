@@ -1,5 +1,5 @@
 // File_Mpeg_Descriptors - Info for MPEG files
-// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -627,8 +627,8 @@ const char* Mpeg_Descriptors_registration_format_identifier_Format(int32u format
         case Elements::HDMV : return "Blu-ray";
         case Elements::KLVA : return "KLV";
         case Elements::S14A : return "ATSC - Satellite";
-        case Elements::SCTE : return "SCTE 54 2003 - Digital Video Service Multiplex and Transport System for Cable Television";
-        case Elements::TSHV : return "Digital Video";
+        case Elements::SCTE : return "SCTE 54 2003 - DV Service Multiplex and Transport System for Cable Television";
+        case Elements::TSHV : return "DV";
         case Elements::VC_1 : return "VC-1";
         case Elements::MANZ : return "Manzanita Systems"; //Manzanita Systems
         default :                     return "";
@@ -783,6 +783,65 @@ stream_t Mpeg_Descriptors_stream_Kind(int8u descriptor_tag, int32u format_identi
                             default   : return Stream_Max;
                         }
             }
+    }
+}
+
+const char* Mpeg_Descriptors_MPEG_4_audio_profile_and_level(int8u MPEG_4_audio_profile_and_level)
+{
+    switch (MPEG_4_audio_profile_and_level)
+    {
+        case 0x10 : return "Main@L1";
+        case 0x11 : return "Main@L2";
+        case 0x12 : return "Main@L3";
+        case 0x13 : return "Main@L4";
+        case 0x18 : return "Scalable@L1";
+        case 0x19 : return "Scalable@L2";
+        case 0x1A : return "Scalable@L3";
+        case 0x1B : return "Scalable@L4";
+        case 0x20 : return "Speech@L1";
+        case 0x21 : return "Speech@L2";
+        case 0x28 : return "Synthesis@L1";
+        case 0x29 : return "Synthesis@L2";
+        case 0x2A : return "Synthesis@L3";
+        case 0x30 : return "High quality audio@L1";
+        case 0x31 : return "High quality audio@L2";
+        case 0x32 : return "High quality audio@L3";
+        case 0x33 : return "High quality audio@L4";
+        case 0x34 : return "High quality audio@L5";
+        case 0x35 : return "High quality audio@L6";
+        case 0x36 : return "High quality audio@L7";
+        case 0x37 : return "High quality audio@L8";
+        case 0x38 : return "Low delay audio@L1";
+        case 0x39 : return "Low delay audio@L2";
+        case 0x3A : return "Low delay audio@L3";
+        case 0x3B : return "Low delay audio@L4";
+        case 0x3C : return "Low delay audio@L5";
+        case 0x3D : return "Low delay audio@L6";
+        case 0x3E : return "Low delay audio@L7";
+        case 0x3F : return "Low delay audio@L8";
+        case 0x40 : return "Natural audio@L1";
+        case 0x41 : return "Natural audio@L2";
+        case 0x42 : return "Natural audio@L3";
+        case 0x43 : return "Natural audio@L4";
+        case 0x48 : return "Mobile audio internetworking@1";
+        case 0x49 : return "Mobile audio internetworking@2";
+        case 0x4A : return "Mobile audio internetworking@3";
+        case 0x4B : return "Mobile audio internetworking@4";
+        case 0x4C : return "Mobile audio internetworking@5";
+        case 0x4D : return "Mobile audio internetworking@6";
+        case 0x50 : return "AAC@L1";
+        case 0x51 : return "AAC@L2";
+        case 0x52 : return "AAC@L3";
+        case 0x53 : return "AAC@L4";
+        case 0x58 : return "High efficiency AAC@L2";
+        case 0x59 : return "High efficiency AAC@L3";
+        case 0x5A : return "High efficiency AAC@L4";
+        case 0x5B : return "High efficiency AAC@L5";
+        case 0x60 : return "High efficiency AAC v2@L2";
+        case 0x61 : return "High efficiency AAC v2@L3";
+        case 0x62 : return "High efficiency AAC v2@L4";
+        case 0x63 : return "High efficiency AAC v2@L5";
+        default   : return "";
     }
 }
 
@@ -1115,10 +1174,14 @@ File_Mpeg_Descriptors::File_Mpeg_Descriptors()
     table_id_extension=0x0000;
     elementary_PID=0x0000;
     program_number=0x0000;
+    stream_type=0x00;
     event_id=0x0000;
     elementary_PID_IsValid=false;
     program_number_IsValid=false;
+    stream_type_IsValid=false;
     event_id_IsValid=false;
+
+    //Out
 }
 
 //***************************************************************************
@@ -1197,19 +1260,19 @@ void File_Mpeg_Descriptors::Data_Parse()
             ELEMENT_CASE(20, "External_ES_ID");
             ELEMENT_CASE(21, "MuxCode");
             ELEMENT_CASE(22, "FmxBufferSize");
-            ELEMENT_CASE(23, "MultiplexBuffer");
-            ELEMENT_CASE(24, "Content_labeling_descriptor");
-            ELEMENT_CASE(25, "Metadata_pointer_descriptor");
-            ELEMENT_CASE(26, "Metadata_descriptor");
-            ELEMENT_CASE(27, "Metadata_STD_descriptor");
-            ELEMENT_CASE(28, "AVC video descriptor");
-            ELEMENT_CASE(29, "IPMP_descriptor (defined in ISO/IEC 13818-11, MPEG-2 IPMP)");
-            ELEMENT_CASE(2A, "AVC timing and HRD descriptor");
-            ELEMENT_CASE(2B, "MPEG-2 AAC audio descriptor");
-            ELEMENT_CASE(2C, "FlexMux_Timing_descriptor");
-            ELEMENT_CASE(2D, "MPEG-4_text_descriptor");
-            ELEMENT_CASE(2E, "MPEG-4_audio_extension_descriptor");
-            ELEMENT_CASE(2F, "Auxiliary_video_data_descriptor");
+            ELEMENT_CASE(23, "multiplexbuffer");
+            ELEMENT_CASE(24, "content_labeling");
+            ELEMENT_CASE(25, "metadata_pointer");
+            ELEMENT_CASE(26, "metadata");
+            ELEMENT_CASE(27, "metadata_STD");
+            ELEMENT_CASE(28, "AVC video");
+            ELEMENT_CASE(29, "IPMP"); //ISO-IEC 13818-11
+            ELEMENT_CASE(2A, "AVC timing and HRD");
+            ELEMENT_CASE(2B, "MPEG-2 AAC audio");
+            ELEMENT_CASE(2C, "FlexMux_Timing");
+            ELEMENT_CASE(2D, "MPEG-4_text");
+            ELEMENT_CASE(2E, "MPEG-4_audio_extension");
+            ELEMENT_CASE(2F, "Auxiliary_video_data");
 
             //Following is in private sections, in case there is not network type detected
             ELEMENT_CASE(40, "DVB - network_name_descriptor");
@@ -1509,7 +1572,11 @@ void File_Mpeg_Descriptors::Descriptor_05()
                             case true : //Per PES
                                         Complete_Stream->Streams[elementary_PID].registration_format_identifier=format_identifier;
                                         if (format_identifier==Elements::KLVA)
-                                            Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].Infos["KLVA_PID"].From_Number(elementary_PID);
+                                        {
+                                            if (!Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].Infos["KLVA_PID"].empty())
+                                                Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].Infos["KLVA_PID"]+=_T(" / ");
+                                            Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].Infos["KLVA_PID"]+=Ztring::ToZtring(elementary_PID);
+                                        }
                                         break;
                         }
                         break;
@@ -1718,6 +1785,18 @@ void File_Mpeg_Descriptors::Descriptor_11()
 }
 
 //---------------------------------------------------------------------------
+void File_Mpeg_Descriptors::Descriptor_1C()
+{
+    //Parsing
+    int8u Profile_and_level;
+    Get_B1 (   Profile_and_level,                               "Profile_and_level"); Param_Info(Mpeg_Descriptors_MPEG_4_audio_profile_and_level(Profile_and_level));
+
+    FILLING_BEGIN();
+        Complete_Stream->Streams[elementary_PID].Infos["Format_Profile"]=Mpeg_Descriptors_MPEG_4_audio_profile_and_level(Profile_and_level);
+    FILLING_END();
+}
+
+//---------------------------------------------------------------------------
 void File_Mpeg_Descriptors::Descriptor_1D()
 {
     //Parsing
@@ -1805,12 +1884,39 @@ void File_Mpeg_Descriptors::Descriptor_28()
                         if (elementary_PID_IsValid)
                         {
                             Complete_Stream->Streams[elementary_PID].Infos["Format"]=_T("AVC");
-                            Complete_Stream->Streams[elementary_PID].Infos["Format_Profile"]=Ztring().From_Local(Avc_profile_idc(profile_idc))+_T("@")+Ztring().From_Number(((float)level_idc)/10, 1);
+                            Complete_Stream->Streams[elementary_PID].Infos["Format_Profile"]=Ztring().From_Local(Avc_profile_idc(profile_idc))+_T("@L")+Ztring().From_Number(((float)level_idc)/10, 1);
                         }
                         break;
             default    : ;
         }
     FILLING_END();
+}
+
+//---------------------------------------------------------------------------
+void File_Mpeg_Descriptors::Descriptor_2A()
+{
+    //Parsing
+    BS_Begin();
+    Skip_SB(                                                "hrd_management_valid_flag");
+    Skip_S1(6,                                              "reserved");
+    TEST_SB_SKIP(                                           "picture_and_timing_info_present");
+        bool x90kHz_flag;
+        Get_SB (x90kHz_flag,                                "90kHz_flag");
+        Skip_S1(7,                                          "reserved");
+        BS_End();
+        if (x90kHz_flag)
+        {
+            Skip_B4(                                        "N");
+            Skip_B4(                                        "K");
+        }
+        Skip_B4(                                            "num_units_in_tick");
+        BS_Begin();
+    TEST_SB_END();
+    Skip_SB(                                                "fixed_frame_rate_flag");
+    Skip_SB(                                                "temporal_poc_flag");
+    Skip_SB(                                                "picture_to_display_conversion_flag");
+    Skip_S1(5,                                              "reserved");
+    BS_End();
 }
 
 //---------------------------------------------------------------------------
@@ -2442,8 +2548,9 @@ void File_Mpeg_Descriptors::Descriptor_7B()
 void File_Mpeg_Descriptors::Descriptor_7C()
 {
     //Parsing
+    int8u Profile_and_level;
     bool AAC_type_flag;
-    Skip_B1(                                                    "Profile_and_level");
+    Get_B1 (   Profile_and_level,                               "Profile_and_level"); Param_Info(Mpeg_Descriptors_MPEG_4_audio_profile_and_level(Profile_and_level));
     BS_Begin();
     Get_SB (   AAC_type_flag,                                   "AAC_type_flag");
     Skip_SB(                                                    "reserved");
@@ -2458,7 +2565,12 @@ void File_Mpeg_Descriptors::Descriptor_7C()
     {
         Skip_B1(                                                "AAC_type");
     }
-    //BS_End_CANBEMORE();
+    if (Element_Size-Element_Offset)
+        Skip_XX(Element_Size-Element_Offset,                    "Unknown");
+
+    FILLING_BEGIN();
+        Complete_Stream->Streams[elementary_PID].Infos["Format_Profile"]=Mpeg_Descriptors_MPEG_4_audio_profile_and_level(Profile_and_level);
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------

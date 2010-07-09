@@ -1,5 +1,5 @@
 // ZenLib::File - File functions
-// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -166,6 +166,7 @@ bool File::Open (const tstring &File_Name_, access_t Access)
             {
                 case Access_Read         : dwDesiredAccess=IsWin9X()?GENERIC_READ:FILE_READ_DATA; dwShareMode=FILE_SHARE_READ|FILE_SHARE_WRITE; dwCreationDisposition=OPEN_EXISTING; break;
                 case Access_Write        : dwDesiredAccess=GENERIC_WRITE;   dwShareMode=0;                                 dwCreationDisposition=OPEN_ALWAYS;   break;
+                case Access_Read_Write   : dwDesiredAccess=(IsWin9X()?GENERIC_READ:FILE_READ_DATA)|GENERIC_WRITE;   dwShareMode=0; dwCreationDisposition=OPEN_ALWAYS;   break;
                 case Access_Write_Append : dwDesiredAccess=GENERIC_WRITE;   dwShareMode=0;                                 dwCreationDisposition=OPEN_ALWAYS;   break;
                 default                  : dwDesiredAccess=0;               dwShareMode=0;                                 dwCreationDisposition=0;             break;
             }
@@ -520,13 +521,13 @@ Ztring File::Created_Get()
             if (File_Handle==NULL)
         #endif
     #endif //ZENLIB_USEWX
-        return _T("");
+        return Ztring();
 
     #ifdef ZENLIB_USEWX
-        return _T(""); //Not implemented
+        return Ztring(); //Not implemented
     #else //ZENLIB_USEWX
         #ifdef ZENLIB_STANDARD
-            return _T(""); //Not implemented
+            return Ztring(); //Not implemented
         #elif defined WINDOWS
             FILETIME TimeFT;
             if (GetFileTime(File_Handle, &TimeFT, NULL, NULL))
@@ -536,7 +537,7 @@ Ztring File::Created_Get()
                 return Time;
             }
             else
-                return _T(""); //There was a problem
+                return Ztring(); //There was a problem
         #endif
     #endif //ZENLIB_USEWX
 }
@@ -554,13 +555,13 @@ Ztring File::Created_Local_Get()
             if (File_Handle==NULL)
         #endif
     #endif //ZENLIB_USEWX
-        return _T("");
+        return Ztring();
 
     #ifdef ZENLIB_USEWX
-        return _T(""); //Not implemented
+        return Ztring(); //Not implemented
     #else //ZENLIB_USEWX
         #ifdef ZENLIB_STANDARD
-            return _T(""); //Not implemented
+            return Ztring(); //Not implemented
         #elif defined WINDOWS
             FILETIME TimeFT;
             if (GetFileTime(File_Handle, &TimeFT, NULL, NULL))
@@ -581,7 +582,7 @@ Ztring File::Created_Local_Get()
                 return Time;
             }
             else
-                return _T(""); //There was a problem
+                return Ztring(); //There was a problem
         #endif
     #endif //ZENLIB_USEWX
 }
@@ -598,16 +599,16 @@ Ztring File::Modified_Get()
             if (File_Handle==NULL)
         #endif
     #endif //ZENLIB_USEWX
-        return _T("");
+        return Ztring();
 
     #ifdef ZENLIB_USEWX
-        return _T(""); //Not implemented
+        return Ztring(); //Not implemented
     #else //ZENLIB_USEWX
         #ifdef ZENLIB_STANDARD
             struct stat Stat;
             int Result=stat(File_Name.To_Local().c_str(), &Stat);
             if (Result<0)
-                return _T(""); //Error
+                return Ztring(); //Error
             Ztring Time; Time.Date_From_Seconds_1970(Stat.st_mtime);
             return Time;
         #elif defined WINDOWS
@@ -619,7 +620,7 @@ Ztring File::Modified_Get()
                 return Time;
             }
             else
-                return _T(""); //There was a problem
+                return Ztring(); //There was a problem
         #endif
     #endif //ZENLIB_USEWX
 }
@@ -637,16 +638,16 @@ Ztring File::Modified_Local_Get()
             if (File_Handle==NULL)
         #endif
     #endif //ZENLIB_USEWX
-        return _T("");
+        return Ztring();
 
     #ifdef ZENLIB_USEWX
-        return _T(""); //Not implemented
+        return Ztring(); //Not implemented
     #else //ZENLIB_USEWX
         #ifdef ZENLIB_STANDARD
             struct stat Stat;
             int Result=stat(File_Name.To_Local().c_str(), &Stat);
             if (Result<0)
-                return _T(""); //Error
+                return Ztring(); //Error
             Ztring Time; Time.Date_From_Seconds_1970_Local(Stat.st_mtime);
             return Time;
         #elif defined WINDOWS
@@ -669,7 +670,7 @@ Ztring File::Modified_Local_Get()
                 return Time;
             }
             else
-                return _T(""); //There was a problem
+                return Ztring(); //There was a problem
         #endif
     #endif //ZENLIB_USEWX
 }
@@ -802,9 +803,9 @@ bool File::Delete(const Ztring &File_Name)
     #else //ZENLIB_USEWX
         #ifdef ZENLIB_STANDARD
             #ifdef UNICODE
-                return unlink(File_Name.To_Local().c_str())==0;
+                return remove(File_Name.To_Local().c_str())==0;
             #else
-                return unlink(File_Name.c_str())==0;
+                return remove(File_Name.c_str())==0;
             #endif //UNICODE
         #elif defined WINDOWS
             #ifdef UNICODE

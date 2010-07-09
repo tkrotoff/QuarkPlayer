@@ -1,5 +1,5 @@
 // Reader_libcurl - All info about media files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -175,7 +175,7 @@ size_t Reader_libcurl::Format_Test(MediaInfo_Internal* MI, const String &File_Na
                 curl_off_t File_GoTo_Off=(curl_off_t)Curl_Data.File_GoTo;
                 curl_easy_setopt(Curl_Data.Curl, CURLOPT_RESUME_FROM_LARGE, File_GoTo_Off);
             }
-            MI->Open_Buffer_Position_Set(Curl_Data.File_GoTo);
+            MI->Open_Buffer_Init((int64u)-1, Curl_Data.File_GoTo);
             Curl_Data.File_GoTo=(int64u)-1;
         }
 

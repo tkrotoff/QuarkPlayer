@@ -1,5 +1,5 @@
 // File_Mpeg4 - Info for MPEG-4 files
-// Copyright (C) 2004-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2004-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -283,16 +283,22 @@ private :
         };
         std::vector<stsc_struct> stsc;
         std::vector<int64u>     stsz;
+        int64u                  stsz_Sample_Size;
+        int64u                  stsz_Sample_Count;
         int32u                  TimeCode_TrackID;
         bool                    TimeCode_IsVisual;
+        bool                    Channels_AreTrustable;
 
         stream()
         {
             Parser=NULL;
             StreamKind=Stream_Max;
             StreamPos=0;
+            stsz_Sample_Size=0;
+            stsz_Sample_Count=0;
             TimeCode_TrackID=(int32u)-1;
             TimeCode_IsVisual=false;
+            Channels_AreTrustable=false;
         }
 
         ~stream()

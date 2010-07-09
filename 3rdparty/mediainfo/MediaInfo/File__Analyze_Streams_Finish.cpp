@@ -1,5 +1,5 @@
 // File__Analyze_Inform - Base for other files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -49,6 +49,7 @@ void File__Analyze::Streams_Finish_Global()
     if (IsSub)
         return;
 
+    Streams_Finish_StreamOnly();
     Streams_Finish_StreamOnly();
     Streams_Finish_InterStreams();
     Streams_Finish_StreamOnly();
@@ -130,18 +131,18 @@ void File__Analyze::Streams_Finish_StreamOnly_Video(size_t Pos)
         int64s Duration=Retrieve(Stream_Video, Pos, Video_Duration).To_int64s();
         if (Duration==0)
             Duration=Retrieve(Stream_General, 0, General_Duration).To_int64s();
-        float FrameRate=Retrieve(Stream_Video, Pos, Video_FrameRate).To_float32();
+        float64 FrameRate=Retrieve(Stream_Video, Pos, Video_FrameRate).To_float64();
         if (Duration && FrameRate)
-           Fill(Stream_Video, Pos, Video_FrameCount, ((float64)Duration)/1000*FrameRate, 0);
+           Fill(Stream_Video, Pos, Video_FrameCount, Duration*FrameRate/1000, 0);
     }
 
     //Duration from FrameCount and FrameRate
     if (Retrieve(Stream_Video, Pos, Video_Duration).empty())
     {
         int64u FrameCount=Retrieve(Stream_Video, Pos, Video_FrameCount).To_int64u();
-        int64u FrameRate=Retrieve(Stream_Video, Pos, "FrameRate").To_int64u();
+        float64 FrameRate=Retrieve(Stream_Video, Pos, "FrameRate").To_float64();
         if (FrameCount && FrameRate)
-           Fill(Stream_Video, Pos, Video_Duration, ((float64)FrameCount)*1000/FrameRate, 0);
+           Fill(Stream_Video, Pos, Video_Duration, FrameCount/FrameRate*1000, 0);
     }
 
     //Pixel Aspect Ratio forced to 1.000 if none
@@ -149,12 +150,32 @@ void File__Analyze::Streams_Finish_StreamOnly_Video(size_t Pos)
         Fill(Stream_Video, Pos, Video_PixelAspectRatio, 1.000);
 
     //Standard
-    if (Retrieve(Stream_Video, Pos, Video_Standard).empty() && Retrieve(Stream_Video, Pos, Video_Width)==_T("720"))
+    if (Retrieve(Stream_Video, Pos, Video_Standard).empty() && (Retrieve(Stream_Video, Pos, Video_Width)==_T("720") || Retrieve(Stream_Video, Pos, Video_Width)==_T("704")))
     {
              if (Retrieve(Stream_Video, Pos, Video_Height)==_T("576"))
             Fill(Stream_Video, Pos, Video_Standard, "PAL");
         else if (Retrieve(Stream_Video, Pos, Video_Height)==_T("480"))
             Fill(Stream_Video, Pos, Video_Standard, "NTSC");
+    }
+    if (Retrieve(Stream_Video, Pos, Video_Standard).empty() && Retrieve(Stream_Video, Pos, Video_Width)==_T("352"))
+    {
+             if (Retrieve(Stream_Video, Pos, Video_Height)==_T("576") || Retrieve(Stream_Video, Pos, Video_Height)==_T("288"))
+            Fill(Stream_Video, Pos, Video_Standard, "PAL");
+        else if (Retrieve(Stream_Video, Pos, Video_Height)==_T("480") || Retrieve(Stream_Video, Pos, Video_Height)==_T("240"))
+            Fill(Stream_Video, Pos, Video_Standard, "NTSC");
+    }
+
+    //Known bitrates
+    if (Count_Get(Stream_Video)==1 && Count_Get(Stream_Audio)==0 && Retrieve(Stream_General, 0, General_Format)==_T("MXF"))
+    {
+        int32u BitRate=Retrieve(Stream_Video, 0, Video_BitRate).To_int32u();
+        int32u BitRate_Sav=BitRate;
+
+        if (BitRate>= 54942720 && BitRate<= 57185280) BitRate= 56064000; //AVC-INTRA50
+        if (BitRate>=111390720 && BitRate<=115937280) BitRate=113664000; //AVC-INTRA100
+
+        if (BitRate!=BitRate_Sav)
+            Fill(Stream_Video, 0, Video_BitRate, BitRate, 0, true);
     }
 }
 
@@ -276,7 +297,7 @@ void File__Analyze::Streams_Finish_InterStreams()
 
     //Duration if OverallBitRate
     if (Retrieve(Stream_General, 0, General_Duration).empty() && Retrieve(Stream_General, 0, General_OverallBitRate).To_int64u()!=0 && Retrieve(Stream_General, 0, General_OverallBitRate).find(_T(" / "))==std::string::npos)
-        Fill(Stream_General, 0, General_Duration, Retrieve(Stream_General, 0, General_FileSize).To_int64u()*8*1000/Retrieve(Stream_General, 0, General_OverallBitRate).To_int64u());
+        Fill(Stream_General, 0, General_Duration, Retrieve(Stream_General, 0, General_FileSize).To_float64()*8*1000/Retrieve(Stream_General, 0, General_OverallBitRate).To_float64(), 0);
 
     //Video bitrate can be the nominal one if <4s (bitrate estimation is not enough precise
     if (Count_Get(Stream_Video)==1 && Retrieve(Stream_Video, 0, Video_BitRate).empty() && Retrieve(Stream_General, 0, General_Duration).To_int64u()<4000)
@@ -299,24 +320,24 @@ void File__Analyze::Streams_Finish_InterStreams()
         //Specific value depends of Container
         if (Get(Stream_General, 0, _T("Format"))==_T("MPEG-TS"))
         {
-            GeneralBitRate_Ratio=0.99;
+            GeneralBitRate_Ratio=0.98;
             GeneralBitRate_Minus=0;
-            VideoBitRate_Ratio  =0.94;
+            VideoBitRate_Ratio  =0.97;
             VideoBitRate_Minus  =0;
-            AudioBitRate_Ratio  =0.94;
+            AudioBitRate_Ratio  =0.96;
             AudioBitRate_Minus  =0;
-            TextBitRate_Ratio   =0.94;
+            TextBitRate_Ratio   =0.96;
             TextBitRate_Minus   =0;
         }
         if (Get(Stream_General, 0, _T("Format"))==_T("MPEG-PS"))
         {
             GeneralBitRate_Ratio=0.99;
             GeneralBitRate_Minus=0;
-            VideoBitRate_Ratio  =0.97;
+            VideoBitRate_Ratio  =0.99;
             VideoBitRate_Minus  =0;
-            AudioBitRate_Ratio  =0.97;
+            AudioBitRate_Ratio  =0.99;
             AudioBitRate_Minus  =0;
-            TextBitRate_Ratio   =0.97;
+            TextBitRate_Ratio   =0.99;
             TextBitRate_Minus   =0;
         }
         if (MediaInfoLib::Config.Format_Get(Retrieve(Stream_General, 0, General_Format), InfoFormat_KindofFormat)==_T("MPEG-4"))
@@ -380,7 +401,7 @@ void File__Analyze::Streams_Finish_InterStreams()
         //Testing
         int64s StreamSize=File_Size;
         bool StreamSizeIsValid=true;
-        for (size_t StreamKind_Pos=Stream_General+1; StreamKind_Pos<Stream_Max; StreamKind_Pos++)
+        for (size_t StreamKind_Pos=Stream_General+1; StreamKind_Pos<Stream_Menu; StreamKind_Pos++)
             for (size_t Pos=0; Pos<Count_Get((stream_t)StreamKind_Pos); Pos++)
             {
                 int64u StreamXX_StreamSize=Retrieve((stream_t)StreamKind_Pos, Pos, Fill_Parameter((stream_t)StreamKind_Pos, Generic_StreamSize)).To_int64u();

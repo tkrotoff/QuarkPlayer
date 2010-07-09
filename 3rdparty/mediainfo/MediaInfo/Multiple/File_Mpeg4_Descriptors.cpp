@@ -1,5 +1,5 @@
 // File_Mpeg4 - Info for MPEG-4 files
-// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -716,6 +716,7 @@ void File_Mpeg4_Descriptors::Descriptor_05()
                                 #if defined(MEDIAINFO_MPEG4_YES)
                                     delete Parser; Parser=new File_Mpeg4_AudioSpecificConfig;
                                     ((File_Mpeg4_AudioSpecificConfig*)Parser)->ftyps=ftyps;
+                                    ((File_Mpeg4_AudioSpecificConfig*)Parser)->Channels_AreTrustable=Channels_AreTrustable;
                                 #endif
                                 break;
             default: ;
@@ -759,6 +760,7 @@ void File_Mpeg4_Descriptors::Descriptor_05()
         #ifdef MEDIAINFO_MPEG4_YES
             delete Parser; Parser=new File_Mpeg4_AudioSpecificConfig;
             ((File_Mpeg4_AudioSpecificConfig*)Parser)->ftyps=ftyps;
+            ((File_Mpeg4_AudioSpecificConfig*)Parser)->Channels_AreTrustable=Channels_AreTrustable;
             Open_Buffer_Init(Parser);
         #endif //MEDIAINFO_MPEG4_YES
     }

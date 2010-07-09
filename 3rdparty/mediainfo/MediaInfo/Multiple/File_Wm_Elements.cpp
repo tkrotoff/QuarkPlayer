@@ -1,5 +1,5 @@
 // File_Wm - Info for Windows Media files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -359,6 +359,20 @@ void File_Wm::Header_StreamProperties_Audio ()
     Fill(Stream_Audio, StreamPos_Last, Audio_BitRate, BytesPerSec*8);
     Fill(Stream_Audio, StreamPos_Last, Audio_Resolution, Resolution);
 
+    FILLING_BEGIN();
+        //Creating the parser
+             if (0);
+        #if defined(MEDIAINFO_MPEGA_YES)
+        else if (MediaInfoLib::Config.CodecID_Get(Stream_Audio, InfoCodecID_Format_Riff, Ztring::ToZtring(CodecID, 16))==_T("MPEG Audio"))
+        {
+            Stream[Stream_Number].Parser=new File_Mpega;
+            ((File_Mpega*)Stream[Stream_Number].Parser)->Frame_Count_Valid=8;
+            Stream[Stream_Number].Parser->ShouldContinueParsing=true;
+        }
+        #endif
+        Open_Buffer_Init(Stream[Stream_Number].Parser);
+    FILLING_END();
+
     //Parsing
     if (Data_Size>0)
     {
@@ -436,7 +450,7 @@ void File_Wm::Header_StreamProperties_Video ()
     Fill(Stream_Video, StreamPos_Last, Video_Width, Width);
     Fill(Stream_Video, StreamPos_Last, Video_Height, Height);
     if (Resolution>0)
-        Fill(Stream_Video, StreamPos_Last, Video_Resolution, Resolution%3?Resolution:(Resolution/3)); //If not a multiple of 3, the total resolution is filled
+        Fill(Stream_Video, StreamPos_Last, Video_Resolution, (Resolution%3)?Resolution:(Resolution/3)); //If not a multiple of 3, the total resolution is filled
     if (Compression==CC4("DVR "))
         IsDvrMs=true;
 
@@ -455,6 +469,9 @@ void File_Wm::Header_StreamProperties_Video ()
         Open_Buffer_Init(Stream[Stream_Number].Parser);
         if (Data_Size>40)
         {
+            Element_Code=Stream_Number;
+            Demux(Buffer+(size_t)Element_Offset, (size_t)(Data_Size-40), ContentType_Header);
+
             Open_Buffer_Continue(Stream[Stream_Number].Parser, (size_t)(Data_Size-40));
             if (Stream[Stream_Number].Parser->Status[IsFinished])
             {
@@ -872,16 +889,17 @@ void File_Wm::Header_CodecList()
             Skip_XX(CodecInformationLength,                     "Codec Information");
         Element_End();
 
-        //Filling
-        CodecInfos[Pos].Type=Type;
-        CodecInfos[Pos].Info=CodecName;
-        if (!CodecDescription.empty())
-        {
-            CodecInfos[Pos].Info+=_T(" - ");
-            CodecInfos[Pos].Info+=CodecDescription;
-        }
+        FILLING_BEGIN();
+            CodecInfos[Pos].Type=Type;
+            CodecInfos[Pos].Info=CodecName;
+            if (!CodecDescription.empty())
+            {
+                CodecInfos[Pos].Info+=_T(" - ");
+                CodecInfos[Pos].Info+=CodecDescription;
+            }
 
-        Codec_Description_Count++;
+            Codec_Description_Count++;
+        FILLING_END();
     }
 }
 
@@ -1489,9 +1507,12 @@ void File_Wm::Data_Packet()
                 ((File_Vc1*)Stream[Stream_Number].Parser)->FrameIsAlwaysComplete=FrameIsAlwaysComplete;
             #endif
 
+            Element_Code=Stream_Number;
+            Demux(Buffer+(size_t)Element_Offset, (size_t)PayloadLength, ContentType_MainStream);
+
             Open_Buffer_Continue(Stream[Stream_Number].Parser, (size_t)PayloadLength);
             if (Stream[Stream_Number].Parser->Status[IsFinished]
-             || Stream[Stream_Number].PresentationTime_Count>=300)
+             || (Stream[Stream_Number].PresentationTime_Count>=300 && MediaInfoLib::Config.ParseSpeed_Get()<1))
             {
                 Stream[Stream_Number].Parser->Open_Buffer_Unsynch();
                 Stream[Stream_Number].SearchingPayload=false;
@@ -1517,7 +1538,7 @@ void File_Wm::Data_Packet()
         Skip_XX(Data_Parse_Padding,                             "Padding");
 
     //Jumping if needed
-    if (Streams_Count==0 || Packet_Count>=1000)
+    if (Streams_Count==0 || (Packet_Count>=1000 && MediaInfoLib::Config.ParseSpeed_Get()<1))
     {
         Info("Data, Jumping to end of chunk");
         GoTo(Data_AfterTheDataChunk, "Windows Media");

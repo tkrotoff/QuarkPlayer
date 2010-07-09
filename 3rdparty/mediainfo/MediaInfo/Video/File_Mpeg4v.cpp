@@ -1,5 +1,5 @@
 // File_Mpeg4v - Info for MPEG-4 Visual files
-// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -238,7 +238,7 @@ File_Mpeg4v::File_Mpeg4v()
     Buffer_TotalBytes_FirstSynched_Max=64*1024;
 
     //In
-    Frame_Count_Valid=30;
+    Frame_Count_Valid=MediaInfoLib::Config.ParseSpeed_Get()>=0.3?30:2;
     FrameIsAlwaysComplete=false;
 
     //Temp
@@ -291,6 +291,10 @@ void File_Mpeg4v::Synched_Init()
 
     //From VOL, needed in VOP
     fixed_vop_time_increment=0;
+    Time_Begin_Seconds=(int32u)-1;
+    Time_End_Seconds=(int32u)-1;
+    Time_Begin_MilliSeconds=(int16u)-1;
+    Time_End_MilliSeconds=(int16u)-1;
     object_layer_width=0;
     object_layer_height=0;
     vop_time_increment_resolution=0;
@@ -319,8 +323,8 @@ void File_Mpeg4v::Synched_Init()
     sprite_enable=0;
     scalability=0;
     enhancement_type=0;
-    complexity_estimation_disable=0;
     vop_time_increment_resolution=0;
+    complexity_estimation_disable=false;
     opaque=false;
     transparent=false;
     intra_cae=false;
@@ -390,6 +394,7 @@ void File_Mpeg4v::Streams_Fill()
         Fill(Stream_Video, 0, Video_PixelAspectRatio, PixelAspectRatio_Value, 3, true);
         Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, ((float)object_layer_width)/object_layer_height*PixelAspectRatio_Value, 3, true);
     }
+    Fill(Stream_Video, 0, Video_ColorSpace, "YUV");
     Fill(Stream_Video, 0, Video_Resolution, bits_per_pixel);
     if (chroma_format<4)
         Fill(Stream_Video, 0, Video_Colorimetry, Mpeg4v_Colorimetry[chroma_format]);
@@ -496,12 +501,12 @@ void File_Mpeg4v::Streams_Fill()
             else if (user_data_start_SNC_Data[Pos][1][15]==_T('S'))
                 Fill(Stream_Video, 0, "Pan / Tilt / Zoom / Status", _T("Stop"));
             else
-                Fill(Stream_Video, 0, "Pan / Tilt / Zoom / Status", Ztring(1, user_data_start_SNC_Data[Pos][1][15]));
+                Fill(Stream_Video, 0, "Pan / Tilt / Zoom / Status", user_data_start_SNC_Data[Pos][1][15]);
         }
         if (user_data_start_SNC_Data[Pos][0]==_T("AlmEvent") && user_data_start_SNC_Data[Pos][1].size()==16)
             Fill(Stream_Video, 0, "Alarm event", user_data_start_SNC_Data[Pos][1]);
     }
-    if (shape!=2)
+    if (video_object_layer_start_IsParsed && shape!=2 && !complexity_estimation_disable)
     {
         Fill(Stream_Video, 0, "data_partitioned", data_partitioned?"Yes":"No");
         (*Stream_More)[Stream_Video][0](Ztring().From_Local("data_partitioned"), Info_Options)=_T("N NT");
@@ -511,16 +516,34 @@ void File_Mpeg4v::Streams_Fill()
             (*Stream_More)[Stream_Video][0](Ztring().From_Local("reversible_vlc"), Info_Options)=_T("N NT");
         }
     }
-
-
 }
 
 //---------------------------------------------------------------------------
 void File_Mpeg4v::Streams_Finish()
 {
+    //Duration
+    if (!IsSub && Time_End_Seconds!=(int32u)-1 && Time_Begin_Seconds!=(int32u)-1)
+    {
+        int32u Duration=(Time_End_Seconds-Time_Begin_Seconds)*1000+Time_End_MilliSeconds-Time_Begin_MilliSeconds;
+        if (fixed_vop_time_increment && vop_time_increment_resolution)
+            Duration+=(float32_int32s)(((float)1000)/(((float)vop_time_increment_resolution)/fixed_vop_time_increment));
+        Fill(Stream_Video, 0, Video_Duration, Duration);
+    }
+
     //Purge what is not needed anymore
     if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
         Streams.clear();
+}
+
+//***************************************************************************
+// Buffer - Global
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_Mpeg4v::Read_Buffer_Unsynched()
+{
+    Time_End_Seconds=(int32u)-1;
+    Time_End_MilliSeconds=(int16u)-1;
 }
 
 //***************************************************************************
@@ -1197,13 +1220,32 @@ void File_Mpeg4v::group_of_vop_start()
     Element_Name("group_of_vop_start");
 
     //Parsing
+    int8u Hours, Minutes, Seconds;
+    bool closed_gop, broken_link;
     BS_Begin();
-    Skip_BS(18,                                                 "time_code");
-    Skip_BS( 1,                                                 "closed_gov");
-    Skip_BS( 1,                                                 "broken_link");
+    Get_S1 ( 5, Hours,                                          "time_code_hours");
+    Get_S1 ( 6, Minutes,                                        "time_code_minutes");
+    Mark_1();
+    Get_S1 ( 6, Seconds,                                        "time_code_seconds");
+    Get_SB (    closed_gop,                                     "closed_gop");
+    Get_SB (    broken_link,                                    "broken_link");
     BS_End();
+    Ztring Time;
+    Time+=Ztring::ToZtring(Hours);
+    Time+=_T(':');
+    Time+=Ztring::ToZtring(Minutes);
+    Time+=_T(':');
+    Time+=Ztring::ToZtring(Seconds);
+    Time+=_T(".000");
+    Element_Info(Time);
 
     FILLING_BEGIN();
+        //Calculating
+        if (Time_Begin_Seconds==(int32u)-1)
+            Time_Begin_Seconds=60*60*Hours+60*Minutes+Seconds;
+        Time_End_Seconds=60*60*Hours+60*Minutes+Seconds;
+        Time_End_MilliSeconds=(int16u)-1;
+
         //NextCode
         NextCode_Test();
         NextCode_Clear();
@@ -1280,6 +1322,7 @@ void File_Mpeg4v::vop_start()
     Element_Info(Ztring(_T("Frame ")+Ztring::ToZtring(Frame_Count)));
 
     //Parsing
+    int32u vop_time_increment;
     int8u vop_coding_type;
     bool  vop_coded;
     BS_Begin();
@@ -1290,7 +1333,8 @@ void File_Mpeg4v::vop_start()
     do
     {
         Get_SB (modulo_time_base_Continue,                      "modulo_time_base");
-        modulo_time_base++;
+        if (modulo_time_base_Continue)
+            modulo_time_base++;
     }
     while (modulo_time_base_Continue);
     Mark_1 ();
@@ -1308,7 +1352,7 @@ void File_Mpeg4v::vop_start()
         }
     FILLING_END();
 
-    Info_S4(time_size, vop_time_increment,                      "vop_time_increment"); if (vop_time_increment_resolution) Param_Info(vop_time_increment*1000/vop_time_increment_resolution, " ms");
+    Get_S4 (time_size, vop_time_increment,                      "vop_time_increment"); if (vop_time_increment_resolution) Param_Info(vop_time_increment*1000/vop_time_increment_resolution, " ms");
     Mark_1 ();
     Get_SB (vop_coded,                                          "vop_coded");
     if (vop_coded)
@@ -1472,6 +1516,20 @@ void File_Mpeg4v::vop_start()
 
 
     FILLING_BEGIN();
+        //Duration
+        if (vop_time_increment_resolution)
+        {
+            int16u Time=modulo_time_base*1000+(int16u)vop_time_increment*1000/vop_time_increment_resolution;
+            while (Time_End_MilliSeconds!=(int16u)-1 && Time+500<Time_End_MilliSeconds)
+                Time+=1000;
+            Time_End_MilliSeconds=Time;
+            if (Time_Begin_MilliSeconds==(int16u)-1)
+                Time_Begin_MilliSeconds=Time_End_MilliSeconds;
+
+            if (Time_End_Seconds!=(int32u)-1)
+                Element_Info(Ztring().Duration_From_Milliseconds((int64u)(Time_End_Seconds*1000+Time_End_MilliSeconds)));
+        }
+
         //NextCode
         NextCode_Test();
         NextCode_Clear();
@@ -1486,8 +1544,16 @@ void File_Mpeg4v::vop_start()
         if (Frame_Count==2 && !Status[IsAccepted])
             Accept("MPEG-4 Visual");
         if (Frame_Count>=Frame_Count_Valid && Count_Get(Stream_Video)==0)
-            Finish("MPEG-4 Visual");
-
+        {
+            //TODO: better handling of the difference
+            if (IsSub)
+                Finish("MPEG-4 Visual");
+            else
+            {
+                Fill("MPEG-4 Visual");
+                GoToFromEnd(1024*1024, "MPEG-4 Visual");
+            }
+        }
     FILLING_END();
 }
 

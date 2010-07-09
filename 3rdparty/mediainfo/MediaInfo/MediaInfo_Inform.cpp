@@ -1,5 +1,5 @@
 // MediaInfo_Inform - Base for other files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -32,6 +32,8 @@
 #include "ZenLib/Utils.h"
 #include "MediaInfo/MediaInfo_Internal.h"
 #include "MediaInfo/MediaInfo_Config.h"
+#include "MediaInfo/Export/Export_Mpeg7.h"
+#include "MediaInfo/Export/Export_PBCore.h"
 #include "MediaInfo/File__Analyze.h"
 //---------------------------------------------------------------------------
 
@@ -54,10 +56,20 @@ Ztring MediaInfo_Internal::Inform()
     }
     CS.Leave();
 
-    #ifndef MEDIAINFO_MINIMIZESIZE
-        if (MediaInfoLib::Config.Details_Get() || MediaInfoLib::Config.Inform_Get()==_T("Details"))
-            return Details;
-    #endif //MEDIAINFO_MINIMIZESIZE
+    #if MEDIAINFO_TRACE
+        if (MediaInfoLib::Config.DetailsLevel_Get() || MediaInfoLib::Config.Inform_Get()==_T("Details"))
+        {
+            if (!Details.empty())
+                return Details;
+            else if (Info)
+                return Info->Details_Get();
+        }
+    #endif //MEDIAINFO_TRACE
+
+    if (MediaInfoLib::Config.Inform_Get()==_T("MPEG-7"))
+        return Export_Mpeg7().Transform(*this);
+    if (MediaInfoLib::Config.Inform_Get()==_T("PBCore") || MediaInfoLib::Config.Inform_Get()==_T("PBCore_1.2"))
+        return Export_PBCore().Transform(*this);
 
     if (!(
         MediaInfoLib::Config.Inform_Get(_T("General")).empty()
@@ -163,7 +175,7 @@ Ztring MediaInfo_Internal::Inform()
         for (size_t StreamPos=0; StreamPos<(size_t)Count_Get((stream_t)StreamKind); StreamPos++)
         {
             //Pour chaque stream
-            if (HTML) Retour+=_T("<table width=\"100%\" border=\"0\" cellpadding=\"1\" cellspacing=\"2\" style=\"border:1px solid Navy\">\n<tr>\n    <td width=\"150\">");
+            if (HTML) Retour+=_T("<table width=\"100%\" border=\"0\" cellpadding=\"1\" cellspacing=\"2\" style=\"border:1px solid Navy\">\n<tr>\n    <td width=\"150\"><h2>");
             if (XML) Retour+=_T("<track type=\"");
             Ztring A=Get((stream_t)StreamKind, StreamPos, _T("StreamKind/String"));
             Ztring B=Get((stream_t)StreamKind, StreamPos, _T("StreamKindPos"));
@@ -183,8 +195,8 @@ Ztring MediaInfo_Internal::Inform()
                     Retour+=_T("\"");
                 }
             }
-            if (HTML) Retour+=_T("</td>\n  </tr>");
-            if (XML) Retour+=_T(">\n");
+            if (HTML) Retour+=_T("</h2></td>\n  </tr>");
+            if (XML) Retour+=_T(">");
             Retour+=MediaInfoLib::Config.LineSeparator_Get();
             Retour+=Inform((stream_t)StreamKind, StreamPos);
             Retour.FindAndReplace(_T("\\"), _T("|SC1|"), 0, Ztring_Recursive);
@@ -212,7 +224,7 @@ Ztring MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
 {
     //Integrity
     if (StreamKind>=Stream_Max || StreamPos>=Stream[StreamKind].size())
-        return _T("");
+        return Ztring();
 
     if (MediaInfoLib::Config.Inform_Get(_T("General")).empty()
      && MediaInfoLib::Config.Inform_Get(_T("Video")).empty()
@@ -235,10 +247,10 @@ Ztring MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
             //Pour chaque champ
             //Ztring A=Get((stream_t)4, 2, 0, Info_Measure_Text); // TODO Bug sinon? voir Ztring
             Ztring A=Get((stream_t)StreamKind, StreamPos, Champ_Pos, Info_Measure_Text); // TODO Bug sinon? voir Ztring
-            if ((MediaInfoLib::Config.Complete_Get() || Get((stream_t)StreamKind, StreamPos, Champ_Pos, Info_Options)[InfoOption_ShowInInform]==_T('Y')) && Get((stream_t)StreamKind, StreamPos, Champ_Pos, Info_Text)!=_T(""))
+            if ((MediaInfoLib::Config.Complete_Get() || Get((stream_t)StreamKind, StreamPos, Champ_Pos, Info_Options)[InfoOption_ShowInInform]==_T('Y')) && !Get((stream_t)StreamKind, StreamPos, Champ_Pos, Info_Text).empty())
             {
                 Ztring Nom=Get((stream_t)StreamKind, StreamPos, Champ_Pos, Info_Name_Text);
-                if (Nom==_T(""))
+                if (Nom.empty())
                     Nom=Get((stream_t)StreamKind, StreamPos, Champ_Pos, Info_Name); //Texte n'existe pas
                 if (!HTML && !XML)
                 {
@@ -260,7 +272,7 @@ Ztring MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
                 else if (XML)
                 {
                     if (Nom.operator()(0)>='0' && Nom.operator()(0)<='9')
-                        Nom.insert(0, 1, _T('_'));
+                        Nom.insert(Nom.begin(), _T('_'));
                     Nom.FindAndReplace(_T(" "), _T("_"), 0, Ztring_Recursive);
                     Nom.FindAndReplace(_T("/"), _T("_"), 0, Ztring_Recursive);
                     Nom.FindAndReplace(_T("("), _T("_"), 0, Ztring_Recursive);
@@ -268,6 +280,9 @@ Ztring MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
                     Nom.FindAndReplace(_T("*"), _T("_"), 0, Ztring_Recursive);
                     Nom.FindAndReplace(_T(","), _T("_"), 0, Ztring_Recursive);
                     Nom.FindAndReplace(_T(":"), _T("_"), 0, Ztring_Recursive);
+                    Nom.FindAndReplace(_T("@"), _T("_"), 0, Ztring_Recursive);
+                    if (Nom.empty())
+                        Nom="Unknown";
                     Valeur.FindAndReplace(_T("\""), _T("&quot;"), 0, Ztring_Recursive);
                     Valeur.FindAndReplace(_T("&"), _T("&amp;"), 0, Ztring_Recursive);
                     Valeur.FindAndReplace(_T("<"), _T("&lt;"), 0, Ztring_Recursive);
@@ -300,7 +315,7 @@ Ztring MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
     ZtringList Info;
 
     if (StreamKind>=Stream_Max)
-        return _T("");
+        return Ztring();
     Info=Stream[StreamKind][StreamPos];
 
     //Special characters
@@ -364,7 +379,7 @@ Ztring MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
     }
 
     //Gestion []
-    while (Retour.SubString(_T("["), _T("]"))!=_T(""))
+    while (!Retour.SubString(_T("["), _T("]")).empty())
     {
         Ztring Crochets=Retour.SubString(_T("["), _T("]"));
         Ztring ValueToFind=Crochets.SubString(_T("%"), _T("%"));
@@ -373,8 +388,8 @@ Ztring MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
         if (ValueToFind_Pos!=Error)
         {
             Ztring RemplacerPar=Info(ValueToFind_Pos);
-            if (RemplacerPar==_T(""))
-                Retour.FindAndReplace(ARemplacer, _T(""));
+            if (RemplacerPar.empty())
+                Retour.FindAndReplace(ARemplacer, Ztring());
             else
             {
                 //Formate l'interieur
@@ -386,7 +401,7 @@ Ztring MediaInfo_Internal::Inform (stream_t StreamKind, size_t StreamPos)
             }
         }
         else
-            Retour.FindAndReplace(ARemplacer, _T(""));
+            Retour.FindAndReplace(ARemplacer, Ztring());
     }
 
     //Gestion %xxx%
@@ -442,7 +457,7 @@ void MediaInfo_Internal::Traiter(Ztring &C)
         Total=C.SubString(_T("$if("), _T(")"), Position);
         ARemplacer=Ztring(_T("$if(")+Total+_T(")"));
         Total1.Write(Total);
-        if (Total1(0)==_T("")) //mettre champ2
+        if (Total1(0).empty()) //mettre champ2
             C.FindAndReplace(ARemplacer, Total1(2), Position);
         else
             C.FindAndReplace(ARemplacer, Total1(1), Position);

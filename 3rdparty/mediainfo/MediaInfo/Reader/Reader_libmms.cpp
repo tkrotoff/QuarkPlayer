@@ -1,5 +1,5 @@
 // Reader_libmms - All info about media files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -85,7 +85,7 @@ int Reader_libmms::Format_Test(MediaInfo_Internal* MI, const String &File_Name)
             if (mmsx_seek(0, Handle, mms_off_t(MI->Open_Buffer_Continue_GoTo_Get()), SEEK_SET)!=MI->Open_Buffer_Continue_GoTo_Get())
                 break; //File is not seekable
 
-            MI->Open_Buffer_Position_Set(MI->Open_Buffer_Continue_GoTo_Get());
+            MI->Open_Buffer_Init((int64u)-1, MI->Open_Buffer_Continue_GoTo_Get());
         }
 
         //Buffering

@@ -1,5 +1,5 @@
 // File_Flac - Info for Flac files
-// Copyright (C) 2003-2009 Jerome Martinez, zen@mediaarea.net
+// Copyright (C) 2003-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -130,7 +130,7 @@ void File_Flac::Data_Parse()
         case Flac::_NAME : Element_Info(#_NAME); _NAME(); break;
 
     //Parsing
-    switch (Element_Code)
+    switch ((int16u)Element_Code)
     {
         CASE_INFO(STREAMINFO);
         CASE_INFO(PADDING);

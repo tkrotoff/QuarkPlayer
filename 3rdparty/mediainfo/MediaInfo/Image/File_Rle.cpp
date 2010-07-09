@@ -1,5 +1,5 @@
 // File_Rle - Info for RLE files
-// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -37,6 +37,33 @@ namespace MediaInfoLib
 {
 
 //***************************************************************************
+// Constructor/Destructor
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+File_Rle::File_Rle()
+:File__Analyze()
+{
+    //Configuration
+    ParserName=_T("RLE");
+}
+
+//***************************************************************************
+// Streams management
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_Rle::Streams_Fill()
+{
+    Stream_Prepare(Stream_General);
+    Fill(Stream_General, 0, General_Format, "RLE");
+
+    Stream_Prepare(Stream_Text); //TODO: This is currenlty only text
+    Fill(Stream_Text, 0, Text_Format, "RLE");
+    Fill(Stream_Text, 0, Text_Codec, "RLE");
+}
+
+//***************************************************************************
 // Buffer - Global
 //***************************************************************************
 
@@ -44,15 +71,7 @@ namespace MediaInfoLib
 void File_Rle::Read_Buffer_Continue()
 {
     //Filling
-    Accept("RLE");
-
-    Stream_Prepare(Stream_General);
-    Fill(Stream_General, 0, General_Format, "RLE");
-
-    Stream_Prepare(Stream_Text); //TODO: This is currenlty only text
-    Fill(Stream_Text, 0, Text_Format, "RLE");
-    Fill(Stream_Text, 0, Text_Codec, "RLE");
-
+    Accept();
     Finish("RLE");
 }
 

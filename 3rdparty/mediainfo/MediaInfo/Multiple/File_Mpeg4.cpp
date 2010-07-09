@@ -1,5 +1,5 @@
 // File_Mpeg4 - Info for MPEG-4 files
-// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -41,6 +41,9 @@
 #endif
 #include "ZenLib/FileName.h"
 #include "MediaInfo/MediaInfo_Internal.h"
+#if MEDIAINFO_EVENTS
+    #include "MediaInfo/MediaInfo_Events.h"
+#endif //MEDIAINFO_EVENTS
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -141,6 +144,10 @@ File_Mpeg4::File_Mpeg4()
 :File__Analyze()
 {
     //Configuration
+    #if MEDIAINFO_EVENTS
+        ParserIDs[0]=MediaInfo_Parser_Mpeg4;
+        StreamIDs_Width[0]=8;
+    #endif //MEDIAINFO_EVENTS
     DataMustAlwaysBeComplete=false;
 
     //Temp
@@ -344,7 +351,7 @@ void File_Mpeg4::Streams_Finish()
                         else
                             Fill(Stream_Audio, Pos, Audio_MuxingMode, Retrieve(Stream_Video, Temp->second.StreamPos, Video_Format)+_T(" / ")+Retrieve(Stream_Audio, Pos, Audio_MuxingMode), true);
                         Fill(Stream_Audio, Pos, Audio_MuxingMode_MoreInfo, _T("Muxed in Video #")+Ztring().From_Number(Temp->second.StreamPos+1));
-                        Fill(Stream_Audio, Pos, Audio_Duration, Retrieve(Stream_Video, Temp->second.StreamPos, Video_Duration));
+                        Fill(Stream_Audio, Pos, Audio_Duration, Retrieve(Stream_Video, Temp->second.StreamPos, Video_Duration), true);
                         Fill(Stream_Audio, Pos, Audio_StreamSize, 0, 10, true); //Included in the DV stream size
                         Ztring ID=Retrieve(Stream_Audio, Pos, Audio_ID);
                         Fill(Stream_Audio, Pos, Audio_ID, Retrieve(Stream_Video, Temp->second.StreamPos, Video_ID)+_T("-")+ID, true);
@@ -404,6 +411,49 @@ void File_Mpeg4::Streams_Finish()
     {
         Stream.clear();
         mdat_Pos.clear();
+    }
+
+    //Commercial names
+    if (Count_Get(Stream_Video)==1)
+    {
+        Streams_Finish_StreamOnly();
+        if (Retrieve(Stream_Video, 0, Video_Format)==_T("DV") && Retrieve(Stream_Video, 0, Video_Format_Commercial)==_T("DVCPRO HD"))
+        {
+            int32u BitRate=Retrieve(Stream_Video, 0, Video_BitRate).To_int32u();
+            int32u BitRate_Max=Retrieve(Stream_Video, 0, Video_BitRate_Maximum).To_int32u();
+
+            if (BitRate_Max && BitRate>=BitRate_Max)
+            {
+                Clear(Stream_Video, 0, Video_BitRate_Maximum);
+                Fill(Stream_Video, 0, Video_BitRate, BitRate_Max, 10, true);
+                Fill(Stream_Video, 0, Video_BitRate_Mode, "CBR", Unlimited, true, true);
+            }
+        }
+             if (!Retrieve(Stream_Video, 0, Video_Format_Commercial_IfAny).empty())
+        {
+            Fill(Stream_General, 0, General_Format_Commercial_IfAny, Retrieve(Stream_Video, 0, Video_Format_Commercial_IfAny));
+            Fill(Stream_General, 0, General_Format_Commercial, Retrieve(Stream_General, 0, General_Format)+_T(' ')+Retrieve(Stream_Video, 0, Video_Format_Commercial_IfAny));
+        }
+        else if (Retrieve(Stream_Video, 0, Video_Format)==_T("MPEG Video") && Retrieve(Stream_Video, 0, Video_Format_Settings_GOP)!=_T("N=1") && Retrieve(Stream_Video, 0, Video_Colorimetry)==_T("4:2:0") && Retrieve(Stream_Video, 0, Video_BitRate)==_T("18000000"))
+        {
+            Fill(Stream_General, 0, General_Format_Commercial_IfAny, "XDCAM EX 18");
+            Fill(Stream_Video, 0, Video_Format_Commercial_IfAny, "XDCAM EX 18");
+        }
+        else if (Retrieve(Stream_Video, 0, Video_Format)==_T("MPEG Video") && Retrieve(Stream_Video, 0, Video_Format_Settings_GOP)!=_T("N=1") && Retrieve(Stream_Video, 0, Video_Colorimetry)==_T("4:2:0") && Retrieve(Stream_Video, 0, Video_BitRate)==_T("25000000"))
+        {
+            Fill(Stream_General, 0, General_Format_Commercial_IfAny, "XDCAM EX 25");
+            Fill(Stream_Video, 0, Video_Format_Commercial_IfAny, "XDCAM EX 25");
+        }
+        else if (Retrieve(Stream_Video, 0, Video_Format)==_T("MPEG Video") && Retrieve(Stream_Video, 0, Video_Format_Settings_GOP)!=_T("N=1") && Retrieve(Stream_Video, 0, Video_Colorimetry)==_T("4:2:0") && Retrieve(Stream_Video, 0, Video_BitRate)==_T("35000000"))
+        {
+            Fill(Stream_General, 0, General_Format_Commercial_IfAny, "XDCAM EX 35");
+            Fill(Stream_Video, 0, Video_Format_Commercial_IfAny, "XDCAM EX 35");
+        }
+        else if (Retrieve(Stream_Video, 0, Video_Format)==_T("MPEG Video") && Retrieve(Stream_Video, 0, Video_Format_Settings_GOP)!=_T("N=1") && Retrieve(Stream_Video, 0, Video_Colorimetry)==_T("4:2:2") && (Retrieve(Stream_Video, 0, Video_BitRate)==_T("50000000") || Retrieve(Stream_Video, 0, Video_BitRate_Nominal)==_T("50000000")))
+        {
+            Fill(Stream_General, 0, General_Format_Commercial_IfAny, "XDCAM EX422");
+            Fill(Stream_Video, 0, Video_Format_Commercial_IfAny, "XDCAM EX422");
+        }
     }
 }
 
@@ -609,6 +659,7 @@ void File_Mpeg4::Descriptors()
     File_Mpeg4_Descriptors MI;
     MI.KindOfStream=StreamKind_Last;
     MI.ftyps=ftyps;
+    MI.Channels_AreTrustable=Stream[moov_trak_tkhd_TrackID].Channels_AreTrustable;
     MI.Parser_DoNotFreeIt=true;
     Open_Buffer_Init(&MI);
 

@@ -1,5 +1,5 @@
 // ZenLib::Dir - Directories functions
-// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -88,13 +88,13 @@ ZtringList Dir::GetAllFileNames(const Ztring &Dir_Name_, dirlist_t Options)
         else if (FullPath.DirExists())
         {
             FullPath.Normalize();
-            wxDir::GetAllFiles(FullPath.GetFullPath(), &Liste, _T(""), Flags);
+            wxDir::GetAllFiles(FullPath.GetFullPath(), &Liste, Ztring(), Flags);
         }
         //-WildCards
         else
         {
             wxString FileName=FullPath.GetFullName();
-            FullPath.SetFullName(_T("")); //Supress filename
+            FullPath.SetFullName(Ztring()); //Supress filename
             FullPath.Normalize();
             if (FullPath.DirExists())
                 wxDir::GetAllFiles(FullPath.GetPath(), &Liste, FileName, Flags);

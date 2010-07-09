@@ -28,5 +28,5 @@ if (NSIS_EXECUTABLE)
 	)
 
 else (NSIS_EXECUTABLE)
-	message(STATUS "Could not find NSIS")
+	message(STATUS "Could NOT find NSIS")
 endif (NSIS_EXECUTABLE)

@@ -1,5 +1,5 @@
 // File_Riff - Info for RIFF files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -40,6 +40,33 @@ namespace MediaInfoLib
 
 class File_Riff : public File__Analyze
 {
+public :
+    //Out
+    #if defined(MEDIAINFO_GXF_YES) && (defined(MEDIAINFO_CDP_YES) || defined(MEDIAINFO_AFDBARDATA_YES))
+        struct buffered_data
+        {
+            size_t Size;
+            int8u* Data;
+
+            buffered_data()
+            {
+                Size=0;
+                Data=NULL;
+            }
+
+            ~buffered_data()
+            {
+                delete[] Data; //Data=NULL;
+            }
+        };
+        #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+            std::vector<buffered_data*>* Cdp_Data;
+        #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+        #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
+            std::vector<buffered_data*>* AfdBarData_Data;
+        #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
+    #endif //defined(MEDIAINFO_GXF_YES) && (defined(MEDIAINFO_CDP_YES) || defined(MEDIAINFO_AFDBARDATA_YES))
+
 protected :
     //Streams management
     void Streams_Finish();
@@ -49,9 +76,13 @@ public :
     ~File_Riff();
 
 private :
-    //Buffer
+    //Buffer - Global
+    void Read_Buffer_Continue ();
+
+    //Buffer - Per element
     void Header_Parse();
     void Data_Parse();
+
     bool BookMark_Needed();
 
     //Data
@@ -117,6 +148,7 @@ private :
     int64u WAVE_data_Size;  //RF64 WAVE_data real chunk size
     int64u WAVE_fact_samplesCount;  //RF64 WAVE_fact real samplesCount
     int64u Alignement_ExtraByte; //Padding from the container
+    int64u Buffer_DataSizeToParse;
     float64 avih_FrameRate; //FrameRate of the first video stream in one MOVI chunk
     int32u avih_TotalFrame; //Count of frames in one MOVI chunk
     int32u dmlh_TotalFrame; //Count of frames in the whole AVI file (with odml too)
@@ -125,14 +157,21 @@ private :
     int64u TimeReference;   //Only used by Brodcast extension
     int32u SMV_BlockSize;   //Size of a SMV block, 0 if not SMV
     int32u SMV_FrameCount;  //Frame count of a SMV block, 0 if not SMV
+    int16u BitsPerSample;   //For PCM only
     int8u  stream_Count;    //How many stream we have to parse
     bool   rec__Present;    //True if synchro element is present
     bool   NeedOldIndex;
     bool   IsBigEndian;
     bool   IsWave64;
     bool   IsRIFF64;
+    bool   IsWaveBroken;
     bool   SecondPass;      //Second pass for streams
     File__Analyze*  DV_FromHeader;
+    #if defined(MEDIAINFO_GXF_YES)
+        std::vector<std::vector<File__Analyze*> > rcrd_Parsers;
+        size_t rcrd_Parsers_Count;
+        std::vector<std::vector<size_t> > rcrd_Parsers_StreamPos;
+    #endif //MEDIAINFO_GXF_YES
 
     //Chunks
     void AIFC ();
@@ -144,6 +183,7 @@ private :
     void AIFF ();
     void AIFF_COMM ();
     void AIFF_COMT ();
+    void AIFF_ID3_ () {WAVE_ID3_();}
     void AIFF_SSND ();
     void AIFF_xxxx ();
     void AVI_ ();
@@ -209,6 +249,8 @@ private :
     void CMJP ();
     void CMP4 ();
     void IDVX ();
+    void INDX ();
+    void INDX_xxxx ();
     void JUNK ();
     void menu ();
     void MThd ();
@@ -216,6 +258,15 @@ private :
     void PAL_ ();
     void QLCM ();
     void QLCM_fmt_ ();
+    #if defined(MEDIAINFO_GXF_YES)
+    void rcrd ();
+    void rcrd_desc ();
+    void rcrd_fld_ ();
+    void rcrd_fld__anc_ ();
+    void rcrd_fld__anc__pos_ ();
+    void rcrd_fld__anc__pyld ();
+    void rcrd_fld__finf ();
+    #endif //defined(MEDIAINFO_GXF_YES)
     void RDIB ();
     void RMID ();
     void RMMP ();
@@ -233,6 +284,7 @@ private :
     void WAVE__pmx ();
     void WAVE_aXML ();
     void WAVE_bext ();
+    void WAVE_cue_ ();
     void WAVE_data ();
     void WAVE_ds64 ();
     void WAVE_fact ();

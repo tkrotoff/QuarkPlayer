@@ -1,5 +1,5 @@
 // MediaInfo_Config - Configuration class
-// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -51,7 +51,7 @@ public :
     void Init(); //Must be called instead of constructor
 
     //General
-    Ztring Option (const String &Option, const String &Value=_T(""));
+    Ztring Option (const String &Option, const String &Value=Ztring());
 
     //Info
           void      Complete_Set (size_t NewValue);
@@ -85,11 +85,24 @@ public :
           void      Verbosity_Set (float32 NewValue);
           float32   Verbosity_Get ();
 
-          void      Details_Set (float32 NewValue);
-          float32   Details_Get ();
+          void      DetailsLevel_Set (float32 NewValue);
+          float32   DetailsLevel_Get ();
+
+          enum detailsFormat
+          {
+              DetailsFormat_Tree,
+              DetailsFormat_CSV,
+          };
+          void      DetailsFormat_Set (detailsFormat NewValue);
+          detailsFormat DetailsFormat_Get ();
+
+          void      DetailsModificator_Set (const ZtringList &NewModifcator);
+          Ztring    DetailsModificator_Get (const Ztring &Modificator);
 
           void      Demux_Set (int8u NewValue);
           int8u     Demux_Get ();
+          void      Demux_Unpacketize_Set (bool NewValue);
+          bool      Demux_Unpacketize_Get ();
 
           void      LineSeparator_Set (const Ztring &NewValue);
           Ztring    LineSeparator_Get ();
@@ -123,6 +136,10 @@ public :
           void      Inform_Set (const ZtringListList &NewInform);
           Ztring    Inform_Get ();
           Ztring    Inform_Get (const Ztring &Value);
+
+          void      Inform_Replace_Set (const ZtringListList &NewInform_Replace);
+          Ztring    Inform_Replace_Get ();
+          ZtringListList Inform_Replace_Get_All ();
 
     const Ztring   &Format_Get (const Ztring &Value, infoformat_t KindOfFormatInfo=InfoFormat_Name);
           InfoMap  &Format_Get(); //Should not be, but too difficult to hide it
@@ -173,10 +190,11 @@ private :
     size_t          ShowFiles_TextOnly;
     float32         ParseSpeed;
     float32         Verbosity;
-    float32         Details;
+    float32         DetailsLevel;
     bool            Language_Raw;
     bool            ReadByHuman;
     int8u           Demux;
+    bool            Demux_Unpacketize;
     Ztring          Version;
     Ztring          ColumnSeparator;
     Ztring          LineSeparator;
@@ -186,6 +204,9 @@ private :
     Ztring          ThousandsPoint;
     Translation     Language; //ex. : "KB;Ko"
     ZtringListList  Custom_View; //Definition of "General", "Video", "Audio", "Text", "Chapters", "Image"
+    ZtringListList  Custom_View_Replace; //ToReplace;ReplaceBy
+    detailsFormat   DetailsFormat;
+    std::map<Ztring, bool> DetailsModificators; //If we want to add/remove some details
 
     InfoMap         Container;
     InfoMap         CodecID[InfoCodecID_Format_Max][Stream_Max];

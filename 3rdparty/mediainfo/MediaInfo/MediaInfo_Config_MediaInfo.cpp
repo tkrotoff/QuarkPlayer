@@ -1,5 +1,5 @@
 // MediaInfo_Config_MediaInfo - Configuration class
-// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -46,9 +46,14 @@ MediaInfo_Config_MediaInfo::MediaInfo_Config_MediaInfo()
     FileKeepInfo=false;
     FileStopAfterFilled=false;
     File_Filter_HasChanged_=false;
+    #if MEDIAINFO_EVENTS
+        Event_CallBackFunction=NULL;
+        Event_UserHandler=NULL;
+    #endif //MEDIAINFO_EVENTS
 
     //Specific
     File_MpegTs_ForceMenu=false;
+    File_MpegTs_stream_type_Trust=true;
     File_Bdmv_ParseTargetedFile=true;
     File_DvDif_Analysis=false;
     State=0;
@@ -140,6 +145,15 @@ Ztring MediaInfo_Config_MediaInfo::Option (const String &Option, const String &V
     {
         return File_MpegTs_ForceMenu_Get()?"1":"0";
     }
+    else if (Option_Lower==_T("file_mpegts_stream_type_trust"))
+    {
+        File_MpegTs_stream_type_Trust_Set(!(Value==_T("0") || Value.empty()));
+        return _T("");
+    }
+    else if (Option_Lower==_T("file_mpegts_stream_type_trust_get"))
+    {
+        return File_MpegTs_stream_type_Trust_Get()?"1":"0";
+    }
     else if (Option_Lower==_T("file_bdmv_parsetargetedfile"))
     {
         File_Bdmv_ParseTargetedFile_Set(!(Value==_T("0") || Value.empty()));
@@ -166,6 +180,14 @@ Ztring MediaInfo_Config_MediaInfo::Option (const String &Option, const String &V
     else if (Option_Lower==_T("file_curl_get"))
     {
         return File_Curl_Get(Value);
+    }
+    else if (Option_Lower==_T("file_event_callbackfunction"))
+    {
+        #if MEDIAINFO_EVENTS
+            return Event_CallBackFunction_Set(Value);
+        #else //MEDIAINFO_EVENTS
+            return _T("Event manager is disabled due to compilation options");
+        #endif //MEDIAINFO_EVENTS
     }
     else
         return _T("Option not known");
@@ -387,6 +409,114 @@ void MediaInfo_Config_MediaInfo::File__Duplicate_Memory_Indexes_Erase (const Ztr
 }
 
 //***************************************************************************
+// Event
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+#if MEDIAINFO_EVENTS
+bool MediaInfo_Config_MediaInfo::Event_CallBackFunction_IsSet ()
+{
+    CriticalSectionLocker CSL(CS);
+
+    return Event_CallBackFunction?true:false;
+}
+#endif //MEDIAINFO_EVENTS
+
+//---------------------------------------------------------------------------
+#if MEDIAINFO_EVENTS
+Ztring MediaInfo_Config_MediaInfo::Event_CallBackFunction_Set (const Ztring &Value)
+{
+    ZtringList List=Value;
+
+    CriticalSectionLocker CSL(CS);
+
+    if (List.empty())
+    {
+        Event_CallBackFunction=(MediaInfo_Event_CallBackFunction*)NULL;
+        Event_UserHandler=NULL;
+    }
+    else
+        for (size_t Pos=0; Pos<List.size(); Pos++)
+        {
+            if (List[Pos].find(_T("CallBack=memory://"))==0)
+                Event_CallBackFunction=(MediaInfo_Event_CallBackFunction*)Ztring(List[Pos].substr(18, std::string::npos)).To_int64u();
+            else if (List[Pos].find(_T("UserHandler=memory://"))==0)
+                Event_UserHandler=(void*)Ztring(List[Pos].substr(21, std::string::npos)).To_int64u();
+            else
+                return("Problem during Event_CallBackFunction value parsing");
+        }
+
+    return Ztring();
+}
+#endif //MEDIAINFO_EVENTS
+
+//---------------------------------------------------------------------------
+#if MEDIAINFO_EVENTS
+void MediaInfo_Config_MediaInfo::Event_Send (const int8u* Data_Content, size_t Data_Size)
+{
+    CriticalSectionLocker CSL(CS);
+
+    if (Event_CallBackFunction)
+        Event_CallBackFunction ((unsigned char*)Data_Content, Data_Size, Event_UserHandler);
+}
+#endif //MEDIAINFO_EVENTS
+
+//---------------------------------------------------------------------------
+#if MEDIAINFO_EVENTS
+void MediaInfo_Config_MediaInfo::Event_Send (const int8u* Data_Content, size_t Data_Size, const Ztring &File_Name)
+{
+    CriticalSectionLocker CSL(CS);
+
+    if (Event_CallBackFunction)
+        Event_CallBackFunction ((unsigned char*)Data_Content, Data_Size, Event_UserHandler);
+    else
+    {
+        MediaInfo_Event_Generic* Event_Generic=(MediaInfo_Event_Generic*)Data_Content;
+        if ((Event_Generic->EventCode&0x00FFFF00)==(MediaInfo_Event_Global_Demux<<8))
+        {
+            if (!MediaInfoLib::Config.Demux_Get())
+                return;
+
+            if (File_Name.empty())
+                return;
+
+            MediaInfo_Event_Global_Demux_0* Event=(MediaInfo_Event_Global_Demux_0*)Data_Content;
+
+            Ztring File_Name_Final(File_Name);
+            bool AddRawExtension=false;
+            for (size_t Pos=0; Pos<Event->StreamIDs_Size; Pos++)
+            {
+                if (Event->StreamIDs_Width[Pos]==17)
+                {
+                    Ztring ID;
+                    ID.From_CC4((int32u)Event->StreamIDs[Pos]);
+                    File_Name_Final+=_T('.')+ID;
+                }
+                else if (Event->StreamIDs_Width[Pos] && Event->StreamIDs_Width[Pos]<=16)
+                {
+                    Ztring ID;
+                    ID.From_Number(Event->StreamIDs[Pos], 16);
+                    while (ID.size()<Event->StreamIDs_Width[Pos])
+                        ID.insert(0,  1, _T('0'));
+                    if (ID.size()>Event->StreamIDs_Width[Pos])
+                        ID.erase(0, ID.size()-Event->StreamIDs_Width[Pos]);
+                    File_Name_Final+=_T('.')+ID;
+                }
+                else
+                    AddRawExtension=true;
+            }
+            if (AddRawExtension)
+                File_Name_Final+=_T(".raw");
+
+            File F;
+            F.Open(File_Name_Final, File::Access_Write_Append);
+            F.Write(Event->Content, Event->Content_Size);
+        }
+    }
+}
+#endif //MEDIAINFO_EVENTS
+
+//***************************************************************************
 // Force Parser
 //***************************************************************************
 
@@ -401,6 +531,21 @@ bool MediaInfo_Config_MediaInfo::File_MpegTs_ForceMenu_Get ()
 {
     CriticalSectionLocker CSL(CS);
     bool Temp=File_MpegTs_ForceMenu;
+    return Temp;
+}
+
+//---------------------------------------------------------------------------
+void MediaInfo_Config_MediaInfo::File_MpegTs_stream_type_Trust_Set (bool NewValue)
+{
+    CriticalSectionLocker CSL(CS);
+    File_MpegTs_stream_type_Trust=NewValue;
+}
+
+bool MediaInfo_Config_MediaInfo::File_MpegTs_stream_type_Trust_Get ()
+{
+    CS.Enter();
+    bool Temp=File_MpegTs_stream_type_Trust;
+    CS.Leave();
     return Temp;
 }
 

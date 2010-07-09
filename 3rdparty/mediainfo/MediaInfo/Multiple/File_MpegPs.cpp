@@ -1,5 +1,5 @@
 // File_MpegPs - Info for MPEG files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -86,6 +86,10 @@
 #include "MediaInfo/File_Unknown.h"
 #include <ZenLib/Utils.h>
 #include <algorithm>
+#if MEDIAINFO_EVENTS
+    #include "MediaInfo/MediaInfo_Config_MediaInfo.h"
+    #include "MediaInfo/MediaInfo_Events_Internal.h"
+#endif //MEDIAINFO_EVENTS
 using namespace ZenLib;
 using namespace std;
 //---------------------------------------------------------------------------
@@ -192,6 +196,11 @@ File_MpegPs::File_MpegPs()
 :File__Analyze()
 {
     //Configuration
+    ParserName=_T("MpegPs");
+    #if MEDIAINFO_EVENTS
+        ParserIDs[0]=MediaInfo_Parser_MpegPs;
+        StreamIDs_Width[0]=2;
+    #endif //MEDIAINFO_EVENTS
     MustSynchronize=true;
     Buffer_TotalBytes_FirstSynched_Max=64*1024;
     Trusted_Multiplier=2;
@@ -199,6 +208,7 @@ File_MpegPs::File_MpegPs()
     //In
     FromTS=false;
     FromTS_stream_type=0x00; //No info
+    FromTS_program_format_identifier=0x00000000; //No info
     FromTS_format_identifier=0x00000000; //No info
     FromTS_descriptor_tag=0x00; //No info
     MPEG_Version=0; //No info
@@ -207,6 +217,9 @@ File_MpegPs::File_MpegPs()
         DecSpecificInfoTag=NULL;
         SLConfig=NULL;
     #endif
+    #if MEDIAINFO_DEMUX
+        SubStream_Demux=NULL;
+    #endif //MEDIAINFO_DEMUX
 
     //Out
     HasTimeStamps=false;
@@ -218,11 +231,21 @@ File_MpegPs::File_MpegPs()
     Parsing_End_ForDTS=false;
     video_stream_PTS_FrameCount=0;
     video_stream_PTS_MustAddOffset=false;
+    Demux_Unpacketize=MediaInfoLib::Config.Demux_Unpacketize_Get();
 
     //From packets
     program_mux_rate=(int32u)-1;
 
     BookMark_Set(); //for stream parsing in phase 2
+}
+
+//---------------------------------------------------------------------------
+File_MpegPs::~File_MpegPs()
+{
+    #if MEDIAINFO_DEMUX
+        if (FromTS_stream_type==0x20) //If SubStream, this object owns the demux handler
+            delete SubStream_Demux; //SubStream_Demux=NULL;
+    #endif //MEDIAINFO_DEMUX
 }
 
 //***************************************************************************
@@ -367,8 +390,16 @@ void File_MpegPs::Streams_Fill_PerStream(size_t StreamID, ps_stream &Temp)
         {
             if (StreamKind_Last==Stream_Video)
             {
-                Fill(StreamKind_Last, StreamPos_Last, "Delay_Original", Retrieve(StreamKind_Last, StreamPos_Last, "Delay"));
-                Fill(StreamKind_Last, StreamPos_Last, "Delay_Original_Settings", Retrieve(StreamKind_Last, StreamPos_Last, "Delay_Settings"));
+                if (!Retrieve(Stream_Video, Temp.StreamPos, Video_Delay).empty())
+                {
+                    Ztring Delay=Retrieve(Stream_Video, Temp.StreamPos, Video_Delay);
+                    Fill(Stream_Video, Temp.StreamPos, Video_Delay_Original, Delay);
+                }
+                if (!Retrieve(Stream_Video, Temp.StreamPos, Video_Delay_Settings).empty())
+                {
+                    Ztring Delay_Settings=Retrieve(Stream_Video, Temp.StreamPos, Video_Delay_Settings);
+                    Fill(Stream_Video, Temp.StreamPos, Video_Delay_Original_Settings, Delay_Settings);
+                }
             }
             Fill(StreamKind_Last, StreamPos_Last, "Delay", ((float64)Temp.TimeStamp_Start.PTS.TimeStamp)/90, 3, true);
             Fill(StreamKind_Last, StreamPos_Last, "Delay_Settings", "", Unlimited, true, true);
@@ -727,6 +758,10 @@ void File_MpegPs::Read_Buffer_Unsynched()
     }
     video_stream_Unlimited=false;
     Buffer_DataSizeToParse=0;
+
+    #if MEDIAINFO_EVENTS
+        MpegPs_PES_FirstByte_IsAvailable=false;
+    #endif //MEDIAINFO_EVENTS
 }
 
 //---------------------------------------------------------------------------
@@ -754,6 +789,14 @@ void File_MpegPs::Read_Buffer_Continue()
     //Video unlimited specific, we didn't wait for the end (because this is... unlimited)
     if (video_stream_Unlimited)
     {
+        #if MEDIAINFO_EVENTS
+            if (FromTS)
+            {
+                MpegPs_PES_FirstByte_IsAvailable=true;
+                MpegPs_PES_FirstByte_Value=false;
+            }
+        #endif //MEDIAINFO_EVENTS
+
         //Look for next Sync word
         size_t Buffer_Offset_Temp=0;
         while (Buffer_Offset_Temp+4<=Buffer_Size
@@ -810,8 +853,16 @@ void File_MpegPs::Read_Buffer_Continue()
 
 //---------------------------------------------------------------------------
 void File_MpegPs::Header_Parse()
-#ifndef MEDIAINFO_MINIMIZESIZE
+#if MEDIAINFO_TRACE
 {
+    #if MEDIAINFO_EVENTS
+        if (FromTS)
+        {
+            MpegPs_PES_FirstByte_IsAvailable=true;
+            MpegPs_PES_FirstByte_Value=true;
+        }
+    #endif //MEDIAINFO_EVENTS
+
     //Reinit
     PTS=(int64u)-1;
     DTS=(int64u)-1;
@@ -827,9 +878,18 @@ void File_MpegPs::Header_Parse()
         Element_WaitForMoreData();
         return;
     }
+    Header_Fill_Code(start_code);
 }
-#else //MEDIAINFO_MINIMIZESIZE
+#else //MEDIAINFO_TRACE
 {
+    #if MEDIAINFO_EVENTS
+        if (FromTS)
+        {
+            MpegPs_PES_FirstByte_IsAvailable=true;
+            MpegPs_PES_FirstByte_Value=true;
+        }
+    #endif //MEDIAINFO_EVENTS
+
     //Reinit
     PTS=(int64u)-1;
     DTS=(int64u)-1;
@@ -845,8 +905,9 @@ void File_MpegPs::Header_Parse()
         Element_WaitForMoreData();
         return;
     }
+    Header_Fill_Code(start_code);
 }
-#endif //MEDIAINFO_MINIMIZESIZE
+#endif //MEDIAINFO_TRACE
 
 //---------------------------------------------------------------------------
 bool File_MpegPs::Header_Parse_Fill_Size()
@@ -935,6 +996,13 @@ void File_MpegPs::Header_Parse_PES_packet(int8u start_code)
     if (PES_packet_length==0 && Element_Offset<Element_Size)
         if (!Header_Parse_Fill_Size())
         {
+            //Return directly if we must unpack the elementary stream;
+            if (Demux_Unpacketize)
+            {
+                Element_WaitForMoreData();
+                return;
+            }
+
             //Next PS packet is not found, we will use all the buffer
             Header_Fill_Size(Buffer_Size-Buffer_Offset); //All the buffer is used
             video_stream_Unlimited=true;
@@ -945,6 +1013,13 @@ void File_MpegPs::Header_Parse_PES_packet(int8u start_code)
     if (PES_packet_length!=0 && Element_Offset<Element_Size && (size_t)(6+PES_packet_length)>Buffer_Size-Buffer_Offset
      && ((start_code&0xE0)==0xC0 || (start_code&0xF0)==0xE0))
     {
+        //Return directly if we must unpack the elementary stream;
+        if (Demux_Unpacketize)
+        {
+            Element_WaitForMoreData();
+            return;
+        }
+
         Header_Fill_Size(Buffer_Size-Buffer_Offset); //All the buffer is used
         Buffer_DataSizeToParse=6+PES_packet_length-(int16u)(Buffer_Size-Buffer_Offset);
         Buffer_Offset_Temp=0; //We use the buffer
@@ -1095,7 +1170,7 @@ void File_MpegPs::Header_Parse_PES_packet_MPEG2(int8u start_code)
     //Parsing
     int8u PTS_DTS_flags, PES_header_data_length;
     bool ESCR_flag, ES_rate_flag, DSM_trick_mode_flag, additional_copy_info_flag, PES_CRC_flag, PES_extension_flag;
-    #ifndef MEDIAINFO_MINIMIZESIZE
+    #if MEDIAINFO_TRACE
     BS_Begin();
     Mark_1();
     Mark_0();
@@ -1113,7 +1188,7 @@ void File_MpegPs::Header_Parse_PES_packet_MPEG2(int8u start_code)
     Get_SB (PES_extension_flag,                                 "PES_extension_flag");
     BS_End();
     Get_B1 (PES_header_data_length,                             "PES_header_data_length");
-    #else //MEDIAINFO_MINIMIZESIZE
+    #else //MEDIAINFO_TRACE
     if (Element_Offset+3>=Element_Size)
     {
         Trusted_IsNot();
@@ -1136,13 +1211,13 @@ void File_MpegPs::Header_Parse_PES_packet_MPEG2(int8u start_code)
     Buffer_Pos_Flags++;
     PES_header_data_length      =Buffer[Buffer_Pos_Flags];
     Element_Offset+=3;
-    #endif //MEDIAINFO_MINIMIZESIZE
+    #endif //MEDIAINFO_TRACE
     int64u Element_Pos_After_Data=Element_Offset+PES_header_data_length;
     
     //Options
     if (PTS_DTS_flags==0x2)
     {
-        #ifndef MEDIAINFO_MINIMIZESIZE
+        #if MEDIAINFO_TRACE
         int16u PTS_29, PTS_14;
         int8u  PTS_32;
         Element_Begin("PTS_DTS_flags");
@@ -1165,7 +1240,7 @@ void File_MpegPs::Header_Parse_PES_packet_MPEG2(int8u start_code)
         Element_Info_From_Milliseconds(PTS/90);
         Element_End();
         Element_End();
-        #else //MEDIAINFO_MINIMIZESIZE
+        #else //MEDIAINFO_TRACE
         if (Element_Offset+5>Element_Size)
         {
             Element_WaitForMoreData();
@@ -1183,7 +1258,7 @@ void File_MpegPs::Header_Parse_PES_packet_MPEG2(int8u start_code)
           | ( ((int64u)Buffer[Buffer_Pos+1]      )<<22)|((((int64u)Buffer[Buffer_Pos+2]&0xFE))<<14)
           | ( ((int64u)Buffer[Buffer_Pos+3]      )<< 7)|((((int64u)Buffer[Buffer_Pos+4]&0xFE))>> 1);
         Element_Offset+=5;
-        #endif //MEDIAINFO_MINIMIZESIZE
+        #endif //MEDIAINFO_TRACE
 
         //Filling
         if (Streams[start_code].Searching_TimeStamp_End)
@@ -1200,7 +1275,7 @@ void File_MpegPs::Header_Parse_PES_packet_MPEG2(int8u start_code)
     }
     if (PTS_DTS_flags==0x3)
     {
-        #ifndef MEDIAINFO_MINIMIZESIZE
+        #if MEDIAINFO_TRACE
         int16u PTS_29, PTS_14, DTS_29, DTS_14;
         int8u  PTS_32, DTS_32;
         Element_Begin("PTS_DTS_flags");
@@ -1222,7 +1297,7 @@ void File_MpegPs::Header_Parse_PES_packet_MPEG2(int8u start_code)
           | (((int64u)PTS_14));
         Element_Info_From_Milliseconds(PTS/90);
         Element_End();
-        #else //MEDIAINFO_MINIMIZESIZE
+        #else //MEDIAINFO_TRACE
         if (Element_Offset+5>Element_Size)
         {
             Element_WaitForMoreData();
@@ -1240,7 +1315,7 @@ void File_MpegPs::Header_Parse_PES_packet_MPEG2(int8u start_code)
           | ( ((int64u)Buffer[Buffer_Pos+1]      )<<22)|((((int64u)Buffer[Buffer_Pos+2]&0xFE))<<14)
           | ( ((int64u)Buffer[Buffer_Pos+3]      )<< 7)|((((int64u)Buffer[Buffer_Pos+4]&0xFE))>> 1);
         Element_Offset+=5;
-        #endif //MEDIAINFO_MINIMIZESIZE
+        #endif //MEDIAINFO_TRACE
 
         //Filling
         if (Streams[start_code].Searching_TimeStamp_End)
@@ -1251,10 +1326,10 @@ void File_MpegPs::Header_Parse_PES_packet_MPEG2(int8u start_code)
         if (Searching_TimeStamp_Start && Streams[start_code].Searching_TimeStamp_Start)
         {
             Streams[start_code].TimeStamp_Start.PTS.TimeStamp=PTS;
-            Streams[start_code].Searching_TimeStamp_Start=false;
+            //Streams[start_code].Searching_TimeStamp_Start=false;
         }
 
-        #ifndef MEDIAINFO_MINIMIZESIZE
+        #if MEDIAINFO_TRACE
         Element_Begin("DTS");
         BS_Begin();
         Mark_0();
@@ -1274,7 +1349,7 @@ void File_MpegPs::Header_Parse_PES_packet_MPEG2(int8u start_code)
         Element_Info_From_Milliseconds(DTS/90);
         Element_End();
         Element_End();
-        #else //MEDIAINFO_MINIMIZESIZE
+        #else //MEDIAINFO_TRACE
         if (Element_Offset+5>Element_Size)
         {
             Element_WaitForMoreData();
@@ -1292,7 +1367,7 @@ void File_MpegPs::Header_Parse_PES_packet_MPEG2(int8u start_code)
           | ( ((int64u)Buffer[Buffer_Pos+1]      )<<22)|((((int64u)Buffer[Buffer_Pos+2]&0xFE))<<14)
           | ( ((int64u)Buffer[Buffer_Pos+3]      )<< 7)|((((int64u)Buffer[Buffer_Pos+4]&0xFE))>> 1);
         Element_Offset+=5;
-        #endif //MEDIAINFO_MINIMIZESIZE
+        #endif //MEDIAINFO_TRACE
 
         //Filling
         if (Streams[start_code].Searching_TimeStamp_End)
@@ -1523,6 +1598,10 @@ void File_MpegPs::Data_Parse()
     //Jumping to the last DTS if needed
     //if (!Parsing_End_ForDTS && File_Offset+Buffer_Offset==File_Size)
     //    Jump_DTS();
+
+    #if MEDIAINFO_EVENTS
+        MpegPs_PES_FirstByte_IsAvailable=false;
+    #endif //MEDIAINFO_EVENTS
 }
 
 //---------------------------------------------------------------------------
@@ -1568,7 +1647,7 @@ void File_MpegPs::Detect_EOF()
 //Jumping to the last DTS if needed
 bool File_MpegPs::BookMark_Needed()
 {
-    if (IsSub || Streams.empty())
+    if (IsSub || Streams.empty() || MediaInfoLib::Config.ParseSpeed_Get()>=1.0)
         return false;
 
     int64u ToJump=(int64u)-1;
@@ -1722,6 +1801,23 @@ void File_MpegPs::pack_start()
             Data_Accept("MPEG-PS");
             if (!IsSub)
                 Fill(Stream_General, 0, General_Format, "MPEG-PS");
+
+            //Autorisation of other streams
+            Streams[0xB9].Searching_Payload=true;            //MPEG_program_end
+            Streams[0xBB].Searching_Payload=true;            //system_header_start
+            Streams[0xBD].Searching_Payload=true;            //private_stream_1
+            Streams[0xBD].Searching_TimeStamp_Start=true;    //private_stream_1
+            Streams[0xBD].Searching_TimeStamp_End=true;      //private_stream_1
+            Streams[0xBF].Searching_Payload=true;            //private_stream_2
+            Streams[0xFD].Searching_Payload=true;            //private_stream_1 or video_stream
+            Streams[0xFD].Searching_TimeStamp_Start=true;    //private_stream_1 or video_stream
+            Streams[0xFD].Searching_TimeStamp_End=true;      //private_stream_1 or video_stream
+            for (int8u Pos=0xC0; Pos<=0xEF; Pos++)
+            {
+                Streams[Pos].Searching_Payload=true;         //audio_stream or video_stream
+                Streams[Pos].Searching_TimeStamp_Start=true; //audio_stream or video_stream
+                Streams[Pos].Searching_TimeStamp_End=true;   //audio_stream or video_stream
+            }
         }
 
         SizeToAnalyze=program_mux_rate*50*2; //standard delay between TimeStamps is 0.7s, we try 2s to be sure
@@ -1729,24 +1825,6 @@ void File_MpegPs::pack_start()
             SizeToAnalyze=16*1024*1024; //Not too much
         if (SizeToAnalyze<2*1024*1024)
             SizeToAnalyze=2*1024*1024; //Not too less
-
-        //Autorisation of other streams
-        Streams[0xB9].Searching_Payload=true;            //MPEG_program_end
-        Streams[0xBA].Searching_Payload=false;           //We need not parse pack_start
-        Streams[0xBB].Searching_Payload=true;            //system_header_start
-        Streams[0xBD].Searching_Payload=true;            //private_stream_1
-        Streams[0xBD].Searching_TimeStamp_Start=true;    //private_stream_1
-        Streams[0xBD].Searching_TimeStamp_End=true;      //private_stream_1
-        Streams[0xBF].Searching_Payload=true;            //private_stream_2
-        Streams[0xFD].Searching_Payload=true;            //private_stream_1 or video_stream
-        Streams[0xFD].Searching_TimeStamp_Start=true;    //private_stream_1 or video_stream
-        Streams[0xFD].Searching_TimeStamp_End=true;      //private_stream_1 or video_stream
-        for (int8u Pos=0xC0; Pos<=0xEF; Pos++)
-        {
-            Streams[Pos].Searching_Payload=true;         //audio_stream or video_stream
-            Streams[Pos].Searching_TimeStamp_Start=true; //audio_stream or video_stream
-            Streams[Pos].Searching_TimeStamp_End=true;   //audio_stream or video_stream
-        }
     FILLING_END();
 }
 
@@ -1862,12 +1940,25 @@ void File_MpegPs::program_stream_map()
     Parser.Complete_Stream->Streams.resize(0x100);
     Open_Buffer_Init(&Parser);
     Open_Buffer_Continue(&Parser);
-
-    //Filling
     Finish(&Parser);
-    for (int8u Pos=0; Pos<0xFF; Pos++)
-        if (Parser.Complete_Stream->Streams[Pos].stream_type)
-            Streams[Pos].stream_type=Parser.Complete_Stream->Streams[Pos].stream_type;
+
+    FILLING_BEGIN();
+        //Time stamps
+        Streams[0xBC].TimeStamp_End=Streams[0xBA].TimeStamp_End;
+        if (Streams[0xBC].TimeStamp_Start.PTS.TimeStamp==(int64u)-1)
+            Streams[0xBC].TimeStamp_Start=Streams[0xBC].TimeStamp_End;
+
+        //Registering the streams
+        for (int8u Pos=0; Pos<0xFF; Pos++)
+            if (Parser.Complete_Stream->Streams[Pos].stream_type)
+            {
+                Streams[Pos].stream_type=Parser.Complete_Stream->Streams[Pos].stream_type;
+            }
+            else
+            {
+            }
+    FILLING_END();
+
     delete Parser.Complete_Stream; //Parser.Complete_Stream=NULL;
 }
 
@@ -1921,6 +2012,9 @@ void File_MpegPs::private_stream_1()
         Streams_Private1[private_stream_1_ID].Searching_TimeStamp_End=true;
 
         //New parsers
+        #if MEDIAINFO_EVENTS
+            Element_Code=private_stream_1_ID;
+        #endif //MEDIAINFO_EVENTS
         Streams_Private1[private_stream_1_ID].Parsers.push_back(private_stream_1_ChooseParser());
         if (Streams_Private1[private_stream_1_ID].Parsers[Streams_Private1[private_stream_1_ID].Parsers.size()-1])
             Open_Buffer_Init(Streams_Private1[private_stream_1_ID].Parsers[Streams_Private1[private_stream_1_ID].Parsers.size()-1]);
@@ -1954,15 +2048,26 @@ void File_MpegPs::private_stream_1()
             ((File_Aes3*)Streams_Private1[private_stream_1_ID].Parsers[0])->PTS=PTS;
     #endif
 
+    //Demux
+    #if MEDIAINFO_DEMUX
+        if (Streams_Private1[private_stream_1_ID].Searching_Payload)
+        {
+            StreamIDs[StreamIDs_Size-1]=Element_Code;
+            Element_Code=private_stream_1_ID; //The upper level ID is filled by Element_Code in the common code
+            StreamIDs_Width[StreamIDs_Size]=2;
+            ParserIDs[StreamIDs_Size]=MediaInfo_Parser_MpegPs_Ext;
+            StreamIDs_Size++;
+            Demux(Buffer+Buffer_Offset+private_stream_1_Offset, (size_t)(Element_Size-private_stream_1_Offset), ContentType_MainStream);
+            StreamIDs_Size--;
+            Element_Code=StreamIDs[StreamIDs_Size-1];
+        }
+    #endif //MEDIAINFO_DEMUX
+
     //Parsing
     if (Element_Offset<private_stream_1_Offset)
         Skip_XX(private_stream_1_Offset-Element_Offset,         "DVD-Video data");
 
     xxx_stream_Parse(Streams_Private1[private_stream_1_ID], private_stream_1_Count);
-
-    //Demux
-    if (Streams_Private1[private_stream_1_ID].Searching_Payload)
-        Demux(Buffer+Buffer_Offset+private_stream_1_Offset, (size_t)(Element_Size-private_stream_1_Offset), Ztring::ToZtring(start_code, 16)+_T(".")+Ztring::ToZtring(private_stream_1_ID, 16)+private_stream_1_ChooseExtension());
 }
 
 //---------------------------------------------------------------------------
@@ -2301,7 +2406,7 @@ void File_MpegPs::private_stream_2()
     //Filling
     if (FromTS)
     {
-        switch (FromTS_format_identifier)
+        switch (FromTS_program_format_identifier)
         {
             case 0x54534856 : //TSHV
                                 switch (FromTS_stream_type)
@@ -2332,7 +2437,7 @@ void File_MpegPs::private_stream_2()
 //---------------------------------------------------------------------------
 void File_MpegPs::private_stream_2_TSHV_A0()
 {
-    Element_Name("Digital Video A0");
+    Element_Name("DV A0");
 
     //Parsing
     Skip_XX(Element_Size,                                       "Unknown");
@@ -2345,7 +2450,7 @@ void File_MpegPs::private_stream_2_TSHV_A0()
 //---------------------------------------------------------------------------
 void File_MpegPs::private_stream_2_TSHV_A1()
 {
-    Element_Name("Digital Video A1");
+    Element_Name("DV A1");
 
     //Parsing
     int8u day, month, year, second, minute, hour;
@@ -2434,7 +2539,7 @@ void File_MpegPs::audio_stream()
             default   :
                         #if defined(MEDIAINFO_MPEGA_YES)
                         {
-                            File_Adts* Parser=new File_Adts;
+                            File_Mpega* Parser=new File_Mpega;
                             Open_Buffer_Init(Parser);
                             Parser->Frame_Count_Valid=1;
                             Streams[start_code].Parsers.push_back(Parser);
@@ -2450,11 +2555,11 @@ void File_MpegPs::audio_stream()
         }
     }
 
+    //Demux
+    Demux(Buffer+Buffer_Offset, (size_t)Element_Size, ContentType_MainStream);
+
     //Parsing
     xxx_stream_Parse(Streams[start_code], audio_stream_Count);
-
-    //Demux
-    Demux(Buffer+Buffer_Offset, (size_t)Element_Size, Ztring::ToZtring(start_code, 16)+_T(".mpa"));
 }
 
 //---------------------------------------------------------------------------
@@ -2498,7 +2603,6 @@ void File_MpegPs::video_stream()
                             File_Mpegv* Parser=new File_Mpegv;
                             Open_Buffer_Init(Parser);
                             Parser->MPEG_Version=MPEG_Version;
-                            Parser->Frame_Count_Valid=32;
                             Parser->ShouldContinueParsing=true;
                             Streams[start_code].Parsers.push_back(Parser);
                         }
@@ -2529,6 +2633,14 @@ void File_MpegPs::video_stream()
                         #endif
         }
     }
+
+    //Demux
+    if (!(FromTS_stream_type==0x20
+        #if MEDIAINFO_DEMUX
+             && SubStream_Demux
+        #endif //MEDIAINFO_DEMUX
+        ))
+        Demux(Buffer+Buffer_Offset, (size_t)Element_Size, ContentType_MainStream);
 
     //Parsing
     xxx_stream_Parse(Streams[start_code], video_stream_Count);
@@ -2565,9 +2677,6 @@ void File_MpegPs::video_stream()
         }
         video_stream_PTS_FrameCount=0;
     }
-
-    //Demux
-    Demux(Buffer+Buffer_Offset, (size_t)Element_Size, Ztring::ToZtring(start_code, 16)+_T(".mpv"));
 }
 
 //---------------------------------------------------------------------------
@@ -2596,31 +2705,52 @@ void File_MpegPs::SL_packetized_stream()
         Streams[start_code].Searching_TimeStamp_Start=true;
 
         //New parsers
-        switch (FromTS_stream_type)
-        {
-            case 0x0F :
-                        #if defined(MEDIAINFO_ADTS_YES)
-                        {
-                            File_Adts* Parser=new File_Adts;
-                            Parser->Frame_Count_Valid=1;
-                            Open_Buffer_Init(Parser);
-                            Streams[start_code].Parsers.push_back(Parser);
-                        }
-                        #endif
-                        break;
+        if (FromTS_stream_type)
+            switch (FromTS_stream_type)
+            {
+                case 0x0F :
+                            #if defined(MEDIAINFO_ADTS_YES)
+                            {
+                                File_Adts* Parser=new File_Adts;
+                                Parser->Frame_Count_Valid=1;
+                                Open_Buffer_Init(Parser);
+                                Streams[start_code].Parsers.push_back(Parser);
+                            }
+                            #endif
+                            break;
 
-            case 0x11 :
-                        #if defined(MEDIAINFO_MPEG4_YES)
-                        {
-                            File_Aac* Parser=new File_Aac;
-                            Parser->DecSpecificInfoTag=DecSpecificInfoTag;
-                            Parser->SLConfig=SLConfig;
-                            Open_Buffer_Init(Parser);
-                            Streams[start_code].Parsers.push_back(Parser);
-                        }
-                        #endif
-                        break;
-            default   : ;
+                case 0x11 :
+                            #if defined(MEDIAINFO_MPEG4_YES)
+                            {
+                                File_Aac* Parser=new File_Aac;
+                                Parser->DecSpecificInfoTag=DecSpecificInfoTag;
+                                Parser->SLConfig=SLConfig;
+                                Open_Buffer_Init(Parser);
+                                Streams[start_code].Parsers.push_back(Parser);
+                            }
+                            #endif
+                            break;
+                default   : ;
+            }
+        else
+        {
+            #if defined(MEDIAINFO_ADTS_YES)
+            {
+                File_Adts* Parser=new File_Adts;
+                Parser->Frame_Count_Valid=1;
+                Open_Buffer_Init(Parser);
+                Streams[start_code].Parsers.push_back(Parser);
+            }
+            #endif
+            #if defined(MEDIAINFO_MPEG4_YES)
+            {
+                File_Aac* Parser=new File_Aac;
+                Parser->DecSpecificInfoTag=DecSpecificInfoTag;
+                Parser->SLConfig=SLConfig;
+                Open_Buffer_Init(Parser);
+                Streams[start_code].Parsers.push_back(Parser);
+            }
+            #endif
         }
     }
 
@@ -2682,9 +2812,6 @@ void File_MpegPs::SL_packetized_stream()
         Skip_XX(Element_Size-Element_Offset,                    "AAC (raw)");
     }
 
-    //Parsing
-    xxx_stream_Parse(Streams[start_code], audio_stream_Count);
-
     //Demux
     if (MediaInfoLib::Config.Demux_Get())
     {
@@ -2705,9 +2832,12 @@ void File_MpegPs::SL_packetized_stream()
         A[5]=A[5]|((int8u)(Size>>8));
 
         //Demux
-        Demux(A, 7, Ztring::ToZtring(start_code, 16)+_T(".aac"));
-        Demux(Buffer+Buffer_Offset, (size_t)Element_Size, Ztring::ToZtring(start_code, 16)+_T(".aac"));
+        Demux(A, 7, ContentType_Header);
+        Demux(Buffer+Buffer_Offset, (size_t)Element_Size, ContentType_MainStream);
     }
+
+    //Parsing
+    xxx_stream_Parse(Streams[start_code], audio_stream_Count);
 }
 
 //---------------------------------------------------------------------------
@@ -2779,6 +2909,32 @@ void File_MpegPs::extension_stream()
             Open_Buffer_Init(Streams_Extension[stream_id_extension].Parsers[Pos]);
     }
 
+    //Demux
+    #if MEDIAINFO_DEMUX
+        if (Streams_Extension[stream_id_extension].Searching_Payload)
+        {
+            StreamIDs[StreamIDs_Size-1]=Element_Code;
+            if (stream_id_extension==0x72 && !(Streams_Extension[0x71].Parsers.empty() && Streams_Extension[0x76].Parsers.empty()))
+            {
+                if (!Streams_Extension[0x71].Parsers.empty())
+                    Element_Code=0x71;
+                if (!Streams_Extension[0x76].Parsers.empty())
+                    Element_Code=0x76;
+            }
+            else
+                Element_Code=stream_id_extension; //The upper level ID is filled by Element_Code in the common code
+            StreamIDs_Width[StreamIDs_Size]=2;
+            ParserIDs[StreamIDs_Size]=MediaInfo_Parser_MpegPs_Ext;
+            StreamIDs_Size++;
+            if (stream_id_extension==0x72 && !(Streams_Extension[0x71].Parsers.empty() && Streams_Extension[0x76].Parsers.empty()))
+                Demux(Buffer+Buffer_Offset, (size_t)Element_Size, ContentType_SubStream);
+            else
+                Demux(Buffer+Buffer_Offset, (size_t)Element_Size, ContentType_MainStream);
+            StreamIDs_Size--;
+            Element_Code=StreamIDs[StreamIDs_Size-1];
+        }
+    #endif //MEDIAINFO_DEMUX
+
     //Parsing
     if (stream_id_extension==0x72 && !(Streams_Extension[0x71].Parsers.empty() && Streams_Extension[0x76].Parsers.empty()))
     {
@@ -2789,10 +2945,6 @@ void File_MpegPs::extension_stream()
     }
     else
         xxx_stream_Parse(Streams_Extension[stream_id_extension], extension_stream_Count);
-
-    //Demux
-    if (Streams_Extension[stream_id_extension].Searching_Payload)
-        Demux(Buffer+Buffer_Offset, (size_t)Element_Size, Ztring::ToZtring(start_code, 16)+_T('.')+Ztring::ToZtring(stream_id_extension, 16)+extension_stream_ChooseExtension());
 }
 
 //---------------------------------------------------------------------------
@@ -2861,10 +3013,10 @@ void File_MpegPs::xxx_stream_Parse(ps_stream &Temp, int8u &xxx_Count)
         return;
     }
 
-    #ifndef MEDIAINFO_MINIMIZESIZE
+    #if MEDIAINFO_TRACE
         if (start_code==0xBD)
             private_stream_1_Element_Info();
-    #endif //MEDIAINFO_MINIMIZESIZE
+    #endif //MEDIAINFO_TRACE
 
     if (1 //Temp.StreamKind==Stream_Video
     && ((DTS!=(int64u)-1 && Temp.TimeStamp_End.DTS.TimeStamp!=(int64u)-1)
@@ -2877,26 +3029,28 @@ void File_MpegPs::xxx_stream_Parse(ps_stream &Temp, int8u &xxx_Count)
             //PTS/DTS
             if (Temp.Parsers[Pos]->PTS_DTS_Needed)
             {
+                if (PCR!=(int64u)-1)
+                    Temp.Parsers[Pos]->PCR=PCR;
                 if (PTS!=(int64u)-1)
                     Temp.Parsers[Pos]->PTS=PTS*1000000/90;
                 if (DTS!=(int64u)-1)
                     Temp.Parsers[Pos]->DTS=DTS*1000000/90;
             }
 
-            #ifndef MEDIAINFO_MINIMIZESIZE
+            #if MEDIAINFO_TRACE
                 if (Temp.Parsers.size()>1)
                     Element_Begin("Test");
-            #endif //MEDIAINFO_MINIMIZESIZE
+            #endif //MEDIAINFO_TRACE
             Open_Buffer_Continue(Temp.Parsers[Pos], Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
-            #ifndef MEDIAINFO_MINIMIZESIZE
+            #if MEDIAINFO_TRACE
                 if (Temp.Parsers.size()>1)
                     Element_End();
-            #endif //MEDIAINFO_MINIMIZESIZE
+            #endif //MEDIAINFO_TRACE
 
             if ((Temp.Parsers[Pos]->Status[IsAccepted] && Temp.Parsers[Pos]->Status[IsFinished])
              || (!Parsing_End_ForDTS && Temp.Parsers[Pos]->Status[IsFilled]))
             {
-                if (Temp.Parsers[Pos]->Count_Get(Stream_Video)==0) //TODO: speed improvement, we do this only for CC
+                if (MediaInfoLib::Config.ParseSpeed_Get()<1 && Temp.Parsers[Pos]->Count_Get(Stream_Video)==0) //TODO: speed improvement, we do this only for CC
                     Temp.Searching_Payload=false;
                 if (xxx_Count>0)
                     xxx_Count--;
@@ -2923,9 +3077,68 @@ void File_MpegPs::xxx_stream_Parse(ps_stream &Temp, int8u &xxx_Count)
             }
         }
 
-    Temp.FrameCount_AfterLast_TimeStamp_End+=Temp.Parsers[0]->Frame_Count_InThisBlock;
+    if (!Temp.Parsers.empty())
+        Temp.FrameCount_AfterLast_TimeStamp_End+=Temp.Parsers[0]->Frame_Count_InThisBlock;
 
     Element_Show();
+
+    #if MEDIAINFO_EVENTS
+        if (DTS==(int64u)-1)
+            DTS=PTS;
+
+        //New PES
+        if (MpegPs_PES_FirstByte_IsAvailable && MpegPs_PES_FirstByte_Value)
+        {
+            //Demux of substream data
+            if (FromTS_stream_type==0x1B && SubStream_Demux)
+            {
+                if (!SubStream_Demux->Buffers.empty() && SubStream_Demux->Buffers[0]->DTS<DTS)
+                {
+                    Demux(SubStream_Demux->Buffers[0]->Buffer, SubStream_Demux->Buffers[0]->Buffer_Size, ContentType_SubStream);
+                    delete SubStream_Demux->Buffers[0]->Buffer; SubStream_Demux->Buffers[0]->Buffer=NULL;
+                    SubStream_Demux->Buffers.erase(SubStream_Demux->Buffers.begin()); //Moving 2nd Buffer to 1st position
+                }
+            }
+        }
+
+        //Demux of SubStream
+        if (FromTS_stream_type==0x20 && SubStream_Demux)
+        {
+            //Searching an available slot
+            size_t Buffers_Pos;
+            if (SubStream_Demux->Buffers.empty() || SubStream_Demux->Buffers[SubStream_Demux->Buffers.size()-1]->DTS!=DTS)
+            {
+                Buffers_Pos=SubStream_Demux->Buffers.size();
+                SubStream_Demux->Buffers.push_back(new demux::buffer);
+            }
+            else
+            {
+                Buffers_Pos=SubStream_Demux->Buffers.size()-1;
+            }
+
+            //Filling buffer
+            if (SubStream_Demux->Buffers[Buffers_Pos]->Buffer==NULL)
+            {
+                SubStream_Demux->Buffers[Buffers_Pos]->DTS=DTS;
+                SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size_Max=128*1024;
+                SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size=0;
+                SubStream_Demux->Buffers[Buffers_Pos]->Buffer=new int8u[SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size_Max];
+            }
+            if (SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size_Max>SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size+(size_t)(Element_Size-Element_Offset) && SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size_Max<=16*1024*1024)
+            {
+                SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size_Max*=2;
+                int8u* Buffer_Demux=SubStream_Demux->Buffers[Buffers_Pos]->Buffer;
+                SubStream_Demux->Buffers[Buffers_Pos]->Buffer=new int8u[SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size_Max];
+                std::memcpy(SubStream_Demux->Buffers[Buffers_Pos]->Buffer, Buffer_Demux, SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size);
+                delete[] Buffer_Demux; //Buffer_Demux=NULL;
+            }
+            if (SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size+(size_t)(Element_Size-Element_Offset)<=SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size_Max)
+            {
+                std::memcpy(SubStream_Demux->Buffers[Buffers_Pos]->Buffer+SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+                SubStream_Demux->Buffers[Buffers_Pos]->Buffer_Size+=(size_t)(Element_Size-Element_Offset);
+            }
+        }
+    #endif //MEDIAINFO_EVENTS
 }
 
 //***************************************************************************
@@ -3036,7 +3249,20 @@ bool File_MpegPs::Header_Parser_QuickSearch()
                     return false; //Not enough data
                 int16u Size=CC2(Buffer+Buffer_Offset+4);
                 if (Size>0)
+                {
                     Buffer_Offset+=6+Size;
+
+                    //Trailing 0xFF
+                    while(Buffer_Offset<Buffer_Size && Buffer[Buffer_Offset]==0xFF)
+                        Buffer_Offset++;
+
+                    //Trailing 0x00
+                    while(Buffer_Offset+3<=Buffer_Size
+                       && Buffer[Buffer_Offset+2]==0x00
+                       && Buffer[Buffer_Offset+1]==0x00
+                       && Buffer[Buffer_Offset  ]==0x00)
+                        Buffer_Offset++;
+                }
                 else
                 {
                     Buffer_Offset+=6;
@@ -3072,10 +3298,9 @@ File__Analyze* File_MpegPs::ChooseParser_Mpegv()
 {
     //Filling
     #if defined(MEDIAINFO_MPEGV_YES)
-        File__Analyze* Handle=new File_Mpegv;
-        ((File_Mpegv*)Handle)->MPEG_Version=MPEG_Version;
-        ((File_Mpegv*)Handle)->Frame_Count_Valid=32;
-        ((File_Mpegv*)Handle)->ShouldContinueParsing=true;
+        File_Mpegv* Handle=new File_Mpegv;
+        Handle->MPEG_Version=MPEG_Version;
+        Handle->ShouldContinueParsing=true;
     #else
         //Filling
         File__Analyze* Handle=new File_Unknown();
@@ -3099,8 +3324,8 @@ File__Analyze* File_MpegPs::ChooseParser_Mpeg4v()
 {
     //Filling
     #if defined(MEDIAINFO_MPEG4V_YES)
-        File__Analyze* Handle=new File_Mpeg4v;
-        ((File_Mpeg4v*)Handle)->Frame_Count_Valid=1;
+        File_Mpeg4v* Handle=new File_Mpeg4v;
+        Handle->Frame_Count_Valid=1;
     #else
         //Filling
         File__Analyze* Handle=new File_Unknown();
@@ -3117,7 +3342,7 @@ File__Analyze* File_MpegPs::ChooseParser_Avc()
 {
     //Filling
     #if defined(MEDIAINFO_AVC_YES)
-        File__Analyze* Handle=new File_Avc;
+        File_Avc* Handle=new File_Avc;
     #else
         //Filling
         File__Analyze* Handle=new File_Unknown();
@@ -3170,8 +3395,8 @@ File__Analyze* File_MpegPs::ChooseParser_Mpega()
 {
     //Filling
     #if defined(MEDIAINFO_MPEGA_YES)
-        File__Analyze* Handle=new File_Mpega;
-        ((File_Mpega*)Handle)->Frame_Count_Valid=1;
+        File_Mpega* Handle=new File_Mpega;
+        Handle->Frame_Count_Valid=1;
     #else
         //Filling
         File__Analyze* Handle=new File_Unknown();
@@ -3212,8 +3437,8 @@ File__Analyze* File_MpegPs::ChooseParser_AC3()
 {
     //Filling
     #if defined(MEDIAINFO_AC3_YES)
-        File__Analyze* Handle=new File_Ac3();
-        ((File_Ac3*)Handle)->Frame_Count_Valid=2; //2 frames to be sure
+        File_Ac3* Handle=new File_Ac3();
+        Handle->Frame_Count_Valid=2; //2 frames to be sure
     #else
         //Filling
         File__Analyze* Handle=new File_Unknown();

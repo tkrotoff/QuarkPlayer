@@ -1,5 +1,5 @@
 // File_Aac - Info for AAC files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -92,6 +92,10 @@ const char* MP4_Format(int8u ID)
         case   35 : return "DST";
         case   36 : return "ALS";
         case   37 : return "SLS";
+        case   38 : return "SLS non-core";
+        case   39 : return "ER AAC ELD";
+        case   40 : return "SMR Simple";
+        case   41 : return "SMR Main";
         default   : return "";
     }
 }
@@ -149,6 +153,10 @@ const char* MP4_Profile(int8u ID)
         case   35 : return "DST";
         case   36 : return "ALS";
         case   37 : return "SLS";
+        case   38 : return "SLS non-core";
+        case   39 : return "ER AAC ELD";
+        case   40 : return "SMR Simple";
+        case   41 : return "SMR Main";
         default   : return "";
     }
 }
@@ -170,13 +178,13 @@ const int8u MP4_Channels[]=
 const char* MP4_ChannelConfiguration[]=
 {
     "",
-    "C",
-    "L R",
-    "L C R",
-    "Front: L C R, Rear: C",
-    "Front: L C R, Rear: L R",
-    "Front: L C R, Rear: L R, LFE",
-    "Front: L C R, Middle: L C R, Surround: L R, LFE",
+    "Front: C",
+    "Front: L R",
+    "Front: L C R",
+    "Front: L C R, Side: C",
+    "Front: L C R, Side: L R",
+    "Front: L C R, Side: L R, LFE",
+    "Front: L C R, Side: L R, Back: L R, LFE",
     "",
     "",
     "",
@@ -191,13 +199,13 @@ const char* MP4_ChannelConfiguration[]=
 const char* MP4_ChannelConfiguration2[]=
 {
     "",
-    "1/0",
-    "2/0",
-    "3/0",
-    "3/1",
-    "3/2",
-    "3/2.1",
-    "3.3/2.1",
+    "1/0/0",
+    "2/0/0",
+    "3/0/0",
+    "3/1/0",
+    "3/2/0",
+    "3/2/0.1",
+    "3/2/2.1",
     "",
     "",
     "",
@@ -216,6 +224,8 @@ const char* MP4_ChannelConfiguration2[]=
 File_Mpeg4_AudioSpecificConfig::File_Mpeg4_AudioSpecificConfig()
 :File__Analyze()
 {
+    //In
+    Channels_AreTrustable=false;
 }
 
 //***************************************************************************
@@ -366,25 +376,32 @@ void File_Mpeg4_AudioSpecificConfig::Read_Buffer_Continue()
         default : ;
     }
 
+    bool sbrData=false;
     if (extensionAudioObjectType!=0x05 && Data_BS_Remain()>=16)
+    {
+        sbrData=true;
         SBR();
+    }
 
     BS_End();
 
     //Handling implicit SBR and PS
-    bool Is3GP=false;
-    for (size_t Pos=0; Pos<ftyps.size(); Pos++)
-        if ((ftyps[Pos]&0xFFFFFF00)==0x33677000)
-            Is3GP=true;
-    if (!Is3GP) //If this is not a 3GP file
+    if (!Channels_AreTrustable) //if not channel map in the container
     {
-        if (!sbrPresentFlag && samplingFrequency<=24000)
+        bool Is3GP=false;
+        for (size_t Pos=0; Pos<ftyps.size(); Pos++)
+            if ((ftyps[Pos]&0xFFFFFF00)==0x33677000)
+                Is3GP=true;
+        if (!Is3GP) //If this is not a 3GP file
         {
-            samplingFrequency*=2;
-            sbrPresentFlag=true;
+            if (!sbrPresentFlag && samplingFrequency<=24000)
+            {
+                samplingFrequency*=2;
+                sbrPresentFlag=true;
+            }
+            if ((!sbrData || sbrPresentFlag) && !psPresentFlag && channelConfiguration<=1) //1 channel
+                psPresentFlag=true;
         }
-        if (!psPresentFlag && channelConfiguration<=1) //1 channel
-            psPresentFlag=true;
     }
 
     FILLING_BEGIN()
@@ -396,7 +413,11 @@ void File_Mpeg4_AudioSpecificConfig::Read_Buffer_Continue()
         Fill(Stream_Audio, StreamPos_Last, Audio_Format_Version, "Version 4");
         Fill(Stream_Audio, StreamPos_Last, Audio_Format_Profile, MP4_Format_Profile(audioObjectType));
         if (audioObjectType==2) //LC
+        {
             Fill(Stream_Audio, StreamPos_Last, Audio_Format_Settings_SBR, "No");
+            if (Channels_AreTrustable && !psPresentFlag && channelConfiguration<=1)
+                Fill(Stream_Audio, StreamPos_Last, Audio_Format_Settings_PS, "No");
+        }
         if (!sbrPresentFlag && !psPresentFlag)
             Fill(Stream_Audio, StreamPos_Last, Audio_Codec, MP4_Profile(audioObjectType));
         Fill(Stream_Audio, StreamPos_Last, Audio_SamplingRate, samplingFrequency);
@@ -567,10 +588,10 @@ void File_Mpeg4_AudioSpecificConfig::GASpecificConfig ()
         switch (Channels_Back)
         {
             case  0 : break;
-            case  1 : Channels_Positions+=_T(", Rear: C"); break;
-            case  2 : Channels_Positions+=_T(", Rear: L R"); break;
-            case  3 : Channels_Positions+=_T(", Rear: L C R"); break;
-            default : Channels_Positions+=_T(", Rear: "); Channels_Positions+=Ztring::ToZtring(Channels_Back); //Which config?
+            case  1 : Channels_Positions+=_T(", Back: C"); break;
+            case  2 : Channels_Positions+=_T(", Back: L R"); break;
+            case  3 : Channels_Positions+=_T(", Back: L C R"); break;
+            default : Channels_Positions+=_T(", Back: "); Channels_Positions+=Ztring::ToZtring(Channels_Back); //Which config?
         }
         switch (Channels_LFE)
         {
@@ -578,10 +599,10 @@ void File_Mpeg4_AudioSpecificConfig::GASpecificConfig ()
             case  1 : Channels_Positions+=_T(", LFE"); break;
             default : Channels_Positions+=_T(", LFE= "); Channels_Positions+=Ztring::ToZtring(Channels_LFE); //Which config?
         }
-        Channels_Positions2=Ztring::ToZtring(Channels_Front)+_T('/')+
-                            Ztring::ToZtring(Channels_Side)+
-                            (Channels_Back?(_T('/')+Ztring::ToZtring(Channels_Back)):Ztring())+
-                            (Channels_LFE? (_T('.')+Ztring::ToZtring(Channels_LFE )):Ztring());
+        Channels_Positions2=Ztring::ToZtring(Channels_Front)+_T('/')
+                           +Ztring::ToZtring(Channels_Side)+_T('/')
+                           +Ztring::ToZtring(Channels_Back)
+                           +(Channels_LFE?_T(".1"):_T(""));
 
         //Filling
         Accept("AudioSpecificConfig");

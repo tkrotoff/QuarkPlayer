@@ -1,6 +1,6 @@
 // File_Ape - Info for Ape Audio files
 // Copyright (C) 2003-2009 Jasper van de Gronde, th.v.d.gronde@hccnet.nl
-// Copyright (C) 2003-2009 Jerome Martinez, zen@mediaarea.net
+// Copyright (C) 2003-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -9,7 +9,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License

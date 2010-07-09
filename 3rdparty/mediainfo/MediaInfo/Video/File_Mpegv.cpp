@@ -1,5 +1,5 @@
 // File_Mpegv - Info for MPEG Video files
-// Copyright (C) 2004-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2004-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -70,11 +70,26 @@ const char* Mpegv_Colorimetry_format[]=
 };
 
 //---------------------------------------------------------------------------
+const char* Mpegv_profile_and_level_indication (int8u profile_and_level_indication)
+{
+    switch (profile_and_level_indication)
+    {
+        case 0x82 : return "4:2:2@High";
+        case 0x85 : return "4:2:2@Main";
+        case 0x8A : return "Multi-view@High";
+        case 0x8B : return "Multi-view@High-1440";
+        case 0x8D : return "Multi-view@Main";
+        case 0x8E : return "Multi-view@Low";
+        default : return "";
+    }
+};
+
+//---------------------------------------------------------------------------
 const char* Mpegv_profile_and_level_indication_profile[]=
 {
     "0",
     "High",
-    "Spatial Sclable",
+    "Spatial Scalable",
     "SNR Scalable",
     "Main",
     "Simple",
@@ -117,12 +132,23 @@ const char* Mpegv_profile_and_level_indication_level[]=
 #include "MediaInfo/Video/File_Mpegv.h"
 #include "ZenLib/BitStream.h"
 #include "ZenLib/Utils.h"
-#if defined(MEDIAINFO_EIA608_YES)
-    #include "MediaInfo/Text/File_Eia608.h"
-#endif
-#if defined(MEDIAINFO_EIA708_YES)
-    #include "MediaInfo/Text/File_Eia708.h"
-#endif
+#if defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+    #include "MediaInfo/Text/File_DtvccTransport.h"
+#endif //defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+#if defined(MEDIAINFO_SCTE20_YES)
+    #include "MediaInfo/Text/File_Scte20.h"
+#endif //defined(MEDIAINFO_SCTE20_YES)
+#if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+    #include "MediaInfo/Text/File_Cdp.h"
+    #include <cstring>
+#endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+#if defined(MEDIAINFO_AFDBARDATA_YES)
+    #include "MediaInfo/Video/File_AfdBarData.h"
+    #include <cstring>
+#endif //defined(MEDIAINFO_AFDBARDATA_YES)
+#if MEDIAINFO_EVENTS
+    #include "MediaInfo/MediaInfo_Events.h"
+#endif //MEDIAINFO_EVENTS
 using namespace ZenLib;
 
 #undef FILLING_BEGIN
@@ -234,33 +260,11 @@ const char* Mpegv_extension_start_code_identifier[]=
     "Picture Coding",
     "Picture Spatial Scalable",
     "Picture Temporal Scalable",
+    "Camera Parameters",
+    "ITU-T",
     "",
     "",
     "",
-    "",
-    "",
-};
-
-//---------------------------------------------------------------------------
-const char* Mpegv_user_data_DTG1_active_format[]=
-{
-    //1st value is for 4:3, 2nd is for 16:9
-    "", //Undefined
-    "Reserved",
-    "Not recommended",
-    "Not recommended",
-    "Aspect ratio greater than 16:9", //Use GA94
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "4:3 full frame image / 16:9 full frame image",
-    "4:3 full frame image / 4:3 pillarbox image",
-    "16:9 letterbox image / 16:9 full frame image",
-    "14:9 letterbox image / 14:9 pillarbox image",
-    "Reserved",
-    "4:3 full frame image, alternative 14:9 center / 4:3 pillarbox image, alternative 14:9 center",
-    "16:9 letterbox image, alternative 14:9 center / 16:9 full frame image, alternative 14:9 center",
-    "16:9 letterbox image, alternative 4:3 center / 16:9 full frame image, alternative 4:3 center",
 };
 
 //***************************************************************************
@@ -272,15 +276,54 @@ File_Mpegv::File_Mpegv()
 :File__Analyze()
 {
     //Configuration
+    ParserName=_T("MPEG Video");
+    #if MEDIAINFO_EVENTS
+        ParserIDs[0]=MediaInfo_Parser_Mpegv;
+        StreamIDs_Width[0]=16;
+    #endif //MEDIAINFO_EVENTS
     Trusted_Multiplier=2;
     MustSynchronize=true;
     Buffer_TotalBytes_FirstSynched_Max=64*1024;
+    PTS_DTS_Needed=true;
+    IsRawStream=true;
 
     //In
     MPEG_Version=1;
-    Frame_Count_Valid=32;
+    Frame_Count_Valid=MediaInfoLib::Config.ParseSpeed_Get()>=0.3?40:2;
     FrameIsAlwaysComplete=false;
     TimeCodeIsNotTrustable=false;
+    #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+        Cdp_Data=NULL;
+    #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+    #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
+        AfdBarData_Data=NULL;
+    #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
+
+    //temporal_reference
+    TemporalReference_Offset=0;
+    #if defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+        GA94_03_Parser=NULL;
+        GA94_03_TemporalReference_Offset=0;
+        GA94_03_IsPresent=false;
+        CC___Parser=NULL;
+        CC___IsPresent=false;
+    #endif //defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+    #if defined(MEDIAINFO_SCTE20_YES)
+        Scte_Parser=NULL;
+        Scte_TemporalReference_Offset=0;
+        Scte_IsPresent=false;
+    #endif //defined(MEDIAINFO_SCTE20_YES)
+    #if defined(MEDIAINFO_AFDBARDATA_YES)
+        DTG1_Parser=NULL;
+        GA94_06_Parser=NULL;
+    #endif //defined(MEDIAINFO_AFDBARDATA_YES)
+    #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+        Cdp_Parser=NULL;
+        Cdp_IsPresent=false;
+    #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+    #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
+        AfdBarData_Parser=NULL;
+    #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
 
     //Temp
     SizeToAnalyse_Begin=1*1024*1024;
@@ -293,12 +336,20 @@ File_Mpegv::File_Mpegv()
 //---------------------------------------------------------------------------
 File_Mpegv::~File_Mpegv()
 {
-    for (size_t Pos=0; Pos<DVD_CC_Parsers.size(); Pos++)
-        delete DVD_CC_Parsers[Pos]; //GA94_03_CC_Parsers[Pos]=NULL;
-    for (size_t Pos=0; Pos<GA94_03_CC_Parsers.size(); Pos++)
-        delete GA94_03_CC_Parsers[Pos]; //GA94_03_CC_Parsers[Pos]=NULL;
+    for (size_t Pos=0; Pos<TemporalReference.size(); Pos++)
+        delete TemporalReference[Pos]; //TemporalReference[Pos]=NULL;
+    #if defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+        delete GA94_03_Parser; //GA94_03_Parser=NULL;
+        delete CC___Parser; //CC___Parser=NULL;
+    #endif //defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+    #if defined(MEDIAINFO_SCTE20_YES)
+        delete Scte_Parser; //Scte_Parser=NULL;
+    #endif //defined(MEDIAINFO_SCTE20_YES)
+    #if defined(MEDIAINFO_AFDBARDATA_YES)
+        delete DTG1_Parser; //DTG1_Parser=NULL;
+        delete GA94_06_Parser; //GA94_06_Parser=NULL;
+    #endif //defined(MEDIAINFO_AFDBARDATA_YES)
 }
-
 
 //***************************************************************************
 // Streams management
@@ -316,6 +367,7 @@ void File_Mpegv::Streams_Fill()
         Fill(Stream_General, 0, General_Format_Version, "Version 2");
         Fill(Stream_Video, 0, Video_Format, "MPEG Video");
         Fill(Stream_Video, 0, Video_Format_Version, "Version 2");
+        Fill(Stream_Video, 0, Video_Format_Commercial, "MPEG-2 Video");
         Fill(Stream_Video, 0, Video_Codec, "MPEG-2V");
         Fill(Stream_Video, 0, Video_Codec_String, "MPEG-2 Video", Unlimited, true, true);
     }
@@ -324,6 +376,7 @@ void File_Mpegv::Streams_Fill()
         Fill(Stream_General, 0, General_Format_Version, "Version 1");
         Fill(Stream_Video, 0, Video_Format, "MPEG Video");
         Fill(Stream_Video, 0, Video_Format_Version, "Version 1");
+        Fill(Stream_Video, 0, Video_Format_Commercial, "MPEG-1 Video");
         Fill(Stream_Video, 0, Video_Codec, "MPEG-1V");
         Fill(Stream_Video, 0, Video_Codec_String, "MPEG-1 Video", Unlimited, true, true);
     }
@@ -331,6 +384,7 @@ void File_Mpegv::Streams_Fill()
     Fill(Stream_Video, 0, Video_Width, 0x1000*horizontal_size_extension+horizontal_size_value);
     Fill(Stream_Video, 0, Video_Height, 0x1000*vertical_size_extension+vertical_size_value);
     Fill(Stream_Video, 0, Video_Colorimetry, Mpegv_Colorimetry_format[chroma_format]);
+    Fill(Stream_Video, 0, Video_ColorSpace, "YUV");
     Fill(Stream_Video, 0, Video_Resolution, 8);
 
     //AspectRatio
@@ -396,12 +450,13 @@ void File_Mpegv::Streams_Fill()
                 Fill(Stream_Video, 0, Video_Interlacement, Interlaced_Top?"TFF":"BFF");
             }
         }
-        std::string TempRef;
+        std::string TempRef, CodingType;
         for (size_t Pos=0; Pos<TemporalReference.size(); Pos++)
-            if (TemporalReference[Pos].HasPictureCoding)
+            if (TemporalReference[Pos] && TemporalReference[Pos]->HasPictureCoding)
             {
-                TempRef+=TemporalReference[Pos].top_field_first?"T":"B";
-                TempRef+=TemporalReference[Pos].repeat_first_field?"3":"2";
+                TempRef+=TemporalReference[Pos]->top_field_first?"T":"B";
+                TempRef+=TemporalReference[Pos]->repeat_first_field?"3":"2";
+                CodingType+=Mpegv_picture_coding_type[TemporalReference[Pos]->picture_coding_type];
             }
         if (TempRef.find('3')!=std::string::npos)
         {
@@ -422,13 +477,66 @@ void File_Mpegv::Streams_Fill()
                 Fill(Stream_Video, 0, Video_Interlacement, "PPF", Unlimited, true, true);
             }
         }
+
+        //GOP
+        std::vector<Ztring> GOPs;
+        size_t GOP_Frame_Count=0;
+        size_t GOP_BFrames_Max=0;
+        size_t I_Pos1=CodingType.find(_T('I'));
+        while (I_Pos1!=std::string::npos)
+        {
+            size_t I_Pos2=CodingType.find(_T('I'), I_Pos1+1);
+            if (I_Pos2!=std::string::npos)
+            {
+                std::vector<size_t> P_Positions;
+                size_t P_Position=I_Pos1;
+                do
+                {
+                    P_Position=CodingType.find(_T('P'), P_Position+1);
+                    if (P_Position<I_Pos2)
+                        P_Positions.push_back(P_Position);
+                }
+                while (P_Position<I_Pos2);
+                Ztring GOP;
+                if (!P_Positions.empty())
+                {
+                    GOP+=_T("M=")+Ztring::ToZtring(P_Positions[0]-I_Pos1)+_T(", ");
+                    if (P_Positions[0]-I_Pos1>GOP_BFrames_Max)
+                        GOP_BFrames_Max=P_Positions[0]-I_Pos1;
+                }
+                GOP+=_T("N=")+Ztring::ToZtring(I_Pos2-I_Pos1);
+                GOPs.push_back(GOP);
+                GOP_Frame_Count+=I_Pos2-I_Pos1;
+            }
+            I_Pos1=I_Pos2;
+        }
+
+        if (GOP_Frame_Count+GOP_BFrames_Max>Frame_Count && !GOPs.empty())
+            GOPs.resize(GOPs.size()-1); //Removing the last one, there may have uncomplete B-frame filling
+
+        if (!GOPs.empty())
+        {
+            size_t Unique=0;
+            for (size_t Pos=1; Pos<GOPs.size(); Pos++)
+                if (GOPs[Pos]!=GOPs[0])
+                    Unique++;
+            if ((Frame_Count<Frame_Count_Valid*10 && Unique) || Unique>2) //In order to accept some unsynch //TODO: change the method, synching with next I-Frame
+                GOPs.clear(); //Not a fixed GOP
+        }
+        if (!GOPs.empty())
+            Fill(Stream_Video, 0, Video_Format_Settings_GOP, GOPs[0]);
     }
 
     //Profile
-    if (!profile_and_level_indication_escape && profile_and_level_indication_profile && profile_and_level_indication_level)
+    if (!profile_and_level_indication_escape && profile_and_level_indication_profile!=(int8u)-1 && profile_and_level_indication_level!=(int8u)-1)
     {
         Fill(Stream_Video, 0, Video_Format_Profile, Ztring().From_Local(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile])+_T("@")+Ztring().From_Local(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]));
         Fill(Stream_Video, 0, Video_Codec_Profile, Ztring().From_Local(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile])+_T("@")+Ztring().From_Local(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]));
+    }
+    else if (profile_and_level_indication_escape)
+    {
+        Fill(Stream_Video, 0, Video_Format_Profile, Ztring().From_Local(Mpegv_profile_and_level_indication(profile_and_level_indication)));
+        Fill(Stream_Video, 0, Video_Codec_Profile, Ztring().From_Local(Mpegv_profile_and_level_indication(profile_and_level_indication)));
     }
 
     //Standard
@@ -494,6 +602,15 @@ void File_Mpegv::Streams_Fill()
     Streams[0xB8].Searching_TimeStamp_End=true;
     if (IsSub)
         Streams[0x00].Searching_TimeStamp_End=true;
+
+    //Caption may be in user_data, must be activated if full parsing is requested
+    if (MediaInfoLib::Config.ParseSpeed_Get()>=1)
+    {
+        Streams[0x00].Searching_Payload=true;
+        Streams[0xB2].Searching_Payload=true;
+        Streams[0xB3].Searching_Payload=true;
+        Streams[0xB5].Searching_Payload=true;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -515,30 +632,61 @@ void File_Mpegv::Streams_Finish()
             Fill(Stream_Video, 0, Video_Duration, Time_End-Time_Begin);
     }
 
-    //DVD captions
-    for (size_t Pos=0; Pos<DVD_CC_Parsers.size(); Pos++)
-        if (DVD_CC_Parsers[Pos] && !DVD_CC_Parsers[Pos]->Status[IsFinished] && DVD_CC_Parsers[Pos]->Status[IsFilled])
+    //Other parsers
+    #if defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+        if (GA94_03_Parser && !GA94_03_Parser->Status[IsFinished] && GA94_03_Parser->Status[IsAccepted])
         {
-            Finish(DVD_CC_Parsers[Pos]);
-            Merge(*DVD_CC_Parsers[Pos]);
-            Fill(Stream_Text, StreamPos_Last, Text_ID, _T("DVD-")+Ztring::ToZtring(Pos));
-            Fill(Stream_Text, StreamPos_Last, "MuxingMode", _T("DVD-Video"));
+            Finish(GA94_03_Parser);
+            Merge(*GA94_03_Parser);
         }
-
-    //GA94 captions
-    for (size_t Pos=0; Pos<GA94_03_CC_Parsers.size(); Pos++)
-        if (GA94_03_CC_Parsers[Pos] && !GA94_03_CC_Parsers[Pos]->Status[IsFinished] && GA94_03_CC_Parsers[Pos]->Status[IsFilled])
+        if (CC___Parser && !CC___Parser->Status[IsFinished] && CC___Parser->Status[IsAccepted])
         {
-            Finish(GA94_03_CC_Parsers[Pos]);
-            Merge(*GA94_03_CC_Parsers[Pos]);
-            if (Pos<2)
-                Fill(Stream_Text, StreamPos_Last, Text_ID, _T("608-")+Ztring::ToZtring(Pos));
-            Fill(Stream_Text, StreamPos_Last, "MuxingMode", _T("EIA-708"));
+            Finish(CC___Parser);
+            Merge(*CC___Parser);
         }
+    #endif //defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+    #if defined(MEDIAINFO_SCTE20_YES)
+        if (Scte_Parser && !Scte_Parser->Status[IsFinished] && Scte_Parser->Status[IsAccepted])
+        {
+            Finish(Scte_Parser);
+            Merge(*Scte_Parser);
+        }
+    #endif //defined(MEDIAINFO_SCTE20_YES)
+    #if defined(MEDIAINFO_AFDBARDATA_YES)
+        if (DTG1_Parser && !DTG1_Parser->Status[IsFinished] && DTG1_Parser->Status[IsAccepted])
+        {
+            Finish(DTG1_Parser);
+            Merge(*DTG1_Parser);
+        }
+        if (GA94_06_Parser && !GA94_06_Parser->Status[IsFinished] && GA94_06_Parser->Status[IsAccepted])
+        {
+            Finish(GA94_06_Parser);
+            Merge(*GA94_06_Parser);
+        }
+    #endif //defined(MEDIAINFO_AFDBARDATA_YES)
+    #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+        if (Cdp_Parser && !Cdp_Parser->Status[IsFinished] && Cdp_Parser->Status[IsAccepted])
+        {
+            Finish(Cdp_Parser);
+            Merge(*Cdp_Parser);
+        }
+    #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+    #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
+        if (AfdBarData_Parser && !AfdBarData_Parser->Status[IsFinished] && AfdBarData_Parser->Status[IsAccepted])
+        {
+            Finish(AfdBarData_Parser);
+            Merge(*AfdBarData_Parser);
+        }
+    #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
 
     //Purge what is not needed anymore
     if (!File_Name.empty()) //Only if this is not a buffer, with buffer we can have more data
+    {
         Streams.clear();
+        for (size_t Pos=0; Pos<TemporalReference.size(); Pos++)
+            delete TemporalReference[Pos]; //TemporalReference[Pos]=NULL;
+        TemporalReference.clear();
+    }
 }
 
 //***************************************************************************
@@ -593,18 +741,17 @@ void File_Mpegv::Synched_Init()
     Time_Begin_Frames=(int8u)-1;
     Time_End_Seconds=Error;
     Time_End_Frames=(int8u)-1;
-    TemporalReference_Offset=0;
-    TemporalReference_GA94_03_CC_Offset=0;
     picture_coding_type=(int8u)-1;
     bit_rate_value=0;
     FrameRate=0;
     horizontal_size_value=0;
     vertical_size_value=0;
     bit_rate_extension=0;
+    temporal_reference_Old=(int16u)-1;
     aspect_ratio_information=0;
     frame_rate_code=0;
-    profile_and_level_indication_profile=0;
-    profile_and_level_indication_level=0;
+    profile_and_level_indication_profile=(int8u)-1;
+    profile_and_level_indication_level=(int8u)-1;
     chroma_format=0;
     horizontal_size_extension=0;
     vertical_size_extension=0;
@@ -612,8 +759,6 @@ void File_Mpegv::Synched_Init()
     frame_rate_extension_d=0;
     video_format=5; //Unspecified video format
     vbv_buffer_size_extension=0;
-    DVD_CC_IsPresent=false;
-    GA94_03_CC_IsPresent=false;
     Time_End_NeedComplete=false;
     load_intra_quantiser_matrix=false;
     load_non_intra_quantiser_matrix=false;
@@ -642,9 +787,37 @@ void File_Mpegv::Read_Buffer_Unsynched()
     Time_End_Seconds=Error;
     Time_End_Frames=(int8u)-1;
 
+    temporal_reference_Old=(int16u)-1;
+    for (size_t Pos=0; Pos<TemporalReference.size(); Pos++)
+        delete TemporalReference[Pos]; //TemporalReference[Pos]=NULL;
     TemporalReference.clear();
     TemporalReference_Offset=0;
-    TemporalReference_GA94_03_CC_Offset=0;
+    #if defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+        GA94_03_TemporalReference_Offset=0;
+        if (GA94_03_Parser)
+            GA94_03_Parser->Open_Buffer_Unsynch();
+        if (CC___Parser)
+            CC___Parser->Open_Buffer_Unsynch();
+    #endif //defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+    #if defined(MEDIAINFO_SCTE20_YES)
+        Scte_TemporalReference_Offset=0;
+        if (Scte_Parser)
+            Scte_Parser->Open_Buffer_Unsynch();
+    #endif //defined(MEDIAINFO_SCTE20_YES)
+    #if defined(MEDIAINFO_AFDBARDATA_YES)
+        if (DTG1_Parser)
+            DTG1_Parser->Open_Buffer_Unsynch();
+        if (GA94_06_Parser)
+            GA94_06_Parser->Open_Buffer_Unsynch();
+    #endif //defined(MEDIAINFO_AFDBARDATA_YES)
+    #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+        if (Cdp_Parser)
+            Cdp_Parser->Open_Buffer_Unsynch();
+    #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+    #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
+        if (AfdBarData_Parser)
+            AfdBarData_Parser->Open_Buffer_Unsynch();
+    #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
 
     //NextCode
     NextCode_Clear();
@@ -752,10 +925,13 @@ void File_Mpegv::Data_Parse()
     switch (Element_Code)
     {
         case 0x00: picture_start(); break;
+        case 0xB0: Skip_XX(Element_Size,                        "Unknown"); break;
+        case 0xB1: Skip_XX(Element_Size,                        "Unknown"); break;
         case 0xB2: user_data_start(); break;
         case 0xB3: sequence_header(); break;
         case 0xB4: sequence_error(); break;
         case 0xB5: extension_start(); break;
+        case 0xB6: Skip_XX(Element_Size,                        "Unknown"); break;
         case 0xB7: sequence_end(); break;
         case 0xB8: group_start(); break;
         default:
@@ -776,12 +952,12 @@ void File_Mpegv::Detect_EOF()
     if (IsSub && Status[IsFilled]
      || (!IsSub && File_Size>SizeToAnalyse_Begin+SizeToAnalyse_End && File_Offset+Buffer_Offset+Element_Offset>SizeToAnalyse_Begin && File_Offset+Buffer_Offset+Element_Offset<File_Size-SizeToAnalyse_End && MediaInfoLib::Config.ParseSpeed_Get()<=0.01))
     {
-        if ((GA94_03_CC_IsPresent || DVD_CC_IsPresent) && Frame_Count<Frame_Count_Valid*10 //10 times the normal test
+        if ((GA94_03_IsPresent || CC___IsPresent || Scte_IsPresent || Cdp_IsPresent) && Frame_Count<Frame_Count_Valid*10 //10 times the normal test
          && !(!IsSub && File_Size>SizeToAnalyse_Begin*10+SizeToAnalyse_End*10 && File_Offset+Buffer_Offset+Element_Offset>SizeToAnalyse_Begin*10 && File_Offset+Buffer_Offset+Element_Offset<File_Size-SizeToAnalyse_End*10))
         {
-            Streams[0x00].Searching_Payload=GA94_03_CC_IsPresent;
-            Streams[0xB2].Searching_Payload=true;
-            Streams[0xB3].Searching_Payload=GA94_03_CC_IsPresent;
+            Streams[0x00].Searching_Payload=GA94_03_IsPresent || Cdp_IsPresent;
+            Streams[0xB2].Searching_Payload=GA94_03_IsPresent || CC___IsPresent || Scte_IsPresent;
+            Streams[0xB3].Searching_Payload=GA94_03_IsPresent || Cdp_IsPresent;
             return;
         }
 
@@ -810,69 +986,16 @@ void File_Mpegv::Detect_EOF()
 // Packet "00"
 void File_Mpegv::picture_start()
 {
+    Element_Name("picture_start");
+
+    //Coherency
     if (!NextCode_Test())
         return;
 
-    #ifndef MEDIAINFO_MINIMIZESIZE
-        if (Time_End_Seconds!=Error)
-        {
-            size_t Time_End  =Time_End_Seconds  *1000;
-            if (FrameRate)
-                Time_End  +=(size_t)(Time_End_Frames  *1000/FrameRate);
-            size_t Hours  = Time_End/60/60/1000;
-            size_t Minutes=(Time_End-(Hours*60*60*1000))/60/1000;
-            size_t Seconds=(Time_End-(Hours*60*60*1000)-(Minutes*60*1000))/1000;
-            size_t Milli  =(Time_End-(Hours*60*60*1000)-(Minutes*60*1000)-(Seconds*1000));
-
-            Ztring Time;
-            Time+=Ztring::ToZtring(Hours);
-            Time+=_T(':');
-            Time+=Ztring::ToZtring(Minutes);
-            Time+=_T(':');
-            Time+=Ztring::ToZtring(Seconds);
-            if (FrameRate!=0)
-            {
-                Time+=_T('.');
-                Time+=Ztring::ToZtring(Milli);
-            }
-            Element_Info(Time);
-        }
-    #endif //MEDIAINFO_MINIMIZESIZE
-
-    //Time
-    if (Time_End_Seconds!=Error)
-    {
-        Time_End_Frames++; //One frame
-        if (progressive_sequence && repeat_first_field)
-        {
-            Time_End_Frames++; //Frame repeated a second time
-            if (top_field_first)
-                Time_End_Frames++; //Frame repeated a third time
-        }
-    }
-
-    //Counting
-    if (File_Offset+Buffer_Offset+Element_Size==File_Size)
-        Frame_Count_Valid=Frame_Count; //Finish frames in case of there are less than Frame_Count_Valid frames
-    Frame_Count++;
-    Frame_Count_InThisBlock++;
-
-    //Name
-    Element_Name("picture_start");
-    Element_Info(Ztring(_T("Field ")+Ztring::ToZtring(Frame_Count)));
-
-    //Need to parse?
-    if (!Streams[0x00].Searching_Payload)
-    {
-        Skip_XX(Element_Size,                                   "Data");
-        return;
-    }
-
     //Parsing
     BS_Begin();
-    Get_S2 (10, temporal_reference,                             "temporal_reference"); Element_Info(temporal_reference);
+    Get_S2 (10, temporal_reference,                             "temporal_reference");
     Get_S1 ( 3, picture_coding_type,                            "picture_coding_type"); Param_Info(Mpegv_picture_coding_type[picture_coding_type]);
-    Element_Info(Mpegv_picture_coding_type[picture_coding_type]);
     Get_S2 (16, vbv_delay,                                      "vbv_delay");
     if (picture_coding_type==2 || picture_coding_type==3) //P or B
     {
@@ -896,16 +1019,80 @@ void File_Mpegv::picture_start()
     }
     while (extra_bit_picture);
     BS_End();
-    
+
     FILLING_BEGIN();
+        if (temporal_reference==temporal_reference_Old)
+        {
+            Frame_Count--;
+            Frame_Count_InThisBlock--;
+        }
+        else
+            temporal_reference_Old=temporal_reference;
+
         //Temporal reference
         if (TemporalReference_Offset+temporal_reference>=TemporalReference.size())
             TemporalReference.resize(TemporalReference_Offset+temporal_reference+1);
-        TemporalReference[TemporalReference_Offset+temporal_reference].IsValid=true;
+        if (TemporalReference[TemporalReference_Offset+temporal_reference]==NULL)
+            TemporalReference[TemporalReference_Offset+temporal_reference]=new temporalreference;
+        TemporalReference[TemporalReference_Offset+temporal_reference]->IsValid=true;
 
-        //Count
+        //Info
+        #if MEDIAINFO_TRACE
+            Element_Info(_T("Frame ")+Ztring::ToZtring(Frame_Count));
+            Element_Info(_T("picture_coding_type ")+Ztring().From_Local(Mpegv_picture_coding_type[picture_coding_type]));
+            Element_Info(_T("temporal_reference ")+Ztring::ToZtring(temporal_reference));
+            if (PTS!=(int64u)-1)
+                Element_Info(_T("PTS ")+Ztring().Duration_From_Milliseconds(float64_int64s(((float64)PTS)/1000000)));
+            if (DTS!=(int64u)-1)
+                Element_Info(_T("DTS ")+Ztring().Duration_From_Milliseconds(float64_int64s(((float64)DTS)/1000000)));
+            if (Time_End_Seconds!=Error)
+            {
+                int32u Time_End  =Time_End_Seconds  *1000;
+                if (FrameRate)
+                    Time_End  +=(int32u)float32_int32s(Time_End_Frames  *1000/FrameRate);
+                size_t Hours  = Time_End/60/60/1000;
+                size_t Minutes=(Time_End-(Hours*60*60*1000))/60/1000;
+                size_t Seconds=(Time_End-(Hours*60*60*1000)-(Minutes*60*1000))/1000;
+                size_t Milli  =(Time_End-(Hours*60*60*1000)-(Minutes*60*1000)-(Seconds*1000));
+
+                Ztring Time;
+                Time+=Ztring::ToZtring(Hours);
+                Time+=_T(':');
+                Time+=Ztring::ToZtring(Minutes);
+                Time+=_T(':');
+                Time+=Ztring::ToZtring(Seconds);
+                if (FrameRate!=0)
+                {
+                    Time+=_T('.');
+                    Time+=Ztring::ToZtring(Milli);
+                }
+                Element_Info(_T("time_code ")+Time);
+            }
+        #endif //MEDIAINFO_TRACE
+
+        //Time
+        if (Time_End_Seconds!=Error)
+        {
+            Time_End_Frames++; //One frame
+            if (progressive_sequence && repeat_first_field)
+            {
+                Time_End_Frames++; //Frame repeated a second time
+                if (top_field_first)
+                    Time_End_Frames++; //Frame repeated a third time
+            }
+        }
+
+        //Counting
+        if (File_Offset+Buffer_Offset+Element_Size==File_Size)
+            Frame_Count_Valid=Frame_Count; //Finish frames in case of there are less than Frame_Count_Valid frames
+        Frame_Count++;
+        Frame_Count_InThisBlock++;
         if (picture_coding_type==3)
             BVOP_Count++;
+
+        //Need to parse?
+        if (!Streams[0x00].Searching_Payload)
+            return;
 
         //NextCode
         NextCode_Clear();
@@ -946,7 +1133,7 @@ void File_Mpegv::slice_start()
         //Filling only if not already done
         if (Frame_Count==2 && !Status[IsAccepted])
             Accept("MPEG Video");
-        if (!Status[IsFilled] && (!DVD_CC_IsPresent && !GA94_03_CC_IsPresent && Frame_Count>=Frame_Count_Valid || Frame_Count>=Frame_Count_Valid*10))
+        if (!Status[IsFilled] && (!CC___IsPresent && !Scte_IsPresent && !GA94_03_IsPresent && !Cdp_IsPresent && Frame_Count>=Frame_Count_Valid || Frame_Count>=Frame_Count_Valid*10))
             Fill("MPEG Video");
     FILLING_END();
 }
@@ -967,6 +1154,15 @@ void File_Mpegv::user_data_start()
             case 0x434301F8 :   user_data_start_CC(); return;
             case 0x44544731 :   user_data_start_DTG1(); return;
             case 0x47413934 :   user_data_start_GA94(); return;
+            default         :   {
+                                int8u SCTE20_Identifier;
+                                Peek_B1(SCTE20_Identifier);
+                                if (SCTE20_Identifier==0x03)
+                                {
+                                    user_data_start_3();
+                                    return;
+                                }
+                                }
         }
     }
 
@@ -1085,94 +1281,145 @@ void File_Mpegv::user_data_start()
 // Packet "B2", CC (From DVD)
 void File_Mpegv::user_data_start_CC()
 {
-    #if defined(MEDIAINFO_EIA608_YES)
-        DVD_CC_IsPresent=true;
+    Skip_B4(                                                    "identifier");
 
-        Element_Info("DVD captioning");
-
-        if (Count_Get(Stream_Text))
-            return;
+    #if defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+        Element_Info("DVD Captions");
 
         //Parsing
-        int8u cc_count;
-        Skip_B4(                                                    "identifier");
-        BS_Begin();
-        Skip_SB(                                                    "field 1 then field 2");
-        Get_S1 (7, cc_count,                                        "count");
-        BS_End();
-        for (int8u Pos=0; Pos<cc_count; Pos++)
+        #if MEDIAINFO_DEMUX
+            Element_Code=0x434301F800000000LL;
+        #endif //MEDIAINFO_DEMUX
+        if (CC___Parser==NULL)
         {
-            Element_Begin("cc");
-            int8u cc_type;
-            BS_Begin();
-            Mark_1();
-            Mark_1();
-            Mark_1();
-            Mark_1();
-            Mark_1();
-            Mark_1();
-            Mark_1();
-            Get_S1 (1, cc_type,                                     "cc_type");
-            BS_End();
-
-            while (cc_type>=DVD_CC_Parsers.size())
-                DVD_CC_Parsers.push_back(NULL);
-            if (DVD_CC_Parsers[cc_type]==NULL)
-                DVD_CC_Parsers[cc_type]=new File_Eia608();
-            if (!DVD_CC_Parsers[cc_type]->Status[IsFinished])
-            {
-                Open_Buffer_Init(DVD_CC_Parsers[cc_type]);
-                Open_Buffer_Continue(DVD_CC_Parsers[cc_type], Buffer+Buffer_Offset+(size_t)Element_Offset, 2);
-
-                //Finish
-                if (DVD_CC_Parsers[cc_type]->Status[IsFinished])
-                {
-                    if (Count_Get(Stream_General)==0)
-                        Accept("MPEG Video");
-                    Merge(*DVD_CC_Parsers[cc_type]);
-                    Fill(Stream_Text, StreamPos_Last, Text_ID, _T("DVD-")+Ztring::ToZtring(cc_type));
-                    Fill(Stream_Text, StreamPos_Last, "MuxingMode", _T("DVD-Video"));
-                }
-            }
-
-            //Demux
-            Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, 2, Ztring::ToZtring(cc_type)+_T(".eia608"));
-
-            Element_Offset+=2;
-            Element_End();
+            CC___IsPresent=true;
+            CC___Parser=new File_DtvccTransport;
+            Open_Buffer_Init(CC___Parser);
+            ((File_DtvccTransport*)CC___Parser)->Format=File_DtvccTransport::Format_DVD;
         }
-    #else
-        Skip_XX(Element_Size-Element_Offset,                    "EIA-608 data");
-    #endif
+        if (CC___Parser->PTS_DTS_Needed)
+        {
+            CC___Parser->PCR=PCR;
+            CC___Parser->PTS=PTS;
+            CC___Parser->DTS=DTS;
+        }
+        Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset), ContentType_MainStream);
+        Open_Buffer_Continue(CC___Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+        Element_Offset=Element_Size;
+    #else //defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+        Skip_XX(Element_Size-Element_Offset,                    "DVD Captions");
+    #endif //defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+}
+
+//---------------------------------------------------------------------------
+// Packet "B2", 0x03 (SCTE20)
+void File_Mpegv::user_data_start_3()
+{
+    Skip_B1(                                                    "identifier");
+
+    #if defined(MEDIAINFO_SCTE20_YES)
+        Scte_IsPresent=true;
+
+        Element_Info("SCTE 20");
+
+        //Coherency
+        if (TemporalReference_Offset+temporal_reference>=TemporalReference.size())
+            return;
+
+        //Purging too old orphelins
+        if (Scte_TemporalReference_Offset+8<TemporalReference_Offset+temporal_reference)
+        {
+            size_t Pos=TemporalReference_Offset+temporal_reference;
+            do
+            {
+                if (TemporalReference[Pos]==NULL || !TemporalReference[Pos]->IsValid)
+                    break;
+                Pos--;
+            }
+            while (Pos>0);
+            Scte_TemporalReference_Offset=Pos+1;
+        }
+
+        if (TemporalReference[TemporalReference_Offset+temporal_reference]->Scte==NULL)
+            TemporalReference[TemporalReference_Offset+temporal_reference]->Scte=new temporalreference::buffer_data;
+        TemporalReference[TemporalReference_Offset+temporal_reference]->Scte->Size=(size_t)(Element_Size-Element_Offset);
+        delete[] TemporalReference[TemporalReference_Offset+temporal_reference]->Scte->Data;
+        TemporalReference[TemporalReference_Offset+temporal_reference]->Scte->Data=new int8u[(size_t)(Element_Size-Element_Offset)];
+        std::memcpy(TemporalReference[TemporalReference_Offset+temporal_reference]->Scte->Data, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+
+        //Parsing
+        Skip_XX(Element_Size-Element_Offset,                    "CC data");
+
+        //Parsing Captions after reordering
+        bool CanBeParsed=true;
+        for (size_t Scte_Pos=Scte_TemporalReference_Offset; Scte_Pos<TemporalReference.size(); Scte_Pos++)
+            if (TemporalReference[Scte_Pos]==NULL || !TemporalReference[Scte_Pos]->IsValid || TemporalReference[Scte_Pos]->Scte==NULL)
+                CanBeParsed=false; //There is a missing field/frame
+        if (CanBeParsed)
+        {
+            for (size_t Scte_Pos=Scte_TemporalReference_Offset; Scte_Pos<TemporalReference.size(); Scte_Pos++)
+            {
+                Element_Begin("SCTE 20 data");
+
+                //Parsing
+                #if MEDIAINFO_DEMUX
+                    Element_Code=0x0000000300000000LL;
+                #endif //MEDIAINFO_DEMUX
+                if (Scte_Parser==NULL)
+                {
+                    Scte_Parser=new File_Scte20;
+                    Open_Buffer_Init(Scte_Parser);
+                }
+                if (Scte_Parser->PTS_DTS_Needed)
+                {
+                    Scte_Parser->PCR=PCR;
+                    Scte_Parser->PTS=PTS;
+                    Scte_Parser->DTS=DTS;
+                }
+                ((File_Scte20*)Scte_Parser)->picture_structure=TemporalReference[Scte_Pos]->picture_structure;
+                ((File_Scte20*)Scte_Parser)->progressive_sequence=progressive_sequence;
+                ((File_Scte20*)Scte_Parser)->progressive_frame=TemporalReference[Scte_Pos]->progressive_frame;
+                ((File_Scte20*)Scte_Parser)->top_field_first=TemporalReference[Scte_Pos]->top_field_first;
+                ((File_Scte20*)Scte_Parser)->repeat_first_field=TemporalReference[Scte_Pos]->repeat_first_field;
+                Demux(TemporalReference[Scte_Pos]->Scte->Data, TemporalReference[Scte_Pos]->Scte->Size, ContentType_MainStream);
+                Open_Buffer_Continue(Scte_Parser, TemporalReference[Scte_Pos]->Scte->Data, TemporalReference[Scte_Pos]->Scte->Size);
+
+                Element_End();
+            }
+            Scte_TemporalReference_Offset=TemporalReference.size();
+        }
+    #else //defined(MEDIAINFO_SCTE20_YES)
+        Skip_XX(Element_Size-Element_Offset,                    "SCTE 20 data");
+    #endif //defined(MEDIAINFO_SCTE20_YES)
 }
 
 //---------------------------------------------------------------------------
 // Packet "B2", DTG1
 void File_Mpegv::user_data_start_DTG1()
 {
-    Element_Info("Active Format Description");
+    Skip_B4(                                                    "identifier");
 
-    //Parsing
-    bool active_format_flag;
-    Skip_C4(                                                    "afd_identifier");
-    BS_Begin();
-    Mark_0();
-    Get_SB (active_format_flag,                                 "active_format_flag");
-    Mark_0_NoTrustError();
-    Mark_0_NoTrustError();
-    Mark_0_NoTrustError();
-    Mark_0_NoTrustError();
-    Mark_0_NoTrustError();
-    Mark_1_NoTrustError();
-    if (active_format_flag)
-    {
-        Mark_1_NoTrustError();
-        Mark_1_NoTrustError();
-        Mark_1_NoTrustError();
-        Mark_1_NoTrustError();
-        Info_S1(4, active_format,                               "active_format"); Param_Info(Mpegv_user_data_DTG1_active_format[active_format]);
-    }
-    BS_End();
+    #if defined(MEDIAINFO_AFDBARDATA_YES)
+        Element_Info("Active Format Description");
+
+        //Parsing
+        if (DTG1_Parser==NULL)
+        {
+            DTG1_Parser=new File_AfdBarData;
+            Open_Buffer_Init(DTG1_Parser);
+            ((File_AfdBarData*)DTG1_Parser)->Format=File_AfdBarData::Format_A53_4_DTG1;
+        }
+        if (DTG1_Parser->PTS_DTS_Needed)
+        {
+            DTG1_Parser->PCR=PCR;
+            DTG1_Parser->PTS=PTS;
+            DTG1_Parser->DTS=DTS;
+        }
+        Open_Buffer_Continue(DTG1_Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+        Element_Offset=Element_Size;
+    #else //defined(MEDIAINFO_AFDBARDATA_YES)
+        Skip_XX(Element_Size-Element_Offset,                    "Active Format Description");
+    #endif //defined(MEDIAINFO_AFDBARDATA_YES)
 }
 
 //---------------------------------------------------------------------------
@@ -1195,188 +1442,104 @@ void File_Mpegv::user_data_start_GA94()
 // Packet "B2", GA94 0x03 (styled captioning)
 void File_Mpegv::user_data_start_GA94_03()
 {
-    #if defined(MEDIAINFO_EIA608_YES)
-        GA94_03_CC_IsPresent=true;
+    #if defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+        GA94_03_IsPresent=true;
 
-        Element_Info("Styled captioning");
+        Element_Info("DTVCC Transport");
 
         //Coherency
         if (TemporalReference_Offset+temporal_reference>=TemporalReference.size())
             return;
 
         //Purging too old orphelins
-        if (TemporalReference_GA94_03_CC_Offset+8<TemporalReference_Offset+temporal_reference)
+        if (GA94_03_TemporalReference_Offset+8<TemporalReference_Offset+temporal_reference)
         {
             size_t Pos=TemporalReference_Offset+temporal_reference;
-            for(; Pos<TemporalReference.size(); Pos++)
-                if (!TemporalReference[Pos].IsValid)
+            do
+            {
+                if (TemporalReference[Pos]==NULL || !TemporalReference[Pos]->IsValid)
                     break;
-            TemporalReference_GA94_03_CC_Offset=Pos+1;
+                Pos--;
+            }
+            while (Pos>0);
+            GA94_03_TemporalReference_Offset=Pos+1;
         }
 
+        if (TemporalReference[TemporalReference_Offset+temporal_reference]->GA94_03==NULL)
+            TemporalReference[TemporalReference_Offset+temporal_reference]->GA94_03=new temporalreference::buffer_data;
+        TemporalReference[TemporalReference_Offset+temporal_reference]->GA94_03->Size=(size_t)(Element_Size-Element_Offset);
+        delete[] TemporalReference[TemporalReference_Offset+temporal_reference]->GA94_03->Data;
+        TemporalReference[TemporalReference_Offset+temporal_reference]->GA94_03->Data=new int8u[(size_t)(Element_Size-Element_Offset)];
+        std::memcpy(TemporalReference[TemporalReference_Offset+temporal_reference]->GA94_03->Data, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+
         //Parsing
-        int8u  cc_count;
-        bool   process_em_data_flag, process_cc_data_flag, additional_data_flag;
-        BS_Begin();
-        Get_SB (process_em_data_flag,                               "process_em_data_flag");
-        Get_SB (process_cc_data_flag,                               "process_cc_data_flag");
-        Get_SB (additional_data_flag,                               "additional_data_flag");
-        Get_S1 (5, cc_count,                                        "cc_count");
-        BS_End();
-        Skip_B1(                                                    process_em_data_flag?"em_data":"junk"); //Emergency message
-        if (TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC.size()<cc_count)
-            TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC.resize(cc_count);
-        if (process_cc_data_flag)
-        {
-            for (int8u Pos=0; Pos<cc_count; Pos++)
-            {
-                Element_Begin("cc");
-                int8u cc_type, cc_data_1, cc_data_2;
-                bool  cc_valid;
-                BS_Begin();
-                Mark_1();
-                Mark_1();
-                Mark_1();
-                Mark_1();
-                Mark_1();
-                Get_SB (   cc_valid,                                    "cc_valid");
-                Get_S1 (2, cc_type,                                     "cc_type");
-                BS_End();
-                Get_B1 (cc_data_1,                                      "cc_data_1");
-                Get_B1 (cc_data_2,                                      "cc_data_2");
-                TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC[Pos].cc_valid=cc_valid;
-                TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC[Pos].cc_type=cc_type;
-                TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC[Pos].cc_data[0]=cc_data_1;
-                TemporalReference[TemporalReference_Offset+temporal_reference].GA94_03_CC[Pos].cc_data[1]=cc_data_2;
-                Element_End();
-            }
-        }
-        else
-            Skip_XX(cc_count*2,                                         "Junk");
+        Skip_XX(Element_Size-Element_Offset,                    "CC data");
 
         //Parsing Captions after reordering
         bool CanBeParsed=true;
-        for (size_t GA94_03_CC_Pos=TemporalReference_GA94_03_CC_Offset; GA94_03_CC_Pos<TemporalReference.size(); GA94_03_CC_Pos++)
-            if (!TemporalReference[GA94_03_CC_Pos].IsValid)
+        for (size_t GA94_03_Pos=GA94_03_TemporalReference_Offset; GA94_03_Pos<TemporalReference.size(); GA94_03_Pos++)
+            if (TemporalReference[GA94_03_Pos]==NULL || !TemporalReference[GA94_03_Pos]->IsValid || TemporalReference[GA94_03_Pos]->GA94_03==NULL)
                 CanBeParsed=false; //There is a missing field/frame
         if (CanBeParsed)
         {
-           for (size_t GA94_03_CC_Pos=TemporalReference_GA94_03_CC_Offset; GA94_03_CC_Pos<TemporalReference.size(); GA94_03_CC_Pos++)
-                for (int8u Pos=0; Pos<cc_count; Pos++)
+            for (size_t GA94_03_Pos=GA94_03_TemporalReference_Offset; GA94_03_Pos<TemporalReference.size(); GA94_03_Pos++)
+            {
+                Element_Begin("Reordered DTVCC Transport");
+
+                //Parsing
+                #if MEDIAINFO_DEMUX
+                    Element_Code=0x4741393400000003LL;
+                #endif //MEDIAINFO_DEMUX
+                if (GA94_03_Parser==NULL)
                 {
-                    if (Pos<TemporalReference[GA94_03_CC_Pos].GA94_03_CC.size() && TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_valid)
-                    {
-                        int8u cc_type=TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_type;
-                        size_t Parser_Pos=cc_type;
-                        if (Parser_Pos==3)
-                            Parser_Pos=2; //cc_type 2 and 3 are for the same text
-
-                        while (Parser_Pos>=GA94_03_CC_Parsers.size())
-                            GA94_03_CC_Parsers.push_back(NULL);
-                        if (GA94_03_CC_Parsers[Parser_Pos]==NULL)
-                            GA94_03_CC_Parsers[Parser_Pos]=cc_type<2?(File__Analyze*)new File_Eia608():(File__Analyze*)new File_Eia708();
-                        if (!GA94_03_CC_Parsers[Parser_Pos]->Status[IsFinished])
-                        {
-                            if (cc_type>=2)
-                                ((File_Eia708*)GA94_03_CC_Parsers[2])->cc_type=cc_type;
-                            Open_Buffer_Init(GA94_03_CC_Parsers[Parser_Pos]);
-                            Open_Buffer_Continue(GA94_03_CC_Parsers[Parser_Pos], TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_data, 2);
-
-                            //Finish
-                            if (GA94_03_CC_Parsers[Parser_Pos]->Status[IsFinished])
-                            {
-                                if (Count_Get(Stream_General)==0)
-                                    Accept("MPEG Video");
-                                Merge(*GA94_03_CC_Parsers[Parser_Pos]);
-                                if (Parser_Pos<2)
-                                    Fill(Stream_Text, StreamPos_Last, Text_ID, _T("608-")+Ztring::ToZtring(Parser_Pos));
-                                Fill(Stream_Text, StreamPos_Last, "MuxingMode", _T("EIA-708"));
-                            }
-                        }
-
-                        //Demux
-                        if (cc_type<2)
-                            Demux(TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_data, 2, Ztring::ToZtring(cc_type)+_T(".eia608"));
-                        else
-                            Demux(TemporalReference[GA94_03_CC_Pos].GA94_03_CC[Pos].cc_data, 2, _T("eia708"));
-                    }
+                    GA94_03_Parser=new File_DtvccTransport;
+                    Open_Buffer_Init(GA94_03_Parser);
+                    ((File_DtvccTransport*)GA94_03_Parser)->Format=File_DtvccTransport::Format_A53_4_GA94_03;
                 }
+                if (GA94_03_Parser->PTS_DTS_Needed)
+                {
+                    GA94_03_Parser->PCR=PCR;
+                    GA94_03_Parser->PTS=PTS;
+                    GA94_03_Parser->DTS=DTS;
+                }
+                Demux(TemporalReference[GA94_03_Pos]->GA94_03->Data, TemporalReference[GA94_03_Pos]->GA94_03->Size, ContentType_MainStream);
+                Open_Buffer_Continue(GA94_03_Parser, TemporalReference[GA94_03_Pos]->GA94_03->Data, TemporalReference[GA94_03_Pos]->GA94_03->Size);
 
-            TemporalReference_GA94_03_CC_Offset=TemporalReference.size();
+                Element_End();
+            }
+            GA94_03_TemporalReference_Offset=TemporalReference.size();
         }
-
-        BS_Begin();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        Mark_1();
-        BS_End();
-
-        if (additional_data_flag)
-            Skip_XX(Element_Size-Element_Offset,                    "additional_user_data");
-    #else
-        Skip_XX(Element_Size-Element_Offset,                    "EIA-608 data");
-    #endif
+    #else //defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+        Skip_XX(Element_Size-Element_Offset,                    "DTVCC Transport data");
+    #endif //defined(MEDIAINFO_DTVCCTRANSPORT_YES)
 }
 
 //---------------------------------------------------------------------------
 // Packet "B2", GA94 0x06 (bar data)
 void File_Mpegv::user_data_start_GA94_06()
 {
-    Element_Info("Bar data");
+    #if defined(MEDIAINFO_AFDBARDATA_YES)
+        Element_Info("Bar Data");
 
-    //Parsing
-    bool   top_bar_flag, bottom_bar_flag, left_bar_flag, right_bar_flag;
-    BS_Begin();
-    Get_SB (top_bar_flag,                                       "top_bar_flag");
-    Get_SB (bottom_bar_flag,                                    "bottom_bar_flag");
-    Get_SB (left_bar_flag,                                      "left_bar_flag");
-    Get_SB (right_bar_flag,                                     "right_bar_flag");
-    Mark_1_NoTrustError();
-    Mark_1_NoTrustError();
-    Mark_1_NoTrustError();
-    Mark_1_NoTrustError();
-    BS_End();
-    if (top_bar_flag)
-    {
-        Mark_1();
-        Mark_1();
-        Skip_S2(14,                                             "line_number_end_of_top_bar");
-    }
-    if (bottom_bar_flag)
-    {
-        Mark_1();
-        Mark_1();
-        Skip_S2(14,                                             "line_number_start_of_bottom_bar");
-    }
-    if (left_bar_flag)
-    {
-        Mark_1();
-        Mark_1();
-        Skip_S2(14,                                             "pixel_number_end_of_left_bar");
-    }
-    if (right_bar_flag)
-    {
-        Mark_1();
-        Mark_1();
-        Skip_S2(14,                                             "pixel_number_start_of_right_bar");
-    }
-    Mark_1();
-    Mark_1();
-    Mark_1();
-    Mark_1();
-    Mark_1();
-    Mark_1();
-    Mark_1();
-    Mark_1();
-    BS_End();
-
-    if (Element_Size-Element_Offset)
-        Skip_XX(Element_Size-Element_Offset,                    "additional_bar_data");
+        //Parsing
+        if (GA94_06_Parser==NULL)
+        {
+            GA94_06_Parser=new File_AfdBarData;
+            Open_Buffer_Init(GA94_06_Parser);
+            ((File_AfdBarData*)GA94_06_Parser)->Format=File_AfdBarData::Format_A53_4_GA94_06;
+        }
+        if (GA94_06_Parser->PTS_DTS_Needed)
+        {
+            GA94_06_Parser->PCR=PCR;
+            GA94_06_Parser->PTS=PTS;
+            GA94_06_Parser->DTS=DTS;
+        }
+        Open_Buffer_Init(GA94_06_Parser);
+        Open_Buffer_Continue(GA94_06_Parser, Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset));
+        Element_Offset=Element_Size;
+    #else //defined(MEDIAINFO_AFDBARDATA_YES)
+        Skip_XX(Element_Size-Element_Offset,                    "Bar Data");
+    #endif //defined(MEDIAINFO_AFDBARDATA_YES)
 }
 
 //---------------------------------------------------------------------------
@@ -1393,7 +1556,7 @@ void File_Mpegv::sequence_header()
     Get_S2 (12, vertical_size_value,                            "vertical_size_value");
     Get_S1 ( 4, aspect_ratio_information,                       "aspect_ratio_information"); if (vertical_size_value && Mpegv_aspect_ratio1[aspect_ratio_information]) Param_Info((float)horizontal_size_value/vertical_size_value/Mpegv_aspect_ratio1[aspect_ratio_information]); Param_Info(Mpegv_aspect_ratio2[aspect_ratio_information]);
     Get_S1 ( 4, frame_rate_code,                                "frame_rate_code"); Param_Info(Mpegv_frame_rate[frame_rate_code]);
-    Get_S3 (18, bit_rate_value_temp,                            "bit_rate_value"); Param_Info(bit_rate_value*400);
+    Get_S3 (18, bit_rate_value_temp,                            "bit_rate_value"); Param_Info(bit_rate_value_temp*400);
     Mark_1 ();
     Get_S2 (10, vbv_buffer_size_value,                          "vbv_buffer_size_value"); Param_Info(2*1024*((int32u)vbv_buffer_size_value), " bytes");
     Skip_SB(                                                    "constrained_parameters_flag");
@@ -1434,6 +1597,7 @@ void File_Mpegv::sequence_header()
 
     FILLING_BEGIN_PRECISE();
         //Temporal reference
+        temporal_reference_Old=(int16u)-1;
         TemporalReference_Offset=TemporalReference.size();
         if (TemporalReference_Offset>=0x800)
         {
@@ -1442,10 +1606,18 @@ void File_Mpegv::sequence_header()
                 TemporalReference_Offset-=0x400;
             else
                 TemporalReference_Offset=0;
-            if (0x400<TemporalReference_GA94_03_CC_Offset)
-                TemporalReference_GA94_03_CC_Offset-=0x400;
-            else
-                TemporalReference_GA94_03_CC_Offset=0;
+            #if defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+                if (0x400<GA94_03_TemporalReference_Offset)
+                    GA94_03_TemporalReference_Offset-=0x400;
+                else
+                    GA94_03_TemporalReference_Offset=0;
+            #endif //defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+            #if defined(MEDIAINFO_SCTE20_YES)
+                if (0x400<Scte_TemporalReference_Offset)
+                    Scte_TemporalReference_Offset-=0x400;
+                else
+                    Scte_TemporalReference_Offset=0;
+            #endif //defined(MEDIAINFO_SCTE20_YES)
         }
 
         //Bit_rate
@@ -1508,11 +1680,14 @@ void File_Mpegv::extension_start()
     {
         case 1 :{ //Sequence
                     //Parsing
-                    Get_SB (    profile_and_level_indication_escape, "profile_and_level_indication_escape");
+                    Peek_SB(profile_and_level_indication_escape);
                     if (profile_and_level_indication_escape)
-                        Skip_S1( 7,                            "profile_and_level_indication_reserved");
+                    {
+                        Get_S1 ( 8, profile_and_level_indication, "profile_and_level_indication"); Param_Info(Mpegv_profile_and_level_indication(profile_and_level_indication));
+                    }
                     else
                     {
+                        Skip_SB(                               "profile_and_level_indication_escape");
                         Get_S1 ( 3, profile_and_level_indication_profile, "profile_and_level_indication_profile"); Param_Info(Mpegv_profile_and_level_indication_profile[profile_and_level_indication_profile]);
                         Get_S1 ( 4, profile_and_level_indication_level, "profile_and_level_indication_level"); Param_Info(Mpegv_profile_and_level_indication_level[profile_and_level_indication_level]);
                     }
@@ -1587,10 +1762,12 @@ void File_Mpegv::extension_start()
                                 FirstFieldFound=false;
                                 if (TemporalReference_Offset+temporal_reference>=TemporalReference.size())
                                     TemporalReference.resize(TemporalReference_Offset+temporal_reference+1);
-                                TemporalReference[TemporalReference_Offset+temporal_reference].progressive_frame=progressive_frame;
-                                TemporalReference[TemporalReference_Offset+temporal_reference].top_field_first=top_field_first;
-                                TemporalReference[TemporalReference_Offset+temporal_reference].repeat_first_field=repeat_first_field;
-                                TemporalReference[TemporalReference_Offset+temporal_reference].HasPictureCoding=true;
+                                TemporalReference[TemporalReference_Offset+temporal_reference]->picture_coding_type=picture_coding_type;
+                                TemporalReference[TemporalReference_Offset+temporal_reference]->progressive_frame=progressive_frame;
+                                TemporalReference[TemporalReference_Offset+temporal_reference]->picture_structure=picture_structure;
+                                TemporalReference[TemporalReference_Offset+temporal_reference]->top_field_first=top_field_first;
+                                TemporalReference[TemporalReference_Offset+temporal_reference]->repeat_first_field=repeat_first_field;
+                                TemporalReference[TemporalReference_Offset+temporal_reference]->HasPictureCoding=true;
                             }
                             else                                //Field
                             {
@@ -1615,15 +1792,77 @@ void File_Mpegv::extension_start()
                             {
                                 if (TemporalReference_Offset+temporal_reference>=TemporalReference.size())
                                     TemporalReference.resize(TemporalReference_Offset+temporal_reference+1);
-                                TemporalReference[TemporalReference_Offset+temporal_reference].progressive_frame=progressive_frame;
-                                TemporalReference[TemporalReference_Offset+temporal_reference].top_field_first=top_field_first;
-                                TemporalReference[TemporalReference_Offset+temporal_reference].repeat_first_field=repeat_first_field;
-                                TemporalReference[TemporalReference_Offset+temporal_reference].HasPictureCoding=true;
+                                TemporalReference[TemporalReference_Offset+temporal_reference]->picture_coding_type=picture_coding_type;
+                                TemporalReference[TemporalReference_Offset+temporal_reference]->progressive_frame=progressive_frame;
+                                TemporalReference[TemporalReference_Offset+temporal_reference]->picture_structure=picture_structure;
+                                TemporalReference[TemporalReference_Offset+temporal_reference]->top_field_first=top_field_first;
+                                TemporalReference[TemporalReference_Offset+temporal_reference]->repeat_first_field=repeat_first_field;
+                                TemporalReference[TemporalReference_Offset+temporal_reference]->HasPictureCoding=true;
                             }
                         }
 
                         if (picture_structure==2) //Bottom, and we want to add a frame only one time if 2 fields
                             Time_End_Frames--; //One frame
+
+                        //CDP
+                        #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+                            if (Cdp_Data && !Cdp_Data->empty())
+                            {
+                                Cdp_IsPresent=true;
+
+                                Element_Begin("CDP");
+
+                                //Parsing
+                                #if MEDIAINFO_DEMUX
+                                    Element_Code=0x000000B500000000LL;
+                                #endif //MEDIAINFO_DEMUX
+                                if (Cdp_Parser==NULL)
+                                {
+                                    Cdp_Parser=new File_Cdp;
+                                    Open_Buffer_Init(Cdp_Parser);
+                                }
+                                Demux((*Cdp_Data)[0]->Data, (*Cdp_Data)[0]->Size, ContentType_MainStream);
+                                if (!Cdp_Parser->Status[IsFinished])
+                                {
+                                    if (Cdp_Parser->PTS_DTS_Needed)
+                                        Cdp_Parser->DTS=DTS;
+                                    ((File_Cdp*)Cdp_Parser)->AspectRatio=MPEG_Version==1?Mpegv_aspect_ratio1[aspect_ratio_information]:Mpegv_aspect_ratio2[aspect_ratio_information];
+                                    Open_Buffer_Continue(Cdp_Parser, (*Cdp_Data)[0]->Data, (*Cdp_Data)[0]->Size);
+                                }
+
+                                //Removing data from stack
+                                delete (*Cdp_Data)[0]; //Cdp_Data[0]=NULL;
+                                Cdp_Data->erase(Cdp_Data->begin());
+
+                                Element_End();
+                            }
+                        #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+
+                        //Active Format Description & Bar Data
+                        #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
+                            if (AfdBarData_Data && !AfdBarData_Data->empty())
+                            {
+                                Element_Begin("Active Format Description & Bar Data");
+
+                                //Parsing
+                                if (AfdBarData_Parser==NULL)
+                                {
+                                    AfdBarData_Parser=new File_AfdBarData;
+                                    Open_Buffer_Init(AfdBarData_Parser);
+                                    ((File_AfdBarData*)AfdBarData_Parser)->Format=File_AfdBarData::Format_S2016_3;
+                                }
+                                if (AfdBarData_Parser->PTS_DTS_Needed)
+                                    AfdBarData_Parser->DTS=DTS;
+                                if (!AfdBarData_Parser->Status[IsFinished])
+                                    Open_Buffer_Continue(AfdBarData_Parser, (*AfdBarData_Data)[0]->Data, (*AfdBarData_Data)[0]->Size);
+
+                                //Removing data from stack
+                                delete (*AfdBarData_Data)[0]; //AfdBarData_Data[0]=NULL;
+                                AfdBarData_Data->erase(AfdBarData_Data->begin());
+
+                                Element_End();
+                            }
+                        #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
                     FILLING_END();
                 }
                 break;

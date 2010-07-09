@@ -1,5 +1,5 @@
 // ZenLib::Ztring - More methods for std::(w)string
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -67,11 +67,11 @@ class Ztring : public tstring  //for details about undocumented methods see http
 public :
     //Constructor/destructor
     Ztring ()                                                                   : tstring(){};
-    Ztring (const tstring& S, size_type Pos=0, size_type n=npos)                : tstring(S.c_str(), Pos, n){};
-    Ztring (const tstring* S, size_type Pos=0, size_type n=npos)                : tstring(S->c_str(), Pos, n){};
-    Ztring (const Char* S)                                                      : tstring(S){};
-    Ztring (const Char* S, size_type n)                                         : tstring(S, n){};
-    Ztring (size_type n, const Char &S)                                         : tstring(n, S){};
+    Ztring (const tstring& str)                                                 : tstring(str){};
+    Ztring (const tstring& str, size_type pos, size_type n=npos)                : tstring(str, pos, n){};
+    Ztring (const Char* s, size_type n)                                         : tstring(s, n){};
+    Ztring (const Char* s)                                                      : tstring(s){};
+    Ztring (size_type n, Char c)                                                : tstring(n, c){};
     #ifdef UNICODE
     Ztring (const char* S)                                                      : tstring(){From_UTF8(S);};
     Ztring (const char* S, size_type n)                                         : tstring(){From_UTF8(S, 0, n);};
@@ -129,6 +129,14 @@ public :
     Ztring& From_Local   (const char  *S, size_type Start,  size_type Length);
         /// @brief convert an Local encoded string into Ztring
     Ztring& From_Local   (const char  *S, size_type Length)                     {return From_Local(S, 0, Length);};
+
+        /// @brief convert an ISO-8859-1 encoded string into Ztring
+    Ztring& From_ISO_8859_1   (const char  *S);
+        /// @brief convert an ISO-8859-1 encoded string into Ztring
+    Ztring& From_ISO_8859_1   (const char  *S, size_type Start,  size_type Length);
+        /// @brief convert an ISO-8859-1 encoded string into Ztring
+    Ztring& From_ISO_8859_1   (const char  *S, size_type Length)                {return From_ISO_8859_1(S, 0, Length);};
+
         /// @brief convert an 16 byte GUID into Ztring
     Ztring& From_GUID    (const int128u S);
         /// @brief convert an 16 byte UUID into Ztring
@@ -188,6 +196,8 @@ public :
         /// @brief convert number (BCD coded) into Ztring
     Ztring& From_BCD     (const int8u);
         /// @brief convert count of milliseconds into a readable and sortable string
+    Ztring& Duration_From_Milliseconds (const int64s Milliseconds);
+        /// @deprecated replaced by the int64s version
     Ztring& Duration_From_Milliseconds (const int64u Milliseconds);
         /// @brief convert count of seconds since 1601 into a readable and sortable string
     Ztring& Date_From_Milliseconds_1601 (const int64u Milliseconds);
@@ -256,6 +266,11 @@ public :
         /// @return the value corresponding \n
         ///         0 if there is a problem
     int64u      To_int64u   (int8u Radix=10, ztring_t Options=Ztring_Rounded) const;
+        /// @brief Convert into unsigned Int (64 bits)
+        /// @warning only hexadecimal and no rounding are currenlty supported \n
+        /// @return the value corresponding \n
+        ///         0 if there is a problem
+    int128u     To_int128u   (int8u Radix=10, ztring_t Options=Ztring_Rounded) const;
         /// @brief Convert into float
         /// @return the value corresponding \n
         ///         0 if there is a problem
@@ -347,3 +362,4 @@ public :
 } //NameSpace
 
 #endif
+

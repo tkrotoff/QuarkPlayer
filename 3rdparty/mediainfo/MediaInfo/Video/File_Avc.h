@@ -1,5 +1,5 @@
 // File_Avc - Info for AVC Video files
-// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -62,6 +62,9 @@ private :
     bool Synched_Test();
     void Synched_Init();
 
+    //Buffer - Global
+    void Read_Buffer_Unsynched();
+
     //Buffer - Per element
     void Header_Parse();
     bool Header_Parser_QuickSearch();
@@ -96,11 +99,21 @@ private :
     void sei_message_mainconcept(int32u payloadSize);
     void access_unit_delimiter();
     void filler_data();
+    void prefix_nal_unit();
+    void subset_seq_parameter_set();
+    void slice_layer_extension();
 
     //Packets - SubElements
+    void seq_parameter_set_data();
     void scaling_list(int32u ScalingList_Size);
     void vui_parameters();
     void hrd_parameters(bool vcl);
+    void nal_unit_header_svc_extension();
+    void nal_unit_header_mvc_extension();
+    void seq_parameter_set_svc_extension();
+    void svc_vui_parameters_extension();
+    void seq_parameter_set_mvc_extension();
+    void mvc_vui_parameters_extension();
 
     //Packets - Specific
     void SPS_PPS();
@@ -138,11 +151,13 @@ private :
         bool   IsValid;
 
         int32u frame_num;
+        int8u  slice_type;
         bool   IsTop;
         bool   IsField;
 
         temporalreference()
         {
+            slice_type=(int8u)-1;
             IsValid=false;
         }
     };
@@ -152,6 +167,21 @@ private :
     bool                           TemporalReference_Offset_Moved;
     size_t                         TemporalReference_GA94_03_CC_Offset;
     size_t                         TemporalReference_Offset_pic_order_cnt_lsb_Last;
+
+    //seq_parameter_set
+    struct seq_parameter_set_
+    {
+        int8u profile_idc;
+        int8u level_idc;
+
+        seq_parameter_set_()
+        {
+            profile_idc=0;
+            level_idc=0;
+        }
+    };
+    std::map<int32u, seq_parameter_set_> seq_parameter_set_ids;
+    std::map<int32u, seq_parameter_set_> subset_seq_parameter_set_ids;
 
     //Temp
     std::vector<File__Analyze*> GA94_03_CC_Parsers;
@@ -163,7 +193,6 @@ private :
     //Count of a Packets
     size_t Frame_Count;
     size_t Block_Count;
-    int32u frame_num_LastOne;
     size_t Interlaced_Top;
     size_t Interlaced_Bottom;
     size_t Structure_Field;
@@ -171,8 +200,14 @@ private :
     int8u  FrameRate_Divider;
 
     //From seq_parameter_set
-    std::vector<int32u> cpb_size_values_NAL;
-    std::vector<int32u> cpb_size_values_VCL;
+    struct xxl
+    {
+        int32u bit_rate_value;
+        int32u cpb_size_value;
+        bool   cbr_flag;
+    };
+    std::vector<xxl> NAL;
+    std::vector<xxl> VCL;
     Ztring Encoded_Library;
     Ztring Encoded_Library_Name;
     Ztring Encoded_Library_Version;
@@ -191,17 +226,26 @@ private :
     int32u frame_crop_right_offset;
     int32u frame_crop_top_offset;
     int32u frame_crop_bottom_offset;
-    int32u num_ref_frames;
+    int32u max_num_ref_frames;
     int32u pic_order_cnt_type;
     int32u bit_depth_luma_minus8;
-    int32u bit_depth_Colorimetry_minus8;
+    int32u bit_depth_chroma_minus8;
     int32u pic_order_cnt_lsb;
+    int32u pic_order_cnt_lsb_Last;
+    int32u seq_parameter_set_id;
+    int32u num_views_minus1;
+    int32u cpb_cnt_minus1;
+    int32u initial_cpb_removal_delay;
+    int32u initial_cpb_removal_delay_offset;
+    int32u cpb_removal_delay;
+    int32u pic_order_cnt_lsb_Old;
     int16u sar_width;
     int16u sar_height;
     int8u  profile_idc;
     int8u  level_idc;
     int8u  aspect_ratio_idc;
     int8u  video_format;
+    int8u  initial_cpb_removal_delay_length_minus1;
     int8u  cpb_removal_delay_length_minus1;
     int8u  dpb_output_delay_length_minus1;
     int8u  time_offset_length;
@@ -211,6 +255,7 @@ private :
     int8u  colour_primaries;
     int8u  transfer_characteristics;
     int8u  matrix_coefficients;
+    int8u  nal_unit_type;
     bool   GA94_03_CC_IsPresent;
     bool   frame_mbs_only_flag;
     bool   timing_info_present_flag;
@@ -218,9 +263,13 @@ private :
     bool   pic_struct_present_flag;
     bool   field_pic_flag;
     bool   entropy_coding_mode_flag;
+    bool   NalHrdBpPresentFlag;
+    bool   VclHrdBpPresentFlag;
     bool   CpbDpbDelaysPresentFlag;
     bool   mb_adaptive_frame_field_flag;
     bool   pic_order_present_flag;
+    bool   svc_extension_flag;
+    bool   field_pic_flag_AlreadyDetected;
 
     //Temp
     bool SPS_IsParsed;

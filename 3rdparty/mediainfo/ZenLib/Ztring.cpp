@@ -1,5 +1,5 @@
 // ZenLib::Ztring - std::(w)string is better
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -244,7 +244,7 @@ Ztring& Ztring::From_UTF8 (const char* S)
                 }
                 else
                 {
-                    int Size=MultiByteToWideChar(CP_UTF8, 0, S, -1, NULL, 0);
+                    int Size=MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, S, -1, NULL, 0);
                     if (Size!=0)
                     {
                         Char* WideString=new Char[Size+1];
@@ -546,6 +546,40 @@ Ztring& Ztring::From_Local (const char* S, size_type Start, size_type Length)
     return *this;
 }
 
+Ztring& Ztring::From_ISO_8859_1(const char* S)
+{
+    size_t Length = strlen(S);
+    wchar_t* Temp = new wchar_t[Length +1];
+
+    for (size_t Pos=0; Pos<Length+1; Pos++)
+        Temp[Pos]=(wchar_t)((int8u)S[Pos]);
+
+    From_Unicode(Temp);
+    delete[] Temp;
+    return *this;
+}
+
+Ztring& Ztring::From_ISO_8859_1(const char* S, size_type Start, size_type Length)
+{
+    if (S==NULL)
+        return *this;
+
+    if (Length==Error)
+        Length=strlen(S+Start);
+    #ifdef _UNICODE
+        char* Temp = new char[Length+1];
+        strncpy(Temp, S +Start, Length);
+        Temp[Length] = '\0';
+        From_ISO_8859_1(Temp);
+        delete[] Temp;
+    #else
+        assign(S +Start, Length);
+        if (find(_T('\0')) != std::string::npos)
+            resize(find(_T('\0')));
+    #endif
+    return *this;
+}
+
 Ztring& Ztring::From_GUID (const int128u S)
 {
     Ztring S1;
@@ -635,7 +669,7 @@ Ztring& Ztring::From_CC1 (const int8u S)
 
 Ztring& Ztring::From_Number (const int8s I, int8u Radix)
 {
-    #if defined(__MINGW32__) || defined(__sun__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) )
         if (Radix==0)
         {
             clear();
@@ -664,7 +698,7 @@ Ztring& Ztring::From_Number (const int8s I, int8u Radix)
 
 Ztring& Ztring::From_Number (const int8u I, int8u Radix)
 {
-    #if defined(__MINGW32__) || defined(__sun__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) )
         if (Radix==0)
         {
             clear();
@@ -693,7 +727,7 @@ Ztring& Ztring::From_Number (const int8u I, int8u Radix)
 
 Ztring& Ztring::From_Number (const int16s I, int8u Radix)
 {
-    #if defined(__MINGW32__) || defined(__sun__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) )
         if (Radix==0)
         {
             clear();
@@ -718,7 +752,7 @@ Ztring& Ztring::From_Number (const int16s I, int8u Radix)
 
 Ztring& Ztring::From_Number (const int16u I, int8u Radix)
 {
-    #if defined(__MINGW32__) || defined(__sun__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) )
         if (Radix==0)
         {
             clear();
@@ -728,7 +762,7 @@ Ztring& Ztring::From_Number (const int16u I, int8u Radix)
         #ifdef __MINGW32__
             _ultot (I, C1, Radix);
         #else
-            _tnprintf(C1, 32, Radix==10?_T("%d"):(Radix==16?_T("%x"):(Radix==8?_T("%o"):_T(""))), I);
+            _tnprintf(C1, 32, Radix==10?_T("%u"):(Radix==16?_T("%x"):(Radix==8?_T("%o"):_T(""))), I);
         #endif
         assign (C1);
         delete[] C1; //C1=NULL;
@@ -743,7 +777,7 @@ Ztring& Ztring::From_Number (const int16u I, int8u Radix)
 
 Ztring& Ztring::From_Number (const int32s I, int8u Radix)
 {
-    #if defined(__MINGW32__) || defined(__sun__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) )
         if (Radix==0)
         {
             clear();
@@ -753,7 +787,7 @@ Ztring& Ztring::From_Number (const int32s I, int8u Radix)
         #ifdef __MINGW32__
             _itot (I, C1, Radix);
         #else
-            _tnprintf(C1, 32, Radix==10?_T("%d"):(Radix==16?_T("%x"):(Radix==8?_T("%o"):_T(""))), I);
+            _tnprintf(C1, 32, Radix==10?_T("%ld"):(Radix==16?_T("%lx"):(Radix==8?_T("%lo"):_T(""))), I);
         #endif
         assign (C1);
         delete[] C1; //C1=NULL;
@@ -768,7 +802,7 @@ Ztring& Ztring::From_Number (const int32s I, int8u Radix)
 
 Ztring& Ztring::From_Number (const int32u I, int8u Radix)
 {
-    #if defined(__MINGW32__) || defined(__sun__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) )
         if (Radix==0)
         {
             clear();
@@ -778,7 +812,7 @@ Ztring& Ztring::From_Number (const int32u I, int8u Radix)
         #ifdef __MINGW32__
             _ultot (I, C1, Radix);
         #else
-            _tnprintf(C1, 32, Radix==10?_T("%d"):(Radix==16?_T("%x"):(Radix==8?_T("%o"):_T(""))), I);
+            _tnprintf(C1, 32, Radix==10?_T("%lu"):(Radix==16?_T("%lx"):(Radix==8?_T("%lo"):_T(""))), I);
         #endif
         assign (C1);
         delete[] C1; //C1=NULL;
@@ -793,7 +827,7 @@ Ztring& Ztring::From_Number (const int32u I, int8u Radix)
 
 Ztring& Ztring::From_Number (const int64s I, int8u Radix)
 {
-    #if defined(__MINGW32__) || defined(__sun__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) )
         if (Radix==0)
         {
             clear();
@@ -803,7 +837,7 @@ Ztring& Ztring::From_Number (const int64s I, int8u Radix)
         #ifdef __MINGW32__
             _i64tot (I, C1, Radix);
         #else
-            _tnprintf(C1, 32, Radix==10?_T("%d"):(Radix==16?_T("%x"):(Radix==8?_T("%o"):_T(""))), I); //TODO : int64s (this is int32s only)
+            _tnprintf(C1, 64, Radix==10?_T("%lld"):(Radix==16?_T("%llx"):(Radix==8?_T("%llo"):_T(""))), I);
         #endif
         assign (C1);
         delete[] C1; //C1=NULL;
@@ -818,7 +852,7 @@ Ztring& Ztring::From_Number (const int64s I, int8u Radix)
 
 Ztring& Ztring::From_Number (const int64u I, int8u Radix)
 {
-    #if defined(__MINGW32__) || defined(__sun__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) )
         if (Radix==0)
         {
             clear();
@@ -828,7 +862,7 @@ Ztring& Ztring::From_Number (const int64u I, int8u Radix)
         #ifdef __MINGW32__
             _ui64tot (I, C1, Radix);
         #else
-            _tnprintf(C1, 32, Radix==10?_T("%d"):(Radix==16?_T("%x"):(Radix==8?_T("%o"):_T(""))), I); //TODO : int64u (this is int32u only)
+            _tnprintf(C1, 64, Radix==10?_T("%llu"):(Radix==16?_T("%llx"):(Radix==8?_T("%llo"):_T(""))), I);
         #endif
         assign (C1);
         delete[] C1; //C1=NULL;
@@ -850,7 +884,7 @@ Ztring& Ztring::From_Number (const int128u I, int8u Radix)
 
 Ztring& Ztring::From_Number (const float32 F, int8u Precision, ztring_t Options)
 {
-    #if defined(__MINGW32__) || defined(__sun__) || defined(__mips__) || defined(__mipsel__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) ) || defined(__mips__) || defined(__mipsel__)
         Char C1[100];
         _tnprintf (C1, 99, (Ztring(_T("%."))+Ztring::ToZtring(Precision)+_T("f")).c_str(), F);
         assign(C1);
@@ -858,6 +892,9 @@ Ztring& Ztring::From_Number (const float32 F, int8u Precision, ztring_t Options)
         toStringStream SS;
         SS << setprecision(Precision) << fixed << F;
         assign(SS.str());
+        #if defined(__BORLANDC__)
+            FindAndReplace(_T(","), _T(".")); //Borland C++ Builder 2010+Windows Seven put a comma for istringstream, but does not support comma for ostringstream
+        #endif
     #endif
 
     if ((Options & Ztring_NoZero && size()>0) && find(_T('.'))>0)
@@ -873,7 +910,7 @@ Ztring& Ztring::From_Number (const float32 F, int8u Precision, ztring_t Options)
 
 Ztring& Ztring::From_Number (const float64 F, int8u Precision, ztring_t Options)
 {
-    #if defined(__MINGW32__) || defined(__sun__) || defined(__mips__) || defined(__mipsel__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) ) || defined(__mips__) || defined(__mipsel__)
         Char C1[100];
         _tnprintf (C1, 99, (Ztring(_T("%."))+Ztring::ToZtring(Precision)+_T("f")).c_str(), F);
         assign(C1);
@@ -881,6 +918,9 @@ Ztring& Ztring::From_Number (const float64 F, int8u Precision, ztring_t Options)
         toStringStream SS;
         SS << setprecision(Precision) << fixed << F;
         assign(SS.str());
+        #if defined(__BORLANDC__)
+            FindAndReplace(_T(","), _T(".")); //Borland C++ Builder 2010+Windows Seven put a comma for istringstream, but does not support comma for ostringstream
+        #endif
     #endif
 
     if ((Options & Ztring_NoZero && size()>0) && find(_T('.'))>0)
@@ -896,7 +936,7 @@ Ztring& Ztring::From_Number (const float64 F, int8u Precision, ztring_t Options)
 
 Ztring& Ztring::From_Number (const float80 F, int8u Precision, ztring_t Options)
 {
-    #if defined(__MINGW32__) || defined(__sun__) || defined(__mips__) || defined(__mipsel__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) ) || defined(__mips__) || defined(__mipsel__)
         Char C1[100];
         _tnprintf (C1, 99, (Ztring(_T("%."))+Ztring::ToZtring(Precision)+_T("f")).c_str(), F);
         assign(C1);
@@ -904,6 +944,9 @@ Ztring& Ztring::From_Number (const float80 F, int8u Precision, ztring_t Options)
         toStringStream SS;
         SS << setprecision(Precision) << fixed << F;
         assign(SS.str());
+        #if defined(__BORLANDC__)
+            FindAndReplace(_T(","), _T(".")); //Borland C++ Builder 2010+Windows Seven put a comma for istringstream, but does not support comma for ostringstream
+        #endif
     #endif
 
     if ((Options & Ztring_NoZero && size()>0) && find(_T('.'))>0)
@@ -930,7 +973,7 @@ Ztring& Ztring::From_Number (const size_t I, int8u Radix)
 
 Ztring& Ztring::From_BCD     (const int8u I)
 {
-    #ifdef __sun__
+    #if ( defined(__sun__) && !defined(__sparc__) )
         clear();
         append(1, _T('0')+I/0x10);
         append(1, _T('0')+I%0x10);
@@ -940,6 +983,44 @@ Ztring& Ztring::From_BCD     (const int8u I)
         SS << I%0x10;
         assign(SS.str());
     #endif
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Ztring& Ztring::Duration_From_Milliseconds (const int64s Value_)
+{
+    int64s Value=Value_;
+    bool Negative=false;
+    if (Value<0)
+    {
+        Value=-Value;
+        Negative=true;
+    }
+
+    int64u HH=(int8u)(Value/1000/60/60);
+    int64u MM=Value/1000/60   -((HH*60));
+    int64u SS=Value/1000      -((HH*60+MM)*60);
+    int64u MS=Value           -((HH*60+MM)*60+SS)*1000;
+    Ztring DateT;
+    Ztring Date;
+    DateT.From_Number(HH); if (DateT.size()<2){DateT=Ztring(_T("0"))+DateT;}
+    Date+=DateT;
+    Date+=_T(":");
+    DateT.From_Number(MM); if (DateT.size()<2){DateT=Ztring(_T("0"))+DateT;}
+    Date+=DateT;
+    Date+=_T(":");
+    DateT.From_Number(SS); if (DateT.size()<2){DateT=Ztring(_T("0"))+DateT;}
+    Date+=DateT;
+    Date+=_T(".");
+    DateT.From_Number(MS); if (DateT.size()<2){DateT=Ztring(_T("00"))+DateT;} else if (DateT.size()<3){DateT=Ztring(_T("0"))+DateT;}
+    Date+=DateT;
+    if (Negative)
+    {
+        assign(_T("-"));
+        append(Date);
+    }
+    else
+        assign (Date.c_str());
     return *this;
 }
 
@@ -1360,12 +1441,12 @@ int128u Ztring::To_UUID () const
         if (Temp[Pos]>=_T('A') && Temp[Pos]<=_T('F'))
         {
             Temp[Pos]-=_T('A');
-            Temp[Pos]-=_T('9')+1;
+            Temp[Pos]+=_T('9')+1;
         }
         if (Temp[Pos]>=_T('a') && Temp[Pos]<=_T('f'))
         {
             Temp[Pos]-=_T('a');
-            Temp[Pos]-=_T('9')+1;
+            Temp[Pos]+=_T('9')+1;
         }
 
         switch(Pos)
@@ -1381,38 +1462,38 @@ int128u Ztring::To_UUID () const
     }
     
     int128u I;
-    I.hi=((int64u)((int8u)(at( 0)-'0'))<<60)
-       | ((int64u)((int8u)(at( 1)-'0'))<<56)
-       | ((int64u)((int8u)(at( 2)-'0'))<<52)
-       | ((int64u)((int8u)(at( 3)-'0'))<<48)
-       | ((int64u)((int8u)(at( 4)-'0'))<<44)
-       | ((int64u)((int8u)(at( 5)-'0'))<<40)
-       | ((int64u)((int8u)(at( 6)-'0'))<<36)
-       | ((int64u)((int8u)(at( 7)-'0'))<<32)
-       | ((int64u)((int8u)(at( 9)-'0'))<<28)
-       | ((int64u)((int8u)(at(10)-'0'))<<24)
-       | ((int64u)((int8u)(at(11)-'0'))<<20)
-       | ((int64u)((int8u)(at(12)-'0'))<<16)
-       | ((int64u)((int8u)(at(14)-'0'))<<12)
-       | ((int64u)((int8u)(at(15)-'0'))<< 8)
-       | ((int64u)((int8u)(at(16)-'0'))<< 4)
-       | ((int64u)((int8u)(at(17)-'0'))    );
-    I.lo=((int64u)((int8u)(at(19)-'0'))<<60)
-       | ((int64u)((int8u)(at(20)-'0'))<<56)
-       | ((int64u)((int8u)(at(21)-'0'))<<52)
-       | ((int64u)((int8u)(at(22)-'0'))<<48)
-       | ((int64u)((int8u)(at(24)-'0'))<<44)
-       | ((int64u)((int8u)(at(25)-'0'))<<40)
-       | ((int64u)((int8u)(at(26)-'0'))<<36)
-       | ((int64u)((int8u)(at(27)-'0'))<<32)
-       | ((int64u)((int8u)(at(28)-'0'))<<28)
-       | ((int64u)((int8u)(at(29)-'0'))<<24)
-       | ((int64u)((int8u)(at(30)-'0'))<<20)
-       | ((int64u)((int8u)(at(31)-'0'))<<16)
-       | ((int64u)((int8u)(at(32)-'0'))<<12)
-       | ((int64u)((int8u)(at(33)-'0'))<< 8)
-       | ((int64u)((int8u)(at(34)-'0'))<< 4)
-       | ((int64u)((int8u)(at(35)-'0'))    );
+    I.hi=((int64u)((int8u)(Temp[ 0]-'0'))<<60)
+       | ((int64u)((int8u)(Temp[ 1]-'0'))<<56)
+       | ((int64u)((int8u)(Temp[ 2]-'0'))<<52)
+       | ((int64u)((int8u)(Temp[ 3]-'0'))<<48)
+       | ((int64u)((int8u)(Temp[ 4]-'0'))<<44)
+       | ((int64u)((int8u)(Temp[ 5]-'0'))<<40)
+       | ((int64u)((int8u)(Temp[ 6]-'0'))<<36)
+       | ((int64u)((int8u)(Temp[ 7]-'0'))<<32)
+       | ((int64u)((int8u)(Temp[ 9]-'0'))<<28)
+       | ((int64u)((int8u)(Temp[10]-'0'))<<24)
+       | ((int64u)((int8u)(Temp[11]-'0'))<<20)
+       | ((int64u)((int8u)(Temp[12]-'0'))<<16)
+       | ((int64u)((int8u)(Temp[14]-'0'))<<12)
+       | ((int64u)((int8u)(Temp[15]-'0'))<< 8)
+       | ((int64u)((int8u)(Temp[16]-'0'))<< 4)
+       | ((int64u)((int8u)(Temp[17]-'0'))    );
+    I.lo=((int64u)((int8u)(Temp[19]-'0'))<<60)
+       | ((int64u)((int8u)(Temp[20]-'0'))<<56)
+       | ((int64u)((int8u)(Temp[21]-'0'))<<52)
+       | ((int64u)((int8u)(Temp[22]-'0'))<<48)
+       | ((int64u)((int8u)(Temp[24]-'0'))<<44)
+       | ((int64u)((int8u)(Temp[25]-'0'))<<40)
+       | ((int64u)((int8u)(Temp[26]-'0'))<<36)
+       | ((int64u)((int8u)(Temp[27]-'0'))<<32)
+       | ((int64u)((int8u)(Temp[28]-'0'))<<28)
+       | ((int64u)((int8u)(Temp[29]-'0'))<<24)
+       | ((int64u)((int8u)(Temp[30]-'0'))<<20)
+       | ((int64u)((int8u)(Temp[31]-'0'))<<16)
+       | ((int64u)((int8u)(Temp[32]-'0'))<<12)
+       | ((int64u)((int8u)(Temp[33]-'0'))<< 8)
+       | ((int64u)((int8u)(Temp[34]-'0'))<< 4)
+       | ((int64u)((int8u)(Temp[35]-'0'))    );
 
     return I;
 }
@@ -1441,7 +1522,7 @@ int8s Ztring::To_int8s (int8u Radix, ztring_t Options) const
     int I;
     #ifdef __MINGW32__
         I=_ttoi(c_str());
-    #elif defined(__sun__)
+    #elif ( defined(__sun__) && !defined(__sparc__) )
         #ifdef UNICODE
             std::string S=To_UTF8();
             I=atoi(S.c_str());
@@ -1479,7 +1560,7 @@ int8u Ztring::To_int8u (int8u Radix, ztring_t Options) const
     unsigned int I;
     #ifdef __MINGW32__
         I=_ttoi64(c_str()); //TODO : I>0x7FFFFFFF - Replaced by i64 version to support, but not good
-    #elif defined(__sun__)
+    #elif ( defined(__sun__) && !defined(__sparc__) )
         #ifdef UNICODE
             std::string S=To_UTF8();
             I=atoi(S.c_str());
@@ -1517,7 +1598,7 @@ int16s Ztring::To_int16s (int8u Radix, ztring_t Options) const
     int I;
     #ifdef __MINGW32__
         I=_ttoi(c_str());
-    #elif defined(__sun__)
+    #elif ( defined(__sun__) && !defined(__sparc__) )
         #ifdef UNICODE
             std::string S=To_UTF8();
             I=atoi(S.c_str());
@@ -1555,7 +1636,7 @@ int16u Ztring::To_int16u (int8u Radix, ztring_t Options) const
     unsigned int I;
     #ifdef __MINGW32__
         I=_ttoi64(c_str()); //TODO : I>0x7FFFFFFF - Replaced by i64 version to support, but not good
-    #elif defined(__sun__)
+    #elif ( defined(__sun__) && !defined(__sparc__) )
         #ifdef UNICODE
             std::string S=To_UTF8();
             I=atoi(S.c_str());
@@ -1593,12 +1674,12 @@ int32s Ztring::To_int32s (int8u Radix, ztring_t Options) const
     int32s I;
     #ifdef __MINGW32__
         I=_ttoi(c_str());
-    #elif defined(__sun__)
+    #elif ( defined(__sun__) && !defined(__sparc__) )
         #ifdef UNICODE
             std::string S=To_UTF8();
-            I=atoi(S.c_str());
+            I=atol(S.c_str());
         #else //UNICODE
-            I=atoi(c_str());
+            I=atol(c_str());
         #endif //UNICODE
     #else
         tStringStream SS(*this);
@@ -1631,12 +1712,12 @@ int32u Ztring::To_int32u (int8u Radix, ztring_t Options) const
     int32u I;
     #ifdef __MINGW32__
         I=_ttoi64(c_str()); //TODO : I>0x7FFFFFFF - Replaced by i64 version to support, but not good
-    #elif defined(__sun__)
+    #elif ( defined(__sun__) && !defined(__sparc__) )
         #ifdef UNICODE
             std::string S=To_UTF8();
-            I=atoi(S.c_str());
+            I=atol(S.c_str());
         #else //UNICODE
-            I=atoi(c_str());
+            I=atol(c_str());
         #endif //UNICODE
     #else
         tStringStream SS(*this);
@@ -1669,12 +1750,12 @@ int64s Ztring::To_int64s (int8u Radix, ztring_t Options) const
     int64s I;
     #ifdef __MINGW32__
         I=_ttoi64(c_str());
-    #elif defined(__sun__)
+    #elif ( defined(__sun__) && !defined(__sparc__) )
         #ifdef UNICODE
              std::string S=To_UTF8();
-            I=atoi(S.c_str());
+            I=atoll(S.c_str());
        #else //UNICODE
-            I=atoi(c_str()); //TODO : int64u (this is int32u only)
+            I=atoll(c_str());
         #endif //UNICODE
     #else
         tStringStream SS(*this);
@@ -1707,12 +1788,12 @@ int64u Ztring::To_int64u (int8u Radix, ztring_t Options) const
     int64u I;
     #ifdef __MINGW32__
         I=_ttoi64(c_str()); //TODO : I>0x7FFFFFFFFFFFFFFF
-    #elif defined(__sun__)
+    #elif ( defined(__sun__) && !defined(__sparc__) )
         #ifdef UNICODE
              std::string S=To_UTF8();
-            I=atoi(S.c_str());
+            I=atoll(S.c_str());
        #else //UNICODE
-            I=atoi(c_str()); //TODO : int64u (this is int32u only)
+            I=atoll(c_str());
         #endif //UNICODE
     #else
         tStringStream SS(*this);
@@ -1734,6 +1815,69 @@ int64u Ztring::To_int64u (int8u Radix, ztring_t Options) const
 }
 
 //---------------------------------------------------------------------------
+int128u Ztring::To_int128u (int8u, ztring_t) const
+{
+    if (size()!=32)
+        return 0;
+
+    Ztring Temp=*this;
+
+    for (size_t Pos=0; Pos<32; Pos++)
+    {
+        if ((Temp[Pos]< _T('0') || Temp[Pos]> _T('9'))
+         && (Temp[Pos]< _T('A') || Temp[Pos]> _T('F'))
+         && (Temp[Pos]< _T('a') || Temp[Pos]> _T('f')))
+            return 0;
+        if (Temp[Pos]>=_T('A') && Temp[Pos]<=_T('F'))
+        {
+            Temp[Pos]-=_T('A');
+            Temp[Pos]+=_T('9')+1;
+        }
+        if (Temp[Pos]>=_T('a') && Temp[Pos]<=_T('f'))
+        {
+            Temp[Pos]-=_T('a');
+            Temp[Pos]+=_T('9')+1;
+        }
+    }
+    
+    int128u I;
+    I.hi=((int64u)((int8u)(Temp[ 0]-'0'))<<60)
+       | ((int64u)((int8u)(Temp[ 1]-'0'))<<56)
+       | ((int64u)((int8u)(Temp[ 2]-'0'))<<52)
+       | ((int64u)((int8u)(Temp[ 3]-'0'))<<48)
+       | ((int64u)((int8u)(Temp[ 4]-'0'))<<44)
+       | ((int64u)((int8u)(Temp[ 5]-'0'))<<40)
+       | ((int64u)((int8u)(Temp[ 6]-'0'))<<36)
+       | ((int64u)((int8u)(Temp[ 7]-'0'))<<32)
+       | ((int64u)((int8u)(Temp[ 8]-'0'))<<28)
+       | ((int64u)((int8u)(Temp[ 9]-'0'))<<24)
+       | ((int64u)((int8u)(Temp[10]-'0'))<<20)
+       | ((int64u)((int8u)(Temp[11]-'0'))<<16)
+       | ((int64u)((int8u)(Temp[12]-'0'))<<12)
+       | ((int64u)((int8u)(Temp[13]-'0'))<< 8)
+       | ((int64u)((int8u)(Temp[14]-'0'))<< 4)
+       | ((int64u)((int8u)(Temp[15]-'0'))    );
+    I.lo=((int64u)((int8u)(Temp[16]-'0'))<<60)
+       | ((int64u)((int8u)(Temp[17]-'0'))<<56)
+       | ((int64u)((int8u)(Temp[18]-'0'))<<52)
+       | ((int64u)((int8u)(Temp[19]-'0'))<<48)
+       | ((int64u)((int8u)(Temp[20]-'0'))<<44)
+       | ((int64u)((int8u)(Temp[21]-'0'))<<40)
+       | ((int64u)((int8u)(Temp[22]-'0'))<<36)
+       | ((int64u)((int8u)(Temp[23]-'0'))<<32)
+       | ((int64u)((int8u)(Temp[24]-'0'))<<28)
+       | ((int64u)((int8u)(Temp[25]-'0'))<<24)
+       | ((int64u)((int8u)(Temp[26]-'0'))<<20)
+       | ((int64u)((int8u)(Temp[27]-'0'))<<16)
+       | ((int64u)((int8u)(Temp[28]-'0'))<<12)
+       | ((int64u)((int8u)(Temp[29]-'0'))<< 8)
+       | ((int64u)((int8u)(Temp[30]-'0'))<< 4)
+       | ((int64u)((int8u)(Temp[31]-'0'))    );
+
+    return I;
+}
+
+//---------------------------------------------------------------------------
 //Operateur ToFloat
 float32 Ztring::To_float32(ztring_t) const
 {
@@ -1742,7 +1886,7 @@ float32 Ztring::To_float32(ztring_t) const
         return 0;
 
     //Conversion
-    #if defined(__MINGW32__) || defined(__sun__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) )
         #ifdef UNICODE
             return (wcstod(c_str(),NULL));
         #else
@@ -1768,11 +1912,11 @@ float64 Ztring::To_float64(ztring_t) const
         return 0;
 
     //Conversion
-    #if defined(__MINGW32__) || defined(__sun__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) )
         #ifdef UNICODE
-            return (wcstod(c_str(),NULL));
+            return (wcstod(c_str(),NULL)); //TODO verify no wcstold
         #else
-            return (strtod(c_str(),NULL));
+            return (strtod(c_str(),NULL)); //TODO verify no strtold
         #endif
     #else
         float64 F;
@@ -1794,11 +1938,11 @@ float80 Ztring::To_float80(ztring_t) const
         return 0;
 
     //Conversion
-    #if defined(__MINGW32__) || defined(__sun__)
+    #if defined(__MINGW32__) || ( defined(__sun__) && !defined(__sparc__) )
         #ifdef UNICODE
-            return (wcstod(c_str(),NULL));
+            return (wcstod(c_str(),NULL)); //TODO verify no wcstold
         #else
-            return (strtod(c_str(),NULL));
+            return (strtod(c_str(),NULL)); //TODO verify no strtold
         #endif
     #else
         float80 F;
@@ -1822,11 +1966,11 @@ Ztring Ztring::SubString (const tstring &Begin, const tstring &End, size_type Po
     //Recherche Début
     size_type I_Debut=find(Begin, Pos);
     if (I_Debut==Error)
-        return _T("");
+        return Ztring();
     I_Debut+=Begin.size();
 
     //gestion fin NULL
-    if (End==_T(""))
+    if (End.empty())
         return substr(I_Debut);
 
     //Recherche Fin
@@ -1836,7 +1980,7 @@ Ztring Ztring::SubString (const tstring &Begin, const tstring &End, size_type Po
         if (Options & Ztring_AddLastItem)
             return substr(I_Debut);
         else
-            return _T("");
+            return Ztring();
     }
 
     return substr(I_Debut, I_Fin-I_Debut);
@@ -2010,3 +2154,4 @@ bool Ztring::Compare (const Ztring &ToCompare, const Ztring &Comparator, ztring_
 }
 
 } //namespace
+

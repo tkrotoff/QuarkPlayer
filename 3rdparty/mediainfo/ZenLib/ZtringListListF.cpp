@@ -1,5 +1,5 @@
 // ZenLib::ZtringListListF - ZtringListList with file load/save
-// Copyright (C) 2002-2006 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -183,7 +183,7 @@ bool ZtringListListF::CFG_Charger ()
 
     //Convert File --> ZtringList
     ZtringList List;
-    List.Separator_Set(0, _T("\r\n"));
+    List.Separator_Set(0, EOL);
     Ztring Z1;
     Z1.From_UTF8((char*)Buffer, 0, BytesCount);
     List.Write(Z1);
@@ -199,14 +199,14 @@ bool ZtringListListF::CFG_Charger ()
         if (Lu.find(_T("="))>0)
         {
             //Obtention du Name
-            Propriete=Lu.SubString(_T(""), _T("="));
+            Propriete=Lu.SubString(Ztring(), _T("="));
             NettoyerEspaces(Propriete);
             //Obtention de la valeur
             Valeur=Lu.SubString(_T("="), _T(";"), 0, Ztring_AddLastItem);
             NettoyerEspaces(Valeur);
         }
         //Obtention du commentaire
-        Commentaire=Lu.SubString(_T(";"), _T(""), 0, Ztring_AddLastItem);
+        Commentaire=Lu.SubString(_T(";"), Ztring(), 0, Ztring_AddLastItem);
         NettoyerEspaces(Commentaire);
         //Ecriture
         push_back((Propriete+_T(";")+Valeur+_T(";")+Commentaire).c_str()); //Visual C++ 6 is old...
@@ -225,7 +225,7 @@ bool ZtringListListF::Save (const Ztring &FileName)
     if (!Sauvegarde)
         return true;
 
-    if (FileName!=_T(""))
+    if (FileName!=Ztring())
         Name=FileName;
 
     //Gestion des backups
@@ -298,15 +298,15 @@ bool ZtringListListF::CFG_Sauvegarder ()
         Propriete=Read(Pos, 0);
         Valeur=Read(Pos, 1);
         Commentaire=Read(Pos, 2);
-        if (Propriete!=_T(""))
+        if (Propriete!=Ztring())
         {
             ToWrite+=Propriete+_T(" = ");
-            if (Valeur!=_T(""))
+            if (Valeur!=Ztring())
                 ToWrite+=Valeur+_T(" ");
         }
-        if (Commentaire!=_T(""))
+        if (Commentaire!=Ztring())
             ToWrite+=_T("; ")+Commentaire;
-        ToWrite+=_T("\r\n");
+        ToWrite+=EOL;
     }
     F.Write(ToWrite);
 
@@ -327,7 +327,7 @@ bool ZtringListListF::Cancel ()
         File::Delete(Z3.c_str());
         File::Move(Z2.c_str(), Z3.c_str());
     }
-    Write(_T(""));
+    Write(Ztring());
     return CSV_Charger();
 }
 
@@ -348,7 +348,7 @@ bool ZtringListListF::NettoyerEspaces (Ztring &ANettoyer)
     if (Fin>=Debut)
         ANettoyer=ANettoyer.substr(Debut, Fin-Debut+1);
     else
-        ANettoyer=_T("");
+        ANettoyer=Ztring();
     return true;
 }
 

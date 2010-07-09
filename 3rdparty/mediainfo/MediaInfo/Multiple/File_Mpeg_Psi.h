@@ -1,5 +1,5 @@
 // File_Mpeg_Psi - Info for MPEG Stream files
-// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -47,22 +47,6 @@ public :
     bool    From_TS;
     complete_stream* Complete_Stream;
     int16u  pid;
-
-    //Temp
-    int16u transport_stream_id;
-    int16u table_id_extension;
-    int8u  version_number;
-    bool   section_syntax_indicator;
-
-    int16u elementary_PID;
-    int16u program_number;
-    int16u event_id;
-    bool   elementary_PID_IsValid;
-    bool   program_number_IsValid;
-    bool   event_id_IsValid;
-
-    //Details
-    const char* Mpeg_Psi_Element_Name();
 
 public :
     File_Mpeg_Psi();
@@ -155,9 +139,22 @@ private :
     Ztring Time_BCD(int32u Time);
 
     //Data
-    int8u pointer_field;
-    int8u table_id;
     int32u CRC_32;
+    int16u transport_stream_id;
+    int16u table_id_extension;
+    int16u elementary_PID;
+    int16u program_number;
+    int8u  stream_type;
+    int16u event_id;
+    int8u  pointer_field;
+    int8u  table_id;
+    int8u  version_number;
+    bool   current_next_indicator;
+    bool   section_syntax_indicator;
+    bool   elementary_PID_IsValid;
+    bool   program_number_IsValid;
+    bool   stream_type_IsValid;
+    bool   event_id_IsValid;
 };
 
 } //NameSpace

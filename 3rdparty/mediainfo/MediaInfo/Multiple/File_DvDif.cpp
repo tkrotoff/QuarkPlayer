@@ -1,5 +1,5 @@
 // File_DvDif - Info for DV-DIF files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -231,6 +231,10 @@ const char*  Dv_consumer_camera_1_fcm[]=
 File_DvDif::File_DvDif()
 :File__Analyze()
 {
+    //Configuration
+    MustSynchronize=true;
+    Buffer_TotalBytes_FirstSynched_Max=64*1024;
+
     //In
     Frame_Count_Valid=48; //(DV100 is up to 48 DIF sequences)
     AuxToAnalyze=0x00; //No Aux to analyze
@@ -241,6 +245,7 @@ File_DvDif::File_DvDif()
     FrameSize_Theory=0;
     Duration=0;
     TimeCode_First=(int64u)-1;
+    SCT=(int8u)-1;
     SCT_Old=4; //Video
     DBN_Olds[0]=0;
     DBN_Olds[1]=1; //SubCode
@@ -252,7 +257,8 @@ File_DvDif::File_DvDif()
     DBN_Olds[7]=0;
     DSF_IsValid=false;
     APT=0xFF; //Impossible
-    stype=0xFF;
+    video_source_stype=0xFF;
+    audio_source_stype=0xFF;
     TF1=false; //Valid by default, for direct analyze
     TF2=false; //Valid by default, for direct analyze
     TF3=false; //Valid by default, for direct analyze
@@ -260,6 +266,7 @@ File_DvDif::File_DvDif()
     FSC_WasSet=false;
     FSP_WasNotSet=false;
     video_sourcecontrol_IsParsed=false;
+    audio_locked=false;
 
     #ifdef MEDIAINFO_DVDIF_ANALYZE_YES
     Analyze_Activated=false;
@@ -300,34 +307,90 @@ File_DvDif::~File_DvDif()
 }
 
 //***************************************************************************
+// Buffer - File header
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+bool File_DvDif::FileHeader_Begin()
+{
+    //Must have enough buffer for having header
+    if (Buffer_Size<8)
+        return false; //Must wait for more data
+
+    //False positives detection: detect some headers from other files, DV parser is not smart enough
+    if (CC4(Buffer)==0x52494646  //RIFF
+     || CC4(Buffer+4)==0x66747970  //ftyp
+     || CC4(Buffer+4)==0x66726565  //free
+     || CC4(Buffer+4)==0x6D646174  //mdat
+     || CC4(Buffer+4)==0x6D646174  //moov
+     || CC4(Buffer+4)==0x736B6970  //skip
+     || CC4(Buffer+4)==0x77696465  //wide
+     || CC4(Buffer)==0x060E2B34) //MXF begin
+    {
+        Finish();
+        return false;
+    }
+
+    //All should be OK...
+    return true;
+}
+
+//***************************************************************************
+// Buffer - Synchro
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+bool File_DvDif::Synchronize()
+{
+    while (Buffer_Offset+8*80<=Buffer_Size //8 blocks
+        && !((CC3(Buffer+Buffer_Offset+0*80)&0xE0F0FF)==0x000000   //Header 0
+          && (CC3(Buffer+Buffer_Offset+1*80)&0xE0F0FF)==0x200000   //Subcode 0
+          && (CC3(Buffer+Buffer_Offset+2*80)&0xE0F0FF)==0x200001   //Subcode 1
+          && (CC3(Buffer+Buffer_Offset+3*80)&0xE0F0FF)==0x400000   //VAUX 0
+          && (CC3(Buffer+Buffer_Offset+4*80)&0xE0F0FF)==0x400001   //VAUX 1
+          && (CC3(Buffer+Buffer_Offset+5*80)&0xE0F0FF)==0x400002   //VAUX 2
+          && (CC3(Buffer+Buffer_Offset+6*80)&0xE0F0FF)==0x600000   //Audio 0
+          && (CC3(Buffer+Buffer_Offset+7*80)&0xE0F0FF)==0x800000)) //Video 0
+            Buffer_Offset++;
+
+    if (Buffer_Offset+8*80>Buffer_Size)
+        return false;
+
+    return true;
+}
+
+//***************************************************************************
 // Streams management
 //***************************************************************************
 
 //---------------------------------------------------------------------------
 void File_DvDif::Streams_Fill()
 {
-    Fill(Stream_General, 0, General_Format, "Digital Video", Unlimited, true, true);
+    Fill(Stream_General, 0, General_Format, "DV", Unlimited, true, true);
 
     Stream_Prepare(Stream_Video);
-    Fill(Stream_Video, 0, Video_Format, "Digital Video");
+    Fill(Stream_Video, 0, Video_Format, "DV");
     Fill(Stream_Video, 0, Video_Codec, "DV");
     Fill(Stream_Video, 0, Video_BitRate_Mode, "CBR");
     Fill(Stream_Video, 0, Video_Standard, system?"PAL":"NTSC");
     Fill(Stream_Video, 0, Video_Resolution, 8);
-    if (stype==0xC)
+    switch (video_source_stype)
     {
-        Fill(Stream_Video, 0, Video_Width, 960);
-        Fill(Stream_Video, 0, Video_Height, 720);
-    }
-    else if (stype==0xA || stype==0xB)
-    {
-        Fill(Stream_Video, 0, Video_Width, system?1280:1440);
-        Fill(Stream_Video, 0, Video_Height, stype==0xA?1080:1035);
-    }
-    else
-    {
-        Fill(Stream_Video, 0, Video_Width, 720);
-        Fill(Stream_Video, 0, Video_Height, system?576:480);
+        case 0x00 :
+        case 0x04 :
+                    Fill(Stream_Video, 0, Video_Width, 720);
+                    Fill(Stream_Video, 0, Video_Height, system?576:480);
+                    break;
+        case 0x14 :
+        case 0x15 :
+                    Fill(Stream_Video, 0, Video_Width, system?1440:1280);
+                    Fill(Stream_Video, 0, Video_Height, video_source_stype==0x14?1080:1035);
+                    break;
+        case 0x18 :
+                    Fill(Stream_Video, 0, Video_Width, 960);
+                    Fill(Stream_Video, 0, Video_Height, 720);
+                    break;
+        default   : ;
     }
     Fill(Stream_Video, 0, Video_FrameRate, system?25.000:29.970);
     Fill(Stream_Video, 0, Video_FrameRate_Mode, "CFR");
@@ -335,7 +398,19 @@ void File_DvDif::Streams_Fill()
     {
         if (FSC_WasSet && FSP_WasNotSet)
         {
-            //TODO: How to handle this in DV100?
+            switch (video_source_stype)
+            {
+                case 0x14 :
+                case 0x15 :
+                            Fill(Stream_Video, 0, Video_ScanType, "Interlaced");
+                            Fill(Stream_Video, 0, Video_Interlacement, "Interlaced");
+                            break;
+                case 0x18 :
+                            Fill(Stream_Video, 0, Video_ScanType, "Progressive");
+                            Fill(Stream_Video, 0, Video_Interlacement, "Progressive");
+                            break;
+                default   : ;
+            }
         }
         else
         {
@@ -344,35 +419,33 @@ void File_DvDif::Streams_Fill()
         }
         switch (aspect)
         {
-            case 0 : Fill(Stream_Video, 0, Video_DisplayAspectRatio, 4.0/3.0, 3, true); break;
+            case 0 :
+            case 4 : Fill(Stream_Video, 0, Video_DisplayAspectRatio, 4.0/3.0, 3, true); break;
             case 2 :
             case 7 : Fill(Stream_Video, 0, Video_DisplayAspectRatio, 16.0/9.0, 3, true); break;
             default: ;
         }
     }
-    Fill(Stream_Video, 0, Video_Encoded_Library_Settings, Encoded_Library_Settings);
 
     if (!FSC_WasSet) //Original DV 25 Mbps
     {
         if (system==false) //NTSC
         {
-            switch (stype)
+            switch (video_source_stype)
             {
                 case  0 : Fill(Stream_Video, 0, Video_Colorimetry, "4:1:1"); break; //NTSC 25 Mbps
-                case  4 : Fill(Stream_Video, 0, Video_Colorimetry, "4:2:2"); break; //NTSC 50 Mbps
                 default : ;
             }
         }
         else //PAL
         {
-            switch (stype)
+            switch (video_source_stype)
             {
-                case 0 : if (APT==0)
-                            Fill(Stream_Video, 0, Video_Colorimetry, "4:2:0");      //PAL 25 Mbps
-                         else
-                            Fill(Stream_Video, 0, Video_Colorimetry, "4:1:1");      //PAL 25 Mbps
-                         break;
-                case  4 : Fill(Stream_Video, 0, Video_Colorimetry, "4:2:2"); break; //PAL 50 Mbps
+                case  0 : if (APT==0)
+                            Fill(Stream_Video, 0, Video_Colorimetry, "4:2:0");      //PAL 25 Mbps (IEC 61834)
+                          else
+                            Fill(Stream_Video, 0, Video_Colorimetry, "4:1:1");      //PAL 25 Mbps (SMPTE 314M)
+                          break;
                 default : ;
             }
         }
@@ -383,7 +456,7 @@ void File_DvDif::Streams_Fill()
     if (FrameSize_Theory)
     {
         float64 OverallBitRate=FrameSize_Theory*(DSF?25.000:29.970)*8;
-        if (OverallBitRate> 27360000 && OverallBitRate<= 30240000) OverallBitRate= 28800000;
+        if (OverallBitRate>27360000 && OverallBitRate<=30240000) OverallBitRate=DSF?28800000:28771229;
         if (FSC_WasSet)
         {
             if (FSP_WasNotSet)
@@ -391,8 +464,43 @@ void File_DvDif::Streams_Fill()
             else
                 OverallBitRate*=2; //DV50
         }
-        Fill(Stream_General, 0, General_OverallBitRate, OverallBitRate, 0);
-        Fill(Stream_Video, 0, Video_BitRate, OverallBitRate*134/150*76/80, 0); //134 Video DIF from 150 DIF, 76 bytes from 80 byte DIF
+        if (OverallBitRate)
+        {
+            Fill(Stream_General, 0, General_OverallBitRate, OverallBitRate, 0);
+            Fill(Stream_Video, 0, (FSC_WasSet && FSP_WasNotSet)?Video_BitRate_Maximum:Video_BitRate, OverallBitRate*134/150*76/80, 0); //134 Video DIF from 150 DIF, 76 bytes from 80 byte DIF
+        }
+    }
+
+    for (size_t Pos=0; Pos<Streams_Audio.size(); Pos++)
+    {
+        Stream_Prepare(Stream_Audio);
+        for (std::map<std::string, Ztring>::iterator Info=Streams_Audio[Pos]->Infos.begin(); Info!=Streams_Audio[Pos]->Infos.end(); Info++)
+            Fill(Stream_Audio, StreamPos_Last, Info->first.c_str(), Info->second, true);
+    }
+    
+    //Library settings
+    Fill(Stream_Video, 0, Video_Encoded_Library_Settings, Encoded_Library_Settings);
+
+    //Profile
+    if (FSC_WasSet)
+    {
+        if (FSP_WasNotSet)
+        {
+            Fill(Stream_General, 0, General_Format_Commercial_IfAny, "DVCPRO HD");
+            Fill(Stream_Video, 0, Video_Format_Commercial_IfAny, "DVCPRO HD");
+            Fill(Stream_Video, 0, Video_Resolution, 10, 10, true); //MXF files say that DVCPRO HD are 10 bits, exact?
+            Fill(Stream_Video, 0, Video_BitRate_Mode, "VBR", Unlimited, true, true);
+        }
+        else
+        {
+            Fill(Stream_General, 0, General_Format_Commercial_IfAny, "DVCPRO 50");
+            Fill(Stream_Video, 0, Video_Format_Commercial_IfAny, "DVCPRO 50");
+        }
+    }
+    else if (audio_locked || (Retrieve(Stream_Video, 0, Video_Standard)==_T("PAL") && Retrieve(Stream_Video, 0, Video_Colorimetry)==_T("4:1:1")))
+    {
+        Fill(Stream_General, 0, General_Format_Commercial_IfAny, "DVCPRO");
+        Fill(Stream_Video, 0, Video_Format_Commercial_IfAny, "DVCPRO");
     }
 }
 
@@ -424,7 +532,7 @@ void File_DvDif::Streams_Finish()
 
     #if defined(MEDIAINFO_EIA608_YES)
         for (size_t Pos=0; Pos<CC_Parsers.size(); Pos++)
-            if (CC_Parsers[Pos] && CC_Parsers[Pos]->Status[IsAccepted])
+            if (CC_Parsers[Pos] && CC_Parsers[Pos]->Status[IsFilled])
             {
                 CC_Parsers[Pos]->Finish();
                 Merge(*CC_Parsers[Pos]);
@@ -449,10 +557,11 @@ void File_DvDif::Streams_Finish()
 
 //---------------------------------------------------------------------------
 void File_DvDif::Header_Parse()
-#ifndef MEDIAINFO_MINIMIZESIZE
+#if MEDIAINFO_TRACE
 {
     if (AuxToAnalyze!=0x00)
     {
+        SCT=(int8u)-1;
         Header_Fill_Code(AuxToAnalyze, Ztring::ToZtring(AuxToAnalyze, 16));
         Header_Fill_Size(4);
         return;
@@ -468,6 +577,7 @@ void File_DvDif::Header_Parse()
      && Buffer[Buffer_Offset+1]==0x00
      && Buffer[Buffer_Offset+2]==0x00)
     {
+        SCT=(int8u)-1;
         Header_Fill_Code((int64u)-1);
         Header_Fill_Size(80);
         return;
@@ -491,10 +601,11 @@ void File_DvDif::Header_Parse()
     Header_Fill_Code(SCT, Dv_sct[SCT]);
     Header_Fill_Size(80);
 }
-#else //MEDIAINFO_MINIMIZESIZE
+#else //MEDIAINFO_TRACE
 {
     if (AuxToAnalyze!=0x00)
     {
+        SCT=(int8u)-1;
         Header_Fill_Code(AuxToAnalyze);
         Header_Fill_Size(4);
         return;
@@ -510,6 +621,7 @@ void File_DvDif::Header_Parse()
      && Buffer[Buffer_Offset+1]==0x00
      && Buffer[Buffer_Offset+2]==0x00)
     {
+        SCT=(int8u)-1;
         Header_Fill_Code((int64u)-1);
         Header_Fill_Size(80);
         return;
@@ -518,25 +630,28 @@ void File_DvDif::Header_Parse()
     //Parsing
     SCT =(Buffer[Buffer_Offset  ]&0xE0)>>5;
     Dseq=(Buffer[Buffer_Offset+1]&0xF0)>>4;
-    FSC =(bool)((Buffer[Buffer_Offset+1]&0x08)>>3);
-    FSP =(bool)((Buffer[Buffer_Offset+1]&0x0F)>>4);
+    FSC =(Buffer[Buffer_Offset+1]&0x08)==0x08;
+    FSP =(Buffer[Buffer_Offset+1]&0x04)==0x04;
     DBN = Buffer[Buffer_Offset+2];
     Element_Offset+=3;
 
     Header_Fill_Code(SCT);
     Header_Fill_Size(80);
 }
-#endif //MEDIAINFO_MINIMIZESIZE
+#endif //MEDIAINFO_TRACE
 
 //---------------------------------------------------------------------------
 void File_DvDif::Data_Parse()
 {
     //Config
-    if (!FSC_WasSet && FSC)
-        FSC_WasSet=true;
+    if (SCT!=(int8u)-1)
+    {
+        if (!FSC_WasSet && FSC)
+            FSC_WasSet=true;
 
-    if (!FSP_WasNotSet && !FSP)
-        FSP_WasNotSet=true;
+        if (!FSP_WasNotSet && !FSP)
+            FSP_WasNotSet=true;
+    }
 
     if (AuxToAnalyze!=0x00)
     {
@@ -612,10 +727,8 @@ void File_DvDif::Data_Parse()
         case 1 : Subcode(); break;
         case 2 : VAUX(); break;
         case 3 : Audio(); break;
-        #ifndef MEDIAINFO_MINIMIZESIZE
         case 4 : Video(); break;
         default: Skip_XX(Element_Size,                          "Unknown");
-        #endif //MEDIAINFO_MINIMIZESIZE
     }
 }
 
@@ -625,7 +738,7 @@ void File_DvDif::Data_Parse()
 
 //---------------------------------------------------------------------------
 void File_DvDif::Header()
-#ifndef MEDIAINFO_MINIMIZESIZE
+#if MEDIAINFO_TRACE
 {
     BS_Begin();
     //3
@@ -670,25 +783,9 @@ void File_DvDif::Header()
         }
 
         FrameCount++;
-        if (!Status[IsAccepted] && (FrameCount>=10 || IsSub))
-        {
-            Accept("DV DIF");
-
-            if (!IsSub)
-                Fill(Stream_General, 0, General_Format, "Digital Video");
-        }
-        if (!Status[IsFilled] && FrameCount>=Frame_Count_Valid)
-            #ifdef MEDIAINFO_DVDIF_ANALYZE_YES
-                if (Config->File_DvDif_Analysis_Get())
-                    Fill("DV DIF");
-                else
-                    Finish("DV DIF");
-            #else //MEDIAINFO_DVDIF_ANALYZE_YES
-                Finish("DV DIF");
-            #endif //MEDIAINFO_DVDIF_ANALYZE_YES
     FILLING_END();
 }
-#else //MEDIAINFO_MINIMIZESIZE
+#else //MEDIAINFO_TRACE
 {
     if (Element_Size<77)
     {
@@ -716,29 +813,13 @@ void File_DvDif::Header()
         }
 
         FrameCount++;
-        if (!Status[IsAccepted] && (FrameCount>=10 || IsSub))
-        {
-            Accept("DV DIF");
-
-            if (!IsSub)
-                Fill(Stream_General, 0, General_Format, "Digital Video");
-        }
-        if (!Status[IsFilled] && FrameCount>=Frame_Count_Valid)
-            #ifdef MEDIAINFO_DVDIF_ANALYZE_YES
-                if (Config->File_DvDif_Analysis_Get())
-                    Fill("DV DIF");
-                else
-                    Finish("DV DIF");
-            #else //MEDIAINFO_DVDIF_ANALYZE_YES
-                Finish("DV DIF");
-            #endif //MEDIAINFO_DVDIF_ANALYZE_YES
     FILLING_END();
 }
-#endif //MEDIAINFO_MINIMIZESIZE
+#endif //MEDIAINFO_TRACE
 
 //---------------------------------------------------------------------------
 void File_DvDif::Subcode()
-#ifndef MEDIAINFO_MINIMIZESIZE
+#if MEDIAINFO_TRACE
 {
     //Present?
     if (TF3)
@@ -752,7 +833,7 @@ void File_DvDif::Subcode()
         Subcode_Ssyb(syb_num);
     Skip_XX(29,                                                 "Unused");
 }
-#else //MEDIAINFO_MINIMIZESIZE
+#else //MEDIAINFO_TRACE
 {
     if (TF3)
         return;
@@ -760,7 +841,7 @@ void File_DvDif::Subcode()
     for (int8u syb_num=0; syb_num<6; syb_num++)
         Subcode_Ssyb(syb_num);
 }
-#endif //MEDIAINFO_MINIMIZESIZE
+#endif //MEDIAINFO_TRACE
 
 //---------------------------------------------------------------------------
 void File_DvDif::Subcode_Ssyb(int8u syb_num)
@@ -823,6 +904,7 @@ void File_DvDif::Audio()
 //---------------------------------------------------------------------------
 void File_DvDif::Video()
 {
+    #if MEDIAINFO_TRACE
     //Present?
     if (TF2)
     {
@@ -838,6 +920,31 @@ void File_DvDif::Video()
     Skip_S1(4,                                                  "QNO");
     BS_End();
     Skip_XX(Element_Size-Element_Offset,                        "Unknown");
+    #endif //MEDIAINFO_TRACE
+
+    FILLING_BEGIN();
+        if (DBN==134 && video_source_stype!=(int8u)-1)
+        {
+            if (!Status[IsAccepted])
+            {
+                Accept("DV DIF");
+
+                if (!IsSub)
+                    Fill(Stream_General, 0, General_Format, "DV");
+            }
+            if (!Status[IsFilled] && FrameCount>=Frame_Count_Valid)
+                #ifdef MEDIAINFO_DVDIF_ANALYZE_YES
+                {
+                    if (Config->File_DvDif_Analysis_Get())
+                        Fill("DV DIF");
+                    else
+                        Finish("DV DIF");
+                }
+                #else //MEDIAINFO_DVDIF_ANALYZE_YES
+                    Finish("DV DIF");
+                #endif //MEDIAINFO_DVDIF_ANALYZE_YES
+        }
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -960,10 +1067,10 @@ void File_DvDif::audio_source()
 
     Element_Name("audio_source");
 
-    int8u stype, SamplingRate, Resolution;
+    int8u SamplingRate, Resolution;
     BS_Begin();
     //PC1
-    Skip_SB(                                                    "LF - Locked mode");
+    Get_SB (   audio_locked,                                    "LF - Locked mode");
     Skip_SB(                                                    "Reserved");
     Skip_S1(6,                                                  "AF - Samples in this frame");
 
@@ -976,7 +1083,7 @@ void File_DvDif::audio_source()
     Skip_SB(                                                    "Reserved");
     Skip_SB(                                                    "ML - Multi-language");
     Skip_SB(                                                    "50/60");
-    Get_S1 (5, stype,                                           "STYPE - audio blocks per video frame"); Param_Info(stype==0?"2 channels":(stype==2?"4 channels":"Unknown")); //0=25 Mbps, 2=50 Mbps
+    Get_S1 (5, audio_source_stype,                              "STYPE - audio blocks per video frame"); Param_Info(audio_source_stype==0?"2 channels":(audio_source_stype==2?"4 channels":"Unknown")); //0=25 Mbps, 2=50 Mbps
 
     Skip_SB(                                                    "EF - Emphasis off");
     Skip_SB(                                                    "TC - Time constant of emphasis");
@@ -987,53 +1094,28 @@ void File_DvDif::audio_source()
     FILLING_BEGIN();
         if (!IgnoreAudio && (FrameCount==1 || AuxToAnalyze)) //Only the first time
         {
-            if (!Status[IsAccepted])
-                Accept("DV DIF");
+            //Calculating the count of audio
+            size_t Audio_Count=1;
+            if (audio_source_stype==2 || (Resolution==1 && SamplingRate==2)) //stype=2 or (Resolution=12 bits and SamplingRate=32 KHz)
+                Audio_Count=2;
+            if (audio_source_stype==3)
+                Audio_Count=4;
 
-            Stream_Prepare(Stream_Audio);
-            Fill(Stream_Audio, 0, Audio_ID, 0);
-            Fill(Stream_Audio, 0, Audio_Format, "PCM");
-            Fill(Stream_Audio, 0, Audio_Codec, "PCM");
-            Fill(Stream_Audio, 0, Audio_BitRate_Mode, "CBR");
-            Fill(Stream_Audio, 0, Audio_Channel_s_, stype==3?1:2);
-            Fill(Stream_Audio, 0, Audio_SamplingRate, Dv_Audio_SamplingRate[SamplingRate]);
-            Fill(Stream_Audio, 0, Audio_Resolution, Dv_Audio_Resolution[Resolution]);
-            Fill(Stream_Audio, 0, Audio_BitRate, (stype==3?1:2)*Dv_Audio_SamplingRate[SamplingRate]*Dv_Audio_Resolution[Resolution]);
-
-            if (stype==2 || stype==3 || (Resolution==1 && SamplingRate==2)) //stype=2 or 3 or (Resolution=12 bits and SamplingRate=32 KHz)
+            //Filling
+            if (Streams_Audio.size()<Audio_Count)
+                Streams_Audio.resize(Audio_Count);
+            for (size_t Pos=0; Pos<Audio_Count; Pos++)
             {
-                Stream_Prepare(Stream_Audio);
-                Fill(Stream_Audio, 1, Audio_ID, 1);
-                Fill(Stream_Audio, 1, Audio_Format, "PCM");
-                Fill(Stream_Audio, 1, Audio_Codec, "PCM");
-                Fill(Stream_Audio, 1, Audio_BitRate_Mode, "CBR");
-                Fill(Stream_Audio, 1, Audio_Channel_s_, stype==3?1:2);
-                Fill(Stream_Audio, 1, Audio_SamplingRate, Dv_Audio_SamplingRate[SamplingRate]);
-                Fill(Stream_Audio, 1, Audio_Resolution, Dv_Audio_Resolution[Resolution]);
-                Fill(Stream_Audio, 1, Audio_BitRate, (stype==3?1:2)*Dv_Audio_SamplingRate[SamplingRate]*Dv_Audio_Resolution[Resolution]);
-
-                if (stype==3)
-                {
-                    Stream_Prepare(Stream_Audio);
-                    Fill(Stream_Audio, 2, Audio_ID, 1);
-                    Fill(Stream_Audio, 2, Audio_Format, "PCM");
-                    Fill(Stream_Audio, 2, Audio_Codec, "PCM");
-                    Fill(Stream_Audio, 2, Audio_BitRate_Mode, "CBR");
-                    Fill(Stream_Audio, 2, Audio_Channel_s_, 1);
-                    Fill(Stream_Audio, 2, Audio_SamplingRate, Dv_Audio_SamplingRate[SamplingRate]);
-                    Fill(Stream_Audio, 2, Audio_Resolution, Dv_Audio_Resolution[Resolution]);
-                    Fill(Stream_Audio, 2, Audio_BitRate, Dv_Audio_SamplingRate[SamplingRate]*Dv_Audio_Resolution[Resolution]);
-
-                    Stream_Prepare(Stream_Audio);
-                    Fill(Stream_Audio, 3, Audio_ID, 1);
-                    Fill(Stream_Audio, 3, Audio_Format, "PCM");
-                    Fill(Stream_Audio, 3, Audio_Codec, "PCM");
-                    Fill(Stream_Audio, 3, Audio_BitRate_Mode, "CBR");
-                    Fill(Stream_Audio, 3, Audio_Channel_s_, 1);
-                    Fill(Stream_Audio, 3, Audio_SamplingRate, Dv_Audio_SamplingRate[SamplingRate]);
-                    Fill(Stream_Audio, 3, Audio_Resolution, Dv_Audio_Resolution[Resolution]);
-                    Fill(Stream_Audio, 3, Audio_BitRate, Dv_Audio_SamplingRate[SamplingRate]*Dv_Audio_Resolution[Resolution]);
-                }
+                if (Streams_Audio[Pos]==NULL)
+                    Streams_Audio[Pos]=new stream;
+                Streams_Audio[Pos]->Infos["ID"].From_Number(Pos);
+                Streams_Audio[Pos]->Infos["Format"]=_T("PCM");
+                Streams_Audio[Pos]->Infos["Codec"]=_T("PCM");
+                Streams_Audio[Pos]->Infos["BitRate_Mode"]=_T("CBR");
+                Streams_Audio[Pos]->Infos["Channel(s)"].From_Number(audio_source_stype==3?1:2);
+                Streams_Audio[Pos]->Infos["SamplingRate"].From_Number(Dv_Audio_SamplingRate[SamplingRate]);
+                Streams_Audio[Pos]->Infos["Resolution"].From_Number(Dv_Audio_Resolution[Resolution]);
+                Streams_Audio[Pos]->Infos["BitRate"].From_Number((audio_source_stype==3?1:2)*Dv_Audio_SamplingRate[SamplingRate]*Dv_Audio_Resolution[Resolution]);
             }
         }
     FILLING_END();
@@ -1132,7 +1214,7 @@ void File_DvDif::video_source()
     //PC3
     Skip_S1(2,                                                  "SRC");
     Get_SB (   system,                                          "50/60 - System");
-    Get_S1 (4, stype,                                           "STYPE - Signal type of video signal"); //0=not 4:2:2, 4=4:2:2
+    Get_S1 (5, video_source_stype,                              "STYPE - Signal type of video signal"); //0=not 4:2:2, 4=4:2:2
 
     //PC4
     BS_End();
@@ -1141,7 +1223,6 @@ void File_DvDif::video_source()
     FILLING_BEGIN();
         if (!Status[IsAccepted] && (FrameCount==1 || AuxToAnalyze) && Count_Get(Stream_Video)==0) //Only the first time
         {
-            Accept("DV DIF");
             if (!system)
                 Frame_Count_Valid=Frame_Count_Valid*10/12; //NTSC is only 10 DIF sequence per frame
         }
@@ -1189,9 +1270,6 @@ void File_DvDif::video_sourcecontrol()
     BS_End();
 
     FILLING_BEGIN();
-        if (!Status[IsAccepted] && AuxToAnalyze)
-            Accept("DV DIF");
-
         video_sourcecontrol_IsParsed=true;
     FILLING_END();
 }
@@ -1275,16 +1353,10 @@ void File_DvDif::consumer_camera_1()
 
     if (Encoded_Library_Settings.empty())
     {
-        if (!Status[IsAccepted])
-            Accept("DV DIF");
-
         if (ae_mode<0x0F) Encoded_Library_Settings+=_T("ae mode=")+Ztring(Dv_consumer_camera_1_ae_mode[ae_mode])+_T(" / ");
         if (wb_mode<0x08) Encoded_Library_Settings+=_T("wb mode=")+Ztring(Dv_consumer_camera_1_wb_mode[wb_mode])+_T(" / ");
         if (wb_mode<0x1F) Encoded_Library_Settings+=_T("white balance=")+Ztring(Dv_consumer_camera_1_white_balance(white_balance))+_T(" / ");
                           Encoded_Library_Settings+=_T("fcm=")+Ztring(Dv_consumer_camera_1_fcm[fcm]);
-
-        if (Count_Get(Stream_Video))
-            Fill(Stream_Video, 0, Video_Encoded_Library_Settings, Encoded_Library_Settings);
     }
 }
 

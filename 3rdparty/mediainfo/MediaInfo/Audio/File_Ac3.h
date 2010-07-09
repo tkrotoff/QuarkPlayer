@@ -1,5 +1,5 @@
 // File_Ac3 - Info for AC3 files
-// Copyright (C) 2004-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2004-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -47,6 +47,7 @@ public :
 private :
     //Streams management
     void Streams_Fill();
+    void Streams_Finish();
 
     //Buffer - File header
     bool FileHeader_Begin();
@@ -86,6 +87,14 @@ private :
     };
     dolby  FirstFrame_Dolby;
     dolby  FirstFrame_Dolby2;
+    std::vector<int64u> dialnorms;
+    std::vector<int64u> dialnorm2s;
+    std::vector<int64u> comprs;
+    std::vector<int64u> compr2s;
+    std::vector<int64u> dynrngs;
+    std::vector<int64u> dynrng2s;
+    std::map<int8u, int64u> fscods;
+    std::map<int8u, int64u> frmsizecods;
     size_t Frame_Count;
     size_t HD_Count;
     int16u chanmap;
@@ -107,6 +116,7 @@ private :
     int8u  HD_Channels1;
     int8u  HD_Resolution1;
     int8u  HD_Resolution2;
+    int8u  dynrng_Old;
     bool   lfeon;
     bool   dxc3_Parsed;
     bool   HD_MajorSync_Parsed;
@@ -115,7 +125,7 @@ private :
     bool   HD_AlreadyCounted;
     bool   HD_IsVBR;
     bool   Core_IsPresent;
-
+    bool   dynrnge_Exists;
 };
 
 } //NameSpace

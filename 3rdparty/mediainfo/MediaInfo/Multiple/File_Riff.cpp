@@ -1,5 +1,5 @@
 // File_Riff - Info for RIFF files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -46,6 +46,9 @@
 #if defined(MEDIAINFO_DVDIF_YES)
     #include "MediaInfo/Multiple/File_DvDif.h"
 #endif
+#if MEDIAINFO_EVENTS
+    #include "MediaInfo/MediaInfo_Events.h"
+#endif //MEDIAINFO_EVENTS
 #include <ZenLib/Utils.h>
 using namespace ZenLib;
 //---------------------------------------------------------------------------
@@ -86,6 +89,10 @@ File_Riff::File_Riff()
 :File__Analyze()
 {
     //Configuration
+    #if MEDIAINFO_EVENTS
+        ParserIDs[0]=MediaInfo_Parser_Riff;
+        StreamIDs_Width[0]=17;
+    #endif //MEDIAINFO_EVENTS
     DataMustAlwaysBeComplete=false;
 
     //Data
@@ -97,6 +104,7 @@ File_Riff::File_Riff()
     //Temp
     WAVE_data_Size=0xFFFFFFFF;
     WAVE_fact_samplesCount=0xFFFFFFFF;
+    Buffer_DataSizeToParse=0;
     avih_FrameRate=0;
     avih_TotalFrame=0;
     dmlh_TotalFrame=0;
@@ -110,8 +118,18 @@ File_Riff::File_Riff()
     IsBigEndian=false;
     IsWave64=false;
     IsRIFF64=false;
+    IsWaveBroken=false;
     SecondPass=false;
     DV_FromHeader=NULL;
+    #if defined(MEDIAINFO_GXF_YES)
+        rcrd_Parsers_Count=0;
+        #if defined(MEDIAINFO_CDP_YES)
+            Cdp_Data=NULL;
+        #endif //MEDIAINFO_CDP_YES
+        #if defined(MEDIAINFO_AFDBARDATA_YES)
+            Cdp_Data=NULL;
+        #endif //MEDIAINFO_AFDBARDATA_YES
+    #endif //MEDIAINFO_GXF_YES
 
     //Pointers
     Stream_Structure_Temp=Stream_Structure.end();
@@ -123,6 +141,12 @@ File_Riff::~File_Riff()
     #ifdef MEDIAINFO_DVDIF_YES
         delete (File_DvDif*)DV_FromHeader; //DV_FromHeader=NULL
     #endif //MEDIAINFO_DVDIF_YES
+
+    #if defined(MEDIAINFO_GXF_YES)
+        for (size_t DataID=0; DataID<rcrd_Parsers.size(); DataID++)
+            for (size_t SecondaryDataID=0; SecondaryDataID<rcrd_Parsers[DataID].size(); SecondaryDataID++)
+                delete rcrd_Parsers[DataID][SecondaryDataID]; //rcrd_Parsers[DataID][SecondaryDataID]=NULL;
+    #endif //MEDIAINFO_GXF_YES
 }
 
 //***************************************************************************
@@ -250,7 +274,7 @@ void File_Riff::Streams_Finish ()
             #endif
             #if defined(MEDIAINFO_DVDIF_YES)
                 if (StreamKind_Last==Stream_Video && (MediaInfoLib::Config.Codec_Get(Ztring().From_CC4(Temp->second.Compression), InfoCodec_KindofCodec).find(_T("DV"))==0
-                                                   || Retrieve(Stream_Video, StreamPos_Last, Video_Format)==_T("Digital Video")
+                                                   || Retrieve(Stream_Video, StreamPos_Last, Video_Format)==_T("DV")
                                                    || Retrieve(Stream_Video, StreamPos_Last, Video_Codec)==_T("DV")))
                 {
                     if (Retrieve(Stream_General, 0, General_Recorded_Date).empty())
@@ -277,6 +301,8 @@ void File_Riff::Streams_Finish ()
                 }
             #endif
         }
+        else if (StreamKind_Last!=Stream_General)
+            Fill(StreamKind_Last, StreamPos_Last, General_ID, ((Temp->first>>24)-'0')*10+(((Temp->first>>16)&0xFF)-'0'));
 
         //Duration
         if (Temp->second.PacketCount>0)
@@ -367,7 +393,7 @@ void File_Riff::Streams_Finish ()
                 }
             }
         }
-        
+
         Temp++;
     }
 
@@ -375,13 +401,8 @@ void File_Riff::Streams_Finish ()
     if (Count_Get(Stream_Video))
     {
         //ODML
-        if (dmlh_TotalFrame!=0)
-        {
+        if (dmlh_TotalFrame!=0 && Retrieve(Stream_Video, 0, Video_Duration).empty())
             Fill(Stream_Video, 0, Video_FrameCount, dmlh_TotalFrame, 10, true);
-            float32 FrameRate=Retrieve(Stream_Video, 0, Video_FrameRate).To_float32();
-            if (FrameRate!=0)
-                Fill(Stream_Video, 0, Video_Duration, (int64u)(dmlh_TotalFrame*1000/FrameRate), 10, true);
-        }
     }
 
     //Rec
@@ -399,6 +420,64 @@ void File_Riff::Streams_Finish ()
         Stream.clear();
         Stream_Structure.clear();
         delete DV_FromHeader; DV_FromHeader=NULL;
+    }
+
+    //Commercial names
+    if (Count_Get(Stream_Video)==1)
+    {
+        Streams_Finish_StreamOnly();
+             if (!Retrieve(Stream_Video, 0, Video_Format_Commercial_IfAny).empty())
+        {
+            Fill(Stream_General, 0, General_Format_Commercial_IfAny, Retrieve(Stream_Video, 0, Video_Format_Commercial_IfAny));
+            Fill(Stream_General, 0, General_Format_Commercial, _T("AVI ")+Retrieve(Stream_Video, 0, Video_Format_Commercial_IfAny));
+        }
+        else if (Retrieve(Stream_Video, 0, Video_Format)==_T("DV"))
+        {
+            Fill(Stream_General, 0, General_Format_Commercial_IfAny, "DV");
+            Fill(Stream_General, 0, General_Format_Commercial, "AVI DV");
+        }
+        else if (Retrieve(Stream_Video, 0, Video_Format)==_T("MPEG Video") && Retrieve(Stream_Video, 0, Video_Format_Settings_GOP)==_T("N=1") && Retrieve(Stream_Video, 0, Video_Colorimetry)==_T("4:2:2") && Retrieve(Stream_Video, 0, Video_BitRate)==_T("30000000"))
+        {
+            Fill(Stream_General, 0, General_Format_Commercial_IfAny, "MPEG IMX 30");
+            Fill(Stream_Video, 0, Video_Format_Commercial_IfAny, "MPEG IMX 30");
+        }
+        else if (Retrieve(Stream_Video, 0, Video_Format)==_T("MPEG Video") && Retrieve(Stream_Video, 0, Video_Format_Settings_GOP)==_T("N=1") && Retrieve(Stream_Video, 0, Video_Colorimetry)==_T("4:2:2") && Retrieve(Stream_Video, 0, Video_BitRate)==_T("40000000"))
+        {
+            Fill(Stream_General, 0, General_Format_Commercial_IfAny, "MPEG IMX 40");
+            Fill(Stream_Video, 0, Video_Format_Commercial_IfAny, "MPEG IMX 40");
+        }
+        else if (Retrieve(Stream_Video, 0, Video_Format)==_T("MPEG Video") && Retrieve(Stream_Video, 0, Video_Format_Settings_GOP)==_T("N=1") && Retrieve(Stream_Video, 0, Video_Colorimetry)==_T("4:2:2") && Retrieve(Stream_Video, 0, Video_BitRate)==_T("50000000"))
+        {
+            Fill(Stream_General, 0, General_Format_Commercial_IfAny, "MPEG IMX 50");
+            Fill(Stream_Video, 0, Video_Format_Commercial_IfAny, "MPEG IMX 50");
+        }
+    }
+}
+
+//***************************************************************************
+// Buffer - Global
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+void File_Riff::Read_Buffer_Continue()
+{
+    if (Buffer_DataSizeToParse)
+    {
+        if (Buffer_Size<=Buffer_DataSizeToParse)
+        {
+            Element_Size=Buffer_Size; //All the buffer is used
+            Buffer_DataSizeToParse-=Buffer_Size;
+        }
+        else
+        {
+            Element_Size=Buffer_DataSizeToParse;
+            Buffer_DataSizeToParse=0;
+        }
+
+        Element_Begin();
+        AVI__movi_xxxx();
+        Element_Offset=Element_Size;
+        Element_End();
     }
 }
 
@@ -540,9 +619,18 @@ void File_Riff::Header_Parse()
         Name=Elements::AVI_;
 
     //Filling
+    if (movi_Size && Element_Level==4 && Size_Complete+8>1024*1024)
+    {
+        Buffer_DataSizeToParse=Size_Complete+8;
+        Size_Complete=Buffer_Size-(Buffer_Offset+8);
+        Buffer_DataSizeToParse-=Size_Complete;
+    }
+
+    //Filling
     Header_Fill_Code(Name, Ztring().From_CC4(Name));
-    if ((Name==Elements::WAVE || Name==Elements::WAVE_data)
-     && File_Offset+Buffer_Offset+8+Size==(File_Size%0x100000000LL))
+    if (Element_Level==2 && Name==Elements::WAVE && !IsRIFF64 && File_Size>0xFFFFFFFF)
+        IsWaveBroken=true; //Non standard big files detection
+    if (IsWaveBroken && (Name==Elements::WAVE || Name==Elements::WAVE_data))
         Size_Complete=File_Size-(File_Offset+Buffer_Offset+8); //Non standard big files detection
     Header_Fill_Size(Size_Complete+8);
 }

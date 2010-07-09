@@ -1,5 +1,5 @@
 // MediaInfo_Internal - All info about media files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -272,8 +272,6 @@ MediaInfo_Internal::~MediaInfo_Internal()
 //---------------------------------------------------------------------------
 size_t MediaInfo_Internal::Open(const String &File_Name_)
 {
-    Close();
-
     CS.Enter();
     MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Open, File=");Debug+=Ztring(File_Name_).c_str();)
     File_Name=File_Name_;
@@ -386,11 +384,11 @@ size_t MediaInfo_Internal::Open_Buffer_Init (int64u File_Size_, const String &Fi
             Info_IsMultipleParsing=true;
         }
     }
-    #ifndef MEDIAINFO_MINIMIZESIZE
+    #if MEDIAINFO_TRACE
         Info->Init(&Config, &Details, &Stream, &Stream_More);
-    #else //MEDIAINFO_MINIMIZESIZE
+    #else //MEDIAINFO_TRACE
         Info->Init(&Config, &Stream, &Stream_More);
-    #endif //MEDIAINFO_MINIMIZESIZE
+    #endif //MEDIAINFO_TRACE
     if (!File_Name.empty())
         Info->File_Name=File_Name;
     Info->Open_Buffer_Init(File_Size_);
@@ -403,11 +401,32 @@ size_t MediaInfo_Internal::Open_Buffer_Init (int64u File_Size_, int64u File_Offs
 {
     MEDIAINFO_DEBUG_CONFIG_TEXT(Debug+=_T("Open_Buffer_Init, File_Size=");Debug+=Ztring::ToZtring(File_Size_);Debug+=_T(", File_Offset=");Debug+=Ztring::ToZtring(File_Offset_);)
 
-    Open_Buffer_Init(File_Size_);
+    if (Info==NULL)
+        Open_Buffer_Init(File_Size_);
 
-    CriticalSectionLocker CSL(CS);
+    if (File_Offset_!=(int64u)-1 && Info)
+    {
+        CriticalSectionLocker CSL(CS);
+        Info->Open_Buffer_Position_Set(File_Offset_);
+        //Info->Open_Buffer_Unsynch();
+    }
 
-    Info->Open_Buffer_Position_Set(File_Offset_);
+    #if MEDIAINFO_EVENTS
+        if (Info->Status[File__Analyze::IsAccepted])
+        {
+            struct MediaInfo_Event_General_Move_Done_0 Event;
+            Event.EventCode=MediaInfo_EventCode_Create(MediaInfo_Parser_None, MediaInfo_Event_General_Move_Done, 0);
+            Event.Stream_Offset=File_Offset_;
+            Config.Event_Send((const int8u*)&Event, sizeof(MediaInfo_Event_General_Move_Done_0));
+        }
+        else
+        {
+            struct MediaInfo_Event_General_Start_0 Event;
+            Event.EventCode=MediaInfo_EventCode_Create(MediaInfo_Parser_None, MediaInfo_Event_General_Start, 0);
+            Event.Stream_Size=File_Size_;
+            Config.Event_Send((const int8u*)&Event, sizeof(MediaInfo_Event_General_Start_0));
+        }
+    #endif //MEDIAINFO_EVENTS
 
     EXECUTE_SIZE_T(1, Debug+=_T("Open_Buffer_Init, will return 1");)
 }
@@ -474,6 +493,7 @@ bool MediaInfo_Internal::Open_Buffer_Position_Set(int64u File_Offset)
         return false;
 
     Info->Open_Buffer_Position_Set(File_Offset);
+
     return true;
 }
 
@@ -744,6 +764,15 @@ String MediaInfo_Internal::Option (const String &Option, const String &Value)
     {
         return _T("Option removed");
     }
+    #if MEDIAINFO_TRACE
+    else if (OptionLower.find(_T("file_details_clear"))==0)
+    {
+        if (Info)
+            Info->Details_Clear();
+
+        return _T("");
+    }
+    #endif //MEDIAINFO_TRACE
     else if (OptionLower.find(_T("file_"))==0)
     {
         Ztring ToReturn2=Config.Option(Option, Value);

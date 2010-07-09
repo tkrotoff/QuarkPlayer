@@ -1,5 +1,5 @@
 // File_Mpegts - Info for MPEG Transport Stream files
-// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -107,6 +107,14 @@ private :
     int64u MpegTs_JumpTo_Begin;
     int64u MpegTs_JumpTo_End;
     bool   Searching_TimeStamp_Start;
+
+    #if MEDIAINFO_EVENTS
+        void Header_Parse_Events();
+        void Header_Parse_Events_Duration(int64u program_clock_reference);
+    #else //MEDIAINFO_EVENTS
+        inline void Header_Parse_Events() {}
+        inline void Header_Parse_Events_Duration(int64u) {}
+    #endif //MEDIAINFO_EVENTS
 
     //Helpers
     void Streams_Fill_PerStream(int16u PID, complete_stream::stream &Temp);

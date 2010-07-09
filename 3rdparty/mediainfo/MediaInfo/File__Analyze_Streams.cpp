@@ -1,5 +1,5 @@
 // File__Analyze - Base for analyze files
-// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -155,7 +155,7 @@ size_t File__Analyze::Stream_Prepare (stream_t KindOfStream)
 void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, size_t Parameter, const Ztring &Value, bool Replace)
 {
     //Integrity
-    if (!Status[IsAccepted] || StreamKind>Stream_Max)
+    if (!Status[IsAccepted] || StreamKind>Stream_Max || Parameter==(size_t)-1)
         return;
 
     //Handling values with \r\n inside
@@ -181,6 +181,12 @@ void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, size_t Paramete
         return; //No streams
     }
 
+    //Some defaults
+    if (Parameter==Fill_Parameter(StreamKind, Generic_Format_Commercial))
+        Replace=true;
+    if (Parameter==Fill_Parameter(StreamKind, Generic_Format_Commercial_IfAny))
+        Replace=true;
+
     Ztring &Target=(*Stream)[StreamKind][StreamPos](Parameter);
     if (Target.empty() || Replace)
         Target=Value; //First value
@@ -190,6 +196,74 @@ void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, size_t Paramete
         Target+=Value;
     }
     Status[IsUpdated]=true;
+
+    //Deprecated
+    if (Parameter==Fill_Parameter(StreamKind, Generic_Resolution))
+        Fill(StreamKind, StreamPos, Fill_Parameter(StreamKind, Generic_BitDepth), Value, Replace);
+    if (StreamKind==Stream_Video && Parameter==Video_Colorimetry)
+        Fill(Stream_Video, StreamPos, Video_ChromaSubsampling, Value, Replace);
+
+    if (StreamKind==Stream_Video && Parameter==Video_DisplayAspectRatio && !Value.empty() && Retrieve(Stream_Video, StreamPos, Video_PixelAspectRatio).empty())
+    {
+        float DAR   =Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio).To_float32();
+        float Width =Retrieve(Stream_Video, StreamPos, Video_Width             ).To_float32();
+        float Height=Retrieve(Stream_Video, StreamPos, Video_Height            ).To_float32();
+        if (DAR && Height && Width)
+        {
+            if (Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio)==_T("1.778"))
+                DAR=((float)16)/9; //More exact value
+            if (Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio)==_T("1.333"))
+                DAR=((float)4)/3; //More exact value
+            Fill(Stream_Video, StreamPos, Video_PixelAspectRatio, DAR/(((float32)Width)/Height));
+        }
+    }
+
+    if (StreamKind==Stream_Video && Parameter==Video_PixelAspectRatio && !Value.empty() && Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio).empty())
+    {
+        float32 PAR   =Retrieve(Stream_Video, StreamPos, Video_PixelAspectRatio  ).To_float32();
+        if (PAR>(float32)12/(float32)11*0.99 && PAR<(float32)12/(float32)11*1.01)
+            PAR=(float32)12/(float32)11;
+        if (PAR>(float32)10/(float32)11*0.99 && PAR<(float32)10/(float32)11*1.01)
+            PAR=(float32)10/(float32)11;
+        if (PAR>(float32)16/(float32)11*0.99 && PAR<(float32)16/(float32)11*1.01)
+            PAR=(float32)16/(float32)11;
+        if (PAR>(float32)40/(float32)33*0.99 && PAR<(float32)40/(float32)33*1.01)
+            PAR=(float32)40/(float32)33;
+        if (PAR>(float32)24/(float32)11*0.99 && PAR<(float32)24/(float32)11*1.01)
+            PAR=(float32)24/(float32)11;
+        if (PAR>(float32)20/(float32)11*0.99 && PAR<(float32)20/(float32)11*1.01)
+            PAR=(float32)20/(float32)11;
+        if (PAR>(float32)32/(float32)11*0.99 && PAR<(float32)32/(float32)11*1.01)
+            PAR=(float32)32/(float32)11;
+        if (PAR>(float32)80/(float32)33*0.99 && PAR<(float32)80/(float32)33*1.01)
+            PAR=(float32)80/(float32)33;
+        if (PAR>(float32)18/(float32)11*0.99 && PAR<(float32)18/(float32)11*1.01)
+            PAR=(float32)18/(float32)11;
+        if (PAR>(float32)15/(float32)11*0.99 && PAR<(float32)15/(float32)11*1.01)
+            PAR=(float32)15/(float32)11;
+        if (PAR>(float32)64/(float32)33*0.99 && PAR<(float32)64/(float32)33*1.01)
+            PAR=(float32)64/(float32)33;
+        if (PAR>(float32)160/(float32)99*0.99 && PAR<(float32)160/(float32)99*1.01)
+            PAR=(float32)160/(float32)99;
+        if (PAR>(float32)4/(float32)3*0.99 && PAR<(float32)4/(float32)3*1.01)
+            PAR=(float32)4/(float32)3;
+        if (PAR>(float32)3/(float32)2*0.99 && PAR<(float32)3/(float32)2*1.01)
+            PAR=(float32)3/(float32)2;
+        if (PAR>(float32)2/(float32)1*0.99 && PAR<(float32)2/(float32)1*1.01)
+            PAR=(float32)2;
+        if (PAR>(float32)59/(float32)54*0.99 && PAR<(float32)59/(float32)54*1.01)
+            PAR=(float32)59/(float32)54;
+        float32 Width =Retrieve(Stream_Video, StreamPos, Video_Width             ).To_float32();
+        float32 Height=Retrieve(Stream_Video, StreamPos, Video_Height            ).To_float32();
+        if (PAR && Height && Width)
+            Fill(Stream_Video, StreamPos, Video_DisplayAspectRatio, ((float32)Width)/Height*PAR);
+    }
+
+    //Commercial name
+    if (Parameter==Fill_Parameter(StreamKind, Generic_Format))
+        Fill(StreamKind, StreamPos, Fill_Parameter(StreamKind, Generic_Format_Commercial), Value);
+    if (Parameter==Fill_Parameter(StreamKind, Generic_Format_Commercial_IfAny))
+        Fill(StreamKind, StreamPos, Fill_Parameter(StreamKind, Generic_Format_Commercial), Value, true);
 
     if (!IsSub)
     {
@@ -279,9 +353,9 @@ void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, size_t Paramete
              || Retrieve(StreamKind, StreamPos, Parameter, Info_Name)==_T("Encoded_Library/Version")
              || Retrieve(StreamKind, StreamPos, Parameter, Info_Name)==_T("Encoded_Library/Date"))
             {
-                const Ztring& Name=Retrieve(StreamKind, StreamPos, "Encoded_Library/Name");
-                const Ztring& Version=Retrieve(StreamKind, StreamPos, "Encoded_Library/Version");
-                const Ztring& Date=Retrieve(StreamKind, StreamPos, "Encoded_Library/Date");
+                Ztring Name=Retrieve(StreamKind, StreamPos, "Encoded_Library/Name");
+                Ztring Version=Retrieve(StreamKind, StreamPos, "Encoded_Library/Version");
+                Ztring Date=Retrieve(StreamKind, StreamPos, "Encoded_Library/Date");
                 if (!Name.empty())
                 {
                     Ztring String=Name;
@@ -387,7 +461,7 @@ void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, size_t Paramete
         }
 
         //General Format
-        if (Parameter==Fill_Parameter(StreamKind, Generic_Format) && Retrieve(Stream_General, 0, General_Format).empty())
+        if (Parameter==Fill_Parameter(StreamKind, Generic_Format) && Retrieve(Stream_General, 0, General_Format).empty() && !Value.empty())
             Fill(Stream_General, 0, General_Format, Value); //If not already filled, we are filling with the stream format
 
         //ID
@@ -446,7 +520,7 @@ void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, size_t Paramete
         {
             float32 BitRate=Retrieve(StreamKind, StreamPos, "BitRate").To_float32();
             float32 BitRate_Nominal=Retrieve(StreamKind, StreamPos, "BitRate_Nominal").To_float32();
-            if (BitRate_Nominal>BitRate*0.995 && BitRate_Nominal<BitRate*1.005)
+            if (BitRate_Nominal>BitRate*0.95 && BitRate_Nominal<BitRate*1.05)
             {
                 Ztring Temp=Retrieve(StreamKind, StreamPos, "BitRate_Nominal");
                 Clear(StreamKind, StreamPos, "BitRate_Nominal");
@@ -547,73 +621,106 @@ void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, size_t Paramete
         //-Find 2-digit language
         if (Retrieve(StreamKind, StreamPos, Parameter, Info_Name)==_T("Language"))
         {
-            ZtringList Languages, Languages_Translated;
+            //Removing old strings
+            Clear(StreamKind, StreamPos, Parameter+1); //String
+            Clear(StreamKind, StreamPos, Parameter+2); //String1
+            Clear(StreamKind, StreamPos, Parameter+3); //String2
+            Clear(StreamKind, StreamPos, Parameter+4); //String3
+            Clear(StreamKind, StreamPos, Parameter+5); //String4
+
+            ZtringListList Languages;
             Languages.Separator_Set(0, _T(" / "));
-            Languages_Translated.Separator_Set(0, _T(" / "));
-            size_t Languages_Count=1, Languages_Pos=0;
-            while ((Languages_Pos=(*Stream)[StreamKind][StreamPos][Parameter].find(_T(" / "), Languages_Pos))!=string::npos)
-            {
-                Languages_Pos+=3;
-                Languages_Count++;
-            }
+            Languages.Separator_Set(1, _T("-"));
             Languages.Write((*Stream)[StreamKind][StreamPos][Parameter]);
-            Languages.resize(Languages_Count);
-            ZtringList Languages_Orig=Languages;
+
+            //Canonizing
             for (size_t Pos=0; Pos<Languages.size(); Pos++)
             {
-                Languages[Pos].MakeLowerCase();
-                if (Languages[Pos].size()==3 && (Languages[Pos]==_T("mis") || Languages[Pos]==_T("und") || Languages[Pos]==_T("???") || Languages[Pos]==_T("   "))
-                 || Languages[Pos].size()==2 && Languages[Pos]==_T("  "))
-                {
-                    Languages[Pos].clear();
-                }
-                if (!Languages[Pos].empty() && !IsSub && MediaInfoLib::Config.ReadByHuman_Get())
-                {
-                    if (Languages[Pos].size()==3 && !MediaInfoLib::Config.Iso639_1_Get(Languages[Pos]).empty())
-                        Languages[Pos]=MediaInfoLib::Config.Iso639_1_Get(Languages[Pos]);
-                    if (Languages[Pos].size()>3 && !MediaInfoLib::Config.Iso639_Find(Languages[Pos]).empty())
-                        Languages[Pos]=MediaInfoLib::Config.Iso639_Find(Languages[Pos]);
+                Ztring Language_Orig;
 
-                    //Translate
-                    if (Languages[Pos].size()==2 || Languages[Pos].size()==3)
+                //Removing undefined languages
+                if (Languages[Pos].size()>=1)
+                {
+                    Language_Orig=Languages[Pos][0];
+                    Languages[Pos][0].MakeLowerCase();
+                    if (Languages[Pos][0].size()==3 && (Languages[Pos][0]==_T("mis") || Languages[Pos][0]==_T("und") || Languages[Pos][0]==_T("???") || Languages[Pos][0]==_T("   "))
+                     || Languages[Pos][0].size()==2 && Languages[Pos][0]==_T("  "))
+                        Languages[Pos].clear();
+                }
+
+                //Finding ISO-639-1 from ISO-639-2 or translated name
+                if (Languages[Pos].size()>=1)
+                {
+                    if (Languages[Pos][0].size()==3 && !MediaInfoLib::Config.Iso639_1_Get(Languages[Pos][0]).empty())
+                        Languages[Pos][0]=MediaInfoLib::Config.Iso639_1_Get(Languages[Pos][0]);
+                    if (Languages[Pos][0].size()>3 && !MediaInfoLib::Config.Iso639_Find(Languages[Pos][0]).empty())
+                        Languages[Pos][0]=MediaInfoLib::Config.Iso639_Find(Languages[Pos][0]);
+                    if (Languages[Pos][0].size()>3 && !MediaInfoLib::Config.Language_Get(_T("Language_")+Languages[Pos][0].substr(0, 2)).empty())
+                        Languages[Pos][0]=Languages[Pos][0].substr(0, 2);
+                    if (Languages[Pos][0].size()>3)
+                        Languages[Pos][0]=Language_Orig; //We failed to detect language, using the original version
+                }
+
+                //Country name
+                if (Languages[Pos].size()>=2)
+                    Languages[Pos][1].MakeLowerCase();
+            }
+
+            if (Languages.Read()!=Retrieve(StreamKind, StreamPos, Parameter))
+                Fill(StreamKind, StreamPos, Parameter, Languages.Read(), true);
+            else
+            {
+                ZtringList Language1; Language1.Separator_Set(0, _T(" / "));
+                ZtringList Language2; Language2.Separator_Set(0, _T(" / "));
+                ZtringList Language3; Language3.Separator_Set(0, _T(" / "));
+                ZtringList Language4; Language4.Separator_Set(0, _T(" / "));
+
+                for (size_t Pos=0; Pos<Languages.size(); Pos++)
+                {
+                    if (Languages[Pos].size()>=1)
                     {
-                        Ztring Temp=_T("Language_"); Temp+=Languages[Pos];
-                        const Ztring& Z3=MediaInfoLib::Config.Language_Get(Temp);
-                        Languages_Translated(Pos)=Z3.find(_T("Language_"))==0?Languages[Pos]:Z3;
-                    }
-                    else if (Languages[Pos].size()==5 && Languages[Pos][2]==_T('-'))
-                    {
-                        Ztring Temp=_T("Language_"); Temp+=Languages[Pos].substr(0, 2);
-                        const Ztring& Z3=MediaInfoLib::Config.Language_Get(Temp);
-                        Languages_Translated(Pos)=Z3.find(_T("Language_"))==0?Ztring(Languages[Pos].substr(0, 2)):Z3;
-                        Languages_Translated(Pos)+=_T(" (");
-                        Languages_Translated(Pos)+=Ztring(Languages[Pos].substr(3, 2)).MakeUpperCase();
-                        Languages_Translated(Pos)+=_T(")");
-                    }
-                    else if (Languages[Pos].size()>2)
-                    {
-                        Ztring Temp=_T("Language_"); Temp+=Languages[Pos].substr(0, 2);
-                        const Ztring& Z3=MediaInfoLib::Config.Language_Get(Temp);
-                        Languages_Translated(Pos)=Z3.find(_T("Language_"))==0?Ztring(Languages_Orig[Pos]):Z3;
+                        Ztring Language_Translated=MediaInfoLib::Config.Language_Get(_T("Language_")+Languages[Pos][0]);
+                        if (Language_Translated.find(_T("Language_"))==0)
+                            Language_Translated=Languages[Pos][0]; //No translation found
+                        if (Languages[Pos].size()>=2)
+                        {
+                            Language_Translated+=_T(" (");
+                            Language_Translated+=Ztring(Languages[Pos][1]).MakeUpperCase();
+                            Language_Translated+=_T(")");
+                        }
+                        Language1.push_back(Language_Translated);
+                        if (Languages[Pos][0].size()==2)
+                        {
+                            Language2.push_back(Languages[Pos][0]);
+                            Language4.push_back(Languages[Pos].Read());
+                        }
+                        else
+                        {
+                            Language2.push_back(Ztring());
+                            Language4.push_back(Ztring());
+                        }
+                        if (Languages[Pos][0].size()==3)
+                            Language3.push_back(Languages[Pos][0]);
+                        else if (!MediaInfoLib::Config.Iso639_2_Get(Languages[Pos][0]).empty())
+                            Language3.push_back(MediaInfoLib::Config.Iso639_2_Get(Languages[Pos][0]));
+                        else
+                            Language3.push_back(Ztring());
                     }
                     else
-                        Languages_Translated(Pos)=Languages[Pos];
+                    {
+                        Language1.push_back(Ztring());
+                        Language2.push_back(Ztring());
+                        Language3.push_back(Ztring());
+                        Language4.push_back(Ztring());
+                    }
                 }
-                else
-                    Languages_Translated(Pos).clear();
+
+                Fill(StreamKind, StreamPos, Parameter+2, Language1.Read()); //String1
+                Fill(StreamKind, StreamPos, Parameter+3, Language2.Read()); //String2
+                Fill(StreamKind, StreamPos, Parameter+4, Language3.Read()); //String3
+                Fill(StreamKind, StreamPos, Parameter+5, Language4.Read()); //String4
+                Fill(StreamKind, StreamPos, Parameter+1, Retrieve(StreamKind, StreamPos, Parameter+2)); //String
             }
-            Ztring Languages_Temp, Languages_Translated_Temp;
-            for (size_t Pos=0; Pos<Languages.size(); Pos++)
-            {
-                Languages_Temp+=Languages[Pos]+_T(" / ");
-                Languages_Translated_Temp+=Languages_Translated[Pos]+_T(" / ");
-            }
-            if (Languages_Temp.size()>=3)
-                Languages_Temp.resize(Languages_Temp.size()-3);
-            if (Languages_Translated_Temp.size()>=3)
-                Languages_Translated_Temp.resize(Languages_Translated_Temp.size()-3);
-            (*Stream)[StreamKind][StreamPos](Parameter)=Languages_Temp;
-            Fill(StreamKind, StreamPos, Parameter+1, Languages_Translated_Temp); //"Language/String"
         }
 
         //ServiceName / ServiceProvider
@@ -648,18 +755,19 @@ void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, size_t Paramete
             Video_FrameRate_Rounding(StreamPos, (video)Parameter);
             if (Retrieve(Stream_Video, StreamPos, Video_FrameRate_Nominal)==Retrieve(Stream_Video, StreamPos, Video_FrameRate))
                 Clear(Stream_Video, StreamPos, Video_FrameRate_Nominal);
-            if (Retrieve(Stream_Video, StreamPos, Video_FrameRate_Original)==Retrieve(Stream_Video, StreamPos, Video_FrameRate))
+            if (Parameter!=Video_FrameRate_Original && Retrieve(Stream_Video, StreamPos, Video_FrameRate_Original)==Retrieve(Stream_Video, StreamPos, Video_FrameRate))
                 Clear(Stream_Video, StreamPos, Video_FrameRate_Original);
         }
 
         //Display Aspect Ratio and Pixel Aspect Ratio
-        if (StreamKind==Stream_Video && Parameter==Video_DisplayAspectRatio)
+        if (StreamKind==Stream_Video && Parameter==Video_DisplayAspectRatio && !Value.empty())
         {
             float F1=Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio).To_float32();
             Ztring C1;
                  if (0);
             else if (F1>1.23 && F1<1.27) C1=_T("5:4");
             else if (F1>1.30 && F1<1.37) C1=_T("4:3");
+            else if (F1>1.45 && F1<1.55) C1=_T("3:2");
             else if (F1>1.70 && F1<1.85) C1=_T("16:9");
             else if (F1>2.10 && F1<2.22) C1=_T("2.2:1");
             else if (F1>2.23 && F1<2.30) C1=_T("2.25:1");
@@ -670,40 +778,6 @@ void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, size_t Paramete
             if (MediaInfoLib::Config.Language_Get(_T("  Language_ISO639"))==_T("fr") && C1.find(_T(":1"))==string::npos)
                 C1.FindAndReplace(_T(":"), _T("/"));
             Fill(Stream_Video, StreamPos, Video_DisplayAspectRatio_String, C1, true);
-
-            Clear                (Stream_Video, StreamPos, Video_PixelAspectRatio  );
-            float DAR   =Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio).To_float32();
-            if (Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio)==_T("1.778"))
-                DAR=((float)16)/9; //More exact value
-            if (Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio)==_T("1.333"))
-                DAR=((float)4)/3; //More exact value
-            float Width =Retrieve(Stream_Video, StreamPos, Video_Width             ).To_float32();
-            float Height=Retrieve(Stream_Video, StreamPos, Video_Height            ).To_float32();
-            if (DAR && Height && Width)
-                Fill(Stream_Video, StreamPos, Video_PixelAspectRatio, DAR/(((float32)Width)/Height));
-        }
-        if (StreamKind==Stream_Video && Parameter==Video_PixelAspectRatio && Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio).empty())
-        {
-            Clear                (Stream_Video, StreamPos, Video_DisplayAspectRatio);
-            float PAR   =Retrieve(Stream_Video, StreamPos, Video_PixelAspectRatio  ).To_float32();
-            if (Retrieve(Stream_Video, StreamPos, Video_PixelAspectRatio)==_T("1.333"))
-                PAR=((float)4)/3; //More exact value
-            float Width =Retrieve(Stream_Video, StreamPos, Video_Width             ).To_float32();
-            float Height=Retrieve(Stream_Video, StreamPos, Video_Height            ).To_float32();
-            if (PAR && Height && Width)
-                Fill(Stream_Video, StreamPos, Video_DisplayAspectRatio, ((float32)Width)/Height*PAR);
-        }
-        if (StreamKind==Stream_Video && (Parameter==Video_Width || Parameter==Video_Height) && Retrieve(Stream_Video, StreamPos, Video_PixelAspectRatio).empty() && !Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio).empty())
-        {
-            float DAR   =Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio).To_float32();
-            if (Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio)==_T("1.778"))
-                DAR=((float)16)/9; //More exact value
-            if (Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio)==_T("1.333"))
-                DAR=((float)4)/3; //More exact value
-            float Width =Retrieve(Stream_Video, StreamPos, Video_Width             ).To_float32();
-            float Height=Retrieve(Stream_Video, StreamPos, Video_Height            ).To_float32();
-            if (DAR && Height && Width)
-                Fill(Stream_Video, StreamPos, Video_PixelAspectRatio, DAR/(((float32)Width)/Height));
         }
 
         //Original Display Aspect Ratio and Original Pixel Aspect Ratio
@@ -714,6 +788,7 @@ void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, size_t Paramete
                  if (0);
             else if (F1>1.23 && F1<1.27) C1=_T("5:4");
             else if (F1>1.30 && F1<1.37) C1=_T("4:3");
+            else if (F1>1.45 && F1<1.55) C1=_T("3:2");
             else if (F1>1.70 && F1<1.85) C1=_T("16:9");
             else if (F1>2.10 && F1<2.22) C1=_T("2.2:1");
             else if (F1>2.23 && F1<2.30) C1=_T("2.25:1");
@@ -724,40 +799,6 @@ void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, size_t Paramete
             if (MediaInfoLib::Config.Language_Get(_T("  Language_ISO639"))==_T("fr") && C1.find(_T(":1"))==string::npos)
                 C1.FindAndReplace(_T(":"), _T("/"));
             Fill(Stream_Video, StreamPos, Video_DisplayAspectRatio_Original_String, C1, true);
-
-            Clear                (Stream_Video, StreamPos, Video_PixelAspectRatio_Original  );
-            float DAR   =Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio_Original).To_float32();
-            if (Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio_Original)==_T("1.778"))
-                DAR=((float)16)/9; //More exact value
-            if (Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio_Original)==_T("1.333"))
-                DAR=((float)4)/3; //More exact value
-            float Width =Retrieve(Stream_Video, StreamPos, Video_Width             ).To_float32();
-            float Height=Retrieve(Stream_Video, StreamPos, Video_Height            ).To_float32();
-            if (DAR && Height && Width)
-                Fill(Stream_Video, StreamPos, Video_PixelAspectRatio_Original, DAR/(((float32)Width)/Height));
-        }
-        if (StreamKind==Stream_Video && Parameter==Video_PixelAspectRatio_Original && Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio_Original).empty())
-        {
-            Clear                (Stream_Video, StreamPos, Video_DisplayAspectRatio_Original);
-            float PAR   =Retrieve(Stream_Video, StreamPos, Video_PixelAspectRatio_Original  ).To_float32();
-            if (Retrieve(Stream_Video, StreamPos, Video_PixelAspectRatio_Original)==_T("1.333"))
-                PAR=((float)4)/3; //More exact value
-            float Width =Retrieve(Stream_Video, StreamPos, Video_Width             ).To_float32();
-            float Height=Retrieve(Stream_Video, StreamPos, Video_Height            ).To_float32();
-            if (PAR && Height && Width)
-                Fill(Stream_Video, StreamPos, Video_DisplayAspectRatio_Original, ((float32)Width)/Height*PAR);
-        }
-        if (StreamKind==Stream_Video && (Parameter==Video_Width || Parameter==Video_Height) && Retrieve(Stream_Video, StreamPos, Video_PixelAspectRatio_Original).empty() && !Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio_Original).empty())
-        {
-            float DAR   =Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio_Original).To_float32();
-            if (Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio_Original)==_T("1.778"))
-                DAR=((float)16)/9; //More exact value
-            if (Retrieve(Stream_Video, StreamPos, Video_DisplayAspectRatio_Original)==_T("1.333"))
-                DAR=((float)4)/3; //More exact value
-            float Width =Retrieve(Stream_Video, StreamPos, Video_Width             ).To_float32();
-            float Height=Retrieve(Stream_Video, StreamPos, Video_Height            ).To_float32();
-            if (DAR && Height && Width)
-                Fill(Stream_Video, StreamPos, Video_PixelAspectRatio_Original, DAR/(((float32)Width)/Height));
         }
 
         //Bits/(Pixel*Frame)
@@ -854,7 +895,7 @@ void File__Analyze::Fill (stream_t StreamKind, size_t StreamPos, const char* Par
 }
 
 //---------------------------------------------------------------------------
-const Ztring &File__Analyze::Retrieve (stream_t StreamKind, size_t StreamPos, size_t Parameter, info_t KindOfInfo)
+const Ztring &File__Analyze::Retrieve_Const (stream_t StreamKind, size_t StreamPos, size_t Parameter, info_t KindOfInfo)
 {
     //Integrity
     if (StreamKind>=Stream_Max
@@ -868,7 +909,44 @@ const Ztring &File__Analyze::Retrieve (stream_t StreamKind, size_t StreamPos, si
 }
 
 //---------------------------------------------------------------------------
-const Ztring &File__Analyze::Retrieve (stream_t StreamKind, size_t StreamPos, const char* Parameter, info_t KindOfInfo)
+Ztring File__Analyze::Retrieve (stream_t StreamKind, size_t StreamPos, size_t Parameter, info_t KindOfInfo)
+{
+    //Integrity
+    if (StreamKind>=Stream_Max
+     || StreamPos>=(*Stream)[StreamKind].size()
+     || Parameter>=(*Stream)[StreamKind][StreamPos].size())
+        return MediaInfoLib::Config.EmptyString_Get();
+
+    if (KindOfInfo!=Info_Text)
+        return MediaInfoLib::Config.Info_Get(StreamKind, Parameter, KindOfInfo);
+    return (*Stream)[StreamKind][StreamPos](Parameter);
+}
+
+//---------------------------------------------------------------------------
+const Ztring &File__Analyze::Retrieve_Const (stream_t StreamKind, size_t StreamPos, const char* Parameter, info_t KindOfInfo)
+{
+    //Integrity
+    if (StreamKind>=Stream_Max
+     || StreamPos>=(*Stream)[StreamKind].size()
+     || Parameter==NULL
+     || Parameter[0]=='\0')
+        return MediaInfoLib::Config.EmptyString_Get();
+
+    if (KindOfInfo!=Info_Text)
+        return MediaInfoLib::Config.Info_Get(StreamKind, Parameter, KindOfInfo);
+    size_t Parameter_Pos=MediaInfoLib::Config.Info_Get(StreamKind).Find(Ztring().From_Local(Parameter));
+    if (Parameter_Pos==Error)
+    {
+        Parameter_Pos=(*Stream_More)[StreamKind][StreamPos].Find(Ztring().From_Local(Parameter));
+        if (Parameter_Pos==Error)
+            return MediaInfoLib::Config.EmptyString_Get();
+        return (*Stream_More)[StreamKind][StreamPos](Parameter_Pos, 1);
+    }
+    return (*Stream)[StreamKind][StreamPos](Parameter_Pos);
+}
+
+//---------------------------------------------------------------------------
+Ztring File__Analyze::Retrieve (stream_t StreamKind, size_t StreamPos, const char* Parameter, info_t KindOfInfo)
 {
     //Integrity
     if (StreamKind>=Stream_Max
@@ -922,8 +1000,13 @@ void File__Analyze::Clear (stream_t StreamKind, size_t StreamPos, size_t Paramet
         return;
 
     //Normal
-    if (Parameter<(*Stream)[StreamKind][StreamPos].size())
+    if (Parameter<MediaInfoLib::Config.Info_Get(StreamKind).size())
     {
+        //Is something available?
+        if (Parameter>=(*Stream)[StreamKind][StreamPos].size())
+            return; //Was never filled, no nead to clear it
+
+        //Clearing
         (*Stream)[StreamKind][StreamPos][Parameter].clear();
 
         //Human readable
@@ -1050,6 +1133,17 @@ size_t File__Analyze::Merge(MediaInfo_Internal &ToAdd, bool)
 }
 
 //---------------------------------------------------------------------------
+size_t File__Analyze::Merge(MediaInfo_Internal &ToAdd, stream_t StreamKind, size_t StreamPos_From, size_t StreamPos_To, bool)
+{
+    size_t Pos_Count=ToAdd.Count_Get(StreamKind, StreamPos_From);
+    for (size_t Pos=0; Pos<Pos_Count; Pos++)
+        if (!ToAdd.Get(StreamKind, StreamPos_From, Pos).empty())
+            Fill(StreamKind, StreamPos_To, Ztring(ToAdd.Get((stream_t)StreamKind, StreamPos_From, Pos, Info_Name)).To_UTF8().c_str(), ToAdd.Get(StreamKind, StreamPos_From, Pos), true);
+
+    return 1;
+}
+
+//---------------------------------------------------------------------------
 size_t File__Analyze::Merge(File__Analyze &ToAdd, bool Erase)
 {
     size_t Count=0;
@@ -1079,12 +1173,15 @@ size_t File__Analyze::Merge(File__Analyze &ToAdd, stream_t StreamKind, size_t St
         Stream_Prepare(StreamKind);
 
     //Specific stuff
-    Ztring FrameRate_Temp, PixelAspectRatio_Temp, DisplayAspectRatio_Temp;
+    Ztring Width_Temp, Height_Temp, PixelAspectRatio_Temp, DisplayAspectRatio_Temp, FrameRate_Temp, FrameRate_Mode_Temp;
     if (StreamKind==Stream_Video)
     {
+        Width_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_Width);
+        Height_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_Height);
         PixelAspectRatio_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_PixelAspectRatio); //We want to keep the PixelAspectRatio_Temp of the video stream
         DisplayAspectRatio_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio); //We want to keep the DisplayAspectRatio_Temp of the video stream
         FrameRate_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate); //We want to keep the FrameRate of AVI 120 fps
+        FrameRate_Mode_Temp=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate_Mode); //We want to keep the FrameRate_Mode of AVI 120 fps
     }
 
     //Merging
@@ -1117,35 +1214,38 @@ size_t File__Analyze::Merge(File__Analyze &ToAdd, stream_t StreamKind, size_t St
     //Specific stuff
     if (StreamKind==Stream_Video)
     {
-        if (!PixelAspectRatio_Temp.empty() || !DisplayAspectRatio_Temp.empty())
+        Ztring PixelAspectRatio_Original=Retrieve(Stream_Video, StreamPos_Last, Video_PixelAspectRatio);
+        Ztring DisplayAspectRatio_Original=Retrieve(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio);
+
+        if (!Width_Temp.empty() && Width_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_Width))
         {
-            if (PixelAspectRatio_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_PixelAspectRatio))
-            {
-                Ztring Temp=Retrieve(Stream_Video, StreamPos_Last, Video_PixelAspectRatio);
-                Clear(Stream_Video, StreamPos_Last, Video_PixelAspectRatio);
-                Fill(Stream_Video, StreamPos_Last, Video_PixelAspectRatio_Original, Temp, true);
-            }
+            Fill(Stream_Video, StreamPos_Last, Video_Width_Original, (*Stream)[Stream_Video][StreamPos_Last][Video_Width], true);
+            Fill(Stream_Video, StreamPos_Last, Video_Width, Width_Temp, true);
+        }
+        if (!Height_Temp.empty() && Height_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_Height))
+        {
+            Fill(Stream_Video, StreamPos_Last, Video_Height_Original, (*Stream)[Stream_Video][StreamPos_Last][Video_Height], true);
+            Fill(Stream_Video, StreamPos_Last, Video_Height, Height_Temp, true);
+        }
+        if (!PixelAspectRatio_Temp.empty() && PixelAspectRatio_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_PixelAspectRatio))
+        {
+            Fill(Stream_Video, StreamPos_Last, Video_PixelAspectRatio_Original, PixelAspectRatio_Original, true);
             Fill(Stream_Video, StreamPos_Last, Video_PixelAspectRatio, PixelAspectRatio_Temp, true);
         }
-        if (!DisplayAspectRatio_Temp.empty() || !PixelAspectRatio_Temp.empty())
+        if (!DisplayAspectRatio_Temp.empty() && DisplayAspectRatio_Temp!=DisplayAspectRatio_Original)
         {
-            if (DisplayAspectRatio_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio))
-            {
-                Ztring Temp=Retrieve(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio);
-                Clear(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio);
-                Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio_Original, Temp, true);
-            }
+            Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio_Original, DisplayAspectRatio_Original, true);
             Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, DisplayAspectRatio_Temp, true);
         }
-        if (!FrameRate_Temp.empty()) //Only if Original data is not already present
+        if (!FrameRate_Temp.empty() && FrameRate_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate))
         {
-            if (FrameRate_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate))
-            {
-                Ztring Temp=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate);
-                Clear(Stream_Video, StreamPos_Last, Video_FrameRate);
-                Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Original, Temp, true);
-            }
+            Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Original, (*Stream)[Stream_Video][StreamPos_Last][Video_FrameRate], true);
             Fill(Stream_Video, StreamPos_Last, Video_FrameRate, FrameRate_Temp, true);
+        }
+        if (!FrameRate_Mode_Temp.empty() && FrameRate_Mode_Temp!=Retrieve(Stream_Video, StreamPos_Last, Video_FrameRate_Mode))
+        {
+            Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Mode_Original, (*Stream)[Stream_Video][StreamPos_Last][Video_FrameRate_Mode], true);
+            Fill(Stream_Video, StreamPos_Last, Video_FrameRate_Mode, FrameRate_Mode_Temp, true);
         }
     }
 
@@ -1408,8 +1508,6 @@ void File__Analyze::Duration_Duration123(stream_t StreamKind, size_t StreamPos, 
         Negative=true;
         MS=-MS;
     }
-    if (MS==0)
-        return;
 
     //Hours
     HH=MS/1000/60/60; //h
@@ -1688,6 +1786,14 @@ void File__Analyze::CodecID_Fill(const Ztring &Value, stream_t StreamKind, size_
     Fill(StreamKind, StreamPos, Fill_Parameter(StreamKind, Generic_CodecID_Url), MediaInfoLib::Config.CodecID_Get(StreamKind, Format, Value, InfoCodecID_Url), true);
     Fill(StreamKind, StreamPos, Fill_Parameter(StreamKind, Generic_Format_Version), MediaInfoLib::Config.CodecID_Get(StreamKind, Format, Value, InfoCodecID_Version), true);
     Fill(StreamKind, StreamPos, Fill_Parameter(StreamKind, Generic_Format_Profile), MediaInfoLib::Config.CodecID_Get(StreamKind, Format, Value, InfoCodecID_Profile), true);
+    Fill(StreamKind, StreamPos, Fill_Parameter(StreamKind, Generic_ColorSpace), MediaInfoLib::Config.CodecID_Get(StreamKind, Format, Value, InfoCodecID_ColorSpace), true);
+    Fill(StreamKind, StreamPos, Fill_Parameter(StreamKind, Generic_ChromaSubsampling), MediaInfoLib::Config.CodecID_Get(StreamKind, Format, Value, InfoCodecID_ChromaSubsampling), true);
+    if (Retrieve(StreamKind, StreamPos, Fill_Parameter(StreamKind, Generic_BitDepth)).empty())
+        Fill(StreamKind, StreamPos, Fill_Parameter(StreamKind, Generic_BitDepth), MediaInfoLib::Config.CodecID_Get(StreamKind, Format, Value, InfoCodecID_BitDepth), true);
+
+    //Specific cases
+    if (Value==_T("v210") || Value==_T("V210"))
+        Fill(Stream_Video, StreamPos, Video_Resolution, 10);
 }
 
 //---------------------------------------------------------------------------
@@ -1702,6 +1808,8 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_Format_Info : return General_Format_Info;
                                     case Generic_Format_Url : return General_Format_Url;
                                     case Generic_Format_Version : return General_Format_Version;
+                                    case Generic_Format_Commercial : return General_Format_Commercial;
+                                    case Generic_Format_Commercial_IfAny : return General_Format_Commercial_IfAny;
                                     case Generic_Format_Profile : return General_Format_Profile;
                                     case Generic_Format_Settings : return General_Format_Settings;
                                     case Generic_InternetMediaType : return General_InternetMediaType;
@@ -1727,7 +1835,7 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_StreamSize_String4 : return General_StreamSize_String4;
                                     case Generic_StreamSize_String5 : return General_StreamSize_String5;
                                     case Generic_StreamSize_Proportion : return General_StreamSize_Proportion;
-                                    default: return General_ID_String; //Forcing display
+                                    default: return (size_t)-1;
                                 }
         case Stream_Video :
                                 switch (StreamPos)
@@ -1735,6 +1843,8 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_Format : return Video_Format;
                                     case Generic_Format_Info : return Video_Format_Info;
                                     case Generic_Format_Url : return Video_Format_Url;
+                                    case Generic_Format_Commercial : return Video_Format_Commercial;
+                                    case Generic_Format_Commercial_IfAny : return Video_Format_Commercial_IfAny;
                                     case Generic_Format_Version : return Video_Format_Version;
                                     case Generic_Format_Profile : return Video_Format_Profile;
                                     case Generic_Format_Settings : return Video_Format_Settings;
@@ -1764,6 +1874,12 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_BitRate_Nominal_String : return Video_BitRate_Nominal_String;
                                     case Generic_BitRate_Maximum : return Video_BitRate_Maximum;
                                     case Generic_BitRate_Maximum_String : return Video_BitRate_Maximum_String;
+                                    case Generic_ColorSpace : return Video_ColorSpace;
+                                    case Generic_ChromaSubsampling : return Video_ChromaSubsampling;
+                                    case Generic_Resolution : return Video_Resolution;
+                                    case Generic_Resolution_String : return Video_Resolution_String;
+                                    case Generic_BitDepth : return Video_BitDepth;
+                                    case Generic_BitDepth_String : return Video_BitDepth_String;
                                     case Generic_StreamSize : return Video_StreamSize;
                                     case Generic_StreamSize_String : return Video_StreamSize_String;
                                     case Generic_StreamSize_String1 : return Video_StreamSize_String1;
@@ -1772,7 +1888,7 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_StreamSize_String4 : return Video_StreamSize_String4;
                                     case Generic_StreamSize_String5 : return Video_StreamSize_String5;
                                     case Generic_StreamSize_Proportion : return Video_StreamSize_Proportion;
-                                    default: return Video_ID_String; //Forcing display
+                                    default: return (size_t)-1;
                                 }
         case Stream_Audio :
                                 switch (StreamPos)
@@ -1780,6 +1896,8 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_Format : return Audio_Format;
                                     case Generic_Format_Info : return Audio_Format_Info;
                                     case Generic_Format_Url : return Audio_Format_Url;
+                                    case Generic_Format_Commercial : return Audio_Format_Commercial;
+                                    case Generic_Format_Commercial_IfAny : return Audio_Format_Commercial_IfAny;
                                     case Generic_Format_Version : return Audio_Format_Version;
                                     case Generic_Format_Profile : return Audio_Format_Profile;
                                     case Generic_Format_Settings : return Audio_Format_Settings;
@@ -1809,6 +1927,10 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_BitRate_Nominal_String : return Audio_BitRate_Nominal_String;
                                     case Generic_BitRate_Maximum : return Audio_BitRate_Maximum;
                                     case Generic_BitRate_Maximum_String : return Audio_BitRate_Maximum_String;
+                                    case Generic_Resolution : return Audio_Resolution;
+                                    case Generic_Resolution_String : return Audio_Resolution_String;
+                                    case Generic_BitDepth : return Audio_BitDepth;
+                                    case Generic_BitDepth_String : return Audio_BitDepth_String;
                                     case Generic_StreamSize : return Audio_StreamSize;
                                     case Generic_StreamSize_String : return Audio_StreamSize_String;
                                     case Generic_StreamSize_String1 : return Audio_StreamSize_String1;
@@ -1817,7 +1939,7 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_StreamSize_String4 : return Audio_StreamSize_String4;
                                     case Generic_StreamSize_String5 : return Audio_StreamSize_String5;
                                     case Generic_StreamSize_Proportion : return Audio_StreamSize_Proportion;
-                                    default: return Audio_ID_String; //Forcing display
+                                    default: return (size_t)-1;
                                 }
         case Stream_Text :
                                 switch (StreamPos)
@@ -1825,6 +1947,8 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_Format : return Text_Format;
                                     case Generic_Format_Info : return Text_Format_Info;
                                     case Generic_Format_Url : return Text_Format_Url;
+                                    case Generic_Format_Commercial : return Text_Format_Commercial;
+                                    case Generic_Format_Commercial_IfAny : return Text_Format_Commercial_IfAny;
                                     case Generic_Format_Version : return Text_Format_Version;
                                     case Generic_Format_Profile : return Text_Format_Profile;
                                     case Generic_Format_Settings : return Text_Format_Settings;
@@ -1854,6 +1978,12 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_BitRate_Nominal_String : return Text_BitRate_Nominal_String;
                                     case Generic_BitRate_Maximum : return Text_BitRate_Maximum;
                                     case Generic_BitRate_Maximum_String : return Text_BitRate_Maximum_String;
+                                    case Generic_ColorSpace : return Text_ColorSpace;
+                                    case Generic_ChromaSubsampling : return Text_ChromaSubsampling;
+                                    case Generic_Resolution : return Text_Resolution;
+                                    case Generic_Resolution_String : return Text_Resolution_String;
+                                    case Generic_BitDepth : return Text_BitDepth;
+                                    case Generic_BitDepth_String : return Text_BitDepth_String;
                                     case Generic_StreamSize : return Text_StreamSize;
                                     case Generic_StreamSize_String : return Text_StreamSize_String;
                                     case Generic_StreamSize_String1 : return Text_StreamSize_String1;
@@ -1862,7 +1992,7 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_StreamSize_String4 : return Text_StreamSize_String4;
                                     case Generic_StreamSize_String5 : return Text_StreamSize_String5;
                                     case Generic_StreamSize_Proportion : return Text_StreamSize_Proportion;
-                                    default: return Text_ID_String; //Forcing display
+                                    default: return (size_t)-1;
                                 }
         case Stream_Image :
                                 switch (StreamPos)
@@ -1870,6 +2000,8 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_Format : return Image_Format;
                                     case Generic_Format_Info : return Image_Format_Info;
                                     case Generic_Format_Url : return Image_Format_Url;
+                                    case Generic_Format_Commercial : return Image_Format_Commercial;
+                                    case Generic_Format_Commercial_IfAny : return Image_Format_Commercial_IfAny;
                                     case Generic_Format_Version : return Image_Format_Version;
                                     case Generic_Format_Profile : return Image_Format_Profile;
                                     case Generic_InternetMediaType : return Image_InternetMediaType;
@@ -1882,6 +2014,12 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_Codec_String : return Image_Codec_String;
                                     case Generic_Codec_Info : return Image_Codec_Info;
                                     case Generic_Codec_Url : return Image_Codec_Url;
+                                    case Generic_ColorSpace : return Image_ColorSpace;
+                                    case Generic_ChromaSubsampling : return Image_ChromaSubsampling;
+                                    case Generic_Resolution : return Image_Resolution;
+                                    case Generic_Resolution_String : return Image_Resolution_String;
+                                    case Generic_BitDepth : return Image_BitDepth;
+                                    case Generic_BitDepth_String : return Image_BitDepth_String;
                                     case Generic_StreamSize : return Image_StreamSize;
                                     case Generic_StreamSize_String : return Image_StreamSize_String;
                                     case Generic_StreamSize_String1 : return Image_StreamSize_String1;
@@ -1890,15 +2028,17 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_StreamSize_String4 : return Image_StreamSize_String4;
                                     case Generic_StreamSize_String5 : return Image_StreamSize_String5;
                                     case Generic_StreamSize_Proportion : return Image_StreamSize_Proportion;
-                                    default: return Image_ID_String; //Forcing display
+                                    default: return (size_t)-1;
                                 }
-        case Stream_Chapters : return Chapters_ID_String; //Forcing display
+        case Stream_Chapters : return (size_t)-1;
         case Stream_Menu :
                                 switch (StreamPos)
                                 {
                                     case Generic_Format : return Menu_Format;
                                     case Generic_Format_Info : return Menu_Format_Info;
                                     case Generic_Format_Url : return Menu_Format_Url;
+                                    case Generic_Format_Commercial : return Menu_Format_Commercial;
+                                    case Generic_Format_Commercial_IfAny : return Menu_Format_Commercial_IfAny;
                                     case Generic_Format_Version : return Menu_Format_Version;
                                     case Generic_Format_Profile : return Menu_Format_Profile;
                                     case Generic_Format_Settings : return Menu_Format_Settings;
@@ -1911,9 +2051,14 @@ size_t File__Analyze::Fill_Parameter(stream_t StreamKind, generic StreamPos)
                                     case Generic_Codec_String : return Menu_Codec_String;
                                     case Generic_Codec_Info : return Menu_Codec_Info;
                                     case Generic_Codec_Url : return Menu_Codec_Url;
-                                    default: return Menu_ID_String; //Forcing display
+                                    case Generic_Duration : return Menu_Duration;
+                                    case Generic_Duration_String : return Menu_Duration_String;
+                                    case Generic_Duration_String1 : return Menu_Duration_String1;
+                                    case Generic_Duration_String2 : return Menu_Duration_String2;
+                                    case Generic_Duration_String3 : return Menu_Duration_String3;
+                                    default: return (size_t)-1;
                                 }
-        default: return General_ID_String; //Forcing display
+        default: return (size_t)-1;
     }
 }
 

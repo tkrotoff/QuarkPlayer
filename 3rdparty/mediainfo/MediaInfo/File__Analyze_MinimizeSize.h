@@ -33,11 +33,21 @@ public :
     //***************************************************************************
 
     //In
+    Ztring ParserName;
+    #if MEDIAINFO_EVENTS
+        size_t  StreamIDs_Size;
+        int64u  StreamIDs[16];
+        int8u   StreamIDs_Width[16];
+        int8u   ParserIDs[16];
+    #endif //MEDIAINFO_EVENTS
+    Ztring  File_Name_WithoutDemux;
     bool   PTS_DTS_Needed;
+    int64u PCR; //In nanoseconds
     int64u PTS; //In nanoseconds
     int64u DTS; //In nanoseconds
 
     //Out
+    int64u PTS_DTS_Offset_InThisBlock; //In nanoseconds
     size_t Frame_Count_InThisBlock;
 
 protected :
@@ -136,8 +146,8 @@ protected :
     void Data_Accept        ()                                                  {Accept();}
     void Data_Reject        (const char*)                                       {Reject();}
     void Data_Reject        ()                                                  {Reject();}
-    void Data_Finish        (const char*)                                       {Finish();}
-    void Data_Finish        ()                                                  {Finish();}
+    void Data_Finish        (const char*)                                       {ForceFinish();}
+    void Data_Finish        ()                                                  {ForceFinish();}
     void Data_GoTo          (int64u GoTo_, const char*)                         {GoTo(GoTo_);}
     void Data_GoTo          (int64u GoTo_)                                      {GoTo(GoTo_);}
     void Data_GoToFromEnd   (int64u GoToFromEnd_, const char*)                  {GoToFromEnd(GoToFromEnd_);}
@@ -515,12 +525,14 @@ public :
     //***************************************************************************
 
     void Get_Local  (int64u Bytes, Ztring      &Info);
+    void Get_ISO_8859_1 (int64u Bytes, Ztring  &Info);
     void Get_String (int64u Bytes, std::string &Info);
     void Get_UTF8   (int64u Bytes, Ztring      &Info);
     void Get_UTF16  (int64u Bytes, Ztring      &Info);
     void Get_UTF16B (int64u Bytes, Ztring      &Info);
     void Get_UTF16L (int64u Bytes, Ztring      &Info);
     inline void Get_Local  (int64u Bytes, Ztring      &Info, const char*) {Get_Local(Bytes, Info);}
+    inline void Get_ISO_8859_1 (int64u Bytes, Ztring  &Info, const char*) {Get_ISO_8859_1(Bytes, Info);}
     inline void Get_String (int64u Bytes, std::string &Info, const char*) {Get_String(Bytes, Info);}
     inline void Get_UTF8   (int64u Bytes, Ztring      &Info, const char*) {Get_UTF8(Bytes, Info);}
     inline void Get_UTF16  (int64u Bytes, Ztring      &Info, const char*) {Get_UTF16(Bytes, Info);}
@@ -712,7 +724,7 @@ public :
 
     //Fill with datas (with parameter as a size_t)
     void Fill (stream_t StreamKind, size_t StreamPos, size_t Parameter, const Ztring  &Value, bool Replace=false);
-    inline void Fill (stream_t StreamKind, size_t StreamPos, size_t Parameter, const std::string &Value, bool Utf8=true, bool Replace=false) {if (Utf8) Fill(StreamKind, StreamPos, Parameter, Ztring().From_UTF8(Value.c_str(), Value.size())); else Fill(StreamKind, StreamPos, Parameter, Ztring().From_Local(Value.c_str(), Value.size()), Replace);}
+    inline void Fill (stream_t StreamKind, size_t StreamPos, size_t Parameter, const std::string &Value, bool Utf8=true, bool Replace=false) {if (Utf8) Fill(StreamKind, StreamPos, Parameter, Ztring().From_UTF8(Value.c_str(), Value.size()), Replace); else Fill(StreamKind, StreamPos, Parameter, Ztring().From_Local(Value.c_str(), Value.size()), Replace);}
     inline void Fill (stream_t StreamKind, size_t StreamPos, size_t Parameter, const char*    Value, size_t Value_Size=Unlimited, bool Utf8=true, bool Replace=false) {if (Utf8) Fill(StreamKind, StreamPos, Parameter, Ztring().From_UTF8(Value, Value_Size), Replace); else Fill(StreamKind, StreamPos, Parameter, Ztring().From_Local(Value, Value_Size), Replace);}
     inline void Fill (stream_t StreamKind, size_t StreamPos, size_t Parameter, const wchar_t* Value, size_t Value_Size=Unlimited, bool Replace=false) {Fill(StreamKind, StreamPos, Parameter, Ztring().From_Unicode(Value, Value_Size), Replace);}
     inline void Fill (stream_t StreamKind, size_t StreamPos, size_t Parameter, int8u          Value, int8u Radix=10, bool Replace=false) {Fill(StreamKind, StreamPos, Parameter, Ztring::ToZtring(Value, Radix).MakeUpperCase(), Replace);}
@@ -752,8 +764,10 @@ public :
     void Fill_Flush ();
     size_t Fill_Parameter(stream_t StreamKind, generic StreamPos);
 
-    const Ztring &Retrieve (stream_t StreamKind, size_t StreamPos, size_t Parameter, info_t KindOfInfo=Info_Text);
-    const Ztring &Retrieve (stream_t StreamKind, size_t StreamPos, const char* Parameter, info_t KindOfInfo=Info_Text);
+    const Ztring &Retrieve_Const (stream_t StreamKind, size_t StreamPos, size_t Parameter, info_t KindOfInfo=Info_Text);
+    Ztring Retrieve (stream_t StreamKind, size_t StreamPos, size_t Parameter, info_t KindOfInfo=Info_Text);
+    const Ztring &Retrieve_Const (stream_t StreamKind, size_t StreamPos, const char* Parameter, info_t KindOfInfo=Info_Text);
+    Ztring Retrieve (stream_t StreamKind, size_t StreamPos, const char* Parameter, info_t KindOfInfo=Info_Text);
 
     void Clear (stream_t StreamKind, size_t StreamPos, size_t Parameter);
     void Clear (stream_t StreamKind, size_t StreamPos, const char* Parameter);
@@ -778,6 +792,9 @@ public :
     void Finish        (const char*)                                            {Finish();}
     void Finish        ();
     void Finish        (File__Analyze* Parser);
+    void ForceFinish   (const char*)                                            {ForceFinish();}
+    void ForceFinish   ();
+    void ForceFinish   (File__Analyze* Parser);
     void GoTo          (int64u GoTo_, const char*)                              {GoTo(GoTo_);}
     void GoTo          (int64u GoTo);
     void GoToFromEnd   (int64u GoToFromEnd_, const char*)                       {GoToFromEnd(GoToFromEnd_);}
@@ -876,12 +893,13 @@ protected :
     //***************************************************************************
 
 protected :
-    #ifndef MEDIAINFO_MINIMIZESIZE
+    #if MEDIAINFO_TRACE
         //Save for speed improvement
         float Config_Details;
-    #endif //MEDIAINFO_MINIMIZESIZE
+    #endif //MEDIAINFO_TRACE
     bool IsSub;
-    
+    bool IsRawStream;
+
     //Configuration
     bool DataMustAlwaysBeComplete;  //Data must always be complete, else wait for more data
     bool MustUseAlternativeParser;  //Must use the second parser (example: for Data part)
@@ -1003,6 +1021,26 @@ public :
 
     //Configuration
     bool MustSynchronize;
+
+    //Demux
+    enum contenttype
+    {
+        ContentType_MainStream,
+        ContentType_SubStream,
+        ContentType_Header,
+        ContentType_Synchro
+    };
+    #if MEDIAINFO_DEMUX
+        void Demux (const int8u* Buffer, size_t Buffer_Size, contenttype ContentType);
+    #else //MEDIAINFO_DEMUX
+        #define Demux(_A, _B, _C)
+    #endif //MEDIAINFO_DEMUX
+
+    //Events data
+    #if MEDIAINFO_EVENTS
+        bool    MpegPs_PES_FirstByte_IsAvailable;
+        bool    MpegPs_PES_FirstByte_Value;
+    #endif //MEDIAINFO_EVENTS
 };
 
 //Helpers

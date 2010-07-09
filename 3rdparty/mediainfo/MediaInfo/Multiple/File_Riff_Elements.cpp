@@ -1,5 +1,5 @@
 // File_Riff - Info for RIFF files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -51,6 +51,12 @@
 #if defined(MEDIAINFO_AVC_YES)
     #include "MediaInfo/Video/File_Avc.h"
 #endif
+#if defined(MEDIAINFO_FRAPS_YES)
+    #include "MediaInfo/Video/File_Fraps.h"
+#endif
+#if defined(MEDIAINFO_LAGARITH_YES)
+    #include "MediaInfo/Video/File_Lagarith.h"
+#endif
 #if defined(MEDIAINFO_MPEGA_YES)
     #include "MediaInfo/Audio/File_Mpega.h"
 #endif
@@ -84,6 +90,12 @@
 #if defined(MEDIAINFO_ID3V2_YES)
     #include "MediaInfo/Tag/File_Id3v2.h"
 #endif
+#if defined(MEDIAINFO_GXF_YES)
+    #if defined(MEDIAINFO_CDP_YES)
+        #include "MediaInfo/Text/File_Cdp.h"
+        #include <cstring>
+    #endif
+#endif //MEDIAINFO_GXF_YES
 #include "MediaInfo/MediaInfo_Config_MediaInfo.h"
 //---------------------------------------------------------------------------
 
@@ -103,25 +115,25 @@ std::string ExtensibleWave_ChannelMask (int32u ChannelMask)
     if (ChannelMask&0x0001)
         Text+=" L";
     if (ChannelMask&0x0004)
-        Text+=(ChannelMask&0x0001)?", C":" C";
+        Text+=" C";
     if (ChannelMask&0x0002)
-        Text+=(ChannelMask&0x0003)?", R":" R";
+        Text+=" R";
 
     if ((ChannelMask&0x0600)!=0x0000)
-        Text+=", Middle:";
+        Text+=", Side:";
     if (ChannelMask&0x0200)
         Text+=" L";
     if (ChannelMask&0x0400)
-        Text+=(ChannelMask&0x0200)?", R":" R";
+        Text+=" R";
 
     if ((ChannelMask&0x0130)!=0x0000)
-        Text+=", Surround:";
+        Text+=", Back:";
     if (ChannelMask&0x0010)
         Text+=" L";
     if (ChannelMask&0x0100)
-        Text+=(ChannelMask&0x0010)?", C":" C";
+        Text+=" C";
     if (ChannelMask&0x0020)
-        Text+=(ChannelMask&0x0110)?", R":" R";
+        Text+=" R";
 
     if ((ChannelMask&0x0008)!=0x0000)
         Text+=", LFE";
@@ -140,21 +152,15 @@ std::string ExtensibleWave_ChannelMask2 (int32u ChannelMask)
         Count++;
     if (ChannelMask&0x0002)
         Count++;
-    if (Count)
-    {
-        Text+=Ztring::ToZtring(Count).To_UTF8();
-        Count=0;
-    }
+    Text+=Ztring::ToZtring(Count).To_UTF8();
+    Count=0;
 
     if (ChannelMask&0x0200)
         Count++;
     if (ChannelMask&0x0400)
         Count++;
-    if (Count)
-    {
-        Text+="/"+Ztring::ToZtring(Count).To_UTF8();
-        Count=0;
-    }
+    Text+="/"+Ztring::ToZtring(Count).To_UTF8();
+    Count=0;
 
     if (ChannelMask&0x0010)
         Count++;
@@ -162,17 +168,102 @@ std::string ExtensibleWave_ChannelMask2 (int32u ChannelMask)
         Count++;
     if (ChannelMask&0x0020)
         Count++;
-    if (Count)
-    {
-        Text+="/"+Ztring::ToZtring(Count).To_UTF8();
-        Count=0;
-    }
+    Text+="/"+Ztring::ToZtring(Count).To_UTF8();
+    Count=0;
 
     if (ChannelMask&0x0008)
         Text+=".1";
 
     return Text;
 }
+
+//---------------------------------------------------------------------------
+#if defined(MEDIAINFO_GXF_YES)
+const char* Riff_Rcrd_DataServices(int8u DataID, int8u SecondaryDataID)
+{
+         if (DataID==0x00)
+        return "Undefined format";
+    else if (DataID<=0x03)
+        return "Reserved";
+    else if (DataID<=0x0F)
+        return "Reserved for 8-bit applications";
+    else if (DataID<=0x3F)
+        return "Reserved";
+    else if (DataID==0x41)
+    {
+        //SMPTE 2016-3-2007
+        switch (SecondaryDataID)
+        {
+            case 0x05 : return "Bar Data";
+            default   : return "Internationally registered";
+        }
+    }
+    else if (DataID==0x45)
+    {
+        //SMPTE 2020-1-2008
+        switch (SecondaryDataID)
+        {
+            case 0x01 : return "Audio Metadata - No association";
+            case 0x02 : return "Audio Metadata - Channels 1/2";
+            case 0x03 : return "Audio Metadata - Channels 3/4";
+            case 0x04 : return "Audio Metadata - Channels 5/6";
+            case 0x05 : return "Audio Metadata - Channels 7/8";
+            case 0x06 : return "Audio Metadata - Channels 9/10";
+            case 0x07 : return "Audio Metadata - Channels 11/12";
+            case 0x08 : return "Audio Metadata - Channels 13/14";
+            case 0x09 : return "Audio Metadata - Channels 15/16";
+            default   : return "SMPTE 2020-1-2008?";
+        }
+    }
+    else if (DataID<=0x4F)
+        return "Internationally registered";
+    else if (DataID<=0x5F)
+        return "Reserved";
+    else if (DataID==0x60)
+        return "Ancillary time code (Internationally registered)";
+    else if (DataID==0x61)
+    {
+        switch (SecondaryDataID)
+        {
+            case 0x01 : return "CEA-708 (CDP)";
+            case 0x02 : return "CEA-608";
+            default   : return "S334-1-2007 Defined data services?";
+        }
+    }
+    else if (DataID==0x62)
+    {
+        switch (SecondaryDataID)
+        {
+            case 0x01 : return "Program description";
+            case 0x02 : return "Data broadcast";
+            case 0x03 : return "VBI data";
+            default   : return "S334-1-2007 Variable-format data services?";
+        }
+    }
+    else if (DataID<=0x7F)
+        return "Internationally registered";
+    else if (DataID==0x80)
+        return "Ancillary packet marked for deletion";
+    else if (DataID<=0x83)
+        return "Reserved";
+    else if (DataID==0x84)
+        return "Optional ancillary packet data end marker";
+    else if (DataID<=0x87)
+        return "Reserved";
+    else if (DataID==0x88)
+        return "Optional ancillary packet data start marker";
+    else if (DataID<=0x9F)
+        return "Reserved";
+    else if (DataID<=0xBF)
+        return "Internationally registered";
+    else if (DataID<=0xCF)
+        return "User application";
+    else if (DataID<=0xDF)
+        return "Internationally registered";
+    else
+        return "Internationally registered";
+}
+#endif //MEDIAINFO_GXF_YES
 
 //***************************************************************************
 // Const
@@ -199,6 +290,7 @@ namespace Elements
     const int32u AIFF_ANNO=0x414E4E4F;
     const int32u AIFF_AUTH=0x41555448;
     const int32u AIFF_NAME=0x4E414D45;
+    const int32u AIFF_ID3_=0x49443320;
     const int32u AVI_=0x41564920;
     const int32u AVI__cset=0x63736574;
     const int32u AVI__exif=0x65786966;
@@ -304,6 +396,7 @@ namespace Elements
     const int32u CMJP=0x434D4A50;
     const int32u CMP4=0x434D5034;
     const int32u IDVX=0x49445658;
+    const int32u INDX=0x494E4458;
     const int32u JUNK=0x4A554E4B;
     const int32u menu=0x6D656E75;
     const int32u MThd=0x4D546864;
@@ -311,6 +404,13 @@ namespace Elements
     const int32u PAL_=0x50414C20;
     const int32u QLCM=0x514C434D;
     const int32u QLCM_fmt_=0x666D7420;
+    const int32u rcrd=0x72637264;
+    const int32u rcrd_desc=0x64657363;
+    const int32u rcrd_fld_=0x666C6420;
+    const int32u rcrd_fld__anc_=0x616E6320;
+    const int32u rcrd_fld__anc__pos_=0x706F7320;
+    const int32u rcrd_fld__anc__pyld=0x70796C64;
+    const int32u rcrd_fld__finf=0x66696E66;
     const int32u RDIB=0x52444942;
     const int32u RMID=0x524D4944;
     const int32u RMMP=0x524D4D50;
@@ -327,6 +427,7 @@ namespace Elements
     const int32u WAVE__pmx=0x20786D70;
     const int32u WAVE_aXML=0x61584D4C;
     const int32u WAVE_bext=0x62657874;
+    const int32u WAVE_cue_=0x63756520;
     const int32u WAVE_data=0x64617461;
     const int32u WAVE_ds64=0x64733634;
     const int32u WAVE_fact=0x66616374;
@@ -372,6 +473,7 @@ void File_Riff::Data_Parse()
         ATOM_BEGIN
         ATOM(AIFF_COMM)
         ATOM(AIFF_COMT)
+        ATOM(AIFF_ID3_)
         LIST_SKIP(AIFF_SSND)
         ATOM_DEFAULT(AIFF_xxxx)
         ATOM_END_DEFAULT
@@ -404,6 +506,14 @@ void File_Riff::Data_Parse()
                 ATOM(AVI__hdlr_odml_dmlh)
                 ATOM_END
             ATOM(AVI__hdlr_ON2h)
+            LIST(AVI__INFO)
+                ATOM_BEGIN
+                ATOM(AVI__INFO_IID3)
+                ATOM(AVI__INFO_ILYC)
+                ATOM(AVI__INFO_IMP3)
+                ATOM(AVI__INFO_JUNK)
+                ATOM_DEFAULT(AVI__INFO_xxxx)
+                ATOM_END_DEFAULT
             ATOM_DEFAULT(AVI__hdlr_xxxx)
             ATOM_END_DEFAULT
         LIST_SKIP(AVI__idx1)
@@ -442,6 +552,10 @@ void File_Riff::Data_Parse()
         ATOM_END
     ATOM(CMP4)
     ATOM(IDVX)
+    LIST(INDX)
+        ATOM_BEGIN
+        ATOM_DEFAULT(INDX_xxxx)
+        ATOM_END_DEFAULT
     LIST_SKIP(JUNK)
     LIST_SKIP(menu)
     ATOM(MThd)
@@ -451,6 +565,21 @@ void File_Riff::Data_Parse()
         ATOM_BEGIN
         ATOM(QLCM_fmt_)
         ATOM_END
+    #if defined(MEDIAINFO_GXF_YES)
+    LIST(rcrd)
+        ATOM_BEGIN
+        ATOM(rcrd_desc)
+        LIST(rcrd_fld_)
+            ATOM_BEGIN
+            LIST(rcrd_fld__anc_)
+                ATOM_BEGIN
+                ATOM(rcrd_fld__anc__pos_)
+                ATOM(rcrd_fld__anc__pyld)
+                ATOM_END
+            ATOM(rcrd_fld__finf)
+            ATOM_END
+        ATOM_END
+    #endif //defined(MEDIAINFO_GXF_YES)
     LIST_SKIP(RDIB)
     LIST_SKIP(RMID)
     LIST_SKIP(RMMP)
@@ -479,6 +608,7 @@ void File_Riff::Data_Parse()
             ATOM_END
         LIST(WAVE_data)
             break;
+        ATOM(WAVE_cue_)
         ATOM(WAVE_ds64)
         ATOM(WAVE_fact)
         ATOM(WAVE_fmt_)
@@ -556,7 +686,7 @@ void File_Riff::AIFC_xxxx()
 //---------------------------------------------------------------------------
 void File_Riff::AIFF()
 {
-    Accept("AIFF");
+    Data_Accept("AIFF");
     Element_Name("AIFF");
 
     //Filling
@@ -635,7 +765,6 @@ void File_Riff::AIFF_SSND()
 
     //Filling
     Fill(Stream_Audio, 0, Audio_StreamSize, Element_TotalSize_Get());
-    Finish("AIFF");
 }
 
 //---------------------------------------------------------------------------
@@ -758,7 +887,7 @@ void File_Riff::AVI__GMET()
     List.Write(Value);
 
     //Details
-    if (MediaInfoLib::Config.Details_Get())
+    if (MediaInfoLib::Config.DetailsLevel_Get())
     {
         //for (size_t Pos=0; Pos<List.size(); Pos++)
         //    Details_Add_Info(Pos, List(Pos, 0).To_Local().c_str(), List(Pos, 1));
@@ -924,6 +1053,8 @@ void File_Riff::AVI__hdlr_strl_indx_StandardIndex(int32u Entry_Count, int32u Chu
         */
 
         //Faster method
+        if (Element_Offset+8>Element_Size)
+            break; //Malformed index
         int32u Offset=LittleEndian2int32u(Buffer+Buffer_Offset+(size_t)Element_Offset  );
         int32u Size  =LittleEndian2int32u(Buffer+Buffer_Offset+(size_t)Element_Offset+4)&0x7FFFFFFF;
         Element_Offset+=8;
@@ -1037,7 +1168,8 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
 
     //Parsing
     int32u SamplesPerSec, AvgBytesPerSec;
-    int16u FormatTag, Channels, BitsPerSample=0;
+    int16u FormatTag, Channels;
+    BitsPerSample=0;
     Get_L2 (FormatTag,                                          "FormatTag");
     Get_L2 (Channels,                                           "Channels");
     Get_L4 (SamplesPerSec,                                      "SamplesPerSec");
@@ -1045,6 +1177,10 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
     Skip_L2(                                                    "BlockAlign");
     if (Element_Offset+2<=Element_Size)
         Get_L2 (BitsPerSample,                                  "BitsPerSample");
+
+    //Coherency
+    if (Channels==0 || SamplesPerSec==0 || AvgBytesPerSec==0)
+        return;
 
     //Filling
     Stream_Prepare(Stream_Audio);
@@ -1103,6 +1239,7 @@ void File_Riff::AVI__hdlr_strl_strf_auds()
         //Creating the parser
         File_Pcm MI;
         MI.Codec=Codec;
+        MI.BitDepth=BitsPerSample;
 
         //Parsing
         Open_Buffer_Init(&MI);
@@ -1290,6 +1427,7 @@ void File_Riff::AVI__hdlr_strl_strf_auds_ExtensibleWave()
                 //Creating the parser
                 File_Pcm MI;
                 MI.Codec=Ztring().From_Number((int16u)SubFormat.hi, 16);
+                MI.BitDepth=BitsPerSample;
 
                 //Parsing
                 Open_Buffer_Init(&MI);
@@ -1308,7 +1446,6 @@ void File_Riff::AVI__hdlr_strl_strf_auds_ExtensibleWave()
         Fill(Stream_Audio, StreamPos_Last, Audio_ChannelPositions, ExtensibleWave_ChannelMask(ChannelMask));
         Fill(Stream_Audio, StreamPos_Last, Audio_ChannelPositions_String2, ExtensibleWave_ChannelMask2(ChannelMask));
     FILLING_END();
-
 }
 
 //---------------------------------------------------------------------------
@@ -1470,6 +1607,9 @@ void File_Riff::AVI__hdlr_strl_strf_vids()
       && (Compression&0x00FF0000)>=0x00200000 && (Compression&0x00FF0000)<=0x007E0000
       && (Compression&0xFF000000)>=0x20000000 && (Compression&0xFF000000)<=0x7E000000)
      ||   Compression==0x00000000
+     ||   Compression==0x01000000
+     ||   Compression==0x02000000
+     ||   Compression==0x03000000
        ) //Sometimes this value is wrong, we have to test this
     {
         if (Compression==CC4("DXSB"))
@@ -1482,10 +1622,12 @@ void File_Riff::AVI__hdlr_strl_strf_vids()
             Stream_Prepare(Stream_Video);
 
         //Filling
-        if (Compression==0x00000000)
+        if (Compression==0x00000000 || Compression==0x01000000 || Compression==0x02000000 || Compression==0x03000000)
         {
-            CodecID_Fill(_T("RGB "), StreamKind_Last, StreamPos_Last, InfoCodecID_Format_Riff);
-            Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Codec), "RGB"); //Raw RGB, not handled by automatic codec mapping
+            Ztring CodecID=_T("0x0000000")+Ztring::ToZtring(Compression>>24);
+            CodecID_Fill(CodecID, StreamKind_Last, StreamPos_Last, InfoCodecID_Format_Riff);
+            Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Codec), CodecID); //FormatTag, may be replaced by codec parser
+            Fill(StreamKind_Last, StreamPos_Last, Fill_Parameter(StreamKind_Last, Generic_Codec_CC), CodecID); //FormatTag
         }
         else
         {
@@ -1541,7 +1683,8 @@ void File_Riff::AVI__hdlr_strl_strf_vids()
         Stream[Stream_ID].Parser=new File_Mpeg4v;
         Stream[Stream_ID].Specific_IsMpeg4v=true;
         ((File_Mpeg4v*)Stream[Stream_ID].Parser)->FrameIsAlwaysComplete=true;
-        Stream[Stream_ID].Parser->ShouldContinueParsing=true;
+        if (MediaInfoLib::Config.ParseSpeed_Get()>=0.5)
+            Stream[Stream_ID].Parser->ShouldContinueParsing=true;
     }
     #endif
     #if defined(MEDIAINFO_AVC_YES)
@@ -1559,10 +1702,32 @@ void File_Riff::AVI__hdlr_strl_strf_vids()
     }
     #endif
     #if defined(MEDIAINFO_DVDIF_YES)
-    else if (MediaInfoLib::Config.CodecID_Get(Stream_Video, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression))==_T("Digital Video"))
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Video, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression))==_T("DV"))
     {
         Stream[Stream_ID].Parser=new File_DvDif;
         ((File_DvDif*)Stream[Stream_ID].Parser)->IgnoreAudio=true;
+    }
+    #endif
+    #if defined(MEDIAINFO_FRAPS_YES)
+    else if (Compression==0x46505331) //"FPS1"
+    {
+        Stream[Stream_ID].Parser=new File_Fraps;
+    }
+    #endif
+    else if (Compression==0x48465955) //"HFUY"
+    {
+        switch (Resolution)
+        {
+            case 16 : Fill(Stream_Video, StreamPos_Last, Video_ColorSpace, "YUV"); Fill(Stream_Video, StreamPos_Last, Video_ChromaSubsampling, "4:2:2"); Fill(Stream_Video, StreamPos_Last, Video_BitDepth, 8); break;
+            case 24 : Fill(Stream_Video, StreamPos_Last, Video_ColorSpace, "RGB"); Fill(Stream_Video, StreamPos_Last, Video_BitDepth, 8); break;
+            case 32 : Fill(Stream_Video, StreamPos_Last, Video_ColorSpace, "RGBA"); Fill(Stream_Video, StreamPos_Last, Video_BitDepth, 8); break;
+            default : ;
+        }
+    }
+    #if defined(MEDIAINFO_LAGARITH_YES)
+    else if (Compression==0x4C414753) //"LAGS"
+    {
+        Stream[Stream_ID].Parser=new File_Lagarith;
     }
     #endif
     Open_Buffer_Init(Stream[Stream_ID].Parser);
@@ -1573,7 +1738,7 @@ void File_Riff::AVI__hdlr_strl_strf_vids()
 
     //Filling
          if (0);
-    else if (MediaInfoLib::Config.Codec_Get(Ztring().From_CC4(Compression), InfoCodec_KindofCodec).find(_T("AVC"))==0)
+    else if (MediaInfoLib::Config.CodecID_Get(Stream_Video, InfoCodecID_Format_Riff, Ztring().From_CC4(Compression))==_T("AVC"))
         AVI__hdlr_strl_strf_vids_Avc();
     else Skip_XX(Element_Size-Element_Offset,                   "Unknown");
 }
@@ -1644,8 +1809,6 @@ void File_Riff::AVI__hdlr_strl_strh()
     {
         case Elements::AVI__hdlr_strl_strh_vids :
             if (FrameRate>0)  Fill(Stream_Video, StreamPos_Last, "FrameRate", FrameRate, 3);
-            if (fccHandler==0x64767364) //For "dvsd" but fccType is wrong
-                Fill(Stream_Video, StreamPos_Last, "PixelAspectRatio", 1.000);
         case Elements::AVI__hdlr_strl_strh_txts :
             if (Right-Left>0) Fill(Stream_Text, StreamPos_Last, "Width",  Right-Left, 10, true);
             if (Bottom-Top>0) Fill(Stream_Text, StreamPos_Last, "Height", Bottom-Top, 10, true);
@@ -1921,6 +2084,12 @@ void File_Riff::AVI__JUNK()
 {
     Element_Name("Garbage"); //Library defined size for padding, often used to store library name
 
+    if (Element_Size<8)
+    {
+        Skip_XX(Element_Size,                                   "Junk");
+        return;
+    }
+
     //Detect DivX files
          if (CC5(Buffer+Buffer_Offset)==CC5("DivX "))
     {
@@ -1929,6 +2098,9 @@ void File_Riff::AVI__JUNK()
     //MPlayer
     else if (CC8(Buffer+Buffer_Offset)==CC8("[= MPlay") && Retrieve(Stream_General, 0, General_Encoded_Library).empty())
         Fill(Stream_General, 0, General_Encoded_Library, "MPlayer");
+    //Scenalyzer
+    else if (CC8(Buffer+Buffer_Offset)==CC8("scenalyz") && Retrieve(Stream_General, 0, General_Encoded_Library).empty())
+        Fill(Stream_General, 0, General_Encoded_Library, "Scenalyzer");
     //FFMpeg broken files detection
     else if (CC8(Buffer+Buffer_Offset)==CC8("odmldmlh"))
         dmlh_TotalFrame=0; //this is not normal to have this string in a JUNK block!!! and in files tested, in this case TotalFrame is broken too
@@ -2017,8 +2189,6 @@ void File_Riff::AVI__movi_xxxx()
 
     Stream_ID=(int32u)(Element_Code&0xFFFF0000);
 
-    Demux(Buffer+Buffer_Offset, (size_t)Element_Size, Ztring().From_CC4((int32u)Element_Code)+_T(".raw"));
-
     if (Stream_ID==0x69780000) //ix..
     {
         //AVI Standard Index Chunk
@@ -2036,6 +2206,8 @@ void File_Riff::AVI__movi_xxxx()
         return;
     }
 
+    Demux(Buffer+Buffer_Offset, (size_t)Element_Size, ContentType_MainStream);
+
     //Finished?
     if (!Stream[Stream_ID].SearchingPayload)
     {
@@ -2045,7 +2217,7 @@ void File_Riff::AVI__movi_xxxx()
     }
 
     Stream[Stream_ID].PacketPos++;
-    if (MediaInfoLib::Config.Details_Get())
+    if (MediaInfoLib::Config.DetailsLevel_Get())
     {
         switch (Element_Code&0x0000FFFF) //2 last bytes
         {
@@ -2323,6 +2495,48 @@ void File_Riff::IDVX()
 }
 
 //---------------------------------------------------------------------------
+void File_Riff::INDX()
+{
+    Element_Name("Index (from which spec?)");
+}
+
+//---------------------------------------------------------------------------
+void File_Riff::INDX_xxxx()
+{
+    Stream_ID=(int32u)(Element_Code&0xFFFF0000);
+
+    if (Stream_ID==0x69780000) //ix..
+    {
+        //Index
+        int32u Entry_Count, ChunkId;
+        int16u LongsPerEntry;
+        int8u  IndexType, IndexSubType;
+        Get_L2 (LongsPerEntry,                                      "LongsPerEntry"); //Size of each entry in aIndex array
+        Get_L1 (IndexSubType,                                       "IndexSubType");
+        Get_L1 (IndexType,                                          "IndexType");
+        Get_L4 (Entry_Count,                                        "EntriesInUse"); //Index of first unused member in aIndex array
+        Get_C4 (ChunkId,                                            "ChunkId"); //FCC of what is indexed
+
+        Skip_L4(                                                    "Unknown");
+        Skip_L4(                                                    "Unknown");
+        Skip_L4(                                                    "Unknown");
+
+        for (int32u Pos=0; Pos<Entry_Count; Pos++)
+        {
+            Skip_L8(                                                "Offset");
+            Skip_L4(                                                "Size");
+            Skip_L4(                                                "Frame number?");
+            Skip_L4(                                                "Frame number?");
+            Skip_L4(                                                "Zero");
+        }
+    }
+
+    //Currently, we do not use the index
+    //TODO: use the index
+    Stream_Structure.clear();
+}
+
+//---------------------------------------------------------------------------
 void File_Riff::JUNK()
 {
     Element_Name("Junk");
@@ -2447,6 +2661,197 @@ void File_Riff::QLCM_fmt_()
         Fill(Stream_Audio, 0, Audio_Channel_s_, 1);
     FILLING_END();
 }
+
+#if defined(MEDIAINFO_GXF_YES)
+//---------------------------------------------------------------------------
+void File_Riff::rcrd()
+{
+    Data_Accept("Ancillary media packets");
+    Element_Name("Ancillary media packets");
+
+    //Filling
+    Fill(Stream_General, 0, General_Format, "Ancillary media packets"); //GXF, RDD14-2007
+
+    //Clearing old data
+    for (size_t Pos=0; Pos<Cdp_Data->size(); Pos++)
+        delete (*Cdp_Data)[Pos]; //(*Cdp_Data)[0]=NULL;
+    Cdp_Data->clear();
+    for (size_t Pos=0; Pos<AfdBarData_Data->size(); Pos++)
+        delete (*AfdBarData_Data)[Pos]; //(*AfdBarData_Data)[0]=NULL;
+    AfdBarData_Data->clear();
+}
+
+//---------------------------------------------------------------------------
+void File_Riff::rcrd_desc()
+{
+    Element_Name("Ancillary media packet description");
+
+    //Parsing
+    int32u Version;
+    Get_L4 (Version,                                            "Version");
+    if (Version==2)
+    {
+        Skip_L4(                                                "Number of fields");
+        Skip_L4(                                                "Length of the ancillary data field descriptions");
+        Skip_L4(                                                "Byte size of the complete ancillary media packet");
+        Skip_L4(                                                "Format of the video");
+    }
+    else
+        Skip_XX(Element_Size-Element_Offset,                    "Unknown");
+}
+
+//---------------------------------------------------------------------------
+void File_Riff::rcrd_fld_()
+{
+    Element_Name("Ancillary data field description");
+}
+
+//---------------------------------------------------------------------------
+void File_Riff::rcrd_fld__anc_()
+{
+    Element_Name("Ancillary data sample description");
+}
+
+//---------------------------------------------------------------------------
+void File_Riff::rcrd_fld__anc__pos_()
+{
+    Element_Name("Ancillary data sample description");
+
+    //Parsing
+    Skip_L4(                                                    "Video line number");
+    Skip_L4(                                                    "Ancillary video color difference or luma space");
+    Skip_L4(                                                    "Ancillary video space");
+}
+
+//---------------------------------------------------------------------------
+void File_Riff::rcrd_fld__anc__pyld()
+{
+    Element_Name("Ancillary data sample payload");
+
+    Element_Begin("Decoding");
+    //Parsing
+    int8u DataID, SecondaryDataID, DataCount;
+    Get_L1 (DataID,                                             "Data ID");
+    Skip_L1(                                                    "Parity+Unused"); //even:1, odd:2
+    Get_L1 (SecondaryDataID,                                    "Secondary Data ID"); Param_Info(Riff_Rcrd_DataServices(DataID, SecondaryDataID));
+    Skip_L1(                                                    "Parity+Unused"); //even:1, odd:2
+    Get_L1 (DataCount,                                          "Data count");
+    Skip_L1(                                                    "Parity+Unused"); //even:1, odd:2
+
+    //Buffer
+    int8u* Payload=new int8u[DataCount];
+    for(int8u Pos=0; Pos<DataCount; Pos++)
+    {
+        Get_L1 (Payload[Pos],                                   "Data");
+        Skip_L1(                                                "CRC+Unused"); //even:1, odd:2
+    }
+
+    //Parsing
+    Skip_L1(                                                    "Checksum");
+    Skip_L1(                                                    "Parity+Unused"); //even:1, odd:2
+    Element_End();
+
+    FILLING_BEGIN();
+        if (DataID>=rcrd_Parsers.size())
+            rcrd_Parsers.resize(DataID+1);
+        if (SecondaryDataID>=rcrd_Parsers[DataID].size())
+            rcrd_Parsers[DataID].resize(SecondaryDataID+1);
+        if (rcrd_Parsers[DataID][SecondaryDataID]==NULL)
+        {
+            switch (DataID)
+            {
+                case 0x41 : // (from SMPTE 2016-3)
+                            switch (SecondaryDataID)
+                            {
+                                case 0x05 : //Bar Data (from SMPTE 2016-3), saving data for future use
+                                            #if defined(MEDIAINFO_AFDBARDATA_YES)
+                                            if (AfdBarData_Data)
+                                            {
+                                                buffered_data* AfdBarData=new buffered_data;
+                                                AfdBarData->Data=new int8u[(size_t)DataCount];
+                                                std::memcpy(AfdBarData->Data, Payload, (size_t)DataCount);
+                                                AfdBarData->Size=(size_t)DataCount;
+                                                AfdBarData_Data->push_back(AfdBarData);
+                                            }
+                                            #endif //MEDIAINFO_AFDBARDATA_YES
+                                            break;
+                                default   : ;
+                                ;
+                            }
+                            break;
+                case 0x45 : // (from SMPTE 2020-1)
+                            switch (SecondaryDataID)
+                            {
+                                case 0x01 : //No association
+                                case 0x02 : //Channel pair 1/2
+                                case 0x03 : //Channel pair 3/4
+                                case 0x04 : //Channel pair 5/6
+                                case 0x05 : //Channel pair 7/8
+                                case 0x06 : //Channel pair 9/10
+                                case 0x07 : //Channel pair 11/12
+                                case 0x08 : //Channel pair 13/14
+                                case 0x09 : //Channel pair 15/16
+                                            break;
+                                default   : ;
+                                ;
+                            }
+                            break;
+                case 0x61 : //Defined data services (from SMPTE 331-1)
+                            switch (SecondaryDataID)
+                            {
+                                case 0x01 : //CDP (from SMPTE 331-1), saving data for future use
+                                            #if defined(MEDIAINFO_CDP_YES)
+                                            if (Cdp_Data)
+                                            {
+                                                buffered_data* Cdp=new buffered_data;
+                                                Cdp->Data=new int8u[(size_t)DataCount];
+                                                std::memcpy(Cdp->Data, Payload, (size_t)DataCount);
+                                                Cdp->Size=(size_t)DataCount;
+                                                Cdp_Data->push_back(Cdp);
+                                            }
+                                            #endif //MEDIAINFO_CDP_YES
+                                            break;
+                                case 0x02 : //CEA-608 (from SMPTE 331-1)
+                                            #if defined(MEDIAINFO_EIA608_YES)
+                                            if (DataCount==3) //This must be 3-byte data
+                                            {
+                                                //CEA-608 in video presentation order
+                                            }
+                                            #endif //MEDIAINFO_EIA608_YES
+                                            break;
+                                default   : ;
+                                ;
+                            }
+                            break;
+                case 0x62 : //Variable-format data services (from SMPTE 331-1)
+                            switch (SecondaryDataID)
+                            {
+                                case 0x01 : //Program description (from SMPTE 331-1),
+                                            break;
+                                case 0x02 : //Data broadcast (from SMPTE 331-1)
+                                            break;
+                                case 0x03 : //VBI data (from SMPTE 331-1)
+                                            break;
+                                default   : ;
+                                ;
+                            }
+                            break;
+                default   : ;
+            }
+        }
+    FILLING_END();
+    delete[] Payload; //Payload=NULL
+}
+
+//---------------------------------------------------------------------------
+void File_Riff::rcrd_fld__finf()
+{
+    Element_Name("Data field description");
+
+    //Parsing
+    Skip_L4(                                                    "Video field identifier");
+}
+#endif //MEDIAINFO_GXF_YES
 
 //---------------------------------------------------------------------------
 void File_Riff::RDIB()
@@ -2674,6 +3079,27 @@ void File_Riff::WAVE_bext()
 }
 
 //---------------------------------------------------------------------------
+void File_Riff::WAVE_cue_()
+{
+    Element_Name("Cue points");
+
+    //Parsing
+    int32u numCuePoints;
+    Get_L4(numCuePoints,                                        "numCuePoints");
+    for (int32u Pos=0; Pos<numCuePoints; Pos++)
+    {
+        Element_Begin("Cue point");
+        Skip_L4(                                                "ID");
+        Skip_L4(                                                "Position");
+        Skip_C4(                                                "DataChunkID");
+        Skip_L4(                                                "ChunkStart");
+        Skip_L4(                                                "BlockStart");
+        Skip_L4(                                                "SampleOffset");
+        Element_End();
+    }
+}
+
+//---------------------------------------------------------------------------
 void File_Riff::WAVE_data()
 {
     Element_Name("Raw datas");
@@ -2746,7 +3172,24 @@ void File_Riff::WAVE_fact()
     FILLING_BEGIN();
         int32u SamplingRate=Retrieve(Stream_Audio, 0, Audio_SamplingRate).To_int32u();
         if (SamplingRate)
-            Fill(Stream_Audio, 0, Audio_Duration, (SamplesCount64*1000)/SamplingRate);
+        {
+            //Calculating
+            int64u Duration=(SamplesCount64*1000)/SamplingRate;
+
+            //Coherency test
+            bool IsOK=true;
+            if (File_Size!=(int64u)-1)
+            {
+                int64u BitRate=Retrieve(Stream_Audio, 0, Audio_BitRate).To_int64u();
+                int64u Duration_FromBitRate=File_Size*8*1000/BitRate;
+                if (Duration_FromBitRate>Duration*1.10 || Duration_FromBitRate<Duration*0.9)
+                    IsOK=false;
+            }
+
+            //Filling
+            if (IsOK)
+                Fill(Stream_Audio, 0, Audio_Duration, Duration);
+        }
     FILLING_END();
 }
 

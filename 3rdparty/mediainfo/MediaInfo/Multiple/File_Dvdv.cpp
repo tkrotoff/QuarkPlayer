@@ -1,5 +1,5 @@
 // File_Dvdv - Info for DVD objects (IFO) files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -596,13 +596,13 @@ void File_Dvdv::Video()
             Fill(Stream_Video, StreamPos_Last, Video_Format, IFO_Format_V[Codec]);
             Fill(Stream_Video, StreamPos_Last, Video_Format_Version, IFO_Format_Version_V[Codec]);
             Fill(Stream_Video, StreamPos_Last, Video_Codec, IFO_CodecV[Codec]);
-            Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, IFO_AspectRatio[AspectRatio], 3, true);
             Fill(Stream_Video, StreamPos_Last, Video_Width, IFO_Width[Resolution]);
             Fill(Stream_Video, StreamPos_Last, Video_Height, IFO_Height[Standard][Resolution]);
+            Fill(Stream_Video, StreamPos_Last, Video_DisplayAspectRatio, IFO_AspectRatio[AspectRatio], 3, true);
             Fill(Stream_Video, StreamPos_Last, Video_FrameRate, IFO_FrameRate[Standard]);
             Fill(Stream_Video, StreamPos_Last, Video_BitRate_Mode, IFO_BitRate_Mode[BitRate_Mode]);
-            Fill(Stream_Video, StreamPos_Last, General_ID, _T("0xE0"));
-            Fill(Stream_Video, StreamPos_Last, General_ID_String, _T("0xE0"), Unlimited, true);
+            Fill(Stream_Video, StreamPos_Last, General_ID, _T("224"));
+            Fill(Stream_Video, StreamPos_Last, General_ID_String, _T("224 (0xE0)"), Unlimited, true);
         }
     FILLING_END();
 }
@@ -946,7 +946,7 @@ void File_Dvdv::VTSM_PGCI_UT ()
                 Skip_XX(Offset-16,                              "Unknown");
         Element_End();
         for (int16u PGC_Pos=0; PGC_Pos<PGC_Count; PGC_Pos++)
-            PGC(Element_Offset);    
+            PGC(Element_Offset);
 
         Element_End();
     }
@@ -1277,7 +1277,7 @@ void File_Dvdv::PGC(int64u Offset, bool Title)
                         ToAdd=0x88;
                     if (Retrieve(Stream_Audio, Pos, Audio_Format)==_T("LPCM"))
                         ToAdd=0xA0;
-                    Ztring ID_String; ID_String=_T("0x"); ID_String+=Ztring::ToZtring(ToAdd+Number, 16);
+                    Ztring ID_String; ID_String.From_Number(ToAdd+Number); ID_String+=_T(" (0x"); ID_String+=Ztring::ToZtring(ToAdd+Number, 16); ID_String+=_T(")");
                     Fill(Stream_Audio, Pos, Audio_ID, ID_String);
                     Fill(Stream_Audio, Pos, Audio_ID_String, ID_String, true);
                 }
@@ -1311,7 +1311,7 @@ void File_Dvdv::PGC(int64u Offset, bool Title)
                     while (Pos>Count_Get(Stream_Text))
                         Stream_Prepare(Stream_Text);
 
-                    Ztring ID_String; ID_String=_T("0x"); ID_String+=Ztring::ToZtring(0x20+Number_Wide, 16);
+                    Ztring ID_String; ID_String.From_Number(0x20+Number_Wide); ID_String+=_T(" (0x"); ID_String+=Ztring::ToZtring(0x20+Number_Wide, 16); ID_String+=_T(")");
                     Fill(Stream_Text, Pos, Text_ID, ID_String);
                     Fill(Stream_Text, Pos, Text_ID_String, ID_String, true);
                 }

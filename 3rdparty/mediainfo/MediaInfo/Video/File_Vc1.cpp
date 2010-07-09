@@ -1,5 +1,5 @@
 // File_Vc1 - Info for VC-1 files
-// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -729,7 +729,7 @@ void File_Vc1::FrameHeader()
         Streams[0x0F].Searching_Payload=true;
 
         //Filling only if not already done
-        if (!Status[IsFilled] && Frame_Count>=Frame_Count_Valid)
+        if (!Status[IsFilled] && Frame_Count>=Frame_Count_Valid && MediaInfoLib::Config.ParseSpeed_Get()<1)
             Finish("VC-1");
     FILLING_END();
 }

@@ -1,5 +1,5 @@
 // File__Tags - Info for all kind of framed tags tagged files
-// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -281,9 +281,13 @@ bool File__Tags_Helper::Synched_Test()
                     Base->Merge(*Parser, Stream_Audio  , 0, 0, false);
                     delete Parser; Parser=NULL;
                 }
-                else
+                else if (Parser_Streams_Fill==NULL) //Currently using only the first detected tag
                 {
                     Parser_Streams_Fill=Parser; Parser=NULL;
+                }
+                else
+                {
+                    delete Parser; Parser=NULL;
                 }
                 if (Parser_Buffer_Size)
                     Base->Skip_XX(Parser_Buffer_Size,           "Data continued");

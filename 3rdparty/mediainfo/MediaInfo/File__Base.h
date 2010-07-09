@@ -1,5 +1,5 @@
 // File__Base - Base for other files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -47,11 +47,11 @@ public :
     //Constructor/Destructor
     File__Base();
     virtual ~File__Base();
-    #ifndef MEDIAINFO_MINIMIZESIZE
+    #if MEDIAINFO_TRACE
         void Init(MediaInfo_Config_MediaInfo * Config, Ztring* Details, std::vector<std::vector<ZtringList> > * Stream_=NULL, std::vector<std::vector<ZtringListList> > * Stream_More=NULL);
-    #else //MEDIAINFO_MINIMIZESIZE
+    #else //MEDIAINFO_TRACE
         void Init(MediaInfo_Config_MediaInfo * Config, std::vector<std::vector<ZtringList> > * Stream_=NULL, std::vector<std::vector<ZtringListList> > * Stream_More=NULL);
-    #endif //MEDIAINFO_MINIMIZESIZE
+    #endif //MEDIAINFO_TRACE
 
     //Save
     int     Save ();
@@ -96,22 +96,14 @@ protected :
     MediaInfo_Config_MediaInfo* Config;
 
     //Details
-    #ifndef MEDIAINFO_MINIMIZESIZE
+    #if MEDIAINFO_TRACE
         Ztring* Details;
-    #endif //MEDIAINFO_MINIMIZESIZE
-
-    //Demux
-    #ifndef MEDIAINFO_MINIMIZESIZE
-        void Demux (const int8u* Buffer, size_t Buffer_Size, const Ztring& StreamName);
-    #else //MEDIAINFO_MINIMIZESIZE
-        #define Demux(_A, _B, _C)
-    #endif //MEDIAINFO_MINIMIZESIZE
+    #endif //MEDIAINFO_TRACE
 
 public :
-    #ifndef MEDIAINFO_MINIMIZESIZE
-        void   Details_Clear();
+    #if MEDIAINFO_TRACE
         void   Details_Add(const char* Parameter);
-    #endif //MEDIAINFO_MINIMIZESIZE
+    #endif //MEDIAINFO_TRACE
     virtual void Option_Manage() {};
 
     //File

@@ -1,5 +1,5 @@
 // File__MultipleParsing - Info for MultipleParsing files
-// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -44,6 +44,15 @@
 #if defined(MEDIAINFO_FLV_YES)
     #include "MediaInfo/Multiple/File_Flv.h"
 #endif
+#if defined(MEDIAINFO_GXF_YES)
+    #include "MediaInfo/Multiple/File_Gxf.h"
+#endif
+#if defined(MEDIAINFO_IVF_YES)
+    #include "MediaInfo/Multiple/File_Ivf.h"
+#endif
+#if defined(MEDIAINFO_LXF_YES)
+    #include "MediaInfo/Multiple/File_Lxf.h"
+#endif
 #if defined(MEDIAINFO_MK_YES)
     #include "MediaInfo/Multiple/File_Mk.h"
 #endif
@@ -53,7 +62,7 @@
 #if defined(MEDIAINFO_MPEGPS_YES)
     #include "MediaInfo/Multiple/File_MpegPs.h"
 #endif
-#if defined(MEDIAINFO_MPEGTS_YES)
+#if defined(MEDIAINFO_MPEGTS_YES) || defined(MEDIAINFO_BDAV_YES) || defined(MEDIAINFO_TSP_YES)
     #include "MediaInfo/Multiple/File_MpegTs.h"
 #endif
 #if defined(MEDIAINFO_MXF_YES)
@@ -64,6 +73,9 @@
 #endif
 #if defined(MEDIAINFO_OGG_YES)
     #include "MediaInfo/Multiple/File_Ogg.h"
+#endif
+#if defined(MEDIAINFO_P2_YES)
+    #include "MediaInfo/Multiple/File_P2_Clip.h"
 #endif
 #if defined(MEDIAINFO_RIFF_YES)
     #include "MediaInfo/Multiple/File_Riff.h"
@@ -79,6 +91,9 @@
 #endif
 #if defined(MEDIAINFO_WM_YES)
     #include "MediaInfo/Multiple/File_Wm.h"
+#endif
+#if defined(MEDIAINFO_XDCAM_YES)
+    #include "MediaInfo/Multiple/File_Xdcam_Clip.h"
 #endif
 
 //---------------------------------------------------------------------------
@@ -182,6 +197,9 @@
 
 //---------------------------------------------------------------------------
 // Text
+#if defined(MEDIAINFO_N19_YES)
+    #include "MediaInfo/Text/File_N19.h"
+#endif
 #if defined(MEDIAINFO_OTHERTEXT_YES)
     #include "MediaInfo/Text/File_OtherText.h"
 #endif
@@ -273,6 +291,10 @@ File__Analyze* File__MultipleParsing::Parser_Get()
 File__MultipleParsing::File__MultipleParsing()
 :File__Analyze()
 {
+    #if MEDIAINFO_TRACE
+        Details_DoNotSave=true;
+    #endif //MEDIAINFO_TRACE
+
     File__Analyze* Temp;
     // Multiple
     #if defined(MEDIAINFO_BDAV_YES)
@@ -292,6 +314,15 @@ File__MultipleParsing::File__MultipleParsing()
     #endif
     #if defined(MEDIAINFO_FLV_YES)
         Temp=new File_Flv(); Parser.push_back(Temp);
+    #endif
+    #if defined(MEDIAINFO_GXF_YES)
+        Temp=new File_Gxf(); Parser.push_back(Temp);
+    #endif
+    #if defined(MEDIAINFO_IVF_YES)
+        Temp=new File_Ivf(); Parser.push_back(Temp);
+    #endif
+    #if defined(MEDIAINFO_LXF_YES)
+        Temp=new File_Lxf(); Parser.push_back(Temp);
     #endif
     #if defined(MEDIAINFO_MK_YES)
         Temp=new File_Mk(); Parser.push_back(Temp);
@@ -317,6 +348,9 @@ File__MultipleParsing::File__MultipleParsing()
     #if defined(MEDIAINFO_OGG_YES)
         Temp=new File_Ogg(); Parser.push_back(Temp);
     #endif
+    #if defined(MEDIAINFO_P2_YES)
+        Temp=new File_P2_Clip(); Parser.push_back(Temp);
+    #endif
     #if defined(MEDIAINFO_RIFF_YES)
         Temp=new File_Riff(); Parser.push_back(Temp);
     #endif
@@ -331,6 +365,9 @@ File__MultipleParsing::File__MultipleParsing()
     #endif
     #if defined(MEDIAINFO_WM_YES)
         Temp=new File_Wm(); Parser.push_back(Temp);
+    #endif
+    #if defined(MEDIAINFO_XDCAM_YES)
+        Temp=new File_Xdcam_Clip(); Parser.push_back(Temp);
     #endif
 
     // Video
@@ -428,6 +465,9 @@ File__MultipleParsing::File__MultipleParsing()
     #endif
 
     // Text
+    #if defined(MEDIAINFO_N19_YES)
+        Temp=new File_N19(); Parser.push_back(Temp);
+    #endif
     #if defined(MEDIAINFO_OTHERTEXT_YES)
         Temp=new File_OtherText(); Parser.push_back(Temp);
     #endif
@@ -504,9 +544,9 @@ void File__MultipleParsing::Streams_Finish()
         return;
 
     Parser[0]->Open_Buffer_Finalize();
-    #ifndef MEDIAINFO_MINIMIZESIZE
+    #if MEDIAINFO_TRACE
         Details=Parser[0]->Details;
-    #endif //MEDIAINFO_MINIMIZESIZE
+    #endif //MEDIAINFO_TRACE
 }
 
 //***************************************************************************
@@ -520,14 +560,22 @@ void File__MultipleParsing::Read_Buffer_Init()
     for (size_t Pos=0; Pos<Parser.size(); Pos++)
     {
         //Parsing
-        #ifndef MEDIAINFO_MINIMIZESIZE
+        #if MEDIAINFO_TRACE
             Parser[Pos]->Init(Config, Details, Stream, Stream_More);
-        #else //MEDIAINFO_MINIMIZESIZE
+        #else //MEDIAINFO_TRACE
             Parser[Pos]->Init(Config, Stream, Stream_More);
-        #endif //MEDIAINFO_MINIMIZESIZE
+        #endif //MEDIAINFO_TRACE
         Parser[Pos]->File_Name=File_Name;
         Parser[Pos]->Open_Buffer_Init(File_Size);
     }
+}
+
+//---------------------------------------------------------------------------
+void File__MultipleParsing::Read_Buffer_Unsynched()
+{
+    //Parsing
+    for (size_t Pos=0; Pos<Parser.size(); Pos++)
+        Parser[Pos]->Open_Buffer_Unsynch();
 }
 
 //---------------------------------------------------------------------------

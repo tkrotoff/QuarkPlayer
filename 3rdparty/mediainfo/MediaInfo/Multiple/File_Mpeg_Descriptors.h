@@ -1,5 +1,5 @@
 // File_Mpeg_Descriptors - Info for MPEG files
-// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -169,6 +169,7 @@ struct complete_stream
             unknown,
             pes,
             psi,
+            ts_kind_Max,
         };
         std::vector<int16u>                         program_numbers;
         struct table_id
@@ -192,16 +193,19 @@ struct complete_stream
         table_ids                                   Table_IDs; //Key is table_id
         std::map<std::string, Ztring>               Infos;
         std::vector<Ztring>                         Captions_Language;
-        #ifndef MEDIAINFO_MINIMIZESIZE
+        #if MEDIAINFO_TRACE
             Ztring Element_Info;
-        #endif //MEDIAINFO_MINIMIZESIZE
+        #endif //MEDIAINFO_TRACE
         stream_t                                    StreamKind;
         size_t                                      StreamPos;
         ts_kind                                     Kind;
         bool                                        IsPCR;
         #ifdef MEDIAINFO_MPEGTS_PCR_YES
             int64u                                  TimeStamp_Start;
+            int64u                                  TimeStamp_Start_Offset;
             int64u                                  TimeStamp_End;
+            int64u                                  TimeStamp_End_Offset;
+            int16u                                  PCR_PID; //If this PID has no PCR, decide which PCR should be used
         #endif //MEDIAINFO_MPEGTS_PCR_YES
         int32u                                      registration_format_identifier;
         int16u                                      FMC_ES_ID;
@@ -223,6 +227,7 @@ struct complete_stream
         bool                                        ShouldDuplicate;
         bool                                        IsRegistered;
         size_t                                      IsScrambled;
+        int16u                                      SubStream_pid;
 
         //Constructor/Destructor
         stream()
@@ -234,7 +239,10 @@ struct complete_stream
             IsPCR=false;
             #ifdef MEDIAINFO_MPEGTS_PCR_YES
                 TimeStamp_Start=(int64u)-1;
+                TimeStamp_Start_Offset=(int64u)-1;
                 TimeStamp_End=(int64u)-1;
+                TimeStamp_End_Offset=(int64u)-1;
+                PCR_PID=0x0000;
             #endif //MEDIAINFO_MPEGTS_PCR_YES
             registration_format_identifier=0x00000000;
             FMC_ES_ID=0x0000;
@@ -255,7 +263,8 @@ struct complete_stream
             EndTimeStampMoreThanxSeconds=false;
             ShouldDuplicate=false;
             IsRegistered=false;
-            IsScrambled=0;
+            IsScrambled=false;
+            SubStream_pid=0x0000;
         }
 
         ~stream()
@@ -412,11 +421,17 @@ public :
     int16u table_id_extension;
     int16u elementary_PID;
     int16u program_number;
+    int32u registration_format_identifier;
+    int8u  stream_type;
     int16u event_id;
     bool   elementary_PID_IsValid;
     bool   program_number_IsValid;
+    bool   registration_format_identifier_IsValid;
+    bool   stream_type_IsValid;
     bool   event_id_IsValid;
 
+    //Out
+    
     //Constructor/Destructor
     File_Mpeg_Descriptors();
 
@@ -456,7 +471,7 @@ private :
     void Descriptor_19() {Skip_XX(Element_Size, "Data");};
     void Descriptor_1A() {Skip_XX(Element_Size, "Data");};
     void Descriptor_1B() {Skip_XX(Element_Size, "Data");};
-    void Descriptor_1C() {Skip_XX(Element_Size, "Data");};
+    void Descriptor_1C();
     void Descriptor_1D();
     void Descriptor_1E() {Skip_XX(Element_Size, "Data");};
     void Descriptor_1F();
@@ -470,7 +485,7 @@ private :
     void Descriptor_27() {Skip_XX(Element_Size, "Data");};
     void Descriptor_28();
     void Descriptor_29() {Skip_XX(Element_Size, "Data");};
-    void Descriptor_2A() {Skip_XX(Element_Size, "Data");};
+    void Descriptor_2A();
     void Descriptor_2B() {Skip_XX(Element_Size, "Data");};
     void Descriptor_2C() {Skip_XX(Element_Size, "Data");};
     void Descriptor_2D() {Skip_XX(Element_Size, "Data");};

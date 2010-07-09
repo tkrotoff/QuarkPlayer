@@ -1,5 +1,5 @@
 // File_Flic - Info for Flic files
-// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -132,7 +132,7 @@ void File_Flic::FileHeader_Parse()
         Fill(Stream_Video, 0, Video_FrameCount, Frames);
         Fill(Stream_Video, StreamPos_Last, Video_Width, Width);
         Fill(Stream_Video, StreamPos_Last, Video_Height, Height);
-        Fill(Stream_Video, 0, Video_Resolution, BitsPerPixel%3?BitsPerPixel:(BitsPerPixel/3), 10, true); //If not a multiple of 3, the total resolution is filled
+        Fill(Stream_Video, 0, Video_Resolution, (BitsPerPixel%3)?BitsPerPixel:(BitsPerPixel/3), 10, true); //If not a multiple of 3, the total resolution is filled
         //No more need data
         Finish("FLIC");
     FILLING_END();

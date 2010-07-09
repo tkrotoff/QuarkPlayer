@@ -1,6 +1,6 @@
 // File_Tak - Info for Tak Audio files
 // Copyright (C) 2009-2009 Lionel Duchateau, kurtnoise@free.fr
-// Copyright (C) 2009-2009 Jerome Martinez, zen@mediaarea.net
+// Copyright (C) 2009-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -9,7 +9,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License

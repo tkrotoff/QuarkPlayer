@@ -11,5 +11,5 @@ if (RPMBUILD_EXECUTABLE)
 	)
 
 else (RPMBUILD_EXECUTABLE)
-	message(STATUS "Could not find rpmbuild")
+	message(STATUS "Could NOT find rpmbuild")
 endif (RPMBUILD_EXECUTABLE)

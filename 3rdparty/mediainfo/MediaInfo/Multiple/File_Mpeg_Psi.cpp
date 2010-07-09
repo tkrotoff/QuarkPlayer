@@ -1,5 +1,5 @@
 // File_Mpeg_Psi - Info for MPEG Stream files
-// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -33,6 +33,8 @@
 #include "MediaInfo/Multiple/File_Mpeg_Psi.h"
 #include "MediaInfo/Multiple/File_Mpeg_Descriptors.h"
 #include "MediaInfo/MediaInfo_Config_MediaInfo.h"
+#include "MediaInfo/MediaInfo_Internal.h"
+#include "ZenLib/Dir.h"
 #include <memory>
 #include <algorithm>
 using namespace std;
@@ -110,6 +112,9 @@ const char* Mpeg_Psi_stream_type_Format(int8u stream_type, int32u format_identif
         case 0x1B : return "AVC";
         case 0x1C : return "AAC";
         case 0x1D : return "Timed Text";
+        case 0x1E : return "MPEG Video"; //ISO/IEC 23002-3
+        case 0x1F : return "AVC";
+        case 0x20 : return "AVC";
         default :
             switch (format_identifier)
             {
@@ -171,6 +176,9 @@ const char* Mpeg_Psi_stream_type_Codec(int8u stream_type, int32u format_identifi
         case 0x1B : return "AVC";
         case 0x1C : return "AAC";
         case 0x1D : return "Text";
+        case 0x1E : return "MPEG-2V";
+        case 0x1F : return "AVC";
+        case 0x20 : return "AVC";
         default :
             switch (format_identifier)
             {
@@ -228,6 +236,9 @@ stream_t Mpeg_Psi_stream_type_StreamKind(int32u stream_type, int32u format_ident
         case 0x1B : return Stream_Video;
         case 0x1C : return Stream_Audio;
         case 0x1D : return Stream_Text;
+        case 0x1E : return Stream_Video;
+        case 0x1F : return Stream_Video;
+        case 0x20 : return Stream_Video;
         default :
             switch (format_identifier)
             {
@@ -258,7 +269,7 @@ stream_t Mpeg_Psi_stream_type_StreamKind(int32u stream_type, int32u format_ident
                             case 0xEA : return Stream_Video;
                             default   : return Stream_Max;
                         }
-                case Elements::TSHV : //Digital Video
+                case Elements::TSHV : //DV
                         switch (stream_type)
                         {
                             case 0xA0 : return Stream_General;
@@ -317,6 +328,8 @@ const char* Mpeg_Psi_stream_type_Info(int8u stream_type, int32u format_identifie
         case 0x1C : return "ISO/IEC 14496-3 Audio, without using any additional transport syntax";
         case 0x1D : return "ISO/IEC 14496-17 Text";
         case 0x1E : return "Auxiliary video data stream as defined in ISO/IEC 23002-3";
+        case 0x1F : return "SVC video sub-bitstream of an AVC video stream conforming to one or more profiles defined in Annex G of ITU-T Rec. H.264 | ISO/IEC 14496-10";
+        case 0x20 : return "MVC video sub-bitstream of an AVC video stream conforming to one or more profiles defined in Annex H of ITU-T Rec. H.264 | ISO/IEC 14496-10";
         case 0x7F : return "IPMP stream";
         default :
             if (stream_type<=0x7F) return "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 reserved";
@@ -354,11 +367,11 @@ const char* Mpeg_Psi_stream_type_Info(int8u stream_type, int32u format_identifie
                             case 0xEA : return "BluRay - VC-1";
                             default   : return "Bluray - Unknown";
                         }
-                case Elements::TSHV : //Digital Video
+                case Elements::TSHV : //DV
                         switch (stream_type)
                         {
-                            case 0xA0 : return "Digital Video - Data 0";
-                            case 0xA1 : return "Digital Video - Data 1";
+                            case 0xA0 : return "DV - Data 0";
+                            case 0xA1 : return "DV - Data 1";
                             default   : return "Bluray - Unknown";
                         }
                 case 0xFFFFFFFF : //Unknown
@@ -667,10 +680,13 @@ File_Mpeg_Psi::File_Mpeg_Psi()
     CRC_32=0;
     elementary_PID=0x0000;
     program_number=0x0000;
+    stream_type=0x00;
     event_id=0x0000;
     elementary_PID_IsValid=false;
     program_number_IsValid=false;
+    stream_type_IsValid=false;
     event_id_IsValid=false;
+    current_next_indicator=false;
 }
 
 //---------------------------------------------------------------------------
@@ -757,20 +773,18 @@ void File_Mpeg_Psi::Data_Parse()
     if (section_syntax_indicator)
     {
         Element_Size-=4; //Reserving size of CRC32
-        Get_B2(table_id_extension,                              Mpeg_Psi_table_id_extension(table_id)); Element_Name(Ztring(Mpeg_Psi_table_id_extension(table_id))+_T("=")+Ztring::ToZtring_From_CC2(table_id_extension));
+        Get_B2(     table_id_extension,                         Mpeg_Psi_table_id_extension(table_id)); Element_Name(Ztring(Mpeg_Psi_table_id_extension(table_id))+_T("=")+Ztring::ToZtring_From_CC2(table_id_extension));
         BS_Begin();
         Skip_S1( 2,                                             "reserved");
         Get_S1 ( 5, version_number,                             "version_number"); Element_Info(_T("Version=")+Ztring::ToZtring(version_number));
-        Skip_SB(                                                "current_next_indicator");
+        Get_SB (    current_next_indicator,                     "current_next_indicator");
         BS_End();
-        Info_B1(section_number,                                 "section_number"); Element_Info(_T("Section=")+Ztring::ToZtring(section_number));
+        Info_B1(    section_number,                             "section_number"); Element_Info(_T("Section=")+Ztring::ToZtring(section_number));
         Skip_B1(                                                "last_section_number");
     }
 
     #define ELEMENT_CASE(_NAME, _DETAIL) \
         case 0x##_NAME : Table_##_NAME(); break;
-
-    //Element_Name(Mpeg_Psi_Element_Name());
 
     switch (table_id)
     {
@@ -1045,6 +1059,9 @@ void File_Mpeg_Psi::Table_00()
         FILLING_END();
     }
     BS_End();
+
+    FILLING_BEGIN();
+    FILLING_END();
 }
 
 //---------------------------------------------------------------------------
@@ -1079,6 +1096,8 @@ void File_Mpeg_Psi::Table_02()
     BS_End();
 
     //Descriptors
+    program_number=table_id_extension;
+    program_number_IsValid=true;
     if (Descriptors_Size>0)
         Descriptors();
 
@@ -1088,7 +1107,7 @@ void File_Mpeg_Psi::Table_02()
         Element_Begin();
         int8u stream_type;
         BS_Begin();
-        Get_S1 ( 8, stream_type,                                "stream_type"); Element_Info(Mpeg_Psi_stream_type_Info(stream_type, Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].registration_format_identifier)); Param_Info(Mpeg_Psi_stream_type_Info(stream_type, Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].registration_format_identifier));
+        Get_S1 ( 8, stream_type,                                "stream_type"); Element_Info(Mpeg_Psi_stream_type_Info(stream_type, Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[program_number].registration_format_identifier)); Param_Info(Mpeg_Psi_stream_type_Info(stream_type, Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[program_number].registration_format_identifier));
         Skip_S1( 3,                                             "reserved");
         Get_S2 (13, elementary_PID,                             "elementary_PID");
         Skip_S1( 4,                                             "reserved");
@@ -1100,13 +1119,12 @@ void File_Mpeg_Psi::Table_02()
             {
                 bool IsAlreadyPresent=false;
                 for (size_t Pos=0; Pos<Complete_Stream->Streams[elementary_PID].program_numbers.size(); Pos++)
-                    if (Complete_Stream->Streams[elementary_PID].program_numbers[Pos]==table_id_extension)
+                    if (Complete_Stream->Streams[elementary_PID].program_numbers[Pos]==program_number)
                         IsAlreadyPresent=true;
                 if (!IsAlreadyPresent)
                 {
-                    Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].elementary_PIDs.push_back(elementary_PID);
-                    Complete_Stream->Streams[elementary_PID].program_numbers.push_back(table_id_extension);
-                    Complete_Stream->Streams[elementary_PID].registration_format_identifier=Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].registration_format_identifier;
+                    Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[program_number].elementary_PIDs.push_back(elementary_PID);
+                    Complete_Stream->Streams[elementary_PID].program_numbers.push_back(program_number);
                 }
                 if (Complete_Stream->Streams[elementary_PID].Kind!=complete_stream::stream::pes)
                 {
@@ -1116,16 +1134,93 @@ void File_Mpeg_Psi::Table_02()
                     Complete_Stream->Streams[elementary_PID].Searching_Payload_Start_Set(true);
                     #ifdef MEDIAINFO_MPEGTS_PCR_YES
                         Complete_Stream->Streams[elementary_PID].Searching_TimeStamp_Start_Set(true);
+                        Complete_Stream->Streams[elementary_PID].PCR_PID=PCR_PID;
                     #endif //MEDIAINFO_MPEGTS_PCR_YES
                     #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
                         //Complete_Stream->Streams[elementary_PID].Searching_ParserTimeStamp_Start_Set(true);
                     #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
-                    #ifndef MEDIAINFO_MINIMIZESIZE
+                    #if MEDIAINFO_TRACE
                         Complete_Stream->Streams[elementary_PID].Element_Info="PES";
-                    #endif //MEDIAINFO_MINIMIZESIZE
+                    #endif //MEDIAINFO_TRACE
                     if (Complete_Stream->File__Duplicate_Get_From_PID(elementary_PID))
-                            Complete_Stream->Streams[elementary_PID].ShouldDuplicate=true;
+                        Complete_Stream->Streams[elementary_PID].ShouldDuplicate=true;
                 }
+            }
+
+            //Searching for hidden Stereoscopic stream
+            if (stream_type==0x20 && File_Name_WithoutDemux.size()>=4+1+6+1+4+1+10 && Config->File_Bdmv_ParseTargetedFile_Get())
+            {
+                //Searching the playlist with the PID
+                Ztring Name=File_Name_WithoutDemux;
+                Name.resize(Name.size()-(4+1+6+1+4+1+10)); //Removing BDMV/STREAM/SSIF/xxxxx.ssif
+                ZtringList List=Dir::GetAllFileNames(Name+_T("BDMV")+PathSeparator+_T("PLAYLIST")+PathSeparator+_T("*.mpls"), Dir::Include_Files);
+                std::vector<MediaInfo_Internal*> MIs;
+                MIs.resize(List.size());
+                size_t FileWithRightPID_Pos=(size_t)-1;
+                for (size_t Pos=0; Pos<MIs.size(); Pos++)
+                {
+                    MIs[Pos]=new MediaInfo_Internal();
+                    MIs[Pos]->Option(_T("File_Bdmv_ParseTargetedFile"), _T("0"));
+                    MIs[Pos]->Open(List[Pos]);
+                    if (MIs[Pos]->Count_Get(Stream_Video)==1)
+                    {
+                        int16u PID=Ztring(MIs[Pos]->Get(Stream_Video, 0, Video_ID)).To_int16u();
+                        if (PID==elementary_PID)
+                        {
+                            FileWithRightPID_Pos=Pos;
+                            break;
+                        }
+                    }
+                }
+
+                if (FileWithRightPID_Pos!=(size_t)-1)
+                {
+                    ZtringList ID_List;
+                    ID_List.Separator_Set(0, _T(" / "));
+                    ID_List.Write(MIs[FileWithRightPID_Pos]->Get(Stream_Video, 0, Video_ID));
+                    if (ID_List.size()==2)
+                    {
+                        Complete_Stream->Streams[ID_List[1].To_int16u()].SubStream_pid=elementary_PID;
+                        Complete_Stream->Streams[elementary_PID].SubStream_pid=ID_List[1].To_int16u();
+
+                        elementary_PID=ID_List[1].To_int16u();
+                        stream_type=0x1B;
+
+                        bool IsAlreadyPresent=false;
+                        for (size_t Pos=0; Pos<Complete_Stream->Streams[elementary_PID].program_numbers.size(); Pos++)
+                            if (Complete_Stream->Streams[elementary_PID].program_numbers[Pos]==program_number)
+                                IsAlreadyPresent=true;
+                        if (!IsAlreadyPresent)
+                        {
+                            Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[program_number].elementary_PIDs.push_back(elementary_PID);
+                            Complete_Stream->Streams[elementary_PID].program_numbers.push_back(program_number);
+                            Complete_Stream->Streams[elementary_PID].registration_format_identifier=Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[program_number].registration_format_identifier;
+                        }
+                        if (Complete_Stream->Streams[elementary_PID].Kind!=complete_stream::stream::pes)
+                        {
+                            Complete_Stream->Streams_NotParsedCount++;
+                            Complete_Stream->Streams[elementary_PID].Kind=complete_stream::stream::pes;
+                            Complete_Stream->Streams[elementary_PID].stream_type=stream_type;
+                            Complete_Stream->Streams[elementary_PID].Searching_Payload_Start_Set(true);
+                            #ifdef MEDIAINFO_MPEGTS_PCR_YES
+                                Complete_Stream->Streams[elementary_PID].Searching_TimeStamp_Start_Set(true);
+                                Complete_Stream->Streams[elementary_PID].PCR_PID=PCR_PID;
+                            #endif //MEDIAINFO_MPEGTS_PCR_YES
+                            #ifdef MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+                                //Complete_Stream->Streams[elementary_PID].Searching_ParserTimeStamp_Start_Set(true);
+                            #endif //MEDIAINFO_MPEGTS_PESTIMESTAMP_YES
+                            #if MEDIAINFO_TRACE
+                                Complete_Stream->Streams[elementary_PID].Element_Info="PES";
+                            #endif //MEDIAINFO_TRACE
+                            if (Complete_Stream->File__Duplicate_Get_From_PID(elementary_PID))
+                                Complete_Stream->Streams[elementary_PID].ShouldDuplicate=true;
+                        }
+                    }
+
+                }
+
+                for (size_t Pos=0; Pos<MIs.size(); Pos++)
+                    delete MIs[Pos]; //MIs[Pos]=NULL;
             }
         FILLING_END();
 
@@ -1139,19 +1234,18 @@ void File_Mpeg_Psi::Table_02()
 
     FILLING_BEGIN();
         #ifdef MEDIAINFO_MPEGTS_PCR_YES
-        Complete_Stream->Streams[PCR_PID].IsPCR=true;
-        Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].PCR_PID=PCR_PID;
-        if (Complete_Stream->Streams[PCR_PID].Kind==complete_stream::stream::unknown)
-        {
-            Complete_Stream->Streams[PCR_PID].Searching_TimeStamp_Start_Set(true);
-            #ifndef MEDIAINFO_MINIMIZESIZE
-                Complete_Stream->Streams[PCR_PID].Element_Info="PCR";
-            #endif //MEDIAINFO_MINIMIZESIZE
-        }
+            Complete_Stream->Streams[PCR_PID].IsPCR=true;
+            Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[program_number].PCR_PID=PCR_PID;
+            if (Complete_Stream->Streams[PCR_PID].TimeStamp_Start==(int64u)-1)
+                Complete_Stream->Streams[PCR_PID].Searching_TimeStamp_Start_Set(true);
+            #if MEDIAINFO_TRACE
+                if (Complete_Stream->Streams[PCR_PID].Kind==complete_stream::stream::unknown)
+                    Complete_Stream->Streams[PCR_PID].Element_Info="PCR";
+            #endif //MEDIAINFO_TRACE
         #endif //MEDIAINFO_MPEGTS_PCR_YES
 
         //Sorting
-        sort(Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].elementary_PIDs.begin(), Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[table_id_extension].elementary_PIDs.end());
+        sort(Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[program_number].elementary_PIDs.begin(), Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs[program_number].elementary_PIDs.end());
 
         //Handling ATSC/CEA/DVB
         if (!Complete_Stream->Transport_Streams[Complete_Stream->transport_stream_id].Programs_NotParsedCount)
@@ -1839,9 +1933,7 @@ void File_Mpeg_Psi::Descriptors()
         return;
     }
 
-    Element_Begin("Descriptors", Descriptors_Size);
-
-    //Parsing
+    //Configuring
     File_Mpeg_Descriptors Descriptors;
     Descriptors.Complete_Stream=Complete_Stream;
     Descriptors.transport_stream_id=transport_stream_id;
@@ -1850,15 +1942,23 @@ void File_Mpeg_Psi::Descriptors()
     Descriptors.table_id_extension=table_id_extension;
     Descriptors.elementary_PID=elementary_PID;
     Descriptors.program_number=program_number;
+    Descriptors.stream_type=stream_type;
     Descriptors.event_id=event_id;
     Descriptors.elementary_PID_IsValid=elementary_PID_IsValid;
     Descriptors.program_number_IsValid=program_number_IsValid;
+    Descriptors.stream_type_IsValid=stream_type_IsValid;
     Descriptors.event_id_IsValid=event_id_IsValid;
+
+    //Parsing
+    Element_Begin("Descriptors", Descriptors_Size);
     Open_Buffer_Init(&Descriptors);
     Open_Buffer_Continue(&Descriptors, Descriptors_Size);
     Element_End();
+
+    //Configuring
     elementary_PID_IsValid=false;
     program_number_IsValid=false;
+    stream_type_IsValid=false;
     event_id_IsValid=false;
 }
 

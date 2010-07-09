@@ -2,7 +2,7 @@ project(MediaInfo)
 
 set(MEDIAINFO_MAJOR_VERSION 0)
 set(MEDIAINFO_MINOR_VERSION 7)
-set(MEDIAINFO_PATCH_VERSION 21)
+set(MEDIAINFO_PATCH_VERSION 33)
 set(MEDIAINFO_VERSION
 	${MEDIAINFO_MAJOR_VERSION}.${MEDIAINFO_MINOR_VERSION}.${MEDIAINFO_PATCH_VERSION}
 )
@@ -83,6 +83,8 @@ set(MediaInfo_SRCS
 	Duplicate/File__Duplicate__Base.cpp
 	Duplicate/File__Duplicate__Writer.cpp
 	Duplicate/File__Duplicate_MpegTs.cpp
+	Export/Export_Mpeg7.cpp
+	Export/Export_PBCore.cpp
 	Image/File_Bmp.cpp
 	Image/File_Gif.cpp
 	Image/File_Ico.cpp
@@ -97,6 +99,9 @@ set(MediaInfo_SRCS
 	Multiple/File_DvDif_Analysis.cpp
 	Multiple/File_Dvdv.cpp
 	Multiple/File_Flv.cpp
+	Multiple/File_Gxf.cpp
+	Multiple/File_Ivf.cpp
+	Multiple/File_Lxf.cpp
 	Multiple/File_Mk.cpp
 	Multiple/File_Mpeg4.cpp
 	Multiple/File_Mpeg4_Descriptors.cpp
@@ -111,13 +116,16 @@ set(MediaInfo_SRCS
 	Multiple/File_Nut.cpp
 	Multiple/File_Ogg.cpp
 	Multiple/File_Ogg_SubElement.cpp
+	Multiple/File_P2_Clip.cpp
 	Multiple/File_Riff.cpp
 	Multiple/File_Riff_Elements.cpp
 	Multiple/File_Rm.cpp
 	Multiple/File_Skm.cpp
 	Multiple/File_Swf.cpp
+	Multiple/File_Umf.cpp
 	Multiple/File_Wm.cpp
 	Multiple/File_Wm_Elements.cpp
+	Multiple/File_Xdcam_Clip.cpp
 	Reader/Reader_Directory.cpp
 	Reader/Reader_File.cpp
 	Reader/Reader_libcurl.cpp
@@ -129,17 +137,24 @@ set(MediaInfo_SRCS
 	Tag/File_Lyrics3.cpp
 	Tag/File_Lyrics3v2.cpp
 	Tag/File_VorbisCom.cpp
+	Text/File_Cdp.cpp
 	Text/File_Cmml.cpp
+	Text/File_DtvccTransport.cpp
+	Text/File_Kate.cpp
 	Text/File_Eia608.cpp
 	Text/File_Eia708.cpp
-	Text/File_Kate.cpp
+	Text/File_N19.cpp
 	Text/File_OtherText.cpp
 	Text/File_Pgs.cpp
+	Text/File_Scte20.cpp
 	Video/File_Avc.cpp
 	Video/File_Avc_Duplicate.cpp
 	Video/File_AvsV.cpp
+	Video/File_AfdBarData.cpp
 	Video/File_Dirac.cpp
 	Video/File_Flic.cpp
+	Video/File_Fraps.cpp
+	Video/File_Lagarith.cpp
 	Video/File_Mpeg4v.cpp
 	Video/File_Mpegv.cpp
 	Video/File_Theora.cpp

@@ -29,9 +29,9 @@ if (FAKEROOT_EXECUTABLE AND DH_EXECUTABLE)
 endif (FAKEROOT_EXECUTABLE AND DH_EXECUTABLE)
 
 if (NOT FAKEROOT_EXECUTABLE)
-	message(STATUS "Could not find fakeroot")
+	message(STATUS "Could NOT find fakeroot")
 endif (NOT FAKEROOT_EXECUTABLE)
 
 if (NOT DH_EXECUTABLE)
-	message(STATUS "Could not find dh")
+	message(STATUS "Could NOT find dh")
 endif (NOT DH_EXECUTABLE)

@@ -1,5 +1,5 @@
 // File_Flv - Info for Flash files
-// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -53,6 +53,9 @@
 #if defined(MEDIAINFO_RM_YES)
     #include "MediaInfo/Multiple/File_Rm.h"
 #endif
+#if MEDIAINFO_EVENTS
+    #include "MediaInfo/MediaInfo_Events.h"
+#endif //MEDIAINFO_EVENTS
 #include <algorithm>
 //---------------------------------------------------------------------------
 
@@ -376,6 +379,13 @@ const char* Flv_AACPacketType(int8u Value)
 File_Flv::File_Flv()
 :File__Analyze()
 {
+    //Configuration
+    ParserName=_T("FLV");
+    #if MEDIAINFO_EVENTS
+        ParserIDs[0]=MediaInfo_Parser_Flv;
+        StreamIDs_Width[0]=2;
+    #endif //MEDIAINFO_EVENTS
+
     //Internal
     Stream.resize(3); //Null, Video, Audio
 
@@ -384,6 +394,8 @@ File_Flv::File_Flv()
     PreviousTagSize=(int32u)-1;
     meta_filesize=(int64u)-1;
     meta_duration=0;
+    FirstFrame_Time=(int32u)-1;
+    FirstFrame_Type=(int8u)-1;
     LastFrame_Time=(int32u)-1;
     LastFrame_Type=(int8u)-1;
 }
@@ -395,6 +407,32 @@ File_Flv::File_Flv()
 //---------------------------------------------------------------------------
 void File_Flv::Streams_Finish()
 {
+    //Trying to detect VFR
+    std::vector<int64u> video_stream_FrameRate_Between;
+    for (size_t Pos=1; Pos<video_stream_FrameRate.size(); Pos++)
+        video_stream_FrameRate_Between.push_back(video_stream_FrameRate[Pos]-video_stream_FrameRate[Pos-1]);
+    std::sort(video_stream_FrameRate_Between.begin(), video_stream_FrameRate_Between.end());
+    if (!video_stream_FrameRate_Between.empty())
+    {
+        if (video_stream_FrameRate_Between[0]*0.9<video_stream_FrameRate_Between[video_stream_FrameRate_Between.size()-1]
+         && video_stream_FrameRate_Between[0]*1.1>video_stream_FrameRate_Between[video_stream_FrameRate_Between.size()-1])
+        {
+            float Time;
+            if (video_stream_FrameRate.size()>30)
+                Time=((float)(video_stream_FrameRate[30]-video_stream_FrameRate[0]))/30; //30 frames for handling 30 fps rounding problems
+            else
+                Time=((float)(video_stream_FrameRate[video_stream_FrameRate.size()-1]-video_stream_FrameRate[0]))/(video_stream_FrameRate.size()-1); //30 frames for handling 30 fps rounding problems
+            if (Time)
+            {
+                Fill(Stream_Video, 0, Video_FrameRate, 1000/Time);
+                Fill(Stream_Video, 0, Video_FrameRate_Mode, "CFR");
+            }
+        }
+        else
+            Fill(Stream_Video, 0, Video_FrameRate_Mode, "VFR");
+    }
+
+    //Parsers
     if (Stream[Stream_Video].Parser!=NULL)
     {
         Finish(Stream[Stream_Video].Parser);
@@ -421,8 +459,8 @@ void File_Flv::Streams_Finish()
     //Duration
     int64u Duration_Final=(int64u)meta_duration;
     float64 FrameRate=Retrieve(Stream_Video, 0, Video_FrameRate).To_float64();
-    if (LastFrame_Time!=(int32u)-1)
-        Duration_Final=LastFrame_Time+((LastFrame_Type==9 && FrameRate)?((int64u)(1000/FrameRate)):0);
+    if (LastFrame_Time!=(int32u)-1 && FirstFrame_Time!=(int32u)-1)
+        Duration_Final=LastFrame_Time-FirstFrame_Time+((LastFrame_Type==9 && FrameRate)?((int64u)(1000/FrameRate)):0);
     if (Duration_Final)
     {
         Fill(Stream_General, 0, General_Duration, Duration_Final, 10, true);
@@ -481,12 +519,12 @@ void File_Flv::FileHeader_Parse()
         //Integrity
         if (Signature!="FLV" || Version==0 || Size<9)
         {
-            Reject("FLV");
+            Reject();
             return;
         }
 
         //Filling
-        Accept("FLV");
+        Accept();
 
         Fill(Stream_General, 0, General_Format, "Flash Video");
         if (video_stream_Count)
@@ -501,7 +539,7 @@ void File_Flv::FileHeader_Parse()
 
         if (Version>1)
         {
-            Finish("FLV");
+            Finish();
             return; //Version more than 1 is not supported
         }
     FILLING_END();
@@ -536,6 +574,11 @@ void File_Flv::Header_Parse()
 
         //Filling
         Time=(((int32u)Timestamp_Extended)<<24)|Timestamp_Base;
+        if (FirstFrame_Time==(int32u)-1 && (Type==0x08 || Type==0x09))
+        {
+            FirstFrame_Time=Time;
+            FirstFrame_Type=Type;
+        }
         if (File_Offset+Buffer_Offset+Element_Offset+BodyLength+4==File_Size && Time!=0)
         {
             LastFrame_Time=Time;
@@ -566,7 +609,7 @@ void File_Flv::Data_Parse()
         case (int64u)-1 : GoTo(File_Size-PreviousTagSize-8, "FLV"); return; //When searching the last frame
         default : if (Searching_Duration)
                   {
-                    Finish("FLV"); //This is surely a bad en of file, don't try anymore
+                    Finish(); //This is surely a bad en of file, don't try anymore
                     return;
                   }
 
@@ -574,14 +617,14 @@ void File_Flv::Data_Parse()
 
     if (!video_stream_Count && !audio_stream_Count && video_stream_FrameRate_Detected && MediaInfoLib::Config.ParseSpeed_Get()<1) //All streams are parsed
     {
-        if (!Searching_Duration && (meta_filesize==(int64u)-1 || meta_filesize==0 || meta_filesize==File_Size) && Element_Code!=0x00)
+        if (!Searching_Duration && (meta_filesize==(int64u)-1 || meta_filesize==0 || meta_filesize==File_Size) && Element_Code!=0x00 &&!MediaInfoLib::Config.ParseSpeed_Get()!=1)
         {
             //Trying to find the last frame for duration
             Searching_Duration=true;
             GoToFromEnd(4, "FLV");
         }
         else
-            Finish("FLV");
+            Finish();
     }
 }
 
@@ -599,28 +642,10 @@ void File_Flv::video()
     //Handling FrameRate
     if (!video_stream_FrameRate_Detected)
     {
-        video_stream_FrameRate.push_back(Time);
+        if (video_stream_FrameRate.empty() || Time!=video_stream_FrameRate[video_stream_FrameRate.size()-1]) //if 2 block witht the same timestamp
+            video_stream_FrameRate.push_back(Time);
         if (video_stream_FrameRate.size()>30)
-        {
-            //Trying to detect VFR
-            std::vector<int64u> video_stream_FrameRate_Between;
-            for (size_t Pos=1; Pos<video_stream_FrameRate.size(); Pos++)
-                video_stream_FrameRate_Between.push_back(video_stream_FrameRate[Pos]-video_stream_FrameRate[Pos-1]);
-            std::sort(video_stream_FrameRate_Between.begin(), video_stream_FrameRate_Between.end());
-            if (video_stream_FrameRate_Between[0]*0.9<video_stream_FrameRate_Between[video_stream_FrameRate_Between.size()-1]
-             && video_stream_FrameRate_Between[0]*1.1>video_stream_FrameRate_Between[video_stream_FrameRate_Between.size()-1])
-            {
-                float Time=(float)(video_stream_FrameRate[30]-video_stream_FrameRate[0])/30; //30 frames for handling 30 fps rounding problems
-                if (Time)
-                {
-                    Fill(Stream_Video, 0, Video_FrameRate, 1000/Time);
-                    Fill(Stream_Video, 0, Video_FrameRate_Mode, "CFR");
-                }
-            }
-            else
-                Fill(Stream_Video, 0, Video_FrameRate_Mode, "VFR");
             video_stream_FrameRate_Detected=true;
-        }
     }
 
     //Needed?
@@ -637,6 +662,8 @@ void File_Flv::video()
     if (Stream[Stream_Video].Delay==(int32u)-1)
         Stream[Stream_Video].Delay=Time;
 
+    Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset), ContentType_MainStream);
+
     //Parsing
     int8u Codec, FrameType;
     Element_Begin("Stream header");
@@ -645,8 +672,6 @@ void File_Flv::video()
     Get_S1 (4, Codec,                                           "codecID"); Param_Info(Flv_Codec_Video[Codec]); Element_Info(Flv_Codec_Video[Codec]);
     BS_End();
     Element_End();
-
-    Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset), _T("video.raw"));
 
     if (Stream[Stream_Video].PacketCount==60) //2s
     {
@@ -877,6 +902,8 @@ void File_Flv::audio()
     if (Stream[Stream_Audio].Delay==(int32u)-1)
         Stream[Stream_Audio].Delay=Time;
 
+    Demux(Buffer+Buffer_Offset+(size_t)Element_Offset, (size_t)(Element_Size-Element_Offset), ContentType_MainStream);
+
     //Parsing
     int8u  codec, sampling_rate;
     bool   is_16bit, is_stereo;
@@ -1050,6 +1077,7 @@ void File_Flv::meta_SCRIPTDATAVALUE(const std::string &StringData)
                 else if (StringData=="duration") meta_duration=Value*1000;
                 else if (StringData=="audiodatarate") {ToFill="BitRate"; StreamKind=Stream_Audio; ValueS.From_Number(Value*1000, 0);}
                 else if (StringData=="framerate") {ToFill="FrameRate"; StreamKind=Stream_Video; ValueS.From_Number(Value, 3); video_stream_FrameRate_Detected=true; video_stream_Count=true;} //1 file with FrameRate tag and video stream but no video present tag
+                else if (StringData=="videoframerate") {ToFill="FrameRate"; StreamKind=Stream_Video; ValueS.From_Number(Value, 3); video_stream_FrameRate_Detected=true; video_stream_Count=true;} //1 file with FrameRate tag and video stream but no video present tag
                 else if (StringData=="datasize") {}
                 else if (StringData=="lasttimestamp") {}
                 else if (StringData=="filesize") {meta_filesize=(int64u)Value;}
@@ -1072,6 +1100,8 @@ void File_Flv::meta_SCRIPTDATAVALUE(const std::string &StringData)
                 else {StreamKind=Stream_General; ToFill=StringData; ValueS.From_Number(Value);}
                 if (!ValueS.empty()) Element_Info(ValueS);
                 Fill(StreamKind, 0, ToFill.c_str(), ValueS);
+                if (ToFill=="FrameRate")
+                    Fill(StreamKind, 0, "FrameRate_Mode", "CFR");
             }
             break;
         case 0x01 : //UI8

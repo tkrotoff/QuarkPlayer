@@ -1,5 +1,5 @@
 // File_Cdxa - Info for CDXA files
-// Copyright (C) 2004-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2004-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -33,6 +33,9 @@
 #include "MediaInfo/Multiple/File_Cdxa.h"
 #include "ZenLib/Utils.h"
 #include "MediaInfo/MediaInfo_Internal.h"
+#if MEDIAINFO_EVENTS
+    #include "MediaInfo/MediaInfo_Events.h"
+#endif //MEDIAINFO_EVENTS
 using namespace ZenLib;
 //---------------------------------------------------------------------------
 
@@ -64,6 +67,11 @@ File_Cdxa::File_Cdxa()
 :File__Analyze()
 {
     //Configuration
+    ParserName=_T("CDXA");
+    #if MEDIAINFO_EVENTS
+        ParserIDs[0]=MediaInfo_Parser_Cdxa;
+        StreamIDs_Width[0]=0;
+    #endif //MEDIAINFO_EVENTS
     MustSynchronize=true;
 
     //Temp
@@ -158,6 +166,7 @@ void File_Cdxa::FileHeader_Parse()
         MI=new MediaInfo_Internal;
         MI->Option(_T("FormatDetection_MaximumOffset"), _T("1048576"));
         //MI->Option(_T("File_IsSub"), _T("1"));
+        MI->Open_Buffer_Init(File_Size, File_Offset+Buffer_Offset);
     FILLING_END();
 }
 
@@ -272,7 +281,7 @@ void File_Cdxa::Data_Parse()
         Skip_B4(                                                "CRC");
 
     //Preparing to fill MediaInfo with a buffer
-    MI->Open_Buffer_Init(File_Size, File_Offset+Buffer_Offset);
+    MI->Open_Buffer_Position_Set(File_Offset+Buffer_Offset);
 
     //Sending the buffer to MediaInfo
     MI->Open_Buffer_Continue(Buffer+Buffer_Offset, (size_t)(Element_Size-CRC_Size));
@@ -290,16 +299,16 @@ void File_Cdxa::Data_Parse()
         Info("CDXA, Jumping to end of file");
 
     //Details
-    #ifndef MEDIAINFO_MINIMIZESIZE
-    if (MediaInfoLib::Config.Details_Get())
+    #if MEDIAINFO_TRACE
+    if (MediaInfoLib::Config.DetailsLevel_Get())
     {
         if (!MI->Inform().empty())
             Element_Show_Add(MI->Inform());
     }
-    #endif //MEDIAINFO_MINIMIZESIZE
+    #endif //MEDIAINFO_TRACE
 
     //Demux
-    Demux(Buffer+Buffer_Offset, (size_t)(Element_Size-CRC_Size), _T("xxx"));
+    Demux(Buffer+Buffer_Offset, (size_t)(Element_Size-CRC_Size), ContentType_MainStream);
 }
 
 } //NameSpace

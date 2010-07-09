@@ -1,5 +1,5 @@
 // File_Mpegv - Info for MPEG Video files
-// Copyright (C) 2004-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2004-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -28,6 +28,9 @@
 
 //---------------------------------------------------------------------------
 #include "MediaInfo/File__Analyze.h"
+#if defined(MEDIAINFO_GXF_YES) && (defined(MEDIAINFO_CDP_YES) || defined(MEDIAINFO_AFDBARDATA_YES))
+    #include "MediaInfo/Multiple/File_Riff.h"
+#endif //MEDIAINFO_CDP_YES
 //---------------------------------------------------------------------------
 
 namespace MediaInfoLib
@@ -45,6 +48,12 @@ public :
     size_t Frame_Count_Valid;
     bool   FrameIsAlwaysComplete;
     bool   TimeCodeIsNotTrustable;
+    #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+        std::vector<File_Riff::buffered_data*>* Cdp_Data;
+    #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+    #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
+        std::vector<File_Riff::buffered_data*>* AfdBarData_Data;
+    #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
 
     //Constructor/Destructor
     File_Mpegv();
@@ -77,6 +86,7 @@ private :
     void picture_start();
     void slice_start();
     void user_data_start();
+    void user_data_start_3();
     void user_data_start_CC();
     void user_data_start_DTG1();
     void user_data_start_GA94();
@@ -107,18 +117,31 @@ private :
     //Temporal reference
     struct temporalreference
     {
-        struct cc_data_
+        struct buffer_data
         {
-            int8u cc_type;
-            int8u cc_data[2];
-            bool  cc_valid;
+            size_t Size;
+            int8u* Data;
 
-            cc_data_()
+            buffer_data()
             {
-                cc_valid=false;
+                Size=0;
+                Data=NULL;
+            }
+
+            ~buffer_data()
+            {
+                delete[] Data; //Data=NULL;
             }
         };
-        std::vector<cc_data_> GA94_03_CC; //Per cc offset
+        #if defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+            buffer_data* GA94_03;
+        #endif //MEDIAINFO_DTVCCTRANSPORT_YES
+        #if defined(MEDIAINFO_SCTE20_YES)
+            buffer_data* Scte;
+        #endif //MEDIAINFO_SCTE20_YES
+
+        int8u  picture_coding_type;
+        int8u  picture_structure;
 
         bool   IsValid;
         bool   HasPictureCoding;
@@ -129,17 +152,55 @@ private :
 
         temporalreference()
         {
+            #if defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+                GA94_03=NULL;
+            #endif //MEDIAINFO_DTVCCTRANSPORT_YES
+            #if defined(MEDIAINFO_SCTE20_YES)
+                Scte=NULL;
+            #endif //MEDIAINFO_SCTE20_YES
+            picture_coding_type=(int8u)-1;
+            picture_structure=(int8u)-1;
             IsValid=false;
             HasPictureCoding=false;
         }
+
+        ~temporalreference()
+        {
+            #if defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+                delete GA94_03; //GA94_03=NULL;
+            #endif //MEDIAINFO_DTVCCTRANSPORT_YES
+            #if defined(MEDIAINFO_SCTE20_YES)
+                delete Scte; //Scte=NULL;
+            #endif //MEDIAINFO_SCTE20_YES
+        }
     };
-    std::vector<temporalreference> TemporalReference; //per temporal_reference
-    size_t                         TemporalReference_Offset;
-    size_t                         TemporalReference_GA94_03_CC_Offset;
+    std::vector<temporalreference*> TemporalReference; //per temporal_reference
+    size_t                          TemporalReference_Offset;
+    #if defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+        File__Analyze*              GA94_03_Parser;
+        size_t                      GA94_03_TemporalReference_Offset;
+        bool                        GA94_03_IsPresent;
+        File__Analyze*              CC___Parser;
+        bool                        CC___IsPresent;
+    #endif //defined(MEDIAINFO_DTVCCTRANSPORT_YES)
+    #if defined(MEDIAINFO_SCTE20_YES)
+        File__Analyze*              Scte_Parser;
+        size_t                      Scte_TemporalReference_Offset;
+        bool                        Scte_IsPresent;
+    #endif //defined(MEDIAINFO_SCTE20_YES)
+    #if defined(MEDIAINFO_AFDBARDATA_YES)
+        File__Analyze*              DTG1_Parser;
+        File__Analyze*              GA94_06_Parser;
+    #endif //defined(MEDIAINFO_AFDBARDATA_YES)
+    #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+        File__Analyze*              Cdp_Parser;
+        bool                        Cdp_IsPresent;
+    #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_CDP_YES)
+    #if defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
+        File__Analyze*              AfdBarData_Parser;
+    #endif //defined(MEDIAINFO_GXF_YES) && defined(MEDIAINFO_AFDBARDATA_YES)
 
     //Temp
-    std::vector<File__Analyze*> DVD_CC_Parsers;
-    std::vector<File__Analyze*> GA94_03_CC_Parsers;
     Ztring Library;
     Ztring Library_Name;
     Ztring Library_Version;
@@ -160,6 +221,7 @@ private :
     int16u vertical_size_value;
     int16u bit_rate_extension;
     int16u temporal_reference;
+    int16u temporal_reference_Old;
     int16u display_horizontal_size;
     int16u display_vertical_size;
     int16u vbv_delay;
@@ -169,6 +231,7 @@ private :
     int8u  picture_coding_type;
     int8u  aspect_ratio_information;
     int8u  frame_rate_code;
+    int8u  profile_and_level_indication;
     int8u  profile_and_level_indication_profile;
     int8u  profile_and_level_indication_level;
     int8u  chroma_format;
@@ -180,8 +243,6 @@ private :
     int8u  picture_structure;
     int8u  vbv_buffer_size_extension;
     bool   Time_End_NeedComplete;
-    bool   DVD_CC_IsPresent;
-    bool   GA94_03_CC_IsPresent;
     bool   load_intra_quantiser_matrix;
     bool   load_non_intra_quantiser_matrix;
     bool   progressive_sequence;

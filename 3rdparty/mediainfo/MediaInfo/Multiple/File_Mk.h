@@ -1,5 +1,5 @@
 // File_Mk - Info for Matroska Video/Audio files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -193,6 +193,7 @@ private :
     void Segment_Tracks_TrackEntry_CodecName();
     void Segment_Tracks_TrackEntry_CodecPrivate();
     void Segment_Tracks_TrackEntry_CodecPrivate_auds();
+    void Segment_Tracks_TrackEntry_CodecPrivate_auds_ExtensibleWave();
     void Segment_Tracks_TrackEntry_CodecPrivate_vids();
     void Segment_Tracks_TrackEntry_DefaultDuration();
     void Segment_Tracks_TrackEntry_FlagDefault();

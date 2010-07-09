@@ -1,5 +1,5 @@
 // MediaInfo_Internal - All info about media files, different parser listing part
-// Copyright (C) 2006-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2006-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -53,6 +53,15 @@
 #if defined(MEDIAINFO_FLV_YES)
     #include "MediaInfo/Multiple/File_Flv.h"
 #endif
+#if defined(MEDIAINFO_GXF_YES)
+    #include "MediaInfo/Multiple/File_Gxf.h"
+#endif
+#if defined(MEDIAINFO_IVF_YES)
+    #include "MediaInfo/Multiple/File_Ivf.h"
+#endif
+#if defined(MEDIAINFO_LXF_YES)
+    #include "MediaInfo/Multiple/File_Lxf.h"
+#endif
 #if defined(MEDIAINFO_MK_YES)
     #include "MediaInfo/Multiple/File_Mk.h"
 #endif
@@ -74,6 +83,9 @@
 #if defined(MEDIAINFO_OGG_YES)
     #include "MediaInfo/Multiple/File_Ogg.h"
 #endif
+#if defined(MEDIAINFO_P2_YES)
+    #include "MediaInfo/Multiple/File_P2_Clip.h"
+#endif
 #if defined(MEDIAINFO_RIFF_YES)
     #include "MediaInfo/Multiple/File_Riff.h"
 #endif
@@ -88,6 +100,9 @@
 #endif
 #if defined(MEDIAINFO_WM_YES)
     #include "MediaInfo/Multiple/File_Wm.h"
+#endif
+#if defined(MEDIAINFO_XDCAM_YES)
+    #include "MediaInfo/Multiple/File_Xdcam_Clip.h"
 #endif
 #if defined(MEDIAINFO_DPG_YES)
     #include "MediaInfo/Multiple/File_Dpg.h"
@@ -194,6 +209,9 @@
 
 //---------------------------------------------------------------------------
 // Text
+#if defined(MEDIAINFO_N19_YES)
+    #include "MediaInfo/Text/File_N19.h"
+#endif
 #if defined(MEDIAINFO_OTHERTEXT_YES)
     #include "MediaInfo/Text/File_OtherText.h"
 #endif
@@ -299,6 +317,15 @@ bool MediaInfo_Internal::SelectFromExtension (const String &Parser)
     #if defined(MEDIAINFO_FLV_YES)
         else if (Parser==_T("Flv"))         Info=new File_Flv();
     #endif
+    #if defined(MEDIAINFO_GXF_YES)
+        else if (Parser==_T("Gxf"))         Info=new File_Gxf();
+    #endif
+    #if defined(MEDIAINFO_IVF_YES)
+        else if (Parser==_T("Ivf"))         Info=new File_Ivf();
+    #endif
+    #if defined(MEDIAINFO_LXF_YES)
+        else if (Parser==_T("Lxf"))         Info=new File_Lxf();
+    #endif
     #if defined(MEDIAINFO_MK_YES)
         else if (Parser==_T("Mk"))          Info=new File_Mk();
     #endif
@@ -320,6 +347,9 @@ bool MediaInfo_Internal::SelectFromExtension (const String &Parser)
     #if defined(MEDIAINFO_OGG_YES)
         else if (Parser==_T("Ogg"))         Info=new File_Ogg();
     #endif
+    #if defined(MEDIAINFO_P2_YES)
+        else if (Parser==_T("P2_Clip"))     Info=new File_P2_Clip();
+    #endif
     #if defined(MEDIAINFO_RIFF_YES)
         else if (Parser==_T("Riff"))        Info=new File_Riff();
     #endif
@@ -334,6 +364,9 @@ bool MediaInfo_Internal::SelectFromExtension (const String &Parser)
     #endif
     #if defined(MEDIAINFO_WM_YES)
         else if (Parser==_T("Wm"))          Info=new File_Wm();
+    #endif
+    #if defined(MEDIAINFO_XDCAM_YES)
+        else if (Parser==_T("Xdcam_Clip"))   Info=new File_Xdcam_Clip();
     #endif
     #if defined(MEDIAINFO_DPG_YES)
         else if (Parser==_T("Dpg"))         Info=new File_Dpg();
@@ -438,6 +471,9 @@ bool MediaInfo_Internal::SelectFromExtension (const String &Parser)
 
     // Text
     #if defined(MEDIAINFO_OTHERTEXT_YES)
+        else if (Parser==_T("N19"))         Info=new File_N19();
+    #endif
+    #if defined(MEDIAINFO_OTHERTEXT_YES)
         else if (Parser==_T("OtherText"))   Info=new File_OtherText();
     #endif
 
@@ -527,6 +563,15 @@ int MediaInfo_Internal::ListFormats(const String &File_Name)
     #if defined(MEDIAINFO_FLV_YES)
         delete Info; Info=new File_Flv();                if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
     #endif
+    #if defined(MEDIAINFO_GXF_YES)
+        delete Info; Info=new File_Gxf();                if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
+    #endif
+    #if defined(MEDIAINFO_IVF_YES)
+        delete Info; Info=new File_Ivf();                if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
+    #endif
+    #if defined(MEDIAINFO_LXF_YES)
+        delete Info; Info=new File_Lxf();                if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
+    #endif
     #if defined(MEDIAINFO_MK_YES)
         delete Info; Info=new File_Mk();                 if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
     #endif
@@ -551,6 +596,9 @@ int MediaInfo_Internal::ListFormats(const String &File_Name)
     #if defined(MEDIAINFO_OGG_YES)
         delete Info; Info=new File_Ogg();                if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
     #endif
+    #if defined(MEDIAINFO_P2_YES)
+        delete Info; Info=new File_P2_Clip();            if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
+    #endif
     #if defined(MEDIAINFO_RIFF_YES)
         delete Info; Info=new File_Riff();               if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
     #endif
@@ -568,6 +616,9 @@ int MediaInfo_Internal::ListFormats(const String &File_Name)
     #endif
     #if defined(MEDIAINFO_WM_YES)
         delete Info; Info=new File_Wm();                 if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
+    #endif
+    #if defined(MEDIAINFO_XDCAM_YES)
+        delete Info; Info=new File_Xdcam_Clip();         if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
     #endif
     #if defined(MEDIAINFO_DPG_YES)
         delete Info; Info=new File_Dpg();                if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
@@ -671,6 +722,9 @@ int MediaInfo_Internal::ListFormats(const String &File_Name)
     #endif
 
     // Text
+    #if defined(MEDIAINFO_N19_YES)
+        delete Info; Info=new File_N19();                if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
+    #endif
     #if defined(MEDIAINFO_OTHERTEXT_YES)
         delete Info; Info=new File_OtherText();          if (Reader_File::Format_Test_PerParser(this, File_Name)>0) return 1;
     #endif
@@ -738,7 +792,7 @@ int MediaInfo_Internal::ListFormats(const String &File_Name)
 bool MediaInfo_Internal::LibraryIsModified ()
 {
     #if defined(MEDIAINFO_MULTI_NO) || defined(MEDIAINFO_VIDEO_NO) || defined(MEDIAINFO_AUDIO_NO) || defined(MEDIAINFO_TEXT_NO) || defined(MEDIAINFO_IMAGE_NO) || defined(MEDIAINFO_ARCHIVE_NO) \
-     || defined(MEDIAINFO_BDAV_NO) || defined(MEDIAINFO_MK_NO) || defined(MEDIAINFO_OGG_NO) || defined(MEDIAINFO_RIFF_NO) || defined(MEDIAINFO_MPEG4_NO) || defined(MEDIAINFO_MPEGPS_NO) || defined(MEDIAINFO_MPEGTS_NO) || defined(MEDIAINFO_FLV_NO) || defined(MEDIAINFO_SWF_NO) || defined(MEDIAINFO_MXF_NO) || defined(MEDIAINFO_NUT_NO) || defined(MEDIAINFO_WM_NO) || defined(MEDIAINFO_QT_NO) || defined(MEDIAINFO_RM_NO) || defined(MEDIAINFO_DVDIF_NO) || defined(MEDIAINFO_DVDV_NO) || defined(MEDIAINFO_CDXA_NO) || defined(MEDIAINFO_DPG_NO) || defined(MEDIAINFO_TSP_NO) \
+     || defined(MEDIAINFO_BDAV_NO) || defined(MEDIAINFO_MK_NO) || defined(MEDIAINFO_OGG_NO) || defined(MEDIAINFO_RIFF_NO) || defined(MEDIAINFO_MPEG4_NO) || defined(MEDIAINFO_MPEGPS_NO) || defined(MEDIAINFO_MPEGTS_NO) || defined(MEDIAINFO_FLV_NO) || defined(MEDIAINFO_GXF_NO) || defined(MEDIAINFO_IVF_NO) || defined(MEDIAINFO_LXF_NO) || defined(MEDIAINFO_SWF_NO) || defined(MEDIAINFO_MXF_NO) || defined(MEDIAINFO_NUT_NO) || defined(MEDIAINFO_WM_NO) || defined(MEDIAINFO_QT_NO) || defined(MEDIAINFO_RM_NO) || defined(MEDIAINFO_DVDIF_NO) || defined(MEDIAINFO_DVDV_NO) || defined(MEDIAINFO_CDXA_NO) || defined(MEDIAINFO_DPG_NO) || defined(MEDIAINFO_TSP_NO) \
      || defined(MEDIAINFO_AVC_NO) || defined(MEDIAINFO_MPEG4V_NO) || defined(MEDIAINFO_MPEGV_NO) || defined(MEDIAINFO_FLIC_NO) || defined(MEDIAINFO_THEORA_NO) \
      || defined(MEDIAINFO_AC3_NO) || defined(MEDIAINFO_ADIF_NO) || defined(MEDIAINFO_ADTS_NO) || defined(MEDIAINFO_AMR_NO) || defined(MEDIAINFO_DTS_NO) || defined(MEDIAINFO_FLAC_NO) || defined(MEDIAINFO_APE_NO) || defined(MEDIAINFO_MPC_NO) || defined(MEDIAINFO_MPCSV8_NO) || defined(MEDIAINFO_MPEGA_NO) || defined(MEDIAINFO_TWINVQ_NO) || defined(MEDIAINFO_XM_NO) || defined(MEDIAINFO_MOD_NO) || defined(MEDIAINFO_S3M_NO) || defined(MEDIAINFO_IT_NO) || defined(MEDIAINFO_AES3_NO) || defined(MEDIAINFO_SPEEX_NO) || defined(MEDIAINFO_TAK_NO) || defined(MEDIAINFO_PS2A_NO) \
      || defined(MEDIAINFO_CMML_NO)  || defined(MEDIAINFO_KATE_NO)  || defined(MEDIAINFO_PGS_NO) || defined(MEDIAINFO_OTHERTEXT_NO) \

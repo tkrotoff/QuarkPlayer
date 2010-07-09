@@ -1,5 +1,5 @@
 // File_Wm - Info for Windows Media files
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -38,6 +38,9 @@
 #if defined(MEDIAINFO_MPEGPS_YES)
     #include "MediaInfo/Multiple/File_MpegPs.h"
 #endif
+#if MEDIAINFO_EVENTS
+    #include "MediaInfo/MediaInfo_Events.h"
+#endif //MEDIAINFO_EVENTS
 #include "ZenLib/Utils.h"
 using namespace ZenLib;
 //---------------------------------------------------------------------------
@@ -54,6 +57,11 @@ File_Wm::File_Wm()
 :File__Analyze()
 {
     //Configuration
+    ParserName=_T("Wm");
+    #if MEDIAINFO_EVENTS
+        ParserIDs[0]=MediaInfo_Parser_Wm;
+        StreamIDs_Width[0]=2;
+    #endif //MEDIAINFO_EVENTS
     DataMustAlwaysBeComplete=false;
 
     //Stream
@@ -173,6 +181,14 @@ void File_Wm::Streams_Finish()
             if (Temp->second.StreamKind==Stream_Video)
                 Format_Profile=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Format_Profile);
             Finish(Temp->second.Parser);
+            if (Temp->second.Parser->Get(Stream_Video, 0, Video_Format)==_T("MPEG Video"))
+                {
+                    //Width/Height are junk
+                    Clear(Stream_Video, Temp->second.StreamPos, Video_Width);
+                    Clear(Stream_Video, Temp->second.StreamPos, Video_Height);
+                    Clear(Stream_Video, Temp->second.StreamPos, Video_PixelAspectRatio);
+                    Clear(Stream_Video, Temp->second.StreamPos, Video_DisplayAspectRatio);
+                }
             Merge(*Temp->second.Parser, Temp->second.StreamKind, 0, Temp->second.StreamPos);
             if (!Format_Profile.empty() && Format_Profile.find(Retrieve(Stream_Video, Temp->second.StreamPos, Video_Format_Profile))==0)
                 Fill(Stream_Video, Temp->second.StreamPos, Video_Format_Profile, Format_Profile, true);
@@ -181,8 +197,16 @@ void File_Wm::Streams_Finish()
         //Delay (in case of MPEG-PS)
         if (Temp->second.StreamKind==Stream_Video)
         {
-            Fill(Stream_Video, Temp->second.StreamPos, Video_Delay_Original, Retrieve(Temp->second.StreamKind, Temp->second.StreamPos, "Delay"));
-            Fill(Stream_Video, Temp->second.StreamPos, Video_Delay_Original_Settings, Retrieve(Temp->second.StreamKind, Temp->second.StreamPos, "Delay_Settings"));
+            if (!Retrieve(Stream_Video, Temp->second.StreamPos, Video_Delay).empty())
+            {
+                Ztring Delay=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Delay);
+                Fill(Stream_Video, Temp->second.StreamPos, Video_Delay_Original, Delay);
+            }
+            if (!Retrieve(Stream_Video, Temp->second.StreamPos, Video_Delay_Settings).empty())
+            {
+                Ztring Delay_Settings=Retrieve(Stream_Video, Temp->second.StreamPos, Video_Delay_Settings);
+                Fill(Stream_Video, Temp->second.StreamPos, Video_Delay_Original_Settings, Delay_Settings);
+            }
         }
         if (Temp->second.TimeCode_First!=(int64u)-1)
             Fill(Temp->second.StreamKind, Temp->second.StreamPos, "Delay", Temp->second.TimeCode_First, 10, true);

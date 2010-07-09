@@ -1,5 +1,5 @@
 // MediaInfo_Config_MediaInfo - Configuration class
-// Copyright (C) 2005-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2005-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -28,6 +28,11 @@
 
 //---------------------------------------------------------------------------
 #include "MediaInfo/MediaInfo_Internal_Const.h"
+#if MEDIAINFO_EVENTS
+    #include "MediaInfo/MediaInfo_Config.h"
+    #include "MediaInfo/MediaInfo_Events.h"
+    #include "ZenLib/File.h"
+#endif //MEDIAINFO_EVENTS
 #include "ZenLib/CriticalSection.h"
 #include "ZenLib/ZtringListList.h"
 #include "ZenLib/Translation.h"
@@ -51,7 +56,7 @@ public :
     MediaInfo_Config_MediaInfo();
 
     //General
-    Ztring Option (const String &Option, const String &Value=_T(""));
+    Ztring Option (const String &Option, const String &Value=Ztring());
 
     void          File_IsSeekable_Set (bool NewValue);
     bool          File_IsSeekable_Get ();
@@ -80,9 +85,22 @@ public :
     size_t        File__Duplicate_Memory_Indexes_Get (const Ztring &ToFind);
     void          File__Duplicate_Memory_Indexes_Erase (const Ztring &ToFind);
 
+    #if MEDIAINFO_EVENTS
+    bool          Event_CallBackFunction_IsSet ();
+    Ztring        Event_CallBackFunction_Set (const Ztring &Value);
+    void          Event_Send(const int8u* Data_Content, size_t Data_Size);
+    void          Event_Send(const int8u* Data_Content, size_t Data_Size, const Ztring &File_Name);
+    #else //MEDIAINFO_EVENTS
+    bool          Event_CallBackFunction_IsSet () {return false;}
+    void          Event_Send(const int8u*, size_t) {};
+    void          Event_Send(const int8u*, size_t, const Ztring &) {};
+    #endif //MEDIAINFO_EVENTS
+
     //Specific
     void          File_MpegTs_ForceMenu_Set (bool NewValue);
     bool          File_MpegTs_ForceMenu_Get ();
+    void          File_MpegTs_stream_type_Trust_Set (bool NewValue);
+    bool          File_MpegTs_stream_type_Trust_Get ();
     void          File_Bdmv_ParseTargetedFile_Set (bool NewValue);
     bool          File_Bdmv_ParseTargetedFile_Get ();
     void          File_DvDif_Analysis_Set (bool NewValue);
@@ -108,8 +126,15 @@ private :
     std::vector<Ztring>     File__Duplicate_List;
     ZtringList              File__Duplicate_Memory_Indexes;
 
+    //Event
+    #if MEDIAINFO_EVENTS
+    MediaInfo_Event_CallBackFunction* Event_CallBackFunction; //void Event_Handler(unsigned char* Data_Content, size_t Data_Size, void* UserHandler)
+    void*                   Event_UserHandler;
+    #endif //MEDIAINFO_EVENTS
+
     //Specific
     bool                    File_MpegTs_ForceMenu;
+    bool                    File_MpegTs_stream_type_Trust;
     bool                    File_Bdmv_ParseTargetedFile;
     bool                    File_DvDif_Analysis;
 

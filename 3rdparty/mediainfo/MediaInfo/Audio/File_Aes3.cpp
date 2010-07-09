@@ -1,5 +1,5 @@
 // File_Aes3 - Info for AES3 packetized streams
-// Copyright (C) 2008-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2008-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -46,9 +46,9 @@ const char* Aes3_ChannelsPositions(int8u number_channels)
     switch (number_channels)
     {
         case  0 : return "Front: L R";                                  //2 channels
-        case  1 : return "Front: L R C, LFE";                           //4 channels
-        case  2 : return "Front: L R C, Surround: L R, LFE";            //6 channels
-        case  3 : return "Front: L R C, Surround: L C C R, LFE";        //8 channels
+        case  1 : return "Front: L C R, LFE";                           //4 channels
+        case  2 : return "Front: L C R, Side: L R, LFE";                //6 channels
+        case  3 : return "Front: L C R, Side: L R, Back: L R, LFE";     //8 channels
         default : return "";
     }
 }
@@ -58,10 +58,10 @@ const char* Aes3_ChannelsPositions2(int8u number_channels)
 {
     switch (number_channels)
     {
-        case  0 : return "2/0";                                         //2 channels
-        case  1 : return "3/0.1";                                       //4 channels
-        case  2 : return "3/2.1";                                       //6 channels
-        case  3 : return "3/4.1";                                       //8 channels
+        case  0 : return "2/0/0.0";                                     //2 channels
+        case  1 : return "3/0/0.1";                                     //4 channels
+        case  2 : return "3/2/0.1";                                     //6 channels
+        case  3 : return "3/2/2.1";                                     //8 channels
         default : return "";
     }
 }

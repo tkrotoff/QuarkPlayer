@@ -1,5 +1,5 @@
 // ZenLib::Utils - Very small utilities
-// Copyright (C) 2002-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2002-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -896,7 +896,7 @@ int32s float64_int32s (float64 F, bool Rounded)
     if (!Rounded)
         return (int32s)F;
     //Rounded
-    int I1=(int)F;
+    int32s I1=(int32s)F;
     if (F-I1>=0.5)
         return I1+1;
     else
@@ -909,7 +909,7 @@ int64s float64_int64s (float64 F, bool Rounded)
     if (!Rounded)
         return (int64s)F;
     //Rounded
-    int I1=(int)F;
+    int64s I1=(int64s)F;
     if (F-I1>=0.5)
         return I1+1;
     else

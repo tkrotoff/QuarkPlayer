@@ -1,5 +1,5 @@
 // File__Duplicate_MpegTs - Duplication of some formats
-// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -310,8 +310,14 @@ bool File__Duplicate_MpegTs::Parsing_Begin (const int8u* ToAdd, size_t ToAdd_Siz
     FromTS.Offset+=4+adaptation_field_length;
     int8u pointer_field=CC1(FromTS.Buffer+FromTS.Offset);
 
+    //table_id
+    FromTS.Offset+=1+pointer_field;
+    int8u table_id=FromTS.Buffer[FromTS.Offset];
+    if (table_id!=0x00 && table_id!=0x02) //Currently only PAT and PMT are handled
+        return false;
+
     //section_length
-    FromTS.Offset+=1+pointer_field+1;
+    FromTS.Offset++;
     if (FromTS.Offset+2>FromTS.Size)
         return false;
     FromTS.Begin=FromTS.Offset-1;

@@ -1,5 +1,5 @@
 // File_Pcm - Info for PCM files
-// Copyright (C) 2007-2009 Jerome Martinez, Zen@MediaArea.net
+// Copyright (C) 2007-2010 MediaArea.net SARL, Info@MediaArea.net
 //
 // This library is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published by
@@ -8,7 +8,7 @@
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
@@ -57,11 +57,11 @@ const char* Pcm_VOB_ChannelsPositions(int8u NumberOfChannels)
         case  1 : return "Front: C";                                    //1 channel
         case  2 : return "Front: L R";                                  //2 channels
         case  3 : return "Front: L R, LFE";                             //3 channels (not sure)
-        case  4 : return "Front: L R, Rear: L R";                       //4 channels
-        case  5 : return "Front: L R, Rear: L R, LFE";                  //5 channels (not sure)
-        case  6 : return "Front: L R C, Rear: L R, LFE";                //6 channels
-        case  7 : return "Front: L R C, Middle: L R, Rear: L R";        //7 channels
-        case  8 : return "Front: L R C, Middle: L R, Rear: L R, LFE";   //8 channels
+        case  4 : return "Front: L R, Side: L R";                       //4 channels
+        case  5 : return "Front: L R, Side: L R, LFE";                  //5 channels (not sure)
+        case  6 : return "Front: L C R, Side: L R, LFE";                //6 channels
+        case  7 : return "Front: L C R, Side: L R, Back: L R";          //7 channels
+        case  8 : return "Front: L C R, Side: L R, Back: L R, LFE";     //8 channels
         default : return "";
     }
 }
@@ -71,14 +71,14 @@ const char* Pcm_VOB_ChannelsPositions2(int8u NumberOfChannels)
 {
     switch (NumberOfChannels)
     {
-        case  1 : return "1/0";                                         //1 channel
-        case  2 : return "2/0";                                         //2 channels
-        case  3 : return "3/0.1";                                       //3 channels (not sure)
-        case  4 : return "3/0.1";                                       //4 channels
-        case  5 : return "3/2.1";                                       //5 channels (not sure)
-        case  6 : return "3/2.1";                                       //6 channels
-        case  7 : return "3.2/2.1";                                     //7 channels
-        case  8 : return "3.2/2.1";                                     //8 channels
+        case  1 : return "1/0/0.0";                                     //1 channel
+        case  2 : return "2/0/0.0";                                     //2 channels
+        case  3 : return "3/0/0.1";                                     //3 channels (not sure)
+        case  4 : return "3/0/0.1";                                     //4 channels
+        case  5 : return "3/1/0.1";                                     //5 channels (not sure)
+        case  6 : return "3/2/0.1";                                     //6 channels
+        case  7 : return "3/2/1.1";                                     //7 channels
+        case  8 : return "3/2/2.1";                                     //8 channels
         default : return "";
     }
 }
@@ -106,6 +106,17 @@ int32u Pcm_M2TS_Resolution[]=
 };
 
 //***************************************************************************
+// Constructor/Destructor
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+File_Pcm::File_Pcm()
+{
+    //In
+    BitDepth=0;
+}
+
+//***************************************************************************
 // Streams management
 //***************************************************************************
 
@@ -130,7 +141,14 @@ void File_Pcm::Streams_Fill()
     else if (Codec==_T("twos"))             {                   Endianness=_T("Big");    Sign=_T("Signed");}
     else if (Codec==_T("sowt"))             {                   Endianness=_T("Little"); Sign=_T("Signed");}
     else if (Codec==_T("SWF ADPCM"))        {Firm=_T("SWF");}
-    else if (Codec==_T("1"))                {                   Endianness=_T("Little"); Sign=_T("Unsigned");}
+    else if (Codec==_T("1"))                {   if (BitDepth)
+                                                {
+                                                    if (BitDepth>8)
+                                                    {           Endianness=_T("Little"); Sign=_T("Signed");}
+                                                    else
+                                                    {                                    Sign=_T("Unsigned");}
+                                                }
+                                            }
     else if (Codec==_T("2"))                {Firm=_T("Microsoft");}
     else if (Codec==_T("3"))                {                   Endianness=_T("Float");}
     else if (Codec==_T("10"))               {Firm=_T("OKI");}
@@ -219,9 +237,12 @@ void File_Pcm::Read_Buffer_Continue()
         //Filling
         Accept("PCM");
 
-        Stream_Prepare(Stream_Audio);
-        Fill(Stream_Audio, 0, Audio_Format, "PCM");
-        Fill(Stream_Audio, 0, Audio_Codec, "PCM");
+        if (Count_Get(Stream_Audio)==0)
+        {
+            Stream_Prepare(Stream_Audio);
+            Fill(Stream_Audio, 0, Audio_Format, "PCM");
+            Fill(Stream_Audio, 0, Audio_Codec, "PCM");
+        }
 
         //Finished
         Finish("PCM");
@@ -280,15 +301,18 @@ void File_Pcm::VOB()
     FILLING_BEGIN();
         Accept("PCM");
 
-        Stream_Prepare(Stream_Audio);
-        Fill(Stream_Audio, 0, Audio_Format, "PCM");
-        Fill(Stream_Audio, 0, Audio_Codec, "PCM");
-        Fill(Stream_Audio, 0, Audio_MuxingMode, "DVD-Video");
-        Fill(Stream_Audio, 0, Audio_SamplingRate, Pcm_VOB_Frequency[Frequency]);
-        Fill(Stream_Audio, 0, Audio_Channel_s_, NumberOfChannelsMinusOne+1);
-        Fill(Stream_Audio, 0, Audio_ChannelPositions, Pcm_VOB_ChannelsPositions(NumberOfChannelsMinusOne+1));
-        Fill(Stream_Audio, 0, Audio_ChannelPositions_String2, Pcm_VOB_ChannelsPositions2(NumberOfChannelsMinusOne+1));
-        Fill(Stream_Audio, 0, Audio_BitRate, Pcm_VOB_Frequency[Frequency]*(NumberOfChannelsMinusOne+1)*16);
+        if (Count_Get(Stream_Audio)==0)
+        {
+            Stream_Prepare(Stream_Audio);
+            Fill(Stream_Audio, 0, Audio_Format, "PCM");
+            Fill(Stream_Audio, 0, Audio_Codec, "PCM");
+            Fill(Stream_Audio, 0, Audio_MuxingMode, "DVD-Video");
+            Fill(Stream_Audio, 0, Audio_SamplingRate, Pcm_VOB_Frequency[Frequency]);
+            Fill(Stream_Audio, 0, Audio_Channel_s_, NumberOfChannelsMinusOne+1);
+            Fill(Stream_Audio, 0, Audio_ChannelPositions, Pcm_VOB_ChannelsPositions(NumberOfChannelsMinusOne+1));
+            Fill(Stream_Audio, 0, Audio_ChannelPositions_String2, Pcm_VOB_ChannelsPositions2(NumberOfChannelsMinusOne+1));
+            Fill(Stream_Audio, 0, Audio_BitRate, Pcm_VOB_Frequency[Frequency]*(NumberOfChannelsMinusOne+1)*16);
+        }
 
         Finish("PCM");
     FILLING_END();
@@ -322,18 +346,21 @@ void File_Pcm::M2TS()
     FILLING_BEGIN();
         Accept("PCM");
 
-        Stream_Prepare(Stream_Audio);
-        Fill(Stream_Audio, 0, Audio_Format, "PCM");
-        Fill(Stream_Audio, 0, Audio_Codec, "PCM");
-        Fill(Stream_Audio, 0, Audio_MuxingMode, "Blu-ray");
-        Fill(Stream_Audio, 0, Audio_SamplingRate, Pcm_M2TS_Frequency[Frequency]);
-        Fill(Stream_Audio, 0, Audio_Resolution, Pcm_M2TS_Resolution[Resolution]);
-        Fill(Stream_Audio, 0, Audio_Channel_s_, NumberOfChannels);
-        Fill(Stream_Audio, 0, Audio_ChannelPositions, Pcm_VOB_ChannelsPositions(NumberOfChannels));
-        Fill(Stream_Audio, 0, Audio_ChannelPositions_String2, Pcm_VOB_ChannelsPositions2(NumberOfChannels));
-        if (NumberOfChannels%2)
-            NumberOfChannels++; //Always by pair
-        Fill(Stream_Audio, 0, Audio_BitRate, Pcm_M2TS_Frequency[Frequency]*(NumberOfChannels)*Pcm_M2TS_Resolution[Resolution]);
+        if (Count_Get(Stream_Audio)==0)
+        {
+            Stream_Prepare(Stream_Audio);
+            Fill(Stream_Audio, 0, Audio_Format, "PCM");
+            Fill(Stream_Audio, 0, Audio_Codec, "PCM");
+            Fill(Stream_Audio, 0, Audio_MuxingMode, "Blu-ray");
+            Fill(Stream_Audio, 0, Audio_SamplingRate, Pcm_M2TS_Frequency[Frequency]);
+            Fill(Stream_Audio, 0, Audio_Resolution, Pcm_M2TS_Resolution[Resolution]);
+            Fill(Stream_Audio, 0, Audio_Channel_s_, NumberOfChannels);
+            Fill(Stream_Audio, 0, Audio_ChannelPositions, Pcm_VOB_ChannelsPositions(NumberOfChannels));
+            Fill(Stream_Audio, 0, Audio_ChannelPositions_String2, Pcm_VOB_ChannelsPositions2(NumberOfChannels));
+            if (NumberOfChannels%2)
+                NumberOfChannels++; //Always by pair
+            Fill(Stream_Audio, 0, Audio_BitRate, Pcm_M2TS_Frequency[Frequency]*(NumberOfChannels)*Pcm_M2TS_Resolution[Resolution]);
+        }
 
         Finish("PCM");
     FILLING_END();
