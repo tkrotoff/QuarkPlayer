@@ -4,7 +4,7 @@ if (WIN32)
 	add_definitions(-DQT_QTIOCOMPRESSOR_EXPORT)
 endif (WIN32)
 
-include_directories(${ZLIB_INCLUDE_DIR})
+include_directories(${ZLIB_INCLUDE_DIRS})
 
 set(QtIOCompressor_SRCS
 	qtiocompressor.cpp

@@ -2,7 +2,7 @@ project(MediaInfoFetcher)
 
 if (TAGLIB)
 	include_directories(${TAGLIB_INCLUDE_DIRS})
-	add_definitions(${TAGLIB_CFLAGS})
+	add_definitions(${TAGLIB_DEFINITIONS})
 endif (TAGLIB)
 
 if (MEDIAINFOLIB)

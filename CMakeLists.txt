@@ -65,9 +65,9 @@ endif (APPLE)
 ##
 
 if (USE_SYSTEM_LIBRARIES)
-	message(STATUS "Try to use the system libraries")
+	message(STATUS "Use the system libraries when possible")
 else (USE_SYSTEM_LIBRARIES)
-	message(STATUS "Using internal 3rdparty libraries")
+	message(STATUS "Use internal 3rdparty libraries")
 endif (USE_SYSTEM_LIBRARIES)
 
 # 3rdparty libraries with no Qt dependency
@@ -146,7 +146,7 @@ if (TAGLIB)
 			${CMAKE_SOURCE_DIR}/3rdparty/taglib/include
 			${CMAKE_BINARY_DIR}/3rdparty/taglib
 		)
-		set(TAGLIB_CFLAGS -DTAGLIB)
+		#set(TAGLIB_DEFINITIONS -DTAGLIB)
 		set(TAGLIB_LIBRARIES tag)
 	endif (NOT TAGLIB_FOUND)
 endif (TAGLIB)

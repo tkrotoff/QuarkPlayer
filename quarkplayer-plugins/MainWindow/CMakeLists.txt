@@ -1,7 +1,9 @@
 project(MainWindow)
 
-include_directories(${QTSINGLEAPPLICATION_INCLUDE_DIRS})
-add_definitions(-DBUILD_MAINWINDOW ${QTSINGLEAPPLICATION_DEFINITIONS})
+if (TAGLIB)
+	include_directories(${TAGLIB_INCLUDE_DIRS})
+	add_definitions(${TAGLIB_DEFINITIONS})
+endif (TAGLIB)
 
 if (MEDIAINFOLIB)
 	include_directories(${MEDIAINFOLIB_INCLUDE_DIRS})
@@ -10,6 +12,11 @@ endif (MEDIAINFOLIB)
 if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
 endif (STATICPLUGINS)
+
+include_directories(${QTSINGLEAPPLICATION_INCLUDE_DIRS})
+add_definitions(${QTSINGLEAPPLICATION_DEFINITIONS})
+
+add_definitions(-DBUILD_MAINWINDOW)
 
 # Otherwise QString::fromStdWString() is not defined
 # This happens when compiling using the KDE4 libraries
