@@ -1,6 +1,6 @@
 Index: qtlockedfile_win.cpp
 ===================================================================
---- qtlockedfile_win.cpp	(revision 836)
+--- qtlockedfile_win.cpp	(revision 1292)
 +++ qtlockedfile_win.cpp	(working copy)
 @@ -45,7 +45,7 @@
  ****************************************************************************/

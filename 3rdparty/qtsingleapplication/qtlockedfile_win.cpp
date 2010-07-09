@@ -45,7 +45,7 @@
 ****************************************************************************/
 
 #include "qtlockedfile.h"
-#include <qt_windows.h>
+#include <QtCore/qt_windows.h>
 #include <QtCore/QFileInfo>
 
 #define MUTEX_PREFIX "QtLockedFile mutex "
