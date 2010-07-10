@@ -3,11 +3,13 @@ project(MediaInfoFetcher)
 if (TAGLIB)
 	include_directories(${TAGLIB_INCLUDE_DIRS})
 	add_definitions(${TAGLIB_DEFINITIONS})
+	add_definitions(-DTAGLIB)
 endif (TAGLIB)
 
 if (MEDIAINFOLIB)
 	include_directories(${MEDIAINFOLIB_INCLUDE_DIRS})
 	add_definitions(${MEDIAINFOLIB_DEFINITIONS})
+	add_definitions(-DMEDIAINFOLIB)
 endif (MEDIAINFOLIB)
 
 add_definitions(-DBUILD_MEDIAINFOFETCHER)
