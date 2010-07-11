@@ -400,7 +400,7 @@ static void ext_device_manager_subscribe_cb(pa_context *c, void *) {
 }
 #endif
 
-void sink_input_cb(pa_context *c, const pa_sink_input_info *i, int eol, void *userdata) {
+static void sink_input_cb(pa_context *c, const pa_sink_input_info *i, int eol, void *userdata) {
     Q_UNUSED(userdata);
     Q_ASSERT(c);
 
@@ -443,7 +443,7 @@ void sink_input_cb(pa_context *c, const pa_sink_input_info *i, int eol, void *us
     }
 }
 
-void source_output_cb(pa_context *c, const pa_source_output_info *i, int eol, void *userdata) {
+static void source_output_cb(pa_context *c, const pa_source_output_info *i, int eol, void *userdata) {
     Q_UNUSED(userdata);
     Q_ASSERT(c);
 
@@ -569,6 +569,31 @@ static void context_state_callback(pa_context *c, void *)
                 return;
             }
             pa_operation_unref(o);
+
+            // In the case of reconnection or simply lagging behind the stream object creation
+            // on startup (due to the probe+reconnect system), we invalidate all loaded streams
+            // and then load up info about all streams.
+            for (QMap<QString, PulseStream*>::iterator it = s_outputStreams.begin(); it != s_outputStreams.end(); ++it) {
+              PulseStream *stream = *it;
+              logMessage(QString("Phonon Output Stream %1 is gone at the PA end. Marking it as invalid in our cache as we may reuse it.").arg(stream->uuid()));
+              stream->setIndex(PA_INVALID_INDEX);
+            }
+            if (!(o = pa_context_get_sink_input_info_list(c, sink_input_cb, NULL))) {
+              logMessage(QString("pa_context_get_sink_input_info_list() failed"));
+              return;
+            }
+            pa_operation_unref(o);
+
+            for (QMap<QString, PulseStream*>::iterator it = s_captureStreams.begin(); it != s_captureStreams.end(); ++it) {
+              PulseStream *stream = *it;
+              logMessage(QString("Phonon Capture Stream %1 is gone at the PA end. Marking it as invalid in our cache as we may reuse it.").arg(stream->uuid()));
+              stream->setIndex(PA_INVALID_INDEX);
+            }
+            if (!(o = pa_context_get_source_output_info_list(c, source_output_cb, NULL))) {
+              logMessage(QString("pa_context_get_source_output_info_list() failed"));
+              return;
+            }
+            pa_operation_unref(o);
         }
 
 #ifdef HAVE_PULSEAUDIO_DEVICE_MANAGER
@@ -639,6 +664,17 @@ void PulseSupport::shutdown()
         delete s_instance;
         s_instance = NULL;
     }
+}
+
+void PulseSupport::debug()
+{
+#ifdef HAVE_PULSEAUDIO
+    logMessage(QString("Have we been initialised yet? %1").arg(s_instance ? "Yes" : "No"));
+    if (s_instance) {
+        logMessage(QString("Connected to PulseAudio? %1").arg(s_pulseActive ? "Yes" : "No"));
+        logMessage(QString("PulseAudio support 'Active'? %1").arg(s_instance->isActive() ? "Yes" : "No"));
+    }
+#endif
 }
 
 PulseSupport::PulseSupport()
@@ -755,7 +791,6 @@ void PulseSupport::connectToDaemon()
 bool PulseSupport::isActive()
 {
 #ifdef HAVE_PULSEAUDIO
-    //logMessage(QString("Enabled Breakdown: mEnabled: %1, s_pulseActive %2").arg(mEnabled).arg(s_pulseActive));
     return mEnabled && s_pulseActive;
 #else
     return false;
@@ -765,6 +800,9 @@ bool PulseSupport::isActive()
 void PulseSupport::enable(bool enabled)
 {
     mEnabled = enabled;
+#ifdef HAVE_PULSEAUDIO
+    logMessage(QString("Enabled Breakdown: mEnabled: %1, s_pulseActive %2").arg(mEnabled ? "Yes" : "No" ).arg(s_pulseActive ? "Yes" : "No"));
+#endif
 }
 
 QList<int> PulseSupport::objectDescriptionIndexes(ObjectDescriptionType type) const
@@ -972,7 +1010,8 @@ PulseStream *PulseSupport::registerCaptureStream(QString streamUuid, Category ca
 
 void PulseSupport::emitObjectDescriptionChanged(ObjectDescriptionType type)
 {
-    emit objectDescriptionChanged(type);
+    if (mEnabled)
+        emit objectDescriptionChanged(type);
 }
 
 bool PulseSupport::setOutputName(QString streamUuid, QString name) {
