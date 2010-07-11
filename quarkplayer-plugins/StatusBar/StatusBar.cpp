@@ -194,7 +194,7 @@ void StatusBar::aboutToFinish() {
 
 void StatusBar::prefinishMarkReached(qint32 msecToEnd) {
 	qDebug() << __FUNCTION__ << msecToEnd;
-	showMessage(tr("%1 seconds left...").arg(msecToEnd / 1000));
+	showMessage(tr("%1 seconds left...", "", msecToEnd / 1000).arg(msecToEnd / 1000));
 }
 
 void StatusBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {

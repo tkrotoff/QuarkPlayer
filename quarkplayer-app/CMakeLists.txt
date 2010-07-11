@@ -32,6 +32,7 @@ set(TS_FILES
 	translations/quarkplayer_fr.ts
 	translations/quarkplayer_de.ts
 	translations/quarkplayer_es.ts
+	translations/quarkplayer_ru.ts
 )
 
 set(QM_FILES "")

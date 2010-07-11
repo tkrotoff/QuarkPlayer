@@ -297,7 +297,7 @@ void FindSubtitlesWindow::parseXml(const QByteArray & xml) {
 		_model->setItem(i, COLUMN_RATING, new QStandardItem(subtitle.rating));
 	}
 
-	_ui->statusLabel->setText(tr("%1 files available").arg(list.count()));
+	_ui->statusLabel->setText(tr("%1 files available", "", list.count()).arg(list.count()));
 	applyCurrentFilter();
 
 	_model->sort(_ui->treeView->header()->sortIndicatorSection(),
@@ -447,7 +447,7 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 			}
 		}
 
-		_ui->statusLabel->setText(tr("%1 subtitle(s) extracted").arg(filesExtracted.size()));
+		_ui->statusLabel->setText(tr("%1 subtitle(s) extracted", "", filesExtracted.size()).arg(filesExtracted.size()));
 		if (filesExtracted.size() > 0) {
 			emit subtitleDownloaded(filesExtracted[0]);
 
