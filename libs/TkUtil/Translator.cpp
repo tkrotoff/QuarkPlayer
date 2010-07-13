@@ -28,7 +28,11 @@ Translator::Translator() {
 	_translatorInstalled = false;
 
 	//Default path containing the translations
+#ifdef Q_WS_X11
+	_translationsPath = "/usr/share/" + QCoreApplication::applicationName().toLower() + "/translations/";
+#else
 	_translationsPath = QCoreApplication::applicationDirPath() + "/translations/";
+#endif	//Q_WS_X11
 }
 
 Translator::~Translator() {

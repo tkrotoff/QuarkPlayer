@@ -41,7 +41,9 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	add_executable(quarkplayer ${quarkplayer_SRCS})
 else (CMAKE_BUILD_TYPE STREQUAL Debug)
 	# Pretty slow :/
-	qt4_create_translation(QM_FILES ${SRCS_TRANSLATIONS} ${TS_FILES})
+	qt4_create_translation(
+		QM_FILES ${SRCS_TRANSLATIONS} ${TS_FILES} OPTIONS -noobsolete
+	)
 	##
 
 	# WIN32: no console output under Windows
