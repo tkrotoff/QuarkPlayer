@@ -48,7 +48,9 @@ public:
 	/**
 	 * Sets the path containing the translations (*.qm files).
 	 *
-	 * Default path is <pre>QCoreApplication::applicationDirPath() + "/translations/"</pre>
+	 * Default path is <pre>QCoreApplication::applicationDirPath() + "/translations/"</pre>.
+	 * If this path does not exist then <pre>/usr/share/app/translations/</pre> is used
+	 * under UNIX.
 	 *
 	 * @param translationsPath path containing the translations (*.qm files)
 	 */

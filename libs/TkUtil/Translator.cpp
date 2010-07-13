@@ -22,17 +22,20 @@
 #include <QtCore/QLocale>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QTranslator>
+#include <QtCore/QDir>
 #include <QtCore/QDebug>
 
 Translator::Translator() {
 	_translatorInstalled = false;
 
-	//Default path containing the translations
-#ifdef Q_WS_X11
-	_translationsPath = "/usr/share/" + QCoreApplication::applicationName().toLower() + "/translations/";
-#else
 	_translationsPath = QCoreApplication::applicationDirPath() + "/translations/";
+
+	//Try to find the path containing the translations
+	if (!QDir(_translationsPath).exists()) {
+#ifdef Q_WS_X11
+		_translationsPath = "/usr/share/" + QCoreApplication::applicationName().toLower() + "/translations/";
 #endif	//Q_WS_X11
+	}
 }
 
 Translator::~Translator() {
