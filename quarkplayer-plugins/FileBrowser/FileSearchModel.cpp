@@ -430,6 +430,7 @@ void FileSearchModel::filesFound(const QStringList & files, const QUuid & uuid) 
 		return;
 	}
 
+
 	//Append the files
 	int first = _currentParentItem->childCount();
 	int last = first + files.size() - 1;
@@ -441,6 +442,31 @@ void FileSearchModel::filesFound(const QStringList & files, const QUuid & uuid) 
 		_currentParentItem->appendChild(new FileSearchItem(fileName, _currentParentItem));
 	}
 	endInsertRows();
+	///
+
+
+	//Now that the files have been added, let's sort them
+	emit layoutAboutToBeChanged();
+
+	QModelIndexList oldList = persistentIndexList();
+	QList<QPair<FileSearchItem *, int> > oldNodes;
+	for (int i = 0; i < oldList.count(); ++i) {
+		QPair<FileSearchItem *, int> pair(item(oldList.at(i)), oldList.at(i).column());
+		oldNodes.append(pair);
+	}
+
+	_currentParentItem->sort();
+
+	QModelIndexList newList;
+	for (int i = 0; i < oldNodes.count(); ++i) {
+		QModelIndex idx = index(oldNodes.at(i).first);
+		idx = idx.sibling(idx.row(), oldNodes.at(i).second);
+		newList.append(idx);
+	}
+
+	changePersistentIndexList(oldList, newList);
+	emit layoutChanged();
+	///
 }
 
 void FileSearchModel::updateMediaInfo(const MediaInfo & mediaInfo) {

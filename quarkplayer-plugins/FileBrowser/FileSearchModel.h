@@ -114,7 +114,11 @@ public:
 
 	void stop();
 
-	//Inherited from QAbstractItemModel
+	/**
+	 * @name Inherited from QAbstractItemModel
+	 * @{
+	 */
+
 	int columnCount(const QModelIndex & parent = QModelIndex()) const;
 	QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
 	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
@@ -131,6 +135,8 @@ public:
 	QMimeData * mimeData(const QModelIndexList & indexes) const;
 	QStringList mimeTypes() const;
 	Qt::DropActions supportedDropActions() const;
+
+	/** @} */
 
 signals:
 

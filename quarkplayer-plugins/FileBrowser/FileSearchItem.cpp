@@ -44,7 +44,6 @@ bool FileSearchItem::populatedChildren() const {
 
 void FileSearchItem::appendChild(FileSearchItem * newItem) {
 	_childItems.append(newItem);
-	sort();
 }
 
 FileSearchItem * FileSearchItem::child(int row) {
