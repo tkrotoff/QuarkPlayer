@@ -311,9 +311,6 @@ void FileSearchModel::fetchMore(const QModelIndex & parent) {
 	qDebug() << __FUNCTION__;
 	_currentParentItem = item(parent);
 
-	//_currentParentQModelIndex is a hack because of beginInsertRows()
-	_currentParentQModelIndex = parent;
-
 	QString path(fileInfo(parent).absoluteFilePath());
 	search(path, QRegExp(QString(), Qt::CaseInsensitive, QRegExp::RegExp2), INT_MAX, false);
 }
@@ -358,7 +355,6 @@ void FileSearchModel::reset() {
 
 	//No need to delete _currentParentItem since "delete _rootItem" will do it
 	_currentParentItem = NULL;
-	_currentParentQModelIndex = QModelIndex();
 
 	_mediaInfoFetcherIndex = QModelIndex();
 
@@ -377,9 +373,9 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 		_currentParentItem = _rootItem;
 	}
 
-	//Item is going to be populated, let's say it is already
-	//because population of an item is threaded
-	_currentParentItem->setPopulatedChildren(true);
+	//Item is going to be populated, not yet
+	//because populate an item is threaded
+	_currentParentItem->setPopulatedChildren(false);
 
 	//Stops the previous search if any
 	//Do it first (i.e before setPattern(), setExtensions()...) otherwise it can crash
@@ -430,43 +426,21 @@ void FileSearchModel::filesFound(const QStringList & files, const QUuid & uuid) 
 		return;
 	}
 
+	emit layoutAboutToBeChanged();
 
 	//Append the files
-	int first = _currentParentItem->childCount();
-	int last = first + files.size() - 1;
-
-	beginInsertRows(_currentParentQModelIndex, first, last);
 	foreach (QString fileName, files) {
 		/* Later filenames comparisons can fail if we don't convert / or \ */
 		fileName = QDir::toNativeSeparators(fileName);
 		_currentParentItem->appendChild(new FileSearchItem(fileName, _currentParentItem));
 	}
-	endInsertRows();
-	///
 
-
-	//Now that the files have been added, let's sort them
-	emit layoutAboutToBeChanged();
-
-	QModelIndexList oldList = persistentIndexList();
-	QList<QPair<FileSearchItem *, int> > oldNodes;
-	for (int i = 0; i < oldList.count(); ++i) {
-		QPair<FileSearchItem *, int> pair(item(oldList.at(i)), oldList.at(i).column());
-		oldNodes.append(pair);
-	}
-
+	//Sort them
 	_currentParentItem->sort();
 
-	QModelIndexList newList;
-	for (int i = 0; i < oldNodes.count(); ++i) {
-		QModelIndex idx = index(oldNodes.at(i).first);
-		idx = idx.sibling(idx.row(), oldNodes.at(i).second);
-		newList.append(idx);
-	}
+	_currentParentItem->setPopulatedChildren(true);
 
-	changePersistentIndexList(oldList, newList);
 	emit layoutChanged();
-	///
 }
 
 void FileSearchModel::updateMediaInfo(const MediaInfo & mediaInfo) {

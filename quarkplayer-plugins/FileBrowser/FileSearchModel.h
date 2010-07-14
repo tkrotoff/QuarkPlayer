@@ -165,8 +165,6 @@ private:
 	FileSearchItem * _rootItem;
 
 	FileSearchItem * _currentParentItem;
-	/** _currentParentQModelIndex is a hack because beginInsertRows() can't take a FileSearchItem. */
-	QModelIndex _currentParentQModelIndex;
 
 	/**
 	 * _mediaInfoFetcher is working or not (already resolving some metadatas or not).
