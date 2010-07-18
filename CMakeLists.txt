@@ -153,17 +153,27 @@ endif (TAGLIB)
 ##
 
 # 3rdparty libraries with Qt dependency
-add_subdirectory(3rdparty/qtiocompressor/src)
-set(QTIOCOMPRESSOR_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty/qtiocompressor/src)
-set(QTIOCOMPRESSOR_LIBRARIES QtIOCompressor)
-set(QTIOCOMPRESSOR_DEFINITIONS -DQT_QTIOCOMPRESSOR_IMPORT)
+if (USE_SYSTEM_LIBRARIES)
+	find_package(QtSingleApplication)
+endif (USE_SYSTEM_LIBRARIES)
+if (NOT QTSINGLEAPPLICATION_FOUND)
+	add_subdirectory(3rdparty/qtsingleapplication/src)
+	set(QTSINGLEAPPLICATION_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty/qtsingleapplication/src)
+	set(QTSINGLEAPPLICATION_LIBRARIES QtSingleApplication)
+	set(QTSINGLEAPPLICATION_DEFINITIONS -DQT_QTSINGLEAPPLICATION_IMPORT)
+endif (NOT QTSINGLEAPPLICATION_FOUND)
+
+if (USE_SYSTEM_LIBRARIES)
+	find_package(QtIOCompressor)
+endif (USE_SYSTEM_LIBRARIES)
+if (NOT QTIOCOMPRESSOR_FOUND)
+	add_subdirectory(3rdparty/qtiocompressor/src)
+	set(QTIOCOMPRESSOR_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty/qtiocompressor/src)
+	set(QTIOCOMPRESSOR_LIBRARIES QtIOCompressor)
+	set(QTIOCOMPRESSOR_DEFINITIONS -DQT_QTIOCOMPRESSOR_IMPORT)
+endif (NOT QTIOCOMPRESSOR_FOUND)
 
 add_subdirectory(3rdparty/modeltest)
-
-add_subdirectory(3rdparty/qtsingleapplication/src)
-set(QTSINGLEAPPLICATION_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty/qtsingleapplication/src)
-set(QTSINGLEAPPLICATION_LIBRARIES QtSingleApplication)
-set(QTSINGLEAPPLICATION_DEFINITIONS -DQT_QTSINGLEAPPLICATION_IMPORT)
 ##
 
 # Phonon
