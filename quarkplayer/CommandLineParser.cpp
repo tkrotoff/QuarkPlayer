@@ -22,11 +22,11 @@
 
 #include "WinDefaultApplication.h"
 #include "config/Config.h"
+#include "QuarkPlayerCoreLogger.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
 
 #include <iostream>
 

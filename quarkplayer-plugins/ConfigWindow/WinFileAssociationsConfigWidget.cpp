@@ -20,6 +20,8 @@
 
 #include "ui_WinFileAssociationsConfigWidget.h"
 
+#include "ConfigWindowLogger.h"
+
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/WinDefaultApplication.h>
 
@@ -29,7 +31,6 @@
 
 #include <QtCore/QPluginLoader>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
 
 static const int COLUMN_EXTENSION = 0;
 static const int COLUMN_NAME = 1;
@@ -208,7 +209,7 @@ QIcon WinFileAssociationsConfigWidget::fileExtensionIcon(const QString & extensi
 
 		tmpFile.remove();
 	} else {
-		qCritical() << __FUNCTION__ << "Error: couldn't write temporary file:" << tmpFile.fileName();
+		ConfigWindowCritical() << "Error: couldn't write temporary file:" << tmpFile.fileName();
 	}
 
 	return icon;

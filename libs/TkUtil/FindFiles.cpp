@@ -19,6 +19,7 @@
 #include "FindFiles.h"
 
 #include "TkFile.h"
+#include "TkUtilLogger.h"
 
 #ifdef Q_WS_WIN
 	#include "Win32Util.h"
@@ -28,7 +29,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTime>
 #include <QtCore/QMetaType>
-#include <QtCore/QDebug>
 
 #ifdef Q_WS_WIN
 	#include <windows.h>
@@ -127,7 +127,7 @@ void FindFiles::run() {
 		break;
 
 	default:
-		qCritical() << Q_FUNC_INFO << "Unknown backend:" + _backend;
+		TkUtilCritical() << "Unknown backend:" + _backend;
 	}
 
 	if (!_stop) {
@@ -209,7 +209,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 	//Get the first file
 	HANDLE hList = FindFirstFile(reinterpret_cast<const wchar_t *>(longPath.utf16()), &fileData);
 	if (hList == INVALID_HANDLE_VALUE) {
-		qCritical() << Q_FUNC_INFO << "Path:" << path << Win32Util::GetLastErrorToString(GetLastError());
+		TkUtilWarning() << "Path:" << path << Win32Util::GetLastErrorToString(GetLastError());
 	}
 
 	else {
@@ -284,7 +284,7 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 	struct dirent ** entries;
 	int nbEntries = scandir(QFile::encodeName(path), &entries, NULL, alphasort);
 	if (nbEntries < 0) {
-		qCritical() << Q_FUNC_INFO << "scandir() failed, path:" << path << "errno:" << strerror(errno);
+		TkUtilWarning() << "scandir() failed, path:" << path << "errno:" << strerror(errno);
 	} else {
 		for (int i = 0; i < nbEntries; i++) {
 			if (_stop) {

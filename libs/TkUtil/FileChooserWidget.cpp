@@ -19,10 +19,9 @@
 #include "FileChooserWidget.h"
 
 #include "TkFileDialog.h"
+#include "TkUtilLogger.h"
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 FileChooserWidget::FileChooserWidget(QWidget * parent)
 	: QWidget(parent) {
@@ -64,7 +63,7 @@ void FileChooserWidget::setDialogType(DialogType dialogType) {
 		_openFileButton->setIcon(QIcon::fromTheme("folder"));
 		break;
 	default:
-		qCritical() << Q_FUNC_INFO << "Unknown DialogType:" << _dialogType;
+		TkUtilCritical() << "Unknown DialogType:" << _dialogType;
 	}
 }
 
@@ -83,7 +82,7 @@ void FileChooserWidget::search() {
 		tmp = TkFileDialog::getExistingDirectory(this, tr("Select a Directory"), _path);
 		break;
 	default:
-		qCritical() << Q_FUNC_INFO << "Unknown DialogType:" << _dialogType;
+		TkUtilCritical() << "Unknown DialogType:" << _dialogType;
 	}
 
 	if (!tmp.isEmpty()) {

@@ -21,8 +21,7 @@
 #include "MPlayerProcess.h"
 #include "MediaSettings.h"
 #include "MPlayerConfig.h"
-
-#include <QtCore/QtDebug>
+#include "LibMPlayerLogger.h"
 
 namespace Phonon
 {
@@ -39,7 +38,7 @@ MPlayerProcess * MPlayerLoader::createNewMPlayerProcess(QObject * parent) {
 
 void MPlayerLoader::start(MPlayerProcess * process, const QStringList & arguments, const QString & fileName, WId videoWidgetId, qint64 seek) {
 	if (!process) {
-		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: process cannot be NULL";
+		LibMPlayerCritical() << "process cannot be NULL";
 		return;
 	}
 
@@ -51,14 +50,14 @@ void MPlayerLoader::start(MPlayerProcess * process, const QStringList & argument
 
 	//Check for the optical device and add new arguments if possible
 	if (fileName.contains("dvd://")) {
-		qDebug() << MPLAYER_LOG << __FUNCTION__ << "DVD detected";
+		LibMPlayerDebug() << "DVD detected";
 		if (!settings.opticalDeviceName.isEmpty()) {
 			args << "-dvd-device";
 			args << settings.opticalDeviceName;
 		}
 	}
 	if (fileName.contains("cdda://") || fileName.contains("vcd://")) {
-		qDebug() << MPLAYER_LOG << __FUNCTION__ << "CD Audio/VCD detected";
+		LibMPlayerDebug() << "CD Audio/VCD detected";
 		if (!settings.opticalDeviceName.isEmpty()) {
 			args << "-cdrom-device";
 			args << settings.opticalDeviceName;
@@ -68,13 +67,13 @@ void MPlayerLoader::start(MPlayerProcess * process, const QStringList & argument
 
 	if (!process->start(args, fileName, videoWidgetId, seek)) {
 		//Error handling
-		qCritical() << MPLAYER_LOG << __FUNCTION__ << "error: MPlayer process couldn't start";
+		LibMPlayerCritical() << "MPlayer process couldn't start";
 	}
 }
 
 void MPlayerLoader::restart(MPlayerProcess * process, const QStringList & arguments, const QString & fileName, qint64 seek) {
 	if (!process) {
-		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: process cannot be NULL";
+		LibMPlayerCritical() << "process cannot be NULL";
 		return;
 	}
 
@@ -106,7 +105,7 @@ void MPlayerLoader::startMPlayerVersion(QObject * parent) {
 
 	if (!process->start(args, fileName, 0, 0)) {
 		//Error handling
-		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: MPlayer process couldn't start";
+		LibMPlayerCritical() << "MPlayer process couldn't start";
 	}
 
 	//Blocks until the command is done
@@ -115,13 +114,13 @@ void MPlayerLoader::startMPlayerVersion(QObject * parent) {
 
 void MPlayerLoader::loadMedia(MPlayerProcess * process, const QString & fileName) {
 	if (!process) {
-		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: process cannot be NULL";
+		LibMPlayerCritical() << "process cannot be NULL";
 		return;
 	}
 
 	//Optimisation: no -identify if we are reading a dvd
 	if (fileName.contains("dvd://")) {
-		qDebug() << MPLAYER_LOG << __FUNCTION__ << "DVD detected";
+		LibMPlayerDebug() << "DVD detected";
 		return;
 	}
 
@@ -136,12 +135,12 @@ void MPlayerLoader::loadMedia(MPlayerProcess * process, const QString & fileName
 
 	if (!process->start(args, fileName, 0, 0)) {
 		//Error handling
-		qCritical() << MPLAYER_LOG << __FUNCTION__ << "Error: MPlayer process couldn't start";
+		LibMPlayerCritical() << "MPlayer process couldn't start";
 	}
 }
 
 QStringList MPlayerLoader::readMediaSettings() {
-	qDebug() << MPLAYER_LOG << __FUNCTION__;
+	LibMPlayerDebug();
 
 	QStringList args;
 
@@ -177,7 +176,7 @@ QStringList MPlayerLoader::readMediaSettings() {
 			args << "direct3d";
 		}
 	} else {
-		qCritical() << Q_FUNC_INFO <<
+		LibMPlayerCritical() <<
 			"Could not use Direct3D video output driver: your MPlayer version is too old";
 	}
 #endif	//Q_WS_WIN
@@ -235,7 +234,7 @@ QStringList MPlayerLoader::readMediaSettings() {
 			args << QString::number(settings.volume);
 		}
 	} else {
-		qCritical() << Q_FUNC_INFO <<
+		LibMPlayerCritical() <<
 			"Could not use MPlayer volume command line: your MPlayer version is too old";
 	}
 
@@ -300,7 +299,7 @@ QStringList MPlayerLoader::readMediaSettings() {
 		//r29058 Wed, 25 Mar 2009
 		args << "nodefault-bindings:conf=/dev/null";
 	} else {
-		qCritical() << Q_FUNC_INFO <<
+		LibMPlayerCritical() <<
 			"Could not disable MPlayer key bindings (shortcuts): your MPlayer version is too old";
 	}
 #endif	//Q_WS_WIN

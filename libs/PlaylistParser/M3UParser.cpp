@@ -19,6 +19,7 @@
 #include "M3UParser.h"
 
 #include "Util.h"
+#include "PlaylistParserLogger.h"
 
 #include <MediaInfoFetcher/MediaInfo.h>
 #include <TkUtil/TkFile.h>
@@ -28,7 +29,6 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
 #include <QtCore/QTextCodec>
-#include <QtCore/QDebug>
 
 static const char * M3U_EOL = "\n";
 
@@ -123,6 +123,7 @@ void M3UParser::load(QIODevice * device, const QString & location) {
 			} else {
 				mediaInfo.setFileName(Util::canonicalFilePath(path, line));
 			}
+			PlaylistParserDebug() << isUrl << path << line;
 
 			//Add file to the list of files
 			files << mediaInfo;

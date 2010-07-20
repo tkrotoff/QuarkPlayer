@@ -19,8 +19,9 @@
 
 #include "MPlayerVideoWidget.h"
 
+#include "LibMPlayerLogger.h"
+
 #include <QtGui/QResizeEvent>
-#include <QtCore/QDebug>
 
 namespace Phonon
 {
@@ -64,7 +65,7 @@ void MPlayerVideoWidget::setScaleAndCropMode(bool scaleAndCrop) {
 }
 
 void MPlayerVideoWidget::resizeEvent(QResizeEvent * event) {
-	qDebug() << __FUNCTION__ << "Resize:" << event->size();
+	LibMPlayerDebug() << "Resize:" << event->size();
 
 	updateVideoWindow();
 }

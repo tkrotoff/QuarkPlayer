@@ -19,10 +19,9 @@
 #include "PluginInterface.h"
 
 #include "QuarkPlayer.h"
+#include "QuarkPlayerCoreLogger.h"
 
 #include <TkUtil/ActionCollection.h>
-
-#include <QtCore/QDebug>
 
 PluginInterface::PluginInterface(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: _quarkPlayer(quarkPlayer) {

@@ -24,12 +24,17 @@
 #include <TkUtil/Singleton.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QString>
+#include <QtCore/QList>
 
+class LogModel;
+class LogMessage;
 enum QtMsgType;
 
 /**
  * Custom message handler for qDebug(), qWarning() and others.
+ *
+ * Instead of re-inventing a log system, let's use qDebug() and friends.
+ * In order to customize log messages we use this class.
  *
  * @author Tanguy Krotoff
  */
@@ -39,25 +44,27 @@ class QUARKPLAYER_API MsgHandler : public QObject, public Singleton<MsgHandler> 
 public:
 
 	/**
-	 * Specific to the MPlayer backend: contains the MPlayer real output.
+	 * Gets the model for the log.
+	 *
+	 * This is used by LogWindow.
 	 */
-	QString mplayerLog;
+	LogModel * logModel() const;
 
 	/**
 	 * Custom message handler for qDebug(), qWarning() and others.
 	 */
 	static void myMessageOutput(QtMsgType type, const char * msg);
 
-signals:
+private:
 
 	/**
-	 * A new line from MPlayer output has been generated.
+	 * Prints the log message inside the console output.
 	 *
-	 * @param line MPlayer output line
+	 * Uses Qt internal function qt_message_output()
 	 */
-	void mplayerLogLineAvailable(const QString & line);
+	static void printMsg(const LogMessage & msg);
 
-private:
+	LogModel * _logModel;
 
 	MsgHandler();
 

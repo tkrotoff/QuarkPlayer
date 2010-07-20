@@ -18,6 +18,8 @@
 
 #include "MyVideoWidget.h"
 
+#include "VideoWidgetLogger.h"
+
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
 #include <TkUtil/ActionCollection.h>
@@ -169,7 +171,7 @@ void MyVideoWidget::scaleModeChanged(QAction * action) {
 	} else if (action == ActionCollection::action("VideoWidget.ScaleModeScaleAndCrop")) {
 		setScaleMode(Phonon::VideoWidget::ScaleAndCrop);
 	} else {
-		qCritical() << __FUNCTION__ << "Error: unknown action:" << action->text();
+		VideoWidgetCritical() << "Error: unknown action:" << action->text();
 	}
 }
 
@@ -183,7 +185,7 @@ void MyVideoWidget::aspectRatioChanged(QAction * action) {
 	} else if (action == ActionCollection::action("VideoWidget.AspectRatioAuto")) {
 		setAspectRatio(Phonon::VideoWidget::AspectRatioAuto);
 	} else {
-		qCritical() << __FUNCTION__ << "Error: unknown action:" << action->text();
+		VideoWidgetCritical() << "Error: unknown action:" << action->text();
 	}
 }
 
@@ -363,7 +365,7 @@ void MyVideoWidget::checkMousePos() {
 }
 
 void MyVideoWidget::playToolBarAdded(QToolBar * playToolBar) {
-	qDebug() << __FUNCTION__;
+	VideoWidgetDebug();
 
 	_playToolBar = playToolBar;
 

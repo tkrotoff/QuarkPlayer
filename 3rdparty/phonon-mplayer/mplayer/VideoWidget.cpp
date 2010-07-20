@@ -19,6 +19,7 @@
 #include "VideoWidget.h"
 
 #include "MediaObject.h"
+#include "PhononMPlayerLogger.h"
 
 #include "libmplayer/MPlayerVideoWidget.h"
 #include "libmplayer/MPlayerProcess.h"
@@ -66,7 +67,7 @@ Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const {
 }
 
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
-	qDebug() << __FUNCTION__ << "Aspect ratio:" << aspectRatio;
+	PhononMPlayerDebug() << "Aspect ratio:" << aspectRatio;
 
 	_aspectRatio = aspectRatio;
 	double ratio = (double) 4 / 3;
@@ -94,7 +95,7 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspectRatio) {
 		break;
 
 	default:
-		qCritical() << __FUNCTION__ << "Error: unsupported AspectRatio:" << aspectRatio;
+		PhononMPlayerCritical() << "Unsupported AspectRatio:" << aspectRatio;
 	}
 
 	_videoWidget->setAspectRatio(ratio);
@@ -132,7 +133,7 @@ void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scaleMode) {
 		break;
 
 	default:
-		qCritical() << __FUNCTION__ << "Error: unknown Phonon::VideoWidget::ScaleMode:" << _scaleMode;
+		PhononMPlayerCritical() << "Unknown Phonon::VideoWidget::ScaleMode:" << _scaleMode;
 	}
 }
 
@@ -171,7 +172,7 @@ QWidget * VideoWidget::widget() {
 }
 
 void VideoWidget::videoWidgetSizeChanged(int width, int height) {
-	qDebug() << __FUNCTION__ << "Video width:" << width << "height:" << height;
+	PhononMPlayerDebug() << "Video width:" << width << "height:" << height;
 
 	//I spent 2 full days for these few fucking lines of code!
 	//It resizes dynamically the widget + the main window

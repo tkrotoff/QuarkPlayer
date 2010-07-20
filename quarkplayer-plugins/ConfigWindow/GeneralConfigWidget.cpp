@@ -20,16 +20,15 @@
 
 #include "ui_GeneralConfigWidget.h"
 
-#include <quarkplayer/config/Config.h>
+#include "ConfigWindowLogger.h"
 
+#include <quarkplayer/config/Config.h>
 #include <quarkplayer/Languages.h>
 
 #include <TkUtil/Translator.h>
 #include <TkUtil/TkComboBox.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 GeneralConfigWidget::GeneralConfigWidget() {
 	_ui = new Ui::GeneralConfigWidget();

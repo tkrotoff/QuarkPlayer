@@ -17,7 +17,9 @@
  */
 
 #include "PluginData.h"
+
 #include "config/Config.h"
+#include "QuarkPlayerCoreLogger.h"
 
 //Important for deleteInstance()
 //otherwise deleteInstance() won't do anything
@@ -27,7 +29,6 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QStringList>
-#include <QtCore/QDebug>
 
 PluginData::PluginData(const QString & filename, const QUuid & uuid, bool enabled) {
 	_filename = filename;
@@ -112,7 +113,7 @@ void PluginData::deleteInterface() {
 		delete _interface;
 		_interface = NULL;
 	} else {
-		qCritical() << __FUNCTION__ << "Error: _internal is NULL";
+		QuarkPlayerCoreCritical() << "Error: _internal is NULL";
 	}
 }
 
@@ -139,7 +140,7 @@ QDataStream & operator<<(QDataStream & stream, const PluginDataList & plugins) {
 		if (pluginData.fileName().isEmpty()) {
 			//FIXME don't why, stream can contain empty datas
 			//even if we didn't put empty datas in it (!)
-			qCritical() << __FUNCTION__ << "Error: empty pluginData:" << pluginData.uuid();
+			QuarkPlayerCoreCritical() << "Error: empty pluginData:" << pluginData.uuid();
 		} else {
 			stream << pluginData.fileName();
 			stream << pluginData.uuid();
@@ -159,7 +160,7 @@ QDataStream & operator>>(QDataStream & stream, PluginDataList & plugins) {
 	quint32 magic;
 	stream >> magic;
 	if (magic != PLUGINLIST_HEADER_MAGIC) {
-		qCritical() << __FUNCTION__ << "Error: wrong magic number:" << magic;
+		QuarkPlayerCoreCritical() << "Error: wrong magic number:" << magic;
 		return stream;
 	}
 
@@ -167,7 +168,7 @@ QDataStream & operator>>(QDataStream & stream, PluginDataList & plugins) {
 	quint32 version;
 	stream >> version;
 	if (version != PLUGINLIST_HEADER_VERSION) {
-		qCritical() << __FUNCTION__ << "Error: wrong version number:" << version;
+		QuarkPlayerCoreCritical() << "Error: wrong version number:" << version;
 		return stream;
 	}
 
@@ -201,7 +202,7 @@ QTextStream & operator<<(QTextStream & stream, const PluginDataList & plugins) {
 		if (pluginData.fileName().isEmpty()) {
 			//FIXME don't why, stream can contain empty datas
 			//even if we didn't put empty datas in it (!)
-			qCritical() << __FUNCTION__ << "Error: empty pluginData:" << pluginData.uuid();
+			QuarkPlayerCoreCritical() << "Error: empty pluginData:" << pluginData.uuid();
 		} else {
 			stream << pluginData.fileName() << endl;
 			stream << pluginData.uuid() << endl;
@@ -221,7 +222,7 @@ QTextStream & operator>>(QTextStream & stream, PluginDataList & plugins) {
 	quint32 magic;
 	stream >> magic;
 	if (magic != PLUGINLIST_HEADER_MAGIC) {
-		qCritical() << __FUNCTION__ << "Error: wrong magic number:" << magic;
+		QuarkPlayerCoreCritical() << "Error: wrong magic number:" << magic;
 		return stream;
 	}
 
@@ -229,7 +230,7 @@ QTextStream & operator>>(QTextStream & stream, PluginDataList & plugins) {
 	quint32 version;
 	stream >> version;
 	if (version != PLUGINLIST_HEADER_VERSION) {
-		qCritical() << __FUNCTION__ << "Error: wrong version number:" << version;
+		QuarkPlayerCoreCritical() << "Error: wrong version number:" << version;
 		return stream;
 	}
 

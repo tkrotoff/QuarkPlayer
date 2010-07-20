@@ -20,21 +20,22 @@
 
 #include "OpenSubtitlesParser.h"
 
+#include "FindSubtitlesLogger.h"
+
 #include <QtXml/QDomDocument>
 
 #include <QtCore/QFile>
 #include <QtCore/QDataStream>
-#include <QtCore/QDebug>
 
 QList<OpenSubtitlesParser::Subtitle> OpenSubtitlesParser::parseXml(const QByteArray & xml) {
-	//qDebug() << __FUNCTION__ << "OpenSubtitles.org XML:" << xml.constData();
+	//FindSubtitlesDebug() << "OpenSubtitles.org XML:" << xml.constData();
 
 	QList<Subtitle> subtitles;
 
 	QDomDocument doc;
 	bool ok = doc.setContent(xml);
 	if (!ok) {
-		qCritical() << __FUNCTION__ << "Error: couldn't parse the given XML";
+		FindSubtitlesCritical() << "Error: couldn't parse the given XML";
 		return subtitles;
 	}
 
@@ -75,7 +76,7 @@ QString OpenSubtitlesParser::calculateHash(const QString & fileName) {
 	QString hexHash;
 
 	if (!file.exists()) {
-		qCritical() << __FUNCTION__ << "Error: file doesn't exist: " << fileName;
+		FindSubtitlesCritical() << "Error: file doesn't exist: " << fileName;
 		return hexHash;
 	}
 

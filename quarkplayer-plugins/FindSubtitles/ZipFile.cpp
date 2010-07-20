@@ -18,11 +18,12 @@
 
 #include "ZipFile.h"
 
+#include "FindSubtitlesLogger.h"
+
 #include <QtIOCompressor>
 
 #include <QtCore/QDataStream>
 #include <QtCore/QFile>
-#include <QtCore/QDebug>
 #include <QtCore/QStringList>
 #include <QtCore/QBuffer>
 
@@ -67,7 +68,7 @@ QStringList ZipFile::listFiles() const {
 
 	QFile file(_fileName);
 	if (!file.open(QIODevice::ReadOnly)) {
-		qWarning() << "Failed to open file:" << _fileName;
+		FindSubtitlesWarning() << "Failed to open file:" << _fileName;
 		return fileList;
 	}
 
@@ -83,11 +84,11 @@ QStringList ZipFile::listFiles() const {
 }
 
 ZipFile::ExtractFileError ZipFile::extract(const QString & fileName, const QString & outputFileName) const {
-	qDebug() << __FUNCTION__ << "Extract:" << fileName << outputFileName;
+	FindSubtitlesDebug() << "Extract:" << fileName << outputFileName;
 
 	QFile file(_fileName);
 	if (!file.open(QIODevice::ReadOnly)) {
-		qWarning() << __FUNCTION__ << "Failed to open file:" << _fileName;
+		FindSubtitlesWarning() << "Failed to open file:" << _fileName;
 		return ExtractFileNotFoundError;
 	}
 

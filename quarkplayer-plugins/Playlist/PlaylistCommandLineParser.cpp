@@ -19,13 +19,13 @@
 #include "PlaylistCommandLineParser.h"
 
 #include "PlaylistModel.h"
+#include "PlaylistLogger.h"
 
 #include <quarkplayer/CommandLineManager.h>
 
 #include <QtCore/QUrl>
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
 
 PlaylistCommandLineParser::PlaylistCommandLineParser(PlaylistModel * playlistModel)
 	: ICommandLineParser() {

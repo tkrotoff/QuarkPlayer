@@ -19,8 +19,10 @@
 #include "VideoWidgetPlugin.h"
 
 #include "ui_BackgroundLogoWidget.h"
+
 #include "MyVideoWidget.h"
 #include "MediaDataWidget.h"
+#include "VideoWidgetLogger.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
@@ -35,8 +37,6 @@
 #include <phonon/mediaobject.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 Q_EXPORT_PLUGIN2(VideoWidget, VideoWidgetPluginFactory);
 
@@ -90,7 +90,7 @@ void VideoWidgetPlugin::finished() {
 	VideoContainer * container = _mediaObjectHash.value(quarkPlayer().currentMediaObject());
 	container->videoWidget->triggerFullScreenExitAction();
 	container->videoDockWidget->setWidget(container->backgroundLogoWidget);
-	qDebug() << __FUNCTION__ << container->backgroundLogoWidget;
+	VideoWidgetDebug() << container->backgroundLogoWidget;
 }
 
 void VideoWidgetPlugin::hasVideoChanged(bool hasVideo) {

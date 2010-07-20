@@ -18,6 +18,12 @@
 
 #include "LogWindow.h"
 
+#include "MainWindowLogger.h"
+
+#include <quarkplayer/MsgHandler.h>
+#include <quarkplayer/LogModel.h>
+#include <quarkplayer/LogMessage.h>
+
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/TkAction.h>
 #include <TkUtil/TkToolBar.h>
@@ -29,7 +35,46 @@
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
+
+/**
+ * An ItemDelegate which colors log message text.
+ *
+ * For example, critical log messages will appear in red.
+ * Warning messages will appear in orange.
+ *
+ * @author Tanguy Krotoff
+ */
+class LogItemDelegate : public QStyledItemDelegate {
+public:
+
+	void paint(QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index) const {
+		QStyleOptionViewItem myOption(option);
+
+		const LogModel * model = dynamic_cast<const LogModel *>(index.model());
+		Q_ASSERT(model);
+
+		LogMessage msg = model->logMessage(index);
+		QtMsgType type = msg.type;
+		switch (type) {
+		case QtDebugMsg:
+			//Do nothing, let it be black
+			break;
+		case QtWarningMsg:
+			//Orange
+			myOption.palette.setColor(QPalette::Text, QColor(255, 165, 0));
+			break;
+		case QtCriticalMsg:
+			myOption.palette.setColor(QPalette::Text, Qt::red);
+			break;
+		case QtFatalMsg:
+			myOption.palette.setColor(QPalette::Text, Qt::red);
+			break;
+		}
+
+		QStyledItemDelegate::paint(painter, myOption, index);
+	}
+};
+
 
 LogWindow::LogWindow(QWidget * parent)
 	: QMainWindow(parent, Qt::Dialog) {
@@ -40,8 +85,8 @@ LogWindow::LogWindow(QWidget * parent)
 
 	setupUi();
 
-	connect(ActionCollection::action("LogWindow.Save"), SIGNAL(triggered()), SLOT(saveText()));
-	connect(ActionCollection::action("LogWindow.Clear"), SIGNAL(triggered()), SLOT(clearText()));
+	connect(ActionCollection::action("LogWindow.Save"), SIGNAL(triggered()), SLOT(save()));
+	connect(ActionCollection::action("LogWindow.Clear"), SIGNAL(triggered()), SLOT(clear()));
 	connect(ActionCollection::action("LogWindow.PlayPause"), SIGNAL(triggered()), SLOT(playPauseButtonClicked()));
 
 	RETRANSLATE(this);
@@ -54,8 +99,33 @@ LogWindow::~LogWindow() {
 void LogWindow::setupUi() {
 	resize(648, 482);
 
-	_textEdit = new QTextEdit();
-	setCentralWidget(_textEdit);
+	LogModel * logModel = MsgHandler::instance().logModel();
+
+	_view = new QTreeView();
+	_view->setModel(logModel);
+	_view->setItemDelegate(new LogItemDelegate());
+	//_view->verticalHeader()->hide();
+	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	_view->setSelectionBehavior(QAbstractItemView::SelectRows);
+	_view->setRootIsDecorated(false);
+	_view->setAllColumnsShowFocus(true);
+	//_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+	connect(logModel, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
+		_view, SLOT(scrollToBottom()));
+
+	//Default rows and columns sizes
+	_view->resizeColumnToContents(LogModel::COLUMN_TIME);
+	_view->hideColumn(LogModel::COLUMN_TYPE);
+	_view->resizeColumnToContents(LogModel::COLUMN_MODULE);
+	_view->resizeColumnToContents(LogModel::COLUMN_FUNCTION);
+	_view->setColumnWidth(LogModel::COLUMN_MSG, 400);
+	//_view->resizeColumnsToContents();
+	_view->setUniformRowHeights(true);
+	//_view->resizeRowsToContents();
+	///
+
+	setCentralWidget(_view);
 
 	_toolBar = new QToolBar();
 	TkToolBar::setToolButtonStyle(_toolBar);
@@ -92,21 +162,10 @@ void LogWindow::retranslate() {
 		action->setIcon(QIcon::fromTheme("media-playback-start"));
 	}
 
-	_toolBar->setWindowTitle(tr("toolBar"));
+	_toolBar->setWindowTitle(tr("ToolBar"));
 }
 
-void LogWindow::setText(const QString & text) {
-	_textEdit->setPlainText(text);
-}
-
-void LogWindow::appendText(const QString & text) {
-	if (_playMode) {
-		_textEdit->moveCursor(QTextCursor::End);
-		_textEdit->insertPlainText(text);
-	}
-}
-
-void LogWindow::saveText() {
+void LogWindow::save() {
 	QString fileName = TkFileDialog::getSaveFileName(
 		this, tr("Choose a filename to save under"),
 		"", tr("Logs") +" (*.log *.txt)");
@@ -128,11 +187,14 @@ void LogWindow::saveText() {
 		QFile file(fileName);
 		if (file.open(QIODevice::WriteOnly)) {
 			QTextStream stream(&file);
-			stream << _textEdit->toPlainText();
+
+			//FIXME
+			stream << "";
+
 			file.close();
 		} else {
 			//Error opening file
-			qDebug() << __FUNCTION__ << "Error saving file:" << fileName;
+			MainWindowDebug() << "Error saving file:" << fileName;
 			QMessageBox::warning(this,
 				tr("Error saving file"),
 				tr("The log couldn't be saved"),
@@ -143,8 +205,7 @@ void LogWindow::saveText() {
 	}
 }
 
-void LogWindow::clearText() {
-	_textEdit->clear();
+void LogWindow::clear() {
 }
 
 void LogWindow::playPauseButtonClicked() {

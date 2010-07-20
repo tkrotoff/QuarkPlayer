@@ -71,7 +71,7 @@ void SimpleMPlayer::playFile() {
 }
 
 void SimpleMPlayer::videoWidgetSizeChanged(int width, int height) {
-	qDebug() << __FUNCTION__ << "Video width:" << width << "height:" << height;
+	LibMPlayerDebug() << "Video width:" << width << "height:" << height;
 
 	//I spent 2 full days for these few fucking lines of code!
 	//It resizes dynamically the widget + the main window

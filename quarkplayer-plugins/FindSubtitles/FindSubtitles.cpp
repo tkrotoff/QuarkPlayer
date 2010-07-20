@@ -19,6 +19,7 @@
 #include "FindSubtitles.h"
 
 #include "FindSubtitlesWindow.h"
+#include "FindSubtitlesLogger.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
@@ -89,7 +90,7 @@ void FindSubtitles::addMenusToMediaController() {
 	MediaController * mediaController = MediaControllerFactory::mediaController();
 	QMenu * menuSubtitle = mediaController->menuSubtitle();
 	if (!menuSubtitle) {
-		qCritical() << __FUNCTION__ << "Error: MediaController subtitle menu NULL";
+		FindSubtitlesCritical() << "Error: MediaController subtitle menu NULL";
 		return;
 	}
 
@@ -133,7 +134,7 @@ void FindSubtitles::loadSubtitle(const QString & fileName) {
 			int id = subtitle.index();
 			QString type = subtitle.property("type").toString();
 			QString name = subtitle.property("name").toString();
-			qDebug() << __FUNCTION__ << "Subtitle available:" << id << type << name;
+			FindSubtitlesDebug() << "Subtitle available:" << id << type << name;
 
 			if (newSubtitleId <= id) {
 				newSubtitleId = id + 1;

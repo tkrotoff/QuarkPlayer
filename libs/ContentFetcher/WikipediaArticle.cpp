@@ -18,6 +18,8 @@
 
 #include "WikipediaArticle.h"
 
+#include "ContentFetcherLogger.h"
+
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
@@ -28,7 +30,6 @@
 #include <QtCore/QtGlobal>
 #include <QtCore/QRegExp>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
 
 WikipediaArticle::WikipediaArticle(QObject * parent)
 	: ContentFetcher(parent) {
@@ -63,7 +64,7 @@ QUrl WikipediaArticle::wikipediaSearchUrl(const QString & searchTerm, const QStr
 void WikipediaArticle::start(const ContentFetcherTrack & track, const QString & language) {
 	ContentFetcher::start(track, language);
 
-	qDebug() << __FUNCTION__ << "Looking up for the Wikipedia article";
+	ContentFetcherDebug() << "Looking up for the Wikipedia article";
 
 	QNetworkRequest request(wikipediaSearchUrl(getTrack().artist, getLanguage()));
 	_wikipediaSearchDownloader->get(request);
@@ -73,7 +74,7 @@ void WikipediaArticle::gotWikipediaSearchAnswer(QNetworkReply * reply) {
 	QNetworkReply::NetworkError error = reply->error();
 	QString data = QString::fromUtf8(reply->readAll());
 
-	qDebug() << __FUNCTION__ << reply->url();
+	ContentFetcherDebug() << reply->url();
 
 	if (error != QNetworkReply::NoError) {
 		emitFinishedWithError(error, reply->url());
@@ -140,7 +141,7 @@ void WikipediaArticle::gotWikipediaArticle(QNetworkReply * reply) {
 	QNetworkReply::NetworkError error = reply->error();
 	QString data(QString::fromUtf8(reply->readAll()));
 
-	qDebug() << __FUNCTION__ << reply->url();
+	ContentFetcherDebug() << reply->url();
 
 	if (error != QNetworkReply::NoError) {
 		emitFinishedWithError(error, reply->url());

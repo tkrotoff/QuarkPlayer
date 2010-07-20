@@ -26,13 +26,12 @@
 #include "PluginConfigWidget.h"
 #include "WinFileAssociationsConfigWidget.h"
 #include "ShortcutsConfigWidget.h"
+#include "ConfigWindowLogger.h"
 
 #include <TkUtil/LanguageChangeEventFilter.h>
 #include <TkUtil/TkStackedWidget.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 static const int NAME_COLUMN = 0;
 static const int PRIVATE_POINTER_COLUMN = 1;
@@ -162,7 +161,7 @@ void ConfigWindow::showConfigWidget(QTreeWidgetItem * item) {
 	}
 
 	if (!configWidget) {
-		qCritical() << __FUNCTION__ << "Error: configWidget cannot be NULL";
+		ConfigWindowCritical() << "Error: configWidget cannot be NULL";
 	}
 
 	_configWidgetOpenedMap[configWidget] = _lastConfigWindowOpenedIndex;

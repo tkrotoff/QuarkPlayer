@@ -19,6 +19,7 @@
 #include "ShortcutsConfig.h"
 
 #include "ShortcutsConfigWidget.h"
+#include "ConfigWindowLogger.h"
 
 #include <quarkplayer/config/Config.h>
 
@@ -26,8 +27,6 @@
 #include <TkUtil/ActionCollection.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 static const char * SETTINGS_GROUP = "Shortcuts";
 static const char * SHORTCUT_ID = "ID";
@@ -69,7 +68,7 @@ QAction * ShortcutsConfig::findAction(const QString & name) const {
 		}
 	}
 	if (!result) {
-		qCritical() << __FUNCTION__ << "Error: couldn't find action:" << name;
+		ConfigWindowCritical() << "Error: couldn't find action:" << name;
 	}
 
 	return result;

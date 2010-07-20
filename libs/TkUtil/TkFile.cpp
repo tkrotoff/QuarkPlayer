@@ -18,8 +18,9 @@
 
 #include "TkFile.h"
 
+#include "TkUtilLogger.h"
+
 #include <QtCore/QDir>
-#include <QtCore/QDebug>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -42,7 +43,7 @@ bool TkFile::isDir(const QString & path) {
 	struct _stati64 statbuf;
 	int error = _wstati64(encodedName, &statbuf);
 	if (error != 0) {
-		qCritical() << Q_FUNC_INFO << "_wstati64() failed, path:" << path << "errno:" << strerror(errno);
+		TkUtilWarning() << "_wstati64() failed, path:" << path << "errno:" << strerror(errno);
 	} else {
 		dir = (statbuf.st_mode & S_IFMT) == S_IFDIR;
 	}
@@ -50,7 +51,7 @@ bool TkFile::isDir(const QString & path) {
 	struct stat statbuf;
 	int error = stat(QFile::encodeName(path), &statbuf);
 	if (error != 0) {
-		qCritical() << Q_FUNC_INFO << "stat() failed, path:" << path << "errno:" << strerror(errno);
+		TkUtilWarning() << "stat() failed, path:" << path << "errno:" << strerror(errno);
 	} else {
 		dir = S_ISDIR(statbuf.st_mode);
 	}

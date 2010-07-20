@@ -18,7 +18,7 @@
 
 #include "ScreenSaver.h"
 
-#include <QtCore/QDebug>
+#include "TkUtilLogger.h"
 
 #ifdef Q_WS_WIN
 	#include <windows.h>
@@ -39,7 +39,7 @@
 #endif	//Q_WS_X11
 
 void ScreenSaver::disable() {
-	qDebug() << __FUNCTION__;
+	TkUtilDebug();
 
 #ifdef Q_WS_WIN
 	if (!_stateSaved) {
@@ -49,9 +49,9 @@ void ScreenSaver::disable() {
 		_stateSaved = true;
 	}
 
-	qDebug() << __FUNCTION__ << "lowPowerTimeout:" << _lowPowerTimeout;
-	qDebug() << __FUNCTION__ << "powerOffTimeout:" << _powerOffTimeout;
-	qDebug() << __FUNCTION__ << "screenSaverTimeout:" << _screenSaverTimeout;
+	TkUtilDebug() << "lowPowerTimeout:" << _lowPowerTimeout;
+	TkUtilDebug() << "powerOffTimeout:" << _powerOffTimeout;
+	TkUtilDebug() << "screenSaverTimeout:" << _screenSaverTimeout;
 
 	SystemParametersInfo(SPI_SETLOWPOWERTIMEOUT, 0, NULL, 0);
 	SystemParametersInfo(SPI_SETPOWEROFFTIMEOUT, 0, NULL, 0);
@@ -68,13 +68,13 @@ void ScreenSaver::disable() {
 	args << "suspend";
 	args << QString::number(_XWindowID);
 	int errorCode = _xdgScreenSaverProcess->execute("xdg-screensaver", args);
-	qDebug() << __FUNCTION__ << args << errorCode;
-	qDebug() << __FUNCTION__ << _xdgScreenSaverProcess->readAll();
+	TkUtilDebug() << args << errorCode;
+	TkUtilDebug() << _xdgScreenSaverProcess->readAll();
 #endif	//Q_WS_X11
 }
 
 void ScreenSaver::restore() {
-	qDebug() << __FUNCTION__;
+	TkUtilDebug();
 
 #ifdef Q_WS_WIN
 	if (_stateSaved) {
@@ -82,7 +82,7 @@ void ScreenSaver::restore() {
 		SystemParametersInfo(SPI_SETPOWEROFFTIMEOUT, _powerOffTimeout, NULL, 0);
 		SystemParametersInfo(SPI_SETSCREENSAVETIMEOUT, _screenSaverTimeout, NULL, 0);
 	} else {
-		qCritical() << __FUNCTION__ << "Error: screensaver cannot be restored";
+		TkUtilCritical() << "Error: screensaver cannot be restored";
 	}
 #endif	//Q_WS_WIN
 
@@ -93,13 +93,13 @@ void ScreenSaver::restore() {
 		args << QString::number(_XWindowID);
 		if (_xdgScreenSaverProcess) {
 			int errorCode = _xdgScreenSaverProcess->execute("xdg-screensaver", args);
-			qDebug() << __FUNCTION__ << args << errorCode;
-			qDebug() << __FUNCTION__ << _xdgScreenSaverProcess->readAll();
+			TkUtilDebug() << args << errorCode;
+			TkUtilDebug() << _xdgScreenSaverProcess->readAll();
 		} else {
-			qCritical() << __FUNCTION__ << "Error: no xdg-screensaver process";
+			TkUtilCritical() << "Error: no xdg-screensaver process";
 		}
 	} else {
-		qCritical() << __FUNCTION__ << "Error: _XWindowID cannot be 0";
+		TkUtilCritical() << "Error: _XWindowID cannot be 0";
 	}
 #endif	//Q_WS_X11
 }

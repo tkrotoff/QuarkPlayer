@@ -18,10 +18,11 @@
 
 #include "Util.h"
 
+#include "PlaylistParserLogger.h"
+
 #include <QtCore/QString>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
-#include <QtCore/QDebug>
 
 QString Util::pathToNativeSeparators(const QString & path) {
 	QString tmp(path);

@@ -113,11 +113,19 @@ public:
 	/** Returns the files inside the playlist. */
 	const QList<MediaInfo> & files() const;
 
-	/** Gets the fileName given its index. */
+	/**
+	 * Gets the fileName given its index.
+	 *
+	 * @return MediaInfo object, can be empty if the index is invalid
+	 */
 	MediaInfo mediaInfo(const QModelIndex & index) const;
 
 
-	//Inherited from QAbstractItemModel
+	/**
+	 * @name Inherited from QAbstractItemModel
+	 * @{
+	 */
+
 	int columnCount(const QModelIndex & parent = QModelIndex()) const;
 	QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
 	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
@@ -132,7 +140,8 @@ public:
 	QMimeData * mimeData(const QModelIndexList & indexes) const;
 	QStringList mimeTypes() const;
 	Qt::DropActions supportedDropActions() const;
-	///
+
+	/** @} */
 
 public slots:
 

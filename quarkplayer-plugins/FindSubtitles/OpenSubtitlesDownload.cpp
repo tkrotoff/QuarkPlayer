@@ -19,13 +19,13 @@
 #include "OpenSubtitlesDownload.h"
 
 #include "OpenSubtitlesParser.h"
+#include "FindSubtitlesLogger.h"
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 
 #include <QtCore/QUrl>
-#include <QtCore/QDebug>
 
 OpenSubtitlesDownload::OpenSubtitlesDownload(QObject * parent)
 	: QObject(parent) {
@@ -42,11 +42,11 @@ OpenSubtitlesDownload::~OpenSubtitlesDownload() {
 QUrl OpenSubtitlesDownload::download(const QString & fileName) {
 	QUrl url;
 
-	qDebug() << Q_FUNC_INFO << "Video file name:" << fileName;
+	FindSubtitlesDebug() << "Video file name:" << fileName;
 
 	QString hash = OpenSubtitlesParser::calculateHash(fileName);
 	if (hash.isEmpty()) {
-		qCritical() << Q_FUNC_INFO << "Error: invalid empty hash";
+		FindSubtitlesCritical() << "Error: invalid empty hash";
 	} else {
 		url = QUrl("http://www.opensubtitles.org/en/search/sublanguageid-all/moviehash-" + hash + "/simplexml");
 		download(url);
@@ -56,7 +56,7 @@ QUrl OpenSubtitlesDownload::download(const QString & fileName) {
 }
 
 void OpenSubtitlesDownload::download(const QUrl & url) {
-	qDebug() << Q_FUNC_INFO << "URL:" << url;
+	FindSubtitlesDebug() << "URL:" << url;
 
 	if (_currentNetworkReply) {
 		_currentNetworkReply->abort();

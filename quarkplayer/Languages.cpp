@@ -18,7 +18,7 @@
 
 #include "Languages.h"
 
-#include <QtCore/QDebug>
+#include "QuarkPlayerCoreLogger.h"
 
 Languages::Languages() {
 }

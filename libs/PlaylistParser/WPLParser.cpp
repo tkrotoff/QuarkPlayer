@@ -19,6 +19,7 @@
 #include "WPLParser.h"
 
 #include "Util.h"
+#include "PlaylistParserLogger.h"
 
 #include <MediaInfoFetcher/MediaInfo.h>
 #include <TkUtil/TkFile.h>
@@ -29,7 +30,6 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
 
 static const char * WPL_TITLE = "title";
 static const char * WPL_SMIL = "smil";
@@ -102,7 +102,7 @@ void WPLParser::load(QIODevice * device, const QString & location) {
 	}
 
 	if (xml.hasError()) {
-		qWarning() << __FUNCTION__ << "Error:"
+		PlaylistParserWarning() << "Error:"
 			<< xml.errorString()
 			<< "line:" << xml.lineNumber()
 			<< "column:" << xml.columnNumber();

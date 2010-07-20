@@ -18,7 +18,7 @@
 
 #include "PlaylistConfig.h"
 
-#include <QtCore/QDebug>
+#include "ConfigWindowLogger.h"
 
 PlaylistConfig::PlaylistConfig() {
 }

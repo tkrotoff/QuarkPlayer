@@ -18,6 +18,8 @@
 
 #include "WelcomeWindow.h"
 
+#include "WelcomeLogger.h"
+
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/version.h>
 #include <quarkplayer/PluginManager.h>
@@ -27,8 +29,6 @@
 #include <phonon/mediasource.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 Q_EXPORT_PLUGIN2(Welcome, WelcomeWindowFactory);
 
@@ -48,7 +48,7 @@ WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QObject(MainWindowFactory::mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
-	qDebug() << __FUNCTION__ << "Welcome plugin created";
+	WelcomeDebug() << "Welcome plugin created";
 
 	if (quarkPlayer.currentMediaObject()) {
 		//There is already a Phonon::MediaObject
@@ -78,7 +78,7 @@ WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 }
 
 WelcomeWindow::~WelcomeWindow() {
-	qDebug() << __FUNCTION__ << "Welcome plugin destroyed";
+	WelcomeDebug() << "Welcome plugin destroyed";
 }
 
 void WelcomeWindow::quitPlugin() {

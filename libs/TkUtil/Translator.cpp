@@ -18,12 +18,13 @@
 
 #include "Translator.h"
 
+#include "TkUtilLogger.h"
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QLocale>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QTranslator>
 #include <QtCore/QDir>
-#include <QtCore/QDebug>
 
 Translator::Translator() {
 	_translatorInstalled = false;
@@ -97,12 +98,12 @@ bool Translator::loadLanguage(QTranslator & translator, const QString & name, co
 
 	bool ret = translator.load(fileName, translationsPath);
 	if (language == "en") {
-		qDebug() << __FUNCTION__ << "Back to built-in english:" << fileName;
+		TkUtilDebug() << "Back to built-in english:" << fileName;
 	} else {
 		if (!ret) {
-			qDebug() << __FUNCTION__ << "Error: couldn't load translation:" << fileName << "from:" << translationsPath;
+			TkUtilDebug() << "Error: couldn't load translation:" << fileName << "from:" << translationsPath;
 		} else {
-			qDebug() << __FUNCTION__ << "Translation loaded:" << fileName << "from:" << translationsPath;
+			TkUtilDebug() << "Translation loaded:" << fileName << "from:" << translationsPath;
 		}
 	}
 	return ret;

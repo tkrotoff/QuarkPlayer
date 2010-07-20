@@ -18,6 +18,8 @@
 
 #include "MediaDataWidget.h"
 
+#include "VideoWidgetLogger.h"
+
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
@@ -35,7 +37,6 @@
 
 #include <QtGui/QtGui>
 
-#include <QtCore/QDebug>
 #include <QtCore/QFile>
 
 //Please don't copy this to another program; keys are free from aws.amazon.com
@@ -172,10 +173,10 @@ void MediaDataWidget::amazonCoverArtFound(QNetworkReply::NetworkError error, con
 				//updateCoverArts(_mediaInfoFetcher->mediaInfo());
 				///
 			} else {
-				qCritical() << __FUNCTION__ << "Error: cover art file couldn't be written:" << _amazonCoverArtPath;
+				VideoWidgetCritical() << "Error: cover art file couldn't be written:" << _amazonCoverArtPath;
 			}
 		} else {
-			qCritical() << __FUNCTION__ << "Error: cover art file couldn't be opened:" << _amazonCoverArtPath;
+			VideoWidgetCritical() << "Error: cover art file couldn't be opened:" << _amazonCoverArtPath;
 		}
 	} else {
 		//Check if the cover art received does match the current album playing

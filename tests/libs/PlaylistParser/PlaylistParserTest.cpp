@@ -19,6 +19,7 @@
 #include "PlaylistParserTest.h"
 
 #include <PlaylistParser/PlaylistParser.h>
+#include <PlaylistParser/PlaylistParserLogger.h>
 
 #include <MediaInfoFetcher/MediaInfo.h>
 
@@ -243,7 +244,7 @@ void PlaylistParserTest::finished(PlaylistParser::Error error, int timeElapsed) 
 	int fileError = _parser->file().error();
 	QCOMPARE(parserFileError, fileError);
 
-	qDebug() << __FUNCTION__ << "timeElapsed:" << timeElapsed;
+	PlaylistParserDebug() << "timeElapsed:" << timeElapsed;
 
 	QTestEventLoop::instance().exitLoop();
 }

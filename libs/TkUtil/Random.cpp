@@ -18,8 +18,9 @@
 
 #include "Random.h"
 
+#include "TkUtilLogger.h"
+
 #include <QtCore/QtGlobal>
-#include <QtCore/QDebug>
 
 #include <ctime>
 

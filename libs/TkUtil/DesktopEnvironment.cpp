@@ -18,9 +18,10 @@
 
 #include "DesktopEnvironment.h"
 
+#include "TkUtilLogger.h"
+
 #include <QtCore/QtGlobal>
 #include <QtCore/QString>
-#include <QtCore/QDebug>
 
 DesktopEnvironment desktopEnvironment() {
 	DesktopEnvironment platform = Unknown;

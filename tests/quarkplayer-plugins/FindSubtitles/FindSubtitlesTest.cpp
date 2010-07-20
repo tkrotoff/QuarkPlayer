@@ -19,8 +19,7 @@
 #include "FindSubtitlesTest.h"
 
 #include <quarkplayer-plugins/FindSubtitles/FindSubtitlesWindow.h>
-
-#include <QtCore/QDebug>
+#include <quarkplayer-plugins/FindSubtitles/FindSubtitlesLogger.h>
 
 void FindSubtitlesTest::initTestCase() {
 }

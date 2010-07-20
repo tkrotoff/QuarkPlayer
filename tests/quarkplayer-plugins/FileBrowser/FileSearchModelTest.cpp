@@ -19,11 +19,11 @@
 #include "FileSearchModelTest.h"
 
 #include <quarkplayer-plugins/filebrowser/FileSearchModel.h>
+#include <quarkplayer-plugins/filebrowser/FileBrowserLogger.h>
 
 #include <modeltest/modeltest.h>
 
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
 
 void FileSearchModelTest::runModelTest() {
 	FileSearchModel * model = new FileSearchModel(this);

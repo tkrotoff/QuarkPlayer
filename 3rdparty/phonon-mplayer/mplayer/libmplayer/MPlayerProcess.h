@@ -37,18 +37,6 @@ namespace MPlayer
 {
 
 /**
- * Help recognize the MPlayer backend output from the other debug messages.
- *
- * This is used by the MPlayer backend with qDebug().
- *
- * Use qInstallMsgHandler() and parse MPLAYER_LOG in order to separate MPlayer
- * backend debug output from your own debug output.
- *
- * Declared extern so there is no need to include MPlayerProcess.h just for this.
- */
-extern const char * MPLAYER_LOG;
-
-/**
  * Stores available audio channels.
  *
  * Hack because MPlayer sends several audio channel infos instead of everything

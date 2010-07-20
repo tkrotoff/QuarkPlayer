@@ -18,8 +18,9 @@
 
 #include "SeekStack.h"
 
+#include "PhononMPlayerLogger.h"
+
 #include <QtCore/QTimer>
-#include <QtCore/QDebug>
 
 namespace Phonon
 {
@@ -40,7 +41,7 @@ SeekStack::~SeekStack() {
 }
 
 void SeekStack::pushSeek(qint64 milliseconds) {
-	qDebug() << __FUNCTION__ << "seek:" << milliseconds;
+	PhononMPlayerDebug() << "Seek:" << milliseconds;
 
 	disconnect(_mediaObject->getMPlayerProcess(), SIGNAL(tick(qint64)),
 		_mediaObject, SLOT(tickInternal(qint64)));
@@ -63,7 +64,7 @@ void SeekStack::popSeek() {
 	int milliseconds = _stack.pop();
 	_stack.clear();
 
-	qDebug() << __FUNCTION__ << "real seek:" << milliseconds;
+	PhononMPlayerDebug() << "Real seek:" << milliseconds;
 
 	_mediaObject->seekInternal(milliseconds);
 

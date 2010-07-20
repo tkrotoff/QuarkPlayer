@@ -19,6 +19,7 @@
 #include "PLSParser.h"
 
 #include "Util.h"
+#include "PlaylistParserLogger.h"
 
 #include <MediaInfoFetcher/MediaInfo.h>
 #include <TkUtil/TkFile.h>
@@ -28,7 +29,6 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
 #include <QtCore/QTextCodec>
-#include <QtCore/QDebug>
 
 static const char * PLS_PLAYLIST = "[playlist]";
 static const char * PLS_FILE = "File";
@@ -137,7 +137,7 @@ void PLSParser::load(QIODevice * device, const QString & location) {
 		}
 
 		else {
-			qWarning() << __FUNCTION__ << "Syntax error:" << line;
+			PlaylistParserWarning() << "Syntax error:" << line;
 		}
 	}
 

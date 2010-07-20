@@ -23,6 +23,7 @@
 #include "AudioOutput.h"
 #include "EffectManager.h"
 #include "Effect.h"
+#include "PhononMPlayerLogger.h"
 
 #include <QtCore/QByteArray>
 #include <QtCore/QSet>
@@ -73,7 +74,7 @@ QObject * Backend::createObject(BackendInterface::Class c, QObject * parent, con
 	case AudioDataOutputClass:
 	case VisualizationClass:
 	case VideoDataOutputClass:
-		qWarning() << __FUNCTION__ << "Not implemented yet: " << c;
+		PhononMPlayerWarning() << "Not implemented yet:" << c;
 		break;
 	}
 
@@ -176,7 +177,7 @@ QStringList Backend::availableMimeTypes() const {
 }
 
 QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
-	qDebug() << __FUNCTION__;
+	PhononMPlayerDebug();
 
 	QList<int> list;
 
@@ -200,7 +201,7 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
 	case Phonon::TitleType:
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 	case Phonon::SubtitleType:
-		qWarning() << __FUNCTION__ << "Not implemented yet: " << type;
+		PhononMPlayerWarning() << "Not implemented yet:" << type;
 		break;
 	}
 
@@ -208,7 +209,7 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const {
 }
 
 QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescriptionType type, int index) const {
-	qDebug() << __FUNCTION__;
+	PhononMPlayerDebug();
 
 	QHash<QByteArray, QVariant> ret;
 
@@ -241,20 +242,20 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 	}
 
 	case Phonon::AudioCaptureDeviceType:
-		qWarning() << __FUNCTION__ << "Not implemented yet: " << type;
+		PhononMPlayerWarning() << "Not implemented yet:" << type;
 		break;
 
 	default:
-		qCritical() << __FUNCTION__ << "Unknow ObjectDescriptionType:" << type;
+		PhononMPlayerCritical() << "Unknow ObjectDescriptionType:" << type;
 	}
 
 	return ret;
 }
 
 bool Backend::startConnectionChange(QSet<QObject *> nodes) {
-	qDebug() << __FUNCTION__;
+	PhononMPlayerDebug();
 	foreach (QObject * node, nodes) {
-		qDebug() << __FUNCTION__ << "Node:" << node->metaObject()->className();
+		PhononMPlayerDebug() << "Node:" << node->metaObject()->className();
 	}
 
 	Q_UNUSED(nodes);
@@ -264,7 +265,7 @@ bool Backend::startConnectionChange(QSet<QObject *> nodes) {
 }
 
 bool Backend::connectNodes(QObject * source, QObject * sink) {
-	qDebug() << __FUNCTION__ << source->metaObject()->className() << sink->metaObject()->className();
+	PhononMPlayerDebug() << source->metaObject()->className() << sink->metaObject()->className();
 
 	//Example:
 	//source = Phonon::MPlayer::MediaObject
@@ -297,12 +298,12 @@ bool Backend::connectNodes(QObject * source, QObject * sink) {
 		}
 	}
 
-	qWarning() << __FUNCTION__ << "Connection not supported";
+	PhononMPlayerWarning() << "Connection not supported";
 	return false;
 }
 
 bool Backend::disconnectNodes(QObject * source, QObject * sink) {
-	qDebug() << __FUNCTION__ << "Source:" << source->metaObject()->className() << "sink:" << sink->metaObject()->className();
+	PhononMPlayerDebug() << "Source:" << source->metaObject()->className() << "sink:" << sink->metaObject()->className();
 
 	SinkNode * sinkNode = qobject_cast<SinkNode *>(sink);
 	if (sinkNode) {
@@ -320,14 +321,14 @@ bool Backend::disconnectNodes(QObject * source, QObject * sink) {
 
 	}
 
-	qWarning() << __FUNCTION__ << "Error: disconnection not supported";
+	PhononMPlayerWarning() << "Disconnection not supported";
 	return false;
 }
 
 bool Backend::endConnectionChange(QSet<QObject *> nodes) {
-	qDebug() << __FUNCTION__;
+	PhononMPlayerDebug();
 	foreach (QObject * node, nodes) {
-		qDebug() << __FUNCTION__ << "Node:" << node->metaObject()->className();
+		PhononMPlayerDebug() << "Node:" << node->metaObject()->className();
 	}
 
 	return true;

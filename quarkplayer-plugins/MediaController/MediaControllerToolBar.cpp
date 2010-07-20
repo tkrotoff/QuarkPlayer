@@ -18,12 +18,12 @@
 
 #include "MediaControllerToolBar.h"
 
+#include "MediaControllerLogger.h"
+
 #include <TkUtil/ActionCollection.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 MediaControllerToolBar::MediaControllerToolBar(QWidget * parent)
 	: TkToolBar(parent) {

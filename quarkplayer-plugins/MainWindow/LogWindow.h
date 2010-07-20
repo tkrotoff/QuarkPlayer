@@ -21,12 +21,10 @@
 
 #include <QtGui/QMainWindow>
 
-class QTextEdit;
+class QTreeView;
 
 /**
- * Window showing a log file or any other simple text.
- *
- * This is used to show MPlayer and QuarkPlayer logs.
+ * Window showing QuarkPlayer log.
  *
  * LogWindow is a QMainWindow with Qt::WindowFlags being Qt::Dialog
  * instead of default QMainWindow Qt::WindowFlags. This way LogWindow
@@ -42,19 +40,13 @@ public:
 
 	~LogWindow();
 
-	void setText(const QString & text);
-
-public slots:
-
-	void appendText(const QString & text);
-
 private slots:
 
 	void retranslate();
 
-	void saveText();
+	void save();
 
-	void clearText();
+	void clear();
 
 	void playPauseButtonClicked();
 
@@ -66,14 +58,19 @@ private:
 
 	QToolBar * _toolBar;
 
-	QTextEdit * _textEdit;
+	QTreeView * _view;
 
 	/**
 	 * Play or pause the log.
 	 *
-	 * If in pause mode then no more log messages will appended to the QTextEdit.
+	 * If in pause mode then no more log messages will be appended.
 	 */
 	bool _playMode;
+
+	/**
+	 * Latest row inserted, saved as a number.
+	 */
+	int _lastRow;
 };
 
 #endif	//LOGWINDOW_H

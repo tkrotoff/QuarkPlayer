@@ -21,6 +21,7 @@
 #include "DragAndDropTreeView.h"
 #include "PlaylistModel.h"
 #include "PlaylistFilter.h"
+#include "PlaylistLogger.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
@@ -46,8 +47,6 @@
 #include <phonon/mediasource.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 static const char * PLAYLIST_SEARCH_HISTORY_KEY = "playlist_search_history";
 
@@ -443,7 +442,7 @@ void PlaylistWidget::search() {
 			tmp += ".*";
 		}
 	}
-	qDebug() << __FUNCTION__ << tmp;
+	PlaylistDebug() << tmp;
 
 	_playlistFilter->setFilterRegExp(QRegExp(tmp,
 			Qt::CaseInsensitive, QRegExp::RegExp2));
@@ -470,7 +469,7 @@ void PlaylistWidget::addWordToWordList() {
 
 	//Add the word searched inside the SearchLineEdit
 	QString word = _searchLineEdit->text();
-	qDebug() << __FUNCTION__ << "Word:" << word;
+	PlaylistDebug() << "Word:" << word;
 	if (word.size() > 2) {
 		_searchLineEdit->addWord(word);
 		QStringList wordList = _searchLineEdit->wordList();

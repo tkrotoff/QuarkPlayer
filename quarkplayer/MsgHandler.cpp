@@ -18,35 +18,72 @@
 
 #include "MsgHandler.h"
 
+#include "LogModel.h"
+#include "LogMessage.h"
+
 #include <QtCore/QtGlobal>
+#include <QtCore/QStringList>
+#include <QtCore/QRegExp>
 
 MsgHandler::MsgHandler() {
+	_logModel = new LogModel(this);
 }
 
 MsgHandler::~MsgHandler() {
+	//No need, will be deleted when MsgHandler is deleted
+	//+ MsgHandler should never be deleted otherwise
+	//MsgHandler::myMessageOutput() will crash
+	//delete _logModel;
+}
+
+LogModel * MsgHandler::logModel() const {
+	return _logModel;
 }
 
 void MsgHandler::myMessageOutput(QtMsgType type, const char * msg) {
-	QString tmp(msg);
+	QString logLine(msg);
+	//logLine = logLine.trimmed();
 
-	//Help recognize the real MPlayer output from the other debug messages
-	static const char * MPLAYER_LOG = "MPLAYER";
-	if (tmp.startsWith(MPLAYER_LOG)) {
-		tmp = tmp.trimmed();
-		tmp.remove(0, QString(MPLAYER_LOG).length());
-		tmp += "\n";
-		MsgHandler::instance().mplayerLog += tmp;
-		emit MsgHandler::instance().mplayerLogLineAvailable(tmp);
+	QString module;
+	QString function;
+
+	//Do not use regexp here as it might be slow
+
+	static const QString internalStringToMatch("QP_LOGGER");
+	if (logLine.startsWith(internalStringToMatch)) {
+		logLine.remove(0, internalStringToMatch.length() + 1);
+
+		int index = logLine.indexOf(' ');
+		module = logLine.left(index);
+		logLine.remove(0, module.length() + 1);
+
+		index = logLine.indexOf(' ');
+		function = logLine.left(index);
+		logLine.remove(0, function.length() + 1);
 	}
 
-	else {
-		qInstallMsgHandler(NULL);
-
-		//Back to the default Qt message handler
-		//This is an internal function from Qt
-		//Read file C:\Qt\4.6.0\src\corelib\global\qglobal.cpp
-		qt_message_output(type, msg);
-
-		qInstallMsgHandler(MsgHandler::myMessageOutput);
+	//Special case of MPlayer, parses messages from phonon-mplayer
+	else if (logLine.startsWith("MPlayer")) {
+		module = "MPlayer";
+		logLine.remove(0, QString("MPlayer").length() + 1);
 	}
+
+	LogMessage logMsg(QTime::currentTime(), type, module, function, logLine);
+
+	printMsg(logMsg);
+
+	MsgHandler::instance()._logModel->appendLogMsg(logMsg);
+}
+
+void MsgHandler::printMsg(const LogMessage & msg) {
+	QString tmp = msg.toString();
+
+	qInstallMsgHandler(NULL);
+
+	//Back to the default Qt message handler
+	//This is an internal function from Qt
+	//Read file C:\Qt\4.6.0\src\corelib\global\qglobal.cpp
+	qt_message_output(msg.type, tmp.toUtf8().constData());
+
+	qInstallMsgHandler(MsgHandler::myMessageOutput);
 }

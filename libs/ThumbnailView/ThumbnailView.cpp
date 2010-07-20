@@ -22,6 +22,7 @@
 #include "ThumbnailManager.h"
 #include "ThumbnailDirModel.h"
 #include "ThumbnailListView.h"
+#include "ThumbnailViewLogger.h"
 
 #include <QtGui/QLineEdit>
 #include <QtGui/QStandardItemModel>
@@ -30,7 +31,6 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QString>
-#include <QtCore/QDebug>
 #include <QtCore/QtGlobal>
 
 const int THUMBNAIL_SIZE = 200;
@@ -89,11 +89,11 @@ void ThumbnailView::refresh() {
 
 	QFileInfo fileInfo(_dir);
 	if (!fileInfo.exists()) {
-		qCritical() << __FUNCTION__ << "Error: this directory does not exist:" << _dir;
+		ThumbnailViewCritical() << "Error: this directory does not exist:" << _dir;
 	}
 
 	if (!fileInfo.isDir()) {
-		qCritical() << __FUNCTION__ << "Error: this is not a directory:" << _dir;
+		ThumbnailViewCritical() << "Error: this is not a directory:" << _dir;
 	}
 
 	_model->setDir(_dir);

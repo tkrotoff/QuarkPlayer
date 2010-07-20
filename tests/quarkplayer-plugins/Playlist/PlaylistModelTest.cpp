@@ -18,13 +18,14 @@
 
 #include "PlaylistModelTest.h"
 
-#include <quarkplayer-plugins/playlist/PlaylistModel.h>
+#include <quarkplayer-plugins/Playlist/PlaylistModel.h>
+#include <quarkplayer-plugins/Playlist/PlaylistLogger.h>
+
 #include <quarkplayer/QuarkPlayer.h>
 
 #include <modeltest/modeltest.h>
 
 #include <QtCore/QUuid>
-#include <QtCore/QDebug>
 
 void PlaylistModelTest::runModelTest() {
 	QUuid uuid;

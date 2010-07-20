@@ -18,7 +18,7 @@
 
 #include "MPlayerConfig.h"
 
-#include <QtCore/QDebug>
+#include "LibMPlayerLogger.h"
 
 namespace Phonon
 {
@@ -37,7 +37,7 @@ MPlayerConfig::MPlayerConfig()
 #endif
 	{
 
-	qDebug() << __FUNCTION__ << "Config file:" << _settings.fileName();
+	LibMPlayerDebug() << "Config file:" << _settings.fileName();
 }
 
 MPlayerConfig::~MPlayerConfig() {

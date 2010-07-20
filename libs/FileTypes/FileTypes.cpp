@@ -18,9 +18,10 @@
 
 #include "FileTypes.h"
 
+#include "FileTypesLogger.h"
+
 #include <QtCore/QHash>
 #include <QtCore/QSet>
-#include <QtCore/QDebug>
 
 static const int FILETYPELIST_SIZE = 63;
 
@@ -217,7 +218,7 @@ QString FileTypes::toFilterFormat(const QStringList & extensions) {
 	tmp = tmp.trimmed();
 	tmp.prepend(" (");
 	tmp.append(')');
-	qDebug() << __FUNCTION__ << tmp;
+	FileTypesDebug() << tmp;
 	return tmp;
 }
 

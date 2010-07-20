@@ -20,12 +20,12 @@
 
 #include "AboutWindow.h"
 #include "LogWindow.h"
+#include "MainWindowLogger.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/version.h>
-#include <quarkplayer/MsgHandler.h>
 
 #include <quarkplayer-plugins/Playlist/PlaylistWidget.h>
 #include <quarkplayer-plugins/Playlist/PlaylistModel.h>
@@ -98,8 +98,7 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), SLOT(close()));
 	connect(ActionCollection::action("MainWindow.ReportProblem"), SIGNAL(triggered()), SLOT(reportProblem()));
 	connect(ActionCollection::action("MainWindow.ShowMailingList"), SIGNAL(triggered()), SLOT(showMailingList()));
-	connect(ActionCollection::action("MainWindow.ViewMPlayerLog"), SIGNAL(triggered()), SLOT(viewMPlayerLog()));
-	connect(ActionCollection::action("MainWindow.ViewQuarkPlayerLog"), SIGNAL(triggered()), SLOT(viewQuarkPlayerLog()));
+	connect(ActionCollection::action("MainWindow.ViewLog"), SIGNAL(triggered()), SLOT(viewLog()));
 	connect(ActionCollection::action("MainWindow.About"), SIGNAL(triggered()), SLOT(about()));
 	connect(ActionCollection::action("MainWindow.AboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
@@ -110,7 +109,7 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	bool ok = restoreGeometry(Config::instance().mainWindowGeometry());
 	if (!ok) {
-		qCritical() << __FUNCTION__ << "Error: coudn't restore the main window geometry";
+		MainWindowCritical() << "Error: coudn't restore the main window geometry";
 	}
 
 	RETRANSLATE(this);
@@ -132,7 +131,7 @@ MainWindow::~MainWindow() {
 void MainWindow::setPlayToolBar(QToolBar * playToolBar) {
 	_playToolBar = playToolBar;
 	addToolBar(Qt::BottomToolBarArea, playToolBar);
-	qDebug() << __FUNCTION__;
+	MainWindowDebug();
 	emit playToolBarAdded(_playToolBar);
 }
 
@@ -245,24 +244,14 @@ void MainWindow::showMailingList() {
 	QDesktopServices::openUrl(QUrl("http://groups.google.com/group/quarkplayer"));
 }
 
-void MainWindow::viewMPlayerLog() {
+void MainWindow::viewLog() {
 	static LogWindow * logWindow = NULL;
 	if (!logWindow) {
 		//Lazy initialization
 		logWindow = new LogWindow(this);
-		connect(&MsgHandler::instance(), SIGNAL(mplayerLogLineAvailable(const QString &)),
-			logWindow, SLOT(appendText(const QString &)));
-		logWindow->setText(MsgHandler::instance().mplayerLog);
 	}
 
 	logWindow->show();
-
-	//Trick: MainWindow should get the focus and be the active window
-	//otherwise SearchLineEdit can get the focus instead
-	qApp->setActiveWindow(this);
-}
-
-void MainWindow::viewQuarkPlayerLog() {
 }
 
 void MainWindow::about() {
@@ -281,8 +270,7 @@ void MainWindow::populateActionCollection() {
 	ActionCollection::addAction("MainWindow.Quit", new TkAction(app, tr("Ctrl+Q"), tr("Alt+X")));
 	ActionCollection::addAction("MainWindow.ReportProblem", new QAction(app));
 	ActionCollection::addAction("MainWindow.ShowMailingList", new QAction(app));
-	ActionCollection::addAction("MainWindow.ViewMPlayerLog", new QAction(app));
-	ActionCollection::addAction("MainWindow.ViewQuarkPlayerLog", new QAction(app));
+	ActionCollection::addAction("MainWindow.ViewLog", new QAction(app));
 	ActionCollection::addAction("MainWindow.About", new TkAction(app, tr("Ctrl+F1")));
 	ActionCollection::addAction("MainWindow.AboutQt", new QAction(app));
 	ActionCollection::addAction("MainWindow.OpenDVD", new TkAction(app, tr("Ctrl+D")));
@@ -410,9 +398,7 @@ void MainWindow::setupUi() {
 	menuBar()->addMenu(_menuHelp);
 	_menuHelp->addAction(ActionCollection::action("MainWindow.ShowMailingList"));
 	_menuHelp->addAction(ActionCollection::action("MainWindow.ReportProblem"));
-	_menuHelp->addSeparator();
-	_menuHelp->addAction(ActionCollection::action("MainWindow.ViewMPlayerLog"));
-	_menuHelp->addAction(ActionCollection::action("MainWindow.ViewQuarkPlayerLog"));
+	_menuHelp->addAction(ActionCollection::action("MainWindow.ViewLog"));
 	_menuHelp->addSeparator();
 	_menuHelp->addAction(ActionCollection::action("MainWindow.About"));
 	_menuHelp->addAction(ActionCollection::action("MainWindow.AboutQt"));
@@ -453,17 +439,14 @@ void MainWindow::retranslate() {
 		ActionCollection::action("MainWindow.ShowMailingList")->setIcon(QIcon::fromTheme("help-hint"));
 	}
 
-	ActionCollection::action("MainWindow.ViewMPlayerLog")->setText(tr("View &MPlayer Log"));
+	ActionCollection::action("MainWindow.ViewLog")->setText(tr("View &Log"));
 	QIcon logIcon;
 	if (desktopEnvironment() == GNOME) {
 		logIcon = QIcon::fromTheme("logviewer");
 	} else {
 		logIcon = QIcon::fromTheme("text-x-log");
 	}
-	ActionCollection::action("MainWindow.ViewMPlayerLog")->setIcon(logIcon);
-
-	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setText(tr("View &QuarkPlayer Log"));
-	ActionCollection::action("MainWindow.ViewQuarkPlayerLog")->setIcon(logIcon);
+	ActionCollection::action("MainWindow.ViewLog")->setIcon(logIcon);
 
 	ActionCollection::action("MainWindow.About")->setText(tr("&About"));
 	ActionCollection::action("MainWindow.About")->setIcon(QIcon::fromTheme("help-about"));
@@ -564,7 +547,7 @@ QMenu * MainWindow::menuHelp() const {
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent * event) {
-	qDebug() << __FUNCTION__ << event->mimeData()->formats();
+	MainWindowDebug() << event->mimeData()->formats();
 
 	if (event->mimeData()->hasUrls()) {
 		event->acceptProposedAction();
@@ -580,13 +563,13 @@ void MainWindow::dropEvent(QDropEvent * event) {
 		QString fileName;
 		foreach (QUrl url, urlList) {
 			if (url.isValid()) {
-				qDebug() << __FUNCTION__ << "File scheme:" << url.scheme();
+				MainWindowDebug() << "File scheme:" << url.scheme();
 				if (url.scheme() == "file") {
 					fileName = url.toLocalFile();
 				} else {
 					fileName = url.toString();
 				}
-				qDebug() << __FUNCTION__ << "File dropped:" << fileName;
+				MainWindowDebug() << "File dropped:" << fileName;
 				files << fileName;
 			}
 		}
@@ -599,7 +582,7 @@ void MainWindow::dropEvent(QDropEvent * event) {
 
 			bool isSubtitle = FileTypes::extensions(FileType::Subtitle).contains(QFileInfo(fileName).suffix(), Qt::CaseInsensitive);
 			if (isSubtitle) {
-				qDebug() << __FUNCTION__ << "Loading subtitle:" << fileName;
+				MainWindowDebug() << "Loading subtitle:" << fileName;
 				emit subtitleFileDropped(fileName);
 			} else if (QFileInfo(fileName).isDir()) {
 				//TODO open directory

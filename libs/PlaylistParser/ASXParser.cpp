@@ -19,6 +19,7 @@
 #include "ASXParser.h"
 
 #include "Util.h"
+#include "PlaylistParserLogger.h"
 
 #include <MediaInfoFetcher/MediaInfo.h>
 
@@ -28,7 +29,6 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
 
 static const char * ASX_TITLE = "title";
 static const char * ASX_ENTRY = "entry";
@@ -186,7 +186,7 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 	}
 
 	if (xml.hasError()) {
-		qWarning() << __FUNCTION__ << "Error:"
+		PlaylistParserWarning() << "Error:"
 			<< xml.errorString()
 			<< "line:" << xml.lineNumber()
 			<< "column:" << xml.columnNumber();

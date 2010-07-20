@@ -19,8 +19,7 @@
 #include "PluginConfig.h"
 
 #include "config/Config.h"
-
-#include <QtCore/QDebug>
+#include "QuarkPlayerCoreLogger.h"
 
 const char * PluginConfig::PLUGINS_KEY = "plugins";
 

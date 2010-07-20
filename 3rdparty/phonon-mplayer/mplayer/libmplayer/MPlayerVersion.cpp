@@ -22,8 +22,9 @@
 //For MPLAYER_1_0_RC2_SVN, MPLAYER_1_0_RC1_SVN and other defines
 #include "MPlayerProcess.h"
 
+#include "LibMPlayerLogger.h"
+
 #include <QtCore/QRegExp>
-#include <QtCore/QDebug>
 
 namespace Phonon
 {
@@ -69,24 +70,24 @@ int MPlayerVersion::parse(const QString & line) {
 
 	if (rx_mplayer_revision.indexIn(version) > -1) {
 		revision = rx_mplayer_revision.cap(2).toInt();
-		qDebug() << MPLAYER_LOG << __FUNCTION__ << "MPlayer SVN revision:" << revision;
+		LibMPlayerDebug() << "MPlayer SVN revision:" << revision;
 	}
 
 	else if (rx_mplayer_version.indexIn(version) > -1) {
 		version = rx_mplayer_version.cap(1);
-		qDebug() << MPLAYER_LOG << __FUNCTION__ << "MPlayer version:" << version;
+		LibMPlayerDebug() << "MPlayer version:" << version;
 		if (version == "1.0rc2") {
 			revision = MPlayerProcess::MPLAYER_1_0_RC2_SVN;
 		}
 		else if (version == "1.0rc1") {
 			revision = MPlayerProcess::MPLAYER_1_0_RC1_SVN;
 		} else {
-			qCritical() << "Error: unknown MPlayer version";
+			LibMPlayerCritical() << "Unknown MPlayer version";
 		}
 	}
 
 	if (revision == MPlayerProcess::MPLAYER_VERSION_FAILED) {
-		qCritical() << "Error: couldn't parse MPlayer revision:" << version;
+		LibMPlayerCritical() << "Couldn't parse MPlayer revision:" << version;
 	}
 
 	return revision;

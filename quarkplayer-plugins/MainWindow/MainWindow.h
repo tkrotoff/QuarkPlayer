@@ -118,8 +118,7 @@ private slots:
 	void reportProblem();
 	void showMailingList();
 
-	void viewMPlayerLog();
-	void viewQuarkPlayerLog();
+	void viewLog();
 
 	void about();
 

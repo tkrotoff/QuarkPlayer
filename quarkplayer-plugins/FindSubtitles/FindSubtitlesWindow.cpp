@@ -25,6 +25,7 @@
 #include "OpenSubtitlesDownload.h"
 #include "FileChooserWindow.h"
 #include "ZipFile.h"
+#include "FindSubtitlesLogger.h"
 
 #include <quarkplayer/Languages.h>
 
@@ -40,7 +41,6 @@
 
 #include <QtCore/QUrl>
 #include <QtCore/QMap>
-#include <QtCore/QDebug>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QBuffer>
 #include <QtCore/QDir>
@@ -165,7 +165,7 @@ void FindSubtitlesWindow::refreshButtonClicked() {
 }
 
 void FindSubtitlesWindow::setVideoFileName(const QString & fileName) {
-	qDebug() << __FUNCTION__ << "Video fileName:" << fileName;
+	FindSubtitlesDebug() << "Video fileName:" << fileName;
 
 	if (fileName.isEmpty()) {
 		return;
@@ -185,7 +185,7 @@ void FindSubtitlesWindow::setVideoFileName(const QString & fileName) {
 	if (!url.isEmpty()) {
 		_lastFileName = fileName;
 
-		qDebug() << __FUNCTION__ << "URL:" << url;
+		FindSubtitlesDebug() << "URL:" << url;
 		_ui->statusLabel->setText(tr("Connecting to %1...").arg(url.host()));
 	} else {
 		_ui->statusLabel->setText(tr("Could not determine OpenSubtitles.org URL"));
@@ -211,7 +211,7 @@ void FindSubtitlesWindow::applyCurrentFilter() {
 	int currentIndex = _ui->languageComboBox->currentIndex();
 	QVariant tmp = _ui->languageComboBox->itemData(currentIndex);
 	QString filter = tmp.toString();
-	qDebug() << __FUNCTION__ << "Filter:" << filter;
+	FindSubtitlesDebug() << "Filter:" << filter;
 	_filter->setFilterWildcard(filter);
 
 	//Resize the columns according to their contents
@@ -232,7 +232,7 @@ void FindSubtitlesWindow::downloadFinished(QNetworkReply * reply) {
 	QNetworkReply::NetworkError error = reply->error();
 	QUrl url = reply->url();
 
-	qDebug() << __FUNCTION__ << url << error << reply->errorString();
+	FindSubtitlesDebug() << url << error << reply->errorString();
 
 	//Remove the progress bar since the download ended
 	_ui->progressBar->setMaximum(1);
@@ -324,7 +324,7 @@ void FindSubtitlesWindow::copyClipboard() {
 
 		QString url = _model->item(row, COLUMN_NAME)->data().toString();
 
-		qDebug() << __FUNCTION__ << "URL:" << url;
+		FindSubtitlesDebug() << "URL:" << url;
 
 		QApplication::clipboard()->setText(url);
 	}
@@ -343,7 +343,7 @@ void FindSubtitlesWindow::archiveDownloaded(const QByteArray & data) {
 		tmpFile.write(data);
 		tmpFile.close();
 
-		qDebug() << __FUNCTION__ << "File saved:" << fileName;
+		FindSubtitlesDebug() << "File saved:" << fileName;
 
 		_ui->statusLabel->setText(tr("Temporary file: %1").arg(fileName));
 
@@ -355,13 +355,13 @@ void FindSubtitlesWindow::archiveDownloaded(const QByteArray & data) {
 
 		tmpFile.remove();
 	} else {
-		qCritical() << __FUNCTION__ << "Error: couldn't write temporary file:" << tmpFile.fileName();
+		FindSubtitlesCritical() << "Error: couldn't write temporary file:" << tmpFile.fileName();
 		_ui->statusLabel->setText(tr("Error: couldn't save the file, check your folder permissions"));
 	}
 }
 
 bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString & outputDir, const QStringList & filter) {
-	qDebug() << __FUNCTION__ << "Zip file:" << fileName << "outputDir:" << outputDir;
+	FindSubtitlesDebug() << "Zip file:" << fileName << "outputDir:" << outputDir;
 
 	QStringList filesToExtract;
 
@@ -426,23 +426,23 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 
 			switch (error) {
 			case ZipFile::ExtractFileNoError:
-				qDebug() << __FUNCTION__ << "File saved:" << fileToExtract;
+				FindSubtitlesDebug() << "File saved:" << fileToExtract;
 				_ui->statusLabel->setText(tr("File saved: %1").arg(outputFileName));
 				filesExtracted += outputFileName;
 				break;
 			case ZipFile::ExtractFileNotFoundError:
-				qWarning() << __FUNCTION__ << "File not found inside the archive:" << fileToExtract;
+				FindSubtitlesWarning() << "File not found inside the archive:" << fileToExtract;
 				_ui->statusLabel->setText(tr("File not found inside the archive: %1").arg(fileToExtract));
 				//Cannot do anything
 				break;
 			case ZipFile::ExtractFileWriteError:
 				//Means that the user clicks on Cancel while choosing another directory
 				//where to save the file
-				qWarning() << __FUNCTION__ << "File couldn't be written:" << fileToExtract;
+				FindSubtitlesWarning() << "File couldn't be written:" << fileToExtract;
 				_ui->statusLabel->setText(tr("File couldn't be written: %1").arg(fileToExtract));
 				break;
 			default:
-				qCritical() << __FUNCTION__ << "Error: unknown error:" << error;
+				FindSubtitlesCritical() << "Error: unknown error:" << error;
 				break;
 			}
 		}

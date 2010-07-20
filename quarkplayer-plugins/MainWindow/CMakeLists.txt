@@ -52,7 +52,6 @@ qt4_wrap_cpp(MainWindow_SRCS
 
 qt4_wrap_ui(MainWindow_SRCS
 	AboutWindow.ui
-	LogWindow.ui
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 

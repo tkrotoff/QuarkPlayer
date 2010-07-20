@@ -19,6 +19,7 @@
 #include "MediaController.h"
 
 #include "MediaControllerToolBar.h"
+#include "MediaControllerLogger.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
@@ -41,7 +42,6 @@
 #include <QtGui/QtGui>
 
 #include <QtCore/QSignalMapper>
-#include <QtCore/QDebug>
 
 Q_EXPORT_PLUGIN2(MediaController, MediaControllerFactory);
 
@@ -109,7 +109,7 @@ void MediaController::populateActionCollection() {
 void MediaController::addMenusToMainWindow() {
 	QMenuBar * menuBar = _mainWindow->menuBar();
 	if (!menuBar) {
-		qCritical() << __FUNCTION__ << "Error: MainWindow menu bar cannot be NULL";
+		MediaControllerCritical() << "Error: MainWindow menu bar cannot be NULL";
 		return;
 	}
 
@@ -217,7 +217,7 @@ void MediaController::openSubtitleFile(const QString & fileName) {
 		int id = subtitle.index();
 		QString type = subtitle.property("type").toString();
 		QString name = subtitle.property("name").toString();
-		qDebug() << __FUNCTION__ << "Subtitle available:" << id << type << name;
+		MediaControllerDebug() << "Subtitle available:" << id << type << name;
 
 		if (newSubtitleId <= id) {
 			newSubtitleId = id + 1;
@@ -417,7 +417,7 @@ void MediaController::availableTitlesChanged() {
 	Phonon::MediaSource mediaSource = quarkPlayer().currentMediaObject()->currentSource();
 
 	int currentTitle = quarkPlayer().currentMediaController()->currentTitle();
-	qDebug() << __FUNCTION__ << currentTitle;
+	MediaControllerDebug() << currentTitle;
 	//Phonon::DiscType discType = mediaSource.discType();
 
 	//if (discType == Phonon::Dvd
@@ -499,7 +499,7 @@ void MediaController::availableChaptersChanged() {
 }
 
 void MediaController::actionChapterTriggered(int id) {
-	qDebug() << __FUNCTION__;
+	MediaControllerDebug();
 
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 	QList<Phonon::ChapterDescription> chapters = _currentMediaController->availableChapters2();
@@ -536,7 +536,7 @@ void MediaController::availableAnglesChanged() {
 
 	//Sets the current angle
 	if (angles > 0) {
-		qDebug() << _currentMediaController->currentAngle();
+		MediaControllerDebug() << _currentMediaController->currentAngle();
 		_menuAngles->actions()[0]->setChecked(true);
 	}
 }

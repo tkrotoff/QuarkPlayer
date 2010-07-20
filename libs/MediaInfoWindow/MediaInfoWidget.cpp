@@ -18,6 +18,8 @@
 
 #include "MediaInfoWidget.h"
 
+#include "MediaInfoWindowLogger.h"
+
 #include <MediaInfoFetcher/MediaInfo.h>
 
 #include <TkUtil/SqueezeLabel.h>
@@ -212,7 +214,7 @@ void MediaInfoWidget::updateCoverArtPixmap() {
 		if (!coverArt.isNull()) {
 			_coverArtButton->setIcon(coverArt);
 		} else {
-			qCritical() << __FUNCTION__ << "Error: cover art image is empty";
+			MediaInfoWindowCritical() << "Cover art image is empty";
 		}
 
 		_currentCoverArtIndex++;

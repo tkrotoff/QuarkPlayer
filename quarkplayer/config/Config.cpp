@@ -18,13 +18,14 @@
 
 #include "Config.h"
 
+#include <quarkplayer/QuarkPlayerCoreLogger.h>
+
 #include <QtGui/QDesktopServices>
 
 #include <QtCore/QStringList>
 #include <QtCore/QUuid>
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
 
 const char * Config::LANGUAGE_KEY = "language";
 
@@ -152,12 +153,12 @@ QString Config::cdromPath() const {
 
 void Config::addMusicDir(const QString & musicDir, const QUuid & uuid) {
 	if (uuid.isNull()) {
-		qCritical() << __FUNCTION__ << "Error: empty UUID";
+		QuarkPlayerCoreCritical() << "Error: empty UUID";
 	}
 
 	QString key(MUSIC_DIR_KEY + uuid.toString());
 	if (!contains(key)) {
-		//qCritical() << __FUNCTION__ << "Error: unknown UUID:" << uuid;
+		//QuarkPlayerCoreCritical() << "Error: unknown UUID:" << uuid;
 		addKey(key, defaultValue(MUSIC_DIR_KEY).toString());
 	}
 	setValue(key, musicDir);
@@ -166,7 +167,7 @@ void Config::addMusicDir(const QString & musicDir, const QUuid & uuid) {
 QString Config::musicDir(const QUuid & uuid) /*const*/ {
 	QString key(MUSIC_DIR_KEY + uuid.toString());
 	if (!contains(key)) {
-		//qCritical() << __FUNCTION__ << "Error: unknown UUID:" << uuid;
+		//QuarkPlayerCoreCritical() << "Error: unknown UUID:" << uuid;
 		addKey(key, defaultValue(MUSIC_DIR_KEY).toString());
 	}
 	return value(key).toString();

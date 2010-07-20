@@ -19,6 +19,7 @@
 #include "SinkNode.h"
 
 #include "MediaObject.h"
+#include "PhononMPlayerLogger.h"
 
 #include "libmplayer/MPlayerProcess.h"
 
@@ -38,7 +39,7 @@ SinkNode::~SinkNode() {
 
 void SinkNode::connectToMediaObject(MediaObject * mediaObject) {
 	if (_mediaObject) {
-		qCritical() << __FUNCTION__ << "_mediaObject already connected";
+		PhononMPlayerCritical() << "_mediaObject already connected";
 	}
 
 	_mediaObject = mediaObject;
@@ -46,7 +47,7 @@ void SinkNode::connectToMediaObject(MediaObject * mediaObject) {
 
 void SinkNode::disconnectFromMediaObject(MediaObject * mediaObject) {
 	if (_mediaObject != mediaObject) {
-		qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
+		PhononMPlayerCritical() << "SinkNode was not connected to mediaObject";
 	}
 }
 
@@ -59,7 +60,7 @@ bool SinkNode::sendMPlayerCommand(const QString & command) const {
 			result = process->sendCommand(command);
 		} else {
 			//FIXME Make it silent?
-			qWarning() << __FUNCTION__ << "Error: MPlayer process not running";
+			PhononMPlayerWarning() << "MPlayer process not running";
 		}
 	}
 

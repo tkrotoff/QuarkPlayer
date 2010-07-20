@@ -18,6 +18,8 @@
 
 #include "MediaInfoFetcher.h"
 
+#include "MediaInfoFetcherLogger.h"
+
 #include <FileTypes/FileTypes.h>
 
 #include <phonon/mediaobject.h>
@@ -67,7 +69,15 @@
 #include <QtCore/QFile>
 #include <QtCore/QSize>
 #include <QtCore/QtConcurrentRun>
-#include <QtCore/QDebug>
+
+//FIXME
+//QFuture returned by QtConcurrent::run() does not support canceling, pausing, or progress reporting
+//That is why we need to know when MediaInfoFetcher gets destroyed
+//and cancel any running QtConcurrent::run()
+//There is something wrong here: startMediaInfoLibResolver() and startTagLibResolver()
+//should be independant functions with a hard copy of the parameter MediaInfo
+//otherwise it will always crash inside this->_mediaInfo
+static bool _destroyed = false;
 
 MediaInfoFetcher::MediaInfoFetcher(QObject * parent)
 	: QObject(parent) {
@@ -78,6 +88,7 @@ MediaInfoFetcher::MediaInfoFetcher(QObject * parent)
 }
 
 MediaInfoFetcher::~MediaInfoFetcher() {
+	_destroyed = true;
 }
 
 MediaInfo MediaInfoFetcher::mediaInfo() const {
@@ -101,7 +112,7 @@ void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
 	if (isUrl) {
 		//Cannot solve meta data from a stream/remote media
 		//This might be caused also by an invalid filename?
-		qCritical() << __FUNCTION__ << "Error: mediaInfo is a URL";
+		MediaInfoFetcherCritical() << "Error: mediaInfo is a URL";
 
 		emitFinishedSignal();
 	} else {
@@ -111,7 +122,7 @@ void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
 
 #ifdef MEDIAINFOLIB
 		if (_readStyle == ReadStyleAccurate) {
-			qDebug() << __FUNCTION__ << "MediaInfoLib";
+			MediaInfoFetcherDebug() << "MediaInfoLib";
 			QtConcurrent::run(this, &MediaInfoFetcher::startMediaInfoLibResolver);
 			resolverLaunched = true;
 		}
@@ -119,7 +130,7 @@ void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
 
 #ifdef TAGLIB
 		if (!resolverLaunched) {
-			qDebug() << __FUNCTION__ << "TagLib";
+			MediaInfoFetcherDebug() << "TagLib";
 
 			//Use TagLib only for files on the harddrive, not for URLs
 			//See http://article.gmane.org/gmane.comp.kde.devel.taglib/864
@@ -130,7 +141,7 @@ void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
 #endif	//TAGLIB
 
 		if (!resolverLaunched) {
-			qDebug() << __FUNCTION__ << "Phonon";
+			MediaInfoFetcherDebug() << "Phonon";
 
 			//If TagLib or MediaInfoLib are not used, let's use
 			//the backend for resolving the metaData
@@ -151,7 +162,7 @@ void MediaInfoFetcher::start(Phonon::MediaObject * mediaObject) {
 		_mediaInfo.setFileName(_mediaSource.url().toString());
 	} else {
 		_mediaInfo.setFileName(_mediaSource.fileName());
-		qCritical() << __FUNCTION__ << "Error: mediaSource is not a URL";
+		MediaInfoFetcherCritical() << "Error: mediaSource is not a URL";
 	}
 
 	//Cannot solve metaData from a stream/remote media if we have only the MediaSource
@@ -176,6 +187,10 @@ void MediaInfoFetcher::start(Phonon::MediaObject * mediaObject) {
 }
 
 void MediaInfoFetcher::startPhononResolver() {
+	if (_destroyed) {
+		MediaInfoFetcherCritical() << "Kill QtConcurrent::run()";
+	}
+
 	if (!_metaObjectInfoResolver) {
 		//Lazy initialization
 		//Info resolver
@@ -251,6 +266,10 @@ QString parseID3v2_WXXX(const TagLib::ID3v2::FrameListMap & metaData) {
 #endif	//TAGLIB
 
 void MediaInfoFetcher::startTagLibResolver() {
+	if (_destroyed) {
+		MediaInfoFetcherCritical() << "Kill QtConcurrent::run()";
+	}
+
 #ifdef TAGLIB
 	TagLib::AudioProperties::ReadStyle readStyle = TagLib::AudioProperties::Average;
 	switch (_readStyle) {
@@ -264,7 +283,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 		readStyle = TagLib::AudioProperties::Accurate;
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unknown ReadStyle:" << _readStyle;
+		MediaInfoFetcherCritical() << "Error: unknown ReadStyle:" << _readStyle;
 	}
 
 	//Taken from Amarok, file: CollectionScanner.cpp
@@ -279,7 +298,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 	TagLib::FileRef fileRef(encodedName, true, readStyle);
 
 	if (fileRef.isNull()) {
-		qCritical() << __FUNCTION__ << "Error: the FileRef is null:" << _mediaInfo.fileName();
+		MediaInfoFetcherCritical() << "Error: the FileRef is null:" << _mediaInfo.fileName();
 	} else {
 
 		TagLib::Tag * tag = fileRef.tag();
@@ -323,7 +342,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 				}
 				if (!metaData["TCMP"].isEmpty()) {
 					//TODO
-					qDebug() << "TODO Compilation:" << TStringToQString(metaData["TCMP"].front()->toString()).trimmed();
+					MediaInfoFetcherDebug() << "TODO Compilation:" << TStringToQString(metaData["TCMP"].front()->toString()).trimmed();
 				}
 				if (!metaData["TPB"].isEmpty()) {
 					_mediaInfo.setMetaData(MediaInfo::Publisher, TStringToQString(metaData["TPB"].front()->toString()).trimmed());
@@ -375,7 +394,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 				}
 				if (!metaData["COMPILATION"].isEmpty()) {
 					//TODO
-					qDebug() << "TODO Compilation:" << TStringToQString(metaData["COMPILATION"].front()).trimmed();
+					MediaInfoFetcherDebug() << "TODO Compilation:" << TStringToQString(metaData["COMPILATION"].front()).trimmed();
 				}
 			}
 
@@ -394,7 +413,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 				}
 				if (!metaData["COMPILATION"].isEmpty()) {
 					//TODO
-					qDebug() << "TODO Compilation:" << TStringToQString(metaData["COMPILATION"].front()).trimmed();
+					MediaInfoFetcherDebug() << "TODO Compilation:" << TStringToQString(metaData["COMPILATION"].front()).trimmed();
 				}
 			}
 
@@ -434,6 +453,10 @@ void MediaInfoFetcher::startTagLibResolver() {
 }
 
 void MediaInfoFetcher::startMediaInfoLibResolver() {
+	if (_destroyed) {
+		MediaInfoFetcherCritical() << "Kill QtConcurrent::run()";
+	}
+
 #ifdef MEDIAINFOLIB
 	MediaInfoLib::MediaInfo mediaInfo;
 	QString mediaInfoLibVersion = QString::fromStdWString(mediaInfo.Option(_T("Info_Version"), _T("")));
@@ -452,7 +475,7 @@ void MediaInfoFetcher::startMediaInfoLibResolver() {
 	//Info_Parameters: gets all usefull MediaInfoLib parameters names
 	//mediaInfo.Option(_T("Info_Parameters"));
 	//mediaInfo.Option(_T("Complete"), _T("1"));
-	//qDebug() << QString::fromStdWString(mediaInfo.Inform());
+	//MediaInfoFetcherDebug() << QString::fromStdWString(mediaInfo.Inform());
 
 	//General
 	_mediaInfo.setFileSize(QString::fromStdWString(mediaInfo.Get(MediaInfoLib::Stream_General, 0, _T("FileSize"))).toInt());

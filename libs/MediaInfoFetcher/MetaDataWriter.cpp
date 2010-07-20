@@ -19,6 +19,7 @@
 #include "MetaDataWriter.h"
 
 #include "MediaInfo.h"
+#include "MediaInfoFetcherLogger.h"
 
 #ifdef TAGLIB
 	#include <taglib/fileref.h>
@@ -27,7 +28,6 @@
 
 #include <QtCore/QDate>
 #include <QtCore/QFile>
-#include <QtCore/QDebug>
 
 //Local version of taglib's QStringToTString macro. It is here, because taglib's one is
 //not Qt3Support clean (uses QString::utf8()). Once taglib will be clean of qt3support
@@ -38,10 +38,10 @@ bool MetaDataWriter::write(const MediaInfo & mediaInfo) {
 	bool saved = false;
 
 #ifdef TAGLIB
-	qDebug() << __FUNCTION__ << "Write metadata to file:" << mediaInfo.fileName();
+	MediaInfoFetcherDebug() << "Write metadata to file:" << mediaInfo.fileName();
 
 	if (MediaInfo::isUrl(mediaInfo.fileName())) {
-		qWarning() << __FUNCTION__ << "This MediaInfo is not a real file:" << mediaInfo.fileName();
+		MediaInfoFetcherWarning() << "This MediaInfo is not a real file:" << mediaInfo.fileName();
 		return false;
 	}
 
@@ -57,7 +57,7 @@ bool MetaDataWriter::write(const MediaInfo & mediaInfo) {
 	TagLib::FileRef fileRef(encodedName, true);
 
 	if (fileRef.isNull()) {
-		qCritical() << __FUNCTION__ << "Error: the FileRef is null:" << mediaInfo.fileName();
+		MediaInfoFetcherCritical() << "TagLib::FileRef is null:" << mediaInfo.fileName();
 		return false;
 	} else {
 
@@ -72,14 +72,14 @@ bool MetaDataWriter::write(const MediaInfo & mediaInfo) {
 			tag->setGenre(Qt4QStringToTString(mediaInfo.metaDataValue(MediaInfo::Genre).toString()));
 			tag->setComment(Qt4QStringToTString(mediaInfo.metaDataValue(MediaInfo::Comment).toString()));
 		} else {
-			qCritical() << __FUNCTION__ << "Error: TagLib::Tag is null:" << mediaInfo.fileName();
+			MediaInfoFetcherCritical() << "TagLib::Tag is null:" << mediaInfo.fileName();
 		}
 	}
 
 	//Saves the metadata
 	saved = fileRef.save();
 	if (!saved) {
-		qCritical() << __FUNCTION__ << "Error: TagLib failed to save the file:" << mediaInfo.fileName();
+		MediaInfoFetcherCritical() << "TagLib failed to save the file:" << mediaInfo.fileName();
 	}
 
 #endif	//TAGLIB

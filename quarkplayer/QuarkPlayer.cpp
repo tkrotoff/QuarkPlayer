@@ -19,7 +19,7 @@
 #include "QuarkPlayer.h"
 
 #include "PluginManager.h"
-
+#include "QuarkPlayerCoreLogger.h"
 #include "config/Config.h"
 
 #include <phonon/mediaobject.h>
@@ -50,7 +50,7 @@ void QuarkPlayer::setCurrentMediaObject(Phonon::MediaObject * mediaObject) {
 		_currentMediaObject = mediaObject;
 		emit currentMediaObjectChanged(_currentMediaObject);
 	} else {
-		qCritical() << __FUNCTION__ << "Error: _currentMediaObject and mediaObject are the same";
+		QuarkPlayerCoreCritical() << "Error: _currentMediaObject and mediaObject are the same";
 	}
 }
 
@@ -81,7 +81,7 @@ QString QuarkPlayer::currentMediaObjectTitle() const {
 			}
 		}
 	} else {
-		qCritical() << __FUNCTION__ << "Error: no MediaObject available";
+		QuarkPlayerCoreCritical() << "Error: no MediaObject available";
 	}
 
 	return fullTitle;
@@ -113,7 +113,7 @@ void QuarkPlayer::play(const Phonon::MediaSource & mediaSource) {
 		_currentMediaObject->setCurrentSource(tmp);
 		_currentMediaObject->play();
 	} else {
-		qCritical() << __FUNCTION__ << "Error: no MediaObject available";
+		QuarkPlayerCoreCritical() << "Error: no MediaObject available";
 	}
 }
 
@@ -121,7 +121,7 @@ Phonon::AudioOutput * QuarkPlayer::currentAudioOutput() const {
 	Phonon::AudioOutput * audioOutput = NULL;
 
 	if (!_currentMediaObject) {
-		qCritical() << __FUNCTION__ << "Error: no MediaObject available";
+		QuarkPlayerCoreCritical() << "Error: no MediaObject available";
 		return audioOutput;
 	}
 
@@ -144,7 +144,7 @@ Phonon::Path QuarkPlayer::currentAudioOutputPath() const {
 	Phonon::Path audioOutputPath;
 
 	if (!_currentMediaObject) {
-		qCritical() << __FUNCTION__ << "Error: no MediaObject available";
+		QuarkPlayerCoreCritical() << "Error: no MediaObject available";
 		return audioOutputPath;
 	}
 
@@ -167,7 +167,7 @@ Phonon::VideoWidget * QuarkPlayer::currentVideoWidget() const {
 	Phonon::VideoWidget * videoWidget = NULL;
 
 	if (!_currentMediaObject) {
-		qCritical() << __FUNCTION__ << "Error: no MediaObject available";
+		QuarkPlayerCoreCritical() << "Error: no MediaObject available";
 		return videoWidget;
 	}
 

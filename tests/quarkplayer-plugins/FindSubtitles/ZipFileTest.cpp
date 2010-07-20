@@ -19,8 +19,7 @@
 #include "ZipFileTest.h"
 
 #include <quarkplayer-plugins/FindSubtitles/ZipFile.h>
-
-#include <QtCore/QDebug>
+#include <quarkplayer-plugins/FindSubtitles/FindSubtitlesLogger.h>
 
 void ZipFileTest::initTestCase() {
 }

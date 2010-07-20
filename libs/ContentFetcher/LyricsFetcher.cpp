@@ -18,6 +18,8 @@
 
 #include "LyricsFetcher.h"
 
+#include "ContentFetcherLogger.h"
+
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
@@ -25,7 +27,6 @@
 #include <QtXml/QDomDocument>
 
 #include <QtCore/QRegExp>
-#include <QtCore/QDebug>
 
 LyricsFetcher::LyricsFetcher(QObject * parent)
 	: ContentFetcher(parent) {
@@ -55,7 +56,7 @@ void LyricsFetcher::start(const ContentFetcherTrack & track, const QString & lan
 
 	QUrl url = lyricWikiUrl(getTrack().artist, getTrack().title);
 
-	qDebug() << __FUNCTION__ << "Looking up for the lyrics:" << url;
+	ContentFetcherDebug() << "Looking up for the lyrics:" << url;
 
 	_lyricsDownloader->get(QNetworkRequest(url));
 }
@@ -106,7 +107,7 @@ void LyricsFetcher::gotLyricsUrl(QNetworkReply * reply) {
 		return;
 	}
 
-	qDebug() << __FUNCTION__ << "Real LyricWiki URL:" << url;
+	ContentFetcherDebug() << "Real LyricWiki URL:" << url;
 
 	disconnect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
 	connect(_lyricsDownloader, SIGNAL(finished(QNetworkReply *)),
@@ -168,11 +169,11 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 	if (rx_html.indexIn(data) > -1) {
 		data = rx_html.cap(1);
 
-		//qDebug() << __FUNCTION__ << "Lyrics:" << data;
+		//ContentFetcherDebug() << "Lyrics:" << data;
 
 		emitFinishedWithoutError(reply->url(), data.toUtf8());
 	} else {
-		qCritical() << __FUNCTION__ << "Parsing error: couldn't find 'lyricbox' inside the HTML returned by LyricWiki";
+		ContentFetcherCritical() << "Parsing error: couldn't find 'lyricbox' inside the HTML returned by LyricWiki";
 		emitFinishedWithError(QNetworkReply::ContentNotFoundError, reply->url());
 	}
 }

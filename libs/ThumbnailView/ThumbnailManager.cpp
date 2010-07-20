@@ -19,10 +19,11 @@
 
 #include "ThumbnailManager.h"
 
+#include "ThumbnailViewLogger.h"
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QEvent>
 #include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
 
 /**
  * Special Thumbnail QEvent to be used with QCoreApplication::postEvent().
@@ -84,12 +85,12 @@ QPixmap ThumbnailManager::thumbnail(const QFileInfo & fileInfo) {
 	_clearing = false;
 	if (!_pendingQueue.contains(path)) {
 		_pendingQueue.enqueue(path);
-		qDebug() << __FUNCTION__ << "Queuing:" << path;
+		ThumbnailViewDebug() << "Queuing:" << path;
 		if (!isRunning()) {
 			start();
 		}
 	} else {
-		qDebug() << __FUNCTION__ << path << "already in queue";
+		ThumbnailViewDebug() << path << "already in queue";
 	}
 
 	//Returns an empty pixmap
@@ -102,7 +103,7 @@ void ThumbnailManager::run() {
 		{
 			QMutexLocker lock(&_mutex);
 			if (_pendingQueue.size() == 0) {
-				qDebug() << __FUNCTION__ << "Stopped by end of queue";
+				ThumbnailViewDebug() << "Stopped by end of queue";
 				return;
 			}
 			path = _pendingQueue.dequeue();
@@ -116,7 +117,7 @@ void ThumbnailManager::run() {
 		{
 			QMutexLocker lock(&_mutex);
 			if (_clearing) {
-				qDebug() << __FUNCTION__ << "Stopped by _clearing";
+				ThumbnailViewDebug() << "Stopped by _clearing";
 				return;
 			}
 		}

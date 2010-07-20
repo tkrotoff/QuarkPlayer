@@ -19,6 +19,7 @@
 #include "BackendCapabilitiesWidget.h"
 
 #include "ui_BackendCapabilitiesWidget.h"
+#include "ConfigWindowLogger.h"
 
 #include <phonon/backendcapabilities.h>
 #include <phonon/effect.h>
@@ -26,8 +27,6 @@
 #include <phonon/objectdescriptionmodel.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 BackendCapabilitiesWidget::BackendCapabilitiesWidget() {
 	_ui = new Ui::BackendCapabilitiesWidget();

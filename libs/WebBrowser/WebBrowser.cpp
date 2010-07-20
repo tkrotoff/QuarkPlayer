@@ -19,6 +19,7 @@
 #include "WebBrowser.h"
 
 #include "TkTextBrowser.h"
+#include "WebBrowserLogger.h"
 
 #include <TkUtil/ActionCollection.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
@@ -30,7 +31,6 @@
 #include <QtGui/QtGui>
 
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
 #include <QtCore/QUrl>
 
 /** Detects if _homeHtml should be used or not inside WebBrowser::home(). */

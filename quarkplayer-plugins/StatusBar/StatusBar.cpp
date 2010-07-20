@@ -18,6 +18,8 @@
 
 #include "StatusBar.h"
 
+#include "StatusBarLogger.h"
+
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
 #include <quarkplayer/config/Config.h>
@@ -100,14 +102,14 @@ void StatusBar::tick(qint64 time) {
 			timeText = "- " + TkTime::convertMilliseconds(totalTime - time, totalTime);
 			break;
 		default:
-			qCritical() << __FUNCTION__ << "Error: unknown TimeDisplayMode:" << timeDisplayMode;
+			StatusBarCritical() << "Error: unknown TimeDisplayMode:" << timeDisplayMode;
 		}
 	}
 	_timeLabel->setText(timeText);
 }
 
 void StatusBar::changeTimeDisplayMode() {
-	qDebug() << __FUNCTION__;
+	StatusBarDebug();
 
 	TimeDisplayMode timeDisplayMode = static_cast<TimeDisplayMode>(
 		Config::instance().value(STATUSBAR_TIME_DIPLAY_MODE_KEY).toInt());
@@ -120,7 +122,7 @@ void StatusBar::changeTimeDisplayMode() {
 		newTimeDisplayMode = TimeDisplayModeElapsed;
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unknown TimeDisplayMode:" << timeDisplayMode;
+		StatusBarCritical() << "Error: unknown TimeDisplayMode:" << timeDisplayMode;
 	}
 	Config::instance().setValue(STATUSBAR_TIME_DIPLAY_MODE_KEY, newTimeDisplayMode);
 
@@ -136,7 +138,7 @@ void StatusBar::stateChanged(Phonon::State newState) {
 		switch (errorType) {
 		case Phonon::NoError:
 			//Cannot be in this state
-			qCritical() << __FUNCTION__ << "Error: wrong state and error type:" << newState
+			StatusBarCritical() << "Error: wrong state and error type:" << newState
 						<< errorType << errorString;
 			break;
 		case Phonon::NormalError:
@@ -170,7 +172,7 @@ void StatusBar::stateChanged(Phonon::State newState) {
 		break;
 
 	default:
-		qCritical() << "Error: unknown newState:" << newState;
+		StatusBarCritical() << "Unknown newState:" << newState;
 	}
 }
 
@@ -188,12 +190,12 @@ void StatusBar::showTitle() {
 }
 
 void StatusBar::aboutToFinish() {
-	qDebug() << __FUNCTION__;
+	StatusBarDebug();
 	showMessage(tr("Media finishing..."));
 }
 
 void StatusBar::prefinishMarkReached(qint32 msecToEnd) {
-	qDebug() << __FUNCTION__ << msecToEnd;
+	StatusBarDebug() << msecToEnd;
 	showMessage(tr("%1 seconds left...", "", msecToEnd / 1000).arg(msecToEnd / 1000));
 }
 

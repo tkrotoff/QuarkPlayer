@@ -18,10 +18,11 @@
 
 #include "FileSearchItem.h"
 
+#include "FileBrowserLogger.h"
+
 #include <TkUtil/TkFile.h>
 
 #include <QtCore/QStringList>
-#include <QtCore/QDebug>
 
 FileSearchItem::FileSearchItem(const QString & filename, FileSearchItem * parent) {
 	_mediaInfo = MediaInfo(filename);

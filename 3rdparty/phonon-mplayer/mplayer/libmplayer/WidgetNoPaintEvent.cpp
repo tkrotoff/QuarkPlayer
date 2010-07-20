@@ -18,9 +18,9 @@
 
 #include "WidgetNoPaintEvent.h"
 
-#include <QtGui/QPainter>
+#include "LibMPlayerLogger.h"
 
-#include <QtCore/QDebug>
+#include <QtGui/QPainter>
 
 namespace Phonon
 {

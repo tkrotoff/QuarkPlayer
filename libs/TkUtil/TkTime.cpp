@@ -18,7 +18,8 @@
 
 #include "TkTime.h"
 
-#include <QtCore/QDebug>
+#include "TkUtilLogger.h"
+
 #include <QtCore/QTime>
 
 QString TkTime::convertMilliseconds(qint64 milliseconds) {

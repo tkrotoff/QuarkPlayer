@@ -19,11 +19,11 @@
 #include "PlaylistFilter.h"
 
 #include "PlaylistModel.h"
+#include "PlaylistLogger.h"
 
 #include <TkUtil/Random.h>
 
 #include <QtCore/QStringList>
-#include <QtCore/QDebug>
 
 static const int POSITION_INVALID = -1;
 

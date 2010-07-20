@@ -20,6 +20,8 @@
 
 #include "ui_PluginConfigWidget.h"
 
+#include "ConfigWindowLogger.h"
+
 #include <quarkplayer/PluginManager.h>
 #include <quarkplayer/PluginInterface.h>
 #include <quarkplayer/PluginFactory.h>
@@ -27,7 +29,6 @@
 #include <QtGui/QtGui>
 
 #include <QtCore/QPluginLoader>
-#include <QtCore/QDebug>
 
 static const int CHECKBOX_COLUMN = 0;
 static const int FILENAME_COLUMN = 1;
@@ -113,7 +114,7 @@ void PluginConfigWidget::saveConfig() {
 		QCheckBox * checkBox = qobject_cast<QCheckBox *>(_ui->tableWidget->cellWidget(row, CHECKBOX_COLUMN));
 		if (!checkBox) {
 			//No checkbox
-			qCritical() << __FUNCTION__ << "Error: couldn't get the checkbox";
+			ConfigWindowCritical() << "Error: couldn't get the checkbox";
 			return;
 		}
 

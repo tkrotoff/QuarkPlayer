@@ -39,7 +39,7 @@ int main(int argc, char * argv[]) {
 	Phonon::createPath(mediaObject, videoWidget);
 	Phonon::createPath(mediaObject, audioOutput);
 
-	qDebug() << "VideoWidget winId:" << videoWidget->winId();
+	qDebug() << __FUNCTION__ << "VideoWidget winId:" << videoWidget->winId();
 
 	view.show();
 

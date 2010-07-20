@@ -18,9 +18,10 @@
 
 #include "QDockWidgetTest.h"
 
-#include <QtGui/QtGui>
-
 #include <TkUtil/MouseEventFilter.h>
+
+#include <QtGui/QtGui>
+#include <QtCore/QDebug>
 
 QTEST_MAIN(QDockWidgetTest)
 

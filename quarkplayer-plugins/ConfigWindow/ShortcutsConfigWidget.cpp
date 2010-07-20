@@ -21,6 +21,7 @@
 #include "ui_ShortcutsConfigWidget.h"
 
 #include "ShortcutsFileParser.h"
+#include "ConfigWindowLogger.h"
 
 #include <quarkplayer/config/Config.h>
 
@@ -29,8 +30,6 @@
 #include <TkUtil/TkFileDialog.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 Q_DECLARE_METATYPE(ShortcutItem *);
 

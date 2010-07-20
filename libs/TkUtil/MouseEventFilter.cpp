@@ -19,8 +19,9 @@
 
 #include "MouseEventFilter.h"
 
+#include "TkUtilLogger.h"
+
 #include <QtCore/QEvent>
-#include <QtCore/QDebug>
 
 #include <QtGui/QMouseEvent>
 

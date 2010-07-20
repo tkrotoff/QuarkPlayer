@@ -19,6 +19,7 @@
 #include "MediaObject.h"
 
 #include "SeekStack.h"
+#include "PhononMPlayerLogger.h"
 
 #include "libmplayer/MPlayerLoader.h"
 
@@ -101,7 +102,7 @@ void MediaObject::play() {
 	}
 	///
 
-	qDebug() << __FUNCTION__;
+	PhononMPlayerDebug();
 
 	if (_process->currentState() == Phonon::PausedState) {
 		//Pause is like resume inside MPlayer
@@ -155,7 +156,7 @@ void MediaObject::tickInternal(qint64 currentTime) {
 		} else {
 			if (!_aboutToFinishEmitted) {
 				//Track is about to finish
-				qDebug() << __FUNCTION__ << "aboutToFinish()";
+				PhononMPlayerDebug() << "aboutToFinish()";
 				_aboutToFinishEmitted = true;
 				emit aboutToFinish();
 			}
@@ -172,7 +173,7 @@ void MediaObject::tickInternal(qint64 currentTime) {
 void MediaObject::loadMedia(const QString & fileName) {
 	//Default MediaObject state should be Phonon::LoadingState
 	if (_process->currentState() != Phonon::LoadingState) {
-		qCritical() << __FUNCTION__ << "Current state is not Phonon::LoadingState:" << _process->currentState();
+		PhononMPlayerCritical() << "Current state is not Phonon::LoadingState:" << _process->currentState();
 	}
 
 	//Loads the media
@@ -180,7 +181,7 @@ void MediaObject::loadMedia(const QString & fileName) {
 
 	_fileName = fileName;
 
-	qDebug() << __FUNCTION__ << _fileName;
+	PhononMPlayerDebug() << _fileName;
 
 	//Optimization:
 	//wait to see if play() is run just after loadMedia()
@@ -243,7 +244,7 @@ qint64 MediaObject::currentTime() const {
 		time = -1;
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unknown Phonon::State:" << state;
+		PhononMPlayerCritical() << "Unknown Phonon::State:" << state;
 	}
 
 	return time;
@@ -276,7 +277,7 @@ QString MediaObject::sourceFileName(const MediaSource & source) {
 
 	switch (type) {
 	case MediaSource::Invalid:
-		qCritical() << __FUNCTION__ << "Error: invalid/empty MediaSource";
+		PhononMPlayerCritical() << "Invalid/empty MediaSource";
 		break;
 	case MediaSource::LocalFile:
 		fileName = source.fileName();
@@ -296,7 +297,7 @@ QString MediaObject::sourceFileName(const MediaSource & source) {
 
 		switch (discType) {
 		case Phonon::NoDisc:
-			qCritical() << __FUNCTION__ << "Error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
+			PhononMPlayerCritical() << "The MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
 			break;
 		case Phonon::Cd:
 			if (title == 0) {
@@ -319,7 +320,7 @@ QString MediaObject::sourceFileName(const MediaSource & source) {
 			fileName = "vcd://" + QString::number(title);
 			break;
 		default:
-			qCritical() << __FUNCTION__ << "Error: unknown MediaSource::Disc:" << discType;
+			PhononMPlayerCritical() << "Unknown MediaSource::Disc:" << discType;
 			break;
 		}
 		}
@@ -328,7 +329,7 @@ QString MediaObject::sourceFileName(const MediaSource & source) {
 	case MediaSource::Stream:
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unknown MediaSource:" << type;
+		PhononMPlayerCritical() << "Unknown MediaSource:" << type;
 		break;
 	}
 
@@ -340,7 +341,7 @@ void MediaObject::setSource(const MediaSource & source) {
 	QString fileName(sourceFileName(_source));
 
 	if (!fileName.isEmpty()) {
-		qDebug() << __FUNCTION__ << "Source:" << fileName;
+		PhononMPlayerDebug() << "Source:" << fileName;
 
 		loadMedia(fileName);
 
@@ -355,7 +356,7 @@ void MediaObject::setNextSource(const MediaSource & source) {
 	QString fileName(sourceFileName(_nextSource));
 
 	if (!fileName.isEmpty()) {
-		qDebug() << __FUNCTION__ << "Next source:" << fileName;
+		PhononMPlayerDebug() << "Next source:" << fileName;
 
 		QString quote("\"");
 		if (_process->isRunning()) {
@@ -455,7 +456,7 @@ void MediaObject::mediaLoaded() {
 void MediaObject::stateChangedInternal(Phonon::State newState, Phonon::State oldState) {
 	switch (newState) {
 	case Phonon::LoadingState:
-		qDebug() << __FUNCTION__ << "LoadingState";
+		PhononMPlayerDebug() << "LoadingState";
 		if (_nextSource.type() != MediaSource::Invalid) {
 			//Means that we are playing the next MediaSource
 
@@ -467,10 +468,10 @@ void MediaObject::stateChangedInternal(Phonon::State newState, Phonon::State old
 		}
 		break;
 	case Phonon::StoppedState:
-		qDebug() << __FUNCTION__ << "StoppedState";
+		PhononMPlayerDebug() << "StoppedState";
 		break;
 	case Phonon::PlayingState:
-		qDebug() << __FUNCTION__ << "PlayingState";
+		PhononMPlayerDebug() << "PlayingState";
 
 		if (MPlayerProcess::getMPlayerVersion() < 27872) {
 			//HACK Bug inside MPlayer, the previous volume is not set again after the "loadfile" command
@@ -482,21 +483,21 @@ void MediaObject::stateChangedInternal(Phonon::State newState, Phonon::State old
 
 		break;
 	case Phonon::BufferingState:
-		qDebug() << __FUNCTION__ << "BufferingState";
+		PhononMPlayerDebug() << "BufferingState";
 		break;
 	case Phonon::PausedState:
-		qDebug() << __FUNCTION__ << "PausedState";
+		PhononMPlayerDebug() << "PausedState";
 		break;
 	case Phonon::ErrorState:
-		qDebug() << __FUNCTION__ << "ErrorState";
+		PhononMPlayerDebug() << "ErrorState";
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unknown state:" << newState;
+		PhononMPlayerCritical() << "Unknown state:" << newState;
 		return;
 	}
 
 	if (newState == oldState) {
-		qCritical() << __FUNCTION__ << "Error: 2 times the same state";
+		PhononMPlayerCritical() << "2 times the same state";
 	}
 
 	emit stateChanged(newState, oldState);
@@ -505,7 +506,7 @@ void MediaObject::stateChangedInternal(Phonon::State newState, Phonon::State old
 void MediaObject::endOfFileReached() {
 	//Should be in state: Phonon::StoppedState;
 	if (_process->currentState() != Phonon::StoppedState) {
-		qCritical() << __FUNCTION__ << "Current state is not Phonon::StoppedState:" << _process->currentState();
+		PhononMPlayerCritical() << "Current state is not Phonon::StoppedState:" << _process->currentState();
 	}
 
 	//HACK: MPlayer cannot detect end of VBR MP3s!
@@ -514,7 +515,7 @@ void MediaObject::endOfFileReached() {
 	//Yes MPlayer devs have to fix this
 	if (_process->previousState() == Phonon::PlayingState && !_aboutToFinishEmitted) {
 		//Track is about to finish
-		qDebug() << __FUNCTION__ << "aboutToFinish()";
+		PhononMPlayerDebug() << "aboutToFinish()";
 		_aboutToFinishEmitted = true;
 		emit aboutToFinish();
 	}

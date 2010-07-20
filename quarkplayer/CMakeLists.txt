@@ -41,6 +41,8 @@ set(QuarkPlayerCore_SRCS
 	Languages.cpp
 	WinDefaultApplication.cpp
 	MsgHandler.cpp
+	LogMessage.cpp
+	LogModel.cpp
 	config/Config.cpp
 	style/QuarkPlayerStyle.cpp
 )
@@ -52,6 +54,7 @@ qt4_wrap_cpp(QuarkPlayerCore_SRCS
 	CommandLineParser.h
 	Languages.h
 	MsgHandler.h
+	LogModel.h
 )
 
 add_library(QuarkPlayerCore SHARED ${QuarkPlayerCore_SRCS})

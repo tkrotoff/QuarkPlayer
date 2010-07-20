@@ -20,6 +20,8 @@
 
 #include "ui_QuickSettingsWindow.h"
 
+#include "QuickSettingsLogger.h"
+
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
 
@@ -37,8 +39,6 @@
 #include <phonon/effectparameter.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 Q_EXPORT_PLUGIN2(QuickSettings, QuickSettingsWindowFactory);
 

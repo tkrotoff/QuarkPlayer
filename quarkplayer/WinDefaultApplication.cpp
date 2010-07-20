@@ -18,6 +18,8 @@
 
 #include "WinDefaultApplication.h"
 
+#include "QuarkPlayerCoreLogger.h"
+
 #include <FileTypes/FileTypes.h>
 
 #include <QtCore/QSysInfo>
@@ -26,7 +28,6 @@
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
 
 //See GUUID from quarplayer-plugins/wincontextmenu/WinContextMenu.h
 static const char * SHELLEX_GUUID = "{BC6D1C0E-ADF5-44a1-9940-978019DF7985}";
@@ -88,13 +89,13 @@ void WinDefaultApplication::unregisterShellExDLL(const QString & shellExDLLFilen
 }
 
 void WinDefaultApplication::install() {
-	qDebug() << __FUNCTION__ << "Install QuarkPlayer as the default media application";
+	QuarkPlayerCoreDebug() << "Install QuarkPlayer as the default media application";
 	registerAsDefaultMediaPlayer();
 	addDefaultFileAssociations();
 }
 
 void WinDefaultApplication::uninstall() {
-	qDebug() << __FUNCTION__ << "Uninstall QuarkPlayer as the default media application";
+	QuarkPlayerCoreDebug() << "Uninstall QuarkPlayer as the default media application";
 	unregisterAsDefaultMediaPlayer();
 	deleteAllFileAssociations();
 	unregisterShellExDLL(shellExDLLFilename());
@@ -117,7 +118,7 @@ void WinDefaultApplication::registerAsDefaultMediaPlayer() {
 
 	QSettings hklm("HKEY_LOCAL_MACHINE", QSettings::NativeFormat);
 	if (!hklm.isWritable() && hklm.status() != QSettings::NoError) {
-		qWarning() << __FUNCTION__ << "Error: cannot access HKLM, user is not root";
+		QuarkPlayerCoreWarning() << "Error: cannot access HKLM, user is not root";
 		//Switch to current user registry since local machine registry
 		//is not writable. The user is probably not root.
 		//hklm = QSettings("HKEY_CURRENT_USER", QSettings::NativeFormat);
@@ -145,7 +146,7 @@ void WinDefaultApplication::unregisterAsDefaultMediaPlayer() {
 
 void WinDefaultApplication::addFileAssociation(const QString & extension) {
 	if (extension.isEmpty()) {
-		qWarning() << __FUNCTION__ << "Error: extension is empty";
+		QuarkPlayerCoreWarning() << "Error: extension is empty";
 		return;
 	}
 

@@ -21,6 +21,7 @@
 #include "PlaylistWidget.h"
 #include "PlaylistModel.h"
 #include "PlaylistFilter.h"
+#include "PlaylistLogger.h"
 
 #include <quarkplayer/config/Config.h>
 
@@ -36,7 +37,6 @@
 #include <QtGui/QtGui>
 
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
 
 DragAndDropTreeView::DragAndDropTreeView(PlaylistWidget * playlistWidget) {
 	_playlistWidget = playlistWidget;
@@ -179,7 +179,7 @@ void DragAndDropTreeView::clearSelection() {
 		QModelIndex sourceIndex(_playlistFilter->mapToSource(index));
 		int row = sourceIndex.row();
 		indexList += row;
-		qDebug() << __FUNCTION__ << "Row:" << row;
+		PlaylistDebug() << "Row:" << row;
 	}
 
 	//Let's go from the last item to the first one (descending order)
@@ -189,18 +189,18 @@ void DragAndDropTreeView::clearSelection() {
 	int previousRow = -1;
 	QList<int> contiguousRows;
 	foreach (int currentRow, indexList) {
-		qDebug() << __FUNCTION__ << "Current row:" << currentRow;
+		PlaylistDebug() << "Current row:" << currentRow;
 		if (contiguousRows.isEmpty()) {
 			contiguousRows.prepend(currentRow);
 		} else {
 			if (currentRow == previousRow - 1) {
 				contiguousRows.prepend(currentRow);
 			} else {
-				qDebug() << __FUNCTION__ << "Remove rows:" << contiguousRows.first() << contiguousRows.last();
+				PlaylistDebug() << "Remove rows:" << contiguousRows.first() << contiguousRows.last();
 				_playlistModel->removeRows(contiguousRows.first(), contiguousRows.size());
 				contiguousRows.clear();
 
-				qDebug() << __FUNCTION__ << "Remove row:" << currentRow;
+				PlaylistDebug() << "Remove row:" << currentRow;
 				_playlistModel->removeRow(currentRow);
 			}
 		}
@@ -209,7 +209,7 @@ void DragAndDropTreeView::clearSelection() {
 	}
 
 	if (!contiguousRows.isEmpty()) {
-		qDebug() << __FUNCTION__ << "Remove rows:" << contiguousRows.first() << contiguousRows.last();
+		PlaylistDebug() << "Remove rows:" << contiguousRows.first() << contiguousRows.last();
 		_playlistModel->removeRows(contiguousRows.first(), contiguousRows.size());
 		contiguousRows.clear();
 	}
@@ -219,7 +219,7 @@ void DragAndDropTreeView::rateItem() {
 }
 
 void DragAndDropTreeView::viewMediaInfo() {
-	qDebug() << __FUNCTION__;
+	PlaylistDebug();
 
 	_mediaInfoWindow = new MediaInfoWindow(this);
 

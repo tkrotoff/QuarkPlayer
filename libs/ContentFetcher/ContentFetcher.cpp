@@ -18,7 +18,7 @@
 
 #include "ContentFetcher.h"
 
-#include <QtCore/QDebug>
+#include "ContentFetcherLogger.h"
 
 ContentFetcher::ContentFetcher(QObject * parent)
 	: QObject(parent) {

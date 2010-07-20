@@ -19,12 +19,12 @@
 #include "CommandLineManager.h"
 
 #include "ICommandLineParser.h"
+#include "QuarkPlayerCoreLogger.h"
 
 #include <QtSingleApplication>
 
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
 
 const char * CommandLineManager::MESSAGE_SEPARATOR = ";";
 
@@ -52,7 +52,7 @@ void CommandLineManager::addCommandLineParser(ICommandLineParser * parser) {
 	args.removeAt(0);
 
 	if (!args.isEmpty()) {
-		qDebug() << __FUNCTION__ << "Command line arguments:" << args;
+		QuarkPlayerCoreDebug() << "Command line arguments:" << args;
 	}
 
 	//Call each CommandLineParser even with an empty list of arguments,
@@ -65,7 +65,7 @@ void CommandLineManager::removeCommandLineParser(ICommandLineParser * parser) {
 
 	int nbRemoved = _parserList.removeAll(parser);
 	if (nbRemoved < 1) {
-		qCritical() << __FUNCTION__ << "Error: no ICommandLineParser removed";
+		QuarkPlayerCoreCritical() << "Error: no ICommandLineParser removed";
 	}
 }
 
@@ -78,7 +78,7 @@ void CommandLineManager::messageReceived(const QString & message) {
 	_argsReceived += args;
 
 	if (!args.isEmpty()) {
-		qDebug() << __FUNCTION__ << "Command line arguments via QtSingleApplication:" << args;
+		QuarkPlayerCoreDebug() << "Command line arguments via QtSingleApplication:" << args;
 		foreach (ICommandLineParser * parser, _parserList) {
 			Q_ASSERT(parser);
 			parser->argsReceived(args, true);

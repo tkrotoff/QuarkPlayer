@@ -61,10 +61,6 @@ class FILEBROWSER_API FileSearchModel : public QAbstractItemModel {
 	Q_OBJECT
 public:
 
-	static const int COLUMN_FILENAME;
-	static const int COLUMN_FIRST;
-	static const int COLUMN_LAST;
-
 	FileSearchModel(QObject * parent);
 
 	~FileSearchModel();

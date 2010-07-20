@@ -20,6 +20,8 @@
 
 #include "ui_MediaInfoWindow.h"
 
+#include "MediaInfoWindowLogger.h"
+
 #include <MediaInfoFetcher/MediaInfoFetcher.h>
 #include <MediaInfoFetcher/MetaDataWriter.h>
 
@@ -31,8 +33,6 @@
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 #include <QtCore/QtGlobal>
 #include <QtCore/QUrl>
 

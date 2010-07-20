@@ -18,6 +18,8 @@
 
 #include "MediaController.h"
 
+#include "PhononMPlayerLogger.h"
+
 #include "libmplayer/MPlayerLoader.h"
 #include "libmplayer/MPlayerProcess.h"
 
@@ -126,7 +128,7 @@ bool MediaController::hasInterface(Interface iface) const {
 		return true;
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::Interface" << iface;
+		PhononMPlayerCritical() << "Unsupported AddonInterface::Interface" << iface;
 	}
 
 	return false;
@@ -157,7 +159,7 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 			case AddonInterface::setCurrentChapter:
 				if (arguments.isEmpty() || !arguments.first().canConvert<ChapterDescription>()) {
-					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					PhononMPlayerCritical() << "Arguments invalid";
 					return false;
 				}
 				setCurrentChapter(arguments.first().value<ChapterDescription>());
@@ -165,7 +167,7 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 #else
 			case AddonInterface::setChapter:
 				if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
-					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					PhononMPlayerCritical() << "Arguments invalid";
 					return false;
 				}
 				setCurrentChapter(arguments.first().toInt());
@@ -173,7 +175,7 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 
 			default:
-				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::ChapterInterface command:" << command;
+				PhononMPlayerCritical() << "Unsupported AddonInterface::ChapterInterface command:" << command;
 		}
 		break;
 
@@ -199,7 +201,7 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 #ifdef NEW_TITLE_CHAPTER_HANDLING
 			case AddonInterface::setCurrentTitle:
 				if (arguments.isEmpty() || !arguments.first().canConvert<TitleDescription>()) {
-					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					PhononMPlayerCritical() << "Arguments invalid";
 					return false;
 				}
 				setCurrentTitle(arguments.first().value<TitleDescription>());
@@ -207,7 +209,7 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 #else
 			case AddonInterface::setTitle:
 				if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
-					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					PhononMPlayerCritical() << "Arguments invalid";
 					return false;
 				}
 				setCurrentTitle(arguments.first().toInt());
@@ -218,13 +220,13 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 				return autoplayTitles();
 			case AddonInterface::setAutoplayTitles:
 				if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Bool)) {
-					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					PhononMPlayerCritical() << "Arguments invalid";
 					return false;
 				}
 				setAutoplayTitles(arguments.first().toBool());
 				return true;
 			default:
-				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::TitleInterface command:" << command;
+				PhononMPlayerCritical() << "Unsupported AddonInterface::TitleInterface command:" << command;
 		}
 		break;
 
@@ -236,14 +238,14 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 				return currentAngle();
 			case AddonInterface::setAngle:
 				if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
-					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					PhononMPlayerCritical() << "Arguments invalid";
 					return false;
 				}
 				setCurrentAngle(arguments.first().toInt());
 				return true;
 				break;
 			default:
-				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::AngleInterface command:" << command;
+				PhononMPlayerCritical() << "Unsupported AddonInterface::AngleInterface command:" << command;
 		}
 		break;
 
@@ -257,14 +259,14 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 
 			case AddonInterface::setCurrentSubtitle:
 				if (arguments.isEmpty() || !arguments.first().canConvert<SubtitleDescription>()) {
-					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					PhononMPlayerCritical() << "Arguments invalid";
 					return false;
 				}
 				setCurrentSubtitle(arguments.first().value<SubtitleDescription>());
 				return true;
 
 			default:
-				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::SubtitleInterface command:" << command;
+				PhononMPlayerCritical() << "Unsupported AddonInterface::SubtitleInterface command:" << command;
 		}
 		break;
 
@@ -279,19 +281,19 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 
 			case AddonInterface::setCurrentAudioChannel:
 				if (arguments.isEmpty() || !arguments.first().canConvert<AudioChannelDescription>()) {
-					qCritical() << __FUNCTION__ << "Error: arguments invalid";
+					PhononMPlayerCritical() << "Arguments invalid";
 					return false;
 				}
 				setCurrentAudioChannel(arguments.first().value<AudioChannelDescription>());
 				return true;
 
 			default:
-				qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::AudioChannelInterface command:" << command;
+				PhononMPlayerCritical() << "Unsupported AddonInterface::AudioChannelInterface command:" << command;
 		}
 		break;
 
 	default:
-		qCritical() << __FUNCTION__ << "Error: unsupported AddonInterface::Interface:" << iface;
+		PhononMPlayerCritical() << "Unsupported AddonInterface::Interface:" << iface;
 	}
 
 	return QVariant();
@@ -299,7 +301,7 @@ QVariant MediaController::interfaceCall(Interface iface, int command, const QLis
 
 //AudioChannel
 void MediaController::audioChannelAdded(int id, const AudioChannelData & audioChannelData) {
-	qDebug() << __FUNCTION__;
+	PhononMPlayerDebug();
 
 	//This callback can get called 1 or several times,
 
@@ -334,7 +336,7 @@ void MediaController::audioChannelAdded(int id, const AudioChannelData & audioCh
 }
 
 void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription & audioChannel) {
-	qDebug() << __FUNCTION__;
+	PhononMPlayerDebug();
 
 	_currentAudioChannel = audioChannel;
 	_process->sendCommand("switch_audio " + QString::number(_currentAudioChannel.index()));
@@ -350,7 +352,7 @@ Phonon::AudioChannelDescription MediaController::currentAudioChannel() const {
 
 //Subtitle
 void MediaController::subtitleAdded(int id, const SubtitleData & subtitleData) {
-	qDebug() << __FUNCTION__;
+	PhononMPlayerDebug();
 
 	//This callback can get called 1 or several times,
 
@@ -389,7 +391,7 @@ void MediaController::subtitleChanged(int id) {
 	foreach (Phonon::SubtitleDescription subtitle, _availableSubtitles) {
 		if (subtitle.index() == id) {
 			_currentSubtitle = subtitle;
-			qDebug() << __FUNCTION__ << "New current subtitle:" << _currentSubtitle;
+			PhononMPlayerDebug() << "New current subtitle:" << _currentSubtitle;
 			break;
 		}
 	}
@@ -408,7 +410,7 @@ void MediaController::loadSubtitleFile(const QString & fileName) {
 }
 
 void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription & subtitle) {
-	qDebug() << __FUNCTION__;
+	PhononMPlayerDebug();
 
 	_currentSubtitle = subtitle;
 	int id = _currentSubtitle.index();
@@ -446,7 +448,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription & sub
 		}
 
 		else {
-			qCritical() << __FUNCTION__ << "Error: unknown subtitle type:" << type;
+			PhononMPlayerCritical() << "Unknown subtitle type:" << type;
 		}
 	}
 }
@@ -483,7 +485,7 @@ void MediaController::titleAdded(int id, qint64 length) {
 		_availableTitles = id;
 	}
 
-	qDebug() << __FUNCTION__ << "Titles: " << _availableTitles;
+	PhononMPlayerDebug() << "Titles: " << _availableTitles;
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 }
 
@@ -580,7 +582,7 @@ void MediaController::chapterAdded(int titleId, int chapters) {
 			_availableChapters << Phonon::ChapterDescription(i, properties);
 		}
 
-		qDebug() << __FUNCTION__ << "Chapters: " << _availableChapters.size();
+		PhononMPlayerDebug() << "Chapters: " << _availableChapters.size();
 	}
 }
 
@@ -597,11 +599,11 @@ void MediaController::mkvChapterAdded(int id, const QString & title, const QStri
 	properties.insert("description", QString());
 
 	_availableChapters << Phonon::ChapterDescription(id, properties);
-	qDebug() << __FUNCTION__ << "MKV chapter id: " << id << "title:" << title;
+	PhononMPlayerDebug() << "MKV chapter id: " << id << "title:" << title;
 }
 
 void MediaController::setCurrentChapter(const Phonon::ChapterDescription & chapter) {
-	qDebug() << __FUNCTION__;
+	PhononMPlayerDebug();
 
 	_currentChapter = chapter;
 	_process->sendCommand("seek_chapter " + QString::number(_currentChapter.index()) + " 1");
@@ -641,7 +643,7 @@ void MediaController::chapterAdded(int titleId, int chapters) {
 
 	if (titleId == _currentTitle) {
 		_availableChapters = chapters;
-		qDebug() << __FUNCTION__ << "Chapters: " << _availableChapters;
+		PhononMPlayerDebug() << "Chapters: " << _availableChapters;
 	}
 }
 
@@ -655,12 +657,12 @@ void MediaController::mkvChapterAdded(int id, const QString & title, const QStri
 	//Matroska chapter added
 	if (_availableChapters < id + 1) {
 		_availableChapters = id + 1;
-		qDebug() << __FUNCTION__ << "Chapter id: " << id << "title:" << title;
+		PhononMPlayerDebug() << "Chapter id: " << id << "title:" << title;
 	}
 }
 
 void MediaController::setCurrentChapter(int chapterNumber) {
-	qDebug() << __FUNCTION__;
+	PhononMPlayerDebug();
 
 	_currentChapter = chapterNumber;
 	//HACK
@@ -687,12 +689,12 @@ void MediaController::angleAdded(int titleId, int angles) {
 	if (titleId == _currentTitle) {
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 		_availableAngles = angles;
-		qDebug() << __FUNCTION__ << "Angles: " << _availableAngles;
+		PhononMPlayerDebug() << "Angles: " << _availableAngles;
 	}
 }
 
 void MediaController::setCurrentAngle(int angleNumber) {
-	qDebug() << __FUNCTION__;
+	PhononMPlayerDebug();
 
 	_currentAngle = angleNumber;
 	_process->sendCommand("switch_angle " + QString::number(_currentAngle));

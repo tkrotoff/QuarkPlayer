@@ -20,10 +20,9 @@
 
 #include "DesktopEnvironment.h"
 #include "LanguageChangeEventFilter.h"
+#include "TkUtilLogger.h"
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 SearchLineEdit::SearchLineEdit(QWidget * parent)
 	: QLineEdit(parent) {
@@ -184,11 +183,11 @@ void SearchLineEdit::showWordList() {
 }
 
 void SearchLineEdit::itemActivatedFromWordList() {
-	qDebug() << Q_FUNC_INFO << "activated";
+	TkUtilDebug() << "activated";
 }
 
 void SearchLineEdit::itemHighlightedFromWordList() {
-	qDebug() << Q_FUNC_INFO << "highlighted";
+	TkUtilDebug() << "highlighted";
 }
 
 QStringList SearchLineEdit::wordList() const {

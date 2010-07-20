@@ -24,6 +24,7 @@
 #include "ASXParser.h"
 #include "XSPFParser.h"
 #include "CUEParser.h"
+#include "PlaylistParserLogger.h"
 
 #include <MediaInfoFetcher/MediaInfo.h>
 
@@ -35,7 +36,6 @@
 #include <QtCore/QUrl>
 #include <QtCore/QFileInfo>
 #include <QtCore/QMetaType>
-#include <QtCore/QDebug>
 
 PlaylistParser::PlaylistParser(QObject * parent)
 	: IPlaylistParser(parent),
@@ -107,7 +107,7 @@ PlaylistReader::~PlaylistReader() {
 }
 
 void PlaylistReader::load(const QString & fileName) {
-	qDebug() << __FUNCTION__ << "fileName:" << fileName;
+	PlaylistParserDebug() << "fileName:" << fileName;
 
 	_timeElapsed.start();
 
@@ -162,7 +162,7 @@ PlaylistWriter::~PlaylistWriter() {
 }
 
 void PlaylistWriter::save(const QString & fileName, const QList<MediaInfo> & files) {
-	qDebug() << __FUNCTION__ << "fileName:" << fileName;
+	PlaylistParserDebug() << "fileName:" << fileName;
 
 	_timeElapsed.restart();
 

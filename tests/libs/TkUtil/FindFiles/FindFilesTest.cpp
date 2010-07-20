@@ -21,6 +21,7 @@
 #include <QtGui/QtGui>
 
 #include <TkUtil/FindFiles.h>
+#include <TkUtil/TkUtilLogger.h>
 
 QTEST_MAIN(FindFilesTest)
 
@@ -41,13 +42,13 @@ void FindFilesTest::test() {
 	QSignalSpy spyFilesFound(_findFiles, SIGNAL(filesFound(const QStringList &, const QUuid &)));
 	QSignalSpy spyFinished(_findFiles, SIGNAL(finished(int, const QUuid &)));
 
-	qDebug() << Q_FUNC_INFO << spyFinished.count();
+	TkUtilDebug() << spyFinished.count();
 
 	QUuid uuid = QUuid::createUuid();
 	_findFiles->start(uuid);
 
-	qDebug() << Q_FUNC_INFO << spyFilesFound.count();
-	qDebug() << Q_FUNC_INFO << spyFinished.count();
+	TkUtilDebug() << spyFilesFound.count();
+	TkUtilDebug() << spyFinished.count();
 
 	//if (spyFinished.count() == 0) {
 		QTestEventLoop::instance().enterLoop(30);
@@ -65,14 +66,14 @@ void FindFilesTest::test() {
 }
 
 void FindFilesTest::filesFound(const QStringList & files, const QUuid & uuid) {
-	qDebug() << Q_FUNC_INFO << files << uuid;
+	TkUtilDebug() << files << uuid;
 	QTextEdit * textEdit = new QTextEdit(NULL);
-	textEdit->setText(files.join(","));
+	textEdit->setText(files.join("\n"));
 	textEdit->show();
 }
 
 void FindFilesTest::finished(int timeElapsed, const QUuid & uuid) {
-	qDebug() << Q_FUNC_INFO << timeElapsed << uuid;
+	TkUtilDebug() << timeElapsed << uuid;
 
 	//QTestEventLoop::instance().exitLoop();
 }

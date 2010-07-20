@@ -18,6 +18,8 @@
 
 #include "PlayToolBar.h"
 
+#include "PlayToolBarLogger.h"
+
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
 #include <quarkplayer/style/QuarkPlayerStyle.h>
@@ -154,7 +156,7 @@ void PlayToolBar::stateChanged(Phonon::State newState) {
 		break;
 
 	default:
-		qDebug() << __FUNCTION__ << "newState:" << newState;
+		PlayToolBarDebug() << "newState:" << newState;
 	}
 }
 

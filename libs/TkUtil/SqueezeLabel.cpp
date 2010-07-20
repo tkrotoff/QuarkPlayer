@@ -20,7 +20,7 @@
 
 #include "SqueezeLabel.h"
 
-#include <QtCore/QDebug>
+#include "TkUtilLogger.h"
 
 SqueezeLabel::SqueezeLabel(QWidget * parent)
 	: QLabel(parent) {

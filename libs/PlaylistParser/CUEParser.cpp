@@ -19,6 +19,7 @@
 #include "CUEParser.h"
 
 #include "Util.h"
+#include "PlaylistParserLogger.h"
 
 #include <MediaInfoFetcher/MediaInfo.h>
 #include <TkUtil/TkFile.h>
@@ -29,7 +30,6 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QDate>
 #include <QtCore/QTextStream>
-#include <QtCore/QDebug>
 
 static const char * CUE_QUOTE = "\"";
 static const char * CUE_EOL = "\r\n";

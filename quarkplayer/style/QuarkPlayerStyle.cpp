@@ -18,9 +18,9 @@
 
 #include "QuarkPlayerStyle.h"
 
-#include <QtGui/QtGui>
+#include <quarkplayer/QuarkPlayerCoreLogger.h>
 
-#include <QtCore/QDebug>
+#include <QtGui/QtGui>
 
 QuarkPlayerStyle::QuarkPlayerStyle() {
 }

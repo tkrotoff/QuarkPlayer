@@ -18,10 +18,11 @@
 
 #include "TkConfig.h"
 
+#include "TkUtilLogger.h"
+
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
 
 TkConfig::TkConfig()
 	:
@@ -34,10 +35,10 @@ TkConfig::TkConfig()
 	{
 
 	if (QCoreApplication::organizationName().isEmpty() || QCoreApplication::applicationName().isEmpty()) {
-		qCritical() << __FUNCTION__ << "Error: organizationName or applicationName empty";
+		TkUtilCritical() << "Error: organizationName or applicationName empty";
 	}
 
-	qDebug() << __FUNCTION__ << "Config file:" << fileName();
+	TkUtilDebug() << "Config file:" << fileName();
 }
 
 TkConfig::~TkConfig() {
@@ -70,7 +71,7 @@ void TkConfig::setValue(const QString & key, const QVariant & value) {
 
 QVariant TkConfig::defaultValue(const QString & key) const {
 	if (_defaultValues.count(key) != 1) {
-		qCritical() << __FUNCTION__ << "Error: invalid default value or key:" << key;
+		TkUtilCritical() << "Error: invalid default value or key:" << key;
 	}
 
 	return _defaultValues.value(key);
@@ -96,19 +97,19 @@ void TkConfig::checkStatus() const {
 		//Good to go
 		break;
 	case QSettings::AccessError:
-		qCritical() << __FUNCTION__ << "Error: access error occurred (e.g. trying to write to a read-only file)";
+		TkUtilCritical() << "Error: access error occurred (e.g. trying to write to a read-only file)";
 		break;
 	case QSettings::FormatError:
-		qCritical() << __FUNCTION__ << "Error: a format error occurred (e.g. loading a malformed INI file)";
+		TkUtilCritical() << "Error: a format error occurred (e.g. loading a malformed INI file)";
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unknown QSettings::Status:" << status;
+		TkUtilCritical() << "Error: unknown QSettings::Status:" << status;
 	}
 }
 
 void TkConfig::addKey(const QString & key, const QVariant & defaultValue) {
 	if (_defaultValues.contains(key)) {
-		qCritical() << __FUNCTION__ << "Error: this key already exists:" << key;
+		TkUtilCritical() << "Error: this key already exists:" << key;
 	}
 
 	_defaultValues[key] = defaultValue;

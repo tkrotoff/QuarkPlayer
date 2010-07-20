@@ -18,11 +18,12 @@
 
 #include "TkTextBrowser.h"
 
+#include "WebBrowserLogger.h"
+
 #include <QtGui/QtGui>
 
 #include <QtNetwork/QtNetwork>
 
-#include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 
 TkTextBrowser::TkTextBrowser(QWidget * parent)
@@ -79,7 +80,7 @@ void TkTextBrowser::finished(QNetworkReply * reply) {
 	case QTextDocument::StyleSheetResource:
 		break;
 	default:
-		qCritical() << __FUNCTION__ << "Error: unknown type:" << res.type;
+		WebBrowserCritical() << "Error: unknown type:" << res.type;
 	}
 
 	viewport()->update();
@@ -88,7 +89,7 @@ void TkTextBrowser::finished(QNetworkReply * reply) {
 QVariant TkTextBrowser::loadResource(int type, const QUrl & url) {
 	QVariant resource;
 
-	//qDebug() << Q_FUNC_INFO << url.toString();
+	//WebBrowserDebug() << url.toString();
 
 	if (url.host().isEmpty()) {
 		//Not a URL: local file system

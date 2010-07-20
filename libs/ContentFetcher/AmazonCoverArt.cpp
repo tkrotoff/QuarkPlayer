@@ -18,6 +18,8 @@
 
 #include "AmazonCoverArt.h"
 
+#include "ContentFetcherLogger.h"
+
 #include <hmac_sha2.h>
 
 #include <QtGui/QDesktopServices>
@@ -25,7 +27,6 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 
-#include <QtCore/QDebug>
 #include <QtCore/QtGlobal>
 #include <QtCore/QRegExp>
 #include <QtCore/QByteArray>
@@ -88,7 +89,7 @@ QString AmazonCoverArt::urlSignature(const QMap<QString, QString> & params) cons
 	paramsStr.replace(":", "%3A");
 	paramsStr.replace(";", "%3B");
 	paramsStr.replace(",", "%2C");
-	qDebug() << __FUNCTION__ << paramsStr;
+	ContentFetcherDebug() << paramsStr;
 	///
 
 	//HMAC SHA256
@@ -103,7 +104,7 @@ QString AmazonCoverArt::urlSignature(const QMap<QString, QString> & params) cons
 	//URL encode the digest
 	//RFC 3986 percent encoding
 	hash = QUrl::toPercentEncoding(hash.toUtf8()).constData();
-	qDebug() << __FUNCTION__ << hash;
+	ContentFetcherDebug() << hash;
 	///
 
 	return hash;
@@ -157,7 +158,7 @@ QUrl AmazonCoverArt::amazonUrl(const ContentFetcherTrack & track) const {
 		url.addEncodedQueryItem(it.key().toUtf8(), it.value().toUtf8());
 	}
 
-	qDebug() << __FUNCTION__ << "Amazon URL:" << url;
+	ContentFetcherDebug() << "Amazon URL:" << url;
 	return url;
 }
 
@@ -179,7 +180,7 @@ void AmazonCoverArt::start(const ContentFetcherTrack & track, const QString & la
 
 	QUrl url = amazonUrl(tmp);
 
-	qDebug() << __FUNCTION__ << "Looking up for the amazon album cover art:" << url;
+	ContentFetcherDebug() << "Looking up for the amazon album cover art:" << url;
 
 	_amazonCoverArtDownloader->get(QNetworkRequest(url));
 }
@@ -199,7 +200,7 @@ void AmazonCoverArt::gotCoverArtAmazonXML(QNetworkReply * reply) {
 	if (!url.contains(QRegExp("^http://"))) {
 		emitFinishedWithError(QNetworkReply::ContentNotFoundError, reply->url());
 	} else {
-		qDebug() << __FUNCTION__ << "Downloading cover art:" << url;
+		ContentFetcherDebug() << "Downloading cover art:" << url;
 
 		disconnect(_amazonCoverArtDownloader, SIGNAL(finished(QNetworkReply *)), 0, 0);
 		connect(_amazonCoverArtDownloader, SIGNAL(finished(QNetworkReply *)),
@@ -217,7 +218,7 @@ void AmazonCoverArt::gotCoverArt(QNetworkReply * reply) {
 		return;
 	}
 
-	qDebug() << __FUNCTION__ << "Got Amazon cover art";
+	ContentFetcherDebug() << "Got Amazon cover art";
 
 	//We've got the cover art
 	emitFinishedWithoutError(reply->url(), data);

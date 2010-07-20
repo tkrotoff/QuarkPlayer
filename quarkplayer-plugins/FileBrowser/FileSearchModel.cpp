@@ -19,6 +19,7 @@
 #include "FileSearchModel.h"
 
 #include "FileSearchItem.h"
+#include "FileBrowserLogger.h"
 
 #include <MediaInfoFetcher/MediaInfoFetcher.h>
 
@@ -31,17 +32,13 @@
 
 #include <QtGui/QtGui>
 
-#include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 
 //For INT_MAX
 #include <climits>
 
-const int FileSearchModel::COLUMN_FILENAME = 0;
-const int FileSearchModel::COLUMN_FIRST = COLUMN_FILENAME;
-const int FileSearchModel::COLUMN_LAST = COLUMN_FILENAME;
-
-static const int COLUMN_COUNT = 1;
+static const int COLUMN_FILENAME = 0;
+static const int COLUMN_COUNT = COLUMN_FILENAME + 1;
 
 QHash<QString, QIcon> FileSearchModel::_iconsCache;
 
@@ -102,6 +99,8 @@ QVariant FileSearchModel::headerData(int section, Qt::Orientation orientation, i
 		case COLUMN_FILENAME:
 			tmp = tr("Name");
 			break;
+		default:
+			FileBrowserCritical() << "Unknown section:" << section;
 		}
 	}
 
@@ -308,7 +307,7 @@ void FileSearchModel::fetchMore(const QModelIndex & parent) {
 		return;
 	}
 
-	qDebug() << __FUNCTION__;
+	FileBrowserDebug();
 	_currentParentItem = item(parent);
 
 	QString path(fileInfo(parent).absoluteFilePath());
@@ -363,7 +362,7 @@ void FileSearchModel::reset() {
 }
 
 void FileSearchModel::search(const QString & path, const QRegExp & pattern, int filesFoundLimit, bool recursiveSearch) {
-	qDebug() << __FUNCTION__ << path;
+	FileBrowserDebug() << path;
 
 	if (!_currentParentItem) {
 		if (!_rootItem) {
@@ -445,7 +444,7 @@ void FileSearchModel::filesFound(const QStringList & files, const QUuid & uuid) 
 
 void FileSearchModel::updateMediaInfo(const MediaInfo & mediaInfo) {
 	if (_mediaInfoFetcherIndex == QModelIndex() || !_mediaInfoFetcherIndex.isValid()) {
-		qCritical() << __FUNCTION__ << "Error: _mediaInfoFetcherIndex invalid";
+		FileBrowserCritical() << "Error: _mediaInfoFetcherIndex invalid";
 	} else {
 		FileSearchItem * searchItem = item(_mediaInfoFetcherIndex);
 

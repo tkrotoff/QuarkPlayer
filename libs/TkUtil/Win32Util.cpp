@@ -18,7 +18,7 @@
 
 #include "Win32Util.h"
 
-#include <QtCore/QDebug>
+#include "TkUtilLogger.h"
 
 #include <windows.h>
 

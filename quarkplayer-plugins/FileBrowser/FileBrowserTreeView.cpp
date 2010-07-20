@@ -20,6 +20,7 @@
 
 #include "FileBrowserWidget.h"
 #include "FileSearchModel.h"
+#include "FileBrowserLogger.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/config/Config.h>
@@ -39,7 +40,6 @@
 #include <QtGui/QApplication>
 
 #include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
 
 //For INT_MAX
 #include <climits>
@@ -91,7 +91,7 @@ void FileBrowserTreeView::populateActionCollection() {
 
 void FileBrowserTreeView::activated(const QModelIndex & index) {
 	QFileInfo fileInfo = this->fileInfo(index);
-	qDebug() << __FUNCTION__ << fileInfo.fileName() << index.row() << index.column();
+	FileBrowserDebug() << fileInfo.fileName() << index.row() << index.column();
 
 	//Do not add directories to the playlist
 	if (!fileInfo.isDir()) {
@@ -145,7 +145,7 @@ QFileInfo FileBrowserTreeView::fileInfo(const QModelIndex & index) const {
 	if (const FileSearchModel * fileSearchModel = dynamic_cast<const FileSearchModel *>(model)) {
 		tmp = fileSearchModel->fileInfo(index);
 	} else {
-		qCritical() << __FUNCTION__ << "Error: coudn't cast to FileSearchModel";
+		FileBrowserCritical() << "Error: coudn't cast to FileSearchModel";
 	}
 
 	return tmp;

@@ -18,11 +18,12 @@
 
 #include "MediaInfo.h"
 
+#include "MediaInfoFetcherLogger.h"
+
 #include <TkUtil/TkTime.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QUrl>
-#include <QtCore/QDebug>
 
 MediaInfo::MediaInfo() {
 	qRegisterMetaType<MediaInfo>("MediaInfo");
@@ -197,7 +198,7 @@ qint64 MediaInfo::parseCueIndexString(const QString & cueIndexString) {
 		cueIndex = (minutes * 60 * 1000) + (seconds * 1000) + ((frames / 75.0) * 1000);
 		//There is an approximation since _cueIndex is a qint64 and not a double
 	} else {
-		qCritical() << __FUNCTION__ << "Error: incorrect CUE sheet index string:" << cueIndex;
+		MediaInfoFetcherCritical() << "Incorrect CUE sheet index string:" << cueIndex;
 	}
 	return cueIndex;
 }
@@ -294,7 +295,7 @@ QVariant MediaInfo::audioStreamValue(int audioStreamId, AudioStream audioStream)
 }
 
 void MediaInfo::insertAudioStream(int audioStreamId, AudioStream audioStream, const QVariant & value) {
-	if (audioStreamId + 1> _audioStreamCount) {
+	if (audioStreamId + 1 > _audioStreamCount) {
 		_audioStreamCount = audioStreamId + 1;
 	}
 
@@ -321,7 +322,7 @@ QVariant MediaInfo::videoStreamValue(int videoStreamId, VideoStream videoStream)
 }
 
 void MediaInfo::insertVideoStream(int videoStreamId, VideoStream videoStream, const QVariant & value) {
-	if (videoStreamId + 1> _videoStreamCount) {
+	if (videoStreamId + 1 > _videoStreamCount) {
 		_videoStreamCount = videoStreamId + 1;
 	}
 
@@ -348,7 +349,7 @@ QVariant MediaInfo::textStreamValue(int textStreamId, TextStream textStream) con
 }
 
 void MediaInfo::insertTextStream(int textStreamId, TextStream textStream, const QVariant & value) {
-	if (textStreamId + 1> _textStreamCount) {
+	if (textStreamId + 1 > _textStreamCount) {
 		_textStreamCount = textStreamId + 1;
 	}
 

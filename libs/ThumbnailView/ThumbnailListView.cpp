@@ -19,15 +19,17 @@
 
 #include "ThumbnailListView.h"
 
+#include "ThumbnailViewLogger.h"
+
 #include <QtGui/QApplication>
 #include <QtGui/QHelpEvent>
 #include <QtGui/QPainter>
 #include <QtGui/QToolTip>
 #include <QtGui/QDesktopServices>
+#include <QtGui/QStyledItemDelegate>
 
 #include <QtCore/QUrl>
 #include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
 
 //Space between the item outer rect and the content
 static const int ITEM_MARGIN = 2;
@@ -40,15 +42,17 @@ static const int DEFAULT_ROW_COUNT = 2;
  *
  * It also makes sure all items are of the same size.
  */
-class PreviewItemDelegate : public QAbstractItemDelegate {
+class PreviewItemDelegate : public QStyledItemDelegate {
 public:
 
 	PreviewItemDelegate(ThumbnailListView * view)
-		: QAbstractItemDelegate(view),
+		: QStyledItemDelegate(view),
 		_view(view) {
 	}
 
-	QSize sizeHint(const QStyleOptionViewItem & /*option*/, const QModelIndex & /*index*/) const {
+	QSize sizeHint(const QStyleOptionViewItem & option, const QModelIndex & index) const {
+		Q_UNUSED(option);
+		Q_UNUSED(index);
 		return QSize(_view->itemWidth(), _view->itemHeight());
 	}
 
@@ -125,7 +129,7 @@ private:
 		QPoint pos(rect.left() + ITEM_MARGIN, rect.top() + ITEM_MARGIN);
 		QToolTip::showText(view->mapToGlobal(pos), filename, view);
 
-		qDebug() << __FUNCTION__ << filename;
+		ThumbnailViewDebug() << filename;
 	}
 
 	void openFileExternal(QAbstractItemView * view, QMouseEvent * event) {
@@ -139,7 +143,7 @@ private:
 		QUrl url = QUrl::fromLocalFile(filename);
 		QDesktopServices::openUrl(url);
 
-		qDebug() << __FUNCTION__ << url;
+		ThumbnailViewDebug() << url;
 	}
 
 	ThumbnailListView * _view;

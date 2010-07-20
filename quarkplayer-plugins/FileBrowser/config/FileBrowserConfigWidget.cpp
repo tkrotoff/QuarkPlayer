@@ -20,13 +20,13 @@
 
 #include "ui_FileBrowserConfigWidget.h"
 
+#include <quarkplayer-plugins/FileBrowser/FileBrowserLogger.h>
+
 #include <quarkplayer/config/Config.h>
 
 #include <TkUtil/TkFileDialog.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 FileBrowserConfigWidget::FileBrowserConfigWidget(const QUuid & uuid) {
 	_uuid = uuid;

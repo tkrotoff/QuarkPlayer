@@ -19,6 +19,7 @@
 #include "XSPFParser.h"
 
 #include "Util.h"
+#include "PlaylistParserLogger.h"
 
 #include <MediaInfoFetcher/MediaInfo.h>
 
@@ -30,7 +31,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QUrl>
 #include <QtCore/QDateTime>
-#include <QtCore/QDebug>
 
 static const char * XSPF_DATE = "date";
 static const char * XSPF_PLAYLIST = "playlist";
@@ -233,7 +233,7 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 	}
 
 	if (xml.hasError()) {
-		qWarning() << __FUNCTION__ << "Error:"
+		PlaylistParserWarning() << "Error:"
 			<< xml.errorString()
 			<< "line:" << xml.lineNumber()
 			<< "column:" << xml.columnNumber();
@@ -357,7 +357,7 @@ void XSPFParser::load(QIODevice * device, const QString & location) {
 	}
 
 	if (xml.hasError()) {
-		qCritical() << __FUNCTION__ << "Error:" << xml.errorString()
+		PlaylistParserCritical() << "Error:" << xml.errorString()
 			<< "line:" << xml.lineNumber()
 			<< "column:" << xml.columnNumber();
 	}

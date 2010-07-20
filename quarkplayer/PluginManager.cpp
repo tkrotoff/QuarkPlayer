@@ -19,18 +19,17 @@
 #include "PluginManager.h"
 
 #include "PluginManager_win32.h"
-
 #include "PluginFactory.h"
 #include "PluginInterface.h"
 #include "PluginConfig.h"
 #include "config/Config.h"
+#include "QuarkPlayerCoreLogger.h"
 
 #include <TkUtil/Random.h>
 
 #include <QtCore/QPluginLoader>
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
 
 PluginManager::PluginManager() {
 	_quarkPlayer = NULL;
@@ -62,7 +61,7 @@ QString PluginManager::findPluginDir() const {
 		//applicationDirPath/quarkplayer.exe
 		//usr/lib/quarkplayer/plugins/*.dll
 
-		qDebug() << "Checking for plugins:" << pluginDir;
+		QuarkPlayerCoreDebug() << "Checking for plugins:" << pluginDir;
 
 		if (pluginDir.contains(appDir)) {
 			if (dir.exists() && !dir.entryList(QDir::Files).isEmpty()) {
@@ -80,11 +79,11 @@ QString PluginManager::findPluginDir() const {
 	}
 
 	if (tmp.isEmpty()) {
-		qDebug() << __FUNCTION__ << "Back to the default plugin directory";
+		QuarkPlayerCoreDebug() << "Back to the default plugin directory";
 		tmp = Config::instance().pluginDirList().first();
 	}
 
-	qDebug() << __FUNCTION__ << "Plugin directory:" << tmp;
+	QuarkPlayerCoreDebug() << "Plugin directory:" << tmp;
 
 	return tmp;
 }
@@ -203,7 +202,7 @@ QString PluginManager::getRealPluginFileName(const QString & fileName) {
 		tmp.prepend("lib");
 		tmp += ".so";
 #else
-		qFatal() << __FUNCTION__ << "Platform not supported";
+		QuarkPlayerCoreCritical() << "Platform not supported";
 #endif
 	}
 
@@ -231,7 +230,7 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 				//Ok, this is a static plugin
 				pluginData.setFactory(factory);
 				pluginFound = true;
-				qDebug() << __FUNCTION__ << "Loading static plugin:" << fileName << "...";
+				QuarkPlayerCoreDebug() << "Loading static plugin:" << fileName << "...";
 				break;
 			}
 		}
@@ -247,12 +246,12 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 			if (factory) {
 				pluginData.setFactory(factory);
 				pluginFound = true;
-				qDebug() << __FUNCTION__ << "Loading dynamic plugin:" << fileName << "...";
+				QuarkPlayerCoreDebug() << "Loading dynamic plugin:" << fileName << "...";
 			} else {
-				qCritical() << __FUNCTION__ << "Error: this is not a QuarkPlayer plugin:" << fileName;
+				QuarkPlayerCoreCritical() << "Error: this is not a QuarkPlayer plugin:" << fileName;
 			}
 		} else {
-			qCritical() << __FUNCTION__ << "Error: plugin couldn't be loaded:" << fileName << loader.errorString();
+			QuarkPlayerCoreCritical() << "Error: plugin couldn't be loaded:" << fileName << loader.errorString();
 		}
 	}
 	///
@@ -308,7 +307,7 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 
 			if (!dependSolved) {
 				//What to do?
-				qCritical() << __FUNCTION__ << "Missing dependency:" << fileNameDepend;
+				QuarkPlayerCoreCritical() << "Missing dependency:" << fileNameDepend;
 			}
 		}
 	}
@@ -332,7 +331,7 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 			//This is why we prepend the loaded plugins to the list of loaded plugins
 			_loadedPlugins.prepend(pluginData);
 
-			qDebug() << __FUNCTION__ << "Plugin loaded:" << fileName;
+			QuarkPlayerCoreDebug() << "Plugin loaded:" << fileName;
 			loaded = true;
 		} else {
 			loaded = false;
@@ -373,10 +372,10 @@ bool PluginManager::deletePluginWithoutSavingConfig(PluginData & pluginData) {
 	bool ret = true;
 
 	if (!pluginData.interface()) {
-		qCritical() << __FUNCTION__ << "Error: couldn't delete the plugin:" << fileName;
+		QuarkPlayerCoreCritical() << "Error: couldn't delete the plugin:" << fileName;
 		ret = false;
 	} else {
-		qDebug() << __FUNCTION__ << "Delete plugin:" << fileName << "...";
+		QuarkPlayerCoreDebug() << "Delete plugin:" << fileName << "...";
 
 		//Recursively unloads all the plugins depending on this one
 		foreach (PluginData data, _loadedPlugins) {
@@ -391,7 +390,7 @@ bool PluginManager::deletePluginWithoutSavingConfig(PluginData & pluginData) {
 
 		//Unloads the plugin
 		pluginData.deleteInterface();
-		qDebug() << __FUNCTION__ << "Plugin deleted:" << fileName;
+		QuarkPlayerCoreDebug() << "Plugin deleted:" << fileName;
 
 		//Update the list of loaded plugins
 		//based on pluginData.uuid()

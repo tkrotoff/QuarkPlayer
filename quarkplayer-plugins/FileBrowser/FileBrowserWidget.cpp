@@ -20,7 +20,7 @@
 
 #include "FileBrowserTreeView.h"
 #include "FileSearchModel.h"
-
+#include "FileBrowserLogger.h"
 #include "config/FileBrowserConfigWidget.h"
 
 #include <quarkplayer/QuarkPlayer.h>
@@ -47,7 +47,6 @@
 #include <QtGui/QHeaderView>
 
 #include <QtCore/QtPlugin>
-#include <QtCore/QDebug>
 
 static const char * FILEBROWSER_SEARCH_HISTORY_KEY = "filebrowser_search_history";
 
@@ -234,7 +233,7 @@ void FileBrowserWidget::search() {
 				tmp += ".*";
 			}
 		}
-		qDebug() << __FUNCTION__ << tmp;
+		FileBrowserDebug() << tmp;
 
 		_fileSearchModel->search(rootSearchPath, QRegExp(tmp, Qt::CaseInsensitive, QRegExp::RegExp2), 1, true);
 	}

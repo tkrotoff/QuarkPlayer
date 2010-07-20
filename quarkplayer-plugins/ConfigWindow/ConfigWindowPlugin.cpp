@@ -20,6 +20,7 @@
 
 #include "ConfigWindow.h"
 #include "ShortcutsConfig.h"
+#include "ConfigWindowLogger.h"
 
 #include <quarkplayer/PluginManager.h>
 
@@ -28,8 +29,6 @@
 #include <TkUtil/ActionCollection.h>
 
 #include <QtGui/QtGui>
-
-#include <QtCore/QDebug>
 
 Q_EXPORT_PLUGIN2(ConfigWindow, ConfigWindowPluginFactory);
 
