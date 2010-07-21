@@ -20,7 +20,7 @@
 
 #include "MainWindowLogger.h"
 
-#include <quarkplayer/MsgHandler.h>
+#include <quarkplayer/LogMessageHandler.h>
 #include <quarkplayer/LogModel.h>
 #include <quarkplayer/LogMessage.h>
 
@@ -99,7 +99,7 @@ LogWindow::~LogWindow() {
 void LogWindow::setupUi() {
 	resize(648, 482);
 
-	LogModel * logModel = MsgHandler::instance().logModel();
+	LogModel * logModel = LogMessageHandler::instance().logModel();
 
 	_view = new QTreeView();
 	_view->setModel(logModel);

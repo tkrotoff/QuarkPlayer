@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MSGHANDLER_H
-#define MSGHANDLER_H
+#ifndef LOGMESSAGEHANDLER_H
+#define LOGMESSAGEHANDLER_H
 
 #include <quarkplayer/quarkplayer_export.h>
 
@@ -38,9 +38,9 @@ enum QtMsgType;
  *
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API MsgHandler : public QObject, public Singleton<MsgHandler> {
+class QUARKPLAYER_API LogMessageHandler : public QObject, public Singleton<LogMessageHandler> {
 	Q_OBJECT
-	friend class Singleton<MsgHandler>;
+	friend class Singleton<LogMessageHandler>;
 public:
 
 	/**
@@ -62,13 +62,13 @@ private:
 	 *
 	 * Uses Qt internal function qt_message_output()
 	 */
-	static void printMsg(const LogMessage & msg);
+	static void printLogMessage(const LogMessage & msg);
 
 	LogModel * _logModel;
 
-	MsgHandler();
+	LogMessageHandler();
 
-	~MsgHandler();
+	~LogMessageHandler();
 };
 
-#endif	//MSGHANDLER_H
+#endif	//LOGMESSAGEHANDLER_H

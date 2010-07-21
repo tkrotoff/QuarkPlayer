@@ -40,7 +40,7 @@ set(QuarkPlayerCore_SRCS
 	CommandLineParser.cpp
 	Languages.cpp
 	WinDefaultApplication.cpp
-	MsgHandler.cpp
+	LogMessageHandler.cpp
 	LogMessage.cpp
 	LogModel.cpp
 	config/Config.cpp
@@ -53,7 +53,7 @@ qt4_wrap_cpp(QuarkPlayerCore_SRCS
 	CommandLineManager.h
 	CommandLineParser.h
 	Languages.h
-	MsgHandler.h
+	LogMessageHandler.h
 	LogModel.h
 )
 

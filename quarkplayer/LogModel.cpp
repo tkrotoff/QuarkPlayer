@@ -36,15 +36,15 @@ LogModel::~LogModel() {
 }
 
 LogMessage LogModel::logMessage(const QModelIndex & index) const {
-	LogMessage tmp;
+	LogMessage msg;
 	if (!index.isValid()) {
 		QuarkPlayerCoreCritical() << "Invalid index:" << index;
 	} else {
 		int row = index.row();
-		tmp = _log[row];
+		msg = _log[row];
 	}
 
-	return tmp;
+	return msg;
 }
 
 void LogModel::appendLogMsg(const LogMessage & msg) {

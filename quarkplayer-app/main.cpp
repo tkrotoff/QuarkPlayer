@@ -18,7 +18,7 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
-#include <quarkplayer/MsgHandler.h>
+#include <quarkplayer/LogMessageHandler.h>
 #include <quarkplayer/CommandLineManager.h>
 #include <quarkplayer/CommandLineParser.h>
 #include <quarkplayer/config/Config.h>
@@ -55,7 +55,7 @@
 
 int main(int argc, char * argv[]) {
 	//Installs a custom message handler for qDebug(), qWarning() and others
-	qInstallMsgHandler(MsgHandler::myMessageOutput);
+	qInstallMsgHandler(LogMessageHandler::myMessageOutput);
 
 	QtSingleApplication app(argc, argv);
 

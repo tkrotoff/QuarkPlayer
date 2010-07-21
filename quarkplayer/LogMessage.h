@@ -29,7 +29,7 @@ enum QtMsgType;
 /**
  * A message inside the log system.
  *
- * @see MsgHandler
+ * @see LogMessageHandler
  * @see LogWindow
  * @author Tanguy Krotoff
  */

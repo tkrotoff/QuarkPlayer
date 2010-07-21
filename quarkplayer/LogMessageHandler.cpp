@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MsgHandler.h"
+#include "LogMessageHandler.h"
 
 #include "LogModel.h"
 #include "LogMessage.h"
@@ -25,22 +25,22 @@
 #include <QtCore/QStringList>
 #include <QtCore/QRegExp>
 
-MsgHandler::MsgHandler() {
+LogMessageHandler::LogMessageHandler() {
 	_logModel = new LogModel(this);
 }
 
-MsgHandler::~MsgHandler() {
-	//No need, will be deleted when MsgHandler is deleted
-	//+ MsgHandler should never be deleted otherwise
-	//MsgHandler::myMessageOutput() will crash
+LogMessageHandler::~LogMessageHandler() {
+	//No need, will be deleted when LogMessageHandler is deleted
+	//+ LogMessageHandler should never be deleted otherwise
+	//LogMessageHandler::myMessageOutput() will crash
 	//delete _logModel;
 }
 
-LogModel * MsgHandler::logModel() const {
+LogModel * LogMessageHandler::logModel() const {
 	return _logModel;
 }
 
-void MsgHandler::myMessageOutput(QtMsgType type, const char * msg) {
+void LogMessageHandler::myMessageOutput(QtMsgType type, const char * msg) {
 	QString logLine(msg);
 	//logLine = logLine.trimmed();
 
@@ -70,12 +70,12 @@ void MsgHandler::myMessageOutput(QtMsgType type, const char * msg) {
 
 	LogMessage logMsg(QTime::currentTime(), type, module, function, logLine);
 
-	printMsg(logMsg);
+	printLogMessage(logMsg);
 
-	MsgHandler::instance()._logModel->appendLogMsg(logMsg);
+	LogMessageHandler::instance()._logModel->appendLogMsg(logMsg);
 }
 
-void MsgHandler::printMsg(const LogMessage & msg) {
+void LogMessageHandler::printLogMessage(const LogMessage & msg) {
 	QString tmp = msg.toString();
 
 	qInstallMsgHandler(NULL);
@@ -85,5 +85,5 @@ void MsgHandler::printMsg(const LogMessage & msg) {
 	//Read file C:\Qt\4.6.0\src\corelib\global\qglobal.cpp
 	qt_message_output(msg.type, tmp.toUtf8().constData());
 
-	qInstallMsgHandler(MsgHandler::myMessageOutput);
+	qInstallMsgHandler(LogMessageHandler::myMessageOutput);
 }
