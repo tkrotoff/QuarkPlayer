@@ -74,8 +74,10 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	PluginInterface(quarkPlayer, uuid) {
 
 	QtSingleApplication * app = qobject_cast<QtSingleApplication *>(QCoreApplication::instance());
-	app->setActivationWindow(this);
-	app->activateWindow();
+	if (app) {
+		app->setActivationWindow(this);
+		app->activateWindow();
+	}
 
 	populateActionCollection();
 
