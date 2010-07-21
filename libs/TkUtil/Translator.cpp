@@ -35,6 +35,8 @@ Translator::Translator() {
 	if (!QDir(_translationsPath).exists()) {
 #ifdef Q_WS_X11
 		_translationsPath = "/usr/share/" + QCoreApplication::applicationName().toLower() + "/translations/";
+#else
+		TkUtilWarning() << "Unable to find the translations";
 #endif	//Q_WS_X11
 	}
 }
@@ -101,7 +103,7 @@ bool Translator::loadLanguage(QTranslator & translator, const QString & name, co
 		TkUtilDebug() << "Back to built-in english:" << fileName;
 	} else {
 		if (!ret) {
-			TkUtilDebug() << "Error: couldn't load translation:" << fileName << "from:" << translationsPath;
+			TkUtilDebug() << "Couldn't load translation:" << fileName << "from:" << translationsPath;
 		} else {
 			TkUtilDebug() << "Translation loaded:" << fileName << "from:" << translationsPath;
 		}
