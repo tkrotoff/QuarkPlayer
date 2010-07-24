@@ -210,7 +210,21 @@ void MediaInfoWidget::updateCoverArtPixmap() {
 
 		//Update the cover art pixmap
 		QString fileName(_coverArtList[_currentCoverArtIndex]);
-		QPixmap coverArt(fileName);
+		QPixmap coverArt;
+		if (!QPixmapCache::find(fileName, &coverArt)) {
+			//Cache system to improve performances
+			//There is a high CPU occupation when converting
+			//a big image (1.6MB in my test) to a QIcon (QIcon inside the QAbstractButton)
+			//So let's store in cache the scaled version of the pixmap to show
+			//Parameter Qt::SmoothTransformation is important otherwise quality is bad
+			coverArt = QPixmap(fileName).scaled(
+				_coverArtButton->iconSize(),
+				Qt::IgnoreAspectRatio,
+				Qt::SmoothTransformation
+			);
+			QPixmapCache::insert(fileName, coverArt);
+		}
+
 		if (!coverArt.isNull()) {
 			_coverArtButton->setIcon(coverArt);
 		} else {
