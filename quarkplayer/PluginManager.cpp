@@ -43,6 +43,11 @@ PluginManager::~PluginManager() {
 	deleteAllPlugins();
 }
 
+PluginManager & PluginManager::instance() {
+	static PluginManager instance;
+	return instance;
+}
+
 QString PluginManager::findPluginDir() const {
 	QStringList pluginDirList(Config::instance().pluginDirList());
 	QString appDir(QCoreApplication::applicationDirPath());
@@ -248,10 +253,10 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 				pluginFound = true;
 				QuarkPlayerCoreDebug() << "Loading dynamic plugin:" << fileName << "...";
 			} else {
-				QuarkPlayerCoreCritical() << "Error: this is not a QuarkPlayer plugin:" << fileName;
+				QuarkPlayerCoreCritical() << "Not a QuarkPlayer plugin:" << fileName;
 			}
 		} else {
-			QuarkPlayerCoreCritical() << "Error: plugin couldn't be loaded:" << fileName << loader.errorString();
+			QuarkPlayerCoreCritical() << "Plugin couldn't be loaded:" << fileName << loader.errorString();
 		}
 	}
 	///
@@ -372,7 +377,7 @@ bool PluginManager::deletePluginWithoutSavingConfig(PluginData & pluginData) {
 	bool ret = true;
 
 	if (!pluginData.interface()) {
-		QuarkPlayerCoreCritical() << "Error: couldn't delete the plugin:" << fileName;
+		QuarkPlayerCoreCritical() << "Couldn't delete the plugin:" << fileName;
 		ret = false;
 	} else {
 		QuarkPlayerCoreDebug() << "Delete plugin:" << fileName << "...";
@@ -437,6 +442,11 @@ PluginInterface * PluginManager::pluginInterface(const QString & fileName) const
 			break;
 		}
 	}
+
+	if (!interface) {
+		QuarkPlayerCoreCritical() << "Plugin not found:" << fileName;
+	}
+
 	return interface;
 }
 

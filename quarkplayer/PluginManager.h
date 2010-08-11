@@ -37,10 +37,12 @@ class QuarkPlayer;
  * @see QPluginLoader
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API PluginManager : public QObject, public Singleton<PluginManager> {
-	friend class Singleton<PluginManager>;
+class QUARKPLAYER_API PluginManager : public QObject, public Singleton {
 	Q_OBJECT
 public:
+
+	/** Singleton. */
+	static PluginManager & instance();
 
 	/** Loads all the available plugins. */
 	void loadAllPlugins(QuarkPlayer & quarkPlayer);

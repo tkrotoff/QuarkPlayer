@@ -39,6 +39,11 @@ ShortcutsConfig::ShortcutsConfig() {
 ShortcutsConfig::~ShortcutsConfig() {
 }
 
+ShortcutsConfig & ShortcutsConfig::instance() {
+	static ShortcutsConfig instance;
+	return instance;
+}
+
 void ShortcutsConfig::load() const {
 	QSettings & settings = Config::instance().settings();
 

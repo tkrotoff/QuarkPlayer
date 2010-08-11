@@ -38,10 +38,12 @@ class ICommandLineParser;
  * @see QtSingleApplication::messageReceived()
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API CommandLineManager : public QObject, public Singleton<CommandLineManager> {
+class QUARKPLAYER_API CommandLineManager : public QObject, public Singleton {
 	Q_OBJECT
-	friend class Singleton<CommandLineManager>;
 public:
+
+	/** Singleton. */
+	static CommandLineManager & instance();
 
 	/** Used for messages send via QtSingleApplication. */
 	static const char * MESSAGE_SEPARATOR;

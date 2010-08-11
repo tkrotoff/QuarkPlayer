@@ -41,9 +41,11 @@
  * @see QTranslator
  * @author Tanguy Krotoff
  */
-class TKUTIL_API Translator : public Singleton<Translator> {
-	friend class Singleton<Translator>;
+class TKUTIL_API Translator : public Singleton {
 public:
+
+	/** Singleton. */
+	static Translator & instance();
 
 	/**
 	 * Sets the path containing the translations (*.qm files).

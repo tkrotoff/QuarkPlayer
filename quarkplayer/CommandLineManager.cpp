@@ -40,6 +40,11 @@ CommandLineManager::~CommandLineManager() {
 	//FIXME clean up _parserList?
 }
 
+CommandLineManager & CommandLineManager::instance() {
+	static CommandLineManager instance;
+	return instance;
+}
+
 void CommandLineManager::addCommandLineParser(ICommandLineParser * parser) {
 	Q_ASSERT(parser);
 

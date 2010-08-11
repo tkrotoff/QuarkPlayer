@@ -44,6 +44,11 @@ Translator::Translator() {
 Translator::~Translator() {
 }
 
+Translator & Translator::instance() {
+	static Translator instance;
+	return instance;
+}
+
 void Translator::setTranslationsPath(const QString & translationsPath) {
 	_translationsPath = translationsPath;
 }
@@ -103,7 +108,7 @@ bool Translator::loadLanguage(QTranslator & translator, const QString & name, co
 		TkUtilDebug() << "Back to built-in english:" << fileName;
 	} else {
 		if (!ret) {
-			TkUtilDebug() << "Couldn't load translation:" << fileName << "from:" << translationsPath;
+			TkUtilWarning() << "Couldn't load translation:" << fileName << "from:" << translationsPath;
 		} else {
 			TkUtilDebug() << "Translation loaded:" << fileName << "from:" << translationsPath;
 		}

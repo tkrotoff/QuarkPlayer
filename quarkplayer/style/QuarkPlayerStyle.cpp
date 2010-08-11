@@ -28,6 +28,11 @@ QuarkPlayerStyle::QuarkPlayerStyle() {
 QuarkPlayerStyle::~QuarkPlayerStyle() {
 }
 
+QuarkPlayerStyle & QuarkPlayerStyle::instance() {
+	static QuarkPlayerStyle instance;
+	return instance;
+}
+
 void QuarkPlayerStyle::drawControl(ControlElement element, const QStyleOption * option,
 	QPainter * painter, const QWidget * widget) const {
 

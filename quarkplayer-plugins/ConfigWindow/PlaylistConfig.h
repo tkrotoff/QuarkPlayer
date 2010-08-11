@@ -39,10 +39,12 @@
  *
  * @author Tanguy Krotoff
  */
-class CONFIGWINDOW_API PlaylistConfig : public QObject, public Singleton<PlaylistConfig> {
+class CONFIGWINDOW_API PlaylistConfig : public QObject, public Singleton {
 	Q_OBJECT
-	friend class Singleton<PlaylistConfig>;
 public:
+
+	/** Singleton. */
+	static PlaylistConfig & instance();
 
 	/** Sets the current active playlist. */
 	void setActivePlaylist(const QUuid & uuid);

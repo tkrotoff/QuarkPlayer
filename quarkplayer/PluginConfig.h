@@ -40,9 +40,11 @@
  * @see PluginData
  * @author Tanguy Krotoff
  */
-class PluginConfig : public Singleton<PluginConfig> {
-	friend class Singleton<PluginConfig>;
+class PluginConfig : public Singleton {
 public:
+
+	/** Singleton. */
+	static PluginConfig & instance();
 
 	/**
 	 * Plugins list.

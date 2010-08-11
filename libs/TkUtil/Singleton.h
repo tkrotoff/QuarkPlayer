@@ -20,17 +20,33 @@
 #define SINGLETON_H
 
 /**
- * Template class to create singleton pattern.
+ * Interface for the singleton pattern.
  *
- * Becareful in multi-threaded environment: this class does not contain a mutex.
+ * First version of this class was a template using Meyers implementation.
+ * Unfortunately Singleton template cannot work across DLLs.
+ * @see http://forum.hardware.fr/hfr/Programmation/C-2/singleton-dll-memoire-sujet_80324_1.htm
+ * @see http://www.google.fr/search?hl=en&q=DLL+Singleton+C%2B%2B&btnG=Rechercher&aq=f&aqi=&aql=&oq=&gs_rfai=
+ *
+ * The only acceptable solution I see is to add <pre>static MyClass::instance()</pre> function inside each singleton.
+ *
+ * Meyers implementation is the way to go since most of the time it will be threadsafe cf this comment (Nov 2 '09):
+ * "Looking at the next standard (section 6.7.4), it explains how static local initialization is thread safe.
+ * So once that section of standard is widely implemented, Meyer's Singleton will be the preferred implementation.
+ * [...] Most compilers already implement static initialization this way. The one notable exception is Microsoft Visual Studio."
+ * @see http://stackoverflow.com/questions/1661529/is-meyers-implementation-of-singleton-pattern-thread-safe/1663229#1663229
+ *
+ * @see http://stackoverflow.com/questions/1008019/c-singleton-design-pattern
+ * @see http://stackoverflow.com/questions/270947/can-any-one-provide-me-a-sample-of-singleton-in-c
  *
  * Example:
  * @code
+ * //MyClass.h
  * #include <TkUtil/Singleton.h>
  *
- * class MyClass : public Singleton<MyClass> {
- * 	friend class Singleton<MyClass>;
+ * class MyClass : public Singleton {
  * public:
+ *
+ * 	static MyClass & instance();
  *
  * 	void doSomething();
  *
@@ -39,42 +55,37 @@
  * 	MyClass();
  * 	~MyClass();
  * };
+ *
+ * //MyClass.cpp
+ * MyClass & MyClass::instance() {
+ * 	//Meyers implementation
+ * 	//Guaranteed to be destroyed
+ * 	static T instance;
+ * 	return instance;
+ * }
  * @endcode
  *
  * @author Tanguy Krotoff
  */
-template<typename T>
 class Singleton {
 public:
 
+	/* This does not work across DLLs
 	static T & instance() {
-		if (!_instance) {
-			_instance = new T;
-		}
-		return *_instance;
+		//Guaranteed to be destroyed
+		static T instance;
+		return instance;
 	}
-
-	static void deleteInstance() {
-		if (_instance) {
-			delete _instance;
-			_instance = 0;
-		}
-	}
+	*/
 
 protected:
 
 	Singleton() { }
 
-	~Singleton() { }
-
 private:
 
 	Singleton(const Singleton &);
 	Singleton & operator=(const Singleton &);
-
-	static T * _instance;
 };
-
-template<typename T> T * Singleton<T>::_instance = 0;
 
 #endif	//SINGLETON_H

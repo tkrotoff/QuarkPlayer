@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,37 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SHORTCUTSCONFIG_H
-#define SHORTCUTSCONFIG_H
+#ifndef MEDIACONTROLLEREXPORT_H
+#define MEDIACONTROLLEREXPORT_H
 
-#include <TkUtil/Singleton.h>
+#include <QtCore/QtGlobal>
 
-class QAction;
-class QString;
+#ifdef QT_STATICPLUGIN
+	//This library is a static plugin
+	#define MEDIACONTROLLER_API
+#else
+	#ifdef BUILD_MEDIACONTROLLER
+		//We are building this library
+		#define MEDIACONTROLLER_API Q_DECL_EXPORT
+	#else
+		//We are using this library
+		#define MEDIACONTROLLER_API Q_DECL_IMPORT
+	#endif
+#endif
 
-/**
- * Load and save QuarkPlayer shortcuts configuration using QSettings.
- *
- * @see Config
- * @author Tanguy Krotoff
- */
-class ShortcutsConfig : public Singleton {
-public:
-
-	/** Singleton. */
-	static ShortcutsConfig & instance();
-
-	void load() const;
-
-	void save();
-
-private:
-
-	QAction * findAction(const QString & name) const;
-
-	ShortcutsConfig();
-
-	~ShortcutsConfig();
-};
-
-#endif	//SHORTCUTSCONFIG_H
+#endif	//MEDIACONTROLLEREXPORT_H

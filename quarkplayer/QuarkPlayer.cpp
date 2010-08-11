@@ -41,8 +41,6 @@ QuarkPlayer::QuarkPlayer(QObject * parent)
 }
 
 QuarkPlayer::~QuarkPlayer() {
-	PluginManager::instance().deleteInstance();
-	Config::instance().deleteInstance();
 }
 
 void QuarkPlayer::setCurrentMediaObject(Phonon::MediaObject * mediaObject) {

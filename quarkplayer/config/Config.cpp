@@ -103,6 +103,11 @@ Config::Config()
 Config::~Config() {
 }
 
+Config & Config::instance() {
+	static Config instance;
+	return instance;
+}
+
 void Config::deleteConfig() {
 	//Needs to remove all the files before to be able to remove the directory
 	//This is the way QDir::rmdir() works :/

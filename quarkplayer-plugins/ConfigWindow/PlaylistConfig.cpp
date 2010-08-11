@@ -26,6 +26,11 @@ PlaylistConfig::PlaylistConfig() {
 PlaylistConfig::~PlaylistConfig() {
 }
 
+PlaylistConfig & PlaylistConfig::instance() {
+	static PlaylistConfig instance;
+	return instance;
+}
+
 void PlaylistConfig::setActivePlaylist(const QUuid & uuid) {
 	_uuid = uuid;
 	emit activePlaylistChanged(_uuid);

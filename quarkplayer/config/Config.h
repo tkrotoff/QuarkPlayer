@@ -53,9 +53,11 @@ struct QUuid;
  * @see QSettings
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API Config : public TkConfig, public Singleton<Config> {
-	friend class Singleton<Config>;
+class QUARKPLAYER_API Config : public TkConfig, public Singleton {
 public:
+
+	/** Singleton. */
+	static Config & instance();
 
 	/** Deletes all configuration files from the computer. */
 	void deleteConfig();

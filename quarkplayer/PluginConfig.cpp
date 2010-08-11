@@ -30,6 +30,11 @@ PluginConfig::PluginConfig() {
 PluginConfig::~PluginConfig() {
 }
 
+PluginConfig & PluginConfig::instance() {
+	static PluginConfig instance;
+	return instance;
+}
+
 PluginDataList PluginConfig::plugins() const {
 	//Version working with QDataStream
 	/*

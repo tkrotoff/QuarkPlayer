@@ -36,6 +36,11 @@ LogMessageHandler::~LogMessageHandler() {
 	//delete _logModel;
 }
 
+LogMessageHandler & LogMessageHandler::instance() {
+	static LogMessageHandler instance;
+	return instance;
+}
+
 LogModel * LogMessageHandler::logModel() const {
 	return _logModel;
 }

@@ -19,6 +19,8 @@
 #ifndef MEDIACONTROLLER_H
 #define MEDIACONTROLLER_H
 
+#include <quarkplayer-plugins/MediaController/mediacontroller_export.h>
+
 #include <quarkplayer/PluginInterface.h>
 
 #include <QtGui/QWidget>
@@ -46,7 +48,7 @@ class QToolBar;
  * @see Phonon::MediaController
  * @author Tanguy Krotoff
  */
-class MediaController : public QWidget, public PluginInterface {
+class MEDIACONTROLLER_API MediaController : public QWidget, public PluginInterface {
 	Q_OBJECT
 public:
 
@@ -113,7 +115,7 @@ private:
  *
  * @author Tanguy Krotoff
  */
-class MediaControllerFactory : public QObject, public PluginFactory {
+class MEDIACONTROLLER_API MediaControllerFactory : public QObject, public PluginFactory {
 	Q_OBJECT
 	Q_INTERFACES(PluginFactory)
 public:

@@ -38,10 +38,6 @@ CommandLineParser::CommandLineParser()
 
 CommandLineParser::~CommandLineParser() {
 	CommandLineManager::instance().removeCommandLineParser(this);
-
-	//CommandLineParser should one of the very last object to be deleted
-	//If CommandLineParser is deleted, then CommandLineManager should be too
-	CommandLineManager::deleteInstance();
 }
 
 void CommandLineParser::argsReceived(const QStringList & args, bool usingQtSingleApplication) {

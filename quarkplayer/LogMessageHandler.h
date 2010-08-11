@@ -38,10 +38,12 @@ enum QtMsgType;
  *
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API LogMessageHandler : public QObject, public Singleton<LogMessageHandler> {
+class QUARKPLAYER_API LogMessageHandler : public QObject, public Singleton {
 	Q_OBJECT
-	friend class Singleton<LogMessageHandler>;
 public:
+
+	/** Singleton. */
+	static LogMessageHandler & instance();
 
 	/**
 	 * Gets the model for the log.

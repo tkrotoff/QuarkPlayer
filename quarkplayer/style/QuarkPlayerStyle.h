@@ -33,9 +33,11 @@
  *
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API QuarkPlayerStyle : public QProxyStyle, public Singleton<QuarkPlayerStyle> {
-	friend class Singleton<QuarkPlayerStyle>;
+class QUARKPLAYER_API QuarkPlayerStyle : public QProxyStyle, public Singleton {
 public:
+
+	/** Singleton. */
+	static QuarkPlayerStyle & instance();
 
 	void drawControl(ControlElement element, const QStyleOption * option,
 		QPainter * painter, const QWidget * widget = 0) const;
