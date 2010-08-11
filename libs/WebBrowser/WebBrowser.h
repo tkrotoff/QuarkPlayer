@@ -19,7 +19,7 @@
 #ifndef WEBBROWSER_H
 #define WEBBROWSER_H
 
-#include <WebBrowser/webbrowser_export.h>
+#include <WebBrowser/WebBrowserExport.h>
 
 #include <QtGui/QWidget>
 

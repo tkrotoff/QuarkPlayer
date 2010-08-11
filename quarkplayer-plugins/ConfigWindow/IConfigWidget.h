@@ -19,7 +19,7 @@
 #ifndef ICONFIGWIDGET_H
 #define ICONFIGWIDGET_H
 
-#include <quarkplayer-plugins/ConfigWindow/configwindow_export.h>
+#include <quarkplayer-plugins/ConfigWindow/ConfigWindowExport.h>
 
 #include <QtGui/QWidget>
 

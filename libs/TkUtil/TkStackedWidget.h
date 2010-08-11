@@ -19,7 +19,7 @@
 #ifndef TKSTACKEDWIDGET_H
 #define TKSTACKEDWIDGET_H
 
-#include <TkUtil/tkutil_export.h>
+#include <TkUtil/TkUtilExport.h>
 
 class QStackedWidget;
 

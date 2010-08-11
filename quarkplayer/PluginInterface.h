@@ -19,7 +19,7 @@
 #ifndef PLUGININTERFACE_H
 #define PLUGININTERFACE_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/QuarkPlayerExport.h>
 
 #include <QtCore/QString>
 #include <QtCore/QUuid>

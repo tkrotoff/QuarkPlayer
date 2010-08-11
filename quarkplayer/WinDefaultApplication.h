@@ -19,7 +19,7 @@
 #ifndef WINDEFAULTAPPLICATION_H
 #define WINDEFAULTAPPLICATION_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/QuarkPlayerExport.h>
 
 //Needed for the Qt translation feature
 #include <QtCore/QObject>

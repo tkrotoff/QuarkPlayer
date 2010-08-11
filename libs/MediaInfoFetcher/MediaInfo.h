@@ -19,7 +19,7 @@
 #ifndef MEDIAINFO_H
 #define MEDIAINFO_H
 
-#include <MediaInfoFetcher/mediainfofetcher_export.h>
+#include <MediaInfoFetcher/mediainfofetcherExport.h>
 
 #include <FileTypes/FileType.h>
 

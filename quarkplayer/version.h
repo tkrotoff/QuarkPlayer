@@ -19,7 +19,7 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/QuarkPlayerExport.h>
 
 class QString;
 

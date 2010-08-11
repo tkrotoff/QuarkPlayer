@@ -19,7 +19,7 @@
 #ifndef COMMANDLINEMANAGER_H
 #define COMMANDLINEMANAGER_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/QuarkPlayerExport.h>
 
 #include <TkUtil/Singleton.h>
 

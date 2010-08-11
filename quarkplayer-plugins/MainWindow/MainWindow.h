@@ -19,7 +19,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <quarkplayer-plugins/MainWindow/mainwindow_export.h>
+#include <quarkplayer-plugins/MainWindow/MainWindowExport.h>
 
 #include <quarkplayer/PluginInterface.h>
 

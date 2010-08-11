@@ -19,7 +19,7 @@
 #ifndef PLUGINMANAGER_H
 #define PLUGINMANAGER_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/QuarkPlayerExport.h>
 #include <quarkplayer/PluginData.h>
 
 #include <TkUtil/Singleton.h>

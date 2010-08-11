@@ -21,7 +21,7 @@
 #ifndef SQUEEZELABEL_H
 #define SQUEEZELABEL_H
 
-#include <TkUtil/tkutil_export.h>
+#include <TkUtil/TkUtilExport.h>
 
 #include <QtGui/QLabel>
 

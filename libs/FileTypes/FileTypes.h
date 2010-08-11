@@ -19,7 +19,7 @@
 #ifndef FILETYPES_H
 #define FILETYPES_H
 
-#include <FileTypes/filetypes_export.h>
+#include <FileTypes/filetypesExport.h>
 
 #include <FileTypes/FileType.h>
 

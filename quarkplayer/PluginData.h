@@ -19,7 +19,7 @@
 #ifndef PLUGINDATA_H
 #define PLUGINDATA_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/QuarkPlayerExport.h>
 
 #include <QtCore/QUuid>
 #include <QtCore/QMultiHash>

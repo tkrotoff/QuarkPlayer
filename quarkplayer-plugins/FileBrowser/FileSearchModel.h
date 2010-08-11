@@ -19,7 +19,7 @@
 #ifndef FILESEARCHMODEL_H
 #define FILESEARCHMODEL_H
 
-#include <quarkplayer-plugins/FileBrowser/filebrowser_export.h>
+#include <quarkplayer-plugins/FileBrowser/FileBrowserExport.h>
 
 #include <QtGui/QIcon>
 #include <QtGui/QFileIconProvider>

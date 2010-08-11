@@ -19,7 +19,7 @@
 #ifndef TKFILE_H
 #define TKFILE_H
 
-#include <TkUtil/tkutil_export.h>
+#include <TkUtil/TkUtilExport.h>
 
 #include <QtCore/QString>
 

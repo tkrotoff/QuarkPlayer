@@ -19,7 +19,7 @@
 #ifndef MEDIACONTROLLER_H
 #define MEDIACONTROLLER_H
 
-#include <quarkplayer-plugins/MediaController/mediacontroller_export.h>
+#include <quarkplayer-plugins/MediaController/MediaControllerExport.h>
 
 #include <quarkplayer/PluginInterface.h>
 

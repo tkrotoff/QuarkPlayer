@@ -19,7 +19,7 @@
 #ifndef LOGMODEL_H
 #define LOGMODEL_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/QuarkPlayerExport.h>
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QList>

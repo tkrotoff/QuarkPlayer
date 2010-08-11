@@ -19,7 +19,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/QuarkPlayerExport.h>
 
 #include <TkUtil/TkConfig.h>
 #include <TkUtil/Singleton.h>

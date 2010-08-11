@@ -19,7 +19,7 @@
 #ifndef SEARCHLINEEDIT_H
 #define SEARCHLINEEDIT_H
 
-#include <TkUtil/tkutil_export.h>
+#include <TkUtil/TkUtilExport.h>
 
 #include <QtGui/QLineEdit>
 

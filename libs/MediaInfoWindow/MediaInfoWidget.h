@@ -19,7 +19,7 @@
 #ifndef MEDIAINFOWIDGET_H
 #define MEDIAINFOWIDGET_H
 
-#include <MediaInfoWindow/mediainfowindow_export.h>
+#include <MediaInfoWindow/mediainfowindowExport.h>
 
 #include <QtGui/QWidget>
 

@@ -19,7 +19,7 @@
 #ifndef TKCONFIG_H
 #define TKCONFIG_H
 
-#include <TkUtil/tkutil_export.h>
+#include <TkUtil/TkUtilExport.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QSettings>

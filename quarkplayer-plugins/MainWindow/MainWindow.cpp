@@ -175,13 +175,13 @@ void MainWindow::playFile() {
 		QString fileToPlay(fileNames[0]);
 		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(fileToPlay).absolutePath());
 
-		PlaylistWidget * playlistWidget = PlaylistWidgetFactory::playlistWidget();
+		/*PlaylistWidget * playlistWidget = PlaylistWidgetFactory::playlistWidget();
 		if (playlistWidget) {
 			playlistWidget->addFilesToCurrentPlaylist(fileNames);
 			playlistWidget->playlistModel()->play(0);
 		} else {
 			play(fileToPlay);
-		}
+		}*/
 	}
 }
 

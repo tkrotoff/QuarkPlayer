@@ -1,5 +1,7 @@
 project(MediaController)
 
+add_definitions(-DBUILD_MEDIACONTROLLER)
+
 if (STATICPLUGINS)
 	add_definitions(-DQT_STATICPLUGIN)
 endif (STATICPLUGINS)
@@ -17,15 +19,16 @@ qt4_wrap_cpp(MediaController_SRCS
 if (STATICPLUGINS)
 	add_library(MediaController STATIC ${MediaController_SRCS})
 else (STATICPLUGINS)
-	add_library(MediaController MODULE ${MediaController_SRCS})
+	add_library(MediaController SHARED ${MediaController_SRCS})
 endif (STATICPLUGINS)
 
 target_link_libraries(MediaController
+	FileTypes
+
 	QuarkPlayerCore
 
+	Playlist
 	MainWindow
-
-	FileTypes
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}

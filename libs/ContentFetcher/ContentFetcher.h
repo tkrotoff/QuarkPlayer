@@ -19,7 +19,7 @@
 #ifndef CONTENTFETCHER_H
 #define CONTENTFETCHER_H
 
-#include <ContentFetcher/contentfetcher_export.h>
+#include <ContentFetcher/contentfetcherExport.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QString>

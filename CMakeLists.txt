@@ -212,12 +212,14 @@ add_subdirectory(quarkplayer-plugins)
 add_subdirectory(quarkplayer-app)
 ##
 
-if (BUILD_TESTS)
+if (BUILD_TESTS AND STATICPLUGINS)
 	# Tests (includes unit tests)
+	# Cannot work if the plugins are shared (i.e DLL)
+	# Tests are only enabled if plugins are static
 	# CTest, see http://www.vtk.org/Wiki/CMake_Testing_With_CTest
 	enable_testing()
 	add_subdirectory(tests)
-endif (BUILD_TESTS)
+endif (BUILD_TESTS AND STATICPLUGINS)
 
 # make doc: custom target in order to generate the documentation using Doxygen
 find_package(Doxygen)

@@ -19,7 +19,7 @@
 #ifndef TKTIME_H
 #define TKTIME_H
 
-#include <TkUtil/tkutil_export.h>
+#include <TkUtil/TkUtilExport.h>
 
 /**
  * Time convertion functions.

@@ -28,14 +28,14 @@ else (STATICPLUGINS)
 endif (STATICPLUGINS)
 
 target_link_libraries(Playlist
+	TkUtil
+	PlaylistParser
+	MediaInfoWindow
+
 	QuarkPlayerCore
 
 	MainWindow
 	ConfigWindow
-
-	TkUtil
-	PlaylistParser
-	MediaInfoWindow
 
 	${QT_QTCORE_LIBRARY}
 	${QT_QTGUI_LIBRARY}

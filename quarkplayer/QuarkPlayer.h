@@ -19,7 +19,7 @@
 #ifndef QUARKPLAYER_H
 #define QUARKPLAYER_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/QuarkPlayerExport.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>

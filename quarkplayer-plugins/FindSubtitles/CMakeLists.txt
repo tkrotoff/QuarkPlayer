@@ -32,13 +32,16 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 if (STATICPLUGINS)
 	add_library(FindSubtitles STATIC ${FindSubtitles_SRCS})
 else (STATICPLUGINS)
-	add_library(FindSubtitles MODULE ${FindSubtitles_SRCS})
+	add_library(FindSubtitles SHARED ${FindSubtitles_SRCS})
 endif (STATICPLUGINS)
 
 target_link_libraries(FindSubtitles
-	QuarkPlayerCore
-	MainWindow
 	TkUtil
+
+	QuarkPlayerCore
+
+	MainWindow
+	MediaController
 
 	${QTIOCOMPRESSOR_LIBRARIES}
 

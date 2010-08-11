@@ -19,7 +19,7 @@
 #ifndef LOGMESSAGEHANDLER_H
 #define LOGMESSAGEHANDLER_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/QuarkPlayerExport.h>
 
 #include <TkUtil/Singleton.h>
 

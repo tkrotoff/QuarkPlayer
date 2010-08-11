@@ -19,7 +19,7 @@
 #ifndef TRANSLATOR_H
 #define TRANSLATOR_H
 
-#include <TkUtil/tkutil_export.h>
+#include <TkUtil/TkUtilExport.h>
 
 #include <TkUtil/Singleton.h>
 

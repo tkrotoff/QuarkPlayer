@@ -19,7 +19,7 @@
 #ifndef LANGUAGES_H
 #define LANGUAGES_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/QuarkPlayerExport.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QMap>

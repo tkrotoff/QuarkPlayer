@@ -19,7 +19,7 @@
 #ifndef CONFIGWINDOWPLUGIN_H
 #define CONFIGWINDOWPLUGIN_H
 
-#include <quarkplayer-plugins/ConfigWindow/configwindow_export.h>
+#include <quarkplayer-plugins/ConfigWindow/ConfigWindowExport.h>
 
 #include <quarkplayer/PluginInterface.h>
 

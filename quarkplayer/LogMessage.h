@@ -19,7 +19,7 @@
 #ifndef LOGMESSAGE_H
 #define LOGMESSAGE_H
 
-#include <quarkplayer/quarkplayer_export.h>
+#include <quarkplayer/QuarkPlayerExport.h>
 
 #include <QtCore/QString>
 #include <QtCore/QTime>

@@ -20,7 +20,7 @@
 #ifndef THUMBNAILVIEW_H
 #define THUMBNAILVIEW_H
 
-#include <ThumbnailView/thumbnailview_export.h>
+#include <ThumbnailView/ThumbnailViewExport.h>
 
 #include <QtGui/QWidget>
 

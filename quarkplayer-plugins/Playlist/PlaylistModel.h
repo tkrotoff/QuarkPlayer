@@ -19,7 +19,7 @@
 #ifndef PLAYLISTMODEL_H
 #define PLAYLISTMODEL_H
 
-#include <quarkplayer-plugins/Playlist/playlist_export.h>
+#include <quarkplayer-plugins/Playlist/PlaylistExport.h>
 
 #include <PlaylistParser/PlaylistParser.h>
 

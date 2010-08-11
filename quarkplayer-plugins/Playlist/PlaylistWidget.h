@@ -19,7 +19,7 @@
 #ifndef PLAYLISTWIDGET_H
 #define PLAYLISTWIDGET_H
 
-#include <quarkplayer-plugins/Playlist/playlist_export.h>
+#include <quarkplayer-plugins/Playlist/PlaylistExport.h>
 
 #include <quarkplayer/PluginInterface.h>
 

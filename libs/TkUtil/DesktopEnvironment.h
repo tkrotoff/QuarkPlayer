@@ -19,7 +19,7 @@
 #ifndef DESKTOPENVIRONMENT_H
 #define DESKTOPENVIRONMENT_H
 
-#include <TkUtil/tkutil_export.h>
+#include <TkUtil/TkUtilExport.h>
 
 /**
  * Detects at runtime which desktop environment is currently used.

@@ -19,7 +19,7 @@
 #ifndef PLAYLISTCONFIG_H
 #define PLAYLISTCONFIG_H
 
-#include <quarkplayer-plugins/ConfigWindow/configwindow_export.h>
+#include <quarkplayer-plugins/ConfigWindow/ConfigWindowExport.h>
 
 #include <TkUtil/Singleton.h>
 

@@ -19,7 +19,7 @@
 #ifndef IPLAYLISTPARSER_H
 #define IPLAYLISTPARSER_H
 
-#include <PlaylistParser/playlistparser_export.h>
+#include <PlaylistParser/PlaylistParserExport.h>
 
 #include <QtCore/QObject>
 

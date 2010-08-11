@@ -19,7 +19,7 @@
 #ifndef FILECHOOSERWIDGET_H
 #define FILECHOOSERWIDGET_H
 
-#include <TkUtil/tkutil_export.h>
+#include <TkUtil/TkUtilExport.h>
 
 #include <QtGui/QWidget>
 

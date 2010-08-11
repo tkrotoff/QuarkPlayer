@@ -20,7 +20,7 @@
 #ifndef EVENTFILTER_H
 #define EVENTFILTER_H
 
-#include <TkUtil/tkutil_export.h>
+#include <TkUtil/TkUtilExport.h>
 
 #include <QtCore/QObject>
 
