@@ -19,7 +19,7 @@
 #ifndef METADATAWRITER_H
 #define METADATAWRITER_H
 
-#include <MediaInfoFetcher/mediainfofetcherExport.h>
+#include <MediaInfoFetcher/MediaInfoFetcherExport.h>
 
 class MediaInfo;
 

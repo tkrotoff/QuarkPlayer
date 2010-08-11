@@ -19,7 +19,7 @@
 #ifndef FILETYPES_H
 #define FILETYPES_H
 
-#include <FileTypes/filetypesExport.h>
+#include <FileTypes/FileTypesExport.h>
 
 #include <FileTypes/FileType.h>
 
@@ -45,7 +45,8 @@ public:
 	 * Gets the file extension of a given category.
 	 *
 	 * Example: Audio: mp3, wav, mp4...
-	 * There is no . before the extension name.
+	 * There is no dot before the extension name (same as in QFileInfo::suffix()
+	 * and QFileInfo::completeSuffix())
 	 *
 	 * @param category which category of file extension to look for
 	 * @return file extensions of the given category
@@ -54,6 +55,20 @@ public:
 
 	/** @see extensions() */
 	static QStringList extensions(FileType::Category category1, FileType::Category category2);
+
+	/**
+	 * Checks is a file matches one of the given extensions.
+	 *
+	 * Internally use QFileInfo::completeSuffix().
+	 * This function should be used with extensions().
+	 * Code from FindFiles.
+	 *
+	 * @param fileName file to check
+	 * @param extensions list of extensions (without the dot) to match
+	 * @return true if file matches; false otherwise
+	 * @see extensions()
+	 */
+	static bool fileExtensionMatches(const QString & fileName, const QStringList & extensions);
 
 	/**
 	 * Gets the file type given the file extension.
