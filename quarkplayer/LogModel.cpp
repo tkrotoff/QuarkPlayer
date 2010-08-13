@@ -21,15 +21,21 @@
 #include "LogMessage.h"
 #include "QuarkPlayerCoreLogger.h"
 
+#include <QtCore/QFile>
+#include <QtCore/QXmlStreamReader>
+#include <QtCore/QXmlStreamWriter>
+
 const int LogModel::COLUMN_TIME = 0;
 const int LogModel::COLUMN_TYPE = 1;
-const int LogModel::COLUMN_MODULE = 2;
-const int LogModel::COLUMN_FUNCTION = 3;
-const int LogModel::COLUMN_MSG = 4;
-static const int COLUMN_COUNT = LogModel::COLUMN_MSG + 1;
+const int LogModel::COLUMN_FILE = 2;
+const int LogModel::COLUMN_LINE = 3;
+const int LogModel::COLUMN_MODULE = 4;
+const int LogModel::COLUMN_FUNCTION = 5;
+const int LogModel::COLUMN_MESSAGE = 6;
+const int LogModel::COLUMN_COUNT = LogModel::COLUMN_MESSAGE + 1;
 
 LogModel::LogModel(QObject * parent)
-	: QAbstractItemModel(parent) {
+	: QAbstractListModel(parent) {
 }
 
 LogModel::~LogModel() {
@@ -47,7 +53,7 @@ LogMessage LogModel::logMessage(const QModelIndex & index) const {
 	return msg;
 }
 
-void LogModel::appendLogMsg(const LogMessage & msg) {
+void LogModel::append(const LogMessage & msg) {
 	int first = _log.size();
 	int last = _log.size() + 1;
 
@@ -64,8 +70,88 @@ void LogModel::appendLogMsg(const LogMessage & msg) {
 	//and thus LogWindow does not get updated
 	//Using layoutChanged() we force LogWindow
 	//to be updated
-	//Also there is no way for _log to be outside this class
+	//This bug occurs with QTreeView not with QTableView
 	emit layoutChanged();
+}
+
+void LogModel::resume() {
+	//_state = PlayState;
+}
+
+void LogModel::pause() {
+	//_state = PauseState;
+}
+
+void LogModel::clear() {
+	reset();
+}
+
+bool LogModel::save(const QString & fileName) const {
+	QuarkPlayerCoreDebug() << "Save log file:" << fileName;
+
+	bool success = false;
+
+	QFile file(fileName);
+	if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+		QXmlStreamWriter stream(&file);
+		stream.setAutoFormatting(true);
+		stream.writeStartDocument();
+
+		stream.writeStartElement("Log");
+		foreach (LogMessage msg, _log) {
+			msg.write(stream);
+		}
+		stream.writeEndElement();
+
+		stream.writeEndDocument();
+		success = true;
+	} else {
+		QuarkPlayerCoreWarning() << "Couldn't open file:" << fileName;
+	}
+	file.close();
+
+	return success;
+}
+
+bool LogModel::open(const QString & fileName) {
+	QuarkPlayerCoreDebug() << "Open log file:" << fileName;
+
+	bool success = false;
+
+	QFile file(fileName);
+	if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		_log.clear();
+		reset();
+
+		QXmlStreamReader stream(&file);
+		if (stream.readNextStartElement()) {
+			if (stream.name() == "Log") {
+
+				while (!stream.atEnd()) {
+					stream.readNext();
+
+					if (stream.isStartElement()) {
+						append(LogMessage(stream));
+					}
+				}
+
+			}
+		}
+
+		if (stream.hasError()) {
+			QuarkPlayerCoreWarning() << "Error:" << stream.errorString()
+				<< "file:" << fileName
+				<< "line:" << stream.lineNumber()
+				<< "column:" << stream.columnNumber();
+		} else {
+			success = true;
+		}
+	} else {
+		QuarkPlayerCoreWarning() << "Couldn't open file:" << fileName;
+	}
+	file.close();
+
+	return success;
 }
 
 int LogModel::columnCount(const QModelIndex & parent) const {
@@ -84,13 +170,19 @@ QVariant LogModel::headerData(int section, Qt::Orientation orientation, int role
 		case COLUMN_TYPE:
 			tmp = tr("Type");
 			break;
+		case COLUMN_FILE:
+			tmp = tr("File");
+			break;
+		case COLUMN_LINE:
+			tmp = tr("Line");
+			break;
 		case COLUMN_MODULE:
 			tmp = tr("Module");
 			break;
 		case COLUMN_FUNCTION:
 			tmp = tr("Function");
 			break;
-		case COLUMN_MSG:
+		case COLUMN_MESSAGE:
 			tmp = tr("Message");
 			break;
 		default:
@@ -117,10 +209,20 @@ QVariant LogModel::data(const QModelIndex & index, int role) const {
 	case Qt::DisplayRole: {
 		switch (column) {
 		case COLUMN_TIME:
-			tmp = msg.time.toString("hh:mm:ss.zzz");
+			tmp = msg.time.toString(LogMessage::TIME_FORMAT);
 			break;
 		case COLUMN_TYPE:
 			tmp = LogMessage::msgTypeToString(msg.type);
+			break;
+		case COLUMN_FILE:
+			tmp = msg.file;
+			break;
+		case COLUMN_LINE:
+			if (msg.line > 0) {
+				tmp = msg.line;
+			} else {
+				//Nothing to display
+			}
 			break;
 		case COLUMN_MODULE:
 			tmp = msg.module;
@@ -128,8 +230,8 @@ QVariant LogModel::data(const QModelIndex & index, int role) const {
 		case COLUMN_FUNCTION:
 			tmp = msg.function;
 			break;
-		case COLUMN_MSG:
-			tmp = msg.msg;
+		case COLUMN_MESSAGE:
+			tmp = msg.message;
 			break;
 		}
 		break;
@@ -137,23 +239,6 @@ QVariant LogModel::data(const QModelIndex & index, int role) const {
 	}
 
 	return tmp;
-}
-
-QModelIndex LogModel::index(int row, int column, const QModelIndex & parent) const {
-	if (parent.isValid()) {
-		return QModelIndex();
-	}
-
-	if (!hasIndex(row, column, parent)) {
-		return QModelIndex();
-	}
-
-	return createIndex(row, column);
-}
-
-QModelIndex LogModel::parent(const QModelIndex & index) const {
-	Q_UNUSED(index);
-	return QModelIndex();
 }
 
 int LogModel::rowCount(const QModelIndex & parent) const {

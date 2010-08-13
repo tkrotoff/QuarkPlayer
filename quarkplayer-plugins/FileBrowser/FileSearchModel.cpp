@@ -157,13 +157,11 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 	case Qt::ToolTipRole: {
 		switch (column) {
 		case COLUMN_FILENAME:
-			QFileInfo fileInfo(fileName);
-
 			//Make the filename relative to the search path
 			//This way the tooltip is more readable because it is shorter
 			QString relativeFileName(TkFile::relativeFilePath(_rootSearchPath, fileName));
 
-			if (!fileInfo.isDir() && _toolTipExtensions.contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
+			if (!QFileInfo(fileName).isDir() && FileTypes::fileExtensionMatches(fileName, _toolTipExtensions)) {
 				if (true/*FIXME mediaInfo.fetched()*/) {
 					QString bitrate;
 					if (mediaInfo.bitrate() > 0) {
@@ -444,7 +442,7 @@ void FileSearchModel::filesFound(const QStringList & files, const QUuid & uuid) 
 
 void FileSearchModel::updateMediaInfo(const MediaInfo & mediaInfo) {
 	if (_mediaInfoFetcherIndex == QModelIndex() || !_mediaInfoFetcherIndex.isValid()) {
-		FileBrowserCritical() << "Error: _mediaInfoFetcherIndex invalid";
+		FileBrowserCritical() << "_mediaInfoFetcherIndex invalid";
 	} else {
 		FileSearchItem * searchItem = item(_mediaInfoFetcherIndex);
 

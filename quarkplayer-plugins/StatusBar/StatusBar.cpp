@@ -102,7 +102,7 @@ void StatusBar::tick(qint64 time) {
 			timeText = "- " + TkTime::convertMilliseconds(totalTime - time, totalTime);
 			break;
 		default:
-			StatusBarCritical() << "Error: unknown TimeDisplayMode:" << timeDisplayMode;
+			StatusBarCritical() << "Unknown TimeDisplayMode:" << timeDisplayMode;
 		}
 	}
 	_timeLabel->setText(timeText);
@@ -122,7 +122,7 @@ void StatusBar::changeTimeDisplayMode() {
 		newTimeDisplayMode = TimeDisplayModeElapsed;
 		break;
 	default:
-		StatusBarCritical() << "Error: unknown TimeDisplayMode:" << timeDisplayMode;
+		StatusBarCritical() << "Unknown TimeDisplayMode:" << timeDisplayMode;
 	}
 	Config::instance().setValue(STATUSBAR_TIME_DIPLAY_MODE_KEY, newTimeDisplayMode);
 
@@ -138,7 +138,7 @@ void StatusBar::stateChanged(Phonon::State newState) {
 		switch (errorType) {
 		case Phonon::NoError:
 			//Cannot be in this state
-			StatusBarCritical() << "Error: wrong state and error type:" << newState
+			StatusBarCritical() << "Wrong state and error type:" << newState
 						<< errorType << errorString;
 			break;
 		case Phonon::NormalError:

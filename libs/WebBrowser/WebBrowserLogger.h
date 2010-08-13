@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define WebBrowserDebug() qDebug() << "QP_LOGGER" << "WebBrowser" << __FUNCTION__
-#define WebBrowserWarning() qWarning() << "QP_LOGGER" << "WebBrowser" << __FUNCTION__
-#define WebBrowserCritical() qCritical() << "QP_LOGGER" << "WebBrowser" << __FUNCTION__
+#define WebBrowserDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "WebBrowser" << __FUNCTION__
+#define WebBrowserWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "WebBrowser" << __FUNCTION__
+#define WebBrowserCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "WebBrowser" << __FUNCTION__
 
 #endif	//WEBBROWSERLOGGER_H

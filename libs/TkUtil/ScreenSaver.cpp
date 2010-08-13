@@ -82,7 +82,7 @@ void ScreenSaver::restore() {
 		SystemParametersInfo(SPI_SETPOWEROFFTIMEOUT, _powerOffTimeout, NULL, 0);
 		SystemParametersInfo(SPI_SETSCREENSAVETIMEOUT, _screenSaverTimeout, NULL, 0);
 	} else {
-		TkUtilCritical() << "Error: screensaver cannot be restored";
+		TkUtilCritical() << "Screensaver cannot be restored";
 	}
 #endif	//Q_WS_WIN
 
@@ -96,10 +96,10 @@ void ScreenSaver::restore() {
 			TkUtilDebug() << args << errorCode;
 			TkUtilDebug() << _xdgScreenSaverProcess->readAll();
 		} else {
-			TkUtilCritical() << "Error: no xdg-screensaver process";
+			TkUtilCritical() << "No xdg-screensaver process";
 		}
 	} else {
-		TkUtilCritical() << "Error: _XWindowID cannot be 0";
+		TkUtilCritical() << "_XWindowID cannot be 0";
 	}
 #endif	//Q_WS_X11
 }

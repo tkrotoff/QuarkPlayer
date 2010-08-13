@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define ContentFetcherDebug() qDebug() << "QP_LOGGER" << "ContentFetcher" << __FUNCTION__
-#define ContentFetcherWarning() qWarning() << "QP_LOGGER" << "ContentFetcher" << __FUNCTION__
-#define ContentFetcherCritical() qCritical() << "QP_LOGGER" << "ContentFetcher" << __FUNCTION__
+#define ContentFetcherDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "ContentFetcher" << __FUNCTION__
+#define ContentFetcherWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "ContentFetcher" << __FUNCTION__
+#define ContentFetcherCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "ContentFetcher" << __FUNCTION__
 
 #endif	//CONTENTFETCHERLOGGER_H

@@ -21,7 +21,10 @@
 
 #include <QtGui/QMainWindow>
 
+class LogModel;
+
 class QTreeView;
+class QModelIndex;
 
 /**
  * Window showing QuarkPlayer log.
@@ -44,11 +47,15 @@ private slots:
 
 	void retranslate();
 
+	void open();
+
 	void save();
 
 	void clear();
 
 	void playPauseButtonClicked();
+
+	void openSourceFile(const QModelIndex & index);
 
 private:
 
@@ -57,6 +64,8 @@ private:
 	void populateActionCollection();
 
 	QToolBar * _toolBar;
+
+	LogModel * _model;
 
 	QTreeView * _view;
 

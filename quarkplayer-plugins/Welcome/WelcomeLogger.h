@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define WelcomeDebug() qDebug() << "QP_LOGGER" << "Welcome" << __FUNCTION__
-#define WelcomeWarning() qWarning() << "QP_LOGGER" << "Welcome" << __FUNCTION__
-#define WelcomeCritical() qCritical() << "QP_LOGGER" << "Welcome" << __FUNCTION__
+#define WelcomeDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "Welcome" << __FUNCTION__
+#define WelcomeWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "Welcome" << __FUNCTION__
+#define WelcomeCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "Welcome" << __FUNCTION__
 
 #endif	//WELCOMELOGGER_H

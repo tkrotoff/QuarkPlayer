@@ -109,7 +109,7 @@ void MediaController::populateActionCollection() {
 void MediaController::addMenusToMainWindow() {
 	QMenuBar * menuBar = _mainWindow->menuBar();
 	if (!menuBar) {
-		MediaControllerCritical() << "Error: MainWindow menu bar cannot be NULL";
+		MediaControllerCritical() << "MainWindow menu bar cannot be NULL";
 		return;
 	}
 

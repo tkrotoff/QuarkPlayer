@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define TkUtilDebug() qDebug() << "QP_LOGGER" << "TkUtil" << __FUNCTION__
-#define TkUtilWarning() qWarning() << "QP_LOGGER" << "TkUtil" << __FUNCTION__
-#define TkUtilCritical() qCritical() << "QP_LOGGER" << "TkUtil" << __FUNCTION__
+#define TkUtilDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "TkUtil" << __FUNCTION__
+#define TkUtilWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "TkUtil" << __FUNCTION__
+#define TkUtilCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "TkUtil" << __FUNCTION__
 
 #endif	//TKUTILLOGGER_H

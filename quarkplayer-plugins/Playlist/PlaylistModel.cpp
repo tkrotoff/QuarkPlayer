@@ -66,7 +66,7 @@ static const char * PLAY_MEDIA_ERROR = "PLAY_MEDIA_ERROR";
 static const char * PLAY_MEDIA_NOERROR = "PLAY_MEDIA_NOERROR";
 
 PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QAbstractItemModel(parent),
+	: QAbstractListModel(parent),
 	_quarkPlayer(quarkPlayer) {
 
 	_commandLineParser = NULL;
@@ -133,7 +133,7 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
 			tmp = tr("Length");
 			break;
 		default:
-			PlaylistCritical() << "Error: unknown column:" << section;
+			PlaylistCritical() << "Unknown column:" << section;
 		}
 	}
 
@@ -172,7 +172,7 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 				tmp = QString::number(row);
 				break;
 			default:
-				PlaylistCritical() << "Error: unknown TrackDisplayMode:" << trackDisplayMode;
+				PlaylistCritical() << "Unknown TrackDisplayMode:" << trackDisplayMode;
 			}
 			break;
 		}
@@ -271,23 +271,6 @@ QVariant PlaylistModel::data(const QModelIndex & index, int role) const {
 	return tmp;
 }
 
-QModelIndex PlaylistModel::index(int row, int column, const QModelIndex & parent) const {
-	if (parent.isValid()) {
-		return QModelIndex();
-	}
-
-	if (!hasIndex(row, column, parent)) {
-		return QModelIndex();
-	}
-
-	return createIndex(row, column);
-}
-
-QModelIndex PlaylistModel::parent(const QModelIndex & index) const {
-	Q_UNUSED(index);
-	return QModelIndex();
-}
-
 int PlaylistModel::rowCount(const QModelIndex & parent) const {
 	if (parent.isValid()) {
 		return 0;
@@ -355,12 +338,11 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 
 	QList<MediaInfo> fileList;
 	foreach (QString fileName, files) {
-		QString extension(QFileInfo(fileName).suffix());
 		bool isMultimediaFile =
-			FileTypes::extensions(FileType::Video, FileType::Audio).contains(extension, Qt::CaseInsensitive);
+			FileTypes::fileExtensionMatches(fileName, FileTypes::extensions(FileType::Video, FileType::Audio));
 		if (isMultimediaFile) {
 			fileList << MediaInfo(fileName);
-		} else if (FileTypes::extensions(FileType::Playlist).contains(extension, Qt::CaseInsensitive)) {
+		} else if (FileTypes::fileExtensionMatches(fileName, FileTypes::extensions(FileType::Playlist))) {
 			loadPlaylist(fileName);
 		} else if (QFileInfo(fileName).isDir()) {
 			_nbFindFiles++;
@@ -560,7 +542,7 @@ Qt::DropActions PlaylistModel::supportedDropActions() const {
 
 void PlaylistModel::updateMediaInfo(const MediaInfo & mediaInfo) {
 	if (_mediaInfoFetcherRow == POSITION_INVALID) {
-		PlaylistCritical() << "Error: _mediaInfoFetcherRow invalid";
+		PlaylistCritical() << "_mediaInfoFetcherRow invalid";
 	} else {
 		if (_mediaInfoFetcherRow < _fileNames.size()) {
 			MediaInfo mediaInfo2 = _fileNames[_mediaInfoFetcherRow];
@@ -644,7 +626,7 @@ void PlaylistModel::playInternal() {
 
 			_quarkPlayer.play(fileName);
 		} else {
-			PlaylistCritical() << "Error: invalid position";
+			PlaylistCritical() << "Invalid position";
 		}
 	} else {
 		//Still have to wait...
@@ -800,7 +782,7 @@ void PlaylistModel::enqueue(int position) {
 		PlaylistDebug() << "Enqueue file:" << fileName;
 		_quarkPlayer.currentMediaObject()->enqueue(fileName);
 	} else {
-		PlaylistCritical() << "Error: invalid position";
+		PlaylistCritical() << "Invalid position";
 	}
 }
 

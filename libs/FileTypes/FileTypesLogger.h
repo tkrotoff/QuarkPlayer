@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define FileTypesDebug() qDebug() << "QP_LOGGER" << "FileTypes" << __FUNCTION__
-#define FileTypesWarning() qWarning() << "QP_LOGGER" << "FileTypes" << __FUNCTION__
-#define FileTypesCritical() qCritical() << "QP_LOGGER" << "FileTypes" << __FUNCTION__
+#define FileTypesDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "FileTypes" << __FUNCTION__
+#define FileTypesWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "FileTypes" << __FUNCTION__
+#define FileTypesCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "FileTypes" << __FUNCTION__
 
 #endif	//FILETYPESLOGGER_H

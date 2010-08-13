@@ -94,10 +94,10 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	_playlistModel->setPlaylistFilter(_playlistFilter);
 
 	//TreeView
-	_treeView = new DragAndDropTreeView(this);
-	connect(_treeView, SIGNAL(activated(const QModelIndex &)),
+	_view = new DragAndDropTreeView(this);
+	connect(_view, SIGNAL(activated(const QModelIndex &)),
 		_playlistFilter, SLOT(play(const QModelIndex &)));
-	_treeView->setModel(_playlistFilter);
+	_view->setModel(_playlistFilter);
 	QVBoxLayout * layout = new QVBoxLayout();
 	setLayout(layout);
 	layout->setMargin(0);
@@ -105,19 +105,19 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	///
 
 	//Default column sizes
-	_treeView->setColumnWidth(PlaylistModel::COLUMN_INFO, 18);
-	//_treeView->resizeColumnToContents(PlaylistModel::COLUMN_INFO);
-	_treeView->resizeColumnToContents(PlaylistModel::COLUMN_TRACK);
-	_treeView->setColumnWidth(PlaylistModel::COLUMN_TITLE, 200);
-	_treeView->setColumnWidth(PlaylistModel::COLUMN_ARTIST, 150);
-	_treeView->setColumnWidth(PlaylistModel::COLUMN_ALBUM, 150);
-	_treeView->resizeColumnToContents(PlaylistModel::COLUMN_LENGTH);
+	_view->setColumnWidth(PlaylistModel::COLUMN_INFO, 18);
+	//_view->resizeColumnToContents(PlaylistModel::COLUMN_INFO);
+	_view->resizeColumnToContents(PlaylistModel::COLUMN_TRACK);
+	_view->setColumnWidth(PlaylistModel::COLUMN_TITLE, 200);
+	_view->setColumnWidth(PlaylistModel::COLUMN_ARTIST, 150);
+	_view->setColumnWidth(PlaylistModel::COLUMN_ALBUM, 150);
+	_view->resizeColumnToContents(PlaylistModel::COLUMN_LENGTH);
 	///
 
 	populateActionCollection();
 	createToolBar();
 
-	layout->addWidget(_treeView);
+	layout->addWidget(_view);
 
 	//Add to the main window
 	_dockWidget = new QDockWidget();
@@ -198,8 +198,8 @@ void PlaylistWidget::createToolBar() {
 	connect(uuidAction("Playlist.AddURL"), SIGNAL(triggered()), SLOT(addURL()));
 	addButton->setMenu(addMenu);
 
-	KeyPressEventFilter * deleteKeyFilter = new KeyPressEventFilter(_treeView, SLOT(clearSelection()), Qt::Key_Delete);
-	_treeView->installEventFilter(deleteKeyFilter);
+	KeyPressEventFilter * deleteKeyFilter = new KeyPressEventFilter(_view, SLOT(clearSelection()), Qt::Key_Delete);
+	_view->installEventFilter(deleteKeyFilter);
 
 	toolBar->addAction(uuidAction("Playlist.RemoveAll"));
 	connect(uuidAction("Playlist.RemoveAll"), SIGNAL(triggered()), _playlistModel, SLOT(clear()));
@@ -361,7 +361,7 @@ void PlaylistWidget::savePlaylist() {
 	static const char * PLAYLIST_DEFAULT_EXTENSION = "m3u8";
 
 	QString filename = TkFileDialog::getSaveFileName(
-		this, tr("Save Playlist File"), Config::instance().lastDirOpened(),
+		this, tr("Save Playlist"), Config::instance().lastDirOpened(),
 		FileTypes::toSaveFilterFormat(FileTypes::extensions(FileType::Playlist), PLAYLIST_DEFAULT_EXTENSION) +
 		tr("All Files") + " (*.*)"
 	);
@@ -420,7 +420,7 @@ void PlaylistWidget::jumpToCurrent() {
 		//_searchLineEdit->clear();
 		search();
 	}
-	_treeView->scrollTo(_playlistFilter->mapFromSource(index), QAbstractItemView::PositionAtCenter);
+	_view->scrollTo(_playlistFilter->mapFromSource(index), QAbstractItemView::PositionAtCenter);
 }
 
 void PlaylistWidget::search() {
@@ -449,7 +449,7 @@ void PlaylistWidget::search() {
 
 	//Force the treeView to launch files tags fetching
 	//FIXME Does not work
-	//_treeView->repaint();
+	//_view->repaint();
 	///
 
 	if (!pattern.isEmpty()) {

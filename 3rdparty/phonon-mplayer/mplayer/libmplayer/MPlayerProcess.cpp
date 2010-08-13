@@ -329,6 +329,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 
 	//Parse other things
 	else {
+		//This logs MPlayer output
 		//qDebug interprets QString and add "" around it
 		//qDebug does not add "" around a char *
 		qDebug() << "MPlayer" << line.toUtf8().constData();

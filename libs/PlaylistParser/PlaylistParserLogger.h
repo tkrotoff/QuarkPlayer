@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define PlaylistParserDebug() qDebug() << "QP_LOGGER" << "PlaylistParser" << __FUNCTION__
-#define PlaylistParserWarning() qWarning() << "QP_LOGGER" << "PlaylistParser" << __FUNCTION__
-#define PlaylistParserCritical() qCritical() << "QP_LOGGER" << "PlaylistParser" << __FUNCTION__
+#define PlaylistParserDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "PlaylistParser" << __FUNCTION__
+#define PlaylistParserWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "PlaylistParser" << __FUNCTION__
+#define PlaylistParserCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "PlaylistParser" << __FUNCTION__
 
 #endif	//PLAYLISTPARSERLOGGER_H

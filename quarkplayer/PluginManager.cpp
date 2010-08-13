@@ -253,10 +253,10 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 				pluginFound = true;
 				QuarkPlayerCoreDebug() << "Loading dynamic plugin:" << fileName << "...";
 			} else {
-				QuarkPlayerCoreCritical() << "Not a QuarkPlayer plugin:" << fileName;
+				QuarkPlayerCoreCritical() << "This is not a QuarkPlayer plugin:" << fileName;
 			}
 		} else {
-			QuarkPlayerCoreCritical() << "Plugin couldn't be loaded:" << fileName << loader.errorString();
+			QuarkPlayerCoreCritical() << "Couldn't load the plugin:" << fileName << loader.errorString();
 		}
 	}
 	///

@@ -23,7 +23,6 @@
 
 #include <TkUtil/Singleton.h>
 
-#include <QtCore/QObject>
 #include <QtCore/QList>
 
 class LogModel;
@@ -38,8 +37,7 @@ enum QtMsgType;
  *
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API LogMessageHandler : public QObject, public Singleton {
-	Q_OBJECT
+class QUARKPLAYER_API LogMessageHandler : public Singleton {
 public:
 
 	/** Singleton. */

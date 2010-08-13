@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,13 +16,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QUICKSETTINGSLOGGER_H
-#define QUICKSETTINGSLOGGER_H
+#ifndef LOGMODELTEST_H
+#define LOGMODELTEST_H
 
-#include <QtCore/QDebug>
+#include <QtTest/QtTest>
 
-#define QuickSettingsDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "QuickSettings" << __FUNCTION__
-#define QuickSettingsWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "QuickSettings" << __FUNCTION__
-#define QuickSettingsCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "QuickSettings" << __FUNCTION__
+/**
+ * Test class for LogModel.
+ *
+ * @see LogModel
+ * @author Tanguy Krotoff
+ */
+class LogModelTest : public QObject {
+	Q_OBJECT
+private slots:
 
-#endif	//QUICKSETTINGSLOGGER_H
+	/** Called before the first testfunction is executed. */
+	void initTestCase();
+
+	/** Called after the last testfunction was executed. */
+	void cleanupTestCase();
+
+	/** Called before each testfunction is executed. */
+	void init();
+
+	/** Called after every testfunction. */
+	void cleanup();
+
+	void testEmpty();
+
+	void testHeaderData();
+
+	void testData();
+
+	void testOpenSave();
+
+private:
+};
+
+#endif	//LOGMODELTEST_H

@@ -357,7 +357,7 @@ void XSPFParser::load(QIODevice * device, const QString & location) {
 	}
 
 	if (xml.hasError()) {
-		PlaylistParserCritical() << "Error:" << xml.errorString()
+		PlaylistParserWarning() << "Error:" << xml.errorString()
 			<< "line:" << xml.lineNumber()
 			<< "column:" << xml.columnNumber();
 	}

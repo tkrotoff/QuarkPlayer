@@ -17,12 +17,12 @@
  */
 
 #include <quarkplayer/QuarkPlayer.h>
+#include <quarkplayer/QuarkPlayerCoreLogger.h>
 #include <quarkplayer/PluginManager.h>
 #include <quarkplayer/LogMessageHandler.h>
 #include <quarkplayer/CommandLineManager.h>
 #include <quarkplayer/CommandLineParser.h>
 #include <quarkplayer/config/Config.h>
-#include <quarkplayer/style/QuarkPlayerStyle.h>
 #include <quarkplayer/version.h>
 
 #include <TkUtil/Translator.h>
@@ -35,6 +35,7 @@
 #include <QtGui/QIcon>
 
 #include <QtCore/QtPlugin>
+#include <QtCore/QDateTime>
 
 #ifdef STATICPLUGINS
 	//Import the static plugins
@@ -56,6 +57,9 @@
 int main(int argc, char * argv[]) {
 	//Installs a custom message handler for qDebug(), qWarning() and others
 	qInstallMsgHandler(LogMessageHandler::myMessageOutput);
+
+	QuarkPlayerCoreDebug() << "Current date and time:" << QDateTime::currentDateTime().toString();
+	QuarkPlayerCoreDebug() << "QuarkPlayer version:" << quarkPlayerFullVersion();
 
 	QtSingleApplication app(argc, argv);
 

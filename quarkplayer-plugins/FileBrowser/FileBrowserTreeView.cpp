@@ -145,7 +145,7 @@ QFileInfo FileBrowserTreeView::fileInfo(const QModelIndex & index) const {
 	if (const FileSearchModel * fileSearchModel = dynamic_cast<const FileSearchModel *>(model)) {
 		tmp = fileSearchModel->fileInfo(index);
 	} else {
-		FileBrowserCritical() << "Error: coudn't cast to FileSearchModel";
+		FileBrowserCritical() << "Couldn't cast to FileSearchModel";
 	}
 
 	return tmp;

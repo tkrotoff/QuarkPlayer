@@ -188,6 +188,7 @@ void FindSubtitlesWindow::setVideoFileName(const QString & fileName) {
 		FindSubtitlesDebug() << "URL:" << url;
 		_ui->statusLabel->setText(tr("Connecting to %1...").arg(url.host()));
 	} else {
+		FindSubtitlesWarning() << "Empty URL";
 		_ui->statusLabel->setText(tr("Could not determine OpenSubtitles.org URL"));
 	}
 }
@@ -309,6 +310,14 @@ void FindSubtitlesWindow::itemActivated(const QModelIndex & index) {
 
 	QUrl url(_model->item(row, COLUMN_NAME)->data().toString());
 	_subtitlesDownload->download(url);
+
+	if (!url.isEmpty()) {
+		FindSubtitlesDebug() << "URL:" << url;
+		_ui->statusLabel->setText(tr("Connecting to %1...").arg(url.host()));
+	} else {
+		FindSubtitlesWarning() << "Empty URL";
+		_ui->statusLabel->setText(tr("Could not determine OpenSubtitles.org URL"));
+	}
 }
 
 void FindSubtitlesWindow::downloadButtonClicked() {
@@ -355,7 +364,7 @@ void FindSubtitlesWindow::archiveDownloaded(const QByteArray & data) {
 
 		tmpFile.remove();
 	} else {
-		FindSubtitlesCritical() << "Error: couldn't write temporary file:" << tmpFile.fileName();
+		FindSubtitlesCritical() << "Couldn't write temporary file:" << tmpFile.fileName();
 		_ui->statusLabel->setText(tr("Error: couldn't save the file, check your folder permissions"));
 	}
 }
@@ -438,11 +447,11 @@ bool FindSubtitlesWindow::uncompressZip(const QString & fileName, const QString 
 			case ZipFile::ExtractFileWriteError:
 				//Means that the user clicks on Cancel while choosing another directory
 				//where to save the file
-				FindSubtitlesWarning() << "File couldn't be written:" << fileToExtract;
-				_ui->statusLabel->setText(tr("File couldn't be written: %1").arg(fileToExtract));
+				FindSubtitlesWarning() << "Couldn't write file:" << fileToExtract;
+				_ui->statusLabel->setText(tr("Couldn't write file: %1").arg(fileToExtract));
 				break;
 			default:
-				FindSubtitlesCritical() << "Error: unknown error:" << error;
+				FindSubtitlesCritical() << "Unknown error:" << error;
 				break;
 			}
 		}

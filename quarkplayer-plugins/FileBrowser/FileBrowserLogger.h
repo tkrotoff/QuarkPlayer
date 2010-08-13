@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define FileBrowserDebug() qDebug() << "QP_LOGGER" << "FileBrowser" << __FUNCTION__
-#define FileBrowserWarning() qWarning() << "QP_LOGGER" << "FileBrowser" << __FUNCTION__
-#define FileBrowserCritical() qCritical() << "QP_LOGGER" << "FileBrowser" << __FUNCTION__
+#define FileBrowserDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "FileBrowser" << __FUNCTION__
+#define FileBrowserWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "FileBrowser" << __FUNCTION__
+#define FileBrowserCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "FileBrowser" << __FUNCTION__
 
 #endif	//FILEBROWSERLOGGER_H

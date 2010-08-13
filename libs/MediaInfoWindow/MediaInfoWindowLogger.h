@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define MediaInfoWindowDebug() qDebug() << "QP_LOGGER" << "MediaInfoWindow" << __FUNCTION__
-#define MediaInfoWindowWarning() qWarning() << "QP_LOGGER" << "MediaInfoWindow" << __FUNCTION__
-#define MediaInfoWindowCritical() qCritical() << "QP_LOGGER" << "MediaInfoWindow" << __FUNCTION__
+#define MediaInfoWindowDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "MediaInfoWindow" << __FUNCTION__
+#define MediaInfoWindowWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "MediaInfoWindow" << __FUNCTION__
+#define MediaInfoWindowCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "MediaInfoWindow" << __FUNCTION__
 
 #endif	//MEDIAINFOWINDOWLOGGER_H

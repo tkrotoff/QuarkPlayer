@@ -35,7 +35,7 @@ QList<OpenSubtitlesParser::Subtitle> OpenSubtitlesParser::parseXml(const QByteAr
 	QDomDocument doc;
 	bool ok = doc.setContent(xml);
 	if (!ok) {
-		FindSubtitlesCritical() << "Error: couldn't parse the given XML";
+		FindSubtitlesCritical() << "Couldn't parse the given XML";
 		return subtitles;
 	}
 
@@ -76,7 +76,7 @@ QString OpenSubtitlesParser::calculateHash(const QString & fileName) {
 	QString hexHash;
 
 	if (!file.exists()) {
-		FindSubtitlesCritical() << "Error: file doesn't exist: " << fileName;
+		FindSubtitlesCritical() << "File doesn't exist: " << fileName;
 		return hexHash;
 	}
 

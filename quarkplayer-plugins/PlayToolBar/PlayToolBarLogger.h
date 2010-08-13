@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define PlayToolBarDebug() qDebug() << "QP_LOGGER" << "PlayToolBar" << __FUNCTION__
-#define PlayToolBarWarning() qWarning() << "QP_LOGGER" << "PlayToolBar" << __FUNCTION__
-#define PlayToolBarCritical() qCritical() << "QP_LOGGER" << "PlayToolBar" << __FUNCTION__
+#define PlayToolBarDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "PlayToolBar" << __FUNCTION__
+#define PlayToolBarWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "PlayToolBar" << __FUNCTION__
+#define PlayToolBarCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "PlayToolBar" << __FUNCTION__
 
 #endif	//PLAYTOOLBARLOGGER_H

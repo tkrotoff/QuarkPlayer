@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define FindSubtitlesDebug() qDebug() << "QP_LOGGER" << "FindSubtitles" << __FUNCTION__
-#define FindSubtitlesWarning() qWarning() << "QP_LOGGER" << "FindSubtitles" << __FUNCTION__
-#define FindSubtitlesCritical() qCritical() << "QP_LOGGER" << "FindSubtitles" << __FUNCTION__
+#define FindSubtitlesDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "FindSubtitles" << __FUNCTION__
+#define FindSubtitlesWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "FindSubtitles" << __FUNCTION__
+#define FindSubtitlesCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "FindSubtitles" << __FUNCTION__
 
 #endif	//FINDSUBTITLESLOGGER_H

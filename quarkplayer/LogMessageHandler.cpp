@@ -26,14 +26,14 @@
 #include <QtCore/QRegExp>
 
 LogMessageHandler::LogMessageHandler() {
-	_logModel = new LogModel(this);
+	_logModel = new LogModel(NULL);
 }
 
 LogMessageHandler::~LogMessageHandler() {
 	//No need, will be deleted when LogMessageHandler is deleted
 	//+ LogMessageHandler should never be deleted otherwise
 	//LogMessageHandler::myMessageOutput() will crash
-	//delete _logModel;
+	delete _logModel;
 }
 
 LogMessageHandler & LogMessageHandler::instance() {
@@ -46,9 +46,15 @@ LogModel * LogMessageHandler::logModel() const {
 }
 
 void LogMessageHandler::myMessageOutput(QtMsgType type, const char * msg) {
-	QString logLine(msg);
-	//logLine = logLine.trimmed();
+	//See http://blog.codeimproved.net/2010/03/logging-in-qt-land/
+	//There is a risk of deadlock or endless loop if an Qt error occurs
+	//in this code
 
+	QString logLine(msg);
+	logLine = logLine.trimmed();	//The message can contain begin and end spaces
+
+	QString sourceCodeFileName;
+	QString sourceCodeLineNumber;
 	QString module;
 	QString function;
 
@@ -59,6 +65,14 @@ void LogMessageHandler::myMessageOutput(QtMsgType type, const char * msg) {
 		logLine.remove(0, internalStringToMatch.length() + 1);
 
 		int index = logLine.indexOf(' ');
+		sourceCodeFileName = logLine.left(index);
+		logLine.remove(0, sourceCodeFileName.length() + 1);
+
+		index = logLine.indexOf(' ');
+		sourceCodeLineNumber = logLine.left(index);
+		logLine.remove(0, sourceCodeLineNumber.length() + 1);
+
+		index = logLine.indexOf(' ');
 		module = logLine.left(index);
 		logLine.remove(0, module.length() + 1);
 
@@ -68,16 +82,19 @@ void LogMessageHandler::myMessageOutput(QtMsgType type, const char * msg) {
 	}
 
 	//Special case of MPlayer, parses messages from phonon-mplayer
+	//MPlayer messages are logged this way:
+	//qDebug() << "MPlayer" << line.toUtf8().constData()
+	//See method MPlayerProcess::parseLine(const QString & line)
 	else if (logLine.startsWith("MPlayer")) {
 		module = "MPlayer";
 		logLine.remove(0, QString("MPlayer").length() + 1);
 	}
 
-	LogMessage logMsg(QTime::currentTime(), type, module, function, logLine);
+	LogMessage logMsg(QTime::currentTime(), type, sourceCodeFileName, sourceCodeLineNumber.toInt(), module, function, logLine);
 
 	printLogMessage(logMsg);
 
-	LogMessageHandler::instance()._logModel->appendLogMsg(logMsg);
+	LogMessageHandler::instance()._logModel->append(logMsg);
 }
 
 void LogMessageHandler::printLogMessage(const LogMessage & msg) {

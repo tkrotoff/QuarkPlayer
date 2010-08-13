@@ -185,10 +185,21 @@ private:
 	void findAllFilesWin32(const QString & path);
 
 	/** Filter file matching the given pattern. */
-	bool patternMatches(const QString & fileName) const;
+	static bool fileNameMatches(const QString & fileName, const QRegExp & pattern);
 
-	/** Filter file matching the given extensions. */
-	bool extensionMatches(const QString & fileName) const;
+	/**
+	 * Checks is a file matches one of the given extensions.
+	 *
+	 * Internally use QFileInfo::completeSuffix().
+	 * This function should be used with extensions().
+	 * Code from FindFiles.
+	 *
+	 * @param fileName file to check
+	 * @param extensions list of extensions (without the dot) to match
+	 * @return true if file matches; false otherwise
+	 * @see extensions()
+	 */
+	static bool fileExtensionMatches(const QString & fileName, const QStringList & extensions);
 
 	QStringList _files;
 
@@ -196,8 +207,10 @@ private:
 
 	bool _findDirs;
 
+	/** File pattern to match. */
 	QRegExp _pattern;
 
+	/** File extensions to match. */
 	QStringList _extensions;
 
 	int _filesFoundLimit;
@@ -206,7 +219,7 @@ private:
 
 	/**
 	 * From http://lists.trolltech.com/qt-interest/2007-03/thread00874-0.html
-	 * Note, you may want to add volatile to your bool flag declaration
+	 * You may want to add volatile to your bool flag declaration
 	 * so the compiler will not cache the flag result; modern compilers
 	 * can easily detect that your loop code does not change the flag value,
 	 * and thus emit code that will not fetch the class attribute but

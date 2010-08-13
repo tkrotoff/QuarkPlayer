@@ -21,7 +21,7 @@
 
 #include <quarkplayer/QuarkPlayerExport.h>
 
-#include <QtCore/QAbstractItemModel>
+#include <QtCore/QAbstractListModel>
 #include <QtCore/QList>
 
 class LogMessage;
@@ -33,15 +33,18 @@ class LogMessage;
  *
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API LogModel : public QAbstractItemModel {
+class QUARKPLAYER_API LogModel : public QAbstractListModel {
 	Q_OBJECT
 public:
 
 	static const int COLUMN_TIME;
 	static const int COLUMN_TYPE;
+	static const int COLUMN_FILE;
+	static const int COLUMN_LINE;
 	static const int COLUMN_MODULE;
 	static const int COLUMN_FUNCTION;
-	static const int COLUMN_MSG;
+	static const int COLUMN_MESSAGE;
+	static const int COLUMN_COUNT;
 
 	LogModel(QObject * parent);
 
@@ -49,8 +52,29 @@ public:
 
 	/**
 	 * Appends a new log message.
+	 *
+	 * @param msg add a new log message to the model
 	 */
-	void appendLogMsg(const LogMessage & msg);
+	void append(const LogMessage & msg);
+
+	/**
+	 * Resumes the log.
+	 *
+	 * Does nothing if not in pause state.
+	 */
+	void resume();
+
+	/**
+	 * Pauses the log.
+	 *
+	 * Does nothing if not in play state.
+	 */
+	void pause();
+
+	/**
+	 * Resets the model.
+	 */
+	void clear();
 
 	/**
 	 * Gets the log message given its index.
@@ -60,15 +84,29 @@ public:
 	LogMessage logMessage(const QModelIndex & index) const;
 
 	/**
-	 * @name Inherited from QAbstractItemModel
+	 * Saves log messages into a file.
+	 *
+	 * @param fileName file where to save the log messages
+	 * @return true if success; false otherwise
+	 */
+	bool save(const QString & fileName) const;
+
+	/**
+	 * Opens a log file.
+	 *
+	 * @param fileName log file to open
+	 * @return true if success; false otherwise
+	 */
+	bool open(const QString & fileName);
+
+	/**
+	 * @name Inherited from QAbstractListModel
 	 * @{
 	 */
 
 	int columnCount(const QModelIndex & parent = QModelIndex()) const;
 	QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
 	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-	QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
-	QModelIndex parent(const QModelIndex & index) const;
 	int rowCount(const QModelIndex & parent = QModelIndex()) const;
 
 	/** @} */

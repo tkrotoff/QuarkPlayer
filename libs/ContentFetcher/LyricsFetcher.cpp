@@ -173,7 +173,7 @@ void LyricsFetcher::gotLyrics(QNetworkReply * reply) {
 
 		emitFinishedWithoutError(reply->url(), data.toUtf8());
 	} else {
-		ContentFetcherCritical() << "Parsing error: couldn't find 'lyricbox' inside the HTML returned by LyricWiki";
+		ContentFetcherCritical() << "Couldn't find 'lyricbox' inside the HTML returned by LyricWiki";
 		emitFinishedWithError(QNetworkReply::ContentNotFoundError, reply->url());
 	}
 }

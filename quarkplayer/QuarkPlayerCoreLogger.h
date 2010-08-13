@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define QuarkPlayerCoreDebug() qDebug() << "QP_LOGGER" << "QuarkPlayerCore" << __FUNCTION__
-#define QuarkPlayerCoreWarning() qWarning() << "QP_LOGGER" << "QuarkPlayerCore" << __FUNCTION__
-#define QuarkPlayerCoreCritical() qCritical() << "QP_LOGGER" << "QuarkPlayerCore" << __FUNCTION__
+#define QuarkPlayerCoreDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "QuarkPlayerCore" << __FUNCTION__
+#define QuarkPlayerCoreWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "QuarkPlayerCore" << __FUNCTION__
+#define QuarkPlayerCoreCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "QuarkPlayerCore" << __FUNCTION__
 
 #endif	//QUARKPLAYERCORELOGGER_H

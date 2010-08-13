@@ -209,7 +209,7 @@ QIcon WinFileAssociationsConfigWidget::fileExtensionIcon(const QString & extensi
 
 		tmpFile.remove();
 	} else {
-		ConfigWindowCritical() << "Error: couldn't write temporary file:" << tmpFile.fileName();
+		ConfigWindowCritical() << "Couldn't write temporary file:" << tmpFile.fileName();
 	}
 
 	return icon;

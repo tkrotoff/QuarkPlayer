@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define VideoWidgetDebug() qDebug() << "QP_LOGGER" << "VideoWidget" << __FUNCTION__
-#define VideoWidgetWarning() qWarning() << "QP_LOGGER" << "VideoWidget" << __FUNCTION__
-#define VideoWidgetCritical() qCritical() << "QP_LOGGER" << "VideoWidget" << __FUNCTION__
+#define VideoWidgetDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "VideoWidget" << __FUNCTION__
+#define VideoWidgetWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "VideoWidget" << __FUNCTION__
+#define VideoWidgetCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "VideoWidget" << __FUNCTION__
 
 #endif	//VIDEOWIDGETLOGGER_H

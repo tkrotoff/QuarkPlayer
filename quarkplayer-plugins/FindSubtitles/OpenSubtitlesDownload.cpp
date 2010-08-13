@@ -46,7 +46,7 @@ QUrl OpenSubtitlesDownload::download(const QString & fileName) {
 
 	QString hash = OpenSubtitlesParser::calculateHash(fileName);
 	if (hash.isEmpty()) {
-		FindSubtitlesCritical() << "Error: invalid empty hash";
+		FindSubtitlesCritical() << "Invalid empty hash";
 	} else {
 		url = QUrl("http://www.opensubtitles.org/en/search/sublanguageid-all/moviehash-" + hash + "/simplexml");
 		download(url);

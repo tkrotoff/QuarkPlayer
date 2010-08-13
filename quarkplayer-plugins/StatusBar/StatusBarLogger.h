@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define StatusBarDebug() qDebug() << "QP_LOGGER" << "StatusBar" << __FUNCTION__
-#define StatusBarWarning() qWarning() << "QP_LOGGER" << "StatusBar" << __FUNCTION__
-#define StatusBarCritical() qCritical() << "QP_LOGGER" << "StatusBar" << __FUNCTION__
+#define StatusBarDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "StatusBar" << __FUNCTION__
+#define StatusBarWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "StatusBar" << __FUNCTION__
+#define StatusBarCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "StatusBar" << __FUNCTION__
 
 #endif	//STATUSBARLOGGER_H

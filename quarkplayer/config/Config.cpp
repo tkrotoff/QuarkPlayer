@@ -158,12 +158,12 @@ QString Config::cdromPath() const {
 
 void Config::addMusicDir(const QString & musicDir, const QUuid & uuid) {
 	if (uuid.isNull()) {
-		QuarkPlayerCoreCritical() << "Error: empty UUID";
+		QuarkPlayerCoreCritical() << "Empty UUID";
 	}
 
 	QString key(MUSIC_DIR_KEY + uuid.toString());
 	if (!contains(key)) {
-		//QuarkPlayerCoreCritical() << "Error: unknown UUID:" << uuid;
+		//QuarkPlayerCoreCritical() << "Unknown UUID:" << uuid;
 		addKey(key, defaultValue(MUSIC_DIR_KEY).toString());
 	}
 	setValue(key, musicDir);
@@ -172,7 +172,7 @@ void Config::addMusicDir(const QString & musicDir, const QUuid & uuid) {
 QString Config::musicDir(const QUuid & uuid) /*const*/ {
 	QString key(MUSIC_DIR_KEY + uuid.toString());
 	if (!contains(key)) {
-		//QuarkPlayerCoreCritical() << "Error: unknown UUID:" << uuid;
+		//QuarkPlayerCoreCritical() << "Unknown UUID:" << uuid;
 		addKey(key, defaultValue(MUSIC_DIR_KEY).toString());
 	}
 	return value(key).toString();

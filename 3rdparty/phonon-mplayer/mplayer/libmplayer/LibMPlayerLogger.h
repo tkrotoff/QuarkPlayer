@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define LibMPlayerDebug() qDebug() << "QP_LOGGER" << "LibMPlayer" << __FUNCTION__
-#define LibMPlayerWarning() qWarning() << "QP_LOGGER" << "LibMPlayer" << __FUNCTION__
-#define LibMPlayerCritical() qCritical() << "QP_LOGGER" << "LibMPlayer" << __FUNCTION__
+#define LibMPlayerDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "LibMPlayer" << __FUNCTION__
+#define LibMPlayerWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "LibMPlayer" << __FUNCTION__
+#define LibMPlayerCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "LibMPlayer" << __FUNCTION__
 
 #endif	//LIBMPLAYERLOGGER_H

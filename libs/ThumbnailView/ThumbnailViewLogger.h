@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define ThumbnailViewDebug() qDebug() << "QP_LOGGER" << "ThumbnailView" << __FUNCTION__
-#define ThumbnailViewWarning() qWarning() << "QP_LOGGER" << "ThumbnailView" << __FUNCTION__
-#define ThumbnailViewCritical() qCritical() << "QP_LOGGER" << "ThumbnailView" << __FUNCTION__
+#define ThumbnailViewDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "ThumbnailView" << __FUNCTION__
+#define ThumbnailViewWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "ThumbnailView" << __FUNCTION__
+#define ThumbnailViewCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "ThumbnailView" << __FUNCTION__
 
 #endif	//THUMBNAILVIEWLOGGER_H

@@ -35,7 +35,7 @@ TkConfig::TkConfig()
 	{
 
 	if (QCoreApplication::organizationName().isEmpty() || QCoreApplication::applicationName().isEmpty()) {
-		TkUtilCritical() << "Error: organizationName or applicationName empty";
+		TkUtilCritical() << "QCoreApplication::organizationName or applicationName empty";
 	}
 
 	TkUtilDebug() << "Config file:" << fileName();
@@ -71,7 +71,7 @@ void TkConfig::setValue(const QString & key, const QVariant & value) {
 
 QVariant TkConfig::defaultValue(const QString & key) const {
 	if (_defaultValues.count(key) != 1) {
-		TkUtilCritical() << "Error: invalid default value or key:" << key;
+		TkUtilCritical() << "Invalid default value or key:" << key;
 	}
 
 	return _defaultValues.value(key);
@@ -97,19 +97,19 @@ void TkConfig::checkStatus() const {
 		//Good to go
 		break;
 	case QSettings::AccessError:
-		TkUtilCritical() << "Error: access error occurred (e.g. trying to write to a read-only file)";
+		TkUtilCritical() << "Access error occurred (e.g. trying to write to a read-only file)";
 		break;
 	case QSettings::FormatError:
-		TkUtilCritical() << "Error: a format error occurred (e.g. loading a malformed INI file)";
+		TkUtilCritical() << "A format error occurred (e.g. loading a malformed INI file)";
 		break;
 	default:
-		TkUtilCritical() << "Error: unknown QSettings::Status:" << status;
+		TkUtilCritical() << "Unknown QSettings::Status:" << status;
 	}
 }
 
 void TkConfig::addKey(const QString & key, const QVariant & defaultValue) {
 	if (_defaultValues.contains(key)) {
-		TkUtilCritical() << "Error: this key already exists:" << key;
+		TkUtilCritical() << "Key already exists:" << key;
 	}
 
 	_defaultValues[key] = defaultValue;

@@ -161,7 +161,7 @@ void ConfigWindow::showConfigWidget(QTreeWidgetItem * item) {
 	}
 
 	if (!configWidget) {
-		ConfigWindowCritical() << "Error: configWidget cannot be NULL";
+		ConfigWindowCritical() << "configWidget cannot be NULL";
 	}
 
 	_configWidgetOpenedMap[configWidget] = _lastConfigWindowOpenedIndex;

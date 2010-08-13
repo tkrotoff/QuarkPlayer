@@ -38,7 +38,9 @@
 
 #include <QtCore/QCoreApplication>
 
-DragAndDropTreeView::DragAndDropTreeView(PlaylistWidget * playlistWidget) {
+DragAndDropTreeView::DragAndDropTreeView(PlaylistWidget * playlistWidget)
+	: QTreeView(playlistWidget) {
+
 	_playlistWidget = playlistWidget;
 	_playlistModel = _playlistWidget->playlistModel();
 	_playlistFilter = _playlistWidget->playlistFilter();

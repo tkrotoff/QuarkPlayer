@@ -112,7 +112,7 @@ void MediaInfoFetcher::start(const MediaInfo & mediaInfo, ReadStyle readStyle) {
 	if (isUrl) {
 		//Cannot solve meta data from a stream/remote media
 		//This might be caused also by an invalid filename?
-		MediaInfoFetcherCritical() << "Error: mediaInfo is a URL";
+		MediaInfoFetcherCritical() << "mediaInfo is a URL";
 
 		emitFinishedSignal();
 	} else {
@@ -162,7 +162,7 @@ void MediaInfoFetcher::start(Phonon::MediaObject * mediaObject) {
 		_mediaInfo.setFileName(_mediaSource.url().toString());
 	} else {
 		_mediaInfo.setFileName(_mediaSource.fileName());
-		MediaInfoFetcherCritical() << "Error: mediaSource is not a URL";
+		MediaInfoFetcherCritical() << "mediaSource is not a URL";
 	}
 
 	//Cannot solve metaData from a stream/remote media if we have only the MediaSource
@@ -283,7 +283,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 		readStyle = TagLib::AudioProperties::Accurate;
 		break;
 	default:
-		MediaInfoFetcherCritical() << "Error: unknown ReadStyle:" << _readStyle;
+		MediaInfoFetcherCritical() << "Unknown ReadStyle:" << _readStyle;
 	}
 
 	//Taken from Amarok, file: CollectionScanner.cpp
@@ -298,7 +298,7 @@ void MediaInfoFetcher::startTagLibResolver() {
 	TagLib::FileRef fileRef(encodedName, true, readStyle);
 
 	if (fileRef.isNull()) {
-		MediaInfoFetcherCritical() << "Error: the FileRef is null:" << _mediaInfo.fileName();
+		MediaInfoFetcherCritical() << "fileRef is null:" << _mediaInfo.fileName();
 	} else {
 
 		TagLib::Tag * tag = fileRef.tag();

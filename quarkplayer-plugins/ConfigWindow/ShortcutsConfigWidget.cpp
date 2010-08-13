@@ -265,9 +265,10 @@ void ShortcutsConfigWidget::loadShortcuts() {
 }
 
 void ShortcutsConfigWidget::saveShortcuts() {
-	QString fileName = TkFileDialog::getSaveFileName(this, tr("Save Keyboard Mapping Scheme"),
+	QString fileName = TkFileDialog::getSaveFileName(
+		this, tr("Save Keyboard Mapping Scheme"),
 		Config::instance().resourceDir() + "/schemes/",
-		tr("Keyboard Mapping Scheme (*.kms)")
+		tr("Keyboard Mapping Scheme") + " (*.kms)"
 	);
 
 	if (!fileName.isEmpty()) {

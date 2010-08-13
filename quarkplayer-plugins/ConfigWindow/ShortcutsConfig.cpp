@@ -73,7 +73,7 @@ QAction * ShortcutsConfig::findAction(const QString & name) const {
 		}
 	}
 	if (!result) {
-		ConfigWindowCritical() << "Error: couldn't find action:" << name;
+		ConfigWindowCritical() << "Couldn't find action:" << name;
 	}
 
 	return result;

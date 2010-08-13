@@ -21,6 +21,7 @@
 #include "FileTypesLogger.h"
 
 #include <QtCore/QHash>
+#include <QtCore/QFileInfo>
 #include <QtCore/QSet>
 
 static const int FILETYPELIST_SIZE = 63;
@@ -157,6 +158,25 @@ QStringList FileTypes::extensions(FileType::Category category1, FileType::Catego
 	}
 
 	return hash.value(superCategory);
+}
+
+bool FileTypes::fileExtensionMatches(const QString & fileName, const QStringList & extensions) {
+	bool match = false;
+
+	if (extensions.isEmpty()) {
+		match = true;
+	} else {
+		//QFileInfo::completeSuffix() -> archive.tar.gz -> tar.gz
+		//QFileInfo::suffix() -> archive.tar.gz -> gz
+		foreach (QString extension, extensions) {
+			if (QFileInfo(fileName).completeSuffix().contains(extension, Qt::CaseInsensitive)) {
+				match = true;
+				break;
+			}
+		}
+	}
+
+	return match;
 }
 
 FileType FileTypes::fileType(const QString & extension) {

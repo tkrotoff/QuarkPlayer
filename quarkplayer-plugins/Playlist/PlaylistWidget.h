@@ -136,7 +136,7 @@ private:
 
 	PlaylistFilter * _playlistFilter;
 
-	DragAndDropTreeView * _treeView;
+	DragAndDropTreeView * _view;
 
 	SearchLineEdit * _searchLineEdit;
 

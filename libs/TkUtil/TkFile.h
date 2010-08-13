@@ -41,6 +41,9 @@ public:
 	 * QFileInfo::isDir() is slow, this implementation uses stat() under UNIX
 	 * and _wstat() under Windows.
 	 *
+	 * You should use this function only when QFileInfo::isDir() is too slow
+	 * after checking with a profiler.
+	 *
 	 * @return true if it is a path; false otherwise
 	 * @see QFileInfo::isDir()
 	 */

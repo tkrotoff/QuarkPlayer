@@ -90,7 +90,7 @@ void FindSubtitles::addMenusToMediaController() {
 	MediaController * mediaController = MediaControllerFactory::mediaController();
 	QMenu * menuSubtitle = mediaController->menuSubtitle();
 	if (!menuSubtitle) {
-		FindSubtitlesCritical() << "Error: MediaController subtitle menu NULL";
+		FindSubtitlesCritical() << "menuSubtitle is NULL";
 		return;
 	}
 

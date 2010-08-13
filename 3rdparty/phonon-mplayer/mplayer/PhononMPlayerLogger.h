@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define PhononMPlayerDebug() qDebug() << "QP_LOGGER" << "Phonon-MPlayer" << __FUNCTION__
-#define PhononMPlayerWarning() qWarning() << "QP_LOGGER" << "Phonon-MPlayer" << __FUNCTION__
-#define PhononMPlayerCritical() qCritical() << "QP_LOGGER" << "Phonon-MPlayer" << __FUNCTION__
+#define PhononMPlayerDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "Phonon-MPlayer" << __FUNCTION__
+#define PhononMPlayerWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "Phonon-MPlayer" << __FUNCTION__
+#define PhononMPlayerCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "Phonon-MPlayer" << __FUNCTION__
 
 #endif	//PHONONMPLAYERLOGGER_H

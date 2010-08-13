@@ -71,7 +71,7 @@ void CommandLineManager::removeCommandLineParser(ICommandLineParser * parser) {
 
 	int nbRemoved = _parserList.removeAll(parser);
 	if (nbRemoved < 1) {
-		QuarkPlayerCoreCritical() << "Error: no ICommandLineParser removed";
+		QuarkPlayerCoreCritical() << "No ICommandLineParser removed";
 	}
 }
 

@@ -160,7 +160,7 @@ void FindFiles::findAllFilesQt(const QString & path) {
 
 		if (TkFile::isDir(fileName)) {
 			//Filter directory matching the given pattern
-			if (_findDirs && patternMatches(name)) {
+			if (_findDirs && fileNameMatches(name, _pattern)) {
 				_files << fileName;
 			}
 
@@ -172,7 +172,7 @@ void FindFiles::findAllFilesQt(const QString & path) {
 
 		else {
 			//Filter file matching the given pattern and extensions
-			if (extensionMatches(name) && patternMatches(name)) {
+			if (fileExtensionMatches(name, _extensions) && fileNameMatches(name, _pattern)) {
 				_files << fileName;
 			}
 
@@ -229,7 +229,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 				//Avoid '.', '..' and other hidden files
 				if (!name.startsWith('.')) {
 					//Filter directory matching the given pattern
-					if (_findDirs && patternMatches(name)) {
+					if (_findDirs && fileNameMatches(name, _pattern)) {
 						_files << fileName;
 					}
 
@@ -242,7 +242,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 
 			else {
 				//Filter file matching the given pattern and extensions
-				if (extensionMatches(name) && patternMatches(name)) {
+				if (fileExtensionMatches(name, _extensions) && fileNameMatches(name, _pattern)) {
 					_files << fileName;
 				}
 
@@ -302,7 +302,7 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 
 				if (TkFile::isDir(fileName)) {
 					//Filter directory matching the given pattern
-					if (_findDirs && patternMatches(name)) {
+					if (_findDirs && fileNameMatches(name, _pattern)) {
 						_files << fileName;
 					}
 
@@ -314,7 +314,7 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 
 				else {
 					//Filter file matching the given pattern and extensions
-					if (extensionMatches(name) && patternMatches(name)) {
+					if (fileExtensionMatches(name, _extensions) && fileNameMatches(name, _pattern)) {
 						_files << fileName;
 					}
 
@@ -335,26 +335,33 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 #endif	//Q_WS_WIN
 }
 
-bool FindFiles::patternMatches(const QString & fileName) const {
-	bool tmp = false;
+bool FindFiles::fileNameMatches(const QString & fileName, const QRegExp & pattern) {
+	bool match = false;
 
-	if (_pattern.isEmpty()) {
-		tmp = true;
-	} else if (fileName.contains(_pattern)) {
-		tmp = true;
+	if (pattern.isEmpty()) {
+		match = true;
+	} else if (fileName.contains(pattern)) {
+		match = true;
 	}
 
-	return tmp;
+	return match;
 }
 
-bool FindFiles::extensionMatches(const QString & fileName) const {
-	bool tmp = false;
+bool FindFiles::fileExtensionMatches(const QString & fileName, const QStringList & extensions) {
+	bool match = false;
 
-	if (_extensions.isEmpty()) {
-		tmp = true;
-	} else if (_extensions.contains(QFileInfo(fileName).suffix(), Qt::CaseInsensitive)) {
-		tmp = true;
+	if (extensions.isEmpty()) {
+		match = true;
+	} else {
+		//QFileInfo::completeSuffix() -> archive.tar.gz -> tar.gz
+		//QFileInfo::suffix() -> archive.tar.gz -> gz
+		foreach (QString extension, extensions) {
+			if (QFileInfo(fileName).completeSuffix().contains(extension, Qt::CaseInsensitive)) {
+				match = true;
+				break;
+			}
+		}
 	}
 
-	return tmp;
+	return match;
 }

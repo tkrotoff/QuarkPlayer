@@ -191,7 +191,7 @@ int SettingsBrowser::findRow(QWidget * widget, int column) const {
 
 	if (row == rows) {
 		//No match between the reset button and the cell widget
-		ConfigWindowCritical() << "Error: no widget and cell widget match";
+		ConfigWindowCritical() << "No widget and cell widget match";
 		return -1;
 	}
 
@@ -202,13 +202,13 @@ int SettingsBrowser::findRow(QWidget * widget, int column) const {
 QString SettingsBrowser::findKey(int row) const {
 	QTableWidgetItem * item = _ui->tableWidget->item(row, KEY_NAME_COLUMN);
 	if (!item) {
-		ConfigWindowCritical() << "Error: no QTableWidgetItem";
+		ConfigWindowCritical() << "No QTableWidgetItem";
 		return QString();
 	}
 
 	QString key = item->text();
 	if (key.isEmpty()) {
-		ConfigWindowCritical() << "Error: empty key";
+		ConfigWindowCritical() << "Empty key";
 	}
 
 	//We have the key
@@ -321,7 +321,7 @@ void SettingsBrowser::setItem(const QVariant & defaultValue, const QVariant & va
 		break;
 
 	default:
-		//ConfigWindowCritical() << "Error: cannot convert value:" << defaultValue;
+		//ConfigWindowCritical() << "Cannot convert value:" << defaultValue;
 		break;
 	}
 
@@ -348,7 +348,7 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 	case QVariant::Bool: {
 		QComboBox * comboBox = qobject_cast<QComboBox *>(widget);
 		if (!comboBox) {
-			ConfigWindowCritical() << "Error: the widget does not match the QVariant::Type:" << defaultValue;
+			ConfigWindowCritical() << "The widget does not match the QVariant::Type:" << defaultValue;
 		} else {
 			QString tmp = comboBox->currentText();
 			if (tmp == tr("True")) {
@@ -363,7 +363,7 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 	case QVariant::Int: {
 		QSpinBox * spinBox = qobject_cast<QSpinBox *>(widget);
 		if (!spinBox) {
-			ConfigWindowCritical() << "Error: the widget does not match the QVariant::Type:" << defaultValue;
+			ConfigWindowCritical() << "The widget does not match the QVariant::Type:" << defaultValue;
 		} else {
 			ret = spinBox->value();
 		}
@@ -373,7 +373,7 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 	case QVariant::Double: {
 		QDoubleSpinBox * spinBox = qobject_cast<QDoubleSpinBox *>(widget);
 		if (!spinBox) {
-			ConfigWindowCritical() << "Error: the widget does not match the QVariant::Type:" << defaultValue;
+			ConfigWindowCritical() << "The widget does not match the QVariant::Type:" << defaultValue;
 		} else {
 			ret = spinBox->value();
 		}
@@ -383,7 +383,7 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 	case QVariant::String: {
 		QLineEdit * lineEdit = qobject_cast<QLineEdit *>(widget);
 		if (!lineEdit) {
-			ConfigWindowCritical() << "Error: the widget does not match the QVariant::Type:" << defaultValue;
+			ConfigWindowCritical() << "The widget does not match the QVariant::Type:" << defaultValue;
 		} else {
 			ret = lineEdit->text();
 		}
@@ -393,7 +393,7 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 	case QVariant::StringList: {
 		QLineEdit * lineEdit = qobject_cast<QLineEdit *>(widget);
 		if (!lineEdit) {
-			ConfigWindowCritical() << "Error: the widget does not match the QVariant::Type:" << defaultValue;
+			ConfigWindowCritical() << "The widget does not match the QVariant::Type:" << defaultValue;
 		} else {
 			QString tmp = lineEdit->text();
 			if (tmp.isEmpty()) {
@@ -409,7 +409,7 @@ QVariant SettingsBrowser::item(const QVariant & defaultValue, const QVariant & v
 		break;
 
 	default:
-		//ConfigWindowCritical() << "Error: cannot convert value:" << defaultValue;
+		//ConfigWindowCritical() << "Cannot convert value:" << defaultValue;
 		break;
 	}
 

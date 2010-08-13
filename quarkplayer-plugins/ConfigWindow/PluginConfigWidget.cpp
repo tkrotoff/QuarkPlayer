@@ -114,7 +114,7 @@ void PluginConfigWidget::saveConfig() {
 		QCheckBox * checkBox = qobject_cast<QCheckBox *>(_ui->tableWidget->cellWidget(row, CHECKBOX_COLUMN));
 		if (!checkBox) {
 			//No checkbox
-			ConfigWindowCritical() << "Error: couldn't get the checkbox";
+			ConfigWindowCritical() << "Couldn't get the checkbox";
 			return;
 		}
 

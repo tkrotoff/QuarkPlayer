@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define MainWindowDebug() qDebug() << "QP_LOGGER" << "MainWindow" << __FUNCTION__
-#define MainWindowWarning() qWarning() << "QP_LOGGER" << "MainWindow" << __FUNCTION__
-#define MainWindowCritical() qCritical() << "QP_LOGGER" << "MainWindow" << __FUNCTION__
+#define MainWindowDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "MainWindow" << __FUNCTION__
+#define MainWindowWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "MainWindow" << __FUNCTION__
+#define MainWindowCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "MainWindow" << __FUNCTION__
 
 #endif	//MAINWINDOWLOGGER_H

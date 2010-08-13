@@ -33,12 +33,12 @@ ActionCollection::~ActionCollection() {
 
 void ActionCollection::addAction(const QString & name, QAction * action) {
 	if (!action) {
-		TkUtilCritical() << "Error: QAction is null";
+		TkUtilCritical() << "QAction is null";
 	}
 
 	QString indexName = name;
 	if (indexName.isEmpty()) {
-		TkUtilCritical() << "Error: QAction index name is empty";
+		TkUtilCritical() << "QAction index name is empty";
 		indexName = action->objectName();
 	} else {
 		action->setObjectName(indexName);
@@ -49,7 +49,7 @@ void ActionCollection::addAction(const QString & name, QAction * action) {
 	}
 
 	if (_actionHash.contains(indexName)) {
-		TkUtilCritical() << "Error: QAction index name:" << indexName << "already exist";
+		TkUtilCritical() << "QAction index name:" << indexName << "already exist";
 	}
 
 	_actionHash[indexName] = action;
@@ -57,12 +57,12 @@ void ActionCollection::addAction(const QString & name, QAction * action) {
 
 QAction * ActionCollection::action(const QString & name) {
 	if (_actionHash.count(name) != 1) {
-		TkUtilCritical() << "Error: invalid QAction name:" << name;
+		TkUtilCritical() << "Invalid QAction name:" << name;
 	}
 
 	QAction * action = _actionHash.value(name);
 	if (!action) {
-		TkUtilCritical() << "Error: QAction is null";
+		TkUtilCritical() << "QAction is null";
 	}
 
 	return action;

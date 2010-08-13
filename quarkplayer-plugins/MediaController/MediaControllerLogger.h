@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define MediaControllerDebug() qDebug() << "QP_LOGGER" << "MediaController" << __FUNCTION__
-#define MediaControllerWarning() qWarning() << "QP_LOGGER" << "MediaController" << __FUNCTION__
-#define MediaControllerCritical() qCritical() << "QP_LOGGER" << "MediaController" << __FUNCTION__
+#define MediaControllerDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "MediaController" << __FUNCTION__
+#define MediaControllerWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "MediaController" << __FUNCTION__
+#define MediaControllerCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "MediaController" << __FUNCTION__
 
 #endif	//MEDIACONTROLLERLOGGER_H

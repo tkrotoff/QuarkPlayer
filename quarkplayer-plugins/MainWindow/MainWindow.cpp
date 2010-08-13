@@ -111,7 +111,7 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	bool ok = restoreGeometry(Config::instance().mainWindowGeometry());
 	if (!ok) {
-		MainWindowCritical() << "Error: coudn't restore the main window geometry";
+		MainWindowCritical() << "Couldn't restore main window geometry";
 	}
 
 	RETRANSLATE(this);
@@ -582,7 +582,7 @@ void MainWindow::dropEvent(QDropEvent * event) {
 			//1 file
 			QString fileName = files[0];
 
-			bool isSubtitle = FileTypes::extensions(FileType::Subtitle).contains(QFileInfo(fileName).suffix(), Qt::CaseInsensitive);
+			bool isSubtitle = FileTypes::fileExtensionMatches(fileName, FileTypes::extensions(FileType::Subtitle));
 			if (isSubtitle) {
 				MainWindowDebug() << "Loading subtitle:" << fileName;
 				emit subtitleFileDropped(fileName);

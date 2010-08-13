@@ -173,10 +173,10 @@ void MediaDataWidget::amazonCoverArtFound(QNetworkReply::NetworkError error, con
 				//updateCoverArts(_mediaInfoFetcher->mediaInfo());
 				///
 			} else {
-				VideoWidgetCritical() << "Error: cover art file couldn't be written:" << _amazonCoverArtPath;
+				VideoWidgetCritical() << "Couldn't write cover art file:" << _amazonCoverArtPath;
 			}
 		} else {
-			VideoWidgetCritical() << "Error: cover art file couldn't be opened:" << _amazonCoverArtPath;
+			VideoWidgetCritical() << "Couldn't open cover art file:" << _amazonCoverArtPath;
 		}
 	} else {
 		//Check if the cover art received does match the current album playing

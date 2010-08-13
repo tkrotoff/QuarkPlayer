@@ -80,7 +80,7 @@ void TkTextBrowser::finished(QNetworkReply * reply) {
 	case QTextDocument::StyleSheetResource:
 		break;
 	default:
-		WebBrowserCritical() << "Error: unknown type:" << res.type;
+		WebBrowserCritical() << "Unknown type:" << res.type;
 	}
 
 	viewport()->update();

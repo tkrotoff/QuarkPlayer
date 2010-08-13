@@ -171,7 +171,7 @@ void MyVideoWidget::scaleModeChanged(QAction * action) {
 	} else if (action == ActionCollection::action("VideoWidget.ScaleModeScaleAndCrop")) {
 		setScaleMode(Phonon::VideoWidget::ScaleAndCrop);
 	} else {
-		VideoWidgetCritical() << "Error: unknown action:" << action->text();
+		VideoWidgetCritical() << "Unknown action:" << action->text();
 	}
 }
 
@@ -185,7 +185,7 @@ void MyVideoWidget::aspectRatioChanged(QAction * action) {
 	} else if (action == ActionCollection::action("VideoWidget.AspectRatioAuto")) {
 		setAspectRatio(Phonon::VideoWidget::AspectRatioAuto);
 	} else {
-		VideoWidgetCritical() << "Error: unknown action:" << action->text();
+		VideoWidgetCritical() << "Unknown action:" << action->text();
 	}
 }
 

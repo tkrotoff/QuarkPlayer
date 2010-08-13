@@ -118,7 +118,7 @@ void WinDefaultApplication::registerAsDefaultMediaPlayer() {
 
 	QSettings hklm("HKEY_LOCAL_MACHINE", QSettings::NativeFormat);
 	if (!hklm.isWritable() && hklm.status() != QSettings::NoError) {
-		QuarkPlayerCoreWarning() << "Error: cannot access HKLM, user is not root";
+		QuarkPlayerCoreWarning() << "Cannot access HKLM, user is not root";
 		//Switch to current user registry since local machine registry
 		//is not writable. The user is probably not root.
 		//hklm = QSettings("HKEY_CURRENT_USER", QSettings::NativeFormat);
@@ -146,7 +146,7 @@ void WinDefaultApplication::unregisterAsDefaultMediaPlayer() {
 
 void WinDefaultApplication::addFileAssociation(const QString & extension) {
 	if (extension.isEmpty()) {
-		QuarkPlayerCoreWarning() << "Error: extension is empty";
+		QuarkPlayerCoreWarning() << "Extension is empty";
 		return;
 	}
 
