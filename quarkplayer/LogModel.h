@@ -51,13 +51,6 @@ public:
 	~LogModel();
 
 	/**
-	 * Appends a new log message.
-	 *
-	 * @param msg add a new log message to the model
-	 */
-	void append(const LogMessage & msg);
-
-	/**
 	 * Resumes the log.
 	 *
 	 * Does nothing if not in pause state.
@@ -110,6 +103,26 @@ public:
 	int rowCount(const QModelIndex & parent = QModelIndex()) const;
 
 	/** @} */
+
+public slots:
+
+	/**
+	 * Appends a new log message.
+	 *
+	 * QAbstractListModel is not thread-safe + must be created inside GUI thread
+	 * so we must use a queued signal otherwise we end up with the following error message:
+	 * <pre>Warning QTreeView::rowsInserted internal representation of the model
+	 * has been corrupted, resetting</pre
+	 *
+	 * @see http://lists.trolltech.com/pipermail/qt-interest/2009-June/009215.html
+	 * @see http://www.qtcentre.org/threads/28150-Subclassi%C4%B1ng-QAbstractItemModel-for-a-thread-safe-tree-model
+	 * @see http://forum.qtfr.org/viewtopic.php?pid=74128
+	 *
+	 * @param msg add a new log message to the model
+	 *
+	 * @see LogMessageHandler
+	 */
+	void append(const LogMessage & msg);
 
 private:
 

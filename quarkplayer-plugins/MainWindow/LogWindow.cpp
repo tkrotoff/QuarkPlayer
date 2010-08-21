@@ -155,7 +155,6 @@ void LogWindow::setupUi() {
 
 void LogWindow::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
-	Q_ASSERT(app);
 
 	ActionCollection::addAction("LogWindow.Open", new TkAction(app, QKeySequence::Open));
 	ActionCollection::addAction("LogWindow.Save", new TkAction(app, QKeySequence::Save));

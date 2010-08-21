@@ -26,14 +26,20 @@
 #include <QtCore/QRegExp>
 
 LogMessageHandler::LogMessageHandler() {
-	_logModel = new LogModel(NULL);
+	qRegisterMetaType<LogMessage>("LogMessage");
+
+	_logModel = new LogModel(this);
+	//QAbstractListModel is not thread-safe + must be created inside GUI thread
+	//so we must use a queued signal
+	connect(this, SIGNAL(logMessageReceived(const LogMessage &)),
+		_logModel, SLOT(append(const LogMessage &)));
 }
 
 LogMessageHandler::~LogMessageHandler() {
 	//No need, will be deleted when LogMessageHandler is deleted
 	//+ LogMessageHandler should never be deleted otherwise
 	//LogMessageHandler::myMessageOutput() will crash
-	delete _logModel;
+	//delete _logModel;
 }
 
 LogMessageHandler & LogMessageHandler::instance() {
@@ -60,7 +66,7 @@ void LogMessageHandler::myMessageOutput(QtMsgType type, const char * msg) {
 
 	//Do not use regexp here as it might be slow
 
-	static const QString internalStringToMatch("QP_LOGGER");
+	static const QString internalStringToMatch = "QP_LOGGER";
 	if (logLine.startsWith(internalStringToMatch)) {
 		logLine.remove(0, internalStringToMatch.length() + 1);
 
@@ -94,7 +100,7 @@ void LogMessageHandler::myMessageOutput(QtMsgType type, const char * msg) {
 
 	printLogMessage(logMsg);
 
-	LogMessageHandler::instance()._logModel->append(logMsg);
+	emit LogMessageHandler::instance().logMessageReceived(logMsg);
 }
 
 void LogMessageHandler::printLogMessage(const LogMessage & msg) {

@@ -16,27 +16,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FindSubtitlesTest.h"
+#ifndef LOGMESSAGEHANDLERTEST_H
+#define LOGMESSAGEHANDLERTEST_H
 
-#include <quarkplayer-plugins/FindSubtitles/FindSubtitlesWindow.h>
-#include <quarkplayer-plugins/FindSubtitles/FindSubtitlesLogger.h>
+#include <QtTest/QtTest>
 
-void FindSubtitlesTest::initTestCase() {
-}
+/**
+ * Test class for LogMessageHandler.
+ *
+ * @see LogMessageHandler
+ * @author Tanguy Krotoff
+ */
+class LogMessageHandlerTest : public QObject {
+	Q_OBJECT
+private slots:
 
-void FindSubtitlesTest::cleanupTestCase() {
-}
+	/** Called before the first testfunction is executed. */
+	void initTestCase();
 
-void FindSubtitlesTest::init() {
-}
+	/** Called after the last testfunction was executed. */
+	void cleanupTestCase();
 
-void FindSubtitlesTest::cleanup() {
-}
+	/** Called before each testfunction is executed. */
+	void init();
+
+	/** Called after every testfunction. */
+	void cleanup();
 
 
-void FindSubtitlesTest::testWindow() {
-	FindSubtitlesWindow * window = new FindSubtitlesWindow(NULL);
-	window->show();
+	/** Tests several threads using LogMessageHandler::myMessageOutput() at the same time. */
+	void testThreads();
+};
 
-	QApplication::exec();
-}
+#endif	//LOGMESSAGEHANDLERTEST_H

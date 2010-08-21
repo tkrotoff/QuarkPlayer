@@ -43,6 +43,7 @@ private slots:
 	/** Called after every testfunction. */
 	void cleanup();
 
+
 	void testWindow();
 };
 

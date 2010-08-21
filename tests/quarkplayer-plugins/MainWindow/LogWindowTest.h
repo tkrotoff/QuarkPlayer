@@ -16,27 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FindSubtitlesTest.h"
+#ifndef LOGWINDOWTEST_H
+#define LOGWINDOWTEST_H
 
-#include <quarkplayer-plugins/FindSubtitles/FindSubtitlesWindow.h>
-#include <quarkplayer-plugins/FindSubtitles/FindSubtitlesLogger.h>
+#include <QtTest/QtTest>
 
-void FindSubtitlesTest::initTestCase() {
-}
+/**
+ * Test class for LogWindow.
+ *
+ * @see LogWindow
+ * @author Tanguy Krotoff
+ */
+class LogWindowTest : public QObject {
+	Q_OBJECT
+private slots:
 
-void FindSubtitlesTest::cleanupTestCase() {
-}
+	/** Called before the first testfunction is executed. */
+	void initTestCase();
 
-void FindSubtitlesTest::init() {
-}
+	/** Called after the last testfunction was executed. */
+	void cleanupTestCase();
 
-void FindSubtitlesTest::cleanup() {
-}
+	/** Called before each testfunction is executed. */
+	void init();
+
+	/** Called after every testfunction. */
+	void cleanup();
 
 
-void FindSubtitlesTest::testWindow() {
-	FindSubtitlesWindow * window = new FindSubtitlesWindow(NULL);
-	window->show();
+	void test();
+};
 
-	QApplication::exec();
-}
+#endif	//LOGWINDOWTEST_H

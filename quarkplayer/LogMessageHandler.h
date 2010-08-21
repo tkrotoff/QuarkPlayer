@@ -24,6 +24,7 @@
 #include <TkUtil/Singleton.h>
 
 #include <QtCore/QList>
+#include <QtCore/QObject>
 
 class LogModel;
 class LogMessage;
@@ -35,12 +36,26 @@ enum QtMsgType;
  * Instead of re-inventing a log system, let's use qDebug() and friends.
  * In order to customize log messages we use this class.
  *
+ * @see LogMessage
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API LogMessageHandler : public Singleton {
+class QUARKPLAYER_API LogMessageHandler : public QObject, public Singleton {
+	Q_OBJECT
 public:
 
-	/** Singleton. */
+	/**
+	 * Singleton.
+	 *
+	 * Initiates LogModel (which inherits QAbstractListModel).
+	 * Be sure to call this method inside the GUI thread.
+	 * Messages sent by LogMessageHandler to LogModel are done via slot/signal.
+	 * QAbstractListModel is not thread-safe + must be created inside GUI thread
+	 * so we must use a queued signal otherwise we end up with the following error message:
+	 * <pre>Warning QTreeView::rowsInserted internal representation of the model
+	 * has been corrupted, resetting</pre
+	 *
+	 * @see LogModel::append()
+	 */
 	static LogMessageHandler & instance();
 
 	/**
@@ -54,6 +69,15 @@ public:
 	 * Custom message handler for qDebug(), qWarning() and others.
 	 */
 	static void myMessageOutput(QtMsgType type, const char * msg);
+
+signals:
+
+	/**
+	 * A LogMessage has been received.
+	 *
+	 * This signal is an internal one used to communicate with LogModel.
+	 */
+	void logMessageReceived(const LogMessage & msg);
 
 private:
 

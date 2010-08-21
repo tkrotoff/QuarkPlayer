@@ -53,6 +53,7 @@ qt4_wrap_cpp(QuarkPlayerCore_SRCS
 	CommandLineManager.h
 	CommandLineParser.h
 	Languages.h
+	LogMessageHandler.h
 	LogModel.h
 )
 

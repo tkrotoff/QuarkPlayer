@@ -1,22 +1,36 @@
-project(QDockWidgetTest)
+project(MainWindowTest)
+
+macro(add_unit_test name)
+	set(SRCS ${ARGN})
+
+	add_executable(${name} ${SRCS})
+
+	add_test(${name} ${name})
+
+	target_link_libraries(${name}
+		QuarkPlayerCore
+
+		MainWindow
+
+		${QT_QTTEST_LIBRARY}
+	)
+	install(TARGETS ${name} ${INSTALL_TARGETS_DEFAULT_ARGS})
+endmacro(add_unit_test name)
+
 
 set(QDockWidgetTest_SRCS
 	QDockWidgetTest.cpp
 )
-
 qt4_wrap_cpp(QDockWidgetTest_SRCS
 	QDockWidgetTest.h
 )
+add_unit_test(QDockWidgetTest ${QDockWidgetTest_SRCS})
 
-add_executable(QDockWidgetTest ${QDockWidgetTest_SRCS})
-add_test(QDockWidgetTest QDockWidgetTest)
 
-target_link_libraries(QDockWidgetTest
-	TkUtil
-
-	${QT_QTGUI_LIBRARY}
-	${QT_QTCORE_LIBRARY}
-	${QT_QTTEST_LIBRARY}
+set(LogWindowTest_SRCS
+	LogWindowTest.cpp
 )
-
-install(TARGETS QDockWidgetTest ${INSTALL_TARGETS_DEFAULT_ARGS})
+qt4_wrap_cpp(LogWindowTest_SRCS
+	LogWindowTest.h
+)
+add_unit_test(LogWindowTest ${LogWindowTest_SRCS})

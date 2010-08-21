@@ -36,3 +36,12 @@ qt4_add_resources(LogModelTest_SRCS
 	LogModelTest.qrc
 )
 add_unit_test(LogModelTest ${LogModelTest_SRCS})
+
+
+set(LogMessageHandlerTest_SRCS
+	LogMessageHandlerTest.cpp
+)
+qt4_wrap_cpp(LogMessageHandlerTest_SRCS
+	LogMessageHandlerTest.h
+)
+add_unit_test(LogMessageHandlerTest ${LogMessageHandlerTest_SRCS})

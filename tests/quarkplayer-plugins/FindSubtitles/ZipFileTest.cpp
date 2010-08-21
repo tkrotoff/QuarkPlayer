@@ -33,6 +33,7 @@ void ZipFileTest::init() {
 void ZipFileTest::cleanup() {
 }
 
+
 void ZipFileTest::testListFiles_data() {
 	QTest::addColumn<QString>("zipFileName");
 	QTest::addColumn<QStringList>("zipFileList");
