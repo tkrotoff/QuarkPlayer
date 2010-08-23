@@ -176,8 +176,9 @@ QStringList MPlayerLoader::readMediaSettings() {
 			args << "direct3d";
 		}
 	} else {
-		LibMPlayerCritical() <<
-			"Could not use Direct3D video output driver: your MPlayer version is too old";
+		LibMPlayerWarning()
+			<< "Could not use Direct3D video output driver, your MPlayer version is too old:"
+			<< MPlayerProcess::getMPlayerVersion();
 	}
 #endif	//Q_WS_WIN
 
@@ -234,8 +235,9 @@ QStringList MPlayerLoader::readMediaSettings() {
 			args << QString::number(settings.volume);
 		}
 	} else {
-		LibMPlayerCritical() <<
-			"Could not use MPlayer volume command line: your MPlayer version is too old";
+		LibMPlayerWarning()
+			<< "Could not use MPlayer volume command line, your MPlayer version is too old:"
+			<< MPlayerProcess::getMPlayerVersion();
 	}
 
 	//Speedup internet media by using IPv4
@@ -294,13 +296,14 @@ QStringList MPlayerLoader::readMediaSettings() {
 #ifndef Q_WS_WIN
 	//Prevent MPlayer from messing up our shortcuts
 	//We don't have this problem under Windows
-	args << "-input";
 	if (MPlayerProcess::getMPlayerVersion() > 29058) {
 		//r29058 Wed, 25 Mar 2009
+		args << "-input";
 		args << "nodefault-bindings:conf=/dev/null";
 	} else {
-		LibMPlayerCritical() <<
-			"Could not disable MPlayer key bindings (shortcuts): your MPlayer version is too old";
+		LibMPlayerWarning()
+			<< "Could not disable MPlayer key bindings (shortcuts), your MPlayer version is too old:"
+			<< MPlayerProcess::getMPlayerVersion();
 	}
 #endif	//Q_WS_WIN
 
