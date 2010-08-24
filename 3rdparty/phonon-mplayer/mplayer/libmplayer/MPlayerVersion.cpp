@@ -39,7 +39,7 @@ static const int MPLAYER_VERSION_FAILED = 0;
 int MPlayerVersion::parse(const QString & line) {
 	//Examples:
 	//
-	//Official 1.0rc1 release 2006-10-22
+	//Official 1.0rc1 release 2006-10-22:
 	//MPlayer 1.0rc1-4.1.2 (C) 2000-2006 MPlayer Team
 	//
 	//Windows, official 1.0rc2 release 2007-10-07:
@@ -67,7 +67,7 @@ int MPlayerVersion::parse(const QString & line) {
 	//Ubuntu 9.10:
 	//MPlayer SVN-r29237-4.4.1 (C) 2000-2009 MPlayer Team
 	//
-	//Red Hat Linux Entreprise 5.1, official 1.0rc3 release 2010-05-30:
+	//Red Hat Enterprise Linux 5.1, official 1.0rc3 release 2010-05-30:
 	//MPlayer 1.0rc3-4.1.2 (C) 2000-2009 MPlayer Team
 
 
