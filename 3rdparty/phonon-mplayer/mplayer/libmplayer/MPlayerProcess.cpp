@@ -457,8 +457,8 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		///
 
 
-		else if ((_mplayerVersion == MPlayerProcess::MPLAYER_VERSION_NOTFOUND) &&
-				(line.startsWith("MPlayer "))) {
+		else if (_mplayerVersion == MPlayerProcess::MPLAYER_VERSION_NOTFOUND
+				&& line.startsWith("MPlayer ")) {
 			_mplayerVersion = MPlayerVersion::parse(line);
 		}
 

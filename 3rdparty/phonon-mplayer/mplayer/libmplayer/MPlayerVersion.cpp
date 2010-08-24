@@ -1,7 +1,7 @@
 /*
  * MPlayer backend for the Phonon library
  * Copyright (C) 2006-2008  Ricardo Villalba <rvm@escomposlinux.org>
- * Copyright (C) 2007-2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2007-2010  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,7 +19,7 @@
 
 #include "MPlayerVersion.h"
 
-//For MPLAYER_1_0_RC2_SVN, MPLAYER_1_0_RC1_SVN and other defines
+//For MPLAYER_VERSION_NOTFOUND define
 #include "MPlayerProcess.h"
 
 #include "LibMPlayerLogger.h"
@@ -31,13 +31,18 @@ namespace Phonon
 namespace MPlayer
 {
 
+static const int MPLAYER_1_0_RC1_SVN = 20372;
+static const int MPLAYER_1_0_RC2_SVN = 24722;
+static const int MPLAYER_1_0_RC3_SVN = 31271;
+static const int MPLAYER_VERSION_FAILED = 0;
+
 int MPlayerVersion::parse(const QString & line) {
 	//Examples:
-	//From older to most recent
 	//
-	//MPlayer 1.0pre4-3.3.3 (C) 2000-2004 MPlayer Team
+	//Official 1.0rc1 release 2006-10-22
+	//MPlayer 1.0rc1-4.1.2 (C) 2000-2006 MPlayer Team
 	//
-	//Windows, official 1.0rc2 binary:
+	//Windows, official 1.0rc2 release 2007-10-07:
 	//MPlayer 1.0rc2-4.2.1 (C) 2000-2007 MPlayer Team
 	//MPlayer 1.0rc2-4.2.3 (C) 2000-2007 MPlayer Team
 	//
@@ -62,11 +67,15 @@ int MPlayerVersion::parse(const QString & line) {
 	//Ubuntu 9.10:
 	//MPlayer SVN-r29237-4.4.1 (C) 2000-2009 MPlayer Team
 	//
+	//Red Hat Linux Entreprise 5.1, official 1.0rc3 release 2010-05-30:
+	//MPlayer 1.0rc3-4.1.2 (C) 2000-2009 MPlayer Team
+
+
 	static QRegExp rx_mplayer_revision("^MPlayer (.*)-r(\\d+)(.*)");
 	static QRegExp rx_mplayer_version("^MPlayer ([a-z,0-9,.]+)-(.*)");
 
 	QString version(line);
-	int revision = MPlayerProcess::MPLAYER_VERSION_FAILED;
+	int revision = MPLAYER_VERSION_FAILED;
 
 	if (rx_mplayer_revision.indexIn(version) > -1) {
 		revision = rx_mplayer_revision.cap(2).toInt();
@@ -76,17 +85,21 @@ int MPlayerVersion::parse(const QString & line) {
 	else if (rx_mplayer_version.indexIn(version) > -1) {
 		version = rx_mplayer_version.cap(1);
 		LibMPlayerDebug() << "MPlayer version:" << version;
-		if (version == "1.0rc2") {
-			revision = MPlayerProcess::MPLAYER_1_0_RC2_SVN;
+		if (version == "1.0rc1") {
+			revision = MPLAYER_1_0_RC1_SVN;
 		}
-		else if (version == "1.0rc1") {
-			revision = MPlayerProcess::MPLAYER_1_0_RC1_SVN;
-		} else {
+		else if (version == "1.0rc2") {
+			revision = MPLAYER_1_0_RC2_SVN;
+		}
+		else if (version == "1.0rc3") {
+			revision = MPLAYER_1_0_RC3_SVN;
+		}
+		else {
 			LibMPlayerCritical() << "Unknown MPlayer version";
 		}
 	}
 
-	if (revision == MPlayerProcess::MPLAYER_VERSION_FAILED) {
+	if (revision == MPLAYER_VERSION_FAILED) {
 		LibMPlayerCritical() << "Couldn't parse MPlayer revision:" << version;
 	}
 

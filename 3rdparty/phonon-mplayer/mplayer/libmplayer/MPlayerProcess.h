@@ -138,9 +138,6 @@ public:
 
 
 	static const int MPLAYER_VERSION_NOTFOUND = -1;
-	static const int MPLAYER_VERSION_FAILED = 0;
-	static const int MPLAYER_1_0_RC1_SVN = 20372;
-	static const int MPLAYER_1_0_RC2_SVN = 24722;
 
 	/**
 	 * Gets the MPlayer SVN revision number.
