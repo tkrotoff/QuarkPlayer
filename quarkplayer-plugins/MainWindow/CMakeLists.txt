@@ -18,6 +18,8 @@ add_definitions(${QTSINGLEAPPLICATION_DEFINITIONS})
 
 add_definitions(-DBUILD_MAINWINDOW)
 
+add_definitions(-DHACK_DATA_CHANGED)
+
 # Otherwise QString::fromStdWString() is not defined
 # This happens when compiling using the KDE4 libraries
 remove_definitions(-DQT_NO_STL)

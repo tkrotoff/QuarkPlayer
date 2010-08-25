@@ -88,11 +88,11 @@ private:
 	 */
 	static void printLogMessage(const LogMessage & msg);
 
-	LogModel * _logModel;
-
 	LogMessageHandler();
 
 	~LogMessageHandler();
+
+	LogModel * _logModel;
 };
 
 #endif	//LOGMESSAGEHANDLER_H

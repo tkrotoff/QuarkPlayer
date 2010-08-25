@@ -51,6 +51,10 @@ private slots:
 
 	void testOpenSave();
 
+	void testResumePause();
+
+	void testClear();
+
 private:
 };
 

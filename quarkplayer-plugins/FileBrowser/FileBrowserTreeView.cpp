@@ -83,6 +83,7 @@ FileBrowserTreeView::~FileBrowserTreeView() {
 
 void FileBrowserTreeView::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
+	Q_ASSERT(app);
 
 	_fileBrowserWidget->addUuidAction("FileBrowser.AddToPlaylist", new QAction(app));
 	_fileBrowserWidget->addUuidAction("FileBrowser.Play", new QAction(app));

@@ -91,3 +91,71 @@ void LogModelTest::testOpenSave() {
 	QByteArray dataTestLog = fileTestLog.readAll();
 	QCOMPARE(QString(dataTestLog), QString(dataTmp));
 }
+
+void LogModelTest::testResumePause() {
+	LogMessage msg1;
+	msg1.message = "msg1";
+	LogMessage msg2;
+	msg2.message = "msg2";
+	LogMessage msg3;
+	msg3.message = "msg3";
+
+	LogModel model(this);
+	model.append(msg1);
+	model.append(msg2);
+	model.append(msg3);
+	QCOMPARE(model.rowCount(), 3);
+
+	QCOMPARE(model.state(), LogModel::PlayingState);
+	model.append(msg1);
+	model.append(msg2);
+	model.append(msg3);
+	QCOMPARE(model.rowCount(), 6);
+
+	model.pause();
+	QCOMPARE(model.state(), LogModel::PausedState);
+	model.append(msg1);
+	model.append(msg2);
+	model.append(msg3);
+	QCOMPARE(model.rowCount(), 6);
+
+	model.resume();
+	QCOMPARE(model.state(), LogModel::PlayingState);
+	model.append(msg1);
+	model.append(msg2);
+	model.append(msg3);
+	QCOMPARE(model.rowCount(), 9);
+
+	model.pause();
+	QCOMPARE(model.state(), LogModel::PausedState);
+	model.append(msg1);
+	model.append(msg2);
+	model.append(msg3);
+	QCOMPARE(model.rowCount(), 9);
+}
+
+void LogModelTest::testClear() {
+	LogMessage msg1;
+	msg1.message = "msg1";
+	LogMessage msg2;
+	msg2.message = "msg2";
+	LogMessage msg3;
+	msg3.message = "msg3";
+
+	LogModel model(this);
+	model.append(msg1);
+	model.append(msg2);
+	model.append(msg3);
+	QCOMPARE(model.rowCount(), 3);
+
+	model.clear();
+	QCOMPARE(model.rowCount(), 0);
+
+	model.append(msg1);
+	model.append(msg2);
+	model.append(msg3);
+	QCOMPARE(model.rowCount(), 3);
+
+	model.clear();
+	QCOMPARE(model.rowCount(), 0);
+}

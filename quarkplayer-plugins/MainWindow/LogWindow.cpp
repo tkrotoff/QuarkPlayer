@@ -80,7 +80,6 @@ LogWindow::LogWindow(QWidget * parent)
 	: QMainWindow(parent, Qt::Dialog) {
 
 	_model = LogMessageHandler::instance().logModel();
-	_playMode = true;
 
 	populateActionCollection();
 
@@ -129,6 +128,7 @@ void LogWindow::setupUi() {
 	//_view->resizeRowsToContents();
 	///
 
+#ifdef HACK_DATA_CHANGED
 	//FIXME there is a Qt bug here:
 	//LogWindow is created after LogModel
 	//and thus LogWindow does not get updated
@@ -139,6 +139,7 @@ void LogWindow::setupUi() {
 	QModelIndex bottomRight = _model->index(_model->rowCount(), _model->columnCount());
 	_view->dataChanged(topLeft, bottomRight);
 	///
+#endif	//HACK_DATA_CHANGED
 
 	_view->scrollToBottom();
 
@@ -155,6 +156,7 @@ void LogWindow::setupUi() {
 
 void LogWindow::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
+	Q_ASSERT(app);
 
 	ActionCollection::addAction("LogWindow.Open", new TkAction(app, QKeySequence::Open));
 	ActionCollection::addAction("LogWindow.Save", new TkAction(app, QKeySequence::Save));
@@ -176,13 +178,18 @@ void LogWindow::retranslate() {
 	ActionCollection::action("LogWindow.Clear")->setIcon(QIcon::fromTheme("edit-clear"));
 
 	QAction * action = ActionCollection::action("LogWindow.PlayPause");
-	Q_ASSERT(action);
-	if (_playMode) {
+	LogModel::State state = _model->state();
+	switch (state) {
+	case LogModel::PlayingState:
 		action->setText(tr("&Pause"));
 		action->setIcon(QIcon::fromTheme("media-playback-pause"));
-	} else {
+		break;
+	case LogModel::PausedState:
 		action->setText(tr("&Play"));
 		action->setIcon(QIcon::fromTheme("media-playback-start"));
+		break;
+	default:
+		MainWindowCritical() << "Unknown state:" << state;
 	}
 
 	_toolBar->setWindowTitle(tr("ToolBar"));
@@ -236,12 +243,17 @@ void LogWindow::clear() {
 }
 
 void LogWindow::playPauseButtonClicked() {
-	_playMode = !_playMode;
+	LogModel::State state = _model->state();
 
-	if (_playMode) {
-		_view->setModel(_model);
-	} else {
-		_view->setModel(NULL);
+	switch (state) {
+	case LogModel::PlayingState:
+		_model->pause();
+		break;
+	case LogModel::PausedState:
+		_model->resume();
+		break;
+	default:
+		MainWindowCritical() << "Unknown state:" << state;
 	}
 
 	//Change playPauseButton icon & text

@@ -28,7 +28,7 @@
 LogMessageHandler::LogMessageHandler() {
 	qRegisterMetaType<LogMessage>("LogMessage");
 
-	_logModel = new LogModel(this);
+	_logModel = new LogModel(NULL);
 	//QAbstractListModel is not thread-safe + must be created inside GUI thread
 	//so we must use a queued signal
 	connect(this, SIGNAL(logMessageReceived(const LogMessage &)),

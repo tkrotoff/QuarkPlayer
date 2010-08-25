@@ -70,13 +70,6 @@ private:
 	QTreeView * _view;
 
 	/**
-	 * Play or pause the log.
-	 *
-	 * If in pause mode then no more log messages will be appended.
-	 */
-	bool _playMode;
-
-	/**
 	 * Latest row inserted, saved as a number.
 	 */
 	int _lastRow;

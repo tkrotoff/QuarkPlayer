@@ -28,6 +28,8 @@ configure_file(metrics.h.in ${CMAKE_CURRENT_SOURCE_DIR}/metrics.h)
 include_directories(${QTSINGLEAPPLICATION_INCLUDE_DIRS})
 add_definitions(-DBUILD_QUARKPLAYER ${QTSINGLEAPPLICATION_DEFINITIONS})
 
+add_definitions(-DHACK_ABOUT_TO_QUIT -DHACK_LAYOUT_CHANGED)
+
 set(QuarkPlayerCore_SRCS
 	${CMAKE_CURRENT_BINARY_DIR}/version.cpp
 	QuarkPlayer.cpp

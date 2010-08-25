@@ -46,9 +46,22 @@ public:
 	static const int COLUMN_MESSAGE;
 	static const int COLUMN_COUNT;
 
+	/** LogModel state. */
+	enum State {
+		PlayingState,
+		PausedState
+	};
+
 	LogModel(QObject * parent);
 
 	~LogModel();
+
+	/**
+	 * Returns the current state.
+	 *
+	 * @return current state
+	 */
+	State state() const;
 
 	/**
 	 * Resumes the log.
@@ -124,10 +137,33 @@ public slots:
 	 */
 	void append(const LogMessage & msg);
 
+private slots:
+
+#ifdef HACK_ABOUT_TO_QUIT
+	/**
+	 * QCoreApplication::aboutToQuit().
+	 *
+	 * HACK
+	 * Catches aboutToQuit() so we don't do beginInsertRows() and endInsertRows()
+	 * otherwise it crashes the application.
+	 * This is a workaround a Qt bug.
+	 * Tested under Qt 4.6.2.
+	 */
+	void aboutToQuit();
+#endif	//HACK_ABOUT_TO_QUIT
+
 private:
 
 	/** Keeps all the log messages. */
 	QList<LogMessage> _log;
+
+#ifdef HACK_ABOUT_TO_QUIT
+	/** See aboutToQuit() slot. */
+	bool _aboutToQuit;
+#endif	//HACK_ABOUT_TO_QUIT
+
+	/** LogModel state. */
+	State _state;
 };
 
 #endif	//LOGMODEL_H
