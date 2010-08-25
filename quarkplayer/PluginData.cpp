@@ -110,7 +110,8 @@ void PluginData::setInterface(PluginInterface * interface) {
 
 void PluginData::deleteInterface() {
 	if (_interface) {
-		delete _interface;
+		//FIXME segfault
+		//delete _interface;
 		_interface = NULL;
 	} else {
 		QuarkPlayerCoreCritical() << "_internal is NULL";

@@ -119,7 +119,7 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	//Trick: MainWindow should get the focus and be the active window
 	//otherwise SearchLineEdit can get the focus instead
-	qApp->setActiveWindow(this);
+	app->setActiveWindow(this);
 
 	show();
 }
@@ -260,13 +260,17 @@ void MainWindow::about() {
 	static AboutWindow * aboutWindow = new AboutWindow(this);
 	aboutWindow->exec();
 
+	QApplication * app = qobject_cast<QApplication *>(QApplication::instance());
+	Q_ASSERT(app);
+
 	//Trick: MainWindow should get the focus and be the active window
 	//otherwise SearchLineEdit can get the focus instead
-	qApp->setActiveWindow(this);
+	app->setActiveWindow(this);
 }
 
 void MainWindow::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
+	Q_ASSERT(app);
 
 	ActionCollection::addAction("MainWindow.OpenFile", new TkAction(app, QKeySequence::Open));
 	ActionCollection::addAction("MainWindow.Quit", new TkAction(app, tr("Ctrl+Q"), tr("Alt+X")));

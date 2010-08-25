@@ -103,13 +103,16 @@ WebBrowser::~WebBrowser() {
 }
 
 void WebBrowser::populateActionCollection() {
-	ActionCollection::addAction("WebBrowser.Backward", new QAction(qApp));
-	ActionCollection::addAction("WebBrowser.Forward", new QAction(qApp));
-	ActionCollection::addAction("WebBrowser.Reload", new QAction(qApp));
-	ActionCollection::addAction("WebBrowser.Stop", new QAction(qApp));
-	ActionCollection::addAction("WebBrowser.Home", new QAction(qApp));
-	ActionCollection::addAction("WebBrowser.Go", new QAction(qApp));
-	ActionCollection::addAction("WebBrowser.OpenBrowser", new QAction(qApp));
+	QCoreApplication * app = QApplication::instance();
+	Q_ASSERT(app);
+
+	ActionCollection::addAction("WebBrowser.Backward", new QAction(app));
+	ActionCollection::addAction("WebBrowser.Forward", new QAction(app));
+	ActionCollection::addAction("WebBrowser.Reload", new QAction(app));
+	ActionCollection::addAction("WebBrowser.Stop", new QAction(app));
+	ActionCollection::addAction("WebBrowser.Home", new QAction(app));
+	ActionCollection::addAction("WebBrowser.Go", new QAction(app));
+	ActionCollection::addAction("WebBrowser.OpenBrowser", new QAction(app));
 }
 
 void WebBrowser::retranslate() {

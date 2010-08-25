@@ -28,6 +28,9 @@
 LogMessageHandler::LogMessageHandler() {
 	qRegisterMetaType<LogMessage>("LogMessage");
 
+	//Parent is "NULL" instead of "this" otherwise we end up with
+	//the following warning from Qt:
+	//QObject::startTimer: QTimer can only be used with threads started with QThread
 	_logModel = new LogModel(NULL);
 	//QAbstractListModel is not thread-safe + must be created inside GUI thread
 	//so we must use a queued signal

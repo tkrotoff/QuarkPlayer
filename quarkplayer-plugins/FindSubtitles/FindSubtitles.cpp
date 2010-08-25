@@ -74,6 +74,7 @@ FindSubtitles::~FindSubtitles() {
 
 void FindSubtitles::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
+	Q_ASSERT(app);
 
 	ActionCollection::addAction("FindSubtitles.FindSubtitles", new QAction(app));
 	ActionCollection::addAction("FindSubtitles.UploadSubtitles", new QAction(app));

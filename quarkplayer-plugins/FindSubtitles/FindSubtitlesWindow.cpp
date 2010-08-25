@@ -123,6 +123,7 @@ FindSubtitlesWindow::~FindSubtitlesWindow() {
 
 void FindSubtitlesWindow::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
+	Q_ASSERT(app);
 
 	ActionCollection::addAction("FindSubtitles.Download", new QAction(app));
 	ActionCollection::addAction("FindSubtitles.CopyClipboard", new QAction(app));

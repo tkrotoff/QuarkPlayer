@@ -59,11 +59,13 @@ void ScreenSaver::disable() {
 #endif	//Q_WS_WIN
 
 #ifdef Q_WS_X11
+	QApplication * app = qobject_cast<QApplication *>(QApplication::instance());
+	Q_ASSERT(app);
 	if (!_xdgScreenSaverProcess) {
 		//Lazy initialization
-		_xdgScreenSaverProcess = new QProcess(QCoreApplication::instance());
+		_xdgScreenSaverProcess = new QProcess(app);
 	}
-	_XWindowID = qApp->activeWindow()->winId();
+	_XWindowID = app->activeWindow()->winId();
 	QStringList args;
 	args << "suspend";
 	args << QString::number(_XWindowID);

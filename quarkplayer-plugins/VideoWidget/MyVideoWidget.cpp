@@ -68,6 +68,7 @@ MyVideoWidget::~MyVideoWidget() {
 
 void MyVideoWidget::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
+	Q_ASSERT(app);
 
 	TkAction * action = new TkAction(app);
 	ActionCollection::addAction("VideoWidget.AspectRatioAuto", action);
@@ -213,6 +214,8 @@ void MyVideoWidget::enterFullScreenInternal() {
 	//QWidget that contains PlayToolBar + StatusBar
 	//Lazy initialization
 	if (!_widgetOverFullScreen) {
+		VideoWidgetDebug() << "_widgetOverFullScreen:" << _widgetOverFullScreen;
+
 		_widgetOverFullScreen = new QWidget(NULL);
 		_widgetOverFullScreen->setWindowFlags(Qt::Window | Qt::FramelessWindowHint |
 			Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
@@ -393,6 +396,9 @@ void MyVideoWidget::statusBarAdded(QStatusBar * statusBar) {
 }
 
 void MyVideoWidget::addPlayToolBarToMainWindow() {
+	VideoWidgetDebug() << "_playToolBar:" << _playToolBar;
+	VideoWidgetDebug() << "_statusBar:" << _statusBar;
+
 	if (_playToolBar) {
 		_mainWindow->addToolBar(Qt::BottomToolBarArea, _playToolBar);
 	}

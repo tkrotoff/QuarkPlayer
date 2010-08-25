@@ -213,6 +213,7 @@ void PlaylistWidget::createToolBar() {
 
 void PlaylistWidget::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
+	Q_ASSERT(app);
 
 	addUuidAction("Playlist.Open", new QAction(app));
 	addUuidAction("Playlist.Save", new QAction(app));

@@ -85,7 +85,9 @@ void ConfigWindowPlugin::showConfigWindow() {
 
 	//Trick: MainWindow should get the focus and be the active window
 	//otherwise SearchLineEdit can get the focus instead
-	qApp->setActiveWindow(MainWindowFactory::mainWindow());
+	QApplication * app = qobject_cast<QApplication *>(QApplication::instance());
+	Q_ASSERT(app);
+	app->setActiveWindow(MainWindowFactory::mainWindow());
 }
 
 ConfigWindow * ConfigWindowPlugin::configWindow() const {

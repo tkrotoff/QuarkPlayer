@@ -126,6 +126,7 @@ void DragAndDropTreeView::dragMoveEvent(QDragMoveEvent * event) {
 
 void DragAndDropTreeView::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
+	Q_ASSERT(app);
 
 	_playlistWidget->addUuidAction("Playlist.PlayItem", new QAction(app));
 	_playlistWidget->addUuidAction("Playlist.SendTo", new QAction(app));

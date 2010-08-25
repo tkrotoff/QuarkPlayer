@@ -29,9 +29,11 @@
 const char * CommandLineManager::MESSAGE_SEPARATOR = ";";
 
 CommandLineManager::CommandLineManager() {
-	QtSingleApplication * app = qobject_cast<QtSingleApplication *>(QCoreApplication::instance());
-	if (app) {
-		connect(app, SIGNAL(messageReceived(const QString &)),
+	QCoreApplication * app = QCoreApplication::instance();
+	Q_ASSERT(app);
+	QtSingleApplication * singleApp = qobject_cast<QtSingleApplication *>(app);
+	if (singleApp) {
+		connect(singleApp, SIGNAL(messageReceived(const QString &)),
 			SLOT(messageReceived(const QString &)));
 	}
 }

@@ -54,14 +54,18 @@ void Translator::setTranslationsPath(const QString & translationsPath) {
 }
 
 void Translator::installTranslator() {
-	QCoreApplication::instance()->installTranslator(&_appTranslator);
-	QCoreApplication::instance()->installTranslator(&_qtTranslator);
+	QCoreApplication * app = QCoreApplication::instance();
+	Q_ASSERT(app);
+	app->installTranslator(&_appTranslator);
+	app->installTranslator(&_qtTranslator);
 	_translatorInstalled = true;
 }
 
 void Translator::removeTranslator() {
-	QCoreApplication::instance()->removeTranslator(&_appTranslator);
-	QCoreApplication::instance()->removeTranslator(&_qtTranslator);
+	QCoreApplication * app = QCoreApplication::instance();
+	Q_ASSERT(app);
+	app->removeTranslator(&_appTranslator);
+	app->removeTranslator(&_qtTranslator);
 	_translatorInstalled = false;
 }
 

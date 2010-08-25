@@ -102,6 +102,7 @@ MediaController::~MediaController() {
 
 void MediaController::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
+	Q_ASSERT(app);
 
 	ActionCollection::addAction("MediaController.OpenSubtitleFile", new QAction(app));
 }

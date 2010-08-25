@@ -145,6 +145,7 @@ void FileBrowserWidget::createToolBar() {
 
 void FileBrowserWidget::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
+	Q_ASSERT(app);
 
 	addUuidAction("FileBrowser.Browse", new QAction(app));
 
