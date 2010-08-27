@@ -305,7 +305,6 @@ void FileSearchModel::fetchMore(const QModelIndex & parent) {
 		return;
 	}
 
-	FileBrowserDebug();
 	_currentParentItem = item(parent);
 
 	QString path(fileInfo(parent).absoluteFilePath());

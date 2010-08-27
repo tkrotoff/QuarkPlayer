@@ -55,13 +55,13 @@
 #endif	//STATICPLUGINS
 
 int main(int argc, char * argv[]) {
+	QtSingleApplication app(argc, argv);
+
 	//Installs a custom message handler for qDebug(), qWarning() and others
 	qInstallMsgHandler(LogMessageHandler::myMessageOutput);
 
 	QuarkPlayerCoreDebug() << "Current date and time:" << QDateTime::currentDateTime().toString();
 	QuarkPlayerCoreDebug() << "QuarkPlayer version:" << quarkPlayerFullVersion();
-
-	QtSingleApplication app(argc, argv);
 
 	//General infos
 	app.setOrganizationName("QuarkPlayer");

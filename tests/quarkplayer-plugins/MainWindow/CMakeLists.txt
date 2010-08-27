@@ -18,15 +18,6 @@ macro(add_unit_test name)
 endmacro(add_unit_test name)
 
 
-set(QDockWidgetTest_SRCS
-	QDockWidgetTest.cpp
-)
-qt4_wrap_cpp(QDockWidgetTest_SRCS
-	QDockWidgetTest.h
-)
-add_unit_test(QDockWidgetTest ${QDockWidgetTest_SRCS})
-
-
 set(LogWindowTest_SRCS
 	LogWindowTest.cpp
 )
