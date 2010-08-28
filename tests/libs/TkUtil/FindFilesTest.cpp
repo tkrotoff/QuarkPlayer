@@ -37,7 +37,7 @@ void FindFilesTest::cleanupTestCase() {
 }
 
 void FindFilesTest::test() {
-	_findFiles->setSearchPath("../../tests/libs/TkUtil/FindFiles/tests");
+	_findFiles->setSearchPath("../../tests/libs/TkUtil/tests");
 
 	QSignalSpy spyFilesFound(_findFiles, SIGNAL(filesFound(const QStringList &, const QUuid &)));
 	QSignalSpy spyFinished(_findFiles, SIGNAL(finished(int, const QUuid &)));

@@ -67,7 +67,7 @@ void SearchLineEditTest::showGui() {
 
 	QLineEdit * lineEdit = new QLineEdit();
 	layout->addWidget(lineEdit);
-	
+
 	_searchLineEdit->setToolTip("Search, use whitespaces to separate words");
 
 	layout->addWidget(_searchLineEdit);
