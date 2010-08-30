@@ -1,9 +1,9 @@
 @echo off
 
-echo Setting up Qt 4.7.0-tp...
-set QTDIR=C:\Qt\4.7.0-tp
+echo Setting up Qt 4.7.0-rc1...
+set QTDIR=C:\Qt\4.7.0-rc1
 set PATH=%QTDIR%\bin;%PATH%
-set QMAKESPEC=win32-msvc2008
+set QMAKESPEC=win32-msvc2010
 
 echo Setting up CMake 2.8...
 rem Remove a substring using string substitution
