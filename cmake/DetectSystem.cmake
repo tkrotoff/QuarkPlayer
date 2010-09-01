@@ -99,10 +99,9 @@ endif (MSVC80)
 if (MSVC90)
 	set(COMPILER_NAME "MSVC90")
 endif (MSVC90)
-if (MSVC100)
-	# This is does not work as of CMake-2.8.1
-	set(COMPILER_NAME "MSVC100")
-endif (MSVC100)
+if (MSVC10)
+	set(COMPILER_NAME "MSVC10")
+endif (MSVC10)
 
 # Borland
 if (BORLAND)
