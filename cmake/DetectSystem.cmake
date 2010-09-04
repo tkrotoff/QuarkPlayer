@@ -23,7 +23,7 @@
 #   - MSVC80  (Visual C++ 2005 SP1)        MSVC_VERSION=1400 (Compiler Version 14.00.50727.762)
 #   - MSVC90  (Visual C++ 2008)            MSVC_VERSION=1500 (Compiler Version 15.00.21022.08)
 #   - MSVC90  (Visual C++ 2008 SP1)        MSVC_VERSION=1500 (Compiler Version 15.00.30729.01)
-#   - MSVC100 (Visual C++ 2010)            MSVC_VERSION=1600 (Compiler Version 16.00.30319.01)
+#   - MSVC10  (Visual C++ 2010)            MSVC_VERSION=1600 (Compiler Version 16.00.30319.01)
 # - GCC (GNU GCC)
 #   - MINGW (Native GCC under Windows)
 #   - GCC3 (GNU GCC 3.x)
