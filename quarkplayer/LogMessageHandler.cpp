@@ -25,6 +25,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QRegExp>
 
+#include <iostream>
+
 LogMessageHandler::LogMessageHandler() {
 	qRegisterMetaType<LogMessage>("LogMessage");
 
@@ -69,9 +71,9 @@ void LogMessageHandler::myMessageOutput(QtMsgType type, const char * msg) {
 
 	//Do not use regexp here as it might be slow
 
-	static const QString internalStringToMatch = "QP_LOGGER";
-	if (logLine.startsWith(internalStringToMatch)) {
-		logLine.remove(0, internalStringToMatch.length() + 1);
+	static const QString LOGGER_STRING_TO_MATCH = "QP_LOGGER";
+	if (logLine.startsWith(LOGGER_STRING_TO_MATCH)) {
+		logLine.remove(0, LOGGER_STRING_TO_MATCH.length() + 1);
 
 		int index = logLine.indexOf(' ');
 		sourceCodeFileName = logLine.left(index);
@@ -88,15 +90,21 @@ void LogMessageHandler::myMessageOutput(QtMsgType type, const char * msg) {
 		index = logLine.indexOf(' ');
 		function = logLine.left(index);
 		logLine.remove(0, function.length() + 1);
-	}
+	} else {
+		//Special case of MPlayer, parses messages from phonon-mplayer
+		//MPlayer messages are logged this way:
+		//qDebug() << "MPlayer" << line.toUtf8().constData()
+		//See method MPlayerProcess::parseLine(const QString & line)
+		static const QString MPLAYER_STRING_TO_MATCH = "MPlayer";
+		if (logLine.startsWith(MPLAYER_STRING_TO_MATCH)) {
+			module = MPLAYER_STRING_TO_MATCH;
+			logLine.remove(0, MPLAYER_STRING_TO_MATCH.length() + 1);
+		}
 
-	//Special case of MPlayer, parses messages from phonon-mplayer
-	//MPlayer messages are logged this way:
-	//qDebug() << "MPlayer" << line.toUtf8().constData()
-	//See method MPlayerProcess::parseLine(const QString & line)
-	else if (logLine.startsWith("MPlayer")) {
-		module = "MPlayer";
-		logLine.remove(0, QString("MPlayer").length() + 1);
+		else {
+			//std::cerr << "Error, string does not match: " << logLine.toUtf8().constData() << "." << std::endl;
+			//std::cerr << "Error, string to match: " << LOGGER_STRING_TO_MATCH.toUtf8().constData() << "." << std::endl;
+		}
 	}
 
 	LogMessage logMsg(QTime::currentTime(), type, sourceCodeFileName, sourceCodeLineNumber.toInt(), module, function, logLine);
