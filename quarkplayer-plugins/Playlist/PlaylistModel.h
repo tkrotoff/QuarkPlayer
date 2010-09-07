@@ -32,6 +32,8 @@
 class PlaylistCommandLineParser;
 class PlaylistFilter;
 
+class PlaylistReader;
+class PlaylistWriter;
 class QuarkPlayer;
 class MediaInfoFetcher;
 class MediaInfo;
@@ -237,6 +239,11 @@ private:
 	 */
 	int _rowWhereToInsertFiles;
 
+	/**
+	 * Counts the number of files found in order
+	 * to saves the playlist at the right time
+	 * and not everytime a file is added to PlaylistModel.
+	 */
 	int _nbFindFiles;
 
 	/**
@@ -261,6 +268,12 @@ private:
 	int _positionToPlay;
 
 	PlaylistCommandLineParser * _commandLineParser;
+
+	/** Reads a playlist file (*.xspf, *.m3u, *.pls...) given to PlaylistModel. */
+	PlaylistReader * _playlistReader;
+
+	/** Saves the playlist (*.xspf) inside PlaylistModel. */
+	PlaylistWriter * _playlistWriter;
 };
 
 #endif	//PLAYLISTMODEL_H

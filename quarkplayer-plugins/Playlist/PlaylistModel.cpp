@@ -94,6 +94,16 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const 
 
 	Config::instance().addKey(PLAYLIST_TRACK_DISPLAY_MODE_KEY, TrackDisplayModeNormal);
 	Config::instance().addKey(PLAYLIST_DEFAULT_FORMAT_KEY, "xspf");
+
+	_playlistReader = new PlaylistReader(this);
+	connect(_playlistReader, SIGNAL(filesFound(const QList<MediaInfo> &)),
+		SLOT(filesFound(const QList<MediaInfo> &)));
+	connect(_playlistReader, SIGNAL(finished(PlaylistParser::Error, int)),
+		SIGNAL(playlistLoaded(PlaylistParser::Error, int)));
+
+	_playlistWriter = new PlaylistWriter(this);
+	connect(_playlistWriter, SIGNAL(finished(PlaylistParser::Error, int)),
+		SIGNAL(playlistSaved(PlaylistParser::Error, int)));
 }
 
 PlaylistModel::~PlaylistModel() {
@@ -346,6 +356,8 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 			loadPlaylist(fileName);
 		} else if (QFileInfo(fileName).isDir()) {
 			_nbFindFiles++;
+
+			//FIXME Use QSharedPointer here
 			FindFiles * findFiles = new FindFiles(this);
 			connect(findFiles, SIGNAL(filesFound(const QStringList &, const QUuid &)),
 				SLOT(filesFound(const QStringList &)));
@@ -461,12 +473,7 @@ QString PlaylistModel::currentPlaylist() const {
 }
 
 void PlaylistModel::loadPlaylist(const QString & fileName) {
-	static PlaylistReader * parser = new PlaylistReader(this);
-	connect(parser, SIGNAL(filesFound(const QList<MediaInfo> &)),
-		SLOT(filesFound(const QList<MediaInfo> &)));
-	connect(parser, SIGNAL(finished(PlaylistParser::Error, int)),
-		SIGNAL(playlistLoaded(PlaylistParser::Error, int)));
-	parser->load(fileName);
+	_playlistReader->load(fileName);
 }
 
 void PlaylistModel::loadCurrentPlaylist() {
@@ -497,10 +504,7 @@ void PlaylistModel::saveCurrentPlaylist() {
 		timerAlreadyStarted = false;
 
 		QString path(Config::instance().configDir());
-		PlaylistWriter * parser = new PlaylistWriter(this);
-		connect(parser, SIGNAL(finished(PlaylistParser::Error, int)),
-			SIGNAL(playlistSaved(PlaylistParser::Error, int)));
-		parser->save(path + currentPlaylist(), _fileNames);
+		_playlistWriter->save(path + currentPlaylist(), _fileNames);
 	}
 }
 
