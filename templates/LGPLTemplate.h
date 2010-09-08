@@ -15,23 +15,3 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#ifndef LGPLHEADERTEMPLATE_H
-#define LGPLHEADERTEMPLATE_H
-
-/**
- * Header template with copyright and GNU LGPL license.
- *
- * End of line character should be LF (UNIX).
- * Code documentation should be inside header files using the javadoc standard.
- *
- * @see http://code.google.com/p/quarkplayer/wiki/CodeConventions
- * @author Tanguy Krotoff
- */
-class LGPLHeaderTemplate {
-public:
-
-private:
-};
-
-#endif	//LGPLHEADERTEMPLATE_H
