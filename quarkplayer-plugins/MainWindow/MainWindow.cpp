@@ -19,7 +19,6 @@
 #include "MainWindow.h"
 
 #include "AboutWindow.h"
-#include "LogWindow.h"
 #include "MainWindowLogger.h"
 
 #include <quarkplayer/QuarkPlayer.h>
@@ -29,6 +28,8 @@
 
 #include <quarkplayer-plugins/Playlist/PlaylistWidget.h>
 #include <quarkplayer-plugins/Playlist/PlaylistModel.h>
+
+#include <Logger/LogWindow.h>
 
 #include <TkUtil/ActionCollection.h>
 #include <TkUtil/TkAction.h>

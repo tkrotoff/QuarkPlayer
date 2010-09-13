@@ -1,4 +1,4 @@
-project(QuarkPlayerCoreTests)
+project(LoggerTests)
 
 macro(add_unit_test name)
 	set(SRCS ${ARGN})
@@ -45,3 +45,12 @@ qt4_wrap_cpp(LogMessageHandlerTest_SRCS
 	LogMessageHandlerTest.h
 )
 add_unit_test(LogMessageHandlerTest ${LogMessageHandlerTest_SRCS})
+
+
+set(LogWindowTest_SRCS
+	LogWindowTest.cpp
+)
+qt4_wrap_cpp(LogWindowTest_SRCS
+	LogWindowTest.h
+)
+add_unit_test(LogWindowTest ${LogWindowTest_SRCS})

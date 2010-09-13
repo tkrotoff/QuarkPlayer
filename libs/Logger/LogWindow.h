@@ -19,6 +19,8 @@
 #ifndef LOGWINDOW_H
 #define LOGWINDOW_H
 
+#include <Logger/LoggerExport.h>
+
 #include <QtGui/QMainWindow>
 
 class LogModel;
@@ -35,7 +37,7 @@ class QModelIndex;
  *
  * @author Tanguy Krotoff
  */
-class LogWindow : public QMainWindow {
+class LOGGER_API LogWindow : public QMainWindow {
 	Q_OBJECT
 public:
 

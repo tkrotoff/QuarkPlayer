@@ -27,7 +27,6 @@ remove_definitions(-DQT_NO_STL)
 set(MainWindow_SRCS
 	MainWindow.cpp
 	AboutWindow.cpp
-	LogWindow.cpp
 )
 
 if (MSVC)
@@ -49,7 +48,6 @@ endif (MSVC)
 
 qt4_wrap_cpp(MainWindow_SRCS
 	MainWindow.h
-	LogWindow.h
 )
 
 qt4_wrap_ui(MainWindow_SRCS

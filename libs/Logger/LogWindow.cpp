@@ -18,11 +18,10 @@
 
 #include "LogWindow.h"
 
-#include "MainWindowLogger.h"
-
-#include <Logger/LogMessageHandler.h>
-#include <Logger/LogModel.h>
-#include <Logger/LogMessage.h>
+#include "LogMessageHandler.h"
+#include "LogModel.h"
+#include "LogMessage.h"
+#include "LoggerLogger.h"
 
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/TkAction.h>
@@ -189,7 +188,7 @@ void LogWindow::retranslate() {
 		action->setIcon(QIcon::fromTheme("media-playback-start"));
 		break;
 	default:
-		MainWindowCritical() << "Unknown state:" << state;
+		LoggerCritical() << "Unknown state:" << state;
 	}
 
 	_toolBar->setWindowTitle(tr("ToolBar"));
@@ -206,7 +205,7 @@ void LogWindow::open() {
 		bool success = _model->open(fileName);
 		if (!success) {
 			//Error opening file
-			MainWindowDebug() << "Error opening file:" << fileName;
+			LoggerDebug() << "Error opening file:" << fileName;
 			QMessageBox::warning(this,
 				tr("Error opening file"),
 				tr("The log couldn't be opened"),
@@ -227,7 +226,7 @@ void LogWindow::save() {
 		bool success = _model->save(fileName);
 		if (!success) {
 			//Error opening file
-			MainWindowDebug() << "Error saving file:" << fileName;
+			LoggerDebug() << "Error saving file:" << fileName;
 			QMessageBox::warning(this,
 				tr("Error saving file"),
 				tr("The log couldn't be saved"),
@@ -253,7 +252,7 @@ void LogWindow::playPauseButtonClicked() {
 		_model->resume();
 		break;
 	default:
-		MainWindowCritical() << "Unknown state:" << state;
+		LoggerCritical() << "Unknown state:" << state;
 	}
 
 	//Change playPauseButton icon & text
@@ -266,9 +265,9 @@ void LogWindow::openSourceFile(const QModelIndex & index) {
 	if (!file.isEmpty()) {
 		bool success = QDesktopServices::openUrl(QUrl::fromLocalFile(file));
 		if (!success) {
-			MainWindowWarning() << "QDesktopServices::openUrl() failed with file:" << file;
+			LoggerWarning() << "QDesktopServices::openUrl() failed with file:" << file;
 		}
 	} else {
-		MainWindowWarning() << "No source code file";
+		LoggerWarning() << "No source code file";
 	}
 }

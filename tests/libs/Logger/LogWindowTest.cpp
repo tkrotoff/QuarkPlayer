@@ -20,8 +20,7 @@
 
 #include <Logger/LogMessageHandler.h>
 #include <Logger/LoggerLogger.h>
-
-#include <quarkplayer-plugins/MainWindow/LogWindow.h>
+#include <Logger/LogWindow.h>
 
 #include <QtGui/QtGui>
 
