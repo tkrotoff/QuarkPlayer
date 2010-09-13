@@ -144,10 +144,9 @@ private slots:
 	 * QCoreApplication::aboutToQuit().
 	 *
 	 * HACK
-	 * Catches aboutToQuit() so we don't do beginInsertRows() and endInsertRows()
-	 * otherwise it crashes the application.
-	 * This is a workaround a Qt bug.
-	 * Tested under Qt 4.6.2.
+	 * Catches aboutToQuit() otherwise it crashes inside endInsertRows() when
+	 * the application quits. This is a Qt bug workaround.
+	 * Tested under Qt 4.6.2 Ubuntu 9.10.
 	 */
 	void aboutToQuit();
 #endif	//HACK_ABOUT_TO_QUIT

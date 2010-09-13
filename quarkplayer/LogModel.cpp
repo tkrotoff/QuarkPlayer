@@ -77,7 +77,6 @@ void LogModel::append(const LogMessage & msg) {
 	if (_aboutToQuit) {
 		return;
 	}
-	///
 #endif	//HACK_ABOUT_TO_QUIT
 
 	if (_state == PlayingState) {
