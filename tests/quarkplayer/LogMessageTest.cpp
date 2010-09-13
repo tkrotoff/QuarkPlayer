@@ -18,7 +18,7 @@
 
 #include "LogMessageTest.h"
 
-#include <quarkplayer/LogMessage.h>
+#include <Logger/LogMessage.h>
 
 #include <QtCore/QtCore>
 

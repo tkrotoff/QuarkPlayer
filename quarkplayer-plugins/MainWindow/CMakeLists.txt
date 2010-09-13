@@ -64,6 +64,8 @@ else (STATICPLUGINS)
 endif (STATICPLUGINS)
 
 target_link_libraries(MainWindow
+	Logger
+
 	QuarkPlayerCore
 
 	${QTSINGLEAPPLICATION_LIBRARIES}

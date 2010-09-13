@@ -8,7 +8,7 @@ macro(add_unit_test name)
 	add_test(${name} ${name})
 
 	target_link_libraries(${name}
-		QuarkPlayerCore
+		Logger
 
 		MainWindow
 

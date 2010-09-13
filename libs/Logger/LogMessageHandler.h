@@ -19,7 +19,7 @@
 #ifndef LOGMESSAGEHANDLER_H
 #define LOGMESSAGEHANDLER_H
 
-#include <quarkplayer/QuarkPlayerExport.h>
+#include <Logger/LoggerExport.h>
 
 #include <TkUtil/Singleton.h>
 
@@ -39,7 +39,7 @@ enum QtMsgType;
  * @see LogMessage
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API LogMessageHandler : public QObject, public Singleton {
+class LOGGER_API LogMessageHandler : public QObject, public Singleton {
 	Q_OBJECT
 public:
 

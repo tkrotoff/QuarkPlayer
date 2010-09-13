@@ -8,9 +8,9 @@ macro(add_unit_test name)
 	add_test(${name} ${name})
 
 	target_link_libraries(${name}
-		QuarkPlayerCore
+		Logger
 
-		${QT_QTCORE_LIBRARY}
+		${QT_QTGUI_LIBRARY}
 		${QT_QTTEST_LIBRARY}
 	)
 	install(TARGETS ${name} ${INSTALL_TARGETS_DEFAULT_ARGS})

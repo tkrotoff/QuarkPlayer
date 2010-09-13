@@ -20,9 +20,9 @@
 
 #include "MainWindowLogger.h"
 
-#include <quarkplayer/LogMessageHandler.h>
-#include <quarkplayer/LogModel.h>
-#include <quarkplayer/LogMessage.h>
+#include <Logger/LogMessageHandler.h>
+#include <Logger/LogModel.h>
+#include <Logger/LogMessage.h>
 
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/TkAction.h>

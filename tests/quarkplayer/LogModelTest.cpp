@@ -18,8 +18,8 @@
 
 #include "LogModelTest.h"
 
-#include <quarkplayer/LogModel.h>
-#include <quarkplayer/LogMessage.h>
+#include <Logger/LogModel.h>
+#include <Logger/LogMessage.h>
 
 QTEST_MAIN(LogModelTest)
 

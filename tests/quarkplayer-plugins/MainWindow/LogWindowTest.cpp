@@ -18,8 +18,9 @@
 
 #include "LogWindowTest.h"
 
-#include <quarkplayer/LogMessageHandler.h>
-#include <quarkplayer/QuarkPlayerCoreLogger.h>
+#include <Logger/LogMessageHandler.h>
+#include <Logger/LoggerLogger.h>
+
 #include <quarkplayer-plugins/MainWindow/LogWindow.h>
 
 #include <QtGui/QtGui>
@@ -52,7 +53,7 @@ public:
 
 	void run() {
 		for (int i = 0; i < NB_MESSAGE_PER_THREAD; i++) {
-			QuarkPlayerCoreDebug() << _name << i << QThread::currentThreadId();
+			LoggerDebug() << _name << i << QThread::currentThreadId();
 			msleep(100);
 			QCoreApplication::processEvents();
 			msleep(100);

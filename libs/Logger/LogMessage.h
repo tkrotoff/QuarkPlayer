@@ -19,7 +19,7 @@
 #ifndef LOGMESSAGE_H
 #define LOGMESSAGE_H
 
-#include <quarkplayer/QuarkPlayerExport.h>
+#include <Logger/LoggerExport.h>
 
 #include <QtCore/QString>
 #include <QtCore/QTime>
@@ -29,10 +29,13 @@ class QXmlStreamReader;
 class QXmlStreamWriter;
 
 /**
- * A message inside the log system.
+ * Represents a message inside the log system.
  *
- * A log message should be created like this:
+ * This is more or less an internal class, used by LogModel and LogWindow.
+ *
+ * A LogMessage is created through qDebug() and friends. Use these macros to generate a LogMessage:
  * <pre>
+ * //File QuarkPlayerLogger.h
  * #ifndef QUARKPLAYERCORELOGGER_H
  * #define QUARKPLAYERCORELOGGER_H
  *
@@ -73,9 +76,10 @@ class QXmlStreamWriter;
  * @see LogWindow
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API LogMessage {
+class LOGGER_API LogMessage {
 public:
 
+	/** Time format for QTime: "hh:mm:ss.zzz". */
 	static const char * TIME_FORMAT;
 
 	/** Creates an empty LogMessage. */

@@ -19,7 +19,7 @@
 #ifndef LOGMODEL_H
 #define LOGMODEL_H
 
-#include <quarkplayer/QuarkPlayerExport.h>
+#include <Logger/LoggerExport.h>
 
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QList>
@@ -33,7 +33,7 @@ class LogMessage;
  *
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API LogModel : public QAbstractListModel {
+class LOGGER_API LogModel : public QAbstractListModel {
 	Q_OBJECT
 public:
 

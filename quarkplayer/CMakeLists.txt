@@ -28,8 +28,6 @@ configure_file(metrics.h.in ${CMAKE_CURRENT_SOURCE_DIR}/metrics.h)
 include_directories(${QTSINGLEAPPLICATION_INCLUDE_DIRS})
 add_definitions(-DBUILD_QUARKPLAYER ${QTSINGLEAPPLICATION_DEFINITIONS})
 
-add_definitions(-DHACK_ABOUT_TO_QUIT -DHACK_LAYOUT_CHANGED)
-
 set(QuarkPlayerCore_SRCS
 	${CMAKE_CURRENT_BINARY_DIR}/version.cpp
 	QuarkPlayer.cpp
@@ -42,9 +40,6 @@ set(QuarkPlayerCore_SRCS
 	CommandLineParser.cpp
 	Languages.cpp
 	WinDefaultApplication.cpp
-	LogMessageHandler.cpp
-	LogMessage.cpp
-	LogModel.cpp
 	config/Config.cpp
 	style/QuarkPlayerStyle.cpp
 )
@@ -55,8 +50,6 @@ qt4_wrap_cpp(QuarkPlayerCore_SRCS
 	CommandLineManager.h
 	CommandLineParser.h
 	Languages.h
-	LogMessageHandler.h
-	LogModel.h
 )
 
 add_library(QuarkPlayerCore SHARED ${QuarkPlayerCore_SRCS})

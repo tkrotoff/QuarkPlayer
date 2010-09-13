@@ -19,7 +19,7 @@
 #include "LogModel.h"
 
 #include "LogMessage.h"
-#include "QuarkPlayerCoreLogger.h"
+#include "LoggerLogger.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
@@ -54,7 +54,7 @@ LogModel::~LogModel() {
 LogMessage LogModel::logMessage(const QModelIndex & index) const {
 	LogMessage msg;
 	if (!index.isValid()) {
-		QuarkPlayerCoreCritical() << "Invalid index:" << index;
+		LoggerCritical() << "Invalid index:" << index;
 	} else {
 		int row = index.row();
 		msg = _log[row];
@@ -125,7 +125,7 @@ void LogModel::clear() {
 }
 
 bool LogModel::save(const QString & fileName) const {
-	QuarkPlayerCoreDebug() << "Save log file:" << fileName;
+	LoggerDebug() << "Save log file:" << fileName;
 
 	bool success = false;
 
@@ -144,7 +144,7 @@ bool LogModel::save(const QString & fileName) const {
 		stream.writeEndDocument();
 		success = true;
 	} else {
-		QuarkPlayerCoreWarning() << "Couldn't open file:" << fileName;
+		LoggerWarning() << "Couldn't open file:" << fileName;
 	}
 	file.close();
 
@@ -152,7 +152,7 @@ bool LogModel::save(const QString & fileName) const {
 }
 
 bool LogModel::open(const QString & fileName) {
-	QuarkPlayerCoreDebug() << "Open log file:" << fileName;
+	LoggerDebug() << "Open log file:" << fileName;
 
 	bool success = false;
 
@@ -177,7 +177,7 @@ bool LogModel::open(const QString & fileName) {
 		}
 
 		if (stream.hasError()) {
-			QuarkPlayerCoreWarning() << "Error:" << stream.errorString()
+			LoggerWarning() << "Error:" << stream.errorString()
 				<< "file:" << fileName
 				<< "line:" << stream.lineNumber()
 				<< "column:" << stream.columnNumber();
@@ -185,7 +185,7 @@ bool LogModel::open(const QString & fileName) {
 			success = true;
 		}
 	} else {
-		QuarkPlayerCoreWarning() << "Couldn't open file:" << fileName;
+		LoggerWarning() << "Couldn't open file:" << fileName;
 	}
 	file.close();
 
@@ -224,7 +224,7 @@ QVariant LogModel::headerData(int section, Qt::Orientation orientation, int role
 			tmp = tr("Message");
 			break;
 		default:
-			QuarkPlayerCoreCritical() << "Unknown section:" << section;
+			LoggerCritical() << "Unknown section:" << section;
 		}
 	}
 

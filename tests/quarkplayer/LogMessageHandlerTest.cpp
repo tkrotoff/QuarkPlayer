@@ -18,10 +18,11 @@
 
 #include "LogMessageHandlerTest.h"
 
-#include <quarkplayer/LogMessageHandler.h>
-#include <quarkplayer/LogModel.h>
-#include <quarkplayer/LogMessage.h>
-#include <quarkplayer/QuarkPlayerCoreLogger.h>
+#include <Logger/LogMessageHandler.h>
+#include <Logger/LogModel.h>
+#include <Logger/LogMessage.h>
+
+#include <Logger/LoggerLogger.h>
 
 #include <QtCore/QtCore>
 
@@ -40,7 +41,7 @@ public:
 
 	void run() {
 		for (int i = 0; i < NB_MESSAGE_PER_THREAD; i++) {
-			QuarkPlayerCoreDebug() << _name << i << QThread::currentThreadId();
+			LoggerDebug() << _name << i << QThread::currentThreadId();
 			msleep(10);
 			nbMessageDisplayed++;
 		}

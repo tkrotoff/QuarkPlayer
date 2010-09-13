@@ -18,7 +18,7 @@
 
 #include "LogMessage.h"
 
-#include "QuarkPlayerCoreLogger.h"
+#include "LoggerLogger.h"
 
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamWriter>
@@ -123,7 +123,7 @@ bool LogMessage::read(QXmlStreamReader & stream) {
 				message = stream.readElementText();
 			}
 			else {
-				QuarkPlayerCoreWarning() << "Unknown XML node:" << element;
+				LoggerWarning() << "Unknown XML node:" << element;
 			}
 		}
 
@@ -137,7 +137,7 @@ bool LogMessage::read(QXmlStreamReader & stream) {
 	}
 
 	if (stream.hasError()) {
-		QuarkPlayerCoreWarning() << "Error:" << stream.errorString()
+		LoggerWarning() << "Error:" << stream.errorString()
 			<< "line:" << stream.lineNumber()
 			<< "column:" << stream.columnNumber();
 	}
@@ -190,7 +190,7 @@ QString LogMessage::msgTypeToString(QtMsgType type) {
 		str = "Fatal";
 		break;
 	default:
-		QuarkPlayerCoreCritical() << "Unknown message type:" << type;
+		LoggerCritical() << "Unknown message type:" << type;
 	}
 
 	return str;
@@ -208,7 +208,7 @@ QtMsgType LogMessage::stringToMsgType(const QString & type) {
 	} else if (type == "Fatal") {
 		msgType = QtFatalMsg;
 	} else {
-		QuarkPlayerCoreCritical() << "Unknown message type:" << type;
+		LoggerCritical() << "Unknown message type:" << type;
 	}
 
 	return msgType;

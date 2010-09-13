@@ -19,11 +19,12 @@
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/QuarkPlayerCoreLogger.h>
 #include <quarkplayer/PluginManager.h>
-#include <quarkplayer/LogMessageHandler.h>
 #include <quarkplayer/CommandLineManager.h>
 #include <quarkplayer/CommandLineParser.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/version.h>
+
+#include <Logger/LogMessageHandler.h>
 
 #include <TkUtil/Translator.h>
 
