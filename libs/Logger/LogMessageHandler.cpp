@@ -34,6 +34,7 @@ LogMessageHandler::LogMessageHandler() {
 	//the following warning from Qt:
 	//QObject::startTimer: QTimer can only be used with threads started with QThread
 	_logModel = new LogModel(NULL);
+
 	//QAbstractListModel is not thread-safe + must be created inside GUI thread
 	//so we must use a queued signal
 	connect(this, SIGNAL(logMessageReceived(const LogMessage &)),
@@ -45,6 +46,10 @@ LogMessageHandler::~LogMessageHandler() {
 	//+ LogMessageHandler should never be deleted otherwise
 	//LogMessageHandler::myMessageOutput() will crash
 	//delete _logModel;
+
+	//Remove our message handler function
+	//otherwise it will crash inside myMessageOutput()
+	qInstallMsgHandler(NULL);
 }
 
 LogMessageHandler & LogMessageHandler::instance() {
