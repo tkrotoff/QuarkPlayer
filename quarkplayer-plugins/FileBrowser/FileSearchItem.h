@@ -36,8 +36,16 @@ public:
 	FileSearchItem(const QString & filename, FileSearchItem * parent);
 	~FileSearchItem();
 
-	void setPopulatedChildren(bool populatedChildren);
-	bool populatedChildren() const;
+	/**
+	 * This item is being populated.
+	 *
+	 * The item is being populated via a separated thread from class FindFiles.
+	 *
+	 * @see FindFiles
+	 * @param populatingChildren true if this item is being populated; false otherwise
+	 */
+	void setPopulatingChildren(bool populatingChildren);
+	bool populatingChildren() const;
 
 	/**
 	 * Appends an item to this item.
@@ -52,10 +60,19 @@ public:
 	 */
 	void sort();
 
+	/** Gets the item child (if any) at the given row index. */
 	FileSearchItem * child(int row);
+
+	/** Gets the number of childs of this item. */
 	int childCount() const;
+
+	/** Gets the number of rows of this item. */
 	int row() const;
+
+	/** Gets the row index (if any) given its file name. */
 	int childRow(const QString & fileName) const;
+
+	/** Gets this item parent item if any. */
 	FileSearchItem * parent() const;
 
 	/** Helper function, equivalent to mediaInfo().fileName() */
@@ -64,6 +81,7 @@ public:
 	const MediaInfo & mediaInfo() const;
 	void setMediaInfo(const MediaInfo & mediaInfo);
 
+	/** Tells if this item is a directory or a file. */
 	bool isDir() const;
 
 private:
@@ -77,7 +95,8 @@ private:
 	/** Parent item of this item. */
 	FileSearchItem * _parentItem;
 
-	bool _populatedChildren;
+	/** This is being populated or not. */
+	bool _populatingChildren;
 
 	mutable int _isDir;
 };

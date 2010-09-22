@@ -272,12 +272,12 @@ bool FileSearchModel::hasChildren(const QModelIndex & parent) const {
 	if (parentItem) {
 		//Optimization: QFileInfo::isDir() is too slow, replaced by TkFile::isDir()
 		bool isDir = parentItem->isDir();
-		bool populated = parentItem->populatedChildren();
+		bool populating = parentItem->populatingChildren();
 		bool childCount = parentItem->childCount() > 0;
 		if (isDir && childCount) {
 			tmp = true;
 		}
-		if (isDir && !populated) {
+		if (isDir && !populating) {
 			tmp = true;
 		}
 	}
@@ -294,7 +294,7 @@ bool FileSearchModel::canFetchMore(const QModelIndex & parent) const {
 			parentItem = item(parent);
 		}
 
-		return !parentItem->populatedChildren();
+		return !parentItem->populatingChildren();
 	} else {
 		return false;
 	}
@@ -369,9 +369,8 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 		_currentParentItem = _rootItem;
 	}
 
-	//Item is going to be populated, not yet
-	//because populate an item is threaded
-	_currentParentItem->setPopulatedChildren(false);
+	//Item is going to be populated via a separated thread
+	_currentParentItem->setPopulatingChildren(true);
 
 	//Stops the previous search if any
 	//Do it first (i.e before setPattern(), setExtensions()...) otherwise it can crash
@@ -433,8 +432,6 @@ void FileSearchModel::filesFound(const QStringList & files, const QUuid & uuid) 
 
 	//Sort them
 	_currentParentItem->sort();
-
-	_currentParentItem->setPopulatedChildren(true);
 
 	emit layoutChanged();
 }

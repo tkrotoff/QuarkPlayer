@@ -27,7 +27,7 @@
 FileSearchItem::FileSearchItem(const QString & filename, FileSearchItem * parent) {
 	_mediaInfo = MediaInfo(filename);
 	_parentItem = parent;
-	_populatedChildren = false;
+	_populatingChildren = false;
 	_isDir = -1;
 }
 
@@ -35,12 +35,12 @@ FileSearchItem::~FileSearchItem() {
 	qDeleteAll(_childItems);
 }
 
-void FileSearchItem::setPopulatedChildren(bool populatedChildren) {
-	_populatedChildren = populatedChildren;
+void FileSearchItem::setPopulatingChildren(bool populatingChildren) {
+	_populatingChildren = populatingChildren;
 }
 
-bool FileSearchItem::populatedChildren() const {
-	return _populatedChildren;
+bool FileSearchItem::populatingChildren() const {
+	return _populatingChildren;
 }
 
 void FileSearchItem::appendChild(FileSearchItem * newItem) {
