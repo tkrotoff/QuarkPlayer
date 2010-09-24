@@ -83,15 +83,6 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const 
 	connect(_mediaInfoFetcher, SIGNAL(finished(const MediaInfo &)),
 		SLOT(updateMediaInfo(const MediaInfo &)));
 
-	if (PluginManager::instance().allPluginsAlreadyLoaded()) {
-		//If all the plugins are already loaded...
-		allPluginsLoaded();
-	} else {
-		//Optimization: loads the playlist only when all plugins have been loaded
-		connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
-			SLOT(allPluginsLoaded()), Qt::QueuedConnection);
-	}
-
 	Config::instance().addKey(PLAYLIST_TRACK_DISPLAY_MODE_KEY, TrackDisplayModeNormal);
 	Config::instance().addKey(PLAYLIST_DEFAULT_FORMAT_KEY, "xspf");
 
@@ -104,6 +95,15 @@ PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const 
 	_playlistWriter = new PlaylistWriter(this);
 	connect(_playlistWriter, SIGNAL(finished(PlaylistParser::Error, int)),
 		SIGNAL(playlistSaved(PlaylistParser::Error, int)));
+
+	if (PluginManager::instance().allPluginsAlreadyLoaded()) {
+		//If all the plugins are already loaded...
+		allPluginsLoaded();
+	} else {
+		//Optimization: loads the playlist only when all plugins have been loaded
+		connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
+			SLOT(allPluginsLoaded()), Qt::QueuedConnection);
+	}
 }
 
 PlaylistModel::~PlaylistModel() {

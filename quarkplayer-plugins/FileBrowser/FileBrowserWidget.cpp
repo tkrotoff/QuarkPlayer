@@ -94,13 +94,6 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 	MainWindowFactory::mainWindow()->addBrowserDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
 
-	if (PluginManager::instance().allPluginsAlreadyLoaded()) {
-		loadDirModel();
-	} else {
-		connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
-			SLOT(loadDirModel()), Qt::QueuedConnection);
-	}
-
 	ConfigWindowPlugin * configWindowPlugin = ConfigWindowPluginFactory::configWindowPlugin();
 	ConfigWindow * configWindow = configWindowPlugin->configWindow();
 	if (configWindow) {
@@ -112,6 +105,13 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 
 	if (!Config::instance().contains(FILEBROWSER_SEARCH_HISTORY_KEY)) {
 		Config::instance().addKey(FILEBROWSER_SEARCH_HISTORY_KEY, QStringList());
+	}
+
+	if (PluginManager::instance().allPluginsAlreadyLoaded()) {
+		loadDirModel();
+	} else {
+		connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
+			SLOT(loadDirModel()), Qt::QueuedConnection);
 	}
 
 	RETRANSLATE(this);
