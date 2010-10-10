@@ -20,17 +20,43 @@
 
 #include "TkUtilLogger.h"
 
+#include <QtGui/QApplication>
+
 #ifdef Q_WS_WIN
 	#include <windows.h>
 
-	int _lowPowerTimeout = 0;
-	int _powerOffTimeout = 0;
-	int _screenSaverTimeout = 0;
-	bool _stateSaved = false;
+	/**
+	 * QApplication event filter that catches Windows events SC_SCREENSAVE and SC_MONITORPOWER.
+	 */
+	bool myScreenSaverEventFilter(void * message, long * result) {
+		MSG * msg = static_cast<MSG *>(message);
+
+		if (msg && msg->message == WM_SYSCOMMAND) {
+			if (msg->wParam == SC_SCREENSAVE || msg->wParam == SC_MONITORPOWER) {
+				//Intercept ScreenSaver and Monitor Power Messages
+				//Prior to activating the screen saver, Windows send this message with the wParam
+				//set to SC_SCREENSAVE to all top-level windows. If you set the return value of the
+				//message to a non-zero value the screen saver will not start.
+
+				//In fact, because of Qt, we don't care about the result value
+				//It works with values 0 & 1
+				*result = 1;
+
+				TkUtilDebug() << "Intercept Windows screensaver event";
+
+				//bool QCoreApplication::winEventFilter(MSG * msg, long * result)
+				//If you don't want the event to be processed by Qt, then return true and
+				//set result to the value that the window procedure should return.
+				//Otherwise return false.
+				return true;
+			}
+		}
+
+		return false;
+	}
 #endif	//Q_WS_WIN
 
 #ifdef Q_WS_X11
-	#include <QtGui/QApplication>
 	#include <QtGui/QWidget>
 	#include <QtCore/QProcess>
 
@@ -41,26 +67,18 @@
 void ScreenSaver::disable() {
 	TkUtilDebug();
 
+	QApplication * app = qobject_cast<QApplication *>(QApplication::instance());
+	Q_ASSERT(app);
+
 #ifdef Q_WS_WIN
-	if (!_stateSaved) {
-		SystemParametersInfo(SPI_GETLOWPOWERTIMEOUT, 0, &_lowPowerTimeout, 0);
-		SystemParametersInfo(SPI_GETPOWEROFFTIMEOUT, 0, &_powerOffTimeout, 0);
-		SystemParametersInfo(SPI_GETSCREENSAVETIMEOUT, 0, &_screenSaverTimeout, 0);
-		_stateSaved = true;
+	static bool screenSaverFiltered = false;
+	if (!screenSaverFiltered) {
+		app->setEventFilter(myScreenSaverEventFilter);
+		screenSaverFiltered = true;
 	}
-
-	TkUtilDebug() << "lowPowerTimeout:" << _lowPowerTimeout;
-	TkUtilDebug() << "powerOffTimeout:" << _powerOffTimeout;
-	TkUtilDebug() << "screenSaverTimeout:" << _screenSaverTimeout;
-
-	SystemParametersInfo(SPI_SETLOWPOWERTIMEOUT, 0, NULL, 0);
-	SystemParametersInfo(SPI_SETPOWEROFFTIMEOUT, 0, NULL, 0);
-	SystemParametersInfo(SPI_SETSCREENSAVETIMEOUT, 0, NULL, 0);
 #endif	//Q_WS_WIN
 
 #ifdef Q_WS_X11
-	QApplication * app = qobject_cast<QApplication *>(QApplication::instance());
-	Q_ASSERT(app);
 	if (!_xdgScreenSaverProcess) {
 		//Lazy initialization
 		_xdgScreenSaverProcess = new QProcess(app);
@@ -78,14 +96,11 @@ void ScreenSaver::disable() {
 void ScreenSaver::restore() {
 	TkUtilDebug();
 
+	QApplication * app = qobject_cast<QApplication *>(QApplication::instance());
+	Q_ASSERT(app);
+
 #ifdef Q_WS_WIN
-	if (_stateSaved) {
-		SystemParametersInfo(SPI_SETLOWPOWERTIMEOUT, _lowPowerTimeout, NULL, 0);
-		SystemParametersInfo(SPI_SETPOWEROFFTIMEOUT, _powerOffTimeout, NULL, 0);
-		SystemParametersInfo(SPI_SETSCREENSAVETIMEOUT, _screenSaverTimeout, NULL, 0);
-	} else {
-		TkUtilCritical() << "Screensaver cannot be restored";
-	}
+	app->setEventFilter(NULL);
 #endif	//Q_WS_WIN
 
 #ifdef Q_WS_X11
