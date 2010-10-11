@@ -1,7 +1,7 @@
 project(Logger)
 
 add_definitions(-DBUILD_LOGGER)
-add_definitions(-DHACK_ABOUT_TO_QUIT -DHACK_LAYOUT_CHANGED)
+add_definitions(-DHACK_ABOUT_TO_QUIT -DHACK_LAYOUT_CHANGED -DHACK_DATA_CHANGED)
 
 set(Logger_SRCS
 	LogMessageHandler.cpp
