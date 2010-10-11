@@ -348,16 +348,12 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 
 	QList<MediaInfo> fileList;
 	foreach (QString fileName, files) {
-		bool isMultimediaFile =
-			FileTypes::fileExtensionMatches(fileName, FileTypes::extensions(FileType::Video, FileType::Audio));
-		if (isMultimediaFile) {
-			fileList << MediaInfo(fileName);
-		} else if (FileTypes::fileExtensionMatches(fileName, FileTypes::extensions(FileType::Playlist))) {
-			loadPlaylist(fileName);
-		} else if (QFileInfo(fileName).isDir()) {
+
+		//Is a directory?
+		if (QFileInfo(fileName).isDir()) {
 			_nbFindFiles++;
 
-			//FIXME Use QSharedPointer here
+			//FIXME Use QSharedPointer here?
 			FindFiles * findFiles = new FindFiles(this);
 			connect(findFiles, SIGNAL(filesFound(const QStringList &, const QUuid &)),
 				SLOT(filesFound(const QStringList &)));
@@ -369,12 +365,27 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 			FindFiles::setBackend(static_cast<FindFiles::Backend>(
 				Config::instance().value(Config::FINDFILES_BACKEND_KEY).toInt()));
 			findFiles->start(QUuid::createUuid());
-		} else if (MediaInfo::isUrl(fileName)) {
+		}
+
+		//Is a multimedia file?
+		else if (FileTypes::fileExtensionMatches(fileName, FileTypes::extensions(FileType::Video, FileType::Audio))) {
+			fileList << MediaInfo(fileName);
+		}
+
+		//Is a playlist file?
+		else if (FileTypes::fileExtensionMatches(fileName, FileTypes::extensions(FileType::Playlist))) {
+			loadPlaylist(fileName);
+		}
+
+		//Is a URL?
+		else if (MediaInfo::isUrl(fileName)) {
 			//A filename that contains a host/server name is a remote/network media
 			//So it should be added to the playlist
 			MediaInfo mediaInfo(fileName);
 			fileList << mediaInfo;
-		} else if (fileName.contains("internal=")) {
+		}
+
+		else if (fileName.contains("internal=")) {
 			//OK this is a hack, an internal command for the playlist
 			fileName.remove("internal=");
 			fileList << MediaInfo(fileName);
