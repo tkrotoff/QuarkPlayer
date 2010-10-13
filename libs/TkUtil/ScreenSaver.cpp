@@ -71,11 +71,8 @@ void ScreenSaver::disable() {
 	Q_ASSERT(app);
 
 #ifdef Q_WS_WIN
-	static bool screenSaverFiltered = false;
-	if (!screenSaverFiltered) {
-		app->setEventFilter(myScreenSaverEventFilter);
-		screenSaverFiltered = true;
-	}
+	//restore() will set the event filter to NULL
+	app->setEventFilter(myScreenSaverEventFilter);
 #endif	//Q_WS_WIN
 
 #ifdef Q_WS_X11
