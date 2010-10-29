@@ -97,5 +97,6 @@ void WelcomeWindow::playWebRadio() {
 
 	//Play a default webradio Live9
 	//Same one as in SMPlayer, see http://www.live9.fr/
+	//http://acdc2.live9.fr => IP 178.32.122.59
 	quarkPlayer().play(Phonon::MediaSource("http://acdc2.live9.fr:8050"));
 }

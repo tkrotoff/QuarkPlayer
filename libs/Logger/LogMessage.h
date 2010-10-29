@@ -53,13 +53,18 @@ class QXmlStreamWriter;
  * __FUNCTION__: current function name as a string
  *
  * Rationales behind the use of __FUNCTION__ instead of others:
- * Visual C++ (until 2010 included) does not define __func__ (part of the C99 standard) so __FUNCTION__ has to be used instead.
+ * Visual C++ (2010 included) does not define __func__ (part of the C99 standard) so __FUNCTION__ has to be used instead.
  * Q_FUNC_INFO from Qt is too verbose, example under Visual C++ 2008:
  * <pre>
  * Q_FUNC_INFO: void __thiscall Phonon::MPlayer::VideoWidget::setAspectRatio(enum Phonon::VideoWidget::AspectRatio)
  * __FUNCTION__: Phonon::MPlayer::VideoWidget::setAspectRatio
  * </pre>
  * __PRETTY_FUNCTION__ is GNU GCC specific
+ *
+ * Examples of lines produced by QuarkPlayerCoreDebug():
+ * MinGW: "QP_LOGGER C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp 64 QuarkPlayerCore main Current date and time: "ven. 29. oct. 12:13:26 2010" "
+ * MinGW: "QP_LOGGER C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp 69 QuarkPlayerCore findPluginDir Checking for plugins"
+ * Visual C++ 2010:
  *
  * It is a shame Qt does not provide a qInfo() function, qDebug() is not enough.
  *
@@ -167,7 +172,7 @@ public:
 	 * <Log>
 	 * 	<Message>
 	 * 		<Time></Time>
-	 * 		<Type><Type>
+	 * 		<Type></Type>
 	 * 		<File></File>
 	 * 		<Line></Line>
 	 * 		<Module></Module>

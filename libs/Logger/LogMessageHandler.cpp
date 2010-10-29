@@ -66,6 +66,10 @@ void LogMessageHandler::myMessageOutput(QtMsgType type, const char * msg) {
 	//There is a risk of deadlock or endless loop if an Qt error occurs
 	//in this code
 
+	//MinGW: "QP_LOGGER C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp 64 QuarkPlayerCore main Current date and time: "ven. 29. oct. 12:13:26 2010" "
+	//MinGW: "QP_LOGGER C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp 69 QuarkPlayerCore findPluginDir Checking for plugins"
+	//Visual C++ 2010:
+
 	QString logLine(msg);
 	logLine = logLine.trimmed();	//The message can contain begin and end spaces
 
