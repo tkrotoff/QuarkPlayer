@@ -12,51 +12,28 @@
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
 
-if (QTSINGLEAPPLICATION_LIBRARIES AND QTSINGLEAPPLICATION_INCLUDE_DIRS)
-  # In cache already
-  set(QTSINGLEAPPLICATION_FOUND TRUE)
-else (QTSINGLEAPPLICATION_LIBRARIES AND QTSINGLEAPPLICATION_INCLUDE_DIRS)
+set(QTSINGLEAPPLICATION_DEFINITIONS -DQT_QTSINGLEAPPLICATION_IMPORT)
 
-  set(QTSINGLEAPPLICATION_DEFINITIONS -DQTSINGLEAPPLICATION)
+find_path(QTSINGLEAPPLICATION_INCLUDE_DIRS
+  NAMES
+    QtSingleApplication
+  PATHS
+    /usr/include/QtSolutions
+    /usr/include
+    /usr/local/include
+    /opt/local/include
+    /sw/include
+)
 
-  find_path(QTSINGLEAPPLICATION_INCLUDE_DIRS
-    NAMES
-      QtSingleApplication
-    PATHS
-      /usr/include/QtSolutions
-      /usr/include
-      /usr/local/include
-      /opt/local/include
-      /sw/include
-  )
+find_library(QTSINGLEAPPLICATION_LIBRARIES
+  NAMES
+    QtSolutions_SingleApplication-2.6
+  PATHS
+    /usr/lib
+    /usr/local/lib
+    /opt/local/lib
+    /sw/lib
+)
 
-  find_library(QTSINGLEAPPLICATION_LIBRARIES
-    NAMES
-      QtSolutions_SingleApplication-2.6
-    PATHS
-      /usr/lib
-      /usr/local/lib
-      /opt/local/lib
-      /sw/lib
-  )
-
-  set(QTSINGLEAPPLICATION_DEFINITIONS -DQT_QTSINGLEAPPLICATION_IMPORT)
-
-  if (QTSINGLEAPPLICATION_INCLUDE_DIRS AND QTSINGLEAPPLICATION_LIBRARIES)
-    set(QTSINGLEAPPLICATION_FOUND TRUE)
-  endif (QTSINGLEAPPLICATION_INCLUDE_DIRS AND QTSINGLEAPPLICATION_LIBRARIES)
-
-  if (QTSINGLEAPPLICATION_FOUND)
-    if (NOT QtSingleApplication_FIND_QUIETLY)
-      message(STATUS "Found QtSingleApplication: ${QTSINGLEAPPLICATION_LIBRARIES}")
-    endif (NOT QtSingleApplication_FIND_QUIETLY)
-  else (QTSINGLEAPPLICATION_FOUND)
-    if (QtSingleApplication_FIND_REQUIRED)
-      message(FATAL_ERROR "Could NOT find QtSingleApplication")
-    endif (QtSingleApplication_FIND_REQUIRED)
-  endif (QTSINGLEAPPLICATION_FOUND)
-
-  # Show the QTSINGLEAPPLICATION_INCLUDE_DIRS and QTSINGLEAPPLICATION_LIBRARIES variables only in the advanced view
-  mark_as_advanced(QTSINGLEAPPLICATION_INCLUDE_DIRS QTSINGLEAPPLICATION_LIBRARIES)
-
-endif (QTSINGLEAPPLICATION_LIBRARIES AND QTSINGLEAPPLICATION_INCLUDE_DIRS)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(QtSingleApplication DEFAULT_MSG QTSINGLEAPPLICATION_INCLUDE_DIRS QTSINGLEAPPLICATION_LIBRARIES)

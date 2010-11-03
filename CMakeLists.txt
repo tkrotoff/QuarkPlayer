@@ -70,7 +70,7 @@ else (USE_SYSTEM_LIBRARIES)
 	message(STATUS "Use internal 3rdparty libraries")
 endif (USE_SYSTEM_LIBRARIES)
 
-# 3rdparty libraries with no Qt dependency
+# 3rdparty or internal libraries with no Qt dependency
 if (WIN32)
 	add_subdirectory(quarkplayer-plugins/wincontextmenu)
 endif (WIN32)
