@@ -4,7 +4,17 @@
 	<file>foobar2000-0.9.6.7/test.m3u8</file>
 	<file>foobar2000-0.9.6.7/test.xspf</file>
 
+	<file>TheKMPlayer-2.9.4/test.ASX</file>
 	<file>TheKMPlayer-2.9.4/test.KPL</file>
+	<file>TheKMPlayer-2.9.4/test.M3U</file>
+	<file>TheKMPlayer-2.9.4/test.PLS</file>
+
+	<file>Winamp-5.531/test.m3u</file>
+	<file>Winamp-5.531/test.m3u8</file>
+	<file>Winamp-5.531/test.pls</file>
+
+	<file>WindowsMediaPlayer-9.0/test.m3u</file>
+	<file>WindowsMediaPlayer-9.0/test.wpl</file>
 
 	<file>fromInternet/webradio/europe1/europe1.m3u</file>
 	<file>fromInternet/webradio/europe1/europe1.asx</file>
