@@ -59,10 +59,22 @@ void MsgBoxError(HWND hWnd, const wchar_t * message) {
 
 #include <sys/stat.h>
 
+/**
+ * Same as TkFile::isDir(), see TkFile.cpp
+ */
 BOOL IsDir(const wchar_t * path) {
+	BOOL dir = false;
+
 	struct _stati64 statbuf;
 	int error = _wstati64(path, &statbuf);
-	return ((statbuf.st_mode & S_IFMT) == S_IFDIR);
+	if (error != 0) {
+		//FIXME We should probably log the error message
+		//TkUtilWarning() << "_wstati64() failed, path:" << path << "errno:" << strerror(errno);
+	} else {
+		dir = (statbuf.st_mode & S_IFMT) == S_IFDIR;
+	}
+
+	return dir;
 }
 
 CContextMenu::CContextMenu() {

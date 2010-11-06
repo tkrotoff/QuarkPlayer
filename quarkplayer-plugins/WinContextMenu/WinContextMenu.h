@@ -49,6 +49,7 @@ class CContextMenu : public IContextMenu, IShellExtInit {
 public:
 
 	CContextMenu();
+
 	virtual ~CContextMenu();
 
 	/**
@@ -122,6 +123,7 @@ class CClassFactory : public IClassFactory {
 public:
 
 	CClassFactory();
+
 	virtual ~CClassFactory();
 
 	/**
