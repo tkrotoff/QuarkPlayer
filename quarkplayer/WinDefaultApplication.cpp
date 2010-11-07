@@ -157,11 +157,13 @@ void WinDefaultApplication::addFileAssociation(const QString & extension) {
 
 	QString icon;
 #ifdef Q_WS_WIN
-	if (QSysInfo::windowsVersion() < QSysInfo::WV_VISTA) {
+	QSysInfo::WinVersion winVersion = QSysInfo::windowsVersion();
+	if (winVersion < QSysInfo::WV_VISTA) {
 		//Do this only under Windows versions inferior to Vista.
 		//Under Vista, mimetypes icons are fine, no need to change them
 		//Under Windows XP it is better to change the mimetypes icons
 		//since they depend on the application icon
+
 		static const QString applicationDirPath(QDir::toNativeSeparators(QCoreApplication::applicationDirPath()));
 		if (FileTypes::extensions(FileType::Video).contains(extension, Qt::CaseInsensitive)) {
 			icon = applicationDirPath + "\\icons\\mimetypes\\video-x-generic.ico";
@@ -169,6 +171,32 @@ void WinDefaultApplication::addFileAssociation(const QString & extension) {
 			icon = applicationDirPath + "\\icons\\mimetypes\\audio-x-generic.ico";
 		} else if (FileTypes::extensions(FileType::Playlist).contains(extension, Qt::CaseInsensitive)) {
 			icon = applicationDirPath + "\\icons\\mimetypes\\playlist-x-generic.ico";
+		}/* else if (FileTypes::extensions(FileType::Subtitle).contains(extension, Qt::CaseInsensitive)) {
+			icon = QString();
+		}*/
+	} else if (winVersion == QSysInfo::WV_VISTA || winVersion == QSysInfo::WV_WINDOWS7) {
+		//Under Windows Vista and Windows 7, use the icons from the original system
+		//The icons are from Windows Media Player
+		//Known Windows Media Player 11 file types: MPEG, WAV, WMA, AVI, MP3, WMV
+
+		if (FileTypes::extensions(FileType::Video).contains(extension, Qt::CaseInsensitive)) {
+			//Found under Windows 7, inside regedit HKEY_CLASSES_ROOT/WMP11.AssocFile.MPEG
+			icon = "%SystemRoot%\\System32\\wmploc.dll,-733";
+		}
+		else if (FileTypes::extensions(FileType::Audio).contains(extension, Qt::CaseInsensitive)) {
+			//Found under Windows 7, inside regedit HKEY_CLASSES_ROOT/WMP11.AssocFile.MP3
+			icon = "%SystemRoot%\\System32\\wmploc.dll,-732";
+		}
+
+		if (FileTypes::extensions(FileType::Video).contains(extension, Qt::CaseInsensitive)) {
+			//Found under Windows 7, inside regedit HKEY_CLASSES_ROOT/WMP11.AssocFile.MPEG
+			icon = "%SystemRoot%\\System32\\wmploc.dll,-733";
+		} else if (FileTypes::extensions(FileType::Audio).contains(extension, Qt::CaseInsensitive)) {
+			//Found under Windows 7, inside regedit HKEY_CLASSES_ROOT/WMP11.AssocFile.MP3
+			icon = "%SystemRoot%\\System32\\wmploc.dll,-732";
+		} else if (FileTypes::extensions(FileType::Playlist).contains(extension, Qt::CaseInsensitive)) {
+			//Found under Windows 7, inside regedit HKEY_CLASSES_ROOT/WMP11.AssocFile.m3u
+			icon = "%SystemRoot%\\System32\\wmploc.dll,-730";
 		}/* else if (FileTypes::extensions(FileType::Subtitle).contains(extension, Qt::CaseInsensitive)) {
 			icon = QString();
 		}*/
