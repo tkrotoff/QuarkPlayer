@@ -151,8 +151,12 @@ private:
 };
 
 
+static const int DEFAULT_THUMBNAIL_SIZE = 48;
+
 ThumbnailListView::ThumbnailListView(QWidget * parent)
 	: QListView(parent) {
+
+	_thumbnailSize = DEFAULT_THUMBNAIL_SIZE;
 
 	PreviewItemDelegate * delegate = new PreviewItemDelegate(this);
 	setItemDelegate(delegate);
