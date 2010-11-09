@@ -80,6 +80,9 @@ MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	_toolBar = new MediaControllerToolBar(this);
 	_mainWindow->addToolBar(_toolBar);
 
+	//Main toolbar accessible but disabled by default
+	_toolBar->hide();
+
 	_currentMediaController = NULL;
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));

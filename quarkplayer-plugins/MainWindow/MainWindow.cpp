@@ -420,6 +420,9 @@ void MainWindow::setupUi() {
 	//_mainToolBar->addAction(ActionCollection::action("MainWindow.Equalizer"));
 	//_mainToolBar->addAction(ActionCollection::action("MainWindow.Configure"));
 	addToolBar(_mainToolBar);
+
+	//Main toolbar accessible but disabled by default
+	_mainToolBar->hide();
 }
 
 void MainWindow::retranslate() {
@@ -482,6 +485,7 @@ void MainWindow::retranslate() {
 	ActionCollection::action("MainWindow.EmptyMenu")->setText(tr("<empty>"));
 	ActionCollection::action("MainWindow.EmptyMenu")->setEnabled(false);
 
+	//Main toolbar accessible but disabled by default
 	_mainToolBar->setWindowTitle(tr("Main ToolBar"));
 	_mainToolBar->setMinimumSize(_mainToolBar->sizeHint());
 
@@ -623,12 +627,12 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 
 void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget * lastDockWidget, QDockWidget * dockWidget) {
 	if (dockWidget) {
-		dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
-		dockWidget->setFloating(false);
+		//dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+		//dockWidget->setFloating(false);
 
 		//To hide the title bar completely
 		//we must replace the default widget with a generic one
-		dockWidget->setTitleBarWidget(new QWidget(this));
+		//dockWidget->setTitleBarWidget(new QWidget(this));
 
 		QMainWindow::addDockWidget(area, dockWidget);
 		if (lastDockWidget) {
