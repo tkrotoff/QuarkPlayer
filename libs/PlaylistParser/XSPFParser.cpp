@@ -373,8 +373,6 @@ void XSPFParser::load(QIODevice * device, const QString & location) {
 void XSPFParser::save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
 	_stop = false;
 
-	QString path(QFileInfo(location).path());
-
 	QXmlStreamWriter xml(device);
 	xml.setAutoFormatting(true);
 	xml.writeStartDocument();

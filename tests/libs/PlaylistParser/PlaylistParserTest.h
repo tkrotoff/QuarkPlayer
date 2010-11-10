@@ -27,7 +27,7 @@
 class MediaInfo;
 
 /**
- * Test for playlistparser library.
+ * Test for PlaylistParser library.
  *
  * Playlist files made with free albums from jamendo:
  *

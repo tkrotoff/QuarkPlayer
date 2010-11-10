@@ -43,37 +43,41 @@ MediaInfo::~MediaInfo() {
 }
 
 bool MediaInfo::operator==(const MediaInfo & mediaInfo) const {
-	bool equal = false;
+	bool equal = true;
 
-	equal |= _fetched == mediaInfo._fetched;
-	equal |= _fileName == mediaInfo._fileName;
-	//equal |= _fileType == mediaInfo._fileType;
-	equal |= _fileSize == mediaInfo._fileSize;
+	equal &= _fetched == mediaInfo._fetched;
+	equal &= _fileName == mediaInfo._fileName;
+	//equal &= _fileType == mediaInfo._fileType;
+	equal &= _fileSize == mediaInfo._fileSize;
 
-	equal |= _duration == mediaInfo._duration;
+	equal &= _duration == mediaInfo._duration;
 
-	equal |= _bitrate == mediaInfo._bitrate;
-	equal |= _encodedApplication == mediaInfo._encodedApplication;
+	equal &= _bitrate == mediaInfo._bitrate;
+	equal &= _encodedApplication == mediaInfo._encodedApplication;
 
-	equal |= _cueStartIndex == mediaInfo._cueStartIndex;
-	equal |= _cueEndIndex == mediaInfo._cueEndIndex;
+	equal &= _cueStartIndex == mediaInfo._cueStartIndex;
+	equal &= _cueEndIndex == mediaInfo._cueEndIndex;
 
-	equal |= _metaDataHash == mediaInfo._metaDataHash;
+	equal &= _metaDataHash == mediaInfo._metaDataHash;
 
-	equal |= _audioStreamCount == mediaInfo._audioStreamCount;
-	equal |= _audioStreamHash == mediaInfo._audioStreamHash;
+	equal &= _audioStreamCount == mediaInfo._audioStreamCount;
+	equal &= _audioStreamHash == mediaInfo._audioStreamHash;
 
-	equal |= _videoStreamCount == mediaInfo._videoStreamCount;
-	equal |= _videoStreamHash == mediaInfo._videoStreamHash;
+	equal &= _videoStreamCount == mediaInfo._videoStreamCount;
+	equal &= _videoStreamHash == mediaInfo._videoStreamHash;
 
-	equal |= _textStreamCount == mediaInfo._textStreamCount;
-	equal |= _textStreamHash == mediaInfo._textStreamHash;
+	equal &= _textStreamCount == mediaInfo._textStreamCount;
+	equal &= _textStreamHash == mediaInfo._textStreamHash;
 
-	equal |= _networkStreamHash == mediaInfo._networkStreamHash;
+	equal &= _networkStreamHash == mediaInfo._networkStreamHash;
 
-	equal |= _extendedMetaData == mediaInfo._extendedMetaData;
+	equal &= _extendedMetaData == mediaInfo._extendedMetaData;
 
 	return equal;
+}
+
+bool MediaInfo::operator!=(const MediaInfo & mediaInfo) const {
+	return !(*this == mediaInfo);
 }
 
 void MediaInfo::clear() {

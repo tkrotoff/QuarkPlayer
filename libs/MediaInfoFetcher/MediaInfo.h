@@ -59,6 +59,8 @@ public:
 
 	bool operator==(const MediaInfo & mediaInfo) const;
 
+	bool operator!=(const MediaInfo & mediaInfo) const;
+
 	/** Resets this class. */
 	void clear();
 
