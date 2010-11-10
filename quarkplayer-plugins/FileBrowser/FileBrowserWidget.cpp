@@ -298,7 +298,15 @@ void FileBrowserWidget::retranslate() {
 void FileBrowserWidget::setWindowTitle(const QString & statusMessage) {
 	if (statusMessage.isEmpty()) {
 		QString title(Config::instance().musicDir(uuid()));
-		_dockWidget->setWindowTitle(tr("Files:") + ' ' + QFileInfo(title).completeBaseName());
+
+		//"C:/music" simply becomes "music"
+		QString nameWithoutPath = QFileInfo(title).fileName();
+		if (nameWithoutPath.isEmpty()) {
+			//Can be empty in case the user chooses "C:/" or "D:/"...
+			nameWithoutPath = title;
+		}
+
+		_dockWidget->setWindowTitle(tr("Dir:") + ' ' + nameWithoutPath);
 	} else {
 		_dockWidget->setWindowTitle(statusMessage);
 		QStatusBar * statusBar = MainWindowFactory::mainWindow()->statusBar();
