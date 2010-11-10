@@ -39,10 +39,16 @@ void PlaylistParserTest::initTestCase() {
 	qInstallMsgHandler(disableMessageOutput);
 	///
 
-	_parser = new PlaylistReader(this);
-	connect(_parser, SIGNAL(filesFound(const QList<MediaInfo> &)),
+	//Playlist reader
+	_reader = new PlaylistReader(this);
+	connect(_reader, SIGNAL(filesFound(const QList<MediaInfo> &)),
 		SLOT(filesFound(const QList<MediaInfo> &)));
-	connect(_parser, SIGNAL(finished(PlaylistParser::Error, int)),
+	connect(_reader, SIGNAL(finished(PlaylistParser::Error, int)),
+		SLOT(finished(PlaylistParser::Error, int)));
+
+	//Playlist writer
+	_writer = new PlaylistWriter(this);
+	connect(_writer, SIGNAL(finished(PlaylistParser::Error, int)),
 		SLOT(finished(PlaylistParser::Error, int)));
 }
 
@@ -369,11 +375,11 @@ void PlaylistParserTest::loadPlaylistCUE() {
 }
 
 void PlaylistParserTest::loadPlaylist() {
-	QSignalSpy spyFilesFound(_parser, SIGNAL(filesFound(const QList<MediaInfo> &)));
-	QSignalSpy spyFinished(_parser, SIGNAL(finished(PlaylistParser::Error, int)));
+	QSignalSpy spyFilesFound(_reader, SIGNAL(filesFound(const QList<MediaInfo> &)));
+	QSignalSpy spyFinished(_reader, SIGNAL(finished(PlaylistParser::Error, int)));
 
 	QFETCH(QString, playlistFileName);
-	_parser->load(playlistFileName);
+	_reader->load(playlistFileName);
 
 	//finished() signal might be already sent by load() method
 	//if the file couldn't be opened
@@ -400,6 +406,7 @@ void PlaylistParserTest::filesFound(const QList<MediaInfo> & files) {
 	QFETCH(QList<MediaInfo>, filesFound);
 
 	QCOMPARE(files.size(), filesFound.size());
+	QTest::addColumn<QList<MediaInfo> >("filesFound");
 
 	for (int i = 0; i < filesFound.size(); i++) {
 		//Only compare the filenames, not the metadatas
@@ -414,10 +421,100 @@ void PlaylistParserTest::finished(PlaylistParser::Error error, int timeElapsed) 
 	QCOMPARE(parserError, static_cast<int>(error));
 
 	QFETCH(int, parserFileError);
-	int fileError = _parser->file().error();
+	int fileError = _reader->file().error();
 	QCOMPARE(parserFileError, fileError);
 
 	PlaylistParserDebug() << "timeElapsed:" << timeElapsed;
 
 	QTestEventLoop::instance().exitLoop();
+}
+
+
+
+QList<MediaInfo> mediaInfoListToSave() {
+	QList<MediaInfo> mediaInfoList;
+
+	MediaInfo m1("media1");
+	m1.setMetaData(MediaInfo::Album, "album1");
+	m1.setMetaData(MediaInfo::Artist, "artist1");
+	m1.setMetaData(MediaInfo::Title, "title1");
+	m1.setDurationSecs(1);
+	mediaInfoList << m1;
+
+	MediaInfo m2("media2");
+	m2.setMetaData(MediaInfo::Album, "album2");
+	m2.setMetaData(MediaInfo::Artist, "artist2");
+	m2.setMetaData(MediaInfo::Title, "title2");
+	m2.setDurationSecs(2);
+	mediaInfoList << m2;
+
+	MediaInfo m3("media3");
+	m3.setMetaData(MediaInfo::Album, "album3");
+	m3.setMetaData(MediaInfo::Artist, "artist3");
+	m3.setMetaData(MediaInfo::Title, "title3");
+	m3.setDurationSecs(3);
+	mediaInfoList << m3;
+
+	MediaInfo m4("media4");
+	m4.setMetaData(MediaInfo::Album, "album4");
+	m4.setMetaData(MediaInfo::Artist, "artist4");
+	m4.setMetaData(MediaInfo::Title, "title4");
+	m4.setDurationSecs(4);
+	mediaInfoList << m4;
+
+	MediaInfo m5("media5");
+	m5.setMetaData(MediaInfo::Album, "album5");
+	m5.setMetaData(MediaInfo::Artist, "artist5");
+	m5.setMetaData(MediaInfo::Title, "title5");
+	m5.setDurationSecs(5);
+	mediaInfoList << m5;
+
+	return mediaInfoList;
+}
+
+void PlaylistParserTest::savePlaylist_data() {
+	QTest::addColumn<QString>("playlistFileName");
+
+	QTest::addColumn<QList<MediaInfo> >("mediaList");
+	QTest::addColumn<int>("parserError");
+	QTest::addColumn<int>("parserFileError");
+	QTest::addColumn<int>("parserTimeElapsed");
+
+	//Unsupported Format
+	QTest::newRow("Unsupported Format") << "test.KPL"	//Proprietary TheKMPlayer format
+		<< mediaInfoListToSave()
+		<< static_cast<int>(PlaylistParser::UnsupportedFormatError)
+		<< static_cast<int>(QFile::NoError)
+		<< 0;
+
+	savePlaylistM3U();
+}
+
+void PlaylistParserTest::savePlaylist() {
+	QSignalSpy spyFinished(_reader, SIGNAL(finished(PlaylistParser::Error, int)));
+
+	QFETCH(QString, playlistFileName);
+	QFETCH(QList<MediaInfo>, mediaList);
+	_writer->save(playlistFileName, mediaList);
+
+	//finished() signal might be already sent by load() method
+	//if the file couldn't be opened
+	if (spyFinished.count() == 0) {
+		QTestEventLoop::instance().enterLoop(30);
+		QVERIFY(!QTestEventLoop::instance().timeout());
+	}
+
+	QFETCH(int, parserError);
+	if (parserError == PlaylistParser::NoError) {
+	} else {
+	}
+}
+
+void PlaylistParserTest::savePlaylistM3U() {
+	//M3U
+	QTest::newRow("M3U") << "test.m3u"
+		<< mediaInfoListToSave()
+		<< static_cast<int>(PlaylistParser::NoError)
+		<< static_cast<int>(QFile::NoError)
+		<< 0;
 }
