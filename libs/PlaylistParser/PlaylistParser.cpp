@@ -47,7 +47,8 @@ PlaylistParser::PlaylistParser(QObject * parent)
 	_parser = NULL;
 	_error = NoError;
 
-	//FIXME memory leak: when to delete _parserList ?
+	//FIXME memory leak: when to delete _parserList?
+	//Use shared pointer?
 	_parserList += new M3UParser(this);
 	_parserList += new PLSParser(this);
 	_parserList += new WPLParser(this);
@@ -57,7 +58,8 @@ PlaylistParser::PlaylistParser(QObject * parent)
 }
 
 PlaylistParser::~PlaylistParser() {
-	//FIXME memory leak: when to delete _parserList ?
+	//FIXME memory leak: when to delete _parserList?
+	//Use shared pointer?
 	foreach (IPlaylistParserImpl * parser, _parserList) {
 		parser->stop();
 		//This is dangerous
@@ -69,6 +71,7 @@ const QFile & PlaylistParser::file() const {
 	return _file;
 }
 
+//FIXME Change the API and make it return the parser?
 void PlaylistParser::findParser(const QString & fileName) {
 	QString extension(QFileInfo(fileName).suffix());
 
@@ -161,7 +164,7 @@ PlaylistWriter::PlaylistWriter(QObject * parent)
 PlaylistWriter::~PlaylistWriter() {
 }
 
-void PlaylistWriter::save(const QString & fileName, const QList<MediaInfo> & files) {
+void PlaylistWriter::save(const QString & fileName, const QList<MediaInfo> & mediaList) {
 	PlaylistParserDebug() << "fileName:" << fileName;
 
 	_timeElapsed.restart();
@@ -176,14 +179,14 @@ void PlaylistWriter::save(const QString & fileName, const QList<MediaInfo> & fil
 	bool ok = _file.open(QIODevice::WriteOnly);
 
 	if (ok) {
-		saveIODevice(&_file, fileName, files);
+		saveIODevice(&_file, fileName, mediaList);
 	} else {
 		_error = FileError;
 		emit finished(_error, _timeElapsed.elapsed());
 	}
 }
 
-void PlaylistWriter::saveIODevice(QIODevice * device, const QString & fileName, const QList<MediaInfo> & files) {
+void PlaylistWriter::saveIODevice(QIODevice * device, const QString & fileName, const QList<MediaInfo> & mediaList) {
 	findParser(fileName);
 	if (_parser) {
 		static QFutureWatcher<void> * watcher = NULL;
@@ -193,7 +196,7 @@ void PlaylistWriter::saveIODevice(QIODevice * device, const QString & fileName, 
 			connect(watcher, SIGNAL(finished()),
 				SLOT(concurrentFinished()));
 		}
-		QFuture<void> future = QtConcurrent::run(_parser, &IPlaylistParserImpl::save, device, fileName, files);
+		QFuture<void> future = QtConcurrent::run(_parser, &IPlaylistParserImpl::save, device, fileName, mediaList);
 		watcher->setFuture(future);
 	}
 }

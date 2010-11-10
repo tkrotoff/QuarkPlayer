@@ -201,8 +201,6 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 void ASXParser::save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
 	_stop = false;
 
-	QString path(QFileInfo(location).path());
-
 	QXmlStreamWriter xml(device);
 	xml.setAutoFormatting(true);
 	//Don't write <?xml version="1.0" encoding="UTF-8"?>

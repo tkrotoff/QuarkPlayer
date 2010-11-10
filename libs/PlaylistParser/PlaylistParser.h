@@ -150,9 +150,9 @@ signals:
 	/**
 	 * Sends the signal every FILES_FOUND_LIMIT files found.
 	 *
-	 * @param files list of files (full path filename) contained inside the playlist
+	 * @param mediaList list of media (full path filename) contained inside the playlist
 	 */
-	void filesFound(const QList<MediaInfo> & files);
+	void filesFound(const QList<MediaInfo> & mediaList);
 
 private:
 
@@ -179,13 +179,13 @@ public:
 	 * Example: if file extension is ".m3u" then M3UParser will be instantiated.
 	 *
 	 * @param fileName playlist file (full path)
-	 * @param files files to add to the playlist file
+	 * @param mediaList media list to add to the playlist file
 	 */
-	void save(const QString & fileName, const QList<MediaInfo> & files);
+	void save(const QString & fileName, const QList<MediaInfo> & mediaList);
 
 private:
 
-	void saveIODevice(QIODevice * device, const QString & fileName, const QList<MediaInfo> & files);
+	void saveIODevice(QIODevice * device, const QString & fileName, const QList<MediaInfo> & mediaList);
 
 };
 
