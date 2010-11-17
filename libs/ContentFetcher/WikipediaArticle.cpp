@@ -97,8 +97,8 @@ void WikipediaArticle::gotWikipediaSearchAnswer(QNetworkReply * reply) {
 
 	//For each language, keywords specific to music
 	QRegExp * rx_artist = NULL;
-	static QRegExp rx_artist_en("^.*(band|musician|singer).*$");
-	static QRegExp rx_artist_fr("^.*(groupe|musicien|chanteur|chanteuse).*$");
+	static QRegExp rx_artist_en("^.*(band|musician|singer|composer).*$");
+	static QRegExp rx_artist_fr("^.*(groupe|musicien|chanteur|chanteuse|compositeur).*$");
 	static QRegExp rx_artist_es("^.*(banda).*$");
 	static QRegExp rx_artist_de("^.*(Band|Musiker).*$");
 	static QRegExp rx_artist_pl("^.*(grupa muzyczna).*$");
