@@ -1,5 +1,15 @@
+project(phonon)
 
-option(PHONON_NO_CAPTURE "Disable the capture API")
+set(PHONON_LIB_MAJOR_VERSION "4")
+set(PHONON_LIB_MINOR_VERSION "4")
+set(PHONON_LIB_PATCH_VERSION "3")
+set(PHONON_LIB_VERSION "${PHONON_LIB_MAJOR_VERSION}.4.0")
+set(PHONON_LIB_SOVERSION ${PHONON_LIB_MAJOR_VERSION})
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+option(PHONON_NO_CAPTURE "Disable the capture API" ON)
 if (PHONON_NO_CAPTURE)
     add_definitions(-DQT_NO_PHONON_VIDEOCAPTURE -DQT_NO_PHONON_AUDIOCAPTURE)
 endif (PHONON_NO_CAPTURE)
@@ -8,17 +18,17 @@ if (PHONON_BUILD_TESTS)
     add_subdirectory(tests)
 endif (PHONON_BUILD_TESTS)
 
-add_subdirectory(experimental)
+#add_subdirectory(experimental)
 
 set(PULSEAUDIO_MINIMUM_VERSION "0.9.15")
-macro_optional_find_package(PulseAudio)
+#macro_optional_find_package(PulseAudio)
 if (PULSEAUDIO_FOUND)
     # PULSEAUDIO_DEVICE_MANAGER feature check could be moved to FindPulseAudio.cmake, hint hint. -- Rex
     macro_ensure_version("0.9.21" "${PULSEAUDIO_VERSION}" PULSEAUDIO_DEVICE_MANAGER)
 endif (PULSEAUDIO_FOUND)
-macro_log_feature(PULSEAUDIO_FOUND "PulseAudio" "A cross-platform, networked sound server." "http://www.pulseaudio.org" FALSE "" "Allows audio playback via the PulseAudio soundserver when it is running")
-macro_optional_find_package(GLIB2)
-macro_log_feature(GLIB2_FOUND "GLib2" "GLib 2 is required to compile the pulseaudio for Phonon" "http://www.gtk.org/download/" FALSE)
+#macro_log_feature(PULSEAUDIO_FOUND "PulseAudio" "A cross-platform, networked sound server." "http://www.pulseaudio.org" FALSE "" "Allows audio playback via the PulseAudio soundserver when it is running")
+#macro_optional_find_package(GLIB2)
+#macro_log_feature(GLIB2_FOUND "GLib2" "GLib 2 is required to compile the pulseaudio for Phonon" "http://www.gtk.org/download/" FALSE)
 
 
 if (GLIB2_FOUND AND PULSEAUDIO_FOUND)
@@ -88,7 +98,8 @@ endif (PHONON_NO_PLATFORMPLUGIN)
 
 add_definitions(-DPHONON_LIBRARY_PATH="${PLUGIN_INSTALL_DIR}/plugins")
 
-automoc4_add_library(phonon SHARED ${phonon_LIB_SRCS})
+qt4_automoc(${phonon_LIB_SRCS})
+add_library(phonon SHARED ${phonon_LIB_SRCS})
 target_link_libraries(phonon ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 if (GLIB2_FOUND AND PULSEAUDIO_FOUND)
 target_link_libraries(phonon ${GLIB2_LIBRARIES} ${GOBJECT_LIBRARIES} ${PULSEAUDIO_LIBRARY} ${PULSEAUDIO_MAINLOOP_LIBRARY})
@@ -109,44 +120,3 @@ set_target_properties(phonon PROPERTIES
                              )
 install(TARGETS phonon ${INSTALL_TARGETS_DEFAULT_ARGS})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/phononnamespace.h.in ${CMAKE_CURRENT_BINARY_DIR}/phononnamespace.h)
-
-install(FILES
-   phonon_export.h
-   objectdescription.h
-   objectdescriptionmodel.h
-   ${CMAKE_CURRENT_BINARY_DIR}/phononnamespace.h
-   mediasource.h
-   abstractmediastream.h
-   streaminterface.h
-   mediaobject.h
-   audiooutput.h
-   medianode.h
-   path.h
-   effectparameter.h
-   effect.h
-   effectinterface.h
-   volumefadereffect.h
-   volumefaderinterface.h
-   abstractaudiooutput.h
-   abstractvideooutput.h
-   backendcapabilities.h
-   phonondefs.h
-   backendinterface.h
-   mediaobjectinterface.h
-   audiooutputinterface.h
-   addoninterface.h
-   mediacontroller.h
-   videowidget.h
-   videowidgetinterface.h
-   videoplayer.h
-   seekslider.h
-   volumeslider.h
-   effectwidget.h
-   platformplugin.h
-   audiodataoutput.h
-   audiodataoutputinterface.h
-   globalconfig.h
-   pulsesupport.h
-   DESTINATION ${INCLUDE_INSTALL_DIR}/phonon COMPONENT Devel)
-
-install(FILES org.kde.Phonon.AudioOutput.xml  DESTINATION  ${DBUS_INTERFACES_INSTALL_DIR})

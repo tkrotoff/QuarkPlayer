@@ -24,7 +24,9 @@
 #include "phononnamespace_p.h"
 #include "phonondefs_p.h"
 
+#ifndef QT_NO_PHONON_VIDEOCAPTURE
 #include "experimental/videoframe2.h"
+#endif //QT_NO_PHONON_VIDEOCAPTURE
 
 #include "factory_p.h"
 
@@ -79,7 +81,10 @@ static int registerPhononMetaTypes()
     // need those for QSettings
     qRegisterMetaType<QList<int> >();
     qRegisterMetaTypeStreamOperators<QList<int> >("QList<int>");
+
+#ifndef QT_NO_PHONON_VIDEOCAPTURE
     qRegisterMetaType<Phonon::Experimental::VideoFrame2>();
+#endif //QT_NO_PHONON_VIDEOCAPTURE
 
     return 0; // something
 }
