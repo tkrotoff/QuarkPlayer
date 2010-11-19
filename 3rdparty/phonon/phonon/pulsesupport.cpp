@@ -24,6 +24,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QStringList>
 #include <QtCore/QTimer>
+#include <QtCore/QMutex>
 
 #ifdef HAVE_PULSEAUDIO
 #include "pulsestream_p.h"
@@ -43,6 +44,7 @@ QT_BEGIN_NAMESPACE
 namespace Phonon
 {
 
+QMutex probeMutex;
 static PulseSupport* s_instance = NULL;
 
 #ifdef HAVE_PULSEAUDIO
@@ -101,6 +103,10 @@ class AudioDevice
             properties["icon"] = icon;
             properties["available"] = (index != PA_INVALID_INDEX);
             properties["isAdvanced"] = false; // Nothing is advanced!
+
+            DeviceAccessList dal;
+            dal.append(DeviceAccess("pulse", desc));
+            properties["deviceAccessList"] = QVariant::fromValue<DeviceAccessList>(dal);
         }
 
         // Needed for QMap
@@ -653,7 +659,16 @@ static void context_state_callback(pa_context *c, void *)
 PulseSupport* PulseSupport::getInstance()
 {
     if (NULL == s_instance) {
-        s_instance = new PulseSupport();
+        /*
+         * In order to prevent the instance being used from multiple threads
+         * prior to it being contructed fully, we need to ensure we obtain a
+         * lock prior to creating it. After we aquire the lock, check to see
+         * if the object is created again before proceeding.
+         */
+        probeMutex.lock();
+        if (NULL == s_instance)
+            s_instance = new PulseSupport();
+        probeMutex.unlock();
     }
     return s_instance;
 }
@@ -915,7 +930,7 @@ static void setDevicePriority(Category category, QStringList list)
     char **devices;
     devices = pa_xnew(char *, list.size()+1);
     int i = 0;
-    foreach (QString str, list) {
+    foreach (const QString &str, list) {
         devices[i++] = pa_xstrdup(str.toUtf8().constData());
     }
     devices[list.size()] = NULL;

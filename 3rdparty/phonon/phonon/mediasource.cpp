@@ -50,7 +50,7 @@ MediaSource::MediaSource(const QString &filename)
     const QFileInfo fileInfo(filename);
     if (fileInfo.exists()) {
         bool localFs = QAbstractFileEngine::LocalDiskFlag & QFSFileEngine(filename).fileFlags(QAbstractFileEngine::LocalDiskFlag);
-        if (localFs) {
+        if (localFs && !filename.startsWith(QLatin1String(":/")) && !filename.startsWith(QLatin1String("qrc://"))) {
             d->url = QUrl::fromLocalFile(fileInfo.absoluteFilePath());
         } else {
 #ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
@@ -58,6 +58,7 @@ MediaSource::MediaSource(const QString &filename)
             d->type = Stream;
             d->ioDevice = new QFile(filename);
             d->setStream(new IODeviceStream(d->ioDevice, d->ioDevice));
+            d->url =  QUrl::fromLocalFile(fileInfo.absoluteFilePath());
 #else
             d->type = Invalid;
 #endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM
@@ -92,6 +93,54 @@ MediaSource::MediaSource(Phonon::DiscType dt, const QString &deviceName)
     d->discType = dt;
     d->deviceName = deviceName;
 }
+
+// NOTE: this is a protected constructor
+MediaSource::MediaSource(const DeviceAccess &access)
+    : d(new MediaSourcePrivate(CaptureDevice))
+{
+    if (access.first.isEmpty() || access.second.isEmpty()) {
+        d->type = Invalid;
+        return;
+    }
+    d->deviceAccessList.append(access);
+}
+
+#if !defined(QT_NO_PHONON_AUDIOCAPTURE) && !defined(QT_NO_PHONON_VIDEOCAPTURE)
+#endif //QT_NO_PHONON_AUDIOCAPTURE && QT_NO_PHONON_VIDEOCAPTURE
+
+#ifndef QT_NO_PHONON_AUDIOCAPTURE
+MediaSource::MediaSource(const Phonon::AudioCaptureDevice& acDevice)
+    : d(new MediaSourcePrivate(CaptureDevice))
+{
+    d->audioCaptureDevice = acDevice;
+
+    // Grab the device access list from the properties
+    if (acDevice.propertyNames().contains("deviceAccessList") &&
+        !acDevice.property("deviceAccessList").value<DeviceAccessList>().isEmpty()) {
+        d->deviceAccessList = acDevice.property("deviceAccessList").value<DeviceAccessList>();
+    } else {
+        // Invalidate the media source
+        d->type = Invalid;
+    }
+}
+#endif //QT_NO_PHONON_AUDIOCAPTURE
+
+#ifndef QT_NO_PHONON_VIDEOCAPTURE
+MediaSource::MediaSource(const Phonon::VideoCaptureDevice& vcDevice)
+    : d(new MediaSourcePrivate(CaptureDevice))
+{
+    d->videoCaptureDevice = vcDevice;
+
+    // Grab the device access list from the properties
+    if (vcDevice.propertyNames().contains("deviceAccessList") &&
+        !vcDevice.property("deviceAccessList").value<DeviceAccessList>().isEmpty()) {
+        d->deviceAccessList = vcDevice.property("deviceAccessList").value<DeviceAccessList>();
+    } else {
+        // Invalidate the media source
+        d->type = Invalid;
+    }
+}
+#endif //QT_NO_PHONON_VIDEOCAPTURE
 
 #ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
 MediaSource::MediaSource(AbstractMediaStream *stream)
@@ -201,6 +250,11 @@ Phonon::DiscType MediaSource::discType() const
     return d->discType;
 }
 
+const DeviceAccessList& MediaSource::deviceAccessList() const
+{
+    return d->deviceAccessList;
+}
+
 QString MediaSource::deviceName() const
 {
     return d->deviceName;
@@ -218,16 +272,19 @@ void MediaSourcePrivate::setStream(AbstractMediaStream *s)
 }
 #endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM
 
+#ifndef QT_NO_PHONON_AUDIOCAPTURE
+AudioCaptureDevice MediaSource::audioCaptureDevice() const
+{
+    return d->audioCaptureDevice;
+}
+#endif //QT_NO_PHONON_AUDIOCAPTURE
 
-//X AudioCaptureDevice MediaSource::audioCaptureDevice() const
-//X {
-//X     return d->audioCaptureDevice;
-//X }
-//X 
-//X VideoCaptureDevice MediaSource::videoCaptureDevice() const
-//X {
-//X     return d->videoCaptureDevice;
-//X }
+#ifndef QT_NO_PHONON_VIDEOCAPTURE
+VideoCaptureDevice MediaSource::videoCaptureDevice() const
+{
+    return d->videoCaptureDevice;
+}
+#endif //QT_NO_PHONON_VIDEOCAPTURE
 
 } // namespace Phonon
 
