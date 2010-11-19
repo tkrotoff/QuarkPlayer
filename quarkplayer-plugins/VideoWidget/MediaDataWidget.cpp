@@ -115,7 +115,8 @@ void MediaDataWidget::downloadAmazonCoverArt(const MediaInfo & mediaInfo) {
 	if (!album.isEmpty() && !artist.isEmpty()) {
 		//Download the cover only if album + artist are not empty
 
-		QString amazonCoverArtFileName(artist + " - " + album + ".jpg");
+		//Just the album name since there can be several artists for the same album
+		QString amazonCoverArtFileName(album + ".jpg");
 		//Remove characters not allowed inside a filename
 		static const QChar space(' ');
 		amazonCoverArtFileName.replace('/', space);
