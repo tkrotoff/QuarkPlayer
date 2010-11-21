@@ -91,9 +91,7 @@ void MediaDataWidget::startMediaInfoFetcher(Phonon::MediaObject * mediaObject) {
 }
 
 void MediaDataWidget::updateMediaInfo(const MediaInfo & mediaInfo) {
-	if (!_mediaInfoFetcher) {
-		return;
-	}
+	Q_ASSERT(_mediaInfoFetcher);
 
 	downloadAmazonCoverArt(mediaInfo);
 	MediaInfoWidget::updateMediaInfo(mediaInfo);
@@ -115,21 +113,10 @@ void MediaDataWidget::downloadAmazonCoverArt(const MediaInfo & mediaInfo) {
 	if (!album.isEmpty() && !artist.isEmpty()) {
 		//Download the cover only if album + artist are not empty
 
-		//Just the album name since there can be several artists for the same album
-		QString amazonCoverArtFileName(album + ".jpg");
-		//Remove characters not allowed inside a filename
-		static const QChar space(' ');
-		amazonCoverArtFileName.replace('/', space);
-		amazonCoverArtFileName.replace("\\", space);
-		amazonCoverArtFileName.replace(':', space);
-		amazonCoverArtFileName.replace('*', space);
-		amazonCoverArtFileName.replace('?', space);
-		amazonCoverArtFileName.replace('>', space);
-		amazonCoverArtFileName.replace('>', space);
-		amazonCoverArtFileName.replace('|', space);
+		static const QString AMAZON_COVERART_FILENAME = "cover.jpg";
 
 		QString coverArtDir(QFileInfo(mediaInfo.fileName()).path());
-		_amazonCoverArtPath = coverArtDir + '/' + amazonCoverArtFileName;
+		_amazonCoverArtPath = coverArtDir + '/' + AMAZON_COVERART_FILENAME;
 
 		if (!QFileInfo(_amazonCoverArtPath).exists()) {
 			//Download the cover art
