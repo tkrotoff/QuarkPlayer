@@ -22,36 +22,45 @@ if (GCC)
 	if (CMAKE_SIZEOF_VOID_P MATCHES "8")
 		check_cxx_compiler_flag("-fPIC" WITH_FPIC)
 		if (WITH_FPIC)
-			add_definitions(-fPIC)
+			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 		endif (WITH_FPIC)
 	endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
 endif (GCC)
 
 # Enable warnings
 if (MSVC)
-	#add_definitions(/W4)
+	# This shows a lot of warnings from Microsoft source code!
+	# So it is unusable :/
+	#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall")
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
 else (MSVC)
-	add_definitions(-Wall -Wextra)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif (MSVC)
 ##
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	if (APPLE)
 		# Use dwarf-2 debugging format: it produces ~10x smaller executables
-		add_definitions(-gdwarf-2)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -gdwarf-2")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -gdwarf-2")
 	endif (APPLE)
 
 	# Defines DEBUG when in debug mode
-	add_definitions(-DDEBUG)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDEBUG")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG")
 endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
 # UNICODE support enabled
-add_definitions(-DUNICODE)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUNICODE")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE")
 if (WIN32)
 	# UNICODE support with Visual C++ and MinGW
 	# See Visual C++ Unicode Programming Summary
 	# http://msdn.microsoft.com/en-us/library/dybsewaf%28VS.100%29.aspx
-	add_definitions(-D_UNICODE)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_UNICODE")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_UNICODE")
 endif (WIN32)
 ##
 
@@ -61,7 +70,8 @@ if (MSVC)
 		# Disable Visual C++ Security Enhancements in the CRT
 		# See http://msdn.microsoft.com/en-us/library/8ef0s5kh%28VS.100%29.aspx
 		# This is non standard and Microsoft specific
-		add_definitions(/D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
 	endif (MSVC_VERSION GREATER 1399)
 endif (MSVC)
 
