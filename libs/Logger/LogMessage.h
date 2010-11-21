@@ -64,7 +64,8 @@ class QXmlStreamWriter;
  * Examples of lines produced by QuarkPlayerCoreDebug():
  * MinGW: "QP_LOGGER C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp 64 QuarkPlayerCore main Current date and time: "ven. 29. oct. 12:13:26 2010" "
  * MinGW: "QP_LOGGER C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp 69 QuarkPlayerCore findPluginDir Checking for plugins"
- * Visual C++ 2010:
+ * Visual C++ 2010: "QP_LOGGER C:\Users\Alisson\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp 64 QuarkPlayerCore main Current date and time: "Sat Oct 30 15:32:23 2010" "
+ * Visual C++ 2010: "QP_LOGGER C:\Users\Alisson\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp 69 QuarkPlayerCore PluginManager::findPluginDir Checking for plugins"
  *
  * It is a shame Qt does not provide a qInfo() function, qDebug() is not enough.
  *
@@ -87,16 +88,15 @@ public:
 	/** Time format for QTime: "hh:mm:ss.zzz". */
 	static const char * TIME_FORMAT;
 
-	/** Creates an empty LogMessage. */
+	/**
+	 * Creates an empty LogMessage.
+	 *
+	 * Needed by qRegisterMetaType()
+	 */
 	LogMessage();
 
-	LogMessage(
-		const QTime & time,
-		QtMsgType type,
-		const QString & file, int line,
-		const QString & module,
-		const QString & function,
-		const QString & message);
+	/** Creates a LogMessage given a string provided by LogMessageHandler. */
+	LogMessage(QtMsgType type, const QString & msg);
 
 	/**
 	 * Constructs a log message from an XML stream.
@@ -199,6 +199,16 @@ public:
 	 * @return QtMsgType; QtDebugMsg in case of failure
 	 */
 	static QtMsgType stringToMsgType(const QString & type);
+
+private:
+
+	/** Called by LogMessage(const QString & msg). */
+	void init(const QTime & time,
+		QtMsgType type,
+		const QString & file, int line,
+		const QString & module,
+		const QString & function,
+		const QString & message);
 };
 
 #endif	//LOGMESSAGE_H

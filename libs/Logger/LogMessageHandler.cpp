@@ -66,57 +66,7 @@ void LogMessageHandler::myMessageOutput(QtMsgType type, const char * msg) {
 	//There is a risk of deadlock or endless loop if an Qt error occurs
 	//in this code
 
-	//MinGW: "QP_LOGGER C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp 64 QuarkPlayerCore main Current date and time: "ven. 29. oct. 12:13:26 2010" "
-	//MinGW: "QP_LOGGER C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp 69 QuarkPlayerCore findPluginDir Checking for plugins"
-	//Visual C++ 2010:
-
-	QString logLine(msg);
-	logLine = logLine.trimmed();	//The message can contain begin and end spaces
-
-	QString sourceCodeFileName;
-	QString sourceCodeLineNumber;
-	QString module;
-	QString function;
-
-	//Do not use regexp here as it might be slow
-
-	static const QString LOGGER_STRING_TO_MATCH = "QP_LOGGER";
-	if (logLine.startsWith(LOGGER_STRING_TO_MATCH)) {
-		logLine.remove(0, LOGGER_STRING_TO_MATCH.length() + 1);
-
-		int index = logLine.indexOf(' ');
-		sourceCodeFileName = logLine.left(index);
-		logLine.remove(0, sourceCodeFileName.length() + 1);
-
-		index = logLine.indexOf(' ');
-		sourceCodeLineNumber = logLine.left(index);
-		logLine.remove(0, sourceCodeLineNumber.length() + 1);
-
-		index = logLine.indexOf(' ');
-		module = logLine.left(index);
-		logLine.remove(0, module.length() + 1);
-
-		index = logLine.indexOf(' ');
-		function = logLine.left(index);
-		logLine.remove(0, function.length() + 1);
-	} else {
-		//Special case of MPlayer, parses messages from phonon-mplayer
-		//MPlayer messages are logged this way:
-		//qDebug() << "MPlayer" << line.toUtf8().constData()
-		//See method MPlayerProcess::parseLine(const QString & line)
-		static const QString MPLAYER_STRING_TO_MATCH = "MPlayer";
-		if (logLine.startsWith(MPLAYER_STRING_TO_MATCH)) {
-			module = MPLAYER_STRING_TO_MATCH;
-			logLine.remove(0, MPLAYER_STRING_TO_MATCH.length() + 1);
-		}
-
-		else {
-			//std::cerr << "Error, string does not match: " << logLine.toUtf8().constData() << "." << std::endl;
-			//std::cerr << "Error, string to match: " << LOGGER_STRING_TO_MATCH.toUtf8().constData() << "." << std::endl;
-		}
-	}
-
-	LogMessage logMsg(QTime::currentTime(), type, sourceCodeFileName, sourceCodeLineNumber.toInt(), module, function, logLine);
+	LogMessage logMsg(type, msg);
 
 	printLogMessage(logMsg);
 
