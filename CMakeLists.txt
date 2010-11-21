@@ -4,13 +4,24 @@ cmake_minimum_required(VERSION 2.8)
 # CMake policy
 cmake_policy(VERSION 2.8.0)
 
+# Add options values
+include(Options.cmake)
+
+if (COVERAGE)
+	# TestCocoon - CoverageScanner
+	# This has to be done before calling project()
+	include(CMakeLists-CoverageScanner.txt)
+endif (COVERAGE)
+
 project(quarkplayer)
 
 # OWBuild
 include(CMakeLists-owbuild.txt)
 
-# Add options values
-include(Options.cmake)
+if (COVERAGE)
+	# TestCocoon - CoverageScanner Flags
+	include(CMakeLists-CoverageScannerFlags.txt)
+endif (COVERAGE)
 
 # Global variables about QuarkPlayer
 set(QUARKPLAYER_NAME "QuarkPlayer")

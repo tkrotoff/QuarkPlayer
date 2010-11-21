@@ -1,0 +1,22 @@
+# TestCocoon configuration
+# TestCocoon is a Code Coverage Measurement for C/C++ and C#
+# See http://testcocoon.org/coveragescanner.html
+
+if (WIN32)
+	file(TO_CMAKE_PATH "$ENV{TESTCOCOON}/visualstudio" TESTCOCOON)
+	set(CMAKE_C_COMPILER ${TESTCOCOON}/cl.exe)
+	set(CMAKE_CXX_COMPILER ${TESTCOCOON}/cl.exe)
+	set(CMAKE_LINKER ${TESTCOCOON}/link.exe)
+	set(CMAKE_C_LINK_EXECUTABLE ${TESTCOCOON}/link.exe)
+	set(CMAKE_CXX_LINK_EXECUTABLE ${TESTCOCOON}/link.exe)
+endif (WIN32)
+
+if (LINUX)
+	file(TO_CMAKE_PATH "/usr/bin" TESTCOCOON)
+	set(CMAKE_C_COMPILER ${TESTCOCOON}/csgcc)
+	set(CMAKE_CXX_COMPILER ${TESTCOCOON}/csg++)
+	set(CMAKE_LINKER ${TESTCOCOON}/csg++)
+	set(CMAKE_C_LINK_EXECUTABLE ${TESTCOCOON}/csg++)
+	set(CMAKE_CXX_LINK_EXECUTABLE ${TESTCOCOON}/csg++)
+	set(CMAKE_AR ${TESTCOCOON}/csar)
+endif (LINUX)
