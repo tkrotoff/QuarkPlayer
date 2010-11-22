@@ -119,4 +119,4 @@ set_target_properties(phonon PROPERTIES
                              DEFINE_SYMBOL MAKE_PHONON_LIB
                              )
 install(TARGETS phonon ${INSTALL_TARGETS_DEFAULT_ARGS})
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/phononnamespace.h.in ${CMAKE_CURRENT_BINARY_DIR}/phononnamespace.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/phononnamespace.h.in ${CMAKE_CURRENT_SOURCE_DIR}/phononnamespace.h)
