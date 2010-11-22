@@ -98,11 +98,27 @@ if (NOT ENV{KDEDIRS})
 	set(ENV{KDEDIRS} /usr/lib/kde4)
 endif (NOT ENV{KDEDIRS})
 
+# Phonon
+# This is a stupid situation: Phonon has to be defined before Qt
+# otherwise Phonon headers from Qt are used instead of ours
+# include(${QT_USE_FILE}) from FindQt4.cmake is an ugly solution
+# I would rather prefer to rely on a "standard" system with QT_INCLUDE_DIRS,
+# QT_LIBRARIES... but include(${QT_USE_FILE}) does a lot of important stuffs
+# + we don't want to drop KDE4 support
+if (NOT USE_SYSTEM_LIBRARIES)
+	# Do not use Phonon from Qt or KDE4
+	# Use Phonon from this repository instead (patched version)
+	include_directories(3rdparty/phonon)
+
+	# Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
+	#set(NEW_TITLE_CHAPTER_HANDLING 1)
+	##
+endif (NOT USE_SYSTEM_LIBRARIES)
+
 # Disable KDE4 integration since it gives some troubles
 # will be changed in the future
 # cf http://code.google.com/p/phonon-vlc-mplayer/issues/detail?id=2
 #find_package(KDE4)
-
 if (KDE4_FOUND)
 	#include(KDE4Defaults)
 	#include(MacroLibrary)
@@ -186,12 +202,9 @@ endif (NOT QTIOCOMPRESSOR_FOUND)
 add_subdirectory(3rdparty/modeltest)
 ##
 
-# Phonon
+# 3rdparty libraries with Qt and Phonon dependency
 if (NOT USE_SYSTEM_LIBRARIES)
-	# Do not use Phonon from Qt or KDE4
-	# Use Phonon from this repository instead (patched version)
 	add_subdirectory(3rdparty/phonon/phonon)
-	set(QT_PHONON_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/3rdparty/phonon)
 	set(QT_PHONON_LIBRARY phonon)
 endif (NOT USE_SYSTEM_LIBRARIES)
 
@@ -201,11 +214,6 @@ set(PHONON_LIBS
 	${QT_QTGUI_LIBRARY}
 )
 
-# Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
-#set(NEW_TITLE_CHAPTER_HANDLING 1)
-##
-
-# 3rdparty libraries with Qt and Phonon dependency
 set(SERVICES_INSTALL_DIR ${BIN_INSTALL_DIR})
 add_subdirectory(3rdparty/phonon-mplayer/mplayer)
 ##
