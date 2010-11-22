@@ -157,7 +157,6 @@ if (TAGLIB)
 			${CMAKE_SOURCE_DIR}/3rdparty/taglib/include
 			${CMAKE_BINARY_DIR}/3rdparty/taglib
 		)
-		#set(TAGLIB_DEFINITIONS -DTAGLIB)
 		set(TAGLIB_LIBRARIES tag)
 	endif (NOT TAGLIB_FOUND)
 endif (TAGLIB)
