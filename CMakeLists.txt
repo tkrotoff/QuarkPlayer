@@ -111,8 +111,7 @@ if (NOT USE_SYSTEM_LIBRARIES)
 	include_directories(3rdparty/phonon)
 
 	# Ok, we can set NEW_TITLE_CHAPTER_HANDLING as we have a patched Phonon library
-	#set(NEW_TITLE_CHAPTER_HANDLING 1)
-	##
+	set(NEW_TITLE_CHAPTER_HANDLING 1)
 endif (NOT USE_SYSTEM_LIBRARIES)
 
 # Disable KDE4 integration since it gives some troubles
