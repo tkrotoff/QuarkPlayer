@@ -44,8 +44,11 @@ void SearchLineEdit::init(const QStringList & wordList) {
 	_enableClickMessage = false;
 	_drawClickMessage = false;
 
+	QSize buttonSize(8, 8);
+
 	//Clear button
 	_clearButton = new QToolButton(this);
+	_clearButton->setIconSize(buttonSize);
 	_clearButton->setCursor(Qt::ArrowCursor);
 	_clearButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
 	_clearButton->hide();
@@ -54,16 +57,16 @@ void SearchLineEdit::init(const QStringList & wordList) {
 
 	//Word list button
 	_wordListButton = new QToolButton(this);
+	_wordListButton->setIconSize(buttonSize);
 	_wordListButton->setCursor(Qt::ArrowCursor);
 	_wordListButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
 	connect(_wordListButton, SIGNAL(clicked()), SLOT(showWordList()));
 	_wordListButton->setEnabled(!wordList.isEmpty());
 
-	//Compute the right margin so that the text does not overlap the clear button
-	//and the word list button
+	//Compute the right margin so that the text does not overlap the word list button
 	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
 	setStyleSheet(QString("QLineEdit { padding-right: %1px; }").arg(
-			_clearButton->sizeHint().width() + _wordListButton->sizeHint().width() + frameWidth + 1));
+		_wordListButton->sizeHint().width() + frameWidth + 1));
 
 	//Compute minimum size for the SearchLineEdit
 	setMinimumSize(_clearButton->sizeHint().height() + frameWidth,
@@ -107,11 +110,12 @@ void SearchLineEdit::resizeEvent(QResizeEvent * event) {
 
 	QSize wordListButtonSizeHint = _clearButton->sizeHint();
 	_wordListButton->move(rect().right() - frameWidth - wordListButtonSizeHint.width(),
-			(rect().bottom() + 1 - wordListButtonSizeHint.height()) / 2);
+		(rect().bottom() + 1 - wordListButtonSizeHint.height()) / 2);
 
 	QSize clearButtonSizeHint = _clearButton->sizeHint();
-	_clearButton->move(rect().right() - frameWidth - wordListButtonSizeHint.width() - clearButtonSizeHint.width() ,
-			(rect().bottom() + 1 - clearButtonSizeHint.height()) / 2);
+	_clearButton->move(rect().right() - frameWidth - wordListButtonSizeHint.width()
+		- clearButtonSizeHint.width(),
+		(rect().bottom() + 1 - clearButtonSizeHint.height()) / 2);
 }
 
 void SearchLineEdit::paintEvent(QPaintEvent * event) {
@@ -172,6 +176,21 @@ void SearchLineEdit::setText(const QString & text) {
 }
 
 void SearchLineEdit::updateClearButton(const QString & text) {
+	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+
+	if (text.isEmpty()) {
+		//Compute the right margin so that the text does not overlap the word list button
+		setStyleSheet(QString("QLineEdit { padding-right: %1px; }").arg(
+			_wordListButton->sizeHint().width()
+			+ frameWidth + 1));
+	} else {
+		//Compute the right margin so that the text does not overlap the clear button
+		//and the word list button
+		setStyleSheet(QString("QLineEdit { padding-right: %1px; }").arg(
+			_clearButton->sizeHint().width()
+			+ _wordListButton->sizeHint().width() + frameWidth + 1));
+	}
+
 	_clearButton->setVisible(!text.isEmpty());
 }
 
