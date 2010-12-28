@@ -18,6 +18,7 @@ add_library(QtIOCompressor SHARED ${QtIOCompressor_SRCS})
 
 target_link_libraries(QtIOCompressor
 	${QT_QTCORE_LIBRARY}
+	${ZLIB_LIBRARIES}
 )
 
 install(TARGETS QtIOCompressor ${INSTALL_TARGETS_DEFAULT_ARGS})
