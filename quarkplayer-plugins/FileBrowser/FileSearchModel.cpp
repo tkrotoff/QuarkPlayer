@@ -139,9 +139,13 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 
 			QFileInfo fileInfo(fileName);
 			QString ext(fileInfo.suffix());
+			/*
+			Do not cache the icon matching a directory
+			since it is not always the same icon under Mac OS X
+			and Windows 7
 			if (fileInfo.isDir()) {
 				ext = "Directory";
-			}
+			}*/
 			if (ext.isEmpty()) {
 				ext = fileName;
 			}
