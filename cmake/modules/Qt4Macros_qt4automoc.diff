@@ -1,8 +1,8 @@
 Index: Qt4Macros.cmake
 ===================================================================
---- Qt4Macros.cmake	(revision 1238)
+--- Qt4Macros.cmake	(revision 1387)
 +++ Qt4Macros.cmake	(working copy)
-@@ -316,17 +316,21 @@
+@@ -319,17 +319,21 @@
  
        GET_FILENAME_COMPONENT(_abs_PATH ${_abs_FILE} PATH)
  
