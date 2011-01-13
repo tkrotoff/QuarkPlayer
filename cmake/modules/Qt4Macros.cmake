@@ -10,7 +10,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the License for more information.
 #=============================================================================
-# (To distributed this file outside of CMake, substitute the full
+# (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
 
@@ -129,7 +129,11 @@ MACRO (QT4_GENERATE_MOC infile outfile )
 # get include dirs and flags
    QT4_GET_MOC_FLAGS(moc_flags)
    GET_FILENAME_COMPONENT(abs_infile ${infile} ABSOLUTE)
-   QT4_CREATE_MOC_COMMAND(${abs_infile} ${outfile} "${moc_flags}" "")
+   SET(_outfile "${outfile}")
+   IF(NOT IS_ABSOLUTE "${outfile}")
+     SET(_outfile "${CMAKE_CURRENT_BINARY_DIR}/${outfile}")
+   ENDIF(NOT IS_ABSOLUTE "${outfile}")
+   QT4_CREATE_MOC_COMMAND(${abs_infile} ${_outfile} "${moc_flags}" "")
    SET_SOURCE_FILES_PROPERTIES(${outfile} PROPERTIES SKIP_AUTOMOC TRUE)  # dont run automoc on this file
 ENDMACRO (QT4_GENERATE_MOC)
 
@@ -187,10 +191,9 @@ MACRO (QT4_ADD_RESOURCES outfiles )
     SET(_RC_DEPENDS)
     FOREACH(_RC_FILE ${_RC_FILES})
       STRING(REGEX REPLACE "^<file[^>]*>" "" _RC_FILE "${_RC_FILE}")
-      STRING(REGEX MATCH "^/|([A-Za-z]:/)" _ABS_PATH_INDICATOR "${_RC_FILE}")
-      IF(NOT _ABS_PATH_INDICATOR)
+      IF(NOT IS_ABSOLUTE "${_RC_FILE}")
         SET(_RC_FILE "${rc_path}/${_RC_FILE}")
-      ENDIF(NOT _ABS_PATH_INDICATOR)
+      ENDIF(NOT IS_ABSOLUTE "${_RC_FILE}")
       SET(_RC_DEPENDS ${_RC_DEPENDS} "${_RC_FILE}")
     ENDFOREACH(_RC_FILE)
     ADD_CUSTOM_COMMAND(OUTPUT ${outfile}
@@ -316,21 +319,17 @@ MACRO(QT4_AUTOMOC)
 
       GET_FILENAME_COMPONENT(_abs_PATH ${_abs_FILE} PATH)
 
-      STRING(REGEX MATCHALL "# *include +([^ ]+\\.moc[\">])|(\"moc_+[^ ]+\\.cpp[\">])" _match "${_contents}")
+      STRING(REGEX MATCHALL "# *include +[^ ]+\\.moc[\">]" _match "${_contents}")
       IF(_match)
         FOREACH (_current_MOC_INC ${_match})
-          STRING(REGEX MATCH "([^ <\"]+\\.moc)|([^ <\"]+\\.cpp)" _current_MOC "${_current_MOC_INC}")
+          STRING(REGEX MATCH "[^ <\"]+\\.moc" _current_MOC "${_current_MOC_INC}")
 
           GET_FILENAME_COMPONENT(_basename ${_current_MOC} NAME_WE)
-          STRING(REPLACE "moc_" "" _basename ${_basename})
           IF(EXISTS ${_abs_PATH}/${_basename}.hpp)
             SET(_header ${_abs_PATH}/${_basename}.hpp)
           ELSE(EXISTS ${_abs_PATH}/${_basename}.hpp)
             SET(_header ${_abs_PATH}/${_basename}.h)
           ENDIF(EXISTS ${_abs_PATH}/${_basename}.hpp)
-          IF(NOT EXISTS ${_header})
-            SET(_header ${_abs_PATH}/${_basename}.cpp)
-          ENDIF(NOT EXISTS ${_header})
           SET(_moc    ${CMAKE_CURRENT_BINARY_DIR}/${_current_MOC})
           QT4_CREATE_MOC_COMMAND(${_header} ${_moc} "${_moc_INCS}" "")
           MACRO_ADD_FILE_DEPENDENCIES(${_abs_FILE} ${_moc})
