@@ -1,6 +1,6 @@
 /*
  * MPlayer backend for the Phonon library
- * Copyright (C) 2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2010-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define PhononMPlayerDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "Phonon-MPlayer" << __FUNCTION__
-#define PhononMPlayerWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "Phonon-MPlayer" << __FUNCTION__
-#define PhononMPlayerCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "Phonon-MPlayer" << __FUNCTION__
+#define PhononMPlayerDebug() qDebug() << "QP_LOGGER" << QString(__FILE__) << __LINE__ << "Phonon-MPlayer" << __FUNCTION__
+#define PhononMPlayerWarning() qWarning() << "QP_LOGGER" << QString(__FILE__) << __LINE__ << "Phonon-MPlayer" << __FUNCTION__
+#define PhononMPlayerCritical() qCritical() << "QP_LOGGER" << QString(__FILE__) << __LINE__ << "Phonon-MPlayer" << __FUNCTION__
 
 #endif	//PHONONMPLAYERLOGGER_H

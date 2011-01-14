@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -41,13 +41,14 @@ class QXmlStreamWriter;
  *
  * #include <QtCore/QDebug>
  *
- * #define QuarkPlayerCoreDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "QuarkPlayerCore" << __FUNCTION__
- * #define QuarkPlayerCoreWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "QuarkPlayerCore" << __FUNCTION__
- * #define QuarkPlayerCoreCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "QuarkPlayerCore" << __FUNCTION__
+ * #define QuarkPlayerCoreDebug() qDebug() << "QP_LOGGER" << QString(__FILE__) << __LINE__ << "QuarkPlayerCore" << __FUNCTION__
+ * #define QuarkPlayerCoreWarning() qWarning() << "QP_LOGGER" << QString(__FILE__) << __LINE__ << "QuarkPlayerCore" << __FUNCTION__
+ * #define QuarkPlayerCoreCritical() qCritical() << "QP_LOGGER" << QString(__FILE__) << __LINE__ << "QuarkPlayerCore" << __FUNCTION__
  *
  * #endif	//QUARKPLAYERCORELOGGER_H
  * </pre>
  *
+ * QString(__FILE__) add quotes; we cannot simply write __FILE__ without quotes since filenames can contain spaces
  * __FILE__: name of the current source file
  * __LINE__: line number in the current source file
  * __FUNCTION__: current function name as a string
@@ -62,10 +63,10 @@ class QXmlStreamWriter;
  * __PRETTY_FUNCTION__ is GNU GCC specific
  *
  * Examples of lines produced by QuarkPlayerCoreDebug():
- * MinGW: "QP_LOGGER C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp 64 QuarkPlayerCore main Current date and time: "ven. 29. oct. 12:13:26 2010" "
- * MinGW: "QP_LOGGER C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp 69 QuarkPlayerCore findPluginDir Checking for plugins"
- * Visual C++ 2010: "QP_LOGGER C:\Users\Alisson\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp 64 QuarkPlayerCore main Current date and time: "Sat Oct 30 15:32:23 2010" "
- * Visual C++ 2010: "QP_LOGGER C:\Users\Alisson\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp 69 QuarkPlayerCore PluginManager::findPluginDir Checking for plugins"
+ * MinGW: "QP_LOGGER "C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp" 64 QuarkPlayerCore main Current date and time: "ven. 29. oct. 12:13:26 2010" "
+ * MinGW: "QP_LOGGER "C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp" 69 QuarkPlayerCore findPluginDir Checking for plugins"
+ * Visual C++ 2010: "QP_LOGGER "C:\Users\Alisson\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp" 64 QuarkPlayerCore main Current date and time: "Sat Oct 30 15:32:23 2010" "
+ * Visual C++ 2010: "QP_LOGGER "C:\Users\Alisson\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp" 69 QuarkPlayerCore PluginManager::findPluginDir Checking for plugins"
  *
  * It is a shame Qt does not provide a qInfo() function, qDebug() is not enough.
  *

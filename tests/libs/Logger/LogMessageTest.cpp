@@ -79,42 +79,52 @@ void LogMessageTest::testReadWrite() {
 	QCOMPARE(msg1.message, QString("Hello World!"));
 	///
 
-	//Test failing read and default LogMessage value
-	QString text2 = "blabla";
-	LogMessage msg2;
-	QXmlStreamReader reader2(text2);
-	bool success2 = msg2.read(reader2);
-	QVERIFY(!success2);
-	QVERIFY(msg2.isEmpty());
-	QCOMPARE(msg2.time, QTime());
+	//Test successful read with the other LogMessage' constructor
+	QString text2 = "QP_LOGGER \"C:\\Documents and Settings\\tkrotoff\\Desktop\\quarkplayer\\trunk\\quarkplayer-app\\main.cpp\" 64 QuarkPlayerCore main Current date and time: \"ven. 29. oct. 12:13:26 2010\" ";
+	LogMessage msg2(QtDebugMsg, text2);
 	QCOMPARE(msg2.type, QtDebugMsg);
-	QCOMPARE(msg2.file, QString());
-	QCOMPARE(msg2.line, 0);
-	QCOMPARE(msg2.module, QString());
-	QCOMPARE(msg2.function, QString());
-	QCOMPARE(msg2.message, QString());
+	QCOMPARE(msg2.file, QString("C:\\Documents and Settings\\tkrotoff\\Desktop\\quarkplayer\\trunk\\quarkplayer-app\\main.cpp"));
+	QCOMPARE(msg2.line, 64);
+	QCOMPARE(msg2.module, QString("QuarkPlayerCore"));
+	QCOMPARE(msg2.function, QString("main"));
+	QCOMPARE(msg2.message, QString("Current date and time: \"ven. 29. oct. 12:13:26 2010\""));
+	///
+
+	//Test failing read and default LogMessage value
+	QString text3 = "blabla";
+	LogMessage msg3;
+	QXmlStreamReader reader3(text3);
+	bool success3 = msg3.read(reader3);
+	QVERIFY(!success3);
+	QVERIFY(msg3.isEmpty());
+	QCOMPARE(msg3.time, QTime());
+	QCOMPARE(msg3.type, QtDebugMsg);
+	QCOMPARE(msg3.file, QString());
+	QCOMPARE(msg3.line, 0);
+	QCOMPARE(msg3.module, QString());
+	QCOMPARE(msg3.function, QString());
+	QCOMPARE(msg3.message, QString());
 	///
 
 	//Compare with empty LogMessage
-	LogMessage msg3;
-	QCOMPARE(msg2, msg3);
-	QVERIFY(msg3.isEmpty());
+	LogMessage msg4;
+	QCOMPARE(msg3, msg4);
+	QVERIFY(msg4.isEmpty());
 	///
 
 	//Write, then read and compare
-	QString text4;
-	QXmlStreamWriter writer4(&text4);
-	msg1.write(writer4);
-	LogMessage msg4;
-	QXmlStreamReader reader4(text4);
-	msg4.read(reader4);
-	QCOMPARE(msg4, msg1);
-	QCOMPARE(msg4.time, msg1.time);
-	QCOMPARE(msg4.type, msg1.type);
-	QCOMPARE(msg4.file, msg1.file);
-	QCOMPARE(msg4.line, msg1.line);
-	QCOMPARE(msg4.module, msg1.module);
-	QCOMPARE(msg4.function, msg1.function);
-	QCOMPARE(msg4.message, msg1.message);
+	QString text5;
+	QXmlStreamWriter writer5(&text5);
+	msg1.write(writer5);
+	QXmlStreamReader reader5(text5);
+	LogMessage msg5(reader5);
+	QCOMPARE(msg5, msg1);
+	QCOMPARE(msg5.time, msg1.time);
+	QCOMPARE(msg5.type, msg1.type);
+	QCOMPARE(msg5.file, msg1.file);
+	QCOMPARE(msg5.line, msg1.line);
+	QCOMPARE(msg5.module, msg1.module);
+	QCOMPARE(msg5.function, msg1.function);
+	QCOMPARE(msg5.message, msg1.message);
 	///
 }

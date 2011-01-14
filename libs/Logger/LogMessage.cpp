@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,10 +36,10 @@ LogMessage::LogMessage() {
 
 LogMessage::LogMessage(QtMsgType _type, const QString & msg) {
 
-	//MinGW: "QP_LOGGER C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp 64 QuarkPlayerCore main Current date and time: "ven. 29. oct. 12:13:26 2010" "
-	//MinGW: "QP_LOGGER C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp 69 QuarkPlayerCore findPluginDir Checking for plugins"
-	//Visual C++ 2010: "QP_LOGGER C:\Users\Alisson\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp 64 QuarkPlayerCore main Current date and time: "Sat Oct 30 15:32:23 2010" "
-	//Visual C++ 2010: "QP_LOGGER C:\Users\Alisson\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp 69 QuarkPlayerCore PluginManager::findPluginDir Checking for plugins"
+	//MinGW: "QP_LOGGER "C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp" 64 QuarkPlayerCore main Current date and time: "ven. 29. oct. 12:13:26 2010" "
+	//MinGW: "QP_LOGGER "C:\Documents and Settings\tkrotoff\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp" 69 QuarkPlayerCore findPluginDir Checking for plugins"
+	//Visual C++ 2010: "QP_LOGGER "C:\Users\Alisson\Desktop\quarkplayer\trunk\quarkplayer-app\main.cpp" 64 QuarkPlayerCore main Current date and time: "Sat Oct 30 15:32:23 2010" "
+	//Visual C++ 2010: "QP_LOGGER "C:\Users\Alisson\Desktop\quarkplayer\trunk\quarkplayer\PluginManager.cpp" 69 QuarkPlayerCore PluginManager::findPluginDir Checking for plugins"
 
 	QString logLine(msg);
 	logLine = logLine.trimmed();	//The message can contain begin and end spaces
@@ -53,11 +53,13 @@ LogMessage::LogMessage(QtMsgType _type, const QString & msg) {
 
 	static const QString LOGGER_STRING_TO_MATCH = "QP_LOGGER";
 	if (logLine.startsWith(LOGGER_STRING_TO_MATCH)) {
-		logLine.remove(0, LOGGER_STRING_TO_MATCH.length() + 1);
+		//+ 2 characters because of space + "
+		logLine.remove(0, LOGGER_STRING_TO_MATCH.length() + 2);
 
-		int index = logLine.indexOf(' ');
+		int index = logLine.indexOf('"');
 		sourceCodeFileName = logLine.left(index);
-		logLine.remove(0, sourceCodeFileName.length() + 1);
+		//+ 2 characters because of " + space
+		logLine.remove(0, sourceCodeFileName.length() + 2);
 
 		index = logLine.indexOf(' ');
 		sourceCodeLineNumber = logLine.left(index);

@@ -58,7 +58,7 @@ public:
 			msleep(100);
 			nbMessageDisplayed++;
 		}
-		if (nbMessageDisplayed == NB_THREAD * NB_MESSAGE_PER_THREAD) {
+		if (nbMessageDisplayed >= NB_THREAD * NB_MESSAGE_PER_THREAD) {
 			QCoreApplication::quit();
 		}
 	}

@@ -29,7 +29,7 @@
 QTEST_MAIN(LogMessageHandlerTest)
 
 static const int NB_THREAD = 10;
-static const int NB_MESSAGE_PER_THREAD = 1000;
+static const int NB_MESSAGE_PER_THREAD = 100;
 static int nbMessageDisplayed = 0;
 
 class MyThread : public QThread {
@@ -45,7 +45,7 @@ public:
 			msleep(10);
 			nbMessageDisplayed++;
 		}
-		if (nbMessageDisplayed == NB_THREAD * NB_MESSAGE_PER_THREAD) {
+		if (nbMessageDisplayed >= NB_THREAD * NB_MESSAGE_PER_THREAD) {
 			QCoreApplication::quit();
 		}
 	}

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2010-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,8 +21,8 @@
 
 #include <QtCore/QDebug>
 
-#define WelcomeDebug() qDebug() << "QP_LOGGER" << __FILE__ << __LINE__ << "Welcome" << __FUNCTION__
-#define WelcomeWarning() qWarning() << "QP_LOGGER" << __FILE__ << __LINE__ << "Welcome" << __FUNCTION__
-#define WelcomeCritical() qCritical() << "QP_LOGGER" << __FILE__ << __LINE__ << "Welcome" << __FUNCTION__
+#define WelcomeDebug() qDebug() << "QP_LOGGER" << QString(__FILE__) << __LINE__ << "Welcome" << __FUNCTION__
+#define WelcomeWarning() qWarning() << "QP_LOGGER" << QString(__FILE__) << __LINE__ << "Welcome" << __FUNCTION__
+#define WelcomeCritical() qCritical() << "QP_LOGGER" << QString(__FILE__) << __LINE__ << "Welcome" << __FUNCTION__
 
 #endif	//WELCOMELOGGER_H
