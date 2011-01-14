@@ -1,0 +1,39 @@
+Index: taglib/ape/apefooter.cpp
+===================================================================
+--- taglib/ape/apefooter.cpp	(revision 1385)
++++ taglib/ape/apefooter.cpp	(working copy)
+@@ -189,7 +189,7 @@
+ 
+   // Read the flags
+ 
+-  std::bitset<32> flags(data.mid(20, 4).toUInt(false));
++  std::bitset<32> flags(static_cast<unsigned long long>(data.mid(20, 4).toUInt(false)));
+ 
+   d->headerPresent = flags[31];
+   d->footerPresent = !flags[30];
+Index: taglib/mpc/mpcproperties.cpp
+===================================================================
+--- taglib/mpc/mpcproperties.cpp	(revision 1385)
++++ taglib/mpc/mpcproperties.cpp	(working copy)
+@@ -113,7 +113,7 @@
+   if(d->version >= 7) {
+     frames = d->data.mid(4, 4).toUInt(false);
+ 
+-    std::bitset<32> flags = d->data.mid(8, 4).toUInt(false);
++    std::bitset<32> flags = static_cast<unsigned long long>(d->data.mid(8, 4).toUInt(false));
+     d->sampleRate = sftable[flags[17] * 2 + flags[16]];
+     d->channels = 2;
+   }
+Index: taglib/mpeg/mpegheader.cpp
+===================================================================
+--- taglib/mpeg/mpegheader.cpp	(revision 1385)
++++ taglib/mpeg/mpegheader.cpp	(working copy)
+@@ -168,7 +168,7 @@
+     return;
+   }
+ 
+-  std::bitset<32> flags(data.toUInt());
++  std::bitset<32> flags(static_cast<unsigned long long>(data.toUInt()));
+ 
+   // Check for the second byte's part of the MPEG synch
+ 
