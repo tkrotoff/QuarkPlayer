@@ -41,7 +41,9 @@ void LogWindowTest::cleanup() {
 
 static const int NB_THREAD = 10;
 static const int NB_MESSAGE_PER_THREAD = 100;
-static int nbMessageDisplayed = 0;
+
+int nbMessageDisplayed = 0;
+QMutex mutex;
 
 class MyThread : public QThread {
 public:
@@ -53,10 +55,13 @@ public:
 	void run() {
 		for (int i = 0; i < NB_MESSAGE_PER_THREAD; i++) {
 			LoggerDebug() << _name << i << QThread::currentThreadId();
-			msleep(100);
+			msleep(10);
 			QCoreApplication::processEvents();
-			msleep(100);
+			msleep(10);
+
+			mutex.lock();
 			nbMessageDisplayed++;
+			mutex.unlock();
 		}
 		if (nbMessageDisplayed >= NB_THREAD * NB_MESSAGE_PER_THREAD) {
 			QCoreApplication::quit();
