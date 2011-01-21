@@ -24,7 +24,7 @@
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/version.h>
 
-#include <Logger/LogMessageHandler.h>
+#include <Logger/Logger.h>
 
 #include <TkUtil/Translator.h>
 
@@ -58,12 +58,6 @@
 int main(int argc, char * argv[]) {
 	QtSingleApplication app(argc, argv);
 
-	//Installs a custom message handler for qDebug(), qWarning() and others
-	qInstallMsgHandler(LogMessageHandler::myMessageOutput);
-
-	QuarkPlayerCoreDebug() << "Current date and time:" << QDateTime::currentDateTime().toString();
-	QuarkPlayerCoreDebug() << "QuarkPlayer version:" << quarkPlayerFullVersion();
-
 	//General infos
 	app.setOrganizationName("QuarkPlayer");
 	app.setOrganizationDomain("quarkplayer.org");
@@ -74,6 +68,12 @@ int main(int argc, char * argv[]) {
 	//FIXME hardcoded, a better solution must be found
 	app.addLibraryPath("/usr/lib/quarkplayer/");
 #endif	//Q_WS_X11
+
+	//Installs a custom message handler for qDebug(), qWarning() and others
+	qInstallMsgHandler(Logger::myMessageOutput);
+
+	QuarkPlayerCoreDebug() << "Current date and time:" << QDateTime::currentDateTime().toString();
+	QuarkPlayerCoreDebug() << "QuarkPlayer version:" << quarkPlayerFullVersion();
 
 	//Do it now, otherwise organizationName and applicationName are not set
 	Config & config = Config::instance();

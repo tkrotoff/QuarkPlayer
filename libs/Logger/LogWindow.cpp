@@ -1,26 +1,35 @@
 /*
- * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (c) 2010-2011 Tanguy Krotoff.
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
  */
 
 #include "LogWindow.h"
 
-#include "LogMessageHandler.h"
+#include "Logger.h"
 #include "LogModel.h"
 #include "LogMessage.h"
+#include "LoggerOutput.h"
 #include "LoggerLogger.h"
 
 #include <TkUtil/TkFileDialog.h>
@@ -78,7 +87,7 @@ public:
 LogWindow::LogWindow(QWidget * parent)
 	: QMainWindow(parent, Qt::Dialog) {
 
-	_model = LogMessageHandler::instance().logModel();
+	_model = Logger::instance().logModel();
 
 	populateActionCollection();
 
@@ -150,6 +159,26 @@ void LogWindow::setupUi() {
 	_toolBar->addAction(ActionCollection::action("LogWindow.Save"));
 	_toolBar->addAction(ActionCollection::action("LogWindow.Clear"));
 	_toolBar->addAction(ActionCollection::action("LogWindow.PlayPause"));
+
+	_outputsButton = new QPushButton();
+	_menuOutputs = new QMenu();
+	_outputsButton->setMenu(_menuOutputs);
+	_toolBar->addWidget(_outputsButton);
+
+	//Populate the outputs menu
+	QSignalMapper * signalMapper = new QSignalMapper(this);
+	QList<LoggerOutput *> & outputs = Logger::instance().outputs();
+	foreach (LoggerOutput * output, outputs) {
+		QAction * action = _menuOutputs->addAction(output->name(),
+						signalMapper, SLOT(map()));
+		signalMapper->setMapping(action, output);
+		action->setCheckable(true);
+		action->setChecked(output->isEnabled());
+	}
+	connect(signalMapper, SIGNAL(mapped(QObject *)),
+		SLOT(setEnabledLoggerOutput(QObject *)));
+	///
+
 	addToolBar(_toolBar);
 }
 
@@ -191,13 +220,15 @@ void LogWindow::retranslate() {
 		LoggerCritical() << "Unknown state:" << state;
 	}
 
+	_outputsButton->setText(tr("Outputs"));
+
 	_toolBar->setWindowTitle(tr("ToolBar"));
 }
 
 void LogWindow::open() {
 	QString fileName = TkFileDialog::getOpenFileName(
 		this, tr("Select Log File"), QDir::homePath(),
-		tr("Logs") + " (*.log *.txt)" + ";;" +
+		tr("Logs") + " (*.log *.xml *.txt)" + ";;" +
 		tr("All Files") + " (*)"
 	);
 
@@ -219,7 +250,7 @@ void LogWindow::open() {
 void LogWindow::save() {
 	QString fileName = TkFileDialog::getSaveFileName(
 		this, tr("Save Log Messages"), QDir::homePath(),
-		tr("Logs") + " (*.log *.txt)"
+		tr("Logs") + " (*.log *.xml *.txt)"
 	);
 
 	if (!fileName.isEmpty()) {
@@ -270,4 +301,9 @@ void LogWindow::openSourceFile(const QModelIndex & index) {
 	} else {
 		LoggerWarning() << "No source code file";
 	}
+}
+
+void LogWindow::setEnabledLoggerOutput(QObject * object) {
+	LoggerOutput * output = qobject_cast<LoggerOutput *>(object);
+	output->setEnabled(!output->isEnabled());
 }

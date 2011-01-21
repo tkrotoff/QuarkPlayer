@@ -16,18 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LOGMESSAGEHANDLERTEST_H
-#define LOGMESSAGEHANDLERTEST_H
+#ifndef LOGGERTEST_H
+#define LOGGERTEST_H
 
 #include <QtTest/QtTest>
 
 /**
- * Test class for LogMessageHandler.
+ * Test class for Logger.
  *
- * @see LogMessageHandler
+ * @see Logger
  * @author Tanguy Krotoff
  */
-class LogMessageHandlerTest : public QObject {
+class LoggerTest : public QObject {
 	Q_OBJECT
 private slots:
 
@@ -44,8 +44,8 @@ private slots:
 	void cleanup();
 
 
-	/** Tests several threads using LogMessageHandler::myMessageOutput() at the same time. */
+	/** Tests several threads using Logger::myMessageOutput() at the same time. */
 	void testThreads();
 };
 
-#endif	//LOGMESSAGEHANDLERTEST_H
+#endif	//LOGGERTEST_H

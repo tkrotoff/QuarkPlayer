@@ -17,22 +17,12 @@ macro(add_unit_test name)
 endmacro(add_unit_test name)
 
 
-set(SearchLineEditTest_SRCS
-	SearchLineEditTest.cpp
-)
-qt4_wrap_cpp(SearchLineEditTest_SRCS
-	SearchLineEditTest.h
-)
-qt4_add_resources(SearchLineEditTest_SRCS
-	SearchLineEditTest.qrc
-)
+set(SearchLineEditTest_SRCS SearchLineEditTest.cpp)
+qt4_wrap_cpp(SearchLineEditTest_SRCS SearchLineEditTest.h)
+qt4_add_resources(SearchLineEditTest_SRCS SearchLineEditTest.qrc)
 add_unit_test(SearchLineEditTest ${SearchLineEditTest_SRCS})
 
 
-set(FindFilesTest_SRCS
-	FindFilesTest.cpp
-)
-qt4_wrap_cpp(FindFilesTest_SRCS
-	FindFilesTest.h
-)
+set(FindFilesTest_SRCS FindFilesTest.cpp)
+qt4_wrap_cpp(FindFilesTest_SRCS FindFilesTest.h)
 add_unit_test(FindFilesTest ${FindFilesTest_SRCS})

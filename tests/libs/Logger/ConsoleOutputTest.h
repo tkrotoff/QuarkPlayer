@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,18 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LOGWINDOWTEST_H
-#define LOGWINDOWTEST_H
+#ifndef CONSOLEOUTPUTTEST_H
+#define CONSOLEOUTPUTTEST_H
 
 #include <QtTest/QtTest>
 
 /**
- * Test class for LogWindow.
+ * Test class for ConsoleOutput.
  *
- * @see LogWindow
+ * @see ConsoleOutput
  * @author Tanguy Krotoff
  */
-class LogWindowTest : public QObject {
+class ConsoleOutputTest : public QObject {
 	Q_OBJECT
 private slots:
 
@@ -48,4 +48,4 @@ private slots:
 	void testThreads();
 };
 
-#endif	//LOGWINDOWTEST_H
+#endif	//CONSOLEOUTPUTTEST_H

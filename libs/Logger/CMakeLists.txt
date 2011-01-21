@@ -4,16 +4,22 @@ add_definitions(-DBUILD_LOGGER)
 add_definitions(-DHACK_ABOUT_TO_QUIT -DHACK_LAYOUT_CHANGED -DHACK_DATA_CHANGED)
 
 set(Logger_SRCS
-	LogMessageHandler.cpp
+	Logger.cpp
 	LogMessage.cpp
 	LogModel.cpp
 	LogWindow.cpp
+	LoggerOutput.cpp
+	ConsoleOutput.cpp
+	XmlFileOutput.cpp
 )
 
 qt4_wrap_cpp(Logger_SRCS
-	LogMessageHandler.h
+	Logger.h
 	LogModel.h
 	LogWindow.h
+	LoggerOutput.h
+	ConsoleOutput.h
+	XmlFileOutput.h
 )
 
 add_library(Logger SHARED ${Logger_SRCS})

@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LogMessageHandlerTest.h"
+#include "LoggerTest.h"
 
-#include <Logger/LogMessageHandler.h>
+#include <Logger/Logger.h>
 #include <Logger/LogModel.h>
 #include <Logger/LogMessage.h>
 
@@ -26,7 +26,20 @@
 
 #include <QtCore/QtCore>
 
-QTEST_MAIN(LogMessageHandlerTest)
+QTEST_MAIN(LoggerTest)
+
+void LoggerTest::initTestCase() {
+}
+
+void LoggerTest::cleanupTestCase() {
+}
+
+void LoggerTest::init() {
+}
+
+void LoggerTest::cleanup() {
+}
+
 
 static const int NB_THREAD = 10;
 static const int NB_MESSAGE_PER_THREAD = 100;
@@ -61,20 +74,8 @@ private:
 	QString _name;
 };
 
-void LogMessageHandlerTest::initTestCase() {
-}
-
-void LogMessageHandlerTest::cleanupTestCase() {
-}
-
-void LogMessageHandlerTest::init() {
-}
-
-void LogMessageHandlerTest::cleanup() {
-}
-
-void LogMessageHandlerTest::testThreads() {
-	qInstallMsgHandler(LogMessageHandler::myMessageOutput);
+void LoggerTest::testThreads() {
+	qInstallMsgHandler(Logger::myMessageOutput);
 
 	for (int i = 0; i < NB_THREAD; i++) {
 		MyThread * thread = new MyThread("thread" + QString::number(i));

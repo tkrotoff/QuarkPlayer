@@ -26,17 +26,22 @@
 
 TkConfig::TkConfig()
 	:
+
+	//Each time this is modified, don't forget to modify Logger::configDir()
+
 #ifdef Q_WS_WIN
 	//Forces INI file format instead of using Windows registry database
-	_settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName())
+	_settings(QSettings::IniFormat, QSettings::UserScope,
+		QCoreApplication::organizationName(), QCoreApplication::applicationName())
 #else
-	_settings(QSettings::NativeFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName())
+	_settings(QSettings::NativeFormat, QSettings::UserScope,
+		QCoreApplication::organizationName(), QCoreApplication::applicationName())
 #endif	//Q_WS_WIN
 	{
 
-	if (QCoreApplication::organizationName().isEmpty() || QCoreApplication::applicationName().isEmpty()) {
-		TkUtilCritical() << "QCoreApplication::organizationName or applicationName empty";
-	}
+	//Application name & organization name cannot be empty
+	Q_ASSERT(!QCoreApplication::applicationName().isEmpty());
+	Q_ASSERT(!QCoreApplication::organizationName().isEmpty());
 
 	TkUtilDebug() << "Config file:" << fileName();
 }

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,26 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LogWindowTest.h"
+#include "ConsoleOutputTest.h"
 
+#include <Logger/ConsoleOutput.h>
 #include <Logger/Logger.h>
 #include <Logger/LoggerLogger.h>
-#include <Logger/LogWindow.h>
 
-#include <QtGui/QtGui>
+#include <QtCore/QtCore>
 
-QTEST_MAIN(LogWindowTest)
+QTEST_MAIN(ConsoleOutputTest)
 
-void LogWindowTest::initTestCase() {
+void ConsoleOutputTest::initTestCase() {
 }
 
-void LogWindowTest::cleanupTestCase() {
+void ConsoleOutputTest::cleanupTestCase() {
 }
 
-void LogWindowTest::init() {
+void ConsoleOutputTest::init() {
 }
 
-void LogWindowTest::cleanup() {
+void ConsoleOutputTest::cleanup() {
 }
 
 
@@ -55,9 +55,6 @@ public:
 	void run() {
 		for (int i = 0; i < NB_MESSAGE_PER_THREAD; i++) {
 			LoggerDebug() << _name << i << QThread::currentThreadId();
-			msleep(10);
-			QCoreApplication::processEvents();
-			msleep(10);
 
 			mutex.lock();
 			nbMessageDisplayed++;
@@ -74,11 +71,8 @@ private:
 	QString _name;
 };
 
-void LogWindowTest::testThreads() {
+void ConsoleOutputTest::testThreads() {
 	qInstallMsgHandler(Logger::myMessageOutput);
-
-	LogWindow * logWindow = new LogWindow(NULL);
-	logWindow->show();
 
 	for (int i = 0; i < NB_THREAD; i++) {
 		MyThread * thread = new MyThread("thread" + QString::number(i));
