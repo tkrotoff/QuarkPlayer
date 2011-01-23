@@ -69,6 +69,11 @@ int main(int argc, char * argv[]) {
 	app.addLibraryPath("/usr/lib/quarkplayer/");
 #endif	//Q_WS_X11
 
+#ifdef Q_WS_MAC
+	//Disable menu icons under Mac OS X
+	app.setAttribute(Qt::AA_DontShowIconsInMenus);
+#endif	//Q_WS_MAC
+
 	//Installs a custom message handler for qDebug(), qWarning() and others
 	qInstallMsgHandler(Logger::myMessageOutput);
 
