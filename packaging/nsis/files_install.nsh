@@ -26,6 +26,7 @@ File "${BUILD_DIR}\COPYING.LESSER"
 File "${BUILD_DIR}\AUTHORS"
 File "${BUILD_DIR}\THANKS"
 
+
 ; Detects MSVC71 (Visual C++ 2003)
 ${If} ${COMPILER_NAME} == "MSVC71"
 	;SetOutPath "$INSTDIR"
@@ -35,8 +36,6 @@ ${EndIf}
 
 ; Detects MSVC80 (Visual C++ 2005)
 ${If} ${COMPILER_NAME} == "MSVC80"
-	; Compiler is MSVC80
-
 	Call IsMsvcrt80Installed
 	Pop $R0
 	${If} $R0 == 0
@@ -49,17 +48,27 @@ ${EndIf}
 
 ; Detects MSVC90 (Visual C++ 2008)
 ${If} ${COMPILER_NAME} == "MSVC90"
-	; Compiler is MSVC90
-
 	Call IsMsvcrt90Installed
 	Pop $R0
 	${If} $R0 == 0
-		SetOutPath $PLUGINSDIR
-		File /nonfatal "C:\Program Files\Microsoft SDKs\Windows\v6.0A\Bootstrapper\Packages\vcredist_x86\vcredist_x86.exe"
-		DetailPrint "Installing Visual C++ 2008 (MSVC90) Libraries"
-		ExecWait '"$PLUGINSDIR\vcredist_x86.exe" /q:a /c:"msiexec /i vcredist.msi /quiet"'
+		;SetOutPath $PLUGINSDIR
+		;File /nonfatal "C:\Program Files\Microsoft SDKs\Windows\v6.0A\Bootstrapper\Packages\vcredist_x86\vcredist_x86.exe"
+		;DetailPrint "Installing Visual C++ 2008 (MSVC90) Libraries"
+		;ExecWait '"$PLUGINSDIR\vcredist_x86.exe" /q:a /c:"msiexec /i vcredist.msi /quiet"'
 	${EndIf}
 ${EndIf}
+
+; Detects MSVC10 (Visual C++ 2010)
+${If} ${COMPILER_NAME} == "MSVC10"
+	; MSVC10 does not use the WinSxS folder anymore
+	; See http://social.msdn.microsoft.com/Forums/en/vcgeneral/thread/4eba883d-d14b-4fc5-912d-aaafcf0bffab
+	; See http://msdn.microsoft.com/en-us/library/dd293574(VS.100).aspx
+	SetOutPath $PLUGINSDIR
+	File /nonfatal "C:\Program Files\Microsoft SDKs\Windows\v7.0A\Bootstrapper\Packages\vcredist_x86\vcredist_x86.exe"
+	DetailPrint "Installing Visual C++ 2010 (MSVC10) Libraries"
+	ExecWait '"$PLUGINSDIR\vcredist_x86.exe" /q:a /c:"msiexec /i vcredist.msi /quiet"'
+${EndIf}
+
 
 SetOutPath "$INSTDIR\icons\mimetypes\"
 File "${BUILD_DIR}\icons\mimetypes\*.ico"
