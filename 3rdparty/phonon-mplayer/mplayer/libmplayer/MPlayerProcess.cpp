@@ -104,16 +104,16 @@ MPlayerProcess::MPlayerProcess(QObject * parent)
 	rx_subtitle_loading_error("^Cannot load subtitles: (.*)"),
 
 	//Meta data infos
-	rx_clip_title("^(name|title): (.*)", Qt::CaseInsensitive),
-	rx_clip_artist("^artist: (.*)", Qt::CaseInsensitive),
-	rx_clip_author("^author: (.*)", Qt::CaseInsensitive),
-	rx_clip_album("^album: (.*)", Qt::CaseInsensitive),
-	rx_clip_genre("^genre: (.*)", Qt::CaseInsensitive),
-	rx_clip_date("^(creation date|year): (.*)", Qt::CaseInsensitive),
-	rx_clip_track("^track: (.*)", Qt::CaseInsensitive),
-	rx_clip_copyright("^copyright: (.*)", Qt::CaseInsensitive),
-	rx_clip_comment("^comment: (.*)", Qt::CaseInsensitive),
-	rx_clip_software("^software: (.*)", Qt::CaseInsensitive),
+	rx_clip_title("^ (Name|Title): (.*)"),
+	rx_clip_artist("^ Artist: (.*)"),
+	rx_clip_author("^ Author: (.*)"),
+	rx_clip_album("^ Album: (.*)"),
+	rx_clip_genre("^ Genre: (.*)"),
+	rx_clip_date("^ (Creation Date|Year): (.*)"),
+	rx_clip_track("^ Track: (.*)"),
+	rx_clip_copyright("^ Copyright: (.*)"),
+	rx_clip_comment("^ Comment: (.*)"),
+	rx_clip_software("^ Software: (.*)"),
 
 	//Radio streaming infos
 	rx_stream_title("^.* StreamTitle='(.*)';StreamUrl='(.*)';"),
@@ -311,7 +311,8 @@ void MPlayerProcess::parseLine(const QString & line_) {
 
 		if (_currentState != Phonon::PlayingState) {
 			LibMPlayerDebug() << "Starting time:" << _mediaData.currentTime;
-			changeState(Phonon::PlayingState);
+			//FIXME To be removed if not needed anymore
+			//changeState(Phonon::PlayingState);
 
 			//OK, now all the media datas should be in clean state
 			emit mediaLoaded();
@@ -405,7 +406,8 @@ void MPlayerProcess::parseLine(const QString & line_) {
 
 			//Ok, now we can be in PlayingState if we have a video stream
 			//If we have only an audio stream, we are already in PlayingState
-			changeState(Phonon::PlayingState);
+			//FIXME To be removed if not needed anymore
+			//changeState(Phonon::PlayingState);
 
 			//emit mplayerFullyLoaded();
 		}
@@ -811,72 +813,77 @@ void MPlayerProcess::parseLine(const QString & line_) {
 
 		//Meta data infos
 
+		//QString::trimmed() is used for removing leading and trailing whitespaces
+		//Some .mp3 files contain tags with starting and ending whitespaces
+		//Unfortunately MPlayer gives us leading and trailing whitespaces,
+		//Winamp for example doesn't show them
+
 		//Title
 		else if (rx_clip_title.indexIn(line) > -1) {
-			QString title = rx_clip_title.cap(2);
+			QString title = rx_clip_title.cap(2).trimmed();
 			LibMPlayerDebug() << "Clip title:" << title;
 			_mediaData.title = title;
 		}
 
 		//Artist
 		else if (rx_clip_artist.indexIn(line) > -1) {
-			QString artist = rx_clip_artist.cap(1);
+			QString artist = rx_clip_artist.cap(1).trimmed();
 			LibMPlayerDebug() << "Clip artist:" << artist;
 			_mediaData.artist = artist;
 		}
 
 		//Author
 		else if (rx_clip_author.indexIn(line) > -1) {
-			QString author = rx_clip_author.cap(1);
+			QString author = rx_clip_author.cap(1).trimmed();
 			LibMPlayerDebug() << "Clip author:" << author;
 			_mediaData.author = author;
 		}
 
 		//Album
 		else if (rx_clip_album.indexIn(line) > -1) {
-			QString album = rx_clip_album.cap(1);
+			QString album = rx_clip_album.cap(1).trimmed();
 			LibMPlayerDebug() << "Clip album:" << album;
 			_mediaData.album = album;
 		}
 
 		//Genre
 		else if (rx_clip_genre.indexIn(line) > -1) {
-			QString genre = rx_clip_genre.cap(1);
+			QString genre = rx_clip_genre.cap(1).trimmed();
 			LibMPlayerDebug() << "Clip genre:" << genre;
 			_mediaData.genre = genre;
 		}
 
 		//Date
 		else if (rx_clip_date.indexIn(line) > -1) {
-			QString date = rx_clip_date.cap(2);
+			QString date = rx_clip_date.cap(2).trimmed();
 			LibMPlayerDebug() << "Clip date:" << date;
 			_mediaData.date = date;
 		}
 
 		//Track
 		else if (rx_clip_track.indexIn(line) > -1) {
-			QString track = rx_clip_track.cap(1);
+			QString track = rx_clip_track.cap(1).trimmed();
 			LibMPlayerDebug() << "Clip track:" << track;
 			_mediaData.track = track;
 		}
 
 		//Copyright
 		else if (rx_clip_copyright.indexIn(line) > -1) {
-			QString copyright = rx_clip_copyright.cap(1);
+			QString copyright = rx_clip_copyright.cap(1).trimmed();
 			LibMPlayerDebug() << "Clip copyright:" << copyright;
 			_mediaData.copyright = copyright;
 		}
 
 		//Comment
 		else if (rx_clip_comment.indexIn(line) > -1) {
-			QString comment = rx_clip_comment.cap(1);
+			QString comment = rx_clip_comment.cap(1).trimmed();
 			LibMPlayerDebug() << "Clip comment:" << comment;
 			_mediaData.comment = comment;
 		}
 
 		//Software
 		else if (rx_clip_software.indexIn(line) > -1) {
-			QString software = rx_clip_software.cap(1);
+			QString software = rx_clip_software.cap(1).trimmed();
 			LibMPlayerDebug() << "Clip software:" << software;
 			_mediaData.software = software;
 		}

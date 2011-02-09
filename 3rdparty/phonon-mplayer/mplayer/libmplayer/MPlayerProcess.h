@@ -400,7 +400,11 @@ private slots:
 
 private:
 
-	/** Initializes/resets the private variables of this class. */
+	/**
+	 * Initializes/resets the private variables of this class.
+	 *
+	 * Cannot be named reset() since QIODevice::reset() already exist.
+	 */
 	void init();
 
 	void changeState(Phonon::State newState);

@@ -98,11 +98,6 @@ void MyProcess::genericRead(const QByteArray & output) {
 
 		start = from;
 
-		//QString::trimmed() is used for removing leading and trailing whitespaces
-		//Some .mp3 files contain tags with starting and ending whitespaces
-		//Unfortunately MPlayer gives us leading and trailing whitespaces,
-		//Winamp for example doesn't show them
-		line = line.trimmed();
 		if (!line.isEmpty()) {
 			emit lineAvailable(line);
 		}
