@@ -71,6 +71,8 @@ private slots:
 
 	void metaDataChanged();
 
+	void updateWindowTitle();
+
 	void visibilityChanged(bool visible);
 
 private:

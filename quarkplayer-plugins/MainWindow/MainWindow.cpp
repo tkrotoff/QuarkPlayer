@@ -99,7 +99,7 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	connect(ActionCollection::action("MainWindow.OpenVCD"), SIGNAL(triggered()), SLOT(playVCD()));
 	connect(ActionCollection::action("MainWindow.NewMediaObject"), SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
 	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), SLOT(close()));
-	connect(ActionCollection::action("MainWindow.ReportProblem"), SIGNAL(triggered()), SLOT(reportProblem()));
+	connect(ActionCollection::action("MainWindow.ReportBug"), SIGNAL(triggered()), SLOT(reportBug()));
 	connect(ActionCollection::action("MainWindow.ShowMailingList"), SIGNAL(triggered()), SLOT(showMailingList()));
 	connect(ActionCollection::action("MainWindow.ViewLog"), SIGNAL(triggered()), SLOT(viewLog()));
 	connect(ActionCollection::action("MainWindow.About"), SIGNAL(triggered()), SLOT(about()));
@@ -233,13 +233,13 @@ void MainWindow::updateWindowTitle() {
 	QString title = quarkPlayer().currentMediaObjectTitle();
 
 	if (title.isEmpty()) {
-		setWindowTitle(QCoreApplication::applicationName() + "-" + QString(QUARKPLAYER_VERSION));
+		setWindowTitle(QCoreApplication::applicationName() + " " + QString(QUARKPLAYER_VERSION));
 	} else {
-		setWindowTitle(title + " - " + QCoreApplication::applicationName());
+		setWindowTitle(title);
 	}
 }
 
-void MainWindow::reportProblem() {
+void MainWindow::reportBug() {
 	QDesktopServices::openUrl(QUrl("http://code.google.com/p/quarkplayer/issues/list"));
 }
 
@@ -275,7 +275,7 @@ void MainWindow::populateActionCollection() {
 
 	ActionCollection::addAction("MainWindow.OpenFile", new TkAction(app, QKeySequence::Open));
 	ActionCollection::addAction("MainWindow.Quit", new TkAction(app, tr("Ctrl+Q"), tr("Alt+X")));
-	ActionCollection::addAction("MainWindow.ReportProblem", new QAction(app));
+	ActionCollection::addAction("MainWindow.ReportBug", new QAction(app));
 	ActionCollection::addAction("MainWindow.ShowMailingList", new QAction(app));
 	ActionCollection::addAction("MainWindow.ViewLog", new QAction(app));
 	ActionCollection::addAction("MainWindow.About", new TkAction(app, tr("Ctrl+F1")));
@@ -404,7 +404,7 @@ void MainWindow::setupUi() {
 	_menuHelp = new QMenu();
 	menuBar()->addMenu(_menuHelp);
 	_menuHelp->addAction(ActionCollection::action("MainWindow.ShowMailingList"));
-	_menuHelp->addAction(ActionCollection::action("MainWindow.ReportProblem"));
+	_menuHelp->addAction(ActionCollection::action("MainWindow.ReportBug"));
 	_menuHelp->addAction(ActionCollection::action("MainWindow.ViewLog"));
 	_menuHelp->addSeparator();
 	_menuHelp->addAction(ActionCollection::action("MainWindow.About"));
@@ -435,11 +435,11 @@ void MainWindow::retranslate() {
 	ActionCollection::action("MainWindow.Quit")->setText(tr("&Quit"));
 	ActionCollection::action("MainWindow.Quit")->setIcon(QIcon::fromTheme("application-exit"));
 
-	ActionCollection::action("MainWindow.ReportProblem")->setText(tr("&Report a Problem..."));
+	ActionCollection::action("MainWindow.ReportBug")->setText(tr("&Report a Problem..."));
 	if (desktopEnvironment() == GNOME) {
-		ActionCollection::action("MainWindow.ReportProblem")->setIcon(QIcon::fromTheme("apport"));
+		ActionCollection::action("MainWindow.ReportBug")->setIcon(QIcon::fromTheme("apport"));
 	} else {
-		ActionCollection::action("MainWindow.ReportProblem")->setIcon(QIcon::fromTheme("tools-report-bug"));
+		ActionCollection::action("MainWindow.ReportBug")->setIcon(QIcon::fromTheme("tools-report-bug"));
 	}
 
 	ActionCollection::action("MainWindow.ShowMailingList")->setText(tr("&Discuss about QuarkPlayer..."));
@@ -676,8 +676,7 @@ void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 		tmp->disconnect(this);
 	}
 
-	//Resets the main window title
-	updateWindowTitle();
+	//Resets the window title when needed
 	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(updateWindowTitle()));
 
 	disconnect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));

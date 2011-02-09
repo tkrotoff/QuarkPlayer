@@ -115,7 +115,7 @@ public slots:
 
 private slots:
 
-	void reportProblem();
+	void reportBug();
 	void showMailingList();
 
 	void viewLog();

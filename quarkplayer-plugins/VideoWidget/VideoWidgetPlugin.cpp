@@ -111,15 +111,17 @@ void VideoWidgetPlugin::hasVideoChanged(bool hasVideo) {
 	}
 }
 
-void VideoWidgetPlugin::metaDataChanged() {
+void VideoWidgetPlugin::updateWindowTitle() {
 	VideoContainer * container = _mediaObjectHash.value(quarkPlayer().currentMediaObject());
+	Q_ASSERT(container);
 
 	QString title = quarkPlayer().currentMediaObjectTitle();
-	if (title.isEmpty()) {
-		container->videoDockWidget->setWindowTitle(QCoreApplication::applicationName());
-	} else {
-		container->videoDockWidget->setWindowTitle(title);
-	}
+	container->videoDockWidget->setWindowTitle(title);
+}
+
+void VideoWidgetPlugin::metaDataChanged() {
+	VideoContainer * container = _mediaObjectHash.value(quarkPlayer().currentMediaObject());
+	Q_ASSERT(container);
 
 	//FIXME Do it only when we are sure the media start to be played
 	//instead of waiting for currentSourceChanged(const Phonon::MediaSource &) signal
@@ -134,6 +136,11 @@ void VideoWidgetPlugin::metaDataChanged() {
 void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
 		SLOT(stateChanged(Phonon::State, Phonon::State)));
+
+	//Resets the window title when needed
+	connect(mediaObject, SIGNAL(metaDataChanged()),
+		SLOT(updateWindowTitle()));
+
 	connect(mediaObject, SIGNAL(finished()), SLOT(finished()));
 	connect(mediaObject, SIGNAL(hasVideoChanged(bool)), SLOT(hasVideoChanged(bool)));
 	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(metaDataChanged()));
@@ -141,7 +148,6 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	VideoContainer * container = new VideoContainer();
 
 	container->videoDockWidget = new QDockWidget();
-	container->videoDockWidget->setWindowTitle(QCoreApplication::applicationName());
 
 	//Logo widget
 	container->backgroundLogoWidget = new QWidget(NULL);
