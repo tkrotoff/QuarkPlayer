@@ -104,23 +104,23 @@ MPlayerProcess::MPlayerProcess(QObject * parent)
 	rx_subtitle_loading_error("^Cannot load subtitles: (.*)"),
 
 	//Meta data infos
-	rx_clip_title("^ (Name|Title): (.*)"),
-	rx_clip_artist("^ Artist: (.*)"),
-	rx_clip_author("^ Author: (.*)"),
-	rx_clip_album("^ Album: (.*)"),
-	rx_clip_genre("^ Genre: (.*)"),
-	rx_clip_date("^ (Creation Date|Year): (.*)"),
-	rx_clip_track("^ Track: (.*)"),
-	rx_clip_copyright("^ Copyright: (.*)"),
-	rx_clip_comment("^ Comment: (.*)"),
-	rx_clip_software("^ Software: (.*)"),
+	rx_clip_title("^ (Name|Title): (.*)$"),
+	rx_clip_artist("^ Artist: (.*)$"),
+	rx_clip_author("^ Author: (.*)$"),
+	rx_clip_album("^ Album: (.*)$"),
+	rx_clip_genre("^ Genre: (.*)$"),
+	rx_clip_date("^ (Creation Date|Year): (.*)$"),
+	rx_clip_track("^ Track: (.*)$"),
+	rx_clip_copyright("^ Copyright: (.*)$"),
+	rx_clip_comment("^ Comment: (.*)$"),
+	rx_clip_software("^ Software: (.*)$"),
 
 	//Radio streaming infos
-	rx_stream_title("^.* StreamTitle='(.*)';StreamUrl='(.*)';"),
-	rx_stream_title_only("^.* StreamTitle='(.*)';"),
-	rx_stream_name("^Name   : (.*)"),
-	rx_stream_genre("^Genre  : (.*)"),
-	rx_stream_website("^Website: (.*)")
+	rx_stream_title("^.* StreamTitle='(.*)';StreamUrl='(.*)';$"),
+	rx_stream_title_only("^.* StreamTitle='(.*)';$"),
+	rx_stream_name("^Name   : (.*)$"),
+	rx_stream_genre("^Genre  : (.*)$"),
+	rx_stream_website("^Website: (.*)$")
 
 	{
 
