@@ -115,9 +115,23 @@ public:
 	void stop();
 
 	/**
+	 * Sends loadfile command to the MPlayer process
+	 *
+	 * Internally calls sendCommand().
+	 *
+	 * This is needed instead of using directly sendCommand() because
+	 * init() should be called in order to reset all internal variables.
+	 *
+	 * @see sendCommand()
+	 */
+	bool sendCommand_loadfile(const QString & fileName);
+
+	/**
 	 * Sends a command to the MPlayer process.
 	 *
 	 * Example: sendCommand("pause");
+	 *
+	 * MPlayer should be already running before to run a slave command.
 	 *
 	 * @see http://www.mplayerhq.hu/DOCS/tech/slave.txt
 	 */

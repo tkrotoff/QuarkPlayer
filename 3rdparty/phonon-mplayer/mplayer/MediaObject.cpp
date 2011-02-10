@@ -358,10 +358,9 @@ void MediaObject::setNextSource(const MediaSource & source) {
 	if (!fileName.isEmpty()) {
 		PhononMPlayerDebug() << "Next source:" << fileName;
 
-		QString quote("\"");
 		if (_process->isRunning()) {
 			//If MPlayerProcess is already running then use loadfile slave command
-			_process->sendCommand("loadfile " + quote + fileName + quote + ' ' + QString::number(1));
+			_process->sendCommand_loadfile(fileName);
 		} else {
 			//Otherwise back to create a new MPlayerProcess with the given media source
 			setSource(source);

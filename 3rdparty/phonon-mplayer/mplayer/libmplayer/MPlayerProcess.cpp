@@ -58,7 +58,7 @@ MPlayerProcess::MPlayerProcess(QObject * parent)
 	rx_ao("^AO: \\[(.*)\\]"),
 	rx_paused("^ID_PAUSED$"),
 	rx_novideo("^Video: no video"),
-	rx_play("^Starting playback..."),
+	//FIXME Not used anymore rx_play("^Starting playback..."),
 	rx_playing("^Playing"),	//"Playing" does not mean the file is actually playing but only loading
 	rx_file_not_found("^File not found:"),
 	//rx_endoffile("^ID_EXIT=EOF$"),
@@ -104,16 +104,19 @@ MPlayerProcess::MPlayerProcess(QObject * parent)
 	rx_subtitle_loading_error("^Cannot load subtitles: (.*)"),
 
 	//Meta data infos
-	rx_clip_title("^ (Name|Title): (.*)$"),
-	rx_clip_artist("^ Artist: (.*)$"),
-	rx_clip_author("^ Author: (.*)$"),
-	rx_clip_album("^ Album: (.*)$"),
-	rx_clip_genre("^ Genre: (.*)$"),
-	rx_clip_date("^ (Creation Date|Year): (.*)$"),
-	rx_clip_track("^ Track: (.*)$"),
-	rx_clip_copyright("^ Copyright: (.*)$"),
-	rx_clip_comment("^ Comment: (.*)$"),
-	rx_clip_software("^ Software: (.*)$"),
+	//Depending on the media, MPlayer gives us
+	//" Name: ..." (sound file) or " name: ..." (video file)
+	//Yes this is plainly stupid and force us to use Qt::CaseInsensitive :/
+	rx_clip_title("^ (Name|Title): (.*)$", Qt::CaseInsensitive),
+	rx_clip_artist("^ Artist: (.*)$", Qt::CaseInsensitive),
+	rx_clip_author("^ Author: (.*)$", Qt::CaseInsensitive),
+	rx_clip_album("^ Album: (.*)$", Qt::CaseInsensitive),
+	rx_clip_genre("^ Genre: (.*)$", Qt::CaseInsensitive),
+	rx_clip_date("^ (Creation Date|Year): (.*)$", Qt::CaseInsensitive),
+	rx_clip_track("^ Track: (.*)$", Qt::CaseInsensitive),
+	rx_clip_copyright("^ Copyright: (.*)$", Qt::CaseInsensitive),
+	rx_clip_comment("^ Comment: (.*)$", Qt::CaseInsensitive),
+	rx_clip_software("^ Software: (.*)$", Qt::CaseInsensitive),
 
 	//Radio streaming infos
 	rx_stream_title("^.* StreamTitle='(.*)';StreamUrl='(.*)';$"),
@@ -224,6 +227,13 @@ void MPlayerProcess::stop() {
 	LibMPlayerDebug() << "MPlayer finished";
 }
 
+bool MPlayerProcess::sendCommand_loadfile(const QString & fileName) {
+	static const QString quote = "\"";
+
+	init();
+	return sendCommand("loadfile " + quote + fileName + quote + ' ' + QString::number(1));
+}
+
 bool MPlayerProcess::sendCommand(const QString & command) {
 	bool result = false;
 
@@ -307,16 +317,30 @@ void MPlayerProcess::parseLine(const QString & line_) {
 
 	//Parse A: V: line
 	if (rx_av.indexIn(line) > -1) {
-		_mediaData.currentTime = (qint64) (rx_av.cap(1).toDouble() * SECONDS_CONVERTION);
+		qint64 time = rx_av.cap(1).toDouble() * SECONDS_CONVERTION;
 
 		if (_currentState != Phonon::PlayingState) {
-			LibMPlayerDebug() << "Starting time:" << _mediaData.currentTime;
-			//FIXME To be removed if not needed anymore
-			//changeState(Phonon::PlayingState);
 
-			//OK, now all the media datas should be in clean state
-			emit mediaLoaded();
+			if (_currentState != Phonon::PausedState) {
+				//The media is being read for the first time
+				//Not the start/pause case
+
+				//Some videos don't start at 0
+				//so we have to save the starting time
+				_mediaData.startingTime = time;
+				LibMPlayerDebug() << "Starting time:" << _mediaData.startingTime;
+
+				emit mediaDataChanged(_mediaData);
+
+				//OK, now all the media datas should be in clean state
+				emit mediaLoaded();
+			}
+
+			changeState(Phonon::PlayingState);
 		}
+
+		//Some videos don't start at 0
+		_mediaData.currentTime = time - _mediaData.startingTime;
 
 		emit tick(_mediaData.currentTime);
 
@@ -754,7 +778,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 				double length = rx_title.cap(3).toDouble();
 				LibMPlayerDebug() << "DVD titleId:" << titleId << "length:" << length << "attr:" << attr;
 
-				emit titleAdded(titleId, (int) (length * SECONDS_CONVERTION));
+				emit titleAdded(titleId, length * SECONDS_CONVERTION);
 			}
 		}
 
@@ -888,8 +912,9 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			_mediaData.software = software;
 		}
 
+		//FIXME Not used anymore
 		//"Starting playback..." message
-		else if (rx_play.indexIn(line) > -1) {
+		/*else if (rx_play.indexIn(line) > -1) {
 			//OK, now all the media datas should be in clean state
 			//Second time we emit mediaLoaded(), this one is usefull for DVD with angles/chapters/subtitles...
 			//This must be changed, see MediaObject::mediaLoaded()
@@ -904,7 +929,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 				//For audio streams, it's ok we are in PlayingState
 				changeState(Phonon::PlayingState);
 			}
-		}
+		}*/
 
 		//Generic things
 		if (rx_generic.indexIn(line) > -1) {
@@ -926,7 +951,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			}
 
 			else if (tag == "ID_LENGTH") {
-				_mediaData.totalTime = (qint64) (value.toDouble() * SECONDS_CONVERTION);
+				_mediaData.totalTime = value.toDouble() * SECONDS_CONVERTION;
 				LibMPlayerDebug() << "Media total time:" << _mediaData.totalTime;
 				emit totalTimeChanged(_mediaData.totalTime);
 			}

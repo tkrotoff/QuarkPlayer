@@ -69,6 +69,14 @@ public:
 	qint64 totalTime;
 
 	/**
+	 * Media starting time.
+	 *
+	 * Some videos don't start at 0.
+	 * 0 by default.
+	 */
+	qint64 startingTime;
+
+	/**
 	 * Current playing time of the media in milliseconds.
 	 *
 	 * Updated each time MPlayer plays the media.

@@ -37,6 +37,7 @@ void MediaData::clear() {
 	fileName.clear();
 
 	totalTime = 0;
+	startingTime = 0;
 	currentTime = 0;
 
 	videoWidgetId = 0;
