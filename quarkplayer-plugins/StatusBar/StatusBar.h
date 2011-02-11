@@ -66,14 +66,38 @@ private slots:
 
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
 
+	/**
+	 * Makes the time label text blink.
+	 *
+	 * @param init re-initializes the blinking
+	 */
+	void blink(bool init = false);
+
 private:
+
+	void startBlinking();
+
+	void stopBlinking();
+
+	/** Code factorization. */
+	void changeTimeLabelTextColor(const QColor & textColor);
 
 	enum TimeDisplayMode {
 		TimeDisplayModeElapsed,
 		TimeDisplayModeRemaining
 	};
 
+	/** Shows current media play time. */
 	QLabel * _timeLabel;
+
+	/** Timer to make the time label blink. */
+	QTimer * _blinker;
+
+	/** Status bar background color. */
+	QColor _backgroundColor;
+
+	/** Status bar text color. */
+	QColor _textColor;
 };
 
 #include <quarkplayer/PluginFactory.h>

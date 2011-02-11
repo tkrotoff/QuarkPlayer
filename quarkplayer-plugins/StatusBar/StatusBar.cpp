@@ -54,11 +54,13 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: QStatusBar(MainWindowFactory::mainWindow()),
 	PluginInterface(quarkPlayer, uuid) {
 
+	_blinker = NULL;
+
 	_timeLabel = new QLabel(this);
-	//Text color is white
-	_timeLabel->setStyleSheet("color: rgb(255, 255, 255);");
+
 	//Cursor is a hand to show that the label is clickable
 	_timeLabel->setCursor(Qt::PointingHandCursor);
+
 	_timeLabel->setMargin(2);
 	_timeLabel->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
 	_timeLabel->installEventFilter(new MousePressEventFilter(this, SLOT(changeTimeDisplayMode())));
@@ -66,8 +68,19 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	setSizeGripEnabled(false);
 
+#ifdef Q_WS_MAC
+	//Background color is dark-grey and text color is black
+	_backgroundColor = QColor(150, 150, 150);
+	_textColor = QColor(0, 0, 0);
+#else
 	//Background color is black and text color is white
-	setStyleSheet("background-color: rgb(0, 0, 0);color: rgb(255, 255, 255);");
+	_backgroundColor = QColor(0, 0, 0);
+	_textColor = QColor(255, 255, 255);
+#endif	//Q_WS_MAC
+	setStyleSheet(QString("background-color: %1; color: %2;")
+			.arg(_backgroundColor.name())
+			.arg(_textColor.name()));
+	changeTimeLabelTextColor(_textColor);
 
 	//By default QuarkPlayerStyle: specific style for QuarkPlayer
 	//Fix some ugly things under Windows XP
@@ -89,22 +102,21 @@ StatusBar::~StatusBar() {
 
 void StatusBar::tick(qint64 time) {
 	QString timeText;
-	if (time != 0) {
-		qint64 totalTime = quarkPlayer().currentMediaObject()->totalTime();
-		TimeDisplayMode timeDisplayMode = static_cast<TimeDisplayMode>(
-			Config::instance().value(STATUSBAR_TIME_DIPLAY_MODE_KEY).toInt());
+	qint64 totalTime = quarkPlayer().currentMediaObject()->totalTime();
+	TimeDisplayMode timeDisplayMode = static_cast<TimeDisplayMode>(
+		Config::instance().value(STATUSBAR_TIME_DIPLAY_MODE_KEY).toInt());
 
-		switch (timeDisplayMode) {
-		case TimeDisplayModeElapsed:
-			timeText = TkTime::convertMilliseconds(time, totalTime);
-			break;
-		case TimeDisplayModeRemaining:
-			timeText = "- " + TkTime::convertMilliseconds(totalTime - time, totalTime);
-			break;
-		default:
-			StatusBarCritical() << "Unknown TimeDisplayMode:" << timeDisplayMode;
-		}
+	switch (timeDisplayMode) {
+	case TimeDisplayModeElapsed:
+		timeText = TkTime::convertMilliseconds(time, totalTime);
+		break;
+	case TimeDisplayModeRemaining:
+		timeText = "- " + TkTime::convertMilliseconds(totalTime - time, totalTime);
+		break;
+	default:
+		StatusBarCritical() << "Unknown TimeDisplayMode:" << timeDisplayMode;
 	}
+
 	_timeLabel->setText(timeText);
 }
 
@@ -153,14 +165,18 @@ void StatusBar::stateChanged(Phonon::State newState) {
 
 	case Phonon::PlayingState:
 		showMessage(tr("Playing"));
+		stopBlinking();
 		break;
 
 	case Phonon::StoppedState:
 		showMessage(tr("Stopped"));
+		//Re-initializes the time label to "00:00 / total time"
+		tick(0);
 		break;
 
 	case Phonon::PausedState:
 		showMessage(tr("Paused"));
+		startBlinking();
 		break;
 
 	case Phonon::LoadingState:
@@ -211,7 +227,11 @@ void StatusBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	stateChanged(mediaObject->state());
 
 	//Resets current and total time display
-	tick(mediaObject->currentTime());
+	int time = mediaObject->currentTime();
+	if (time > 0) {
+		tick(time);
+	}
+	///
 
 	connect(mediaObject, SIGNAL(tick(qint64)), SLOT(tick(qint64)));
 	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),
@@ -224,4 +244,48 @@ void StatusBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	//10 seconds before the end
 	mediaObject->setPrefinishMark(10000);
 	connect(mediaObject, SIGNAL(prefinishMarkReached(qint32)), SLOT(prefinishMarkReached(qint32)));
+}
+
+void StatusBar::startBlinking() {
+	if (!_blinker) {
+		_blinker = new QTimer(this);
+		connect(_blinker, SIGNAL(timeout()), SLOT(blink()));
+	}
+	_blinker->stop();
+	_blinker->start(1000);
+
+	blink(true);
+}
+
+void StatusBar::stopBlinking() {
+	if (_blinker) {
+		_blinker->stop();
+	}
+
+	//Text color different from background
+	//back to normal text color
+	changeTimeLabelTextColor(_textColor);
+}
+
+void StatusBar::blink(bool init) {
+	static bool hideText = true;
+
+	if (init) {
+		hideText = true;
+	}
+
+	if (hideText) {
+		//Text color same as background
+		//so the text is transparent
+		changeTimeLabelTextColor(_backgroundColor);
+	} else {
+		//Text color different from background
+		//back to normal text color
+		changeTimeLabelTextColor(_textColor);
+	}
+	hideText = !hideText;
+}
+
+void StatusBar::changeTimeLabelTextColor(const QColor & textColor) {
+	_timeLabel->setStyleSheet(QString("font: bold; color: %1;").arg(textColor.name()));
 }
