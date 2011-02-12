@@ -65,7 +65,7 @@
 #endif	//Q_WS_X11
 
 void ScreenSaver::disable() {
-	TkUtilDebug();
+	TkUtilDebug() << "Disable screensaver";
 
 	QApplication * app = qobject_cast<QApplication *>(QApplication::instance());
 	Q_ASSERT(app);
@@ -91,7 +91,7 @@ void ScreenSaver::disable() {
 }
 
 void ScreenSaver::restore() {
-	TkUtilDebug();
+	TkUtilDebug() << "Restore screensaver";
 
 	QApplication * app = qobject_cast<QApplication *>(QApplication::instance());
 	Q_ASSERT(app);

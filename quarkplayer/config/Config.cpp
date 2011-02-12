@@ -28,6 +28,7 @@
 #include <QtCore/QCoreApplication>
 
 const char * Config::LANGUAGE_KEY = "language";
+const char * Config::DEFAULT_LANGUAGE = "en";
 
 const char * Config::STYLE_KEY = "style";
 const char * Config::ICON_THEME_KEY = "icon_theme";
@@ -128,7 +129,12 @@ void Config::deleteConfig() {
 }
 
 QString Config::language() const {
-	return value(LANGUAGE_KEY).toString();
+	QString lang = value(LANGUAGE_KEY).toString();
+	//Language cannot be empty, default is "en"
+	if (lang.isEmpty()) {
+		lang = DEFAULT_LANGUAGE;
+	}
+	return lang;
 }
 
 QString Config::style() const {

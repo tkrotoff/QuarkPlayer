@@ -64,6 +64,8 @@ public:
 
 	/** Language of the application (i.e en, fr, sp...). */
 	static const char * LANGUAGE_KEY;
+	/** Default language is english "en". */
+	static const char * DEFAULT_LANGUAGE;
 	QString language() const;
 
 	/** Qt style name to be used or empty string. */

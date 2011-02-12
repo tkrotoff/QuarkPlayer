@@ -101,6 +101,7 @@ void MediaInfoWindow::setMediaInfoFetcher(MediaInfoFetcher * mediaInfoFetcher) {
 }
 
 void MediaInfoWindow::setLanguage(const QString & language) {
+	Q_ASSERT(!language.isEmpty());
 	_language = language;
 }
 
