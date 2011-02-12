@@ -66,8 +66,8 @@ DragAndDropTreeView::DragAndDropTreeView(PlaylistWidget * playlistWidget)
 	addAction(_playlistWidget->uuidAction("Playlist.PlayItem"));
 	connect(_playlistWidget->uuidAction("Playlist.SendTo"), SIGNAL(triggered()), SLOT(sendTo()));
 	//addAction(_playlistWidget->uuidAction("Playlist.SendTo"));
-	connect(_playlistWidget->uuidAction("Playlist.DeleteItem"), SIGNAL(triggered()), SLOT(clearSelection()));
-	addAction(_playlistWidget->uuidAction("Playlist.DeleteItem"));
+	connect(_playlistWidget->uuidAction("Playlist.RemoveItem"), SIGNAL(triggered()), SLOT(clearSelection()));
+	addAction(_playlistWidget->uuidAction("Playlist.RemoveItem"));
 	connect(_playlistWidget->uuidAction("Playlist.RateItem"), SIGNAL(triggered()), SLOT(rateItem()));
 	//addAction(_playlistWidget->uuidAction("Playlist.RateItem"));
 	connect(_playlistWidget->uuidAction("Playlist.ViewMediaInfo"), SIGNAL(triggered()), SLOT(viewMediaInfo()));
@@ -130,7 +130,7 @@ void DragAndDropTreeView::populateActionCollection() {
 
 	_playlistWidget->addUuidAction("Playlist.PlayItem", new QAction(app));
 	_playlistWidget->addUuidAction("Playlist.SendTo", new QAction(app));
-	_playlistWidget->addUuidAction("Playlist.DeleteItem", new QAction(app));
+	_playlistWidget->addUuidAction("Playlist.RemoveItem", new QAction(app));
 	_playlistWidget->addUuidAction("Playlist.RateItem", new QAction(app));
 	TkAction * action = new TkAction(app, tr("Ctrl+I"), tr("Alt+3"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
@@ -144,8 +144,8 @@ void DragAndDropTreeView::retranslate() {
 	_playlistWidget->uuidAction("Playlist.SendTo")->setText(tr("Sent To"));
 	_playlistWidget->uuidAction("Playlist.SendTo")->setIcon(QIcon::fromTheme("text-x-script"));
 
-	_playlistWidget->uuidAction("Playlist.DeleteItem")->setText(tr("Delete from Playlist"));
-	_playlistWidget->uuidAction("Playlist.DeleteItem")->setIcon(QIcon::fromTheme("edit-delete"));
+	_playlistWidget->uuidAction("Playlist.RemoveItem")->setText(tr("Remove from Playlist"));
+	_playlistWidget->uuidAction("Playlist.RemoveItem")->setIcon(QIcon::fromTheme("edit-delete"));
 
 	_playlistWidget->uuidAction("Playlist.RateItem")->setText(tr("Rate"));
 	_playlistWidget->uuidAction("Playlist.RateItem")->setIcon(QIcon::fromTheme("rating"));
