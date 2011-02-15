@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<playlist xmlns="http://xspf.org/ns/0/" xml:base="file://C:/">
+
+  <title>foobar2000 Generated XSPF Playlist</title>
+
+  <trackList>
+    <track>
+      <location>1.mp3</location>
+      <title>Title1</title>
+      <creator>Artist1</creator>
+      <annotation>Comment1</annotation>
+      <album>Album1</album>
+      <trackNum>1</trackNum>
+      <duration>00000614</duration>
+      <meta rel="band">Album Artist1</meta>
+      <meta rel="bpm">1</meta>
+      <meta rel="composer">Composer1</meta>
+      <meta rel="date">2011</meta>
+      <meta rel="discnumber">1</meta>
+      <meta rel="genre">Genre1</meta>
+      <meta rel="publisher">Publisher1</meta>
+    </track>
+    <track>
+      <location>2.mp3</location>
+      <title>Title2</title>
+      <creator>Artist2</creator>
+      <annotation>Comment2</annotation>
+      <album>Album2</album>
+      <trackNum>2</trackNum>
+      <duration>00000614</duration>
+      <meta rel="band">Album Artist2</meta>
+      <meta rel="bpm">2</meta>
+      <meta rel="composer">Composer2</meta>
+      <meta rel="date">2011</meta>
+      <meta rel="discnumber">2</meta>
+      <meta rel="genre">Genre2</meta>
+      <meta rel="publisher">Publisher2</meta>
+    </track>
+    <track>
+      <location>3.mp3</location>
+      <title>Title3</title>
+      <creator>Artist3</creator>
+      <annotation>Comment3</annotation>
+      <album>Album3</album>
+      <trackNum>3</trackNum>
+      <duration>00000614</duration>
+      <meta rel="band">Album Artist3</meta>
+      <meta rel="bpm">3</meta>
+      <meta rel="composer">Composer3</meta>
+      <meta rel="date">2011</meta>
+      <meta rel="discnumber">3</meta>
+      <meta rel="genre">Genre3</meta>
+      <meta rel="publisher">Publisher3</meta>
+    </track>
+    <track>
+      <location>4.mp3</location>
+      <title>Title4</title>
+      <creator>Artist4</creator>
+      <annotation>Comment4</annotation>
+      <album>Album4</album>
+      <trackNum>4</trackNum>
+      <duration>00000614</duration>
+      <meta rel="band">Album Artist4</meta>
+      <meta rel="bpm">4</meta>
+      <meta rel="composer">Composer4</meta>
+      <meta rel="date">2011</meta>
+      <meta rel="discnumber">4</meta>
+      <meta rel="genre">Genre4</meta>
+      <meta rel="publisher">Publisher4</meta>
+    </track>
+    <track>
+      <location>5.mp3</location>
+      <title>Title5</title>
+      <creator>Artist5</creator>
+      <annotation>Comment5</annotation>
+      <album>Album5</album>
+      <trackNum>5</trackNum>
+      <duration>00000614</duration>
+      <meta rel="band">Album Artist5</meta>
+      <meta rel="bpm">5</meta>
+      <meta rel="composer">Composer5</meta>
+      <meta rel="date">2011</meta>
+      <meta rel="discnumber">5</meta>
+      <meta rel="genre">Genre5</meta>
+      <meta rel="publisher">Publisher5</meta>
+    </track>
+  </trackList>
+
+</playlist>
