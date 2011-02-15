@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<playlist version="1" xmlns="http://xspf.org/ns/0/">
+    <title></title>
+    <creator>fabricio</creator>
+    <annotation></annotation>
+    <info>http://hideout.ning.com/music/playlist/show?id=</info>
+    <location>http://hideout.ning.com/music/playlist/show?id=&amp;xn_auth=no&amp;fmt=xspf</location>
+    <identifier></identifier>
+    <image>http://api.ning.com/files/aBanvHxHvS7LyGNXaGo51UWM**g8AMd18hfBiMoh8G0_/BMTWHcoversmall.jpg</image>
+    <date></date>
+    <trackList>
+        <track>
+            <location>http://www.mybrightestdiamond.com/something.mp3</location>
+            <identifier>684088:Track:5380</identifier>
+            <title>Something of an End</title>
+            <creator>My Brightest Diamond</creator>
+            <annotation></annotation>
+            <info>http://hideout.ning.com/xn/detail/684088:Track:5380</info>
+            <image>http://api.ning.com/files/aBanvHxHvS7LyGNXaGo51UWM**g8AMd18hfBiMoh8G0_/BMTWHcoversmall.jpg</image>
+            <album>Bring Me The Workhorse</album>
+            <duration>0</duration>
+            <meta rel="length"></meta>
+            <link rel="license">Select license</link>
+            <extension application="http://docs.ning.com/music/">
+                <downloadLink>http://www.mybrightestdiamond.com/something.mp3</downloadLink>
+                <allowAdd>on</allowAdd>
+                <contributor>fabricio</contributor>
+                <contributorName>fabricio</contributorName>
+            </extension>
+        </track>
+        <track>
+            <location>http://subpop.com/assets/audio/3407.mp3</location>
+            <identifier>684088:Track:1951</identifier>
+            <title>On This Side </title>
+            <creator>Tiny Vipers</creator>
+            <annotation></annotation>
+            <info>http://hideout.ning.com/xn/detail/684088:Track:1951</info>
+            <image>http://api.ning.com/files/Mh0S-GD0AXx3ja2dFqTTcPFojValKgusCuGArktJuCA=/tinyvipers.jpg</image>
+            <album>Hands Across The Void </album>
+            <duration>0</duration>
+            <meta rel="length"></meta>
+            <link rel="license">http://www.copyright.gov/title17/</link>
+            <extension application="http://docs.ning.com/music/">
+                <downloadLink>http://subpop.com/assets/audio/3407.mp3</downloadLink>
+                <allowAdd>on</allowAdd>
+                <contributor>fabricio</contributor>
+                <contributorName>fabricio</contributorName>
+            </extension>
+        </track>
+        <track>
+            <location>http://mp3.insound.com/download.php?mp3id=3152</location>
+            <identifier>684088:Track:1688</identifier>
+            <title>Polaroids</title>
+            <creator>Slaraffenland</creator>
+            <annotation></annotation>
+            <info>http://hideout.ning.com/xn/detail/684088:Track:1688</info>
+            <image>http://api.ning.com/files/zYseVOD0By3wJsTxiojU-lrmndiUax7ZFB8CmNnLYS4=/starafferland.jpg</image>
+            <album>Private Cinema</album>
+            <duration>0</duration>
+            <meta rel="length"></meta>
+            <link rel="license">http://www.copyright.gov/title17/</link>
+            <extension application="http://docs.ning.com/music/">
+                <downloadLink>http://mp3.insound.com/download.php?mp3id=3152</downloadLink>
+                <allowAdd>on</allowAdd>
+                <contributor>fabricio</contributor>
+                <contributorName>fabricio</contributorName>
+            </extension>
+        </track>
+        <track>
+            <location>http://www.toolshed-media.com/ts/bat-for-lashes-horse-and-i.mp3</location>
+            <identifier>684088:Track:5363</identifier>
+            <title>Horse And I</title>
+            <creator>Bat For Lashes</creator>
+            <annotation></annotation>
+            <info>http://hideout.ning.com/xn/detail/684088:Track:5363</info>
+            <image>http://api.ning.com/files/Wa3dDu67U8N4T5g62a4CaHr3HIMASJmB0ln9R2Cq6Ko_/furandgold.jpg</image>
+            <album>Fur And Gold</album>
+            <duration>0</duration>
+            <meta rel="length"></meta>
+            <link rel="license">http://www.copyright.gov/title17/</link>
+            <extension application="http://docs.ning.com/music/">
+                <downloadLink>http://www.toolshed-media.com/ts/bat-for-lashes-horse-and-i.mp3</downloadLink>
+                <allowAdd>on</allowAdd>
+                <contributor>fabricio</contributor>
+                <contributorName>fabricio</contributorName>
+            </extension>
+        </track>
+        <track>
+            <location>http://www.paperbagrecords.com/singles/ysp_monster.mp3</location>
+            <identifier>684088:Track:1685</identifier>
+            <title>Monster</title>
+            <creator>You Say Party We Say Die</creator>
+            <annotation></annotation>
+            <info>http://hideout.ning.com/xn/detail/684088:Track:1685</info>
+            <image>http://api.ning.com/files/cVw8KwMOoOl3rX2ONefL8ADZvkwrvrKk-xuqBdNrOhI=/Losealltime.jpg</image>
+            <album></album>
+            <duration>0</duration>
+            <meta rel="length"></meta>
+            <link rel="license">http://www.copyright.gov/title17/</link>
+            <extension application="http://docs.ning.com/music/">
+                <downloadLink>http://www.paperbagrecords.com/singles/ysp_monster.mp3</downloadLink>
+                <allowAdd>on</allowAdd>
+                <contributor>fabricio</contributor>
+                <contributorName>fabricio</contributorName>
+            </extension>
+        </track>
+        <track>
+            <location>http://tokyopoliceclub.com/files/natureoftheexperiment.mp3</location>
+            <identifier>684088:Track:1639</identifier>
+            <title>Nature Of The Experiment</title>
+            <creator>Tokyo Police Club</creator>
+            <annotation></annotation>
+            <info>http://hideout.ning.com/xn/detail/684088:Track:1639</info>
+            <image>http://api.ning.com/files/jBGzKq2X8zLp5P9OkNYNM9d8rKzSxoi5CuHni2ag4IE=/tokyopoliceclub.jpg</image>
+            <album>A Lesson In Crime</album>
+            <duration>0</duration>
+            <meta rel="length"></meta>
+            <link rel="license">http://www.copyright.gov/title17/</link>
+            <extension application="http://docs.ning.com/music/">
+                <downloadLink>http://tokyopoliceclub.com/files/natureoftheexperiment.mp3</downloadLink>
+                <allowAdd>on</allowAdd>
+                <contributor>fabricio</contributor>
+                <contributorName>fabricio</contributorName>
+            </extension>
+        </track>
+        <track>
+            <location>http://www.buyearlygetnow.com/mp3/the_new_pornographers_my_rights_versus_yours.mp3</location>
+            <identifier>684088:Track:1519</identifier>
+            <title>My Rights Versus Yours</title>
+            <creator>The New Pornographers</creator>
+            <annotation></annotation>
+            <info>http://hideout.ning.com/xn/detail/684088:Track:1519</info>
+            <image>http://api.ning.com/files/qNPH5r3WznkxY5PNRFrzEdYax6uZJ2XlVl8hGkPfxYs=/challengers.jpg</image>
+            <album>Challengers</album>
+            <duration>0</duration>
+            <meta rel="length"></meta>
+            <link rel="license">http://www.copyright.gov/title17/</link>
+            <extension application="http://docs.ning.com/music/">
+                <downloadLink>http://www.buyearlygetnow.com/mp3/the_new_pornographers_my_rights_versus_yours.mp3</downloadLink>
+                <allowAdd>on</allowAdd>
+                <contributor>fabricio</contributor>
+                <contributorName>fabricio</contributorName>
+            </extension>
+        </track>
+        <track>
+            <location>http://www.beggarsgroupusa.com/mp3/stvincent_now_now.mp3</location>
+            <identifier>684088:Track:1079</identifier>
+            <title>Now Now</title>
+            <creator>St. Vincent</creator>
+            <annotation></annotation>
+            <info>http://hideout.ning.com/xn/detail/684088:Track:1079</info>
+            <image>http://api.ning.com/files/g11jrSLnQK75PG6uUSia3gQ6hbCRetHCr8aLh-Q5xWE=/stvincent.jpg</image>
+            <album>Marry Me</album>
+            <duration>0</duration>
+            <meta rel="length"></meta>
+            <link rel="license">http://www.copyright.gov/title17/</link>
+            <extension application="http://docs.ning.com/music/">
+                <downloadLink>http://www.beggarsgroupusa.com/mp3/stvincent_now_now.mp3</downloadLink>
+                <allowAdd>on</allowAdd>
+                <contributor>fabricio</contributor>
+                <contributorName>fabricio</contributorName>
+            </extension>
+        </track>
+    </trackList>
+</playlist>

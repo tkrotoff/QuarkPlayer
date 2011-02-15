@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<playlist version="0" xmlns="http://xspf.org/ns/0/">
+  <title>Hideout #43</title>
+  <annotation>http://hideout.com.br</annotation>
+  <creator>hideout</creator>
+  <info>http://webjay.org/by/hideout/hideout2343</info>
+  <location>http://webjay.org/by/hideout/hideout2343.xspf</location>
+  <license>http://creativecommons.org/licenses/by-sa/1.0/</license>
+  <trackList>    
+<track>
+<location>http://audio.sxsw.com/2006/mp3/Tapes_N_Tapes-Cowbell.mp3</location>
+<image>http://g-images.amazon.com/images/G/01/ciu/91/b9/1035224128a0d8535456a010._AA229_.L.jpg</image>
+<annotation>Tapes N Tapes - Cowbell</annotation>
+<info>http://2006.sxsw.com/music/showcases/band/4247.html</info>
+</track>			  
+
+<track>
+<location>http://mp3download.myspace.com/index.cfm?fuseaction=bandprofile.downloadSong&#38;bsid=1021129&#38;song_name=Domino&#38;fid=16492429</location>
+<image>http://www.15megsoffame.com/imgs/artists/2059/0.jpg</image>
+<annotation>The Spies - Domino</annotation>
+<info>http://www.myspace.com/thespies</info>
+
+</track>			  
+<track>
+<location>http://audio.sxsw.com/2006/mp3/The_Cloud_Room-Hey_Now_Now.mp3</location>
+<image>http://images.amazon.com/images/P/B0007ZSHBW.01.MZZZZZZZ.jpg</image>
+<annotation>The Cloud Room - Hey Now Now</annotation>
+<info>http://2006.sxsw.com/music/showcases/band/6961.html</info>
+
+</track>			  
+<track>
+<location>http://www.evilsthatnevercame.com/stream/01%20Can%27t%20Afford%20A%20Soul.mp3</location>
+<image>http://static.last.fm/proposedimages/sidebar/6/6811538/11442.jpg</image>
+<annotation>Evils That Never Came  - Can&#39;t Afford A Soul</annotation>
+<info>http://www.evilsthatnevercame.com/</info>
+
+</track>			  
+<track>
+<location>http://audio.sxsw.com/2006/mp3/OK_GO-A_million_ways.mp3</location>
+<image>http://images.amazon.com/images/P/B000ADWD4I.01.MZZZZZZZ.jpg</image>
+<annotation>Ok Go - A Million Ways</annotation>
+<info>http://2006.sxsw.com/music/showcases/band/7090.html</info>
+
+</track>			  
+<track>
+<location>http://www.didleysquatmusic.com/audio/funandgames.mp3</location>
+<image>http://images.amazon.com/images/P/B0006FYONI.01.MZZZZZZZ.jpg</image>
+<annotation>Didley Squat - Fun And Games</annotation>
+<info>http://didleysquatmusic.com/audio.htm</info>
+
+</track>			  
+<track>
+<location>http://http.se.scene.org/pub/demos/scene.org/music/groups/8bitpeoples/8bp060-03-david_sugar-totally_on.mp3</location>
+<image>http://www.8bitpeoples.com/_images/discog/jewel/david_sugar_-_fresh_off_the_chip.gif</image>
+<annotation>David Sugar - Totally On</annotation>
+<info>http://www.8bitpeoples.com/discography_gfx.php?artist=David+Sugar#8BP060</info>
+
+</track>			  
+<track>
+<location>http://www.controllercontroller.com/streaming/pf.mp3</location>
+<image>http://images.amazon.com/images/P/B000BDG3ES.01.MZZZZZZZ.jpg</image>
+<annotation>Controller.Controller - PF</annotation>
+<info>http://www.controllercontroller.com/media</info>
+
+</track>			  
+<track>
+<location>http://qotile.net/audio/may_banners_by_tree_wave.mp3</location>
+<image>http://www.qotile.net/twimages/web_front.jpg</image>
+<annotation>Tree Wave - May Banners</annotation>
+<info>http://www.treewave.com/mp3s.html</info>
+</track>				  
+
+  </trackList>
+</playlist>

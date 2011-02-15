@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<playlist version="1" xmlns="http://xspf.org/ns/0/">
+	<title>Spring 2008</title>
+	<creator>Hillsdale Wind Symphony</creator>
+	<info>http://www.hillsdalewindsymphony.org</info>
+	
+	<trackList>
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/01%20Track%201.mp3</location>
+			<title>Overture to "Candide"</title>
+			<creator>Leonard Bernstein/Grundman</creator>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/02%20Track%202.mp3</location>
+			<title>Compassion</title>
+			<creator>Joseph Curiale</creator>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/03%20Track%203.mp3</location>
+			<title>First Suite in E flat Mvt 1. Chaconne</title>
+			<creator>Gustav Holst</creator>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/04%20Track%204.mp3</location>
+			<title>First Suite in E flat Mvt 2. Intermezzo</title>
+			<creator>Gustav Holst</creator>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/05%20Track%205.mp3</location>
+			<title>First Suite in E flat Mvt 3. March</title>
+			<creator>Gustav Holst</creator>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/06%20Track%206.mp3</location>
+			<title>Threnody</title>
+			<creator>James Bonney</creator>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/07%20Track%207.mp3</location>
+			<title>Scenes from "The Louvre" Mvt 1. The Portals</title>
+			<creator>Norman Dello Joio</creator>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/08%20Track%208.mp3</location>
+			<title>Scenes from "The Louvre" Mvt 2. Children's Gallery</title>
+			<creator>Norman Dello Joio</creator>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/09%20Track%209.mp3</location>
+			<title>Scenes from "The Louvre" Mvt 3. The Kings of France</title>
+			<creator>Norman Dello Joio</creator>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/10%20Track%2010.mp3</location>
+			<title>Scenes from "The Louvre" Mvt 4. The Nativity Paintings</title>
+			<creator>Norman Dello Joio</creator>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/11%20Track%2011.mp3</location>
+			<title>Scenes from "The Louvre" Mvt 5. Finale</title>
+			<creator>Norman Dello Joio</creator>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/12%20Track%2012.mp3</location>
+			<title>The Klaxon</title>
+			<creator>Henry Fillmore</creator>
+		</track>
+
+		<track>
+			<location>http://www.hillsdalewindsymphony.org/music/spring2008/13%20Track%2013.mp3</location>
+			<title>Bonus Track</title>
+		</track>
+	</trackList>
+</playlist>

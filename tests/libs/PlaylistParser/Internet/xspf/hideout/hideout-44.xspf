@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<playlist version="0" xmlns="http://xspf.org/ns/0/">
+  <title>Lista 11</title>
+  <annotation>http://www.hideout.com.br</annotation>
+  <creator>danivalentin</creator>
+  <info>http://webjay.org/by/danivalentin/lista11</info>
+  <location>http://webjay.org/by/danivalentin/lista11.xspf</location>
+  <license>http://creativecommons.org/licenses/by-sa/1.0/</license>
+  <trackList>    
+<track>
+<location>http://mp3.insound.com/download.cfm?mp3id=2822</location>
+<annotation>Art Brut - Good Weekend</annotation>
+
+</track>			  
+		  
+<track>
+<location>http://www.resonatormag.com/mp3/r/07%20store%20bought%20bones.mp3</location>
+<annotation>The Raconteurs - Store Bought Bones</annotation>
+
+</track>			  
+<track>
+<location>http://audio.sxsw.com/2006/mp3/The_Twilight_Singers-Teenage_Wristband.mp3</location>
+<annotation>The Twilight Singers - Teenage Wristband</annotation>
+
+</track>			  
+<track>
+<location>http://www.sapatosbicolores.com.br/Downloads/De%20Carona.mp3</location>
+<annotation>Sapatos Bicolores - De Carona</annotation>
+
+</track>			  
+<track>
+<location>http://audio.sxsw.com/2006/mp3/Carbonas-inside_outside.mp3</location>
+<annotation>Carbonas - Inside Outside</annotation>
+
+</track>			  
+<track>
+<location>http://www.eaglesofdeathmetal.net/media/IWantYouSoHard.mp3</location>
+<annotation>Eagles of Death Metal - I want you so hard</annotation>
+
+</track>			  
+<track>
+<location>http://www.thejakpot.co.uk/media/Family.MP3</location>
+<annotation>The Jakpot - Family</annotation>
+
+</track>			  
+<track>
+<location>http://audio.sxsw.com/2006/mp3/The_Cribs-Mirror_Kisses.mp3</location>
+<annotation>The Cribs - Mirror Kisses</annotation>
+<info>http://2006.sxsw.com/music/showcases/band/3880.html</info>
+
+</track>			  
+<track>
+<location>http://mp3.insound.com/download.cfm?mp3id=2336</location>
+<annotation>The Futureheads--Piece of Crap</annotation>
+
+</track>			  
+<track>
+<location>http://mp3.insound.com/download.cfm?mp3id=2700</location>
+<annotation>The Duke Spirit - Cuts across the land</annotation>
+
+</track>			  
+<track>
+<location>http://www.explosionsinthesky.com/mp3s/01ASongForOurFathers.mp3</location>
+<annotation>Explosions in the Sky - Song for our fathers</annotation>
+
+</track>			  
+
+  </trackList>
+</playlist>

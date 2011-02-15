@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<playlist version="1" xmlns="http://xspf.org/ns/0/" xmlns:vlc="http://www.videolan.org/vlc/playlist/ns/0/">
+<title>Playlist</title>
+<location>file:///home/dixon/bloombergTV.xspf</location>
+<trackList>
+<track>
+<location>http://ads.bloomberg.com/adstream_sx.ads/bloomberg/tvradio/tv/live/200/1958127952@x40,x50,x70,Middle!Middle</location>
+<extension application="http://www.videolan.org/vlc/playlist/0">
+<vlc:id>0</vlc:id>
+</extension>
+</track>
+<track>
+<location>mms://a627.l2479952251.c24799.g.lm.akamaistream.net/D/627/24799/v0001/reflector:52251</location>
+<creator>Bloomberg L.P.</creator>
+<extension application="http://www.videolan.org/vlc/playlist/0">
+<vlc:id>1</vlc:id>
+</extension>
+</track>
+<track>
+<location>mms://a536.l2479952400.c24799.g.lm.akamaistream.net/D/536/24799/v0001/reflector:52400</location>
+<creator>Bloomberg L.P.</creator>
+<extension application="http://www.videolan.org/vlc/playlist/0">
+<vlc:id>2</vlc:id>
+</extension>
+</track>
+<track>
+<location>mms://a1598.l2489858165.c24898.n.lm.akamaistream.net/D/1598/24898/v0001/reflector:58165</location>
+<title>US Channel (Live 56Kbps)</title>
+<creator>Bloomberg L.P.</creator>
+<extension application="http://www.videolan.org/vlc/playlist/0">
+<vlc:id>3</vlc:id>
+</extension>
+</track>
+<track>
+<location>mms://a1332.l2489859148.c24898.n.lm.akamaistream.net/D/1332/24898/v0001/reflector:59148</location>
+<title>US Channel (Live 56Kbps)</title>
+<creator>Bloomberg L.P.</creator>
+<extension application="http://www.videolan.org/vlc/playlist/0">
+<vlc:id>4</vlc:id>
+</extension>
+</track>
+<track>
+<location>mms://media2.bloomberg.com/btv_US200_n.asf</location>
+<creator>Bloomberg L.P.</creator>
+<extension application="http://www.videolan.org/vlc/playlist/0">
+<vlc:id>5</vlc:id>
+</extension>
+</track>
+<track>
+<location>http://media2.bloomberg.com/btv_USnb_n.asf</location>
+<creator>Bloomberg L.P.</creator>
+<extension application="http://www.videolan.org/vlc/playlist/0">
+<vlc:id>6</vlc:id>
+</extension>
+</track>
+</trackList>
+<extension application="http://www.videolan.org/vlc/playlist/0">
+<vlc:node title="http://www.bloomberg.com/streams/video/LiveBTV200.asxx?RND=958127952&amp;vCat=&amp;A=">
+<vlc:item tid="0" />
+<vlc:item tid="1" />
+<vlc:item tid="2" />
+<vlc:item tid="3" />
+<vlc:item tid="4" />
+<vlc:item tid="5" />
+<vlc:item tid="6" />
+</vlc:node>
+</extension>
+</playlist>

@@ -1,0 +1,10 @@
+<ASX VERSION="3.0">
+<ABSTRACT>Virgin Radio</ABSTRACT>
+<TITLE>Virgin Radio</TITLE>
+<AUTHOR>Virgin Radio - YACAST FRANCE</AUTHOR>
+<COPYRIGHT>(c) 2008, Virgin Radio</COPYRIGHT>
+<ENTRY>
+	<REF HREF="mms://viplagardere.yacast.net/encodereurope2" />
+	<REF HREF="mms://vipmms9.yacast.net/encodereurope2" />
+</ENTRY>
+</ASX>
