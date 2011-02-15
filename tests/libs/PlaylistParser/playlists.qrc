@@ -1,29 +1,36 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-	<file>foobar2000-0.9.6.7/test.m3u</file>
-	<file>foobar2000-0.9.6.7/test.m3u8</file>
-	<file>foobar2000-0.9.6.7/test.xspf</file>
+	<file>foobar2000/test.m3u</file>
+	<file>foobar2000/test.m3u8</file>
+	<file>foobar2000/test.xspf</file>
 
-	<file>TheKMPlayer-2.9.4/test.ASX</file>
-	<file>TheKMPlayer-2.9.4/test.KPL</file>
-	<file>TheKMPlayer-2.9.4/test.M3U</file>
-	<file>TheKMPlayer-2.9.4/test.PLS</file>
+	<file>TheKMPlayer/test.ASX</file>
+	<file>TheKMPlayer/test.KPL</file>
+	<file>TheKMPlayer/test.M3U</file>
+	<file>TheKMPlayer/test.PLS</file>
 
-	<file>Winamp-5.531/test.m3u</file>
-	<file>Winamp-5.531/test.m3u8</file>
-	<file>Winamp-5.531/test.pls</file>
+	<file>VLC/test.m3u</file>
+	<file>VLC/test.m3u8</file>
+	<file>VLC/test.xspf</file>
 
-	<file>WindowsMediaPlayer-9.0/test.m3u</file>
-	<file>WindowsMediaPlayer-9.0/test.wpl</file>
+	<file>Winamp/test.m3u</file>
+	<file>Winamp/test.m3u8</file>
+	<file>Winamp/test.pls</file>
+	<file>Winamp/test-noroot.m3u</file>
 
-	<file>fromInternet/webradio/europe1/europe1.m3u</file>
-	<file>fromInternet/webradio/europe1/europe1.asx</file>
-	<file>fromInternet/webradio/franceinter/france_inter_mp3-128k.m3u</file>
-	<file>fromInternet/webradio/franceinter/france_inter_mp3-128k.pls</file>
-	<file>fromInternet/webradio/radionova/radionova.m3u</file>
-	<file>fromInternet/webradio/live9/192.m3u</file>
-	<file>fromInternet/webradio/live9/192.asx</file>
-	<file>fromInternet/webradio/ouifm/Ouifm-hautdebit-wmp.asx</file>
-	<file>fromInternet/webradio/virginradio/virgin.asx</file>
+	<file>WindowsMediaPlayer/test.m3u</file>
+	<file>WindowsMediaPlayer/test.wpl</file>
+	<file>WindowsMediaPlayer/test-relative.m3u</file>
+	<file>WindowsMediaPlayer/test-relative.wpl</file>
+
+	<file>Internet/webradio/europe1/europe1.m3u</file>
+	<file>Internet/webradio/europe1/europe1.asx</file>
+	<file>Internet/webradio/franceinter/france_inter_mp3-128k.m3u</file>
+	<file>Internet/webradio/franceinter/france_inter_mp3-128k.pls</file>
+	<file>Internet/webradio/radionova/radionova.m3u</file>
+	<file>Internet/webradio/live9/192.m3u</file>
+	<file>Internet/webradio/live9/192.asx</file>
+	<file>Internet/webradio/ouifm/Ouifm-hautdebit-wmp.asx</file>
+	<file>Internet/webradio/virginradio/virgin.asx</file>
 </qresource>
 </RCC>

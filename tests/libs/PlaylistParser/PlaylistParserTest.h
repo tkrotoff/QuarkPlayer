@@ -91,11 +91,11 @@ private slots:
 
 	void finished(PlaylistParser::Error error, int timeElapsed);
 
-
+/*
 	void savePlaylist_data();
 
 	void savePlaylist();
-
+*/
 private:
 
 	void loadPlaylistM3U();
@@ -106,7 +106,7 @@ private:
 	void loadPlaylistXSPF();
 	void loadPlaylistCUE();
 
-	void savePlaylistM3U();
+	//void savePlaylistM3U();
 
 	PlaylistReader * _reader;
 
