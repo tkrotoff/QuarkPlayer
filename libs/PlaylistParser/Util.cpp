@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -44,7 +44,7 @@ QString Util::canonicalFilePath(const QString & path, const QString & fileName) 
 	} else {
 		QString tmp2(tmp);
 
-		//This does not work with Qt 4.6.2 under Ubuntu 9.10
+		//FIXME This does not work with Qt 4.6.2 under Ubuntu 9.10
 		//Let's do it manually
 		//tmp2 = QDir::toNativeSeparators(tmp2);
 		tmp2.replace("\\", "/");
