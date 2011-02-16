@@ -6,24 +6,11 @@
   <trackList>
     <track>
       <location>1.mp3</location>
-      <title>Title1</title>
-      <creator>Artist1</creator>
-      <annotation>Comment1</annotation>
-      <album>Album1</album>
-      <trackNum>1</trackNum>
       <duration>00000614</duration>
-      <meta rel="band">Album Artist1</meta>
-      <meta rel="bpm">1</meta>
-      <meta rel="composer">Composer1</meta>
-      <meta rel="date">2011</meta>
-      <meta rel="discnumber">1</meta>
-      <meta rel="genre">Genre1</meta>
-      <meta rel="publisher">Publisher1</meta>
     </track>
     <track>
       <location>2.mp3</location>
       <title>Title2</title>
-      <creator>Artist2</creator>
       <annotation>Comment2</annotation>
       <album>Album2</album>
       <trackNum>2</trackNum>
@@ -38,7 +25,6 @@
     </track>
     <track>
       <location>3.mp3</location>
-      <title>Title3</title>
       <creator>Artist3</creator>
       <annotation>Comment3</annotation>
       <album>Album3</album>

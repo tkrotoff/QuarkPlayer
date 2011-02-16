@@ -84,7 +84,6 @@ void PlaylistParserTest::loadPlaylist_data() {
 		<< 0;
 
 	loadPlaylistM3U();
-	loadPlaylistM3U8();
 	loadPlaylistWPL();
 	loadPlaylistPLS();
 	loadPlaylistASX();
@@ -99,6 +98,31 @@ QList<MediaInfo> localM3UPlaylist() {
 		<< MediaInfo("C:\\3.mp3")
 		<< MediaInfo("C:\\4.mp3")
 		<< MediaInfo("C:\\5.mp3");
+}
+
+QList<MediaInfo> localM3UPlaylist_WithMetaDatas() {
+	QList<MediaInfo> mediaInfoList;
+
+	MediaInfo m1("C:\\1.mp3");
+	mediaInfoList << m1;
+
+	MediaInfo m2("C:\\2.mp3");
+	m2.setMetaData(MediaInfo::Title, "Title2");
+	mediaInfoList << m2;
+
+	MediaInfo m3("C:\\3.mp3");
+	//m3.setMetaData(MediaInfo::Title, "Artist3 - 3");
+	mediaInfoList << m3;
+
+	MediaInfo m4("C:\\4.mp3");
+	m4.setMetaData(MediaInfo::Title, "Artist4 - Title4");
+	mediaInfoList << m4;
+
+	MediaInfo m5("C:\\5.mp3");
+	m5.setMetaData(MediaInfo::Title, "Artist5 - Title5");
+	mediaInfoList << m5;
+
+	return mediaInfoList;
 }
 
 QList<MediaInfo> localM3UPlaylist_NoRoot() {
@@ -117,6 +141,73 @@ QList<MediaInfo> localM3UPlaylist_Relative() {
 		<< MediaInfo("..\\mp3\\3.mp3")
 		<< MediaInfo("..\\mp3\\4.mp3")
 		<< MediaInfo("..\\mp3\\5.mp3");
+}
+
+QList<MediaInfo> localXSPFPlaylist() {
+	QList<MediaInfo> mediaInfoList;
+
+	MediaInfo m1("file:///C:/1.mp3");
+	mediaInfoList << m1;
+
+	MediaInfo m2("file:///C:/2.mp3");
+	m2.setMetaData(MediaInfo::TrackNumber, 2);
+	//m2.setMetaData(MediaInfo::DiscNumber, 2);
+	//m2.setMetaData(MediaInfo::BPM, 2);
+	m2.setMetaData(MediaInfo::Title, "Title2");
+	m2.setMetaData(MediaInfo::Album, "Album2");
+	//m2.setMetaData(MediaInfo::AlbumArtist, "Album Artist2");
+	//m2.setMetaData(MediaInfo::Year, 2011);
+	//m2.setMetaData(MediaInfo::Genre, "Genre2");
+	m2.setMetaData(MediaInfo::Comment, "Comment2");
+	//m2.setMetaData(MediaInfo::Composer, "Composer2");
+	//m2.setMetaData(MediaInfo::Publisher, "Publisher2");
+	mediaInfoList << m2;
+
+	MediaInfo m3("file:///C:/3.mp3");
+	m3.setMetaData(MediaInfo::TrackNumber, 3);
+	//m3.setMetaData(MediaInfo::DiscNumber, 3);
+	//m3.setMetaData(MediaInfo::BPM, 3);
+	m3.setMetaData(MediaInfo::Artist, "Artist3");
+	m3.setMetaData(MediaInfo::Album, "Album3");
+	//m3.setMetaData(MediaInfo::AlbumArtist, "Album Artist3");
+	//m3.setMetaData(MediaInfo::Year, 2011);
+	//m3.setMetaData(MediaInfo::Genre, "Genre3");
+	m3.setMetaData(MediaInfo::Comment, "Comment3");
+	//m3.setMetaData(MediaInfo::Composer, "Composer3");
+	//m3.setMetaData(MediaInfo::Publisher, "Publisher3");
+	mediaInfoList << m3;
+
+	MediaInfo m4("file:///C:/4.mp3");
+	m4.setMetaData(MediaInfo::TrackNumber, 4);
+	//m4.setMetaData(MediaInfo::DiscNumber, 4);
+	//m4.setMetaData(MediaInfo::BPM, 4);
+	m4.setMetaData(MediaInfo::Title, "Title4");
+	m4.setMetaData(MediaInfo::Artist, "Artist4");
+	m4.setMetaData(MediaInfo::Album, "Album4");
+	//m4.setMetaData(MediaInfo::AlbumArtist, "Album Artist4");
+	//m4.setMetaData(MediaInfo::Year, 2011);
+	//m4.setMetaData(MediaInfo::Genre, "Genre4");
+	m4.setMetaData(MediaInfo::Comment, "Comment4");
+	//m4.setMetaData(MediaInfo::Composer, "Composer4");
+	//m4.setMetaData(MediaInfo::Publisher, "Publisher4");
+	mediaInfoList << m4;
+
+	MediaInfo m5("file:///C:/5.mp3");
+	m5.setMetaData(MediaInfo::TrackNumber, 5);
+	//m5.setMetaData(MediaInfo::DiscNumber, 5);
+	//m5.setMetaData(MediaInfo::BPM, 5);
+	m5.setMetaData(MediaInfo::Title, "Title5");
+	m5.setMetaData(MediaInfo::Artist, "Artist5");
+	m5.setMetaData(MediaInfo::Album, "Album5");
+	//m5.setMetaData(MediaInfo::AlbumArtist, "Album Artist5");
+	//m5.setMetaData(MediaInfo::Year, 2011);
+	//m5.setMetaData(MediaInfo::Genre, "Genre5");
+	m5.setMetaData(MediaInfo::Comment, "Comment5");
+	//m5.setMetaData(MediaInfo::Composer, "Composer5");
+	//m5.setMetaData(MediaInfo::Publisher, "Publisher5");
+	mediaInfoList << m5;
+
+	return mediaInfoList;
 }
 
 void PlaylistParserTest::loadPlaylistM3U() {
@@ -141,16 +232,30 @@ void PlaylistParserTest::loadPlaylistM3U() {
 		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
+	//VLC
+	QTest::newRow("VLC M3U") << ":/VLC/test.m3u"
+		<< localM3UPlaylist_WithMetaDatas()
+		<< static_cast<int>(PlaylistParser::NoError)
+		<< static_cast<int>(QFile::NoError)
+		<< 0;
+
+	//VLC
+	QTest::newRow("VLC M3U8") << ":/VLC/test.m3u8"
+		<< localM3UPlaylist_WithMetaDatas()
+		<< static_cast<int>(PlaylistParser::NoError)
+		<< static_cast<int>(QFile::NoError)
+		<< 0;
+
 	//Winamp
 	QTest::newRow("Winamp M3U") << ":/Winamp/test.m3u"
-		<< localM3UPlaylist()
+		<< localM3UPlaylist_WithMetaDatas()
 		<< static_cast<int>(PlaylistParser::NoError)
 		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//Winamp
 	QTest::newRow("Winamp M3U8") << ":/Winamp/test.m3u8"
-		<< localM3UPlaylist()
+		<< localM3UPlaylist_WithMetaDatas()
 		<< static_cast<int>(PlaylistParser::NoError)
 		<< static_cast<int>(QFile::NoError)
 		<< 0;
@@ -213,9 +318,6 @@ void PlaylistParserTest::loadPlaylistM3U() {
 		<< 0;
 }
 
-void PlaylistParserTest::loadPlaylistM3U8() {
-}
-
 void PlaylistParserTest::loadPlaylistWPL() {
 	//WindowsMediaPlayer
 	/*QTest::newRow("WindowsMediaPlayer WPL") << ":/WindowsMediaPlayer/test.wpl"
@@ -272,6 +374,19 @@ void PlaylistParserTest::loadPlaylistASX() {
 }
 
 void PlaylistParserTest::loadPlaylistXSPF() {
+	//Foobar
+	QTest::newRow("Foobar XSPF") << ":/foobar2000/test.xspf"
+		<< localXSPFPlaylist()
+		<< static_cast<int>(PlaylistParser::NoError)
+		<< static_cast<int>(QFile::NoError)
+		<< 0;
+
+	//VLC
+	QTest::newRow("VLC XSPF") << ":/VLC/test.xspf"
+		<< localXSPFPlaylist()
+		<< static_cast<int>(PlaylistParser::NoError)
+		<< static_cast<int>(QFile::NoError)
+		<< 0;
 }
 
 void PlaylistParserTest::loadPlaylistCUE() {
@@ -314,6 +429,13 @@ void PlaylistParserTest::filesFound(const QList<MediaInfo> & files) {
 	for (int i = 0; i < filesFound.size(); i++) {
 		//Only compare the filenames, not the metadatas
 		QCOMPARE(filesFound[i].fileName(), files[i].fileName());
+
+		for (int metaData = MediaInfo::MIN; metaData <= MediaInfo::MAX; metaData++) {
+			if (filesFound[i].metaDataValue((MediaInfo::MetaData) metaData).isValid()) {
+				QCOMPARE(filesFound[i].metaDataValue((MediaInfo::MetaData) metaData),
+					files[i].metaDataValue((MediaInfo::MetaData) metaData));
+			}
+		}
 	}
 }
 

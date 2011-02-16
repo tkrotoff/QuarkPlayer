@@ -4,12 +4,7 @@
 	<trackList>
 		<track>
 			<location>file:///C:/1.mp3</location>
-			<title>Title1</title>
-			<creator>Artist1</creator>
-			<album>Album1</album>
-			<trackNum>1</trackNum>
-			<annotation>Comment1</annotation>
-			<duration>680</duration>
+			<duration>648</duration>
 			<extension application="http://www.videolan.org/vlc/playlist/0">
 				<vlc:id>0</vlc:id>
 			</extension>
@@ -17,7 +12,6 @@
 		<track>
 			<location>file:///C:/2.mp3</location>
 			<title>Title2</title>
-			<creator>Artist2</creator>
 			<album>Album2</album>
 			<trackNum>2</trackNum>
 			<annotation>Comment2</annotation>
@@ -28,7 +22,6 @@
 		</track>
 		<track>
 			<location>file:///C:/3.mp3</location>
-			<title>Title3</title>
 			<creator>Artist3</creator>
 			<album>Album3</album>
 			<trackNum>3</trackNum>

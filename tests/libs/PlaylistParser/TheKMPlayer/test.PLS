@@ -1,14 +1,14 @@
 [playlist]
 File1=C:\1.mp3
-Title1=Artist1 - Title1(Album1)
+Title1=1.mp3
 Length1=648
 Played1=0
 File2=C:\2.mp3
-Title2=Artist2 - Title2(Album2)
+Title2=Title2(Album2)
 Length2=648
 Played2=0
 File3=C:\3.mp3
-Title3=Artist3 - Title3(Album3)
+Title3=Artist3 - (Album3)
 Length3=648
 Played3=0
 File4=C:\4.mp3

@@ -1,17 +1,17 @@
 <Asx Version = "3.0" >
 <Param Name = "Name" Value = "PlayList" />
 <Entry>
-<Title>"Artist1 - Title1(Album1)"</Title>
+<Title>"1.mp3"</Title>
 <Ref href = "C:\1.mp3"/>
 </Entry>
 
 <Entry>
-<Title>"Artist2 - Title2(Album2)"</Title>
+<Title>"Title2(Album2)"</Title>
 <Ref href = "C:\2.mp3"/>
 </Entry>
 
 <Entry>
-<Title>"Artist3 - Title3(Album3)"</Title>
+<Title>"Artist3 - (Album3)"</Title>
 <Ref href = "C:\3.mp3"/>
 </Entry>
 

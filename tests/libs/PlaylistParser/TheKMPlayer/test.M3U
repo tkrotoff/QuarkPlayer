@@ -1,9 +1,9 @@
 #EXTM3U
-#EXTINF:0,Artist1 - Title1(Album1)
+#EXTINF:0,1.mp3
 C:\1.mp3
-#EXTINF:1,Artist2 - Title2(Album2)
+#EXTINF:1,Title2(Album2)
 C:\2.mp3
-#EXTINF:2,Artist3 - Title3(Album3)
+#EXTINF:2,Artist3 - (Album3)
 C:\3.mp3
 #EXTINF:3,Artist4 - Title4(Album4)
 C:\4.mp3
