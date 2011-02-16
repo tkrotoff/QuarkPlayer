@@ -40,9 +40,11 @@ XmlFileOutput::XmlFileOutput(bool enabled, const QString & fileName)
 
 	_xmlWriter = NULL;
 
+	//Does not fail to open the file even if already open!
+	//QtLockedFile can be a solution here
 	QFile * file = new QFile(fileName);
 	if (!file->open(QIODevice::WriteOnly | QIODevice::Text)) {
-		LoggerCritical() << "Couldn't open file:" << fileName;
+		LoggerCritical() << "Couldn't open file:" << fileName << "error:" << file->errorString();
 	} else {
 		_xmlWriter = new QXmlStreamWriter(file);
 		_xmlWriter->setAutoFormatting(true);
