@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,6 +32,7 @@
 #include <QtCore/QUrl>
 #include <QtCore/QDateTime>
 
+static const char * XSPF_BASE = "xml:base";
 static const char * XSPF_DATE = "date";
 static const char * XSPF_PLAYLIST = "playlist";
 static const char * XSPF_TRACK = "track";
@@ -83,7 +84,7 @@ void XSPFParser::stop() {
 	_stop = true;
 }
 
-void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const {
+void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo, const QString & base) const {
 	while (!xml.atEnd() && !_stop) {
 		xml.readNext();
 
@@ -93,8 +94,20 @@ void XSPFParser::readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const 
 
 			//Filename
 			if (element == XSPF_LOCATION) {
-				QUrl url = QUrl::fromEncoded(xml.readElementText().toUtf8());
+				QString originalLocation = base + xml.readElementText();
+
+				//Workaround for a bug with foorbar2000 XSPF plugin
+				//"C:/1.mp3" should be written "file:///C:/1.mp3" instead of
+				//"file://C:/1.mp3"
+				bool match = QRegExp("^file://[A-Za-z_]:/.*$").exactMatch(originalLocation);
+				if (match) {
+					originalLocation = originalLocation.replace("file://", "file:///");
+				}
+				///
+
+				QUrl url = QUrl::fromEncoded(originalLocation.toUtf8());
 				QString location(url.toString());
+
 				if (MediaInfo::isUrl(location)) {
 					mediaInfo.setFileName(location);
 				} else {
@@ -317,6 +330,7 @@ void XSPFParser::load(QIODevice * device, const QString & location) {
 	QList<MediaInfo> files;
 
 	MediaInfo mediaInfo;
+	QString base;
 
 	QXmlStreamReader xml(device);
 	while (!xml.atEnd() && !_stop) {
@@ -327,8 +341,17 @@ void XSPFParser::load(QIODevice * device, const QString & location) {
 		case QXmlStreamReader::StartElement: {
 			QString element(xml.name().toString());
 
-			if (element == XSPF_TRACK) {
-				readTrack(xml, mediaInfo);
+			if (element == XSPF_PLAYLIST) {
+				QXmlStreamAttributes attributes = xml.attributes();
+
+				//Base
+				if (attributes.hasAttribute(XSPF_BASE)) {
+					base = attributes.value(XSPF_BASE).toString();
+				}
+			}
+
+			else if (element == XSPF_TRACK) {
+				readTrack(xml, mediaInfo, base);
 
 				if (!mediaInfo.fileName().isEmpty()) {
 					//Add file to the list of files

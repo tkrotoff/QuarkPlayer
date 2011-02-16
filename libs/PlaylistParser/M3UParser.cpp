@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -63,9 +63,10 @@ void M3UParser::load(QIODevice * device, const QString & location) {
 	//#EXTM3U
 	QRegExp rx_extm3u("^#EXTM3U$|^#M3U$");
 	//#EXTINF:123,Sample title
-	QRegExp rx_extinf("^#EXTINF:([-+]?\\d+),(.*)$");
+	//"Sample title" can be "Artist - Title"
+	QRegExp rx_extinf("^#EXTINF:([-+]?\\d+),\s?(.*)$");
 	//#EXTINF:Sample title
-	QRegExp rx_extinf_title("^#EXTINF:(.*)$");
+	QRegExp rx_extinf_title("^#EXTINF:\s?(.*)$");
 	//#Just a comment
 	QRegExp rx_comment("^#.*$");
 

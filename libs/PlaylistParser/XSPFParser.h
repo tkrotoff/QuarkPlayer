@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,7 +36,7 @@ class QXmlStreamWriter;
  *
  * Future features:
  * Add QuarkPlayer extension in order to save (and import) the SQL database inside a XSPF file.
- * Amarok use a XML file format to load/save its SQL database,
+ * Amarok uses a XML file format to load/save its SQL database,
  * see http://websvn.kde.org/trunk/extragear/multimedia/amarok/utilities/collectionscanner/
  *
  * @see http://en.wikipedia.org/wiki/XML_Shareable_Playlist_Format
@@ -61,7 +61,7 @@ public:
 
 private:
 
-	void readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo) const;
+	void readTrack(QXmlStreamReader & xml, MediaInfo & mediaInfo, const QString & base) const;
 
 	static void writeTextElement(QXmlStreamWriter & xml, const QString & qualifiedName, const QString & text);
 

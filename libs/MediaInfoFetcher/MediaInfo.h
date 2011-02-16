@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -183,11 +183,14 @@ public:
 	 * http://www.google.com/codesearch?as_q=Metadata&btnG=Search+Code&hl=en&as_lang=java&as_case=y
 	 */
 	enum MetaData {
+		/** In order to loop over this enum. */
+		MIN,
+
 		/**
 		 * int
 		 * Returns 0 if no track number.
 		 */
-		TrackNumber,
+		TrackNumber = MIN,
 
 		/**
 		 * int
@@ -276,7 +279,10 @@ public:
 		 * int
 		 * @see http://en.wikipedia.org/wiki/Beats_per_minute
 		 */
-		BPM
+		BPM,
+
+		/** In order to loop over this enum. */
+		MAX = BPM
 	};
 
 	QVariant metaDataValue(MetaData metaData) const;

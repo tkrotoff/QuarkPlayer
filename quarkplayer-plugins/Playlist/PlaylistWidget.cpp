@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -359,7 +359,7 @@ void PlaylistWidget::updateWindowTitle(const QString & statusMessage) {
 }
 
 void PlaylistWidget::savePlaylist() {
-	static const char * PLAYLIST_DEFAULT_EXTENSION = "m3u8";
+	static const char * PLAYLIST_DEFAULT_EXTENSION = "m3u";
 
 	QString filename = TkFileDialog::getSaveFileName(
 		this, tr("Save Playlist"), Config::instance().lastDirOpened(),
