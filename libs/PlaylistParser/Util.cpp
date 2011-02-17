@@ -57,3 +57,39 @@ QString Util::canonicalFilePath(const QString & path, const QString & fileName) 
 
 	return tmp;
 }
+
+QIODevice * Util::openLocationReadMode(const QString & location) {
+	QFile * file = new QFile(location);
+
+	//Cannot use QIODevice::Text since binary playlist formats can exist (or exist already)
+	//See QFile documentation, here a copy-paste:
+	//The QIODevice::Text flag passed to open() tells Qt to convert Windows-style line terminators ("\r\n")
+	//into C++-style terminators ("\n").
+	//By default, QFile assumes binary, i.e. it doesn't perform any conversion on the bytes stored in the file.
+	bool ok = file->open(QIODevice::ReadOnly);
+	if (!ok) {
+		PlaylistParserCritical() << "Couldn't open file:" << location << "error:" << file->errorString();
+		delete file;
+		return NULL;
+	} else {
+		return file;
+	}
+}
+
+QIODevice * Util::openLocationWriteMode(const QString & location) {
+	QFile * file = new QFile(location);
+
+	//Cannot use QIODevice::Text since binary playlist formats may exist (or exist already)
+	//See QFile documentation, here a copy-paste:
+	//The QIODevice::Text flag passed to open() tells Qt to convert Windows-style line terminators ("\r\n")
+	//into C++-style terminators ("\n").
+	//By default, QFile assumes binary, i.e. it doesn't perform any conversion on the bytes stored in the file.
+	bool ok = file->open(QIODevice::WriteOnly);
+	if (!ok) {
+		PlaylistParserCritical() << "Couldn't open file:" << location << "error:" << file->errorString();
+		delete file;
+		return NULL;
+	} else {
+		return file;
+	}
+}

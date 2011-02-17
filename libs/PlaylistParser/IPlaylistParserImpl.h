@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,7 +23,6 @@
 
 class MediaInfo;
 
-class QIODevice;
 class QString;
 class QStringList;
 
@@ -50,9 +49,19 @@ public:
 	 */
 	virtual QStringList fileExtensions() const = 0;
 
-	virtual void load(QIODevice * device, const QString & location) = 0;
+	/**
+	 * Loads the playlist at location.
+	 *
+	 * @return true if success; false otherwise
+	 */
+	virtual bool load(const QString & location) = 0;
 
-	virtual void save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) = 0;
+	/**
+	 * Saves the playlist at location.
+	 *
+	 * @return true if success; false otherwise
+	 */
+	virtual bool save(const QString & location, const QList<MediaInfo> & files) = 0;
 
 signals:
 
@@ -60,7 +69,6 @@ signals:
 	 * @see PlaylistReader::filesFound()
 	 */
 	void filesFound(const QList<MediaInfo> & files);
-
 };
 
 #endif	//IPLAYLISTPARSERIMPL_H

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,8 +21,8 @@
 
 #include <PlaylistParser/IPlaylistParser.h>
 
+#include <QtCore/QFutureWatcher>
 #include <QtCore/QList>
-#include <QtCore/QFile>
 #include <QtCore/QTime>
 
 class IPlaylistParserImpl;
@@ -53,11 +53,11 @@ public:
 		UnsupportedFormatError,
 
 		/**
-		 * Playlist file could not be read/write using QFile.
+		 * Playlist could not be read/write using QIODevice.
 		 *
-		 * Use file().error() in order to get more informations.
+		 * Check the log to see the exact error.
 		 */
-		FileError,
+		IOError,
 	};
 
 	PlaylistParser(QObject * parent);
@@ -65,8 +65,6 @@ public:
 	virtual ~PlaylistParser();
 
 	void stop();
-
-	const QFile & file() const;
 
 signals:
 
@@ -107,13 +105,12 @@ protected:
 	IPlaylistParserImpl * _parser;
 
 	/** Error for the finished() signal. */
-	Error _error;
-
-	/** QFile used to read/write the playlist file. */
-	QFile _file;
+	PlaylistParser::Error _error;
 
 	/** Computes the time needed to parser the playlist file. */
 	QTime _timeElapsed;
+
+	QFutureWatcher<bool> * _watcher;
 };
 
 class MediaInfo;
@@ -155,8 +152,6 @@ signals:
 	void filesFound(const QList<MediaInfo> & mediaList);
 
 private:
-
-	void loadIODevice(QIODevice * device, const QString & fileName);
 };
 
 /**
@@ -184,9 +179,6 @@ public:
 	void save(const QString & fileName, const QList<MediaInfo> & mediaList);
 
 private:
-
-	void saveIODevice(QIODevice * device, const QString & fileName, const QList<MediaInfo> & mediaList);
-
 };
 
 #endif	//PLAYLISTPARSER_H

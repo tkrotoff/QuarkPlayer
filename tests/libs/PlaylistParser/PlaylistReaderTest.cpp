@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PlaylistParserTest.h"
+#include "PlaylistReaderTest.h"
 
 #include <PlaylistParser/PlaylistParser.h>
 #include <PlaylistParser/PlaylistParserLogger.h>
@@ -27,14 +27,14 @@
 #include <QtCore/QFile>
 #include <QtCore/QList>
 
-QTEST_MAIN(PlaylistParserTest)
+QTEST_MAIN(PlaylistReaderTest)
 
 void disableMessageOutput(QtMsgType type, const char * msg) {
 	Q_UNUSED(type);
 	Q_UNUSED(msg);
 }
 
-void PlaylistParserTest::initTestCase() {
+void PlaylistReaderTest::initTestCase() {
 	//Disable qDebug() and friends
 	qInstallMsgHandler(disableMessageOutput);
 	///
@@ -45,42 +45,33 @@ void PlaylistParserTest::initTestCase() {
 		SLOT(filesFound(const QList<MediaInfo> &)));
 	connect(_reader, SIGNAL(finished(PlaylistParser::Error, int)),
 		SLOT(finished(PlaylistParser::Error, int)));
-
-	//Playlist writer
-	_writer = new PlaylistWriter(this);
-	connect(_writer, SIGNAL(finished(PlaylistParser::Error, int)),
-		SLOT(finished(PlaylistParser::Error, int)));
 }
 
-void PlaylistParserTest::cleanupTestCase() {
+void PlaylistReaderTest::cleanupTestCase() {
 }
 
-void PlaylistParserTest::init() {
+void PlaylistReaderTest::init() {
 }
 
-void PlaylistParserTest::cleanup() {
+void PlaylistReaderTest::cleanup() {
 }
 
-void PlaylistParserTest::loadPlaylist_data() {
+void PlaylistReaderTest::loadPlaylist_data() {
 	QTest::addColumn<QString>("playlistFileName");
-
-	QTest::addColumn<QList<MediaInfo> >("filesFound");
+	QTest::addColumn<QList<MediaInfo> >("filesToFind");
 	QTest::addColumn<int>("parserError");
-	QTest::addColumn<int>("parserFileError");
 	QTest::addColumn<int>("parserTimeElapsed");
 
 	//Non existing file
-	QTest::newRow("Non existing File") << "Non existing File"
+	QTest::newRow("Non existing File") << "Non existing File.m3u"
 		<< QList<MediaInfo>()
-		<< static_cast<int>(PlaylistParser::FileError)
-		<< static_cast<int>(QFile::OpenError)
+		<< static_cast<int>(PlaylistParser::IOError)
 		<< 0;
 
-	//Unsupported Format
+	//Unsupported format: The KMPlayer proprietary format
 	QTest::newRow("Unsupported Format") << ":/TheKMPlayer/test.KPL"
 		<< QList<MediaInfo>()
 		<< static_cast<int>(PlaylistParser::UnsupportedFormatError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	loadPlaylistM3U();
@@ -104,22 +95,27 @@ QList<MediaInfo> localM3UPlaylist_WithMetaDatas() {
 	QList<MediaInfo> mediaInfoList;
 
 	MediaInfo m1("C:\\1.mp3");
+	m1.setDurationSecs(0);
 	mediaInfoList << m1;
 
 	MediaInfo m2("C:\\2.mp3");
 	m2.setMetaData(MediaInfo::Title, "Title2");
+	m2.setDurationSecs(0);
 	mediaInfoList << m2;
 
 	MediaInfo m3("C:\\3.mp3");
 	//m3.setMetaData(MediaInfo::Title, "Artist3 - 3");
+	m3.setDurationSecs(0);
 	mediaInfoList << m3;
 
 	MediaInfo m4("C:\\4.mp3");
 	m4.setMetaData(MediaInfo::Title, "Artist4 - Title4");
+	m4.setDurationSecs(0);
 	mediaInfoList << m4;
 
 	MediaInfo m5("C:\\5.mp3");
 	m5.setMetaData(MediaInfo::Title, "Artist5 - Title5");
+	m5.setDurationSecs(0);
 	mediaInfoList << m5;
 
 	return mediaInfoList;
@@ -210,75 +206,65 @@ QList<MediaInfo> localXSPFPlaylist() {
 	return mediaInfoList;
 }
 
-void PlaylistParserTest::loadPlaylistM3U() {
+void PlaylistReaderTest::loadPlaylistM3U() {
 	//Foobar
 	QTest::newRow("Foobar M3U") << ":/foobar2000/test.m3u"
 		<< localM3UPlaylist()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//Foobar
 	QTest::newRow("Foobar M3U8") << ":/foobar2000/test.m3u8"
 		<< localM3UPlaylist()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//TheKMPlayer
 	QTest::newRow("TheKMPlayer M3U") << ":/TheKMPlayer/test.M3U"
 		<< localM3UPlaylist()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//VLC
 	QTest::newRow("VLC M3U") << ":/VLC/test.m3u"
 		<< localM3UPlaylist_WithMetaDatas()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//VLC
 	QTest::newRow("VLC M3U8") << ":/VLC/test.m3u8"
 		<< localM3UPlaylist_WithMetaDatas()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//Winamp
 	QTest::newRow("Winamp M3U") << ":/Winamp/test.m3u"
 		<< localM3UPlaylist_WithMetaDatas()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//Winamp
 	QTest::newRow("Winamp M3U8") << ":/Winamp/test.m3u8"
 		<< localM3UPlaylist_WithMetaDatas()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//Winamp
 	QTest::newRow("Winamp M3U") << ":/Winamp/test-noroot.m3u"
 		<< localM3UPlaylist_NoRoot()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//WindowsMediaPlayer
 	QTest::newRow("WindowsMediaPlayer M3U") << ":/WindowsMediaPlayer/test.m3u"
 		<< localM3UPlaylist()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//WindowsMediaPlayer
 	QTest::newRow("WindowsMediaPlayer M3U") << ":/WindowsMediaPlayer/test-relative.m3u"
 		<< localM3UPlaylist_Relative()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//Europe1
@@ -286,7 +272,6 @@ void PlaylistParserTest::loadPlaylistM3U() {
 		<< (QList<MediaInfo>()
 			<< MediaInfo("http://vipicecast.yacast.net/europe1"))
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//Live9
@@ -298,7 +283,6 @@ void PlaylistParserTest::loadPlaylistM3U() {
 			<< MediaInfo("http://stream192.live9.fr:8050")
 			<< MediaInfo("http://stream192.live9.fr:8050"))
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//France Inter
@@ -306,7 +290,6 @@ void PlaylistParserTest::loadPlaylistM3U() {
 		<< (QList<MediaInfo>()
 			<< MediaInfo("http://mp3.live.tv-radio.com/franceinter/all/franceinterhautdebit.mp3"))
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//Radio Nova
@@ -314,37 +297,51 @@ void PlaylistParserTest::loadPlaylistM3U() {
 		<< (QList<MediaInfo>()
 			<< MediaInfo("http://broadcast.infomaniak.net:80/radionova-high.mp3"))
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 }
 
-void PlaylistParserTest::loadPlaylistWPL() {
+void PlaylistReaderTest::loadPlaylistWPL() {
 	//WindowsMediaPlayer
-	/*QTest::newRow("WindowsMediaPlayer WPL") << ":/WindowsMediaPlayer/test.wpl"
+	QTest::newRow("WindowsMediaPlayer WPL") << ":/WindowsMediaPlayer/test.wpl"
 		<< localM3UPlaylist()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
-		<< 0;*/
+		<< 0;
+
+	//WindowsMediaPlayer
+	QTest::newRow("WindowsMediaPlayer WPL") << ":/WindowsMediaPlayer/test-relative.wpl"
+		<< localM3UPlaylist_Relative()
+		<< static_cast<int>(PlaylistParser::NoError)
+		<< 0;
 }
 
-void PlaylistParserTest::loadPlaylistPLS() {
+void PlaylistReaderTest::loadPlaylistPLS() {
 	//France Inter
 	QTest::newRow("France Inter PLS") << ":/Internet/webradio/franceinter/france_inter_mp3-128k.pls"
 		<< (QList<MediaInfo>()
 			<< MediaInfo("http://mp3.live.tv-radio.com/franceinter/all/franceinterhautdebit.mp3")
 			<< MediaInfo("http://mp3.live.tv-radio.com/franceinter/all/franceinterhautdebit.mp3"))
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
+		<< 0;
+
+	//TheKMPlayer
+	QTest::newRow("TheKMPlayer PLS") << ":/TheKMPlayer/test.PLS"
+		<< localM3UPlaylist()
+		<< static_cast<int>(PlaylistParser::NoError)
+		<< 0;
+
+	//Winamp
+	QTest::newRow("Winamp PLS") << ":/Winamp/test.pls"
+		<< localM3UPlaylist_WithMetaDatas()
+		<< static_cast<int>(PlaylistParser::NoError)
 		<< 0;
 }
 
-void PlaylistParserTest::loadPlaylistASX() {
+void PlaylistReaderTest::loadPlaylistASX() {
 	//Live9
 	QTest::newRow("Live9 ASX") << ":/Internet/webradio/live9/192.asx"
 		<< (QList<MediaInfo>()
 			<< MediaInfo("mms://wm.live9.fr/live9live"))
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//OUI FM
@@ -353,7 +350,6 @@ void PlaylistParserTest::loadPlaylistASX() {
 			<< MediaInfo("http://www.ouifm.fr/player/IntroPubOUIFM.mp3")
 			<< MediaInfo("http://broadcast.infomaniak.net:80/ouifm-high.mp3"))
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//Virgin Radio
@@ -361,7 +357,6 @@ void PlaylistParserTest::loadPlaylistASX() {
 		<< (QList<MediaInfo>()
 			<< MediaInfo("mms://viplagardere.yacast.net/encodereurope2"))
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//Europe1
@@ -369,30 +364,37 @@ void PlaylistParserTest::loadPlaylistASX() {
 		<< (QList<MediaInfo>()
 			<< MediaInfo("mms://viplagardere.yacast.net/encodereurope1"))
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
+
+	//TheKMPlayer
+	//FIXME Qt bug, tested with Qt 4.7.0 MinGW Windows XP
+	//"<Ref href = "C:\1.mp3"/>"
+	//will return "C:C:\1.mp3.mp3"
+	/*QTest::newRow("TheKMPlayer ASX") << ":/TheKMPlayer/test.ASX"
+		<< localM3UPlaylist()
+		<< static_cast<int>(PlaylistParser::NoError)
+		<< static_cast<int>(QFile::NoError)
+		<< 0;*/
 }
 
-void PlaylistParserTest::loadPlaylistXSPF() {
+void PlaylistReaderTest::loadPlaylistXSPF() {
 	//Foobar
 	QTest::newRow("Foobar XSPF") << ":/foobar2000/test.xspf"
 		<< localXSPFPlaylist()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 
 	//VLC
 	QTest::newRow("VLC XSPF") << ":/VLC/test.xspf"
 		<< localXSPFPlaylist()
 		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
 		<< 0;
 }
 
-void PlaylistParserTest::loadPlaylistCUE() {
+void PlaylistReaderTest::loadPlaylistCUE() {
 }
 
-void PlaylistParserTest::loadPlaylist() {
+void PlaylistReaderTest::loadPlaylist() {
 	QSignalSpy spyFilesFound(_reader, SIGNAL(filesFound(const QList<MediaInfo> &)));
 	QSignalSpy spyFinished(_reader, SIGNAL(finished(PlaylistParser::Error, int)));
 
@@ -420,127 +422,37 @@ void PlaylistParserTest::loadPlaylist() {
 	QCOMPARE(spyFinished.count(), 1);
 }
 
-void PlaylistParserTest::filesFound(const QList<MediaInfo> & files) {
-	QFETCH(QList<MediaInfo>, filesFound);
+void PlaylistReaderTest::filesFound(const QList<MediaInfo> & files) {
+	QFETCH(QList<MediaInfo>, filesToFind);
 
-	QCOMPARE(files.size(), filesFound.size());
-	QTest::addColumn<QList<MediaInfo> >("filesFound");
+	QCOMPARE(files.size(), filesToFind.size());
 
-	for (int i = 0; i < filesFound.size(); i++) {
-		//Only compare the filenames, not the metadatas
-		QCOMPARE(filesFound[i].fileName(), files[i].fileName());
+	for (int i = 0; i < filesToFind.size(); i++) {
+		//Compare the filenames
+		QCOMPARE(filesToFind[i].fileName(), files[i].fileName());
 
+		//Compare the metadatas if any
 		for (int metaData = MediaInfo::MIN; metaData <= MediaInfo::MAX; metaData++) {
-			if (filesFound[i].metaDataValue((MediaInfo::MetaData) metaData).isValid()) {
-				QCOMPARE(filesFound[i].metaDataValue((MediaInfo::MetaData) metaData),
+			if (filesToFind[i].metaDataValue((MediaInfo::MetaData) metaData).isValid()) {
+				QCOMPARE(filesToFind[i].metaDataValue((MediaInfo::MetaData) metaData),
 					files[i].metaDataValue((MediaInfo::MetaData) metaData));
 			}
+		}
+
+		//Compare the durations
+		if (filesToFind[i].durationSecs() != -1) {
+			QCOMPARE(filesToFind[i].durationSecs(), files[i].durationSecs());
 		}
 	}
 }
 
-void PlaylistParserTest::finished(PlaylistParser::Error error, int timeElapsed) {
+void PlaylistReaderTest::finished(PlaylistParser::Error error, int timeElapsed) {
 	//QFETCH(int, parserTimeElapsed);
 
 	QFETCH(int, parserError);
 	QCOMPARE(parserError, static_cast<int>(error));
 
-	QFETCH(int, parserFileError);
-	int fileError = _reader->file().error();
-	QCOMPARE(parserFileError, fileError);
-
 	PlaylistParserDebug() << "timeElapsed:" << timeElapsed;
 
 	QTestEventLoop::instance().exitLoop();
 }
-
-
-
-QList<MediaInfo> mediaInfoListToSave() {
-	QList<MediaInfo> mediaInfoList;
-
-	MediaInfo m1("media1");
-	m1.setMetaData(MediaInfo::Album, "album1");
-	m1.setMetaData(MediaInfo::Artist, "artist1");
-	m1.setMetaData(MediaInfo::Title, "title1");
-	m1.setDurationSecs(1);
-	mediaInfoList << m1;
-
-	MediaInfo m2("media2");
-	m2.setMetaData(MediaInfo::Album, "album2");
-	m2.setMetaData(MediaInfo::Artist, "artist2");
-	m2.setMetaData(MediaInfo::Title, "title2");
-	m2.setDurationSecs(2);
-	mediaInfoList << m2;
-
-	MediaInfo m3("media3");
-	m3.setMetaData(MediaInfo::Album, "album3");
-	m3.setMetaData(MediaInfo::Artist, "artist3");
-	m3.setMetaData(MediaInfo::Title, "title3");
-	m3.setDurationSecs(3);
-	mediaInfoList << m3;
-
-	MediaInfo m4("media4");
-	m4.setMetaData(MediaInfo::Album, "album4");
-	m4.setMetaData(MediaInfo::Artist, "artist4");
-	m4.setMetaData(MediaInfo::Title, "title4");
-	m4.setDurationSecs(4);
-	mediaInfoList << m4;
-
-	MediaInfo m5("media5");
-	m5.setMetaData(MediaInfo::Album, "album5");
-	m5.setMetaData(MediaInfo::Artist, "artist5");
-	m5.setMetaData(MediaInfo::Title, "title5");
-	m5.setDurationSecs(5);
-	mediaInfoList << m5;
-
-	return mediaInfoList;
-}
-/*
-void PlaylistParserTest::savePlaylist_data() {
-	QTest::addColumn<QString>("playlistFileName");
-
-	QTest::addColumn<QList<MediaInfo> >("mediaList");
-	QTest::addColumn<int>("parserError");
-	QTest::addColumn<int>("parserFileError");
-	QTest::addColumn<int>("parserTimeElapsed");
-
-	//Unsupported Format
-	QTest::newRow("Unsupported Format") << "test.KPL"	//Proprietary TheKMPlayer format
-		<< mediaInfoListToSave()
-		<< static_cast<int>(PlaylistParser::UnsupportedFormatError)
-		<< static_cast<int>(QFile::NoError)
-		<< 0;
-
-	savePlaylistM3U();
-}
-
-void PlaylistParserTest::savePlaylist() {
-	QSignalSpy spyFinished(_reader, SIGNAL(finished(PlaylistParser::Error, int)));
-
-	QFETCH(QString, playlistFileName);
-	QFETCH(QList<MediaInfo>, mediaList);
-	_writer->save(playlistFileName, mediaList);
-
-	//finished() signal might be already sent by load() method
-	//if the file couldn't be opened
-	if (spyFinished.count() == 0) {
-		QTestEventLoop::instance().enterLoop(30);
-		QVERIFY(!QTestEventLoop::instance().timeout());
-	}
-
-	QFETCH(int, parserError);
-	if (parserError == PlaylistParser::NoError) {
-	} else {
-	}
-}
-
-void PlaylistParserTest::savePlaylistM3U() {
-	//M3U
-	QTest::newRow("M3U") << "test.m3u"
-		<< mediaInfoListToSave()
-		<< static_cast<int>(PlaylistParser::NoError)
-		<< static_cast<int>(QFile::NoError)
-		<< 0;
-}
-*/

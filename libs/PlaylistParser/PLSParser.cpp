@@ -61,7 +61,12 @@ void PLSParser::stop() {
 	_stop = true;
 }
 
-void PLSParser::load(QIODevice * device, const QString & location) {
+bool PLSParser::load(const QString & location) {
+	QIODevice * device = Util::openLocationReadMode(location);
+	if (!device) {
+		return false;
+	}
+
 	_stop = false;
 
 	QList<MediaInfo> files;
@@ -142,6 +147,7 @@ void PLSParser::load(QIODevice * device, const QString & location) {
 	}
 
 	device->close();
+	delete device;
 
 	if (!mediaInfo.fileName().isEmpty()) {
 		//Add the last file to the list of files
@@ -152,9 +158,16 @@ void PLSParser::load(QIODevice * device, const QString & location) {
 		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
 		emit filesFound(files);
 	}
+
+	return true;
 }
 
-void PLSParser::save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
+bool PLSParser::save(const QString & location, const QList<MediaInfo> & files) {
+	QIODevice * device = Util::openLocationWriteMode(location);
+	if (!device) {
+		return false;
+	}
+
 	_stop = false;
 
 	QString path(QFileInfo(location).path());
@@ -201,4 +214,7 @@ void PLSParser::save(QIODevice * device, const QString & location, const QList<M
 	}
 
 	device->close();
+	delete device;
+
+	return true;
 }

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -54,7 +54,12 @@ void CUEParser::stop() {
 	_stop = true;
 }
 
-void CUEParser::load(QIODevice * device, const QString & location) {
+bool CUEParser::load(const QString & location) {
+	QIODevice * device = Util::openLocationReadMode(location);
+	if (!device) {
+		return false;
+	}
+
 	_stop = false;
 
 	QList<MediaInfo> files;
@@ -182,14 +187,22 @@ void CUEParser::load(QIODevice * device, const QString & location) {
 	}
 
 	device->close();
+	delete device;
 
 	if (!files.isEmpty()) {
 		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
 		emit filesFound(files);
 	}
+
+	return true;
 }
 
-void CUEParser::save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
+bool CUEParser::save(const QString & location, const QList<MediaInfo> & files) {
+	QIODevice * device = Util::openLocationWriteMode(location);
+	if (!device) {
+		return false;
+	}
+
 	_stop = false;
 
 	QString path(QFileInfo(location).path());
@@ -238,4 +251,7 @@ void CUEParser::save(QIODevice * device, const QString & location, const QList<M
 	}
 
 	device->close();
+	delete device;
+
+	return true;
 }

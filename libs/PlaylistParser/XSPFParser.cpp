@@ -322,8 +322,11 @@ void XSPFParser::writeTrack(QXmlStreamWriter & xml, const MediaInfo & mediaInfo)
 	xml.writeEndElement();	//track
 }
 
-void XSPFParser::load(QIODevice * device, const QString & location) {
-	Q_UNUSED(location);
+bool XSPFParser::load(const QString & location) {
+	QIODevice * device = Util::openLocationReadMode(location);
+	if (!device) {
+		return false;
+	}
 
 	_stop = false;
 
@@ -386,14 +389,22 @@ void XSPFParser::load(QIODevice * device, const QString & location) {
 	}
 
 	device->close();
+	delete device;
 
 	if (!files.isEmpty()) {
 		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
 		emit filesFound(files);
 	}
+
+	return true;
 }
 
-void XSPFParser::save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
+bool XSPFParser::save(const QString & location, const QList<MediaInfo> & files) {
+	QIODevice * device = Util::openLocationWriteMode(location);
+	if (!device) {
+		return false;
+	}
+
 	_stop = false;
 
 	QXmlStreamWriter xml(device);
@@ -424,4 +435,7 @@ void XSPFParser::save(QIODevice * device, const QString & location, const QList<
 	xml.writeEndElement();	//playlist
 
 	device->close();
+	delete device;
+
+	return true;
 }

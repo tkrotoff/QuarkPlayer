@@ -1,25 +1,28 @@
-project(PlaylistParserTest)
+project(PlaylistParserTests)
 
-set(PlaylistParserTest_SRCS
-	PlaylistParserTest.cpp
-)
+macro(add_unit_test name)
+	set(SRCS ${ARGN})
 
-qt4_wrap_cpp(PlaylistParserTest_SRCS
-	PlaylistParserTest.h
-)
+	add_executable(${name} ${SRCS})
 
-qt4_add_resources(PlaylistParserTest_SRCS
-	playlists.qrc
-)
+	add_test(${name} ${name})
 
-add_executable(PlaylistParserTest ${PlaylistParserTest_SRCS})
-add_test(PlaylistParserTest PlaylistParserTest)
+	target_link_libraries(${name}
+		PlaylistParser
 
-target_link_libraries(PlaylistParserTest
-	PlaylistParser
+		${QT_QTCORE_LIBRARY}
+		${QT_QTTEST_LIBRARY}
+	)
+	install(TARGETS ${name} ${INSTALL_TARGETS_DEFAULT_ARGS})
+endmacro(add_unit_test name)
 
-	${QT_QTCORE_LIBRARY}
-	${QT_QTTEST_LIBRARY}
-)
 
-install(TARGETS PlaylistParserTest ${INSTALL_TARGETS_DEFAULT_ARGS})
+set(PlaylistReaderTest_SRCS PlaylistReaderTest.cpp)
+qt4_wrap_cpp(PlaylistReaderTest_SRCS PlaylistReaderTest.h)
+qt4_add_resources(PlaylistReaderTest_SRCS playlists.qrc)
+add_unit_test(PlaylistReaderTest ${PlaylistReaderTest_SRCS})
+
+
+set(PlaylistWriterTest_SRCS PlaylistWriterTest.cpp)
+qt4_wrap_cpp(PlaylistWriterTest_SRCS PlaylistWriterTest.h)
+add_unit_test(PlaylistWriterTest ${PlaylistWriterTest_SRCS})

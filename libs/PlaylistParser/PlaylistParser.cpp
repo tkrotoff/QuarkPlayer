@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,7 +30,6 @@
 
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QFuture>
-#include <QtCore/QFutureWatcher>
 
 #include <QtCore/QStringList>
 #include <QtCore/QUrl>
@@ -38,14 +37,17 @@
 #include <QtCore/QMetaType>
 
 PlaylistParser::PlaylistParser(QObject * parent)
-	: IPlaylistParser(parent),
-	_file(this) {
+	: IPlaylistParser(parent) {
 
 	qRegisterMetaType<QList<MediaInfo> >("QList<MediaInfo>");
 	qRegisterMetaType<PlaylistParser::Error>("PlaylistParser::Error");
 
 	_parser = NULL;
 	_error = NoError;
+
+	_watcher = new QFutureWatcher<bool>(this);
+	connect(_watcher, SIGNAL(finished()),
+		SLOT(concurrentFinished()));
 
 	//FIXME memory leak: when to delete _parserList?
 	//Use shared pointer?
@@ -65,10 +67,6 @@ PlaylistParser::~PlaylistParser() {
 		//This is dangerous
 		//delete parser;
 	}
-}
-
-const QFile & PlaylistParser::file() const {
-	return _file;
 }
 
 //FIXME Change the API and make it return the parser?
@@ -91,7 +89,13 @@ void PlaylistParser::findParser(const QString & fileName) {
 }
 
 void PlaylistParser::concurrentFinished() {
-	_error = NoError;
+	QFuture<bool> future = _watcher->future();
+	bool ok = future.result();
+	if (ok) {
+		_error = NoError;
+	} else {
+		_error = IOError;
+	}
 	emit finished(_error, _timeElapsed.elapsed());
 }
 
@@ -114,24 +118,6 @@ void PlaylistReader::load(const QString & fileName) {
 
 	_timeElapsed.start();
 
-	_file.setFileName(fileName);
-
-	//Cannot use QIODevice::Text since binary playlist formats can exist (or exist already)
-	//See QFile documentation, here a copy-paste:
-	//The QIODevice::Text flag passed to open() tells Qt to convert Windows-style line terminators ("\r\n")
-	//into C++-style terminators ("\n").
-	//By default, QFile assumes binary, i.e. it doesn't perform any conversion on the bytes stored in the file.
-	bool ok = _file.open(QIODevice::ReadOnly);
-
-	if (ok) {
-		loadIODevice(&_file, fileName);
-	} else {
-		_error = FileError;
-		emit finished(_error, _timeElapsed.elapsed());
-	}
-}
-
-void PlaylistReader::loadIODevice(QIODevice * device, const QString & fileName) {
 	if (_parser) {
 		//Disconnect the previous parser if any
 		disconnect(_parser);
@@ -144,15 +130,10 @@ void PlaylistReader::loadIODevice(QIODevice * device, const QString & fileName) 
 		connect(_parser, SIGNAL(filesFound(const QList<MediaInfo> &)),
 			SIGNAL(filesFound(const QList<MediaInfo> &)));
 
-		static QFutureWatcher<void> * watcher = NULL;
-		if (!watcher) {
-			//Lazy initialization
-			watcher = new QFutureWatcher<void>(this);
-			connect(watcher, SIGNAL(finished()),
-				SLOT(concurrentFinished()));
-		}
-		QFuture<void> future = QtConcurrent::run(_parser, &IPlaylistParserImpl::load, device, fileName);
-		watcher->setFuture(future);
+		QFuture<bool> future = QtConcurrent::run(
+			_parser, &IPlaylistParserImpl::load, fileName
+		);
+		_watcher->setFuture(future);
 	}
 }
 
@@ -169,34 +150,11 @@ void PlaylistWriter::save(const QString & fileName, const QList<MediaInfo> & med
 
 	_timeElapsed.restart();
 
-	_file.setFileName(fileName);
-
-	//Cannot use QIODevice::Text since binary playlist formats may exist (or exist already)
-	//See QFile documentation, here a copy-paste:
-	//The QIODevice::Text flag passed to open() tells Qt to convert Windows-style line terminators ("\r\n")
-	//into C++-style terminators ("\n").
-	//By default, QFile assumes binary, i.e. it doesn't perform any conversion on the bytes stored in the file.
-	bool ok = _file.open(QIODevice::WriteOnly);
-
-	if (ok) {
-		saveIODevice(&_file, fileName, mediaList);
-	} else {
-		_error = FileError;
-		emit finished(_error, _timeElapsed.elapsed());
-	}
-}
-
-void PlaylistWriter::saveIODevice(QIODevice * device, const QString & fileName, const QList<MediaInfo> & mediaList) {
 	findParser(fileName);
 	if (_parser) {
-		static QFutureWatcher<void> * watcher = NULL;
-		if (!watcher) {
-			//Lazy initialization
-			watcher = new QFutureWatcher<void>(this);
-			connect(watcher, SIGNAL(finished()),
-				SLOT(concurrentFinished()));
-		}
-		QFuture<void> future = QtConcurrent::run(_parser, &IPlaylistParserImpl::save, device, fileName, mediaList);
-		watcher->setFuture(future);
+		QFuture<bool> future = QtConcurrent::run(
+			_parser, &IPlaylistParserImpl::save, fileName, mediaList
+		);
+		_watcher->setFuture(future);
 	}
 }

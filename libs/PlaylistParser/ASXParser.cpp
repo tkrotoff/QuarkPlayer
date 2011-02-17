@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -63,7 +63,12 @@ void ASXParser::stop() {
 	_stop = true;
 }
 
-void ASXParser::load(QIODevice * device, const QString & location) {
+bool ASXParser::load(const QString & location) {
+	QIODevice * device = Util::openLocationReadMode(location);
+	if (!device) {
+		return false;
+	}
+
 	_stop = false;
 
 	QList<MediaInfo> files;
@@ -78,6 +83,7 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 
 	QString text(device->readAll());
 	device->close();
+	delete device;
 
 	//Replace all ASX tags by lowercase ASX tags,
 	//otherwise the XML parser can fail
@@ -124,9 +130,14 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 		case QXmlStreamReader::StartElement: {
 			QString element(xml.name().toString());
 			if (element.compare(ASX_TITLE, Qt::CaseInsensitive) == 0) {
+				//FIXME Qt bug, tested with Qt 4.7.0 MinGW Windows XP
+				//xml.readElementText() returns lower case text
 				QString title(xml.readElementText());
 				mediaInfo.setMetaData(MediaInfo::Title, title);
 			} else if (element.compare(ASX_REF, Qt::CaseInsensitive) == 0) {
+				//FIXME Qt bug, tested with Qt 4.7.0 MinGW Windows XP
+				//"<Ref href = "C:\1.mp3"/>"
+				//will return "C:C:\1.mp3.mp3"
 				QString url(xml.attributes().value(ASX_HREF).toString());
 				if (url.isEmpty()) {
 					//Yes ASX format is shit
@@ -196,9 +207,16 @@ void ASXParser::load(QIODevice * device, const QString & location) {
 		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
 		emit filesFound(files);
 	}
+
+	return true;
 }
 
-void ASXParser::save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
+bool ASXParser::save(const QString & location, const QList<MediaInfo> & files) {
+	QIODevice * device = Util::openLocationWriteMode(location);
+	if (!device) {
+		return false;
+	}
+
 	_stop = false;
 
 	QXmlStreamWriter xml(device);
@@ -236,4 +254,7 @@ void ASXParser::save(QIODevice * device, const QString & location, const QList<M
 	xml.writeEndElement();	//asx
 
 	device->close();
+	delete device;
+
+	return true;
 }

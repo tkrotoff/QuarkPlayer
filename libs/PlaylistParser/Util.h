@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,7 @@
 #define UTIL_H
 
 class QString;
+class QIODevice;
 
 /**
  * Utility functions for the different parsers.
@@ -42,6 +43,28 @@ public:
 	 * @see QFileInfo::canonicalFilePath()
 	 */
 	static QString canonicalFilePath(const QString & path, const QString & fileName);
+
+	/**
+	 * Opens the location (filename) in read mode.
+	 *
+	 * Code factorization.
+	 * If the QIODevice returned != NULL then it should be deleted by you.
+	 *
+	 * @param location location (filename) to open
+	 * @return QIODevice or NULL
+	 */
+	static QIODevice * openLocationReadMode(const QString & location);
+
+	/**
+	 * Opens the location (filename) in write mode.
+	 *
+	 * Code factorization.
+	 * If the QIODevice returned != NULL then it should be deleted by you.
+	 *
+	 * @param location location (filename) to open
+	 * @return QIODevice or NULL
+	 */
+	static QIODevice * openLocationWriteMode(const QString & location);
 
 private:
 

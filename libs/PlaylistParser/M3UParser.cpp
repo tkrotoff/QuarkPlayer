@@ -53,7 +53,12 @@ void M3UParser::stop() {
 	_stop = true;
 }
 
-void M3UParser::load(QIODevice * device, const QString & location) {
+bool M3UParser::load(const QString & location) {
+	QIODevice * device = Util::openLocationReadMode(location);
+	if (!device) {
+		return false;
+	}
+
 	_stop = false;
 
 	QList<MediaInfo> files;
@@ -64,9 +69,9 @@ void M3UParser::load(QIODevice * device, const QString & location) {
 	QRegExp rx_extm3u("^#EXTM3U$|^#M3U$");
 	//#EXTINF:123,Sample title
 	//"Sample title" can be "Artist - Title"
-	QRegExp rx_extinf("^#EXTINF:([-+]?\\d+),\s?(.*)$");
+	QRegExp rx_extinf("^#EXTINF:([-+]?\\d+),\\s?(.*)$");
 	//#EXTINF:Sample title
-	QRegExp rx_extinf_title("^#EXTINF:\s?(.*)$");
+	QRegExp rx_extinf_title("^#EXTINF:\\s?(.*)$");
 	//#Just a comment
 	QRegExp rx_comment("^#.*$");
 
@@ -141,14 +146,22 @@ void M3UParser::load(QIODevice * device, const QString & location) {
 	}
 
 	device->close();
+	delete device;
 
 	if (!files.isEmpty()) {
 		//Emits the signal for the remaining files found (< FILES_FOUND_LIMIT)
 		emit filesFound(files);
 	}
+
+	return true;
 }
 
-void M3UParser::save(QIODevice * device, const QString & location, const QList<MediaInfo> & files) {
+bool M3UParser::save(const QString & location, const QList<MediaInfo> & files) {
+	QIODevice * device = Util::openLocationWriteMode(location);
+	if (!device) {
+		return false;
+	}
+
 	_stop = false;
 
 	QString path(QFileInfo(location).path());
@@ -198,6 +211,9 @@ void M3UParser::save(QIODevice * device, const QString & location, const QList<M
 	}
 
 	device->close();
+	delete device;
+
+	return true;
 }
 
 bool M3UParser::isUtf8(const QString & location) {

@@ -53,9 +53,9 @@ public:
 
 	QStringList fileExtensions() const;
 
-	void load(QIODevice * device, const QString & location);
+	bool load(const QString & location);
 
-	void save(QIODevice * device, const QString & location, const QList<MediaInfo> & files);
+	bool save(const QString & location, const QList<MediaInfo> & files);
 
 	void stop();
 

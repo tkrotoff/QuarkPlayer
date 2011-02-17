@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -39,9 +39,9 @@ public:
 
 	QStringList fileExtensions() const;
 
-	void load(QIODevice * device, const QString & location);
+	bool load(const QString & location);
 
-	void save(QIODevice * device, const QString & location, const QList<MediaInfo> & files);
+	bool save(const QString & location, const QList<MediaInfo> & files);
 
 	void stop();
 
