@@ -7,4 +7,4 @@ set PATH=C:\Qt\2010.05\mingw\bin;%PATH%
 set QMAKESPEC=win32-g++
 
 echo Setting up CMake 2.8...
-set PATH=C:\Program Files\CMake 2.8\bin;%PATH%
+set PATH=C:\Program Files\CMake 2.8\bin;C:\Program Files (x86)\CMake 2.8\bin;%PATH%
