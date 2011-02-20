@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,8 +30,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QStringList>
 
-PluginData::PluginData(const QString & filename, const QUuid & uuid, bool enabled) {
-	_filename = filename;
+PluginData::PluginData(const QString & fileName, const QUuid & uuid, bool enabled) {
+	_fileName = fileName;
 	_uuid = uuid;
 	_enabled = enabled;
 
@@ -54,7 +54,7 @@ PluginData::~PluginData() {
 }
 
 void PluginData::copy(const PluginData & pluginData) {
-	_filename = pluginData._filename;
+	_fileName = pluginData._fileName;
 	_uuid = pluginData._uuid;
 	_enabled = pluginData._enabled;
 
@@ -77,7 +77,7 @@ int PluginData::operator==(const PluginData & pluginData) {
 }
 
 QString PluginData::fileName() const {
-	return _filename;
+	return _fileName;
 }
 
 QUuid PluginData::uuid() const {
@@ -118,10 +118,10 @@ void PluginData::deleteInterface() {
 	}
 }
 
-PluginDataList PluginDataList::values(const QString & filename) const {
+PluginDataList PluginDataList::values(const QString & fileName) const {
 	PluginDataList pluginDataList;
-	foreach(PluginData pluginData, *this) {
-		if (pluginData.fileName() == filename) {
+	foreach (PluginData pluginData, *this) {
+		if (pluginData.fileName() == fileName) {
 			pluginDataList += pluginData;
 		}
 	}
@@ -174,19 +174,19 @@ QDataStream & operator>>(QDataStream & stream, PluginDataList & plugins) {
 	}
 
 	while (!stream.atEnd()) {
-		QString filename;
-		stream >> filename;
+		QString fileName;
+		stream >> fileName;
 
 		QUuid uuid;
 		bool enabled;
 		stream >> uuid;
 		stream >> enabled;
 
-		if (filename.isEmpty()) {
+		if (fileName.isEmpty()) {
 			//FIXME don't know why, stream can contain empty datas
 			//even if we didn't put empty datas in it (!)
 		} else {
-			PluginData pluginData(filename, uuid, enabled);
+			PluginData pluginData(fileName, uuid, enabled);
 			plugins.removeAll(pluginData);
 			plugins += pluginData;
 		}
@@ -236,12 +236,12 @@ QTextStream & operator>>(QTextStream & stream, PluginDataList & plugins) {
 	}
 
 	while (!stream.atEnd()) {
-		//FIXME this is buggy if the filename contains whitespaces
+		//FIXME this is buggy if the fileName contains whitespaces
 		//I don't know how to make QTextStream aware about string spaces :/
 		//See http://doc.trolltech.com/main-snapshot/qtextstream.html#operator-gt-gt-4
-		//Anyway, plugin filenames should not contain whitespaces
-		QString filename;
-		stream >> filename;
+		//Anyway, plugin fileNames should not contain whitespaces
+		QString fileName;
+		stream >> fileName;
 		///
 
 		QString uuid;
@@ -249,11 +249,11 @@ QTextStream & operator>>(QTextStream & stream, PluginDataList & plugins) {
 		stream >> uuid;
 		stream >> enabled;
 
-		if (filename.isEmpty()) {
+		if (fileName.isEmpty()) {
 			//FIXME don't know why, stream can contain empty datas
 			//even if we didn't put empty datas in it (!)
 		} else {
-			PluginData pluginData(filename, uuid, enabled);
+			PluginData pluginData(fileName, uuid, enabled);
 			plugins.removeAll(pluginData);
 			plugins += pluginData;
 		}

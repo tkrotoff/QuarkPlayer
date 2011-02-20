@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,7 +22,6 @@
 #include <quarkplayer/QuarkPlayerExport.h>
 
 #include <QtCore/QUuid>
-#include <QtCore/QMultiHash>
 #include <QtCore/QTextStream>
 
 class PluginInterface;
@@ -53,7 +52,7 @@ class PluginFactory;
 class QUARKPLAYER_API PluginData {
 public:
 
-	PluginData(const QString & filename, const QUuid & uuid, bool enabled);
+	PluginData(const QString & fileName, const QUuid & uuid, bool enabled);
 
 	PluginData(const PluginData & pluginData);
 
@@ -87,7 +86,7 @@ private:
 
 	void copy(const PluginData & pluginData);
 
-	QString _filename;
+	QString _fileName;
 
 	QUuid _uuid;
 
@@ -106,7 +105,7 @@ class PluginDataList : public QList<PluginData> {
 public:
 
 	/** Gets the sublist of plugins matching the given filename. */
-	PluginDataList values(const QString & filename) const;
+	PluginDataList values(const QString & fileName) const;
 };
 
 

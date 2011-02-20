@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,18 +36,22 @@ PluginConfig & PluginConfig::instance() {
 }
 
 PluginDataList PluginConfig::plugins() const {
-	//Version working with QDataStream
-	/*
-	QVariant tmp = Config::instance().value(PLUGINS_KEY);
-	PluginDataList pluginList = tmp.value<PluginDataList>();
-	return pluginList;
-	*/
+	static PluginDataList pluginList;
 
-	//Version working with QTextStream
-	QString tmp(Config::instance().value(PLUGINS_KEY).toString());
-	QTextStream stream(&tmp);
-	PluginDataList pluginList;
-	stream >> pluginList;
+	if (pluginList.isEmpty()) {
+		//Version working with QDataStream
+		/*
+		QVariant tmp = Config::instance().value(PLUGINS_KEY);
+		PluginDataList pluginList = tmp.value<PluginDataList>();
+		return pluginList;
+		*/
+
+		//Version working with QTextStream
+		QString tmp(Config::instance().value(PLUGINS_KEY).toString());
+		QTextStream stream(&tmp);
+		stream >> pluginList;
+	}
+
 	return pluginList;
 }
 

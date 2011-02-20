@@ -343,6 +343,10 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 			//This is why we prepend the loaded plugins to the list of loaded plugins
 			_loadedPlugins.prepend(pluginData);
 
+			//The plugin we are loading might be a disabled plugin
+			//So let's erase it from the list of disabled plugins if possible
+			_disabledPlugins.removeAll(pluginData);
+
 			QuarkPlayerCoreDebug() << "Plugin loaded:" << fileName;
 			loaded = true;
 		} else {
