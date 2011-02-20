@@ -26,8 +26,8 @@
 PluginInterface::PluginInterface(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: _quarkPlayer(quarkPlayer) {
 
+	Q_ASSERT(!uuid.isNull());
 	_uuid = uuid;
-	Q_ASSERT(!_uuid.isNull());
 }
 
 PluginInterface::~PluginInterface() {
@@ -38,7 +38,6 @@ QuarkPlayer & PluginInterface::quarkPlayer() const {
 }
 
 QUuid PluginInterface::uuid() const {
-	Q_ASSERT(!_uuid.isNull());
 	return _uuid;
 }
 

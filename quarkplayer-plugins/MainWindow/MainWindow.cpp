@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,6 +18,7 @@
 
 #include "MainWindow.h"
 
+#include "CommonActions.h"
 #include "AboutWindow.h"
 #include "MainWindowLogger.h"
 
@@ -32,9 +33,8 @@
 #include <Logger/LogWindow.h>
 
 #include <TkUtil/ActionCollection.h>
-#include <TkUtil/TkAction.h>
-#include <TkUtil/DesktopEnvironment.h>
 #include <TkUtil/TkFileDialog.h>
+#include <TkUtil/TkToolBar.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <FileTypes/FileTypes.h>
@@ -45,11 +45,7 @@
 #include <phonon/mediasource.h>
 #include <phonon/audiooutput.h>
 
-#include <QtCore/QSignalMapper>
-
 #include <QtGui/QtGui>
-
-#include <cstdio>
 
 Q_EXPORT_PLUGIN2(MainWindow, MainWindowFactory);
 
@@ -71,8 +67,9 @@ MainWindow * MainWindowFactory::mainWindow() {
 }
 
 MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: TkMainWindow(NULL),
-	PluginInterface(quarkPlayer, uuid) {
+	: IMainWindow(quarkPlayer, uuid) {
+
+	new CommonActions(quarkPlayer, this);
 
 	QtSingleApplication * app = qobject_cast<QtSingleApplication *>(QCoreApplication::instance());
 	if (app) {
@@ -93,19 +90,19 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	_playToolBar = NULL;
 	_statusBar = NULL;
 
-	connect(ActionCollection::action("MainWindow.OpenFile"), SIGNAL(triggered()), SLOT(playFile()));
-	connect(ActionCollection::action("MainWindow.OpenDVD"), SIGNAL(triggered()), SLOT(playDVD()));
-	connect(ActionCollection::action("MainWindow.OpenURL"), SIGNAL(triggered()), SLOT(playURL()));
-	connect(ActionCollection::action("MainWindow.OpenVCD"), SIGNAL(triggered()), SLOT(playVCD()));
-	connect(ActionCollection::action("MainWindow.NewMediaObject"), SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
-	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), SLOT(close()));
-	connect(ActionCollection::action("MainWindow.ReportBug"), SIGNAL(triggered()), SLOT(reportBug()));
-	connect(ActionCollection::action("MainWindow.ShowMailingList"), SIGNAL(triggered()), SLOT(showMailingList()));
-	connect(ActionCollection::action("MainWindow.ViewLog"), SIGNAL(triggered()), SLOT(viewLog()));
-	connect(ActionCollection::action("MainWindow.About"), SIGNAL(triggered()), SLOT(about()));
-	connect(ActionCollection::action("MainWindow.AboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+	connect(ActionCollection::action("CommonActions.OpenFile"), SIGNAL(triggered()), SLOT(playFile()));
+	connect(ActionCollection::action("CommonActions.OpenDVD"), SIGNAL(triggered()), SLOT(playDVD()));
+	connect(ActionCollection::action("CommonActions.OpenURL"), SIGNAL(triggered()), SLOT(playURL()));
+	connect(ActionCollection::action("CommonActions.OpenVCD"), SIGNAL(triggered()), SLOT(playVCD()));
+	connect(ActionCollection::action("CommonActions.NewMediaObject"), SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
+	connect(ActionCollection::action("CommonActions.Quit"), SIGNAL(triggered()), SLOT(close()));
+	connect(ActionCollection::action("CommonActions.ReportBug"), SIGNAL(triggered()), SLOT(reportBug()));
+	connect(ActionCollection::action("CommonActions.ShowMailingList"), SIGNAL(triggered()), SLOT(showMailingList()));
+	connect(ActionCollection::action("CommonActions.ViewLog"), SIGNAL(triggered()), SLOT(viewLog()));
+	connect(ActionCollection::action("CommonActions.About"), SIGNAL(triggered()), SLOT(about()));
+	connect(ActionCollection::action("CommonActions.AboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
-	connect(ActionCollection::action("MainWindow.VolumeMute"), SIGNAL(toggled(bool)), SLOT(mutedToggled(bool)));
+	connect(ActionCollection::action("CommonActions.VolumeMute"), SIGNAL(toggled(bool)), SLOT(mutedToggled(bool)));
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
@@ -133,8 +130,14 @@ MainWindow::~MainWindow() {
 
 void MainWindow::setPlayToolBar(QToolBar * playToolBar) {
 	_playToolBar = playToolBar;
+
+#ifdef Q_WS_MAC
+	_playToolBar->setFloatable(false);
+	_playToolBar->setMovable(false);
+#endif	//!Q_WS_MAC
+
 	addToolBar(Qt::BottomToolBarArea, playToolBar);
-	MainWindowDebug();
+
 	emit playToolBarAdded(_playToolBar);
 }
 
@@ -176,13 +179,13 @@ void MainWindow::playFile() {
 		QString fileToPlay(fileNames[0]);
 		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(fileToPlay).absolutePath());
 
-		/*PlaylistWidget * playlistWidget = PlaylistWidgetFactory::playlistWidget();
+		PlaylistWidget * playlistWidget = PlaylistWidgetFactory::playlistWidget();
 		if (playlistWidget) {
 			playlistWidget->addFilesToCurrentPlaylist(fileNames);
 			playlistWidget->playlistModel()->play(0);
 		} else {
 			play(fileToPlay);
-		}*/
+		}
 	}
 }
 
@@ -270,82 +273,7 @@ void MainWindow::about() {
 }
 
 void MainWindow::populateActionCollection() {
-	QCoreApplication * app = QApplication::instance();
-	Q_ASSERT(app);
 
-	ActionCollection::addAction("MainWindow.OpenFile", new TkAction(app, QKeySequence::Open));
-	ActionCollection::addAction("MainWindow.Quit", new TkAction(app, tr("Ctrl+Q"), tr("Alt+X")));
-	ActionCollection::addAction("MainWindow.ReportBug", new QAction(app));
-	ActionCollection::addAction("MainWindow.ShowMailingList", new QAction(app));
-	ActionCollection::addAction("MainWindow.ViewLog", new QAction(app));
-	ActionCollection::addAction("MainWindow.About", new TkAction(app, tr("Ctrl+F1")));
-	ActionCollection::addAction("MainWindow.AboutQt", new QAction(app));
-	ActionCollection::addAction("MainWindow.OpenDVD", new TkAction(app, tr("Ctrl+D")));
-	ActionCollection::addAction("MainWindow.OpenURL", new TkAction(app, tr("Ctrl+U")));
-	ActionCollection::addAction("MainWindow.OpenVCD", new QAction(app));
-	ActionCollection::addAction("MainWindow.NewMediaObject", new QAction(app));
-	ActionCollection::addAction("MainWindow.Equalizer", new TkAction(app, tr("Ctrl+E")));
-	ActionCollection::addAction("MainWindow.Configure", new QAction(app));
-	ActionCollection::addAction("MainWindow.EmptyMenu", new QAction(app));
-
-	TkAction * action = new TkAction(app, tr("Space"), Qt::Key_MediaPlay, Qt::Key_Pause);
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.PlayPause", action);
-	action = new TkAction(app, Qt::Key_MediaStop);
-	ActionCollection::addAction("MainWindow.Stop", action);
-	action = new TkAction(app, tr("Ctrl+N"), tr(">"), Qt::Key_MediaNext);
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.NextTrack", action);
-	action = new TkAction(app, tr("Ctrl+P"), tr("<"), Qt::Key_MediaPrevious);
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.PreviousTrack", action);
-
-	action = new TkAction(app, tr("Left"));
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.JumpBackward10s", action);
-	action = new TkAction(app, tr("Ctrl+Left"));
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.JumpBackward1min", action);
-	action = new TkAction(app, tr("Shift+Left"));
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.JumpBackward10min", action);
-
-	action = new TkAction(app, tr("Right"));
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.JumpForward10s", action);
-	action = new TkAction(app, tr("Ctrl+Right"));
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.JumpForward1min", action);
-	action = new TkAction(app, tr("Shift+Right"));
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.JumpForward10min", action);
-
-	action = new TkAction(app, tr("["));
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.SpeedDecrease10%", action);
-	action = new TkAction(app, tr("]"));
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.SpeedIncrease10%", action);
-
-	action = new TkAction(app, tr("Ctrl+M"));
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	action->setCheckable(true);
-	ActionCollection::addAction("MainWindow.VolumeMute", action);
-
-	action = new TkAction(app, tr("Ctrl+Down"), tr("-"), tr("Alt+-"));
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.VolumeDecrease10%", action);
-	action = new TkAction(app, tr("Ctrl+Up"), tr("+"), tr("Alt++"));
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	ActionCollection::addAction("MainWindow.VolumeIncrease10%", action);
-
-	action = new TkAction(app, tr("Ctrl+F"), tr("Alt+Return"));
-	action->setShortcutContext(Qt::ApplicationShortcut);
-	action->setCheckable(true);
-	ActionCollection::addAction("MainWindow.FullScreen", action);
-
-	action = new TkAction(app, tr("Esc"));
-	ActionCollection::addAction("MainWindow.FullScreenExit", action);
 }
 
 void MainWindow::setupUi() {
@@ -362,63 +290,63 @@ void MainWindow::setupUi() {
 
 	_menuFile = new QMenu();
 	menuBar()->addMenu(_menuFile);
-	_menuFile->addAction(ActionCollection::action("MainWindow.OpenFile"));
-	_menuFile->addAction(ActionCollection::action("MainWindow.OpenDVD"));
-	_menuFile->addAction(ActionCollection::action("MainWindow.OpenURL"));
-	_menuFile->addAction(ActionCollection::action("MainWindow.OpenVCD"));
+	_menuFile->addAction(ActionCollection::action("CommonActions.OpenFile"));
+	_menuFile->addAction(ActionCollection::action("CommonActions.OpenURL"));
+	_menuFile->addAction(ActionCollection::action("CommonActions.OpenDVD"));
+	_menuFile->addAction(ActionCollection::action("CommonActions.OpenVCD"));
 	_menuFile->addSeparator();
-	_menuFile->addAction(ActionCollection::action("MainWindow.Quit"));
+	_menuFile->addAction(ActionCollection::action("CommonActions.Quit"));
 
 	_menuPlay = new QMenu();
 	menuBar()->addMenu(_menuPlay);
-	_menuPlay->addAction(ActionCollection::action("MainWindow.PreviousTrack"));
-	_menuPlay->addAction(ActionCollection::action("MainWindow.PlayPause"));
-	_menuPlay->addAction(ActionCollection::action("MainWindow.Stop"));
-	_menuPlay->addAction(ActionCollection::action("MainWindow.NextTrack"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.PreviousTrack"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.PlayPause"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.Stop"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.NextTrack"));
 	_menuPlay->addSeparator();
-	_menuPlay->addAction(ActionCollection::action("MainWindow.JumpBackward10s"));
-	_menuPlay->addAction(ActionCollection::action("MainWindow.JumpBackward1min"));
-	_menuPlay->addAction(ActionCollection::action("MainWindow.JumpBackward10min"));
-	_menuPlay->addAction(ActionCollection::action("MainWindow.JumpForward10s"));
-	_menuPlay->addAction(ActionCollection::action("MainWindow.JumpForward1min"));
-	_menuPlay->addAction(ActionCollection::action("MainWindow.JumpForward10min"));
-	_menuPlay->addAction(ActionCollection::action("MainWindow.SpeedDecrease10%"));
-	_menuPlay->addAction(ActionCollection::action("MainWindow.SpeedIncrease10%"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.JumpBackward10s"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.JumpBackward1min"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.JumpBackward10min"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.JumpForward10s"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.JumpForward1min"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.JumpForward10min"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.SpeedDecrease10%"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.SpeedIncrease10%"));
 	_menuPlay->addSeparator();
-	_menuPlay->addAction(ActionCollection::action("MainWindow.FullScreen"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.FullScreen"));
 	//No menu entry for FullScreenExit, see MyVideoWidget.cpp
 	_menuPlay->addSeparator();
-	_menuPlay->addAction(ActionCollection::action("MainWindow.NewMediaObject"));
+	_menuPlay->addAction(ActionCollection::action("CommonActions.NewMediaObject"));
 
 	_menuAudio = new QMenu();
 	menuBar()->addMenu(_menuAudio);
-	_menuAudio->addAction(ActionCollection::action("MainWindow.VolumeMute"));
-	_menuAudio->addAction(ActionCollection::action("MainWindow.VolumeDecrease10%"));
-	_menuAudio->addAction(ActionCollection::action("MainWindow.VolumeIncrease10%"));
+	_menuAudio->addAction(ActionCollection::action("CommonActions.VolumeMute"));
+	_menuAudio->addAction(ActionCollection::action("CommonActions.VolumeIncrease10%"));
+	_menuAudio->addAction(ActionCollection::action("CommonActions.VolumeDecrease10%"));
 
 	_menuSettings = new QMenu();
 	menuBar()->addMenu(_menuSettings);
-	_menuSettings->addAction(ActionCollection::action("MainWindow.Equalizer"));
-	_menuSettings->addAction(ActionCollection::action("MainWindow.Configure"));
+	_menuSettings->addAction(ActionCollection::action("CommonActions.Equalizer"));
+	_menuSettings->addAction(ActionCollection::action("CommonActions.Configure"));
 
 	_menuHelp = new QMenu();
 	menuBar()->addMenu(_menuHelp);
-	_menuHelp->addAction(ActionCollection::action("MainWindow.ShowMailingList"));
-	_menuHelp->addAction(ActionCollection::action("MainWindow.ReportBug"));
-	_menuHelp->addAction(ActionCollection::action("MainWindow.ViewLog"));
+	_menuHelp->addAction(ActionCollection::action("CommonActions.ShowMailingList"));
+	_menuHelp->addAction(ActionCollection::action("CommonActions.ReportBug"));
+	_menuHelp->addAction(ActionCollection::action("CommonActions.ViewLog"));
 	_menuHelp->addSeparator();
-	_menuHelp->addAction(ActionCollection::action("MainWindow.About"));
-	_menuHelp->addAction(ActionCollection::action("MainWindow.AboutQt"));
+	_menuHelp->addAction(ActionCollection::action("CommonActions.About"));
+	_menuHelp->addAction(ActionCollection::action("CommonActions.AboutQt"));
 
 	//Main ToolBar
 	_mainToolBar = new TkToolBar(this);
 	TkToolBar::setToolButtonStyle(_mainToolBar);
-	_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenFile"));
-	_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenDVD"));
-	//_mainToolBar->addAction(ActionCollection::action("MainWindow.OpenURL"));
+	_mainToolBar->addAction(ActionCollection::action("CommonActions.OpenFile"));
+	_mainToolBar->addAction(ActionCollection::action("CommonActions.OpenDVD"));
+	//_mainToolBar->addAction(ActionCollection::action("CommonActions.OpenURL"));
 	//_mainToolBar->addSeparator();
-	//_mainToolBar->addAction(ActionCollection::action("MainWindow.Equalizer"));
-	//_mainToolBar->addAction(ActionCollection::action("MainWindow.Configure"));
+	//_mainToolBar->addAction(ActionCollection::action("CommonActions.Equalizer"));
+	//_mainToolBar->addAction(ActionCollection::action("CommonActions.Configure"));
 	addToolBar(_mainToolBar);
 
 	//Main toolbar accessible but disabled by default
@@ -429,62 +357,6 @@ void MainWindow::retranslate() {
 	updateWindowTitle();
 	setWindowIcon(QIcon(":/icons/quarkplayer-16x16.png"));
 
-	ActionCollection::action("MainWindow.OpenFile")->setText(tr("Play &File..."));
-	ActionCollection::action("MainWindow.OpenFile")->setIcon(QIcon::fromTheme("document-open"));
-
-	ActionCollection::action("MainWindow.Quit")->setText(tr("&Quit"));
-	ActionCollection::action("MainWindow.Quit")->setIcon(QIcon::fromTheme("application-exit"));
-
-	ActionCollection::action("MainWindow.ReportBug")->setText(tr("&Report a Problem..."));
-	if (desktopEnvironment() == GNOME) {
-		ActionCollection::action("MainWindow.ReportBug")->setIcon(QIcon::fromTheme("apport"));
-	} else {
-		ActionCollection::action("MainWindow.ReportBug")->setIcon(QIcon::fromTheme("tools-report-bug"));
-	}
-
-	ActionCollection::action("MainWindow.ShowMailingList")->setText(tr("&Discuss about QuarkPlayer..."));
-	if (desktopEnvironment() == GNOME) {
-		ActionCollection::action("MainWindow.ShowMailingList")->setIcon(QIcon::fromTheme("help-faq"));
-	} else {
-		ActionCollection::action("MainWindow.ShowMailingList")->setIcon(QIcon::fromTheme("help-hint"));
-	}
-
-	ActionCollection::action("MainWindow.ViewLog")->setText(tr("View &Log"));
-	QIcon logIcon;
-	if (desktopEnvironment() == GNOME) {
-		logIcon = QIcon::fromTheme("logviewer");
-	} else {
-		logIcon = QIcon::fromTheme("text-x-log");
-	}
-	ActionCollection::action("MainWindow.ViewLog")->setIcon(logIcon);
-
-	ActionCollection::action("MainWindow.About")->setText(tr("&About"));
-	ActionCollection::action("MainWindow.About")->setIcon(QIcon::fromTheme("help-about"));
-
-	ActionCollection::action("MainWindow.AboutQt")->setText(tr("About &Qt"));
-	ActionCollection::action("MainWindow.AboutQt")->setIcon(QIcon::fromTheme("help-about"));
-
-	ActionCollection::action("MainWindow.OpenDVD")->setText(tr("Play &DVD..."));
-	ActionCollection::action("MainWindow.OpenDVD")->setIcon(QIcon::fromTheme("media-optical"));
-
-	ActionCollection::action("MainWindow.OpenURL")->setText(tr("Play &URL..."));
-	ActionCollection::action("MainWindow.OpenURL")->setIcon(QIcon::fromTheme("document-open-remote"));
-
-	ActionCollection::action("MainWindow.OpenVCD")->setText(tr("Play &VCD..."));
-	//ActionCollection::action("MainWindow.OpenVCD")->setIcon(QIcon::fromTheme("media-optical"));
-
-	ActionCollection::action("MainWindow.NewMediaObject")->setText(tr("New Media Window"));
-	ActionCollection::action("MainWindow.NewMediaObject")->setIcon(QIcon::fromTheme("tab-new"));
-
-	ActionCollection::action("MainWindow.Equalizer")->setText(tr("&Equalizer..."));
-	ActionCollection::action("MainWindow.Equalizer")->setIcon(QIcon::fromTheme("view-media-equalizer"));
-
-	ActionCollection::action("MainWindow.Configure")->setText(tr("&Configure..."));
-	ActionCollection::action("MainWindow.Configure")->setIcon(QIcon::fromTheme("preferences-system"));
-
-	ActionCollection::action("MainWindow.EmptyMenu")->setText(tr("<empty>"));
-	ActionCollection::action("MainWindow.EmptyMenu")->setEnabled(false);
-
 	//Main toolbar accessible but disabled by default
 	_mainToolBar->setWindowTitle(tr("Main ToolBar"));
 	_mainToolBar->setMinimumSize(_mainToolBar->sizeHint());
@@ -494,47 +366,6 @@ void MainWindow::retranslate() {
 	_menuAudio->setTitle(tr("&Audio"));
 	_menuSettings->setTitle(tr("&Settings"));
 	_menuHelp->setTitle(tr("&Help"));
-
-	ActionCollection::action("MainWindow.PreviousTrack")->setText(tr("P&revious Track"));
-	ActionCollection::action("MainWindow.PreviousTrack")->setIcon(QIcon::fromTheme("media-skip-backward"));
-
-	ActionCollection::action("MainWindow.PlayPause")->setText(tr("&Play/Pause"));
-	ActionCollection::action("MainWindow.PlayPause")->setIcon(QIcon::fromTheme("media-playback-start"));
-
-	ActionCollection::action("MainWindow.Stop")->setText(tr("&Stop"));
-	ActionCollection::action("MainWindow.Stop")->setIcon(QIcon::fromTheme("media-playback-stop"));
-
-	ActionCollection::action("MainWindow.NextTrack")->setText(tr("&Next Track"));
-	ActionCollection::action("MainWindow.NextTrack")->setIcon(QIcon::fromTheme("media-skip-forward"));
-
-	ActionCollection::action("MainWindow.JumpBackward10s")->setText(tr("Jump &Backward 10s"));
-	ActionCollection::action("MainWindow.JumpBackward10s")->setIcon(QIcon::fromTheme("media-seek-backward"));
-	ActionCollection::action("MainWindow.JumpBackward1min")->setText(tr("Jump &Backward 1min"));
-	ActionCollection::action("MainWindow.JumpBackward1min")->setIcon(QIcon::fromTheme("media-seek-backward"));
-	ActionCollection::action("MainWindow.JumpBackward10min")->setText(tr("Jump &Backward 10min"));
-	ActionCollection::action("MainWindow.JumpBackward10min")->setIcon(QIcon::fromTheme("media-seek-backward"));
-	ActionCollection::action("MainWindow.JumpForward10s")->setText(tr("Jump &Forward 10s"));
-	ActionCollection::action("MainWindow.JumpForward10s")->setIcon(QIcon::fromTheme("media-seek-forward"));
-	ActionCollection::action("MainWindow.JumpForward1min")->setText(tr("Jump &Forward 1min"));
-	ActionCollection::action("MainWindow.JumpForward1min")->setIcon(QIcon::fromTheme("media-seek-forward"));
-	ActionCollection::action("MainWindow.JumpForward10min")->setText(tr("Jump &Forward 10min"));
-	ActionCollection::action("MainWindow.JumpForward10min")->setIcon(QIcon::fromTheme("media-seek-forward"));
-	ActionCollection::action("MainWindow.SpeedDecrease10%")->setText(tr("Decrease Speed"));
-	ActionCollection::action("MainWindow.SpeedDecrease10%")->setIcon(QIcon::fromTheme("media-seek-backward"));
-	ActionCollection::action("MainWindow.SpeedIncrease10%")->setText(tr("Increase Speed"));
-	ActionCollection::action("MainWindow.SpeedIncrease10%")->setIcon(QIcon::fromTheme("media-seek-forward"));
-
-	ActionCollection::action("MainWindow.VolumeMute")->setText(tr("&Mute"));
-	ActionCollection::action("MainWindow.VolumeMute")->setIcon(QIcon::fromTheme("audio-volume-muted"));
-	ActionCollection::action("MainWindow.VolumeDecrease10%")->setText(tr("&Decrease Volume"));
-	ActionCollection::action("MainWindow.VolumeDecrease10%")->setIcon(QIcon::fromTheme("audio-volume-low"));
-	ActionCollection::action("MainWindow.VolumeIncrease10%")->setText(tr("&Increase Volume"));
-	ActionCollection::action("MainWindow.VolumeIncrease10%")->setIcon(QIcon::fromTheme("audio-volume-high"));
-
-	ActionCollection::action("MainWindow.FullScreen")->setText(tr("&Fullscreen"));
-	ActionCollection::action("MainWindow.FullScreen")->setIcon(QIcon::fromTheme("view-fullscreen"));
-
-	ActionCollection::action("MainWindow.FullScreenExit")->setText(tr("&Exit Fullscreen"));
 }
 
 QMenu * MainWindow::menuFile() const {
@@ -628,11 +459,16 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget * lastDockWidget, QDockWidget * dockWidget) {
 	if (dockWidget) {
 		//dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
-		//dockWidget->setFloating(false);
+
+#ifdef Q_WS_MAC
+		//QDockWidgets cannot be floatable under Mac
+		//so let's fully disable this feature
+		dockWidget->setFloating(false);
+#endif	//Q_WS_MAC
 
 		//To hide the title bar completely
 		//we must replace the default widget with a generic one
-		//dockWidget->setTitleBarWidget(new QWidget(this));
+		dockWidget->setTitleBarWidget(new QWidget(this));
 
 		QMainWindow::addDockWidget(area, dockWidget);
 		if (lastDockWidget) {
@@ -679,22 +515,24 @@ void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	//Resets the window title when needed
 	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(updateWindowTitle()));
 
-	disconnect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
-	connect(ActionCollection::action("MainWindow.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
+	disconnect(ActionCollection::action("CommonActions.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
+	connect(ActionCollection::action("CommonActions.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
 
 	Phonon::AudioOutput * audioOutput = quarkPlayer().currentAudioOutput();
 	if (audioOutput) {
 		//Avoid a crash inside Phonon if the backend couldn't be loaded
-		ActionCollection::action("MainWindow.VolumeMute")->setChecked(audioOutput->isMuted());
+		ActionCollection::action("CommonActions.VolumeMute")->setChecked(audioOutput->isMuted());
 		disconnect(audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(mutedChanged(bool)));
 		connect(audioOutput, SIGNAL(mutedChanged(bool)), SLOT(mutedChanged(bool)));
 	}
 }
 
 void MainWindow::mutedChanged(bool muted) {
-	ActionCollection::action("MainWindow.VolumeMute")->setChecked(muted);
+	ActionCollection::action("CommonActions.VolumeMute")->setChecked(muted);
 }
 
 void MainWindow::mutedToggled(bool muted) {
-	quarkPlayer().currentAudioOutput()->setMuted(muted);
+	Phonon::AudioOutput * audioOutput = quarkPlayer().currentAudioOutput();
+	Q_ASSERT(audioOutput);
+	audioOutput->setMuted(muted);
 }

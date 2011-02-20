@@ -35,6 +35,7 @@ set(QuarkPlayerCore_SRCS
 	PluginData.cpp
 	PluginManager.cpp
 	PluginManager_win32.cpp
+	MockPluginManager.cpp
 	PluginConfig.cpp
 	CommandLineManager.cpp
 	CommandLineParser.cpp
@@ -46,7 +47,9 @@ set(QuarkPlayerCore_SRCS
 
 qt4_wrap_cpp(QuarkPlayerCore_SRCS
 	QuarkPlayer.h
+	IPluginManager.h
 	PluginManager.h
+	MockPluginManager.h
 	CommandLineManager.h
 	CommandLineParser.h
 	Languages.h

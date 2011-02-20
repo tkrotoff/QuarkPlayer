@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,10 +31,12 @@
 
 #include <QtCore/QTimerEvent>
 
-MyVideoWidget::MyVideoWidget(QDockWidget * dockWidget, MainWindow * mainWindow)
+MyVideoWidget::MyVideoWidget(QDockWidget * dockWidget, IMainWindow * mainWindow)
 	: Phonon::VideoWidget(NULL) {
 
+	Q_ASSERT(dockWidget);
 	_dockWidget = dockWidget;
+	Q_ASSERT(mainWindow);
 	_mainWindow = mainWindow;
 
 	_playToolBar = _mainWindow->playToolBar();
@@ -47,6 +49,19 @@ MyVideoWidget::MyVideoWidget(QDockWidget * dockWidget, MainWindow * mainWindow)
 
 	//Lazy initialization
 	_widgetOverFullScreen = NULL;
+
+	connect(ActionCollection::action("CommonActions.FullScreen"), SIGNAL(toggled(bool)),
+		SLOT(setFullScreenInternal(bool)));
+
+	//We have to add the QAction to the widget otherwise it won't work
+	//From Qt doc:
+	//Note that an action must be added to a widget before it can be used;
+	//this is also true when the shortcut should be global
+	//(i.e., Qt::ApplicationShortcut as Qt::ShortcutContext).
+	addAction(ActionCollection::action("CommonActions.FullScreenExit"));
+
+	connect(ActionCollection::action("CommonActions.FullScreenExit"), SIGNAL(triggered()),
+		SLOT(triggerFullScreenExitAction()));
 
 	if (_playToolBar) {
 		playToolBarAdded(_playToolBar);
@@ -101,17 +116,17 @@ void MyVideoWidget::retranslate() {
 void MyVideoWidget::createContextMenu() {
 	_contextMenu = new QMenu(this);
 
-	_contextMenu->addAction(ActionCollection::action("MainWindow.PreviousTrack"));
-	_contextMenu->addAction(ActionCollection::action("MainWindow.PlayPause"));
-	_contextMenu->addAction(ActionCollection::action("MainWindow.Stop"));
-	_contextMenu->addAction(ActionCollection::action("MainWindow.NextTrack"));
-	_contextMenu->addAction(ActionCollection::action("MainWindow.FullScreen"));
+	_contextMenu->addAction(ActionCollection::action("CommonActions.PreviousTrack"));
+	_contextMenu->addAction(ActionCollection::action("CommonActions.PlayPause"));
+	_contextMenu->addAction(ActionCollection::action("CommonActions.Stop"));
+	_contextMenu->addAction(ActionCollection::action("CommonActions.NextTrack"));
+	_contextMenu->addAction(ActionCollection::action("CommonActions.FullScreen"));
 
 	_contextMenu->addSeparator();
 
-	_contextMenu->addAction(ActionCollection::action("MainWindow.OpenFile"));
-	_contextMenu->addAction(ActionCollection::action("MainWindow.OpenDVD"));
-	_contextMenu->addAction(ActionCollection::action("MainWindow.OpenURL"));
+	_contextMenu->addAction(ActionCollection::action("CommonActions.OpenFile"));
+	_contextMenu->addAction(ActionCollection::action("CommonActions.OpenURL"));
+	_contextMenu->addAction(ActionCollection::action("CommonActions.OpenDVD"));
 
 	_contextMenu->addSeparator();
 
@@ -159,7 +174,7 @@ void MyVideoWidget::createContextMenu() {
 
 	_contextMenu->addSeparator();
 
-	_contextMenu->addAction(ActionCollection::action("MainWindow.Quit"));
+	_contextMenu->addAction(ActionCollection::action("CommonActions.Quit"));
 }
 
 void MyVideoWidget::showContextMenu(const QPoint & pos) {
@@ -191,7 +206,7 @@ void MyVideoWidget::aspectRatioChanged(QAction * action) {
 }
 
 void MyVideoWidget::triggerFullScreenExitAction() {
-	ActionCollection::action("MainWindow.FullScreen")->setChecked(false);
+	ActionCollection::action("CommonActions.FullScreen")->setChecked(false);
 }
 
 void MyVideoWidget::enterFullScreenInternal() {
@@ -200,6 +215,8 @@ void MyVideoWidget::enterFullScreenInternal() {
 	}
 
 	//Going fullscreen
+
+	VideoWidgetDebug() << "Enter fullscreen";
 
 	//Disable screensaver
 	ScreenSaver::disable();
@@ -233,13 +250,19 @@ void MyVideoWidget::exitFullScreenInternal() {
 		return;
 	}
 
+	VideoWidgetDebug() << "Exit fullscreen";
+
 	//Restore screensaver
 	ScreenSaver::restore();
 
 	exitFullScreen();
 	_dockWidget->setWidget(this);
 
-	addPlayToolBarToMainWindow();
+	//Re-initializes the toolbars
+	playToolBarAdded(_playToolBar);
+	statusBarAdded(_statusBar);
+	///
+
 	_widgetOverFullScreen->hide();
 }
 
@@ -254,10 +277,11 @@ void MyVideoWidget::setFullScreenInternal(bool fullScreen) {
 void MyVideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
 	if (event->button() == Qt::LeftButton) {
 		event->accept();
-		ActionCollection::action("MainWindow.FullScreen")->toggle();
+		ActionCollection::action("CommonActions.FullScreen")->toggle();
 	} else {
 		event->ignore();
 	}
+	return Phonon::VideoWidget::mouseDoubleClickEvent(event);
 }
 
 void MyVideoWidget::mouseMoveEvent(QMouseEvent * event) {
@@ -267,6 +291,7 @@ void MyVideoWidget::mouseMoveEvent(QMouseEvent * event) {
 		_timer.start(1000, this);
 	}
 	unsetCursor();
+	return Phonon::VideoWidget::mouseMoveEvent(event);
 }
 
 bool MyVideoWidget::event(QEvent * event) {
@@ -368,42 +393,16 @@ void MyVideoWidget::checkMousePos() {
 }
 
 void MyVideoWidget::playToolBarAdded(QToolBar * playToolBar) {
-	VideoWidgetDebug();
-
 	_playToolBar = playToolBar;
-
-	//We do this in order to add the play toolbar to the mainwindow
-	//when starting
-	addPlayToolBarToMainWindow();
-
-	connect(ActionCollection::action("MainWindow.FullScreen"), SIGNAL(toggled(bool)),
-		SLOT(setFullScreenInternal(bool)));
-
-
-	//We have to add the QAction to the widget otherwise it won't work
-	//From Qt doc:
-	//Note that an action must be added to a widget before it can be used;
-	//this is also true when the shortcut should be global
-	//(i.e., Qt::ApplicationShortcut as Qt::ShortcutContext).
-	addAction(ActionCollection::action("MainWindow.FullScreenExit"));
-
-	connect(ActionCollection::action("MainWindow.FullScreenExit"), SIGNAL(triggered()),
-		SLOT(triggerFullScreenExitAction()));
+	if (_playToolBar) {
+		_mainWindow->addToolBar(Qt::BottomToolBarArea, _playToolBar);
+	}
 }
 
 void MyVideoWidget::statusBarAdded(QStatusBar * statusBar) {
 	_statusBar = statusBar;
-}
-
-void MyVideoWidget::addPlayToolBarToMainWindow() {
-	VideoWidgetDebug() << "_playToolBar:" << _playToolBar;
-	VideoWidgetDebug() << "_statusBar:" << _statusBar;
-
-	if (_playToolBar) {
-		_mainWindow->addToolBar(Qt::BottomToolBarArea, _playToolBar);
-	}
-
 	if (_statusBar) {
 		_mainWindow->setStatusBar(_statusBar);
 	}
 }
+

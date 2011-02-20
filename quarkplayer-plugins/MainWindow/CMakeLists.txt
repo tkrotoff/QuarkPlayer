@@ -23,8 +23,12 @@ add_definitions(-DBUILD_MAINWINDOW)
 remove_definitions(-DQT_NO_STL)
 
 set(MainWindow_SRCS
+	IMainWindow.cpp
 	MainWindow.cpp
+	MockMainWindow.cpp
 	AboutWindow.cpp
+
+	CommonActions.cpp
 )
 
 if (MSVC)
@@ -45,7 +49,11 @@ if (MSVC)
 endif (MSVC)
 
 qt4_wrap_cpp(MainWindow_SRCS
+	IMainWindow.h
 	MainWindow.h
+	MockMainWindow.h
+
+	CommonActions.h
 )
 
 qt4_wrap_ui(MainWindow_SRCS
@@ -63,6 +71,8 @@ target_link_libraries(MainWindow
 	Logger
 
 	QuarkPlayerCore
+
+	Playlist
 
 	${QTSINGLEAPPLICATION_LIBRARIES}
 

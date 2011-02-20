@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,13 +32,13 @@ MediaControllerToolBar::MediaControllerToolBar(QWidget * parent)
 
 	_audioChannelsButton = new QPushButton();
 	_menuAudioChannels = new QMenu();
-	_menuAudioChannels->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
+	_menuAudioChannels->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
 	_audioChannelsButton->setMenu(_menuAudioChannels);
 	addWidget(_audioChannelsButton);
 
 	_subtitlesButton = new QPushButton();
 	_menuSubtitles = new QMenu();
-	_menuSubtitles->addAction(ActionCollection::action("MainWindow.EmptyMenu"));
+	_menuSubtitles->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
 	_subtitlesButton->setMenu(_menuSubtitles);
 	addWidget(_subtitlesButton);
 

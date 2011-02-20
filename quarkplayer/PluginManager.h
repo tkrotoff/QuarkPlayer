@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,12 +19,11 @@
 #ifndef PLUGINMANAGER_H
 #define PLUGINMANAGER_H
 
-#include <quarkplayer/QuarkPlayerExport.h>
+#include <quarkplayer/IPluginManager.h>
 #include <quarkplayer/PluginData.h>
 
 #include <TkUtil/Singleton.h>
 
-#include <QtCore/QObject>
 #include <QtCore/QStringList>
 
 class QuarkPlayer;
@@ -37,14 +36,13 @@ class QuarkPlayer;
  * @see QPluginLoader
  * @author Tanguy Krotoff
  */
-class QUARKPLAYER_API PluginManager : public QObject, public Singleton {
+class QUARKPLAYER_API PluginManager : public IPluginManager, public Singleton {
 	Q_OBJECT
 public:
 
 	/** Singleton. */
 	static PluginManager & instance();
 
-	/** Loads all the available plugins. */
 	void loadAllPlugins(QuarkPlayer & quarkPlayer);
 
 	/** Loads a given plugin. */
@@ -91,40 +89,15 @@ public:
 	 */
 	bool allPluginsAlreadyLoaded() const;
 
-signals:
-
-	/**
-	 * All plugins have been loaded.
-	 *
-	 * This signal is usefull for doing some processing after the GUI has
-	 * been drew (i.e all plugins loaded since most of the plugins contain GUIs).
-	 *
-	 * Typical case:
-	 * the playlist plugin loads automatically current_playlist.m3u which can
-	 * be huge. Instead of doing it inside the playlist plugin constructor,
-	 * we do it inside a slot connected to this signal. This way, the GUI
-	 * is drew very quickly.
-	 *
-	 * Consider using Qt::QueuedConnection when you connect to this signal,
-	 * this way you won't block the signal from being sent to other slots.
-	 *
-	 * Qt::AutoConnection is in fact Qt::DirectConnection
-	 * and Qt::DirectConnection waits for the current slot to process before
-	 * to deliver the signal to other slots.
-	 *
-	 * So if you're slot needs a lot of time to process, it is better to use
-	 * Qt::QueuedConnection
-	 *
-	 * @see http://doc.trolltech.com/main-snapshot/qt.html#ConnectionType-enum
-	 */
-	void allPluginsLoaded();
-
 private:
 
 	PluginManager();
 
 	/** @see deleteAllPlugins() */
 	~PluginManager();
+
+	/** Saves the plugins configuration. */
+	void savePluginConfig();
 
 	/**
 	 * Deletes all the available plugins.

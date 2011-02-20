@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -47,11 +47,11 @@ QStringList PlayToolBarFactory::dependencies() const {
 }
 
 PluginInterface * PlayToolBarFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
-	return new PlayToolBar(quarkPlayer, uuid);
+	return new PlayToolBar(quarkPlayer, uuid, MainWindowFactory::mainWindow());
 }
 
-PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QToolBar(MainWindowFactory::mainWindow()),
+PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid, IMainWindow * mainWindow)
+	: QToolBar(NULL),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_volumeSlider = NULL;
@@ -83,7 +83,7 @@ PlayToolBar::PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	setToolBarEnabled(false);
 
 	//Add to the main window
-	MainWindowFactory::mainWindow()->setPlayToolBar(this);
+	mainWindow->setPlayToolBar(this);
 
 	if (quarkPlayer.currentMediaObject()) {
 		//The current MediaObject has been already created
@@ -101,62 +101,13 @@ PlayToolBar::~PlayToolBar() {
 }
 
 void PlayToolBar::stateChanged(Phonon::State newState) {
+	Q_UNUSED(newState);
+
 	static bool firstTime = true;
 
 	if (firstTime) {
 		firstTime = false;
 		setToolBarEnabled(true);
-	}
-
-	//Enabled/disabled fullscreen button depending if media file is a video or audio
-	if (quarkPlayer().currentMediaObject()->hasVideo()) {
-		ActionCollection::action("MainWindow.FullScreen")->setEnabled(true);
-	} else {
-		ActionCollection::action("MainWindow.FullScreen")->setEnabled(false);
-	}
-
-	switch (newState) {
-	case Phonon::ErrorState:
-		break;
-
-	case Phonon::PlayingState:
-		ActionCollection::action("MainWindow.PlayPause")->setText(tr("&Pause"));
-		ActionCollection::action("MainWindow.PlayPause")->setIcon(QIcon::fromTheme("media-playback-pause"));
-		disconnect(ActionCollection::action("MainWindow.PlayPause"), 0, 0, 0);
-		connect(ActionCollection::action("MainWindow.PlayPause"), SIGNAL(triggered()),
-			quarkPlayer().currentMediaObject(), SLOT(pause()));
-
-		ActionCollection::action("MainWindow.Stop")->setEnabled(true);
-		break;
-
-	case Phonon::StoppedState:
-		ActionCollection::action("MainWindow.PlayPause")->setText(tr("P&lay"));
-		ActionCollection::action("MainWindow.PlayPause")->setIcon(QIcon::fromTheme("media-playback-start"));
-		disconnect(ActionCollection::action("MainWindow.PlayPause"), 0, 0, 0);
-		connect(ActionCollection::action("MainWindow.PlayPause"), SIGNAL(triggered()),
-			quarkPlayer().currentMediaObject(), SLOT(play()));
-
-		ActionCollection::action("MainWindow.Stop")->setEnabled(false);
-		break;
-
-	case Phonon::PausedState:
-		ActionCollection::action("MainWindow.PlayPause")->setText(tr("P&lay"));
-		ActionCollection::action("MainWindow.PlayPause")->setIcon(QIcon::fromTheme("media-playback-start"));
-		disconnect(ActionCollection::action("MainWindow.PlayPause"), 0, 0, 0);
-		connect(ActionCollection::action("MainWindow.PlayPause"), SIGNAL(triggered()),
-			quarkPlayer().currentMediaObject(), SLOT(play()));
-
-		ActionCollection::action("MainWindow.Stop")->setEnabled(true);
-		break;
-
-	case Phonon::LoadingState:
-		break;
-
-	case Phonon::BufferingState:
-		break;
-
-	default:
-		PlayToolBarDebug() << "newState:" << newState;
 	}
 }
 
@@ -169,28 +120,28 @@ void PlayToolBar::createSeekToolBar() {
 	//_seekSlider->setIconVisible(true);
 	//_seekSlider->setTracking(false);
 
-	//_seekToolBar->addAction(ActionCollection::action("MainWindow.SpeedDecrease10%"));
-	connect(ActionCollection::action("MainWindow.SpeedDecrease10%"), SIGNAL(triggered()), SLOT(decreaseSpeed10()));
-	//_seekToolBar->addAction(ActionCollection::action("MainWindow.JumpBackward10min"));
-	connect(ActionCollection::action("MainWindow.JumpBackward10min"), SIGNAL(triggered()), SLOT(jumpBackward10min()));
-	_seekToolBar->addAction(ActionCollection::action("MainWindow.JumpBackward1min"));
-	connect(ActionCollection::action("MainWindow.JumpBackward1min"), SIGNAL(triggered()), SLOT(jumpBackward1min()));
-	//_seekToolBar->addAction(ActionCollection::action("MainWindow.JumpBackward10s"));
-	connect(ActionCollection::action("MainWindow.JumpBackward10s"), SIGNAL(triggered()), SLOT(jumpBackward10s()));
+	//_seekToolBar->addAction(ActionCollection::action("CommonActions.SpeedDecrease10%"));
+	connect(ActionCollection::action("CommonActions.SpeedDecrease10%"), SIGNAL(triggered()), SLOT(decreaseSpeed10()));
+	//_seekToolBar->addAction(ActionCollection::action("CommonActions.JumpBackward10min"));
+	connect(ActionCollection::action("CommonActions.JumpBackward10min"), SIGNAL(triggered()), SLOT(jumpBackward10min()));
+	_seekToolBar->addAction(ActionCollection::action("CommonActions.JumpBackward1min"));
+	connect(ActionCollection::action("CommonActions.JumpBackward1min"), SIGNAL(triggered()), SLOT(jumpBackward1min()));
+	//_seekToolBar->addAction(ActionCollection::action("CommonActions.JumpBackward10s"));
+	connect(ActionCollection::action("CommonActions.JumpBackward10s"), SIGNAL(triggered()), SLOT(jumpBackward10s()));
 
 	_seekToolBar->addWidget(_seekSlider);
 
-	//_seekToolBar->addAction(ActionCollection::action("MainWindow.JumpForward10s"));
-	connect(ActionCollection::action("MainWindow.JumpForward10s"), SIGNAL(triggered()), SLOT(jumpForward10s()));
-	_seekToolBar->addAction(ActionCollection::action("MainWindow.JumpForward1min"));
-	connect(ActionCollection::action("MainWindow.JumpForward1min"), SIGNAL(triggered()), SLOT(jumpForward1min()));
-	//_seekToolBar->addAction(ActionCollection::action("MainWindow.JumpForward10min"));
-	connect(ActionCollection::action("MainWindow.JumpForward10min"), SIGNAL(triggered()), SLOT(jumpForward10min()));
-	//_seekToolBar->addAction(ActionCollection::action("MainWindow.SpeedIncrease10%"));
-	connect(ActionCollection::action("MainWindow.SpeedIncrease10%"), SIGNAL(triggered()), SLOT(increaseSpeed10()));
+	//_seekToolBar->addAction(ActionCollection::action("CommonActions.JumpForward10s"));
+	connect(ActionCollection::action("CommonActions.JumpForward10s"), SIGNAL(triggered()), SLOT(jumpForward10s()));
+	_seekToolBar->addAction(ActionCollection::action("CommonActions.JumpForward1min"));
+	connect(ActionCollection::action("CommonActions.JumpForward1min"), SIGNAL(triggered()), SLOT(jumpForward1min()));
+	//_seekToolBar->addAction(ActionCollection::action("CommonActions.JumpForward10min"));
+	connect(ActionCollection::action("CommonActions.JumpForward10min"), SIGNAL(triggered()), SLOT(jumpForward10min()));
+	//_seekToolBar->addAction(ActionCollection::action("CommonActions.SpeedIncrease10%"));
+	connect(ActionCollection::action("CommonActions.SpeedIncrease10%"), SIGNAL(triggered()), SLOT(increaseSpeed10()));
 
-	connect(ActionCollection::action("MainWindow.VolumeDecrease10%"), SIGNAL(triggered()), SLOT(volumeDecrease10()));
-	connect(ActionCollection::action("MainWindow.VolumeIncrease10%"), SIGNAL(triggered()), SLOT(volumeIncrease10()));
+	connect(ActionCollection::action("CommonActions.VolumeDecrease10%"), SIGNAL(triggered()), SLOT(volumeDecrease10()));
+	connect(ActionCollection::action("CommonActions.VolumeIncrease10%"), SIGNAL(triggered()), SLOT(volumeIncrease10()));
 }
 
 void PlayToolBar::decreaseSpeed10() {
@@ -282,6 +233,8 @@ void PlayToolBar::updateVolumeIcon(qreal volume) {
 	} else {
 		_volumeSlider->setVolumeIcon(QIcon::fromTheme("audio-volume-medium"));
 	}
+#else
+	Q_UNUSED(volume);
 #endif	//NEW_TITLE_CHAPTER_HANDLING
 }
 
@@ -289,16 +242,16 @@ void PlayToolBar::createControlToolBar() {
 	_controlToolBar = new QToolBar(NULL);
 	_controlToolBar->setIconSize(QSize(24, 18));
 
-	_controlToolBar->addAction(ActionCollection::action("MainWindow.PreviousTrack"));
-	_controlToolBar->addAction(ActionCollection::action("MainWindow.PlayPause"));
-	_controlToolBar->addAction(ActionCollection::action("MainWindow.Stop"));
-	_controlToolBar->addAction(ActionCollection::action("MainWindow.NextTrack"));
+	_controlToolBar->addAction(ActionCollection::action("CommonActions.PreviousTrack"));
+	_controlToolBar->addAction(ActionCollection::action("CommonActions.PlayPause"));
+	_controlToolBar->addAction(ActionCollection::action("CommonActions.Stop"));
+	_controlToolBar->addAction(ActionCollection::action("CommonActions.NextTrack"));
 
 	_controlToolBar->addSeparator();
-	_controlToolBar->addAction(ActionCollection::action("MainWindow.FullScreen"));
+	_controlToolBar->addAction(ActionCollection::action("CommonActions.FullScreen"));
 
 	_controlToolBar->addSeparator();
-	_controlToolBar->addAction(ActionCollection::action("MainWindow.NewMediaObject"));
+	_controlToolBar->addAction(ActionCollection::action("CommonActions.NewMediaObject"));
 
 	//volumeSlider
 	_controlToolBar->addSeparator();
@@ -327,11 +280,11 @@ void PlayToolBar::setToolBarEnabled(bool enabled) {
 	//FIXME don't know why, seekToolBar does not get enabled afterwards
 	//_seekToolBar->setEnabled(enabled);
 
-	ActionCollection::action("MainWindow.PreviousTrack")->setEnabled(enabled);
-	ActionCollection::action("MainWindow.PlayPause")->setEnabled(enabled);
-	ActionCollection::action("MainWindow.Stop")->setEnabled(enabled);
-	ActionCollection::action("MainWindow.NextTrack")->setEnabled(enabled);
-	ActionCollection::action("MainWindow.FullScreen")->setEnabled(enabled);
+	ActionCollection::action("CommonActions.PreviousTrack")->setEnabled(enabled);
+	ActionCollection::action("CommonActions.PlayPause")->setEnabled(enabled);
+	ActionCollection::action("CommonActions.Stop")->setEnabled(enabled);
+	ActionCollection::action("CommonActions.NextTrack")->setEnabled(enabled);
+	ActionCollection::action("CommonActions.FullScreen")->setEnabled(enabled);
 }
 
 void PlayToolBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
@@ -344,11 +297,6 @@ void PlayToolBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 
 	//Update current MediaObject state
 	stateChanged(mediaObject->state());
-
-	//Actions connect
-	disconnect(ActionCollection::action("MainWindow.Stop"), 0, 0, 0);
-	connect(ActionCollection::action("MainWindow.Stop"), SIGNAL(triggered()),
-		mediaObject, SLOT(stop()));
 
 	_seekSlider->setMediaObject(mediaObject);
 

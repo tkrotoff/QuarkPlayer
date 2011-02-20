@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,7 +26,7 @@
 
 #include <QtCore/QBasicTimer>
 
-class MainWindow;
+class IMainWindow;
 
 namespace Phonon {
 	class MediaObject;
@@ -50,7 +50,7 @@ class MyVideoWidget : public Phonon::VideoWidget {
 	Q_OBJECT
 public:
 
-	MyVideoWidget(QDockWidget * dockWidget, MainWindow * mainWindow);
+	MyVideoWidget(QDockWidget * dockWidget, IMainWindow * mainWindow);
 
 	~MyVideoWidget();
 
@@ -119,8 +119,6 @@ private:
 
 	static void showWidgetOver(QWidget * widgetOver, QWidget * widgetUnder);
 
-	void addPlayToolBarToMainWindow();
-
 	/**
 	 * Creates the context menu of the video.
 	 *
@@ -133,7 +131,7 @@ private:
 
 	QDockWidget * _dockWidget;
 
-	MainWindow * _mainWindow;
+	IMainWindow * _mainWindow;
 
 	QToolBar * _playToolBar;
 

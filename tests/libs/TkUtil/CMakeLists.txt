@@ -1,6 +1,6 @@
 project(TkUtilTests)
 
-macro(add_unit_test name)
+macro(add_my_test name)
 	set(SRCS ${ARGN})
 
 	add_executable(${name} ${SRCS})
@@ -14,15 +14,15 @@ macro(add_unit_test name)
 		${QT_QTTEST_LIBRARY}
 	)
 	install(TARGETS ${name} ${INSTALL_TARGETS_DEFAULT_ARGS})
-endmacro(add_unit_test name)
+endmacro(add_my_test name)
 
 
 set(SearchLineEditTest_SRCS SearchLineEditTest.cpp)
 qt4_wrap_cpp(SearchLineEditTest_SRCS SearchLineEditTest.h)
 qt4_add_resources(SearchLineEditTest_SRCS SearchLineEditTest.qrc)
-add_unit_test(SearchLineEditTest ${SearchLineEditTest_SRCS})
+add_my_test(SearchLineEditTest ${SearchLineEditTest_SRCS})
 
 
 set(FindFilesTest_SRCS FindFilesTest.cpp)
 qt4_wrap_cpp(FindFilesTest_SRCS FindFilesTest.h)
-add_unit_test(FindFilesTest ${FindFilesTest_SRCS})
+add_my_test(FindFilesTest ${FindFilesTest_SRCS})

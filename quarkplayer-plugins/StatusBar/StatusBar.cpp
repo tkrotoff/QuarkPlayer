@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -68,15 +68,9 @@ StatusBar::StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	setSizeGripEnabled(false);
 
-#ifdef Q_WS_MAC
-	//Background color is dark-grey and text color is black
-	_backgroundColor = QColor(150, 150, 150);
-	_textColor = QColor(0, 0, 0);
-#else
 	//Background color is black and text color is white
 	_backgroundColor = QColor(0, 0, 0);
 	_textColor = QColor(255, 255, 255);
-#endif	//Q_WS_MAC
 	setStyleSheet(QString("background-color: %1; color: %2;")
 			.arg(_backgroundColor.name())
 			.arg(_textColor.name()));
@@ -102,19 +96,22 @@ StatusBar::~StatusBar() {
 
 void StatusBar::tick(qint64 time) {
 	QString timeText;
-	qint64 totalTime = quarkPlayer().currentMediaObject()->totalTime();
-	TimeDisplayMode timeDisplayMode = static_cast<TimeDisplayMode>(
-		Config::instance().value(STATUSBAR_TIME_DIPLAY_MODE_KEY).toInt());
 
-	switch (timeDisplayMode) {
-	case TimeDisplayModeElapsed:
-		timeText = TkTime::convertMilliseconds(time, totalTime);
-		break;
-	case TimeDisplayModeRemaining:
-		timeText = "- " + TkTime::convertMilliseconds(totalTime - time, totalTime);
-		break;
-	default:
-		StatusBarCritical() << "Unknown TimeDisplayMode:" << timeDisplayMode;
+	if (time > 0) {
+		qint64 totalTime = quarkPlayer().currentMediaObject()->totalTime();
+		TimeDisplayMode timeDisplayMode = static_cast<TimeDisplayMode>(
+			Config::instance().value(STATUSBAR_TIME_DIPLAY_MODE_KEY).toInt());
+
+		switch (timeDisplayMode) {
+		case TimeDisplayModeElapsed:
+			timeText = TkTime::convertMilliseconds(time, totalTime);
+			break;
+		case TimeDisplayModeRemaining:
+			timeText = "- " + TkTime::convertMilliseconds(totalTime - time, totalTime);
+			break;
+		default:
+			StatusBarCritical() << "Unknown TimeDisplayMode:" << timeDisplayMode;
+		}
 	}
 
 	_timeLabel->setText(timeText);
@@ -170,7 +167,7 @@ void StatusBar::stateChanged(Phonon::State newState) {
 
 	case Phonon::StoppedState:
 		showMessage(tr("Stopped"));
-		//Re-initializes the time label to "00:00 / total time"
+		//Re-initializes the time label
 		tick(0);
 		break;
 
@@ -227,11 +224,7 @@ void StatusBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	stateChanged(mediaObject->state());
 
 	//Resets current and total time display
-	int time = mediaObject->currentTime();
-	if (time > 0) {
-		tick(time);
-	}
-	///
+	tick(mediaObject->currentTime());
 
 	connect(mediaObject, SIGNAL(tick(qint64)), SLOT(tick(qint64)));
 	connect(mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)),

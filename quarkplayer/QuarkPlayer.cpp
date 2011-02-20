@@ -18,7 +18,7 @@
 
 #include "QuarkPlayer.h"
 
-#include "PluginManager.h"
+#include "IPluginManager.h"
 #include "QuarkPlayerCoreLogger.h"
 #include "config/Config.h"
 
@@ -31,13 +31,13 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QFileInfo>
 
-QuarkPlayer::QuarkPlayer(QObject * parent)
+QuarkPlayer::QuarkPlayer(IPluginManager * pluginManager, QObject * parent)
 	: QObject(parent) {
 
 	_currentMediaObject = NULL;
 	_currentMediaController = NULL;
 
-	connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()), SLOT(allPluginsLoaded()));
+	connect(pluginManager, SIGNAL(allPluginsLoaded()), SLOT(allPluginsLoaded()));
 }
 
 QuarkPlayer::~QuarkPlayer() {

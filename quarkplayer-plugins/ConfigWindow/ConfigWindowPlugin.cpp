@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -57,7 +57,7 @@ ConfigWindowPlugin::ConfigWindowPlugin(QuarkPlayer & quarkPlayer, const QUuid & 
 
 	_configWindow = NULL;
 
-	connect(ActionCollection::action("MainWindow.Configure"), SIGNAL(triggered()),
+	connect(ActionCollection::action("CommonActions.Configure"), SIGNAL(triggered()),
 		SLOT(showConfigWindow()));
 }
 

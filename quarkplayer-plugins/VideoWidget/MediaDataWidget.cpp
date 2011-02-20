@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,6 @@
 #include "VideoWidgetLogger.h"
 
 #include <quarkplayer/config/Config.h>
-#include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
 #include <MediaInfoWindow/MediaInfoWindow.h>
 #include <MediaInfoWindow/MediaInfoWidget.h>
@@ -45,9 +44,10 @@ static const char * AMAZON_WEB_SERVICE_ACCESS_KEY_ID = "1BPZGMNT4PWSJS6NHG02";
 //Your Secret Access Key:
 static const char * AMAZON_WEB_SERVICE_SECRET_KEY = "RfD3RoKwZ+5GpJa/i03jhoiDZM26OAc+TPpXMps0";
 
-MediaDataWidget::MediaDataWidget(QWidget * parent)
+MediaDataWidget::MediaDataWidget(QStatusBar * statusBar, QWidget * parent)
 	: MediaInfoWidget(parent) {
 
+	_statusBar = statusBar;
 	_mediaInfoFetcher = NULL;
 	_amazonCoverArt = NULL;
 
@@ -173,13 +173,15 @@ void MediaDataWidget::amazonCoverArtFound(QNetworkReply::NetworkError error, con
 			return;
 		}
 
-		showCoverArtStatusMessage(tr("Amazon cover art error: ") + ContentFetcher::errorString(error) + " " + url.toString());
+		showCoverArtStatusMessage(tr("Amazon cover art error: ")
+			+ ContentFetcher::errorString(error)
+			+ " " + url.toString()
+		);
 	}
 }
 
 void MediaDataWidget::showCoverArtStatusMessage(const QString & message) const {
-	MainWindow * mainWindow = MainWindowFactory::mainWindow();
-	if (mainWindow && mainWindow->statusBar()) {
-		mainWindow->statusBar()->showMessage(message);
+	if (_statusBar) {
+		_statusBar->showMessage(message);
 	}
 }

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -37,8 +37,8 @@ PluginManager::PluginManager() {
 }
 
 PluginManager::~PluginManager() {
-	//Saves the plugin list
-	PluginConfig::instance().setPlugins(availablePlugins());
+	//This can crash because of the singletons
+	//savePluginConfig();
 
 	deleteAllPlugins();
 }
@@ -46,6 +46,10 @@ PluginManager::~PluginManager() {
 PluginManager & PluginManager::instance() {
 	static PluginManager instance;
 	return instance;
+}
+
+void PluginManager::savePluginConfig() {
+	PluginConfig::instance().setPlugins(availablePlugins());
 }
 
 QString PluginManager::findPluginDir() const {
@@ -171,6 +175,9 @@ void PluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	}
 
 	_allPluginsLoaded = true;
+
+	savePluginConfig();
+
 	emit allPluginsLoaded();
 }
 
@@ -347,6 +354,11 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 	//Wait for the plugin to be completely loaded graphically
 	//QCoreApplication::processEvents();
 
+	if (_allPluginsLoaded) {
+		//Update and saves the plugins configuration
+		savePluginConfig();
+	}
+
 	return loaded;
 }
 
@@ -364,7 +376,7 @@ bool PluginManager::deletePlugin(PluginData & pluginData) {
 	bool ret = deletePluginWithoutSavingConfig(pluginData);
 	if (ret) {
 		//Update and saves the plugins configuration
-		PluginConfig::instance().setPlugins(availablePlugins());
+		savePluginConfig();
 	}
 	return ret;
 }

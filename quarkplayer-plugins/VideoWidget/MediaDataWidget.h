@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -40,6 +40,7 @@ class QLabel;
 class QToolButton;
 class QFile;
 class QTimer;
+class QStatusBar;
 
 /**
  * Shows the media data inside a widget.
@@ -50,7 +51,7 @@ class MediaDataWidget : public MediaInfoWidget {
 	Q_OBJECT
 public:
 
-	MediaDataWidget(QWidget * parent);
+	MediaDataWidget(QStatusBar * statusBar, QWidget * parent);
 
 	~MediaDataWidget();
 
@@ -72,6 +73,8 @@ private:
 
 	/** Shows a status message about the cover art downloading. */
 	void showCoverArtStatusMessage(const QString & message) const;
+
+	QStatusBar * _statusBar;
 
 	MediaInfoWindow * _mediaInfoWindow;
 

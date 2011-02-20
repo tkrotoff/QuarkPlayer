@@ -1,0 +1,177 @@
+/*
+ * QuarkPlayer, a Phonon media player
+ * Copyright (C) 2011  Tanguy Krotoff <tkrotoff@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "MockMainWindow.h"
+
+#include "CommonActions.h"
+#include "MainWindowLogger.h"
+
+#include <quarkplayer/QuarkPlayer.h>
+#include <quarkplayer/PluginManager.h>
+#include <quarkplayer/config/Config.h>
+#include <quarkplayer/version.h>
+
+#include <TkUtil/ActionCollection.h>
+#include <TkUtil/TkFileDialog.h>
+
+#include <FileTypes/FileTypes.h>
+
+#include <QtSingleApplication>
+
+#include <phonon/mediaobject.h>
+#include <phonon/mediasource.h>
+#include <phonon/audiooutput.h>
+
+#include <QtGui/QtGui>
+
+MockMainWindow::MockMainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
+	: IMainWindow(quarkPlayer, uuid) {
+
+	new CommonActions(quarkPlayer, this);
+
+	setupUi();
+
+	//DockWidgets tabs are vertical like in Amarok
+	setDockOptions(QMainWindow::VerticalTabs);
+
+	_playToolBar = NULL;
+
+	connect(ActionCollection::action("CommonActions.OpenFile"), SIGNAL(triggered()), SLOT(playFile()));
+	connect(ActionCollection::action("CommonActions.Quit"), SIGNAL(triggered()), SLOT(close()));
+
+	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
+		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
+
+	show();
+}
+
+MockMainWindow::~MockMainWindow() {
+	//If the MainWindow is destroyed, it's reasonable to say
+	//that we can quit the entire application
+	QCoreApplication::quit();
+}
+
+void MockMainWindow::setPlayToolBar(QToolBar * playToolBar) {
+	_playToolBar = playToolBar;
+	addToolBar(Qt::BottomToolBarArea, playToolBar);
+	emit playToolBarAdded(_playToolBar);
+}
+
+QToolBar * MockMainWindow::playToolBar() const {
+	return _playToolBar;
+}
+
+void MockMainWindow::playFile() {
+	QString fileName = TkFileDialog::getOpenFileName(
+		this, tr("Select Audio/Video File"), Config::instance().lastDirOpened(),
+		tr("Multimedia") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video, FileType::Audio)) + ";;" +
+		tr("Video") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Video)) +";;" +
+		tr("Audio") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Audio)) +";;" +
+		tr("Playlist") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Playlist)) + ";;" +
+		tr("All Files") + " (*)"
+	);
+
+	if (!fileName.isEmpty()) {
+		quarkPlayer().play(fileName);
+	}
+}
+
+void MockMainWindow::setupUi() {
+	_menuFile = new QMenu();
+	menuBar()->addMenu(_menuFile);
+	_menuFile->addAction(ActionCollection::action("CommonActions.OpenFile"));
+	_menuFile->addSeparator();
+	_menuFile->addAction(ActionCollection::action("CommonActions.Quit"));
+
+	_menuPlay = new QMenu();
+	menuBar()->addMenu(_menuPlay);
+	_menuPlay->addAction(ActionCollection::action("CommonActions.PlayPause"));
+	_menuPlay->addSeparator();
+	_menuPlay->addAction(ActionCollection::action("CommonActions.FullScreen"));
+	//No menu entry for FullScreenExit, see MyVideoWidget.cpp
+
+	_menuFile->setTitle(tr("&File"));
+	_menuPlay->setTitle(tr("&Play"));
+}
+
+void MockMainWindow::closeEvent(QCloseEvent * event) {
+	TkMainWindow::closeEvent(event);
+
+	event->accept();
+
+	//Quits the application
+	//QCoreApplication::quit();
+
+	//FIXME we should only use QCoreApplication::quit()
+	//exit(EXIT_SUCCESS);
+}
+
+void MockMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget * lastDockWidget, QDockWidget * dockWidget) {
+	if (dockWidget) {
+		//dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+		//dockWidget->setFloating(false);
+
+		//To hide the title bar completely
+		//we must replace the default widget with a generic one
+		dockWidget->setTitleBarWidget(new QWidget(this));
+
+		QMainWindow::addDockWidget(area, dockWidget);
+		if (lastDockWidget) {
+			tabifyDockWidget(lastDockWidget, dockWidget);
+		}
+	}
+}
+
+void MockMainWindow::addBrowserDockWidget(QDockWidget * dockWidget) {
+	static QDockWidget * lastDockWidget = NULL;
+	addDockWidget(Qt::LeftDockWidgetArea, lastDockWidget, dockWidget);
+	lastDockWidget = dockWidget;
+}
+
+void MockMainWindow::resetBrowserDockWidget() {
+	addBrowserDockWidget(NULL);
+}
+
+void MockMainWindow::addVideoDockWidget(QDockWidget * dockWidget) {
+	static QDockWidget * lastDockWidget = NULL;
+	addDockWidget(Qt::RightDockWidgetArea, lastDockWidget, dockWidget);
+	lastDockWidget = dockWidget;
+}
+
+void MockMainWindow::resetVideoDockWidget() {
+	addVideoDockWidget(NULL);
+}
+
+void MockMainWindow::addPlaylistDockWidget(QDockWidget * dockWidget) {
+	static QDockWidget * lastDockWidget = NULL;
+	addDockWidget(Qt::RightDockWidgetArea, lastDockWidget, dockWidget);
+	lastDockWidget = dockWidget;
+}
+
+void MockMainWindow::resetPlaylistDockWidget() {
+	addPlaylistDockWidget(NULL);
+}
+
+void MockMainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
+	foreach (Phonon::MediaObject * tmp, quarkPlayer().mediaObjectList()) {
+		tmp->disconnect(this);
+	}
+
+	disconnect(ActionCollection::action("CommonActions.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
+	connect(ActionCollection::action("CommonActions.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
+}

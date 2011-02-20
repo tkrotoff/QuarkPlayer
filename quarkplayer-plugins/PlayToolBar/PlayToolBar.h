@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,6 +25,8 @@
 
 #include <phonon/phononnamespace.h>
 
+class IMainWindow;
+
 namespace Phonon {
 	class SeekSlider;
 	class VolumeSlider;
@@ -41,7 +43,7 @@ class PlayToolBar : public QToolBar, public PluginInterface {
 	Q_OBJECT
 public:
 
-	PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid);
+	PlayToolBar(QuarkPlayer & quarkPlayer, const QUuid & uuid, IMainWindow * mainWindow);
 
 	~PlayToolBar();
 

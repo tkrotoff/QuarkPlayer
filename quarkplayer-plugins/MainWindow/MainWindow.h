@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,12 +19,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <quarkplayer-plugins/MainWindow/MainWindowExport.h>
-
-#include <quarkplayer/PluginInterface.h>
-
-#include <TkUtil/TkMainWindow.h>
-#include <TkUtil/TkToolBar.h>
+#include <quarkplayer-plugins/MainWindow/IMainWindow.h>
 
 #include <QtGui/QMainWindow>
 
@@ -47,7 +42,7 @@ class QDockWidget;
  * @see http://en.wikipedia.org/wiki/Facade_pattern
  * @author Tanguy Krotoff
  */
-class MAINWINDOW_API MainWindow : public TkMainWindow, public PluginInterface {
+class MAINWINDOW_API MainWindow : public IMainWindow {
 	Q_OBJECT
 public:
 
@@ -104,15 +99,6 @@ signals:
 	 */
 	void statusBarAdded(QStatusBar * statusBar);
 
-public slots:
-
-	/**
-	 * Play a media source using the current media object.
-	 *
-	 * @see QuarkPlayer::play()
-	 */
-	void play(const Phonon::MediaSource & mediaSource);
-
 private slots:
 
 	void reportBug();
@@ -146,6 +132,15 @@ private:
 
 	void setupUi();
 
+	/**
+	 * Play a media source using the current media object.
+	 *
+	 * Code factorization.
+	 *
+	 * @see QuarkPlayer::play()
+	 */
+	void play(const Phonon::MediaSource & mediaSource);
+
 	/** Internal factorization code. */
 	void addDockWidget(Qt::DockWidgetArea area, QDockWidget * lastDockWidget, QDockWidget * dockWidget);
 
@@ -162,13 +157,13 @@ private:
 	 */
 	QString getDiscPath(const QString & defaultPath, const QString & windowTitle);
 
-	TkToolBar * _mainToolBar;
 	QMenu * _menuFile;
 	QMenu * _menuPlay;
 	QMenu * _menuAudio;
 	QMenu * _menuSettings;
 	QMenu * _menuHelp;
 
+	QToolBar * _mainToolBar;
 	QToolBar * _playToolBar;
 	QStatusBar * _statusBar;
 };

@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,6 +27,7 @@
 #include <phonon/phononnamespace.h>
 #include <phonon/path.h>
 
+class IPluginManager;
 class Config;
 
 namespace Phonon {
@@ -60,10 +61,11 @@ public:
 	 *
 	 * This is called only once inside main.cpp
 	 *
+	 * @param pluginManager plugin manager interface
 	 * @param parent QuarkPlayer QObject parent, should be QCoreApplication
 	 * @see main.cpp
 	 */
-	QuarkPlayer(QObject * parent);
+	QuarkPlayer(IPluginManager * pluginManager, QObject * parent);
 
 	~QuarkPlayer();
 

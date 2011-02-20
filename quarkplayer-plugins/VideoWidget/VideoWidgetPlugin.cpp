@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -49,12 +49,16 @@ QStringList VideoWidgetPluginFactory::dependencies() const {
 }
 
 PluginInterface * VideoWidgetPluginFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
-	return new VideoWidgetPlugin(quarkPlayer, uuid);
+	return new VideoWidgetPlugin(quarkPlayer, uuid, MainWindowFactory::mainWindow());
 }
 
-VideoWidgetPlugin::VideoWidgetPlugin(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QObject(MainWindowFactory::mainWindow()),
+VideoWidgetPlugin::VideoWidgetPlugin(QuarkPlayer & quarkPlayer, const QUuid & uuid,
+		IMainWindow * mainWindow)
+	: QObject(mainWindow),
 	PluginInterface(quarkPlayer, uuid) {
+
+	Q_ASSERT(mainWindow);
+	_mainWindow = mainWindow;
 
 	connect(&quarkPlayer, SIGNAL(mediaObjectAdded(Phonon::MediaObject *)),
 		SLOT(mediaObjectAdded(Phonon::MediaObject *)));
@@ -71,9 +75,9 @@ VideoWidgetPlugin::~VideoWidgetPlugin() {
 		it.next();
 
 		VideoContainer * container = it.value();
-		MainWindowFactory::mainWindow()->removeDockWidget(container->videoDockWidget);
+		_mainWindow->removeDockWidget(container->videoDockWidget);
 	}
-	MainWindowFactory::mainWindow()->resetVideoDockWidget();
+	_mainWindow->resetVideoDockWidget();
 }
 
 void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldState) {
@@ -158,16 +162,16 @@ void VideoWidgetPlugin::mediaObjectAdded(Phonon::MediaObject * mediaObject) {
 	///
 
 	//mediaDataWidget
-	container->mediaDataWidget = new MediaDataWidget(NULL);
+	container->mediaDataWidget = new MediaDataWidget(_mainWindow->statusBar(), NULL);
 
 	//videoWidget
-	container->videoWidget = new MyVideoWidget(container->videoDockWidget, MainWindowFactory::mainWindow());
+	container->videoWidget = new MyVideoWidget(container->videoDockWidget, _mainWindow);
 	Phonon::createPath(mediaObject, container->videoWidget);
 
 	_mediaObjectHash[mediaObject] = container;
 
 	//Add to the main window
-	MainWindowFactory::mainWindow()->addVideoDockWidget(container->videoDockWidget);
+	_mainWindow->addVideoDockWidget(container->videoDockWidget);
 
 	//Stop the current media object
 	container->videoDockWidget->installEventFilter(new CloseEventFilter(mediaObject, SLOT(stop())));
