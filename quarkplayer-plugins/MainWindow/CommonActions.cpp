@@ -163,20 +163,16 @@ void CommonActions::retranslate() {
 	ActionCollection::action("CommonActions.ViewLog")->setIcon(logIcon);
 
 	ActionCollection::action("CommonActions.About")->setText(tr("&About"));
-	ActionCollection::action("CommonActions.About")->setIcon(QIcon::fromTheme("help-about"));
 
 	ActionCollection::action("CommonActions.AboutQt")->setText(tr("About &Qt"));
-	ActionCollection::action("CommonActions.AboutQt")->setIcon(QIcon::fromTheme("help-about"));
 
 	ActionCollection::action("CommonActions.OpenDVD")->setText(tr("Play &DVD..."));
 	ActionCollection::action("CommonActions.OpenDVD")->setIcon(QIcon::fromTheme("media-optical"));
 
 	ActionCollection::action("CommonActions.OpenURL")->setText(tr("Play &URL..."));
-	ActionCollection::action("CommonActions.OpenURL")->setIcon(QIcon::fromTheme("document-open-remote"));
 
 	ActionCollection::action("CommonActions.OpenVCD")->setText(tr("Play &VCD..."));
-	//ActionCollection::action("CommonActions.OpenVCD")->setIcon(QIcon::fromTheme("media-optical"));
-
+\
 	ActionCollection::action("CommonActions.NewMediaObject")->setText(tr("New Media Window"));
 	ActionCollection::action("CommonActions.NewMediaObject")->setIcon(QIcon::fromTheme("tab-new"));
 
@@ -202,28 +198,20 @@ void CommonActions::retranslate() {
 	ActionCollection::action("CommonActions.NextTrack")->setIcon(QIcon::fromTheme("media-skip-forward"));
 
 	ActionCollection::action("CommonActions.JumpBackward10s")->setText(tr("Jump &Backward 10s"));
-	ActionCollection::action("CommonActions.JumpBackward10s")->setIcon(QIcon::fromTheme("media-seek-backward"));
 	ActionCollection::action("CommonActions.JumpBackward1min")->setText(tr("Jump &Backward 1min"));
 	ActionCollection::action("CommonActions.JumpBackward1min")->setIcon(QIcon::fromTheme("media-seek-backward"));
 	ActionCollection::action("CommonActions.JumpBackward10min")->setText(tr("Jump &Backward 10min"));
-	ActionCollection::action("CommonActions.JumpBackward10min")->setIcon(QIcon::fromTheme("media-seek-backward"));
 	ActionCollection::action("CommonActions.JumpForward10s")->setText(tr("Jump &Forward 10s"));
-	ActionCollection::action("CommonActions.JumpForward10s")->setIcon(QIcon::fromTheme("media-seek-forward"));
 	ActionCollection::action("CommonActions.JumpForward1min")->setText(tr("Jump &Forward 1min"));
 	ActionCollection::action("CommonActions.JumpForward1min")->setIcon(QIcon::fromTheme("media-seek-forward"));
 	ActionCollection::action("CommonActions.JumpForward10min")->setText(tr("Jump &Forward 10min"));
-	ActionCollection::action("CommonActions.JumpForward10min")->setIcon(QIcon::fromTheme("media-seek-forward"));
 	ActionCollection::action("CommonActions.SpeedDecrease10%")->setText(tr("Decrease Speed"));
-	ActionCollection::action("CommonActions.SpeedDecrease10%")->setIcon(QIcon::fromTheme("media-seek-backward"));
 	ActionCollection::action("CommonActions.SpeedIncrease10%")->setText(tr("Increase Speed"));
-	ActionCollection::action("CommonActions.SpeedIncrease10%")->setIcon(QIcon::fromTheme("media-seek-forward"));
 
 	ActionCollection::action("CommonActions.VolumeMute")->setText(tr("&Mute"));
 	ActionCollection::action("CommonActions.VolumeMute")->setIcon(QIcon::fromTheme("audio-volume-muted"));
 	ActionCollection::action("CommonActions.VolumeDecrease10%")->setText(tr("&Decrease Volume"));
-	ActionCollection::action("CommonActions.VolumeDecrease10%")->setIcon(QIcon::fromTheme("audio-volume-low"));
 	ActionCollection::action("CommonActions.VolumeIncrease10%")->setText(tr("&Increase Volume"));
-	ActionCollection::action("CommonActions.VolumeIncrease10%")->setIcon(QIcon::fromTheme("audio-volume-high"));
 
 	ActionCollection::action("CommonActions.FullScreen")->setText(tr("&Fullscreen"));
 	ActionCollection::action("CommonActions.FullScreen")->setIcon(QIcon::fromTheme("view-fullscreen"));

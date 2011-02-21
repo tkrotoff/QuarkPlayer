@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -57,9 +57,11 @@ void FileChooserWidget::setDialogType(DialogType dialogType) {
 	_dialogType = dialogType;
 	switch (_dialogType) {
 	case DialogTypeFile:
+		_openFileButton->setToolTip(tr("Open File"));
 		_openFileButton->setIcon(QIcon::fromTheme("document-open"));
 		break;
 	case DialogTypeDir:
+		_openFileButton->setToolTip(tr("Open Directory"));
 		_openFileButton->setIcon(QIcon::fromTheme("folder"));
 		break;
 	default:

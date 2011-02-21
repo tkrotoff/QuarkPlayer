@@ -1,7 +1,7 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2004-2007  Wengo
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,8 +47,6 @@ public:
 
 	void setDir(const QString & dir);
 
-	QString lastRefreshedDirectory() const;
-
 	void refresh();
 
 private:
@@ -67,8 +65,6 @@ private:
 	ThumbnailListView * _thumbnailListView;
 
 	QString _dir;
-
-	QString _lastRefreshedDirectory;
 };
 
 #endif	//THUMBNAILVIEW_H

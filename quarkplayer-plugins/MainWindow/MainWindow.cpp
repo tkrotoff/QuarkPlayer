@@ -307,14 +307,15 @@ void MainWindow::setupUi() {
 	_menuPlay->addAction(ActionCollection::action("CommonActions.JumpBackward10s"));
 	_menuPlay->addAction(ActionCollection::action("CommonActions.JumpBackward1min"));
 	_menuPlay->addAction(ActionCollection::action("CommonActions.JumpBackward10min"));
+	_menuPlay->addSeparator();
 	_menuPlay->addAction(ActionCollection::action("CommonActions.JumpForward10s"));
 	_menuPlay->addAction(ActionCollection::action("CommonActions.JumpForward1min"));
 	_menuPlay->addAction(ActionCollection::action("CommonActions.JumpForward10min"));
+	_menuPlay->addSeparator();
 	_menuPlay->addAction(ActionCollection::action("CommonActions.SpeedDecrease10%"));
 	_menuPlay->addAction(ActionCollection::action("CommonActions.SpeedIncrease10%"));
 	_menuPlay->addSeparator();
 	_menuPlay->addAction(ActionCollection::action("CommonActions.FullScreen"));
-	//No menu entry for FullScreenExit, see MyVideoWidget.cpp
 	_menuPlay->addSeparator();
 	_menuPlay->addAction(ActionCollection::action("CommonActions.NewMediaObject"));
 

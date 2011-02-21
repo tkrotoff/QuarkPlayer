@@ -158,17 +158,9 @@ void MediaController::retranslate() {
 	ActionCollection::action("MediaController.OpenSubtitleFile")->setIcon(QIcon::fromTheme("document-open"));
 
 	_menuAudioChannels->setTitle(tr("&Audio Channels"));
-	_menuAudioChannels->setIcon(QIcon::fromTheme("audio-x-generic"));
-
 	_menuSubtitles->setTitle(tr("&Subtitles"));
-	_menuSubtitles->setIcon(QIcon::fromTheme("format-text-underline"));
-
 	_menuTitles->setTitle(tr("&Title"));
-	_menuTitles->setIcon(QIcon::fromTheme("format-list-ordered"));
-
 	_menuChapters->setTitle(tr("&Chapter"));
-	_menuChapters->setIcon(QIcon::fromTheme("x-office-address-book"));
-
 	_menuAngles->setTitle(tr("&Angle"));
 	_menuSubtitle->setTitle(tr("&Subtitle"));
 	_menuBrowse->setTitle(tr("&Browse"));

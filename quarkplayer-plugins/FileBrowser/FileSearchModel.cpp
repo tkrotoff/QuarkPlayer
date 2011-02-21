@@ -166,13 +166,13 @@ QVariant FileSearchModel::data(const QModelIndex & index, int role) const {
 			QString relativeFileName(TkFile::relativeFilePath(_rootSearchPath, fileName));
 
 			if (!QFileInfo(fileName).isDir() && FileTypes::fileExtensionMatches(fileName, _toolTipExtensions)) {
-				if (true/*FIXME mediaInfo.fetched()*/) {
+				if (mediaInfo.fetched()) {
 					QString bitrate;
 					if (mediaInfo.bitrate() > 0) {
 						bitrate = QString("%1 %2 %3")
 								.arg(mediaInfo.bitrate())
 								.arg(tr("kbps"))
-								.arg(mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrateMode).toInt());
+								.arg(mediaInfo.audioStreamValue(0, MediaInfo::AudioBitrateMode).toString());
 					}
 					tmp = relativeFileName + "<br>" +
 						tr("Title:") + " <b>" + mediaInfo.metaDataValue(MediaInfo::Title).toString() + "</b><br>" +

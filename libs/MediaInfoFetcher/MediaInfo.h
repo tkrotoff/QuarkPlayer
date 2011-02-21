@@ -86,15 +86,14 @@ public:
 	void setFileType(FileType fileType);
 
 	/**
-	 * Gets the size of the file in kilobytes (KB).
+	 * Gets the size of the file in bytes (B).
 	 *
-	 * Stored inside an integer (32bits), this is gives us up to
-	 * a size of 2147GB, I guess this is enough for the near future.
+	 * Stored inside a qint64 (signed 64bits).
 	 *
-	 * @return file size in KB or -1 if failed
+	 * @return file size in Bytes or -1 if failed
 	 */
-	int fileSize() const;
-	void setFileSize(int kilobytes);
+	qint64 fileSize() const;
+	void setFileSize(qint64 bytes);
 
 	/**
 	 * Returns the duration/length of the file in a nice formatted way (i.e 03:45:02).
@@ -421,7 +420,7 @@ private:
 	bool _fetched;
 	QString _fileName;
 	FileType _fileType;
-	int _fileSize;
+	qint64 _fileSize;
 
 	/** Duration/length of the file in milliseconds. */
 	qint64 _duration;

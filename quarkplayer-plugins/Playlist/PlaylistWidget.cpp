@@ -195,13 +195,9 @@ void PlaylistWidget::createToolBar() {
 	QMenu * addMenu = new QMenu();
 	addMenu->addAction(uuidAction("Playlist.AddFiles"));
 	connect(uuidAction("Playlist.AddFiles"), SIGNAL(triggered()), SLOT(addFiles()));
-	addMenu->addAction(uuidAction("Playlist.AddDirectory"));
-	connect(uuidAction("Playlist.AddDirectory"), SIGNAL(triggered()), SLOT(addDir()));
+	addMenu->addAction(uuidAction("Playlist.AddDir"));
+	connect(uuidAction("Playlist.AddDir"), SIGNAL(triggered()), SLOT(addDir()));
 	addMenu->addAction(uuidAction("Playlist.AddURL"));
-	QAction * action = new QAction("Hello", this);
-	addMenu->addAction(action);
-	addMenu->addAction(action);
-	addMenu->addAction(action);
 	connect(uuidAction("Playlist.AddURL"), SIGNAL(triggered()), SLOT(addURL()));
 	addButton->setMenu(addMenu);
 
@@ -227,7 +223,7 @@ void PlaylistWidget::populateActionCollection() {
 
 	addUuidAction("Playlist.Add", new QAction(app));
 	addUuidAction("Playlist.AddFiles", new QAction(app));
-	addUuidAction("Playlist.AddDirectory", new QAction(app));
+	addUuidAction("Playlist.AddDir", new QAction(app));
 	addUuidAction("Playlist.AddURL", new QAction(app));
 
 	addUuidAction("Playlist.RemoveAll", new QAction(app));
@@ -259,7 +255,7 @@ void PlaylistWidget::retranslate() {
 	uuidAction("Playlist.Add")->setIcon(QIcon::fromTheme("list-add"));
 
 	uuidAction("Playlist.AddFiles")->setText(tr("Add Files"));
-	uuidAction("Playlist.AddDirectory")->setText(tr("Add Directory"));
+	uuidAction("Playlist.AddDir")->setText(tr("Add Directory"));
 	uuidAction("Playlist.AddURL")->setText(tr("Add URL"));
 
 	uuidAction("Playlist.RemoveAll")->setText(tr("Remove All"));
@@ -329,16 +325,16 @@ void PlaylistWidget::addURL() {
 }
 
 void PlaylistWidget::openPlaylist() {
-	QString filename = TkFileDialog::getOpenFileName(
+	QString fileName = TkFileDialog::getOpenFileName(
 		this, tr("Select Playlist File"), Config::instance().lastDirOpened(),
 		tr("Playlist") + FileTypes::toFilterFormat(FileTypes::extensions(FileType::Playlist)) + ";;" +
 		tr("All Files") + " (*.*)"
 	);
 
-	if (!filename.isEmpty()) {
-		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(filename).absolutePath());
+	if (!fileName.isEmpty()) {
+		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(fileName).absolutePath());
 		_playlistModel->clear();
-		_playlistModel->loadPlaylist(filename);
+		_playlistModel->loadPlaylist(fileName);
 	}
 }
 
@@ -368,19 +364,19 @@ void PlaylistWidget::updateWindowTitle(const QString & statusMessage) {
 void PlaylistWidget::savePlaylist() {
 	static const char * PLAYLIST_DEFAULT_EXTENSION = "m3u";
 
-	QString filename = TkFileDialog::getSaveFileName(
+	QString fileName = TkFileDialog::getSaveFileName(
 		this, tr("Save Playlist"), Config::instance().lastDirOpened(),
 		FileTypes::toSaveFilterFormat(FileTypes::extensions(FileType::Playlist), PLAYLIST_DEFAULT_EXTENSION) +
 		tr("All Files") + " (*.*)"
 	);
 
-	if (!filename.isEmpty()) {
-		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(filename).absolutePath());
+	if (!fileName.isEmpty()) {
+		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(fileName).absolutePath());
 
 		static PlaylistWriter * parser = new PlaylistWriter(this);
 		connect(parser, SIGNAL(finished(PlaylistParser::Error, int)),
 			SLOT(playlistSaved(PlaylistParser::Error, int)));
-		parser->save(filename, _playlistModel->files());
+		parser->save(fileName, _playlistModel->files());
 	}
 }
 

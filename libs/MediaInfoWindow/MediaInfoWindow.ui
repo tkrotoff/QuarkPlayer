@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>549</width>
-    <height>588</height>
+    <width>511</width>
+    <height>485</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,16 +34,19 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QLabel" name="fileTypeLabel">
-           <property name="text">
-            <string/>
+          <widget class="QToolButton" name="openDirButton">
+           <property name="toolTip">
+            <string>Open Directory</string>
+           </property>
+           <property name="autoRaise">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="filenameLineEdit">
+          <widget class="QLineEdit" name="fileNameLineEdit">
            <property name="readOnly">
             <bool>true</bool>
            </property>
@@ -502,7 +505,7 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="leftMargin">
       <number>9</number>
      </property>

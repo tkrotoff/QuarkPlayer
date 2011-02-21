@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -58,26 +58,29 @@ DragAndDropTreeView::DragAndDropTreeView(PlaylistWidget * playlistWidget)
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	//setSortingEnabled(true);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	setContextMenuPolicy(Qt::ActionsContextMenu);
 
 	populateActionCollection();
 
 	connect(_playlistWidget->uuidAction("Playlist.PlayItem"), SIGNAL(triggered()), SLOT(playItem()));
-	addAction(_playlistWidget->uuidAction("Playlist.PlayItem"));
-	connect(_playlistWidget->uuidAction("Playlist.SendTo"), SIGNAL(triggered()), SLOT(sendTo()));
-	//addAction(_playlistWidget->uuidAction("Playlist.SendTo"));
 	connect(_playlistWidget->uuidAction("Playlist.RemoveItem"), SIGNAL(triggered()), SLOT(clearSelection()));
-	addAction(_playlistWidget->uuidAction("Playlist.RemoveItem"));
-	connect(_playlistWidget->uuidAction("Playlist.RateItem"), SIGNAL(triggered()), SLOT(rateItem()));
-	//addAction(_playlistWidget->uuidAction("Playlist.RateItem"));
-	connect(_playlistWidget->uuidAction("Playlist.ViewMediaInfo"), SIGNAL(triggered()), SLOT(viewMediaInfo()));
-	addAction(_playlistWidget->uuidAction("Playlist.ViewMediaInfo"));
+	connect(_playlistWidget->uuidAction("Playlist.GetInfo"), SIGNAL(triggered()), SLOT(viewMediaInfo()));
+	connect(_playlistWidget->uuidAction("Playlist.OpenDir"), SIGNAL(triggered()), SLOT(openDir()));
 
 	RETRANSLATE(this);
 	retranslate();
 }
 
 DragAndDropTreeView::~DragAndDropTreeView() {
+}
+
+void DragAndDropTreeView::contextMenuEvent(QContextMenuEvent * event) {
+	QMenu menu(this);
+	menu.addAction(_playlistWidget->uuidAction("Playlist.PlayItem"));
+	menu.addAction(_playlistWidget->uuidAction("Playlist.RemoveItem"));
+	menu.addSeparator();
+	menu.addAction(_playlistWidget->uuidAction("Playlist.GetInfo"));
+	menu.addAction(_playlistWidget->uuidAction("Playlist.OpenDir"));
+	menu.exec(event->globalPos());
 }
 
 void DragAndDropTreeView::mousePressEvent(QMouseEvent * event) {
@@ -129,29 +132,18 @@ void DragAndDropTreeView::populateActionCollection() {
 	Q_ASSERT(app);
 
 	_playlistWidget->addUuidAction("Playlist.PlayItem", new QAction(app));
-	_playlistWidget->addUuidAction("Playlist.SendTo", new QAction(app));
 	_playlistWidget->addUuidAction("Playlist.RemoveItem", new QAction(app));
-	_playlistWidget->addUuidAction("Playlist.RateItem", new QAction(app));
 	TkAction * action = new TkAction(app, tr("Ctrl+I"), tr("Alt+3"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	_playlistWidget->addUuidAction("Playlist.ViewMediaInfo", action);
+	_playlistWidget->addUuidAction("Playlist.GetInfo", action);
+	_playlistWidget->addUuidAction("Playlist.OpenDir", new QAction(app));
 }
 
 void DragAndDropTreeView::retranslate() {
 	_playlistWidget->uuidAction("Playlist.PlayItem")->setText(tr("Play"));
-	_playlistWidget->uuidAction("Playlist.PlayItem")->setIcon(QIcon::fromTheme("media-playback-start"));
-
-	_playlistWidget->uuidAction("Playlist.SendTo")->setText(tr("Sent To"));
-	_playlistWidget->uuidAction("Playlist.SendTo")->setIcon(QIcon::fromTheme("text-x-script"));
-
 	_playlistWidget->uuidAction("Playlist.RemoveItem")->setText(tr("Remove from Playlist"));
-	_playlistWidget->uuidAction("Playlist.RemoveItem")->setIcon(QIcon::fromTheme("edit-delete"));
-
-	_playlistWidget->uuidAction("Playlist.RateItem")->setText(tr("Rate"));
-	_playlistWidget->uuidAction("Playlist.RateItem")->setIcon(QIcon::fromTheme("rating"));
-
-	_playlistWidget->uuidAction("Playlist.ViewMediaInfo")->setText(tr("View Media Info..."));
-	_playlistWidget->uuidAction("Playlist.ViewMediaInfo")->setIcon(QIcon::fromTheme("document-properties"));
+	_playlistWidget->uuidAction("Playlist.GetInfo")->setText(tr("Get Info..."));
+	_playlistWidget->uuidAction("Playlist.OpenDir")->setText(tr("Open Directory..."));
 
 	if (_mediaInfoWindow) {
 		_mediaInfoWindow->setLanguage(Config::instance().language());
@@ -163,10 +155,6 @@ void DragAndDropTreeView::playItem() {
 	if (!indexList.isEmpty()) {
 		_playlistFilter->play(indexList.at(0));
 	}
-}
-
-void DragAndDropTreeView::sendTo() {
-	//FIXME this will be for external scripts: like burning, sending via email, whatever...
 }
 
 void DragAndDropTreeView::clearSelection() {
@@ -218,9 +206,6 @@ void DragAndDropTreeView::clearSelection() {
 	}
 }
 
-void DragAndDropTreeView::rateItem() {
-}
-
 void DragAndDropTreeView::viewMediaInfo() {
 	PlaylistDebug();
 
@@ -236,4 +221,13 @@ void DragAndDropTreeView::viewMediaInfo() {
 	_mediaInfoWindow->setMediaInfoFetcher(mediaInfoFetcher);
 	_mediaInfoWindow->setLanguage(Config::instance().language());
 	_mediaInfoWindow->show();
+}
+
+void DragAndDropTreeView::openDir() {
+	QModelIndexList indexList = selectionModel()->selectedRows();
+	if (!indexList.isEmpty()) {
+		QModelIndex index(indexList.at(0));
+		QString dir = QFileInfo(_playlistModel->mediaInfo(index).fileName()).canonicalPath();
+		QDesktopServices::openUrl(QUrl::fromLocalFile(dir));
+	}
 }

@@ -149,17 +149,12 @@ void MediaInfo::setFileType(FileType fileType) {
 	_fileType = fileType;
 }
 
-int MediaInfo::fileSize() const {
-	if (_fileSize > 0) {
-		return _fileSize / 1024 / 1024.0;
-	} else {
-		//_fileSize should be -1
-		return _fileSize;
-	}
+qint64 MediaInfo::fileSize() const {
+	return _fileSize;
 }
 
-void MediaInfo::setFileSize(int kilobytes) {
-	_fileSize = kilobytes;
+void MediaInfo::setFileSize(qint64 bytes) {
+	_fileSize = bytes;
 }
 
 QString MediaInfo::durationFormatted() const {

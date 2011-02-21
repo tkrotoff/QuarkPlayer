@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -53,13 +53,13 @@ private slots:
 
 	void playItem();
 
-	void sendTo();
-
-	void rateItem();
-
 	void viewMediaInfo();
 
+	void openDir();
+
 private:
+
+	void contextMenuEvent(QContextMenuEvent * event);
 
 	void mousePressEvent(QMouseEvent * event);
 

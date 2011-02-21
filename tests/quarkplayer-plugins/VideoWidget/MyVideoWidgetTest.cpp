@@ -22,9 +22,7 @@
 #include <quarkplayer/MockPluginManager.h>
 
 #include <quarkplayer-plugins/MainWindow/MockMainWindow.h>
-#include <quarkplayer-plugins/VideoWidget/VideoWidgetPlugin.h>
 #include <quarkplayer-plugins/VideoWidget/MyVideoWidget.h>
-#include <quarkplayer-plugins/PlayToolBar/PlayToolBar.h>
 
 #include <phonon/mediaobject.h>
 

@@ -1,7 +1,7 @@
 /*
  * QuarkPlayer, a Phonon media player
  * Copyright (C) 2004-2007  Wengo
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,13 +81,7 @@ void ThumbnailView::setDir(const QString & dir) {
 	_dir = dir;
 }
 
-QString ThumbnailView::lastRefreshedDirectory() const {
-	return _lastRefreshedDirectory;
-}
-
 void ThumbnailView::refresh() {
-	_lastRefreshedDirectory = _dir;
-
 	QFileInfo fileInfo(_dir);
 	if (!fileInfo.exists()) {
 		ThumbnailViewCritical() << "Directory does not exist:" << _dir;

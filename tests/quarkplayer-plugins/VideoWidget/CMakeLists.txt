@@ -9,7 +9,7 @@ macro(add_my_test name)
 
 	target_link_libraries(${name}
 		VideoWidget
-		PlayToolBar
+		MainWindow
 
 		${QT_QTGUI_LIBRARY}
 		${QT_QTTEST_LIBRARY}

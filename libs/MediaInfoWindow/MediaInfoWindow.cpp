@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -33,6 +33,7 @@
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
+
 #include <QtCore/QtGlobal>
 #include <QtCore/QUrl>
 
@@ -61,13 +62,11 @@ MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 	_refreshButton->setAutoRaise(true);
 	connect(_refreshButton, SIGNAL(clicked()), SLOT(refresh()));
 
+	//Open directory button
+	connect(_ui->openDirButton, SIGNAL(clicked()), SLOT(openDir()));
+
 	//Save metadata button
 	connect(_ui->buttonBox, SIGNAL(accepted()), SLOT(writeMetaData()));
-
-	//Open directory button
-	_openDirectoryButton = new QToolButton(this);
-	_openDirectoryButton->setAutoRaise(true);
-	connect(_openDirectoryButton, SIGNAL(clicked()), SLOT(openDirectory()));
 
 	//Tab corner widget
 	QWidget * cornerWidget = new QWidget(this);
@@ -75,7 +74,6 @@ MediaInfoWindow::MediaInfoWindow(QWidget * parent)
 	cornerWidgetLayout->setMargin(0);
 	cornerWidgetLayout->setSpacing(0);
 	cornerWidgetLayout->addWidget(_refreshButton);
-	cornerWidgetLayout->addWidget(_openDirectoryButton);
 	cornerWidget->setLayout(cornerWidgetLayout);
 
 	_ui->tabWidget->setCornerWidget(cornerWidget, Qt::TopRightCorner);
@@ -112,19 +110,11 @@ void MediaInfoWindow::show() {
 
 void MediaInfoWindow::retranslate() {
 	_refreshButton->setIcon(QIcon::fromTheme("view-refresh"));
-	_refreshButton->setToolTip(tr("Refresh Informations"));
-
-	_openDirectoryButton->setIcon(QIcon::fromTheme("document-open-folder"));
-	_openDirectoryButton->setToolTip(tr("Open Directory"));
+	_refreshButton->setToolTip(tr("Refresh"));
 
 	_ui->retranslateUi(this);
 
 	refresh();
-}
-
-void MediaInfoWindow::openDirectory() {
-	QUrl url = QUrl::fromLocalFile(_ui->thumbnailView->lastRefreshedDirectory());
-	QDesktopServices::openUrl(url);
 }
 
 void MediaInfoWindow::refresh() {
@@ -136,13 +126,22 @@ void MediaInfoWindow::refresh() {
 	}
 }
 
+void MediaInfoWindow::openDir() {
+	if (_mediaInfoFetcher) {
+		MediaInfo mediaInfo = _mediaInfoFetcher->mediaInfo();
+		if (mediaInfo.fetched()) {
+			QString dir = QFileInfo(mediaInfo.fileName()).canonicalPath();
+			QDesktopServices::openUrl(QUrl::fromLocalFile(dir));
+		}
+	}
+}
+
 void MediaInfoWindow::writeMetaData() const {
 	MetaDataWriter::write(_mediaInfoFetcher->mediaInfo());
 }
 
 void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {
 	bool isUrl = MediaInfo::isUrl(mediaInfo.fileName());
-	_openDirectoryButton->setEnabled(isUrl);
 
 	QIcon icon;
 	if (!isUrl) {
@@ -151,10 +150,10 @@ void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {
 	} else {
 		icon = QIcon::fromTheme("document-open-remote");
 	}
-	_ui->fileTypeLabel->setPixmap(icon.pixmap(QSize(16, 16)));
+	_ui->openDirButton->setIcon(icon);
 
 	//General
-	_ui->filenameLineEdit->setText(mediaInfo.fileName());
+	_ui->fileNameLineEdit->setText(mediaInfo.fileName());
 
 	//Metadata
 	int trackNumber = mediaInfo.metaDataValue(MediaInfo::TrackNumber).toInt();
@@ -221,7 +220,7 @@ void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {
 
 	//General
 	QString fileInfo;
-	int fileSize = mediaInfo.fileSize();
+	qint64 fileSize = mediaInfo.fileSize();
 	QString duration(mediaInfo.durationFormatted());
 	int bitrate = mediaInfo.bitrate();
 	if (fileSize >= 0 || !duration.isEmpty() || bitrate >= 0) {
@@ -236,7 +235,7 @@ void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {
 			if (!fileInfo.isEmpty()) {
 				fileInfo += ", ";
 			}
-			fileInfo += QString::number(fileSize) + ' ' + tr("KB");
+			fileInfo += QString::number(fileSize / 1024.0 / 1024.0) + ' ' + tr("MB");
 		}
 		if (!duration.isEmpty()) {
 			if (!fileInfo.isEmpty()) {
@@ -400,11 +399,11 @@ void MediaInfoWindow::updateMediaInfo(const MediaInfo & mediaInfo) {
 	);
 
 	//Refresh ThumbnailView
-	QFileInfo filenameInfo(mediaInfo.fileName());
-	if (filenameInfo.isDir()) {
-		_ui->thumbnailView->setDir(filenameInfo.absoluteFilePath());
+	QFileInfo fileNameInfo(mediaInfo.fileName());
+	if (fileNameInfo.isDir()) {
+		_ui->thumbnailView->setDir(fileNameInfo.absoluteFilePath());
 	} else {
-		_ui->thumbnailView->setDir(filenameInfo.absolutePath());
+		_ui->thumbnailView->setDir(fileNameInfo.absolutePath());
 	}
 	_ui->thumbnailView->refresh();
 
