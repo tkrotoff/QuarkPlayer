@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -62,7 +62,7 @@ QStringList FileBrowserWidgetFactory::dependencies() const {
 }
 
 PluginInterface * FileBrowserWidgetFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
-	return new FileBrowserWidget(quarkPlayer, uuid);
+	return new FileBrowserWidget(quarkPlayer, uuid, MainWindowFactory::mainWindow());
 }
 
 FileBrowserWidget * FileBrowserWidgetFactory::fileBrowserWidget() {
@@ -71,9 +71,13 @@ FileBrowserWidget * FileBrowserWidgetFactory::fileBrowserWidget() {
 	return fileBrowserWidget;
 }
 
-FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QWidget(MainWindowFactory::mainWindow()),
+FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid,
+				IMainWindow * mainWindow)
+	: QWidget(mainWindow),
 	PluginInterface(quarkPlayer, uuid) {
+
+	Q_ASSERT(mainWindow);
+	_mainWindow = mainWindow;
 
 	_fileSearchModel = NULL;
 
@@ -91,7 +95,7 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 
 	//Add to the main window
 	_dockWidget = new QDockWidget();
-	MainWindowFactory::mainWindow()->addBrowserDockWidget(_dockWidget);
+	mainWindow->addBrowserDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
 
 	ConfigWindowPlugin * configWindowPlugin = ConfigWindowPluginFactory::configWindowPlugin();
@@ -119,8 +123,8 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 }
 
 FileBrowserWidget::~FileBrowserWidget() {
-	MainWindowFactory::mainWindow()->removeDockWidget(_dockWidget);
-	MainWindowFactory::mainWindow()->resetBrowserDockWidget();
+	_mainWindow->removeDockWidget(_dockWidget);
+	_mainWindow->resetBrowserDockWidget();
 }
 
 void FileBrowserWidget::createToolBar() {
@@ -309,7 +313,7 @@ void FileBrowserWidget::setWindowTitle(const QString & statusMessage) {
 		_dockWidget->setWindowTitle(tr("Dir:") + ' ' + nameWithoutPath);
 	} else {
 		_dockWidget->setWindowTitle(statusMessage);
-		QStatusBar * statusBar = MainWindowFactory::mainWindow()->statusBar();
+		QStatusBar * statusBar = _mainWindow->statusBar();
 		if (statusBar) {
 			statusBar->showMessage(statusMessage);
 		}

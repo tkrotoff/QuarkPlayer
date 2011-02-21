@@ -46,6 +46,12 @@ public:
 	virtual void setPlayToolBar(QToolBar * playToolBar) = 0;
 	virtual QToolBar * playToolBar() const = 0;
 
+	virtual QMenu * menuFile() const = 0;
+	virtual QMenu * menuPlay() const = 0;
+	virtual QMenu * menuAudio() const = 0;
+	virtual QMenu * menuSettings() const = 0;
+	virtual QMenu * menuHelp() const = 0;
+
 	virtual void addBrowserDockWidget(QDockWidget * dockWidget) = 0;
 	virtual void resetBrowserDockWidget() = 0;
 

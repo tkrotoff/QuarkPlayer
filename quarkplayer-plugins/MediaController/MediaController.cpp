@@ -55,7 +55,7 @@ QStringList MediaControllerFactory::dependencies() const {
 }
 
 PluginInterface * MediaControllerFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
-	return new MediaController(quarkPlayer, uuid);
+	return new MediaController(quarkPlayer, uuid, MainWindowFactory::mainWindow());
 }
 
 MediaController * MediaControllerFactory::mediaController() {
@@ -64,13 +64,15 @@ MediaController * MediaControllerFactory::mediaController() {
 	return mediaController;
 }
 
-MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QWidget(MainWindowFactory::mainWindow()),
+MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid,
+				IMainWindow * mainWindow)
+	: QWidget(mainWindow),
 	PluginInterface(quarkPlayer, uuid) {
 
 	populateActionCollection();
 
-	_mainWindow = MainWindowFactory::mainWindow();
+	Q_ASSERT(mainWindow);
+	_mainWindow = mainWindow;
 	connect(_mainWindow, SIGNAL(subtitleFileDropped(const QString &)),
 		SLOT(openSubtitleFile(const QString &)));
 

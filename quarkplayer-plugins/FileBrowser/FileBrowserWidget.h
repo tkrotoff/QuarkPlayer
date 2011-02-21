@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,6 +29,7 @@ class SearchLineEdit;
 class QuarkPlayer;
 class ConfigWindow;
 class FileSearchModel;
+class IMainWindow;
 
 class QDockWidget;
 
@@ -45,7 +46,7 @@ class FileBrowserWidget : public QWidget, public PluginInterface {
 	friend class FileBrowserTreeView;
 public:
 
-	FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid);
+	FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid, IMainWindow * mainWindow);
 
 	~FileBrowserWidget();
 
@@ -87,6 +88,8 @@ private:
 	SearchLineEdit * _searchLineEdit;
 
 	QDockWidget * _dockWidget;
+
+	IMainWindow * _mainWindow;
 };
 
 #include <quarkplayer/PluginFactory.h>

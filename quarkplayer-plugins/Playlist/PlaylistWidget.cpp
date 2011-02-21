@@ -62,18 +62,21 @@ QStringList PlaylistWidgetFactory::dependencies() const {
 }
 
 PluginInterface * PlaylistWidgetFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
-	return new PlaylistWidget(quarkPlayer, uuid);
+	return new PlaylistWidget(quarkPlayer, uuid, MainWindowFactory::mainWindow());
 }
 
 PlaylistWidget * PlaylistWidgetFactory::playlistWidget() {
 	PlaylistWidget * playlistWidget = dynamic_cast<PlaylistWidget *>(PluginManager::instance().pluginInterface(PLUGIN_NAME));
-	//Q_ASSERT(playlistWidget);
+	Q_ASSERT(playlistWidget);
 	return playlistWidget;
 }
 
-PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QWidget(MainWindowFactory::mainWindow()),
+PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid, IMainWindow * mainWindow)
+	: QWidget(mainWindow),
 	PluginInterface(quarkPlayer, uuid) {
+
+	Q_ASSERT(mainWindow);
+	_mainWindow = mainWindow;
 
 	//Model
 	_playlistModel = new PlaylistModel(this, quarkPlayer, uuid);
@@ -123,7 +126,7 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	_dockWidget = new QDockWidget();
 	connect(_dockWidget, SIGNAL(visibilityChanged(bool)),
 		SLOT(dockWidgetVisibilityChanged(bool)));
-	MainWindowFactory::mainWindow()->addPlaylistDockWidget(_dockWidget);
+	_mainWindow->addPlaylistDockWidget(_dockWidget);
 	_dockWidget->setWidget(this);
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
@@ -140,8 +143,8 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 }
 
 PlaylistWidget::~PlaylistWidget() {
-	MainWindowFactory::mainWindow()->removeDockWidget(_dockWidget);
-	MainWindowFactory::mainWindow()->resetPlaylistDockWidget();
+	_mainWindow->removeDockWidget(_dockWidget);
+	_mainWindow->resetPlaylistDockWidget();
 }
 
 PlaylistModel * PlaylistWidget::playlistModel() const {
@@ -195,6 +198,10 @@ void PlaylistWidget::createToolBar() {
 	addMenu->addAction(uuidAction("Playlist.AddDirectory"));
 	connect(uuidAction("Playlist.AddDirectory"), SIGNAL(triggered()), SLOT(addDir()));
 	addMenu->addAction(uuidAction("Playlist.AddURL"));
+	QAction * action = new QAction("Hello", this);
+	addMenu->addAction(action);
+	addMenu->addAction(action);
+	addMenu->addAction(action);
 	connect(uuidAction("Playlist.AddURL"), SIGNAL(triggered()), SLOT(addURL()));
 	addButton->setMenu(addMenu);
 
@@ -352,7 +359,7 @@ void PlaylistWidget::updateWindowTitle(const QString & statusMessage) {
 		windowTitle += " - " + statusMessage;
 	}
 	_dockWidget->setWindowTitle(windowTitle);
-	QStatusBar * statusBar = MainWindowFactory::mainWindow()->statusBar();
+	QStatusBar * statusBar = _mainWindow->statusBar();
 	if (statusBar) {
 		statusBar->showMessage(statusMessage);
 	}

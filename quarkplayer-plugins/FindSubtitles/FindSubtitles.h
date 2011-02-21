@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -38,7 +38,7 @@ class FindSubtitles : public QObject, public PluginInterface {
 	Q_OBJECT
 public:
 
-	FindSubtitles(QuarkPlayer & quarkPlayer, const QUuid & uuid);
+	FindSubtitles(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * mainWindow);
 
 	~FindSubtitles();
 

@@ -54,6 +54,12 @@ public:
 	void setPlayToolBar(QToolBar * playToolBar);
 	QToolBar * playToolBar() const;
 
+	QMenu * menuFile() const;
+	QMenu * menuPlay() const;
+	QMenu * menuAudio() const;
+	QMenu * menuSettings() const;
+	QMenu * menuHelp() const;
+
 	void addBrowserDockWidget(QDockWidget * dockWidget);
 	void resetBrowserDockWidget();
 

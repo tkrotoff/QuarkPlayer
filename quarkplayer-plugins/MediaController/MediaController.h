@@ -28,7 +28,7 @@
 class MediaControllerToolBar;
 
 class QuarkPlayer;
-class MainWindow;
+class IMainWindow;
 
 namespace Phonon {
 	class MediaController;
@@ -52,7 +52,7 @@ class MEDIACONTROLLER_API MediaController : public QWidget, public PluginInterfa
 	Q_OBJECT
 public:
 
-	MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid);
+	MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid, IMainWindow * mainWindow);
 
 	~MediaController();
 
@@ -93,7 +93,7 @@ private:
 	/** Code factorization. */
 	static void removeAllAction(QObject * object);
 
-	MainWindow * _mainWindow;
+	IMainWindow * _mainWindow;
 
 	MediaControllerToolBar * _toolBar;
 

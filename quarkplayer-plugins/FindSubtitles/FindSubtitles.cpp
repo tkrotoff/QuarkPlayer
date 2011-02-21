@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -49,11 +49,11 @@ QStringList FindSubtitlesFactory::dependencies() const {
 }
 
 PluginInterface * FindSubtitlesFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
-	return new FindSubtitles(quarkPlayer, uuid);
+	return new FindSubtitles(quarkPlayer, uuid, MainWindowFactory::mainWindow());
 }
 
-FindSubtitles::FindSubtitles(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QObject(MainWindowFactory::mainWindow()),
+FindSubtitles::FindSubtitles(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * mainWindow)
+	: QObject(mainWindow),
 	PluginInterface(quarkPlayer, uuid) {
 
 	populateActionCollection();
@@ -110,7 +110,7 @@ void FindSubtitles::findSubtitles() {
 
 		static FindSubtitlesWindow * findSubtitlesWindow = NULL;
 		if (!findSubtitlesWindow) {
-			findSubtitlesWindow = new FindSubtitlesWindow(MainWindowFactory::mainWindow());
+			findSubtitlesWindow = new FindSubtitlesWindow(qobject_cast<QWidget *>(parent()));
 			connect(findSubtitlesWindow, SIGNAL(subtitleDownloaded(const QString &)),
 				SLOT(loadSubtitle(const QString &)));
 		}

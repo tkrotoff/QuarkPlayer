@@ -26,6 +26,7 @@
 #include <QtGui/QStatusBar>
 
 class QuarkPlayer;
+class IMainWindow;
 
 namespace Phonon {
 	class MediaObject;
@@ -42,7 +43,7 @@ class StatusBar : public QStatusBar, public PluginInterface {
 	Q_OBJECT
 public:
 
-	StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid);
+	StatusBar(QuarkPlayer & quarkPlayer, const QUuid & uuid, IMainWindow * mainWindow);
 
 	~StatusBar();
 
@@ -98,6 +99,8 @@ private:
 
 	/** Status bar text color. */
 	QColor _textColor;
+
+	IMainWindow * _mainWindow;
 };
 
 #include <quarkplayer/PluginFactory.h>

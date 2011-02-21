@@ -41,7 +41,7 @@ QStringList ConfigWindowPluginFactory::dependencies() const {
 }
 
 PluginInterface * ConfigWindowPluginFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
-	return new ConfigWindowPlugin(quarkPlayer, uuid);
+	return new ConfigWindowPlugin(quarkPlayer, uuid, MainWindowFactory::mainWindow());
 }
 
 ConfigWindowPlugin * ConfigWindowPluginFactory::configWindowPlugin() {
@@ -50,12 +50,14 @@ ConfigWindowPlugin * ConfigWindowPluginFactory::configWindowPlugin() {
 	return configWindowPlugin;
 }
 
-ConfigWindowPlugin::ConfigWindowPlugin(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: PluginInterface(quarkPlayer, uuid) {
-
-	loadSettings();
+ConfigWindowPlugin::ConfigWindowPlugin(QuarkPlayer & quarkPlayer, const QUuid & uuid,
+				QWidget * mainWindow)
+	: QObject(mainWindow),
+	PluginInterface(quarkPlayer, uuid) {
 
 	_configWindow = NULL;
+
+	loadSettings();
 
 	connect(ActionCollection::action("CommonActions.Configure"), SIGNAL(triggered()),
 		SLOT(showConfigWindow()));
@@ -75,19 +77,13 @@ void ConfigWindowPlugin::saveSettings() const {
 
 void ConfigWindowPlugin::showConfigWindow() {
 	if (!_configWindow) {
-		_configWindow = new ConfigWindow(MainWindowFactory::mainWindow());
+		_configWindow = new ConfigWindow(qobject_cast<QWidget *>(parent()));
 
 		//Emits the signal just once, not each time the ConfigWindow is being showed
 		emit configWindowCreated(_configWindow);
 	}
 
 	_configWindow->exec();
-
-	//Trick: MainWindow should get the focus and be the active window
-	//otherwise SearchLineEdit can get the focus instead
-	QApplication * app = qobject_cast<QApplication *>(QApplication::instance());
-	Q_ASSERT(app);
-	app->setActiveWindow(MainWindowFactory::mainWindow());
 }
 
 ConfigWindow * ConfigWindowPlugin::configWindow() const {

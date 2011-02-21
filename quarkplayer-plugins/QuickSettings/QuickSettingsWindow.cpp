@@ -51,14 +51,14 @@ QStringList QuickSettingsWindowFactory::dependencies() const {
 }
 
 PluginInterface * QuickSettingsWindowFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
-	return new QuickSettingsWindow(quarkPlayer, uuid);
+	return new QuickSettingsWindow(quarkPlayer, uuid, MainWindowFactory::mainWindow());
 }
 
 static const int SLIDER_RANGE = 8;
 static const int TICK_INTERVAL = 4;
 
-QuickSettingsWindow::QuickSettingsWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QDialog(MainWindowFactory::mainWindow()),
+QuickSettingsWindow::QuickSettingsWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * mainWindow)
+	: QDialog(mainWindow),
 	PluginInterface(quarkPlayer, uuid) {
 
 	_audioOutput = NULL;

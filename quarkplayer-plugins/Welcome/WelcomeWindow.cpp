@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -41,11 +41,11 @@ QStringList WelcomeWindowFactory::dependencies() const {
 }
 
 PluginInterface * WelcomeWindowFactory::create(QuarkPlayer & quarkPlayer, const QUuid & uuid) const {
-	return new WelcomeWindow(quarkPlayer, uuid);
+	return new WelcomeWindow(quarkPlayer, uuid, MainWindowFactory::mainWindow());
 }
 
-WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
-	: QObject(MainWindowFactory::mainWindow()),
+WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWidget * mainWindow)
+	: QObject(mainWindow),
 	PluginInterface(quarkPlayer, uuid) {
 
 	WelcomeDebug() << "Welcome plugin created";
@@ -61,7 +61,7 @@ WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 		connect(&quarkPlayer, SIGNAL(mediaObjectAdded(Phonon::MediaObject *)), SLOT(playWebRadio()));
 	}
 
-	QMessageBox * msgBox = new QMessageBox(MainWindowFactory::mainWindow());
+	QMessageBox * msgBox = new QMessageBox(mainWindow);
 	connect(msgBox, SIGNAL(finished(int)), SLOT(quitPlugin()));
 	msgBox->setWindowTitle(tr("Welcome!"));
 	msgBox->setIcon(QMessageBox::Information);
@@ -72,7 +72,7 @@ WelcomeWindow::WelcomeWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 		"QuarkPlayer can use different backends (DirectShow, MPlayer, Xine, GStreamer, "
 		"VLC...) thanks to Qt and the Phonon library. "
 		"It also relies on an advanced plugin system and is available under "
-		"Windows, Linux and soon Mac OS X.<br><br><br>Version: %2").arg(QUARKPLAYER_VERSION).arg(quarkPlayerFullVersion())
+		"Windows, Linux and Mac OS X.<br><br><br>Version: %2").arg(QUARKPLAYER_VERSION).arg(quarkPlayerFullVersion())
 	);
 	msgBox->show();
 }

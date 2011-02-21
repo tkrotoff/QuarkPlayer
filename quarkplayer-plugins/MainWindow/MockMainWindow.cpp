@@ -76,6 +76,26 @@ QToolBar * MockMainWindow::playToolBar() const {
 	return _playToolBar;
 }
 
+QMenu * MockMainWindow::menuFile() const {
+	return NULL;
+}
+
+QMenu * MockMainWindow::menuPlay() const {
+	return NULL;
+}
+
+QMenu * MockMainWindow::menuAudio() const {
+	return NULL;
+}
+
+QMenu * MockMainWindow::menuSettings() const {
+	return NULL;
+}
+
+QMenu * MockMainWindow::menuHelp() const {
+	return NULL;
+}
+
 void MockMainWindow::playFile() {
 	QString fileName = TkFileDialog::getOpenFileName(
 		this, tr("Select Audio/Video File"), Config::instance().lastDirOpened(),
