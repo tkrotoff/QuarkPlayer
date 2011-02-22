@@ -1,28 +1,29 @@
-project(FindSubtitlesTest)
+project(FindSubtitlesTests)
 
-set(FindSubtitlesTest_SRCS
-	FindSubtitlesTest.cpp
-	ZipFileTest.cpp
-	main.cpp
-)
+macro(add_my_test name)
+	set(SRCS ${ARGN})
 
-qt4_wrap_cpp(FindSubtitlesTest_SRCS
-	FindSubtitlesTest.h
-	ZipFileTest.h
-)
+	add_executable(${name} ${SRCS})
 
-qt4_add_resources(FindSubtitlesTest_SRCS
-	zipfiles.qrc
-)
+	add_test(${name} ${name})
 
-add_executable(FindSubtitlesTest ${FindSubtitlesTest_SRCS})
+	target_link_libraries(${name}
+		FindSubtitles
 
-target_link_libraries(FindSubtitlesTest
-	FindSubtitles
+		${QT_QTCORE_LIBRARY}
+		${QT_QTGUI_LIBRARY}
+		${QT_QTTEST_LIBRARY}
+	)
+	install(TARGETS ${name} ${INSTALL_TARGETS_DEFAULT_ARGS})
+endmacro(add_my_test name)
 
-	${QT_QTCORE_LIBRARY}
-	${QT_QTGUI_LIBRARY}
-	${QT_QTTEST_LIBRARY}
-)
 
-install(TARGETS FindSubtitlesTest ${INSTALL_TARGETS_DEFAULT_ARGS})
+set(FindSubtitlesTest_SRCS FindSubtitlesTest.cpp)
+qt4_wrap_cpp(FindSubtitlesTest_SRCS FindSubtitlesTest.h)
+add_my_test(FindSubtitlesTest ${FindSubtitlesTest_SRCS})
+
+
+set(ZipFileTest_SRCS ZipFileTest.cpp)
+qt4_wrap_cpp(ZipFileTest_SRCS ZipFileTest.h)
+qt4_add_resources(ZipFileTest_SRCS zipfiles.qrc)
+add_my_test(ZipFileTest ${ZipFileTest_SRCS})

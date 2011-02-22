@@ -1,22 +1,22 @@
-project(MediaInfoTest)
+project(MediaInfoTests)
 
-set(MediaInfoTest_SRCS
-	MediaInfoTest.cpp
-	main.cpp
-)
+macro(add_unit_test name)
+	set(SRCS ${ARGN})
 
-qt4_wrap_cpp(MediaInfoTest_SRCS
-	MediaInfoTest.h
-)
+	add_executable(${name} ${SRCS})
 
-add_executable(MediaInfoTest ${MediaInfoTest_SRCS})
-add_test(MediaInfoTest MediaInfoTest)
+	add_test(${name} ${name})
 
-target_link_libraries(MediaInfoTest
-	MediaInfoFetcher
+	target_link_libraries(${name}
+		MediaInfoFetcher
 
-	${QT_QTCORE_LIBRARY}
-	${QT_QTTEST_LIBRARY}
-)
+		${QT_QTCORE_LIBRARY}
+		${QT_QTTEST_LIBRARY}
+	)
+	install(TARGETS ${name} ${INSTALL_TARGETS_DEFAULT_ARGS})
+endmacro(add_unit_test name)
 
-install(TARGETS MediaInfoTest ${INSTALL_TARGETS_DEFAULT_ARGS})
+
+set(MediaInfoTest_SRCS MediaInfoTest.cpp)
+qt4_wrap_cpp(MediaInfoTest_SRCS MediaInfoTest.h)
+add_unit_test(MediaInfoTest ${MediaInfoTest_SRCS})

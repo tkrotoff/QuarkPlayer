@@ -20,6 +20,8 @@
 
 #include <MediaInfoFetcher/MediaInfo.h>
 
+QTEST_MAIN(MediaInfoTest)
+
 void MediaInfoTest::initTestCase() {
 }
 
