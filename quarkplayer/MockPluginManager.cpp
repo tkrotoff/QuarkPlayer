@@ -18,6 +18,8 @@
 
 #include "MockPluginManager.h"
 
+#include "QuarkPlayer.h"
+
 void MockPluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	Q_UNUSED(quarkPlayer);
 

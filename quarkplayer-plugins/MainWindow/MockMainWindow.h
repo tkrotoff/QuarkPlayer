@@ -22,7 +22,6 @@
 #include <quarkplayer-plugins/MainWindow/IMainWindow.h>
 
 #include <QtGui/QMainWindow>
-#include <QtGui/QToolBar>
 
 class QuarkPlayer;
 
@@ -43,7 +42,7 @@ class QDockWidget;
  * @see http://en.wikipedia.org/wiki/Facade_pattern
  * @author Tanguy Krotoff
  */
-class MAINWINDOW_API MockMainWindow : public IMainWindow {
+class MockMainWindow : public IMainWindow {
 	Q_OBJECT
 public:
 
