@@ -86,7 +86,7 @@ MPlayerProcess::MPlayerProcess(QObject * parent)
 	//DVD/Mkv titles/chapters/angles
 	rx_titles("^ID_DVD_TITLES=(\\d+)"),
 	rx_title("^ID_DVD_TITLE_(\\d+)_(LENGTH|CHAPTERS|ANGLES)=(.*)"),
-	//[mkv] Chapter 1 from 00:15:02.080 to 00:00:00.000, Plus l'on Approche de CÃ©sar
+	//[mkv] Chapter 1 from 00:15:02.080 to 00:00:00.000, Plus l'on Approche de César
 	rx_mkvchapters("\\[mkv\\] Chapter (\\d+) from (.*) to (.*), (.*)"),
 	rx_create_index("^Generating Index:.*"),
 
@@ -538,8 +538,8 @@ void MPlayerProcess::parseLine(const QString & line_) {
 
 			//Matroska line example:
 			//ID_SUBTITLE_ID=0
-			//ID_SID_0_NAME=Piste de prÃ©sentation
-			//[mkv] Track ID 4: subtitles (S_TEXT/UTF8) Piste de prÃ©sentation, -sid 0, -slang mis
+			//ID_SID_0_NAME=Piste de présentation
+			//[mkv] Track ID 4: subtitles (S_TEXT/UTF8) Piste de présentation, -sid 0, -slang mis
 			//ID_SUBTITLE_ID=1
 			//ID_SID_1_LANG=fre
 			//[mkv] Track ID 5: subtitles (S_VOBSUB), -sid 1, -slang fre
@@ -632,8 +632,8 @@ void MPlayerProcess::parseLine(const QString & line_) {
 			//ID_AID_0_LANG=fre
 			//[mkv] Track ID 3: audio (A_AAC/MPEG4/LC/SBR), -aid 1, -alang eng
 			//ID_SUBTITLE_ID=0
-			//ID_SID_0_NAME=Piste de prÃ©sentation
-			//[mkv] Track ID 4: subtitles (S_TEXT/UTF8) Piste de prÃ©sentation, -sid 0, -slang mis
+			//ID_SID_0_NAME=Piste de présentation
+			//[mkv] Track ID 4: subtitles (S_TEXT/UTF8) Piste de présentation, -sid 0, -slang mis
 			//ID_SUBTITLE_ID=1
 			//ID_SID_1_LANG=fre
 			//[mkv] Track ID 5: subtitles (S_VOBSUB), -sid 1, -slang fre
@@ -700,7 +700,7 @@ void MPlayerProcess::parseLine(const QString & line_) {
 		else if (rx_mkvchapters.indexIn(line) != -1) {
 			//Examples:
 			//[mkv] Chapter 0 from 00:10:09.800 to 00:00:00.000, La Cellule
-			//[mkv] Chapter 1 from 00:15:02.080 to 00:00:00.000, Plus l'on Approche de CÃ©sar
+			//[mkv] Chapter 1 from 00:15:02.080 to 00:00:00.000, Plus l'on Approche de César
 			//[mkv] Chapter 2 from 00:19:16.400 to 00:00:00.000, La Compagnie Charlie
 			//[mkv] Chapter 3 from 00:24:41.520 to 00:00:00.000, Guadalcanal
 
