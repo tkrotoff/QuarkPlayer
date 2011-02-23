@@ -1,9 +1,5 @@
 project(Welcome)
 
-if (STATICPLUGINS)
-	add_definitions(-DQT_STATICPLUGIN)
-endif (STATICPLUGINS)
-
 set(Welcome_SRCS
 	WelcomeWindow.cpp
 )

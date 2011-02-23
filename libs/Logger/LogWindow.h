@@ -29,6 +29,8 @@
 
 #include <Logger/LoggerExport.h>
 
+#include <TkUtil/Actions.h>
+
 #include <QtGui/QMainWindow>
 
 class LogModel;
@@ -115,6 +117,8 @@ private:
 	 * Latest row inserted, saved as a number.
 	 */
 	int _lastRow;
+
+	ActionCollection _actions;
 };
 
 #endif	//LOGWINDOW_H

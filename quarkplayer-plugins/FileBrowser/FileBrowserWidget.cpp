@@ -36,7 +36,6 @@
 #include <TkUtil/TkToolBar.h>
 #include <TkUtil/SearchLineEdit.h>
 #include <TkUtil/TkFileDialog.h>
-#include <TkUtil/Actions.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QVBoxLayout>
@@ -134,9 +133,8 @@ void FileBrowserWidget::createToolBar() {
 	layout()->addWidget(toolBar);
 
 	//Browse button
-	toolBar->addAction(Actions::get("FileBrowser.Browse", uuid()));
-	connect(Actions::get("FileBrowser.Browse", uuid()), SIGNAL(triggered()),
-		SLOT(configure()));
+	toolBar->addAction(_actions["FileBrowser.Browse"]);
+	connect(_actions["FileBrowser.Browse"], SIGNAL(triggered()), SLOT(configure()));
 
 	//Search line edit
 	QStringList history = Config::instance().value(FILEBROWSER_SEARCH_HISTORY_KEY).toStringList();
@@ -145,18 +143,16 @@ void FileBrowserWidget::createToolBar() {
 	toolBar->addWidget(_searchLineEdit);
 
 	//New file browser button
-	toolBar->addAction(Actions::get("FileBrowser.New", uuid()));
-	connect(Actions::get("FileBrowser.New", uuid()), SIGNAL(triggered()),
-		SLOT(createNewFileBrowserWidget()));
+	toolBar->addAction(_actions["FileBrowser.New"]);
+	connect(_actions["FileBrowser.New"], SIGNAL(triggered()), SLOT(createNewFileBrowserWidget()));
 }
 
 void FileBrowserWidget::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	Actions::add("FileBrowser.Browse", uuid(), new QAction(app));
-
-	Actions::add("FileBrowser.New", uuid(), new QAction(app));
+	_actions.add("FileBrowser.Browse", new QAction(app));
+	_actions.add("FileBrowser.New", new QAction(app));
 }
 
 void FileBrowserWidget::loadDirModel() {
@@ -293,11 +289,11 @@ void FileBrowserWidget::createNewFileBrowserWidget() {
 void FileBrowserWidget::retranslate() {
 	_searchLineEdit->setToolTip(tr("Search files, use whitespaces to separate words"));
 
-	Actions::get("FileBrowser.Browse", uuid())->setText(tr("Change Directory"));
-	Actions::get("FileBrowser.Browse", uuid())->setIcon(QIcon::fromTheme("folder"));
+	_actions["FileBrowser.Browse"]->setText(tr("Change Directory"));
+	_actions["FileBrowser.Browse"]->setIcon(QIcon::fromTheme("folder"));
 
-	Actions::get("FileBrowser.New", uuid())->setText(tr("New File Browser Window"));
-	Actions::get("FileBrowser.New", uuid())->setIcon(QIcon::fromTheme("tab-new"));
+	_actions["FileBrowser.New"]->setText(tr("New File Browser Window"));
+	_actions["FileBrowser.New"]->setIcon(QIcon::fromTheme("tab-new"));
 
 	setWindowTitle(QString());
 }

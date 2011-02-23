@@ -1,9 +1,5 @@
 project(QuickSettings)
 
-if (STATICPLUGINS)
-	add_definitions(-DQT_STATICPLUGIN)
-endif (STATICPLUGINS)
-
 set(QuickSettings_SRCS
 	QuickSettingsWindow.cpp
 )

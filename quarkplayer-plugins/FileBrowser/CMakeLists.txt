@@ -2,10 +2,6 @@ project(FileBrowser)
 
 add_definitions(-DBUILD_FILEBROWSER)
 
-if (STATICPLUGINS)
-	add_definitions(-DQT_STATICPLUGIN)
-endif (STATICPLUGINS)
-
 set(FileBrowser_SRCS
 	FileBrowserWidget.cpp
 	FileBrowserTreeView.cpp

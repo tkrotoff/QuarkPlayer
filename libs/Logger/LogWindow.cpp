@@ -36,7 +36,6 @@
 #include <TkUtil/TkAction.h>
 #include <TkUtil/TkToolBar.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
-#include <TkUtil/Actions.h>
 
 #include <QtGui/QtGui>
 
@@ -93,10 +92,10 @@ LogWindow::LogWindow(QWidget * parent)
 
 	setupUi();
 
-	connect(Actions::get("LogWindow.Open"), SIGNAL(triggered()), SLOT(open()));
-	connect(Actions::get("LogWindow.Save"), SIGNAL(triggered()), SLOT(save()));
-	connect(Actions::get("LogWindow.Clear"), SIGNAL(triggered()), SLOT(clear()));
-	connect(Actions::get("LogWindow.PlayPause"), SIGNAL(triggered()), SLOT(playPauseButtonClicked()));
+	connect(_actions["LogWindow.Open"], SIGNAL(triggered()), SLOT(open()));
+	connect(_actions["LogWindow.Save"], SIGNAL(triggered()), SLOT(save()));
+	connect(_actions["LogWindow.Clear"], SIGNAL(triggered()), SLOT(clear()));
+	connect(_actions["LogWindow.PlayPause"], SIGNAL(triggered()), SLOT(playPauseButtonClicked()));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -155,10 +154,10 @@ void LogWindow::setupUi() {
 
 	_toolBar = new QToolBar();
 	TkToolBar::setToolButtonStyle(_toolBar);
-	_toolBar->addAction(Actions::get("LogWindow.Open"));
-	_toolBar->addAction(Actions::get("LogWindow.Save"));
-	_toolBar->addAction(Actions::get("LogWindow.Clear"));
-	_toolBar->addAction(Actions::get("LogWindow.PlayPause"));
+	_toolBar->addAction(_actions["LogWindow.Open"]);
+	_toolBar->addAction(_actions["LogWindow.Save"]);
+	_toolBar->addAction(_actions["LogWindow.Clear"]);
+	_toolBar->addAction(_actions["LogWindow.PlayPause"]);
 
 	_outputsButton = new QPushButton();
 	_menuOutputs = new QMenu();
@@ -186,26 +185,26 @@ void LogWindow::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	Actions::add("LogWindow.Open", new TkAction(app, QKeySequence::Open));
-	Actions::add("LogWindow.Save", new TkAction(app, QKeySequence::Save));
-	Actions::add("LogWindow.Clear", new QAction(app));
-	Actions::add("LogWindow.PlayPause", new QAction(app));
+	_actions.add("LogWindow.Open", new TkAction(app, QKeySequence::Open));
+	_actions.add("LogWindow.Save", new TkAction(app, QKeySequence::Save));
+	_actions.add("LogWindow.Clear", new QAction(app));
+	_actions.add("LogWindow.PlayPause", new QAction(app));
 	//TODO add level action
 }
 
 void LogWindow::retranslate() {
 	setWindowTitle(tr("Message Log"));
 
-	Actions::get("LogWindow.Open")->setText(tr("&Open"));
-	Actions::get("LogWindow.Open")->setIcon(QIcon::fromTheme("document-open"));
+	_actions["LogWindow.Open"]->setText(tr("&Open"));
+	_actions["LogWindow.Open"]->setIcon(QIcon::fromTheme("document-open"));
 
-	Actions::get("LogWindow.Save")->setText(tr("&Save"));
-	Actions::get("LogWindow.Save")->setIcon(QIcon::fromTheme("document-save"));
+	_actions["LogWindow.Save"]->setText(tr("&Save"));
+	_actions["LogWindow.Save"]->setIcon(QIcon::fromTheme("document-save"));
 
-	Actions::get("LogWindow.Clear")->setText(tr("&Clear"));
-	Actions::get("LogWindow.Clear")->setIcon(QIcon::fromTheme("edit-clear"));
+	_actions["LogWindow.Clear"]->setText(tr("&Clear"));
+	_actions["LogWindow.Clear"]->setIcon(QIcon::fromTheme("edit-clear"));
 
-	QAction * action = Actions::get("LogWindow.PlayPause");
+	QAction * action = _actions["LogWindow.PlayPause"];
 	LogModel::State state = _model->state();
 	switch (state) {
 	case LogModel::PlayingState:

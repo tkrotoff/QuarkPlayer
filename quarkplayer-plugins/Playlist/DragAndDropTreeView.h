@@ -21,7 +21,7 @@
 
 #include <QtGui/QTreeView>
 
-#include <QtCore/QUuid>
+#include <TkUtil/Actions.h>
 
 class PlaylistWidget;
 class PlaylistModel;
@@ -83,7 +83,7 @@ private:
 
 	MediaInfoWindow * _mediaInfoWindow;
 
-	QUuid _uuid;
+	ActionCollection _actions;
 };
 
 #endif	//DRAGANDDROPTREEVIEW_H

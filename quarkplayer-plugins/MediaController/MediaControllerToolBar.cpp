@@ -32,13 +32,13 @@ MediaControllerToolBar::MediaControllerToolBar(QWidget * parent)
 
 	_audioChannelsButton = new QPushButton();
 	_menuAudioChannels = new QMenu();
-	_menuAudioChannels->addAction(Actions::get("CommonActions.EmptyMenu"));
+	_menuAudioChannels->addAction(Actions["CommonActions.EmptyMenu"]);
 	_audioChannelsButton->setMenu(_menuAudioChannels);
 	addWidget(_audioChannelsButton);
 
 	_subtitlesButton = new QPushButton();
 	_menuSubtitles = new QMenu();
-	_menuSubtitles->addAction(Actions::get("CommonActions.EmptyMenu"));
+	_menuSubtitles->addAction(Actions["CommonActions.EmptyMenu"]);
 	_subtitlesButton->setMenu(_menuSubtitles);
 	addWidget(_subtitlesButton);
 

@@ -19,6 +19,8 @@
 #ifndef FILEBROWSERTREEVIEW_H
 #define FILEBROWSERTREEVIEW_H
 
+#include <TkUtil/Actions.h>
+
 #include <QtGui/QTreeView>
 
 #include <QtCore/QUuid>
@@ -65,7 +67,7 @@ private:
 
 	FileBrowserWidget * _fileBrowserWidget;
 
-	QUuid _uuid;
+	ActionCollection _actions;
 };
 
 #endif	//FILEBROWSERTREEVIEW_H

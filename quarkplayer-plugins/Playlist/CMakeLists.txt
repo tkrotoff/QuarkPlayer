@@ -2,10 +2,6 @@ project(Playlist)
 
 add_definitions(-DBUILD_PLAYLIST)
 
-if (STATICPLUGINS)
-	add_definitions(-DQT_STATICPLUGIN)
-endif (STATICPLUGINS)
-
 set(Playlist_SRCS
 	PlaylistWidget.cpp
 	PlaylistModel.cpp

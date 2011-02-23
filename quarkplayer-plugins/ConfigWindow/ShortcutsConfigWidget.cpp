@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -100,7 +100,7 @@ void ShortcutsConfigWidget::readConfig() {
 	_shortcutItems.clear();
 	_ui->actionList->clear();
 
-	QList<QAction *> actions = Actions::list();
+	QList<QAction *> actions = Actions.list();
 
 	foreach (QAction * action, actions) {
 		TkAction * tkAction = qobject_cast<TkAction *>(action);

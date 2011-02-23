@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -65,7 +65,7 @@ void ShortcutsConfig::load() const {
 QAction * ShortcutsConfig::findAction(const QString & name) const {
 	QAction * result = NULL;
 
-	QList<QAction *> actions = Actions::list();
+	QList<QAction *> actions = Actions.list();
 	foreach (QAction * action, actions) {
 		if (name == action->objectName()) {
 			result = action;
@@ -85,7 +85,7 @@ void ShortcutsConfig::save() {
 	settings.beginWriteArray(SETTINGS_GROUP);
 	int count = 0;
 
-	QList<QAction *> actions = Actions::list();
+	QList<QAction *> actions = Actions.list();
 	foreach (QAction * action, actions) {
 		QString name = action->objectName();
 		QString shortcuts = ShortcutsConfigWidget::toString(action->shortcuts());

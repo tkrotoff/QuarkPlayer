@@ -58,10 +58,6 @@ signals:
 
 private:
 
-	PlaylistConfig();
-
-	~PlaylistConfig();
-
 	QUuid _uuid;
 };
 

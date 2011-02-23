@@ -1,3 +1,7 @@
+if (STATICPLUGINS)
+	add_definitions(-DQT_STATICPLUGIN)
+endif (STATICPLUGINS)
+
 add_subdirectory(MainWindow)
 add_subdirectory(ConfigWindow)
 add_subdirectory(FileBrowser)

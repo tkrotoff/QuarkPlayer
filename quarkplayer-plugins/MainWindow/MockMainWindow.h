@@ -42,7 +42,7 @@ class QDockWidget;
  * @see http://en.wikipedia.org/wiki/Facade_pattern
  * @author Tanguy Krotoff
  */
-class MockMainWindow : public IMainWindow {
+class MAINWINDOW_API MockMainWindow : public IMainWindow {
 	Q_OBJECT
 public:
 

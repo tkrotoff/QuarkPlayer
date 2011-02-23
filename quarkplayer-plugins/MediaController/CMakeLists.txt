@@ -2,10 +2,6 @@ project(MediaController)
 
 add_definitions(-DBUILD_MEDIACONTROLLER)
 
-if (STATICPLUGINS)
-	add_definitions(-DQT_STATICPLUGIN)
-endif (STATICPLUGINS)
-
 set(MediaController_SRCS
 	MediaController.cpp
 	MediaControllerToolBar.cpp

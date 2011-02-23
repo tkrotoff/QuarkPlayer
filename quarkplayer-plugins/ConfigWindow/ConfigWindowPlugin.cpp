@@ -60,8 +60,7 @@ ConfigWindowPlugin::ConfigWindowPlugin(QuarkPlayer & quarkPlayer, const QUuid & 
 
 	loadSettings();
 
-	connect(Actions::get("CommonActions.Configure"), SIGNAL(triggered()),
-		SLOT(showConfigWindow()));
+	connect(Actions["CommonActions.Configure"], SIGNAL(triggered()), SLOT(showConfigWindow()));
 }
 
 ConfigWindowPlugin::~ConfigWindowPlugin() {

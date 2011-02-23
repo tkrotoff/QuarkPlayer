@@ -3,10 +3,6 @@ project(FindSubtitles)
 include_directories(${QTIOCOMPRESSOR_INCLUDE_DIRS})
 add_definitions(${QTIOCOMPRESSOR_DEFINITIONS})
 
-if (STATICPLUGINS)
-	add_definitions(-DQT_STATICPLUGIN)
-endif (STATICPLUGINS)
-
 set(FindSubtitles_SRCS
 	FindSubtitles.cpp
 	FindSubtitlesWindow.cpp

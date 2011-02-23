@@ -1,9 +1,5 @@
 project(VideoWidget)
 
-if (STATICPLUGINS)
-	add_definitions(-DQT_STATICPLUGIN)
-endif (STATICPLUGINS)
-
 set(VideoWidget_SRCS
 	VideoWidgetPlugin.cpp
 	MyVideoWidget.cpp

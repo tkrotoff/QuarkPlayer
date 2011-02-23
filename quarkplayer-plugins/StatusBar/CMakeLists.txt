@@ -1,9 +1,5 @@
 project(StatusBar)
 
-if (STATICPLUGINS)
-	add_definitions(-DQT_STATICPLUGIN)
-endif (STATICPLUGINS)
-
 set(StatusBar_SRCS
 	StatusBar.cpp
 )

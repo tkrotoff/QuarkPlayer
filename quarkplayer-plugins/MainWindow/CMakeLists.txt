@@ -9,10 +9,6 @@ if (MEDIAINFOLIB)
 	include_directories(${MEDIAINFOLIB_INCLUDE_DIRS})
 endif (MEDIAINFOLIB)
 
-if (STATICPLUGINS)
-	add_definitions(-DQT_STATICPLUGIN)
-endif (STATICPLUGINS)
-
 include_directories(${QTSINGLEAPPLICATION_INCLUDE_DIRS})
 add_definitions(${QTSINGLEAPPLICATION_DEFINITIONS})
 

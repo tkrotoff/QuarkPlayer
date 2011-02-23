@@ -32,7 +32,6 @@
 #include <MediaInfoWindow/MediaInfoWindow.h>
 
 #include <TkUtil/TkAction.h>
-#include <TkUtil/Actions.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
@@ -45,8 +44,6 @@ DragAndDropTreeView::DragAndDropTreeView(PlaylistWidget * playlistWidget)
 	_playlistWidget = playlistWidget;
 	_playlistModel = _playlistWidget->playlistModel();
 	_playlistFilter = _playlistWidget->playlistFilter();
-
-	_uuid = _playlistWidget->uuid();
 
 	_mediaInfoWindow = NULL;
 
@@ -64,14 +61,10 @@ DragAndDropTreeView::DragAndDropTreeView(PlaylistWidget * playlistWidget)
 
 	populateActionCollection();
 
-	connect(Actions::get("Playlist.PlayItem", _uuid),
-		SIGNAL(triggered()), SLOT(playItem()));
-	connect(Actions::get("Playlist.RemoveItem", _uuid),
-		SIGNAL(triggered()), SLOT(clearSelection()));
-	connect(Actions::get("Playlist.GetInfo", _uuid),
-		SIGNAL(triggered()), SLOT(viewMediaInfo()));
-	connect(Actions::get("Playlist.OpenDir", _uuid),
-		SIGNAL(triggered()), SLOT(openDir()));
+	connect(_actions["Playlist.PlayItem"], SIGNAL(triggered()), SLOT(playItem()));
+	connect(_actions["Playlist.RemoveItem"], SIGNAL(triggered()), SLOT(clearSelection()));
+	connect(_actions["Playlist.GetInfo"], SIGNAL(triggered()), SLOT(viewMediaInfo()));
+	connect(_actions["Playlist.OpenDir"], SIGNAL(triggered()), SLOT(openDir()));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -82,17 +75,17 @@ DragAndDropTreeView::~DragAndDropTreeView() {
 
 void DragAndDropTreeView::contextMenuEvent(QContextMenuEvent * event) {
 	QMenu menu(this);
-	menu.addAction(Actions::get("Playlist.PlayItem", _uuid));
-	menu.addAction(Actions::get("Playlist.RemoveItem", _uuid));
+	menu.addAction(_actions["Playlist.PlayItem"]);
+	menu.addAction(_actions["Playlist.RemoveItem"]);
 	menu.addSeparator();
-	menu.addAction(Actions::get("Playlist.GetInfo", _uuid));
-	menu.addAction(Actions::get("Playlist.OpenDir", _uuid));
+	menu.addAction(_actions["Playlist.GetInfo"]);
+	menu.addAction(_actions["Playlist.OpenDir"]);
 	menu.exec(event->globalPos());
 }
 
 void DragAndDropTreeView::mousePressEvent(QMouseEvent * event) {
 	//When the user clicks on this playlist, it becomes the only active one
-	PlaylistConfig::instance().setActivePlaylist(_uuid);
+	PlaylistConfig::instance().setActivePlaylist(_playlistWidget->uuid());
 
 	if (event->button() == Qt::RightButton) {
 		QModelIndex index(indexAt(event->pos()));
@@ -138,19 +131,19 @@ void DragAndDropTreeView::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	Actions::add("Playlist.PlayItem", _uuid, new QAction(app));
-	Actions::add("Playlist.RemoveItem", _uuid, new QAction(app));
+	_actions.add("Playlist.PlayItem", new QAction(app));
+	_actions.add("Playlist.RemoveItem", new QAction(app));
 	TkAction * action = new TkAction(app, tr("Ctrl+I"), tr("Alt+3"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions::add("Playlist.GetInfo", _uuid, action);
-	Actions::add("Playlist.OpenDir", _uuid, new QAction(app));
+	_actions.add("Playlist.GetInfo", action);
+	_actions.add("Playlist.OpenDir", new QAction(app));
 }
 
 void DragAndDropTreeView::retranslate() {
-	Actions::get("Playlist.PlayItem", _uuid)->setText(tr("Play"));
-	Actions::get("Playlist.RemoveItem", _uuid)->setText(tr("Remove from Playlist"));
-	Actions::get("Playlist.GetInfo", _uuid)->setText(tr("Get Info..."));
-	Actions::get("Playlist.OpenDir", _uuid)->setText(tr("Open Directory..."));
+	_actions["Playlist.PlayItem"]->setText(tr("Play"));
+	_actions["Playlist.RemoveItem"]->setText(tr("Remove from Playlist"));
+	_actions["Playlist.GetInfo"]->setText(tr("Get Info..."));
+	_actions["Playlist.OpenDir"]->setText(tr("Open Directory..."));
 
 	if (_mediaInfoWindow) {
 		_mediaInfoWindow->setLanguage(Config::instance().language());

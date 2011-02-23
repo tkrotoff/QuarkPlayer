@@ -60,9 +60,9 @@ FindSubtitles::FindSubtitles(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWid
 
 	addMenusToMediaController();
 
-	connect(Actions::get("FindSubtitles.FindSubtitles"), SIGNAL(triggered()),
+	connect(Actions["FindSubtitles.FindSubtitles"], SIGNAL(triggered()),
 		SLOT(findSubtitles()));
-	connect(Actions::get("FindSubtitles.UploadSubtitles"), SIGNAL(triggered()),
+	connect(Actions["FindSubtitles.UploadSubtitles"], SIGNAL(triggered()),
 		SLOT(uploadSubtitles()));
 
 	RETRANSLATE(this);
@@ -76,15 +76,15 @@ void FindSubtitles::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	Actions::add("FindSubtitles.FindSubtitles", new QAction(app));
-	Actions::add("FindSubtitles.UploadSubtitles", new QAction(app));
+	Actions.add("FindSubtitles.FindSubtitles", new QAction(app));
+	Actions.add("FindSubtitles.UploadSubtitles", new QAction(app));
 }
 
 void FindSubtitles::retranslate() {
-	Actions::get("FindSubtitles.FindSubtitles")->setText(tr("&Find Subtitles..."));
-	Actions::get("FindSubtitles.FindSubtitles")->setIcon(QIcon::fromTheme("edit-find"));
+	Actions["FindSubtitles.FindSubtitles"]->setText(tr("&Find Subtitles..."));
+	Actions["FindSubtitles.FindSubtitles"]->setIcon(QIcon::fromTheme("edit-find"));
 
-	Actions::get("FindSubtitles.UploadSubtitles")->setText(tr("&Upload Subtitles..."));
+	Actions["FindSubtitles.UploadSubtitles"]->setText(tr("&Upload Subtitles..."));
 }
 
 void FindSubtitles::addMenusToMediaController() {
@@ -95,11 +95,11 @@ void FindSubtitles::addMenusToMediaController() {
 		return;
 	}
 
-	menuSubtitle->addAction(Actions::get("FindSubtitles.FindSubtitles"));
-	menuSubtitle->addAction(Actions::get("FindSubtitles.UploadSubtitles"));
+	menuSubtitle->addAction(Actions["FindSubtitles.FindSubtitles"]);
+	menuSubtitle->addAction(Actions["FindSubtitles.UploadSubtitles"]);
 
 	//Add find susbtitles action to the MediaController tool bar
-	mediaController->toolBar()->addAction(Actions::get("FindSubtitles.FindSubtitles"));
+	mediaController->toolBar()->addAction(Actions["FindSubtitles.FindSubtitles"]);
 }
 
 void FindSubtitles::findSubtitles() {

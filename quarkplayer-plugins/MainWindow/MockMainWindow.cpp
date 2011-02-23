@@ -54,10 +54,10 @@ MockMainWindow::MockMainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	_playToolBar = NULL;
 
-	connect(Actions::get("CommonActions.OpenFile"), SIGNAL(triggered()), SLOT(playFile()));
-	connect(Actions::get("CommonActions.Quit"), SIGNAL(triggered()), SLOT(close()));
-	connect(Actions::get("CommonActions.ShowLog"), SIGNAL(triggered()), SLOT(showLog()));
-	connect(Actions::get("CommonActions.About"), SIGNAL(triggered()), SLOT(about()));
+	connect(Actions["CommonActions.OpenFile"], SIGNAL(triggered()), SLOT(playFile()));
+	connect(Actions["CommonActions.Quit"], SIGNAL(triggered()), SLOT(close()));
+	connect(Actions["CommonActions.ShowLog"], SIGNAL(triggered()), SLOT(showLog()));
+	connect(Actions["CommonActions.About"], SIGNAL(triggered()), SLOT(about()));
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
@@ -130,29 +130,29 @@ void MockMainWindow::setupUi() {
 	_menuFile = new QMenu();
 	_menuFile->setTitle("&File");
 	menuBar()->addMenu(_menuFile);
-	_menuFile->addAction(Actions::get("CommonActions.OpenFile"));
+	_menuFile->addAction(Actions["CommonActions.OpenFile"]);
 	_menuFile->addSeparator();
-	_menuFile->addAction(Actions::get("CommonActions.Quit"));
+	_menuFile->addAction(Actions["CommonActions.Quit"]);
 
 	_menuPlay = new QMenu();
 	_menuPlay->setTitle("&Play");
 	menuBar()->addMenu(_menuPlay);
-	_menuPlay->addAction(Actions::get("CommonActions.PlayPause"));
+	_menuPlay->addAction(Actions["CommonActions.PlayPause"]);
 	_menuPlay->addSeparator();
-	_menuPlay->addAction(Actions::get("CommonActions.FullScreen"));
+	_menuPlay->addAction(Actions["CommonActions.FullScreen"]);
 	//No menu entry for FullScreenExit, see MyVideoWidget.cpp
 
 	_menuSettings = new QMenu();
 	_menuSettings->setTitle("&Settings");
 	menuBar()->addMenu(_menuSettings);
-	_menuSettings->addAction(Actions::get("CommonActions.Equalizer"));
-	_menuSettings->addAction(Actions::get("CommonActions.Configure"));
+	_menuSettings->addAction(Actions["CommonActions.Equalizer"]);
+	_menuSettings->addAction(Actions["CommonActions.Configure"]);
 
 	_menuHelp = new QMenu();
 	_menuHelp->setTitle("&Help");
 	menuBar()->addMenu(_menuHelp);
-	_menuHelp->addAction(Actions::get("CommonActions.ShowLog"));
-	_menuHelp->addAction(Actions::get("CommonActions.About"));
+	_menuHelp->addAction(Actions["CommonActions.ShowLog"]);
+	_menuHelp->addAction(Actions["CommonActions.About"]);
 }
 
 void MockMainWindow::closeEvent(QCloseEvent * event) {
@@ -218,6 +218,6 @@ void MockMainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject
 		tmp->disconnect(this);
 	}
 
-	disconnect(Actions::get("CommonActions.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
-	connect(Actions::get("CommonActions.Quit"), SIGNAL(triggered()), mediaObject, SLOT(stop()));
+	disconnect(Actions["CommonActions.Quit"], SIGNAL(triggered()), mediaObject, SLOT(stop()));
+	connect(Actions["CommonActions.Quit"], SIGNAL(triggered()), mediaObject, SLOT(stop()));
 }

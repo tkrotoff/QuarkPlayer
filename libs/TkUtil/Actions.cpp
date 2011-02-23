@@ -22,16 +22,18 @@
 
 #include <QtGui/QtGui>
 
-QHash<QString, QAction *> Actions::_actionHash;
-
-Actions::Actions() {
+ActionCollection::ActionCollection() {
 }
 
-Actions::~Actions() {
+ActionCollection::ActionCollection(const QString & name) {
+	_name = name;
+}
+
+ActionCollection::~ActionCollection() {
 	_actionHash.clear();
 }
 
-void Actions::add(const QString & name, QAction * action) {
+void ActionCollection::add(const QString & name, QAction * action) {
 	Q_ASSERT(action);
 	Q_ASSERT(!name.isEmpty());
 
@@ -42,28 +44,14 @@ void Actions::add(const QString & name, QAction * action) {
 	_actionHash[name] = action;
 }
 
-void Actions::add(const QString & name, const QUuid & uuid, QAction * action) {
-	Q_ASSERT(!name.isEmpty());
-	Q_ASSERT(!uuid.isNull());
-
-	return Actions::add(name + '_' + uuid.toString(), action);
-}
-
-QAction * Actions::get(const QString & name) {
+QAction * ActionCollection::operator[](const QString & name) {
 	QAction * action = _actionHash.value(name);
 	Q_ASSERT(action);
 
 	return action;
 }
 
-QAction * Actions::get(const QString & name, const QUuid & uuid) {
-	Q_ASSERT(!name.isEmpty());
-	Q_ASSERT(!uuid.isNull());
-
-	return Actions::get(name + '_' + uuid.toString());
-}
-
-QList<QAction *> Actions::list() {
+QList<QAction *> ActionCollection::list() {
 	QList<QAction *> actionList;
 
 	QHashIterator<QString, QAction *> it(_actionHash);
@@ -75,4 +63,10 @@ QList<QAction *> Actions::list() {
 	}
 
 	return actionList;
+}
+
+
+ActionCollection & GlobalActionCollection::instance() {
+	static ActionCollection instance;
+	return instance;
 }

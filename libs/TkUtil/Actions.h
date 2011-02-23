@@ -16,10 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACTIONS_H
-#define ACTIONS_H
+#ifndef ACTIONCOLLECTION_H
+#define ACTIONCOLLECTION_H
 
 #include <TkUtil/TkUtilExport.h>
+#include <TkUtil/Singleton.h>
 
 #include <QtCore/QString>
 #include <QtCore/QHash>
@@ -34,47 +35,55 @@ struct QUuid;
  * QAction are defined once (with translation, icon...) and used
  * everywhere via this class.
  *
- * Problem with Actions is that every code checking is done at runtime :/
+ * Checks are done at runtime.
  *
  * @author Tanguy Krotoff
  */
-class TKUTIL_API Actions {
+class TKUTIL_API ActionCollection {
 public:
 
-	/**
-	 * Retrieves a global action given a name.
-	 */
-	static QAction * get(const QString & name);
+	ActionCollection();
+
+	ActionCollection(const QString & name);
+
+	~ActionCollection();
 
 	/**
-	 * Retrieves a unique action given a name and an id.
+	 * Retrieves an action given its name.
 	 */
-	static QAction * get(const QString & name, const QUuid & uuid);
+	QAction * operator[](const QString & name);
 
 	/**
-	 * Adds a global action give a name.
+	 * Adds an action with a name.
 	 */
-	static void add(const QString & name, QAction * action);
+	void add(const QString & name, QAction * action);
 
 	/**
-	 * Adds a unique action given a name and an id.
+	 * Retrieves all the actions registered.
 	 */
-	static void add(const QString & name, const QUuid & uuid, QAction * action);
-
-	/**
-	 * Retrieves all the actions registered using ActionCollection.
-	 */
-	static QList<QAction *> list();
+	QList<QAction *> list();
 
 private:
 
-	/** Singleton. */
-	Actions();
-
-	~Actions();
+	/** Name of the collection, can be empty. */
+	QString _name;
 
 	/** Associates a name to a QAction. */
-	static QHash<QString, QAction *> _actionHash;
+	QHash<QString, QAction *> _actionHash;
 };
 
-#endif	//ACTIONS_H
+/**
+ * Global variable ActionCollection.
+ *
+ * Singleton Pattern.
+ */
+class TKUTIL_API GlobalActionCollection : public Singleton {
+public:
+
+	static ActionCollection & instance();
+};
+
+/** Simplify the syntax. */
+#define Actions GlobalActionCollection::instance()
+
+#endif	//ACTIONCOLLECTION_H

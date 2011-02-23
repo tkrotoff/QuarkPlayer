@@ -21,6 +21,8 @@
 
 #include <quarkplayer/PluginInterface.h>
 
+#include <TkUtil/Actions.h>
+
 #include <QtGui/QWidget>
 
 class FileBrowserTreeView;
@@ -90,6 +92,8 @@ private:
 	QDockWidget * _dockWidget;
 
 	IMainWindow * _mainWindow;
+
+	ActionCollection _actions;
 };
 
 #include <quarkplayer/PluginFactory.h>

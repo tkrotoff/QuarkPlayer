@@ -33,7 +33,6 @@
 #include <MediaInfoFetcher/MediaInfoFetcher.h>
 
 #include <TkUtil/LanguageChangeEventFilter.h>
-#include <TkUtil/Actions.h>
 
 #include <phonon/mediaobject.h>
 
@@ -52,7 +51,6 @@ FileBrowserTreeView::FileBrowserTreeView(FileBrowserWidget * fileBrowserWidget)
 	: QTreeView(NULL) {
 
 	_fileBrowserWidget = fileBrowserWidget;
-	_uuid = _fileBrowserWidget->uuid();
 
 	populateActionCollection();
 
@@ -63,13 +61,13 @@ FileBrowserTreeView::FileBrowserTreeView(FileBrowserWidget * fileBrowserWidget)
 	connect(this, SIGNAL(activated(const QModelIndex &)),
 		SLOT(activated(const QModelIndex &)));
 
-	connect(Actions::get("FileBrowser.AddToPlaylist", _uuid), SIGNAL(triggered()),
+	connect(_actions["FileBrowser.AddToPlaylist"], SIGNAL(triggered()),
 		SLOT(addToPlaylist()));
-	connect(Actions::get("FileBrowser.Play", _uuid), SIGNAL(triggered()),
+	connect(_actions["FileBrowser.Play"], SIGNAL(triggered()),
 		SLOT(play()));
-	connect(Actions::get("FileBrowser.GetInfo", _uuid), SIGNAL(triggered()),
+	connect(_actions["FileBrowser.GetInfo"], SIGNAL(triggered()),
 		SLOT(viewMediaInfo()));
-	connect(Actions::get("FileBrowser.OpenDir", _uuid), SIGNAL(triggered()),
+	connect(_actions["FileBrowser.OpenDir"], SIGNAL(triggered()),
 		SLOT(openDir()));
 
 	RETRANSLATE(this);
@@ -81,11 +79,11 @@ FileBrowserTreeView::~FileBrowserTreeView() {
 
 void FileBrowserTreeView::contextMenuEvent(QContextMenuEvent * event) {
 	QMenu menu(this);
-	menu.addAction(Actions::get("FileBrowser.AddToPlaylist", _uuid));
-	menu.addAction(Actions::get("FileBrowser.Play", _uuid));
+	menu.addAction(_actions["FileBrowser.AddToPlaylist"]);
+	menu.addAction(_actions["FileBrowser.Play"]);
 	menu.addSeparator();
-	menu.addAction(Actions::get("FileBrowser.GetInfo", _uuid));
-	menu.addAction(Actions::get("FileBrowser.OpenDir", _uuid));
+	menu.addAction(_actions["FileBrowser.GetInfo"]);
+	menu.addAction(_actions["FileBrowser.OpenDir"]);
 	menu.exec(event->globalPos());
 }
 
@@ -93,10 +91,10 @@ void FileBrowserTreeView::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	Actions::add("FileBrowser.AddToPlaylist", _uuid, new QAction(app));
-	Actions::add("FileBrowser.Play", _uuid, new QAction(app));
-	Actions::add("FileBrowser.GetInfo", _uuid, new QAction(app));
-	Actions::add("FileBrowser.OpenDir", _uuid, new QAction(app));
+	_actions.add("FileBrowser.AddToPlaylist", new QAction(app));
+	_actions.add("FileBrowser.Play", new QAction(app));
+	_actions.add("FileBrowser.GetInfo", new QAction(app));
+	_actions.add("FileBrowser.OpenDir", new QAction(app));
 }
 
 void FileBrowserTreeView::activated(const QModelIndex & index) {
@@ -138,10 +136,10 @@ void FileBrowserTreeView::play() {
 }
 
 void FileBrowserTreeView::retranslate() {
-	Actions::get("FileBrowser.AddToPlaylist", _uuid)->setText(tr("Add to Playlist"));
-	Actions::get("FileBrowser.Play", _uuid)->setText(tr("Play"));
-	Actions::get("FileBrowser.GetInfo", _uuid)->setText(tr("Get Info..."));
-	Actions::get("FileBrowser.OpenDir", _uuid)->setText(tr("Open Directory..."));
+	_actions["FileBrowser.AddToPlaylist"]->setText(tr("Add to Playlist"));
+	_actions["FileBrowser.Play"]->setText(tr("Play"));
+	_actions["FileBrowser.GetInfo"]->setText(tr("Get Info..."));
+	_actions["FileBrowser.OpenDir"]->setText(tr("Open Directory..."));
 }
 
 QFileInfo FileBrowserTreeView::fileInfo(const QModelIndex & index) const {

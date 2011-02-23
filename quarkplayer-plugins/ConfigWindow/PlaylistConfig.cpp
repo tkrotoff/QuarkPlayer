@@ -18,14 +18,6 @@
 
 #include "PlaylistConfig.h"
 
-#include "ConfigWindowLogger.h"
-
-PlaylistConfig::PlaylistConfig() {
-}
-
-PlaylistConfig::~PlaylistConfig() {
-}
-
 PlaylistConfig & PlaylistConfig::instance() {
 	static PlaylistConfig instance;
 	return instance;

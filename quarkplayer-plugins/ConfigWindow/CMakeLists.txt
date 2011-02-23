@@ -2,10 +2,6 @@ project(ConfigWindow)
 
 add_definitions(-DBUILD_CONFIGWINDOW ${QTSINGLEAPPLICATION_DEFINITIONS})
 
-if (STATICPLUGINS)
-	add_definitions(-DQT_STATICPLUGIN)
-endif (STATICPLUGINS)
-
 set(ConfigWindow_SRCS
 	ConfigWindowPlugin.cpp
 	ConfigWindow.cpp

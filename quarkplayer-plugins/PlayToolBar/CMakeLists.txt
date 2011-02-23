@@ -1,9 +1,5 @@
 project(PlayToolBar)
 
-if (STATICPLUGINS)
-	add_definitions(-DQT_STATICPLUGIN)
-endif (STATICPLUGINS)
-
 set(PlayToolBar_SRCS
 	PlayToolBar.cpp
 )

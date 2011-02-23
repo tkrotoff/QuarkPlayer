@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -51,9 +51,6 @@
  * 	void doSomething();
  *
  * private:
- *
- * 	MyClass();
- * 	~MyClass();
  * };
  *
  * //MyClass.cpp
@@ -70,7 +67,10 @@
 class Singleton {
 public:
 
-	/* This does not work across DLLs
+	/*
+	This does not work across DLLs
+	You should write this yourself
+
 	static T & instance() {
 		//Guaranteed to be destroyed
 		static T instance;
