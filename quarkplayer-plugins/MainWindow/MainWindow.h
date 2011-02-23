@@ -104,7 +104,7 @@ private slots:
 	void reportBug();
 	void showMailingList();
 
-	void viewLog();
+	void showLog();
 
 	void about();
 

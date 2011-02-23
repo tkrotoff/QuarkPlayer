@@ -227,6 +227,7 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 	pluginData.setEnabled(true);
 
 	QString fileName(pluginData.fileName());
+	Q_ASSERT(!fileName.isEmpty());
 
 	//Creates the factory
 	//2 cases: dynamic plugin and static plugin
@@ -244,6 +245,9 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 				pluginFound = true;
 				QuarkPlayerCoreDebug() << "Loading static plugin:" << fileName << "...";
 				break;
+			} else {
+				//Not the right factory since the static plugin was not found
+				factory = NULL;
 			}
 		}
 	}
@@ -273,53 +277,49 @@ bool PluginManager::loadPlugin(PluginData & pluginData) {
 	if (factory) {
 		QStringList dependsOn(factory->dependencies());
 
-		foreach (QString fileNameDepend, dependsOn) {
-
-			bool dependSolved = false;
+		foreach (QString fileNameDependency, dependsOn) {
+			Q_ASSERT(!fileNameDependency.isEmpty());
 
 			//Check in the list of already loaded plugins
-			PluginDataList loadedPlugins = _loadedPlugins.values(fileNameDepend);
-			foreach (PluginData data, loadedPlugins) {
-				//If we are here, it means the dependency plugin is already loaded
-				//so no problem
-				dependSolved = true;
-				break;
-			}
+			bool dependencySolved = !_loadedPlugins.values(fileNameDependency).isEmpty();
 
-			if (!dependSolved) {
+			if (!dependencySolved) {
 				//Compare to the configuration
-				PluginDataList configPlugins(PluginConfig::instance().plugins().values(fileNameDepend));
+				PluginDataList configPlugins(PluginConfig::instance().plugins().values(fileNameDependency));
 				foreach (PluginData data, configPlugins) {
 					if (data.isEnabled()) {
 					} else {
 						//FIXME load the disabled plugin?
 					}
-					loadPlugin(data);
-					dependSolved = true;
+					dependencySolved = loadPlugin(data);
 					break;
 				}
 			}
 
-			if (!dependSolved) {
+			if (!dependencySolved) {
 				//Still not found the dependency plugin?
 				//Check in the list of available plugins
 				//these plugins are neither part of the two categories at the moment:
 				//loaded or disabled
 				foreach (QString availableFilename, _availablePlugins) {
-					if (fileNameDepend == availableFilename) {
+					if (fileNameDependency == availableFilename) {
 						//Ok, the dependency plugin has been found
 						//and is not loaded nor disabled
-						PluginData pluginDataDepend(fileNameDepend, QUuid::createUuid(), true);
-						loadPlugin(pluginDataDepend);
-						dependSolved = true;
+						PluginData pluginDataDependency(fileNameDependency, QUuid::createUuid(), true);
+						dependencySolved = loadPlugin(pluginDataDependency);
 						break;
 					}
 				}
 			}
 
-			if (!dependSolved) {
-				//What to do?
-				QuarkPlayerCoreCritical() << "Missing dependency:" << fileNameDepend;
+			if (!dependencySolved) {
+				QuarkPlayerCoreCritical() << "Missing dependency:" << fileNameDependency;
+
+				//Do not load the plugin since the dependencies are missing
+				//so factory set to NULL
+				pluginData.setFactory(NULL);
+
+				break;
 			}
 		}
 	}

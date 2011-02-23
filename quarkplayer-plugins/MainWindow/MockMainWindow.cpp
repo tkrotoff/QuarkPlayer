@@ -19,12 +19,15 @@
 #include "MockMainWindow.h"
 
 #include "CommonActions.h"
+#include "AboutWindow.h"
 #include "MainWindowLogger.h"
 
 #include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/version.h>
+
+#include <Logger/LogWindow.h>
 
 #include <TkUtil/ActionCollection.h>
 #include <TkUtil/TkFileDialog.h>
@@ -53,6 +56,8 @@ MockMainWindow::MockMainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	connect(ActionCollection::action("CommonActions.OpenFile"), SIGNAL(triggered()), SLOT(playFile()));
 	connect(ActionCollection::action("CommonActions.Quit"), SIGNAL(triggered()), SLOT(close()));
+	connect(ActionCollection::action("CommonActions.ShowLog"), SIGNAL(triggered()), SLOT(showLog()));
+	connect(ActionCollection::action("CommonActions.About"), SIGNAL(triggered()), SLOT(about()));
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
@@ -77,11 +82,11 @@ QToolBar * MockMainWindow::playToolBar() const {
 }
 
 QMenu * MockMainWindow::menuFile() const {
-	return NULL;
+	return _menuFile;
 }
 
 QMenu * MockMainWindow::menuPlay() const {
-	return NULL;
+	return _menuPlay;
 }
 
 QMenu * MockMainWindow::menuAudio() const {
@@ -93,7 +98,7 @@ QMenu * MockMainWindow::menuSettings() const {
 }
 
 QMenu * MockMainWindow::menuHelp() const {
-	return NULL;
+	return _menuHelp;
 }
 
 void MockMainWindow::playFile() {
@@ -111,22 +116,37 @@ void MockMainWindow::playFile() {
 	}
 }
 
+void MockMainWindow::showLog() {
+	static LogWindow * logWindow = new LogWindow(this);
+	logWindow->show();
+}
+
+void MockMainWindow::about() {
+	static AboutWindow * aboutWindow = new AboutWindow(this);
+	aboutWindow->exec();
+}
+
 void MockMainWindow::setupUi() {
 	_menuFile = new QMenu();
+	_menuFile->setTitle("&File");
 	menuBar()->addMenu(_menuFile);
 	_menuFile->addAction(ActionCollection::action("CommonActions.OpenFile"));
 	_menuFile->addSeparator();
 	_menuFile->addAction(ActionCollection::action("CommonActions.Quit"));
 
 	_menuPlay = new QMenu();
+	_menuPlay->setTitle("&Play");
 	menuBar()->addMenu(_menuPlay);
 	_menuPlay->addAction(ActionCollection::action("CommonActions.PlayPause"));
 	_menuPlay->addSeparator();
 	_menuPlay->addAction(ActionCollection::action("CommonActions.FullScreen"));
 	//No menu entry for FullScreenExit, see MyVideoWidget.cpp
 
-	_menuFile->setTitle(tr("&File"));
-	_menuPlay->setTitle(tr("&Play"));
+	_menuHelp = new QMenu();
+	_menuHelp->setTitle("&Help");
+	menuBar()->addMenu(_menuHelp);
+	_menuHelp->addAction(ActionCollection::action("CommonActions.ShowLog"));
+	_menuHelp->addAction(ActionCollection::action("CommonActions.About"));
 }
 
 void MockMainWindow::closeEvent(QCloseEvent * event) {

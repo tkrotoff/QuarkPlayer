@@ -19,9 +19,23 @@
 #include "MockPluginManager.h"
 
 #include "QuarkPlayer.h"
+#include "PluginData.h"
 
 void MockPluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 	Q_UNUSED(quarkPlayer);
 
 	emit allPluginsLoaded();
+}
+
+bool MockPluginManager::loadPlugin(PluginData & pluginData) {
+}
+
+bool MockPluginManager::loadDisabledPlugin(const QString & fileName) {
+}
+
+bool MockPluginManager::deletePlugin(PluginData & pluginData) {
+}
+
+PluginInterface * MockPluginManager::pluginInterface(const QString & fileName) const {
+	return NULL;
 }

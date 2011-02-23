@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,26 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PlaylistConfig.h"
+#ifndef PLAYLISTWIDGETTEST_H
+#define PLAYLISTWIDGETTEST_H
 
-#include "ConfigWindowLogger.h"
+#include <QtCore/QObject>
 
-PlaylistConfig::PlaylistConfig() {
-}
+class QuarkPlayer;
+class IMainWindow;
 
-PlaylistConfig::~PlaylistConfig() {
-}
+/**
+ * Test class for PlaylistWidget.
+ *
+ * @see PlaylistWidget
+ * @author Tanguy Krotoff
+ */
+class PlaylistWidgetTest : public QObject {
+	Q_OBJECT
+public:
 
-PlaylistConfig & PlaylistConfig::instance() {
-	static PlaylistConfig instance;
-	return instance;
-}
+	PlaylistWidgetTest(QuarkPlayer & quarkPlayer, IMainWindow * mainWindow);
 
-void PlaylistConfig::setActivePlaylist(const QUuid & uuid) {
-	_uuid = uuid;
-	emit activePlaylistChanged(_uuid);
-}
+	~PlaylistWidgetTest();
 
-const QUuid PlaylistConfig::activePlaylist() const {
-	return _uuid;
-}
+private:
+};
+
+#endif	//PLAYLISTWIDGETTEST_H

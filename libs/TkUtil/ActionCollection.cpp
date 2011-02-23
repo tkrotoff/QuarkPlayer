@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,38 +32,19 @@ ActionCollection::~ActionCollection() {
 }
 
 void ActionCollection::addAction(const QString & name, QAction * action) {
-	if (!action) {
-		TkUtilCritical() << "QAction is null";
+	Q_ASSERT(action);
+	Q_ASSERT(!name.isEmpty());
+
+	if (_actionHash.contains(name)) {
+		TkUtilCritical() << "QAction:" << name << "already exist";
 	}
 
-	QString indexName = name;
-	if (indexName.isEmpty()) {
-		TkUtilCritical() << "QAction index name is empty";
-		indexName = action->objectName();
-	} else {
-		action->setObjectName(indexName);
-	}
-
-	if (indexName.isEmpty()) {
-		indexName = indexName.sprintf("unnamed-%p", (void *) action);
-	}
-
-	if (_actionHash.contains(indexName)) {
-		TkUtilCritical() << "QAction index name:" << indexName << "already exist";
-	}
-
-	_actionHash[indexName] = action;
+	_actionHash[name] = action;
 }
 
 QAction * ActionCollection::action(const QString & name) {
-	if (_actionHash.count(name) != 1) {
-		TkUtilCritical() << "Invalid QAction name:" << name;
-	}
-
 	QAction * action = _actionHash.value(name);
-	if (!action) {
-		TkUtilCritical() << "QAction is null";
-	}
+	Q_ASSERT(action);
 
 	return action;
 }

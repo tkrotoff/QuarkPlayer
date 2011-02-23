@@ -45,30 +45,12 @@ public:
 
 	void loadAllPlugins(QuarkPlayer & quarkPlayer);
 
-	/** Loads a given plugin. */
 	bool loadPlugin(PluginData & pluginData);
 
-	/**
-	 * Loads/reloads a previously disabled plugin that matches the given plugin fileName.
-	 *
-	 * If no previously disabled plugin exists then a new one will be created.
-	 *
-	 * <pre>
-	 * PluginManager::instance().loadDisabledPlugin("name_of_my_plugin_without_file_extension");
-	 * </pre>
-	 *
-	 * @param fileName plugin to reload
-	 */
 	bool loadDisabledPlugin(const QString & fileName);
 
-	/**
-	 * Deletes/unloads a given plugin and saves the plugins configuration.
-	 *
-	 * This will delete/unload all the plugins depending on the plugin asked to be deleted/unloaded.
-	 */
 	bool deletePlugin(PluginData & pluginData);
 
-	/** Gets the first loaded plugin interface matching the given fileName. */
 	PluginInterface * pluginInterface(const QString & fileName) const;
 
 	/** Gets a plugin given a unique ID, search among all the available plugins (loaded + disabled). */

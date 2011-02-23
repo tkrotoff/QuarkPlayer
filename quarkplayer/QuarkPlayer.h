@@ -65,9 +65,11 @@ public:
 	 * @param parent QuarkPlayer QObject parent, should be QCoreApplication
 	 * @see main.cpp
 	 */
-	QuarkPlayer(IPluginManager * pluginManager, QObject * parent);
+	QuarkPlayer(IPluginManager & pluginManager, QObject * parent);
 
 	~QuarkPlayer();
+
+	IPluginManager & pluginManager() const;
 
 	/**
 	 * Changes the current media object to be used when playing a media.
@@ -199,6 +201,8 @@ private slots:
 	void allPluginsLoaded();
 
 private:
+
+	IPluginManager & _pluginManager;
 
 	/** Current media object, can be NULL if none. */
 	Phonon::MediaObject * _currentMediaObject;

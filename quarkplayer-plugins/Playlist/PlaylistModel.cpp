@@ -65,7 +65,7 @@ static const char * PLAY_MEDIA_ERROR = "PLAY_MEDIA_ERROR";
 //String to indicates that no error occured while playing the media
 static const char * PLAY_MEDIA_NOERROR = "PLAY_MEDIA_NOERROR";
 
-PlaylistModel::PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const QUuid & uuid)
+PlaylistModel::PlaylistModel(QuarkPlayer & quarkPlayer, const QUuid & uuid, QObject * parent)
 	: QAbstractListModel(parent),
 	_quarkPlayer(quarkPlayer) {
 

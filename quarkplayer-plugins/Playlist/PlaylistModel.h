@@ -68,7 +68,7 @@ public:
 	static const int COLUMN_FIRST;
 	static const int COLUMN_LAST;
 
-	PlaylistModel(QObject * parent, QuarkPlayer & quarkPlayer, const QUuid & uuid);
+	PlaylistModel(QuarkPlayer & quarkPlayer, const QUuid & uuid, QObject * parent);
 
 	~PlaylistModel();
 

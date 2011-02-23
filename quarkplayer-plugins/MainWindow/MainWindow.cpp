@@ -98,10 +98,9 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	connect(ActionCollection::action("CommonActions.Quit"), SIGNAL(triggered()), SLOT(close()));
 	connect(ActionCollection::action("CommonActions.ReportBug"), SIGNAL(triggered()), SLOT(reportBug()));
 	connect(ActionCollection::action("CommonActions.ShowMailingList"), SIGNAL(triggered()), SLOT(showMailingList()));
-	connect(ActionCollection::action("CommonActions.ViewLog"), SIGNAL(triggered()), SLOT(viewLog()));
+	connect(ActionCollection::action("CommonActions.ShowLog"), SIGNAL(triggered()), SLOT(showLog()));
 	connect(ActionCollection::action("CommonActions.About"), SIGNAL(triggered()), SLOT(about()));
 	connect(ActionCollection::action("CommonActions.AboutQt"), SIGNAL(triggered()), qApp, SLOT(aboutQt()));
-
 	connect(ActionCollection::action("CommonActions.VolumeMute"), SIGNAL(toggled(bool)), SLOT(mutedToggled(bool)));
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
@@ -114,10 +113,6 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 
 	RETRANSLATE(this);
 	retranslate();
-
-	//Trick: MainWindow should get the focus and be the active window
-	//otherwise SearchLineEdit can get the focus instead
-	app->setActiveWindow(this);
 
 	show();
 }
@@ -250,30 +245,17 @@ void MainWindow::showMailingList() {
 	QDesktopServices::openUrl(QUrl("http://groups.google.com/group/quarkplayer"));
 }
 
-void MainWindow::viewLog() {
-	static LogWindow * logWindow = NULL;
-	if (!logWindow) {
-		//Lazy initialization
-		logWindow = new LogWindow(this);
-	}
-
+void MainWindow::showLog() {
+	static LogWindow * logWindow = new LogWindow(this);
 	logWindow->show();
 }
 
 void MainWindow::about() {
 	static AboutWindow * aboutWindow = new AboutWindow(this);
 	aboutWindow->exec();
-
-	QApplication * app = qobject_cast<QApplication *>(QApplication::instance());
-	Q_ASSERT(app);
-
-	//Trick: MainWindow should get the focus and be the active window
-	//otherwise SearchLineEdit can get the focus instead
-	app->setActiveWindow(this);
 }
 
 void MainWindow::populateActionCollection() {
-
 }
 
 void MainWindow::setupUi() {
@@ -334,7 +316,7 @@ void MainWindow::setupUi() {
 	menuBar()->addMenu(_menuHelp);
 	_menuHelp->addAction(ActionCollection::action("CommonActions.ShowMailingList"));
 	_menuHelp->addAction(ActionCollection::action("CommonActions.ReportBug"));
-	_menuHelp->addAction(ActionCollection::action("CommonActions.ViewLog"));
+	_menuHelp->addAction(ActionCollection::action("CommonActions.ShowLog"));
 	_menuHelp->addSeparator();
 	_menuHelp->addAction(ActionCollection::action("CommonActions.About"));
 	_menuHelp->addAction(ActionCollection::action("CommonActions.AboutQt"));

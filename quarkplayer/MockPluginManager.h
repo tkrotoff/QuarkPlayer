@@ -22,6 +22,8 @@
 #include <quarkplayer/IPluginManager.h>
 
 class QuarkPlayer;
+class PluginData;
+class PluginInterface;
 
 /**
  * Mock for IPluginManager.
@@ -34,6 +36,14 @@ class QUARKPLAYER_API MockPluginManager : public IPluginManager {
 public:
 
 	void loadAllPlugins(QuarkPlayer & quarkPlayer);
+
+	bool loadPlugin(PluginData & pluginData);
+
+	bool loadDisabledPlugin(const QString & fileName);
+
+	bool deletePlugin(PluginData & pluginData);
+
+	PluginInterface * pluginInterface(const QString & fileName) const;
 
 private:
 };

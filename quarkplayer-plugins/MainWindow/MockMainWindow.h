@@ -91,6 +91,10 @@ signals:
 
 private slots:
 
+	void about();
+
+	void showLog();
+
 	void playFile();
 
 	void currentMediaObjectChanged(Phonon::MediaObject * mediaObject);
@@ -108,6 +112,7 @@ private:
 
 	QMenu * _menuFile;
 	QMenu * _menuPlay;
+	QMenu * _menuHelp;
 
 	QToolBar * _playToolBar;
 };

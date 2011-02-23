@@ -61,7 +61,7 @@ void CommonActions::populateActionCollection() {
 	ActionCollection::addAction("CommonActions.Quit", new TkAction(app, tr("Ctrl+Q"), tr("Alt+X")));
 	ActionCollection::addAction("CommonActions.ReportBug", new QAction(app));
 	ActionCollection::addAction("CommonActions.ShowMailingList", new QAction(app));
-	ActionCollection::addAction("CommonActions.ViewLog", new QAction(app));
+	ActionCollection::addAction("CommonActions.ShowLog", new QAction(app));
 	ActionCollection::addAction("CommonActions.About", new TkAction(app, tr("Ctrl+F1")));
 	ActionCollection::addAction("CommonActions.AboutQt", new QAction(app));
 	ActionCollection::addAction("CommonActions.OpenDVD", new TkAction(app, tr("Ctrl+D")));
@@ -153,14 +153,14 @@ void CommonActions::retranslate() {
 		ActionCollection::action("CommonActions.ShowMailingList")->setIcon(QIcon::fromTheme("help-hint"));
 	}
 
-	ActionCollection::action("CommonActions.ViewLog")->setText(tr("View &Log"));
+	ActionCollection::action("CommonActions.ShowLog")->setText(tr("View &Log"));
 	QIcon logIcon;
 	if (desktopEnvironment() == GNOME) {
 		logIcon = QIcon::fromTheme("logviewer");
 	} else {
 		logIcon = QIcon::fromTheme("text-x-log");
 	}
-	ActionCollection::action("CommonActions.ViewLog")->setIcon(logIcon);
+	ActionCollection::action("CommonActions.ShowLog")->setIcon(logIcon);
 
 	ActionCollection::action("CommonActions.About")->setText(tr("&About"));
 

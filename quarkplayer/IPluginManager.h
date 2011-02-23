@@ -24,6 +24,8 @@
 #include <QtCore/QObject>
 
 class QuarkPlayer;
+class PluginData;
+class PluginInterface;
 
 /**
  * Interface for PluginManager.
@@ -40,6 +42,32 @@ public:
 
 	/** Loads all the available plugins. */
 	virtual void loadAllPlugins(QuarkPlayer & quarkPlayer) = 0;
+
+	/** Loads a given plugin. */
+	virtual bool loadPlugin(PluginData & pluginData) = 0;
+
+	/**
+	 * Loads/reloads a previously disabled plugin that matches the given plugin fileName.
+	 *
+	 * If no previously disabled plugin exists then a new one will be created.
+	 *
+	 * <pre>
+	 * pluginManager.loadDisabledPlugin("name_of_my_plugin_without_file_extension");
+	 * </pre>
+	 *
+	 * @param fileName plugin to reload
+	 */
+	virtual bool loadDisabledPlugin(const QString & fileName) = 0;
+
+	/**
+	 * Deletes/unloads a given plugin and saves the plugins configuration.
+	 *
+	 * This will delete/unload all the plugins depending on the plugin asked to be deleted/unloaded.
+	 */
+	virtual bool deletePlugin(PluginData & pluginData) = 0;
+
+	/** Gets the first loaded plugin interface matching the given fileName. */
+	virtual PluginInterface * pluginInterface(const QString & fileName) const = 0;
 
 signals:
 

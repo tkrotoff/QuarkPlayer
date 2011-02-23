@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,16 +31,21 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QFileInfo>
 
-QuarkPlayer::QuarkPlayer(IPluginManager * pluginManager, QObject * parent)
-	: QObject(parent) {
+QuarkPlayer::QuarkPlayer(IPluginManager & pluginManager, QObject * parent)
+	: QObject(parent),
+	_pluginManager(pluginManager) {
 
 	_currentMediaObject = NULL;
 	_currentMediaController = NULL;
 
-	connect(pluginManager, SIGNAL(allPluginsLoaded()), SLOT(allPluginsLoaded()));
+	connect(&_pluginManager, SIGNAL(allPluginsLoaded()), SLOT(allPluginsLoaded()));
 }
 
 QuarkPlayer::~QuarkPlayer() {
+}
+
+IPluginManager & QuarkPlayer::pluginManager() const {
+	return _pluginManager;
 }
 
 void QuarkPlayer::setCurrentMediaObject(Phonon::MediaObject * mediaObject) {

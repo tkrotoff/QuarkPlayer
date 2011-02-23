@@ -79,7 +79,7 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid, IM
 	_mainWindow = mainWindow;
 
 	//Model
-	_playlistModel = new PlaylistModel(this, quarkPlayer, uuid);
+	_playlistModel = new PlaylistModel(quarkPlayer, uuid, this);
 	connect(_playlistModel, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
 		SLOT(updateWindowTitle()));
 	connect(_playlistModel, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
@@ -415,7 +415,7 @@ void PlaylistWidget::disconnectFromMediaObjectList() {
 }
 
 void PlaylistWidget::createNewPlaylistWidget() {
-	PluginManager::instance().loadDisabledPlugin(PlaylistWidgetFactory::PLUGIN_NAME);
+	quarkPlayer().pluginManager().loadDisabledPlugin(PlaylistWidgetFactory::PLUGIN_NAME);
 }
 
 void PlaylistWidget::jumpToCurrent() {

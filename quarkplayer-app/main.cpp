@@ -132,7 +132,7 @@ int main(int argc, char * argv[]) {
 	//Parse the command line arguments
 	CommandLineParser parser;
 
-	QuarkPlayer quarkPlayer(&PluginManager::instance(), &app);
+	QuarkPlayer quarkPlayer(PluginManager::instance(), &app);
 
 	PluginManager::instance().loadAllPlugins(quarkPlayer);
 

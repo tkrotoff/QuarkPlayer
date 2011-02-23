@@ -284,7 +284,7 @@ void FileBrowserWidget::musicDirChanged(const QString & key, const QVariant & va
 }
 
 void FileBrowserWidget::createNewFileBrowserWidget() {
-	PluginManager::instance().loadDisabledPlugin(FileBrowserWidgetFactory::PLUGIN_NAME);
+	quarkPlayer().pluginManager().loadDisabledPlugin(FileBrowserWidgetFactory::PLUGIN_NAME);
 }
 
 void FileBrowserWidget::retranslate() {
