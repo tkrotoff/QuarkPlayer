@@ -28,7 +28,7 @@
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
 #include <quarkplayer-plugins/MediaController/MediaController.h>
 
-#include <TkUtil/ActionCollection.h>
+#include <TkUtil/Actions.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <phonon/mediaobject.h>
@@ -60,9 +60,9 @@ FindSubtitles::FindSubtitles(QuarkPlayer & quarkPlayer, const QUuid & uuid, QWid
 
 	addMenusToMediaController();
 
-	connect(ActionCollection::action("FindSubtitles.FindSubtitles"), SIGNAL(triggered()),
+	connect(Actions::get("FindSubtitles.FindSubtitles"), SIGNAL(triggered()),
 		SLOT(findSubtitles()));
-	connect(ActionCollection::action("FindSubtitles.UploadSubtitles"), SIGNAL(triggered()),
+	connect(Actions::get("FindSubtitles.UploadSubtitles"), SIGNAL(triggered()),
 		SLOT(uploadSubtitles()));
 
 	RETRANSLATE(this);
@@ -76,15 +76,15 @@ void FindSubtitles::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	ActionCollection::addAction("FindSubtitles.FindSubtitles", new QAction(app));
-	ActionCollection::addAction("FindSubtitles.UploadSubtitles", new QAction(app));
+	Actions::add("FindSubtitles.FindSubtitles", new QAction(app));
+	Actions::add("FindSubtitles.UploadSubtitles", new QAction(app));
 }
 
 void FindSubtitles::retranslate() {
-	ActionCollection::action("FindSubtitles.FindSubtitles")->setText(tr("&Find Subtitles..."));
-	ActionCollection::action("FindSubtitles.FindSubtitles")->setIcon(QIcon::fromTheme("edit-find"));
+	Actions::get("FindSubtitles.FindSubtitles")->setText(tr("&Find Subtitles..."));
+	Actions::get("FindSubtitles.FindSubtitles")->setIcon(QIcon::fromTheme("edit-find"));
 
-	ActionCollection::action("FindSubtitles.UploadSubtitles")->setText(tr("&Upload Subtitles..."));
+	Actions::get("FindSubtitles.UploadSubtitles")->setText(tr("&Upload Subtitles..."));
 }
 
 void FindSubtitles::addMenusToMediaController() {
@@ -95,11 +95,11 @@ void FindSubtitles::addMenusToMediaController() {
 		return;
 	}
 
-	menuSubtitle->addAction(ActionCollection::action("FindSubtitles.FindSubtitles"));
-	menuSubtitle->addAction(ActionCollection::action("FindSubtitles.UploadSubtitles"));
+	menuSubtitle->addAction(Actions::get("FindSubtitles.FindSubtitles"));
+	menuSubtitle->addAction(Actions::get("FindSubtitles.UploadSubtitles"));
 
 	//Add find susbtitles action to the MediaController tool bar
-	mediaController->toolBar()->addAction(ActionCollection::action("FindSubtitles.FindSubtitles"));
+	mediaController->toolBar()->addAction(Actions::get("FindSubtitles.FindSubtitles"));
 }
 
 void FindSubtitles::findSubtitles() {

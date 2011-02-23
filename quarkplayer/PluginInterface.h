@@ -73,24 +73,6 @@ public:
 	 */
 	QUuid uuid() const;
 
-	/**
-	 * Gets a QAction given a name and the uuid of the plugin.
-	 *
-	 * Helper/factorization function.
-	 *
-	 * @see ActionCollection
-	 */
-	QAction * uuidAction(const QString & name);
-
-	/**
-	 * Adds a QAction given a name and the uuid of the plugin.
-	 *
-	 * Helper/factorization function.
-	 *
-	 * @see ActionCollection
-	 */
-	void addUuidAction(const QString & name, QAction * action);
-
 protected:
 
 	/**

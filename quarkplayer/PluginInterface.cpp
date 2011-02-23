@@ -21,7 +21,7 @@
 #include "QuarkPlayer.h"
 #include "QuarkPlayerCoreLogger.h"
 
-#include <TkUtil/ActionCollection.h>
+#include <TkUtil/Actions.h>
 
 PluginInterface::PluginInterface(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: _quarkPlayer(quarkPlayer) {
@@ -39,16 +39,4 @@ QuarkPlayer & PluginInterface::quarkPlayer() const {
 
 QUuid PluginInterface::uuid() const {
 	return _uuid;
-}
-
-QAction * PluginInterface::uuidAction(const QString & name) {
-	Q_ASSERT(!name.isEmpty());
-	Q_ASSERT(!_uuid.isNull());
-	return ActionCollection::action(name + '_' + _uuid.toString());
-}
-
-void PluginInterface::addUuidAction(const QString & name, QAction * action) {
-	Q_ASSERT(!name.isEmpty());
-	Q_ASSERT(!_uuid.isNull());
-	return ActionCollection::addAction(name + '_' + _uuid.toString(), action);
 }

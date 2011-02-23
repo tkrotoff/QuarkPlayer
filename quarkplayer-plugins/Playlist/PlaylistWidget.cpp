@@ -32,7 +32,7 @@
 #include <quarkplayer-plugins/ConfigWindow/PlaylistConfig.h>
 
 #include <TkUtil/TkAction.h>
-#include <TkUtil/ActionCollection.h>
+#include <TkUtil/Actions.h>
 #include <TkUtil/TkToolBar.h>
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
@@ -166,13 +166,17 @@ void PlaylistWidget::createToolBar() {
 	_searchTimer->setInterval(1500);
 	connect(_searchTimer, SIGNAL(timeout()), SLOT(addWordToWordList()));
 
-	toolBar->addAction(uuidAction("Playlist.Shuffle"));
-	connect(uuidAction("Playlist.Shuffle"), SIGNAL(toggled(bool)), _playlistFilter, SLOT(setShuffle(bool)));
-	toolBar->addAction(uuidAction("Playlist.Repeat"));
-	connect(uuidAction("Playlist.Repeat"), SIGNAL(toggled(bool)), _playlistFilter, SLOT(setRepeat(bool)));
+	QAction * action = Actions::get("Playlist.Shuffle", uuid());
+	toolBar->addAction(action);
+	connect(action, SIGNAL(toggled(bool)), _playlistFilter, SLOT(setShuffle(bool)));
 
-	toolBar->addAction(uuidAction("Playlist.JumpToCurrent"));
-	connect(uuidAction("Playlist.JumpToCurrent"), SIGNAL(triggered()), SLOT(jumpToCurrent()));
+	action = Actions::get("Playlist.Repeat", uuid());
+	toolBar->addAction(action);
+	connect(action, SIGNAL(toggled(bool)), _playlistFilter, SLOT(setRepeat(bool)));
+
+	action = Actions::get("Playlist.JumpToCurrent", uuid());
+	toolBar->addAction(action);
+	connect(action, SIGNAL(triggered()), SLOT(jumpToCurrent()));
 
 	//Search line edit
 	QStringList history = Config::instance().value(PLAYLIST_SEARCH_HISTORY_KEY).toStringList();
@@ -180,98 +184,109 @@ void PlaylistWidget::createToolBar() {
 	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search()));
 	toolBar->addWidget(_searchLineEdit);
 
-	toolBar->addAction(uuidAction("Playlist.Open"));
-	connect(uuidAction("Playlist.Open"), SIGNAL(triggered()), SLOT(openPlaylist()));
-	toolBar->addAction(uuidAction("Playlist.Save"));
-	connect(uuidAction("Playlist.Save"), SIGNAL(triggered()), SLOT(savePlaylist()));
+	action = Actions::get("Playlist.Open", uuid());
+	toolBar->addAction(action);
+	connect(action, SIGNAL(triggered()), SLOT(openPlaylist()));
+
+	action = Actions::get("Playlist.Save", uuid());
+	toolBar->addAction(action);
+	connect(action, SIGNAL(triggered()), SLOT(savePlaylist()));
 
 	//We have to use a QToolButton instead of a QAction,
 	//otherwise we cannot use QToolButton::InstantPopup :/
 	QToolButton * addButton = new QToolButton();
 	addButton->setPopupMode(QToolButton::InstantPopup);
-	addButton->setDefaultAction(uuidAction("Playlist.Add"));
+	addButton->setDefaultAction(Actions::get("Playlist.Add", uuid()));
 	toolBar->addWidget(addButton);
 
 	QMenu * addMenu = new QMenu();
-	addMenu->addAction(uuidAction("Playlist.AddFiles"));
-	connect(uuidAction("Playlist.AddFiles"), SIGNAL(triggered()), SLOT(addFiles()));
-	addMenu->addAction(uuidAction("Playlist.AddDir"));
-	connect(uuidAction("Playlist.AddDir"), SIGNAL(triggered()), SLOT(addDir()));
-	addMenu->addAction(uuidAction("Playlist.AddURL"));
-	connect(uuidAction("Playlist.AddURL"), SIGNAL(triggered()), SLOT(addURL()));
+	action = Actions::get("Playlist.AddFiles", uuid());
+	addMenu->addAction(action);
+	connect(action, SIGNAL(triggered()), SLOT(addFiles()));
+
+	action = Actions::get("Playlist.AddDir", uuid());
+	addMenu->addAction(action);
+	connect(action, SIGNAL(triggered()), SLOT(addDir()));
+
+	action = Actions::get("Playlist.AddURL", uuid());
+	addMenu->addAction(action);
+	connect(action, SIGNAL(triggered()), SLOT(addURL()));
 	addButton->setMenu(addMenu);
 
-	KeyPressEventFilter * deleteKeyFilter = new KeyPressEventFilter(_view, SLOT(clearSelection()), Qt::Key_Delete);
+	KeyPressEventFilter * deleteKeyFilter = new KeyPressEventFilter(_view, SLOT(clearSelection()),
+									Qt::Key_Delete);
 	_view->installEventFilter(deleteKeyFilter);
 
-	toolBar->addAction(uuidAction("Playlist.RemoveAll"));
-	connect(uuidAction("Playlist.RemoveAll"), SIGNAL(triggered()), _playlistModel, SLOT(clear()));
-	connect(uuidAction("Playlist.RemoveAll"), SIGNAL(triggered()), SLOT(updateWindowTitle()));
+	action = Actions::get("Playlist.RemoveAll", uuid());
+	toolBar->addAction(action);
+	connect(action, SIGNAL(triggered()), _playlistModel, SLOT(clear()));
+	connect(action, SIGNAL(triggered()), SLOT(updateWindowTitle()));
 
 	toolBar->addSeparator();
 
-	toolBar->addAction(uuidAction("Playlist.New"));
-	connect(uuidAction("Playlist.New"), SIGNAL(triggered()), SLOT(createNewPlaylistWidget()));
+	action = Actions::get("Playlist.New", uuid());
+	toolBar->addAction(action);
+	connect(action, SIGNAL(triggered()), SLOT(createNewPlaylistWidget()));
 }
 
 void PlaylistWidget::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	addUuidAction("Playlist.Open", new QAction(app));
-	addUuidAction("Playlist.Save", new QAction(app));
+	Actions::add("Playlist.Open", uuid(), new QAction(app));
+	Actions::add("Playlist.Save", uuid(), new QAction(app));
 
-	addUuidAction("Playlist.Add", new QAction(app));
-	addUuidAction("Playlist.AddFiles", new QAction(app));
-	addUuidAction("Playlist.AddDir", new QAction(app));
-	addUuidAction("Playlist.AddURL", new QAction(app));
+	Actions::add("Playlist.Add", uuid(), new QAction(app));
+	Actions::add("Playlist.AddFiles", uuid(), new QAction(app));
+	Actions::add("Playlist.AddDir", uuid(), new QAction(app));
+	Actions::add("Playlist.AddURL", uuid(), new QAction(app));
 
-	addUuidAction("Playlist.RemoveAll", new QAction(app));
+	Actions::add("Playlist.RemoveAll", uuid(), new QAction(app));
 
 	TkAction * action = new TkAction(app, tr("Ctrl+S"));
 	action->setCheckable(true);
-	addUuidAction("Playlist.Shuffle", action);
+	Actions::add("Playlist.Shuffle", uuid(), action);
 
 	action = new TkAction(app, tr("Ctrl+R"));
 	action->setCheckable(true);
-	addUuidAction("Playlist.Repeat", action);
+	Actions::add("Playlist.Repeat", uuid(), action);
 
-	addUuidAction("Playlist.JumpToCurrent", new TkAction(app, tr("Ctrl+J")));
+	Actions::add("Playlist.JumpToCurrent", uuid(), new TkAction(app, tr("Ctrl+J")));
 
-	addUuidAction("Playlist.New", new QAction(app));
+	Actions::add("Playlist.New", uuid(), new QAction(app));
 }
 
 void PlaylistWidget::retranslate() {
 	_searchLineEdit->setToolTip(tr("Search playlist, use whitespaces to separate words"));
 	_searchLineEdit->setClickMessage(tr("Search"));
 
-	uuidAction("Playlist.Open")->setText(tr("Open Playlist"));
-	uuidAction("Playlist.Open")->setIcon(QIcon::fromTheme("document-open"));
+	Actions::get("Playlist.Open", uuid())->setText(tr("Open Playlist"));
+	Actions::get("Playlist.Open", uuid())->setIcon(QIcon::fromTheme("document-open"));
 
-	uuidAction("Playlist.Save")->setText(tr("Save Playlist"));
-	uuidAction("Playlist.Save")->setIcon(QIcon::fromTheme("document-save"));
+	Actions::get("Playlist.Save", uuid())->setText(tr("Save Playlist"));
+	Actions::get("Playlist.Save", uuid())->setIcon(QIcon::fromTheme("document-save"));
 
-	uuidAction("Playlist.Add")->setText(tr("Add..."));
-	uuidAction("Playlist.Add")->setIcon(QIcon::fromTheme("list-add"));
+	Actions::get("Playlist.Add", uuid())->setText(tr("Add..."));
+	Actions::get("Playlist.Add", uuid())->setIcon(QIcon::fromTheme("list-add"));
 
-	uuidAction("Playlist.AddFiles")->setText(tr("Add Files"));
-	uuidAction("Playlist.AddDir")->setText(tr("Add Directory"));
-	uuidAction("Playlist.AddURL")->setText(tr("Add URL"));
+	Actions::get("Playlist.AddFiles", uuid())->setText(tr("Add Files"));
+	Actions::get("Playlist.AddDir", uuid())->setText(tr("Add Directory"));
+	Actions::get("Playlist.AddURL", uuid())->setText(tr("Add URL"));
 
-	uuidAction("Playlist.RemoveAll")->setText(tr("Remove All"));
-	uuidAction("Playlist.RemoveAll")->setIcon(QIcon::fromTheme("list-remove"));
+	Actions::get("Playlist.RemoveAll", uuid())->setText(tr("Remove All"));
+	Actions::get("Playlist.RemoveAll", uuid())->setIcon(QIcon::fromTheme("list-remove"));
 
-	uuidAction("Playlist.Shuffle")->setText(tr("Shuffle"));
-	uuidAction("Playlist.Shuffle")->setIcon(QIcon::fromTheme("media-playlist-shuffle"));
+	Actions::get("Playlist.Shuffle", uuid())->setText(tr("Shuffle"));
+	Actions::get("Playlist.Shuffle", uuid())->setIcon(QIcon::fromTheme("media-playlist-shuffle"));
 
-	uuidAction("Playlist.Repeat")->setText(tr("Repeat"));
-	uuidAction("Playlist.Repeat")->setIcon(QIcon::fromTheme("media-playlist-repeat"));
+	Actions::get("Playlist.Repeat", uuid())->setText(tr("Repeat"));
+	Actions::get("Playlist.Repeat", uuid())->setIcon(QIcon::fromTheme("media-playlist-repeat"));
 
-	uuidAction("Playlist.JumpToCurrent")->setText(tr("Jump to Current Playing Media"));
-	uuidAction("Playlist.JumpToCurrent")->setIcon(QIcon::fromTheme("go-jump"));
+	Actions::get("Playlist.JumpToCurrent", uuid())->setText(tr("Jump to Current Playing Media"));
+	Actions::get("Playlist.JumpToCurrent", uuid())->setIcon(QIcon::fromTheme("go-jump"));
 
-	uuidAction("Playlist.New")->setText(tr("New Playlist Window"));
-	uuidAction("Playlist.New")->setIcon(QIcon::fromTheme("tab-new"));
+	Actions::get("Playlist.New", uuid())->setText(tr("New Playlist Window"));
+	Actions::get("Playlist.New", uuid())->setIcon(QIcon::fromTheme("tab-new"));
 
 	updateWindowTitle();
 }
@@ -393,11 +408,11 @@ void PlaylistWidget::connectToMediaObject(Phonon::MediaObject * mediaObject) {
 	}
 
 	//Next track
-	connect(ActionCollection::action("CommonActions.NextTrack"), SIGNAL(triggered()),
+	connect(Actions::get("CommonActions.NextTrack"), SIGNAL(triggered()),
 		_playlistFilter, SLOT(playNextTrack()));
 
 	//Previous track
-	connect(ActionCollection::action("CommonActions.PreviousTrack"), SIGNAL(triggered()),
+	connect(Actions::get("CommonActions.PreviousTrack"), SIGNAL(triggered()),
 		_playlistFilter, SLOT(playPreviousTrack()));
 }
 
@@ -408,10 +423,10 @@ void PlaylistWidget::disconnectFromMediaObjectList() {
 	}
 
 	//Next track
-	ActionCollection::action("CommonActions.NextTrack")->disconnect(_playlistFilter);
+	Actions::get("CommonActions.NextTrack")->disconnect(_playlistFilter);
 
 	//Previous track
-	ActionCollection::action("CommonActions.PreviousTrack")->disconnect(_playlistFilter);
+	Actions::get("CommonActions.PreviousTrack")->disconnect(_playlistFilter);
 }
 
 void PlaylistWidget::createNewPlaylistWidget() {

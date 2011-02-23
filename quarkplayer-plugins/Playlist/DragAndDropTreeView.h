@@ -21,6 +21,8 @@
 
 #include <QtGui/QTreeView>
 
+#include <QtCore/QUuid>
+
 class PlaylistWidget;
 class PlaylistModel;
 class PlaylistFilter;
@@ -80,6 +82,8 @@ private:
 	PlaylistFilter * _playlistFilter;
 
 	MediaInfoWindow * _mediaInfoWindow;
+
+	QUuid _uuid;
 };
 
 #endif	//DRAGANDDROPTREEVIEW_H

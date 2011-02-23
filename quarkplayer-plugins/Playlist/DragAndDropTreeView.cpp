@@ -32,6 +32,7 @@
 #include <MediaInfoWindow/MediaInfoWindow.h>
 
 #include <TkUtil/TkAction.h>
+#include <TkUtil/Actions.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
@@ -44,6 +45,8 @@ DragAndDropTreeView::DragAndDropTreeView(PlaylistWidget * playlistWidget)
 	_playlistWidget = playlistWidget;
 	_playlistModel = _playlistWidget->playlistModel();
 	_playlistFilter = _playlistWidget->playlistFilter();
+
+	_uuid = _playlistWidget->uuid();
 
 	_mediaInfoWindow = NULL;
 
@@ -61,10 +64,14 @@ DragAndDropTreeView::DragAndDropTreeView(PlaylistWidget * playlistWidget)
 
 	populateActionCollection();
 
-	connect(_playlistWidget->uuidAction("Playlist.PlayItem"), SIGNAL(triggered()), SLOT(playItem()));
-	connect(_playlistWidget->uuidAction("Playlist.RemoveItem"), SIGNAL(triggered()), SLOT(clearSelection()));
-	connect(_playlistWidget->uuidAction("Playlist.GetInfo"), SIGNAL(triggered()), SLOT(viewMediaInfo()));
-	connect(_playlistWidget->uuidAction("Playlist.OpenDir"), SIGNAL(triggered()), SLOT(openDir()));
+	connect(Actions::get("Playlist.PlayItem", _uuid),
+		SIGNAL(triggered()), SLOT(playItem()));
+	connect(Actions::get("Playlist.RemoveItem", _uuid),
+		SIGNAL(triggered()), SLOT(clearSelection()));
+	connect(Actions::get("Playlist.GetInfo", _uuid),
+		SIGNAL(triggered()), SLOT(viewMediaInfo()));
+	connect(Actions::get("Playlist.OpenDir", _uuid),
+		SIGNAL(triggered()), SLOT(openDir()));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -75,17 +82,17 @@ DragAndDropTreeView::~DragAndDropTreeView() {
 
 void DragAndDropTreeView::contextMenuEvent(QContextMenuEvent * event) {
 	QMenu menu(this);
-	menu.addAction(_playlistWidget->uuidAction("Playlist.PlayItem"));
-	menu.addAction(_playlistWidget->uuidAction("Playlist.RemoveItem"));
+	menu.addAction(Actions::get("Playlist.PlayItem", _uuid));
+	menu.addAction(Actions::get("Playlist.RemoveItem", _uuid));
 	menu.addSeparator();
-	menu.addAction(_playlistWidget->uuidAction("Playlist.GetInfo"));
-	menu.addAction(_playlistWidget->uuidAction("Playlist.OpenDir"));
+	menu.addAction(Actions::get("Playlist.GetInfo", _uuid));
+	menu.addAction(Actions::get("Playlist.OpenDir", _uuid));
 	menu.exec(event->globalPos());
 }
 
 void DragAndDropTreeView::mousePressEvent(QMouseEvent * event) {
 	//When the user clicks on this playlist, it becomes the only active one
-	PlaylistConfig::instance().setActivePlaylist(_playlistWidget->uuid());
+	PlaylistConfig::instance().setActivePlaylist(_uuid);
 
 	if (event->button() == Qt::RightButton) {
 		QModelIndex index(indexAt(event->pos()));
@@ -131,19 +138,19 @@ void DragAndDropTreeView::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	_playlistWidget->addUuidAction("Playlist.PlayItem", new QAction(app));
-	_playlistWidget->addUuidAction("Playlist.RemoveItem", new QAction(app));
+	Actions::add("Playlist.PlayItem", _uuid, new QAction(app));
+	Actions::add("Playlist.RemoveItem", _uuid, new QAction(app));
 	TkAction * action = new TkAction(app, tr("Ctrl+I"), tr("Alt+3"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	_playlistWidget->addUuidAction("Playlist.GetInfo", action);
-	_playlistWidget->addUuidAction("Playlist.OpenDir", new QAction(app));
+	Actions::add("Playlist.GetInfo", _uuid, action);
+	Actions::add("Playlist.OpenDir", _uuid, new QAction(app));
 }
 
 void DragAndDropTreeView::retranslate() {
-	_playlistWidget->uuidAction("Playlist.PlayItem")->setText(tr("Play"));
-	_playlistWidget->uuidAction("Playlist.RemoveItem")->setText(tr("Remove from Playlist"));
-	_playlistWidget->uuidAction("Playlist.GetInfo")->setText(tr("Get Info..."));
-	_playlistWidget->uuidAction("Playlist.OpenDir")->setText(tr("Open Directory..."));
+	Actions::get("Playlist.PlayItem", _uuid)->setText(tr("Play"));
+	Actions::get("Playlist.RemoveItem", _uuid)->setText(tr("Remove from Playlist"));
+	Actions::get("Playlist.GetInfo", _uuid)->setText(tr("Get Info..."));
+	Actions::get("Playlist.OpenDir", _uuid)->setText(tr("Open Directory..."));
 
 	if (_mediaInfoWindow) {
 		_mediaInfoWindow->setLanguage(Config::instance().language());

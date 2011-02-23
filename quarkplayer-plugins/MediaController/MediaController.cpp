@@ -31,7 +31,7 @@
 
 #include <FileTypes/FileTypes.h>
 
-#include <TkUtil/ActionCollection.h>
+#include <TkUtil/Actions.h>
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
@@ -89,7 +89,7 @@ MediaController::MediaController(QuarkPlayer & quarkPlayer, const QUuid & uuid,
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
 
-	connect(ActionCollection::action("MediaController.OpenSubtitleFile"), SIGNAL(triggered()),
+	connect(Actions::get("MediaController.OpenSubtitleFile"), SIGNAL(triggered()),
 		SLOT(openSubtitleFile()));
 
 	RETRANSLATE(this);
@@ -109,7 +109,7 @@ void MediaController::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	ActionCollection::addAction("MediaController.OpenSubtitleFile", new QAction(app));
+	Actions::add("MediaController.OpenSubtitleFile", new QAction(app));
 }
 
 void MediaController::addMenusToMainWindow() {
@@ -122,26 +122,26 @@ void MediaController::addMenusToMainWindow() {
 	QAction * insertBeforeMenuSettings = _mainWindow->menuSettings()->menuAction();
 
 	_menuAudioChannels = new QMenu();
-	_menuAudioChannels->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
+	_menuAudioChannels->addAction(Actions::get("CommonActions.EmptyMenu"));
 	_mainWindow->menuAudio()->addMenu(_menuAudioChannels);
 
 	_menuSubtitle = new QMenu();
 	menuBar->insertMenu(insertBeforeMenuSettings, _menuSubtitle);
-	_menuSubtitle->addAction(ActionCollection::action("MediaController.OpenSubtitleFile"));
+	_menuSubtitle->addAction(Actions::get("MediaController.OpenSubtitleFile"));
 	_menuSubtitles = new QMenu();
-	_menuSubtitles->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
+	_menuSubtitles->addAction(Actions::get("CommonActions.EmptyMenu"));
 	_menuSubtitle->addMenu(_menuSubtitles);
 
 	_menuBrowse = new QMenu();
 	menuBar->insertMenu(insertBeforeMenuSettings, _menuBrowse);
 	_menuTitles = new QMenu();
-	_menuTitles->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
+	_menuTitles->addAction(Actions::get("CommonActions.EmptyMenu"));
 	_menuBrowse->addAction(_menuTitles->menuAction());
 	_menuChapters = new QMenu();
-	_menuChapters->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
+	_menuChapters->addAction(Actions::get("CommonActions.EmptyMenu"));
 	_menuBrowse->addAction(_menuChapters->menuAction());
 	_menuAngles = new QMenu();
-	_menuAngles->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
+	_menuAngles->addAction(Actions::get("CommonActions.EmptyMenu"));
 	_menuBrowse->addAction(_menuAngles->menuAction());
 }
 
@@ -154,8 +154,8 @@ QToolBar * MediaController::toolBar() const {
 }
 
 void MediaController::retranslate() {
-	ActionCollection::action("MediaController.OpenSubtitleFile")->setText(tr("&Open Subtitle..."));
-	ActionCollection::action("MediaController.OpenSubtitleFile")->setIcon(QIcon::fromTheme("document-open"));
+	Actions::get("MediaController.OpenSubtitleFile")->setText(tr("&Open Subtitle..."));
+	Actions::get("MediaController.OpenSubtitleFile")->setIcon(QIcon::fromTheme("document-open"));
 
 	_menuAudioChannels->setTitle(tr("&Audio Channels"));
 	_menuSubtitles->setTitle(tr("&Subtitles"));
@@ -260,8 +260,8 @@ void MediaController::availableAudioChannelsChanged() {
 	removeAllAction(_menuAudioChannels);
 	removeAllAction(_toolBar->menuAudioChannels());
 	if (audios.isEmpty()) {
-		_menuAudioChannels->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
-		_toolBar->menuAudioChannels()->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
+		_menuAudioChannels->addAction(Actions::get("CommonActions.EmptyMenu"));
+		_toolBar->menuAudioChannels()->addAction(Actions::get("CommonActions.EmptyMenu"));
 	}
 
 	for (int i = 0; i < audios.size(); i++) {
@@ -311,8 +311,8 @@ void MediaController::availableSubtitlesChanged() {
 	removeAllAction(_menuSubtitles);
 	removeAllAction(_toolBar->menuSubtitles());
 	if (subtitles.isEmpty()) {
-		_menuSubtitles->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
-		_toolBar->menuSubtitles()->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
+		_menuSubtitles->addAction(Actions::get("CommonActions.EmptyMenu"));
+		_toolBar->menuSubtitles()->addAction(Actions::get("CommonActions.EmptyMenu"));
 	}
 
 	for (int i = 0; i < subtitles.size(); i++) {
@@ -370,7 +370,7 @@ void MediaController::availableTitlesChanged() {
 	int nbTitles = titles.size();
 	removeAllAction(_menuTitles);
 	if (titles.isEmpty()) {
-		_menuTitles->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
+		_menuTitles->addAction(Actions::get("CommonActions.EmptyMenu"));
 	}
 
 	for (int i = 0; i < nbTitles; i++) {
@@ -385,7 +385,7 @@ void MediaController::availableTitlesChanged() {
 	int nbTitles = titles;
 	removeAllAction(_menuTitles);
 	if (titles == 0) {
-		_menuTitles->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
+		_menuTitles->addAction(Actions::get("CommonActions.EmptyMenu"));
 	}
 
 	for (int i = 0; i < nbTitles; i++) {
@@ -455,7 +455,7 @@ void MediaController::availableChaptersChanged() {
 	QList<Phonon::ChapterDescription> chapters = _currentMediaController->availableChapters2();
 	removeAllAction(_menuChapters);
 	if (chapters.isEmpty()) {
-		_menuChapters->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
+		_menuChapters->addAction(Actions::get("CommonActions.EmptyMenu"));
 	}
 
 	for (int i = 0; i < chapters.size(); i++) {
@@ -469,7 +469,7 @@ void MediaController::availableChaptersChanged() {
 	int chapters = _currentMediaController->availableChapters();
 	removeAllAction(_menuChapters);
 	if (chapters == 0) {
-		_menuChapters->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
+		_menuChapters->addAction(Actions::get("CommonActions.EmptyMenu"));
 	}
 
 	for (int i = 0; i < chapters; i++) {
@@ -518,7 +518,7 @@ void MediaController::availableAnglesChanged() {
 	int angles = _currentMediaController->availableAngles();
 	removeAllAction(_menuAngles);
 	if (angles == 0) {
-		_menuAngles->addAction(ActionCollection::action("CommonActions.EmptyMenu"));
+		_menuAngles->addAction(Actions::get("CommonActions.EmptyMenu"));
 	}
 
 	for (int i = 0; i < angles; i++) {

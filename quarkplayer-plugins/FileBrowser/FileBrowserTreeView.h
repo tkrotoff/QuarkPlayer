@@ -21,6 +21,8 @@
 
 #include <QtGui/QTreeView>
 
+#include <QtCore/QUuid>
+
 class FileBrowserWidget;
 
 class QMouseEvent;
@@ -62,6 +64,8 @@ private:
 	QFileInfo fileInfo(const QModelIndex & index) const;
 
 	FileBrowserWidget * _fileBrowserWidget;
+
+	QUuid _uuid;
 };
 
 #endif	//FILEBROWSERTREEVIEW_H

@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACTIONCOLLECTION_H
-#define ACTIONCOLLECTION_H
+#ifndef ACTIONS_H
+#define ACTIONS_H
 
 #include <TkUtil/TkUtilExport.h>
 
@@ -25,6 +25,7 @@
 #include <QtCore/QHash>
 
 class QAction;
+struct QUuid;
 
 /**
  * Contains all QuarkPlayer' QActions.
@@ -33,28 +34,47 @@ class QAction;
  * QAction are defined once (with translation, icon...) and used
  * everywhere via this class.
  *
- * Problem with ActionCollection is that every code checking is done at runtime :/
+ * Problem with Actions is that every code checking is done at runtime :/
  *
  * @author Tanguy Krotoff
  */
-class TKUTIL_API ActionCollection {
+class TKUTIL_API Actions {
 public:
 
-	static QAction * action(const QString & name);
+	/**
+	 * Retrieves a global action given a name.
+	 */
+	static QAction * get(const QString & name);
 
-	static void addAction(const QString & name, QAction * action);
+	/**
+	 * Retrieves a unique action given a name and an id.
+	 */
+	static QAction * get(const QString & name, const QUuid & uuid);
 
-	static QList<QAction *> actions();
+	/**
+	 * Adds a global action give a name.
+	 */
+	static void add(const QString & name, QAction * action);
+
+	/**
+	 * Adds a unique action given a name and an id.
+	 */
+	static void add(const QString & name, const QUuid & uuid, QAction * action);
+
+	/**
+	 * Retrieves all the actions registered using ActionCollection.
+	 */
+	static QList<QAction *> list();
 
 private:
 
 	/** Singleton. */
-	ActionCollection();
+	Actions();
 
-	~ActionCollection();
+	~Actions();
 
 	/** Associates a name to a QAction. */
 	static QHash<QString, QAction *> _actionHash;
 };
 
-#endif	//ACTIONCOLLECTION_H
+#endif	//ACTIONS_H

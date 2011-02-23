@@ -16,22 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ActionCollection.h"
+#include "Actions.h"
 
 #include "TkUtilLogger.h"
 
 #include <QtGui/QtGui>
 
-QHash<QString, QAction *> ActionCollection::_actionHash;
+QHash<QString, QAction *> Actions::_actionHash;
 
-ActionCollection::ActionCollection() {
+Actions::Actions() {
 }
 
-ActionCollection::~ActionCollection() {
+Actions::~Actions() {
 	_actionHash.clear();
 }
 
-void ActionCollection::addAction(const QString & name, QAction * action) {
+void Actions::add(const QString & name, QAction * action) {
 	Q_ASSERT(action);
 	Q_ASSERT(!name.isEmpty());
 
@@ -42,14 +42,28 @@ void ActionCollection::addAction(const QString & name, QAction * action) {
 	_actionHash[name] = action;
 }
 
-QAction * ActionCollection::action(const QString & name) {
+void Actions::add(const QString & name, const QUuid & uuid, QAction * action) {
+	Q_ASSERT(!name.isEmpty());
+	Q_ASSERT(!uuid.isNull());
+
+	return Actions::add(name + '_' + uuid.toString(), action);
+}
+
+QAction * Actions::get(const QString & name) {
 	QAction * action = _actionHash.value(name);
 	Q_ASSERT(action);
 
 	return action;
 }
 
-QList<QAction *> ActionCollection::actions() {
+QAction * Actions::get(const QString & name, const QUuid & uuid) {
+	Q_ASSERT(!name.isEmpty());
+	Q_ASSERT(!uuid.isNull());
+
+	return Actions::get(name + '_' + uuid.toString());
+}
+
+QList<QAction *> Actions::list() {
 	QList<QAction *> actionList;
 
 	QHashIterator<QString, QAction *> it(_actionHash);

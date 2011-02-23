@@ -28,7 +28,7 @@
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
 #include <TkUtil/LanguageChangeEventFilter.h>
-#include <TkUtil/ActionCollection.h>
+#include <TkUtil/Actions.h>
 
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>
@@ -67,7 +67,7 @@ QuickSettingsWindow::QuickSettingsWindow(QuarkPlayer & quarkPlayer, const QUuid 
 	_nextEffect = NULL;
 	_ui = NULL;
 
-	connect(ActionCollection::action("CommonActions.Equalizer"), SIGNAL(triggered()), SLOT(show()));
+	connect(Actions::get("CommonActions.Equalizer"), SIGNAL(triggered()), SLOT(show()));
 }
 
 QuickSettingsWindow::~QuickSettingsWindow() {

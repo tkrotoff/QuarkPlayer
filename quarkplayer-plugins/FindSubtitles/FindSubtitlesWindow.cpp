@@ -32,7 +32,7 @@
 #include <FileTypes/FileTypes.h>
 
 #include <TkUtil/LanguageChangeEventFilter.h>
-#include <TkUtil/ActionCollection.h>
+#include <TkUtil/Actions.h>
 #include <TkUtil/TkFileDialog.h>
 
 #include <QtGui/QtGui>
@@ -102,12 +102,12 @@ FindSubtitlesWindow::FindSubtitlesWindow(QWidget * parent)
 		SLOT(downloadProgress(qint64, qint64)));
 
 	populateActionCollection();
-	connect(ActionCollection::action("FindSubtitles.Download"), SIGNAL(triggered()), SLOT(downloadButtonClicked()));
-	connect(ActionCollection::action("FindSubtitles.CopyClipboard"), SIGNAL(triggered()), SLOT(copyClipboard()));
+	connect(Actions::get("FindSubtitles.Download"), SIGNAL(triggered()), SLOT(downloadButtonClicked()));
+	connect(Actions::get("FindSubtitles.CopyClipboard"), SIGNAL(triggered()), SLOT(copyClipboard()));
 
 	_contextMenu = new QMenu(this);
-	_contextMenu->addAction(ActionCollection::action("FindSubtitles.Download"));
-	_contextMenu->addAction(ActionCollection::action("FindSubtitles.CopyClipboard"));
+	_contextMenu->addAction(Actions::get("FindSubtitles.Download"));
+	_contextMenu->addAction(Actions::get("FindSubtitles.CopyClipboard"));
 
 	RETRANSLATE(this);
 	retranslate();
@@ -125,8 +125,8 @@ void FindSubtitlesWindow::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	ActionCollection::addAction("FindSubtitles.Download", new QAction(app));
-	ActionCollection::addAction("FindSubtitles.CopyClipboard", new QAction(app));
+	Actions::add("FindSubtitles.Download", new QAction(app));
+	Actions::add("FindSubtitles.CopyClipboard", new QAction(app));
 }
 
 void FindSubtitlesWindow::retranslate() {
@@ -153,11 +153,11 @@ void FindSubtitlesWindow::retranslate() {
 
 	_ui->refreshButton->setIcon(QIcon::fromTheme("view-refresh"));
 
-	ActionCollection::action("FindSubtitles.Download")->setText(tr("&Download"));
-	ActionCollection::action("FindSubtitles.Download")->setIcon(QIcon::fromTheme("go-down"));
+	Actions::get("FindSubtitles.Download")->setText(tr("&Download"));
+	Actions::get("FindSubtitles.Download")->setIcon(QIcon::fromTheme("go-down"));
 
-	ActionCollection::action("FindSubtitles.CopyClipboard")->setText(tr("&Copy link to clipboard"));
-	ActionCollection::action("FindSubtitles.CopyClipboard")->setIcon(QIcon::fromTheme("edit-copy"));
+	Actions::get("FindSubtitles.CopyClipboard")->setText(tr("&Copy link to clipboard"));
+	Actions::get("FindSubtitles.CopyClipboard")->setIcon(QIcon::fromTheme("edit-copy"));
 }
 
 void FindSubtitlesWindow::refreshButtonClicked() {
@@ -196,8 +196,8 @@ void FindSubtitlesWindow::setVideoFileName(const QString & fileName) {
 
 void FindSubtitlesWindow::currentItemChanged(const QModelIndex & current, const QModelIndex & /*previous*/) {
 	_ui->downloadButton->setEnabled(current.isValid());
-	ActionCollection::action("FindSubtitles.Download")->setEnabled(current.isValid());
-	ActionCollection::action("FindSubtitles.CopyClipboard")->setEnabled(current.isValid());
+	Actions::get("FindSubtitles.Download")->setEnabled(current.isValid());
+	Actions::get("FindSubtitles.CopyClipboard")->setEnabled(current.isValid());
 }
 
 void FindSubtitlesWindow::setLanguage(const QString & language) {

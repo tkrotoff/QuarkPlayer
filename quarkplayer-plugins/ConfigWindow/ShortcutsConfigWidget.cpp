@@ -26,7 +26,7 @@
 #include <quarkplayer/config/Config.h>
 
 #include <TkUtil/TkAction.h>
-#include <TkUtil/ActionCollection.h>
+#include <TkUtil/Actions.h>
 #include <TkUtil/TkFileDialog.h>
 
 #include <QtGui/QtGui>
@@ -100,7 +100,7 @@ void ShortcutsConfigWidget::readConfig() {
 	_shortcutItems.clear();
 	_ui->actionList->clear();
 
-	QList<QAction *> actions = ActionCollection::actions();
+	QList<QAction *> actions = Actions::list();
 
 	foreach (QAction * action, actions) {
 		TkAction * tkAction = qobject_cast<TkAction *>(action);
