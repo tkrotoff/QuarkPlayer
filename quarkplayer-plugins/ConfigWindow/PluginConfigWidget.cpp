@@ -36,7 +36,9 @@ static const int VERSION_COLUMN = 2;
 static const int STATE_COLUMN = 3;
 static const int UUID_COLUMN = 4;
 
-PluginConfigWidget::PluginConfigWidget() {
+PluginConfigWidget::PluginConfigWidget(IPluginManager & pluginManager)
+	: _pluginManager(pluginManager) {
+
 	_ui = new Ui::PluginConfigWidget();
 	_ui->setupUi(this);
 
@@ -121,19 +123,19 @@ void PluginConfigWidget::saveConfig() {
 		QTableWidgetItem * item = _ui->tableWidget->item(row, UUID_COLUMN);
 		QString uuid(item->text());
 
-		PluginData pluginData = PluginManager::instance().pluginData(uuid);
+		PluginData pluginData = _pluginManager.pluginData(uuid);
 
 		bool loaded = pluginData.interface();
 		if (checkBox->isChecked() && !loaded) {
 			//Loads the plugin
 			pluginData.setEnabled(true);
-			PluginManager::instance().loadPlugin(pluginData);
+			_pluginManager.loadPlugin(pluginData);
 		} else if (!checkBox->isChecked() && loaded) {
 			//Differ the unload/deleting of the plugins after the loop is over
 			//This code is contained inside the "configwindow" plugin
 			//Maybe the "configwindow" plugin is inside the list of plugins we want to delete,
 			//this can lead to a crash
-			//PluginManager::instance().deletePlugin(pluginData);
+			//_pluginManager.deletePlugin(pluginData);
 			///
 			pluginsToDelete += pluginData;
 		}
@@ -142,7 +144,7 @@ void PluginConfigWidget::saveConfig() {
 	foreach (PluginData pluginData, pluginsToDelete) {
 		//Unloads/deletes the plugin
 		pluginData.setEnabled(false);
-		PluginManager::instance().deletePlugin(pluginData);
+		_pluginManager.deletePlugin(pluginData);
 	}
 }
 
@@ -156,7 +158,7 @@ void PluginConfigWidget::currentCellChanged(int row, int column) {
 	QTableWidgetItem * item = _ui->tableWidget->item(row, UUID_COLUMN);
 	QString uuid(item->text());
 
-	PluginData pluginData = PluginManager::instance().pluginData(uuid);
+	PluginData pluginData = _pluginManager.pluginData(uuid);
 	PluginFactory * factory = pluginData.factory();
 
 	if (factory) {

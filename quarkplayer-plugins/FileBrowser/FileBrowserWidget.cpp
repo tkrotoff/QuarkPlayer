@@ -111,10 +111,10 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 		Config::instance().addKey(FILEBROWSER_SEARCH_HISTORY_KEY, QStringList());
 	}
 
-	if (PluginManager::instance().allPluginsAlreadyLoaded()) {
+	if (quarkPlayer.pluginManager().allPluginsAlreadyLoaded()) {
 		loadDirModel();
 	} else {
-		connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
+		connect(&quarkPlayer.pluginManager(), SIGNAL(allPluginsLoaded()),
 			SLOT(loadDirModel()), Qt::QueuedConnection);
 	}
 

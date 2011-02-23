@@ -96,12 +96,12 @@ PlaylistModel::PlaylistModel(QuarkPlayer & quarkPlayer, const QUuid & uuid, QObj
 	connect(_playlistWriter, SIGNAL(finished(PlaylistParser::Error, int)),
 		SIGNAL(playlistSaved(PlaylistParser::Error, int)));
 
-	if (PluginManager::instance().allPluginsAlreadyLoaded()) {
+	if (quarkPlayer.pluginManager().allPluginsAlreadyLoaded()) {
 		//If all the plugins are already loaded...
 		allPluginsLoaded();
 	} else {
 		//Optimization: loads the playlist only when all plugins have been loaded
-		connect(&PluginManager::instance(), SIGNAL(allPluginsLoaded()),
+		connect(&quarkPlayer.pluginManager(), SIGNAL(allPluginsLoaded()),
 			SLOT(allPluginsLoaded()), Qt::QueuedConnection);
 	}
 }

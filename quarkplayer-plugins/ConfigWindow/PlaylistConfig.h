@@ -50,7 +50,7 @@ public:
 	void setActivePlaylist(const QUuid & uuid);
 
 	/** Gets the current active playlist. */
-	const QUuid activePlaylist() const;
+	QUuid activePlaylist() const;
 
 signals:
 

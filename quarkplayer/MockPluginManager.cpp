@@ -28,14 +28,29 @@ void MockPluginManager::loadAllPlugins(QuarkPlayer & quarkPlayer) {
 }
 
 bool MockPluginManager::loadPlugin(PluginData & pluginData) {
+	return false;
 }
 
 bool MockPluginManager::loadDisabledPlugin(const QString & fileName) {
+	return false;
 }
 
 bool MockPluginManager::deletePlugin(PluginData & pluginData) {
+	return false;
 }
 
 PluginInterface * MockPluginManager::pluginInterface(const QString & fileName) const {
 	return NULL;
+}
+
+PluginData MockPluginManager::pluginData(const QUuid & uuid) const {
+	return *new PluginData();
+}
+
+PluginDataList MockPluginManager::availablePlugins() const {
+	return *new PluginDataList();
+}
+
+bool MockPluginManager::allPluginsAlreadyLoaded() const {
+	return false;
 }

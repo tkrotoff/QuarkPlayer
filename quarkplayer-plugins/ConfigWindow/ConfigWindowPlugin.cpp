@@ -22,6 +22,7 @@
 #include "ShortcutsConfig.h"
 #include "ConfigWindowLogger.h"
 
+#include <quarkplayer/QuarkPlayer.h>
 #include <quarkplayer/PluginManager.h>
 
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
@@ -77,7 +78,7 @@ void ConfigWindowPlugin::saveSettings() const {
 
 void ConfigWindowPlugin::showConfigWindow() {
 	if (!_configWindow) {
-		_configWindow = new ConfigWindow(qobject_cast<QWidget *>(parent()));
+		_configWindow = new ConfigWindow(quarkPlayer().pluginManager(), qobject_cast<QWidget *>(parent()));
 
 		//Emits the signal just once, not each time the ConfigWindow is being showed
 		emit configWindowCreated(_configWindow);

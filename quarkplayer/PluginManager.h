@@ -20,7 +20,6 @@
 #define PLUGINMANAGER_H
 
 #include <quarkplayer/IPluginManager.h>
-#include <quarkplayer/PluginData.h>
 
 #include <TkUtil/Singleton.h>
 
@@ -53,22 +52,10 @@ public:
 
 	PluginInterface * pluginInterface(const QString & fileName) const;
 
-	/** Gets a plugin given a unique ID, search among all the available plugins (loaded + disabled). */
 	PluginData pluginData(const QUuid & uuid) const;
 
-	/**
-	 * Gets the list of all available plugins (loaded + disabled plugins).
-	 *
-	 * Used by PluginConfigWidget in order to configure the plugins.
-	 * @see PluginConfigWidget
-	 */
 	PluginDataList availablePlugins() const;
 
-	/**
-	 * @see allPluginsLoaded()
-	 *
-	 * Cannot be named allPluginsLoaded() that's why "already" has been added to the name.
-	 */
 	bool allPluginsAlreadyLoaded() const;
 
 private:

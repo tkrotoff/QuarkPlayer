@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2010  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,6 +27,7 @@
 #include <QtCore/QMap>
 
 class IConfigWidget;
+class IPluginManager;
 namespace Ui { class ConfigWindow; }
 
 class QAbstractItemView;
@@ -41,7 +42,7 @@ class CONFIGWINDOW_API ConfigWindow : public QDialog {
 	Q_OBJECT
 public:
 
-	ConfigWindow(QWidget * parent);
+	ConfigWindow(IPluginManager & pluginManager, QWidget * parent);
 
 	~ConfigWindow();
 

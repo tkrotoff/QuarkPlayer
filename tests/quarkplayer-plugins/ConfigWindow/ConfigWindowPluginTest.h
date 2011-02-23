@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,48 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLUGINCONFIGWIDGET_H
-#define PLUGINCONFIGWIDGET_H
+#ifndef CONFIGWINDOWPLUGINTEST_H
+#define CONFIGWINDOWPLUGINTEST_H
 
-#include "IConfigWidget.h"
+#include <QtCore/QObject>
 
-class IPluginManager;
-namespace Ui { class PluginConfigWidget; }
+class QuarkPlayer;
+class IMainWindow;
 
 /**
- * Plugins configuration widget.
+ * Test class for ConfigWindowPlugin.
  *
- * @see PluginsManager
- * @see PluginData
+ * @see ConfigWindowPlugin
  * @author Tanguy Krotoff
  */
-class PluginConfigWidget : public IConfigWidget {
+class ConfigWindowPluginTest : public QObject {
 	Q_OBJECT
 public:
 
-	PluginConfigWidget(IPluginManager & pluginManager);
+	ConfigWindowPluginTest(QuarkPlayer & quarkPlayer, IMainWindow * mainWindow);
 
-	~PluginConfigWidget();
-
-	QString name() const;
-
-	QString iconName() const;
-
-	void readConfig();
-
-	void saveConfig();
-
-	void retranslate();
-
-private slots:
-
-	void currentCellChanged(int row, int column);
+	~ConfigWindowPluginTest();
 
 private:
 
-	Ui::PluginConfigWidget * _ui;
-
-	IPluginManager & _pluginManager;
 };
 
-#endif	//PLUGINCONFIGWIDGET_H
+#endif	//CONFIGWINDOWPLUGINTEST_H

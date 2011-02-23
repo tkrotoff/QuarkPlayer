@@ -85,9 +85,9 @@ void WelcomeWindow::quitPlugin() {
 	//Unloads and disables the plugin
 	//We don't want the welcome plugin at every QuarkPlayer start
 	//just at the very first start
-	PluginData pluginData = PluginManager::instance().pluginData(uuid());
+	PluginData pluginData = quarkPlayer().pluginManager().pluginData(uuid());
 	pluginData.setEnabled(false);
-	PluginManager::instance().deletePlugin(pluginData);
+	quarkPlayer().pluginManager().deletePlugin(pluginData);
 }
 
 void WelcomeWindow::playWebRadio() {

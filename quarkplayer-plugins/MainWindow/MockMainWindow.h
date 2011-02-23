@@ -112,6 +112,7 @@ private:
 
 	QMenu * _menuFile;
 	QMenu * _menuPlay;
+	QMenu * _menuSettings;
 	QMenu * _menuHelp;
 
 	QToolBar * _playToolBar;

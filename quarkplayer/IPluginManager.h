@@ -20,12 +20,13 @@
 #define IPLUGINMANAGER_H
 
 #include <quarkplayer/QuarkPlayerExport.h>
+#include <quarkplayer/PluginData.h>
 
 #include <QtCore/QObject>
 
 class QuarkPlayer;
-class PluginData;
 class PluginInterface;
+struct QUuid;
 
 /**
  * Interface for PluginManager.
@@ -68,6 +69,24 @@ public:
 
 	/** Gets the first loaded plugin interface matching the given fileName. */
 	virtual PluginInterface * pluginInterface(const QString & fileName) const = 0;
+
+	/** Gets a plugin given a unique ID, search among all the available plugins (loaded + disabled). */
+	virtual PluginData pluginData(const QUuid & uuid) const = 0;
+
+	/**
+	 * Gets the list of all available plugins (loaded + disabled plugins).
+	 *
+	 * Used by PluginConfigWidget in order to configure the plugins.
+	 * @see PluginConfigWidget
+	 */
+	virtual PluginDataList availablePlugins() const = 0;
+
+	/**
+	 * @see allPluginsLoaded()
+	 *
+	 * Cannot be named allPluginsLoaded() that's why "already" has been added to the name.
+	 */
+	virtual bool allPluginsAlreadyLoaded() const = 0;
 
 signals:
 

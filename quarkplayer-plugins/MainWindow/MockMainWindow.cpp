@@ -94,7 +94,7 @@ QMenu * MockMainWindow::menuAudio() const {
 }
 
 QMenu * MockMainWindow::menuSettings() const {
-	return NULL;
+	return _menuSettings;
 }
 
 QMenu * MockMainWindow::menuHelp() const {
@@ -141,6 +141,12 @@ void MockMainWindow::setupUi() {
 	_menuPlay->addSeparator();
 	_menuPlay->addAction(ActionCollection::action("CommonActions.FullScreen"));
 	//No menu entry for FullScreenExit, see MyVideoWidget.cpp
+
+	_menuSettings = new QMenu();
+	_menuSettings->setTitle("&Settings");
+	menuBar()->addMenu(_menuSettings);
+	_menuSettings->addAction(ActionCollection::action("CommonActions.Equalizer"));
+	_menuSettings->addAction(ActionCollection::action("CommonActions.Configure"));
 
 	_menuHelp = new QMenu();
 	_menuHelp->setTitle("&Help");

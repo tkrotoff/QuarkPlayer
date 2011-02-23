@@ -36,6 +36,6 @@ void PlaylistConfig::setActivePlaylist(const QUuid & uuid) {
 	emit activePlaylistChanged(_uuid);
 }
 
-const QUuid PlaylistConfig::activePlaylist() const {
+QUuid PlaylistConfig::activePlaylist() const {
 	return _uuid;
 }

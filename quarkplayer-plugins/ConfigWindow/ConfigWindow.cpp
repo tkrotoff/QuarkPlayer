@@ -1,6 +1,6 @@
 /*
  * QuarkPlayer, a Phonon media player
- * Copyright (C) 2008-2009  Tanguy Krotoff <tkrotoff@gmail.com>
+ * Copyright (C) 2008-2011  Tanguy Krotoff <tkrotoff@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,7 +36,7 @@
 static const int NAME_COLUMN = 0;
 static const int PRIVATE_POINTER_COLUMN = 1;
 
-ConfigWindow::ConfigWindow(QWidget * parent)
+ConfigWindow::ConfigWindow(IPluginManager & pluginManager, QWidget * parent)
 	: QDialog(parent) {
 
 	_ui = new Ui::ConfigWindow();
@@ -47,7 +47,7 @@ ConfigWindow::ConfigWindow(QWidget * parent)
 	_lastConfigWindowOpenedIndex = 0;
 
 	//Add all config panels/widgets to the list
-	_configWidgetList.prepend(ConfigWidget(new PluginConfigWidget()));
+	_configWidgetList.prepend(ConfigWidget(new PluginConfigWidget(pluginManager)));
 	_configWidgetList.prepend(ConfigWidget(new SettingsBrowser()));
 
 #ifdef Q_WS_WIN

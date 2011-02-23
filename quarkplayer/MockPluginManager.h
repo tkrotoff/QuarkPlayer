@@ -20,9 +20,9 @@
 #define MOCKPLUGINMANAGER_H
 
 #include <quarkplayer/IPluginManager.h>
+#include <quarkplayer/PluginData.h>
 
 class QuarkPlayer;
-class PluginData;
 class PluginInterface;
 
 /**
@@ -44,6 +44,12 @@ public:
 	bool deletePlugin(PluginData & pluginData);
 
 	PluginInterface * pluginInterface(const QString & fileName) const;
+
+	PluginData pluginData(const QUuid & uuid) const;
+
+	PluginDataList availablePlugins() const;
+
+	bool allPluginsAlreadyLoaded() const;
 
 private:
 };
