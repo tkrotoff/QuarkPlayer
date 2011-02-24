@@ -22,7 +22,7 @@
 
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 #include <TkUtil/ScreenSaver.h>
 #include <TkUtil/TkAction.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
@@ -50,7 +50,7 @@ MyVideoWidget::MyVideoWidget(QDockWidget * dockWidget, IMainWindow * mainWindow)
 	//Lazy initialization
 	_widgetOverFullScreen = NULL;
 
-	connect(Actions["Global.FullScreen"], SIGNAL(toggled(bool)),
+	connect(Actions["Common.FullScreen"], SIGNAL(toggled(bool)),
 		SLOT(setFullScreenInternal(bool)));
 
 	//We have to add the QAction to the widget otherwise it won't work
@@ -58,9 +58,9 @@ MyVideoWidget::MyVideoWidget(QDockWidget * dockWidget, IMainWindow * mainWindow)
 	//Note that an action must be added to a widget before it can be used;
 	//this is also true when the shortcut should be global
 	//(i.e., Qt::ApplicationShortcut as Qt::ShortcutContext).
-	addAction(Actions["Global.FullScreenExit"]);
+	addAction(Actions["Common.FullScreenExit"]);
 
-	connect(Actions["Global.FullScreenExit"], SIGNAL(triggered()),
+	connect(Actions["Common.FullScreenExit"], SIGNAL(triggered()),
 		SLOT(triggerFullScreenExitAction()));
 
 	if (_playToolBar) {
@@ -105,17 +105,17 @@ void MyVideoWidget::retranslate() {
 void MyVideoWidget::createContextMenu() {
 	_contextMenu = new QMenu(this);
 
-	_contextMenu->addAction(Actions["Global.PreviousTrack"]);
-	_contextMenu->addAction(Actions["Global.PlayPause"]);
-	_contextMenu->addAction(Actions["Global.Stop"]);
-	_contextMenu->addAction(Actions["Global.NextTrack"]);
-	_contextMenu->addAction(Actions["Global.FullScreen"]);
+	_contextMenu->addAction(Actions["Common.PreviousTrack"]);
+	_contextMenu->addAction(Actions["Common.PlayPause"]);
+	_contextMenu->addAction(Actions["Common.Stop"]);
+	_contextMenu->addAction(Actions["Common.NextTrack"]);
+	_contextMenu->addAction(Actions["Common.FullScreen"]);
 
 	_contextMenu->addSeparator();
 
-	_contextMenu->addAction(Actions["Global.OpenFile"]);
-	_contextMenu->addAction(Actions["Global.OpenURL"]);
-	_contextMenu->addAction(Actions["Global.OpenDVD"]);
+	_contextMenu->addAction(Actions["Common.OpenFile"]);
+	_contextMenu->addAction(Actions["Common.OpenURL"]);
+	_contextMenu->addAction(Actions["Common.OpenDVD"]);
 
 	_contextMenu->addSeparator();
 
@@ -163,7 +163,7 @@ void MyVideoWidget::createContextMenu() {
 
 	_contextMenu->addSeparator();
 
-	_contextMenu->addAction(Actions["Global.Quit"]);
+	_contextMenu->addAction(Actions["Common.Quit"]);
 }
 
 void MyVideoWidget::showContextMenu(const QPoint & pos) {
@@ -195,7 +195,7 @@ void MyVideoWidget::aspectRatioChanged(QAction * action) {
 }
 
 void MyVideoWidget::triggerFullScreenExitAction() {
-	Actions["Global.FullScreen"]->setChecked(false);
+	Actions["Common.FullScreen"]->setChecked(false);
 }
 
 void MyVideoWidget::enterFullScreenInternal() {
@@ -266,7 +266,7 @@ void MyVideoWidget::setFullScreenInternal(bool fullScreen) {
 void MyVideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
 	if (event->button() == Qt::LeftButton) {
 		event->accept();
-		Actions["Global.FullScreen"]->toggle();
+		Actions["Common.FullScreen"]->toggle();
 	} else {
 		event->ignore();
 	}

@@ -27,7 +27,7 @@
 
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 
 #include <QtGui/QtGui>
 
@@ -60,7 +60,7 @@ ConfigWindowPlugin::ConfigWindowPlugin(QuarkPlayer & quarkPlayer, const QUuid & 
 
 	loadSettings();
 
-	connect(Actions["Global.Configure"], SIGNAL(triggered()), SLOT(showConfigWindow()));
+	connect(Actions["Common.Configure"], SIGNAL(triggered()), SLOT(showConfigWindow()));
 }
 
 ConfigWindowPlugin::~ConfigWindowPlugin() {

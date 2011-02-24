@@ -29,7 +29,7 @@
 
 #include <Logger/LoggerExport.h>
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 
 #include <QtGui/QMainWindow>
 

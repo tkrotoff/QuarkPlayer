@@ -24,7 +24,7 @@
 #include <quarkplayer/config/Config.h>
 
 #include <TkUtil/TkAction.h>
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 
 #include <QtGui/QtGui>
 

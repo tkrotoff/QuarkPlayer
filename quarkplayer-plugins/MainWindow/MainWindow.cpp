@@ -32,7 +32,7 @@
 
 #include <Logger/LogWindow.h>
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/TkToolBar.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
@@ -90,18 +90,18 @@ MainWindow::MainWindow(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	_playToolBar = NULL;
 	_statusBar = NULL;
 
-	connect(Actions["Global.OpenFile"], SIGNAL(triggered()), SLOT(playFile()));
-	connect(Actions["Global.OpenDVD"], SIGNAL(triggered()), SLOT(playDVD()));
-	connect(Actions["Global.OpenURL"], SIGNAL(triggered()), SLOT(playURL()));
-	connect(Actions["Global.OpenVCD"], SIGNAL(triggered()), SLOT(playVCD()));
-	connect(Actions["Global.NewMediaObject"], SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
-	connect(Actions["Global.Quit"], SIGNAL(triggered()), SLOT(close()));
-	connect(Actions["Global.ReportBug"], SIGNAL(triggered()), SLOT(reportBug()));
-	connect(Actions["Global.ShowMailingList"], SIGNAL(triggered()), SLOT(showMailingList()));
-	connect(Actions["Global.ShowLog"], SIGNAL(triggered()), SLOT(showLog()));
-	connect(Actions["Global.About"], SIGNAL(triggered()), SLOT(about()));
-	connect(Actions["Global.AboutQt"], SIGNAL(triggered()), qApp, SLOT(aboutQt()));
-	connect(Actions["Global.VolumeMute"], SIGNAL(toggled(bool)), SLOT(mutedToggled(bool)));
+	connect(Actions["Common.OpenFile"], SIGNAL(triggered()), SLOT(playFile()));
+	connect(Actions["Common.OpenDVD"], SIGNAL(triggered()), SLOT(playDVD()));
+	connect(Actions["Common.OpenURL"], SIGNAL(triggered()), SLOT(playURL()));
+	connect(Actions["Common.OpenVCD"], SIGNAL(triggered()), SLOT(playVCD()));
+	connect(Actions["Common.NewMediaObject"], SIGNAL(triggered()), &quarkPlayer, SLOT(createNewMediaObject()));
+	connect(Actions["Common.Quit"], SIGNAL(triggered()), SLOT(close()));
+	connect(Actions["Common.ReportBug"], SIGNAL(triggered()), SLOT(reportBug()));
+	connect(Actions["Common.ShowMailingList"], SIGNAL(triggered()), SLOT(showMailingList()));
+	connect(Actions["Common.ShowLog"], SIGNAL(triggered()), SLOT(showLog()));
+	connect(Actions["Common.About"], SIGNAL(triggered()), SLOT(about()));
+	connect(Actions["Common.AboutQt"], SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+	connect(Actions["Common.VolumeMute"], SIGNAL(toggled(bool)), SLOT(mutedToggled(bool)));
 
 	connect(&quarkPlayer, SIGNAL(currentMediaObjectChanged(Phonon::MediaObject *)),
 		SLOT(currentMediaObjectChanged(Phonon::MediaObject *)));
@@ -272,64 +272,64 @@ void MainWindow::setupUi() {
 
 	_menuFile = new QMenu();
 	menuBar()->addMenu(_menuFile);
-	_menuFile->addAction(Actions["Global.OpenFile"]);
-	_menuFile->addAction(Actions["Global.OpenURL"]);
-	_menuFile->addAction(Actions["Global.OpenDVD"]);
-	_menuFile->addAction(Actions["Global.OpenVCD"]);
+	_menuFile->addAction(Actions["Common.OpenFile"]);
+	_menuFile->addAction(Actions["Common.OpenURL"]);
+	_menuFile->addAction(Actions["Common.OpenDVD"]);
+	_menuFile->addAction(Actions["Common.OpenVCD"]);
 	_menuFile->addSeparator();
-	_menuFile->addAction(Actions["Global.Quit"]);
+	_menuFile->addAction(Actions["Common.Quit"]);
 
 	_menuPlay = new QMenu();
 	menuBar()->addMenu(_menuPlay);
-	_menuPlay->addAction(Actions["Global.PreviousTrack"]);
-	_menuPlay->addAction(Actions["Global.PlayPause"]);
-	_menuPlay->addAction(Actions["Global.Stop"]);
-	_menuPlay->addAction(Actions["Global.NextTrack"]);
+	_menuPlay->addAction(Actions["Common.PreviousTrack"]);
+	_menuPlay->addAction(Actions["Common.PlayPause"]);
+	_menuPlay->addAction(Actions["Common.Stop"]);
+	_menuPlay->addAction(Actions["Common.NextTrack"]);
 	_menuPlay->addSeparator();
-	_menuPlay->addAction(Actions["Global.JumpBackward10s"]);
-	_menuPlay->addAction(Actions["Global.JumpBackward1min"]);
-	_menuPlay->addAction(Actions["Global.JumpBackward10min"]);
+	_menuPlay->addAction(Actions["Common.JumpBackward10s"]);
+	_menuPlay->addAction(Actions["Common.JumpBackward1min"]);
+	_menuPlay->addAction(Actions["Common.JumpBackward10min"]);
 	_menuPlay->addSeparator();
-	_menuPlay->addAction(Actions["Global.JumpForward10s"]);
-	_menuPlay->addAction(Actions["Global.JumpForward1min"]);
-	_menuPlay->addAction(Actions["Global.JumpForward10min"]);
+	_menuPlay->addAction(Actions["Common.JumpForward10s"]);
+	_menuPlay->addAction(Actions["Common.JumpForward1min"]);
+	_menuPlay->addAction(Actions["Common.JumpForward10min"]);
 	_menuPlay->addSeparator();
-	_menuPlay->addAction(Actions["Global.SpeedDecrease10%"]);
-	_menuPlay->addAction(Actions["Global.SpeedIncrease10%"]);
+	_menuPlay->addAction(Actions["Common.SpeedDecrease10%"]);
+	_menuPlay->addAction(Actions["Common.SpeedIncrease10%"]);
 	_menuPlay->addSeparator();
-	_menuPlay->addAction(Actions["Global.FullScreen"]);
+	_menuPlay->addAction(Actions["Common.FullScreen"]);
 	_menuPlay->addSeparator();
-	_menuPlay->addAction(Actions["Global.NewMediaObject"]);
+	_menuPlay->addAction(Actions["Common.NewMediaObject"]);
 
 	_menuAudio = new QMenu();
 	menuBar()->addMenu(_menuAudio);
-	_menuAudio->addAction(Actions["Global.VolumeMute"]);
-	_menuAudio->addAction(Actions["Global.VolumeIncrease10%"]);
-	_menuAudio->addAction(Actions["Global.VolumeDecrease10%"]);
+	_menuAudio->addAction(Actions["Common.VolumeMute"]);
+	_menuAudio->addAction(Actions["Common.VolumeIncrease10%"]);
+	_menuAudio->addAction(Actions["Common.VolumeDecrease10%"]);
 
 	_menuSettings = new QMenu();
 	menuBar()->addMenu(_menuSettings);
-	_menuSettings->addAction(Actions["Global.Equalizer"]);
-	_menuSettings->addAction(Actions["Global.Configure"]);
+	_menuSettings->addAction(Actions["Common.Equalizer"]);
+	_menuSettings->addAction(Actions["Common.Configure"]);
 
 	_menuHelp = new QMenu();
 	menuBar()->addMenu(_menuHelp);
-	_menuHelp->addAction(Actions["Global.ShowMailingList"]);
-	_menuHelp->addAction(Actions["Global.ReportBug"]);
-	_menuHelp->addAction(Actions["Global.ShowLog"]);
+	_menuHelp->addAction(Actions["Common.ShowMailingList"]);
+	_menuHelp->addAction(Actions["Common.ReportBug"]);
+	_menuHelp->addAction(Actions["Common.ShowLog"]);
 	_menuHelp->addSeparator();
-	_menuHelp->addAction(Actions["Global.About"]);
-	_menuHelp->addAction(Actions["Global.AboutQt"]);
+	_menuHelp->addAction(Actions["Common.About"]);
+	_menuHelp->addAction(Actions["Common.AboutQt"]);
 
 	//Main ToolBar
 	_mainToolBar = new TkToolBar(this);
 	TkToolBar::setToolButtonStyle(_mainToolBar);
-	_mainToolBar->addAction(Actions["Global.OpenFile"]);
-	_mainToolBar->addAction(Actions["Global.OpenDVD"]);
-	//_mainToolBar->addAction(Actions["Global.OpenURL"]);
+	_mainToolBar->addAction(Actions["Common.OpenFile"]);
+	_mainToolBar->addAction(Actions["Common.OpenDVD"]);
+	//_mainToolBar->addAction(Actions["Common.OpenURL"]);
 	//_mainToolBar->addSeparator();
-	//_mainToolBar->addAction(Actions["Global.Equalizer"]);
-	//_mainToolBar->addAction(Actions["Global.Configure"]);
+	//_mainToolBar->addAction(Actions["Common.Equalizer"]);
+	//_mainToolBar->addAction(Actions["Common.Configure"]);
 	addToolBar(_mainToolBar);
 
 	//Main toolbar accessible but disabled by default
@@ -498,20 +498,20 @@ void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {
 	//Resets the window title when needed
 	connect(mediaObject, SIGNAL(metaDataChanged()), SLOT(updateWindowTitle()));
 
-	disconnect(Actions["Global.Quit"], SIGNAL(triggered()), mediaObject, SLOT(stop()));
-	connect(Actions["Global.Quit"], SIGNAL(triggered()), mediaObject, SLOT(stop()));
+	disconnect(Actions["Common.Quit"], SIGNAL(triggered()), mediaObject, SLOT(stop()));
+	connect(Actions["Common.Quit"], SIGNAL(triggered()), mediaObject, SLOT(stop()));
 
 	Phonon::AudioOutput * audioOutput = quarkPlayer().currentAudioOutput();
 	if (audioOutput) {
 		//Avoid a crash inside Phonon if the backend couldn't be loaded
-		Actions["Global.VolumeMute"]->setChecked(audioOutput->isMuted());
+		Actions["Common.VolumeMute"]->setChecked(audioOutput->isMuted());
 		disconnect(audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(mutedChanged(bool)));
 		connect(audioOutput, SIGNAL(mutedChanged(bool)), SLOT(mutedChanged(bool)));
 	}
 }
 
 void MainWindow::mutedChanged(bool muted) {
-	Actions["Global.VolumeMute"]->setChecked(muted);
+	Actions["Common.VolumeMute"]->setChecked(muted);
 }
 
 void MainWindow::mutedToggled(bool muted) {

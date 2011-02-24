@@ -21,7 +21,7 @@
 #include "QuarkPlayer.h"
 #include "QuarkPlayerCoreLogger.h"
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 
 PluginInterface::PluginInterface(QuarkPlayer & quarkPlayer, const QUuid & uuid)
 	: _quarkPlayer(quarkPlayer) {

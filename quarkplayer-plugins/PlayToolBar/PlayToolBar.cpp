@@ -26,7 +26,7 @@
 
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <phonon/mediaobject.h>
@@ -120,28 +120,28 @@ void PlayToolBar::createSeekToolBar() {
 	//_seekSlider->setIconVisible(true);
 	//_seekSlider->setTracking(false);
 
-	//_seekToolBar->addAction(Actions["Global.SpeedDecrease10%"));
-	connect(Actions["Global.SpeedDecrease10%"], SIGNAL(triggered()), SLOT(decreaseSpeed10()));
-	//_seekToolBar->addAction(Actions["Global.JumpBackward10min"));
-	connect(Actions["Global.JumpBackward10min"], SIGNAL(triggered()), SLOT(jumpBackward10min()));
-	_seekToolBar->addAction(Actions["Global.JumpBackward1min"]);
-	connect(Actions["Global.JumpBackward1min"], SIGNAL(triggered()), SLOT(jumpBackward1min()));
-	//_seekToolBar->addAction(Actions["Global.JumpBackward10s"));
-	connect(Actions["Global.JumpBackward10s"], SIGNAL(triggered()), SLOT(jumpBackward10s()));
+	//_seekToolBar->addAction(Actions["Common.SpeedDecrease10%"));
+	connect(Actions["Common.SpeedDecrease10%"], SIGNAL(triggered()), SLOT(decreaseSpeed10()));
+	//_seekToolBar->addAction(Actions["Common.JumpBackward10min"));
+	connect(Actions["Common.JumpBackward10min"], SIGNAL(triggered()), SLOT(jumpBackward10min()));
+	_seekToolBar->addAction(Actions["Common.JumpBackward1min"]);
+	connect(Actions["Common.JumpBackward1min"], SIGNAL(triggered()), SLOT(jumpBackward1min()));
+	//_seekToolBar->addAction(Actions["Common.JumpBackward10s"));
+	connect(Actions["Common.JumpBackward10s"], SIGNAL(triggered()), SLOT(jumpBackward10s()));
 
 	_seekToolBar->addWidget(_seekSlider);
 
-	//_seekToolBar->addAction(Actions["Global.JumpForward10s"));
-	connect(Actions["Global.JumpForward10s"], SIGNAL(triggered()), SLOT(jumpForward10s()));
-	_seekToolBar->addAction(Actions["Global.JumpForward1min"]);
-	connect(Actions["Global.JumpForward1min"], SIGNAL(triggered()), SLOT(jumpForward1min()));
-	//_seekToolBar->addAction(Actions["Global.JumpForward10min"));
-	connect(Actions["Global.JumpForward10min"], SIGNAL(triggered()), SLOT(jumpForward10min()));
-	//_seekToolBar->addAction(Actions["Global.SpeedIncrease10%"));
-	connect(Actions["Global.SpeedIncrease10%"], SIGNAL(triggered()), SLOT(increaseSpeed10()));
+	//_seekToolBar->addAction(Actions["Common.JumpForward10s"));
+	connect(Actions["Common.JumpForward10s"], SIGNAL(triggered()), SLOT(jumpForward10s()));
+	_seekToolBar->addAction(Actions["Common.JumpForward1min"]);
+	connect(Actions["Common.JumpForward1min"], SIGNAL(triggered()), SLOT(jumpForward1min()));
+	//_seekToolBar->addAction(Actions["Common.JumpForward10min"));
+	connect(Actions["Common.JumpForward10min"], SIGNAL(triggered()), SLOT(jumpForward10min()));
+	//_seekToolBar->addAction(Actions["Common.SpeedIncrease10%"));
+	connect(Actions["Common.SpeedIncrease10%"], SIGNAL(triggered()), SLOT(increaseSpeed10()));
 
-	connect(Actions["Global.VolumeDecrease10%"], SIGNAL(triggered()), SLOT(volumeDecrease10()));
-	connect(Actions["Global.VolumeIncrease10%"], SIGNAL(triggered()), SLOT(volumeIncrease10()));
+	connect(Actions["Common.VolumeDecrease10%"], SIGNAL(triggered()), SLOT(volumeDecrease10()));
+	connect(Actions["Common.VolumeIncrease10%"], SIGNAL(triggered()), SLOT(volumeIncrease10()));
 }
 
 void PlayToolBar::decreaseSpeed10() {
@@ -242,16 +242,16 @@ void PlayToolBar::createControlToolBar() {
 	_controlToolBar = new QToolBar(NULL);
 	_controlToolBar->setIconSize(QSize(24, 18));
 
-	_controlToolBar->addAction(Actions["Global.PreviousTrack"]);
-	_controlToolBar->addAction(Actions["Global.PlayPause"]);
-	_controlToolBar->addAction(Actions["Global.Stop"]);
-	_controlToolBar->addAction(Actions["Global.NextTrack"]);
+	_controlToolBar->addAction(Actions["Common.PreviousTrack"]);
+	_controlToolBar->addAction(Actions["Common.PlayPause"]);
+	_controlToolBar->addAction(Actions["Common.Stop"]);
+	_controlToolBar->addAction(Actions["Common.NextTrack"]);
 
 	_controlToolBar->addSeparator();
-	_controlToolBar->addAction(Actions["Global.FullScreen"]);
+	_controlToolBar->addAction(Actions["Common.FullScreen"]);
 
 	_controlToolBar->addSeparator();
-	_controlToolBar->addAction(Actions["Global.NewMediaObject"]);
+	_controlToolBar->addAction(Actions["Common.NewMediaObject"]);
 
 	//volumeSlider
 	_controlToolBar->addSeparator();
@@ -280,11 +280,11 @@ void PlayToolBar::setToolBarEnabled(bool enabled) {
 	//FIXME don't know why, seekToolBar does not get enabled afterwards
 	//_seekToolBar->setEnabled(enabled);
 
-	Actions["Global.PreviousTrack"]->setEnabled(enabled);
-	Actions["Global.PlayPause"]->setEnabled(enabled);
-	Actions["Global.Stop"]->setEnabled(enabled);
-	Actions["Global.NextTrack"]->setEnabled(enabled);
-	Actions["Global.FullScreen"]->setEnabled(enabled);
+	Actions["Common.PreviousTrack"]->setEnabled(enabled);
+	Actions["Common.PlayPause"]->setEnabled(enabled);
+	Actions["Common.Stop"]->setEnabled(enabled);
+	Actions["Common.NextTrack"]->setEnabled(enabled);
+	Actions["Common.FullScreen"]->setEnabled(enabled);
 }
 
 void PlayToolBar::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {

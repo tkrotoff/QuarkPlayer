@@ -20,7 +20,7 @@
 
 #include "MediaControllerLogger.h"
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <QtGui/QtGui>
@@ -32,13 +32,13 @@ MediaControllerToolBar::MediaControllerToolBar(QWidget * parent)
 
 	_audioChannelsButton = new QPushButton();
 	_menuAudioChannels = new QMenu();
-	_menuAudioChannels->addAction(Actions["Global.EmptyMenu"]);
+	_menuAudioChannels->addAction(Actions["Common.EmptyMenu"]);
 	_audioChannelsButton->setMenu(_menuAudioChannels);
 	addWidget(_audioChannelsButton);
 
 	_subtitlesButton = new QPushButton();
 	_menuSubtitles = new QMenu();
-	_menuSubtitles->addAction(Actions["Global.EmptyMenu"]);
+	_menuSubtitles->addAction(Actions["Common.EmptyMenu"]);
 	_subtitlesButton->setMenu(_menuSubtitles);
 	addWidget(_subtitlesButton);
 

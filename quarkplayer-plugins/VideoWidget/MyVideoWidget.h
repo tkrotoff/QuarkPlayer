@@ -19,7 +19,7 @@
 #ifndef MYVIDEOWIDGET_H
 #define MYVIDEOWIDGET_H
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 
 #include <phonon/videowidget.h>
 #include <phonon/phononnamespace.h>

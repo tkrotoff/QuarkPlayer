@@ -21,7 +21,7 @@
 
 #include <QtGui/QTreeView>
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 
 class PlaylistWidget;
 class PlaylistModel;

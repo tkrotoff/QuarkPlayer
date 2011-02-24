@@ -28,7 +28,7 @@
 #include <quarkplayer-plugins/MainWindow/MainWindow.h>
 #include <quarkplayer-plugins/MediaController/MediaController.h>
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
 
 #include <phonon/mediaobject.h>

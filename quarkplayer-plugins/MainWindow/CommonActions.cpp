@@ -22,7 +22,7 @@
 
 #include <quarkplayer/QuarkPlayer.h>
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 #include <TkUtil/TkAction.h>
 #include <TkUtil/DesktopEnvironment.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
@@ -57,174 +57,174 @@ void CommonActions::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	Actions.add("Global.OpenFile", new TkAction(app, QKeySequence::Open));
-	Actions.add("Global.Quit", new TkAction(app, tr("Ctrl+Q"), tr("Alt+X")));
-	Actions.add("Global.ReportBug", new QAction(app));
-	Actions.add("Global.ShowMailingList", new QAction(app));
-	Actions.add("Global.ShowLog", new QAction(app));
-	Actions.add("Global.About", new TkAction(app, tr("Ctrl+F1")));
-	Actions.add("Global.AboutQt", new QAction(app));
-	Actions.add("Global.OpenDVD", new TkAction(app, tr("Ctrl+D")));
-	Actions.add("Global.OpenURL", new TkAction(app, tr("Ctrl+U")));
-	Actions.add("Global.OpenVCD", new QAction(app));
-	Actions.add("Global.NewMediaObject", new QAction(app));
-	Actions.add("Global.Equalizer", new TkAction(app, tr("Ctrl+E")));
-	Actions.add("Global.Configure", new QAction(app));
-	Actions.add("Global.EmptyMenu", new QAction(app));
+	Actions.add("Common.OpenFile", new TkAction(app, QKeySequence::Open));
+	Actions.add("Common.Quit", new TkAction(app, tr("Ctrl+Q"), tr("Alt+X")));
+	Actions.add("Common.ReportBug", new QAction(app));
+	Actions.add("Common.ShowMailingList", new QAction(app));
+	Actions.add("Common.ShowLog", new QAction(app));
+	Actions.add("Common.About", new TkAction(app, tr("Ctrl+F1")));
+	Actions.add("Common.AboutQt", new QAction(app));
+	Actions.add("Common.OpenDVD", new TkAction(app, tr("Ctrl+D")));
+	Actions.add("Common.OpenURL", new TkAction(app, tr("Ctrl+U")));
+	Actions.add("Common.OpenVCD", new QAction(app));
+	Actions.add("Common.NewMediaObject", new QAction(app));
+	Actions.add("Common.Equalizer", new TkAction(app, tr("Ctrl+E")));
+	Actions.add("Common.Configure", new QAction(app));
+	Actions.add("Common.EmptyMenu", new QAction(app));
 
 	TkAction * action = new TkAction(app, tr("Space"), Qt::Key_MediaPlay, Qt::Key_Pause);
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.PlayPause", action);
+	Actions.add("Common.PlayPause", action);
 	action = new TkAction(app, Qt::Key_MediaStop);
-	Actions.add("Global.Stop", action);
+	Actions.add("Common.Stop", action);
 	action = new TkAction(app, tr("Ctrl+N"), tr(">"), Qt::Key_MediaNext);
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.NextTrack", action);
+	Actions.add("Common.NextTrack", action);
 	action = new TkAction(app, tr("Ctrl+P"), tr("<"), Qt::Key_MediaPrevious);
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.PreviousTrack", action);
+	Actions.add("Common.PreviousTrack", action);
 
 	action = new TkAction(app, tr("Left"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.JumpBackward10s", action);
+	Actions.add("Common.JumpBackward10s", action);
 	action = new TkAction(app, tr("Ctrl+Left"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.JumpBackward1min", action);
+	Actions.add("Common.JumpBackward1min", action);
 	action = new TkAction(app, tr("Shift+Left"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.JumpBackward10min", action);
+	Actions.add("Common.JumpBackward10min", action);
 
 	action = new TkAction(app, tr("Right"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.JumpForward10s", action);
+	Actions.add("Common.JumpForward10s", action);
 	action = new TkAction(app, tr("Ctrl+Right"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.JumpForward1min", action);
+	Actions.add("Common.JumpForward1min", action);
 	action = new TkAction(app, tr("Shift+Right"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.JumpForward10min", action);
+	Actions.add("Common.JumpForward10min", action);
 
 	action = new TkAction(app, tr("["));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.SpeedDecrease10%", action);
+	Actions.add("Common.SpeedDecrease10%", action);
 	action = new TkAction(app, tr("]"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.SpeedIncrease10%", action);
+	Actions.add("Common.SpeedIncrease10%", action);
 
 	action = new TkAction(app, tr("Ctrl+M"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	action->setCheckable(true);
-	Actions.add("Global.VolumeMute", action);
+	Actions.add("Common.VolumeMute", action);
 
 	action = new TkAction(app, tr("Ctrl+Down"), tr("-"), tr("Alt+-"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.VolumeDecrease10%", action);
+	Actions.add("Common.VolumeDecrease10%", action);
 	action = new TkAction(app, tr("Ctrl+Up"), tr("+"), tr("Alt++"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
-	Actions.add("Global.VolumeIncrease10%", action);
+	Actions.add("Common.VolumeIncrease10%", action);
 
 	action = new TkAction(app, tr("Ctrl+F"), tr("Alt+Return"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	action->setCheckable(true);
-	Actions.add("Global.FullScreen", action);
+	Actions.add("Common.FullScreen", action);
 
 	action = new TkAction(app, tr("Esc"));
-	Actions.add("Global.FullScreenExit", action);
+	Actions.add("Common.FullScreenExit", action);
 }
 
 void CommonActions::retranslate() {
-	Actions["Global.OpenFile"]->setText(tr("Play &File..."));
-	Actions["Global.OpenFile"]->setIcon(QIcon::fromTheme("document-open"));
+	Actions["Common.OpenFile"]->setText(tr("Play &File..."));
+	Actions["Common.OpenFile"]->setIcon(QIcon::fromTheme("document-open"));
 
-	Actions["Global.Quit"]->setText(tr("&Quit"));
-	Actions["Global.Quit"]->setIcon(QIcon::fromTheme("application-exit"));
+	Actions["Common.Quit"]->setText(tr("&Quit"));
+	Actions["Common.Quit"]->setIcon(QIcon::fromTheme("application-exit"));
 
-	Actions["Global.ReportBug"]->setText(tr("&Report a Problem..."));
+	Actions["Common.ReportBug"]->setText(tr("&Report a Problem..."));
 	if (desktopEnvironment() == GNOME) {
-		Actions["Global.ReportBug"]->setIcon(QIcon::fromTheme("apport"));
+		Actions["Common.ReportBug"]->setIcon(QIcon::fromTheme("apport"));
 	} else {
-		Actions["Global.ReportBug"]->setIcon(QIcon::fromTheme("tools-report-bug"));
+		Actions["Common.ReportBug"]->setIcon(QIcon::fromTheme("tools-report-bug"));
 	}
 
-	Actions["Global.ShowMailingList"]->setText(tr("&Discuss about QuarkPlayer..."));
+	Actions["Common.ShowMailingList"]->setText(tr("&Discuss about QuarkPlayer..."));
 	if (desktopEnvironment() == GNOME) {
-		Actions["Global.ShowMailingList"]->setIcon(QIcon::fromTheme("help-faq"));
+		Actions["Common.ShowMailingList"]->setIcon(QIcon::fromTheme("help-faq"));
 	} else {
-		Actions["Global.ShowMailingList"]->setIcon(QIcon::fromTheme("help-hint"));
+		Actions["Common.ShowMailingList"]->setIcon(QIcon::fromTheme("help-hint"));
 	}
 
-	Actions["Global.ShowLog"]->setText(tr("View &Log"));
+	Actions["Common.ShowLog"]->setText(tr("View &Log"));
 	QIcon logIcon;
 	if (desktopEnvironment() == GNOME) {
 		logIcon = QIcon::fromTheme("logviewer");
 	} else {
 		logIcon = QIcon::fromTheme("text-x-log");
 	}
-	Actions["Global.ShowLog"]->setIcon(logIcon);
+	Actions["Common.ShowLog"]->setIcon(logIcon);
 
-	Actions["Global.About"]->setText(tr("&About"));
+	Actions["Common.About"]->setText(tr("&About"));
 
-	Actions["Global.AboutQt"]->setText(tr("About &Qt"));
+	Actions["Common.AboutQt"]->setText(tr("About &Qt"));
 
-	Actions["Global.OpenDVD"]->setText(tr("Play &DVD..."));
-	Actions["Global.OpenDVD"]->setIcon(QIcon::fromTheme("media-optical"));
+	Actions["Common.OpenDVD"]->setText(tr("Play &DVD..."));
+	Actions["Common.OpenDVD"]->setIcon(QIcon::fromTheme("media-optical"));
 
-	Actions["Global.OpenURL"]->setText(tr("Play &URL..."));
+	Actions["Common.OpenURL"]->setText(tr("Play &URL..."));
 
-	Actions["Global.OpenVCD"]->setText(tr("Play &VCD..."));
+	Actions["Common.OpenVCD"]->setText(tr("Play &VCD..."));
 \
-	Actions["Global.NewMediaObject"]->setText(tr("New Media Window"));
-	Actions["Global.NewMediaObject"]->setIcon(QIcon::fromTheme("tab-new"));
+	Actions["Common.NewMediaObject"]->setText(tr("New Media Window"));
+	Actions["Common.NewMediaObject"]->setIcon(QIcon::fromTheme("tab-new"));
 
-	Actions["Global.Equalizer"]->setText(tr("&Equalizer..."));
-	Actions["Global.Equalizer"]->setIcon(QIcon::fromTheme("view-media-equalizer"));
+	Actions["Common.Equalizer"]->setText(tr("&Equalizer..."));
+	Actions["Common.Equalizer"]->setIcon(QIcon::fromTheme("view-media-equalizer"));
 
-	Actions["Global.Configure"]->setText(tr("&Configure..."));
-	Actions["Global.Configure"]->setIcon(QIcon::fromTheme("preferences-system"));
+	Actions["Common.Configure"]->setText(tr("&Configure..."));
+	Actions["Common.Configure"]->setIcon(QIcon::fromTheme("preferences-system"));
 
-	Actions["Global.EmptyMenu"]->setText(tr("<empty>"));
-	Actions["Global.EmptyMenu"]->setEnabled(false);
+	Actions["Common.EmptyMenu"]->setText(tr("<empty>"));
+	Actions["Common.EmptyMenu"]->setEnabled(false);
 
-	Actions["Global.PreviousTrack"]->setText(tr("P&revious Track"));
-	Actions["Global.PreviousTrack"]->setIcon(QIcon::fromTheme("media-skip-backward"));
+	Actions["Common.PreviousTrack"]->setText(tr("P&revious Track"));
+	Actions["Common.PreviousTrack"]->setIcon(QIcon::fromTheme("media-skip-backward"));
 
-	Actions["Global.PlayPause"]->setText(tr("&Play/Pause"));
-	Actions["Global.PlayPause"]->setIcon(QIcon::fromTheme("media-playback-start"));
+	Actions["Common.PlayPause"]->setText(tr("&Play/Pause"));
+	Actions["Common.PlayPause"]->setIcon(QIcon::fromTheme("media-playback-start"));
 
-	Actions["Global.Stop"]->setText(tr("&Stop"));
-	Actions["Global.Stop"]->setIcon(QIcon::fromTheme("media-playback-stop"));
+	Actions["Common.Stop"]->setText(tr("&Stop"));
+	Actions["Common.Stop"]->setIcon(QIcon::fromTheme("media-playback-stop"));
 
-	Actions["Global.NextTrack"]->setText(tr("&Next Track"));
-	Actions["Global.NextTrack"]->setIcon(QIcon::fromTheme("media-skip-forward"));
+	Actions["Common.NextTrack"]->setText(tr("&Next Track"));
+	Actions["Common.NextTrack"]->setIcon(QIcon::fromTheme("media-skip-forward"));
 
-	Actions["Global.JumpBackward10s"]->setText(tr("Jump &Backward 10s"));
-	Actions["Global.JumpBackward1min"]->setText(tr("Jump &Backward 1min"));
-	Actions["Global.JumpBackward1min"]->setIcon(QIcon::fromTheme("media-seek-backward"));
-	Actions["Global.JumpBackward10min"]->setText(tr("Jump &Backward 10min"));
-	Actions["Global.JumpForward10s"]->setText(tr("Jump &Forward 10s"));
-	Actions["Global.JumpForward1min"]->setText(tr("Jump &Forward 1min"));
-	Actions["Global.JumpForward1min"]->setIcon(QIcon::fromTheme("media-seek-forward"));
-	Actions["Global.JumpForward10min"]->setText(tr("Jump &Forward 10min"));
-	Actions["Global.SpeedDecrease10%"]->setText(tr("Decrease Speed"));
-	Actions["Global.SpeedIncrease10%"]->setText(tr("Increase Speed"));
+	Actions["Common.JumpBackward10s"]->setText(tr("Jump &Backward 10s"));
+	Actions["Common.JumpBackward1min"]->setText(tr("Jump &Backward 1min"));
+	Actions["Common.JumpBackward1min"]->setIcon(QIcon::fromTheme("media-seek-backward"));
+	Actions["Common.JumpBackward10min"]->setText(tr("Jump &Backward 10min"));
+	Actions["Common.JumpForward10s"]->setText(tr("Jump &Forward 10s"));
+	Actions["Common.JumpForward1min"]->setText(tr("Jump &Forward 1min"));
+	Actions["Common.JumpForward1min"]->setIcon(QIcon::fromTheme("media-seek-forward"));
+	Actions["Common.JumpForward10min"]->setText(tr("Jump &Forward 10min"));
+	Actions["Common.SpeedDecrease10%"]->setText(tr("Decrease Speed"));
+	Actions["Common.SpeedIncrease10%"]->setText(tr("Increase Speed"));
 
-	Actions["Global.VolumeMute"]->setText(tr("&Mute"));
-	Actions["Global.VolumeMute"]->setIcon(QIcon::fromTheme("audio-volume-muted"));
-	Actions["Global.VolumeDecrease10%"]->setText(tr("&Decrease Volume"));
-	Actions["Global.VolumeIncrease10%"]->setText(tr("&Increase Volume"));
+	Actions["Common.VolumeMute"]->setText(tr("&Mute"));
+	Actions["Common.VolumeMute"]->setIcon(QIcon::fromTheme("audio-volume-muted"));
+	Actions["Common.VolumeDecrease10%"]->setText(tr("&Decrease Volume"));
+	Actions["Common.VolumeIncrease10%"]->setText(tr("&Increase Volume"));
 
-	Actions["Global.FullScreen"]->setText(tr("&Fullscreen"));
-	Actions["Global.FullScreen"]->setIcon(QIcon::fromTheme("view-fullscreen"));
+	Actions["Common.FullScreen"]->setText(tr("&Fullscreen"));
+	Actions["Common.FullScreen"]->setIcon(QIcon::fromTheme("view-fullscreen"));
 
-	Actions["Global.FullScreenExit"]->setText(tr("&Exit Fullscreen"));
+	Actions["Common.FullScreenExit"]->setText(tr("&Exit Fullscreen"));
 }
 
 void CommonActions::stateChanged(Phonon::State newState) {
 	//Enabled/disabled fullscreen button depending if media is a video or audio
 	if (_quarkPlayer.currentMediaObject()->hasVideo()) {
-		Actions["Global.FullScreen"]->setEnabled(true);
+		Actions["Common.FullScreen"]->setEnabled(true);
 	} else {
-		Actions["Global.FullScreen"]->setEnabled(false);
+		Actions["Common.FullScreen"]->setEnabled(false);
 	}
 
 	switch (newState) {
@@ -232,33 +232,33 @@ void CommonActions::stateChanged(Phonon::State newState) {
 		break;
 
 	case Phonon::PlayingState:
-		Actions["Global.PlayPause"]->setText(tr("&Pause"));
-		Actions["Global.PlayPause"]->setIcon(QIcon::fromTheme("media-playback-pause"));
-		disconnect(Actions["Global.PlayPause"], 0, 0, 0);
-		connect(Actions["Global.PlayPause"], SIGNAL(triggered()),
+		Actions["Common.PlayPause"]->setText(tr("&Pause"));
+		Actions["Common.PlayPause"]->setIcon(QIcon::fromTheme("media-playback-pause"));
+		disconnect(Actions["Common.PlayPause"], 0, 0, 0);
+		connect(Actions["Common.PlayPause"], SIGNAL(triggered()),
 			_quarkPlayer.currentMediaObject(), SLOT(pause()));
 
-		Actions["Global.Stop"]->setEnabled(true);
+		Actions["Common.Stop"]->setEnabled(true);
 		break;
 
 	case Phonon::StoppedState:
-		Actions["Global.PlayPause"]->setText(tr("P&lay"));
-		Actions["Global.PlayPause"]->setIcon(QIcon::fromTheme("media-playback-start"));
-		disconnect(Actions["Global.PlayPause"], 0, 0, 0);
-		connect(Actions["Global.PlayPause"], SIGNAL(triggered()),
+		Actions["Common.PlayPause"]->setText(tr("P&lay"));
+		Actions["Common.PlayPause"]->setIcon(QIcon::fromTheme("media-playback-start"));
+		disconnect(Actions["Common.PlayPause"], 0, 0, 0);
+		connect(Actions["Common.PlayPause"], SIGNAL(triggered()),
 			_quarkPlayer.currentMediaObject(), SLOT(play()));
 
-		Actions["Global.Stop"]->setEnabled(false);
+		Actions["Common.Stop"]->setEnabled(false);
 		break;
 
 	case Phonon::PausedState:
-		Actions["Global.PlayPause"]->setText(tr("P&lay"));
-		Actions["Global.PlayPause"]->setIcon(QIcon::fromTheme("media-playback-start"));
-		disconnect(Actions["Global.PlayPause"], 0, 0, 0);
-		connect(Actions["Global.PlayPause"], SIGNAL(triggered()),
+		Actions["Common.PlayPause"]->setText(tr("P&lay"));
+		Actions["Common.PlayPause"]->setIcon(QIcon::fromTheme("media-playback-start"));
+		disconnect(Actions["Common.PlayPause"], 0, 0, 0);
+		connect(Actions["Common.PlayPause"], SIGNAL(triggered()),
 			_quarkPlayer.currentMediaObject(), SLOT(play()));
 
-		Actions["Global.Stop"]->setEnabled(true);
+		Actions["Common.Stop"]->setEnabled(true);
 		break;
 
 	case Phonon::LoadingState:
@@ -284,7 +284,7 @@ void CommonActions::currentMediaObjectChanged(Phonon::MediaObject * mediaObject)
 	stateChanged(mediaObject->state());
 
 	//Actions connect
-	disconnect(Actions["Global.Stop"], 0, 0, 0);
-	connect(Actions["Global.Stop"], SIGNAL(triggered()),
+	disconnect(Actions["Common.Stop"], 0, 0, 0);
+	connect(Actions["Common.Stop"], SIGNAL(triggered()),
 		mediaObject, SLOT(stop()));
 }

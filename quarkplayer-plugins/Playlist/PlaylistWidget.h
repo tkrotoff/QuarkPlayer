@@ -25,7 +25,7 @@
 
 #include <PlaylistParser/PlaylistParser.h>
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 
 #include <QtGui/QWidget>
 

@@ -399,11 +399,11 @@ void PlaylistWidget::connectToMediaObject(Phonon::MediaObject * mediaObject) {
 	}
 
 	//Next track
-	connect(Actions["Global.NextTrack"], SIGNAL(triggered()),
+	connect(Actions["Common.NextTrack"], SIGNAL(triggered()),
 		_playlistFilter, SLOT(playNextTrack()));
 
 	//Previous track
-	connect(Actions["Global.PreviousTrack"], SIGNAL(triggered()),
+	connect(Actions["Common.PreviousTrack"], SIGNAL(triggered()),
 		_playlistFilter, SLOT(playPreviousTrack()));
 }
 
@@ -414,10 +414,10 @@ void PlaylistWidget::disconnectFromMediaObjectList() {
 	}
 
 	//Next track
-	Actions["Global.NextTrack"]->disconnect(_playlistFilter);
+	Actions["Common.NextTrack"]->disconnect(_playlistFilter);
 
 	//Previous track
-	Actions["Global.PreviousTrack"]->disconnect(_playlistFilter);
+	Actions["Common.PreviousTrack"]->disconnect(_playlistFilter);
 }
 
 void PlaylistWidget::createNewPlaylistWidget() {

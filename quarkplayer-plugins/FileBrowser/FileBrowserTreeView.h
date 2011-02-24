@@ -19,7 +19,7 @@
 #ifndef FILEBROWSERTREEVIEW_H
 #define FILEBROWSERTREEVIEW_H
 
-#include <TkUtil/Actions.h>
+#include <TkUtil/ActionCollection.h>
 
 #include <QtGui/QTreeView>
 

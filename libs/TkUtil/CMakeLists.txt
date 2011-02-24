@@ -13,7 +13,7 @@ set(TkUtil_SRCS
 	CloseEventFilter.cpp
 	KeyEventFilter.cpp
 	DropEventFilter.cpp
-	Actions.cpp
+	ActionCollection.cpp
 	TkConfig.cpp
 	Translator.cpp
 	TkStackedWidget.cpp
