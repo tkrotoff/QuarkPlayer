@@ -76,6 +76,8 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid, IM
 
 	Q_ASSERT(mainWindow);
 	_mainWindow = mainWindow;
+	connect(_mainWindow, SIGNAL(filesOpened(const QStringList &)),
+		SLOT(filesOpenedByMainWindow(const QStringList &)));
 
 	//Model
 	_playlistModel = new PlaylistModel(quarkPlayer, uuid, this);
@@ -295,11 +297,18 @@ void PlaylistWidget::addFiles() {
 	if (!files.isEmpty()) {
 		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(files[0]).absolutePath());
 
-		addFilesToCurrentPlaylist(files);
+		addFilesToPlaylist(files);
 	}
 }
 
-void PlaylistWidget::addFilesToCurrentPlaylist(const QStringList & files) {
+void PlaylistWidget::filesOpenedByMainWindow(const QStringList & files) {
+	int position = _playlistModel->files().count();
+	addFilesToPlaylist(files);
+	_playlistModel->setPosition(position);
+	jumpToCurrent();
+}
+
+void PlaylistWidget::addFilesToPlaylist(const QStringList & files) {
 	if (!files.isEmpty()) {
 		if (PlaylistConfig::instance().activePlaylist() == uuid()) {
 			_playlistModel->addFiles(files);

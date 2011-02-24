@@ -76,20 +76,16 @@ public:
 signals:
 
 	/**
-	 * A subtitle file has been dropped inside the main window.
+	 * A subtitle file has been dropped by the user inside the main window.
 	 */
-	void subtitleFileDropped(const QString & subtitle);
+	void subtitleFileDropped(const QString & fileName);
 
 	/**
-	 * The play toolbar has been added to the main window.
+	 * Several files have been opened by the user.
 	 *
-	 * Specific to the PlayToolBar plugin.
-	 *
-	 * @see setPlayToolBar()
-	 * @see PlayToolBar
-	 * @param playToolBar main window play toolbar (cannot be NULL or there is a bug...)
+	 * The first file from the list is already being played.
 	 */
-	void playToolBarAdded(QToolBar * playToolBar);
+	void filesOpened(const QStringList & files);
 
 	/**
 	 * The status bar has been added to the main window.

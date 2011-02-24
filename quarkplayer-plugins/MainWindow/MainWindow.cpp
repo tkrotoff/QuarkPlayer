@@ -27,9 +27,6 @@
 #include <quarkplayer/config/Config.h>
 #include <quarkplayer/version.h>
 
-#include <quarkplayer-plugins/Playlist/PlaylistWidget.h>
-#include <quarkplayer-plugins/Playlist/PlaylistModel.h>
-
 #include <Logger/LogWindow.h>
 
 #include <TkUtil/ActionCollection.h>
@@ -171,16 +168,12 @@ void MainWindow::playFile() {
 	);
 
 	if (!fileNames.isEmpty()) {
-		QString fileToPlay(fileNames[0]);
-		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(fileToPlay).absolutePath());
+		QString file(fileNames[0]);
+		Config::instance().setValue(Config::LAST_DIR_OPENED_KEY, QFileInfo(file).absolutePath());
 
-		PlaylistWidget * playlistWidget = PlaylistWidgetFactory::playlistWidget();
-		if (playlistWidget) {
-			playlistWidget->addFilesToCurrentPlaylist(fileNames);
-			playlistWidget->playlistModel()->play(0);
-		} else {
-			play(fileToPlay);
-		}
+		play(file);
+
+		emit filesOpened(fileNames);
 	}
 }
 

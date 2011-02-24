@@ -112,7 +112,11 @@ public:
 	/** Gets the current item position inside the model. */
 	int position() const;
 
-	/** Returns the files inside the playlist. */
+	/**
+	 * Returns the files inside the playlist.
+	 *
+	 * The number of files is equal to the number of rows inside the playlist.
+	 */
 	const QList<MediaInfo> & files() const;
 
 	/**

@@ -421,7 +421,7 @@ void MediaController::availableTitlesChanged() {
 	//if (discType == Phonon::Dvd
 	//	&&
 
-	//HACK this is a hack in order to add titles to the playlist
+	//FIXME HACK this is a hack in order to add titles to the playlist
 	//Yes MPlayer demands a lot of hacks :/
 	static QRegExp rx_dvd("^dvd://(\\d+)$");
 
@@ -430,7 +430,7 @@ void MediaController::availableTitlesChanged() {
 		files += "internal=dvd://" + QString::number(i);
 	}
 	PlaylistWidget * playlistWidget = PlaylistWidgetFactory::playlistWidget();
-	playlistWidget->addFilesToCurrentPlaylist(files);
+	playlistWidget->addFilesToPlaylist(files);
 	///
 }
 

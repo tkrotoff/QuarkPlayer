@@ -73,14 +73,12 @@ public:
 
 	PlaylistFilter * playlistFilter() const;
 
-public slots:
-
 	/**
-	 * Adds a list of files to the current playlist.
+	 * Adds a list of files to the playlist.
 	 *
-	 * @param files files to add to the current playlist
+	 * @param files files to add to the playlist
 	 */
-	void addFilesToCurrentPlaylist(const QStringList & files);
+	void addFilesToPlaylist(const QStringList & files);
 
 private slots:
 
@@ -121,6 +119,11 @@ private slots:
 	void dockWidgetVisibilityChanged(bool visible);
 
 	void activePlaylistChanged(const QUuid & uuid);
+
+	/**
+	 * Some files have been opened by the user inside the main window.
+	 */
+	void filesOpenedByMainWindow(const QStringList &);
 
 private:
 

@@ -108,15 +108,15 @@ void FileBrowserTreeView::activated(const QModelIndex & index) {
 }
 
 void FileBrowserTreeView::addToPlaylist() {
-	QStringList filenames;
+	QStringList files;
 	QModelIndexList indexList = selectionModel()->selectedRows();
 	foreach (QModelIndex index, indexList) {
 		QFileInfo fileInfo(this->fileInfo(index));
 		//Sometimes, QFileInfo gives us this pattern: C://... that MPlayer does not accept
-		filenames += fileInfo.absoluteFilePath().replace("//", "/");
+		files += fileInfo.absoluteFilePath().replace("//", "/");
 	}
-	if (!filenames.isEmpty()) {
-		PlaylistWidgetFactory::playlistWidget()->addFilesToCurrentPlaylist(filenames);
+	if (!files.isEmpty()) {
+		PlaylistWidgetFactory::playlistWidget()->addFilesToPlaylist(files);
 	}
 }
 

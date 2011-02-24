@@ -68,8 +68,6 @@ target_link_libraries(MainWindow
 
 	QuarkPlayerCore
 
-	Playlist
-
 	${QTSINGLEAPPLICATION_LIBRARIES}
 
 	${QT_QTCORE_LIBRARY}
