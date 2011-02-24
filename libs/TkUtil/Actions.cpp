@@ -23,13 +23,11 @@
 #include <QtGui/QtGui>
 
 ActionCollection::ActionCollection() {
-}
-
-ActionCollection::ActionCollection(const QString & name) {
-	_name = name;
+	GlobalActionCollection::instance().registerCollection(this);
 }
 
 ActionCollection::~ActionCollection() {
+	GlobalActionCollection::instance().unregisterCollection(this);
 	_actionHash.clear();
 }
 
@@ -41,17 +39,18 @@ void ActionCollection::add(const QString & name, QAction * action) {
 		TkUtilCritical() << "QAction:" << name << "already exist";
 	}
 
+	action->setObjectName(name);
 	_actionHash[name] = action;
 }
 
-QAction * ActionCollection::operator[](const QString & name) {
+QAction * ActionCollection::operator[](const QString & name) const {
 	QAction * action = _actionHash.value(name);
 	Q_ASSERT(action);
 
 	return action;
 }
 
-QList<QAction *> ActionCollection::list() {
+QList<QAction *> ActionCollection::actions() const {
 	QList<QAction *> actionList;
 
 	QHashIterator<QString, QAction *> it(_actionHash);
@@ -66,7 +65,43 @@ QList<QAction *> ActionCollection::list() {
 }
 
 
-ActionCollection & GlobalActionCollection::instance() {
-	static ActionCollection instance;
+GlobalActionCollection & GlobalActionCollection::instance() {
+	static GlobalActionCollection instance;
 	return instance;
+}
+
+ActionCollection & GlobalActionCollection::collection() {
+	static ActionCollection collection;
+	return collection;
+}
+
+QList<QAction *> GlobalActionCollection::allActions() const {
+	QList<QAction *> actionList;
+	foreach (ActionCollection * collection, _collections) {
+		QList<QAction *> actions = collection->actions();
+		foreach (QAction * action, actions) {
+
+			//Remove all duplicated QAction (QAction with the same names)
+			QString name = action->objectName();
+			bool already = false;
+			/*foreach (QAction * tmp, actionList) {
+				if (tmp->objectName() == name) {
+					already = true;
+					break;
+				}
+			}*/
+			if (!already) {
+				actionList += action;
+			}
+		}
+	}
+	return actionList;
+}
+
+void GlobalActionCollection::registerCollection(ActionCollection * collection) {
+	_collections += collection;
+}
+
+void GlobalActionCollection::unregisterCollection(ActionCollection * collection) {
+	_collections.removeAll(collection);
 }

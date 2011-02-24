@@ -50,7 +50,7 @@ MyVideoWidget::MyVideoWidget(QDockWidget * dockWidget, IMainWindow * mainWindow)
 	//Lazy initialization
 	_widgetOverFullScreen = NULL;
 
-	connect(Actions["CommonActions.FullScreen"], SIGNAL(toggled(bool)),
+	connect(Actions["Global.FullScreen"], SIGNAL(toggled(bool)),
 		SLOT(setFullScreenInternal(bool)));
 
 	//We have to add the QAction to the widget otherwise it won't work
@@ -58,9 +58,9 @@ MyVideoWidget::MyVideoWidget(QDockWidget * dockWidget, IMainWindow * mainWindow)
 	//Note that an action must be added to a widget before it can be used;
 	//this is also true when the shortcut should be global
 	//(i.e., Qt::ApplicationShortcut as Qt::ShortcutContext).
-	addAction(Actions["CommonActions.FullScreenExit"]);
+	addAction(Actions["Global.FullScreenExit"]);
 
-	connect(Actions["CommonActions.FullScreenExit"], SIGNAL(triggered()),
+	connect(Actions["Global.FullScreenExit"], SIGNAL(triggered()),
 		SLOT(triggerFullScreenExitAction()));
 
 	if (_playToolBar) {
@@ -85,48 +85,37 @@ void MyVideoWidget::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	TkAction * action = new TkAction(app);
-	Actions.add("VideoWidget.AspectRatioAuto", action);
-
-	action = new TkAction(app);
-	Actions.add("VideoWidget.AspectRatioScale", action);
-
-	action = new TkAction(app);
-	Actions.add("VideoWidget.AspectRatio16/9", action);
-
-	action = new TkAction(app);
-	Actions.add("VideoWidget.AspectRatio4/3", action);
-
-	action = new TkAction(app);
-	Actions.add("VideoWidget.ScaleModeFitInView", action);
-
-	action = new TkAction(app);
-	Actions.add("VideoWidget.ScaleModeScaleAndCrop", action);
+	_actions.add("VideoWidget.AspectRatioAuto", new QAction(app));
+	_actions.add("VideoWidget.AspectRatioScale", new QAction(app));
+	_actions.add("VideoWidget.AspectRatio16/9", new QAction(app));
+	_actions.add("VideoWidget.AspectRatio4/3", new QAction(app));
+	_actions.add("VideoWidget.ScaleModeFitInView", new QAction(app));
+	_actions.add("VideoWidget.ScaleModeScaleAndCrop", new QAction(app));
 }
 
 void MyVideoWidget::retranslate() {
-	Actions["VideoWidget.AspectRatioAuto"]->setText(tr("Auto"));
-	Actions["VideoWidget.AspectRatioScale"]->setText(tr("Scale"));
-	Actions["VideoWidget.AspectRatio16/9"]->setText(tr("16/9"));
-	Actions["VideoWidget.AspectRatio4/3"]->setText(tr("4/3"));
-	Actions["VideoWidget.ScaleModeFitInView"]->setText(tr("Fit in View"));
-	Actions["VideoWidget.ScaleModeScaleAndCrop"]->setText(tr("Scale and Crop"));
+	_actions["VideoWidget.AspectRatioAuto"]->setText(tr("Auto"));
+	_actions["VideoWidget.AspectRatioScale"]->setText(tr("Scale"));
+	_actions["VideoWidget.AspectRatio16/9"]->setText(tr("16/9"));
+	_actions["VideoWidget.AspectRatio4/3"]->setText(tr("4/3"));
+	_actions["VideoWidget.ScaleModeFitInView"]->setText(tr("Fit in View"));
+	_actions["VideoWidget.ScaleModeScaleAndCrop"]->setText(tr("Scale and Crop"));
 }
 
 void MyVideoWidget::createContextMenu() {
 	_contextMenu = new QMenu(this);
 
-	_contextMenu->addAction(Actions["CommonActions.PreviousTrack"]);
-	_contextMenu->addAction(Actions["CommonActions.PlayPause"]);
-	_contextMenu->addAction(Actions["CommonActions.Stop"]);
-	_contextMenu->addAction(Actions["CommonActions.NextTrack"]);
-	_contextMenu->addAction(Actions["CommonActions.FullScreen"]);
+	_contextMenu->addAction(Actions["Global.PreviousTrack"]);
+	_contextMenu->addAction(Actions["Global.PlayPause"]);
+	_contextMenu->addAction(Actions["Global.Stop"]);
+	_contextMenu->addAction(Actions["Global.NextTrack"]);
+	_contextMenu->addAction(Actions["Global.FullScreen"]);
 
 	_contextMenu->addSeparator();
 
-	_contextMenu->addAction(Actions["CommonActions.OpenFile"]);
-	_contextMenu->addAction(Actions["CommonActions.OpenURL"]);
-	_contextMenu->addAction(Actions["CommonActions.OpenDVD"]);
+	_contextMenu->addAction(Actions["Global.OpenFile"]);
+	_contextMenu->addAction(Actions["Global.OpenURL"]);
+	_contextMenu->addAction(Actions["Global.OpenDVD"]);
 
 	_contextMenu->addSeparator();
 
@@ -135,23 +124,23 @@ void MyVideoWidget::createContextMenu() {
 	connect(aspectRatioGroup, SIGNAL(triggered(QAction *)), SLOT(aspectRatioChanged(QAction *)));
 	aspectRatioGroup->setExclusive(true);
 
-	QAction * action = Actions["VideoWidget.AspectRatioAuto"];
+	QAction * action = _actions["VideoWidget.AspectRatioAuto"];
 	action->setCheckable(true);
 	action->setChecked(true);
 	aspectRatioMenu->addAction(action);
 	aspectRatioGroup->addAction(action);
 
-	action = Actions["VideoWidget.AspectRatioScale"];
+	action = _actions["VideoWidget.AspectRatioScale"];
 	action->setCheckable(true);
 	aspectRatioMenu->addAction(action);
 	aspectRatioGroup->addAction(action);
 
-	action = Actions["VideoWidget.AspectRatio16/9"];
+	action = _actions["VideoWidget.AspectRatio16/9"];
 	action->setCheckable(true);
 	aspectRatioMenu->addAction(action);
 	aspectRatioGroup->addAction(action);
 
-	action = Actions["VideoWidget.AspectRatio4/3"];
+	action = _actions["VideoWidget.AspectRatio4/3"];
 	action->setCheckable(true);
 	aspectRatioMenu->addAction(action);
 	aspectRatioGroup->addAction(action);
@@ -161,20 +150,20 @@ void MyVideoWidget::createContextMenu() {
 	connect(scaleModeGroup, SIGNAL(triggered(QAction *)), SLOT(scaleModeChanged(QAction *)));
 	scaleModeGroup->setExclusive(true);
 
-	action = Actions["VideoWidget.ScaleModeFitInView"];
+	action = _actions["VideoWidget.ScaleModeFitInView"];
 	action->setCheckable(true);
 	action->setChecked(true);
 	scaleModeMenu->addAction(action);
 	scaleModeGroup->addAction(action);
 
-	action = Actions["VideoWidget.ScaleModeScaleAndCrop"];
+	action = _actions["VideoWidget.ScaleModeScaleAndCrop"];
 	action->setCheckable(true);
 	scaleModeMenu->addAction(action);
 	scaleModeGroup->addAction(action);
 
 	_contextMenu->addSeparator();
 
-	_contextMenu->addAction(Actions["CommonActions.Quit"]);
+	_contextMenu->addAction(Actions["Global.Quit"]);
 }
 
 void MyVideoWidget::showContextMenu(const QPoint & pos) {
@@ -182,9 +171,9 @@ void MyVideoWidget::showContextMenu(const QPoint & pos) {
 }
 
 void MyVideoWidget::scaleModeChanged(QAction * action) {
-	if (action == Actions["VideoWidget.ScaleModeFitInView"]) {
+	if (action == _actions["VideoWidget.ScaleModeFitInView"]) {
 		setScaleMode(Phonon::VideoWidget::FitInView);
-	} else if (action == Actions["VideoWidget.ScaleModeScaleAndCrop"]) {
+	} else if (action == _actions["VideoWidget.ScaleModeScaleAndCrop"]) {
 		setScaleMode(Phonon::VideoWidget::ScaleAndCrop);
 	} else {
 		VideoWidgetCritical() << "Unknown action:" << action->text();
@@ -192,13 +181,13 @@ void MyVideoWidget::scaleModeChanged(QAction * action) {
 }
 
 void MyVideoWidget::aspectRatioChanged(QAction * action) {
-	if (action == Actions["VideoWidget.AspectRatio16/9"]) {
+	if (action == _actions["VideoWidget.AspectRatio16/9"]) {
 		setAspectRatio(Phonon::VideoWidget::AspectRatio16_9);
-	} else if (action == Actions["VideoWidget.AspectRatioScale"]) {
+	} else if (action == _actions["VideoWidget.AspectRatioScale"]) {
 		setAspectRatio(Phonon::VideoWidget::AspectRatioWidget);
-	} else if (action == Actions["VideoWidget.AspectRatio4/3"]) {
+	} else if (action == _actions["VideoWidget.AspectRatio4/3"]) {
 		setAspectRatio(Phonon::VideoWidget::AspectRatio4_3);
-	} else if (action == Actions["VideoWidget.AspectRatioAuto"]) {
+	} else if (action == _actions["VideoWidget.AspectRatioAuto"]) {
 		setAspectRatio(Phonon::VideoWidget::AspectRatioAuto);
 	} else {
 		VideoWidgetCritical() << "Unknown action:" << action->text();
@@ -206,7 +195,7 @@ void MyVideoWidget::aspectRatioChanged(QAction * action) {
 }
 
 void MyVideoWidget::triggerFullScreenExitAction() {
-	Actions["CommonActions.FullScreen"]->setChecked(false);
+	Actions["Global.FullScreen"]->setChecked(false);
 }
 
 void MyVideoWidget::enterFullScreenInternal() {
@@ -277,7 +266,7 @@ void MyVideoWidget::setFullScreenInternal(bool fullScreen) {
 void MyVideoWidget::mouseDoubleClickEvent(QMouseEvent * event) {
 	if (event->button() == Qt::LeftButton) {
 		event->accept();
-		Actions["CommonActions.FullScreen"]->toggle();
+		Actions["Global.FullScreen"]->toggle();
 	} else {
 		event->ignore();
 	}
@@ -310,7 +299,7 @@ bool MyVideoWidget::event(QEvent * event) {
 		}
 	}
 
-	Phonon::VideoWidget::event(event);
+	return Phonon::VideoWidget::event(event);
 }
 
 void MyVideoWidget::timerEvent(QTimerEvent * event) {

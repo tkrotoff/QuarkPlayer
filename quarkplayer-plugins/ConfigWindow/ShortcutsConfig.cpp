@@ -65,7 +65,7 @@ void ShortcutsConfig::load() const {
 QAction * ShortcutsConfig::findAction(const QString & name) const {
 	QAction * result = NULL;
 
-	QList<QAction *> actions = Actions.list();
+	QList<QAction *> actions = GlobalActionCollection::instance().allActions();
 	foreach (QAction * action, actions) {
 		if (name == action->objectName()) {
 			result = action;
@@ -85,7 +85,7 @@ void ShortcutsConfig::save() {
 	settings.beginWriteArray(SETTINGS_GROUP);
 	int count = 0;
 
-	QList<QAction *> actions = Actions.list();
+	QList<QAction *> actions = GlobalActionCollection::instance().allActions();
 	foreach (QAction * action, actions) {
 		QString name = action->objectName();
 		QString shortcuts = ShortcutsConfigWidget::toString(action->shortcuts());

@@ -19,6 +19,8 @@
 #ifndef MYVIDEOWIDGET_H
 #define MYVIDEOWIDGET_H
 
+#include <TkUtil/Actions.h>
+
 #include <phonon/videowidget.h>
 #include <phonon/phononnamespace.h>
 
@@ -149,6 +151,8 @@ private:
 	 * using right button of the mouse.
 	 */
 	QMenu * _contextMenu;
+
+	ActionCollection _actions;
 };
 
 #endif	//MYVIDEOWIDGET_H

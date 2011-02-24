@@ -32,7 +32,6 @@
 #include <quarkplayer-plugins/ConfigWindow/PlaylistConfig.h>
 
 #include <TkUtil/TkAction.h>
-#include <TkUtil/Actions.h>
 #include <TkUtil/TkToolBar.h>
 #include <TkUtil/TkFileDialog.h>
 #include <TkUtil/LanguageChangeEventFilter.h>
@@ -136,7 +135,10 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid, IM
 	connect(&PlaylistConfig::instance(), SIGNAL(activePlaylistChanged(const QUuid &)),
 		SLOT(activePlaylistChanged(const QUuid &)));
 
-	Config::instance().addKey(PLAYLIST_SEARCH_HISTORY_KEY, QStringList());
+	Config & config = Config::instance();
+	if (!config.contains(PLAYLIST_SEARCH_HISTORY_KEY)) {
+		config.addKey(PLAYLIST_SEARCH_HISTORY_KEY, QStringList());
+	}
 
 	RETRANSLATE(this);
 	retranslate();
@@ -166,14 +168,14 @@ void PlaylistWidget::createToolBar() {
 	_searchTimer->setInterval(1500);
 	connect(_searchTimer, SIGNAL(timeout()), SLOT(addWordToWordList()));
 
-	toolBar->addAction(Actions["Playlist.Shuffle"]);
-	connect(Actions["Playlist.Shuffle"], SIGNAL(toggled(bool)), _playlistFilter, SLOT(setShuffle(bool)));
+	toolBar->addAction(_actions["Playlist.Shuffle"]);
+	connect(_actions["Playlist.Shuffle"], SIGNAL(toggled(bool)), _playlistFilter, SLOT(setShuffle(bool)));
 
-	toolBar->addAction(Actions["Playlist.Repeat"]);
-	connect(Actions["Playlist.Repeat"], SIGNAL(toggled(bool)), _playlistFilter, SLOT(setRepeat(bool)));
+	toolBar->addAction(_actions["Playlist.Repeat"]);
+	connect(_actions["Playlist.Repeat"], SIGNAL(toggled(bool)), _playlistFilter, SLOT(setRepeat(bool)));
 
-	toolBar->addAction(Actions["Playlist.JumpToCurrent"]);
-	connect(Actions["Playlist.JumpToCurrent"], SIGNAL(triggered()), SLOT(jumpToCurrent()));
+	toolBar->addAction(_actions["Playlist.JumpToCurrent"]);
+	connect(_actions["Playlist.JumpToCurrent"], SIGNAL(triggered()), SLOT(jumpToCurrent()));
 
 	//Search line edit
 	QStringList history = Config::instance().value(PLAYLIST_SEARCH_HISTORY_KEY).toStringList();
@@ -181,101 +183,101 @@ void PlaylistWidget::createToolBar() {
 	connect(_searchLineEdit, SIGNAL(textChanged(const QString &)), SLOT(search()));
 	toolBar->addWidget(_searchLineEdit);
 
-	toolBar->addAction(Actions["Playlist.Open"]);
-	connect(Actions["Playlist.Open"], SIGNAL(triggered()), SLOT(openPlaylist()));
+	toolBar->addAction(_actions["Playlist.Open"]);
+	connect(_actions["Playlist.Open"], SIGNAL(triggered()), SLOT(openPlaylist()));
 
-	toolBar->addAction(Actions["Playlist.Save"]);
-	connect(Actions["Playlist.Save"], SIGNAL(triggered()), SLOT(savePlaylist()));
+	toolBar->addAction(_actions["Playlist.Save"]);
+	connect(_actions["Playlist.Save"], SIGNAL(triggered()), SLOT(savePlaylist()));
 
 	//We have to use a QToolButton instead of a QAction,
 	//otherwise we cannot use QToolButton::InstantPopup :/
 	QToolButton * addButton = new QToolButton();
 	addButton->setPopupMode(QToolButton::InstantPopup);
-	addButton->setDefaultAction(Actions["Playlist.Add"]);
+	addButton->setDefaultAction(_actions["Playlist.Add"]);
 	toolBar->addWidget(addButton);
 
 	QMenu * addMenu = new QMenu();
-	addMenu->addAction(Actions["Playlist.AddFiles"]);
-	connect(Actions["Playlist.AddFiles"], SIGNAL(triggered()), SLOT(addFiles()));
+	addMenu->addAction(_actions["Playlist.AddFiles"]);
+	connect(_actions["Playlist.AddFiles"], SIGNAL(triggered()), SLOT(addFiles()));
 
-	addMenu->addAction(Actions["Playlist.AddDir"]);
-	connect(Actions["Playlist.AddDir"], SIGNAL(triggered()), SLOT(addDir()));
+	addMenu->addAction(_actions["Playlist.AddDir"]);
+	connect(_actions["Playlist.AddDir"], SIGNAL(triggered()), SLOT(addDir()));
 
-	connect(Actions["Playlist.AddURL"], SIGNAL(triggered()), SLOT(addURL()));
+	connect(_actions["Playlist.AddURL"], SIGNAL(triggered()), SLOT(addURL()));
 	addButton->setMenu(addMenu);
 
 	KeyPressEventFilter * deleteKeyFilter = new KeyPressEventFilter(_view, SLOT(clearSelection()),
 									Qt::Key_Delete);
 	_view->installEventFilter(deleteKeyFilter);
 
-	toolBar->addAction(Actions["Playlist.RemoveAll"]);
-	connect(Actions["Playlist.RemoveAll"], SIGNAL(triggered()), _playlistModel, SLOT(clear()));
-	connect(Actions["Playlist.RemoveAll"], SIGNAL(triggered()), SLOT(updateWindowTitle()));
+	toolBar->addAction(_actions["Playlist.RemoveAll"]);
+	connect(_actions["Playlist.RemoveAll"], SIGNAL(triggered()), _playlistModel, SLOT(clear()));
+	connect(_actions["Playlist.RemoveAll"], SIGNAL(triggered()), SLOT(updateWindowTitle()));
 
 	toolBar->addSeparator();
 
-	toolBar->addAction(Actions["Playlist.New"]);
-	connect(Actions["Playlist.New"], SIGNAL(triggered()), SLOT(createNewPlaylistWidget()));
+	toolBar->addAction(_actions["Playlist.New"]);
+	connect(_actions["Playlist.New"], SIGNAL(triggered()), SLOT(createNewPlaylistWidget()));
 }
 
 void PlaylistWidget::populateActionCollection() {
 	QCoreApplication * app = QApplication::instance();
 	Q_ASSERT(app);
 
-	Actions.add("Playlist.Open", new QAction(app));
-	Actions.add("Playlist.Save", new QAction(app));
+	_actions.add("Playlist.Open", new QAction(app));
+	_actions.add("Playlist.Save", new QAction(app));
 
-	Actions.add("Playlist.Add", new QAction(app));
-	Actions.add("Playlist.AddFiles", new QAction(app));
-	Actions.add("Playlist.AddDir", new QAction(app));
-	Actions.add("Playlist.AddURL", new QAction(app));
+	_actions.add("Playlist.Add", new QAction(app));
+	_actions.add("Playlist.AddFiles", new QAction(app));
+	_actions.add("Playlist.AddDir", new QAction(app));
+	_actions.add("Playlist.AddURL", new QAction(app));
 
-	Actions.add("Playlist.RemoveAll", new QAction(app));
+	_actions.add("Playlist.RemoveAll", new QAction(app));
 
 	TkAction * action = new TkAction(app, tr("Ctrl+S"));
 	action->setCheckable(true);
-	Actions.add("Playlist.Shuffle", action);
+	_actions.add("Playlist.Shuffle", action);
 
 	action = new TkAction(app, tr("Ctrl+R"));
 	action->setCheckable(true);
-	Actions.add("Playlist.Repeat", action);
+	_actions.add("Playlist.Repeat", action);
 
-	Actions.add("Playlist.JumpToCurrent", new TkAction(app, tr("Ctrl+J")));
+	_actions.add("Playlist.JumpToCurrent", new TkAction(app, tr("Ctrl+J")));
 
-	Actions.add("Playlist.New", new QAction(app));
+	_actions.add("Playlist.New", new QAction(app));
 }
 
 void PlaylistWidget::retranslate() {
 	_searchLineEdit->setToolTip(tr("Search playlist, use whitespaces to separate words"));
 	_searchLineEdit->setClickMessage(tr("Search"));
 
-	Actions["Playlist.Open"]->setText(tr("Open Playlist"));
-	Actions["Playlist.Open"]->setIcon(QIcon::fromTheme("document-open"));
+	_actions["Playlist.Open"]->setText(tr("Open Playlist"));
+	_actions["Playlist.Open"]->setIcon(QIcon::fromTheme("document-open"));
 
-	Actions["Playlist.Save"]->setText(tr("Save Playlist"));
-	Actions["Playlist.Save"]->setIcon(QIcon::fromTheme("document-save"));
+	_actions["Playlist.Save"]->setText(tr("Save Playlist"));
+	_actions["Playlist.Save"]->setIcon(QIcon::fromTheme("document-save"));
 
-	Actions["Playlist.Add"]->setText(tr("Add..."));
-	Actions["Playlist.Add"]->setIcon(QIcon::fromTheme("list-add"));
+	_actions["Playlist.Add"]->setText(tr("Add..."));
+	_actions["Playlist.Add"]->setIcon(QIcon::fromTheme("list-add"));
 
-	Actions["Playlist.AddFiles"]->setText(tr("Add Files"));
-	Actions["Playlist.AddDir"]->setText(tr("Add Directory"));
-	Actions["Playlist.AddURL"]->setText(tr("Add URL"));
+	_actions["Playlist.AddFiles"]->setText(tr("Add Files"));
+	_actions["Playlist.AddDir"]->setText(tr("Add Directory"));
+	_actions["Playlist.AddURL"]->setText(tr("Add URL"));
 
-	Actions["Playlist.RemoveAll"]->setText(tr("Remove All"));
-	Actions["Playlist.RemoveAll"]->setIcon(QIcon::fromTheme("list-remove"));
+	_actions["Playlist.RemoveAll"]->setText(tr("Remove All"));
+	_actions["Playlist.RemoveAll"]->setIcon(QIcon::fromTheme("list-remove"));
 
-	Actions["Playlist.Shuffle"]->setText(tr("Shuffle"));
-	Actions["Playlist.Shuffle"]->setIcon(QIcon::fromTheme("media-playlist-shuffle"));
+	_actions["Playlist.Shuffle"]->setText(tr("Shuffle"));
+	_actions["Playlist.Shuffle"]->setIcon(QIcon::fromTheme("media-playlist-shuffle"));
 
-	Actions["Playlist.Repeat"]->setText(tr("Repeat"));
-	Actions["Playlist.Repeat"]->setIcon(QIcon::fromTheme("media-playlist-repeat"));
+	_actions["Playlist.Repeat"]->setText(tr("Repeat"));
+	_actions["Playlist.Repeat"]->setIcon(QIcon::fromTheme("media-playlist-repeat"));
 
-	Actions["Playlist.JumpToCurrent"]->setText(tr("Jump to Current Playing Media"));
-	Actions["Playlist.JumpToCurrent"]->setIcon(QIcon::fromTheme("go-jump"));
+	_actions["Playlist.JumpToCurrent"]->setText(tr("Jump to Current Playing Media"));
+	_actions["Playlist.JumpToCurrent"]->setIcon(QIcon::fromTheme("go-jump"));
 
-	Actions["Playlist.New"]->setText(tr("New Playlist Window"));
-	Actions["Playlist.New"]->setIcon(QIcon::fromTheme("tab-new"));
+	_actions["Playlist.New"]->setText(tr("New Playlist Window"));
+	_actions["Playlist.New"]->setIcon(QIcon::fromTheme("tab-new"));
 
 	updateWindowTitle();
 }
@@ -397,11 +399,11 @@ void PlaylistWidget::connectToMediaObject(Phonon::MediaObject * mediaObject) {
 	}
 
 	//Next track
-	connect(Actions["CommonActions.NextTrack"], SIGNAL(triggered()),
+	connect(Actions["Global.NextTrack"], SIGNAL(triggered()),
 		_playlistFilter, SLOT(playNextTrack()));
 
 	//Previous track
-	connect(Actions["CommonActions.PreviousTrack"], SIGNAL(triggered()),
+	connect(Actions["Global.PreviousTrack"], SIGNAL(triggered()),
 		_playlistFilter, SLOT(playPreviousTrack()));
 }
 
@@ -412,10 +414,10 @@ void PlaylistWidget::disconnectFromMediaObjectList() {
 	}
 
 	//Next track
-	Actions["CommonActions.NextTrack"]->disconnect(_playlistFilter);
+	Actions["Global.NextTrack"]->disconnect(_playlistFilter);
 
 	//Previous track
-	Actions["CommonActions.PreviousTrack"]->disconnect(_playlistFilter);
+	Actions["Global.PreviousTrack"]->disconnect(_playlistFilter);
 }
 
 void PlaylistWidget::createNewPlaylistWidget() {

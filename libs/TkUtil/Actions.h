@@ -44,14 +44,12 @@ public:
 
 	ActionCollection();
 
-	ActionCollection(const QString & name);
-
 	~ActionCollection();
 
 	/**
 	 * Retrieves an action given its name.
 	 */
-	QAction * operator[](const QString & name);
+	QAction * operator[](const QString & name) const;
 
 	/**
 	 * Adds an action with a name.
@@ -61,16 +59,14 @@ public:
 	/**
 	 * Retrieves all the actions registered.
 	 */
-	QList<QAction *> list();
+	QList<QAction *> actions() const;
 
 private:
-
-	/** Name of the collection, can be empty. */
-	QString _name;
 
 	/** Associates a name to a QAction. */
 	QHash<QString, QAction *> _actionHash;
 };
+
 
 /**
  * Global variable ActionCollection.
@@ -78,12 +74,30 @@ private:
  * Singleton Pattern.
  */
 class TKUTIL_API GlobalActionCollection : public Singleton {
+	friend class ActionCollection;
 public:
 
-	static ActionCollection & instance();
+	static GlobalActionCollection & instance();
+
+	static ActionCollection & collection();
+
+	/**
+	 * Gets all the QAction from all ActionCollection.
+	 *
+	 * Implementation removes all duplicated QAction (QAction with the same names).
+	 */
+	QList<QAction *> allActions() const;
+
+private:
+
+	void registerCollection(ActionCollection * collection);
+
+	void unregisterCollection(ActionCollection * collection);
+
+	QList<ActionCollection *> _collections;
 };
 
 /** Simplify the syntax. */
-#define Actions GlobalActionCollection::instance()
+#define Actions GlobalActionCollection::collection()
 
 #endif	//ACTIONCOLLECTION_H

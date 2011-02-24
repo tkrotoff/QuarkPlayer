@@ -67,7 +67,7 @@ QuickSettingsWindow::QuickSettingsWindow(QuarkPlayer & quarkPlayer, const QUuid 
 	_nextEffect = NULL;
 	_ui = NULL;
 
-	connect(Actions["CommonActions.Equalizer"], SIGNAL(triggered()), SLOT(show()));
+	connect(Actions["Global.Equalizer"], SIGNAL(triggered()), SLOT(show()));
 }
 
 QuickSettingsWindow::~QuickSettingsWindow() {

@@ -25,6 +25,8 @@
 
 #include <PlaylistParser/PlaylistParser.h>
 
+#include <TkUtil/Actions.h>
+
 #include <QtGui/QWidget>
 
 #include <QtCore/QList>
@@ -146,6 +148,8 @@ private:
 	QTimer * _searchTimer;
 
 	IMainWindow * _mainWindow;
+
+	ActionCollection _actions;
 };
 
 #include <quarkplayer/PluginFactory.h>

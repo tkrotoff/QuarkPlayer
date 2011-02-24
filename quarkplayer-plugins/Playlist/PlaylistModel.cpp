@@ -83,8 +83,13 @@ PlaylistModel::PlaylistModel(QuarkPlayer & quarkPlayer, const QUuid & uuid, QObj
 	connect(_mediaInfoFetcher, SIGNAL(finished(const MediaInfo &)),
 		SLOT(updateMediaInfo(const MediaInfo &)));
 
-	Config::instance().addKey(PLAYLIST_TRACK_DISPLAY_MODE_KEY, TrackDisplayModeNormal);
-	Config::instance().addKey(PLAYLIST_DEFAULT_FORMAT_KEY, "xspf");
+	Config & config = Config::instance();
+	if (!config.contains(PLAYLIST_TRACK_DISPLAY_MODE_KEY)) {
+		config.addKey(PLAYLIST_TRACK_DISPLAY_MODE_KEY, TrackDisplayModeNormal);
+	}
+	if (!config.contains(PLAYLIST_DEFAULT_FORMAT_KEY)) {
+		config.addKey(PLAYLIST_DEFAULT_FORMAT_KEY, "xspf");
+	}
 
 	_playlistReader = new PlaylistReader(this);
 	connect(_playlistReader, SIGNAL(filesFound(const QList<MediaInfo> &)),

@@ -100,12 +100,12 @@ void ShortcutsConfigWidget::readConfig() {
 	_shortcutItems.clear();
 	_ui->actionList->clear();
 
-	QList<QAction *> actions = Actions.list();
-
+	QList<QAction *> actions = GlobalActionCollection::instance().allActions();
 	foreach (QAction * action, actions) {
 		TkAction * tkAction = qobject_cast<TkAction *>(action);
 		//If action is not a TkAction then we don't add it to the list of actions to be
-		//displayed and configurable
+		//displayed and configured
+		//Only TkAction should contain shortcuts
 		if (tkAction) {
 			QTreeWidgetItem * item = new QTreeWidgetItem(_ui->actionList);
 
