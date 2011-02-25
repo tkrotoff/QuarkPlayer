@@ -124,7 +124,6 @@ FileBrowserWidget::FileBrowserWidget(QuarkPlayer & quarkPlayer, const QUuid & uu
 
 FileBrowserWidget::~FileBrowserWidget() {
 	_mainWindow->removeDockWidget(_dockWidget);
-	_mainWindow->resetBrowserDockWidget();
 }
 
 void FileBrowserWidget::createToolBar() {

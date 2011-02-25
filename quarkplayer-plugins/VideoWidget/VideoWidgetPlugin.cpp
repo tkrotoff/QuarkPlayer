@@ -77,7 +77,6 @@ VideoWidgetPlugin::~VideoWidgetPlugin() {
 		VideoContainer * container = it.value();
 		_mainWindow->removeDockWidget(container->videoDockWidget);
 	}
-	_mainWindow->resetVideoDockWidget();
 }
 
 void VideoWidgetPlugin::stateChanged(Phonon::State newState, Phonon::State oldState) {

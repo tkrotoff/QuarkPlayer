@@ -60,13 +60,10 @@ public:
 	QMenu * menuHelp() const;
 
 	void addBrowserDockWidget(QDockWidget * dockWidget);
-	void resetBrowserDockWidget();
 
 	void addVideoDockWidget(QDockWidget * dockWidget);
-	void resetVideoDockWidget();
-
+\
 	void addPlaylistDockWidget(QDockWidget * dockWidget);
-	void resetPlaylistDockWidget();
 
 signals:
 

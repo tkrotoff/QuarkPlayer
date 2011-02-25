@@ -148,7 +148,6 @@ PlaylistWidget::PlaylistWidget(QuarkPlayer & quarkPlayer, const QUuid & uuid, IM
 
 PlaylistWidget::~PlaylistWidget() {
 	_mainWindow->removeDockWidget(_dockWidget);
-	_mainWindow->resetPlaylistDockWidget();
 }
 
 PlaylistModel * PlaylistWidget::playlistModel() const {
@@ -355,12 +354,12 @@ void PlaylistWidget::openPlaylist() {
 
 void PlaylistWidget::playlistLoaded(PlaylistParser::Error, int timeElapsed) {
 	PlaylistDebug() << "Load time (seconds):" << timeElapsed / 1000;
-	updateWindowTitle("");
+	updateWindowTitle();
 }
 
 void PlaylistWidget::playlistSaved(PlaylistParser::Error, int timeElapsed) {
 	PlaylistDebug() << "Save time (seconds):" << timeElapsed / 1000;
-	updateWindowTitle("");
+	updateWindowTitle();
 }
 
 void PlaylistWidget::updateWindowTitle(const QString & statusMessage) {
@@ -526,21 +525,9 @@ void PlaylistWidget::activePlaylistChanged(const QUuid & _uuid) {
 
 		disconnectFromMediaObjectList();
 		connectToMediaObject(quarkPlayer().currentMediaObject());
-
-		QString title = _dockWidget->windowTitle();
-		if (!title.startsWith("> ")) {
-			_dockWidget->setWindowTitle("> " + title);
-		}
 	} else {
 		//This playlist is not the active one
 
 		disconnectFromMediaObjectList();
-
-		//updateWindowTitle();
-		QString title = _dockWidget->windowTitle();
-		if (title.startsWith("> ")) {
-			title.remove(0, 2);
-			_dockWidget->setWindowTitle(title);
-		}
 	}
 }

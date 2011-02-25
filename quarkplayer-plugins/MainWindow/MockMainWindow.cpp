@@ -189,28 +189,16 @@ void MockMainWindow::addBrowserDockWidget(QDockWidget * dockWidget) {
 	lastDockWidget = dockWidget;
 }
 
-void MockMainWindow::resetBrowserDockWidget() {
-	addBrowserDockWidget(NULL);
-}
-
 void MockMainWindow::addVideoDockWidget(QDockWidget * dockWidget) {
 	static QDockWidget * lastDockWidget = NULL;
 	addDockWidget(Qt::RightDockWidgetArea, lastDockWidget, dockWidget);
 	lastDockWidget = dockWidget;
 }
 
-void MockMainWindow::resetVideoDockWidget() {
-	addVideoDockWidget(NULL);
-}
-
 void MockMainWindow::addPlaylistDockWidget(QDockWidget * dockWidget) {
 	static QDockWidget * lastDockWidget = NULL;
 	addDockWidget(Qt::RightDockWidgetArea, lastDockWidget, dockWidget);
 	lastDockWidget = dockWidget;
-}
-
-void MockMainWindow::resetPlaylistDockWidget() {
-	addPlaylistDockWidget(NULL);
 }
 
 void MockMainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {

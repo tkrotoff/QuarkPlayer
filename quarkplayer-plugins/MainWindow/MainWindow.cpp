@@ -440,7 +440,82 @@ void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget * lastDockWi
 		if (lastDockWidget) {
 			tabifyDockWidget(lastDockWidget, dockWidget);
 		}
+
+		//Others use a QTimer otherwise not all tabs inside QTabBar are detected
+		//I prefer to run processEvents()
+		//See http://developer.qt.nokia.com/faq/answer/how_can_i_check_which_tab_is_the_current_one_in_a_tabbed_qdockwidget
+		//See http://ariya.blogspot.com/2007/04/tab-bar-with-roundednorth-for-tabbed.html
+		QApplication::instance()->processEvents();
+		hackDockWidgetTabBar();
 	}
+}
+
+void MainWindow::hackDockWidgetTabBar() {
+	QList<QTabBar *> tabBars = findChildren<QTabBar *>();
+	foreach (QTabBar * tabBar, tabBars) {
+
+		//Check the QTabBar is for a QDockWidget: the parent should be the main window
+		//This test is definitely not enough :/
+		if (tabBar->parentWidget() == this) {
+
+			//Do this first otherwise tabBar->count() is fucked
+			tabBar->setTabsClosable(true);
+
+			disconnect(tabBar, SIGNAL(tabCloseRequested(int)), this, SLOT(tabCloseRequested(int)));
+			connect(tabBar, SIGNAL(tabCloseRequested(int)), SLOT(tabCloseRequested(int)));
+		}
+	}
+}
+
+QDockWidget * MainWindow::findDockWidget(QTabBar * tabBar, int index) {
+	Q_ASSERT(tabBar);
+
+	//Internal Qt implementation already use tabData with QVariant being
+	//a quintptr which is in fact a QWidget pointer!
+	//See http://qt.gitorious.org/qt/qt/blobs/4.7/src/gui/widgets/qdockarealayout.cpp
+	//This is just perfect for us!
+	//Assuming qulonglong (QVariant::toULongLong()) and quintptr are equivalent
+	QVariant tmp = tabBar->tabData(index);
+	QDockWidget * dockWidget = reinterpret_cast<QDockWidget *>(tmp.toULongLong());
+	Q_ASSERT(dockWidget);
+	///
+
+	return dockWidget;
+}
+
+QPair<QTabBar *, int> MainWindow::findDockWidgetTab(QDockWidget * dockWidget) {
+	QPair<QTabBar *, int> result;
+
+	QList<QTabBar *> tabBars = findChildren<QTabBar *>();
+	foreach (QTabBar * tabBar, tabBars) {
+
+		//Check the QTabBar is for a QDockWidget: the parent should be the main window
+		//This test is definitely not enough :/
+		if (tabBar->parentWidget() == this) {
+			for (int i = 0; i < tabBar->count(); i++) {
+				QDockWidget * tmp = findDockWidget(tabBar, i);
+				if (dockWidget == tmp) {
+
+					//Found the right QDockWidget
+					result.first = tabBar;
+					result.second = i;
+					return result;
+				}
+			}
+		}
+	}
+
+	//Cannot be in this state
+	Q_ASSERT(false);
+
+	return result;
+}
+
+void MainWindow::tabCloseRequested(int index) {
+	QTabBar * tabBar = qobject_cast<QTabBar *>(sender());
+	QDockWidget * dockWidget = findDockWidget(tabBar, index);
+	removeDockWidget(dockWidget);
+	//FIXME needed? dockWidget->close();
 }
 
 void MainWindow::addBrowserDockWidget(QDockWidget * dockWidget) {
@@ -449,28 +524,16 @@ void MainWindow::addBrowserDockWidget(QDockWidget * dockWidget) {
 	lastDockWidget = dockWidget;
 }
 
-void MainWindow::resetBrowserDockWidget() {
-	addBrowserDockWidget(NULL);
-}
-
 void MainWindow::addVideoDockWidget(QDockWidget * dockWidget) {
 	static QDockWidget * lastDockWidget = NULL;
 	addDockWidget(Qt::RightDockWidgetArea, lastDockWidget, dockWidget);
 	lastDockWidget = dockWidget;
 }
 
-void MainWindow::resetVideoDockWidget() {
-	addVideoDockWidget(NULL);
-}
-
 void MainWindow::addPlaylistDockWidget(QDockWidget * dockWidget) {
 	static QDockWidget * lastDockWidget = NULL;
 	addDockWidget(Qt::RightDockWidgetArea, lastDockWidget, dockWidget);
 	lastDockWidget = dockWidget;
-}
-
-void MainWindow::resetPlaylistDockWidget() {
-	addPlaylistDockWidget(NULL);
 }
 
 void MainWindow::currentMediaObjectChanged(Phonon::MediaObject * mediaObject) {

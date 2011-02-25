@@ -65,13 +65,14 @@ public:
 	QMenu * menuHelp() const;
 
 	void addBrowserDockWidget(QDockWidget * dockWidget);
-	void resetBrowserDockWidget();
 
 	void addVideoDockWidget(QDockWidget * dockWidget);
-	void resetVideoDockWidget();
 
 	void addPlaylistDockWidget(QDockWidget * dockWidget);
-	void resetPlaylistDockWidget();
+
+
+	/** HACK */
+	QPair<QTabBar *, int> findDockWidgetTab(QDockWidget * dockWidget);
 
 signals:
 
@@ -122,6 +123,9 @@ private slots:
 
 	void mutedToggled(bool muted);
 
+	/** HACK */
+	void tabCloseRequested(int index);
+
 private:
 
 	void populateActionCollection();
@@ -139,6 +143,12 @@ private:
 
 	/** Internal factorization code. */
 	void addDockWidget(Qt::DockWidgetArea area, QDockWidget * lastDockWidget, QDockWidget * dockWidget);
+
+	/** HACK get all QTabBar of the QDockWidgets and modify them. */
+	void hackDockWidgetTabBar();
+
+	/** HACK */
+	QDockWidget * findDockWidget(QTabBar * tabBar, int index);
 
 	void dragEnterEvent(QDragEnterEvent * event);
 

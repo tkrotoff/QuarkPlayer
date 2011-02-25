@@ -53,13 +53,17 @@ public:
 	virtual QMenu * menuHelp() const = 0;
 
 	virtual void addBrowserDockWidget(QDockWidget * dockWidget) = 0;
-	virtual void resetBrowserDockWidget() = 0;
 
 	virtual void addVideoDockWidget(QDockWidget * dockWidget) = 0;
-	virtual void resetVideoDockWidget() = 0;
 
 	virtual void addPlaylistDockWidget(QDockWidget * dockWidget) = 0;
-	virtual void resetPlaylistDockWidget() = 0;
+
+	/** HACK */
+	virtual QPair<QTabBar *, int> findDockWidgetTab(QDockWidget * dockWidget) {
+		Q_UNUSED(dockWidget);
+		QPair<QTabBar *, int> result;
+		return result;
+	}
 
 signals:
 
