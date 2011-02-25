@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>318</width>
-    <height>425</height>
+    <width>321</width>
+    <height>472</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -211,7 +211,7 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QComboBox" name="deviceCombo"/>
+         <widget class="QComboBox" name="audioDevicesCombo"/>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="audioEffectLabel">
@@ -232,7 +232,7 @@
            <widget class="QComboBox" name="audioEffectsCombo"/>
           </item>
           <item>
-           <widget class="QToolButton" name="effectButton">
+           <widget class="QToolButton" name="audioEffectButton">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -360,9 +360,9 @@
   <tabstop>hueSlider</tabstop>
   <tabstop>aspectRatioCombo</tabstop>
   <tabstop>scaleModeCombo</tabstop>
-  <tabstop>deviceCombo</tabstop>
+  <tabstop>audioDevicesCombo</tabstop>
   <tabstop>audioEffectsCombo</tabstop>
-  <tabstop>effectButton</tabstop>
+  <tabstop>audioEffectButton</tabstop>
   <tabstop>crossFadeSlider</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>

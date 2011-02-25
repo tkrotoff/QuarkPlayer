@@ -74,21 +74,21 @@ QuickSettingsWindow::~QuickSettingsWindow() {
 }
 
 void QuickSettingsWindow::show() {
-	_audioOutput = quarkPlayer().currentAudioOutput();
-	_mediaObject = quarkPlayer().currentMediaObject();
-	_videoWidget = quarkPlayer().currentVideoWidget();
-	_audioOutputPath = quarkPlayer().currentAudioOutputPath();
+	setupUi();
 
 	init();
+
 	QDialog::show();
 }
 
-void QuickSettingsWindow::init() {
-	if (!_ui) {
-		//If not already done before
-		_ui = new Ui::QuickSettingsWindow();
-		_ui->setupUi(this);
+void QuickSettingsWindow::setupUi() {
+	if (_ui) {
+		//Already initialized before
+		return;
 	}
+
+	_ui = new Ui::QuickSettingsWindow();
+	_ui->setupUi(this);
 
 	RETRANSLATE(this);
 
@@ -105,6 +105,17 @@ void QuickSettingsWindow::init() {
 	connect(_ui->aspectRatioCombo, SIGNAL(currentIndexChanged(int)), SLOT(setAspect(int)));
 	connect(_ui->scaleModeCombo, SIGNAL(currentIndexChanged(int)), SLOT(setScale(int)));
 
+	connect(_ui->audioEffectButton, SIGNAL(clicked()), SLOT(configureAudioEffect()));
+
+	connect(_ui->audioEffectsCombo, SIGNAL(currentIndexChanged(int)), SLOT(audioEffectChanged()));
+}
+
+void QuickSettingsWindow::init() {
+	_audioOutput = quarkPlayer().currentAudioOutput();
+	_mediaObject = quarkPlayer().currentMediaObject();
+	_videoWidget = quarkPlayer().currentVideoWidget();
+	_audioOutputPath = quarkPlayer().currentAudioOutputPath();
+
 	if (_videoWidget) {
 		_ui->brightnessSlider->setValue(int (_videoWidget->brightness() * SLIDER_RANGE));
 		_ui->hueSlider->setValue(int (_videoWidget->hue() * SLIDER_RANGE));
@@ -114,61 +125,61 @@ void QuickSettingsWindow::init() {
 		_ui->scaleModeCombo->setCurrentIndex(_videoWidget->scaleMode());
 	}
 
-	connect(_ui->effectButton, SIGNAL(clicked()), SLOT(configureEffect()));
-
 	_ui->crossFadeSlider->setValue((int) (2 * _mediaObject->transitionTime() / 1000.0f));
 
+	initAudioDevices();
+	initAudioEffects();
+}
+
+void QuickSettingsWindow::initAudioDevices() {
 	//Insert audio devices
+	_ui->audioDevicesCombo->clear();
 	QList<Phonon::AudioOutputDevice> devices = Phonon::BackendCapabilities::availableAudioOutputDevices();
 	for (int i = 0; i < devices.size(); i++) {
 		QString itemText = devices[i].name();
-		_ui->deviceCombo->addItem(itemText);
+		_ui->audioDevicesCombo->addItem(itemText);
 		if (devices[i] == _audioOutput->outputDevice()) {
-			_ui->deviceCombo->setCurrentIndex(i);
-			if (!devices[i].description().isEmpty()) {
-				//TODO Change tooltip when a different item is selected
-				_ui->deviceCombo->setToolTip(QString("%1").arg(devices[i].description()));
-			}
+			_ui->audioDevicesCombo->setCurrentIndex(i);
 		}
 	}
+}
 
+void QuickSettingsWindow::initAudioEffects() {
 	//Insert audio effects
+	_ui->audioEffectsCombo->clear();
 	_ui->audioEffectsCombo->addItem(tr("<no effect>"));
-	QList<Phonon::Effect *> currEffects = _audioOutputPath.effects();
-	Phonon::Effect * currEffect = currEffects.size() ? currEffects[0] : 0;
+	QList<Phonon::Effect *> currentEffects = _audioOutputPath.effects();
+	Phonon::Effect * currentEffect = currentEffects.size() ? currentEffects[0] : 0;
 	QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
 	for (int i = 0; i < availableEffects.size(); i++) {
 		_ui->audioEffectsCombo->addItem(availableEffects[i].name());
-		if (currEffect && availableEffects[i] == currEffect->description()) {
+		if (currentEffect && availableEffects[i] == currentEffect->description()) {
 			_ui->audioEffectsCombo->setCurrentIndex(i + 1);
 		}
 	}
-	connect(_ui->audioEffectsCombo, SIGNAL(currentIndexChanged(int)), SLOT(effectChanged()));
 }
 
 void QuickSettingsWindow::saveSettings() {
 	_mediaObject->setTransitionTime((int) (1000 * float(_ui->crossFadeSlider->value()) / 2.0f));
 	QList<Phonon::AudioOutputDevice> devices = Phonon::BackendCapabilities::availableAudioOutputDevices();
 
-	QList<Phonon::Effect *> currEffects;
+	QList<Phonon::Effect *> currentEffects;
 	if (_audioOutput) {
-		_audioOutput->setOutputDevice(devices[_ui->deviceCombo->currentIndex()]);
-		currEffects = _audioOutputPath.effects();
+		_audioOutput->setOutputDevice(devices[_ui->audioDevicesCombo->currentIndex()]);
+		currentEffects = _audioOutputPath.effects();
 	}
 
-	QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
-
 	if (_ui->audioEffectsCombo->currentIndex() > 0) {
-		Phonon::Effect * currentEffect = currEffects.size() ? currEffects[0] : 0;
+		Phonon::Effect * currentEffect = currentEffects.size() ? currentEffects[0] : 0;
 		if (!currentEffect || currentEffect->description() != _nextEffect->description()) {
-			foreach (Phonon::Effect * effect, currEffects) {
+			foreach (Phonon::Effect * effect, currentEffects) {
 				_audioOutputPath.removeEffect(effect);
 				delete effect;
 			}
 			_audioOutputPath.insertEffect(_nextEffect);
 		}
 	} else {
-		foreach (Phonon::Effect * effect, currEffects) {
+		foreach (Phonon::Effect * effect, currentEffects) {
 			_audioOutputPath.removeEffect(effect);
 			delete effect;
 			_nextEffect = NULL;
@@ -199,14 +210,14 @@ void QuickSettingsWindow::restoreSettings() {
 	}
 }
 
-void QuickSettingsWindow::effectChanged() {
+void QuickSettingsWindow::audioEffectChanged() {
 	int currentIndex = _ui->audioEffectsCombo->currentIndex();
-	if (_ui->audioEffectsCombo->currentIndex()) {
+	if (currentIndex > 0) {
 		QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
-		Phonon::EffectDescription chosenEffect = availableEffects[_ui->audioEffectsCombo->currentIndex() - 1];
+		Phonon::EffectDescription chosenEffect = availableEffects[currentIndex - 1];
 
-		QList<Phonon::Effect *> currEffects = _audioOutputPath.effects();
-		Phonon::Effect * currentEffect = currEffects.size() ? currEffects[0] : 0;
+		QList<Phonon::Effect *> currentEffects = _audioOutputPath.effects();
+		Phonon::Effect * currentEffect = currentEffects.size() ? currentEffects[0] : 0;
 
 		//Deleting the running effect will stop playback, it is deleted when removed from path
 		if (_nextEffect && !(currentEffect && (currentEffect->description().name() == _nextEffect->description().name()))) {
@@ -215,12 +226,12 @@ void QuickSettingsWindow::effectChanged() {
 
 		_nextEffect = new Phonon::Effect(chosenEffect);
 	}
-	_ui->effectButton->setEnabled(currentIndex);
+	_ui->audioEffectButton->setEnabled(currentIndex);
 }
 
-void QuickSettingsWindow::updateEffect() {
-	for (int k = 0; k < _nextEffect->parameters().size(); ++k) {
-		Phonon::EffectParameter param = _nextEffect->parameters()[k];
+void QuickSettingsWindow::updateAudioEffect() {
+	for (int i = 0; i < _nextEffect->parameters().size(); i++) {
+		Phonon::EffectParameter param = _nextEffect->parameters()[i];
 
 		switch (param.type()) {
 
@@ -241,8 +252,8 @@ void QuickSettingsWindow::updateEffect() {
 			break;
 
 		case QVariant::Bool: {
-			QCheckBox * cb = (QCheckBox *) _propertyControllers.value(param.name());
-			_nextEffect->setParameterValue(param, cb->isChecked());
+			QCheckBox * checkBox = (QCheckBox *) _propertyControllers.value(param.name());
+			_nextEffect->setParameterValue(param, checkBox->isChecked());
 			break;
 		}
 
@@ -258,19 +269,17 @@ void QuickSettingsWindow::updateEffect() {
 	}
 }
 
-void QuickSettingsWindow::configureEffect() {
-	QList<Phonon::Effect *> currEffects = _audioOutputPath.effects();
-	QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
-
-	if (_ui->audioEffectsCombo->currentIndex() > 0) {
+void QuickSettingsWindow::configureAudioEffect() {
+	int currentIndex = _ui->audioEffectsCombo->currentIndex();
+	if (currentIndex > 0) {
 		QList<Phonon::EffectDescription> availableEffects = Phonon::BackendCapabilities::availableAudioEffects();
-		Phonon::EffectDescription chosenEffect = availableEffects[_ui->audioEffectsCombo->currentIndex() - 1];
+		Phonon::EffectDescription chosenEffect = availableEffects[currentIndex - 1];
 
 		QDialog effectDialog(this);
 		effectDialog.setWindowTitle(tr("Configure effect"));
 		QVBoxLayout * topLayout = new QVBoxLayout(&effectDialog);
 
-		QLabel * description = new QLabel("<b>Description:</b><br>" + chosenEffect.description(), &effectDialog);
+		QLabel * description = new QLabel("<b>" + tr("Description") + ":</b><br>" + chosenEffect.description(), &effectDialog);
 		description->setWordWrap(true);
 		topLayout->addWidget(description);
 
@@ -284,10 +293,10 @@ void QuickSettingsWindow::configureEffect() {
 
 		if (_nextEffect) {
 			foreach (Phonon::EffectParameter param, _nextEffect->parameters()) {
-				QHBoxLayout * hlayout = new QHBoxLayout();
+				QHBoxLayout * hLayout = new QHBoxLayout();
 				QString labelName = param.name();
 				labelName[0] = labelName[0].toUpper();
-				hlayout->addWidget(new QLabel("<b>" + labelName + ":</b>"));
+				hLayout->addWidget(new QLabel("<b>" + labelName + ":</b>"));
 
 				if (param.type() == QVariant::Int) {
 					QSpinBox * spin = new QSpinBox(&effectDialog);
@@ -297,7 +306,7 @@ void QuickSettingsWindow::configureEffect() {
 					spin->setProperty("oldValue", currentValue.toInt());
 					spin->setValue(currentValue.toInt());
 					connect(spin, SIGNAL(valueChanged(int)), SLOT(updateEffect()));
-					hlayout->addWidget(spin);
+					hLayout->addWidget(spin);
 					_propertyControllers.insert(param.name(), spin);
 				}
 
@@ -312,7 +321,7 @@ void QuickSettingsWindow::configureEffect() {
 						slider->setValue((int) (SLIDER_RANGE * currentValue.toDouble()));
 						slider->setTickPosition(QSlider::TicksBelow);
 						slider->setTickInterval(TICK_INTERVAL);
-						hlayout->addWidget(slider);
+						hLayout->addWidget(slider);
 						connect(slider, SIGNAL(valueChanged(int)), SLOT(updateEffect()));
 						_propertyControllers.insert(param.name(), slider);
 					} else {
@@ -324,19 +333,19 @@ void QuickSettingsWindow::configureEffect() {
 						spin->setProperty("oldValue", currentValue);
 						spin->setValue(currentValue.toDouble());
 						connect(spin, SIGNAL(valueChanged(double)), SLOT(updateEffect()));
-						hlayout->addWidget(spin);
+						hLayout->addWidget(spin);
 						_propertyControllers.insert(param.name(), spin);
 					}
 				}
 
 				else if (param.type() == QVariant::Bool) {
-					QCheckBox * cb = new QCheckBox(&effectDialog);
+					QCheckBox * checkBox = new QCheckBox(&effectDialog);
 					QVariant currentValue = _nextEffect->parameterValue(param);
-					cb->setProperty("oldValue", currentValue);
-					cb->setChecked(currentValue.toBool());
-					connect(cb, SIGNAL(stateChanged(int)), SLOT(updateEffect()));
-					hlayout->addWidget(cb);
-					_propertyControllers.insert(param.name(), cb);
+					checkBox->setProperty("oldValue", currentValue);
+					checkBox->setChecked(currentValue.toBool());
+					connect(checkBox, SIGNAL(stateChanged(int)), SLOT(updateEffect()));
+					hLayout->addWidget(checkBox);
+					_propertyControllers.insert(param.name(), checkBox);
 				}
 
 				else if (param.type() == QVariant::String) {
@@ -345,16 +354,16 @@ void QuickSettingsWindow::configureEffect() {
 					edit->setProperty("oldValue", currentValue.toString());
 					edit->setText(currentValue.toString());
 					connect(edit, SIGNAL(returnPressed()), this, SLOT(updateEffect()));
-					hlayout->addWidget(edit);
+					hLayout->addWidget(edit);
 					_propertyControllers.insert(param.name(), edit);
 				}
-				scrollLayout->addLayout(hlayout);
+				scrollLayout->addLayout(hLayout);
 			}
 
-			QDialogButtonBox * bbox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &effectDialog);
-			connect(bbox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), &effectDialog, SLOT(accept()));
-			connect(bbox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), &effectDialog, SLOT(reject()));
-			topLayout->addWidget(bbox);
+			QDialogButtonBox * buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &effectDialog);
+			connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), &effectDialog, SLOT(accept()));
+			connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), &effectDialog, SLOT(reject()));
+			topLayout->addWidget(buttonBox);
 
 			scrollWidget->adjustSize();
 			effectDialog.adjustSize();
@@ -383,8 +392,8 @@ void QuickSettingsWindow::configureEffect() {
 						break;
 
 					case QVariant::Bool: {
-						QCheckBox * cb = (QCheckBox *) _propertyControllers.value(param.name());
-						_nextEffect->setParameterValue(param, cb->property("oldValue").toBool());
+						QCheckBox * checkBox = (QCheckBox *) _propertyControllers.value(param.name());
+						_nextEffect->setParameterValue(param, checkBox->property("oldValue").toBool());
 						break;
 					}
 
@@ -404,39 +413,39 @@ void QuickSettingsWindow::configureEffect() {
 	}
 }
 
-void QuickSettingsWindow::setSaturation(int val) {
+void QuickSettingsWindow::setSaturation(int value) {
 	if (_videoWidget) {
-		_videoWidget->setSaturation(val / qreal(SLIDER_RANGE));
+		_videoWidget->setSaturation(value / qreal(SLIDER_RANGE));
 	}
 }
 
-void QuickSettingsWindow::setHue(int val) {
+void QuickSettingsWindow::setHue(int value) {
 	if (_videoWidget) {
-		_videoWidget->setHue(val / qreal(SLIDER_RANGE));
+		_videoWidget->setHue(value / qreal(SLIDER_RANGE));
 	}
 }
 
-void QuickSettingsWindow::setAspect(int val) {
+void QuickSettingsWindow::setAspect(int value) {
 	if (_videoWidget) {
-		_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio(val));
+		_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio(value));
 	}
 }
 
-void QuickSettingsWindow::setScale(int val) {
+void QuickSettingsWindow::setScale(int value) {
 	if (_videoWidget) {
-		_videoWidget->setScaleMode(Phonon::VideoWidget::ScaleMode(val));
+		_videoWidget->setScaleMode(Phonon::VideoWidget::ScaleMode(value));
 	}
 }
 
-void QuickSettingsWindow::setBrightness(int val) {
+void QuickSettingsWindow::setBrightness(int value) {
 	if (_videoWidget) {
-		_videoWidget->setBrightness(val / qreal(SLIDER_RANGE));
+		_videoWidget->setBrightness(value / qreal(SLIDER_RANGE));
 	}
 }
 
-void QuickSettingsWindow::setContrast(int val) {
+void QuickSettingsWindow::setContrast(int value) {
 	if (_videoWidget) {
-		_videoWidget->setContrast(val / qreal(SLIDER_RANGE));
+		_videoWidget->setContrast(value / qreal(SLIDER_RANGE));
 	}
 }
 

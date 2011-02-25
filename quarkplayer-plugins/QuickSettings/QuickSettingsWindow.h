@@ -57,18 +57,18 @@ private slots:
 
 	void show();
 
-	void updateEffect();
+	void updateAudioEffect();
 
-	void effectChanged();
+	void audioEffectChanged();
 
-	void configureEffect();
+	void configureAudioEffect();
 
-	void setAspect(int);
-	void setScale(int);
-	void setSaturation(int);
-	void setContrast(int);
-	void setHue(int);
-	void setBrightness(int);
+	void setAspect(int value);
+	void setScale(int value);
+	void setSaturation(int value);
+	void setContrast(int value);
+	void setHue(int value);
+	void setBrightness(int value);
 
 	void saveSettings();
 
@@ -78,7 +78,13 @@ private slots:
 
 private:
 
+	void setupUi();
+
 	void init();
+
+	void initAudioDevices();
+
+	void initAudioEffects();
 
 	Ui::QuickSettingsWindow * _ui;
 
