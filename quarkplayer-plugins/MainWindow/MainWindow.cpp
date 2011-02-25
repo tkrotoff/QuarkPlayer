@@ -252,15 +252,9 @@ void MainWindow::populateActionCollection() {
 }
 
 void MainWindow::setupUi() {
-	//No central widget, only QDockWidget
-	//setCentralWidget(NULL);
-	/*QWidget * centralWidget = new QWidget();
-	centralWidget->setMaximumSize(0, 0);
-	centralWidget->setSizeIncrement(0, 0);
-	centralWidget->setBaseSize(0, 0);
-	centralWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-	centralWidget->setMinimumSize(0, 0);
-	setCentralWidget(centralWidget);*/
+	//Fake a central widget, Qt requires it
+	setCentralWidget(new QWidget());
+	centralWidget()->hide();
 	///
 
 	_menuFile = new QMenu();
@@ -434,17 +428,13 @@ void MainWindow::closeEvent(QCloseEvent * event) {
 
 void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget * lastDockWidget, QDockWidget * dockWidget) {
 	if (dockWidget) {
+
+		//Disable QDockWidget features
+		//The dock widget cannot be closed, moved, or floated
 		//dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
 
-#ifdef Q_WS_MAC
-		//QDockWidgets cannot be floatable under Mac
-		//so let's fully disable this feature
-		dockWidget->setFloating(false);
-#endif	//Q_WS_MAC
-
-		//To hide the title bar completely
-		//we must replace the default widget with a generic one
-		dockWidget->setTitleBarWidget(new QWidget(this));
+		//Hide the title bar
+		//dockWidget->setTitleBarWidget(new QWidget(this));
 
 		QMainWindow::addDockWidget(area, dockWidget);
 		if (lastDockWidget) {

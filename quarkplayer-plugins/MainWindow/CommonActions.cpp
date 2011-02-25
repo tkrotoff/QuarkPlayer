@@ -128,7 +128,7 @@ void CommonActions::populateActionCollection() {
 	action->setCheckable(true);
 	Actions.add("Common.FullScreen", action);
 
-	action = new TkAction(app, tr("Esc"));
+	action = new TkAction(app, tr("Esc"), tr("Backspace"));
 	Actions.add("Common.FullScreenExit", action);
 }
 

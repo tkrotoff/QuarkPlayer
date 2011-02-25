@@ -133,9 +133,13 @@ void DragAndDropTreeView::populateActionCollection() {
 
 	_actions.add("Playlist.PlayItem", new QAction(app));
 	_actions.add("Playlist.RemoveItem", new QAction(app));
+
 	TkAction * action = new TkAction(app, tr("Ctrl+I"), tr("Alt+3"));
 	action->setShortcutContext(Qt::ApplicationShortcut);
 	_actions.add("Playlist.GetInfo", action);
+	//Add it directly to the widget otherwise the shortcuts won't work
+	addAction(_actions["Playlist.GetInfo"]);
+
 	_actions.add("Playlist.OpenDir", new QAction(app));
 }
 
