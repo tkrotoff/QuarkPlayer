@@ -69,6 +69,18 @@ struct FileType {
 
 		//Audio
 
+		//Lossy audio
+		MP2,
+		MP3,
+		Speex,
+		Vorbis,
+		AAC,
+		MPC,
+		VQF,
+		RealAudio,
+		MID,
+		MOD,
+
 		//Lossless audio
 		AIFF,
 		AU,
@@ -81,18 +93,7 @@ struct FileType {
 		WavPack,
 		WMA,
 		OptimFROG,
-
-		//Lossy audio
-		MP2,
-		MP3,
-		Speex,
-		Vorbis,
-		AAC,
-		MPC,
-		VQF,
-		RealAudio,
-		MID,
-		MOD,
+		Shorten,
 
 		//Playlist
 		ASX,
