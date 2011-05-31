@@ -22,7 +22,6 @@
 #include <TkUtil/TkUtilExport.h>
 
 #include <QtCore/QThread>
-#include <QtCore/QUuid>
 #include <QtCore/QStringList>
 #include <QtCore/QRegExp>
 
@@ -135,26 +134,23 @@ public:
 	 */
 	void stop();
 
-public slots:
-
-	void start(const QUuid & uuid);
-
 signals:
 
 	/**
 	 * Sends the signal every _filesFoundLimit files found.
 	 *
 	 * @param files list of files (full path fileName)
-	 * @param uuid each search has its own unique id
 	 */
-	void filesFound(const QStringList & files, const QUuid & uuid);
+	void filesFound(const QStringList & files);
 
 	/**
 	 * Sends the signal after all filesFound() signals, this is the last signal sent.
 	 *
-	 * Guaranteed to be sent only once.
+	 * Guaranteed to be sent only once even if stop() has been called.
+	 *
+	 * @param timeElapsed number of milliseconds that have elapsed since the last time start()
 	 */
-	void finished(int timeElapsed, const QUuid & uuid);
+	void finished(int timeElapsed);
 
 private:
 
@@ -226,8 +222,6 @@ private:
 	 * rather use a local copy, fetched on entry into your while loop.
 	 */
 	volatile bool _stop;
-
-	QUuid _uuid;
 
 	/**
 	 * Backend to use to search files, native or Qt way.

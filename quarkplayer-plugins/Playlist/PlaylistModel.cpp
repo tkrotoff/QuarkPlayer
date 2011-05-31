@@ -360,16 +360,16 @@ void PlaylistModel::addFiles(const QStringList & files, int row) {
 
 			//FIXME Use QSharedPointer here?
 			FindFiles * findFiles = new FindFiles(this);
-			connect(findFiles, SIGNAL(filesFound(const QStringList &, const QUuid &)),
+			connect(findFiles, SIGNAL(filesFound(const QStringList &)),
 				SLOT(filesFound(const QStringList &)));
-			connect(findFiles, SIGNAL(finished(int, const QUuid &)),
+			connect(findFiles, SIGNAL(finished(int)),
 				SLOT(searchFinished(int)));
 			findFiles->setSearchPath(fileName);
 			findFiles->setFilesFoundLimit(500);
 			findFiles->setFindDirs(false);
 			FindFiles::setBackend(static_cast<FindFiles::Backend>(
 				Config::instance().value(Config::FINDFILES_BACKEND_KEY).toInt()));
-			findFiles->start(QUuid::createUuid());
+			findFiles->start();
 		}
 
 		//Is a multimedia file?

@@ -28,7 +28,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTime>
-#include <QtCore/QMetaType>
 
 #ifdef Q_WS_WIN
 	#include <windows.h>
@@ -43,8 +42,6 @@ FindFiles::Backend FindFiles::_backend = FindFiles::BackendNative;
 
 FindFiles::FindFiles(QObject * parent)
 	: QThread(parent) {
-
-	qRegisterMetaType<QUuid>("QUuid");
 
 	_findDirs = false;
 	_recursiveSearch = true;
@@ -89,18 +86,16 @@ void FindFiles::stop() {
 	wait();
 }
 
-void FindFiles::start(const QUuid & uuid) {
-	_uuid = uuid;
-	QThread::start();
-}
-
 void FindFiles::run() {
 	Q_ASSERT(!_path.isEmpty());
 
+#ifdef Q_WS_WIN
+	//Remove the last / under Windows
 	//C:/ -> C:
 	if (_path.endsWith('/') || _path.endsWith('\\')) {
 		_path = _path.left(_path.length() - 1);
 	}
+#endif	//Q_WS_WIN
 
 	//Converts to native separators, otherwise FindFirstFile()
 	//under Windows won't work if '/' separators are found
@@ -133,13 +128,12 @@ void FindFiles::run() {
 	if (!_stop) {
 		//Emits the signal for the remaining files found
 		if (!_files.isEmpty()) {
-			emit filesFound(_files, _uuid);
+			emit filesFound(_files);
 			_files.clear();
 		}
-
-		//Emits the last signal
-		emit finished(timeElapsed.elapsed(), _uuid);
 	}
+
+	emit finished(timeElapsed.elapsed());
 }
 
 void FindFiles::findAllFilesQt(const QString & path) {
@@ -156,7 +150,13 @@ void FindFiles::findAllFilesQt(const QString & path) {
 			break;
 		}
 
-		QString fileName(path + QDir::separator() + name);
+		QString fileName;
+		if (path.endsWith(QDir::separator())) {
+			//Avoids / (or \) to be doubled in case path == "/"
+			fileName = path + name;
+		} else {
+			fileName = path + QDir::separator() + name;
+		}
 
 		if (TkFile::isDir(fileName)) {
 			//Filter directory matching the given pattern
@@ -179,7 +179,7 @@ void FindFiles::findAllFilesQt(const QString & path) {
 			if (_files.size() > _filesFoundLimit) {
 				//Emits the signal every _filesFoundLimit files found
 				if (!_stop) {
-					emit filesFound(_files, _uuid);
+					emit filesFound(_files);
 				}
 				_files.clear();
 			}
@@ -221,7 +221,14 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 			}
 
 			QString name(QString::fromUtf16(reinterpret_cast<const unsigned short *>(fileData.cFileName)));
-			QString fileName(path + QDir::separator() + name);
+
+			QString fileName;
+			if (path.endsWith(QDir::separator())) {
+				//Avoids / (or \) to be doubled in case path == "/"
+				fileName = path + name;
+			} else {
+				fileName = path + QDir::separator() + name;
+			}
 
 			//Check if the object is a directory or not
 			if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
@@ -249,7 +256,7 @@ void FindFiles::findAllFilesWin32(const QString & path) {
 				if (_files.size() > _filesFoundLimit) {
 					//Emits the signal every _filesFoundLimit files found
 					if (!_stop) {
-						emit filesFound(_files, _uuid);
+						emit filesFound(_files);
 					}
 					_files.clear();
 				}
@@ -298,7 +305,13 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 			//Avoid '.', '..' and other hidden files
 			if (!name.startsWith('.')) {
 
-				QString fileName(path + QDir::separator() + name);
+				QString fileName;
+				if (path.endsWith(QDir::separator())) {
+					//Avoids / (or \) to be doubled in case path == "/"
+					fileName = path + name;
+				} else {
+					fileName = path + QDir::separator() + name;
+				}
 
 				if (TkFile::isDir(fileName)) {
 					//Filter directory matching the given pattern
@@ -321,7 +334,7 @@ void FindFiles::findAllFilesUNIX(const QString & path) {
 					if (_files.size() > _filesFoundLimit) {
 						//Emits the signal every _filesFoundLimit files found
 						if (!_stop) {
-							emit filesFound(_files, _uuid);
+							emit filesFound(_files);
 						}
 						_files.clear();
 					}

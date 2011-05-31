@@ -385,9 +385,9 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 		//Lazy initialization
 		_findFiles = new FindFiles(this);
 
-		connect(_findFiles, SIGNAL(filesFound(const QStringList &, const QUuid &)),
-			SLOT(filesFound(const QStringList &, const QUuid &)), Qt::QueuedConnection);
-		connect(_findFiles, SIGNAL(finished(int, const QUuid &)),
+		connect(_findFiles, SIGNAL(filesFound(const QStringList &)),
+			SLOT(filesFound(const QStringList &)), Qt::QueuedConnection);
+		connect(_findFiles, SIGNAL(finished(int)),
 			SIGNAL(searchFinished(int)), Qt::QueuedConnection);
 	}
 
@@ -409,8 +409,7 @@ void FileSearchModel::search(const QString & path, const QRegExp & pattern, int 
 		Config::instance().value(Config::FINDFILES_BACKEND_KEY).toInt()));
 
 	//Starts a new search
-	_currentSearchUuid = QUuid::createUuid();
-	_findFiles->start(_currentSearchUuid);
+	_findFiles->start();
 }
 
 void FileSearchModel::stop() {
@@ -419,12 +418,7 @@ void FileSearchModel::stop() {
 	}
 }
 
-void FileSearchModel::filesFound(const QStringList & files, const QUuid & uuid) {
-	if (_currentSearchUuid != uuid) {
-		//filesFound() signal from a previous _findFiles, let's discards it
-		return;
-	}
-
+void FileSearchModel::filesFound(const QStringList & files) {
 	emit layoutAboutToBeChanged();
 
 	//Append the files

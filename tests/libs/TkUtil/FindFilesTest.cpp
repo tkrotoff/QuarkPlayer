@@ -26,54 +26,133 @@
 QTEST_MAIN(FindFilesTest)
 
 void FindFilesTest::initTestCase() {
-	_findFiles = new FindFiles(this);
-	connect(_findFiles, SIGNAL(filesFound(const QStringList &, const QUuid &)),
-		SLOT(filesFound(const QStringList &, const QUuid &)));
-	connect(_findFiles, SIGNAL(finished(int, const QUuid &)),
-		SLOT(finished(int, const QUuid &)));
 }
 
 void FindFilesTest::cleanupTestCase() {
 }
 
-void FindFilesTest::test() {
-	_findFiles->setSearchPath("../../tests/libs/TkUtil/tests");
+void FindFilesTest::init() {
+}
 
-	QSignalSpy spyFilesFound(_findFiles, SIGNAL(filesFound(const QStringList &, const QUuid &)));
-	QSignalSpy spyFinished(_findFiles, SIGNAL(finished(int, const QUuid &)));
+void FindFilesTest::cleanup() {
+}
 
-	TkUtilDebug() << spyFinished.count();
+void FindFilesTest::testUTF8() {
+	FindFiles * findFiles = new FindFiles(this);
+	connect(findFiles, SIGNAL(filesFound(const QStringList &)),
+		SLOT(filesFound(const QStringList &)));
+	connect(findFiles, SIGNAL(finished(int)),
+		SLOT(finished(int)));
 
-	QUuid uuid = QUuid::createUuid();
-	_findFiles->start(uuid);
+	QSignalSpy spyFilesFound(findFiles, SIGNAL(filesFound(const QStringList &)));
+	QVERIFY(spyFilesFound.isValid());
+	QSignalSpy spyFinished(findFiles, SIGNAL(finished(int)));
+	QVERIFY(spyFinished.isValid());
 
-	TkUtilDebug() << spyFilesFound.count();
-	TkUtilDebug() << spyFinished.count();
+	findFiles->setSearchPath("../../tests/libs/TkUtil/FindFilesTests");
+	findFiles->start();
 
-	//if (spyFinished.count() == 0) {
-		QTestEventLoop::instance().enterLoop(30);
-		QVERIFY(!QTestEventLoop::instance().timeout());
-	//}
+	//Wait a bit...
+	while (spyFinished.count() == 0) {
+		QTest::qWait(200);
+	}
+
+	QCOMPARE(spyFilesFound.count(), 1);
+	QCOMPARE(spyFinished.count(), 1);
 
 	/*
-	_findFiles->setFilesFoundLimit();
-	_findFiles->setPattern();
-	_findFiles->setExtensions();
-	_findFiles->setFindDirs();
-	_findFiles->setRecursiveSearch();
-	_findFiles->stop();
+	findFiles->setFilesFoundLimit();
+	findFiles->setPattern();
+	findFiles->setExtensions();
+	findFiles->setFindDirs();
+	findFiles->setRecursiveSearch();
+	findFiles->stop();
 	*/
 }
 
-void FindFilesTest::filesFound(const QStringList & files, const QUuid & uuid) {
-	TkUtilDebug() << files << uuid;
-	QTextEdit * textEdit = new QTextEdit(NULL);
+void FindFilesTest::filesFoundUTF8(const QStringList & files) {
+	TkUtilDebug() << "Files found:" << files.size();
+
+	static QTextEdit * textEdit = NULL;
+	if (!textEdit) {
+		textEdit = new QTextEdit(NULL);
+	}
+	textEdit->setText(files.join("\n"));
+	textEdit->show();
+
+	QCOMPARE(files.size(), 4);
+}
+
+
+void FindFilesTest::testStartStop() {
+	FindFiles * findFiles = new FindFiles(this);
+	connect(findFiles, SIGNAL(filesFound(const QStringList &)),
+		SLOT(filesFound(const QStringList &)));
+	connect(findFiles, SIGNAL(finished(int)),
+		SLOT(finished(int)));
+
+	QSignalSpy spyFilesFound(findFiles, SIGNAL(filesFound(const QStringList &)));
+	QVERIFY(spyFilesFound.isValid());
+	QSignalSpy spyFinished(findFiles, SIGNAL(finished(int)));
+	QVERIFY(spyFinished.isValid());
+
+	findFiles->setSearchPath("/");
+	findFiles->start();
+
+	//Waits 10s before to stop
+	QTest::qWait(10000);
+	findFiles->stop();
+
+	//Wait a bit otherwise finished() signal is never catched
+	QTest::qWait(200);
+
+	QVERIFY(spyFilesFound.count() > 0);
+	TkUtilDebug() << "filesFound() signals:" << spyFilesFound.count();
+	QCOMPARE(spyFinished.count(), 1);
+}
+
+void FindFilesTest::finishedStartStop(int timeElapsed) {
+	QVERIFY(timeElapsed > 10000);
+	QVERIFY(timeElapsed < 11000);
+}
+
+
+void FindFilesTest::testRecursionOff() {
+	FindFiles * findFiles = new FindFiles(this);
+	connect(findFiles, SIGNAL(filesFound(const QStringList &)),
+		SLOT(filesFound(const QStringList &)));
+	connect(findFiles, SIGNAL(finished(int)),
+		SLOT(finished(int)));
+
+	QSignalSpy spyFilesFound(findFiles, SIGNAL(filesFound(const QStringList &)));
+	QVERIFY(spyFilesFound.isValid());
+	QSignalSpy spyFinished(findFiles, SIGNAL(finished(int)));
+	QVERIFY(spyFinished.isValid());
+
+	findFiles->setSearchPath("../../tests/libs/TkUtil/FindFilesTests");
+	findFiles->setRecursiveSearch(false);	//Default is true
+	findFiles->start();
+
+	//Wait a bit...
+	while (spyFinished.count() == 0) {
+		QTest::qWait(200);
+	}
+
+	QCOMPARE(spyFilesFound.count(), 0);
+	QCOMPARE(spyFinished.count(), 1);
+}
+
+void FindFilesTest::filesFound(const QStringList & files) {
+	TkUtilDebug() << "Files found:" << files.size();
+
+	static QTextEdit * textEdit = NULL;
+	if (!textEdit) {
+		textEdit = new QTextEdit(NULL);
+	}
 	textEdit->setText(files.join("\n"));
 	textEdit->show();
 }
 
-void FindFilesTest::finished(int timeElapsed, const QUuid & uuid) {
-	TkUtilDebug() << timeElapsed << uuid;
-
-	//QTestEventLoop::instance().exitLoop();
+void FindFilesTest::finished(int timeElapsed) {
+	TkUtilDebug() << timeElapsed;
 }

@@ -23,8 +23,6 @@
 
 #include <QtCore/QStringList>
 
-class FindFiles;
-
 /**
  * Test for FindFiles.
  *
@@ -41,15 +39,30 @@ private slots:
 	/** Called after the last testfunction was executed. */
 	void cleanupTestCase();
 
-	void test();
+	/** Called before each testfunction is executed. */
+	void init();
 
-	void filesFound(const QStringList & files, const QUuid & uuid);
+	/** Called after every testfunction. */
+	void cleanup();
 
-	void finished(int timeElapsed, const QUuid & uuid);
+
+	void testUTF8();
+
+	void testStartStop();
+
+	void testRecursionOff();
+
+protected slots:
+
+	void filesFoundUTF8(const QStringList & files);
+
+	void finishedStartStop(int timeElapsed);
+
+	void filesFound(const QStringList & files);
+
+	void finished(int timeElapsed);
 
 private:
-
-	FindFiles * _findFiles;
 };
 
 #endif	//FINDFILESTEST_H

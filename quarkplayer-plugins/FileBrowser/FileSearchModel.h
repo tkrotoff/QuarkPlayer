@@ -140,7 +140,7 @@ signals:
 
 private slots:
 
-	void filesFound(const QStringList & files, const QUuid & uuid);
+	void filesFound(const QStringList & files);
 
 	void updateMediaInfo(const MediaInfo & mediaInfo);
 
@@ -174,8 +174,6 @@ private:
 
 	/** Used internally for tooltips. */
 	QString _rootSearchPath;
-
-	QUuid _currentSearchUuid;
 
 	/** Icon provider: gives us the icons matching a file extension. */
 	QFileIconProvider _iconProvider;
