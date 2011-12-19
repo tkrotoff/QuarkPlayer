@@ -30,7 +30,16 @@ static const char * AMAZON_WEB_SERVICE_ACCESS_KEY_ID = "1BPZGMNT4PWSJS6NHG02";
 //Your Secret Access Key:
 static const char * AMAZON_WEB_SERVICE_SECRET_KEY = "RfD3RoKwZ+5GpJa/i03jhoiDZM26OAc+TPpXMps0";
 
+void disableMessageOutput(QtMsgType type, const char * msg) {
+	Q_UNUSED(type);
+	Q_UNUSED(msg);
+}
+
 void AmazonCoverArtTest::initTestCase() {
+	//Disable qDebug() and friends
+	qInstallMsgHandler(disableMessageOutput);
+	///
+
 	_amazonCoverArt = new AmazonCoverArt(AMAZON_WEB_SERVICE_ACCESS_KEY_ID, AMAZON_WEB_SERVICE_SECRET_KEY, this);
 	connect(_amazonCoverArt,
 		SIGNAL(finished(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),
@@ -53,28 +62,28 @@ void AmazonCoverArtTest::fetch_data() {
 
 	QTest::newRow("Michael Jackson") << "Michael Jackson" << "Off the Wall" << ""
 		<< static_cast<int>(QNetworkReply::NoError)
-		<< QRegExp("http://ecx.images-amazon.com/images/I/51mV9uUEKcL.jpg")
-		<< 44481;
+		<< QRegExp("^http://ecx.images-amazon.com/images/I/.*.jpg$")
+		<< 42381;
 
 	QTest::newRow("Noir Désir") << "Noir Désir" << "666.667 Club" << ""
 		<< static_cast<int>(QNetworkReply::NoError)
-		<< QRegExp("http://ecx.images-amazon.com/images/I/51me4zSIBML.jpg")
-		<< 61027;
+		<< QRegExp("^http://ecx.images-amazon.com/images/I/.*.jpg$")
+		<< 45356;
 
 	QTest::newRow("Non existing") << "Non existing artist" << "Non existing album" << ""
 		<< static_cast<int>(QNetworkReply::ContentNotFoundError)
-		<< QRegExp("http://webservices.amazon.com/onca/xml.*")
+		<< QRegExp("^http://webservices.amazon.com/onca/xml.*")
 		<< 0;
 
 	QTest::newRow("Empty") << "" << "" << ""
 		<< static_cast<int>(QNetworkReply::ContentNotFoundError)
-		<< QRegExp("http://webservices.amazon.com/onca/xml.*")
+		<< QRegExp("^http://webservices.amazon.com/onca/xml.*$")
 		<< 0;
 
 	QTest::newRow("ASIN") << "" << "" << "B00005QGAT"
 		<< static_cast<int>(QNetworkReply::NoError)
-		<< QRegExp("http://ecx.images-amazon.com/images/I/51mV9uUEKcL.jpg")
-		<< 44481;
+		<< QRegExp("^http://ecx.images-amazon.com/images/I/.*.jpg$")
+		<< 42381;
 }
 
 void AmazonCoverArtTest::fetch() {

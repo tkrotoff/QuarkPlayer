@@ -24,7 +24,16 @@
 
 QTEST_MAIN(WikipediaArticleTest)
 
+void disableMessageOutput(QtMsgType type, const char * msg) {
+	Q_UNUSED(type);
+	Q_UNUSED(msg);
+}
+
 void WikipediaArticleTest::initTestCase() {
+	//Disable qDebug() and friends
+	qInstallMsgHandler(disableMessageOutput);
+	///
+
 	_wikipediaArticle = new WikipediaArticle(this);
 	connect(_wikipediaArticle,
 		SIGNAL(finished(QNetworkReply::NetworkError, const QUrl &, const QByteArray &, const ContentFetcherTrack &)),

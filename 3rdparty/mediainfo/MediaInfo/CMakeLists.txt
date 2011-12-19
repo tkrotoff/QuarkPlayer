@@ -180,6 +180,7 @@ target_link_libraries(MediaInfo
 set_target_properties(MediaInfo PROPERTIES
 	VERSION ${MEDIAINFO_VERSION}
 	SOVERSION ${MEDIAINFO_MAJOR_VERSION}
+	PREFIX ""
 )
 
 install(TARGETS MediaInfo ${INSTALL_TARGETS_DEFAULT_ARGS})
